@@ -99,7 +99,6 @@ section Utils
     worker arrives. -/
     | crashed (queuedMsgs : Array JsonRpc.Message)
     | running
-    | exiting
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
 
@@ -124,7 +123,7 @@ section FileWorker
     doc                : OpenDocument
     proc               : Process.Child workerCfg
     commTask           : Task WorkerEvent
-    state              : IO.Ref WorkerState
+    state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
     /-- The pending requests map contains all requests
     that have been received from the LSP client, but were not answered yet.
@@ -225,8 +224,7 @@ section ServerM
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let ctx ← read
-    let o := ctx.hOut
+    let o := (←read).hOut
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
@@ -248,17 +246,6 @@ section ServerM
               if let Except.ok params := FromJson.fromJson? <| ToJson.toJson params then
                 handleIleanInfoFinal fw params
           | _ => o.writeLspMessage msg
-
-        match (← fw.state.get) with
-        | .exiting =>
-          -- the above may have just sent the response to the "exit" command,
-          -- and now we ensure that clear diagnostics is the last thing we should do
-          -- so we never leave stale diagnostics around for this file.
-          let meta := fw.doc.meta
-          publishDiagnostics meta #[] o
-          return WorkerEvent.terminated
-        | _ => pure
-
       catch err =>
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
@@ -268,6 +255,7 @@ section ServerM
           fw.errorPendingRequests o ErrorCode.contentModified
             (s!"The file worker for {fw.doc.meta.uri} has been terminated. Either the header has changed,"
             ++ " or the file was closed, or the server is shutting down.")
+          publishDiagnostics fw.doc.meta #[] o
           return WorkerEvent.terminated
         else
           -- Worker crashed
@@ -297,7 +285,7 @@ section ServerM
       doc                := ⟨m, headerAst⟩
       proc               := workerProc
       commTask           := Task.pure WorkerEvent.terminated
-      state              := ← IO.mkRef WorkerState.running
+      state              := WorkerState.running
       pendingRequestsRef := pendingRequestsRef
       groupedEditsRef    := ← IO.mkRef none
     }
@@ -320,7 +308,6 @@ section ServerM
   def terminateFileWorker (uri : DocumentUri) : ServerM Unit := do
     let fw ← findFileWorker! uri
     try
-      fw.state.modify (λ _ => WorkerState.exiting)
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
       /- The file worker must have crashed just when we were about to terminate it!
@@ -333,7 +320,7 @@ section ServerM
     eraseFileWorker uri
 
   def handleCrash (uri : DocumentUri) (queuedMsgs : Array JsonRpc.Message) : ServerM Unit := do
-    (←findFileWorker! uri).state.modify (λ _ => WorkerState.crashed queuedMsgs)
+    updateFileWorkers { ←findFileWorker! uri with state := WorkerState.crashed queuedMsgs }
 
   /-- Tries to write a message, sets the state of the FileWorker to `crashed` if it does not succeed
       and restarts the file worker if the `crashed` flag was already set. Just logs an error if there
@@ -351,7 +338,7 @@ section ServerM
       | none    => (false, none)
     if pendingEdit then
       return
-    match (← fw.state.get) with
+    match (fw.state) with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then
@@ -371,7 +358,7 @@ section ServerM
           crashedMsgs := crashedMsgs.push msg
       if ¬ crashedMsgs.isEmpty then
         handleCrash uri crashedMsgs
-    | _ =>
+    | WorkerState.running =>
       let initialQueuedMsgs :=
         if queueFailedMessage then
           #[msg]
@@ -602,7 +589,7 @@ section MainLoop
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
     for (_, fw) in workers do
-      if let WorkerState.running := (← fw.state.get) then
+      if let WorkerState.running := fw.state then
         workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
         if let some ge ← fw.groupedEditsRef.get then
           workerTasks := workerTasks.push <| ge.signalTask.map (ServerEvent.workerEvent fw)

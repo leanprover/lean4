@@ -36,6 +36,9 @@ def normalizeFVarIds (decl : Decl) : CoreM Decl := do
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
 
+def saveMono : Pass :=
+  .mkPerDeclaration `saveMono (fun decl => do (← normalizeFVarIds decl).saveMono; return decl) .mono
+
 def builtinPassManager : PassManager := {
   passes := #[
     init,
@@ -51,7 +54,9 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 2),
     cse,
     saveBase, -- End of base phase
-    toMono
+    toMono,
+    -- TODO: lambda lifting, reduce function arity
+    saveMono  -- End of mono phase
   ]
 }
 

@@ -12,6 +12,7 @@ import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.ToMono
 
 namespace Lean.Compiler.LCNF
 
@@ -49,7 +50,8 @@ def builtinPassManager : PassManager := {
     specialize,
     simp (occurrence := 2),
     cse,
-    saveBase -- End of base phase
+    saveBase, -- End of base phase
+    toMono
   ]
 }
 

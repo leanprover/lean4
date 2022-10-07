@@ -282,12 +282,13 @@ endif()
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
-string(APPEND LEANC_EXTRA_FLAGS " -fdata-sections -ffunction-sections")
+string(APPEND LEANC_EXTRA_FLAGS " -ffunction-sections")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  # `-fdata-sections` makes `lake` segfault?
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
 else()
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -fdata-sections -Wl,--gc-sections")
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

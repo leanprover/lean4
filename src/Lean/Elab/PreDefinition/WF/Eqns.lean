@@ -206,7 +206,7 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     }
   return thmNames
 
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension `wfEqInfo
+builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : CoreM Unit := do
   let declNames := preDefs.map (·.declName)

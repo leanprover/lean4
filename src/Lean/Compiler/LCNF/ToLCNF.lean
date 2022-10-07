@@ -198,9 +198,11 @@ structure State where
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
   /--
-  Fields that are type formers must be replaced with `lcAny`
+  Fields that are type formers must be replaced with `◾`
   in the resulting code. Otherwise, we have data occurring in
   types.
+  When converting a `casesOn` into LCNF, we add constructor fields
+  that are types and type formers into this set. See `visitCases`.
   -/
   toAny : FVarIdSet := {}
 
@@ -278,14 +280,14 @@ def withNewScope (x : M α) : M α := do
     set saved
 
 /-
-Replace free variables in `type'` that occur in `toAny` into `lcAny`.
+Replace free variables in `type'` that occur in `toAny` into `◾`.
 Recall that we populate `toAny` with the free variable ids of fields that
 are type formers. This can happen when we have a field whose type is, for example, `Type u`.
 -/
 def applyToAny (type : Expr) : M Expr := do
   let toAny := (← get).toAny
   return type.replace fun
-    | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
+    | .fvar fvarId => if toAny.contains fvarId then some erasedExpr else none
     | _ => none
 
 def toLCNFType (type : Expr) : M Expr := do
@@ -410,7 +412,7 @@ where
       | .forallE ..  => unreachable!
       | .mvar ..     => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
       | .bvar ..     => unreachable!
-      | .fvar fvarId => if (← get).toAny.contains fvarId then pure anyTypeExpr else pure e
+      | .fvar fvarId => if (← get).toAny.contains fvarId then pure erasedExpr else pure e
       | _            => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r
@@ -539,14 +541,14 @@ where
           for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
             let (altType, alt) ← visitAlt ctorName numParams args[i]!
             unless (← compatibleTypes altType resultType) do
-              resultType := anyTypeExpr
+              resultType := erasedExpr
             alts := alts.push alt
-          if resultType.isAnyType || resultType.isErased then
+          if resultType.isErased || resultType.isErased then
             /-
-            If the result type for a `cases` is `⊤` or `◾`, we put a cast to `⊤`
-            at every alternative that does not have `⊤` type.
+            If the result type for a `cases` is `◾`, we put a cast to `◾` (aka the any type)
+            at every alternative that does not have `◾` type.
             The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
-            or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `⊤`
+            or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `◾`
             to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
             sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
             -/

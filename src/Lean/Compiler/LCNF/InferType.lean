@@ -92,8 +92,8 @@ def mkForallParams (params : Array Param) (type : Expr) : InferTypeM Expr :=
     k (.fvar fvarId)
 
 def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
-  if declName == ``lcAny || declName == ``lcErased then
-    return anyTypeExpr
+  if declName == ``lcErased then
+    return erasedExpr
   else if let some decl ← getDecl? declName then
     return decl.instantiateTypeLevelParams us
   else
@@ -129,7 +129,7 @@ mutual
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
         | _ =>
-          if fType.isAnyType then return anyTypeExpr
+          if fType.isErased then return erasedExpr
           throwError "function expected{indentExpr (mkAppN f args[:i])} : {fType}\nfunction type{indentExpr (← inferType f)}"
     return fType.instantiateRevRange j args.size args |>.headBeta
 
@@ -140,9 +140,9 @@ mutual
     let failed {α} : Unit → InferTypeM α := fun _ =>
       throwError "invalid projection{indentExpr (mkProj structName idx s)}"
     let structType := (← inferType s).headBeta
-    if structType.isAnyType then
+    if structType.isErased then
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
-      return anyTypeExpr
+      return erasedExpr
     else
       matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
         let n := structVal.numParams
@@ -156,23 +156,23 @@ mutual
             | .forallE _ _ body _ =>
               if body.hasLooseBVars then
                 -- This can happen when one of the fields is a type or type former.
-                ctorType := body.instantiate1 anyTypeExpr
+                ctorType := body.instantiate1 erasedExpr
               else
                 ctorType := body
             | _ =>
-              if ctorType.isAnyType then return anyTypeExpr
+              if ctorType.isErased then return erasedExpr
               failed ()
           match ctorType with
           | .forallE _ d _ _ => return d
           | _ =>
-            if ctorType.isAnyType then return anyTypeExpr
+            if ctorType.isErased then return erasedExpr
             failed ()
 
   partial def getLevel? (type : Expr) : InferTypeM (Option Level) := do
     match (← inferType type) with
     | .sort u => return some u
     | e =>
-      if e.isAnyType then
+      if e.isErased then
         return none
       else
         throwError "type expected{indentExpr type}"
@@ -187,11 +187,11 @@ mutual
           go b (fvars.push fvar)
       | _ =>
         let e := e.instantiateRev fvars
-        let some u ← getLevel? e | return anyTypeExpr
+        let some u ← getLevel? e | return erasedExpr
         let mut u := u
         for x in fvars.reverse do
           let xType ← inferType x
-          let some v ← getLevel? xType | return anyTypeExpr
+          let some v ← getLevel? xType | return erasedExpr
           u := mkLevelIMax' v u
         return .sort u.normalize
 
@@ -217,7 +217,7 @@ def inferType (e : Expr) : CompilerM Expr :=
 def getLevel (type : Expr) : CompilerM Level := do
   match (← inferType type) with
   | .sort u => return u
-  | e => if e.isAnyType then return levelOne else throwError "type expected{indentExpr type}"
+  | e => if e.isErased then return levelOne else throwError "type expected{indentExpr type}"
 
 /-- Create `lcCast expectedType e : expectedType` -/
 def mkLcCast (e : Expr) (expectedType : Expr) : CompilerM Expr := do
@@ -260,19 +260,6 @@ def mkAuxJpDecl' (param : Param) (code : Code) (prefixName := `_jp) : CompilerM 
   let params := #[param]
   mkAuxFunDecl params code prefixName
 
-def instantiateForall (type : Expr) (params : Array Param) : CoreM Expr :=
-  go type 0
-where
-  go (type : Expr) (i : Nat) : CoreM Expr :=
-    if h : i < params.size then
-      let p := params[i]
-      match type.headBeta with
-      | .forallE _ _ b _ => go (b.instantiate1 (.fvar p.fvarId)) (i+1)
-      | _ => throwError "invalid instantiateForall, too many parameters"
-    else
-      return type
-termination_by go i => params.size - i
-
 def mkCasesResultType (alts : Array Alt) : CompilerM Expr := do
   if alts.isEmpty then
     throwError "`Code.bind` failed, empty `cases` found"
@@ -312,9 +299,7 @@ Remark: if the result is `true`, then `a` and `b` are indeed compatible.
 If it is `false`, we must use the full-check.
 -/
 partial def compatibleTypesQuick (a b : Expr) : Bool :=
-  if a.isAnyType || b.isAnyType then
-    true
-  else if a.isErased || b.isErased then
+  if a.isErased || b.isErased then
     true
   else
     let a' := a.headBeta
@@ -340,9 +325,7 @@ partial def compatibleTypesQuick (a b : Expr) : Bool :=
 Complete check for `compatibleTypes`. It eta-expands type formers. See comment at `compatibleTypes`.
 -/
 partial def InferType.compatibleTypesFull (a b : Expr) : InferTypeM Bool := do
-  if a.isAnyType || b.isAnyType then
-    return true
-  else if a.isErased || b.isErased then
+  if a.isErased || b.isErased then
     return true
   else
     let a' := a.headBeta

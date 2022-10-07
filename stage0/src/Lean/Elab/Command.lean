@@ -213,13 +213,13 @@ instance : MonadQuotation CommandElabM where
   getMainModule       := Command.getMainModule
   withFreshMacroScope := Command.withFreshMacroScope
 
-unsafe def mkCommandElabAttributeUnsafe : IO (KeyedDeclsAttribute CommandElab) :=
-  mkElabAttribute CommandElab `Lean.Elab.Command.commandElabAttribute `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command"
+unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
+  mkElabAttribute CommandElab `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
 @[implementedBy mkCommandElabAttributeUnsafe]
-opaque mkCommandElabAttribute : IO (KeyedDeclsAttribute CommandElab)
+opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
 
-builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute
+builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute decl_name%
 
 private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArray InfoTree) : CommandElabM InfoTree := do
   let ctx ← read

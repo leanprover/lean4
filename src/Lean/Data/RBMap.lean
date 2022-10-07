@@ -6,17 +6,17 @@ Authors: Leonardo de Moura
 namespace Lean
 universe u v w w'
 
-inductive Rbcolor where
+inductive RBColor where
   | red | black
 
 inductive RBNode (α : Type u) (β : α → Type v) where
   | leaf                                                                                        : RBNode α β
-  | node  (color : Rbcolor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
+  | node  (color : RBColor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
 
 namespace RBNode
 variable {α : Type u} {β : α → Type v} {σ : Type w}
 
-open Rbcolor Nat
+open RBColor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
   | leaf           => 0

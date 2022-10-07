@@ -44,7 +44,6 @@ private structure StructureState where
   deriving Inhabited
 
 builtin_initialize structureExt : SimplePersistentEnvExtension StructureInfo StructureState ← registerSimplePersistentEnvExtension {
-  name          := `structExt
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => { s with map := s.map.insert e.structName e }
   toArrayFn     := fun es => es.toArray.qsort StructureInfo.lt

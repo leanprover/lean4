@@ -7,7 +7,7 @@ import Lean.Environment
 
 namespace Lean
 
-builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationExtension `protected
+builtin_initialize protectedExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_add_protected]
 def addProtected (env : Environment) (n : Name) : Environment :=

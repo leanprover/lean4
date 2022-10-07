@@ -45,7 +45,6 @@ def Instances.erase [Monad m] [MonadError m] (d : Instances) (declName : Name) :
 
 builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry Instances ←
   registerSimpleScopedEnvExtension {
-    name     := `instanceExt
     initial  := {}
     addEntry := addInstanceEntry
   }
@@ -106,7 +105,6 @@ def addDefaultInstanceEntry (d : DefaultInstances) (e : DefaultInstanceEntry) : 
 
 builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension DefaultInstanceEntry DefaultInstances ←
   registerSimplePersistentEnvExtension {
-    name          := `defaultInstanceExt
     addEntryFn    := addDefaultInstanceEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
   }

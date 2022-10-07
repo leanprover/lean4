@@ -74,7 +74,6 @@ Remark: we only store information for declarations that will be specialized.
 -/
 builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
   registerSimplePersistentEnvExtension {
-    name          := `specInfoExt
     addEntryFn    := SpecState.addEntry
     addImportedFn := fun es => mkStateFromImportedEntries SpecState.addEntry {} es |>.switch
   }

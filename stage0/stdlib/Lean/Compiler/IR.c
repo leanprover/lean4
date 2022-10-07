@@ -53,6 +53,7 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__4(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* lean_ir_compile(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__5;
+lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_87____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__3;
@@ -88,7 +89,6 @@ lean_object* l_Lean_IR_elimDeadBranches(lean_object*, lean_object*, lean_object*
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_updateSorryDep(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__5(size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
@@ -181,7 +181,7 @@ _start:
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__3;
 x_3 = l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__6;
-x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_59____spec__1(x_2, x_3, x_1);
+x_4 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_87____spec__1(x_2, x_3, x_1);
 return x_4;
 }
 }

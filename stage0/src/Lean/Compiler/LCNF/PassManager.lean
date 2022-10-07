@@ -10,6 +10,23 @@ import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
 
+def Phase.toNat : Phase → Nat
+  | .base => 0
+  | .mono => 1
+  | .impure => 2
+
+instance : LT Phase where
+  lt l r := l.toNat < r.toNat
+
+instance : LE Phase where
+  le l r := l.toNat ≤ r.toNat
+
+instance {p1 p2 : Phase} : Decidable (p1 < p2) := Nat.decLt p1.toNat p2.toNat
+instance {p1 p2 : Phase} : Decidable (p1 ≤ p2) := Nat.decLe p1.toNat p2.toNat
+
+@[simp] theorem Phase.le_refl (p : Phase) : p ≤ p := by
+  cases p <;> decide
+
 /--
 A single compiler `Pass`, consisting of the actual pass function operating
 on the `Decl`s as well as meta information.
@@ -26,6 +43,11 @@ structure Pass where
   -/
   phase : Phase
   /--
+  Resulting phase.
+  -/
+  phaseOut : Phase := phase
+  phaseInv : phaseOut ≥ phase := by simp
+  /--
   The name of the `Pass`
   -/
   name : Name
@@ -33,7 +55,9 @@ structure Pass where
   The actual pass function, operating on the `Decl`s.
   -/
   run : Array Decl → CompilerM (Array Decl)
-  deriving Inhabited
+
+instance : Inhabited Pass where
+  default := { phase := .base, name := default, run := fun decls => return decls }
 
 /--
 Can be used to install, remove, replace etc. passes by tagging a declaration
@@ -56,29 +80,11 @@ structure PassManager where
   passes : Array Pass
   deriving Inhabited
 
-namespace Phase
-
-def toNat : Phase → Nat
-  | .base => 0
-  | .mono => 1
-  | .impure => 2
-
-instance : LT Phase where
-  lt l r := l.toNat < r.toNat
-
-instance : LE Phase where
-  le l r := l.toNat ≤ r.toNat
-
-instance {p1 p2 : Phase} : Decidable (p1 < p2) := Nat.decLt p1.toNat p2.toNat
-instance {p1 p2 : Phase} : Decidable (p1 ≤ p2) := Nat.decLe p1.toNat p2.toNat
-
 instance : ToString Phase where
   toString
     | .base => "base"
     | .mono => "mono"
     | .impure => "impure"
-
-end Phase
 
 namespace Pass
 

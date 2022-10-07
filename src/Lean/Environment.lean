@@ -440,7 +440,7 @@ end PersistentEnvExtension
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
 
 structure PersistentEnvExtensionDescr (α β σ : Type) where
-  name            : Name
+  name            : Name := by exact decl_name%
   mkInitial       : IO σ
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
@@ -478,7 +478,7 @@ def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α α 
   as.foldl (fun r es => es.foldl (fun r e => addEntryFn r e) r) initState
 
 structure SimplePersistentEnvExtensionDescr (α σ : Type) where
-  name          : Name
+  name          : Name := by exact decl_name%
   addEntryFn    : σ → α → σ
   addImportedFn : Array (Array α) → σ
   toArrayFn     : List α → Array α := fun es => es.toArray
@@ -522,7 +522,7 @@ end SimplePersistentEnvExtension
     Declarations must only be tagged in the module where they were declared. -/
 def TagDeclarationExtension := SimplePersistentEnvExtension Name NameSet
 
-def mkTagDeclarationExtension (name : Name) : IO TagDeclarationExtension :=
+def mkTagDeclarationExtension (name : Name := by exact decl_name%) : IO TagDeclarationExtension :=
   registerSimplePersistentEnvExtension {
     name          := name,
     addImportedFn := fun _ => {},
@@ -551,7 +551,7 @@ end TagDeclarationExtension
 
 def MapDeclarationExtension (α : Type) := SimplePersistentEnvExtension (Name × α) (NameMap α)
 
-def mkMapDeclarationExtension [Inhabited α] (name : Name) : IO (MapDeclarationExtension α) :=
+def mkMapDeclarationExtension [Inhabited α] (name : Name := by exact decl_name%) : IO (MapDeclarationExtension α) :=
   registerSimplePersistentEnvExtension {
     name          := name,
     addImportedFn := fun _ => {},
@@ -612,13 +612,9 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
 
 def mkModuleData (env : Environment) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
-  let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
-    (fun i result =>
-      let state  := (pExts.get! i).getState env
-      let exportEntriesFn := (pExts.get! i).exportEntriesFn
-      let extName    := (pExts.get! i).name
-      result.push (extName, exportEntriesFn state))
-    #[]
+  let entries := pExts.map fun pExt =>
+    let state := pExt.getState env
+    (pExt.name, pExt.exportEntriesFn state)
   pure {
     imports         := env.header.imports
     constants       := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
@@ -764,7 +760,6 @@ Environment extension for tracking all `namespace` declared by users.
 -/
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
-    name            := `namespaces
     addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch
     addEntryFn      := fun s n => s.insert n
   }

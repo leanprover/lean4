@@ -9,7 +9,9 @@ import Lean.Compiler.LCNF.ElimDead
 import Lean.Compiler.LCNF.AlphaEqv
 import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.Bind
+import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Simp.JpCases
+import Lean.Compiler.LCNF.Simp.DiscrM
 import Lean.Compiler.LCNF.Simp.FunDeclInfo
 import Lean.Compiler.LCNF.Simp.Config
 
@@ -24,14 +26,6 @@ structure Context where
   -/
   declName : Name
   config : Config := {}
-  /--
-  A mapping from discriminant to constructor application it is equal to in the current context.
-  -/
-  discrCtorMap : FVarIdMap Expr := {}
-  /--
-  A mapping from constructor application to discriminant it is equal to in the current context.
-  -/
-  ctorDiscrMap : PersistentExprMap FVarId := {}
   /--
   Stack of global declarations being recursively inlined.
   -/
@@ -79,54 +73,13 @@ structure State where
   -/
   inlineLocal : Nat := 0
 
-abbrev SimpM := ReaderT Context $ StateRefT State CompilerM
+abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 
 instance : MonadFVarSubst SimpM false where
   getSubst := return (← get).subst
 
 instance : MonadFVarSubstState SimpM where
   modifySubst f := modify fun s => { s with subst := f s.subst }
-
-/--
-Use `findExpr`, and if the result is a free variable, check whether it is in the map `discrCtorMap`.
-We use this method when simplifying projections and cases-constructor.
--/
-def findCtor (e : Expr) : SimpM Expr := do
-  let e ← findExpr e
-  let .fvar fvarId := e | return e
-  let some ctor := (← read).discrCtorMap.find? fvarId | return e
-  return ctor
-
-/--
-If `type` is an inductive datatype, return its universe levels and parameters.
--/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Expr)) := do
-  let type := type.headBeta
-  let .const declName us := type.getAppFn | return none
-  let .inductInfo info ← getConstInfo declName | return none
-  unless type.getAppNumArgs >= info.numParams do return none
-  return some (us, type.getAppArgs[:info.numParams])
-
-/--
-Execute `x` with the information that `discr = ctorName ctorFields`.
-We use this information to simplify nested cases on the same discriminant.
-
-Remark: we do not perform the reverse direction at this phase.
-That is, we do not replace occurrences of `ctorName ctorFields` with `discr`.
-We wait more type information to be erased.
--/
-def withDiscrCtor (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) (x : SimpM α) : SimpM α := do
-  let ctorInfo ← getConstInfoCtor ctorName
-  let fieldArgs := ctorFields.map (.fvar ·.fvarId)
-  if let some (us, params) ← getIndInfo? (← getType discr) then
-    let ctor := mkAppN (mkAppN (mkConst ctorName us) params) fieldArgs
-    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor discr }) do
-      x
-  else
-    -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
-    let ctor := mkAppN (mkAppN (mkConst ctorName) (mkArray ctorInfo.numParams erasedExpr)) fieldArgs
-    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }) do
-     x
 
 /-- Set the `simplified` flag to `true`. -/
 def markSimplified : SimpM Unit :=
@@ -253,13 +206,13 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
   let mut castDecls := #[]
   for param in params, arg in args do
     /-
-    If `param` hast type `⊤` but `arg` does not, we must insert a cast.
+    If `param` hast type `◾` but `arg` does not, we must insert a cast.
     Otherwise, the resulting code may be type incorrect.
     For example, the following code is type correct before inlining `f`
-    because `x : ⊤`.
+    because `x : ◾`.
     ```
     def foo (g : A → A) (a : B) :=
-      fun f (x : ⊤) :=
+      fun f (x : ◾) :=
         let _x.1 := g x
         ...
       let _x.2 := f a
@@ -267,8 +220,8 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
     ```
     We must introduce a cast around `a` to make sure the resulting expression is type correct.
     -/
-    if param.type.isAnyType && !(← inferType arg).isAnyType then
-      let castArg ← mkLcCast arg anyTypeExpr
+    if param.type.isErased && !(← inferType arg).isErased then
+      let castArg ← mkLcCast arg erasedExpr
       let castDecl ← mkAuxLetDecl castArg
       castDecls := castDecls.push (CodeDecl.let castDecl)
       subst := subst.insert param.fvarId (.fvar castDecl.fvarId)

@@ -7,7 +7,7 @@ import Lean.Compiler.LCNF.PassManager
 
 namespace Lean.Compiler.LCNF
 
-abbrev BaseExtState := PHashMap Name Decl
+abbrev DeclExtState := PHashMap Name Decl
 
 private abbrev declLt (a b : Decl) :=
   Name.quickLt a.name b.name
@@ -20,9 +20,11 @@ private abbrev findAtSorted? (decls : Array Decl) (declName : Name) : Option Dec
   let tmpDecl := { tmpDecl with name := declName }
   decls.binSearch tmpDecl declLt
 
-builtin_initialize baseExt : PersistentEnvExtension Decl Decl BaseExtState ← do
+abbrev DeclExt := PersistentEnvExtension Decl Decl DeclExtState
+
+def mkDeclExt (name : Name := by exact decl_name%) : IO DeclExt := do
   registerPersistentEnvExtension {
-    name            := `compBaseDecls
+    name            := name
     mkInitial       := return {}
     addImportedFn   := fun _ => return {}
     addEntryFn      := fun decls decl => decls.insert decl.name decl
@@ -31,43 +33,63 @@ builtin_initialize baseExt : PersistentEnvExtension Decl Decl BaseExtState ← d
       sortDecls decls
   }
 
-def getBaseDeclCore? (env : Environment) (declName : Name) : Option Decl :=
+builtin_initialize baseExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
+builtin_initialize monoExt : PersistentEnvExtension Decl Decl DeclExtState ← mkDeclExt
+
+def getDeclCore? (env : Environment) (ext : DeclExt) (declName : Name) : Option Decl :=
   match env.getModuleIdxFor? declName with
-  | some modIdx => findAtSorted? (baseExt.getModuleEntries env modIdx) declName
-  | none        => baseExt.getState env |>.find? declName
+  | some modIdx => findAtSorted? (ext.getModuleEntries env modIdx) declName
+  | none        => ext.getState env |>.find? declName
 
 def getBaseDecl? (declName : Name) : CoreM (Option Decl) := do
-  return getBaseDeclCore? (← getEnv) declName
+  return getDeclCore? (← getEnv) baseExt declName
+
+def getMonoDecl? (declName : Name) : CoreM (Option Decl) := do
+  return getDeclCore? (← getEnv) monoExt declName
 
 def saveBaseDeclCore (env : Environment) (decl : Decl) : Environment :=
-  let env := env.addExtraName decl.name
-  baseExt.addEntry env decl
+  baseExt.addEntry (env.addExtraName decl.name) decl
+
+def saveMonoDeclCore (env : Environment) (decl : Decl) : Environment :=
+  monoExt.addEntry (env.addExtraName decl.name) decl
 
 def Decl.saveBase (decl : Decl) : CoreM Unit :=
   modifyEnv (saveBaseDeclCore · decl)
 
+def Decl.saveMono (decl : Decl) : CoreM Unit :=
+  modifyEnv (saveMonoDeclCore · decl)
+
 def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
   match phase with
   | .base => getBaseDecl? declName
+  | .mono => getMonoDecl? declName
   | _  => return none -- TODO
 
 def getDecl? (declName : Name) : CompilerM (Option Decl) := do
   getDeclAt? declName (← getPhase)
 
-def forEachDecl (f : Decl → CoreM Unit) : CoreM Unit := do
+def getExt (phase : Phase) : DeclExt :=
+  match phase with
+  | .base => baseExt
+  | .mono => monoExt
+  | _ => unreachable!
+
+def forEachDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
+  let ext := getExt phase
   let env ← getEnv
   for modIdx in [:env.allImportedModuleNames.size] do
-    for decl in baseExt.getModuleEntries env modIdx do
+    for decl in ext.getModuleEntries env modIdx do
       f decl
-  baseExt.getState env |>.forM fun _ decl => f decl
+  ext.getState env |>.forM fun _ decl => f decl
 
-def forEachModuleDecl (moduleName : Name) (f : Decl → CoreM Unit) : CoreM Unit := do
+def forEachModuleDecl (moduleName : Name) (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
+  let ext := getExt phase
   let env ← getEnv
   let some modIdx := env.getModuleIdx? moduleName | throwError "module `{moduleName}` not found"
-  for decl in baseExt.getModuleEntries env modIdx do
+  for decl in ext.getModuleEntries env modIdx do
     f decl
 
-def forEachMainModuleDecl (f : Decl → CoreM Unit) : CoreM Unit := do
-  baseExt.getState (← getEnv) |>.forM fun _ decl => f decl
+def forEachMainModuleDecl (f : Decl → CoreM Unit) (phase := Phase.base) : CoreM Unit := do
+  (getExt phase).getState (← getEnv) |>.forM fun _ decl => f decl
 
 end Lean.Compiler.LCNF

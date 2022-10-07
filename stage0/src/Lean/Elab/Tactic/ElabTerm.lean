@@ -67,6 +67,19 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
     return r
   | _ => throwUnsupportedSyntax
 
+def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) := do
+  let mctx ← getMCtx
+  return mvarIds.qsort fun mvarId₁ mvarId₂ =>
+    let decl₁ := mctx.getDecl mvarId₁
+    let decl₂ := mctx.getDecl mvarId₂
+    if decl₁.index != decl₂.index then
+      decl₁.index < decl₂.index
+    else
+      Name.quickLt mvarId₁.name mvarId₂.name
+
+def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List MVarId) :=
+  return (← sortMVarIdArrayByIndex mvarIds.toArray).toList
+
 /--
   Execute `k`, and collect new "holes" in the resulting expression.
 -/
@@ -84,6 +97,13 @@ def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNatur
     let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
     logUnassignedAndAbort naturalMVarIds
     pure syntheticMVarIds.toList
+  /-
+  We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
+  See issue #1682.
+  Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
+  appear in the `.lean` file. We should tell users to prefer tagged goals.
+  -/
+  let newMVarIds ← sortMVarIdsByIndex newMVarIds
   tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
   return (val, newMVarIds)
 

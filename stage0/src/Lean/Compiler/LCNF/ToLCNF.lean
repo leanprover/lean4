@@ -198,9 +198,11 @@ structure State where
   /-- LCNF sequence, we chain it to create a LCNF `Code` object. -/
   seq : Array Element := #[]
   /--
-  Fields that are type formers must be replaced with `lcAny`
+  Fields that are type formers must be replaced with `◾`
   in the resulting code. Otherwise, we have data occurring in
   types.
+  When converting a `casesOn` into LCNF, we add constructor fields
+  that are types and type formers into this set. See `visitCases`.
   -/
   toAny : FVarIdSet := {}
 
@@ -278,14 +280,14 @@ def withNewScope (x : M α) : M α := do
     set saved
 
 /-
-Replace free variables in `type'` that occur in `toAny` into `lcAny`.
+Replace free variables in `type'` that occur in `toAny` into `◾`.
 Recall that we populate `toAny` with the free variable ids of fields that
 are type formers. This can happen when we have a field whose type is, for example, `Type u`.
 -/
 def applyToAny (type : Expr) : M Expr := do
   let toAny := (← get).toAny
   return type.replace fun
-    | .fvar fvarId => if toAny.contains fvarId then some anyTypeExpr else none
+    | .fvar fvarId => if toAny.contains fvarId then some erasedExpr else none
     | _ => none
 
 def toLCNFType (type : Expr) : M Expr := do
@@ -410,7 +412,7 @@ where
       | .forallE ..  => unreachable!
       | .mvar ..     => throwError "unexpected occurrence of metavariable in code generator{indentExpr e}"
       | .bvar ..     => unreachable!
-      | .fvar fvarId => if (← get).toAny.contains fvarId then pure anyTypeExpr else pure e
+      | .fvar fvarId => if (← get).toAny.contains fvarId then pure erasedExpr else pure e
       | _            => pure e
     modify fun s => { s with cache := s.cache.insert e r }
     return r
@@ -529,19 +531,37 @@ where
         let typeName := casesInfo.declName.getPrefix
         let discr ← visitAppArg args[casesInfo.discrPos]!
         let .inductInfo indVal ← getConstInfo typeName | unreachable!
-        for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
-          let (altType, alt) ← visitAlt ctorName numParams args[i]!
-          unless (← compatibleTypes altType resultType) do
-            resultType := anyTypeExpr
-          alts := alts.push alt
-        let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
-        let auxDecl ← mkAuxParam resultType
-        pushElement (.cases auxDecl cases)
-        let result := .fvar auxDecl.fvarId
-        if args.size == casesInfo.arity then
-          return result
+        if !discr.isFVar then
+          /-
+          This can happen for inductive predicates that can eliminate into type (e.g., `And`, `Iff`).
+          TODO: add support for them. Right now, we have hard-coded support for the ones defined at `Init`.
+          -/
+          throwError "unsupported `{casesInfo.declName}` application during code generation"
         else
-          mkOverApplication result args casesInfo.arity
+          for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
+            let (altType, alt) ← visitAlt ctorName numParams args[i]!
+            unless (← compatibleTypes altType resultType) do
+              resultType := erasedExpr
+            alts := alts.push alt
+          if resultType.isErased || resultType.isErased then
+            /-
+            If the result type for a `cases` is `◾`, we put a cast to `◾` (aka the any type)
+            at every alternative that does not have `◾` type.
+            The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
+            or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `◾`
+            to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
+            sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
+            -/
+            alts ← alts.mapM fun alt =>
+              return alt.updateCode (← alt.getCode.ensureAnyType)
+          let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
+          let auxDecl ← mkAuxParam resultType
+          pushElement (.cases auxDecl cases)
+          let result := .fvar auxDecl.fvarId
+          if args.size == casesInfo.arity then
+            return result
+          else
+            mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M Expr :=
     etaIfUnderApplied e arity do
@@ -583,13 +603,13 @@ where
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
-  visitAndRec (e : Expr) : M Expr :=
+  visitAndIffRecCore (e : Expr) (minorPos : Nat) : M Expr :=
     let arity := 5
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
       let hb := mkLcProof args[1]!
-      let minor := if e.isAppOf ``And.rec then args[3]! else args[4]!
+      let minor := args[minorPos]!
       let minor := minor.beta #[ha, hb]
       visit (mkAppN minor args[arity:])
 
@@ -650,8 +670,10 @@ where
         visitCtor 3 e
       else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
         visitEqRec e
-      else if declName == ``And.rec || declName == ``And.casesOn then
-        visitAndRec e
+      else if declName == ``And.rec || declName == ``Iff.rec then
+        visitAndIffRecCore e (minorPos := 3)
+      else if declName == ``And.casesOn || declName == ``Iff.casesOn then
+        visitAndIffRecCore e (minorPos := 4)
       else if declName == ``False.rec || declName == ``Empty.rec || declName == ``False.casesOn || declName == ``Empty.casesOn then
         visitFalseRec e
       else if let some casesInfo ← getCasesInfo? declName then

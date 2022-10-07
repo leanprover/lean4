@@ -21,7 +21,7 @@ If `n` is 0, the corresponding C declaration is
 extern s sym;
 ```
 where `s` is the C translation of `β` as specified in the next section.
-In the case of an `@[extern]` definition, the symbol's value is guaranteed to be initialized only after calling the Lean module's initializer or that of an importing module; see [Initialization](.#init).
+In the case of an `@[extern]` definition, the symbol's value is guaranteed to be initialized only after calling the Lean module's initializer or that of an importing module; see [Initialization](#initialization).
 
 If `n` is greater than 0, the corresponding C declaration is
 ```c
@@ -32,7 +32,7 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
 
 ### Translating Types from Lean to C
 
-* The integer types `UInt8`, ..., `UInt64`, `USize` are represented by the C types `uint8_t`, ..., `uint64_t`, `usize_t`, respectively
+* The integer types `UInt8`, ..., `UInt64`, `USize` are represented by the C types `uint8_t`, ..., `uint64_t`, `size_t`, respectively
 * `Char` is represented by `uint32_t`
 * `Float` is represented by `double`
 * An *enum* inductive type of at least 2 and at most 2^32 constructors, each of which with no parameters, is represented by the first type of `uint8_t`, `uint16_t`, `uint32_t` that is sufficient to represent all constructor indices.

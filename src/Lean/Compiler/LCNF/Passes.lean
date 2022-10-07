@@ -12,6 +12,7 @@ import Lean.Compiler.LCNF.ReduceJpArity
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.ToMono
 
 namespace Lean.Compiler.LCNF
 
@@ -35,6 +36,9 @@ def normalizeFVarIds (decl : Decl) : CoreM Decl := do
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
 
+def saveMono : Pass :=
+  .mkPerDeclaration `saveMono (fun decl => do (← normalizeFVarIds decl).saveMono; return decl) .mono
+
 def builtinPassManager : PassManager := {
   passes := #[
     init,
@@ -44,12 +48,15 @@ def builtinPassManager : PassManager := {
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
-    extendJoinPointContext,
+    -- extendJoinPointContext,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),
     cse,
-    saveBase -- End of base phase
+    saveBase, -- End of base phase
+    toMono,
+    -- TODO: lambda lifting, reduce function arity
+    saveMono  -- End of mono phase
   ]
 }
 
@@ -62,7 +69,6 @@ def runImportedDecls (importedDeclNames : Array (Array Name)) : CoreM PassManage
 
 builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassManager) (List Name × PassManager) ←
   registerPersistentEnvExtension {
-    name := `cpass
     mkInitial := return ([], builtinPassManager)
     addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)
     addEntryFn := fun (installerDeclNames, _) (installerDeclName, managerNew) => (installerDeclName :: installerDeclNames, managerNew)

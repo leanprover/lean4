@@ -115,7 +115,7 @@ def atEnd : (@& String) → (@& Pos) → Bool
   framework and wellfounded recursion support -/
 
 partial def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
-  if pos == stopPos then pos
+  if pos >= stopPos then pos
   else if s.get pos == c then pos
        else posOfAux s c stopPos (s.next pos)
 
@@ -132,7 +132,7 @@ def revPosOf (s : String) (c : Char) : Option Pos :=
   else revPosOfAux s c (s.prev s.endPos)
 
 partial def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :=
-  if pos == stopPos then pos
+  if pos >= stopPos then pos
   else if p (s.get pos) then pos
        else findAux s p stopPos (s.next pos)
 
@@ -155,7 +155,7 @@ abbrev Pos.min (p₁ p₂ : Pos) : Pos :=
 partial def firstDiffPos (a b : String) : Pos :=
   let stopPos := a.endPos.min b.endPos
   let rec loop (i : Pos) : Pos :=
-    if i == stopPos || a.get i != b.get i then i
+    if i >= stopPos || a.get i != b.get i then i
     else loop (a.next i)
   loop 0
 
@@ -300,7 +300,7 @@ def prevn : Iterator → Nat → Iterator
 end Iterator
 
 partial def offsetOfPosAux (s : String) (pos : Pos) (i : Pos) (offset : Nat) : Nat :=
-  if i == pos || s.atEnd i then
+  if i >= pos || s.atEnd i then
     offset
   else
     offsetOfPosAux s pos (s.next i) (offset+1)
@@ -310,7 +310,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
 
 @[specialize] partial def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
   let rec loop (i : Pos) (a : α) :=
-    if i == stopPos then a
+    if i >= stopPos then a
     else loop (s.next i) (f a (s.get i))
   loop i a
 
@@ -319,7 +319,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
 
 @[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (stopPos : Pos) (i : Pos) : α :=
   let rec loop (i : Pos) :=
-    if i == stopPos then a
+    if i >= stopPos then a
     else f (s.get i) (loop (s.next i))
   loop i
 
@@ -328,7 +328,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
 
 @[specialize] partial def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) (i : Pos) : Bool :=
   let rec loop (i : Pos) :=
-    if i == stopPos then false
+    if i >= stopPos then false
     else if p (s.get i) then true
     else loop (s.next i)
   loop i
@@ -498,7 +498,7 @@ def contains (s : Substring) (c : Char) : Bool :=
   s.any (fun a => a == c)
 
 @[specialize] private partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
-  if i == stopPos then i
+  if i >= stopPos then i
   else if p (s.get i) then takeWhileAux s stopPos p (s.next i)
   else i
 

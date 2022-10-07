@@ -10,7 +10,7 @@ namespace Client
 
 structure SubexprInfo where
   subexprPos : String
-  highlightColor? : Option String
+  diffStatus? : Option String
   deriving FromJson, Repr
 
 structure Hyp where

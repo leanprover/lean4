@@ -54,10 +54,9 @@ private abbrev WidgetSourceRegistry := SimplePersistentEnvExtension
     (RBMap UInt64 Name compare)
 
 -- Mapping widgetSourceId to hash of sourcetext
-builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension `widgetRegistry
+builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension
 builtin_initialize widgetSourceRegistry : WidgetSourceRegistry ←
   registerSimplePersistentEnvExtension {
-    name          := `widgetSourceRegistry
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
     toArrayFn     := fun es => es.toArray

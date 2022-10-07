@@ -36,9 +36,8 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   return mkAppN f e.getAppArgs
 
 def simpCtorDiscr? (e : Expr) : OptionT SimpM Expr := do
-  let some discr := (← read).ctorDiscrMap.find? e | failure
-  guard <| (← compatibleTypes (← getType discr) (← inferType e))
-  return .fvar discr
+  let some v ← simpCtorDiscrCore? e | failure
+  return v
 
 def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
   guard <| (← read).config.implementedBy

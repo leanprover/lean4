@@ -15,7 +15,7 @@ structure Position where
 
 namespace Position
 protected def lt : Position → Position → Bool
-  | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => (l₁, c₁) < (l₂, c₂)
+  | ⟨l₁, c₁⟩, ⟨l₂, c₂⟩ => Prod.lexLt (l₁, c₁) (l₂, c₂)
 
 instance : ToFormat Position :=
   ⟨fun ⟨l, c⟩ => "⟨" ++ format l ++ ", " ++ format c ++ "⟩"⟩

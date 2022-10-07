@@ -31,12 +31,18 @@ def checkFVar (fvarId : FVarId) : CheckM Unit :=
   unless (← read).vars.contains fvarId do
     throwError "invalid out of scope free variable {← getBinderName fvarId}"
 
+/-- Return true `f` is a constructor and `i` is less than its number of parameters. -/
+def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
+  let .const declName _ := f | return false
+  let .ctorInfo info ← getConstInfo declName | return false
+  return i < info.numParams
+
 def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
   for i in [:args.size] do
     let arg := args[i]!
-    if fType.isAnyType then
+    if fType.isErased then
       return ()
     fType := fType.headBeta
     let (d, b) ←
@@ -47,16 +53,19 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
         match fType with
         | .forallE _ d b _ => j := i; pure (d, b)
         | _ =>
-          if fType.isAnyType then return ()
+          if fType.isErased then return ()
           throwError "function expected at{indentExpr (mkAppN f args)}\narrow type expected{indentExpr fType}"
     let argType ← inferType arg
     let expectedType := d.instantiateRevRange j i args
     unless (← InferType.compatibleTypes argType expectedType) do
       throwError "type mismatch at LCNF application{indentExpr (mkAppN f args)}\nargument {arg} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
     unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
-      unless arg.isFVar do
-        throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
-      checkFVar arg.fvarId!
+      if arg.isFVar then
+        checkFVar arg.fvarId!
+      else
+        -- Constructor parameters that are not type formers are erased at phase .mono
+        unless arg.isErased && (← getPhase) ≥ .mono && (← isCtorParam f i) do
+          throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
     fType := b
 
 def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
@@ -147,7 +156,7 @@ partial def checkCases (c : Cases) : CheckM Expr := do
   let mut hasDefault := false
   checkFVar c.discr
   let discrType ← LCNF.getType c.discr
-  unless discrType.isAnyType do
+  unless discrType.isErased do
     let .const declName _ := discrType.headBeta.getAppFn | throwError "unexpected LCNF discriminant type {discrType}"
     unless c.typeName == declName do
       throwError "invalid LCNF `{c.typeName}.casesOn`, discriminant has type{indentExpr discrType}"

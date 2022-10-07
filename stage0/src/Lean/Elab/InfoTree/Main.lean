@@ -37,7 +37,7 @@ def CompletionInfo.stx : CompletionInfo → Syntax
   | tactic stx .. => stx
 
 def CustomInfo.format : CustomInfo → Format
-  | i => Std.ToFormat.format i.json
+  | i => f!"CustomInfo({i.value.typeName})"
 
 instance : ToFormat CustomInfo := ⟨CustomInfo.format⟩
 

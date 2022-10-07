@@ -32,7 +32,7 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
 
 ### Translating Types from Lean to C
 
-* The integer types `UInt8`, ..., `UInt64`, `USize` are represented by the C types `uint8_t`, ..., `uint64_t`, `usize_t`, respectively
+* The integer types `UInt8`, ..., `UInt64`, `USize` are represented by the C types `uint8_t`, ..., `uint64_t`, `size_t`, respectively
 * `Char` is represented by `uint32_t`
 * `Float` is represented by `double`
 * An *enum* inductive type of at least 2 and at most 2^32 constructors, each of which with no parameters, is represented by the first type of `uint8_t`, `uint16_t`, `uint32_t` that is sufficient to represent all constructor indices.

@@ -16,13 +16,24 @@ import Lean.Compiler.LCNF.Closure
 namespace Lean.Compiler.LCNF
 namespace Specialize
 
-abbrev Cache := PHashMap Expr Name
+abbrev Cache := SMap Expr Name
 
-builtin_initialize specCacheExt : EnvExtension Cache ←
-  registerEnvExtension (pure {})
+structure CacheEntry where
+  key : Expr
+  declName : Name
+  deriving Inhabited
+
+def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
+  cache.insert e.key e.declName
+
+builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn    := addEntry
+    addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+  }
 
 def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
-  modifyEnv fun env => specCacheExt.modifyState env (·.insert key declName)
+  modifyEnv fun env => specCacheExt.addEntry env { key, declName }
 
 def findSpecCache? (key : Expr) : CoreM (Option Name) :=
   return specCacheExt.getState (← getEnv) |>.find? key

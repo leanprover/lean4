@@ -21,7 +21,7 @@ If `n` is 0, the corresponding C declaration is
 extern s sym;
 ```
 where `s` is the C translation of `β` as specified in the next section.
-In the case of an `@[extern]` definition, the symbol's value is guaranteed to be initialized only after calling the Lean module's initializer or that of an importing module; see [Initialization](.#init).
+In the case of an `@[extern]` definition, the symbol's value is guaranteed to be initialized only after calling the Lean module's initializer or that of an importing module; see [Initialization](#initialization).
 
 If `n` is greater than 0, the corresponding C declaration is
 ```c

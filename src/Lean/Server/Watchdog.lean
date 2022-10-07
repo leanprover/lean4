@@ -255,6 +255,8 @@ section ServerM
           fw.errorPendingRequests o ErrorCode.contentModified
             (s!"The file worker for {fw.doc.meta.uri} has been terminated. Either the header has changed,"
             ++ " or the file was closed, or the server is shutting down.")
+          -- one last message to clear the diagnostics for this file so that stale errors
+          -- do not remain in the editor forever.
           publishDiagnostics fw.doc.meta #[] o
           return WorkerEvent.terminated
         else
@@ -264,7 +266,6 @@ section ServerM
           publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
-
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
     return task.map fun
       | Except.ok ev   => ev
@@ -338,7 +339,7 @@ section ServerM
       | none    => (false, none)
     if pendingEdit then
       return
-    match (fw.state) with
+    match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
       if queueFailedMessage then

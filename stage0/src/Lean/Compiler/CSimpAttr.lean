@@ -26,7 +26,6 @@ def State.switch : State → State
 
 builtin_initialize ext : SimpleScopedEnvExtension Entry State ←
   registerSimpleScopedEnvExtension {
-    name           := `csimp
     initial        := {}
     addEntry       := fun { map, thmNames } { fromDeclName, toDeclName, thmName } => { map := map.insert fromDeclName toDeclName, thmNames := thmNames.insert thmName }
     finalizeImport := fun s => s.switch

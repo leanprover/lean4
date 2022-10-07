@@ -69,7 +69,6 @@ def runImportedDecls (importedDeclNames : Array (Array Name)) : CoreM PassManage
 
 builtin_initialize passManagerExt : PersistentEnvExtension Name (Name × PassManager) (List Name × PassManager) ←
   registerPersistentEnvExtension {
-    name := `cpass
     mkInitial := return ([], builtinPassManager)
     addImportedFn := fun ns => return ([], ← ImportM.runCoreM <| runImportedDecls ns)
     addEntryFn := fun (installerDeclNames, _) (installerDeclName, managerNew) => (installerDeclName :: installerDeclNames, managerNew)

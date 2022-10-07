@@ -2855,7 +2855,7 @@ lean_dec(x_5);
 x_13 = lean_array_uget(x_2, x_4);
 x_21 = lean_ctor_get(x_13, 0);
 lean_inc(x_21);
-x_22 = 0;
+x_22 = 1;
 x_23 = l_Lean_Compiler_LCNF_getDeclAt_x3f(x_21, x_22, x_8, x_9, x_10);
 x_24 = lean_ctor_get(x_23, 0);
 lean_inc(x_24);

@@ -18,7 +18,7 @@ inductive ReducibilityStatus where
 Environment extension for storing the reducibility attribute for definitions.
 -/
 builtin_initialize reducibilityAttrs : EnumAttributes ReducibilityStatus ←
-  registerEnumAttributes `reducibility
+  registerEnumAttributes
     [(`reducible, "reducible", ReducibilityStatus.reducible),
      (`semireducible, "semireducible", ReducibilityStatus.semireducible),
      (`irreducible, "irreducible", ReducibilityStatus.irreducible)]

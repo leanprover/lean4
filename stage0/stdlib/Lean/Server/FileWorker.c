@@ -270,7 +270,6 @@ uint8_t l___private_Lean_Data_JsonRpc_0__Lean_JsonRpc_ordRequestID____x40_Lean_D
 lean_object* lean_module_name_of_file(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at_Lean_Server_FileWorker_compileHeader___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_624____spec__1(lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__24;
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonCancelParams____x40_Lean_Data_Lsp_Basic___hyg_140_(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -330,6 +329,7 @@ lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_foldM___at_Lean_Server_FileWorker_mainLoop___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_lakeSetupSearchPath___closed__8;
 lean_object* l_List_redLength___rarg(lean_object*);
+lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcConnect___boxed(lean_object*, lean_object*);
 extern lean_object* l_Lean_MessageLog_empty;
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -18478,7 +18478,7 @@ x_371 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_371, 0, x_369);
 lean_ctor_set(x_371, 1, x_370);
 x_372 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__24;
-x_373 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_624____spec__1(x_372, x_366);
+x_373 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_372, x_366);
 lean_dec(x_366);
 switch (lean_obj_tag(x_363)) {
 case 0:
@@ -19462,7 +19462,7 @@ x_263 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_263, 0, x_261);
 lean_ctor_set(x_263, 1, x_262);
 x_264 = l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__24;
-x_265 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_624____spec__1(x_264, x_258);
+x_265 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_264, x_258);
 lean_dec(x_258);
 switch (lean_obj_tag(x_255)) {
 case 0:

@@ -63,7 +63,6 @@ LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasIn
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__18;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__15;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30;
 static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__2___closed__2;
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -134,7 +133,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs
 static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__2___closed__4;
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__12;
-lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__26;
 LEAN_EXPORT lean_object* l_Lean_Compiler_InlineAttributeKind_toCtorIdx(uint8_t x_1) {
 _start:
@@ -1083,7 +1082,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inlineAttrs", 11);
+x_1 = lean_mk_string_from_bytes("inline", 6);
 return x_1;
 }
 }
@@ -1101,33 +1100,15 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inline", 6);
+x_1 = lean_mk_string_from_bytes("mark definition to always be inlined", 36);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("mark definition to always be inlined", 36);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__6() {
-_start:
-{
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__5;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__3;
 x_2 = 0;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -1136,19 +1117,19 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__7() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__4;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__6;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__2;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__4;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__8() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -1156,17 +1137,17 @@ x_1 = lean_mk_string_from_bytes("inlineIfReduce", 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__9() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__8;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__6;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__10() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -1174,11 +1155,11 @@ x_1 = lean_mk_string_from_bytes("mark definition to be inlined when resultant te
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__11() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__9() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__10;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__8;
 x_2 = 3;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -1187,19 +1168,19 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__12() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__9;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__11;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__7;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__9;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__13() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -1207,17 +1188,17 @@ x_1 = lean_mk_string_from_bytes("noinline", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__14() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__13;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__11;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__15() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -1225,11 +1206,11 @@ x_1 = lean_mk_string_from_bytes("mark definition to never be inlined", 35);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__16() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__14() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__15;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__13;
 x_2 = 1;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -1238,19 +1219,19 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__17() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__14;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__16;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__12;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__14;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__18() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__16() {
 _start:
 {
 lean_object* x_1; 
@@ -1258,17 +1239,17 @@ x_1 = lean_mk_string_from_bytes("macroInline", 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__19() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__18;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__16;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__20() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__18() {
 _start:
 {
 lean_object* x_1; 
@@ -1276,11 +1257,11 @@ x_1 = lean_mk_string_from_bytes("mark definition to always be inlined before ANF
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__21() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__19() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__20;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__18;
 x_2 = 2;
 x_3 = lean_box(x_2);
 x_4 = lean_alloc_ctor(0, 2, 0);
@@ -1289,13 +1270,37 @@ lean_ctor_set(x_4, 1, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__17;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__19;
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__21() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__20;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__19;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__15;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__21;
-x_3 = lean_alloc_ctor(0, 2, 0);
+x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -1305,11 +1310,11 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__10;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__22;
 x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
@@ -1317,7 +1322,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__17;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__5;
 x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__23;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1328,36 +1333,12 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__25() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__12;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__24;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__26() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__7;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__25;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__27() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Lean", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__26() {
 _start:
 {
 lean_object* x_1; 
@@ -1365,18 +1346,26 @@ x_1 = lean_mk_string_from_bytes("Compiler", 8);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__27() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("inlineAttrs", 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__27;
-x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28;
-x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__1;
+x_1 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__25;
+x_2 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__26;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__27;
 x_4 = l_Lean_Name_mkStr3(x_1, x_2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30() {
+static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29() {
 _start:
 {
 lean_object* x_1; 
@@ -1387,16 +1376,15 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350_(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_2 = l_Lean_Compiler_instInhabitedInlineAttributeKind;
-x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__2;
-x_4 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__26;
-x_5 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30;
-x_6 = 0;
-x_7 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29;
-x_8 = lean_box(x_2);
-x_9 = l_Lean_registerEnumAttributes___rarg(x_8, x_3, x_4, x_5, x_6, x_7, x_1);
-return x_9;
+x_3 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__24;
+x_4 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29;
+x_5 = 0;
+x_6 = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28;
+x_7 = lean_box(x_2);
+x_8 = l_Lean_registerEnumAttributes___rarg(x_7, x_3, x_4, x_5, x_6, x_1);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1807,8 +1795,6 @@ l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28 
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__28);
 l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29();
 lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__29);
-l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30 = _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30();
-lean_mark_persistent(l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350____closed__30);
 if (builtin) {res = l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_350_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Compiler_inlineAttrs = lean_io_result_get_value(res);

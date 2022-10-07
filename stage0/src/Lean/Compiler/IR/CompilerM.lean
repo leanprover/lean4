@@ -81,7 +81,6 @@ private def mkEntryArray (decls : List Decl) : Array Decl :=
 
 builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
   registerSimplePersistentEnvExtension {
-    name       := `IRDecls,
     addImportedFn := fun as =>
        let m : DeclMap := mkStateFromImportedEntries (fun s (d : Decl) => s.insert d.name d) {} as
        m.switch,

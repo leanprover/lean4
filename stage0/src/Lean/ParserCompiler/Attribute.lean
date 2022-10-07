@@ -17,14 +17,15 @@ structure CombinatorAttribute where
   deriving Inhabited
 -- TODO(Sebastian): We'll probably want priority support here at some point
 
-def registerCombinatorAttribute (name : Name) (descr : String)
+def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by exact decl_name%)
     : IO CombinatorAttribute := do
   let ext : SimplePersistentEnvExtension (Name × Name) (NameMap Name) ← registerSimplePersistentEnvExtension {
-    name            := name,
+    name            := ref,
     addImportedFn   := mkStateFromImportedEntries (fun s p => s.insert p.1 p.2) {},
     addEntryFn      := fun (s : NameMap Name) (p : Name × Name) => s.insert p.1 p.2,
   }
   let attrImpl : AttributeImpl := {
+    ref   := ref,
     name  := name,
     descr := descr,
     add   := fun decl stx _ => do

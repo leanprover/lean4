@@ -24,7 +24,6 @@ def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
 
 builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
   registerSimplePersistentEnvExtension {
-    name          := `aliasesExt,
     addEntryFn    := addAliasEntry,
     addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es |>.switch
   }

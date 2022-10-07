@@ -34,7 +34,6 @@ lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Widget_instToStringExprDiff___closed__2;
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Widget_diffInteractiveGoals___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChangePos(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toHighlightColor___boxed(lean_object*, lean_object*);
 static lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_diffInteractiveGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -59,6 +58,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffHypotheses_
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_findFromUserName_x3f(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
+lean_object* l_Lean_Widget_SubexprInfo_withDiffTag(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_addDiffTags___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -75,7 +75,6 @@ static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__9;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_addDiffTags___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_diffHypothesesBundle___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_LocalContext_contains(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -90,6 +89,7 @@ LEAN_EXPORT uint8_t l_Lean_Widget_instAppendExprDiff___lambda__2(lean_object*, u
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Widget_exprDiffCore_piDiff___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_diffHypotheses___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Widget_diffInteractiveGoals___spec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Widget_instToStringExprDiff___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instAppendExprDiff___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6___lambda__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,7 +98,6 @@ uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lea
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_mvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_exprDiffCore___spec__3(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion(lean_object*);
 static lean_object* l_Lean_Widget_instAppendExprDiff___closed__2;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instEmptyCollectionExprDiff;
@@ -108,11 +107,10 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Widget_ExprDiff_insertBe
 LEAN_EXPORT uint8_t l_List_foldr___at_Lean_Widget_diffInteractiveGoals___spec__5(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_diffHypotheses(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_insertBeforeChange(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Expr_getForallBinderNames(lean_object*);
 static lean_object* l_Lean_Widget_diffHypothesesBundle_withTypeDiff___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_SubExpr_Pos_pushNthBindingDomain(lean_object*, lean_object*);
-static lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffHypotheses___spec__1(uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoals___closed__1;
 uint8_t l_Lean_Name_quickCmp(lean_object*, lean_object*);
@@ -132,15 +130,14 @@ lean_object* l_Lean_Expr_sort___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_diffHypothesesBundle_withTypeDiff___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6___lambda__3___boxed(lean_object**);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChange___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(lean_object*);
 lean_object* l_Lean_Meta_getFVarFromUserName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__4;
 LEAN_EXPORT lean_object* l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDiff___spec__1(lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_mapM___at_Lean_Widget_addDiffTags___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Widget_exprDiffCore_piDiff___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -169,8 +166,10 @@ lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiff(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_exprDiffCore___lambda__3___closed__1;
 static lean_object* l_Lean_Widget_instToStringExprDiffTag___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Widget_ExprDiffTag_toString___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_diffInteractiveGoals___spec__4___boxed(lean_object*, lean_object*);
@@ -179,17 +178,20 @@ LEAN_EXPORT lean_object* l_Lean_Widget_diffInteractiveGoals(uint8_t, lean_object
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__6___at_Lean_Widget_diffInteractiveGoals___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiff___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapIdxM_map___at_Lean_Widget_exprDiffCore___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1;
 uint8_t l_Lean_RBNode_isRed___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__7;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Widget_exprDiffCore___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isPrefixOf_x3f___at_Lean_Widget_exprDiffCore_piDiff___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_findDecl_x3f(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toDiffTag___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx___boxed(lean_object*);
 lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_mergeBy___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,10 +207,8 @@ uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(
 LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff(lean_object*);
-lean_object* l_Lean_Widget_SubexprInfo_highlight(uint8_t, lean_object*);
 static lean_object* l_List_foldlM___at_Lean_Widget_diffInteractiveGoals___spec__3___closed__1;
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_isEmpty___boxed(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -224,8 +224,9 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractive
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_changesAfter___default;
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__8;
-LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiffTag_toHighlightColor(uint8_t, uint8_t);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__5;
+LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiffTag_toDiffTag(uint8_t, uint8_t);
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx(uint8_t);
 static lean_object* l_Lean_Widget_ExprDiffTag_toString___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_addDiffTags___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChangePos___boxed(lean_object*, lean_object*, lean_object*);
@@ -300,74 +301,82 @@ x_4 = l_Lean_Option_register___at_Lean_Elab_initFn____x40_Lean_Elab_AutoBound___
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toCtorIdx(uint8_t x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx(uint8_t x_1) {
 _start:
 {
-if (x_1 == 0)
+switch (x_1) {
+case 0:
 {
 lean_object* x_2; 
 x_2 = lean_unsigned_to_nat(0u);
 return x_2;
 }
-else
+case 1:
 {
 lean_object* x_3; 
 x_3 = lean_unsigned_to_nat(1u);
 return x_3;
 }
+default: 
+{
+lean_object* x_4; 
+x_4 = lean_unsigned_to_nat(2u);
+return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toCtorIdx___boxed(lean_object* x_1) {
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx___boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l_Lean_Widget_ExprDiffTag_toCtorIdx(x_2);
+x_3 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_toCtorIdx(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
 lean_inc(x_1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1() {
+static lean_object* _init_l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed), 1, 0);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; 
-x_4 = l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1;
+x_4 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1;
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = l_Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(x_1);
+x_2 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___lambda__1(x_1);
 lean_dec(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -375,46 +384,62 @@ x_4 = lean_unbox(x_1);
 lean_dec(x_1);
 x_5 = lean_unbox(x_2);
 lean_dec(x_2);
-x_6 = l_Lean_Widget_ExprDiffTag_noConfusion___rarg(x_4, x_5, x_3);
+x_6 = l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg(x_4, x_5, x_3);
 return x_6;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiffTag_toHighlightColor(uint8_t x_1, uint8_t x_2) {
+LEAN_EXPORT uint8_t l_Lean_Widget_ExprDiffTag_toDiffTag(uint8_t x_1, uint8_t x_2) {
 _start:
 {
 if (x_1 == 0)
 {
-if (x_2 == 0)
+switch (x_2) {
+case 0:
 {
 uint8_t x_3; 
-x_3 = 3;
+x_3 = 1;
 return x_3;
 }
-else
+case 1:
 {
 uint8_t x_4; 
-x_4 = 2;
+x_4 = 3;
 return x_4;
 }
-}
-else
-{
-if (x_2 == 0)
+default: 
 {
 uint8_t x_5; 
-x_5 = 0;
+x_5 = 5;
 return x_5;
+}
+}
 }
 else
 {
+switch (x_2) {
+case 0:
+{
 uint8_t x_6; 
-x_6 = 2;
+x_6 = 0;
 return x_6;
 }
+case 1:
+{
+uint8_t x_7; 
+x_7 = 2;
+return x_7;
+}
+default: 
+{
+uint8_t x_8; 
+x_8 = 4;
+return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toHighlightColor___boxed(lean_object* x_1, lean_object* x_2) {
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toDiffTag___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
@@ -422,7 +447,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = l_Lean_Widget_ExprDiffTag_toHighlightColor(x_3, x_4);
+x_5 = l_Lean_Widget_ExprDiffTag_toDiffTag(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -443,20 +468,36 @@ x_1 = lean_mk_string_from_bytes("delete", 6);
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Widget_ExprDiffTag_toString___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("insert", 6);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiffTag_toString(uint8_t x_1) {
 _start:
 {
-if (x_1 == 0)
+switch (x_1) {
+case 0:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Widget_ExprDiffTag_toString___closed__1;
 return x_2;
 }
-else
+case 1:
 {
 lean_object* x_3; 
 x_3 = l_Lean_Widget_ExprDiffTag_toString___closed__2;
 return x_3;
+}
+default: 
+{
+lean_object* x_4; 
+x_4 = l_Lean_Widget_ExprDiffTag_toString___closed__3;
+return x_4;
+}
 }
 }
 }
@@ -5852,8 +5893,8 @@ LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1(uint8_t x_1, lean
 _start:
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = l_Lean_Widget_ExprDiffTag_toHighlightColor(x_1, x_3);
-x_10 = l_Lean_Widget_SubexprInfo_highlight(x_9, x_2);
+x_9 = l_Lean_Widget_ExprDiffTag_toDiffTag(x_1, x_3);
+x_10 = l_Lean_Widget_SubexprInfo_withDiffTag(x_9, x_2);
 x_11 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_8);
@@ -11120,12 +11161,14 @@ if (lean_io_result_is_error(res)) return res;
 l_Lean_Widget_showTacticDiff = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Widget_showTacticDiff);
 lean_dec_ref(res);
-}l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1 = _init_l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1();
-lean_mark_persistent(l_Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1);
+}l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1 = _init_l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1();
+lean_mark_persistent(l___private_Lean_Widget_Diff_0__Lean_Widget_ExprDiffTag_noConfusion___rarg___closed__1);
 l_Lean_Widget_ExprDiffTag_toString___closed__1 = _init_l_Lean_Widget_ExprDiffTag_toString___closed__1();
 lean_mark_persistent(l_Lean_Widget_ExprDiffTag_toString___closed__1);
 l_Lean_Widget_ExprDiffTag_toString___closed__2 = _init_l_Lean_Widget_ExprDiffTag_toString___closed__2();
 lean_mark_persistent(l_Lean_Widget_ExprDiffTag_toString___closed__2);
+l_Lean_Widget_ExprDiffTag_toString___closed__3 = _init_l_Lean_Widget_ExprDiffTag_toString___closed__3();
+lean_mark_persistent(l_Lean_Widget_ExprDiffTag_toString___closed__3);
 l_Lean_Widget_instToStringExprDiffTag___closed__1 = _init_l_Lean_Widget_instToStringExprDiffTag___closed__1();
 lean_mark_persistent(l_Lean_Widget_instToStringExprDiffTag___closed__1);
 l_Lean_Widget_instToStringExprDiffTag = _init_l_Lean_Widget_instToStringExprDiffTag();

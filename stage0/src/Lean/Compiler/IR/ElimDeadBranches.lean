@@ -126,7 +126,6 @@ abbrev FunctionSummaries := SMap FunId Value
 
 builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) FunctionSummaries ←
   registerSimplePersistentEnvExtension {
-    name       := `unreachBranchesFunSummary,
     addImportedFn := fun as =>
       let cache : FunctionSummaries := mkStateFromImportedEntries (fun s (p : FunId × Value) => s.insert p.1 p.2) {} as
       cache.switch,

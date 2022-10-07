@@ -107,6 +107,8 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
   if before.expr == after.expr then
     return ∅
   match before.expr, after.expr with
+  | .mdata _ e₀, _ => exprDiffCore {before with expr := e₀} after
+  | _, .mdata _ e₁ => exprDiffCore before {after with expr := e₁}
   | .app .., .app .. =>
     let (fn₀, args₀) := after.expr.withApp Prod.mk
     let (fn₁, args₁) := before.expr.withApp Prod.mk
@@ -128,6 +130,11 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
       return ← exprDiffCore ⟨b₀, before.pos.pushBindingBody⟩ ⟨b₁, after.pos.pushBindingBody⟩
     else
       return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
+  | .proj n₀ i₀ e₀, .proj n₁ i₁ e₁ =>
+    if n₀ != n₁ || i₀ != i₁ then
+      return ExprDiff.withChange before after
+    else
+      exprDiffCore ⟨e₀, before.pos.pushProj⟩ ⟨e₁, after.pos.pushProj⟩
   | _, _ => return ExprDiff.withChange before after
   where
     piDiff (before after : SubExpr) : MetaM ExprDiff := do

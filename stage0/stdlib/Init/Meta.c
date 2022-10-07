@@ -12334,7 +12334,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_takeWhi
 _start:
 {
 uint8_t x_4; 
-x_4 = lean_nat_dec_eq(x_3, x_2);
+x_4 = lean_nat_dec_le(x_2, x_3);
 if (x_4 == 0)
 {
 uint32_t x_5; uint8_t x_6; 
@@ -12363,7 +12363,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_takeWhi
 _start:
 {
 uint8_t x_4; 
-x_4 = lean_nat_dec_eq(x_3, x_2);
+x_4 = lean_nat_dec_le(x_2, x_3);
 if (x_4 == 0)
 {
 uint32_t x_5; uint8_t x_6; 
@@ -12392,7 +12392,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Basic_0__Substring_takeWhi
 _start:
 {
 uint8_t x_4; 
-x_4 = lean_nat_dec_eq(x_3, x_2);
+x_4 = lean_nat_dec_le(x_2, x_3);
 if (x_4 == 0)
 {
 uint32_t x_5; uint32_t x_6; uint8_t x_7; 

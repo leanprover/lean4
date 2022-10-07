@@ -11,6 +11,7 @@ import Lean.Compiler.LCNF.PrettyPrinter
 import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.PhaseExt
+import Lean.Compiler.LCNF.MonadScope
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -46,11 +47,9 @@ structure State where
 
 abbrev SpecializeM := ReaderT Context $ StateRefT State CompilerM
 
-@[inline] def withParams (ps : Array Param) (x : SpecializeM α) : SpecializeM α :=
-  withReader (fun ctx => { ctx with scope := ps.foldl (init := ctx.scope) fun s p => s.insert p.fvarId }) x
-
-@[inline] def withFVar (fvarId : FVarId) (x : SpecializeM α) : SpecializeM α :=
-  withReader (fun ctx => { ctx with scope := ctx.scope.insert fvarId }) x
+instance : MonadScope SpecializeM where
+  getScope := return (← read).scope
+  withScope f := withReader (fun ctx => { ctx with scope := f ctx.scope })
 
 /--
 Return `true` if `e` is a ground term. That is,
@@ -190,7 +189,7 @@ mutual
   partial def collectFVar (fvarId : FVarId) : CollectorM Unit := do
     unless (← get).visited.contains fvarId do
       markVisited fvarId
-      if (← read).scope.contains fvarId then
+      if (← inScope fvarId) then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
           collectFunDecl funDecl

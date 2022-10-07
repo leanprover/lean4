@@ -55,6 +55,10 @@ def builtinPassManager : PassManager := {
     cse,
     saveBase, -- End of base phase
     toMono,
+    simp (occurrence := 3) (phase := .mono),
+    reduceJpArity (phase := .mono),
+    extendJoinPointContext,
+    simp (occurrence := 4) (phase := .mono),
     -- TODO: lambda lifting, reduce function arity
     saveMono  -- End of mono phase
   ]

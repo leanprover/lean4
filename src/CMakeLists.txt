@@ -283,8 +283,9 @@ string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  # adding `-ffunction-sections` makes `lake` segfault?
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,-dead_strip")
+  # get rid of unused parts of C++ stdlib
+  # enabling for all binaries makes `lake` segfault?
+  string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-dead_strip")
 else()
   string(APPEND LEANC_EXTRA_FLAGS " -fdata-sections -ffunction-sections")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--gc-sections")

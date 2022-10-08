@@ -207,10 +207,19 @@ structure Context where
   inPattern        : Bool := false
   /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
-  /-- If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
-      of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
-      We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
+  /--
+  If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
+  of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
+  We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
   saveRecAppSyntax : Bool := true
+  /--
+  If `holesAsSyntheticOpaque` is `true`, then we mark metavariables associated
+  with `_`s as `synthethicOpaque` if they do not occur in patterns.
+  This option is useful when elaborating terms in tactics such as `refine'` where
+  we want holes there to become new goals. See issue #1681, we have
+  `refine' (fun x => _)
+  -/
+  holesAsSyntheticOpaque : Bool := false
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr

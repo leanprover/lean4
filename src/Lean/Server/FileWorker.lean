@@ -449,7 +449,7 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc := (←get).doc
+      let doc := st.doc
       doc.cancelTk.set
       return ()
     | Message.notification method (some params) =>

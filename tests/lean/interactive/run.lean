@@ -178,8 +178,6 @@ partial def main (args : List String) : IO Unit := do
       | _ =>
         lastActualLineNo := lineNo
       lineNo := lineNo + 1
-    Ipc.writeRequest ⟨requestNo, "shutdown", Json.null⟩
-    let shutResp ← Ipc.readResponseAs requestNo Json
-    assert! shutResp.result.isNull
-    Ipc.writeNotification ⟨"exit", Json.null⟩
+
+    Ipc.shutdown requestNo
     discard <| Ipc.waitForExit

@@ -253,8 +253,11 @@ section ServerM
         if exitCode = 0 then
           -- Worker was terminated
           fw.errorPendingRequests o ErrorCode.contentModified
-            ("The file worker has been terminated. Either the header has changed,"
+            (s!"The file worker for {fw.doc.meta.uri} has been terminated. Either the header has changed,"
             ++ " or the file was closed, or the server is shutting down.")
+          -- one last message to clear the diagnostics for this file so that stale errors
+          -- do not remain in the editor forever.
+          publishDiagnostics fw.doc.meta #[] o
           return WorkerEvent.terminated
         else
           -- Worker crashed

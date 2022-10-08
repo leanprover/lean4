@@ -478,6 +478,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       match k with
       | Key.star  => return result
       /-
+        Note: dep-arrow vs arrow
         Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
         A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
       -/
@@ -494,8 +495,10 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α)
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
-    | Key.star => return (k, result)
-    | _        => return (k, ← getMatchRoot d k args result)
+    | Key.star  => return (k, result)
+    /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
+    | Key.arrow => return (k, (← getMatchRoot d k args (← getMatchRoot d .other #[] result)))
+    | _         => return (k, (← getMatchRoot d k args result))
 
 /--
   Find values that match `e` in `d`.

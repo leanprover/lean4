@@ -53,6 +53,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
     paramsNew := paramsNew.push paramNew
     subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
   let code ← info.value.internalize subst
+  -- TODO: check resulting type
   updateFunDeclInfo code
   mkAuxFunDecl paramsNew code
 
@@ -96,6 +97,44 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
+/-
+Note: function inlining and result type.
+The function betaReduce has support for adding cast operations to arguments when inlining a definition.
+We may also need cast operations at the exit points of a function.
+Here is a concrete example.
+
+Suppose we have
+```
+inductive Id {A : Type u} : A → A → Type u
+  | refl {a : A} : Id a a
+def transport {A : Type u} (B : A → Type v) {a b : A} (p : Id a b) : B a → B b :=
+```
+Its LCNF type is
+```
+{A : Type u} (B : A → Type v) {a b : A} (p : Id ◾ ◾) (a.1 : B ◾) : B ◾
+```
+and base phase code is
+```
+cases p : B ◾
+| Id.refl =>
+  a.1
+```
+Now suppose we define
+```
+def transportconst {A B : Type u} : A = B → A → B :=
+  transport id
+```
+By setting `B` as `id`, and then inlining `transport, we would have the following code for `transportconst` is
+```
+cases p : ◾
+| Id.refl =>
+  a.1
+```
+Now, suppose we inline `transportconst` in a place where the continuation is expecting a value of
+type `B`, but we are providing a value of type `A`. We must insert a cast to ensure the result is type
+correct.
+-/
+
 mutual
 /--
 If the value of the given let-declaration is an application that can be inlined,
@@ -124,7 +163,10 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
+    let expectedType ← inferType (mkAppN info.f info.args[:info.arity])
     let code ← betaReduce info.params info.value info.args[:info.arity]
+    /- See note above: function inlining and result type. -/
+    let code ← code.ensureResultType expectedType
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -149,7 +191,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
-        let jpParam ← mkAuxParam (← inferType (mkAppN info.f info.args[:info.arity]))
+        let jpParam ← mkAuxParam expectedType
         let jpValue ← if numArgs > info.arity then
           let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) info.args[info.arity:])
           addFVarSubst fvarId decl.fvarId
@@ -198,6 +240,20 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
         auxDecls := auxDecls.push (CodeDecl.let auxDecl)
         addFVarSubst param.fvarId auxDecl.fvarId
     let k ← simp k
+    /-
+    We must ensure the result type is equivalent to `cases.resultType` here, otherwise the result may be type incorrect.
+    For example, the following LCNF code is correct before applying this transformation, but requires a cast after.
+
+    ```
+    def f (a : A) (b : B) : B :=
+      let _x.1 := true
+      cases _x.1 : ⊤
+      | true => return a
+      | false => return b
+    ```
+    This situation is similar to the one we have when inlining functions.
+    -/
+    let k ← k.ensureResultType cases.resultType
     eraseParams params
     attachCodeDecls auxDecls k
 
@@ -225,7 +281,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     else if let some code ← inlineApp? decl k then
       eraseLetDecl decl
       return code
-    else if let some (decls, fvarId) ← inlineProjInst? decl.value then
+    else if let some (decls, fvarId) ← inlineProjInst? decl.value decl.type then
       addFVarSubst decl.fvarId fvarId
       eraseLetDecl decl
       let k ← simp k

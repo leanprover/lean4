@@ -50,7 +50,7 @@ def builtinPassManager : PassManager := {
     pullFunDecls,
     reduceJpArity,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
-    eagerLambdaLifting,
+    -- eagerLambdaLifting,
     specialize,
     simp (occurrence := 2),
     cse,

@@ -1,5 +1,5 @@
 [Compiler.saveBase] size: 7
-    def f1 c a b :=
+    def f1 c a b : Nat :=
       cases c
       | Bool.false =>
         let _x.1 := Nat.add b a
@@ -10,7 +10,7 @@
         let _x.4 := Nat.add b a
         _x.4
 [Compiler.saveBase] size: 7
-    def f2 c a b :=
+    def f2 c a b : Nat :=
       cases c
       | Bool.false =>
         let _x.1 := Nat.add b a
@@ -21,17 +21,17 @@
         let _x.4 := Nat.add b a
         _x.4
 [Compiler.saveBase] size: 19
-    def f3 c c' a b :=
-      jp _jp.1 y z :=
+    def f3 c c' a b : Nat :=
+      jp _jp.1 y z : Nat :=
         let _x.2 := Nat.add y z
         let _x.3 := Nat.mul z y
         let _x.4 := Nat.add _x.2 _x.3
         _x.4
-      jp _jp.5 y z :=
+      jp _jp.5 y z : Nat :=
         let _x.6 := Nat.add z y
         let _x.7 := Nat.add _x.6 y
         _x.7
-      jp _jp.8 y d z :=
+      jp _jp.8 y d z : Nat :=
         cases d
         | C.c1 =>
           goto _jp.1 y z
@@ -47,17 +47,17 @@
       | C.c4 =>
         goto _jp.8 a c' a
 [Compiler.saveBase] size: 22
-    def f4 c c' a b :=
-      jp _jp.1 y z :=
+    def f4 c c' a b : Nat :=
+      jp _jp.1 y z : Nat :=
         let _x.2 := Nat.add y z
         let _x.3 := Nat.mul z y
         let _x.4 := Nat.add _x.2 _x.3
         _x.4
-      jp _jp.5 y z :=
+      jp _jp.5 y z : Nat :=
         let _x.6 := Nat.add z y
         let _x.7 := Nat.add _x.6 y
         _x.7
-      jp _jp.8 y z d :=
+      jp _jp.8 y z d : Nat :=
         cases d
         | C.c1 =>
           goto _jp.1 y z

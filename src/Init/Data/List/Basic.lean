@@ -240,9 +240,9 @@ def notElem [BEq α] (a : α) (as : List α) : Bool :=
 abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
 
-inductive Mem : α → List α → Prop
-  | head (a : α) (as : List α) : Mem a (a::as)
-  | tail (a : α) {b : α} {as : List α} : Mem b as → Mem b (a::as)
+inductive Mem (a : α) : List α → Prop
+  | head (as : List α) : Mem a (a::as)
+  | tail (b : α) {as : List α} : Mem a as → Mem a (b::as)
 
 instance : Membership α (List α) where
   mem := Mem

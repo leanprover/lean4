@@ -133,13 +133,15 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
             pure .other
         paramsInfo := paramsInfo.push info
         pure ()
+      trace[Compiler.specialize.info] ">> {decl.name} {paramsInfo}"
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
-    let m := mkFixedArgMap decls
+    let m := mkFixedParamsMap decls
     for i in [:decls.size] do
       let decl := decls[i]!
       let paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
+      trace[Compiler.specialize.info] "{decl.name} {mask}"
       let paramsInfo := paramsInfo.zipWith mask fun info mask => if mask || info matches .user then info else .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
         trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"

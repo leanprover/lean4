@@ -135,8 +135,11 @@ creating the specialized code.
 -/
 def collect (paramsInfo : Array SpecParamInfo) (args : Array Expr) : SpecializeM (Array (Option Expr) × Array Param × Array CodeDecl) := do
   let ctx ← read
-  let isGround decl := ctx.ground.contains decl.fvarId
-  Closure.run (inScope := ctx.scope.contains) (abstractLet := isGround) do
+  let lctx := (← getThe CompilerM.State).lctx
+  let abstract (fvarId : FVarId) : Bool :=
+    -- We convert let-declarations that are not ground into parameters
+    !lctx.funDecls.contains fvarId && !ctx.ground.contains fvarId
+  Closure.run (inScope := ctx.scope.contains) (abstract := abstract) do
     let mut argMask := #[]
     for paramInfo in paramsInfo, arg in args do
       match paramInfo with

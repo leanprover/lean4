@@ -32,6 +32,7 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   guard f.isFVar
   let f ← findExpr f
   guard <| f.isApp || f.isConst
+  guard <| !f.isAppOf ``lcCast
   markSimplified
   return mkAppN f e.getAppArgs
 

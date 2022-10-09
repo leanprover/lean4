@@ -72,14 +72,14 @@ instance [STWorld ω m] [MonadCodeBind m] : MonadCodeBind (StateRefT' ω σ m) w
   codeBind c f sref := c.bind fun fvarId => f fvarId sref
 
 /--
-Ensure resulting code has type `◾`.
+Ensure resulting code type is equivalent to `type`.
 -/
-def Code.ensureAnyType (c : Code) : CompilerM Code := do
-  if (← c.inferType).isErased then
+def Code.ensureResultType (c : Code) (type : Expr) : CompilerM Code := do
+  if eqvTypes (← c.inferType) type then
     return c
   else
     c.bind fun fvarId => do
-      let cast ← mkLcCast (.fvar fvarId) erasedExpr
+      let cast ← mkLcCast (.fvar fvarId) type
       let decl ← LCNF.mkAuxLetDecl cast
       return .let decl (.return decl.fvarId)
 

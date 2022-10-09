@@ -76,10 +76,11 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
   | .unreach type => return .unreach (← normExpr type)
   | .cases c =>
     let resultType ← normExpr c.resultType
-    let ensureAny := resultType != c.resultType && resultType.isErased
+    let ensureResultType := !eqvTypes resultType c.resultType
     /-
     Note:
-    If the new result type for the cases is `◾`, we must add a cast to `◾` (aka the any type)
+    If the new result type for the cases is not equivalent, we have to use `ensureResultType` to make sure the result is still type correc.
+    For result, suppose `resultType` is `◾` but the old one was not. Then, we must add a cast to `◾` (aka the any type)
     to every alternative if their resulting type is not `◾`. This is similar to what we do at `ToLCNF.visitCases`.
     Here is an example to illustrate this issue.
     Suppose we have
@@ -124,8 +125,8 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
     -/
     let internalizeAltCode (k : Code) : InternalizeM Code := do
       let k ← internalizeCode k
-      if ensureAny then
-        k.ensureAnyType
+      if ensureResultType then
+        k.ensureResultType resultType
       else
         return k
     let discr ← normFVar c.discr

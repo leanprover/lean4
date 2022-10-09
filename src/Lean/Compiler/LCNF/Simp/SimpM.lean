@@ -219,12 +219,29 @@ def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInl
       ...
     ```
     We must introduce a cast around `a` to make sure the resulting expression is type correct.
+
+    Note: this issue is not restricted to situations where `param.type` is `◾`. It may also happen if
+    the `◾` is nested at `param.type`. For example, consider the following variant of the example above.
+    It is also type correct before inlining `f`, but we must introduce a cast to ensure it is still type
+    correct after.
+    ```
+    def foo (g : List A → List A) (a : List B) :=
+      fun f (x : List ◾) :=
+        let _x.1 := g x
+        ...
+      let _x.2 := f a
+      ...
+    ```
     -/
-    if param.type.isErased && !(← inferType arg).isErased then
-      let castArg ← mkLcCast arg erasedExpr
-      let castDecl ← mkAuxLetDecl castArg
-      castDecls := castDecls.push (CodeDecl.let castDecl)
-      subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
+    let argType ← inferType arg
+    if !argType.isErased && !eqvTypes argType (normExprCore subst param.type (translator := true)) then
+      if !arg.isFVar || isTypeFormerType argType then
+        subst := subst.insert param.fvarId erasedExpr
+      else
+        let castArg ← mkLcCast arg erasedExpr
+        let castDecl ← mkAuxLetDecl castArg
+        castDecls := castDecls.push (CodeDecl.let castDecl)
+        subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
     else
       subst := subst.insert param.fvarId arg
   let code ← code.internalize subst

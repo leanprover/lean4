@@ -239,6 +239,10 @@ See `Check.lean` for the free variable substitution checker.
 @[inline, inheritDoc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
   return normExprImp (← getSubst) e t
 
+@[inheritDoc normExprImp]
+abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
+  normExprImp s e translator
+
 /--
 Normalize the given expressions using the current substitution.
 -/

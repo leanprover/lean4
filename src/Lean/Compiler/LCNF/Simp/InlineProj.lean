@@ -43,7 +43,7 @@ partial def inlineProjInst? (e : Expr) (expectedType : Expr) : SimpM (Option (Ar
   let (fvarId?, decls) ← visit s [i] |>.run |>.run #[]
   if let some fvarId := fvarId? then
     let type ← getType fvarId
-    if type.isErased || eqvTypes expectedType type then
+    if expectedType.isErased || type.isErased || eqvTypes expectedType type then
       return some (decls, fvarId)
     else
       let cast ← mkLcCast (.fvar fvarId) expectedType

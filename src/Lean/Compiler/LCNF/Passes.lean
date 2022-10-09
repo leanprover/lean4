@@ -26,6 +26,12 @@ def init : Pass where
     return decls
   phase := .base
 
+-- Helper pass used for debugging purposes
+def trace (phase := Phase.base) : Pass where
+  name  := `trace
+  run   := pure
+  phase := phase
+
 def normalizeFVarIds (decl : Decl) : CoreM Decl := do
   let ngenSaved ← getNGen
   setNGen {}

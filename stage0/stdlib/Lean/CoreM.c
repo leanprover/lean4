@@ -117,7 +117,7 @@ size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Declaration_foldExprM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at___private_Lean_CoreM_0__Lean_checkUnsupported___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadRecDepthCoreM___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Core_instMonadWithOptionsCoreM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___at_Lean_addDecl___spec__6(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -8613,7 +8613,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_265; uint8_t x_266; 
 x_265 = 2;
-x_266 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_265);
+x_266 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_265);
 if (x_266 == 0)
 {
 lean_object* x_267; 
@@ -8650,7 +8650,7 @@ uint8_t x_8; lean_object* x_258; uint8_t x_259; uint8_t x_260;
 lean_dec(x_7);
 x_258 = lean_ctor_get(x_4, 2);
 x_259 = 1;
-x_260 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_259);
+x_260 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_259);
 if (x_260 == 0)
 {
 x_8 = x_3;

@@ -208,7 +208,6 @@ static lean_object* l_Lean_instInhabitedTraceState___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Trace_0__Lean_addTraceNode___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doElemTrace_x5b___x5d______1___lambda__1___closed__25;
 static lean_object* l_Lean_instInhabitedTraceState___closed__2;
-static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__14;
@@ -252,6 +251,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__
 lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_doElemTrace_x5b___x5d_______closed__22;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1;
 LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_printTraces(lean_object*);
@@ -317,7 +317,7 @@ static lean_object* l_Lean___aux__Lean__Util__Trace______macroRules__Lean__doEle
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_printTraces___spec__4___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addRawTrace___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_75_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_79_(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___rarg___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -455,7 +455,7 @@ x_1 = l_Lean_instInhabitedTraceState___closed__4;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1() {
+static lean_object* _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -464,11 +464,11 @@ x_2 = l_Lean_mkHashSetImp___rarg(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_75_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Trace___hyg_79_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1;
 x_3 = lean_st_mk_ref(x_2, x_1);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
@@ -4887,9 +4887,9 @@ l_Lean_instInhabitedTraceState___closed__4 = _init_l_Lean_instInhabitedTraceStat
 lean_mark_persistent(l_Lean_instInhabitedTraceState___closed__4);
 l_Lean_instInhabitedTraceState = _init_l_Lean_instInhabitedTraceState();
 lean_mark_persistent(l_Lean_instInhabitedTraceState);
-l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1 = _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_Trace___hyg_75____closed__1);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Trace___hyg_75_(lean_io_mk_world());
+l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1 = _init_l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_Util_Trace___hyg_79____closed__1);
+if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Trace___hyg_79_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_inheritedTraceOptions = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_inheritedTraceOptions);

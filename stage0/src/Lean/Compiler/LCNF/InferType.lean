@@ -416,6 +416,9 @@ We have that `List Nat` and `List ◾` are compatible types, but they are not eq
 partial def eqvTypes (a b : Expr) : Bool :=
   if a == b then
     true
+  else if a.isErased && b.isErased then
+    -- `◾ α` is equivalent to `◾`
+    true
   else
     let a' := a.headBeta
     let b' := b.headBeta

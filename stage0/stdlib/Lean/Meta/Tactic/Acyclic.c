@@ -56,7 +56,7 @@ lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean
 extern lean_object* l_Lean_Meta_simpExtension;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__29;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__25;
-LEAN_EXPORT lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1010_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1015_(lean_object*);
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_acyclic_go___closed__6;
 static lean_object* l_Lean_MVarId_acyclic_go___closed__19;
@@ -1582,7 +1582,7 @@ lean_dec(x_1);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1010_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1015_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -1675,7 +1675,7 @@ l_Lean_MVarId_acyclic___lambda__2___closed__1 = _init_l_Lean_MVarId_acyclic___la
 lean_mark_persistent(l_Lean_MVarId_acyclic___lambda__2___closed__1);
 l_Lean_MVarId_acyclic___lambda__2___closed__2 = _init_l_Lean_MVarId_acyclic___lambda__2___closed__2();
 lean_mark_persistent(l_Lean_MVarId_acyclic___lambda__2___closed__2);
-res = l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1010_(lean_io_mk_world());
+res = l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1015_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

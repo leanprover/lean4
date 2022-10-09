@@ -5319,6 +5319,8 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
 x_45 = l_Lean_Compiler_LCNF_Simp_simpValue_x3f(x_44, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_43);
 if (lean_obj_tag(x_45) == 0)
 {
@@ -7077,6 +7079,8 @@ lean_inc(x_401);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
+lean_inc(x_3);
+lean_inc(x_2);
 x_411 = l_Lean_Compiler_LCNF_Simp_simpValue_x3f(x_410, x_2, x_3, x_4, x_5, x_6, x_401, x_8, x_409);
 if (lean_obj_tag(x_411) == 0)
 {

@@ -26,6 +26,12 @@ def init : Pass where
     return decls
   phase := .base
 
+-- Helper pass used for debugging purposes
+def trace (phase := Phase.base) : Pass where
+  name  := `trace
+  run   := pure
+  phase := phase
+
 def normalizeFVarIds (decl : Decl) : CoreM Decl := do
   let ngenSaved ← getNGen
   setNGen {}
@@ -107,5 +113,6 @@ builtin_initialize
 
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
+  registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

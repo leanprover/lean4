@@ -504,7 +504,6 @@ where
       ps ← ps.mapM fun p => do
         let type ← inferType p.toExpr
         if (← isTypeFormerType type) then
-          trace[Meta.debug] "{p.binderName} is type former"
           modify fun s => { s with toAny := s.toAny.insert p.fvarId }
         /-
         Recall that we may have dependent fields. Example:

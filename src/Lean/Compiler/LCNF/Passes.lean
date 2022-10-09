@@ -13,6 +13,7 @@ import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.ToMono
+import Lean.Compiler.LCNF.LambdaLifting
 
 namespace Lean.Compiler.LCNF
 
@@ -48,7 +49,6 @@ def builtinPassManager : PassManager := {
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
-    -- extendJoinPointContext,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     specialize,
     simp (occurrence := 2),
@@ -59,7 +59,9 @@ def builtinPassManager : PassManager := {
     reduceJpArity (phase := .mono),
     extendJoinPointContext,
     simp (occurrence := 4) (phase := .mono),
-    -- TODO: lambda lifting, reduce function arity
+    lambdaLifting,
+    simp (occurrence := 5) (phase := .mono),
+    -- TODO: reduce function arity
     saveMono  -- End of mono phase
   ]
 }

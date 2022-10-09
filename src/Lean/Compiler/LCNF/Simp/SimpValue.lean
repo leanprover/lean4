@@ -40,6 +40,29 @@ def simpCtorDiscr? (e : Expr) : OptionT SimpM Expr := do
   let some v ← simpCtorDiscrCore? e | failure
   return v
 
+/--
+```
+let _x.i := lcCast.{u, v} α β a
+let _x.j := lcCast.{v, w} β δ _x.i
+```
+=>
+```
+let _x.j := lcCast.{u, w} α δ _a
+```
+-/
+def simpCastCast? (e : Expr) : OptionT SimpM Expr := do
+  guard <| e.isAppOfArity ``lcCast 3
+  let arg ← findExpr e.appArg!
+  guard <| arg.isAppOfArity ``lcCast 3
+  let δ := e.appFn!.appArg!
+  let #[α, _, a] := arg.getAppArgs | unreachable!
+  if (← getPhase) matches .base then
+    let .const _ [_, w] := e.getAppFn | failure
+    let .const _ [u, _] := arg.getAppFn | failure
+    return mkAppN (mkConst ``lcCast [u, w]) #[α, δ, a]
+  else
+    return mkAppN (mkConst ``lcCast) #[α, δ, a]
+
 def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
   guard <| (← read).config.implementedBy
   let .const declName us := e.getAppFn | failure
@@ -50,4 +73,4 @@ def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
 /-- Try to apply simple simplifications. -/
 def simpValue? (e : Expr) : SimpM (Option Expr) :=
   -- TODO: more simplifications
-  simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e
+  simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e <|> simpCastCast? e

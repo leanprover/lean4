@@ -11,7 +11,7 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.FixedArgs
+import Lean.Compiler.LCNF.FixedParams
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.LCtx

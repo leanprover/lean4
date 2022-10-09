@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.FixedArgs
+import Lean.Compiler.LCNF.FixedParams
 import Lean.Compiler.LCNF.InferType
 
 namespace Lean.Compiler.LCNF
@@ -133,7 +133,6 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
             pure .other
         paramsInfo := paramsInfo.push info
         pure ()
-      trace[Compiler.specialize.info] ">> {decl.name} {paramsInfo}"
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
     let m := mkFixedParamsMap decls

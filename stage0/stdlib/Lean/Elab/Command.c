@@ -206,7 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Elab_Command_elabCommand___sp
 LEAN_EXPORT lean_object* l_Lean_log___at_Lean_Elab_Command_runLinters___spec__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_modifyScope___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_State_messages___default;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_119_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(uint8_t, uint8_t);
 static lean_object* l_Lean_Elab_Command_instMonadTraceCommandElabM___closed__2;
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommandTopLevel___spec__12___lambda__1___closed__5;
 static lean_object* l_Lean_Elab_Command_instMonadRefCommandElabM___closed__1;
@@ -6449,7 +6449,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_353; uint8_t x_354; 
 x_353 = 2;
-x_354 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_119_(x_3, x_353);
+x_354 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_353);
 if (x_354 == 0)
 {
 lean_object* x_355; 
@@ -6500,7 +6500,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_347 = 1;
-x_348 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_119_(x_3, x_347);
+x_348 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_347);
 if (x_348 == 0)
 {
 lean_dec(x_14);
@@ -11027,7 +11027,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_353; uint8_t x_354; 
 x_353 = 2;
-x_354 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_119_(x_3, x_353);
+x_354 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_353);
 if (x_354 == 0)
 {
 lean_object* x_355; 
@@ -11078,7 +11078,7 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 lean_dec(x_13);
 x_347 = 1;
-x_348 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_119_(x_3, x_347);
+x_348 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_116_(x_3, x_347);
 if (x_348 == 0)
 {
 lean_dec(x_14);

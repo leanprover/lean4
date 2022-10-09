@@ -126,7 +126,7 @@ lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta
 LEAN_EXPORT lean_object* l_Lean_Meta_openAbstractMVarsResult(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_getLevelDepth(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_434_(uint8_t, uint8_t);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_Meta_AbstractMVars_abstractExprMVars___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_instBEqAbstractMVarsResult;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_openAbstractMVarsResult___spec__1(size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2762,7 +2762,7 @@ return x_183;
 else
 {
 uint8_t x_195; 
-x_195 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(x_179, x_179);
+x_195 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_434_(x_179, x_179);
 if (x_195 == 0)
 {
 lean_object* x_196; 
@@ -2829,7 +2829,7 @@ return x_209;
 else
 {
 uint8_t x_210; 
-x_210 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(x_179, x_179);
+x_210 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_434_(x_179, x_179);
 if (x_210 == 0)
 {
 lean_object* x_211; lean_object* x_212; 
@@ -2915,7 +2915,7 @@ return x_221;
 else
 {
 uint8_t x_233; 
-x_233 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(x_217, x_217);
+x_233 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_434_(x_217, x_217);
 if (x_233 == 0)
 {
 lean_object* x_234; 
@@ -2982,7 +2982,7 @@ return x_247;
 else
 {
 uint8_t x_248; 
-x_248 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_437_(x_217, x_217);
+x_248 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_434_(x_217, x_217);
 if (x_248 == 0)
 {
 lean_object* x_249; lean_object* x_250; 

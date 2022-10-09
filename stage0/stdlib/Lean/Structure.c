@@ -146,7 +146,7 @@ static lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo___
 static lean_object* l_Lean_initFn____x40_Lean_Structure___hyg_404____closed__2;
 static lean_object* l_Lean_getStructureFields___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_registerStructure___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_461_(uint8_t, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_458_(uint8_t, lean_object*);
 static lean_object* l_Lean_getStructureCtor___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Structure_0__Lean_reprStructureFieldInfo____x40_Lean_Structure___hyg_71_(lean_object*, lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
@@ -674,7 +674,7 @@ x_41 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_41, 0, x_40);
 lean_ctor_set(x_41, 1, x_18);
 x_42 = lean_ctor_get_uint8(x_1, sizeof(void*)*4);
-x_43 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_461_(x_42, x_4);
+x_43 = l___private_Lean_Expr_0__Lean_reprBinderInfo____x40_Lean_Expr___hyg_458_(x_42, x_4);
 x_44 = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(x_44, 0, x_33);
 lean_ctor_set(x_44, 1, x_43);

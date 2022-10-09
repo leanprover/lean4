@@ -29,6 +29,7 @@ def shouldGenerateCode (declName : Name) : CoreM Bool := do
   let some info ← getDeclInfo? declName | return false
   unless info.hasValue do return false
   let env ← getEnv
+  if isExtern env declName then return false
   if hasMacroInlineAttribute env declName then return false
   if (← Meta.isMatcher declName) then return false
   if isCasesOnRecursor env declName then return false

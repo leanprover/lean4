@@ -63,8 +63,9 @@ where
       let .const declName us := e.getAppFn | failure
       let some decl ← getDecl? declName | failure
       guard (decl.getArity == e.getAppNumArgs)
+      let params := decl.instantiateParamsLevelParams us
       let code := decl.instantiateValueLevelParams us
-      let code ← betaReduce decl.params code e.getAppArgs (mustInline := true)
+      let code ← betaReduce params code e.getAppArgs (mustInline := true)
       visitCode code projs
 
   visitCode (code : Code) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do

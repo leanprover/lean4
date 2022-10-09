@@ -407,4 +407,29 @@ def compatibleTypes (a b : Expr) : CompilerM Bool :=
   else
     InferType.compatibleTypesFull a b |>.run {}
 
+/--
+Return `true` if the given LCNF are equivalent.
+Remark: `eqvTypes a b` implies `compatibleTypes`, but the reverse direction is not true.
+We have that `List Nat` and `List ◾` are compatible types, but they are not equivalent.
+`List Nat` and `(fun x => List x) Nat` are both equivalent and compatible types.
+-/
+partial def eqvTypes (a b : Expr) : Bool :=
+  if a == b then
+    true
+  else
+    let a' := a.headBeta
+    let b' := b.headBeta
+    if a != a' || b != b' then
+      eqvTypes a' b'
+    else
+      match a, b with
+      | .mdata _ a, b => eqvTypes a b
+      | a, .mdata _ b => eqvTypes a b
+      | .app f a, .app g b => eqvTypes f g && eqvTypes a b
+      | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => eqvTypes d₁ d₂ && eqvTypes b₁ b₂
+      | .lam _ d₁ b₁ _, .lam _ d₂ b₂ _ => eqvTypes d₁ d₂ && eqvTypes b₁ b₂
+      | .sort u, .sort v => Level.isEquiv u v
+      | .const n us, .const m vs => n == m && List.isEqv us vs Level.isEquiv
+      | _, _ => false
+
 end Lean.Compiler.LCNF

@@ -504,7 +504,6 @@ where
       ps ← ps.mapM fun p => do
         let type ← inferType p.toExpr
         if (← isTypeFormerType type) then
-          trace[Meta.debug] "{p.binderName} is type former"
           modify fun s => { s with toAny := s.toAny.insert p.fvarId }
         /-
         Recall that we may have dependent fields. Example:
@@ -543,17 +542,17 @@ where
             unless (← compatibleTypes altType resultType) do
               resultType := erasedExpr
             alts := alts.push alt
-          if resultType.isErased || resultType.isErased then
-            /-
-            If the result type for a `cases` is `◾`, we put a cast to `◾` (aka the any type)
-            at every alternative that does not have `◾` type.
-            The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
-            or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `◾`
-            to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
-            sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
-            -/
-            alts ← alts.mapM fun alt =>
-              return alt.updateCode (← alt.getCode.ensureAnyType)
+          /-
+          We must ensure the result type of each alternative is equivalent to `resultType`, and not just compatible.
+          For example, if the result type for a `cases` is `◾`, we put a cast to `◾` (aka the any type)
+          at every alternative that does not have `◾` type.
+          The cast is useful to ensure the result is type correct when reducing `cases` in the simplifier
+          or applying `bind`. For example, suppose we are using `Code.bind` to connect a `cases` with type `◾`
+          to a continuation that expects type `B`, and one of the alternatives has type `A`. The operation makes
+          sense, but we need a cast since we are connecting a value of type `A` to a continuation that expects `B`.
+          -/
+          alts ← alts.mapM fun alt =>
+            return alt.updateCode (← alt.getCode.ensureResultType resultType)
           let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
           let auxDecl ← mkAuxParam resultType
           pushElement (.cases auxDecl cases)

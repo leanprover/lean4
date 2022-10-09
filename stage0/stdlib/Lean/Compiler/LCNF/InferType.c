@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_mkFreshId___at_Lean_Compiler_LCNF_InferType_with
 lean_object* l_Lean_Level_succ___override(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_InferType_getLevel_x3f___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_InferType_inferAppType___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_eqvTypes___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_InferType_inferAppTypeCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -63,6 +64,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferT
 static lean_object* l_Lean_Compiler_LCNF_isErasedCompatible_go___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_InferType_getLevel_x3f___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_InferType_mkForallParams___closed__2;
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_eqvTypes(lean_object*, lean_object*);
 static lean_object* l_Nat_foldRevM_loop___at_Lean_Compiler_LCNF_InferType_mkForallFVars___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Compiler_LCNF_InferType_inferForallType_go___spec__2(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -14253,6 +14255,336 @@ lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_7);
 return x_13;
 }
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_eqvTypes(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_expr_eqv(x_1, x_2);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+lean_inc(x_1);
+x_4 = l_Lean_Expr_headBeta(x_1);
+lean_inc(x_2);
+x_5 = l_Lean_Expr_headBeta(x_2);
+x_6 = lean_expr_eqv(x_1, x_4);
+if (x_6 == 0)
+{
+lean_dec(x_2);
+lean_dec(x_1);
+x_1 = x_4;
+x_2 = x_5;
+goto _start;
+}
+else
+{
+uint8_t x_8; 
+x_8 = lean_expr_eqv(x_2, x_5);
+if (x_8 == 0)
+{
+lean_dec(x_2);
+lean_dec(x_1);
+x_1 = x_4;
+x_2 = x_5;
+goto _start;
+}
+else
+{
+lean_dec(x_5);
+lean_dec(x_4);
+switch (lean_obj_tag(x_1)) {
+case 3:
+{
+switch (lean_obj_tag(x_2)) {
+case 3:
+{
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+x_10 = lean_ctor_get(x_1, 0);
+lean_inc(x_10);
+lean_dec(x_1);
+x_11 = lean_ctor_get(x_2, 0);
+lean_inc(x_11);
+lean_dec(x_2);
+x_12 = l_Lean_Level_isEquiv(x_10, x_11);
+return x_12;
+}
+case 10:
+{
+lean_object* x_13; 
+x_13 = lean_ctor_get(x_2, 1);
+lean_inc(x_13);
+lean_dec(x_2);
+x_2 = x_13;
+goto _start;
+}
+default: 
+{
+uint8_t x_15; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_15 = 0;
+return x_15;
+}
+}
+}
+case 4:
+{
+switch (lean_obj_tag(x_2)) {
+case 4:
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_16 = lean_ctor_get(x_1, 0);
+lean_inc(x_16);
+x_17 = lean_ctor_get(x_1, 1);
+lean_inc(x_17);
+lean_dec(x_1);
+x_18 = lean_ctor_get(x_2, 0);
+lean_inc(x_18);
+x_19 = lean_ctor_get(x_2, 1);
+lean_inc(x_19);
+lean_dec(x_2);
+x_20 = lean_name_eq(x_16, x_18);
+lean_dec(x_18);
+lean_dec(x_16);
+if (x_20 == 0)
+{
+uint8_t x_21; 
+lean_dec(x_19);
+lean_dec(x_17);
+x_21 = 0;
+return x_21;
+}
+else
+{
+uint8_t x_22; 
+x_22 = l_List_isEqv___at_Lean_Compiler_LCNF_compatibleTypesQuick___spec__1(x_17, x_19);
+return x_22;
+}
+}
+case 10:
+{
+lean_object* x_23; 
+x_23 = lean_ctor_get(x_2, 1);
+lean_inc(x_23);
+lean_dec(x_2);
+x_2 = x_23;
+goto _start;
+}
+default: 
+{
+uint8_t x_25; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_25 = 0;
+return x_25;
+}
+}
+}
+case 5:
+{
+switch (lean_obj_tag(x_2)) {
+case 5:
+{
+lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; uint8_t x_30; 
+x_26 = lean_ctor_get(x_1, 0);
+lean_inc(x_26);
+x_27 = lean_ctor_get(x_1, 1);
+lean_inc(x_27);
+lean_dec(x_1);
+x_28 = lean_ctor_get(x_2, 0);
+lean_inc(x_28);
+x_29 = lean_ctor_get(x_2, 1);
+lean_inc(x_29);
+lean_dec(x_2);
+x_30 = l_Lean_Compiler_LCNF_eqvTypes(x_26, x_28);
+if (x_30 == 0)
+{
+uint8_t x_31; 
+lean_dec(x_29);
+lean_dec(x_27);
+x_31 = 0;
+return x_31;
+}
+else
+{
+x_1 = x_27;
+x_2 = x_29;
+goto _start;
+}
+}
+case 10:
+{
+lean_object* x_33; 
+x_33 = lean_ctor_get(x_2, 1);
+lean_inc(x_33);
+lean_dec(x_2);
+x_2 = x_33;
+goto _start;
+}
+default: 
+{
+uint8_t x_35; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_35 = 0;
+return x_35;
+}
+}
+}
+case 6:
+{
+switch (lean_obj_tag(x_2)) {
+case 6:
+{
+lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; uint8_t x_40; 
+x_36 = lean_ctor_get(x_1, 1);
+lean_inc(x_36);
+x_37 = lean_ctor_get(x_1, 2);
+lean_inc(x_37);
+lean_dec(x_1);
+x_38 = lean_ctor_get(x_2, 1);
+lean_inc(x_38);
+x_39 = lean_ctor_get(x_2, 2);
+lean_inc(x_39);
+lean_dec(x_2);
+x_40 = l_Lean_Compiler_LCNF_eqvTypes(x_36, x_38);
+if (x_40 == 0)
+{
+uint8_t x_41; 
+lean_dec(x_39);
+lean_dec(x_37);
+x_41 = 0;
+return x_41;
+}
+else
+{
+x_1 = x_37;
+x_2 = x_39;
+goto _start;
+}
+}
+case 10:
+{
+lean_object* x_43; 
+x_43 = lean_ctor_get(x_2, 1);
+lean_inc(x_43);
+lean_dec(x_2);
+x_2 = x_43;
+goto _start;
+}
+default: 
+{
+uint8_t x_45; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_45 = 0;
+return x_45;
+}
+}
+}
+case 7:
+{
+switch (lean_obj_tag(x_2)) {
+case 7:
+{
+lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; uint8_t x_50; 
+x_46 = lean_ctor_get(x_1, 1);
+lean_inc(x_46);
+x_47 = lean_ctor_get(x_1, 2);
+lean_inc(x_47);
+lean_dec(x_1);
+x_48 = lean_ctor_get(x_2, 1);
+lean_inc(x_48);
+x_49 = lean_ctor_get(x_2, 2);
+lean_inc(x_49);
+lean_dec(x_2);
+x_50 = l_Lean_Compiler_LCNF_eqvTypes(x_46, x_48);
+if (x_50 == 0)
+{
+uint8_t x_51; 
+lean_dec(x_49);
+lean_dec(x_47);
+x_51 = 0;
+return x_51;
+}
+else
+{
+x_1 = x_47;
+x_2 = x_49;
+goto _start;
+}
+}
+case 10:
+{
+lean_object* x_53; 
+x_53 = lean_ctor_get(x_2, 1);
+lean_inc(x_53);
+lean_dec(x_2);
+x_2 = x_53;
+goto _start;
+}
+default: 
+{
+uint8_t x_55; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_55 = 0;
+return x_55;
+}
+}
+}
+case 10:
+{
+lean_object* x_56; 
+x_56 = lean_ctor_get(x_1, 1);
+lean_inc(x_56);
+lean_dec(x_1);
+x_1 = x_56;
+goto _start;
+}
+default: 
+{
+if (lean_obj_tag(x_2) == 10)
+{
+lean_object* x_58; 
+x_58 = lean_ctor_get(x_2, 1);
+lean_inc(x_58);
+lean_dec(x_2);
+x_2 = x_58;
+goto _start;
+}
+else
+{
+uint8_t x_60; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_60 = 0;
+return x_60;
+}
+}
+}
+}
+}
+}
+else
+{
+uint8_t x_61; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_61 = 1;
+return x_61;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_eqvTypes___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Compiler_LCNF_eqvTypes(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

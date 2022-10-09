@@ -79,8 +79,8 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
     let ensureResultType := !eqvTypes resultType c.resultType
     /-
     Note:
-    If the new result type for the cases is not equivalent, we have to use `ensureResultType` to make sure the result is still type correc.
-    For result, suppose `resultType` is `◾` but the old one was not. Then, we must add a cast to `◾` (aka the any type)
+    If the new result type for the cases is not equivalent, we have to use `ensureResultType` to make sure the result is still type correct.
+    For example, suppose `resultType` is `◾` but the old one was not. Then, we must add a cast to `◾` (aka the any type)
     to every alternative if their resulting type is not `◾`. This is similar to what we do at `ToLCNF.visitCases`.
     Here is an example to illustrate this issue.
     Suppose we have
@@ -111,7 +111,7 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
       a.1
     ```
     Which can be checked by `Check.lean` because it assumes `◾` is compatible with anything and `a.1 : A`.
-    However, if inline `transportconst`, we can hit type error since the continuation for transportconst is
+    However, if we inline `transportconst`, we can hit type error since the continuation for transportconst is
     expecting a `B` instead of an `A`. We avoid this problem by adding a cast to `◾`. See `ToLCNF.visitCases` for
     another place where we use this approach.
     Thus, the resulting code for `transportconst` is
@@ -122,6 +122,9 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
         let _x.2 := @lcCast A ◾ a.1
         _x.2
     ```
+
+    TODO: consider removing this adjustment code from here, and handling it in the inlining procedure.
+    That is, adding casts at the exit points when inlining.
     -/
     let internalizeAltCode (k : Code) : InternalizeM Code := do
       let k ← internalizeCode k

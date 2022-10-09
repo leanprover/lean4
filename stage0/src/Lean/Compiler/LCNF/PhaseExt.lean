@@ -59,6 +59,12 @@ def Decl.saveBase (decl : Decl) : CoreM Unit :=
 def Decl.saveMono (decl : Decl) : CoreM Unit :=
   modifyEnv (saveMonoDeclCore · decl)
 
+def Decl.save (decl : Decl) : CompilerM Unit := do
+  match (← getPhase) with
+  | .base => decl.saveBase
+  | .mono => decl.saveMono
+  | _ => unreachable!
+
 def getDeclAt? (declName : Name) (phase : Phase) : CoreM (Option Decl) :=
   match phase with
   | .base => getBaseDecl? declName

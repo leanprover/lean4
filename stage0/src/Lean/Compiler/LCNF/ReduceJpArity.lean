@@ -70,8 +70,8 @@ def Decl.reduceJpArity (decl : Decl) : CompilerM Decl := do
   let value ← reduce decl.value |>.run {}
   return { decl with value }
 
-def reduceJpArity : Pass :=
-  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity .base
+def reduceJpArity (phase := Phase.base) : Pass :=
+  .mkPerDeclaration `reduceJpArity Decl.reduceJpArity phase
 
 builtin_initialize
   registerTraceClass `Compiler.reduceJpArity (inherited := true)

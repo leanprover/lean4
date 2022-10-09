@@ -534,7 +534,7 @@ def Decl.extendJoinPointContext (decl : Decl) : CompilerM Decl := do
   JoinPointContextExtender.extend decl
 
 def extendJoinPointContext : Pass :=
-  .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext .base
+  .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext .mono
 
 builtin_initialize
   registerTraceClass `Compiler.extendJoinPointContext (inherited := true)

@@ -23,11 +23,11 @@ structure Context where
   -/
   inScope : FVarId → Bool
   /--
-  If `abstractLet x` returns `true`, we convert `x` into a closure parameter. Otherwise,
-  we collect the dependecies in the `let`-value too, and include the `let`-declaration in the closure.
-  Remark: the lambda lifting pass abstracts all `let`-declarations.
+  If `abstract x` returns `true`, we convert `x` into a closure parameter. Otherwise,
+  we collect the dependecies in the `let`/`fun`-declaration too, and include the declaration in the closure.
+  Remark: the lambda lifting pass abstracts all `let`/`fun`-declarations.
   -/
-  abstractLet : LetDecl → Bool
+  abstract : FVarId → Bool
 
 /--
 State for the `ClosureM` monad.
@@ -108,20 +108,21 @@ mutual
       if (← read).inScope fvarId then
         /- We only collect the variables in the scope of the function application being specialized. -/
         if let some funDecl ← findFunDecl? fvarId then
-          collectFunDecl funDecl
-          modify fun s => { s with decls := s.decls.push <| .fun funDecl }
+          if (← read).abstract funDecl.fvarId then
+            modify fun s => { s with params := s.params.push <| { funDecl with borrow := false } }
+          else
+            collectFunDecl funDecl
+            modify fun s => { s with decls := s.decls.push <| .fun funDecl }
         else if let some param ← findParam? fvarId then
           collectExpr param.type
           modify fun s => { s with params := s.params.push param }
         else if let some letDecl ← findLetDecl? fvarId then
           collectExpr letDecl.type
-          if (← read).abstractLet letDecl then
-            -- It is a ground value, thus we keep collecting dependencies
+          if (← read).abstract letDecl.fvarId then
+            modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
+          else
             collectExpr letDecl.value
             modify fun s => { s with decls := s.decls.push <| .let letDecl }
-          else
-            -- It is not a ground value, we convert declaration into a parameter
-            modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
         else
           unreachable!
 
@@ -133,8 +134,8 @@ mutual
       | _ => pure ()
 end
 
-def run (x : ClosureM α) (inScope : FVarId → Bool) (abstractLet : LetDecl → Bool := fun _ => false) : CompilerM (α × Array Param × Array CodeDecl) := do
-  let (a, s) ← x { inScope, abstractLet } |>.run {}
+def run (x : ClosureM α) (inScope : FVarId → Bool) (abstract : FVarId → Bool := fun _ => true) : CompilerM (α × Array Param × Array CodeDecl) := do
+  let (a, s) ← x { inScope, abstract } |>.run {}
   return (a, s.params, s.decls)
 
 end Closure

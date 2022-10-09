@@ -1272,7 +1272,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
         LVal.fieldName comp (toString comp.getId) none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
-      let idx := idxStx.isFieldIdx?.get!
+      let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx

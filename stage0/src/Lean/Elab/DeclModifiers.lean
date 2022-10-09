@@ -184,9 +184,12 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
   match modifiers.visibility with
   | Visibility.protected =>
     match currNamespace with
-    | .str _ s => pure (declName, Name.mkSimple s ++ shortName)
-    | _ => throwError "protected declarations must be in a namespace"
-  | _ => pure (declName, shortName)
+    | .str _ s => return (declName, Name.mkSimple s ++ shortName)
+    | _ =>
+      if shortName.isAtomic then
+        throwError "protected declarations must be in a namespace"
+      return (declName, shortName)
+  | _ => return (declName, shortName)
 
 /--
   `declId` is of the form

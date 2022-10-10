@@ -145,7 +145,6 @@ def BinderSyntaxView.mkBinder : BinderSyntaxView → MacroM Binder
   | .implicit       => `(binder| {$id : $type})
   | .strictImplicit => `(binder| ⦃$id : $type⦄)
   | .instImplicit   => `(binder| [$id : $type])
-  | _               => unreachable!
 
 def BinderSyntaxView.mkArgument : BinderSyntaxView → MacroM NamedArgument
 | {id, ..} => `(Term.namedArgument| ($id := $id))

@@ -110,7 +110,23 @@ def applyImplementedBy? (e : Expr) : OptionT SimpM Expr := do
   let some declNameNew := getImplementedBy? (← getEnv) declName | failure
   return mkAppN (.const declNameNew us) e.getAppArgs
 
+/--
+```
+let _x : A := lcCast _ _ a
+```
+=> if `A` and type of `a` are equivalent
+```
+let _x : B := a
+```
+-/
+def simpCast? (e : Expr) (expectedType : Expr) : OptionT SimpM Expr := do
+  guard <| e.isAppOfArity ``lcCast 3
+  let a := e.appArg!
+  let type ← inferType a
+  guard <| type.isErased || eqvTypes expectedType type
+  return a
+
 /-- Try to apply simple simplifications. -/
-def simpValue? (e : Expr) : SimpM (Option Expr) :=
+def simpValue? (e : Expr) (expectedType : Expr) : SimpM (Option Expr) :=
   -- TODO: more simplifications
-  simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e <|> simpCastCast? e
+  simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e <|> simpCastCast? e <|> simpCast? e expectedType

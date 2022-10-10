@@ -612,11 +612,24 @@ private def applyAttributesCore
     match getAttributeImpl env attr.name with
     | Except.error errMsg => throwError errMsg
     | Except.ok attrImpl  =>
+      let runAttr := attrImpl.add declName attr.stx attr.kind
+      let runAttr := do
+        -- not truly an elaborator, but a sensible target for go-to-definition
+        let elaborator := attrImpl.ref
+        if (← getInfoState).enabled && (← getEnv).contains elaborator then
+          withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
+            try runAttr
+            finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
+              -- Add an additional node over the leading identifier if there is one to make it look more function-like.
+              -- Do this last because we want user-created infos to take precedence
+              pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
+        else
+          runAttr
       match applicationTime? with
-      | none => attrImpl.add declName attr.stx attr.kind
+      | none => runAttr
       | some applicationTime =>
         if applicationTime == attrImpl.applicationTime then
-          attrImpl.add declName attr.stx attr.kind
+          runAttr
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=

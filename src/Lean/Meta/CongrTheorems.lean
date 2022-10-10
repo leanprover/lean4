@@ -30,7 +30,7 @@ inductive CongrArgKind where
   For congr-simp theorems only.  Indicates a decidable instance argument.
   The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
   | subsingletonInst
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 structure CongrTheorem where
   type     : Expr

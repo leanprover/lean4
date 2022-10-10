@@ -48,49 +48,49 @@ namespace Lean.Meta.DiscrTree
 -/
 
 def Key.ctorIdx : Key → Nat
-  | Key.star     => 0
-  | Key.other    => 1
-  | Key.lit ..   => 2
-  | Key.fvar ..  => 3
-  | Key.const .. => 4
-  | Key.arrow    => 5
-  | Key.proj ..  => 6
+  | .star     => 0
+  | .other    => 1
+  | .lit ..   => 2
+  | .fvar ..  => 3
+  | .const .. => 4
+  | .arrow    => 5
+  | .proj ..  => 6
 
 def Key.lt : Key → Key → Bool
-  | Key.lit v₁,      Key.lit v₂      => v₁ < v₂
-  | Key.fvar n₁ a₁,  Key.fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
-  | Key.const n₁ a₁, Key.const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
-  | Key.proj s₁ i₁,  Key.proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
-  | k₁,              k₂              => k₁.ctorIdx < k₂.ctorIdx
+  | .lit v₁,      .lit v₂      => v₁ < v₂
+  | .fvar n₁ a₁,  .fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
+  | .const n₁ a₁, .const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
+  | .proj s₁ i₁,  .proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
+  | k₁,           k₂           => k₁.ctorIdx < k₂.ctorIdx
 
 instance : LT Key := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
 def Key.format : Key → Format
-  | Key.star                   => "*"
-  | Key.other                  => "◾"
-  | Key.lit (Literal.natVal v) => Std.format v
-  | Key.lit (Literal.strVal v) => repr v
-  | Key.const k _              => Std.format k
-  | Key.proj s i               => Std.format s ++ "." ++ Std.format i
-  | Key.fvar k _               => Std.format k.name
-  | Key.arrow                  => "→"
+  | .star                   => "*"
+  | .other                  => "◾"
+  | .lit (Literal.natVal v) => Std.format v
+  | .lit (Literal.strVal v) => repr v
+  | .const k _              => Std.format k
+  | .proj s i               => Std.format s ++ "." ++ Std.format i
+  | .fvar k _               => Std.format k.name
+  | .arrow                  => "→"
 
 instance : ToFormat Key := ⟨Key.format⟩
 
 def Key.arity : Key → Nat
-  | Key.const _ a => a
-  | Key.fvar _ a  => a
-  | Key.arrow     => 2
-  | Key.proj ..   => 1
-  | _             => 0
+  | .const _ a => a
+  | .fvar _ a  => a
+  | .arrow     => 2
+  | .proj ..   => 1
+  | _          => 0
 
-instance : Inhabited (Trie α) := ⟨Trie.node #[] #[]⟩
+instance : Inhabited (Trie α) := ⟨.node #[] #[]⟩
 
 def empty : DiscrTree α := { root := {} }
 
 partial def Trie.format [ToFormat α] : Trie α → Format
-  | Trie.node vs cs => Format.group $ Format.paren $
+  | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
@@ -156,7 +156,7 @@ private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Boo
     isProof a
 
 private partial def pushArgsAux (infos : Array ParamInfo) : Nat → Expr → Array Expr → MetaM (Array Expr)
-  | i, Expr.app f a, todo => do
+  | i, .app f a, todo => do
     if (← ignoreArg a i infos) then
       pushArgsAux infos (i-1) f (todo.push tmpStar)
     else
@@ -237,11 +237,11 @@ private partial def whnfEta (e : Expr) : MetaM Expr := do
 -/
 private def isBadKey (fn : Expr) : Bool :=
   match fn with
-  | Expr.lit ..   => false
-  | Expr.const .. => false
-  | Expr.fvar ..  => false
-  | Expr.proj ..  => false
-  | Expr.forallE _ _ b _ => b.hasLooseBVars
+  | .lit ..   => false
+  | .const .. => false
+  | .fvar ..  => false
+  | .proj ..  => false
+  | .forallE _ _ b _ => b.hasLooseBVars
   | _ => true
 
 /--
@@ -268,7 +268,7 @@ def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
 
 private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
-    return (Key.star, todo)
+    return (.star, todo)
   else
     let e ← whnfDT e root
     let fn := e.getAppFn
@@ -277,33 +277,33 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
-    | Expr.lit v         => return (Key.lit v, todo)
-    | Expr.const c _     =>
+    | .lit v         => return (.lit v, todo)
+    | .const c _     =>
       unless root do
         if (← shouldAddAsStar c e) then
-          return (Key.star, todo)
+          return (.star, todo)
       let nargs := e.getAppNumArgs
-      push (Key.const c nargs) nargs
-    | Expr.proj s i a .. =>
-      return (Key.proj s i, todo.push a)
-    | Expr.fvar fvarId   =>
+      push (.const c nargs) nargs
+    | .proj s i a .. =>
+      return (.proj s i, todo.push a)
+    | .fvar fvarId   =>
       let nargs := e.getAppNumArgs
-      push (Key.fvar fvarId nargs) nargs
-    | Expr.mvar mvarId   =>
+      push (.fvar fvarId nargs) nargs
+    | .mvar mvarId   =>
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
-        return (Key.star, todo)
+        return (.star, todo)
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
-        return (Key.other, todo)
+        return (.other, todo)
       else
-        return (Key.star, todo)
-    | Expr.forallE _ d b _ =>
+        return (.star, todo)
+    | .forallE _ d b _ =>
       if b.hasLooseBVars then
-        return (Key.other, todo)
+        return (.other, todo)
       else
-        return (Key.arrow, todo.push d |>.push b)
+        return (.arrow, todo.push d |>.push b)
     | _ =>
-      return (Key.other, todo)
+      return (.other, todo)
 
 partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
   if todo.isEmpty then
@@ -318,23 +318,23 @@ private def initCapacity := 8
 
 def mkPath (e : Expr) : MetaM (Array Key) := do
   withReducible do
-    let todo : Array Expr := Array.mkEmpty initCapacity
-    let keys : Array Key  := Array.mkEmpty initCapacity
+    let todo : Array Expr := .mkEmpty initCapacity
+    let keys : Array Key  := .mkEmpty initCapacity
     mkPathAux (root := true) (todo.push e) keys
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
     let k := keys.get ⟨i, h⟩
     let c := createNodes keys v (i+1)
-    Trie.node #[] #[(k, c)]
+    .node #[] #[(k, c)]
   else
-    Trie.node #[v] #[]
+    .node #[v] #[]
 
 private def insertVal [BEq α] (vs : Array α) (v : α) : Array α :=
   if vs.contains v then vs else vs.push v
 
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
-  | i, Trie.node vs cs =>
+  | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys.get ⟨i, h⟩
       let c := Id.run $ cs.binInsertM
@@ -342,9 +342,9 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
           (k, default)
-      Trie.node vs c
+      .node vs c
     else
-      Trie.node (insertVal vs v) cs
+      .node (insertVal vs v) cs
 
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
@@ -365,8 +365,8 @@ def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
   let e ← whnfDT e root
   match e.getAppFn with
-  | Expr.lit v         => return (Key.lit v, #[])
-  | Expr.const c _     =>
+  | .lit v         => return (.lit v, #[])
+  | .const c _     =>
     if (← getConfig).isDefEqStuckEx && e.hasExprMVar then
       if (← isReducible c) then
         /- `e` is a term `c ...` s.t. `c` is reducible and `e` has metavariables, but it was not unfolded.
@@ -396,13 +396,13 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
            because of metavariables. -/
         Meta.throwIsDefEqStuck
     let nargs := e.getAppNumArgs
-    return (Key.const c nargs, e.getAppRevArgs)
-  | Expr.fvar fvarId   =>
+    return (.const c nargs, e.getAppRevArgs)
+  | .fvar fvarId   =>
     let nargs := e.getAppNumArgs
-    return (Key.fvar fvarId nargs, e.getAppRevArgs)
-  | Expr.mvar mvarId   =>
+    return (.fvar fvarId nargs, e.getAppRevArgs)
+  | .mvar mvarId   =>
     if isMatch then
-      return (Key.other, #[])
+      return (.other, #[])
     else do
       let ctx ← read
       if ctx.config.isDefEqStuckEx then
@@ -420,20 +420,20 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
           a regular metavariable here, otherwise we return the empty set of candidates.
           This is incorrect because it is equivalent to saying that there is no solution even if
           the caller assigns `?m` and try again. -/
-        return (Key.star, #[])
+        return (.star, #[])
       else if (← mvarId.isReadOnlyOrSyntheticOpaque) then
-        return (Key.other, #[])
+        return (.other, #[])
       else
-        return (Key.star, #[])
-  | Expr.proj s i a .. =>
-    return (Key.proj s i, #[a])
-  | Expr.forallE _ d b _ =>
+        return (.star, #[])
+  | .proj s i a .. =>
+    return (.proj s i, #[a])
+  | .forallE _ d b _ =>
     if b.hasLooseBVars then
-      return (Key.other, #[])
+      return (.other, #[])
     else
-      return (Key.arrow, #[d, b])
+      return (.arrow, #[d, b])
   | _ =>
-    return (Key.other, #[])
+    return (.other, #[])
 
 private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)
@@ -442,17 +442,17 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Ex
   getKeyArgs e (isMatch := false) (root := root)
 
 private def getStarResult (d : DiscrTree α) : Array α :=
-  let result : Array α := Array.mkEmpty initCapacity
-  match d.root.find? Key.star with
+  let result : Array α := .mkEmpty initCapacity
+  match d.root.find? .star with
   | none                  => result
-  | some (Trie.node vs _) => result ++ vs
+  | some (.node vs _) => result ++ vs
 
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
 private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with
-  | Trie.node vs cs =>
+  | .node vs cs =>
     if todo.isEmpty then
       return result ++ vs
     else if cs.isEmpty then
@@ -466,7 +466,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
          Thus, `todo` is not used linearly when there is `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
-        if first.1 == Key.star then
+        if first.1 == .star then
           getMatchLoop todo first.2 result
         else
           return result
@@ -476,13 +476,14 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
-      | Key.star  => return result
+      | .star  => return result
       /-
+        Note: dep-arrow vs arrow
         Recall that dependent arrows are `(Key.other, #[])`, and non-dependent arrows are `(Key.arrow, #[a, b])`.
         A non-dependent arrow may be an instance of a dependent arrow (stored at `DiscrTree`). Thus, we also visit the `Key.other` child.
       -/
-      | Key.arrow => visitNonStar Key.other #[] (← visitNonStar k args result)
-      | _         => visitNonStar k args result
+      | .arrow => visitNonStar .other #[] (← visitNonStar k args result)
+      | _      => visitNonStar k args result
 
 private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
@@ -494,8 +495,10 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α)
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
-    | Key.star => return (k, result)
-    | _        => return (k, ← getMatchRoot d k args result)
+    | .star  => return (k, result)
+    /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
+    | .arrow => return (k, (← getMatchRoot d k args (← getMatchRoot d .other #[] result)))
+    | _      => return (k, (← getMatchRoot d k args result))
 
 /--
   Find values that match `e` in `d`.
@@ -523,9 +526,9 @@ where
       else
         mayMatchPrefix k
     match k with
-    | Key.const f (n+1) => cont (Key.const f n)
-    | Key.fvar f (n+1)  => cont (Key.fvar f n)
-    | _                 => return false
+    | .const f (n+1) => cont (.const f n)
+    | .fvar f (n+1)  => cont (.fvar f n)
+    | _              => return false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
     let result := result ++ (← getMatch d e).map (., numExtra)
@@ -547,12 +550,12 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
 where
   process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match skip, c with
-    | skip+1, Trie.node _  cs =>
+    | skip+1, .node _  cs =>
       if cs.isEmpty then
         return result
       else
         cs.foldlM (init := result) fun result ⟨k, c⟩ => process (skip + k.arity) todo c result
-    | 0, Trie.node vs cs => do
+    | 0, .node vs cs => do
       if todo.isEmpty then
         return result ++ vs
       else if cs.isEmpty then
@@ -563,7 +566,7 @@ where
         let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]!
-          if first.1 == Key.star then
+          if first.1 == .star then
             process 0 todo first.2 result
           else
             return result
@@ -574,7 +577,7 @@ where
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | .arrow => visitNonStar Key.other #[] (← visitNonStar k args (← visitStar result))
+        | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
         | _      => visitNonStar k args (← visitStar result)
 
 end Lean.Meta.DiscrTree

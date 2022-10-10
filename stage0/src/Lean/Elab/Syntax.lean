@@ -280,7 +280,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
   let attrName := catName.appendAfter "Parser"
   let catDeclName := ``Lean.Parser.Category ++ catName
   setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior catDeclName)
-  let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName)) : Lean.Parser.Category := {})
+  let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
   declareSyntaxCatQuotParser catName
   elabCommand cmd
 
@@ -362,7 +362,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let stxNodeKind := (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom idRef (cat.appendAfter "Parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
-  let declName := name?.getD (mkIdentFrom idRef name)
+  let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)
   let attrInstances := attrInstances.getD { elemsAndSeps := #[] }
   let attrInstances := attrInstances.push attrInstance

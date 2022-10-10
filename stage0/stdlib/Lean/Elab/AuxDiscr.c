@@ -18,12 +18,10 @@ lean_object* lean_erase_macro_scopes(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxDiscr___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxFunDiscr___rarg(lean_object*, lean_object*);
-static lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isAuxFunDiscrName___boxed(lean_object*);
 static lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1;
-lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,12 +31,12 @@ lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxDiscr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxDiscr___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxDiscr___rarg(lean_object*, lean_object*);
+lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3;
 static lean_object* l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_mkAuxFunDiscr___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isAuxDiscrName___boxed(lean_object*);
 static lean_object* l_Lean_mkAuxDiscr___rarg___lambda__1___closed__2;
-static lean_object* l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4;
 lean_object* l_Lean_MonadRef_mkInfoFromRefPos___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_mkAuxDiscr___rarg___lambda__1___closed__1;
 LEAN_EXPORT uint8_t l_Lean_isAuxFunDiscrName(lean_object*);
@@ -55,25 +53,11 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__1;
-x_2 = lean_string_utf8_byte_size(x_1);
+x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__1;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__2;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -93,10 +77,10 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4;
+x_7 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3;
 x_8 = l_Lean_addMacroScope(x_4, x_7, x_2);
 x_9 = lean_box(0);
-x_10 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3;
+x_10 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__2;
 x_11 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_10);
@@ -177,25 +161,11 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1;
-x_2 = lean_string_utf8_byte_size(x_1);
+x_2 = l_String_toSubstring_x27(x_1);
 return x_2;
 }
 }
 static lean_object* _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1;
-x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2;
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -215,10 +185,10 @@ lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 1);
 lean_inc(x_6);
 lean_dec(x_5);
-x_7 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4;
+x_7 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3;
 x_8 = l_Lean_addMacroScope(x_4, x_7, x_2);
 x_9 = lean_box(0);
-x_10 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3;
+x_10 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2;
 x_11 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_11, 0, x_3);
 lean_ctor_set(x_11, 1, x_10);
@@ -302,7 +272,7 @@ else
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_erase_macro_scopes(x_1);
-x_5 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4;
+x_5 = l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3;
 x_6 = lean_name_eq(x_4, x_5);
 lean_dec(x_4);
 return x_6;
@@ -334,7 +304,7 @@ else
 {
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_erase_macro_scopes(x_1);
-x_5 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4;
+x_5 = l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3;
 x_6 = lean_name_eq(x_4, x_5);
 lean_dec(x_4);
 return x_6;
@@ -365,16 +335,12 @@ l_Lean_mkAuxDiscr___rarg___lambda__1___closed__2 = _init_l_Lean_mkAuxDiscr___rar
 lean_mark_persistent(l_Lean_mkAuxDiscr___rarg___lambda__1___closed__2);
 l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3 = _init_l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3();
 lean_mark_persistent(l_Lean_mkAuxDiscr___rarg___lambda__1___closed__3);
-l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4 = _init_l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_mkAuxDiscr___rarg___lambda__1___closed__4);
 l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1 = _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__1);
 l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2 = _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__2);
 l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3 = _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3();
 lean_mark_persistent(l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__3);
-l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4 = _init_l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_mkAuxFunDiscr___rarg___lambda__1___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -15,12 +15,14 @@ with environment and subexpression information. -/
 namespace Lean.Widget
 open Server
 
-inductive HighlightColor where
-  | green
-  | blue
-  | red
-  | yellow
-  | purple
+/-- A tag indicating the diff status of the expression. Used when showing tactic diffs. -/
+inductive DiffTag where
+  | wasChanged
+  | willChange
+  | wasDeleted
+  | willDelete
+  | wasInserted
+  | willInsert
   deriving ToJson, FromJson
 
 /-- Information about a subexpression within delaborated code. -/
@@ -33,7 +35,7 @@ structure SubexprInfo where
   -- TODO(WN): add fields for semantic highlighting
   -- kind : Lsp.SymbolKind
   /-- Ask the renderer to highlight this node in the given color. -/
-  highlightColor? : Option HighlightColor := none
+  diffStatus? : Option DiffTag := none
   deriving Inhabited, RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
@@ -50,8 +52,8 @@ def CodeWithInfos.mergePosMap [Monad m] (merger : SubexprInfo → α → m Subex
 def CodeWithInfos.pretty (tt : CodeWithInfos) :=
   tt.stripTags
 
-def SubexprInfo.highlight (color : HighlightColor) (c : SubexprInfo) : SubexprInfo :=
-  {c with highlightColor? := some color }
+def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
+  {c with diffStatus? := some tag }
 
 /-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
 partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))

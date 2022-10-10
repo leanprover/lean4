@@ -1,0 +1,6 @@
+1673.lean:1:4-1:9: error: fail to show termination for
+  foo.a
+with errors
+structural recursion cannot be used
+
+failed to prove termination, use `termination_by` to specify a well-founded relation

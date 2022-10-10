@@ -6,14 +6,11 @@ Authors: Leonardo de Moura
 namespace Lean.Compiler.LCNF
 namespace Simp
 
+/--
+Configuration options for `Simp` that are not controlled using `set_option`.
+Recall that we have multiple `Simp` passes and they use different configurations.
+-/
 structure Config where
-  /--
-  Any local function declaration or join point with size `≤ smallThresold` is inlined
-  even if there are multiple occurrences.
-  We currently don't do the same for global declarations because we are not saving
-  the stage1 compilation result in .olean files yet.
-  -/
-  smallThreshold : Nat := 1
   /--
   If `etaPoly` is true, we eta expand any global function application when
   the function takes local instances. The idea is that we do not generate code

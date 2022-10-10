@@ -50,14 +50,14 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do
-    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} then
+    if let some decl ← decl.simp? |>.run { config, declName := decl.name } |>.run' {} |>.run {} then
       -- TODO: bound number of steps?
       go decl config
     else
       return decl
 
-def simp (config : Config := {}) (occurrence : Nat := 0) : Pass :=
-  .mkPerDeclaration `simp (Decl.simp · config) .base (occurrence := occurrence)
+def simp (config : Config := {}) (occurrence : Nat := 0) (phase := Phase.base) : Pass :=
+  .mkPerDeclaration `simp (Decl.simp · config) phase (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.simp (inherited := true)

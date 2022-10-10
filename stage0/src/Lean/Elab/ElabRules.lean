@@ -96,7 +96,7 @@ def elabElab : CommandElab
     let name ← match name? with
       | some name => pure name.getId
       | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
-    let nameId := name?.getD (mkIdentFrom tk name)
+    let nameId := name?.getD (mkIdentFrom tk name (canonical := true))
     let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
     elabCommand <|← `(
       $[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind

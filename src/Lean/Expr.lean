@@ -1774,11 +1774,13 @@ def patternAnnotation? (e : Expr) : Option Expr :=
 Annotate `e` with the LHS annotation. The delaborator displays
 expressions of the form `lhs = rhs` as `lhs` when they have this annotation.
 This is used to implement the infoview for the `conv` mode.
+
+This version of `mkLHSGoal` does not check that the argument is an equality.
 -/
-def mkLHSGoal (e : Expr) : Expr :=
+def mkLHSGoalRaw (e : Expr) : Expr :=
   mkAnnotation `_lhsGoal e
 
-/-- Return `some lhs` if `e = mkLHGoal e'`, where `e'` is of the form `lhs = rhs`. -/
+/-- Return `some lhs` if `e = mkLHSGoal e'`, where `e'` is of the form `lhs = rhs`. -/
 def isLHSGoal? (e : Expr) : Option Expr :=
   match annotation? `_lhsGoal e with
   | none => none

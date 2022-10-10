@@ -30,8 +30,5 @@ def main : IO Unit := do
       else
         throw $ userError "Failed parsing test file."
 
-      Ipc.writeRequest ⟨3, "shutdown", Json.null⟩
-      let shutResp ← Ipc.readResponseAs 3 Json
-      assert! shutResp.result.isNull
-      Ipc.writeNotification ⟨"exit", Json.null⟩
+      Ipc.shutdown 3
       discard $ Ipc.waitForExit

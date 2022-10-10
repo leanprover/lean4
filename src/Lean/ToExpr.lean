@@ -44,10 +44,28 @@ instance : ToExpr Unit where
   toExpr     := fun _ => mkConst `Unit.unit
   toTypeExpr := mkConst ``Unit
 
-private def Name.toExprAux : Name → Expr
-  | .anonymous => mkConst ``Lean.Name.anonymous
-  | .str p s ..=> mkApp2 (mkConst ``Lean.Name.str) (toExprAux p) (toExpr s)
-  | .num p n ..=> mkApp2 (mkConst ``Lean.Name.num) (toExprAux p) (toExpr n)
+private def Name.toExprAux (n : Name) : Expr :=
+  if isSimple n 0 then
+    mkStr n 0 #[]
+  else
+    go n
+where
+  isSimple (n : Name) (sz : Nat) : Bool :=
+    match n with
+    | .anonymous => 0 < sz && sz <= 8
+    | .str p _ => isSimple p (sz+1)
+    | _ => false
+
+  mkStr (n : Name) (sz : Nat) (args : Array Expr) : Expr :=
+    match n with
+    | .anonymous => mkAppN (mkConst (.str ``Lean.Name ("mkStr" ++ toString sz))) args.reverse
+    | .str p s => mkStr p (sz+1) (args.push (toExpr s))
+    | _ => unreachable!
+
+  go : Name → Expr
+    | .anonymous => mkConst ``Lean.Name.anonymous
+    | .str p s ..=> mkApp2 (mkConst ``Lean.Name.str) (go p) (toExpr s)
+    | .num p n ..=> mkApp2 (mkConst ``Lean.Name.num) (go p) (toExpr n)
 
 instance : ToExpr Name where
   toExpr     := Name.toExprAux

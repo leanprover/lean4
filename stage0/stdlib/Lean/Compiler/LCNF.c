@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.LCNF
-// Imports: Init Lean.Compiler.LCNF.AlphaEqv Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.FixedArgs Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Level Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.Passes Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PhaseExt Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.Specialize Lean.Compiler.LCNF.SpecInfo Lean.Compiler.LCNF.Testing Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util
+// Imports: Init Lean.Compiler.LCNF.AlphaEqv Lean.Compiler.LCNF.Basic Lean.Compiler.LCNF.Bind Lean.Compiler.LCNF.Check Lean.Compiler.LCNF.CompilerM Lean.Compiler.LCNF.CSE Lean.Compiler.LCNF.DependsOn Lean.Compiler.LCNF.ElimDead Lean.Compiler.LCNF.FixedParams Lean.Compiler.LCNF.InferType Lean.Compiler.LCNF.JoinPoints Lean.Compiler.LCNF.LCtx Lean.Compiler.LCNF.Level Lean.Compiler.LCNF.Main Lean.Compiler.LCNF.Passes Lean.Compiler.LCNF.PassManager Lean.Compiler.LCNF.PhaseExt Lean.Compiler.LCNF.PrettyPrinter Lean.Compiler.LCNF.PullFunDecls Lean.Compiler.LCNF.PullLetDecls Lean.Compiler.LCNF.ReduceJpArity Lean.Compiler.LCNF.Simp Lean.Compiler.LCNF.Specialize Lean.Compiler.LCNF.SpecInfo Lean.Compiler.LCNF.Testing Lean.Compiler.LCNF.ToDecl Lean.Compiler.LCNF.ToExpr Lean.Compiler.LCNF.ToLCNF Lean.Compiler.LCNF.Types Lean.Compiler.LCNF.Util Lean.Compiler.LCNF.ConfigOptions Lean.Compiler.LCNF.ForEachExpr Lean.Compiler.LCNF.MonoTypes Lean.Compiler.LCNF.ToMono Lean.Compiler.LCNF.MonadScope Lean.Compiler.LCNF.Closure
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22,7 +22,7 @@ lean_object* initialize_Lean_Compiler_LCNF_CompilerM(uint8_t builtin, lean_objec
 lean_object* initialize_Lean_Compiler_LCNF_CSE(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_DependsOn(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_ElimDead(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Compiler_LCNF_FixedArgs(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_FixedParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_InferType(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_JoinPoints(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_LCtx(uint8_t builtin, lean_object*);
@@ -44,6 +44,12 @@ lean_object* initialize_Lean_Compiler_LCNF_ToExpr(uint8_t builtin, lean_object*)
 lean_object* initialize_Lean_Compiler_LCNF_ToLCNF(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Types(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_LCNF_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_ConfigOptions(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_ForEachExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_MonoTypes(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_ToMono(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_MonadScope(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_LCNF_Closure(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_LCNF(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -76,7 +82,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_ElimDead(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Compiler_LCNF_FixedArgs(builtin, lean_io_mk_world());
+res = initialize_Lean_Compiler_LCNF_FixedParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_InferType(builtin, lean_io_mk_world());
@@ -140,6 +146,24 @@ res = initialize_Lean_Compiler_LCNF_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_LCNF_Util(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_ConfigOptions(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_ForEachExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_MonoTypes(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_ToMono(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_MonadScope(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_LCNF_Closure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

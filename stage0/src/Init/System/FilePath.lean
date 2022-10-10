@@ -38,16 +38,16 @@ def extSeparator : Char := '.'
 def exeExtension : String :=
   if isWindows then "exe" else ""
 
-/-- Case-insensitive file system -/
-def isCaseInsensitive : Bool := isWindows || isOSX
-
 -- TODO: normalize `a/`, `a//b`, etc.
-def normalize (p : FilePath) (normalizeCase := isCaseInsensitive) : FilePath :=
-  if pathSeparators.length == 1 && !normalizeCase then p
-  else ⟨p.toString.map fun c =>
-    if pathSeparators.contains c then pathSeparator
-    else if normalizeCase then c.toLower
-    else c⟩
+def normalize (p : FilePath) : FilePath := Id.run do
+  let mut p := p
+  -- normalize drive letter
+  if isWindows && p.toString.length >= 2 && (p.toString.get 0).isLower && p.toString.get ⟨1⟩ == ':' then
+    p := ⟨p.toString.set 0 (p.toString.get 0).toUpper⟩
+  -- normalize separator
+  unless pathSeparators.length == 1 do
+    p := ⟨p.toString.map fun c => if pathSeparators.contains c then pathSeparator else c⟩
+  return p
 
 -- the following functions follow the names and semantics from Rust's `std::path::Path`
 
@@ -107,7 +107,7 @@ def withExtension (p : FilePath) (ext : String) : FilePath :=
   | some stem => p.withFileName (if ext.isEmpty then stem else stem ++ "." ++ ext)
 
 def components (p : FilePath) : List String :=
-  p.normalize (normalizeCase := false) |>.toString.splitOn pathSeparator.toString
+  p.normalize |>.toString.splitOn pathSeparator.toString
 
 end FilePath
 

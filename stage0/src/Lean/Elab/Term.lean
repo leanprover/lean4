@@ -207,10 +207,19 @@ structure Context where
   inPattern        : Bool := false
   /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
   tacticCache?     : Option (IO.Ref Tactic.Cache) := none
-  /-- If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
-      of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
-      We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
+  /--
+  If `true`, we store in the `Expr` the `Syntax` for recursive applications (i.e., applications
+  of free variables tagged with `isAuxDecl`). We store the `Syntax` using `mkRecAppWithSyntax`.
+  We use the `Syntax` object to produce better error messages at `Structural.lean` and `WF.lean`. -/
   saveRecAppSyntax : Bool := true
+  /--
+  If `holesAsSyntheticOpaque` is `true`, then we mark metavariables associated
+  with `_`s as `synthethicOpaque` if they do not occur in patterns.
+  This option is useful when elaborating terms in tactics such as `refine'` where
+  we want holes there to become new goals. See issue #1681, we have
+  `refine' (fun x => _)
+  -/
+  holesAsSyntheticOpaque : Bool := false
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -350,13 +359,13 @@ private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : Te
 def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with saveRecAppSyntax := false }) x
 
-unsafe def mkTermElabAttributeUnsafe : IO (KeyedDeclsAttribute TermElab) :=
-  mkElabAttribute TermElab `Lean.Elab.Term.termElabAttribute `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term"
+unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute TermElab) :=
+  mkElabAttribute TermElab `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
 
 @[implementedBy mkTermElabAttributeUnsafe]
-opaque mkTermElabAttribute : IO (KeyedDeclsAttribute TermElab)
+opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
-builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute
+builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
 /--
   Auxiliary datatatype for presenting a Lean lvalue modifier.
@@ -588,8 +597,8 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
-def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) : m Syntax :=
-  return mkIdentFrom ref (← mkFreshBinderName)
+def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Syntax :=
+  return mkIdentFrom ref (← mkFreshBinderName) canonical
 
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
@@ -1092,8 +1101,25 @@ def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Op
     let e := removeSaveInfoAnnotation e
     return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
-def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Expr := do
-  if (← read).inPattern then
+/--
+Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
+As a result, when the user hovers over `stx` they will see the type of `e`, and if `e`
+is a constant they will see the constant's doc string.
+
+* `expectedType?`: the expected type of `e` at the point of elaboration, if available
+* `lctx?`: the local context in which to interpret `e` (otherwise it will use `← getLCtx`)
+* `elaborator`: a declaration name used as an alternative target for go-to-definition
+* `isBinder`: if true, this will be treated as defining `e` (which should be a local constant)
+  for the purpose of go-to-definition on local variables
+* `force`: In patterns, the effect of `addTermInfo` is usually suppressed and replaced
+  by a `patternWithRef?` annotation which will be turned into a term info on the
+  post-match-elaboration expression. This flag overrides that behavior and adds the term
+  info immediately. (See https://github.com/leanprover/lean4/pull/1664.)
+-/
+def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
+    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
+    (isBinder := false) (force := false) : TermElabM Expr := do
+  if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
     withInfoContext' (pure ()) (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder) |> discard
@@ -1552,7 +1578,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   let currNamespace ← getCurrNamespace
   let view := extractMacroScopes n
   /- Simple case. "Match" function for regular local declarations. -/
-  let matchLocaDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
+  let matchLocalDecl? (localDecl : LocalDecl) (givenName : Name) : Option LocalDecl := do
     guard (localDecl.userName == givenName)
     return localDecl
   /-
@@ -1648,9 +1674,9 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
         else
-          matchLocaDecl? localDecl givenName
+          matchLocalDecl? localDecl givenName
       else
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
     if localDecl?.isSome || skipAuxDecl then
       localDecl?
     else
@@ -1658,7 +1684,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       lctx.decls.findSomeRev? fun localDecl? => do
         let localDecl ← localDecl?
         guard (localDecl.binderInfo == .auxDecl)
-        matchLocaDecl? localDecl givenName
+        matchLocalDecl? localDecl givenName
   let rec loop (n : Name) (projs : List String) :=
     let givenNameView := { view with name := n }
     /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
@@ -1701,10 +1727,10 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
-   -- TODO: better suppor for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-   checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
-   let const ← mkConst declName explicitLevels
-   return (const, projs) :: result
+    -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
+    checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+    let const ← mkConst declName explicitLevels
+    return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?

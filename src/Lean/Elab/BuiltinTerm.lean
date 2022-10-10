@@ -55,7 +55,8 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
     elabPipeCompletion stx expectedType?
 
 @[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
-  let mvar ← mkFreshExprMVar expectedType?
+  let kind := if (← read).inPattern || !(← read).holesAsSyntheticOpaque then MetavarKind.natural else MetavarKind.syntheticOpaque
+  let mvar ← mkFreshExprMVar expectedType? kind
   registerMVarErrorHoleInfo mvar.mvarId! stx
   pure mvar
 

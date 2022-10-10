@@ -67,25 +67,74 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
     return r
   | _ => throwUnsupportedSyntax
 
+def sortMVarIdArrayByIndex [MonadMCtx m] [Monad m] (mvarIds : Array MVarId) : m (Array MVarId) := do
+  let mctx ← getMCtx
+  return mvarIds.qsort fun mvarId₁ mvarId₂ =>
+    let decl₁ := mctx.getDecl mvarId₁
+    let decl₂ := mctx.getDecl mvarId₂
+    if decl₁.index != decl₂.index then
+      decl₁.index < decl₂.index
+    else
+      Name.quickLt mvarId₁.name mvarId₂.name
+
+def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List MVarId) :=
+  return (← sortMVarIdArrayByIndex mvarIds.toArray).toList
+
 /--
   Execute `k`, and collect new "holes" in the resulting expression.
 -/
-def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
-  let mvarCounterSaved := (← getMCtx).mvarCounter
-  let val ← k
-  let newMVarIds ← getMVarsNoDelayed val
-  /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
-  let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-  let newMVarIds ← if allowNaturalHoles then
-    pure newMVarIds.toList
+def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) :=
+  /-
+  When `allowNaturalHoles = true`, unassigned holes should become new metavariables, including `_`s.
+  Thus, we set `holesAsSynthethicOpaque` to true if it is not already set to `true`.
+  See issue #1681. We have the tactic
+  ```
+  `refine' (fun x => _)
+  ```
+  If we create a natural metavariable `?m` for `_` with type `Nat`, then when we try to abstract `x`,
+  a new metavariable `?n` with type `Nat -> Nat` is created, and we assign `?m := ?n x`,
+  and the resulting term is `fun x => ?n x`. Then, `getMVarsNoDelayed` would return `?n` as a new goal
+  which would be confusing since it has type `Nat -> Nat`.
+  -/
+  if allowNaturalHoles then
+    withTheReader Term.Context (fun ctx => { ctx with holesAsSyntheticOpaque := ctx.holesAsSyntheticOpaque || allowNaturalHoles }) do
+      /-
+      We also enable the assignment of synthetic metavariables, otherwise we will fail to
+      elaborate terms such as `f _ x` where `f : (α : Type) → α → α` and `x : A`.
+
+      IMPORTANT: This is not a perfect solution. For example, `isDefEq` will be able assign metavariables associated with `by ...`.
+      This should not be an immediate problem since this feature is only used to implement `refine'`. If it becomes
+      an issue in practice, we should add a new kind of opaque metavariable for `refine'`, and mark the holes created using `_`
+      with it, and have a flag that allows us to assign this kind of metavariable, but prevents us from assigning metavariables
+      created by the `by ...` notation.
+      -/
+      withAssignableSyntheticOpaque go
   else
-    let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
-    let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
-    let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
-    logUnassignedAndAbort naturalMVarIds
-    pure syntheticMVarIds.toList
-  tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
-  return (val, newMVarIds)
+    go
+where
+  go := do
+    let mvarCounterSaved := (← getMCtx).mvarCounter
+    let val ← k
+    let newMVarIds ← getMVarsNoDelayed val
+    /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
+    let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
+    let newMVarIds ← if allowNaturalHoles then
+      pure newMVarIds.toList
+    else
+      let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
+      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
+      let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
+      logUnassignedAndAbort naturalMVarIds
+      pure syntheticMVarIds.toList
+    /-
+    We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
+    See issue #1682.
+    Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
+    appear in the `.lean` file. We should tell users to prefer tagged goals.
+    -/
+    let newMVarIds ← sortMVarIdsByIndex newMVarIds
+    tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
+    return (val, newMVarIds)
 
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles

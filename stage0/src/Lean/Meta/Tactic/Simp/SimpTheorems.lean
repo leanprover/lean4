@@ -356,9 +356,9 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
       modifyEnv fun env => ext.modifyState env fun _ => s
   }
 
-def mkSimpExt (extName : Name) : IO SimpExtension :=
+def mkSimpExt (name : Name := by exact decl_name%) : IO SimpExtension :=
   registerSimpleScopedEnvExtension {
-    name     := extName
+    name     := name
     initial  := {}
     addEntry := fun d e =>
       match e with
@@ -372,9 +372,8 @@ abbrev SimpExtensionMap := HashMap Name SimpExtension
 builtin_initialize simpExtensionMapRef : IO.Ref SimpExtensionMap ← IO.mkRef {}
 
 def registerSimpAttr (attrName : Name) (attrDescr : String)
-    (ref : Name := by exact decl_name%)
-    (extName : Name := attrName.appendAfter "Ext") : IO SimpExtension := do
-  let ext ← mkSimpExt extName
+    (ref : Name := by exact decl_name%) : IO SimpExtension := do
+  let ext ← mkSimpExt ref
   mkSimpAttr attrName attrDescr ext ref -- Remark: it will fail if it is not performed during initialization
   simpExtensionMapRef.modify fun map => map.insert attrName ext
   return ext

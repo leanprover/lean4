@@ -185,6 +185,6 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
       msgToInteractive m.data hasWidgets
     catch ex =>
       pure <| TaggedText.text s!"[error when printing message: {ex.toString}]"
-  pure { range, fullRange, severity?, source?, message, tags? }
+  pure { range, fullRange? := some fullRange, severity?, source?, message, tags? }
 
 end Lean.Widget

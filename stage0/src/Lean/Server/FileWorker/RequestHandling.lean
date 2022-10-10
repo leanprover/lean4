@@ -105,7 +105,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
     if let some modUri ← documentUriFromModule rc.srcSearchPath name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (originalOnly := true)
+        originSelectionRange? := (·.toLspRange text) <$> i.stx[2].getRange? (canonicalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -264,6 +264,31 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
         return #[hi]
       return #[]
 
+structure NamespaceEntry where
+  /-- The list of the name components introduced by this namespace command,
+  in reverse order so that `end` will peel them off from the front. -/
+  name : List Name
+  stx : Syntax
+  selection : Syntax
+  prevSiblings : Array DocumentSymbol
+
+def NamespaceEntry.finish (text : FileMap) (syms : Array DocumentSymbol) (endStx : Option Syntax) :
+    NamespaceEntry → Array DocumentSymbol
+  | { name, stx, selection, prevSiblings, .. } =>
+    -- we can assume that commands always have at least one position (see `parseCommand`)
+    let range := match endStx with
+      | some endStx => (mkNullNode #[stx, endStx]).getRange?.get!
+      | none        =>  { stx.getRange?.get! with stop := text.source.endPos }
+    let name := name.foldr (fun x y => y ++ x) Name.anonymous
+    prevSiblings.push <| DocumentSymbol.mk {
+      -- anonymous sections are represented by `«»` name components
+      name := if name == `«» then "<section>" else name.toString
+      kind := .namespace
+      range := range.toLspRange text
+      selectionRange := selection.getRange?.getD range |>.toLspRange text
+      children? := syms
+    }
+
 open Parser.Command in
 partial def handleDocumentSymbol (_ : DocumentSymbolParams)
     : RequestM (RequestTask DocumentSymbolResult) := do
@@ -272,20 +297,38 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
   let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
-    let (syms, _) := toDocumentSymbols doc.meta.text stxs
-    return { syms := syms.toArray }
+    return { syms := toDocumentSymbols doc.meta.text stxs #[] [] }
 where
-  toDocumentSymbols (text : FileMap) (stxs : List Syntax) : List DocumentSymbol × List Syntax :=
+  toDocumentSymbols (text : FileMap) (stxs : List Syntax)
+      (syms : Array DocumentSymbol) (stack : List NamespaceEntry) :
+      Array DocumentSymbol :=
     match stxs with
-    | [] => ([], [])
+    | [] => stack.foldl (fun syms entry => entry.finish text syms none) syms
     | stx::stxs => match stx with
-      | `(namespace $id)  => sectionLikeToDocumentSymbols text stx stxs (id.getId.toString) SymbolKind.namespace id
-      | `(section $(id)?) => sectionLikeToDocumentSymbols text stx stxs ((·.getId.toString) <$> id |>.getD "<section>") SymbolKind.namespace (id.map (·.raw) |>.getD stx)
-      | `(end $(_id)?) => ([], stx::stxs)
+      | `(namespace $id)  =>
+        let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
+        toDocumentSymbols text stxs #[] (entry :: stack)
+      | `(section $(id)?) =>
+        let name := id.map (·.getId.componentsRev) |>.getD [`«»]
+        let entry := { name, stx, selection := id.map (·.raw) |>.getD stx, prevSiblings := syms }
+        toDocumentSymbols text stxs #[] (entry :: stack)
+      | `(end $(id)?) =>
+        let rec popStack n syms
+          | [] => toDocumentSymbols text stxs syms []
+          | entry :: stack =>
+            if entry.name.length == n then
+              let syms := entry.finish text syms stx
+              toDocumentSymbols text stxs syms stack
+            else if entry.name.length > n then
+              let syms := { entry with name := entry.name.take n, prevSiblings := #[] }.finish text syms stx
+              toDocumentSymbols text stxs syms ({ entry with name := entry.name.drop n } :: stack)
+            else
+              let syms := entry.finish text syms stx
+              popStack (n - entry.name.length) syms stack
+        popStack (id.map (·.getId.getNumParts) |>.getD 1) syms stack
       | _ => Id.run do
-        let (syms, stxs') := toDocumentSymbols text stxs
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
-          return (syms, stxs')
+          return toDocumentSymbols text stxs syms stack
         if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
             | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id$[.{$ls,*}]?]? $sig:declSig $_) =>
@@ -297,30 +340,14 @@ where
                 let stx10 : Syntax := (stx.getArg 1).getArg 0 -- TODO: stx[1][0] times out
                 (stx10.isIdOrAtom?.getD "<unknown>", stx10)
           if let some selRange := selection.getRange? then
-            return (DocumentSymbol.mk {
+            let sym := DocumentSymbol.mk {
               name := name
               kind := SymbolKind.method
               range := stxRange.toLspRange text
               selectionRange := selRange.toLspRange text
-              } :: syms, stxs')
-        return (syms, stxs')
-
-  sectionLikeToDocumentSymbols (text : FileMap) (stx : Syntax) (stxs : List Syntax) (name : String) (kind : SymbolKind) (selection : Syntax) : List DocumentSymbol × List Syntax :=
-    let (syms, stxs') := toDocumentSymbols text stxs
-    -- discard `end`
-    let (syms', stxs'') := toDocumentSymbols text (stxs'.drop 1)
-    let endStx := match stxs' with
-      | endStx::_ => endStx
-      | []        => (stx::stxs').getLast!
-    -- we can assume that commands always have at least one position (see `parseCommand`)
-    let range := (mkNullNode #[stx, endStx]).getRange?.get!.toLspRange text
-    (DocumentSymbol.mk {
-      name
-      kind
-      range
-      selectionRange := selection.getRange? |>.map (·.toLspRange text) |>.getD range
-      children? := syms.toArray
-    } :: syms', stxs'')
+            }
+            return toDocumentSymbols text stxs (syms.push sym) stack
+        toDocumentSymbols text stxs syms stack
 
 def noHighlightKinds : Array SyntaxNodeKind := #[
   -- usually have special highlighting by the client
@@ -440,16 +467,31 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     isImport stx := stx.isOfKind ``Lean.Parser.Module.header || stx.isOfKind ``Lean.Parser.Command.open
 
     addRanges (text : FileMap) sections
-    | [] => return
+    | [] => do
+      if let (_, start)::rest := sections then
+        addRange text FoldingRangeKind.region start text.source.endPos
+        addRanges text rest []
     | stx::stxs => match stx with
-      | `(namespace $_id)  => addRanges text (stx.getPos?::sections) stxs
-      | `(section $(_id)?) => addRanges text (stx.getPos?::sections) stxs
-      | `(end $(_id)?) => do
-        if let start::rest := sections then
-          addRange text FoldingRangeKind.region start stx.getTailPos?
-          addRanges text rest stxs
-        else
-          addRanges text sections stxs
+      | `(namespace $id)  =>
+        addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
+      | `(section $(id)?) =>
+        addRanges text ((id.map (·.getId.getNumParts) |>.getD 1, stx.getPos?)::sections) stxs
+      | `(end $(id)?) => do
+        let rec popRanges n sections := do
+          if let (size, start)::rest := sections then
+            if size == n then
+              addRange text FoldingRangeKind.region start stx.getTailPos?
+              addRanges text rest stxs
+            else if size > n then
+              -- we don't add a range here because vscode doesn't like
+              -- multiple folding regions with the same start line
+              addRanges text ((size - n, start)::rest) stxs
+            else
+              addRange text FoldingRangeKind.region start stx.getTailPos?
+              popRanges (n - size) rest
+          else
+            addRanges text sections stxs
+        popRanges (id.map (·.getId.getNumParts) |>.getD 1) sections
       | `(mutual $body* end) => do
         addRangeFromSyntax text FoldingRangeKind.region stx
         addRanges text [] body.raw.toList

@@ -11,7 +11,7 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.CSE
 import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.ElimDead
-import Lean.Compiler.LCNF.FixedArgs
+import Lean.Compiler.LCNF.FixedParams
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.JoinPoints
 import Lean.Compiler.LCNF.LCtx
@@ -33,3 +33,9 @@ import Lean.Compiler.LCNF.ToExpr
 import Lean.Compiler.LCNF.ToLCNF
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Util
+import Lean.Compiler.LCNF.ConfigOptions
+import Lean.Compiler.LCNF.ForEachExpr
+import Lean.Compiler.LCNF.MonoTypes
+import Lean.Compiler.LCNF.ToMono
+import Lean.Compiler.LCNF.MonadScope
+import Lean.Compiler.LCNF.Closure

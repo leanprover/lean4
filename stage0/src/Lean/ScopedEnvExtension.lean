@@ -30,7 +30,7 @@ structure StateStack (α : Type) (β : Type) (σ : Type) where
   deriving Inhabited
 
 structure Descr (α : Type) (β : Type) (σ : Type) where
-  name           : Name
+  name           : Name := by exact decl_name%
   mkInitial      : IO σ
   ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
@@ -197,7 +197,7 @@ def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (name
 abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
 
 structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
-  name           : Name
+  name           : Name := by exact decl_name%
   addEntry       : σ → α → σ
   initial        : σ
   finalizeImport : σ → σ := id

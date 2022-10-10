@@ -1,12 +1,9 @@
 import Lean
 
-notation "◾" => lcErased
-notation "⊤" => lcAny
-
 open Lean Compiler LCNF Meta
 
 def test (declName : Name) : MetaM Unit := do
-  IO.println s!"{declName} : {← ppExpr (← getDeclLCNFType declName)}"
+  IO.println s!"{declName} : {← ppExpr (← LCNF.getOtherDeclBaseType declName [])}"
 
 inductive Vec (α : Type u) : Nat → Type u
   | nil : Vec α 0
@@ -109,17 +106,16 @@ def weird1 (c : Bool) : (cond c List Array) Nat :=
 
 #eval test ``weird1
 
-
 def compatible (declName₁ declName₂ : Name) : MetaM Unit := do
-  let type₁ ← getDeclLCNFType declName₁
-  let type₂ ← getDeclLCNFType declName₂
-  unless compatibleTypes type₁ type₂ do
+  let type₁ ← LCNF.getOtherDeclBaseType declName₁ []
+  let type₂ ← LCNF.getOtherDeclBaseType declName₂ []
+  unless LCNF.compatibleTypesQuick type₁ type₂ do
     throwError "{declName₁} : {← ppExpr type₁}\ntype is not compatible with\n{declName₂} : {← ppExpr type₂}"
 
 axiom monadList₁.{u} : Monad List.{u}
 axiom monadList₂.{u} : Monad (fun α : Type u => List α)
 
-set_option pp.all true
+-- set_option pp.all true
 #eval compatible ``monadList₁ ``monadList₂
 
 axiom lamAny₁ (c : Bool) : Monad (fun α : Type => cond c (List α) (Array α))
@@ -128,3 +124,25 @@ axiom lamAny₂ (c : Bool) : Monad (cond c List.{0} Array.{0})
 #eval test ``lamAny₂
 
 #eval compatible ``lamAny₁ ``lamAny₂
+
+def testMono (declName : Name) : MetaM Unit := do
+  let base ← LCNF.getOtherDeclBaseType declName []
+  let mono ← LCNF.toMonoType base
+  IO.println s!"{declName} : {← ppExpr mono}"
+
+set_option pp.explicit true
+#eval testMono ``Term.constFold
+#eval testMono ``Term.denote
+#eval testMono ``HList.get
+#eval testMono ``Member.head
+#eval testMono ``Ty.denote
+#eval testMono ``MonadControl.liftWith
+#eval testMono ``MonadControl.restoreM
+#eval testMono ``Decidable.casesOn
+#eval testMono ``getConstInfo
+#eval testMono ``instMonadMetaM
+#eval testMono ``Lean.Meta.inferType
+#eval testMono ``Elab.Term.elabTerm
+#eval testMono ``Nat.add
+#eval testMono ``Fin.add
+#eval testMono ``HashSetBucket.update

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___lambda__3___closed__3;
-static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_mkComputedFieldOverrides___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t l_Lean_Expr_hasAnyFVar_visit___at_Lean_Expr_containsFVar___spec__1(lean_object*, lean_object*);
@@ -61,7 +60,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoDefn___at_Lean_Elab_ComputedFields_o
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__5___closed__12;
 static lean_object* l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplType___spec__2___lambda__1___closed__3;
-static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11;
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLocalDeclImp___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_overrideCasesOn___closed__1;
@@ -93,7 +91,7 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_Elab_ComputedFiel
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__2;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(uint8_t, uint8_t);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_implementedByAttr;
@@ -304,6 +302,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_ComputedFields_
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_mkComputedFieldOverrides___spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_getComputedFieldValue___lambda__1___closed__2;
 lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore_go___spec__3(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
@@ -319,7 +318,6 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_i
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__9___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_overrideConstructors___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_isScalarField___spec__1___closed__1;
-static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10;
 extern lean_object* l_instInhabitedPUnit;
 extern lean_object* l_Lean_casesOnSuffix;
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescope___at_Lean_Elab_ComputedFields_overrideConstructors___spec__5(lean_object*);
@@ -421,32 +419,12 @@ return x_1;
 static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__5() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("Elab", 4);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__4;
-x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__5;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__7() {
+static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -454,17 +432,7 @@ x_1 = lean_mk_string_from_bytes("ComputedFields", 14);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__6;
-x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__7;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9() {
+static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -472,17 +440,19 @@ x_1 = lean_mk_string_from_bytes("computedFieldAttr", 17);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10() {
+static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__8;
-x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__3;
+x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__4;
+x_3 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__5;
+x_4 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__6;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11() {
+static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__8() {
 _start:
 {
 lean_object* x_1; 
@@ -490,7 +460,7 @@ x_1 = lean_mk_string_from_bytes("Marks a function as a computed field of an indu
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12() {
+static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9() {
 _start:
 {
 lean_object* x_1; 
@@ -503,9 +473,9 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_2 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__2;
-x_3 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11;
-x_4 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12;
-x_5 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10;
+x_3 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__8;
+x_4 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9;
+x_5 = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__7;
 x_6 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_5, x_1);
 return x_6;
 }
@@ -10051,7 +10021,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_267; uint8_t x_268; 
 x_267 = 2;
-x_268 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_267);
+x_268 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_267);
 if (x_268 == 0)
 {
 lean_object* x_269; 
@@ -10088,7 +10058,7 @@ uint8_t x_10; lean_object* x_260; uint8_t x_261; uint8_t x_262;
 lean_dec(x_9);
 x_260 = lean_ctor_get(x_6, 2);
 x_261 = 1;
-x_262 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_261);
+x_262 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_261);
 if (x_262 == 0)
 {
 x_10 = x_3;
@@ -11639,12 +11609,6 @@ l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____clo
 lean_mark_persistent(l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__8);
 l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9 = _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9();
 lean_mark_persistent(l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__9);
-l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10 = _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10();
-lean_mark_persistent(l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__10);
-l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11 = _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11();
-lean_mark_persistent(l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__11);
-l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12 = _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12();
-lean_mark_persistent(l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__12);
 if (builtin) {res = l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Elab_ComputedFields_computedFieldAttr = lean_io_result_get_value(res);

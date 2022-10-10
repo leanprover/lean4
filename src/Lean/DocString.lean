@@ -9,7 +9,7 @@ import Lean.MonadEnv
 namespace Lean
 
 private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mkRef {}
-private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension `docstring
+private builtin_initialize docStringExt : MapDeclarationExtension String ← mkMapDeclarationExtension
 
 private def findLeadingSpacesSize (s : String) : Nat :=
   let it := s.iter
@@ -72,7 +72,6 @@ structure ModuleDoc where
   declarationRange : DeclarationRange
 
 private builtin_initialize moduleDocExt : SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
-  name          := `moduleDocExt
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
   toArrayFn     := fun es => es.toArray

@@ -389,7 +389,7 @@ def toConstantVal : ConstantInfo → ConstantVal
   | recInfo      {toConstantVal := d, ..} => d
 
 def isUnsafe : ConstantInfo → Bool
-  | defnInfo   v => v.safety == DefinitionSafety.unsafe
+  | defnInfo   v => v.safety == .unsafe
   | axiomInfo  v => v.isUnsafe
   | thmInfo    _ => false
   | opaqueInfo v => v.isUnsafe
@@ -397,6 +397,10 @@ def isUnsafe : ConstantInfo → Bool
   | inductInfo v => v.isUnsafe
   | ctorInfo   v => v.isUnsafe
   | recInfo    v => v.isUnsafe
+
+def isPartial : ConstantInfo → Bool
+  | defnInfo v => v.safety == .partial
+  | _ => false
 
 def name (d : ConstantInfo) : Name :=
   d.toConstantVal.name

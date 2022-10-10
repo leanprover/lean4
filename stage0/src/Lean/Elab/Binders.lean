@@ -27,7 +27,7 @@ private def expandBinderType (ref : Syntax) (stx : Syntax) : Syntax :=
 /-- Given syntax of the form `ident <|> hole`, return `ident`. If `hole`, then we create a new anonymous name. -/
 private def expandBinderIdent (stx : Syntax) : TermElabM Syntax :=
   match stx with
-  | `(_) => mkFreshIdent stx
+  | `(_) => mkFreshIdent stx (canonical := true)
   | _    => pure stx
 
 /-- Given syntax of the form `(ident >> " : ")?`, return `ident`, or a new instance name. -/
@@ -715,7 +715,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let val     := letDecl[4]
     if pat.getKind == ``Parser.Term.hole then
       -- `let _ := ...` should not be treated at a `letIdDecl`
-      let id   := mkIdentFrom pat `_
+      let id   ← mkFreshIdent pat (canonical := true)
       let type := expandOptType id optType
       elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly
     else

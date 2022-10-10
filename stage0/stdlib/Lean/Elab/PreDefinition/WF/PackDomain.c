@@ -50,6 +50,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withIncRecDepth___at_Lean_Elab_WF_packDomai
 lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forallTelescopeCompatibleAux___spec__15___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_mkUnaryArg_go___closed__1;
 lean_object* l_Lean_Expr_appFn_x21(lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -494,9 +495,9 @@ static lean_object* _init_l_Lean_Elab_WF_mkUnaryArg_go___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackDomain_0__Lean_Elab_WF_mkTupleElems___spec__1___closed__2;
+x_1 = l_Std_Range_forIn_loop___at___private_Lean_Elab_PreDefinition_WF_PackDomain_0__Lean_Elab_WF_mkTupleElems___spec__1___closed__1;
 x_2 = l_Lean_Elab_WF_mkUnaryArg_go___closed__14;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }

@@ -39,6 +39,23 @@ def writeRequest (r : Request α) : IpcM Unit := do
 def writeNotification (n : Notification α) : IpcM Unit := do
   (←stdin).writeLspNotification n
 
+def shutdown (requestNo : Nat) : IpcM Unit := do
+  let hIn ← stdout
+  let hOut ← stdin
+  hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
+  repeat
+    let shutMsg ← hIn.readLspMessage
+    match shutMsg with
+    | Message.response id result =>
+      assert! result.isNull
+      if id != requestNo then
+        throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
+
+      hOut.writeLspNotification ⟨"exit", Json.null⟩
+      break
+    | _ =>  -- ignore other messages in between.
+      pure ()
+
 def readMessage : IpcM JsonRpc.Message := do
   (←stdout).readLspMessage
 

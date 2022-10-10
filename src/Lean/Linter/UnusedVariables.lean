@@ -104,7 +104,6 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
 
 builtin_initialize unusedVariablesIgnoreFnsExt : SimplePersistentEnvExtension Name Unit ←
   registerSimplePersistentEnvExtension {
-    name          := `unusedVariablesIgnoreFns
     addEntryFn    := fun _ _ => ()
     addImportedFn := fun _ => ()
   }

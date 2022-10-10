@@ -937,10 +937,10 @@ export Quote (quote)
 instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
 
 instance : Quote Term := ⟨id⟩
-instance : Quote Bool := ⟨fun | true => mkCIdent `Bool.true | false => mkCIdent `Bool.false⟩
+instance : Quote Bool := ⟨fun | true => mkCIdent ``Bool.true | false => mkCIdent ``Bool.false⟩
 instance : Quote String strLitKind := ⟨Syntax.mkStrLit⟩
 instance : Quote Nat numLitKind := ⟨fun n => Syntax.mkNumLit <| toString n⟩
-instance : Quote Substring := ⟨fun s => Syntax.mkCApp `String.toSubstring #[quote s.toString]⟩
+instance : Quote Substring := ⟨fun s => Syntax.mkCApp ``String.toSubstring' #[quote s.toString]⟩
 
 -- in contrast to `Name.toString`, we can, and want to be, precise here
 private def getEscapedNameParts? (acc : List String) : Name → Option (List String)
@@ -951,9 +951,9 @@ private def getEscapedNameParts? (acc : List String) : Name → Option (List Str
   | Name.num _ _ => none
 
 def quoteNameMk : Name → Term
-  | Name.anonymous => mkCIdent ``Name.anonymous
-  | Name.str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
-  | Name.num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
+  | .anonymous => mkCIdent ``Name.anonymous
+  | .str n s => Syntax.mkCApp ``Name.mkStr #[quoteNameMk n, quote s]
+  | .num n i => Syntax.mkCApp ``Name.mkNum #[quoteNameMk n, quote i]
 
 instance : Quote Name `term where
   quote n := match getEscapedNameParts? [] n with
@@ -971,8 +971,21 @@ private def quoteList [Quote α `term] : List α → Term
 instance [Quote α `term] : Quote (List α) `term where
   quote := quoteList
 
+private def quoteArray [Quote α `term] (xs : Array α) : Term :=
+  if xs.size <= 8 then
+    go 0 #[]
+  else
+    Syntax.mkCApp ``List.toArray #[quote xs.toList]
+where
+  go (i : Nat) (args : Array Term) : Term :=
+    if h : i < xs.size then
+      go (i+1) (args.push (quote xs[i]))
+    else
+      Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
+termination_by go i _ => xs.size - i
+
 instance [Quote α `term] : Quote (Array α) `term where
-  quote xs := Syntax.mkCApp ``List.toArray #[quote xs.toList]
+  quote := quoteArray
 
 instance Option.hasQuote {α : Type} [Quote α `term] : Quote (Option α) `term where
   quote

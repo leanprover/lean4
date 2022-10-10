@@ -79,7 +79,6 @@ def State.switch (s : State) : State :=  { s with map := s.map.switch }
 
 builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
-    name          := `matcher
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
   }

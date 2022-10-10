@@ -29,7 +29,7 @@ def mkProjectionInfoEx (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass 
 def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
   info.fromClass
 
-builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension `projinfo
+builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
 
 @[export lean_add_projection_info]
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=

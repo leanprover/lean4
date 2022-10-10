@@ -24,7 +24,6 @@ def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
 
 builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
   registerSimplePersistentEnvExtension {
-    name          := `aliasesExt,
     addEntryFn    := addAliasEntry,
     addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es |>.switch
   }
@@ -321,7 +320,7 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
   return n₀ -- if can't resolve, return the original
 where
   unresolveNameCore (n : Name) : m (Option Name) := do
-    let mut revComponents := n.components'
+    let mut revComponents := n.componentsRev
     let mut candidate := Name.anonymous
     for _ in [:revComponents.length] do
       match revComponents with

@@ -49,7 +49,6 @@ builtin_initialize builtinHandlersRef : IO.Ref (NameMap Handler) ← IO.mkRef {}
 builtin_initialize missingDocsExt :
   PersistentEnvExtension (Name × Name) (Name × Name × Handler) (List (Name × Name) × NameMap Handler) ←
   registerPersistentEnvExtension {
-    name            := "missing docs extension"
     mkInitial       := return ([], ← builtinHandlersRef.get)
     addImportedFn   := fun as => do
       ([], ·) <$> as.foldlM (init := ← builtinHandlersRef.get) fun s as =>

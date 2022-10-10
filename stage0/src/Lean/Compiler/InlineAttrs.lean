@@ -32,7 +32,7 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
   return true
 
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
-  registerEnumAttributes `inlineAttrs
+  registerEnumAttributes
     [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
      (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
      (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),

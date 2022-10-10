@@ -85,7 +85,7 @@ partial def findRecArg (numFixed : Nat) (xs : Array Expr) (k : RecArgInfo → M 
         matchConstInduct xType.getAppFn (fun _ => go (i+1) firstPass) fun indInfo us => do
         if !(← hasConst (mkBRecOnName indInfo.name)) then
           go (i+1) firstPass
-        else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) then
+        else if indInfo.isReflexive && !(← hasConst (mkBInductionOnName indInfo.name)) && !(← isInductivePredicate indInfo.name) then
           go (i+1) firstPass
         else
           let indArgs    := xType.getAppArgs

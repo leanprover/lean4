@@ -30,7 +30,7 @@ inductive CongrArgKind where
   For congr-simp theorems only.  Indicates a decidable instance argument.
   The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
   | subsingletonInst
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 structure CongrTheorem where
   type     : Expr
@@ -234,7 +234,7 @@ where
             | .eq =>
               let localDecl ← lhss[i]!.fvarId!.getDecl
               withLocalDecl localDecl.userName localDecl.binderInfo localDecl.type fun rhs => do
-              withLocalDeclD ((`e).appendIndexAfter (eqs.size+1)) (← mkEq lhss[i]! rhs) fun eq => do
+              withLocalDeclD (localDecl.userName.appendBefore "e_") (← mkEq lhss[i]! rhs) fun eq => do
                 go (i+1) (rhss.push rhs) (eqs.push eq) (hyps.push rhs |>.push eq)
             | .fixed => go (i+1) (rhss.push lhss[i]!) (eqs.push none) hyps
             | .cast =>

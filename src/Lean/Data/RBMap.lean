@@ -6,17 +6,17 @@ Authors: Leonardo de Moura
 namespace Lean
 universe u v w w'
 
-inductive Rbcolor where
+inductive RBColor where
   | red | black
 
 inductive RBNode (α : Type u) (β : α → Type v) where
   | leaf                                                                                        : RBNode α β
-  | node  (color : Rbcolor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
+  | node  (color : RBColor) (lchild : RBNode α β) (key : α) (val : β key) (rchild : RBNode α β) : RBNode α β
 
 namespace RBNode
 variable {α : Type u} {β : α → Type v} {σ : Type w}
 
-open Rbcolor Nat
+open RBColor Nat
 
 def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
   | leaf           => 0
@@ -123,36 +123,30 @@ def setBlack : RBNode α β → RBNode α β
 
 end Insert
 
--- Okasaki's full `balance`
-def balance₃ (a : RBNode α β) (k : α) (v : β k) (d : RBNode α β) : RBNode α β :=
-  match a with
-  | node red (node red a kx vx b) ky vy c
-  | node red a kx vx (node red b ky vy c) => node red (node black a kx vx b) ky vy (node black c k v d)
-  | a => match d with
-    | node red b ky vy (node red c kz vz d)
-    | node red (node red b ky vy c) kz vz d => node red (node black a k v b) ky vy (node black c kz vz d)
-    | _                                     => node black a k v d
-
 def setRed : RBNode α β → RBNode α β
   | node _ a k v b => node red a k v b
   | e              => e
 
 def balLeft : RBNode α β → (k : α) → β k → RBNode α β → RBNode α β
   | node red a kx vx b,   k, v, r                    => node red (node black a kx vx b) k v r
-  | l, k, v, node black a ky vy b                    => balance₃ l k v (node red a ky vy b)
-  | l, k, v, node red (node black a ky vy b) kz vz c => node red (node black l k v a) ky vy (balance₃ b kz vz (setRed c))
+  | l, k, v, node black a ky vy b                    => balance2 l k v (node red a ky vy b)
+  | l, k, v, node red (node black a ky vy b) kz vz c => node red (node black l k v a) ky vy (balance2 b kz vz (setRed c))
   | l, k, v, r                                       => node red l k v r -- unreachable
 
 def balRight (l : RBNode α β) (k : α) (v : β k) (r : RBNode α β) : RBNode α β :=
   match r with
   | (node red b ky vy c) => node red l k v (node black b ky vy c)
   | _ => match l with
-    | node black a kx vx b                    => balance₃ (node red a kx vx b) k v r
-    | node red a kx vx (node black b ky vy c) => node red (balance₃ (setRed a) kx vx b) ky vy (node black c k v r)
+    | node black a kx vx b                    => balance1 (node red a kx vx b) k v r
+    | node red a kx vx (node black b ky vy c) => node red (balance1 (setRed a) kx vx b) ky vy (node black c k v r)
     | _                                       => node red l k v r -- unreachable
 
--- TODO: use wellfounded recursion
-partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
+/-- The number of nodes in the tree. -/
+@[local simp] def size : RBNode α β → Nat
+  | leaf => 0
+  | node _ x _ _ y => x.size + y.size + 1
+
+def appendTrees :  RBNode α β → RBNode α β → RBNode α β
   | leaf, x => x
   | x, leaf => x
   | node red a kx vx b,   node red c ky vy d   =>
@@ -165,6 +159,7 @@ partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
      | bc                   => balLeft a kx vx (node black bc ky vy d)
    | a, node red b kx vx c   => node red (appendTrees a b) kx vx c
    | node red a kx vx b,   c => node red a kx vx (appendTrees b c)
+termination_by _ x y => x.size + y.size
 
 section Erase
 

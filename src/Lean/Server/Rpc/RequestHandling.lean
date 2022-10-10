@@ -21,7 +21,7 @@ they *can* easily create custom handlers and use them in the same file. -/
 builtin_initialize builtinRpcProcedures : IO.Ref (PHashMap Name RpcProcedure) ←
   IO.mkRef {}
 builtin_initialize userRpcProcedures : MapDeclarationExtension Name ←
-  mkMapDeclarationExtension `userRpcProcedures
+  mkMapDeclarationExtension
 
 private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure :=

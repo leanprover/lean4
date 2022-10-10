@@ -339,7 +339,6 @@ private def ParserExtension.OLeanEntry.toEntry (s : State) : OLeanEntry → Impo
 
 builtin_initialize parserExtension : ParserExtension ←
   registerScopedEnvExtension {
-    name            := `parserExt
     mkInitial       := ParserExtension.mkInitial
     addEntry        := ParserExtension.addEntryImpl
     toOLeanEntry    := ParserExtension.Entry.toOLeanEntry

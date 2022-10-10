@@ -23,18 +23,23 @@ open Server Std Lean SubExpr
 
 NOTE: in the future we may add other tags.
   -/
-inductive ExprDiffTag where
+private inductive ExprDiffTag where
   | change
   | delete
+  | insert
 
-def ExprDiffTag.toHighlightColor : (useAfter : Bool) → ExprDiffTag → HighlightColor
-  | true,  .change => .green
-  | false, .change => .yellow
-  | _,     .delete => .red
+def ExprDiffTag.toDiffTag : (useAfter : Bool) → ExprDiffTag → Lean.Widget.DiffTag
+  | true,  .change => .wasChanged
+  | false, .change => .willChange
+  | true,  .delete => .wasDeleted
+  | false, .delete => .willDelete
+  | true,  .insert => .wasInserted
+  | false, .insert => .willInsert
 
 def ExprDiffTag.toString : ExprDiffTag → String
   | .change => "change"
   | .delete => "delete"
+  | .insert => "insert"
 
 instance : ToString ExprDiffTag := ⟨ExprDiffTag.toString⟩
 
@@ -102,6 +107,8 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
   if before.expr == after.expr then
     return ∅
   match before.expr, after.expr with
+  | .mdata _ e₀, _ => exprDiffCore {before with expr := e₀} after
+  | _, .mdata _ e₁ => exprDiffCore before {after with expr := e₁}
   | .app .., .app .. =>
     let (fn₀, args₀) := after.expr.withApp Prod.mk
     let (fn₁, args₁) := before.expr.withApp Prod.mk
@@ -123,6 +130,11 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
       return ← exprDiffCore ⟨b₀, before.pos.pushBindingBody⟩ ⟨b₁, after.pos.pushBindingBody⟩
     else
       return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
+  | .proj n₀ i₀ e₀, .proj n₁ i₁ e₁ =>
+    if n₀ != n₁ || i₀ != i₁ then
+      return ExprDiff.withChange before after
+    else
+      exprDiffCore ⟨e₀, before.pos.pushProj⟩ ⟨e₁, after.pos.pushProj⟩
   | _, _ => return ExprDiff.withChange before after
   where
     piDiff (before after : SubExpr) : MetaM ExprDiff := do
@@ -179,7 +191,7 @@ this function decorates `infoAfter` with tags indicating where the expression ha
 If `useAfter == false` before and after are swapped. -/
 def addDiffTags (useAfter : Bool) (diff : ExprDiff) (info₁ : CodeWithInfos) : MetaM CodeWithInfos := do
   let cs := if useAfter then diff.changesAfter else diff.changesBefore
-  info₁.mergePosMap (fun info d => pure <| info.highlight <| d.toHighlightColor useAfter) cs
+  info₁.mergePosMap (fun info d => pure <| info.withDiffTag <| ExprDiffTag.toDiffTag useAfter d) cs
 
 open Meta
 

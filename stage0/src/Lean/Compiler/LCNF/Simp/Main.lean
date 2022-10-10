@@ -14,6 +14,7 @@ import Lean.Compiler.LCNF.Simp.InlineProj
 import Lean.Compiler.LCNF.Simp.Used
 import Lean.Compiler.LCNF.Simp.DefaultAlt
 import Lean.Compiler.LCNF.Simp.SimpValue
+import Lean.Compiler.LCNF.Simp.ConstantFold
 
 namespace Lean.Compiler.LCNF
 namespace Simp
@@ -52,6 +53,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
     paramsNew := paramsNew.push paramNew
     subst := subst.insert param.fvarId (.fvar paramNew.fvarId)
   let code ← info.value.internalize subst
+  -- TODO: check resulting type
   updateFunDeclInfo code
   mkAuxFunDecl paramsNew code
 
@@ -95,6 +97,75 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
+/-
+Note: function inlining and result type.
+The function betaReduce has support for adding cast operations to arguments when inlining a definition.
+We may also need cast operations at the exit points of a function.
+Here is a concrete example.
+
+Suppose we have
+```
+inductive Id {A : Type u} : A → A → Type u
+  | refl {a : A} : Id a a
+def transport {A : Type u} (B : A → Type v) {a b : A} (p : Id a b) : B a → B b :=
+```
+Its LCNF type is
+```
+{A : Type u} (B : A → Type v) {a b : A} (p : Id ◾ ◾) (a.1 : B ◾) : B ◾
+```
+and base phase code is
+```
+cases p : B ◾
+| Id.refl =>
+  a.1
+```
+Now suppose we define
+```
+def transportconst {A B : Type u} : A = B → A → B :=
+  transport id
+```
+By setting `B` as `id`, and then inlining `transport, we would have the following code for `transportconst` is
+```
+cases p : ◾
+| Id.refl =>
+  a.1
+```
+Now, suppose we inline `transportconst` in a place where the continuation is expecting a value of
+type `B`, but we are providing a value of type `A`. We must insert a cast to ensure the result is type
+correct.
+-/
+
+/--
+Return `some fvarId` if `value` is of the form `.fvar fvarId`, and its type
+is `◾` or equivalent to `expectedType`.
+
+We use this method to decide whether to eliminate `let _x.i := _x.j` or not.
+Consider the following example, it is type correct
+```
+fun f (y : List A) : List A := ...
+let g (y : List B) : List B := ...
+let _x.1 : List A := f a
+let _x.2 : List ◾ := _x.1
+let _x.3 : List B := g _x.2
+```
+but, the following one where we eliminate `_x.2` is not
+```
+fun f (y : List A) : List A := ...
+let g (y : List B) : List B := ...
+let _x.1 : List A := f a
+let _x.3 : List B := g _x.1
+```
+
+TODO: reconsider the type system for LCNF. "Implicit casts" as in the example above
+should not be allowed. That is, we should not be able to use `List A` where `List ◾` is expected without
+an explicit `lcCast`.
+-/
+def elimVar? (value : Expr) (expectedType : Expr) : SimpM (Option FVarId) := do
+  let .fvar fvarId := value | return none
+  let type ← getType fvarId
+  unless type.isErased || eqvTypes type expectedType do return none
+  return fvarId
+
 mutual
 /--
 If the value of the given let-declaration is an application that can be inlined,
@@ -115,7 +186,7 @@ inlined code **before** we attach it to the continuation.
 partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := do
   let some info ← inlineCandidate? letDecl.value | return none
   let numArgs := info.args.size
-  withInlining letDecl.value do
+  withInlining letDecl.value info.recursive do
   let fvarId := letDecl.fvarId
   if numArgs < info.arity then
     let funDecl ← specializePartialApp info
@@ -123,7 +194,10 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
+    let expectedType ← inferType (mkAppN info.f info.args[:info.arity])
     let code ← betaReduce info.params info.value info.args[:info.arity]
+    /- See note above: function inlining and result type. -/
+    let code ← code.ensureResultType expectedType
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
       markSimplified
@@ -148,7 +222,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
-        let jpParam ← mkAuxParam (← inferType (mkAppN info.f info.args[:info.arity]))
+        let jpParam ← mkAuxParam expectedType
         let jpValue ← if numArgs > info.arity then
           let decl ← mkAuxLetDecl (mkAppN (.fvar jpParam.fvarId) info.args[info.arity:])
           addFVarSubst fvarId decl.fvarId
@@ -197,6 +271,20 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
         auxDecls := auxDecls.push (CodeDecl.let auxDecl)
         addFVarSubst param.fvarId auxDecl.fvarId
     let k ← simp k
+    /-
+    We must ensure the result type is equivalent to `cases.resultType` here, otherwise the result may be type incorrect.
+    For example, the following LCNF code is correct before applying this transformation, but requires a cast after.
+
+    ```
+    def f (a : A) (b : B) : B :=
+      let _x.1 := true
+      cases _x.1 : ⊤
+      | true => return a
+      | false => return b
+    ```
+    This situation is similar to the one we have when inlining functions.
+    -/
+    let k ← k.ensureResultType cases.resultType
     eraseParams params
     attachCodeDecls auxDecls k
 
@@ -208,19 +296,24 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
   match code with
   | .let decl k =>
     let mut decl ← normLetDecl decl
-    if let some value ← simpValue? decl.value then
+    if let some value ← simpValue? decl.value decl.type then
+      markSimplified
       decl ← decl.updateValue value
-    if let some funDecl ← etaPolyApp? decl then
+    if let some decls ← ConstantFold.foldConstants decl then
+      markSimplified
+      let k ← simp k
+      attachCodeDecls decls k
+    else if let some funDecl ← etaPolyApp? decl then
       simp (.fun funDecl k)
-    else if decl.value.isFVar then
+    else if let some fvarId ← elimVar? decl.value decl.type then
       /- Eliminate `let _x_i := _x_j;` -/
-      addFVarSubst decl.fvarId decl.value.fvarId!
+      addFVarSubst decl.fvarId fvarId
       eraseLetDecl decl
       simp k
     else if let some code ← inlineApp? decl k then
       eraseLetDecl decl
       return code
-    else if let some (decls, fvarId) ← inlineProjInst? decl.value then
+    else if let some (decls, fvarId) ← inlineProjInst? decl.value decl.type then
       addFVarSubst decl.fvarId fvarId
       eraseLetDecl decl
       let k ← simp k

@@ -4,7 +4,6 @@ open Lean
 
 initialize fooExtension : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
-    name          := `fooExt
     addEntryFn    := NameSet.insert
     addImportedFn := fun es => mkStateFromImportedEntries NameSet.insert {} es
   }

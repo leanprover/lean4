@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.PrettyPrinter
 import Lean.Compiler.LCNF.CompilerM
+import Lean.Compiler.LCNF.Internalize
 
 namespace Lean.Compiler.LCNF
 
@@ -78,9 +79,12 @@ def ppLetDecl (letDecl : LetDecl) : M Format := do
   else
     return f!"let {letDecl.binderName} := {← ppValue letDecl.value}"
 
+def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
+  instantiateForall type (ps.map (mkFVar ·.fvarId))
+
 mutual
   partial def ppFunDecl (funDecl : FunDecl) : M Format := do
-    return f!"{funDecl.binderName}{← ppParams funDecl.params} :={indentD (← ppCode funDecl.value)}"
+    return f!"{funDecl.binderName}{← ppParams funDecl.params} : {← ppExpr (← getFunType funDecl.params funDecl.type)} :={indentD (← ppCode funDecl.value)}"
 
   partial def ppAlt (alt : Alt) : M Format := do
     match alt with
@@ -92,7 +96,7 @@ mutual
     | .let decl k => return (← ppLetDecl decl) ++ .line ++ (← ppCode k)
     | .fun decl k => return f!"fun " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
     | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
-    | .cases c => return f!"cases {← ppFVar c.discr}{← prefixJoin .line c.alts ppAlt}"
+    | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
     | .return fvarId => ppFVar fvarId
     | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
     | .unreach .. => return "⊥"
@@ -109,11 +113,11 @@ def ppCode (code : Code) : CompilerM Format :=
 
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
-    return f!"def {decl.name}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppCode decl.value)}"
 
 def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do
-    return f!"fun {decl.binderName}{← PP.ppParams decl.params} :={indentD (← PP.ppCode decl.value)}"
+    return f!"fun {← PP.ppFunDecl decl}"
 
 /--
 Similar to `ppDecl`, but in `CoreM`, and it does not assume

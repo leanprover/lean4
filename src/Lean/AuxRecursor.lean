@@ -19,7 +19,7 @@ def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSu
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
 def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension `auxRec
+builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
@@ -47,7 +47,7 @@ def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
 def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
   isAuxRecursorWithSuffix env declName brecOnSuffix
 
-builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension `noConf
+builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=

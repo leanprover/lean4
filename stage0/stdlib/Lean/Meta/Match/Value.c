@@ -26,6 +26,7 @@ static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames
 LEAN_EXPORT uint8_t l_Lean_Meta_isMatchValue(lean_object*);
 static lean_object* l_Lean_Meta_isFinPatLit___closed__2;
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_isFinPatLit___closed__3;
@@ -33,7 +34,6 @@ static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__11;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at___private_Lean_Meta_Match_Value_0__Lean_Meta_isUIntTypeName___spec__2(lean_object*, lean_object*, size_t, size_t);
-static lean_object* l_Lean_Meta_isFinPatLit___closed__4;
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__4;
 static lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_Value_0__Lean_Meta_UIntTypeNames;
@@ -354,28 +354,18 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Meta_isFinPatLit___closed__1;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__3() {
-_start:
-{
 lean_object* x_1; 
 x_1 = lean_mk_string_from_bytes("ofNat", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__4() {
+static lean_object* _init_l_Lean_Meta_isFinPatLit___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_isFinPatLit___closed__2;
-x_2 = l_Lean_Meta_isFinPatLit___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+x_1 = l_Lean_Meta_isFinPatLit___closed__1;
+x_2 = l_Lean_Meta_isFinPatLit___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
 }
 }
@@ -383,7 +373,7 @@ LEAN_EXPORT uint8_t l_Lean_Meta_isFinPatLit(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Lean_Meta_isFinPatLit___closed__4;
+x_2 = l_Lean_Meta_isFinPatLit___closed__3;
 x_3 = lean_unsigned_to_nat(2u);
 x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
 if (x_4 == 0)
@@ -563,7 +553,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_3, 1);
 lean_inc(x_5);
 lean_dec(x_3);
-x_6 = l_Lean_Meta_isFinPatLit___closed__3;
+x_6 = l_Lean_Meta_isFinPatLit___closed__2;
 x_7 = l_Lean_Name_str___override(x_4, x_6);
 x_8 = lean_box(0);
 x_9 = l_Lean_Expr_const___override(x_7, x_8);
@@ -696,8 +686,6 @@ l_Lean_Meta_isFinPatLit___closed__2 = _init_l_Lean_Meta_isFinPatLit___closed__2(
 lean_mark_persistent(l_Lean_Meta_isFinPatLit___closed__2);
 l_Lean_Meta_isFinPatLit___closed__3 = _init_l_Lean_Meta_isFinPatLit___closed__3();
 lean_mark_persistent(l_Lean_Meta_isFinPatLit___closed__3);
-l_Lean_Meta_isFinPatLit___closed__4 = _init_l_Lean_Meta_isFinPatLit___closed__4();
-lean_mark_persistent(l_Lean_Meta_isFinPatLit___closed__4);
 l_Lean_Meta_isUIntPatLit_x3f___closed__1 = _init_l_Lean_Meta_isUIntPatLit_x3f___closed__1();
 lean_mark_persistent(l_Lean_Meta_isUIntPatLit_x3f___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

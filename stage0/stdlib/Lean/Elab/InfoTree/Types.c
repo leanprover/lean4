@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Init Lean.Message Lean.Data.Json
+// Imports: Init Lean.Message Lean.Data.Json Lean.Data.Lsp.CodeActions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,7 +30,6 @@ static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_options___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedCustomInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__9;
@@ -55,7 +54,6 @@ lean_object* l_Lean_Expr_bvar___override(lean_object*);
 extern lean_object* l_Lean_NameSet_empty;
 LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_currNamespace___default;
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCustomInfo;
 static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__1;
@@ -550,26 +548,6 @@ x_1 = l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_instInhabitedCustomInfo___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedCustomInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedCustomInfo___closed__1;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1() {
 _start:
 {
@@ -790,6 +768,7 @@ return x_3;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_CodeActions(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -802,6 +781,9 @@ res = initialize_Lean_Message(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_CodeActions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_ContextInfo_mctx___default___closed__1 = _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1();
@@ -881,10 +863,6 @@ l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1 = _init_l_Lean_Elab_inst
 lean_mark_persistent(l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1);
 l_Lean_Elab_instInhabitedMacroExpansionInfo = _init_l_Lean_Elab_instInhabitedMacroExpansionInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedMacroExpansionInfo);
-l_Lean_Elab_instInhabitedCustomInfo___closed__1 = _init_l_Lean_Elab_instInhabitedCustomInfo___closed__1();
-lean_mark_persistent(l_Lean_Elab_instInhabitedCustomInfo___closed__1);
-l_Lean_Elab_instInhabitedCustomInfo = _init_l_Lean_Elab_instInhabitedCustomInfo();
-lean_mark_persistent(l_Lean_Elab_instInhabitedCustomInfo);
 l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1 = _init_l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1();
 lean_mark_persistent(l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1);
 l_Lean_Elab_instInhabitedUserWidgetInfo = _init_l_Lean_Elab_instInhabitedUserWidgetInfo();

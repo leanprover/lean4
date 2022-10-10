@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Compiler.Specialize
-import Lean.Compiler.LCNF.FixedArgs
+import Lean.Compiler.LCNF.FixedParams
 import Lean.Compiler.LCNF.InferType
 
 namespace Lean.Compiler.LCNF
@@ -74,7 +74,6 @@ Remark: we only store information for declarations that will be specialized.
 -/
 builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecState ←
   registerSimplePersistentEnvExtension {
-    name          := `specInfoExt
     addEntryFn    := SpecState.addEntry
     addImportedFn := fun es => mkStateFromImportedEntries SpecState.addEntry {} es |>.switch
   }
@@ -136,11 +135,12 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
         pure ()
       declsInfo := declsInfo.push paramsInfo
   if declsInfo.any fun paramsInfo => paramsInfo.any (· matches .user | .fixedInst | .fixedHO) then
-    let m := mkFixedArgMap decls
+    let m := mkFixedParamsMap decls
     for i in [:decls.size] do
       let decl := decls[i]!
       let paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
+      trace[Compiler.specialize.info] "{decl.name} {mask}"
       let paramsInfo := paramsInfo.zipWith mask fun info mask => if mask || info matches .user then info else .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
         trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"

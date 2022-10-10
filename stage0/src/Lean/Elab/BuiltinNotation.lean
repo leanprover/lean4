@@ -49,14 +49,14 @@ open Meta
             if args.size < numExplicitFields then
               throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' has #{numExplicitFields} explicit fields, but only #{args.size} provided"
             let newStx ← if args.size == numExplicitFields then
-              `($(mkCIdentFrom stx ctor) $(args)*)
+              `($(mkCIdentFrom stx ctor (canonical := true)) $(args)*)
             else if numExplicitFields == 0 then
               throwError "invalid constructor ⟨...⟩, insufficient number of arguments, constructs '{ctor}' does not have explicit fields, but #{args.size} provided"
             else
               let extra := args[numExplicitFields-1:args.size]
               let newLast ← `(⟨$[$extra],*⟩)
               let newArgs := args[0:numExplicitFields-1].toArray.push newLast
-              `($(mkCIdentFrom stx ctor) $(newArgs)*)
+              `($(mkCIdentFrom stx ctor (canonical := true)) $(newArgs)*)
             withMacroExpansion stx newStx $ elabTerm newStx expectedType?
           | _ => throwError "invalid constructor ⟨...⟩, expected type must be an inductive type with only one constructor {indentExpr expectedType}")
     | none => throwError "invalid constructor ⟨...⟩, expected type must be known"
@@ -74,19 +74,18 @@ open Meta
   | _                        => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
-  let thisId := mkIdentFrom stx `this
   match stx with
   | `(have $x $bs* $[: $type]? := $val; $body)            => `(let_fun $x $bs* $[: $type]? := $val; $body)
-  | `(have $[: $type]? := $val; $body)                    => `(have $thisId $[: $type]? := $val; $body)
+  | `(have%$tk $[: $type]? := $val; $body)                => `(have $(mkIdentFrom tk `this (canonical := true)) $[: $type]? := $val; $body)
   | `(have $x $bs* $[: $type]? $alts; $body)              => `(let_fun $x $bs* $[: $type]? $alts; $body)
-  | `(have $[: $type]? $alts:matchAlts; $body)            => `(have $thisId $[: $type]? $alts:matchAlts; $body)
+  | `(have%$tk $[: $type]? $alts:matchAlts; $body)        => `(have $(mkIdentFrom tk `this (canonical := true)) $[: $type]? $alts:matchAlts; $body)
   | `(have $pattern:term $[: $type]? := $val:term; $body) => `(let_fun $pattern:term $[: $type]? := $val:term ; $body)
   | _                                                     => Macro.throwUnsupported
 
 @[builtinMacro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices $[$x :]? $type from $val; $body)            => `(have $[$x]? : $type := $body; $val)
-  | `(suffices $[$x :]? $type by%$b $tac:tacticSeq; $body) => `(have $[$x]? : $type := $body; by%$b $tac)
-  | _                                                           => Macro.throwUnsupported
+  | `(suffices%$tk $[$x :]? $type from $val; $body)            => `(have%$tk $[$x]? : $type := $body; $val)
+  | `(suffices%$tk $[$x :]? $type by%$b $tac:tacticSeq; $body) => `(have%$tk $[$x]? : $type := $body; by%$b $tac)
+  | _                                                          => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do

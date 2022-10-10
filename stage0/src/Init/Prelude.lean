@@ -137,9 +137,6 @@ It can also be written as `()`.
 /-- Marker for information that has been erased by the code generator. -/
 unsafe axiom lcErased : Type
 
-/-- "Any" type in the simpler type system used by the code generator. -/
-unsafe axiom lcAny : Type
-
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 
@@ -2341,6 +2338,10 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   startPos := {}
   stopPos  := s.endPos
 
+/-- `String.toSubstring` without `[inline]` annotation. -/
+def String.toSubstring' (s : String) : Substring :=
+  s.toSubstring
+
 /--
 This function will cast a value of type `α` to type `β`, and is a no-op in the
 compiler. This function is **extremely dangerous** because there is no guarantee
@@ -2496,6 +2497,42 @@ Push an element onto the end of an array. This is amortized O(1) because
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   data := List.concat a.data v
+
+/-- Create array `#[]` -/
+def Array.mkArray0 {α : Type u} : Array α :=
+  mkEmpty 0
+
+/-- Create array `#[a₁]` -/
+def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
+  (mkEmpty 1).push a₁
+
+/-- Create array `#[a₁, a₂]` -/
+def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
+  ((mkEmpty 1).push a₁).push a₂
+
+/-- Create array `#[a₁, a₂, a₃]` -/
+def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
+  (((mkEmpty 1).push a₁).push a₂).push a₃
+
+/-- Create array `#[a₁, a₂, a₃, a₄]` -/
+def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
+  ((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
+def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
+  (((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
+def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
+  ((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
+def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
+  (((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
+def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
+  ((((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
 /--
 Set an element in an array without bounds checks, using a `Fin` index.
@@ -3327,7 +3364,39 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
 Short for `.str .anonymous s`.
 -/
 abbrev mkSimple (s : String) : Name :=
-  mkStr Name.anonymous s
+  .str .anonymous s
+
+/-- Make name `s₁` -/
+@[reducible] def mkStr1 (s₁ : String) : Name :=
+  .str .anonymous s₁
+
+/-- Make name `s₁.s₂` -/
+@[reducible] def mkStr2 (s₁ s₂ : String) : Name :=
+  .str (.str .anonymous s₁) s₂
+
+/-- Make name `s₁.s₂.s₃` -/
+@[reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
+  .str (.str (.str .anonymous s₁) s₂) s₃
+
+/-- Make name `s₁.s₂.s₃.s₄` -/
+@[reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
+  .str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅` -/
+@[reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
+  .str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆` -/
+@[reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
+  .str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇` -/
+@[reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇.s₈` -/
+@[reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
 @[extern "lean_name_eq"]
@@ -3371,8 +3440,26 @@ inductive SourceInfo where
   Synthesized syntax (e.g. from a quotation) annotated with a span from the original source.
   In the delaborator, we "misuse" this constructor to store synthetic positions identifying
   subterms.
+
+  The `canonical` flag on synthetic syntax is enabled for syntax that is not literally part
+  of the original input syntax but should be treated "as if" the user really wrote it
+  for the purpose of hovers and error messages. This is usually used on identifiers,
+  to connect the binding site to the user's original syntax even if the name of the identifier
+  changes during expansion, as well as on tokens where we will attach targeted messages.
+
+  The syntax `token%$stx` in a syntax quotation will annotate the token `token` with the span
+  from `stx` and also mark it as canonical.
+
+  As a rough guide, a macro expansion should only use a given piece of input syntax in
+  a single canonical token, although this is sometimes violated when the same identifier
+  is used to declare two binders, as in the macro expansion for dependent if:
+  ```
+  `(if $h : $cond then $t else $e) ~>
+  `(dite $cond (fun $h => $t) (fun $h => $t))
+  ```
+  In these cases if the user hovers over `h` they will see information about both binding sites.
   -/
-  | synthetic (pos : String.Pos) (endPos : String.Pos)
+  | synthetic (pos : String.Pos) (endPos : String.Pos) (canonical := false)
   /-- Synthesized token without position information. -/
   | protected none
 
@@ -3384,9 +3471,10 @@ namespace SourceInfo
 Gets the position information from a `SourceInfo`, if available.
 If `originalOnly` is true, then `.synthetic` syntax will also return `none`.
 -/
-def getPos? (info : SourceInfo) (originalOnly := false) : Option String.Pos :=
-  match info, originalOnly with
-  | original (pos := pos) ..,  _     => some pos
+def getPos? (info : SourceInfo) (canonicalOnly := false) : Option String.Pos :=
+  match info, canonicalOnly with
+  | original (pos := pos) ..,  _
+  | synthetic (pos := pos) (canonical := true) .., _
   | synthetic (pos := pos) .., false => some pos
   | _,                         _     => none
 
@@ -3652,30 +3740,33 @@ partial def getHeadInfo (stx : Syntax) : SourceInfo :=
 
 /--
 Get the starting position of the syntax, if possible.
-If `originalOnly` is true, `synthetic` nodes are treated as not carrying
+If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-def getPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
-  stx.getHeadInfo.getPos? originalOnly
+def getPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  stx.getHeadInfo.getPos? canonicalOnly
 
 
 /--
 Get the ending position of the syntax, if possible.
-If `originalOnly` is true, `synthetic` nodes are treated as not carrying
+If `canonicalOnly` is true, non-canonical `synthetic` nodes are treated as not carrying
 position information.
 -/
-partial def getTailPos? (stx : Syntax) (originalOnly := false) : Option String.Pos :=
-  match stx, originalOnly with
-  | atom (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
-  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false  => some pos
-  | ident (SourceInfo.original (endPos := pos) ..) .., _      => some pos
-  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
-  | node (SourceInfo.original (endPos := pos) ..) ..,    _    => some pos
-  | node (SourceInfo.synthetic (endPos := pos) ..) .., false  => some pos
-  | node _ _ args,                                        _     =>
+partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.Pos :=
+  match stx, canonicalOnly with
+  | atom (SourceInfo.original (endPos := pos) ..) .., _
+  | atom (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) _, _
+  | atom (SourceInfo.synthetic (endPos := pos) ..) _,  false
+  | ident (SourceInfo.original (endPos := pos) ..) .., _
+  | ident (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
+  | ident (SourceInfo.synthetic (endPos := pos) ..) .., false
+  | node (SourceInfo.original (endPos := pos) ..) .., _
+  | node (SourceInfo.synthetic (endPos := pos) (canonical := true) ..) .., _
+  | node (SourceInfo.synthetic (endPos := pos) ..) .., false => some pos
+  | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) originalOnly with
+      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -3717,18 +3808,25 @@ unsafe def TSyntaxArray.mkImpl : Array Syntax → TSyntaxArray ks := unsafeCast
 opaque TSyntaxArray.mk (as : Array Syntax) : TSyntaxArray ks := Array.empty
 
 /-- Constructs a synthetic `SourceInfo` using a `ref : Syntax` for the span. -/
-def SourceInfo.fromRef (ref : Syntax) : SourceInfo :=
-  match ref.getPos?, ref.getTailPos? with
-  | some pos, some tailPos => SourceInfo.synthetic pos tailPos
-  | _,        _            => SourceInfo.none
+def SourceInfo.fromRef (ref : Syntax) (canonical := false) : SourceInfo :=
+  let noncanonical ref :=
+    match ref.getPos?, ref.getTailPos? with
+    | some pos, some tailPos => .synthetic pos tailPos
+    | _,        _            => .none
+  match canonical with
+  | true =>
+    match ref.getPos? true, ref.getTailPos? true with
+    | some pos, some tailPos => .synthetic pos tailPos true
+    | _,        _            => noncanonical ref
+  | false => noncanonical ref
 
 /-- Constructs a synthetic `atom` with no source info. -/
 def mkAtom (val : String) : Syntax :=
   Syntax.atom SourceInfo.none val
 
 /-- Constructs a synthetic `atom` with source info coming from `src`. -/
-def mkAtomFrom (src : Syntax) (val : String) : Syntax :=
-  Syntax.atom (SourceInfo.fromRef src) val
+def mkAtomFrom (src : Syntax) (val : String) (canonical := false) : Syntax :=
+  Syntax.atom (SourceInfo.fromRef src canonical) val
 
 /-! # Parser descriptions -/
 

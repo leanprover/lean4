@@ -20,7 +20,7 @@ open Elab
 open Meta
 open FuzzyMatching
 
-builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDeclarationExtension `blackListCompletion
+builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_completion_add_to_black_list]
 def addToBlackList (env : Environment) (declName : Name) : Environment :=

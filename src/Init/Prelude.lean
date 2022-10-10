@@ -137,9 +137,6 @@ It can also be written as `()`.
 /-- Marker for information that has been erased by the code generator. -/
 unsafe axiom lcErased : Type
 
-/-- "Any" type in the simpler type system used by the code generator. -/
-unsafe axiom lcAny : Type
-
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 
@@ -2341,6 +2338,10 @@ instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   startPos := {}
   stopPos  := s.endPos
 
+/-- `String.toSubstring` without `[inline]` annotation. -/
+def String.toSubstring' (s : String) : Substring :=
+  s.toSubstring
+
 /--
 This function will cast a value of type `α` to type `β`, and is a no-op in the
 compiler. This function is **extremely dangerous** because there is no guarantee
@@ -2496,6 +2497,42 @@ Push an element onto the end of an array. This is amortized O(1) because
 @[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   data := List.concat a.data v
+
+/-- Create array `#[]` -/
+def Array.mkArray0 {α : Type u} : Array α :=
+  mkEmpty 0
+
+/-- Create array `#[a₁]` -/
+def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
+  (mkEmpty 1).push a₁
+
+/-- Create array `#[a₁, a₂]` -/
+def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
+  ((mkEmpty 1).push a₁).push a₂
+
+/-- Create array `#[a₁, a₂, a₃]` -/
+def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
+  (((mkEmpty 1).push a₁).push a₂).push a₃
+
+/-- Create array `#[a₁, a₂, a₃, a₄]` -/
+def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
+  ((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
+def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
+  (((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
+def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
+  ((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
+def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
+  (((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+
+/-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
+def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
+  ((((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
 /--
 Set an element in an array without bounds checks, using a `Fin` index.
@@ -3327,7 +3364,39 @@ abbrev mkNum (p : Name) (v : Nat) : Name :=
 Short for `.str .anonymous s`.
 -/
 abbrev mkSimple (s : String) : Name :=
-  mkStr Name.anonymous s
+  .str .anonymous s
+
+/-- Make name `s₁` -/
+@[reducible] def mkStr1 (s₁ : String) : Name :=
+  .str .anonymous s₁
+
+/-- Make name `s₁.s₂` -/
+@[reducible] def mkStr2 (s₁ s₂ : String) : Name :=
+  .str (.str .anonymous s₁) s₂
+
+/-- Make name `s₁.s₂.s₃` -/
+@[reducible] def mkStr3 (s₁ s₂ s₃ : String) : Name :=
+  .str (.str (.str .anonymous s₁) s₂) s₃
+
+/-- Make name `s₁.s₂.s₃.s₄` -/
+@[reducible] def mkStr4 (s₁ s₂ s₃ s₄ : String) : Name :=
+  .str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅` -/
+@[reducible] def mkStr5 (s₁ s₂ s₃ s₄ s₅ : String) : Name :=
+  .str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆` -/
+@[reducible] def mkStr6 (s₁ s₂ s₃ s₄ s₅ s₆ : String) : Name :=
+  .str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇` -/
+@[reducible] def mkStr7 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇
+
+/-- Make name `s₁.s₂.s₃.s₄.s₅.s₆.s₇.s₈` -/
+@[reducible] def mkStr8 (s₁ s₂ s₃ s₄ s₅ s₆ s₇ s₈ : String) : Name :=
+  .str (.str (.str (.str (.str (.str (.str (.str .anonymous s₁) s₂) s₃) s₄) s₅) s₆) s₇) s₈
 
 /-- (Boolean) equality comparator for names. -/
 @[extern "lean_name_eq"]

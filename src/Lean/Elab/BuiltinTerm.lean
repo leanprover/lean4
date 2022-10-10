@@ -269,6 +269,26 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
+@[builtinTermElab clear] def elabClear : TermElab := fun stx expectedType? => do
+  let some (.fvar fvarId) ← isLocalIdent? stx[1]
+    | throwErrorAt stx[1] "not in scope"
+  let body := stx[3]
+  let canClear ← id do
+    if let some expectedType := expectedType? then
+      if ← dependsOn expectedType fvarId then
+        return false
+    for ldecl in ← getLCtx do
+      if ldecl.fvarId != fvarId then
+        if ← localDeclDependsOn ldecl fvarId then
+          return false
+    return true
+  if canClear then
+    let lctx := (← getLCtx).erase fvarId
+    let localInsts := (← getLocalInstances).filter (·.fvar.fvarId! != fvarId)
+    withLCtx lctx localInsts do elabTerm body expectedType?
+  else
+    elabTerm body expectedType?
+
 @[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
   let `(open $decl in $e) := stx | throwUnsupportedSyntax
   try

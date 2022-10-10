@@ -8,7 +8,7 @@ class MulOneClass (M : Type u) extends One M, Mul M where
   one_mul : ∀ a : M, 1 * a = a
   mul_one : ∀ a : M, a * 1 = a
 
-theorem MulOneClass.ext {M : Type u} : ∀ ⦃m₁ m₂ : MulOneClass M⦄, m₁.mul = m₂.mul → m₁.one = m₂.one → m₁ = m₂ := by
+theorem MulOneClass.ext {M : Type u} : ∀ ⦃m₁ m₂ : MulOneClass M⦄, m₁.mul = m₂.mul → m₁ = m₂ := by
   intro m₁ m₂
   cases m₁ with
   | @mk one₁ mul₁ one_mul₁ mul_one₁ =>
@@ -22,7 +22,6 @@ theorem MulOneClass.ext {M : Type u} : ∀ ⦃m₁ m₂ : MulOneClass M⦄, m₁
         intro h
         simp [toMul, Mul.mul] at h -- h : mul₁ = mul₂
         cases h
-        intro h
-        simp [toOne, One.one] at h -- h : one₁ = one₂
-        cases h
+        have := (one_mul₂ one₁).symm.trans (mul_one₁ one₂) -- TODO: make sure we can apply after congr
+        subst this
         congr

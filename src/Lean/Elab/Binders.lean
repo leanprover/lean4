@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Elab.Quotation.Precheck
 import Lean.Elab.Term
 import Lean.Elab.BindersUtil
-import Lean.Elab.AuxDiscr
 
 namespace Lean.Elab.Term
 open Meta
@@ -459,16 +458,17 @@ def expandWhereDeclsOpt (whereDeclsOpt : Syntax) (body : Syntax) : MacroM Syntax
 /--
  Helper function for `expandMatchAltsIntoMatch`.
 -/
-private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (useExplicit : Bool) : Nat → Array Syntax → MacroM Syntax
-  | 0,   discrs => do
+private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (useExplicit : Bool) : Nat → Array Syntax → Array Ident → MacroM Syntax
+  | 0,   discrs, xs => do
     if isTactic then
       `(tactic|match $[$discrs:term],* with $matchAlts:matchAlts)
     else
-      `(match $[$discrs:term],* with $matchAlts:matchAlts)
-  | n+1, discrs => withFreshMacroScope do
-    let x ← mkAuxFunDiscr -- Recall that identifiers created with `mkAuxFunDiscr` are cleared by the `match` elaborator
-    let d ← `(@$x:ident) -- See comment below
-    let body ← expandMatchAltsIntoMatchAux matchAlts isTactic useExplicit n (discrs.push d)
+      let stx ← `(match $[$discrs:term],* with $matchAlts:matchAlts)
+      clearInMatch stx xs
+  | n+1, discrs, xs => withFreshMacroScope do
+    let x ← `(x) -- If this were implementation-detail, the `contradiction` tactic used by match would not find it.
+    let d ← `(@$x:ident)
+    let body ← expandMatchAltsIntoMatchAux matchAlts isTactic useExplicit n (discrs.push d) (xs.push x)
     if isTactic then
       `(tactic| intro $x:term; $body:tactic)
     else if useExplicit then
@@ -529,10 +529,10 @@ private def expandMatchAltsIntoMatchAux (matchAlts : Syntax) (isTactic : Bool) (
   The two definitions should be elaborated without errors and be equivalent.
  -/
 def expandMatchAltsIntoMatch (ref : Syntax) (matchAlts : Syntax) (useExplicit := true) : MacroM Syntax :=
-  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := false) (useExplicit := useExplicit) (getMatchAltsNumPatterns matchAlts) #[]
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := false) (useExplicit := useExplicit) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
 def expandMatchAltsIntoMatchTactic (ref : Syntax) (matchAlts : Syntax) : MacroM Syntax :=
-  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[]
+  withRef ref <| expandMatchAltsIntoMatchAux matchAlts (isTactic := true) (useExplicit := false) (getMatchAltsNumPatterns matchAlts) #[] #[]
 
 /--
   Similar to `expandMatchAltsIntoMatch`, but supports an optional `where` clause.
@@ -568,16 +568,15 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (discrs : Array Syntax) : MacroM Syntax :=
     match i with
     | 0   => do
-      let matchStx ← `(match $[$discrs:term],* with $matchAlts:matchAlts)
+      let matchStx ← `(match $[@$discrs:term],* with $matchAlts:matchAlts)
+      let matchStx ← clearInMatch matchStx discrs
       if whereDeclsOpt.isNone then
         return matchStx
       else
         expandWhereDeclsOpt whereDeclsOpt matchStx
     | n+1 => withFreshMacroScope do
-      -- See comment at `expandMatchAltsIntoMatch`,
-      let d ← mkAuxFunDiscr
-      let body ← loop n (discrs.push (← `(@$d:ident)))
-      `(@fun $d:ident => $body)
+      let body ← loop n (discrs.push (← `(x)))
+      `(@fun x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
 @[builtinMacro Parser.Term.fun] partial def expandFun : Macro

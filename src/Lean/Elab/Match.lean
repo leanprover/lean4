@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.ForEachExpr
-import Lean.Elab.AuxDiscr
 import Lean.Elab.BindersUtil
 import Lean.Elab.PatternVar
 import Lean.Elab.Quotation.Precheck
@@ -28,10 +27,6 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 
 
 /--
-   We treat `@x` as atomic to avoid unnecessary extra local declarations from being
-   inserted into the local context. Recall that `expandMatchAltsIntoMatch` uses `@` modifier.
-   Thus this is kind of discriminant is quite common.
-
    Remark: if the discriminat is `Systax.missing`, we abort the elaboration of the `match`-expression.
    This can happen due to error recovery. Example
    ```
@@ -46,23 +41,17 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
    let d := <Syntax.missing>; match
    ```
    Recall that `Syntax.setArg stx i arg` is a no-op when `i` is out-of-bounds. -/
-def isAtomicDiscr? (discr : Syntax) : TermElabM (Option Expr) := do
+def isAtomicDiscr (discr : Syntax) : TermElabM Bool := do
   match discr with
-  | `($x:ident)  => isLocalIdent? x
-  | `(@$x:ident) => isLocalIdent? x
-  | _ => if discr.isMissing then throwAbortTerm else return none
+  | `($_:ident)  => pure true
+  | `(@$_:ident) => pure true
+  | `(?$_:ident) => pure true
+  | _ => if discr.isMissing then throwAbortTerm else pure false
 
 -- See expandNonAtomicDiscrs?
 private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
-  match (← isAtomicDiscr? term) with
-  | some e@(Expr.fvar fvarId) =>
-    let localDecl ← fvarId.getDecl
-    if !isAuxDiscrName localDecl.userName then
-      addTermInfo term e -- it is not an auxiliary local created by `expandNonAtomicDiscrs?`
-    else
-      instantiateMVars localDecl.value
-  | _ => throwErrorAt discr "unexpected discriminant"
+  elabTerm term none
 
 structure Discr where
   expr : Expr
@@ -758,14 +747,6 @@ private def withToClear (toClear : Array FVarId) (type : Expr) (k : TermElabM α
           localInsts := localInsts.filter fun localInst => localInst.fvar.fvarId! != fvarId
     withLCtx lctx localInsts k
 
-
-private def withoutAuxDiscrs (matchType : Expr) (k : TermElabM α) : TermElabM α := do
-  let mut toClear := #[]
-  for localDecl in (← getLCtx) do
-    if isAuxDiscrName localDecl.userName || isAuxFunDiscrName localDecl.userName then
-      toClear := toClear.push localDecl.fvarId
-  withToClear toClear matchType k
-
 /--
   Generate equalities `h : discr = pattern` for discriminants annotated with `h :`.
   We use these equalities to elaborate the right-hand-side of a `match` alternative.
@@ -794,7 +775,6 @@ where
   they have been generalized/refined.
 -/
 private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchType : Expr) (toClear : Array FVarId) : ExceptT PatternElabException TermElabM (AltLHS × Expr) := withRef alt.ref do
-  withoutAuxDiscrs matchType do
     let (patternVars, alt) ← collectPatternVars alt
     trace[Elab.match] "patternVars: {patternVars}"
     withPatternVars patternVars fun patternVarDecls => do
@@ -1128,13 +1108,11 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
   let matchOptMotive := getMatchOptMotive matchStx
   if matchOptMotive.isNone then do
     let discrs := getDiscrs matchStx
-    let allLocal ← discrs.allM fun discr => Option.isSome <$> isAtomicDiscr? discr[1]
+    let allLocal ← discrs.allM fun discr => isAtomicDiscr discr[1]
     if allLocal then
       return none
     else
-      -- We use `foundFVars` to make sure the discriminants are distinct variables.
-      -- See: code for computing "matchType" at `elabMatchTypeAndDiscrs`
-      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax) (foundFVars : FVarIdSet) := do
+      let rec loop (discrs : List Syntax) (discrsNew : Array Syntax)  := do
         match discrs with
         | [] =>
           let discrs := Syntax.mkSep discrsNew (mkAtomFrom matchStx ", ")
@@ -1143,17 +1121,14 @@ private def expandNonAtomicDiscrs? (matchStx : Syntax) : TermElabM (Option Synta
           -- Recall that
           -- matchDiscr := leading_parser optional (ident >> ":") >> termParser
           let term := discr[1]
-          let addAux : TermElabM Syntax := withFreshMacroScope do
-            let d ← mkAuxDiscr
-            unless isAuxDiscrName d.getId do -- Use assertion?
-              throwError "unexpected internal auxiliary discriminant name"
-            let discrNew := discr.setArg 1 d
-            let r ← loop discrs (discrsNew.push discrNew) foundFVars
-            `(let $d := $term; $r)
-          match (← isAtomicDiscr? term) with
-          | some x  => if x.isFVar then loop discrs (discrsNew.push discr) (foundFVars.insert x.fvarId!) else addAux
-          | none    => addAux
-      return some (← loop discrs.toList #[] {})
+          if (← isAtomicDiscr term) then
+            loop discrs (discrsNew.push discr)
+          else
+            withFreshMacroScope do
+              let discrNew := discr.setArg 1 (← `(?x))
+              let r ← loop discrs (discrsNew.push discrNew)
+              `(let_mvar% ?x := $term; $r)
+      return some (← loop discrs.toList #[])
   else
     -- We do not pull non atomic discriminants when match type is provided explicitly by the user
     return none
@@ -1170,18 +1145,17 @@ private def tryPostponeIfDiscrTypeIsMVar (matchStx : Syntax) : TermElabM Unit :=
     let discrs := getDiscrs matchStx
     for discr in discrs do
       let term := discr[1]
-      match (← isAtomicDiscr? term) with
-      | none   => throwErrorAt discr "unexpected discriminant" -- see `expandNonAtomicDiscrs?
-      | some d =>
-        let dType ← inferType d
-        trace[Elab.match] "discr {d} : {dType}"
-        tryPostponeIfMVar dType
+      let d ← elabTerm term none
+      let dType ← inferType d
+      trace[Elab.match] "discr {d} : {← instantiateMVars dType}"
+      tryPostponeIfMVar dType
 
 /--
 We (try to) elaborate a `match` only when the expected type is available.
 If the `matchType` has not been provided by the user, we also try to postpone elaboration if the type
 of a discriminant is not available. That is, it is of the form `(?m ...)`.
-We use `expandNonAtomicDiscrs?` to make sure all discriminants are local variables.
+We use `expandNonAtomicDiscrs?` to make sure all discriminants are metavariables,
+so that they are not elaborated twice.
 This is a standard trick we use in the elaborator, and it is also used to elaborate structure instances.
 Suppose, we are trying to elaborate
 ```
@@ -1190,12 +1164,10 @@ match g x with
 ```
 `expandNonAtomicDiscrs?` converts it intro
 ```
-let _discr := g x
-match _discr with
+let_mvar% ?discr := g x
+match ?discr with
   | ... => ...
 ```
-Thus, at `tryPostponeIfDiscrTypeIsMVar` we only need to check whether the type of `_discr` is not of the form `(?m ...)`.
-Note that, the auxiliary variable `_discr` is expanded at `elabAtomicDiscr`.
 
 This elaboration technique is needed to elaborate terms such as:
 ```lean
@@ -1268,14 +1240,12 @@ builtin_initialize
 @[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(nomatch $discrExpr) =>
-    match (← isLocalIdent? discrExpr) with
-    | some _ =>
+    if (← isAtomicDiscr discrExpr) then
       let expectedType ← waitExpectedType expectedType?
       let discr := mkNode ``Lean.Parser.Term.matchDiscr #[mkNullNode, discrExpr]
       elabMatchAux none #[discr] #[] mkNullNode expectedType
-    | _ =>
-      let d ← mkAuxDiscr
-      let stxNew ← `(let $d := $discrExpr; nomatch $d)
+    else
+      let stxNew ← `(let_mvar% ?x := $discrExpr; nomatch ?x)
       withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | _ => throwUnsupportedSyntax
 

@@ -720,14 +720,6 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
-/-- Remove auxiliary match discriminant let-declarations. -/
-def eraseAuxDiscr (e : Expr) : CoreM Expr := do
-  Core.transform e fun e => do
-    if let .letE n _ v b .. := e then
-      if isAuxDiscrName n then
-        return .visit (b.instantiate1 v)
-    return .continue
-
 partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : Array PreDefinition) : TermElabM Unit :=
   unless (← MonadLog.hasErrors) do
     -- We do not report this kind of error if the declaration already contains errors
@@ -800,11 +792,6 @@ where
         let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-        let preDefs ← preDefs.mapM fun preDef =>
-          if preDef.kind.isTheorem || preDef.kind.isExample then
-            return preDef
-          else
-            return { preDef with value := (← eraseAuxDiscr preDef.value) }
         for preDef in preDefs do
           trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
         checkForHiddenUnivLevels allUserLevelNames preDefs

@@ -581,6 +581,15 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
 
 abbrev IdxSet := HashSet Nat
 
+private partial def hasNoErrorIfUnused : Syntax → Bool
+  | `(no_error_if_unused% $_) => true
+  -- | `(clear% $_; $body) => hasNoErrorIfUnused body
+  | stx =>
+    if stx.getKind == `Lean.Parser.Term.clear then
+      hasNoErrorIfUnused stx[3]
+    else
+      false
+
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,
 We tag them with with fresh identifiers `alt_idx`. We use them to detect whether an alternative
@@ -596,9 +605,8 @@ private def markRhss (rhss : Array Term) : TermElabM (NameMap Nat × IdxSet × A
   let mut ignoreIfUnused : IdxSet := {}
   let mut rhssNew := #[]
   for rhs in rhss do
-    match rhs with
-    | `(no_error_if_unused% $_ ) => ignoreIfUnused := ignoreIfUnused.insert rhssNew.size
-    | _ => pure ()
+    if hasNoErrorIfUnused rhs then
+      ignoreIfUnused := ignoreIfUnused.insert rhssNew.size
     let (idx, rhs) ← withFreshMacroScope do
       let idx ← `(alt_idx)
       let rhs ← `(alt_idx $rhs)

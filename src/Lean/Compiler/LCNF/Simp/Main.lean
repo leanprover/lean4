@@ -266,6 +266,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
   | .let decl k =>
     let mut decl ← normLetDecl decl
     if let some value ← simpValue? decl.value then
+      markSimplified
       decl ← decl.updateValue value
     if let some decls ← ConstantFold.foldConstants decl then
       markSimplified

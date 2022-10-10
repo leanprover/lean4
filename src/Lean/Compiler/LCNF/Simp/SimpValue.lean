@@ -18,6 +18,34 @@ def simpProj? (e : Expr) : OptionT SimpM Expr := do
   return args[ctorVal.numParams + i]!
 
 /--
+Return `some type` if `f args` is type correct, and has type `type`.
+-/
+def checkApp? (f : Expr) (args : Array Expr) : CompilerM (Option Expr) := do
+  let mut fType ← inferType f
+  let mut j := 0
+  for i in [:args.size] do
+    let arg := args[i]!
+    if fType.isErased then
+      return fType
+    fType := fType.headBeta
+    let (d, b) ←
+      match fType with
+      | .forallE _ d b _ => pure (d, b)
+      | _ =>
+        fType := fType.instantiateRevRange j i args |>.headBeta
+        match fType with
+        | .forallE _ d b _ => j := i; pure (d, b)
+        | _ =>
+          if fType.isErased then return fType
+          return none
+    let argType ← inferType arg
+    let expectedType := d.instantiateRevRange j i args
+    unless (← compatibleTypes argType expectedType) do
+      return none
+    fType := b
+  return fType
+
+/--
 Application over application.
 ```
 let _x.i := f a
@@ -31,8 +59,23 @@ def simpAppApp? (e : Expr) : OptionT SimpM Expr := do
   guard f.isFVar
   let f ← findExpr f
   guard <| f.isApp || f.isConst
-  guard <| !f.isAppOf ``lcCast
-  return mkAppN f e.getAppArgs
+  if f.isAppOf ``lcCast then
+    /-
+    Given
+    ```
+    let _x.i := lcCast _ _ g
+    let _x.j := _x.i a_1 ... a_n
+    ```
+    Try to eliminate cast when `g a_1 ... a_n` is also type correct
+    -/
+    guard <| f.getAppNumArgs == 3
+    let g := f.appArg!
+    let args := e.getAppArgs
+    let some type ← checkApp? g args | failure
+    guard (← compatibleTypes (← inferType e) type)
+    return mkAppN g args
+  else
+    return mkAppN f e.getAppArgs
 
 def simpCtorDiscr? (e : Expr) : OptionT SimpM Expr := do
   let some v ← simpCtorDiscrCore? e | failure

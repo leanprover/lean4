@@ -135,6 +135,37 @@ type `B`, but we are providing a value of type `A`. We must insert a cast to ens
 correct.
 -/
 
+/--
+Return `some fvarId` if `value` is of the form `.fvar fvarId`, and its type
+is `◾` or equivalent to `expectedType`.
+
+We use this method to decide whether to eliminate `let _x.i := _x.j` or not.
+Consider the following example, it is type correct
+```
+fun f (y : List A) : List A := ...
+let g (y : List B) : List B := ...
+let _x.1 : List A := f a
+let _x.2 : List ◾ := _x.1
+let _x.3 : List B := g _x.2
+```
+but, the following one where we eliminate `_x.2` is not
+```
+fun f (y : List A) : List A := ...
+let g (y : List B) : List B := ...
+let _x.1 : List A := f a
+let _x.3 : List B := g _x.1
+```
+
+TODO: reconsider the type system for LCNF. "Implicit casts" as in the example above
+should not be allowed. That is, we should not be able to use `List A` where `List ◾` is expected without
+an explicit `lcCast`.
+-/
+def elimVar? (value : Expr) (expectedType : Expr) : SimpM (Option FVarId) := do
+  let .fvar fvarId := value | return none
+  let type ← getType fvarId
+  unless type.isErased || eqvTypes type expectedType do return none
+  return fvarId
+
 mutual
 /--
 If the value of the given let-declaration is an application that can be inlined,
@@ -265,7 +296,8 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
   match code with
   | .let decl k =>
     let mut decl ← normLetDecl decl
-    if let some value ← simpValue? decl.value then
+    if let some value ← simpValue? decl.value decl.type then
+      markSimplified
       decl ← decl.updateValue value
     if let some decls ← ConstantFold.foldConstants decl then
       markSimplified
@@ -273,9 +305,9 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       attachCodeDecls decls k
     else if let some funDecl ← etaPolyApp? decl then
       simp (.fun funDecl k)
-    else if decl.value.isFVar then
+    else if let some fvarId ← elimVar? decl.value decl.type then
       /- Eliminate `let _x_i := _x_j;` -/
-      addFVarSubst decl.fvarId decl.value.fvarId!
+      addFVarSubst decl.fvarId fvarId
       eraseLetDecl decl
       simp k
     else if let some code ← inlineApp? decl k then

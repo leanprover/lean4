@@ -1,6 +1,6 @@
 [Compiler.saveBase] size: 7
     def f1 c a b : Nat :=
-      cases c
+      cases c : Nat
       | Bool.false =>
         let _x.1 := Nat.add a b
         _x.1
@@ -11,7 +11,7 @@
         _x.4
 [Compiler.saveBase] size: 7
     def f2 c a b : Nat :=
-      cases c
+      cases c : Nat
       | Bool.false =>
         let _x.1 := Nat.add a b
         _x.1
@@ -32,7 +32,7 @@
         let _x.7 := Nat.add _x.6 y
         _x.7
       jp _jp.8 y z d : Nat :=
-        cases d
+        cases d : Nat
         | C.c1 =>
           goto _jp.1 y z
         | C.c3 =>
@@ -41,7 +41,7 @@
           _x.10
         | _ =>
           goto _jp.5 y z
-      cases c
+      cases c : Nat
       | C.c1 =>
         goto _jp.1 a b
       | C.c2 =>

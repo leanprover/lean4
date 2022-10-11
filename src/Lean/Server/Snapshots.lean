@@ -120,7 +120,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
   let (cmdStx, cmdParserState, msgLog) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   let cmdPos := cmdStx.getPos?.get!
-  if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
+  if Parser.isEOI cmdStx then
     let endSnap : Snapshot := {
       beginPos := cmdPos
       stx := cmdStx

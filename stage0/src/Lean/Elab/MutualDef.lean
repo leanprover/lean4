@@ -496,11 +496,11 @@ private def pushNewVars (toProcess : Array FVarId) (s : CollectFVars.State) : Ar
   s.fvarSet.fold (init := toProcess) fun toProcess fvarId =>
     if toProcess.contains fvarId then toProcess else toProcess.push fvarId
 
-private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (bi := BinderInfo.default)
+private def pushLocalDecl (toProcess : Array FVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
     : StateRefT ClosureState TermElabM (Array FVarId) := do
   let type ← preprocess type
   modify fun s => { s with
-    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi
+    newLocalDecls := s.newLocalDecls.push <| LocalDecl.cdecl default fvarId userName type bi kind
     exprArgs      := s.exprArgs.push (mkFVar fvarId)
   }
   return pushNewVars toProcess (collectFVars {} type)
@@ -514,21 +514,21 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
     let toProcess := toProcess.erase fvarId
     let localDecl ← fvarId.getDecl
     match localDecl with
-    | .cdecl _ _ userName type bi =>
-      let toProcess ← pushLocalDecl toProcess fvarId userName type bi
+    | .cdecl _ _ userName type bi k =>
+      let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
-    | .ldecl _ _ userName type val _ =>
+    | .ldecl _ _ userName type val _ k =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
-        let toProcess ← pushLocalDecl toProcess fvarId userName type
+        let toProcess ← pushLocalDecl toProcess fvarId userName type .default k
         mkClosureForAux toProcess
       else
         /- Dependent let-decl. -/
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push <| LocalDecl.ldecl default fvarId userName type val false,
+          newLetDecls   := s.newLetDecls.push <| .ldecl default fvarId userName type val false k,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (·.replaceFVarId fvarId val)
@@ -720,14 +720,6 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVars header.type) }
 
-/-- Remove auxiliary match discriminant let-declarations. -/
-def eraseAuxDiscr (e : Expr) : CoreM Expr := do
-  Core.transform e fun e => do
-    if let .letE n _ v b .. := e then
-      if isAuxDiscrName n then
-        return .visit (b.instantiate1 v)
-    return .continue
-
 partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : Array PreDefinition) : TermElabM Unit :=
   unless (← MonadLog.hasErrors) do
     -- We do not report this kind of error if the declaration already contains errors
@@ -800,11 +792,6 @@ where
         let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
         let preDefs ← instantiateMVarsAtPreDecls preDefs
         let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-        let preDefs ← preDefs.mapM fun preDef =>
-          if preDef.kind.isTheorem || preDef.kind.isExample then
-            return preDef
-          else
-            return { preDef with value := (← eraseAuxDiscr preDef.value) }
         for preDef in preDefs do
           trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
         checkForHiddenUnivLevels allUserLevelNames preDefs

@@ -13,18 +13,27 @@ Ensure the environment does not contain a declaration with name `declName`.
 Recall that a private declaration cannot shadow a non-private one and vice-versa, although
 they internally have different names.
 -/
-def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Unit := do
+def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (declName : Name) : m Unit := do
   let env ← getEnv
+  let addInfo declName := do
+    pushInfoLeaf <| .ofTermInfo {
+      elaborator := .anonymous, lctx := {}, expectedType? := none
+      stx := (← getRef)
+      expr := (← mkConstWithLevelParams declName)
+    }
   if env.contains declName then
+    addInfo declName
     match privateToUserName? declName with
     | none          => throwError "'{declName}' has already been declared"
     | some declName => throwError "private declaration '{declName}' has already been declared"
   if env.contains (mkPrivateName env declName) then
+    addInfo (mkPrivateName env declName)
     throwError "a private declaration '{declName}' has already been declared"
   match privateToUserName? declName with
   | none => pure ()
   | some declName =>
     if env.contains declName then
+      addInfo declName
       throwError "a non-private declaration '{declName}' has already been declared"
 
 /-- Declaration visibility modifier. That is, whether a declaration is regular, protected or private. -/

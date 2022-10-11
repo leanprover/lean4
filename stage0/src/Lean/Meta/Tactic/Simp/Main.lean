@@ -738,7 +738,7 @@ abbrev Discharge := Expr → SimpM (Option Expr)
 
 def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
   (← getLCtx).findDeclRevM? fun localDecl => do
-    if localDecl.isAuxDecl then
+    if localDecl.isImplementationDetail then
       return none
     else if (← isDefEq e localDecl.type) then
       return some localDecl.toExpr

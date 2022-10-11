@@ -9,6 +9,37 @@ import Lean.Hygiene
 
 namespace Lean
 
+/--
+Whether a local declaration should be found by type class search, tactics, etc.
+and shown in the goal display.
+-/
+inductive LocalDeclKind
+  /--
+  Participates fully in type class search, tactics, and is shown even if inaccessible.
+
+  For example: the `x` in `fun x => _` has the default kind.
+  -/
+  | default
+  /--
+  Invisible to type class search or tactics, and hidden in the goal display.
+
+  This kind is used for temporary variables in macros.
+  For example: `return (← foo) + bar` expands to
+  `foo >>= fun __tmp => pure (__tmp + bar)`,
+  where `__tmp` has the `implDetail` kind.
+  -/
+  | implDetail
+  /--
+  Auxiliary local declaration for recursive calls.
+  The behavior is similar to `implDetail`.
+
+  For example: `def foo (n : Nat) : Nat := _` adds the local declaration
+  `foo : Nat → Nat` to allow recursive calls.
+  This declaration has the `auxDecl` kind.
+  -/
+  | auxDecl
+  deriving Inhabited, Repr, DecidableEq, Hashable
+
 /-- A declaration for a LocalContext. This is used to register which free variables are in scope.
 Each declaration comes with
 - `index` the position of the decl in the local context
@@ -18,20 +49,20 @@ Each declaration comes with
 A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `value : Expr`.
 -/
 inductive LocalDecl where
-  | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo)
-  | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool)
+  | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
+  | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) (kind : LocalDeclKind)
   deriving Inhabited
 
 @[export lean_mk_local_decl]
 def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalDecl :=
-  .cdecl index fvarId userName type bi
+  .cdecl index fvarId userName type bi .default
 @[export lean_mk_let_decl]
 def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : LocalDecl :=
-  .ldecl index fvarId userName type val false
+  .ldecl index fvarId userName type val false .default
 @[export lean_local_decl_binder_info]
 def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
-  | .cdecl _ _ _ _ bi => bi
-  | _                 => BinderInfo.default
+  | .cdecl _ _ _ _ bi _ => bi
+  | _                   => BinderInfo.default
 namespace LocalDecl
 
 def isLet : LocalDecl → Bool
@@ -43,8 +74,8 @@ def index : LocalDecl → Nat
   | ldecl (index := i) .. => i
 
 def setIndex : LocalDecl → Nat → LocalDecl
-  | cdecl _  id n t bi,   idx => cdecl idx id n t bi
-  | ldecl _  id n t v nd, idx => ldecl idx id n t v nd
+  | cdecl _  id n t bi k,   idx => cdecl idx id n t bi k
+  | ldecl _  id n t v nd k, idx => ldecl idx id n t v nd k
 
 def fvarId : LocalDecl → FVarId
   | cdecl (fvarId := id) .. => id
@@ -59,15 +90,25 @@ def type : LocalDecl → Expr
   | ldecl (type := t) .. => t
 
 def setType : LocalDecl → Expr → LocalDecl
-  | cdecl idx id n _ bi, t   => cdecl idx id n t bi
-  | ldecl idx id n _ v nd, t => ldecl idx id n t v nd
+  | cdecl idx id n _ bi k, t   => cdecl idx id n t bi k
+  | ldecl idx id n _ v nd k, t => ldecl idx id n t v nd k
 
 def binderInfo : LocalDecl → BinderInfo
   | cdecl (bi := bi) .. => bi
   | ldecl ..            => BinderInfo.default
 
+def kind : LocalDecl → LocalDeclKind
+  | cdecl .. | ldecl .. => ‹_›
+
 def isAuxDecl (d : LocalDecl) : Bool :=
-  d.binderInfo.isAuxDecl
+  d.kind = .auxDecl
+
+/--
+Is the local declaration an implementation-detail hypothesis
+(including auxiliary declarations)?
+-/
+def isImplementationDetail (d : LocalDecl) : Bool :=
+  d.kind != .default
 
 def value? : LocalDecl → Option Expr
   | cdecl ..              => none
@@ -82,16 +123,16 @@ def hasValue : LocalDecl → Bool
   | ldecl .. => true
 
 def setValue : LocalDecl → Expr → LocalDecl
-  | ldecl idx id n t _ nd, v => ldecl idx id n t v nd
-  | d, _                     => d
+  | ldecl idx id n t _ nd k, v => ldecl idx id n t v nd k
+  | d, _                       => d
 
 def setUserName : LocalDecl → Name → LocalDecl
-  | cdecl index id _ type bi,     userName => cdecl index id userName type bi
-  | ldecl index id _ type val nd, userName => ldecl index id userName type val nd
+  | cdecl index id _ type bi k,     userName => cdecl index id userName type bi k
+  | ldecl index id _ type val nd k, userName => ldecl index id userName type val nd k
 
 def setBinderInfo : LocalDecl → BinderInfo → LocalDecl
-  | cdecl index id n type _,  bi => cdecl index id n type bi
-  | ldecl .., _                  => panic! "unexpected let declaration"
+  | cdecl index id n type _ k,  bi => cdecl index id n type bi k
+  | ldecl .., _                    => panic! "unexpected let declaration"
 
 def toExpr (decl : LocalDecl) : Expr :=
   mkFVar decl.fvarId
@@ -129,22 +170,28 @@ def isEmpty (lctx : LocalContext) : Bool :=
 It is used to implement actions in the monads `Elab` and `Tactic`.
 It should not be used directly since the argument `(fvarId : FVarId)` is
 assumed to be unique. You can create a unique fvarId with `mkFreshFVarId`. -/
-@[export lean_local_ctx_mk_local_decl]
-def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) : LocalContext :=
+def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo := BinderInfo.default) (kind : LocalDeclKind := .default) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
     let idx  := decls.size
-    let decl := LocalDecl.cdecl idx fvarId userName type bi
+    let decl := LocalDecl.cdecl idx fvarId userName type bi kind
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
+@[export lean_local_ctx_mk_local_decl]
+private def mkLocalDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind := .default) : LocalContext :=
+  mkLocalDecl lctx fvarId userName type bi kind
+
 /-- Low level API for let declarations. Do not use directly.-/
-@[export lean_local_ctx_mk_let_decl]
-def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) : LocalContext :=
+def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) (kind : LocalDeclKind := default) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
     let idx  := decls.size
-    let decl := LocalDecl.ldecl idx fvarId userName type value nonDep
+    let decl := LocalDecl.ldecl idx fvarId userName type value nonDep kind
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
+
+@[export lean_local_ctx_mk_let_decl]
+private def mkLetDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : LocalContext :=
+  mkLetDecl lctx fvarId userName type value nonDep
 
 /-- Low level API for adding a local declaration.
 Do not use directly. -/
@@ -343,13 +390,13 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
   xs.size.foldRev (init := b) fun i b =>
     let x := xs[i]!
     match lctx.findFVar? x with
-    | some (.cdecl _ _ n ty bi)  =>
+    | some (.cdecl _ _ n ty bi _)  =>
       let ty := ty.abstractRange i xs;
       if isLambda then
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | some (.ldecl _ _ n ty val nonDep) =>
+    | some (.ldecl _ _ n ty val nonDep _) =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
@@ -417,8 +464,8 @@ instance [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
 def LocalDecl.replaceFVarId (fvarId : FVarId) (e : Expr) (d : LocalDecl) : LocalDecl :=
   if d.fvarId == fvarId then d
   else match d with
-    | .cdecl idx id n type bi => .cdecl idx id n (type.replaceFVarId fvarId e) bi
-    | .ldecl idx id n type val nonDep => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep
+    | .cdecl idx id n type bi k => .cdecl idx id n (type.replaceFVarId fvarId e) bi k
+    | .ldecl idx id n type val nonDep k => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep k
 
 def LocalContext.replaceFVarId (fvarId : FVarId) (e : Expr) (lctx : LocalContext) : LocalContext :=
   let lctx := lctx.erase fvarId

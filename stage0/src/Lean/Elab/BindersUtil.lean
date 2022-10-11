@@ -53,4 +53,21 @@ def expandMatchAlts? (stx : Syntax) : MacroM (Option Syntax) := do
       return none
   | _ => return none
 
+open TSyntax.Compat in
+def clearInMatchAlt (stx : TSyntax ``matchAlt) (vars : Array Ident) : TSyntax ``matchAlt :=
+  stx.1.modifyArg 3 fun rhs => Id.run do
+    let mut rhs := rhs
+    for v in vars do
+      -- rhs ← `(clear% $v; $rhs)
+      rhs := mkNode `Lean.Parser.Term.clear #[mkAtom "clear%", v, mkNullNode, rhs]
+    return rhs
+
+def clearInMatch (stx : Syntax) (vars : Array Ident) : MacroM Syntax := do
+  if vars.isEmpty then return stx
+  match stx with
+  | `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*) =>
+    let alts := alts.map (clearInMatchAlt · vars)
+    `(match $[$gen]? $[$motive]? $discrs,* with $alts:matchAlt*)
+  | _ => return stx
+
 end Lean.Elab.Term

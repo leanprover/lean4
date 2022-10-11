@@ -36,11 +36,10 @@ def mkFreshExprSyntheticOpaqueMVar (type : Expr) (tag : Name := Name.anonymous) 
   mkFreshExprMVar type MetavarKind.syntheticOpaque tag
 
 def throwTacticEx (tacticName : Name) (mvarId : MVarId) (msg : MessageData) : MetaM α :=
-  withPPForTacticGoal do
-    if msg.isEmpty then
-      throwError "tactic '{tacticName}' failed\n{mvarId}"
-    else
-      throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
+  if msg.isEmpty then
+    throwError "tactic '{tacticName}' failed\n{mvarId}"
+  else
+    throwError "tactic '{tacticName}' failed, {msg}\n{mvarId}"
 
 def throwNestedTacticEx {α} (tacticName : Name) (ex : Exception) : MetaM α := do
   throwError "tactic '{tacticName}' failed, nested error:\n{ex.toMessageData}"
@@ -106,7 +105,7 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
   mvarId.withContext do
     let mut candidates : FVarIdHashSet := {}
     for localDecl in (← getLCtx) do
-      unless localDecl.isAuxDecl do
+      unless localDecl.isImplementationDetail do
         candidates ← removeDeps localDecl.type candidates
         match localDecl.value? with
         | none => pure ()
@@ -152,7 +151,7 @@ def ensureAtMostOne (mvarIds : List MVarId) (msg : MessageData := "unexpected nu
 def getPropHyps : MetaM (Array FVarId) := do
   let mut result := #[]
   for localDecl in (← getLCtx) do
-    unless localDecl.isAuxDecl do
+    unless localDecl.isImplementationDetail do
       if (← isProp localDecl.type) then
         result := result.push localDecl.fvarId
   return result

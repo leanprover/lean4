@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_Name_isAtomic___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Name_mkSimple(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__3;
@@ -59,6 +60,8 @@ LEAN_EXPORT uint8_t l_Lean_Name_quickCmpAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_cmp___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*);
+static lean_object* l_Lean_Name_isImplementationDetail___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Name_isStr(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts___boxed(lean_object*);
@@ -70,6 +73,7 @@ LEAN_EXPORT uint8_t l_Lean_Name_instDecidableRelNameLtHasLtQuick(lean_object*, l
 LEAN_EXPORT lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t l_String_startsWith(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_String_trim(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__2;
@@ -924,6 +928,67 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Lean_Name_isImplementationDetail___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("__", 2);
+return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object* x_1) {
+_start:
+{
+switch (lean_obj_tag(x_1)) {
+case 0:
+{
+uint8_t x_2; 
+x_2 = 0;
+return x_2;
+}
+case 1:
+{
+lean_object* x_3; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = l_Lean_Name_isImplementationDetail___closed__1;
+x_6 = l_String_startsWith(x_4, x_5);
+return x_6;
+}
+else
+{
+lean_dec(x_1);
+x_1 = x_3;
+goto _start;
+}
+}
+default: 
+{
+lean_object* x_8; 
+x_8 = lean_ctor_get(x_1, 0);
+lean_inc(x_8);
+lean_dec(x_1);
+x_1 = x_8;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l_Lean_Name_isImplementationDetail(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Name_isAtomic(lean_object* x_1) {
 _start:
 {
@@ -1115,6 +1180,8 @@ l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
 l_Lean_Name_hasLtQuick = _init_l_Lean_Name_hasLtQuick();
 lean_mark_persistent(l_Lean_Name_hasLtQuick);
+l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
+lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
 l_String_toName___closed__1 = _init_l_String_toName___closed__1();
 lean_mark_persistent(l_String_toName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

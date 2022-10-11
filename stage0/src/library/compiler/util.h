@@ -93,7 +93,7 @@ expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr con
 inline name mk_join_point_name(name const & n) { return name(n, "_join"); }
 bool is_join_point_name(name const & n);
 /* Pseudo "do" joinpoints are used to implement a temporary HACK. See `visit_let` method at `lcnf.cpp` */
-inline name mk_pseudo_do_join_point_name(name const & n) { return name(n, "_do_jp"); }
+inline name mk_pseudo_do_join_point_name(name const & n) { return name(n, "__do_jp"); }
 bool is_pseudo_do_join_point_name(name const & n);
 
 /* Create an auxiliary names for a declaration that saves the result of the compilation

@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-uint8_t l_Lean_LocalDecl_isAuxDecl(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_findLocalDeclWithType_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -44,6 +43,7 @@ lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_assumptionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assumption___closed__1;
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_LocalDecl_isImplementationDetail(lean_object*);
 LEAN_EXPORT lean_object* l_Array_findSomeRevM_x3f_find___at_Lean_Meta_findLocalDeclWithType_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assumption(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assumption___closed__2;
@@ -75,7 +75,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_14, 0);
-x_18 = l_Lean_LocalDecl_isAuxDecl(x_17);
+x_18 = l_Lean_LocalDecl_isImplementationDetail(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -189,7 +189,7 @@ lean_object* x_36; uint8_t x_37;
 x_36 = lean_ctor_get(x_14, 0);
 lean_inc(x_36);
 lean_dec(x_14);
-x_37 = l_Lean_LocalDecl_isAuxDecl(x_36);
+x_37 = l_Lean_LocalDecl_isImplementationDetail(x_36);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
@@ -449,7 +449,7 @@ if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_ctor_get(x_14, 0);
-x_18 = l_Lean_LocalDecl_isAuxDecl(x_17);
+x_18 = l_Lean_LocalDecl_isImplementationDetail(x_17);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 
@@ -563,7 +563,7 @@ lean_object* x_36; uint8_t x_37;
 x_36 = lean_ctor_get(x_14, 0);
 lean_inc(x_36);
 lean_dec(x_14);
-x_37 = l_Lean_LocalDecl_isAuxDecl(x_36);
+x_37 = l_Lean_LocalDecl_isImplementationDetail(x_36);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; 
@@ -885,9 +885,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_assumptionCore___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_6);
 lean_inc(x_5);
-lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_1);
 x_8 = l_Lean_MVarId_checkNotAssigned(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
@@ -1169,6 +1167,8 @@ lean_dec(x_7);
 x_11 = l_Lean_MVarId_assumptionCore___closed__2;
 x_12 = l_Lean_MVarId_assumption___closed__3;
 x_13 = l_Lean_Meta_throwTacticEx___rarg(x_11, x_1, x_12, x_2, x_3, x_4, x_5, x_10);
+lean_dec(x_5);
+lean_dec(x_3);
 return x_13;
 }
 else

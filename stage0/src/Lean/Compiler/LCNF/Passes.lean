@@ -14,6 +14,7 @@ import Lean.Compiler.LCNF.Specialize
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.ToMono
 import Lean.Compiler.LCNF.LambdaLifting
+import Lean.Compiler.LCNF.FloatLetIn
 
 namespace Lean.Compiler.LCNF
 
@@ -52,6 +53,7 @@ def builtinPassManager : PassManager := {
     pullInstances,
     cse,
     simp,
+    floatLetIn,
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
@@ -65,6 +67,7 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     extendJoinPointContext,
+    floatLetIn (phase := .mono) (occurrence := 1),
     simp (occurrence := 4) (phase := .mono),
     lambdaLifting,
     simp (occurrence := 5) (phase := .mono),

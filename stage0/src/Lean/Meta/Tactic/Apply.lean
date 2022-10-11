@@ -9,6 +9,23 @@ import Lean.Meta.CollectMVars
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta
+/-- Controls which new mvars are turned in to goals by the `apply` tactic.
+- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
+- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
+- `all` all unassigned mvars are added to the goal list.
+-/
+inductive ApplyNewGoals where
+  | nonDependentFirst | nonDependentOnly | all
+
+/-- Configures the behaviour of the `apply` tactic. -/
+structure ApplyConfig where
+  newGoals := ApplyNewGoals.nonDependentFirst
+  /--
+  If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
+  even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
+  one inferred. The `congr` tactic sets this flag to false.
+  -/
+  synthAssignedInstances := true
 
 /--
   Compute the number of expected arguments and whether the result type is of the form
@@ -25,14 +42,15 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α :=
   throwTacticEx `apply mvarId m!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
 
-def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit :=
+def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) (synthAssignedInstances : Bool) : MetaM Unit :=
   newMVars.size.forM fun i => do
     if binderInfos[i]!.isInstImplicit then
       let mvar := newMVars[i]!
-      let mvarType ← inferType mvar
-      let mvarVal  ← synthInstance mvarType
-      unless (← isDefEq mvar mvarVal) do
-        throwTacticEx tacticName mvarId "failed to assign synthesized instance"
+      if synthAssignedInstances || !(← mvar.mvarId!.isAssigned) then
+        let mvarType ← inferType mvar
+        let mvarVal  ← synthInstance mvarType
+        unless (← isDefEq mvar mvarVal) do
+          throwTacticEx tacticName mvarId "failed to assign synthesized instance"
 
 def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
   let parentTag ← mvarId.getTag
@@ -48,8 +66,13 @@ def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Arr
             let currTag ← mvarIdNew.getTag
             mvarIdNew.setTag (appendTag parentTag currTag)
 
-def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
-  synthAppInstances tacticName mvarId newMVars binderInfos
+/--
+If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
+even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
+one inferred. The `congr` tactic sets this flag to false.
+-/
+def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) (synthAssignedInstances := true) : MetaM Unit := do
+  synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances
   -- TODO: default and auto params
   appendParentTag mvarId newMVars binderInfos
 
@@ -71,14 +94,6 @@ private def partitionDependentMVars (mvars : Array Expr) : MetaM (Array MVarId �
     else
       return (nonDeps.push currMVarId, deps)
 
-/-- Controls which new mvars are turned in to goals by the `apply` tactic.
-- `nonDependentFirst`  mvars that don't depend on other goals appear first in the goal list.
-- `nonDependentOnly` only mvars that don't depend on other goals are added to goal list.
-- `all` all unassigned mvars are added to the goal list.
--/
-inductive ApplyNewGoals where
-  | nonDependentFirst | nonDependentOnly | all
-
 private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MVarId)
   | ApplyNewGoals.nonDependentFirst => do
       let (nonDeps, deps) ← partitionDependentMVars mvars
@@ -87,10 +102,6 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
       let (nonDeps, _) ← partitionDependentMVars mvars
       return nonDeps.toList
   | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
-
-/-- Configures the behaviour of the `apply` tactic. -/
-structure ApplyConfig where
-  newGoals := ApplyNewGoals.nonDependentFirst
 
 /--
 Close the given goal using `apply e`.
@@ -106,7 +117,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
       numArgs := numArgs - targetTypeNumArgs
     let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs)
     unless (← isDefEq eType targetType) do throwApplyError mvarId eType targetType
-    postprocessAppMVars `apply mvarId newMVars binderInfos
+    postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned

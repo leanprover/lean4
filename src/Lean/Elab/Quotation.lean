@@ -18,13 +18,16 @@ open Lean.Syntax
 open Meta
 open TSyntax.Compat
 
+-- TODO(gabriel): We heavily use `have` here to keep the local context clean.
+-- We should replace this by non-dependent lets in the future.
+
 /-- `C[$(e)]` ~> `let a := e; C[$a]`. Used in the implementation of antiquot splices. -/
 private partial def floatOutAntiquotTerms (stx : Syntax) : StateT (Syntax → TermElabM Syntax) TermElabM Syntax :=
   if isAntiquots stx && !isEscapedAntiquot (getCanonicalAntiquot stx) then
     let e := getAntiquotTerm (getCanonicalAntiquot stx)
     if !e.isIdent || !e.getId.isAtomic then
       withFreshMacroScope do
-        let a ← `(a)
+        let a ← `(__stx_lift)
         modify (fun _ (stx : Syntax) => (`(let $a:ident := $e; $stx) : TermElabM Syntax))
         let stx := if stx.isOfKind choiceKind then
             mkNullNode <| stx.getArgs.map (·.setArg 2 a)
@@ -342,13 +345,13 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
     else if quoted.isTokenAntiquot then
-      unconditionally (`(let $(quoted.getAntiquotTerm) := __discr; $(·)))
+      unconditionally (`(have $(quoted.getAntiquotTerm) := __discr; $(·)))
     else if isAntiquots quoted && !isEscapedAntiquot (getCanonicalAntiquot quoted) then
       -- quotation contains a single antiquotation
       let (ks, pseudoKinds) := antiquotKinds quoted |>.unzip
       let rhsFn := match getAntiquotTerm (getCanonicalAntiquot quoted) with
         | `(_)         => pure
-        | `($id:ident) => fun stx => `(let $id := @TSyntax.mk $(quote ks) __discr; $(stx))
+        | `($id:ident) => fun stx => `(have $id := @TSyntax.mk $(quote ks) __discr; $(stx))
         | anti =>         fun _   => throwErrorAt anti "unsupported antiquotation kind in pattern"
       -- Antiquotation kinds like `$id:ident` influence the parser, but also need to be considered by
       -- `match` (but not by quotation terms). For example, `($id:ident) and `($e) are not
@@ -380,9 +383,9 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       let anti := getAntiquotTerm (getCanonicalAntiquot inner)
       let ks := antiquotKinds inner |>.map (·.1)
       unconditionally fun rhs => match antiquotSuffixSplice? quoted[0] with
-        | `optional => `(let $anti := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
-        | `many     => `(let $anti := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
-        | `sepBy    => `(let $anti := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
+        | `optional => `(have $anti := Option.map (@TSyntax.mk $(quote ks)) (Syntax.getOptional? __discr); $rhs)
+        | `many     => `(have $anti := @TSyntaxArray.mk $(quote ks) (Syntax.getArgs __discr); $rhs)
+        | `sepBy    => `(have $anti := @TSepArray.mk $(quote ks) $(quote <| getSepFromSplice quoted[0]) (Syntax.getArgs __discr); $rhs)
         | k         => throwErrorAt quoted "invalid antiquotation suffix splice kind '{k}'"
     else if quoted.getArgs.size == 1 && isAntiquotSplice quoted[0] then pure {
       check   := other pat,
@@ -414,7 +417,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             | #[id] => pure id
             | _     =>
               for id in ids do
-                yes ← `(let $id := tuples.map (fun $tuple => $id); $yes)
+                yes ← `(have $id := tuples.map (fun $tuple => $id); $yes)
               `(tuples)
           let contents := if contents.size == 1
             then contents[0]!
@@ -503,11 +506,11 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
       }
   else match pat with
     | `(_)              => unconditionally pure
-    | `($id:ident)      => unconditionally (`(let $id := __discr; $(·)))
+    | `($id:ident)      => unconditionally (`(have $id := __discr; $(·)))
     | `($id:ident@$pat) => do
       let info ← getHeadInfo (pat::alt.1.tail!, alt.2)
       return { info with onMatch := fun taken => match info.onMatch taken with
-          | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(let $id := __discr; $(·)))) exh
+          | covered f exh => covered (fun alt => f alt >>= adaptRhs (`(have $id := __discr; $(·)))) exh
           | r             => r }
     | _               => throwErrorAt pat "match (syntax) : unexpected pattern kind {pat}"
 
@@ -576,7 +579,7 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
       (no := withFreshMacroScope $ compileStxMatch (discr::discrs) nonExhaustiveAlts.toList)
     for d in floatedLetDecls do
       stx ← `(let_delayed $d:letDecl; $stx)
-    `(let __discr := $discr; $stx)
+    `(have __discr := $discr; $stx)
   | _, _ => unreachable!
 
 abbrev IdxSet := HashSet Nat

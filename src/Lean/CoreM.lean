@@ -199,8 +199,16 @@ def throwMaxHeartbeat (moduleName : Name) (optionName : Name) (max : Nat) : Core
 
 def checkMaxHeartbeatsCore (moduleName : String) (optionName : Name) (max : Nat) : CoreM Unit := do
   unless max == 0 do
-    let numHeartbeats ← IO.getNumHeartbeats
-    if numHeartbeats - (← read).initHeartbeats > max then
+    let mut numHeartbeats ← IO.getNumHeartbeats
+    let initHeartbeats := (← read).initHeartbeats
+    if initHeartbeats > numHeartbeats then
+      let theMax ← IO.getHeartbeatMax
+      if theMax >= initHeartbeats then
+        -- check for wrap around in the counter
+        numHeartbeats := (Nat.sub theMax initHeartbeats) + numHeartbeats;
+    else
+      numHeartbeats := Nat.sub numHeartbeats initHeartbeats
+    if numHeartbeats > max then
       throwMaxHeartbeat moduleName optionName max
 
 def checkMaxHeartbeats (moduleName : String) : CoreM Unit := do

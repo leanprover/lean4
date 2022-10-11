@@ -215,6 +215,7 @@ local macro "nonempty_list" : tactic =>
 
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
+@[extern "lean_io_get_heartbeat_max"] opaque getHeartbeatMax : BaseIO Nat
 
 inductive FS.Mode where
   | read | write | readWrite | append

@@ -404,6 +404,10 @@ uint64_t get_num_heartbeats() {
         return 0;
 }
 
+uint64_t get_heartbeat_max() {
+    return std::numeric_limits<uint64_t>::max();
+}
+
 void * alloc(size_t sz) {
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     LEAN_RUNTIME_STAT_CODE(g_num_alloc++);

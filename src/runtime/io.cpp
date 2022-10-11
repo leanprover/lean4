@@ -462,6 +462,12 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_num_heartbeats(obj_arg /* w */) {
     return io_result_mk_ok(lean_uint64_to_nat(get_num_heartbeats()));
 }
 
+/* getHeartbeatMax : BaseIO Nat */
+extern "C" LEAN_EXPORT obj_res lean_io_get_heartbeat_max(obj_arg /* w */) {
+    return io_result_mk_ok(lean_uint64_to_nat(get_heartbeat_max()));
+}
+
+
 extern "C" LEAN_EXPORT obj_res lean_io_getenv(b_obj_arg env_var, obj_arg) {
 #if defined(LEAN_EMSCRIPTEN)
     // HACK(WN): getenv doesn't seem to work in Emscripten even though it should

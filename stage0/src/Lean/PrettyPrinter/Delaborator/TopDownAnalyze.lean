@@ -587,7 +587,6 @@ mutual
               | _                 => annotateNamedArg (← mvarName mvars[i]!)
             else annotateBool `pp.analysis.skip; provided := false
             modify fun s => { s with provideds := s.provideds.set! i provided }
-          | BinderInfo.auxDecl => pure ()
           if (← get).provideds[i]! then withKnowing (not (← typeUnknown mvars[i]!)) true analyze
           tryUnify mvars[i]! args[i]!
 

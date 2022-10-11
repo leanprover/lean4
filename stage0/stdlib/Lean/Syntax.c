@@ -191,7 +191,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_updateLeading(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_chooseNiceTrailStop(lean_object*);
 static lean_object* l_Lean_Syntax_identComponents___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196_(lean_object*);
+LEAN_EXPORT uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_findStack_x3f_go___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_identComponents(lean_object*, lean_object*);
 lean_object* l_Nat_repr(lean_object*);
@@ -279,8 +279,8 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax___rarg(lean_object
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__8;
 static lean_object* l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__2;
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_Traverser_down(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_findStack_x3f_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_getIdx___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Syntax_antiquotKinds___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -777,7 +777,7 @@ x_1 = l_String_instBEqRange___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196_(lean_object* x_1) {
+LEAN_EXPORT uint64_t l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint64_t x_4; uint64_t x_5; uint64_t x_6; uint64_t x_7; uint64_t x_8; 
@@ -791,11 +791,11 @@ x_8 = lean_uint64_mix_hash(x_6, x_7);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198____boxed(lean_object* x_1) {
 _start:
 {
 uint64_t x_2; lean_object* x_3; 
-x_2 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196_(x_1);
+x_2 = l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198_(x_1);
 lean_dec(x_1);
 x_3 = lean_box_uint64(x_2);
 return x_3;
@@ -805,7 +805,7 @@ static lean_object* _init_l_String_instHashableRange___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_196____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Syntax_0__String_hashRange____x40_Lean_Syntax___hyg_198____boxed), 1, 0);
 return x_1;
 }
 }

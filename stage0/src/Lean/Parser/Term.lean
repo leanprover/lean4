@@ -384,6 +384,12 @@ def matchAltsWhereDecls := leading_parser matchAlts >> optional whereDecls
 @[builtinTermParser] def ensureExpectedType := leading_parser "ensure_expected_type% " >> strLit >> termParser maxPrec
 @[builtinTermParser] def noImplicitLambda   := leading_parser "no_implicit_lambda% " >> termParser maxPrec
 
+/--
+`clear% x; e` elaborates `x` after clearing the free variable `x` from the local context.
+If `x` cannot be cleared (due to dependencies), it will keep `x` without failing.
+-/
+@[builtinTermParser] def clear := leading_parser "clear% " >> ident >> semicolonOrLinebreak >> termParser
+
 @[builtinTermParser] def letMVar                := leading_parser "let_mvar% " >> "?" >> ident >> " := " >> termParser >> "; " >> termParser
 @[builtinTermParser] def waitIfTypeMVar         := leading_parser "wait_if_type_mvar% " >> "?" >> ident >> "; " >> termParser
 @[builtinTermParser] def waitIfTypeContainsMVar := leading_parser "wait_if_type_contains_mvar% " >> "?" >> ident >> "; " >> termParser

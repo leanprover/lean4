@@ -23,6 +23,7 @@ static lean_object* l_Lean_Compiler_LCNF_Specialize_instInhabitedCacheEntry___cl
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_cacheSpec___closed__2;
 lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_mkKey___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -36,7 +37,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_instMonadScopeSpecializeM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3___closed__15;
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1915_(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1844_(lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getSpecParamInfo_x3f___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -237,7 +238,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_hasAnyFVar_visit___at_Lean_Compiler_LCNF_Sp
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___spec__8___closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3___closed__8;
-lean_object* l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_visitCode___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__3___closed__17;
 lean_object* l_Lean_Compiler_LCNF_LetDecl_updateValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1311,7 +1311,7 @@ x_16 = lean_ctor_get(x_3, 0);
 x_17 = lean_ctor_get(x_3, 1);
 x_18 = lean_box(0);
 lean_inc(x_14);
-x_19 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_16, x_14, x_18);
+x_19 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_16, x_14, x_18);
 x_20 = lean_unbox(x_12);
 lean_dec(x_12);
 if (x_20 == 0)
@@ -1325,7 +1325,7 @@ return x_21;
 else
 {
 lean_object* x_22; lean_object* x_23; 
-x_22 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_17, x_14, x_18);
+x_22 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_17, x_14, x_18);
 lean_ctor_set(x_3, 1, x_22);
 lean_ctor_set(x_3, 0, x_19);
 x_23 = lean_apply_7(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_13);
@@ -1344,7 +1344,7 @@ lean_inc(x_24);
 lean_dec(x_3);
 x_27 = lean_box(0);
 lean_inc(x_14);
-x_28 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_24, x_14, x_27);
+x_28 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_24, x_14, x_27);
 x_29 = lean_unbox(x_12);
 lean_dec(x_12);
 if (x_29 == 0)
@@ -1361,7 +1361,7 @@ return x_31;
 else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
-x_32 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_25, x_14, x_27);
+x_32 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_25, x_14, x_27);
 x_33 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_33, 0, x_28);
 lean_ctor_set(x_33, 1, x_32);
@@ -1386,7 +1386,7 @@ _start:
 lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; size_t x_7; lean_object* x_8; uint8_t x_9; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
-x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1915_(x_2);
+x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1844_(x_2);
 x_6 = lean_uint64_to_usize(x_5);
 x_7 = lean_usize_modn(x_6, x_4);
 lean_dec(x_4);
@@ -4404,7 +4404,7 @@ lean_dec(x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
 x_11 = lean_box(0);
-x_12 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_5, x_8, x_11);
+x_12 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_5, x_8, x_11);
 x_3 = x_10;
 x_5 = x_12;
 goto _start;
@@ -4430,7 +4430,7 @@ lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_10 = lean_box(0);
-x_11 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_4, x_7, x_10);
+x_11 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_4, x_7, x_10);
 x_2 = x_9;
 x_4 = x_11;
 goto _start;
@@ -6111,7 +6111,7 @@ lean_dec(x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_10 = lean_box(0);
-x_11 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_4, x_7, x_10);
+x_11 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_4, x_7, x_10);
 x_2 = x_9;
 x_4 = x_11;
 goto _start;
@@ -6261,7 +6261,7 @@ x_33 = lean_ctor_get(x_6, 0);
 x_34 = lean_ctor_get(x_6, 1);
 x_35 = lean_box(0);
 lean_inc(x_31);
-x_36 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_33, x_31, x_35);
+x_36 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_33, x_31, x_35);
 x_37 = lean_unbox(x_29);
 lean_dec(x_29);
 if (x_37 == 0)
@@ -6312,7 +6312,7 @@ return x_44;
 else
 {
 lean_object* x_45; lean_object* x_46; 
-x_45 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_34, x_31, x_35);
+x_45 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_34, x_31, x_35);
 lean_ctor_set(x_6, 1, x_45);
 lean_ctor_set(x_6, 0, x_36);
 lean_inc(x_1);
@@ -6368,7 +6368,7 @@ lean_inc(x_53);
 lean_dec(x_6);
 x_56 = lean_box(0);
 lean_inc(x_31);
-x_57 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_53, x_31, x_56);
+x_57 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_53, x_31, x_56);
 x_58 = lean_unbox(x_29);
 lean_dec(x_29);
 if (x_58 == 0)
@@ -6424,7 +6424,7 @@ return x_66;
 else
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; 
-x_67 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_54, x_31, x_56);
+x_67 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_54, x_31, x_56);
 x_68 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_68, 0, x_57);
 lean_ctor_set(x_68, 1, x_67);
@@ -7117,7 +7117,7 @@ if (x_34 == 0)
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_35 = lean_ctor_get(x_2, 0);
 x_36 = lean_box(0);
-x_37 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_35, x_33, x_36);
+x_37 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_35, x_33, x_36);
 lean_ctor_set(x_2, 0, x_37);
 lean_inc(x_29);
 x_38 = l_Lean_Compiler_LCNF_Specialize_visitCode(x_29, x_2, x_3, x_4, x_5, x_6, x_7, x_32);
@@ -7321,7 +7321,7 @@ lean_inc(x_75);
 lean_inc(x_74);
 lean_dec(x_2);
 x_77 = lean_box(0);
-x_78 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_74, x_33, x_77);
+x_78 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_74, x_33, x_77);
 x_79 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_79, 0, x_78);
 lean_ctor_set(x_79, 1, x_75);
@@ -7518,7 +7518,7 @@ if (x_111 == 0)
 lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; 
 x_112 = lean_ctor_get(x_2, 0);
 x_113 = lean_box(0);
-x_114 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_112, x_110, x_113);
+x_114 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_112, x_110, x_113);
 lean_ctor_set(x_2, 0, x_114);
 lean_inc(x_106);
 x_115 = l_Lean_Compiler_LCNF_Specialize_visitCode(x_106, x_2, x_3, x_4, x_5, x_6, x_7, x_109);
@@ -7722,7 +7722,7 @@ lean_inc(x_152);
 lean_inc(x_151);
 lean_dec(x_2);
 x_154 = lean_box(0);
-x_155 = l_Lean_RBNode_insert___at_Lean_Meta_ToHide_moveToHiddeProp___spec__1(x_151, x_110, x_154);
+x_155 = l_Lean_RBNode_insert___at___private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux___spec__1(x_151, x_110, x_154);
 x_156 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_156, 0, x_155);
 lean_ctor_set(x_156, 1, x_152);

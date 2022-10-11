@@ -155,7 +155,7 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
     if (← nestedFalseElim mvarId) then
       return true
     for localDecl in (← getLCtx) do
-      unless localDecl.isAuxDecl do
+      unless localDecl.isImplementationDetail do
         -- (h : ¬ p) (h' : p)
         if let some p ← matchNot? localDecl.type then
           if let some pFVarId ← findLocalDeclWithType? p then

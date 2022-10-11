@@ -55,6 +55,7 @@ static lean_object* l_Lean_Elab_Deriving_BEq_mkMutualBlock___closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumFun___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+lean_object* l_Lean_getConstInfo___at_Lean_Elab_Command_expandDeclId___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__9;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___spec__1___closed__3;
@@ -249,7 +250,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction(lean_object*, le
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_BEq_mkMatch___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumFun___closed__11;
-lean_object* l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__19(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1___closed__8;
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__12;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__5___lambda__1___closed__6;
@@ -5790,7 +5790,7 @@ x_9 = lean_ctor_get(x_1, 1);
 lean_inc(x_9);
 lean_dec(x_1);
 lean_inc(x_2);
-x_17 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__19(x_8, x_2, x_3, x_4);
+x_17 = l_Lean_getConstInfo___at_Lean_Elab_Command_expandDeclId___spec__9(x_8, x_2, x_3, x_4);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -5881,7 +5881,7 @@ _start:
 {
 lean_object* x_5; 
 lean_inc(x_2);
-x_5 = l_Lean_getConstInfo___at_Lean_Elab_elabDeriving___spec__19(x_1, x_2, x_3, x_4);
+x_5 = l_Lean_getConstInfo___at_Lean_Elab_Command_expandDeclId___spec__9(x_1, x_2, x_3, x_4);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 

@@ -418,7 +418,7 @@ def withLevelNames (levelNames : List Name) (x : TermElabM α) : TermElabM α :=
   update the mapping `auxDeclToFullName`, and then execute `k`.
 -/
 def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → TermElabM α) : TermElabM α :=
-  withLocalDecl shortDeclName BinderInfo.auxDecl type fun x =>
+  withLocalDecl shortDeclName .default (kind := .auxDecl) type fun x =>
     withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
       k x
 
@@ -1669,7 +1669,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let givenName := givenNameView.review
     let localDecl? := lctx.decls.findSomeRev? fun localDecl? => do
       let localDecl ← localDecl?
-      if localDecl.binderInfo == .auxDecl then
+      if localDecl.isAuxDecl then
         guard (not skipAuxDecl)
         if let some fullDeclName := auxDeclToFullName.find? localDecl.fvarId then
           matchAuxRecDecl? localDecl fullDeclName givenNameView
@@ -1683,7 +1683,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       -- Search auxDecls again trying an exact match of the given name
       lctx.decls.findSomeRev? fun localDecl? => do
         let localDecl ← localDecl?
-        guard (localDecl.binderInfo == .auxDecl)
+        guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
   let rec loop (n : Name) (projs : List String) :=
     let givenNameView := { view with name := n }

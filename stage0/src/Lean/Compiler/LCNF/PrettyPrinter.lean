@@ -96,7 +96,7 @@ mutual
     | .let decl k => return (← ppLetDecl decl) ++ .line ++ (← ppCode k)
     | .fun decl k => return f!"fun " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
     | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
-    | .cases c => return f!"cases {← ppFVar c.discr}{← prefixJoin .line c.alts ppAlt}"
+    | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
     | .return fvarId => ppFVar fvarId
     | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
     | .unreach .. => return "⊥"

@@ -33,7 +33,7 @@ Return the `fvarId` for the new hypothesis and the new subgoals.
 private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (List MVarId) := do
   let mvarId ← mvarId.assert (← mkFreshUserName `h_congr_thm) congrThm.type congrThm.proof
   let (fvarId, mvarId) ← mvarId.intro1P
-  let mvarIds ← mvarId.apply (mkFVar fvarId)
+  let mvarIds ← mvarId.apply (mkFVar fvarId) { synthAssignedInstances := false }
   mvarIds.mapM fun mvarId => mvarId.tryClear fvarId
 
 /--

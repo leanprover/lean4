@@ -33,6 +33,7 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_MVarId_congrImplies_x3f___s
 static lean_object* l_Lean_MVarId_hcongr_x3f___lambda__2___closed__1;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3;
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congr_x3f___closed__1;
 LEAN_EXPORT lean_object* l_List_filterMapM_loop___at___private_Lean_Meta_Tactic_Congr_0__Lean_congrPost___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -65,7 +66,7 @@ lean_object* l_Lean_MVarId_tryClear(lean_object*, lean_object*, lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrN_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congrImplies_x3f___closed__2;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
-lean_object* l_Lean_MVarId_apply(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_apply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_congrPost(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
@@ -79,6 +80,7 @@ static lean_object* l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2;
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_MVarId_congrImplies_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_congrN___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -759,6 +761,18 @@ x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3() {
+_start:
+{
+uint8_t x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = 0;
+x_3 = lean_alloc_ctor(0, 0, 2);
+lean_ctor_set_uint8(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, 1, x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -796,7 +810,7 @@ lean_inc(x_3);
 x_18 = l_Lean_Meta_intro1Core(x_15, x_17, x_3, x_4, x_5, x_6, x_16);
 if (lean_obj_tag(x_18) == 0)
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; 
+lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
@@ -809,7 +823,7 @@ lean_inc(x_22);
 lean_dec(x_19);
 lean_inc(x_21);
 x_23 = l_Lean_Expr_fvar___override(x_21);
-x_24 = 0;
+x_24 = l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3;
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1740,16 +1754,28 @@ return x_15;
 static lean_object* _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unexpected number of goals", 26);
-return x_1;
+uint8_t x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = 0;
+x_2 = 1;
+x_3 = lean_alloc_ctor(0, 0, 2);
+lean_ctor_set_uint8(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("unexpected number of goals", 26);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1;
+x_1 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2;
 x_2 = l_Lean_stringToMessageData(x_1);
 return x_2;
 }
@@ -1765,13 +1791,13 @@ lean_inc(x_3);
 x_8 = l_Lean_Meta_mkConstWithFreshMVarLevels(x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
 lean_inc(x_10);
 lean_dec(x_8);
-x_11 = 0;
+x_11 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1;
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -1788,7 +1814,7 @@ lean_object* x_14; lean_object* x_15; lean_object* x_16;
 x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2;
+x_15 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3;
 x_16 = l_Lean_throwError___at_Lean_MVarId_congrImplies_x3f___spec__1(x_15, x_3, x_4, x_5, x_6, x_14);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -1808,7 +1834,7 @@ lean_dec(x_13);
 x_18 = lean_ctor_get(x_12, 1);
 lean_inc(x_18);
 lean_dec(x_12);
-x_19 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2;
+x_19 = l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3;
 x_20 = l_Lean_throwError___at_Lean_MVarId_congrImplies_x3f___spec__1(x_19, x_3, x_4, x_5, x_6, x_18);
 lean_dec(x_6);
 lean_dec(x_5);
@@ -2604,6 +2630,8 @@ l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__1 = _init
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__1);
 l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__2 = _init_l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__2();
 lean_mark_persistent(l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__2);
+l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3 = _init_l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3();
+lean_mark_persistent(l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__3);
 l_Lean_MVarId_congr_x3f___lambda__2___closed__1 = _init_l_Lean_MVarId_congr_x3f___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_MVarId_congr_x3f___lambda__2___closed__1);
 l_Lean_MVarId_congr_x3f___lambda__2___closed__2 = _init_l_Lean_MVarId_congr_x3f___lambda__2___closed__2();
@@ -2620,6 +2648,8 @@ l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1 = _init_l_Lean_MVarId_con
 lean_mark_persistent(l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1);
 l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2 = _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__2);
+l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3 = _init_l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__3);
 l_Lean_MVarId_congrImplies_x3f___closed__1 = _init_l_Lean_MVarId_congrImplies_x3f___closed__1();
 lean_mark_persistent(l_Lean_MVarId_congrImplies_x3f___closed__1);
 l_Lean_MVarId_congrImplies_x3f___closed__2 = _init_l_Lean_MVarId_congrImplies_x3f___closed__2();

@@ -93,7 +93,7 @@ algorithm uses different scores for the last operation (miss/match). This is
 necessary to give consecutive character matches a bonus. -/
 private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Array CharRole) : Option Int := Id.run do
   /- Flattened array where the value at index (i, j, k) represents the best possible score of a fuzzy match
-  between the substrings pattern[:i+1] and [:j+1] assuming that pattern[i] misses at index word[j] (k = 0, i.e.
+  between the substrings pattern[:i+1] and word[:j+1] assuming that pattern[i] misses at word[j] (k = 0, i.e.
   it was matched earlier), or matches at word[j] (k = 1). A value of `none` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
   let mut result : Array (Option Int) := Array.mkArray (pattern.length * word.length * 2) none
@@ -117,8 +117,9 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
   -- TODO: the following code is assuming all characters are ASCII
   for patternIdx in [:pattern.length] do
-    -- for the IH, it's only necessary to populate a range of length `word.length - pattern.length` at each index
-    -- (because at the very end, we can only consider fuzzy matches of `pattern` with a longer substring of `word`)
+    /- For this dynamic program to be correct, it's only necessary to populate a range of length
+   `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
+    of `pattern` with a longer substring of `word`). -/
     for wordIdx in [patternIdx:word.length-(pattern.length - patternIdx - 1)] do
       let missScore? := 
         if wordIdx >= 1 then 
@@ -231,9 +232,11 @@ def fuzzyMatchScore? (pattern word : String) : Option Float := Id.run do
   if pattern.length == word.length then
     score := score * 2
 
-  /- Perfect score per character and for full match given the heuristic in `matchResult`. -/
+  /- Perfect score per character. -/
   let perfect := 4
-  let perfectMatch := (perfect * pattern.length + (pattern.length * (pattern.length + 1) / 2)) - 1
+  /- Perfect score for full match given the heuristic in `matchResult`;
+  the latter term represents the bonus of a perfect consecutive run. -/
+  let perfectMatch := (perfect * pattern.length + ((pattern.length * (pattern.length + 1) / 2) - 1))
   let normScore := Float.ofInt score / Float.ofInt perfectMatch
 
   return some <| min 1 (max 0 normScore)

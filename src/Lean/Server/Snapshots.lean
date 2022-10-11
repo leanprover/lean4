@@ -69,7 +69,7 @@ def infoTree (s : Snapshot) : InfoTree :=
   s.cmdState.infoState.trees[0]!
 
 def isAtEnd (s : Snapshot) : Bool :=
-  Parser.isEOI s.stx || Parser.isExitCommand s.stx
+  Parser.isEOI s.stx || Parser.isTerminalCommand s.stx
 
 open Command in
 /-- Use the command state in the given snapshot to run a `CommandElabM`.-/

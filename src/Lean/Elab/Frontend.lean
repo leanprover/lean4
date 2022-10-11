@@ -66,7 +66,7 @@ def processCommand : FrontendM Bool := do
       pure true -- Done
     else
       profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
-      pure (Parser.isExitCommand cmd)
+      pure (Parser.isTerminalCommand cmd)
 
 partial def processCommands : FrontendM Unit := do
   let done ← processCommand

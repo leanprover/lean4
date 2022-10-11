@@ -1,4 +1,5 @@
 hi!
+<stdin>:1:0: warning: using 'exit' to interrupt Lean
 1
 0
 "ho!\n"

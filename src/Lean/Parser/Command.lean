@@ -137,6 +137,7 @@ def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> st
 def eraseAttr := leading_parser "-" >> rawIdent
 @[builtinCommandParser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
 @[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> " (" >> many1 ident >> ")"
+@[builtinCommandParser] def «import»       := leading_parser "import" -- not a real command, only for error messages
 def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 (checkColGt >> ident)
 def openRenamingItem := leading_parser ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
 def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "

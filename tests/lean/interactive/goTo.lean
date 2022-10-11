@@ -60,3 +60,7 @@ where
 macro_rules | `(test) => `(3)
 #check test
      --^ textDocument/definition
+
+-- duplicate definitions link to the original
+def mkFoo₁ := 1
+     --^ textDocument/definition

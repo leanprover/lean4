@@ -12,13 +12,13 @@ x : Nat
 holes.lean:11:4-11:5: error: don't know how to synthesize placeholder
 context:
 x : Nat
-y : Nat
+y : Nat := g x + g x
 ⊢ Nat
 holes.lean:11:8-11:13: error: don't know how to synthesize placeholder
 context:
 case hole
 x : Nat
-y : Nat
+y : Nat := g x + g x
 ⊢ Nat
 holes.lean:13:10-13:11: error: failed to infer binder type
 holes.lean:15:16-15:17: error: failed to infer binder type
@@ -26,7 +26,7 @@ holes.lean:19:0-19:3: error: don't know how to synthesize implicit argument
   @f Nat (?m a) a
 context:
 a : Nat
-f : {α : Type} → {β : ?m a} → α → α
+f : {α : Type} → {β : ?m a} → α → α := fun {α} {β} a => a
 ⊢ ?m a
 holes.lean:18:9-18:10: error: failed to infer binder type
 holes.lean:21:25-22:4: error: failed to infer definition type

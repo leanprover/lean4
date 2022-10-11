@@ -28,8 +28,8 @@ Try this: simp only [f1, modify, StateT.modifyGet, f2, StateT.bind, getThe, Stat
       let s ← get
       set (g s)
 [Meta.Tactic.simp.rewrite] unfold StateT.bind, StateT.bind get fun s => set (g s) ==> fun s => do
-      let discr ← get s
-      match discr with
+      let __discr ← get s
+      match __discr with
         | (a, s) => (fun s => set (g s)) a s
 [Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)

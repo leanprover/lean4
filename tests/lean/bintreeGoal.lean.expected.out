@@ -11,9 +11,9 @@ value : β
 right : Tree β
 ihl : BST left → Tree.find? (Tree.insert left k v) k = some v
 ihr : BST right → Tree.find? (Tree.insert right k v) k = some v
-: k < key
-: BST left
-: ForallTree (fun k v => k < key) left
-: BST right
-: ForallTree (fun k v => key < k) right
+h✝ : k < key
+a✝³ : BST left
+a✝² : ForallTree (fun k v => k < key) left
+a✝¹ : BST right
+a✝ : ForallTree (fun k v => key < k) right
 ⊢ BST left

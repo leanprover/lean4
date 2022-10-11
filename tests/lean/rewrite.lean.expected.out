@@ -16,7 +16,7 @@ h₁ : 0 + x = y
 h₂ : 0 + y = z
 ⊢ x = z
 m n k : Nat
-: n = m
+h✝ : n = m
 h : k = m
 ⊢ k = n
 rewrite.lean:49:69-50:10: error: unsolved goals

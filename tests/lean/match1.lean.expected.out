@@ -13,7 +13,7 @@
 match1.lean:82:0-82:73: error: dependent elimination failed, type mismatch when solving alternative with type
   motive 0 (Vec.cons head✝ Vec.nil) (_ : VecPred P (Vec.cons head✝ Vec.nil))
 but expected
-  motive _fun_discr✝ (Vec.cons head✝ tail✝) (_ : VecPred P (Vec.cons head✝ tail✝))
+  motive x✝ (Vec.cons head✝ tail✝) (_ : VecPred P (Vec.cons head✝ tail✝))
 [false, true, true]
 match1.lean:119:0-119:41: error: dependent match elimination failed, inaccessible pattern found
   .(j + j)

@@ -1,7 +1,7 @@
 iota._eq_1 : iota 0 = []
 iota._eq_2 : ∀ (n : Nat), iota (Nat.succ n) = Nat.succ n :: iota n
-f._eq_1 : ∀ (x y : Nat), f [x, y] = ([x, y], [y])
-f._eq_2 : ∀ (x y : Nat) (zs : List Nat), (zs = [] → False) → f (x :: y :: zs) = f zs
+f._eq_1 : ∀ (x_1 y : Nat), f [x_1, y] = ([x_1, y], [y])
+f._eq_2 : ∀ (x_1 y : Nat) (zs : List Nat), (zs = [] → False) → f (x_1 :: y :: zs) = f zs
 f._eq_3 : ∀ (x : List Nat),
   (∀ (x_1 y : Nat), x = [x_1, y] → False) →
-    (∀ (x_2 y : Nat) (zs : List Nat), x = x_2 :: y :: zs → False) → f x = ([], [])
+    (∀ (x_1 y : Nat) (zs : List Nat), x = x_1 :: y :: zs → False) → f x = ([], [])

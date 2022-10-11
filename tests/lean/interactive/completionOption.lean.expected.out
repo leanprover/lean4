@@ -33,12 +33,48 @@
      "end": {"line": 1, "character": 13}}},
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"}],
+   "detail": "(120), indentation"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 13}},
+    "newText": "trace.PrettyPrinter.format",
+    "insert":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 13}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 13}},
+    "newText": "trace.Meta.isDefEq.foApprox",
+    "insert":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 13}}},
+   "label": "trace.Meta.isDefEq.foApprox",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 4, "character": 17}}
 {"items":
  [{"textEdit":
+   {"replace":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 17}},
+    "newText": "trace.PrettyPrinter.format",
+    "insert":
+    {"start": {"line": 4, "character": 11},
+     "end": {"line": 4, "character": 17}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
      "end": {"line": 4, "character": 17}},
@@ -70,19 +106,7 @@
      "end": {"line": 4, "character": 17}}},
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}},
-    "newText": "trace.PrettyPrinter.format",
-    "insert":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}}},
-   "label": "trace.PrettyPrinter.format",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "detail": "(120), indentation"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 7, "character": 20}}
@@ -250,11 +274,11 @@
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.IndPredBelow.match",
+    "newText": "trace.Meta.isLevelDefEq.postponed",
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.IndPredBelow.match",
+   "label": "trace.Meta.isLevelDefEq.postponed",
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
@@ -270,18 +294,6 @@
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.compiler.ir.push_proj",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.compiler.ir.push_proj",
-   "kind": 10,
-   "detail":
-   "(false), (trace) enable/disable tracing for the given module and submodules"},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -322,14 +334,26 @@
    {"replace":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.isLevelDefEq.postponed",
+    "newText": "trace.Meta.IndPredBelow.match",
     "insert":
     {"start": {"line": 10, "character": 11},
      "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.isLevelDefEq.postponed",
+   "label": "trace.Meta.IndPredBelow.match",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}},
+    "newText": "trace.compiler.ir.push_proj",
+    "insert":
+    {"start": {"line": 10, "character": 11},
+     "end": {"line": 10, "character": 18}}},
+   "label": "trace.compiler.ir.push_proj",
+   "kind": 10,
+   "detail":
+   "(false), (trace) enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 13, "character": 19}}
@@ -398,6 +422,18 @@
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 19}},
+    "newText": "trace.PrettyPrinter.parenthesize",
+    "insert":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 19}}},
+   "label": "trace.PrettyPrinter.parenthesize",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 19}},
     "newText": "trace.PrettyPrinter.delab",
     "insert":
     {"start": {"line": 13, "character": 11},
@@ -422,30 +458,6 @@
    {"replace":
     {"start": {"line": 13, "character": 11},
      "end": {"line": 13, "character": 19}},
-    "newText": "trace.PrettyPrinter.parenthesize",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.PrettyPrinter.parenthesize",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.compiler.ir.push_proj",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.compiler.ir.push_proj",
-   "kind": 10,
-   "detail":
-   "(false), (trace) enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
     "newText": "trace.Elab.postpone",
     "insert":
     {"start": {"line": 13, "character": 11},
@@ -465,7 +477,19 @@
    "label": "trace.Meta.isLevelDefEq.postponed",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 19}},
+    "newText": "trace.compiler.ir.push_proj",
+    "insert":
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 19}}},
+   "label": "trace.compiler.ir.push_proj",
+   "kind": 10,
+   "detail":
+   "(false), (trace) enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 16, "character": 23}}
@@ -606,7 +630,31 @@
      "end": {"line": 22, "character": 13}}},
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"}],
+   "detail": "(120), indentation"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 22, "character": 11},
+     "end": {"line": 22, "character": 13}},
+    "newText": "trace.PrettyPrinter.format",
+    "insert":
+    {"start": {"line": 22, "character": 11},
+     "end": {"line": 22, "character": 13}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 22, "character": 11},
+     "end": {"line": 22, "character": 13}},
+    "newText": "trace.Meta.isDefEq.foApprox",
+    "insert":
+    {"start": {"line": 22, "character": 11},
+     "end": {"line": 22, "character": 13}}},
+   "label": "trace.Meta.isDefEq.foApprox",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
  "position": {"line": 25, "character": 18}}

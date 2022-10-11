@@ -6,10 +6,7 @@
  "position": {"line": 9, "character": 11}}
 {"items":
  [{"label": "booBoo", "kind": 21, "detail": "Nat"},
-  {"label": "instToBoolBool", "kind": 21, "detail": "ToBool Bool"},
-  {"label": "instLawfulBEqBoolInstBEqInstDecidableEqBool",
-   "kind": 21,
-   "detail": "LawfulBEq Bool"}],
+  {"label": "instToBoolBool", "kind": 21, "detail": "ToBool Bool"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionPrv.lean"},
  "position": {"line": 21, "character": 5}}

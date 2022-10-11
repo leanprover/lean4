@@ -1167,7 +1167,7 @@ hljs.registerLanguage("lean", function(hljs) {
 
   var LEAN_DEFINITION =	{
     className: 'theorem',
-    beginKeywords: 'def theorem lemma class instance structure',
+    begin: '\\b(def|theorem|lemma|class|structure|(?<!deriving\\s+)instance)\\b',
     end: ':= | where',
     excludeEnd: true,
     contains: [

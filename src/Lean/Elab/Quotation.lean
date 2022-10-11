@@ -583,12 +583,8 @@ abbrev IdxSet := HashSet Nat
 
 private partial def hasNoErrorIfUnused : Syntax → Bool
   | `(no_error_if_unused% $_) => true
-  -- | `(clear% $_; $body) => hasNoErrorIfUnused body
-  | stx =>
-    if stx.getKind == `Lean.Parser.Term.clear then
-      hasNoErrorIfUnused stx[3]
-    else
-      false
+  | `(clear% $_; $body) => hasNoErrorIfUnused body
+  | _ => false
 
 /--
 Given `rhss` the right-hand-sides of a `match`-syntax notation,

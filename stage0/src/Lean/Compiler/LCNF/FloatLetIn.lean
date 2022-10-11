@@ -114,7 +114,7 @@ up to this point, with respect to `cs`. The initial decisions are:
 - `dont` if we see the declaration being used in more than one cases arm
 - `arm` or `default` if we see the declaration only being used in exactly one cases arm
 - `unknown` otherwise
--/ 
+-/
 def initialDecisions (cs : Cases) : BaseFloatM (HashMap FVarId Decision) := do
   let mut map := mkHashMap (← read).decls.length
   let folder val acc := do
@@ -302,8 +302,8 @@ end FloatLetIn
 def Decl.floatLetIn (decl : Decl) : CompilerM Decl := do
   FloatLetIn.floatLetIn decl
 
-def floatLetIn : Pass :=
-  .mkPerDeclaration `floatLetIn Decl.floatLetIn .base
+def floatLetIn (phase := Phase.base) (occurrence := 0) : Pass :=
+  .mkPerDeclaration `floatLetIn Decl.floatLetIn phase occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.floatLetIn (inherited := true)

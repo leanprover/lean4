@@ -27,8 +27,8 @@ h : Expr.boolVal a✝ = b
 case eq
 α α✝ : ExprType
 a✝¹ a✝ : Expr α✝
-: ∀ (b : Expr α✝), a✝¹ = b → eval (constProp a✝¹) = eval b
-: ∀ (b : Expr α✝), a✝ = b → eval (constProp a✝) = eval b
+a_ih✝¹ : ∀ (b : Expr α✝), a✝¹ = b → eval (constProp a✝¹) = eval b
+a_ih✝ : ∀ (b : Expr α✝), a✝ = b → eval (constProp a✝) = eval b
 b : Expr ExprType.bool
 h : Expr.eq a✝¹ a✝ = b
 ⊢ eval (constProp (Expr.eq a✝¹ a✝)) = eval b
@@ -36,8 +36,8 @@ h : Expr.eq a✝¹ a✝ = b
 case add
 α : ExprType
 a✝¹ a✝ : Expr ExprType.nat
-: ∀ (b : Expr ExprType.nat), a✝¹ = b → eval (constProp a✝¹) = eval b
-: ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval b
+a_ih✝¹ : ∀ (b : Expr ExprType.nat), a✝¹ = b → eval (constProp a✝¹) = eval b
+a_ih✝ : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval b
 b : Expr ExprType.nat
 h : Expr.add a✝¹ a✝ = b
 ⊢ eval (constProp (Expr.add a✝¹ a✝)) = eval b

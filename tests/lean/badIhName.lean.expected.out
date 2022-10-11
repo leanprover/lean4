@@ -4,5 +4,5 @@ case z
 
 case s
 a✝ : Nat
-: add Nat.z a✝ = a✝
+a_ih✝ : add Nat.z a✝ = a✝
 ⊢ add Nat.z (Nat.s a✝) = Nat.s a✝

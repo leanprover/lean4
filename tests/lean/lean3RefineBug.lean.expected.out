@@ -4,13 +4,13 @@ a : p ∧ q
 ⊢ p
 case hp
 p q : Prop
-: p ∧ q
+x✝ : p ∧ q
 a : p
 b : q
 ⊢ p
 case hp
 p q : Prop
-: p ∧ q
+x✝ : p ∧ q
 a : p
 b : q
 ⊢ p

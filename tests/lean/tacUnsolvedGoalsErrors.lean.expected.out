@@ -24,23 +24,23 @@ tacUnsolvedGoalsErrors.lean:17:9-17:10: error: unsolved goals
 case inl
 p q r : Prop
 h2 : p → q
-: p
+h✝ : p
 ⊢ q
 tacUnsolvedGoalsErrors.lean:19:9-19:10: error: unsolved goals
 case inr
 p q r : Prop
 h2 : p → q
-: q
+h✝ : q
 ⊢ q
 tacUnsolvedGoalsErrors.lean:26:2-27:8: error: unsolved goals
 case inl
 p q r : Prop
 h2 : p → q
-: p
+h✝ : p
 ⊢ q
 tacUnsolvedGoalsErrors.lean:28:2-29:8: error: unsolved goals
 case inr
 p q r : Prop
 h2 : p → q
-: q
+h✝ : q
 ⊢ q

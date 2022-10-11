@@ -34,7 +34,12 @@ a : α
       • x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
       • _example.match_1 (fun α β x a => β) α β x a (fun α_1 a => ?m x α_1 a) fun n a =>
           n : <failed-to-infer-type> @ ⟨8, 2⟩-⟨10, 19⟩ @ Lean.Elab.Term.elabMatch
-        • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩
+        • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩ @ Lean.Elab.Term.elabIdent
+          • [.] `x : none @ ⟨8, 8⟩-⟨8, 9⟩
+          • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩
+        • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩ @ Lean.Elab.Term.elabIdent
+          • [.] `x : none @ ⟨8, 8⟩-⟨8, 9⟩
+          • x : Fam2 α β @ ⟨8, 8⟩-⟨8, 9⟩
         • [.] `Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
         • [.] `Fam2.any : none @ ⟨9, 4⟩-⟨9, 12⟩
         • @Fam2.any : {α : Type} → Fam2 α α @ ⟨9, 4⟩-⟨9, 12⟩

@@ -1,5 +1,5 @@
 1074b.lean:10:30-10:31: error: unknown identifier 'z'
 1074b.lean:11:43-11:53: error: tactic 'assumption' failed
 a n z✝ : Term
-: Brx z✝
+a✝ : Brx z✝
 ⊢ Brx (sorryAx Term true)

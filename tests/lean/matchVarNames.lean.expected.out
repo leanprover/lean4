@@ -2,6 +2,7 @@ matchVarNames.lean:13:29-13:30: error: don't know how to synthesize placeholder
 context:
 α✝ : Type
 β : α✝ → Type u_1
+is : List α✝
 i i✝ : α✝
 is✝ : List α✝
 a : β i✝

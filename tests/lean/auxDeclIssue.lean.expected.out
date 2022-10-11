@@ -4,5 +4,4 @@ auxDeclIssue.lean:11:2-11:9: error: tactic 'subst' failed, did not find equation
 x y : Nat
 ⊢ x = y
 auxDeclIssue.lean:18:3-18:13: error: tactic 'assumption' failed
-ex3 : False
 ⊢ False

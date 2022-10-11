@@ -10,7 +10,7 @@ this : 1 ≤ a + b
 runTacticMustCatchExceptions.lean:4:25-4:28: error: tactic 'rfl' failed, equality expected
   Nat.le b 2
 a b : Nat
-: 1 ≤ a + b
+this✝ : 1 ≤ a + b
 this : a + b ≤ b
 ⊢ b ≤ 2
 runTacticMustCatchExceptions.lean:9:18-9:21: error: tactic 'rfl' failed, equality expected

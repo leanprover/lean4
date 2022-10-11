@@ -8,11 +8,11 @@ h2 : p → q
 361.lean:5:11-5:13: error: unsolved goals
 p q r : Prop
 h2 : p → q
-: p
+h✝ : p
 ⊢ q
 361.lean:3:60-5:13: error: unsolved goals
 case inr
 p q r : Prop
 h2 : p → q
-: q
+h✝ : q
 ⊢ q

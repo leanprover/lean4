@@ -48,6 +48,9 @@ abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 def getPhase : CompilerM Phase :=
   return (← read).phase
 
+def inBasePhase : CompilerM Bool :=
+  return (← getPhase) matches .base
+
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
     let env ← getEnv

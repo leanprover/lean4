@@ -40,13 +40,23 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
   let numArgs := e.getAppNumArgs
   let f := e.getAppFn
   if let .const declName us ← findExpr f then
+    unless (← read).config.inlineDefs do
+      return none
     let some decl ← getDecl? declName | return none
     let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
-    if !inlineIfReduce && decl.recursive then return none
-    let small ← isSmall decl.value
-    let env ← getEnv
-    unless mustInline || hasInlineAttribute env declName || inlineIfReduce || (small && !hasNoInlineAttribute env declName) do
-      return none
+    let shouldInline : SimpM Bool := do
+      if !inlineIfReduce && decl.recursive then return false
+      if mustInline then return true
+      -- We don't inline instances tagged with `[inline]/[alwaysInline]/[inlineIfReduce]` at the base phase
+      -- We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
+      if (← inBasePhase <&&> Meta.isInstance decl.name) then return false
+      let env ← getEnv
+      if hasInlineAttribute env declName || inlineIfReduce then return true
+      unless hasNoInlineAttribute env declName do
+        if (← isSmall decl.value) then return true
+      return false
+    unless (← shouldInline) do return none
+    /- check arity -/
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none

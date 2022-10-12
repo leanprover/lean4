@@ -3980,6 +3980,7 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
+@[inline]
 def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
   return SourceInfo.fromRef (← getRef)
 

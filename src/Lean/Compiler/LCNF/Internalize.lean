@@ -119,4 +119,12 @@ def cleanup (decl : Array Decl) : CompilerM (Array Decl) := do
     modify fun s => { s with nextIdx := 1 }
     decl.internalize
 
+def normalizeFVarIds (decl : Decl) : CoreM Decl := do
+  let ngenSaved ← getNGen
+  setNGen {}
+  try
+    CompilerM.run <| decl.internalize
+  finally
+    setNGen ngenSaved
+
 end Lean.Compiler.LCNF

@@ -9,6 +9,7 @@ import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Level
+import Lean.Compiler.LCNF.AuxDeclCache
 
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
@@ -64,10 +65,16 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   let nextIdx := (← get).decls.size
   let nameNew := mainDecl.name ++ (← read).suffix.appendIndexAfter nextIdx
   let auxDecl ← go nameNew mainDecl.safe |>.run' {}
-  auxDecl.save
-  modify fun { decls, .. } => { decls := decls.push auxDecl }
   let us := auxDecl.levelParams.map mkLevelParam
-  let value := mkAppN (.const auxDecl.name us) (closure.map (mkFVar ·.fvarId))
+  let auxDeclName ← match (← cacheAuxDecl auxDecl) with
+  | .new =>
+    auxDecl.save
+    modify fun { decls, .. } => { decls := decls.push auxDecl }
+    pure auxDecl.name
+  | .alreadyCached declName =>
+    auxDecl.erase
+    pure declName
+  let value := mkAppN (.const auxDeclName us) (closure.map (mkFVar ·.fvarId))
   /- We reuse `decl`s `fvarId` to avoid substitution -/
   let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
   modifyLCtx fun lctx => lctx.addLetDecl declNew

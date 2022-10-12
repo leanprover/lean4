@@ -33,14 +33,6 @@ def trace (phase := Phase.base) : Pass where
   run   := pure
   phase := phase
 
-def normalizeFVarIds (decl : Decl) : CoreM Decl := do
-  let ngenSaved ← getNGen
-  setNGen {}
-  try
-    CompilerM.run <| decl.internalize
-  finally
-    setNGen ngenSaved
-
 def saveBase : Pass :=
   .mkPerDeclaration `saveBase (fun decl => do (← normalizeFVarIds decl).saveBase; return decl) .base
 
@@ -116,6 +108,7 @@ builtin_initialize
 
 builtin_initialize
   registerTraceClass `Compiler.saveBase (inherited := true)
+  registerTraceClass `Compiler.saveMono (inherited := true)
   registerTraceClass `Compiler.trace (inherited := true)
 
 end Lean.Compiler.LCNF

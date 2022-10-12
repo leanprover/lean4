@@ -131,6 +131,9 @@ def eraseDecl (decl : Decl) : CompilerM Unit := do
   eraseParams decl.params
   eraseCode decl.value
 
+abbrev Decl.erase (decl : Decl) : CompilerM Unit :=
+  eraseDecl decl
+
 /--
 A free variable substitution.
 We use these substitutions when inlining definitions and "internalizing" LCNF code into `CompilerM`.

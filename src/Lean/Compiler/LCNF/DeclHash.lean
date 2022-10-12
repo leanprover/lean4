@@ -37,10 +37,6 @@ end
 instance : Hashable Code where
   hash c := hashCode c
 
-/--
-Persistent hash map from `Code` to `α`.
-Remark: consider using `normalizeFVarIds`.
--/
-abbrev PCodeHashMap (α : Type) := PHashMap Code α
+deriving instance Hashable for Decl
 
 end Lean.Compiler.LCNF

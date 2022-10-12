@@ -844,12 +844,16 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
 
-@[inline] instance : DecidableEq Bool :=
-  fun a b => match a, b with
+/-- Decidable equality for Bool -/
+@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
+   match a, b with
    | false, false => isTrue rfl
    | false, true  => isFalse (fun h => Bool.noConfusion h)
    | true, false  => isFalse (fun h => Bool.noConfusion h)
    | true, true   => isTrue rfl
+
+@[inline] instance : DecidableEq Bool :=
+   Bool.decEq
 
 /--
 `BEq α` is a typeclass for supplying a boolean-valued equality relation on

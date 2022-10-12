@@ -55,7 +55,7 @@ echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm-host -idirafter $GLIBC_DEV
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
 else
-  echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/14.0.0 ${EXTRA_FLAGS:-}'"
+  echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs

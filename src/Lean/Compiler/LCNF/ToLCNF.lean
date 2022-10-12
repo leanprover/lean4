@@ -714,7 +714,9 @@ where
       return .fvar funDecl.fvarId
 
   visitMData (mdata : MData) (e : Expr) : M Expr := do
-    if isCompilerRelevantMData mdata then
+    if let some (.app (.lam n t b ..) v) := letFunAnnotation? e then
+      visitLet (.letE n t v b (nonDep := true)) #[]
+    else if isCompilerRelevantMData mdata then
       mkAuxLetDecl <| .mdata mdata (← visit e)
     else
       visit e

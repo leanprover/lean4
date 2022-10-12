@@ -40,7 +40,7 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 # but clang-15 that we use to compile is linked in such a way that it assumes the path is at 'llvm/lib/',
 # 'llvm/include'. So we manually perform the copying
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
-$CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
+$CP llvm-host/lib/*/lib{c++,c++abi,unwind,libclang_rt}.* llvm-host/lib/
 # $CP llvm-host/include/*/c++/v1/__config_site llvm-host/include/
 $CP -r llvm-host/include/*/c++ llvm-host/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
@@ -49,7 +49,8 @@ for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
+# echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm-host -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"
 # use target compiler directly when not cross-compiling
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"

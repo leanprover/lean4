@@ -62,6 +62,8 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
           -/
           return false
       let env ← getEnv
+      if hasAlwaysInlineAttribute env declName then return true
+      -- TODO: check inlining quota
       if hasInlineAttribute env declName || inlineIfReduce then return true
       unless hasNoInlineAttribute env declName do
         if (← isSmall decl.value) then return true

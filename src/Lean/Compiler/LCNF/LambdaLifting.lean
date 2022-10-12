@@ -35,6 +35,10 @@ structure State where
   New auxiliary declarations
   -/
   decls  : Array Decl := #[]
+  /--
+  Next index for generating auxiliary declaration name.
+  -/
+  nextIdx := 0
 
 /-- Monad for applying lambda lifting. -/
 abbrev LiftM := ReaderT Context (StateRefT State (ScopeT CompilerM))
@@ -55,16 +59,20 @@ def shouldLift (decl : FunDecl) : LiftM Bool := do
   else
     return true
 
+partial def mkAuxDeclName : LiftM Name := do
+  let nextIdx ← modifyGet fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1})
+  let nameNew := (← read).mainDecl.name ++ (← read).suffix.appendIndexAfter nextIdx
+  if (← getDecl? nameNew).isNone then return nameNew
+  mkAuxDeclName
+
 open Internalize in
 /--
 Create a new auxiliary declaration. The array `closure` contains all free variables
 occurring in `decl`.
 -/
 def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
-  let mainDecl := (← read).mainDecl
-  let nextIdx := (← get).decls.size
-  let nameNew := mainDecl.name ++ (← read).suffix.appendIndexAfter nextIdx
-  let auxDecl ← go nameNew mainDecl.safe |>.run' {}
+  let nameNew ← mkAuxDeclName
+  let auxDecl ← go nameNew (← read).mainDecl.safe |>.run' {}
   let us := auxDecl.levelParams.map mkLevelParam
   let auxDeclName ← match (← cacheAuxDecl auxDecl) with
   | .new =>

@@ -9,23 +9,47 @@ import Lean.Compiler.LCNF.Internalize
 
 namespace Lean.Compiler.LCNF
 
-abbrev AuxDeclCache := PHashMap Decl Name
+namespace AuxDecl
+abbrev Cache := SMap Decl Name
 
-builtin_initialize auxDeclCacheExt : EnvExtension AuxDeclCache ← registerEnvExtension (pure {})
+structure CacheEntry where
+  key : Decl
+  declName : Name
+  deriving Inhabited
+
+def addEntry (cache : Cache) (e : CacheEntry) : Cache :=
+  cache.insert e.key e.declName
+
+builtin_initialize auxDeclCacheExt : SimplePersistentEnvExtension CacheEntry Cache ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn    := addEntry
+    addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+  }
 
 inductive CacheAuxDeclResult where
   | new
   | alreadyCached (declName : Name)
 
-def cacheAuxDecl (decl : Decl) : CompilerM CacheAuxDeclResult := do
-  let key := { decl with name := .anonymous }
-  let key ← normalizeFVarIds key
-  match auxDeclCacheExt.getState (← getEnv) |>.find? key with
-  | some declName =>
-    return .alreadyCached declName
-  | none =>
-    modifyEnv fun env => auxDeclCacheExt.modifyState env fun s => s.insert key decl.name
+def cache (decl : Decl) : CompilerM CacheAuxDeclResult := do
+  if (← getPhase) matches .base then
+    -- We do not cache eager lambda lifting results
     return .new
+  else
+    let key := { decl with name := .anonymous }
+    let key ← normalizeFVarIds key
+    match auxDeclCacheExt.getState (← getEnv) |>.find? key with
+    | some declName =>
+      return .alreadyCached declName
+    | none =>
+      modifyEnv fun env => auxDeclCacheExt.addEntry env { key, declName := decl.name }
+      return .new
+
+end AuxDecl
+
+open AuxDecl
+
+def cacheAuxDecl (decl : Decl) : CompilerM CacheAuxDeclResult := do
+  cache decl
 
 end Lean.Compiler.LCNF
 

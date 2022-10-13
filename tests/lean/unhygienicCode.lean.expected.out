@@ -64,7 +64,7 @@ def foo (x_1 : obj) : obj :=
   let x_8 : obj := foo._closed_1;
   let x_9 : obj := foo._closed_5;
   let x_10 : obj := ctor_1[Lean.Syntax.node] x_8 x_9 x_7;
-  ret x_10[Compiler.result] size: 21
+  ret x_10[Compiler.result] size: 19
     def foo n : Syntax :=
       let fst.1 := Syntax.missing
       let fst.2 := 1
@@ -82,9 +82,7 @@ def foo (x_1 : obj) : obj :=
       let _x.14 := Syntax.ident fst.4 _x.10 _x.12 _x.13
       let _x.15 := "+"
       let _x.16 := Syntax.atom fst.4 _x.15
-      let _x.17 := Nat.repr n
-      let _x.18 := SourceInfo.none
-      let _x.19 := Syntax.mkNumLit _x.17 _x.18
-      let _x.20 := Array.mkArray3 _ _x.14 _x.16 _x.19
-      let _x.21 := Syntax.node fst.4 _x.8 _x.20
-      _x.21
+      let _x.17 := Lean.instQuoteNatNumLitKind._elambda_0 n
+      let _x.18 := Array.mkArray3 _ _x.14 _x.16 _x.17
+      let _x.19 := Syntax.node fst.4 _x.8 _x.18
+      _x.19

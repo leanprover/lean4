@@ -117,9 +117,7 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
         fType := fType.instantiateRevRange j i args |>.headBeta
         match fType with
         | .forallE _ d b _ => j := i; pure (d, b)
-        | _ =>
-          if fType.isErased then return ()
-          throwError "function expected at{indentExpr (mkAppN f args)}\narrow type expected{indentExpr fType}"
+        | _ => return ()
     let expectedType := d.instantiateRevRange j i args
     unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
       if arg.isFVar then

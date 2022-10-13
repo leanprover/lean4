@@ -69,7 +69,7 @@ def withDiscrCtorImp (discr : FVarId) (ctorName : Name) (ctorFields : Array Para
 
 def simpCtorDiscrCore? (e : Expr) : DiscrM (Option Expr) := do
   let some discr := (← read).ctorDiscrMap.find? e | return none
-  unless (← compatibleTypes (← getType discr) (← inferType e)) do return none
+  unless eqvTypes (← getType discr) (← inferType e) do return none
   return some <| .fvar discr
 
 end Simp

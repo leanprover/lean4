@@ -204,49 +204,9 @@ See comment at `updateFunDeclInfo`.
 -/
 def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
   let mut subst := {}
-  let mut castDecls := #[]
   for param in params, arg in args do
-    /-
-    If `param` hast type `◾` but `arg` does not, we must insert a cast.
-    Otherwise, the resulting code may be type incorrect.
-    For example, the following code is type correct before inlining `f`
-    because `x : ◾`.
-    ```
-    def foo (g : A → A) (a : B) :=
-      fun f (x : ◾) :=
-        let _x.1 := g x
-        ...
-      let _x.2 := f a
-      ...
-    ```
-    We must introduce a cast around `a` to make sure the resulting expression is type correct.
-
-    Note: this issue is not restricted to situations where `param.type` is `◾`. It may also happen if
-    the `◾` is nested at `param.type`. For example, consider the following variant of the example above.
-    It is also type correct before inlining `f`, but we must introduce a cast to ensure it is still type
-    correct after.
-    ```
-    def foo (g : List A → List A) (a : List B) :=
-      fun f (x : List ◾) :=
-        let _x.1 := g x
-        ...
-      let _x.2 := f a
-      ...
-    ```
-    -/
-    let argType ← inferType arg
-    if !argType.isErased && !eqvTypes argType (normExprCore subst param.type (translator := true)) then
-      if !arg.isFVar || isTypeFormerType argType then
-        subst := subst.insert param.fvarId erasedExpr
-      else
-        let castArg ← mkLcCast arg erasedExpr
-        let castDecl ← mkAuxLetDecl castArg
-        castDecls := castDecls.push (CodeDecl.let castDecl)
-        subst := subst.insert param.fvarId (.fvar castDecl.fvarId)
-    else
-      subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg
   let code ← code.internalize subst
-  let code := LCNF.attachCodeDecls castDecls code
   updateFunDeclInfo code mustInline
   return code
 

@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_searchModuleNameOfFileName___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_searchModuleNameOfFileName___closed__1;
 static lean_object* l_Lean_modToFilePath_go___closed__2;
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_moduleNameOfFileName___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_modToFilePath_go___closed__4;
@@ -83,7 +84,6 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findM_x3f___at_Lean_SearchPath_findWithExt___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_normalize(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_590_(lean_object*);
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 uint8_t l_String_endsWith(lean_object*, lean_object*);
 static lean_object* l_Lean_findOLean___closed__2;
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findWithExt(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,6 +111,7 @@ LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_SearchPath_findAllWithExt__
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getLibDir___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_modToFilePath_go___spec__1(lean_object*);
 static lean_object* l_Lean_findOLean_maybeThisOne___closed__1;
@@ -135,7 +136,6 @@ lean_object* l_String_drop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findM_x3f___at_Lean_SearchPath_findWithExt___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_getRoot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findModuleWithExt(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_searchModuleNameOfFileName___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getBuildDir___closed__2;
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
@@ -686,7 +686,7 @@ lean_dec(x_2);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -737,7 +737,7 @@ x_8 = l_System_FilePath_extension(x_7);
 lean_inc(x_1);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_1);
-x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1(x_8, x_9);
+x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1(x_8, x_9);
 lean_dec(x_9);
 lean_dec(x_8);
 x_11 = 1;
@@ -977,11 +977,11 @@ return x_13;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1223____at_Lean_SearchPath_findAllWithExt___spec__1(x_1, x_2);
+x_3 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1227____at_Lean_SearchPath_findAllWithExt___spec__1(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);

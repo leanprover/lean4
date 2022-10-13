@@ -12,10 +12,12 @@ import Init.Control.Except
 
 namespace ReaderT
 
-@[inline] protected def orElse [Alternative m] (x₁ : ReaderT ρ m α) (x₂ : Unit → ReaderT ρ m α) : ReaderT ρ m α :=
+@[alwaysInline, inline]
+protected def orElse [Alternative m] (x₁ : ReaderT ρ m α) (x₂ : Unit → ReaderT ρ m α) : ReaderT ρ m α :=
   fun s => x₁ s <|> x₂ () s
 
-@[inline] protected def failure [Alternative m] : ReaderT ρ m α :=
+@[alwaysInline, inline]
+protected def failure [Alternative m] : ReaderT ρ m α :=
   fun _ => failure
 
 instance [Alternative m] [Monad m] : Alternative (ReaderT ρ m) where

@@ -224,9 +224,19 @@ structure Context where
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 
--- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
--- whole monad stack at every use site. May eventually be covered by `deriving`.
-instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
+/-
+Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+whole monad stack at every use site. May eventually be covered by `deriving`.
+
+TODO: this trick does not work in the old/new code generators anymore.
+TODO: figure out a way to instruct the compiler to optimize this code once,
+and then lambda lift all methods once. Perhaps, we should do it whenever the
+instance is marked as alwaysInline.
+-/
+@[alwaysInline]
+instance : Monad TermElabM :=
+  let i := inferInstanceAs (Monad TermElabM)
+  { pure := i.pure, bind := i.bind }
 
 open Meta
 

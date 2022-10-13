@@ -2746,6 +2746,7 @@ export MonadLiftT (monadLift)
 /-- Lifts a value from monad `m` into monad `n`. -/
 abbrev liftM := @monadLift
 
+@[alwaysInline]
 instance (m n o) [MonadLift n o] [MonadLiftT m n] : MonadLiftT m o where
   monadLift x := MonadLift.monadLift (m := n) (monadLift x)
 
@@ -2774,6 +2775,7 @@ class MonadFunctorT (m : Type u → Type v) (n : Type u → Type w) where
 
 export MonadFunctorT (monadMap)
 
+@[alwaysInline]
 instance (m n o) [MonadFunctor n o] [MonadFunctorT m n] : MonadFunctorT m o where
   monadMap f := MonadFunctor.monadMap (m := n) (monadMap (m := m) f)
 
@@ -2884,7 +2886,8 @@ instance (ρ : Type u) (m : Type u → Type v) (α : Type u) [Inhabited (m α)] 
 If `x : ReaderT ρ m α` and `r : ρ`, then `x.run r : ρ` runs the monad with the
 given reader state.
 -/
-@[inline] def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
+@[alwaysInline, inline]
+def ReaderT.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : ReaderT ρ m α) (r : ρ) : m α :=
   x r
 
 namespace ReaderT
@@ -2895,6 +2898,7 @@ variable {ρ : Type u} {m : Type u → Type v} {α : Type u}
 instance  : MonadLift m (ReaderT ρ m) where
   monadLift x := fun _ => x
 
+@[alwaysInline]
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (ReaderT ρ m) where
   throw e  := liftM (m := m) (throw e)
   tryCatch := fun x c r => tryCatchThe ε (x r) (fun e => (c e) r)
@@ -2905,21 +2909,26 @@ section
 variable {ρ : Type u} {m : Type u → Type v}
 
 /-- `(← read) : ρ` gets the read-only state of a `ReaderT ρ`. -/
-@[inline] protected def read [Monad m] : ReaderT ρ m ρ :=
+@[alwaysInline, inline]
+protected def read [Monad m] : ReaderT ρ m ρ :=
   pure
 
 /-- The `pure` operation of the `ReaderT` monad. -/
-@[inline] protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
+@[alwaysInline, inline]
+protected def pure [Monad m] {α} (a : α) : ReaderT ρ m α :=
   fun _ => pure a
 
 /-- The `bind` operation of the `ReaderT` monad. -/
-@[inline] protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
+@[alwaysInline, inline]
+protected def bind [Monad m] {α β} (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
   fun r => bind (x r) fun a => f a r
 
+@[alwaysInline]
 instance [Monad m] : Functor (ReaderT ρ m) where
   map      f x r := Functor.map f (x r)
   mapConst a x r := Functor.mapConst a (x r)
 
+@[alwaysInline]
 instance [Monad m] : Applicative (ReaderT ρ m) where
   pure           := ReaderT.pure
   seq      f x r := Seq.seq (f r) fun _ => x () r
@@ -2936,7 +2945,8 @@ instance (ρ m) : MonadFunctor m (ReaderT ρ m) where
 `adapt (f : ρ' → ρ)` precomposes function `f` on the reader state of a
 `ReaderT ρ`, yielding a `ReaderT ρ'`.
 -/
-@[inline] protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
+@[alwaysInline, inline]
+protected def adapt {ρ' α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
   fun x r => x (f r)
 
 end
@@ -2963,7 +2973,8 @@ class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where
 Like `read`, but with `ρ` explicit. This is useful if a monad supports
 `MonadReaderOf` for multiple different types `ρ`.
 -/
-@[inline] def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
+@[alwaysInline, inline]
+def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
 
 /-- Similar to `MonadReaderOf`, but `ρ` is an `outParam` for convenience. -/
@@ -2998,7 +3009,8 @@ class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) where
 Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
 `MonadWithReaderOf` for multiple different types `ρ`.
 -/
-@[inline] def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
+@[alwaysInline, inline]
+def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
 /-- Similar to `MonadWithReaderOf`, but `ρ` is an `outParam` for convenience. -/
@@ -3050,14 +3062,16 @@ abbrev getThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] : m σ :
 Like `modify`, but with `σ` explicit. This is useful if a monad supports
 `MonadStateOf` for multiple different types `σ`.
 -/
-@[inline] abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
+@[alwaysInline, inline]
+abbrev modifyThe (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → σ) : m PUnit :=
   MonadStateOf.modifyGet fun s => (PUnit.unit, f s)
 
 /--
 Like `modifyGet`, but with `σ` explicit. This is useful if a monad supports
 `MonadStateOf` for multiple different types `σ`.
 -/
-@[inline] abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
+@[alwaysInline, inline]
+abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
   MonadStateOf.modifyGet f
 
 /-- Similar to `MonadStateOf`, but `σ` is an `outParam` for convenience. -/
@@ -3087,18 +3101,21 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 It is equivalent to `do put (f (← get))`, but `modify f` may be preferable
 because the former does not use the state linearly (without sufficient inlining).
 -/
-@[inline] def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
+@[alwaysInline, inline]
+def modify {σ : Type u} {m : Type u → Type v} [MonadState σ m] (f : σ → σ) : m PUnit :=
   modifyGet fun s => (PUnit.unit, f s)
 
 /--
 `getModify f` gets the state, applies function `f`, and returns the old value
 of the state. It is equivalent to `get <* modify f` but may be more efficient.
 -/
-@[inline] def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
+@[alwaysInline, inline]
+def getModify {σ : Type u} {m : Type u → Type v} [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
   modifyGet fun s => (s, f s)
 
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
+@[alwaysInline]
 instance {σ : Type u} {m : Type u → Type v} {n : Type u → Type w} [MonadLift m n] [MonadStateOf σ m] : MonadStateOf σ n where
   get         := liftM (m := m) MonadStateOf.get
   set       s := liftM (m := m) (MonadStateOf.set s)
@@ -3138,24 +3155,29 @@ instance [Inhabited ε] : Inhabited (EStateM ε σ α) where
   default := fun s => Result.error default s
 
 /-- The `pure` operation of the `EStateM` monad. -/
-@[inline] protected def pure (a : α) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def pure (a : α) : EStateM ε σ α := fun s =>
   Result.ok a s
 
 /-- The `set` operation of the `EStateM` monad. -/
-@[inline] protected def set (s : σ) : EStateM ε σ PUnit := fun _ =>
+@[alwaysInline, inline]
+protected def set (s : σ) : EStateM ε σ PUnit := fun _ =>
   Result.ok ⟨⟩ s
 
 /-- The `get` operation of the `EStateM` monad. -/
-@[inline] protected def get : EStateM ε σ σ := fun s =>
+@[alwaysInline, inline]
+protected def get : EStateM ε σ σ := fun s =>
   Result.ok s s
 
 /-- The `modifyGet` operation of the `EStateM` monad. -/
-@[inline] protected def modifyGet (f : σ → Prod α σ) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def modifyGet (f : σ → Prod α σ) : EStateM ε σ α := fun s =>
   match f s with
   | (a, s) => Result.ok a s
 
 /-- The `throw` operation of the `EStateM` monad. -/
-@[inline] protected def throw (e : ε) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def throw (e : ε) : EStateM ε σ α := fun s =>
   Result.error e s
 
 /--
@@ -3171,43 +3193,50 @@ class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
   restore : σ → δ → σ
 
 /-- Implementation of `tryCatch` for `EStateM` where the state is `Backtrackable`. -/
-@[inline] protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def tryCatch {δ} [Backtrackable δ σ] {α} (x : EStateM ε σ α) (handle : ε → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s
   match x s with
   | Result.error e s => handle e (Backtrackable.restore s d)
   | ok               => ok
 
 /-- Implementation of `orElse` for `EStateM` where the state is `Backtrackable`. -/
-@[inline] protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ : Unit → EStateM ε σ α) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def orElse {δ} [Backtrackable δ σ] (x₁ : EStateM ε σ α) (x₂ : Unit → EStateM ε σ α) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
   | Result.error _ s => x₂ () (Backtrackable.restore s d)
   | ok               => ok
 
 /-- Map the exception type of a `EStateM ε σ α` by a function `f : ε → ε'`. -/
-@[inline] def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α := fun s =>
+@[alwaysInline, inline]
+def adaptExcept {ε' : Type u} (f : ε → ε') (x : EStateM ε σ α) : EStateM ε' σ α := fun s =>
   match x s with
   | Result.error e s => Result.error (f e) s
   | Result.ok a s    => Result.ok a s
 
 /-- The `bind` operation of the `EStateM` monad. -/
-@[inline] protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β := fun s =>
+@[alwaysInline, inline]
+protected def bind (x : EStateM ε σ α) (f : α → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => f a s
   | Result.error e s => Result.error e s
 
 /-- The `map` operation of the `EStateM` monad. -/
-@[inline] protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := fun s =>
+@[alwaysInline, inline]
+protected def map (f : α → β) (x : EStateM ε σ α) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok a s    => Result.ok (f a) s
   | Result.error e s => Result.error e s
 
 /-- The `seqRight` operation of the `EStateM` monad. -/
-@[inline] protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
+@[alwaysInline, inline]
+protected def seqRight (x : EStateM ε σ α) (y : Unit → EStateM ε σ β) : EStateM ε σ β := fun s =>
   match x s with
   | Result.ok _ s    => y () s
   | Result.error e s => Result.error e s
 
+@[alwaysInline]
 instance : Monad (EStateM ε σ) where
   bind     := EStateM.bind
   pure     := EStateM.pure
@@ -3227,13 +3256,15 @@ instance {δ} [Backtrackable δ σ] : MonadExceptOf ε (EStateM ε σ) where
   tryCatch := EStateM.tryCatch
 
 /-- Execute an `EStateM` on initial state `s` to get a `Result`. -/
-@[inline] def run (x : EStateM ε σ α) (s : σ) : Result ε σ α := x s
+@[alwaysInline, inline]
+def run (x : EStateM ε σ α) (s : σ) : Result ε σ α := x s
 
 /--
 Execute an `EStateM` on initial state `s` for the returned value `α`.
 If the monadic action throws an exception, returns `none` instead.
 -/
-@[inline] def run' (x : EStateM ε σ α) (s : σ) : Option α :=
+@[alwaysInline, inline]
+def run' (x : EStateM ε σ α) (s : σ) : Option α :=
   match run x s with
   | Result.ok v _   => some v
   | Result.error .. => none
@@ -3943,7 +3974,8 @@ Run `x : m α` with a modified value for the `ref`. This is not exactly
 the same as `MonadRef.withRef`, because it uses `replaceRef` to avoid putting
 syntax with bad spans in the state.
 -/
-@[inline] def withRef {m : Type → Type} [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
+@[alwaysInline, inline]
+def withRef [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
   bind getRef fun oldRef =>
   let ref := replaceRef ref oldRef
   MonadRef.withRef ref x
@@ -3980,10 +4012,11 @@ class MonadQuotation (m : Type → Type) extends MonadRef m where
 export MonadQuotation (getCurrMacroScope getMainModule withFreshMacroScope)
 
 /-- Construct a synthetic `SourceInfo` from the `ref` in the monad state. -/
+@[inline]
 def MonadRef.mkInfoFromRefPos [Monad m] [MonadRef m] : m SourceInfo :=
   return SourceInfo.fromRef (← getRef)
 
-instance {m n : Type → Type} [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
+instance [MonadFunctor m n] [MonadLift m n] [MonadQuotation m] : MonadQuotation n where
   getCurrMacroScope   := liftM (m := m) getCurrMacroScope
   getMainModule       := liftM (m := m) getMainModule
   withFreshMacroScope := monadMap (m := m) withFreshMacroScope

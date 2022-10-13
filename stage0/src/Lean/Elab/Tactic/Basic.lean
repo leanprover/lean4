@@ -40,9 +40,16 @@ structure SavedState where
 abbrev TacticM := ReaderT Context $ StateRefT State TermElabM
 abbrev Tactic  := Syntax → TacticM Unit
 
--- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
--- whole monad stack at every use site. May eventually be covered by `deriving`.
-instance : Monad TacticM := let i := inferInstanceAs (Monad TacticM); { pure := i.pure, bind := i.bind }
+/-
+Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+whole monad stack at every use site. May eventually be covered by `deriving`.
+
+See comment at `Monad TermElabM`
+-/
+@[alwaysInline]
+instance : Monad TacticM :=
+  let i := inferInstanceAs (Monad TacticM);
+  { pure := i.pure, bind := i.bind }
 
 def getGoals : TacticM (List MVarId) :=
   return (← get).goals

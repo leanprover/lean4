@@ -240,7 +240,7 @@ where
     let type ← mkForallParams params type
     let safe := decl.safe
     let recursive := decl.recursive
-    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe, recursive : Decl }
+    let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe, recursive, inlineAttr? := none : Decl }
     return decl.setLevelParams
 
 /--

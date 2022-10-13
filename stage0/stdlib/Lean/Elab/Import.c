@@ -79,7 +79,7 @@ LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Elab_headerToImports___spec__
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Import_0__Lean_Elab_toJsonPrintImportsResult____x40_Lean_Elab_Import___hyg_847____spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Import_0__Lean_Elab_toJsonPrintImportsResult____x40_Lean_Elab_Import___hyg_847____spec__1(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonResolveSupport____x40_Lean_Data_Lsp_CodeActions___hyg_1871____spec__1(size_t, size_t, lean_object*);
+lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonResolveSupport____x40_Lean_Data_Lsp_CodeActions___hyg_1872____spec__1(size_t, size_t, lean_object*);
 uint8_t l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_printImportsJson___spec__2(size_t, size_t, lean_object*, lean_object*);
 lean_object* l_IO_FS_readFile(lean_object*, lean_object*);
@@ -1298,7 +1298,7 @@ x_6 = lean_array_get_size(x_5);
 x_7 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
 x_8 = 0;
-x_9 = l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonResolveSupport____x40_Lean_Data_Lsp_CodeActions___hyg_1871____spec__1(x_7, x_8, x_5);
+x_9 = l_Array_mapMUnsafe_map___at___private_Lean_Data_Lsp_CodeActions_0__Lean_Lsp_toJsonResolveSupport____x40_Lean_Data_Lsp_CodeActions___hyg_1872____spec__1(x_7, x_8, x_5);
 x_10 = lean_alloc_ctor(4, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = l___private_Lean_Elab_Import_0__Lean_Elab_toJsonPrintImportResult____x40_Lean_Elab_Import___hyg_771____closed__2;

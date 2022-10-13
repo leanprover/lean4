@@ -10,7 +10,7 @@ namespace Lean.Compiler
 
 inductive InlineAttributeKind where
   | inline | noinline | macroInline | inlineIfReduce | alwaysInline
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Hashable
 
 /--
   This is an approximate test for testing whether `declName` can be annotated with the `[macroInline]` attribute or not.
@@ -46,6 +46,9 @@ builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
 
 def setInlineAttribute (env : Environment) (declName : Name) (kind : InlineAttributeKind) : Except String Environment :=
   inlineAttrs.setValue env declName kind
+
+def getInlineAttribute? (env : Environment) (declName : Name) : Option InlineAttributeKind :=
+  inlineAttrs.getValue env declName
 
 private def hasInlineAttrCore (env : Environment) (kind : InlineAttributeKind) (declName : Name) : Bool :=
   match inlineAttrs.getValue env declName with

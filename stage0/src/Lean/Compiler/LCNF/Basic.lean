@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.Compiler.InlineAttrs
 
 namespace Lean.Compiler.LCNF
 
@@ -393,6 +394,11 @@ structure Decl where
   exhaust resources or output a looping computation.
   -/
   safe : Bool := true
+  /--
+  We store the inline attribute at LCNF declarations to make sure we can set them for
+  auxliary declarations created during compilation.
+  -/
+  inlineAttr? : Option InlineAttributeKind
   deriving Inhabited, BEq
 
 def Decl.size (decl : Decl) : Nat :=
@@ -400,6 +406,25 @@ def Decl.size (decl : Decl) : Nat :=
 
 def Decl.getArity (decl : Decl) : Nat :=
   decl.params.size
+
+def Decl.inlineAttr (decl : Decl) : Bool :=
+  decl.inlineAttr? matches some .inline
+
+def Decl.noinlineAttr (decl : Decl) : Bool :=
+  decl.inlineAttr? matches some .noinline
+
+def Decl.inlineIfReduceAttr (decl : Decl) : Bool :=
+  decl.inlineAttr? matches some .inlineIfReduce
+
+def Decl.alwaysInlineAttr (decl : Decl) : Bool :=
+  decl.inlineAttr? matches some .alwaysInline
+
+/-- Return `true` if the given declaration has been annotated with `[inline]`, `[inlineIfReduce]`, `[macroInline]`, or `[alwaysInline]` -/
+def Decl.inlineable (decl : Decl) : Bool :=
+  match decl.inlineAttr? with
+  | some .noinline => false
+  | some _ => true
+  | none => false
 
 /--
 Return `some i` if `decl` is of the form

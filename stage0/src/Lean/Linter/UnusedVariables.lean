@@ -187,6 +187,7 @@ def unusedVariables : Linter := fun cmdStx => do
     |>.insertAt! 0 (isTopLevelDecl constDecls)
 
   -- determine unused variables
+  let mut unused := #[]
   for (id, ⟨decl?, uses⟩) in vars.toList do
     -- process declaration
     let some decl := decl?
@@ -230,6 +231,9 @@ def unusedVariables : Linter := fun cmdStx => do
       continue
 
     -- publish warning if variable is unused and not ignored
+    unused := unused.push (declStx, localDecl)
+
+  for (declStx, localDecl) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
     logLint linter.unusedVariables declStx m!"unused variable `{localDecl.userName}`"
 
   return ()

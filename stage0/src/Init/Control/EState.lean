@@ -31,7 +31,8 @@ variable {ε σ α β : Type u}
 
 /-- Alternative orElse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orElse` uses the second. -/
-@[inline] protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline]
+protected def orElse' {δ} [Backtrackable δ σ] (x₁ x₂ : EStateM ε σ α) (useFirstEx := true) : EStateM ε σ α := fun s =>
   let d := Backtrackable.save s;
   match x₁ s with
   | Result.error e₁ s₁ =>
@@ -40,6 +41,7 @@ variable {ε σ α β : Type u}
     | ok                 => ok
   | ok                 => ok
 
+@[alwaysInline]
 instance : MonadFinally (EStateM ε σ) := {
   tryFinally' := fun x h s =>
     let r := x s
@@ -52,7 +54,7 @@ instance : MonadFinally (EStateM ε σ) := {
       | Result.error e₂ s => Result.error e₂ s
 }
 
-@[inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
+@[alwaysInline, inline] def fromStateM {ε σ α : Type} (x : StateM σ α) : EStateM ε σ α := fun s =>
   match x.run s with
   | (a, s') => EStateM.Result.ok a s'
 

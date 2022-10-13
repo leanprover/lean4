@@ -43,22 +43,19 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
 
-instance : Functor Option where
-  map := Option.map
-
-@[inline] protected def filter (p : α → Bool) : Option α → Option α
+@[alwaysInline, inline] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
-@[inline] protected def all (p : α → Bool) : Option α → Bool
+@[alwaysInline, inline] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
-@[inline] protected def any (p : α → Bool) : Option α → Bool
+@[alwaysInline, inline] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
-@[macroInline] protected def orElse : Option α → (Unit → Option α) → Option α
+@[alwaysInline, macroInline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
   | none,   b => b ()
 
@@ -92,13 +89,16 @@ deriving instance BEq for Option
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)
 
+@[alwaysInline]
 instance : Functor Option where
   map := Option.map
 
+@[alwaysInline]
 instance : Monad Option where
   pure := Option.some
   bind := Option.bind
 
+@[alwaysInline]
 instance : Alternative Option where
   failure := Option.none
   orElse  := Option.orElse
@@ -107,7 +107,7 @@ def liftOption [Alternative m] : Option α → m α
   | some a => pure a
   | none   => failure
 
-@[inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
+@[alwaysInline, inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
   match x with
   | some _ => x
   | none => handle ()

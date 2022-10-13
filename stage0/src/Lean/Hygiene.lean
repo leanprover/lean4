@@ -39,6 +39,7 @@ instance : MonadQuotation Unhygienic where
     let fresh ← modifyGet fun n => (n, n + 1)
     withReader ({ · with scope := fresh}) x
 
+@[inline]
 protected def run {α : Type} (x : Unhygienic α) : α := (x ⟨Syntax.missing, firstFrontendMacroScope⟩).run' (firstFrontendMacroScope+1)
 end Unhygienic
 

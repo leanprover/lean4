@@ -25,7 +25,8 @@ inductive SpecParamInfo where
   -/
   | fixedHO
   /--
-  Computationally irrelevant parameters that are fixed in recursive declarations.
+  Computationally irrelevant parameters that are fixed in recursive declarations,
+  *and* there is a `fixedInst`, `fixedHO`, or `user` param that depends on it.
   -/
   | fixedNeutral
   /--
@@ -91,6 +92,42 @@ private def isNoSpecType (env : Environment) (type : Expr) : Bool :=
     else
       false
 
+/-!
+*Note*: `fixedNeutral` must have forward dependencies.
+
+The code specializer consider a `fixedNeutral` parameter during code specialization
+only if it contains forward dependecies that are tagged as `.user`, `.fixedHO`, or `.fixedInst`.
+The motivation is to minimize the number of code specializations that have little or no impact on
+performance. For example, let's consider the function.
+```
+def liftMacroM
+    {α : Type} {m : Type → Type}
+    [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]
+    [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
+```
+The parameter `α` does not occur in any local instance, and `x` is marked as `.other` since the function
+is not tagged as `[specialize]`. There is little value in considering `α` during code specialization,
+but if we do many copies of this function will be generated.
+Recall users may still force the code specializer to take `α` into account by using `[specialize α]` (`α` has `.user` info),
+or `[specialize x]` (`α` has `.fixedNeutral` since `x` is a forward dependency tagged as `.user`),
+or `[specialize]` (`α` has `.fixedNeutral` since `x` is a forward dependency tagged as `.fixedHO`).
+-/
+
+/--
+Return `true` if parameter `j` of the given declaration has a forward dependency at parameter `k`,
+and `k` is tagged as `.user`, `.fixedHO`, or `.fixedInst`.
+
+See comment at `.fixedNeutral`.
+-/
+private def hasFwdDeps (decl : Decl) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
+  let param := decl.params[j]!
+  for k in [j+1 : decl.params.size] do
+    if paramsInfo[k]! matches .user | .fixedHO | .fixedInst then
+      let param' := decl.params[k]!
+      if param'.type.containsFVar param.fvarId then
+        return true
+  return false
+
 /--
 Save parameter information for `decls`.
 
@@ -138,10 +175,14 @@ def saveSpecParamInfo (decls : Array Decl) : CompilerM Unit := do
     let m := mkFixedParamsMap decls
     for i in [:decls.size] do
       let decl := decls[i]!
-      let paramsInfo := declsInfo[i]!
+      let mut paramsInfo := declsInfo[i]!
       let some mask := m.find? decl.name | unreachable!
       trace[Compiler.specialize.info] "{decl.name} {mask}"
-      let paramsInfo := paramsInfo.zipWith mask fun info mask => if mask || info matches .user then info else .other
+      paramsInfo := paramsInfo.zipWith mask fun info fixed => if fixed || info matches .user then info else .other
+      for j in [:paramsInfo.size] do
+        let mut info  := paramsInfo[j]!
+        if info matches .fixedNeutral && !hasFwdDeps decl paramsInfo j then
+          paramsInfo := paramsInfo.set! j .other
       if paramsInfo.any fun info => info matches .fixedInst | .fixedHO | .user then
         trace[Compiler.specialize.info] "{decl.name} {paramsInfo}"
         modifyEnv fun env => specExtension.addEntry env { declName := decl.name, paramsInfo }

@@ -39,7 +39,7 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 # LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include<target-triple>'
 # but clang-15 that we use to compile is linked in such a way that it assumes the path is at 'llvm/lib/',
 # 'llvm/include'. So we manually perform the copying
-$CP llvm/lib/*/lib{c++,c++abi,unwind,clang_rt}.* llvm/lib/
+$CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP -r llvm/include/*/c++ llvm/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc

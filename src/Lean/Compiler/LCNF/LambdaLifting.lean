@@ -67,7 +67,7 @@ Return `true` if the given declaration should be lambda lifted.
 -/
 def shouldLift (decl : FunDecl) : LiftM Bool := do
   let minSize := (← read).minSize
-  if decl.value.size <= minSize then
+  if decl.value.size < minSize then
     return false
   else if (← read).liftInstParamOnly then
     hasInstParam decl
@@ -183,7 +183,7 @@ def eagerLambdaLifting : Pass where
       Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
       It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
       -/
-      let minSize := if isInstance then 2 else 0
+      let minSize := if isInstance then 3 else 0
       -- TODO: when performing eager lambda lifting in instances, we must check whether they are tagged with `[inline]` and propagate annotation to new functions
       return decls ++ (← decl.lambdaLifting liftInstParamOnly (suffix := `_elambda) inheritInlineAttrs minSize)
 

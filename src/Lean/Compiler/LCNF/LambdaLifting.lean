@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Instances
+import Lean.Compiler.InlineAttrs
 import Lean.Compiler.LCNF.Closure
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.MonadScope
@@ -28,6 +29,17 @@ structure Context where
   We use it to provide the "base name" for auxiliary declarations and the flag `safe`.
   -/
   mainDecl : Decl
+  /--
+  If true, the lambda-lifted functions inherit the inline attribute from `mainDecl`.
+  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  -/
+  inheritInlineAttrs := false
+  /--
+  Only local functions with `size > minSize` are lambda lifted.
+  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  -/
+  minSize : Nat := 0
+
 
 /-- State for the `LiftM` monad. -/
 structure State where
@@ -54,7 +66,10 @@ def hasInstParam (decl : FunDecl) : CompilerM Bool :=
 Return `true` if the given declaration should be lambda lifted.
 -/
 def shouldLift (decl : FunDecl) : LiftM Bool := do
-  if (← read).liftInstParamOnly then
+  let minSize := (← read).minSize
+  if decl.value.size <= minSize then
+    return false
+  else if (← read).liftInstParamOnly then
     hasInstParam decl
   else
     return true
@@ -72,7 +87,8 @@ occurring in `decl`.
 -/
 def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   let nameNew ← mkAuxDeclName
-  let auxDecl ← go nameNew (← read).mainDecl.safe |>.run' {}
+  let inlineAttr? := if (← read).inheritInlineAttrs then (← read).mainDecl.inlineAttr? else none
+  let auxDecl ← go nameNew (← read).mainDecl.safe inlineAttr? |>.run' {}
   let us := auxDecl.levelParams.map mkLevelParam
   let auxDeclName ← match (← cacheAuxDecl auxDecl) with
   | .new =>
@@ -89,12 +105,12 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   eraseFunDecl decl
   return declNew
 where
-  go (nameNew : Name) (safe : Bool) : InternalizeM Decl := do
+  go (nameNew : Name) (safe : Bool) (inlineAttr? : Option InlineAttributeKind) : InternalizeM Decl := do
     let params := (← closure.mapM internalizeParam) ++ (← decl.params.mapM internalizeParam)
     let value ← internalizeCode decl.value
     let type ← value.inferType
     let type ← mkForallParams params type
-    let decl := { name := nameNew, levelParams := [], params, type, value, safe, recursive := false : Decl }
+    let decl := { name := nameNew, levelParams := [], params, type, value, safe, inlineAttr?, recursive := false : Decl }
     return decl.setLevelParams
 
 mutual
@@ -137,8 +153,8 @@ def main (decl : Decl) : LiftM Decl := do
 
 end LambdaLifting
 
-partial def Decl.lambdaLifting (decl : Decl) (liftInstParamOnly : Bool) (suffix : Name) : CompilerM (Array Decl) := do
-  let (decl, s) ← LambdaLifting.main decl |>.run { mainDecl := decl, liftInstParamOnly, suffix } |>.run {} |>.run {}
+partial def Decl.lambdaLifting (decl : Decl) (liftInstParamOnly : Bool) (suffix : Name) (inheritInlineAttrs := false) (minSize := 0) : CompilerM (Array Decl) := do
+  let (decl, s) ← LambdaLifting.main decl |>.run { mainDecl := decl, liftInstParamOnly, suffix, inheritInlineAttrs, minSize } |>.run {} |>.run {}
   return s.decls.push decl
 
 /--
@@ -160,9 +176,16 @@ def eagerLambdaLifting : Pass where
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      let liftInstParamOnly := !(← Meta.isInstance decl.name)
+      let isInstance ← Meta.isInstance decl.name
+      let liftInstParamOnly := !isInstance
+      let inheritInlineAttrs := isInstance
+      /-
+      Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
+      It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
+      -/
+      let minSize := if isInstance then 2 else 0
       -- TODO: when performing eager lambda lifting in instances, we must check whether they are tagged with `[inline]` and propagate annotation to new functions
-      return decls ++ (← decl.lambdaLifting liftInstParamOnly (suffix := `_elambda))
+      return decls ++ (← decl.lambdaLifting liftInstParamOnly (suffix := `_elambda) inheritInlineAttrs minSize)
 
 builtin_initialize
   registerTraceClass `Compiler.eagerLambdaLifting (inherited := true)

@@ -25,7 +25,7 @@ def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
     return true -- `decl` applications will be specialized
   else if (← Meta.isInstance decl.name) then
     return true -- `decl` is "fuel" for code specialization
-  else if hasInlineAttribute (← getEnv) decl.name || hasSpecializeAttribute (← getEnv) decl.name then
+  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
     return true -- `decl` is going to be inlined or specialized
   else
     return false

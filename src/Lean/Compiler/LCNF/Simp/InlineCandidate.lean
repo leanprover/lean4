@@ -43,9 +43,8 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     unless (← read).config.inlineDefs do
       return none
     let some decl ← getDecl? declName | return none
-    let inlineIfReduce := hasInlineIfReduceAttribute (← getEnv) declName
     let shouldInline : SimpM Bool := do
-      if !inlineIfReduce && decl.recursive then return false
+      if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
       /-
       We don't inline instances tagged with `[inline]/[alwaysInline]/[inlineIfReduce]` at the base phase
@@ -61,11 +60,10 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
           that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
           -/
           return false
-      let env ← getEnv
-      if hasAlwaysInlineAttribute env declName then return true
+      if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
-      if hasInlineAttribute env declName || inlineIfReduce then return true
-      unless hasNoInlineAttribute env declName do
+      if decl.inlineAttr || decl.inlineIfReduceAttr then return true
+      unless decl.noinlineAttr do
         if (← isSmall decl.value) then return true
       return false
     unless (← shouldInline) do return none
@@ -73,7 +71,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
     if !mustInline && !inlinePartial && numArgs < arity then return none
-    if inlineIfReduce then
+    if decl.inlineIfReduceAttr then
       let some paramIdx := decl.isCasesOnParam? | return none
       unless paramIdx < numArgs do return none
       let arg ← findExpr (e.getArg! paramIdx)
@@ -85,7 +83,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
       isLocal   := false
       f         := e.getAppFn
       args      := e.getAppArgs
-      ifReduce  := inlineIfReduce
+      ifReduce  := decl.inlineIfReduceAttr
       recursive := decl.recursive
       params, value
     }

@@ -11,6 +11,10 @@ on:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   set-nightly:
     # don't schedule nightlies on forks

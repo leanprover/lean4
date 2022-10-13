@@ -160,3 +160,9 @@
     cmd: ./unionfind.lean.out 3000000
   build_config:
     cmd: ./compile.sh unionfind.lean
+- attributes:
+    description: workspaceSymbols
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean workspaceSymbols.lean

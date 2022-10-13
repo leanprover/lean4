@@ -106,24 +106,13 @@ def weird1 (c : Bool) : (cond c List Array) Nat :=
 
 #eval test ``weird1
 
-def compatible (declName₁ declName₂ : Name) : MetaM Unit := do
-  let type₁ ← LCNF.getOtherDeclBaseType declName₁ []
-  let type₂ ← LCNF.getOtherDeclBaseType declName₂ []
-  unless LCNF.compatibleTypesQuick type₁ type₂ do
-    throwError "{declName₁} : {← ppExpr type₁}\ntype is not compatible with\n{declName₂} : {← ppExpr type₂}"
-
 axiom monadList₁.{u} : Monad List.{u}
 axiom monadList₂.{u} : Monad (fun α : Type u => List α)
-
--- set_option pp.all true
-#eval compatible ``monadList₁ ``monadList₂
 
 axiom lamAny₁ (c : Bool) : Monad (fun α : Type => cond c (List α) (Array α))
 axiom lamAny₂ (c : Bool) : Monad (cond c List.{0} Array.{0})
 #eval test ``lamAny₁
 #eval test ``lamAny₂
-
-#eval compatible ``lamAny₁ ``lamAny₂
 
 def testMono (declName : Name) : MetaM Unit := do
   let base ← LCNF.getOtherDeclBaseType declName []

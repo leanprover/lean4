@@ -37,10 +37,8 @@ Lean.Elab.Term.elabTerm : Lean.Syntax →
 Nat.add : Nat → Nat → Nat
 Magma.mul : Magma → ◾ → ◾ → ◾
 weird1 : Bool → ◾
-
 lamAny₁ : Bool → Monad ◾
 lamAny₂ : Bool → Monad ◾
-
 Term.constFold : List Ty → Ty → Term ◾ ◾ → Term ◾ ◾
 Term.denote : List Ty → Ty → Term ◾ ◾ → HList Ty ◾ ◾ → ◾
 HList.get : ◾ → ◾ → List ◾ → ◾ → HList ◾ ◾ ◾ → Member ◾ ◾ ◾ → ◾

@@ -15,7 +15,7 @@ open Std.Format
 
 private def formatInfo (showInfo : Bool) (info : SourceInfo) (f : Format) : Format :=
   match showInfo, info with
-  | true, SourceInfo.original lead pos trail endPos => f!"{lead}:{pos}:{f}:{endPos}:{trail}"
+  | true, SourceInfo.original lead pos trail endPos => f!"{repr lead.toString}:{pos}:{f}:{endPos}:{repr trail.toString}"
   | true, SourceInfo.synthetic pos endPos true      => f!"{pos}!:{f}:{endPos}"
   | true, SourceInfo.synthetic pos endPos false     => f!"{pos}:{f}:{endPos}"
   | _,    _                                         => f

@@ -539,8 +539,7 @@ where
         else
           for i in casesInfo.altsRange, numParams in casesInfo.altNumParams, ctorName in indVal.ctors do
             let (altType, alt) ← visitAlt ctorName numParams args[i]!
-            unless (← compatibleTypes altType resultType) do
-              resultType := erasedExpr
+            resultType := joinTypes altType resultType
             alts := alts.push alt
           let cases : Cases := { typeName, discr := discr.fvarId!, resultType, alts }
           let auxDecl ← mkAuxParam resultType
@@ -572,18 +571,9 @@ where
     let arity := 6
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
-      let f := e.getAppFn
-      let recType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN f args[:arity]))
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
       let minor ← visit minor
-      let minorType ← inferType minor
-      let cast ← if (← compatibleTypes minorType recType) then
-        -- Recall that many types become compatible after LCNF conversion
-        -- Example: `Fin 10` and `Fin n`
-        pure minor
-      else
-        mkLcCast (← mkAuxLetDecl minor) recType
-      mkOverApplication cast args arity
+      mkOverApplication minor args arity
 
   visitFalseRec (e : Expr) : M Expr :=
     let arity := 2

@@ -34,7 +34,7 @@ and the free variable containing the result (`FVarId`). The resulting `FVarId` o
 subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
 We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
-partial def inlineProjInst? (e : Expr) (expectedType : Expr) : SimpM (Option (Array CodeDecl × FVarId)) := do
+partial def inlineProjInst? (e : Expr) : SimpM (Option (Array CodeDecl × FVarId)) := do
   let .proj _ i s := e | return none
   let sType ← inferType s
   unless (← isClass? sType).isSome do return none
@@ -42,13 +42,7 @@ partial def inlineProjInst? (e : Expr) (expectedType : Expr) : SimpM (Option (Ar
   unless  (← isClass? eType).isNone do return none
   let (fvarId?, decls) ← visit s [i] |>.run |>.run #[]
   if let some fvarId := fvarId? then
-    let type ← getType fvarId
-    if expectedType.isErased || type.isErased || eqvTypes expectedType type then
-      return some (decls, fvarId)
-    else
-      let cast ← mkLcCast (.fvar fvarId) expectedType
-      let decl ← LCNF.mkAuxLetDecl cast
-      return some (decls.push (.let decl), decl.fvarId)
+    return some (decls, fvarId)
   else
     eraseCodeDecls decls
     return none

@@ -96,10 +96,8 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
-def elimVar? (value : Expr) (expectedType : Expr) : SimpM (Option FVarId) := do
+def elimVar? (value : Expr) : SimpM (Option FVarId) := do
   let .fvar fvarId := value | return none
-  let type ← getType fvarId
-  unless type.isErased || eqvTypes type expectedType do return none
   return fvarId
 
 mutual
@@ -225,7 +223,7 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       attachCodeDecls decls k
     else if let some funDecl ← etaPolyApp? decl then
       simp (.fun funDecl k)
-    else if let some fvarId ← elimVar? decl.value decl.type then
+    else if let some fvarId ← elimVar? decl.value then
       /- Eliminate `let _x_i := _x_j;` -/
       addFVarSubst decl.fvarId fvarId
       eraseLetDecl decl

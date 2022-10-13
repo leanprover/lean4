@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_EStateM_tryCatch(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_UInt32_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHashableString;
 static lean_object* l_Lean_scientificLitKind___closed__1;
+LEAN_EXPORT uint8_t l_Bool_decEq(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* lean_erase_macro_scopes(lean_object*);
 LEAN_EXPORT lean_object* l_USize_mk___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_withTheReader(lean_object*, lean_object*);
@@ -222,6 +223,7 @@ static lean_object* l_EStateM_instMonadEStateM___closed__9;
 LEAN_EXPORT lean_object* l_Applicative_map___default___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_groupKind___closed__1;
 LEAN_EXPORT lean_object* l_String_endPos(lean_object*);
+LEAN_EXPORT lean_object* l_Bool_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_instMonadQuotationUnexpandM___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Monad_seqLeft___default___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_maxRecDepthErrorMessage___closed__1;
@@ -1249,6 +1251,43 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_decEq___rarg), 3, 0);
 return x_2;
+}
+}
+LEAN_EXPORT uint8_t l_Bool_decEq(uint8_t x_1, uint8_t x_2) {
+_start:
+{
+if (x_1 == 0)
+{
+if (x_2 == 0)
+{
+uint8_t x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8_t x_4; 
+x_4 = 0;
+return x_4;
+}
+}
+else
+{
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_decEq___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
+x_3 = lean_unbox(x_1);
+lean_dec(x_1);
+x_4 = lean_unbox(x_2);
+lean_dec(x_2);
+x_5 = l_Bool_decEq(x_3, x_4);
+x_6 = lean_box(x_5);
+return x_6;
 }
 }
 LEAN_EXPORT uint8_t l_instDecidableEqBool(uint8_t x_1, uint8_t x_2) {

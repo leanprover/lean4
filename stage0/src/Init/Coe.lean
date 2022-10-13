@@ -245,7 +245,7 @@ instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
 
 /-! # Basic instances -/
 
-@[inline] instance boolToProp : Coe Bool Prop where
+instance boolToProp : Coe Bool Prop where
   coe b := Eq b true
 
 instance boolToSort : CoeSort Bool Prop where

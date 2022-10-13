@@ -46,7 +46,16 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
     Remark: by eta-expanding partial applications in instances, we also make the simplifier
     work harder when inlining instance projections.
     -/
-    config := { config with etaPoly := false, inlinePartial := false }
+    let mut inlineDefs := config.inlineDefs
+    if (← inBasePhase <&&> Meta.isInstance decl.name) then
+      /-
+      At the base phase, we don't inline definitions occurring in instances even if they are tagged with `alwaysInline`.
+      Reason: we eagerly lambda lift local functions occurring at instances before saving their code at the end of the base
+      phase. The goal is to make them cheap to inline in actual code. By inlining definitions we would be just generating extra
+      work for the lambda lifter.
+      -/
+      inlineDefs := false
+    config := { config with etaPoly := false, inlinePartial := false, inlineDefs }
   go decl config
 where
   go (decl : Decl) (config : Config) : CompilerM Decl := do

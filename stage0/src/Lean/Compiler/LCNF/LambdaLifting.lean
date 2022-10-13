@@ -9,6 +9,7 @@ import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Level
+import Lean.Compiler.LCNF.AuxDeclCache
 
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
@@ -34,6 +35,10 @@ structure State where
   New auxiliary declarations
   -/
   decls  : Array Decl := #[]
+  /--
+  Next index for generating auxiliary declaration name.
+  -/
+  nextIdx := 0
 
 /-- Monad for applying lambda lifting. -/
 abbrev LiftM := ReaderT Context (StateRefT State (ScopeT CompilerM))
@@ -54,20 +59,30 @@ def shouldLift (decl : FunDecl) : LiftM Bool := do
   else
     return true
 
+partial def mkAuxDeclName : LiftM Name := do
+  let nextIdx ← modifyGet fun s => (s.nextIdx, { s with nextIdx := s.nextIdx + 1})
+  let nameNew := (← read).mainDecl.name ++ (← read).suffix.appendIndexAfter nextIdx
+  if (← getDecl? nameNew).isNone then return nameNew
+  mkAuxDeclName
+
 open Internalize in
 /--
 Create a new auxiliary declaration. The array `closure` contains all free variables
 occurring in `decl`.
 -/
 def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
-  let mainDecl := (← read).mainDecl
-  let nextIdx := (← get).decls.size
-  let nameNew := mainDecl.name ++ (← read).suffix.appendIndexAfter nextIdx
-  let auxDecl ← go nameNew mainDecl.safe |>.run' {}
-  auxDecl.save
-  modify fun { decls, .. } => { decls := decls.push auxDecl }
+  let nameNew ← mkAuxDeclName
+  let auxDecl ← go nameNew (← read).mainDecl.safe |>.run' {}
   let us := auxDecl.levelParams.map mkLevelParam
-  let value := mkAppN (.const auxDecl.name us) (closure.map (mkFVar ·.fvarId))
+  let auxDeclName ← match (← cacheAuxDecl auxDecl) with
+  | .new =>
+    auxDecl.save
+    modify fun { decls, .. } => { decls := decls.push auxDecl }
+    pure auxDecl.name
+  | .alreadyCached declName =>
+    auxDecl.erase
+    pure declName
+  let value := mkAppN (.const auxDeclName us) (closure.map (mkFVar ·.fvarId))
   /- We reuse `decl`s `fvarId` to avoid substitution -/
   let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
   modifyLCtx fun lctx => lctx.addLetDecl declNew

@@ -30,5 +30,10 @@ structure Config where
   phase 1.
   -/
   implementedBy := false
+  /--
+  If `inlineDefs` is `true` then top-level definitions are inlined when they are small are
+  annotated with inlining attributes.
+  -/
+  inlineDefs := true
   deriving Inhabited
 

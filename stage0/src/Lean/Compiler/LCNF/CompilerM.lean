@@ -48,6 +48,9 @@ abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 def getPhase : CompilerM Phase :=
   return (← read).phase
 
+def inBasePhase : CompilerM Bool :=
+  return (← getPhase) matches .base
+
 instance : AddMessageContext CompilerM where
   addMessageContext msgData := do
     let env ← getEnv
@@ -130,6 +133,9 @@ def eraseCodeDecls (decls : Array CodeDecl) : CompilerM Unit := do
 def eraseDecl (decl : Decl) : CompilerM Unit := do
   eraseParams decl.params
   eraseCode decl.value
+
+abbrev Decl.erase (decl : Decl) : CompilerM Unit :=
+  eraseDecl decl
 
 /--
 A free variable substitution.

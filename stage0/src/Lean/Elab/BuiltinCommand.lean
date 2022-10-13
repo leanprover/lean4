@@ -413,4 +413,10 @@ opaque elabEval : CommandElab
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 
+@[builtinCommandElab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
+  logWarning "using 'exit' to interrupt Lean"
+
+@[builtinCommandElab Parser.Command.import] def elabImport : CommandElab := fun _ =>
+  throwError "invalid 'import' command, it must be used in the beginning of the file"
+
 end Lean.Elab.Command

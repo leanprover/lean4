@@ -17,6 +17,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__22___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_InfoTree_collectNodesBottomUp___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__26(lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1253____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM_go___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__10(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__44(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -34,7 +35,6 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_InfoTree_visitM_go___spec__1___r
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__43___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_Elab_InfoTree_hasSorry_go___spec__46(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Elab_InfoTree_hasSorry_go___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1121____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_deepestNodes(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_InfoTree_foldInfo_go___spec__8___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5467,7 +5467,7 @@ x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 x_4 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
-x_5 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1121____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_4, x_1);
+x_5 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1253____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_4, x_1);
 lean_dec(x_4);
 return x_5;
 }
@@ -9050,7 +9050,7 @@ x_8 = lean_ctor_get(x_6, 2);
 lean_inc(x_8);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1121____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_9, x_1);
+x_10 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1253____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_9, x_1);
 lean_dec(x_9);
 if (x_10 == 0)
 {
@@ -9083,7 +9083,7 @@ x_15 = lean_ctor_get(x_13, 2);
 lean_inc(x_15);
 x_16 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
-x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1121____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_16, x_1);
+x_17 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1253____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_377____spec__1(x_16, x_1);
 lean_dec(x_16);
 if (x_17 == 0)
 {

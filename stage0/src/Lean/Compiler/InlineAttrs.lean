@@ -9,7 +9,7 @@ import Lean.Attributes
 namespace Lean.Compiler
 
 inductive InlineAttributeKind where
-  | inline | noinline | macroInline | inlineIfReduce
+  | inline | noinline | macroInline | inlineIfReduce | alwaysInline
   deriving Inhabited, BEq
 
 /--
@@ -33,10 +33,11 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
 
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes
-    [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
-     (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
-     (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
-     (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
+    [(`inline, "mark definition to be inlined", .inline),
+     (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", .inlineIfReduce),
+     (`noinline, "mark definition to never be inlined", .noinline),
+     (`macroInline, "mark definition to always be inlined before ANF conversion", .macroInline),
+     (`alwaysInline, "mark definition to be always inlined", .alwaysInline)]
     fun declName kind => do
       ofExcept <| checkIsDefinition (← getEnv) declName
       if kind matches .macroInline then
@@ -52,16 +53,19 @@ private def hasInlineAttrCore (env : Environment) (kind : InlineAttributeKind) (
   | _ => false
 
 abbrev hasInlineAttribute (env : Environment) (declName : Name) : Bool :=
-  hasInlineAttrCore env InlineAttributeKind.inline declName
+  hasInlineAttrCore env .inline declName
 
 def hasInlineIfReduceAttribute (env : Environment) (declName : Name) : Bool :=
-  hasInlineAttrCore env InlineAttributeKind.inlineIfReduce declName
+  hasInlineAttrCore env .inlineIfReduce declName
 
 def hasNoInlineAttribute (env : Environment) (declName : Name) : Bool :=
-  hasInlineAttrCore env InlineAttributeKind.noinline declName
+  hasInlineAttrCore env .noinline declName
 
 def hasMacroInlineAttribute (env : Environment) (declName : Name) : Bool :=
-  hasInlineAttrCore env InlineAttributeKind.macroInline declName
+  hasInlineAttrCore env .macroInline declName
+
+abbrev hasAlwaysInlineAttribute (env : Environment) (declName : Name) : Bool :=
+  hasInlineAttrCore env .alwaysInline declName
 
 -- TODO: delete rest of the file after we have old code generator
 

@@ -390,7 +390,7 @@ lean_object* l_Lean_MessageData_arrayExpr_toMessageData(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_43_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_6_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_10964_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_11038_(lean_object*);
 static lean_object* l_Lean_Meta_SynthInstance_MkTableKey_State_lmap___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_getNextToResume___boxed(lean_object*);
 lean_object* l_Lean_PersistentArray_toArray___rarg(lean_object*);
@@ -551,7 +551,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_mkTableKeyFor(lean_object*, l
 lean_object* lean_array_pop(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_synthInstance_x3f___closed__1;
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_445_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_SynthInstance_addAnswer___lambda__4___closed__4;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_synthInstance_x3f___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_SynthInstance_mkTableKey___at_Lean_Meta_SynthInstance_main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2415,7 +2415,7 @@ return x_111;
 else
 {
 uint8_t x_123; 
-x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_445_(x_107, x_107);
+x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_107, x_107);
 if (x_123 == 0)
 {
 lean_object* x_124; 
@@ -2482,7 +2482,7 @@ return x_137;
 else
 {
 uint8_t x_138; 
-x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_445_(x_107, x_107);
+x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_107, x_107);
 if (x_138 == 0)
 {
 lean_object* x_139; lean_object* x_140; 
@@ -2568,7 +2568,7 @@ return x_149;
 else
 {
 uint8_t x_161; 
-x_161 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_445_(x_145, x_145);
+x_161 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_145, x_145);
 if (x_161 == 0)
 {
 lean_object* x_162; 
@@ -2635,7 +2635,7 @@ return x_175;
 else
 {
 uint8_t x_176; 
-x_176 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_445_(x_145, x_145);
+x_176 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_145, x_145);
 if (x_176 == 0)
 {
 lean_object* x_177; lean_object* x_178; 
@@ -23162,7 +23162,7 @@ lean_dec(x_3);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_10964_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_11038_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -23763,7 +23763,7 @@ l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___c
 lean_mark_persistent(l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__5);
 l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__6 = _init_l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__6();
 lean_mark_persistent(l___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___lambda__2___closed__6);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_10964_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_SynthInstance___hyg_11038_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

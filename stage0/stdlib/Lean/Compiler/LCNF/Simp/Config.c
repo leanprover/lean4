@@ -18,6 +18,7 @@ LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
 static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default;
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlineDefs___default;
 static uint8_t _init_l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default() {
 _start:
 {
@@ -42,15 +43,24 @@ x_1 = 0;
 return x_1;
 }
 }
+static uint8_t _init_l_Lean_Compiler_LCNF_Simp_Config_inlineDefs___default() {
+_start:
+{
+uint8_t x_1; 
+x_1 = 1;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; 
 x_1 = 0;
-x_2 = lean_alloc_ctor(0, 0, 3);
+x_2 = lean_alloc_ctor(0, 0, 4);
 lean_ctor_set_uint8(x_2, 0, x_1);
 lean_ctor_set_uint8(x_2, 1, x_1);
 lean_ctor_set_uint8(x_2, 2, x_1);
+lean_ctor_set_uint8(x_2, 3, x_1);
 return x_2;
 }
 }
@@ -74,6 +84,7 @@ lean_dec_ref(res);
 l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default = _init_l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default();
 l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default = _init_l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default();
 l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default = _init_l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default();
+l_Lean_Compiler_LCNF_Simp_Config_inlineDefs___default = _init_l_Lean_Compiler_LCNF_Simp_Config_inlineDefs___default();
 l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1 = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1);
 l_Lean_Compiler_LCNF_Simp_instInhabitedConfig = _init_l_Lean_Compiler_LCNF_Simp_instInhabitedConfig();

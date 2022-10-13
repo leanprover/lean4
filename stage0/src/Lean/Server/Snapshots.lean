@@ -69,7 +69,7 @@ def infoTree (s : Snapshot) : InfoTree :=
   s.cmdState.infoState.trees[0]!
 
 def isAtEnd (s : Snapshot) : Bool :=
-  Parser.isEOI s.stx || Parser.isExitCommand s.stx
+  Parser.isEOI s.stx || Parser.isTerminalCommand s.stx
 
 open Command in
 /-- Use the command state in the given snapshot to run a `CommandElabM`.-/
@@ -120,7 +120,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
   let (cmdStx, cmdParserState, msgLog) :=
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   let cmdPos := cmdStx.getPos?.get!
-  if Parser.isEOI cmdStx || Parser.isExitCommand cmdStx then
+  if Parser.isEOI cmdStx then
     let endSnap : Snapshot := {
       beginPos := cmdPos
       stx := cmdStx

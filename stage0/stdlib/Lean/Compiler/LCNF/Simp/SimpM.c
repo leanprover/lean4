@@ -225,13 +225,15 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_incInline(lean_object*);
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_Context_config___default___closed__1() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; 
+uint8_t x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = 0;
-x_2 = lean_alloc_ctor(0, 0, 3);
-lean_ctor_set_uint8(x_2, 0, x_1);
-lean_ctor_set_uint8(x_2, 1, x_1);
-lean_ctor_set_uint8(x_2, 2, x_1);
-return x_2;
+x_2 = 1;
+x_3 = lean_alloc_ctor(0, 0, 4);
+lean_ctor_set_uint8(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, 1, x_1);
+lean_ctor_set_uint8(x_3, 2, x_1);
+lean_ctor_set_uint8(x_3, 3, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_Simp_Context_config___default() {

@@ -59,8 +59,8 @@ private def mkEOI (pos : String.Pos) : Syntax :=
 def isEOI (s : Syntax) : Bool :=
   s.isOfKind `Lean.Parser.Module.eoi
 
-def isExitCommand (s : Syntax) : Bool :=
-  s.isOfKind `Lean.Parser.Command.exit
+def isTerminalCommand (s : Syntax) : Bool :=
+  s.isOfKind ``Command.exit || s.isOfKind ``Command.import
 
 private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
   let s : ParserState := { cache := initCacheForInput c.input, pos := pos }

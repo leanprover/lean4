@@ -119,18 +119,22 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
+@[inline] def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
   let f := value.getAppFn
   if let .const declName _ := f then
+    let numOccs ← check declName
+    withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
+  else
+    x
+where
+  check (declName : Name) : SimpM Nat := do
     trace[Compiler.simp.inline] "{declName}"
     let numOccs := (← read).inlineStackOccs.find? declName |>.getD 0
     let numOccs := numOccs + 1
     let inlineIfReduce ← if let some decl ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false
     if recursive && inlineIfReduce && numOccs > (← getConfig).maxRecInlineIfReduce then
       throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
-    withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
-  else
-    x
+    return numOccs
 
 /--
 Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.

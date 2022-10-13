@@ -128,9 +128,7 @@ mutual
         fType := fType.instantiateRevRange j i args |>.headBeta
         match fType with
         | .forallE _ _ b _ => j := i; fType := b
-        | _ =>
-          if fType.isErased then return erasedExpr
-          throwError "function expected{indentExpr (mkAppN f args[:i])} : {fType}\nfunction type{indentExpr (← inferType f)}"
+        | _ => return erasedExpr
     return fType.instantiateRevRange j args.size args |>.headBeta
 
   partial def inferAppType (e : Expr) : InferTypeM Expr := do
@@ -171,11 +169,7 @@ mutual
   partial def getLevel? (type : Expr) : InferTypeM (Option Level) := do
     match (← inferType type) with
     | .sort u => return some u
-    | e =>
-      if e.isErased then
-        return none
-      else
-        throwError "type expected{indentExpr type}"
+    | _ => return none
 
   partial def inferForallType (e : Expr) : InferTypeM Expr :=
     go e #[]

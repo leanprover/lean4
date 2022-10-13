@@ -92,7 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_throwKernelException___at_Lean_Elab_ComputedFiel
 LEAN_EXPORT lean_object* l_Lean_setEnv___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__2;
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_122_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(uint8_t, uint8_t);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_implementedByAttr;
@@ -10039,7 +10039,7 @@ _start:
 {
 lean_object* x_9; uint8_t x_267; uint8_t x_268; 
 x_267 = 2;
-x_268 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_122_(x_3, x_267);
+x_268 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_267);
 if (x_268 == 0)
 {
 lean_object* x_269; 
@@ -10076,7 +10076,7 @@ uint8_t x_10; lean_object* x_260; uint8_t x_261; uint8_t x_262;
 lean_dec(x_9);
 x_260 = lean_ctor_get(x_6, 2);
 x_261 = 1;
-x_262 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_122_(x_3, x_261);
+x_262 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_261);
 if (x_262 == 0)
 {
 x_10 = x_3;

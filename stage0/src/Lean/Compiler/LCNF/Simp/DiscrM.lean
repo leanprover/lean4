@@ -51,18 +51,21 @@ def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Expr)) := do
 Execute `x` with the information that `discr = ctorName ctorFields`.
 We use this information to simplify nested cases on the same discriminant.
 -/
-def withDiscrCtorImp (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) (x : DiscrM α) : DiscrM α := do
-  let ctorInfo ← getConstInfoCtor ctorName
-  let fieldArgs := ctorFields.map (.fvar ·.fvarId)
-  if let some (us, params) ← getIndInfo? (← getType discr) then
-    let ctor := mkAppN (mkAppN (mkConst ctorName us) params) fieldArgs
-    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor discr }) do
-      x
-  else
-    -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
-    let ctor := mkAppN (mkAppN (mkConst ctorName) (mkArray ctorInfo.numParams erasedExpr)) fieldArgs
-    withReader (fun ctx => { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }) do
-     x
+@[inline] def withDiscrCtorImp (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) (x : DiscrM α) : DiscrM α := do
+  let ctx ← updateCtx
+  withReader (fun _ => ctx) x
+where
+  updateCtx : DiscrM DiscrM.Context := do
+    let ctorInfo ← getConstInfoCtor ctorName
+    let fieldArgs := ctorFields.map (.fvar ·.fvarId)
+    let ctx ← read
+    if let some (us, params) ← getIndInfo? (← getType discr) then
+      let ctor := mkAppN (mkAppN (mkConst ctorName us) params) fieldArgs
+      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor discr }
+    else
+      -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
+      let ctor := mkAppN (mkAppN (mkConst ctorName) (mkArray ctorInfo.numParams erasedExpr)) fieldArgs
+      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }
 
 @[inline, inheritDoc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=
   monadMap (m := DiscrM) <| withDiscrCtorImp discr ctorName ctorFields

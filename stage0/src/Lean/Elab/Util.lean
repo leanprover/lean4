@@ -152,7 +152,7 @@ instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
-def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
+def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls

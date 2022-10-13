@@ -34,6 +34,7 @@ $CP $GLIBC/lib/crt* stage1/lib/
 # host runtime
 (cd llvm-host; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ./)
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a llvm-host/lib/
+$CP -r llvm-host/include/*/c++ llvm-host/include/
 # target runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
 # The lib/*/ is to copy files regardless of target triple. The underlying path will

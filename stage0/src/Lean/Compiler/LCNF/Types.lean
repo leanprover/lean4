@@ -282,4 +282,10 @@ partial def getArrowArity (e : Expr) :=
   | .forallE _ _ b _ => getArrowArity b + 1
   | _ => 0
 
+/-- Return `true` if `type` is an inductive datatype with 0 constructors. -/
+def isInductiveWithNoCtors (type : Expr) : CoreM Bool := do
+  let .const declName _ := type.getAppFn | return false
+  let some (.inductInfo info) := (← getEnv).find? declName | return false
+  return info.numCtors == 0
+
 end Lean.Compiler.LCNF

@@ -330,7 +330,7 @@ x_11 = lean_ctor_get(x_1, 4);
 lean_inc(x_11);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = l_Lean_Compiler_LCNF_Code_size_go(x_11, x_12);
-x_14 = lean_nat_dec_le(x_13, x_10);
+x_14 = lean_nat_dec_lt(x_13, x_10);
 lean_dec(x_13);
 if (x_14 == 0)
 {
@@ -4107,7 +4107,7 @@ lean_inc(x_32);
 lean_dec(x_13);
 x_33 = 0;
 x_34 = l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_eagerLambdaLifting___elambda__1___spec__1___closed__2;
-x_35 = lean_unsigned_to_nat(2u);
+x_35 = lean_unsigned_to_nat(3u);
 x_36 = lean_unbox(x_14);
 lean_dec(x_14);
 lean_inc(x_8);

@@ -40,21 +40,29 @@ def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
 partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
   let mut config := config
   if (← isTemplateLike decl) then
+    let mut inlineDefs := config.inlineDefs
+    /-
+    At the base phase, we don't inline definitions occurring in instances even if they are tagged with `alwaysInline`.
+    Reason: we eagerly lambda lift local functions occurring at instances before saving their code at the end of the base
+    phase. The goal is to make them cheap to inline in actual code. By inlining definitions we would be just generating extra
+    work for the lambda lifter.
+
+    Note: we need better support for instances such as
+    ```
+    @[alwaysInline]
+    instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
+    ```
+    The goal of this kind of instance is to pre-compute all instance methods for `Monad TermElabM`. However, to accomplish
+    this, we need to be able to inline definitions and nested instances.
+    -/
+    if (← inBasePhase <&&> Meta.isInstance decl.name) then
+      inlineDefs := false
     /-
     We do not eta-expand or inline partial applications in template like code.
     Recall we don't want to generate code for them.
     Remark: by eta-expanding partial applications in instances, we also make the simplifier
     work harder when inlining instance projections.
     -/
-    let mut inlineDefs := config.inlineDefs
-    if (← inBasePhase <&&> Meta.isInstance decl.name) then
-      /-
-      At the base phase, we don't inline definitions occurring in instances even if they are tagged with `alwaysInline`.
-      Reason: we eagerly lambda lift local functions occurring at instances before saving their code at the end of the base
-      phase. The goal is to make them cheap to inline in actual code. By inlining definitions we would be just generating extra
-      work for the lambda lifter.
-      -/
-      inlineDefs := false
     config := { config with etaPoly := false, inlinePartial := false, inlineDefs }
   go decl config
 where

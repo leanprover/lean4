@@ -167,8 +167,9 @@ rec {
       '';
       link-ilean = writeShellScriptBin "link-ilean" ''
         dest=''${1:-src}
+        rm -rf $dest/build/lib || true
         mkdir -p $dest/build/lib
-        ln -sf ${iTree}/* $dest/build/lib
+        ln -s ${iTree}/* $dest/build/lib
       '';
       benchmarks =
         let

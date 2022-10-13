@@ -8,12 +8,14 @@ import Init.Core
 
 universe u v w
 
-@[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
+@[reducible]
+def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
 infixr:100 " <&> " => Functor.mapRev
 
-@[inline] def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
+@[alwaysInline, inline]
+def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
 
 export Functor (discard)
@@ -28,10 +30,10 @@ variable {f : Type u → Type v} [Alternative f] {α : Type u}
 
 export Alternative (failure)
 
-@[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+@[alwaysInline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
-@[inline] def optional (x : f α) : f (Option α) :=
+@[alwaysInline, inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 
 class ToBool (α : Type u) where
@@ -197,6 +199,7 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
 
 export MonadControlT (stM liftWith restoreM)
 
+@[alwaysInline]
 instance (m n o) [MonadControl n o] [MonadControlT m n] : MonadControlT m o where
   stM α := stM m n (MonadControl.stM n o α)
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
@@ -207,12 +210,12 @@ instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   liftWith f := f fun x => x
   restoreM x := pure x
 
-@[inline]
+@[alwaysInline, inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
-@[inline]
+@[alwaysInline, inline]
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f

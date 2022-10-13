@@ -14,15 +14,19 @@ def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type
 
 namespace ExceptCpsT
 
-@[inline] def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
+@[alwaysInline, inline]
+def run {ε α : Type u} [Monad m] (x : ExceptCpsT ε m α) : m (Except ε α) :=
   x _ (fun a => pure (Except.ok a)) (fun e => pure (Except.error e))
 
-@[inline] def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
+@[alwaysInline, inline]
+def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
-@[inline] def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
+@[alwaysInline, inline]
+def runCatch [Monad m] (x : ExceptCpsT α m α) : m α :=
   x α pure pure
 
+@[alwaysInline]
 instance : Monad (ExceptCpsT ε m) where
   map f x  := fun _ k₁ k₂ => x _ (fun a => k₁ (f a)) k₂
   pure a   := fun _ k _ => k a
@@ -35,7 +39,8 @@ instance : MonadExceptOf ε (ExceptCpsT ε m) where
   throw e  := fun _ _ k => k e
   tryCatch x handle := fun _ k₁ k₂ => x _ k₁ (fun e => handle e _ k₁ k₂)
 
-@[inline] def lift [Monad m] (x : m α) : ExceptCpsT ε m α :=
+@[alwaysInline, inline]
+def lift [Monad m] (x : m α) : ExceptCpsT ε m α :=
   fun _ k _ => x >>= k
 
 instance [Monad m] : MonadLift m (ExceptCpsT σ m) where

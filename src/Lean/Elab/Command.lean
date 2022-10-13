@@ -49,8 +49,13 @@ abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 abbrev Linter := Syntax → CommandElabM Unit
 
--- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
--- whole monad stack at every use site. May eventually be covered by `deriving`.
+/-
+Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
+whole monad stack at every use site. May eventually be covered by `deriving`.
+
+Remark: see comment at TermElabM
+-/
+@[alwaysInline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
@@ -76,6 +81,7 @@ instance : MonadEnv CommandElabM where
   getEnv := do pure (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env }
 
+@[alwaysInline]
 instance : MonadOptions CommandElabM where
   getOptions := do pure (← get).scopes.head!.opts
 

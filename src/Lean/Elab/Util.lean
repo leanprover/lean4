@@ -145,6 +145,7 @@ class MonadMacroAdapter (m : Type → Type) where
   getNextMacroScope                  : m MacroScope
   setNextMacroScope                  : MacroScope → m Unit
 
+@[alwaysInline]
 instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)

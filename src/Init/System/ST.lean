@@ -34,6 +34,7 @@ def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
   | EStateM.Result.ok a _     => a
   | EStateM.Result.error ex _ => nomatch ex
 
+@[alwaysInline]
 instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
   match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s

@@ -14,15 +14,19 @@ def StateCpsT (σ : Type u) (m : Type u → Type v) (α : Type u) := (δ : Type 
 
 namespace StateCpsT
 
-@[inline] def runK {α σ : Type u} {m : Type u → Type v}  (x : StateCpsT σ m α) (s : σ) (k : α → σ → m β) : m β :=
+@[alwaysInline, inline]
+def runK {α σ : Type u} {m : Type u → Type v}  (x : StateCpsT σ m α) (s : σ) (k : α → σ → m β) : m β :=
   x _ s k
 
-@[inline] def run {α σ : Type u} {m : Type u → Type v} [Monad m] (x : StateCpsT σ m α) (s : σ) : m (α × σ) :=
+@[alwaysInline, inline]
+def run {α σ : Type u} {m : Type u → Type v} [Monad m] (x : StateCpsT σ m α) (s : σ) : m (α × σ) :=
   runK x s (fun a s => pure (a, s))
 
-@[inline] def run' {α σ : Type u} {m : Type u → Type v}  [Monad m] (x : StateCpsT σ m α) (s : σ) : m α :=
+@[alwaysInline, inline]
+def run' {α σ : Type u} {m : Type u → Type v}  [Monad m] (x : StateCpsT σ m α) (s : σ) : m α :=
   runK x s (fun a _ => pure a)
 
+@[alwaysInline]
 instance : Monad (StateCpsT σ m) where
   map  f x := fun δ s k => x δ s fun a s => k (f a) s
   pure a   := fun _ s k => k a s
@@ -31,12 +35,14 @@ instance : Monad (StateCpsT σ m) where
 instance : LawfulMonad (StateCpsT σ m) := by
   refine' { .. } <;> intros <;> rfl
 
+@[alwaysInline]
 instance : MonadStateOf σ (StateCpsT σ m) where
   get   := fun _ s k => k s s
   set s := fun _ _ k => k ⟨⟩ s
   modifyGet f := fun _ s k => let (a, s) := f s; k a s
 
-@[inline] protected def lift [Monad m] (x : m α) : StateCpsT σ m α :=
+@[alwaysInline, inline]
+protected def lift [Monad m] (x : m α) : StateCpsT σ m α :=
   fun _ s k => x >>= (k . s)
 
 instance [Monad m] : MonadLift m (StateCpsT σ m) where

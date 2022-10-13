@@ -13,7 +13,8 @@ class MonadCache (α β : Type) (m : Type → Type) where
 
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f ()`, store `a := b` in the cache and return `b`. -/
-@[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
+@[alwaysInline, inline]
+def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
   match (← MonadCache.findCached? a) with
   | some b => pure b
   | none   => do
@@ -25,6 +26,7 @@ instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache
   findCached? a _ := MonadCache.findCached? a
   cache a b _ := MonadCache.cache a b
 
+@[alwaysInline]
 instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) where
   findCached? a := ExceptT.lift $ MonadCache.findCached? a
   cache a b := ExceptT.lift $ MonadCache.cache a b
@@ -37,11 +39,13 @@ class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hash
 
 namespace MonadHashMapCacheAdapter
 
-@[inline] def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
+@[alwaysInline, inline]
+def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
   let c ← getCache
   pure (c.find? a)
 
-@[inline] def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
+@[alwaysInline, inline]
+def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
   modifyCache fun s => s.insert a b
 
 instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m where
@@ -84,7 +88,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   getCache := (get : StateT ..)
   modifyCache f := (modify f : StateT ..)
 
-@[inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
+@[alwaysInline, inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
   x.run' mkHashMap
 
 instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))

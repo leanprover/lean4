@@ -31,7 +31,10 @@ $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`
 $CP $GLIBC/lib/crt* llvm/lib/
 $CP $GLIBC/lib/crt* stage1/lib/
-# runtime
+# host runtime
+(cd llvm-host; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ./)
+$CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a llvm-host/lib/
+# target runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
 # The lib/*/ is to copy files regardless of target triple. The underlying path will
 # be of the form 'lib/x86_64-unknown-linux-gnu', 'lib/'aarch64-unknown-linux-gnu', ...

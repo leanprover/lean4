@@ -18,6 +18,7 @@ lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSplit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__2___closed__1;
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__1;
 lean_object* l_Lean_MVarId_getNondepPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -38,7 +39,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__3;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_evalSplit___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_expandOptLocation(lean_object*);
-static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__7;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed__4;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange(lean_object*);
@@ -47,8 +47,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4;
+extern lean_object* l_Lean_instInhabitedSyntax;
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_Meta_splitLocalDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
@@ -60,7 +59,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___boxed(lean_o
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__2;
 lean_object* l_Lean_Meta_throwTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__6;
-lean_object* l_panic___at_Lean_expandExplicitBindersAux_loop___spec__1(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit_declRange___closed__6;
 lean_object* l_Lean_Elab_Tactic_getFVarId(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -73,13 +71,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__4(lean_object*, 
 lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Tactic_evalTactic___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__3;
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__1___closed__5;
 static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__2;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__4;
-static lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSplit___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalSplit___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1096,43 +1092,6 @@ static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1()
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1;
-x_2 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5() {
-_start:
-{
-lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalSplit___lambda__4), 9, 0);
 return x_1;
 }
@@ -1151,8 +1110,8 @@ lean_dec(x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; 
-x_27 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4;
-x_28 = l_panic___at_Lean_expandExplicitBindersAux_loop___spec__1(x_27);
+x_27 = l_Lean_instInhabitedSyntax;
+x_28 = l___private_Init_Util_0__outOfBounds___rarg(x_27);
 x_13 = x_28;
 goto block_23;
 }
@@ -1167,7 +1126,7 @@ goto block_23;
 else
 {
 lean_object* x_30; lean_object* x_31; 
-x_30 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5;
+x_30 = l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1;
 x_31 = l_Lean_Elab_Tactic_withMainContext___rarg(x_30, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 return x_31;
 }
@@ -1699,14 +1658,6 @@ l_Lean_Elab_Tactic_evalSplit___lambda__2___closed__1 = _init_l_Lean_Elab_Tactic_
 lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__2___closed__1);
 l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__1);
-l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__2);
-l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__3);
-l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__4);
-l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5();
-lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__5___closed__5);
 l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__1 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__1);
 l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__2 = _init_l_Lean_Elab_Tactic_evalSplit___lambda__6___closed__2();

@@ -92,9 +92,9 @@ private def assertAfterTest (test : SimpleTest) : TestInstallerM (Pass → Pass)
     phase := passUnderTest.phase
     name := testName
     run := fun decls => do
-      trace[Compiler.test] s!"Starting post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
+      trace[Compiler.test] "Starting post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
       test.run decls passUnderTest testName
-      trace[Compiler.test] s!"Post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
+      trace[Compiler.test] "Post condition test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
       return decls
   }
 
@@ -140,10 +140,10 @@ private def assertAroundTest (test : InOutTest) : TestInstallerM (Pass → Pass)
     phase := passUnderTest.phase
     name := passUnderTest.name
     run := fun decls => do
-      trace[Compiler.test] s!"Starting wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
+      trace[Compiler.test] "Starting wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence}"
       let newDecls ← passUnderTest.run decls
       test.run decls newDecls passUnderTest testName
-      trace[Compiler.test] s!"Wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
+      trace[Compiler.test] "Wrapper test {testName} for {passUnderTest.name} occurrence {passUnderTest.occurrence} successful"
       return newDecls
   }
 

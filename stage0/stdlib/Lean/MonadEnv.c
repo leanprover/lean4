@@ -31,6 +31,7 @@ uint8_t l_Lean_Expr_isProp(lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f(lean_object*);
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -87,10 +88,6 @@ uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoDefn(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConstInduct(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at___private_Init_Prelude_0__Lean_assembleParts___spec__1(lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1;
-static lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo(lean_object*);
 static lean_object* l_Lean_withEnv___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -98,7 +95,6 @@ static lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_evalConst___spec__1(lean_object*);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck(lean_object*);
 LEAN_EXPORT lean_object* l_List_allM___at_Lean_isEnumType___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__1;
@@ -108,7 +104,6 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxName___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAuxName___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConstCheck___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4;
 static lean_object* l_Lean_getConstInfoDefn___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_matchConstRec(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,6 +115,7 @@ LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedName;
 lean_object* l_Lean_Environment_getModuleIdxFor_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoCtor___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_matchConstInduct___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1997,43 +1993,6 @@ lean_dec(x_6);
 return x_7;
 }
 }
-static lean_object* _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1;
-x_2 = l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2049,8 +2008,8 @@ if (x_7 == 0)
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_5);
-x_8 = l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4;
-x_9 = l_panic___at___private_Init_Prelude_0__Lean_assembleParts___spec__1(x_8);
+x_8 = l_Lean_instInhabitedName;
+x_9 = l___private_Init_Util_0__outOfBounds___rarg(x_8);
 x_10 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = lean_apply_2(x_4, lean_box(0), x_10);
@@ -2642,14 +2601,6 @@ l_Lean_getConstInfoRec___rarg___lambda__1___closed__1 = _init_l_Lean_getConstInf
 lean_mark_persistent(l_Lean_getConstInfoRec___rarg___lambda__1___closed__1);
 l_Lean_getConstInfoRec___rarg___lambda__1___closed__2 = _init_l_Lean_getConstInfoRec___rarg___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_getConstInfoRec___rarg___lambda__1___closed__2);
-l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1 = _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__1);
-l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2 = _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__2);
-l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3 = _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3();
-lean_mark_persistent(l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__3);
-l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4 = _init_l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_findModuleOf_x3f___rarg___lambda__1___closed__4);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

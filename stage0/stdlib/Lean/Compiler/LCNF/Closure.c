@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Closu
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Closure_collectCode___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__1;
-static lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectParams___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -62,13 +61,12 @@ static lean_object* l_Lean_Compiler_LCNF_Closure_collectExpr___closed__1;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Closure_run___rarg___closed__1;
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Core_instMonadCoreM;
-static lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_Closure_collectFVar___closed__4;
 lean_object* l_Lean_Compiler_LCNF_findLetDecl_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
+extern lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM;
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_Lean_Compiler_LCNF_Closure_collectExpr___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1961,7 +1959,7 @@ static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Core_instMonadCoreM;
+x_1 = l_Lean_Compiler_LCNF_instMonadCompilerM;
 x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
 return x_2;
 }
@@ -1969,10 +1967,11 @@ return x_2;
 static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__1;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
-return x_2;
+x_2 = l_instInhabitedPUnit;
+x_3 = l_instInhabited___rarg(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3() {
@@ -1980,25 +1979,6 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__2;
-x_2 = l_ReaderT_instMonadReaderT___rarg(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3;
-x_2 = l_instInhabitedPUnit;
-x_3 = l_instInhabited___rarg(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4;
 x_2 = lean_alloc_closure((void*)(l_instInhabitedReaderT___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
@@ -2008,7 +1988,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___s
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_9 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5;
+x_9 = l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3;
 x_10 = lean_panic_fn(x_9, x_1);
 x_11 = lean_apply_7(x_10, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 return x_11;
@@ -5183,10 +5163,6 @@ l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__2 = _ini
 lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__2);
 l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3 = _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3();
 lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__3);
-l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4 = _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4();
-lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__4);
-l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5 = _init_l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5();
-lean_mark_persistent(l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__2___closed__5);
 l_Lean_Compiler_LCNF_Closure_collectFVar___closed__1 = _init_l_Lean_Compiler_LCNF_Closure_collectFVar___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_Closure_collectFVar___closed__1);
 l_Lean_Compiler_LCNF_Closure_collectFVar___closed__2 = _init_l_Lean_Compiler_LCNF_Closure_collectFVar___closed__2();

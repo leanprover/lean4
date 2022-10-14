@@ -22,7 +22,7 @@ lean_object* l_Lean_Elab_withLogging___at_Lean_Elab_Command_elabCommand___spec__
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static uint32_t l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__6;
-static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7;
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_server_stderrAsMessages;
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__3;
@@ -51,7 +51,6 @@ LEAN_EXPORT lean_object* l_IO_withStdin___at_Lean_Server_Snapshots_compileNextCm
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__15;
-lean_object* l_panic___at_Lean_FileMap_toPosition_loop___spec__1(lean_object*);
 extern lean_object* l_ByteArray_empty;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__16;
 lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(lean_object*, lean_object*, uint8_t, lean_object*);
@@ -79,7 +78,6 @@ lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM(lean_object*);
-static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9;
 extern lean_object* l_Lean_firstFrontendMacroScope;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos___boxed(lean_object*);
@@ -94,7 +92,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_parseNextCmd(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_isAtEnd___boxed(lean_object*);
-static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__3(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree;
@@ -111,7 +108,6 @@ static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_Snapshots_Snapshot_isAtEnd(lean_object*);
-static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10;
 static lean_object* l_Lean_Server_Snapshots_instInhabitedSnapshot___closed__17;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
@@ -153,6 +149,7 @@ lean_object* l_Lean_Parser_parseCommand(lean_object*, lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd(lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__3;
 uint8_t l_Lean_Parser_isTerminalCommand(lean_object*);
+lean_object* l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__4;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_getResetInfoTrees___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__3___rarg(lean_object*, lean_object*);
@@ -782,43 +779,6 @@ x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7;
-x_2 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object* x_1) {
 _start:
 {
@@ -855,8 +815,8 @@ if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
 lean_dec(x_4);
-x_12 = l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10;
-x_13 = l_panic___at_Lean_Server_Snapshots_Snapshot_infoTree___spec__1(x_12);
+x_12 = l_Lean_Elab_instInhabitedInfoTree;
+x_13 = l___private_Init_Util_0__outOfBounds___rarg(x_12);
 return x_13;
 }
 else
@@ -1922,7 +1882,7 @@ if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_207; lean_object* x_208; 
 x_207 = l_Lean_Server_Snapshots_compileNextCmd___closed__6;
-x_208 = l_panic___at_Lean_FileMap_toPosition_loop___spec__1(x_207);
+x_208 = l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(x_207);
 x_31 = x_208;
 goto block_206;
 }
@@ -2633,14 +2593,6 @@ l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5 = _init_l_Lean_Server_Snap
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__5);
 l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6();
 lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__6);
-l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7();
-lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__7);
-l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8();
-lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__8);
-l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9();
-lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__9);
-l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10 = _init_l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10();
-lean_mark_persistent(l_Lean_Server_Snapshots_Snapshot_infoTree___closed__10);
 l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__1 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__1();
 lean_mark_persistent(l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__1);
 l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__2 = _init_l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_536____closed__2();

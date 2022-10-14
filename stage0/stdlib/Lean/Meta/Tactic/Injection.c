@@ -15,18 +15,16 @@ extern "C" {
 #endif
 static lean_object* l_Lean_Meta_injectionCore___closed__1;
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2;
 uint8_t l_Lean_Expr_isNatLit(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1;
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__13;
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__6;
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_matchEqHEq_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_heqToEq(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3;
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCtorNumPropFields(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -37,7 +35,6 @@ lean_object* l_Lean_Expr_appFn_x21(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__2;
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4;
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_injections(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -56,14 +53,13 @@ lean_object* l_Lean_MVarId_assign___at_Lean_Meta_getLevel___spec__1(lean_object*
 lean_object* l_Lean_Expr_headBeta(lean_object*);
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Meta_injectionCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 lean_object* l_Lean_MVarId_checkNotAssigned(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_tryClear(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__3;
 uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 LEAN_EXPORT lean_object* l_Lean_Meta_injectionIntro___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_whnf(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_intro(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_injections_go___closed__5;
@@ -102,43 +98,6 @@ static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__8;
 static lean_object* l_Lean_Meta_injectionCore___closed__2;
 static lean_object* l_Lean_Meta_injectionCore___lambda__1___closed__9;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -164,8 +123,8 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; 
 lean_dec(x_25);
-x_28 = l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4;
-x_29 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_28);
+x_28 = l_Lean_instInhabitedExpr;
+x_29 = l___private_Init_Util_0__outOfBounds___rarg(x_28);
 lean_inc(x_11);
 lean_inc(x_10);
 lean_inc(x_9);
@@ -3774,14 +3733,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Intro(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__1);
-l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__2);
-l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__3);
-l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_getCtorNumPropFields___spec__1___closed__4);
 l_Lean_Meta_injectionCore___lambda__1___closed__1 = _init_l_Lean_Meta_injectionCore___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Meta_injectionCore___lambda__1___closed__1);
 l_Lean_Meta_injectionCore___lambda__1___closed__2 = _init_l_Lean_Meta_injectionCore___lambda__1___closed__2();

@@ -40,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_visitLet_visit__
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___at_Lean_Meta_setMVarUserNamesAt___spec__12(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_setMVarUserNamesAt___spec__13___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_visitForall_visit___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ForEachExpr_0__Lean_Meta_shouldInferBinderName___rarg(lean_object*, lean_object*, lean_object*);
@@ -108,7 +109,6 @@ lean_object* l_Lean_MVarId_getDecl___boxed(lean_object*, lean_object*, lean_obje
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallBoundedTelescope___at_Lean_Meta_setMVarUserNamesAt___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Expr_getRevArg_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_visitLet_visit___spec__1(lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_setMVarUserNamesAt___spec__13(lean_object*, lean_object*);
@@ -130,8 +130,8 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_setMVarUserNam
 LEAN_EXPORT lean_object* l_Lean_Meta_setMVarUserNamesAt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_forEachExpr_x27_visit___spec__11___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 size_t lean_usize_modn(size_t, lean_object*);
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_setMVarUserNamesAt___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_visitLet_visit___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit(lean_object*);
@@ -177,7 +177,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forEachExpr_x2
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit(lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_forEachExpr_x27_visit___spec__11(lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4;
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_Meta_forEachExpr_x27_visit___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_forEachExpr_x27_visit___spec__5___rarg___lambda__2(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___rarg___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -205,15 +204,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_setMVarUserNamesAt___spec__10___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5;
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_setMVarUserNamesAt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at_Lean_Meta_setMVarUserNamesAt___spec__16___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitForall_visit___at_Lean_Meta_forEachExpr_x27_visit___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLambda_visit___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___rarg___lambda__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forEachExpr_x27___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_visitLet_visit___at_Lean_Meta_forEachExpr_x27_visit___spec__10___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2874,43 +2870,6 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Init.Util", 9);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem!", 8);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("index out of bounds", 19);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2;
-x_2 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3;
-x_3 = lean_unsigned_to_nat(77u);
-x_4 = lean_unsigned_to_nat(36u);
-x_5 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13, lean_object* x_14, lean_object* x_15) {
 _start:
 {
@@ -2932,8 +2891,8 @@ x_62 = lean_nat_dec_lt(x_7, x_5);
 if (x_62 == 0)
 {
 lean_object* x_63; lean_object* x_64; 
-x_63 = l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5;
-x_64 = l_panic___at_Lean_Expr_getRevArg_x21___spec__1(x_63);
+x_63 = l_Lean_instInhabitedExpr;
+x_64 = l___private_Init_Util_0__outOfBounds___rarg(x_63);
 x_27 = x_64;
 goto block_61;
 }
@@ -6474,14 +6433,6 @@ l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_forEachExpr___spec__1___rarg___closed
 lean_mark_persistent(l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_forEachExpr___spec__1___rarg___closed__2);
 l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__1 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__1();
 lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__1);
-l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__2);
-l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__3);
-l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__4);
-l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5 = _init_l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5();
-lean_mark_persistent(l_Std_Range_forIn_loop___at_Lean_Meta_setMVarUserNamesAt___spec__4___closed__5);
 l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_setMVarUserNamesAt___spec__6___closed__1 = _init_l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_setMVarUserNamesAt___spec__6___closed__1();
 lean_mark_persistent(l_Lean_Meta_forEachExpr_x27___at_Lean_Meta_setMVarUserNamesAt___spec__6___closed__1);
 l_Lean_Meta_setMVarUserNamesAt___lambda__1___closed__1 = _init_l_Lean_Meta_setMVarUserNamesAt___lambda__1___closed__1();

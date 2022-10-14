@@ -641,8 +641,15 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (only_deps && deps_json) {
             buffer<string_ref> fns;
-            for (int i = optind; i < argc; i++) {
-                fns.push_back(string_ref(argv[i]));
+            if (use_stdin) {
+                std::string fn;
+                while (std::cin >> fn) {
+                    fns.push_back(string_ref(fn));
+                }
+            } else {
+                for (int i = optind; i < argc; i++) {
+                    fns.push_back(string_ref(argv[i]));
+                }
             }
             print_imports_json(fns);
             return 0;

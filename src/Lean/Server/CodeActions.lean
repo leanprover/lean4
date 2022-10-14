@@ -14,24 +14,6 @@ open Lsp
 open RequestM
 open Snapshots
 
-structure CodeActionData where
-  uri : DocumentUri
-  resolverId : UInt64
-  deriving ToJson, FromJson
-
-def CodeAction.getFileSource! (ca : CodeAction) : DocumentUri :=
-  let r : Except String DocumentUri := do
-    let some data := ca.data?
-      | throw s!"no data param on code action {ca.title}"
-    let data : CodeActionData ← fromJson? data
-    return data.uri
-  match r with
-  | Except.ok uri => uri
-  | Except.error e => panic! e
-
-instance : FileSource CodeAction where
-  fileSource x := CodeAction.getFileSource! x
-
 /-- A code action optionally supporting a lazy code action computation that is only run when the user clicks on
 the code action in the editor.
 
@@ -42,41 +24,31 @@ structure LazyCodeAction where
   eager : CodeAction
   lazy? : Option (IO CodeAction) := none
 
+/-- Passed as the `data?` field of `Lsp.CodeAction` to recover the context of the code action. -/
+structure CodeActionResolveData where
+  params : CodeActionParams
+  /-- Name of CodeActionProvider that produced this request. -/
+  providerName : Name
+  /-- Index in the list of code action that the given provider generated. -/
+  providerResultIndex : Nat
+  deriving ToJson, FromJson
+
+def CodeAction.getFileSource! (ca : CodeAction) : DocumentUri :=
+  let r : Except String DocumentUri := do
+    let some data := ca.data?
+      | throw s!"no data param on code action {ca.title}"
+    let data : CodeActionResolveData ← fromJson? data
+    return data.params.textDocument.uri
+  match r with
+  | Except.ok uri => uri
+  | Except.error e => panic! e
+
+instance : FileSource CodeAction where
+  fileSource x := CodeAction.getFileSource! x
+
+
 instance : Coe CodeAction LazyCodeAction where
   coe c := { eager := c }
-
-abbrev CodeActionResolverState := RBMap UInt64 LazyCodeAction compare
-
-builtin_initialize codeActionResolver : IO.Ref CodeActionResolverState ← IO.mkRef ∅
-
-local instance : MonadStateOf CodeActionResolverState IO := codeActionResolver.toMonadStateOf
-
-def resetCodeActionResolverState : RequestM Unit := do
-  set (σ := CodeActionResolverState) <| ∅
-
-/-- Convert a LazyCodeAction to a CodeAction and register it. -/
-def LazyCodeAction.convert (uri : DocumentUri) (cs : LazyCodeAction) : RequestM CodeAction := do
-  if cs.lazy?.isNone || cs.eager.edit?.isSome then
-    return cs.eager
-  let s : CodeActionResolverState ← get
-  let resolverId := (Prod.fst <$> s.max).getD 0 |> (· + 1)
-  set <| s.insert resolverId cs
-  let data : CodeActionData := { resolverId, uri }
-  let data? := Option.merge Json.mergeObj cs.eager.data? (some <| toJson data)
-  return { cs.eager with data? }
-
-/-- Find the registered lazy resolver for the given code action and run it. -/
-def LazyCodeAction.resolve (ca : CodeAction) : RequestM CodeAction := do
-  let some data := ca.data?
-    | throw <| RequestError.internalError s!"No data field on {ca.title}"
-  let data : CodeActionData ← liftExcept <| Except.mapError RequestError.internalError <| fromJson? data
-  let s : CodeActionResolverState ← get
-  let some x := s.find? data.resolverId
-    | throw <| RequestError.internalError s!"Can't find resolver id {data.resolverId} for code action {ca.title}."
-  let some x := x.lazy?
-    | throw <| RequestError.internalError s!"No lazy resolver for {ca.title}."
-  let r ← liftM x
-  return r
 
 /-- A code action provider is a function for providing LSP code actions for an editor.
 You can register them with the `@[codeActionProvider]` attribute.
@@ -97,7 +69,6 @@ def CodeActionProvider := CodeActionParams → Snapshot → RequestM (Array Lazy
 deriving instance Inhabited for CodeActionProvider
 
 builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name NameSet ← registerSimplePersistentEnvExtension {
-  name := `codeActionProviderExt,
   addImportedFn := fun nss => nss.foldl (fun acc ns => ns.foldl NameSet.insert acc) ∅
   addEntryFn := fun s n => s.insert n
   toArrayFn  := fun es => es.toArray.qsort Name.quickLt
@@ -107,7 +78,6 @@ builtin_initialize registerBuiltinAttribute {
   name := `codeActionProvider
   descr := "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
   add := fun src _stx _kind => do
-    -- [todo] assert src is a CodeActionProvider
     modifyEnv (codeActionProviderExt.addEntry · src)
 }
 
@@ -131,12 +101,20 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
     fun snap => do
       let caps ← RequestM.runCoreM snap do
         let env ← getEnv
-        let names := codeActionProviderExt.getState env
-        names.toArray.mapM evalCodeActionProvider
-      resetCodeActionResolverState
-      let cas ← caps.concatMapM (· params snap)
-      let cas ← cas.mapM <| LazyCodeAction.convert doc.meta.uri
-      return cas
+        let names := codeActionProviderExt.getState env |>.toArray
+        let caps ← names.mapM evalCodeActionProvider
+        return Array.zip names caps
+      caps.concatMapM (fun (providerName, cap) => do
+        let cas ← cap params snap
+        cas.mapIdxM (fun i lca => do
+          let data : CodeActionResolveData := {
+            params, providerName, providerResultIndex := i
+          }
+          let j : Json := toJson data
+          let ca := { lca.eager with data? := some j }
+          return ca
+        )
+      )
 
 builtin_initialize
   registerLspRequestHandler "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction
@@ -146,8 +124,22 @@ builtin_initialize
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#codeAction_resolve)
 -/
 def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAction) := do
-  let r ← LazyCodeAction.resolve param
-  return RequestTask.pure r
+  let doc ← readDoc
+  let some data := param.data?
+    | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
+  let data : CodeActionResolveData ← liftExcept <| Except.mapError RequestError.invalidParams <| fromJson? data
+  let pos := doc.meta.text.lspPosToUtf8Pos data.params.range.end
+  withWaitFindSnap doc (fun s => s.endPos ≥ pos)
+    (notFoundX := throw <| RequestError.internalError "snapshot not found")
+    fun snap => do
+      let cap ← RequestM.runCoreM snap <| evalCodeActionProvider data.providerName
+      let cas ← cap data.params snap
+      let some ca := cas[data.providerResultIndex]?
+        | throw <| RequestError.internalError s!"Failed to resolve code action index {data.providerResultIndex}."
+      let some lazy := ca.lazy?
+        | throw <| RequestError.internalError s!"Can't resolve; nothing further to resolve."
+      let r ← liftM lazy
+      return r
 
 builtin_initialize
   registerLspRequestHandler "codeAction/resolve" CodeAction CodeAction handleCodeActionResolve

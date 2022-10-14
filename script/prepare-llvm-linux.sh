@@ -36,17 +36,18 @@ $CP $GLIBC/lib/*crt* stage1/lib/
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
 # LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
 # but clang-15 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
+# https://github.com/llvm/llvm-project/issues/54955
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
-# https://github.com/llvm/llvm-project/issues/57104
-$CP -r llvm/include/*/c++ llvm/include/
+# libc++ headers are looked up in the host compiler's root, so copy over target-specific includes
+$CP -r llvm/include/*-*-* llvm-host/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -isystem $PWD/llvm/include -isystem $PWD/llvm/include/c++/v1 -isystem $GLIBC_DEV/include ${EXTRA_FLAGS:-} -v'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-} -v'"
 # use target compiler directly when not cross-compiling
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"

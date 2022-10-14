@@ -29,11 +29,18 @@ find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`
-$CP $GLIBC/lib/crt* llvm/lib/
-$CP $GLIBC/lib/crt* stage1/lib/
+$CP $GLIBC/lib/*crt* llvm/lib/
+$CP $GLIBC/lib/*crt* stage1/lib/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
-$CP llvm/lib/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+$CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
+# LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
+# but clang-15 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
+# https://github.com/llvm/llvm-project/issues/54955
+$CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
+$CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
+# libc++ headers are looked up in the host compiler's root, so copy over target-specific includes
+$CP -r llvm/include/*-*-* llvm-host/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
@@ -45,7 +52,7 @@ echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/incl
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
 else
-  echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/14.0.0 ${EXTRA_FLAGS:-}'"
+  echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs

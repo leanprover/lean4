@@ -15,14 +15,9 @@ open Meta
   let stx := stx[1]
   tryPostponeIfNoneOrMVar expectedType?
   let e ← elabTerm stx none
-  let type ← inferType e
-  match expectedType? with
-  | some expectedType =>
-    if (← isDefEq expectedType type) then
-      return e
-    else
-      mkCoe expectedType type e
-  | _ => throwError "invalid coercion notation, expected type is not known"
+  if expectedType?.isNone then
+    throwError "invalid coercion notation, expected type is not known"
+  ensureHasType expectedType? e
 
 @[builtinTermElab anonymousCtor] def elabAnonymousCtor : TermElab := fun stx expectedType? =>
   match stx with

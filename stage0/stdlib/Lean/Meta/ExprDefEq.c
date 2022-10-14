@@ -729,7 +729,7 @@ static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_tryHeuristic___
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_CheckAssignment_checkMVar___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_isDefEqArgsFirstPass___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19658_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19648_(lean_object*);
 static lean_object* l___private_Lean_Meta_ExprDefEq_0__Lean_Meta_unstuckMVar___closed__20;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -71724,7 +71724,7 @@ lean_dec(x_4);
 return x_11;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19658_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19648_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
@@ -72332,7 +72332,7 @@ l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__19 = _init_l_Lean_Meta_isEx
 lean_mark_persistent(l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__19);
 l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__20 = _init_l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__20();
 lean_mark_persistent(l_Lean_Meta_isExprDefEqAuxImpl___lambda__3___closed__20);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19658_(lean_io_mk_world());
+res = l_Lean_Meta_initFn____x40_Lean_Meta_ExprDefEq___hyg_19648_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

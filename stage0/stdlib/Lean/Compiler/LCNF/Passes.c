@@ -75,7 +75,7 @@ extern lean_object* l_Lean_Compiler_LCNF_instInhabitedPassManager;
 extern lean_object* l_Lean_Compiler_LCNF_findJoinPoints;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_935____lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_935____closed__2;
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_457_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_355_(uint8_t, uint8_t);
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_builtinPassManager___closed__3;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Passes___hyg_935____closed__21;
@@ -2264,7 +2264,7 @@ x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
 x_9 = 0;
-x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_457_(x_3, x_9);
+x_10 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_355_(x_3, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; uint8_t x_13; 

@@ -120,7 +120,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getGlobalInstancesIndex___rarg___boxed(lean
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_571____closed__6;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_457_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_355_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_1908_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_571_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Instances___hyg_1512_(lean_object*);
@@ -8184,7 +8184,7 @@ x_11 = lean_ctor_get(x_9, 1);
 lean_inc(x_11);
 lean_dec(x_9);
 x_12 = 0;
-x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_457_(x_3, x_12);
+x_13 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_355_(x_3, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 

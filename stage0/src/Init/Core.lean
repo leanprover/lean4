@@ -70,6 +70,10 @@ instead of calling the stored getter function.
 @[simp] theorem Thunk.sizeOf_eq [SizeOf α] (a : Thunk α) : sizeOf a = 1 + sizeOf a.get := by
    cases a; rfl
 
+instance thunkCoe : CoeTail α (Thunk α) where
+  -- Since coercions are expanded eagerly, `a` is evaluated lazily.
+  coe a := ⟨fun _ => a⟩
+
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h

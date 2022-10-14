@@ -37,7 +37,7 @@ def throwInvalidNamedArg (namedArg : NamedArg) (fn? : Option Name) : TermElabM �
 
 private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermElabM Expr := do
   try
-    ensureHasTypeAux expectedType (← inferType arg) arg f
+    ensureHasType expectedType arg none f
   catch
     | ex@(.error ..) =>
       if (← read).errToSorry then
@@ -54,28 +54,6 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
     if !(← isProp rType) then
       throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
   return r
-
-/--
-  Relevant definitions:
-  ```
-  class CoeFun (α : Sort u) (γ : α → outParam (Sort v))
-  ```
--/
-private def tryCoeFun? (α : Expr) (a : Expr) : TermElabM (Option Expr) := do
-  let v ← mkFreshLevelMVar
-  let type ← mkArrow α (mkSort v)
-  let γ ← mkFreshExprMVar type
-  let u ← getLevel α
-  let coeFunInstType := mkAppN (Lean.mkConst ``CoeFun [u, v]) #[α, γ]
-  let mvar ← mkFreshExprMVar coeFunInstType MetavarKind.synthetic
-  let mvarId := mvar.mvarId!
-  try
-    if (← synthesizeCoeInstMVarCore mvarId) then
-      expandCoe <| mkAppN (Lean.mkConst ``CoeFun.coe [u, v]) #[α, γ, mvar, a]
-    else
-      return none
-  catch _ =>
-    return none
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
@@ -205,11 +183,10 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
   if fType.isForall then
     modify fun s => { s with fType }
   else
-    match (← tryCoeFun? fType s.f) with
-    | some f =>
+    if let some f ← coerceToFunction? s.f then
       let fType ← inferType f
       modify fun s => { s with f, fType }
-    | none =>
+    else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
         if f.isConst then

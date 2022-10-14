@@ -242,6 +242,12 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
   | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}.{a8.getString}"]
   | _  => throw ()
 
+@[appUnexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
+  | _ => `(#[])
+
+@[appUnexpander Array.mkArray0] def unexpandMkArray0 : Lean.PrettyPrinter.Unexpander
+  | _ => `(#[])
+
 @[appUnexpander Array.mkArray1] def unexpandMkArray1 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1) => `(#[$a1])
   | _ => throw ()

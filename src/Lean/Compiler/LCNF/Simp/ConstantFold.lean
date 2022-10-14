@@ -345,22 +345,14 @@ Apply all known folders to `decl`.
 -/
 def applyFolders (decl : LetDecl) (folders : SMap Name Folder) : CompilerM (Option (Array CodeDecl)) := do
   let e := decl.value
-  match e with
-  | .app .. =>
-    match e.getAppFn with
-    | .const name .. =>
-      if let some folder := folders.find? name then
-        if let (some res, aux) ← folder e.getAppArgs |>.run #[] then
-          let decl ← decl.updateValue res
-          return some <| aux.push (.let decl)
-      return none
-    | _ => return none
-  | .const .. | .lit .. | .fvar .. | .bvar .. | .lam .. | .sort .. |
-    .forallE .. | .letE .. | .mdata .. =>
+  match e.getAppFn with
+  | .const name .. =>
+    if let some folder := folders.find? name then
+      if let (some res, aux) ← folder e.getAppArgs |>.run #[] then
+        let decl ← decl.updateValue res
+        return some <| aux.push (.let decl)
     return none
-    -- TODO: support for constant folding on projections
-  | .proj .. => return none
-  | _ => unreachable!
+  | _ => return none
 
 private unsafe def getFolderCoreUnsafe (env : Environment) (opts : Options) (declName : Name) : ExceptT String Id Folder :=
   env.evalConstCheck Folder opts ``Folder declName

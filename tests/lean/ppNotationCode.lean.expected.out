@@ -67,8 +67,7 @@
                       { raw :=
                             Lean.Syntax.node info `Lean.Parser.Term.app
                               #[Lean.Syntax.node info `term_+++_ #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw],
-                                Lean.Syntax.node info `null
-                                  (Array.append Array.mkArray0 (Lean.TSyntaxArray.raw moreArgs))] }.raw
+                                Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))] }.raw
               else
                 let_fun __discr_5 := Lean.Syntax.getArg __discr_2 1;
                 let_fun __discr := Lean.Syntax.getArg __discr 1;

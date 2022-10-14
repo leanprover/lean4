@@ -54,7 +54,7 @@ lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_obj
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Elab_Term_mkCalcTrans___closed__9;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Term_ensureHasType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabCalcSteps___spec__2___closed__9;
 static lean_object* l_Lean_Elab_Term_mkCalcTrans___closed__10;
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
@@ -5397,7 +5397,7 @@ x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
 x_21 = lean_box(0);
-x_22 = l_Lean_Elab_Term_ensureHasType(x_2, x_19, x_21, x_3, x_4, x_5, x_6, x_7, x_8, x_20);
+x_22 = l_Lean_Elab_Term_ensureHasType(x_2, x_19, x_21, x_21, x_3, x_4, x_5, x_6, x_7, x_8, x_20);
 return x_22;
 }
 else

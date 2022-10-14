@@ -22,7 +22,7 @@ open Simp
 
 def Decl.simp? (decl : Decl) : SimpM (Option Decl) := do
   updateFunDeclInfo decl.value
-  trace[Compiler.simp.inline.info] "{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
+  traceM `Compiler.simp.inline.info do return m!"{decl.name}:{Format.nest 2 (← (← get).funDeclInfoMap.format)}"
   traceM `Compiler.simp.step do ppDecl decl
   let value ← simp decl.value
   let s ← get

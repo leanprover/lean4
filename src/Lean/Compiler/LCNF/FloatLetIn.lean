@@ -287,7 +287,7 @@ where
       let altMapper alt := do
         let decision := .ofAlt alt
         let newCode := res.newArms.find! decision
-        trace[Compiler.floatLetIn] s!"Size of code that was pushed into arm: {repr decision} {newCode.length}"
+        trace[Compiler.floatLetIn] "Size of code that was pushed into arm: {repr decision} {newCode.length}"
         let fused ← withNewScope do
           go (attachCodeDecls newCode.toArray alt.getCode)
         return alt.updateCode fused

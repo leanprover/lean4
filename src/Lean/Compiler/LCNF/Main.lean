@@ -72,7 +72,7 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   decls := markRecDecls decls
   let manager ← getPassManager
   for pass in manager.passes do
-    trace[Compiler] s!"Running pass: {pass.name}"
+    trace[Compiler] "Running pass: {pass.name}"
     decls ← withPhase pass.phase <| pass.run decls
     withPhase pass.phaseOut <| checkpoint pass.name decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then

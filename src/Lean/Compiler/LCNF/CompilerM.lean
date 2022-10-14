@@ -42,6 +42,9 @@ structure CompilerM.Context where
 
 abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 
+@[alwaysInline]
+instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure := i.pure, bind := i.bind }
+
 @[inline] def withPhase (phase : Phase) (x : CompilerM α) : CompilerM α :=
   withReader (fun ctx => { ctx with phase }) x
 

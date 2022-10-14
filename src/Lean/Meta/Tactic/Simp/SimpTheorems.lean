@@ -451,13 +451,13 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Origin) 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
 
-macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:docComment
+macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   "register_simp_attr" id:ident : command => do
   let str := id.getId.toString
   let idParser := mkIdentFrom id (`Parser.Attr ++ id.getId)
-  let descr := quote (removeLeadingSpaces doc.getDocString)
-  `($doc:docComment initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
-    $doc:docComment syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
+  let descr := quote (removeLeadingSpaces (doc.map (·.getDocString) |>.getD s!"simp set for {id.getId.toString}"))
+  `($[$doc:docComment]? initialize ext : SimpExtension ← registerSimpAttr $(quote id.getId) $descr $(quote id.getId)
+    $[$doc:docComment]? syntax (name := $idParser:ident) $(quote str):str (Parser.Tactic.simpPre <|> Parser.Tactic.simpPost)? (prio)? : attr)
 
 end Meta
 

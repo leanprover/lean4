@@ -49,6 +49,58 @@ jobs:
     strategy:
       matrix:
         include:
+          # portable release build: use channel with older glibc (2.27)
+          - name: Linux release
+            os: ubuntu-latest
+            release: true
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-linux-gnu.tar.zst
+            prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
+            binary-check: ldd -v
+            # foreign code may be linked against more recent glibc
+            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
+          - name: Linux
+            os: ubuntu-latest
+            check-stage3: true
+            test-speedcenter: true
+          - name: Linux Debug
+            os: ubuntu-latest
+            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+          - name: Linux fsanitize
+            os: ubuntu-latest
+            # turn off custom allocator & symbolic functions to make LSAN do its magic
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+            # exclude problematic tests
+            CTEST_OPTIONS: -E laketest
+          - name: macOS
+            os: macos-latest
+            release: true
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS aarch64
+            os: macos-latest
+            release: true
+            cross: true
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: Windows
+            os: windows-2022
+            release: true
+            shell: msys2 {0}
+            CMAKE_OPTIONS: -G "Unix Makefiles"
+            # for reasons unknown, interactivetests are flaky on Windows
+            CTEST_OPTIONS: --repeat until-pass:2
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/14.0.0/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            prepare-llvm: ../script/prepare-llvm-mingw.sh lean-llvm*
+            binary-check: ldd
           - name: Linux aarch64
             os: ubuntu-latest
             CMAKE_OPTIONS: -DCMAKE_PREFIX_PATH=$GMP -DLEAN_INSTALL_SUFFIX=-linux_aarch64

@@ -47,6 +47,7 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP -r llvm/include/*/c++ llvm/include/
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/{libc_nonshared.a,Scrt1.o} stage1/lib/glibc
+$CP $GLIBC/lib/Scrt1.o stage1/lib
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"

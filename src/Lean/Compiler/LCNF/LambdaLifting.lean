@@ -176,16 +176,18 @@ def eagerLambdaLifting : Pass where
   name       := `eagerLambdaLifting
   run        := fun decls => do
     decls.foldlM (init := #[]) fun decls decl => do
-      let isInstance ← Meta.isInstance decl.name
-      let liftInstParamOnly := !isInstance
-      let inheritInlineAttrs := isInstance
-      /-
-      Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
-      It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
-      -/
-      let minSize := if isInstance then 3 else 0
-      -- TODO: when performing eager lambda lifting in instances, we must check whether they are tagged with `[inline]` and propagate annotation to new functions
-      return decls ++ (← decl.lambdaLifting liftInstParamOnly (suffix := `_elambda) inheritInlineAttrs minSize)
+      if (← Meta.isInstance decl.name) then
+        /-
+        Recall that we lambda lift local functions in instances to control code blowup, and make sure they are cheap to inline.
+        It is not worth to lift tiny ones. TODO: evaluate whether we should add a compiler option to control the min size.
+
+        Recall that when performing eager lambda lifting in instances, we progatate the `[inline]` annotations to the new auxiliary functions.
+
+        Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
+        -/
+        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elambda) (inheritInlineAttrs := true) (minSize := 3))
+      else
+        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elambda))
 
 builtin_initialize
   registerTraceClass `Compiler.eagerLambdaLifting (inherited := true)

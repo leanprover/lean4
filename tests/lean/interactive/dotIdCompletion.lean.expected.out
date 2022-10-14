@@ -2,6 +2,5 @@
  "position": {"line": 4, "character": 5}}
 {"items":
  [{"label": "true", "kind": 4, "detail": "Boo"},
-  {"label": "truth", "kind": 4, "detail": "Boo"},
-  {"label": "toCtorIdx", "kind": 3, "detail": "Boo → Nat"}],
+  {"label": "truth", "kind": 4, "detail": "Boo"}],
  "isIncomplete": true}

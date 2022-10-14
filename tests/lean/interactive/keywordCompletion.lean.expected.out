@@ -9,11 +9,12 @@
 {"items":
  [{"label": "register_string", "kind": 14, "detail": "keyword"},
   {"label": "regular", "kind": 21, "detail": "Nat"},
+  {"label": "termRegister_string_", "kind": 21, "detail": "Lean.ParserDescr"},
   {"label": "recSubsingleton",
    "kind": 3,
    "detail":
    "∀ [h : Decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} [h₃ : ∀ (h : p), Subsingleton (h₁ h)]\n  [h₄ : ∀ (h : ¬p), Subsingleton (h₂ h)], Subsingleton (Decidable.casesOn h h₂ h₁)"},
-  {"label": "reprArg", "kind": 3, "detail": "[inst : Repr α] → α → Std.Format"},
-  {"label": "termRegister_string_", "kind": 21, "detail": "Lean.ParserDescr"},
-  {"label": "instReprStdGen", "kind": 21, "detail": "Repr StdGen"}],
+  {"label": "reprArg",
+   "kind": 3,
+   "detail": "[inst : Repr α] → α → Std.Format"}],
  "isIncomplete": true}

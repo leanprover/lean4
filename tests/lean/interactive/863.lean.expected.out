@@ -1,14 +1,7 @@
 {"textDocument": {"uri": "file://863.lean"},
  "position": {"line": 3, "character": 12}}
 {"items":
- [{"label": "getRecAppSyntax?",
-   "kind": 3,
-   "documentation":
-   {"value":
-    "Retrieve (if available) the syntax object attached to a recursive application.\n",
-    "kind": "markdown"},
-   "detail": "Expr → Option Syntax"},
-  {"label": "getReducibilityStatus",
+ [{"label": "getReducibilityStatus",
    "kind": 3,
    "documentation":
    {"value": "Return the reducibility attribute for the given declaration. ",
@@ -34,12 +27,19 @@
     "Return the line and column numbers associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
     "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m Position"},
-  {"label": "getRegularInitFnNameFor?",
-   "kind": 3,
-   "detail": "Environment → Name → Option Name"},
   {"label": "getRevAliases",
    "kind": 3,
    "detail": "Environment → Name → List Name"},
+  {"label": "getRecAppSyntax?",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "Retrieve (if available) the syntax object attached to a recursive application.\n",
+    "kind": "markdown"},
+   "detail": "Expr → Option Syntax"},
+  {"label": "getRegularInitFnNameFor?",
+   "kind": 3,
+   "detail": "Environment → Name → Option Name"},
   {"label": "getConstInfoRec",
    "kind": 3,
    "detail":
@@ -48,14 +48,7 @@
 {"textDocument": {"uri": "file://863.lean"},
  "position": {"line": 7, "character": 12}}
 {"items":
- [{"label": "getRecAppSyntax?",
-   "kind": 3,
-   "documentation":
-   {"value":
-    "Retrieve (if available) the syntax object attached to a recursive application.\n",
-    "kind": "markdown"},
-   "detail": "Expr → Option Syntax"},
-  {"label": "getReducibilityStatus",
+ [{"label": "getReducibilityStatus",
    "kind": 3,
    "documentation":
    {"value": "Return the reducibility attribute for the given declaration. ",
@@ -81,12 +74,19 @@
     "Return the line and column numbers associated with the current reference syntax (i.e., the syntax object returned by `getRef`.)\n",
     "kind": "markdown"},
    "detail": "[inst : Monad m] → [inst : MonadLog m] → m Position"},
-  {"label": "getRegularInitFnNameFor?",
-   "kind": 3,
-   "detail": "Environment → Name → Option Name"},
   {"label": "getRevAliases",
    "kind": 3,
    "detail": "Environment → Name → List Name"},
+  {"label": "getRecAppSyntax?",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "Retrieve (if available) the syntax object attached to a recursive application.\n",
+    "kind": "markdown"},
+   "detail": "Expr → Option Syntax"},
+  {"label": "getRegularInitFnNameFor?",
+   "kind": 3,
+   "detail": "Environment → Name → Option Name"},
   {"label": "getConstInfoRec",
    "kind": 3,
    "detail":

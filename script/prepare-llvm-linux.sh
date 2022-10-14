@@ -40,6 +40,7 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
 # https://github.com/llvm/llvm-project/issues/57104
 $CP -r llvm/include/*/c++ llvm/include/c++
+$CP -r llvm-host/include/*/c++ llvm-host/include/c++
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done

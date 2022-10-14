@@ -1,9 +1,6 @@
-621.lean:4:45-4:47: error: type expected
-failed to coerce
+621.lean:4:45-4:47: error: failed to coerce
   xs
 to a type, after applying `CoeSort.coe`, result is still not a type
   xs.val
-this is often due to incorrect `CoeSort` instances, the synthesized value for
-  CoeSort (Subtype ϕ) α
-was
+this is often due to incorrect `CoeSort` instances, the synthesized instance was
   instCoeSortSubtype ϕ

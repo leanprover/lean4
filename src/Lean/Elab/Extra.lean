@@ -349,7 +349,7 @@ mutual
           return t
         else
           trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
-          withRef ref <| return .term ref trees (← mkCoe maxType type e)
+          withRef ref <| return .term ref trees (← mkCoe maxType e)
 
   private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
     let r ← analyze tree expectedType?

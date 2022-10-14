@@ -29,12 +29,11 @@ structure SavedContext where
 inductive SyntheticMVarKind where
   /-- Use typeclass resolution to synthesize value for metavariable. -/
   | typeClass
-  /--
-  Similar to `typeClass`, but error messages are different.
+  /-- Use coercion to synthesize value for the metavariable.
   if `f?` is `some f`, we produce an application type mismatch error message.
   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
   Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
-  | coe (header? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr)
+  | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
   /-- Use tactic to synthesize value for metavariable. -/
   | tactic (tacticCode : Syntax) (ctx : SavedContext)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
@@ -664,7 +663,7 @@ def withoutMacroStackAtErr (x : TermElabM α) : TermElabM α :=
 
 namespace ContainsPendingMVar
 
-abbrev M := MonadCacheT Expr Unit (OptionT TermElabM)
+abbrev M := MonadCacheT Expr Unit (OptionT MetaM)
 
 /-- See `containsPostponedTerm` -/
 partial def visit (e : Expr) : M Unit := do
@@ -693,7 +692,7 @@ partial def visit (e : Expr) : M Unit := do
 end ContainsPendingMVar
 
 /-- Return `true` if `e` contains a pending metavariable. Remark: it also visits let-declarations. -/
-def containsPendingMVar (e : Expr) : TermElabM Bool := do
+def containsPendingMVar (e : Expr) : MetaM Bool := do
   match (← ContainsPendingMVar.visit e |>.run.run) with
   | some _ => return false
   | none   => return true
@@ -752,216 +751,33 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
     else
       throwError "failed to synthesize instance{indentExpr type}"
 
-register_builtin_option autoLift : Bool := {
-  defValue := true
-  descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
-}
-
-register_builtin_option maxCoeSize : Nat := {
-  defValue := 16
-  descr    := "maximum number of instances used to construct an automatic coercion"
-}
-
-def synthesizeCoeInstMVarCore (instMVar : MVarId) : TermElabM Bool := do
-  synthesizeInstMVarCore instMVar (some (maxCoeSize.get (← getOptions)))
-
-/--
-  The coercion from `α` to `Thunk α` cannot be implemented using an instance because it would
-  eagerly evaluate `e`
--/
-def tryCoeThunk? (expectedType : Expr) (eType : Expr) (e : Expr) : TermElabM (Option Expr) := do
-  match expectedType with
-  | .app (.const ``Thunk u) arg =>
-    if (← isDefEq eType arg) then
-      return some (mkApp2 (mkConst ``Thunk.mk u) arg (mkSimpleThunk e))
-    else
-      return none
-  | _ =>
-    return none
-
-def mkCoe (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
-  let u ← getLevel eType
-  let v ← getLevel expectedType
-  let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, e, expectedType]
-  let mvar ← mkFreshExprMVar coeTInstType MetavarKind.synthetic
-  let eNew := mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, e, expectedType, mvar]
-  let mvarId := mvar.mvarId!
+def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
+  trace[Elab.coe] "adding coercion for {e} : {← inferType e} =?= {expectedType}"
   try
     withoutMacroStackAtErr do
-      if (← synthesizeCoeInstMVarCore mvarId) then
-        expandCoe eNew
-      else
-        -- We create an auxiliary metavariable to represent the result, because we need to execute `expandCoe`
-        -- after we syntheze `mvar`
+      match ← coerce? e expectedType with
+      | .some eNew => return eNew
+      | .none => failure
+      | .undef =>
         let mvarAux ← mkFreshExprMVar expectedType MetavarKind.syntheticOpaque
-        registerSyntheticMVarWithCurrRef mvarAux.mvarId! (SyntheticMVarKind.coe errorMsgHeader? eNew expectedType eType e f?)
+        registerSyntheticMVarWithCurrRef mvarAux.mvarId! (.coe errorMsgHeader? expectedType e f?)
         return mvarAux
   catch
-    | .error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
-    | _            => throwTypeMismatchError errorMsgHeader? expectedType eType e f?
-
-/--
-  Try to apply coercion to make sure `e` has type `expectedType`.
-  Relevant definitions:
-  ```
-  class CoeT (α : Sort u) (a : α) (β : Sort v)
-  abbrev coe {α : Sort u} {β : Sort v} (a : α) [CoeT α a β] : β
-  ```
--/
-private def tryCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
-  if (← isDefEq expectedType eType) then
-    return e
-  else match (← tryCoeThunk? expectedType eType e) with
-    | some r => return r
-    | none   => trace[Elab.coe] "adding coercion for {e} : {eType} =?= {expectedType}"; mkCoe expectedType eType e f? errorMsgHeader?
-
-/-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/
-def isTypeApp? (type : Expr) : TermElabM (Option (Expr × Expr)) := do
-  let type ← withReducible <| whnf type
-  match type with
-  | .app m α => return some ((← instantiateMVars m), (← instantiateMVars α))
-  | _        => return none
-
-/-- Helper method used to implement auto-lift and coercions -/
-private def synthesizeInst (type : Expr) : TermElabM Expr := do
-  let type ← instantiateMVars type
-  match (← trySynthInstance type) with
-  | .some val => return val
-  -- Note that `ignoreTCFailures` is not checked here since it must return a result.
-  | .undef    => throwError "failed to synthesize instance{indentExpr type}"
-  | .none     => throwError "failed to synthesize instance{indentExpr type}"
-
-/--
-  Return `true` if `type` is of the form `m α` where `m` is a `Monad`.
-  Note that we reduce `type` using transparency `[reducible]`.
--/
-def isMonadApp (type : Expr) : TermElabM Bool := do
-  let some (m, _) ← isTypeApp? type | return false
-  return (← isMonad? m) |>.isSome
-
-/--
-Try coercions and monad lifts to make sure `e` has type `expectedType`.
-
-If `expectedType` is of the form `n β`, we try monad lifts and other extensions.
-Otherwise, we just use the basic `tryCoe`.
-
-Extensions for monads.
-
-1. Try to unify `n` and `m`. If it succeeds, then we use
-  ```
-  coeM {m : Type u → Type v} {α β : Type u} [∀ a, CoeT α a β] [Monad m] (x : m α) : m β
-  ```
-  `n` must be a `Monad` to use this one.
-
-2. If there is monad lift from `m` to `n` and we can unify `α` and `β`, we use
-  ```
-  liftM : ∀ {m : Type u_1 → Type u_2} {n : Type u_1 → Type u_3} [self : MonadLiftT m n] {α : Type u_1}, m α → n α
-  ```
-  Note that `n` may not be a `Monad` in this case. This happens quite a bit in code such as
-  ```
-  def g (x : Nat) : IO Nat := do
-    IO.println x
-    pure x
-
-  def f {m} [MonadLiftT IO m] : m Nat :=
-    g 10
-
-  ```
-
-3. If there is a monad lift from `m` to `n` and a coercion from `α` to `β`, we use
-  ```
-  liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u} [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β
-  ```
-
-Note that approach 3 does not subsume 1 because it is only applicable if there is a coercion from `α` to `β` for all values in `α`.
-This is not the case for example for `pure $ x > 0` when the expected type is `IO Bool`. The given type is `IO Prop`, and
-we only have a coercion from decidable propositions.  Approach 1 works because it constructs the coercion `CoeT (m Prop) (pure $ x > 0) (m Bool)`
-using the instance `pureCoeDepProp`.
-
-Note that, approach 2 is more powerful than `tryCoe`.
-Recall that type class resolution never assigns metavariables created by other modules.
-Now, consider the following scenario
-```lean
-def g (x : Nat) : IO Nat := ...
-deg h (x : Nat) : StateT Nat IO Nat := do
-v ← g x;
-IO.Println v;
-...
-```
-Let's assume there is no other occurrence of `v` in `h`.
-Thus, we have that the expected of `g x` is `StateT Nat IO ?α`,
-and the given type is `IO Nat`. So, even if we add a coercion.
-```
-instance {α m n} [MonadLiftT m n] {α} : Coe (m α) (n α) := ...
-```
-It is not applicable because TC would have to assign `?α := Nat`.
-On the other hand, TC can easily solve `[MonadLiftT IO (StateT Nat IO)]`
-since this goal does not contain any metavariables. And then, we
-convert `g x` into `liftM $ g x`.
--/
-private def tryLiftAndCoe (errorMsgHeader? : Option String) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Expr := do
-  let expectedType ← instantiateMVars expectedType
-  let eType ← instantiateMVars eType
-  let throwMismatch {α} : TermElabM α := throwTypeMismatchError errorMsgHeader? expectedType eType e f?
-  let tryCoeSimple : TermElabM Expr :=
-    tryCoe errorMsgHeader? expectedType eType e f?
-  let some (n, β) ← isTypeApp? expectedType | tryCoeSimple
-  let some (m, α) ← isTypeApp? eType | tryCoeSimple
-  if (← isDefEq m n) then
-    let some monadInst ← isMonad? n | tryCoeSimple
-    try expandCoe (← mkAppOptM ``Lean.Internal.coeM #[m, α, β, none, monadInst, e]) catch _ => throwMismatch
-  else if autoLift.get (← getOptions) then
-    try
-      -- Construct lift from `m` to `n`
-      let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
-      let monadLiftVal  ← synthesizeInst monadLiftType
-      let u_1 ← getDecLevel α
-      let u_2 ← getDecLevel eType
-      let u_3 ← getDecLevel expectedType
-      let eNew := mkAppN (Lean.mkConst ``liftM [u_1, u_2, u_3]) #[m, n, monadLiftVal, α, e]
-      let eNewType ← inferType eNew
-      if (← isDefEq expectedType eNewType) then
-        return eNew -- approach 2 worked
-      else
-        let some monadInst ← isMonad? n | tryCoeSimple
-        let u ← getLevel α
-        let v ← getLevel β
-        let coeTInstType := Lean.mkForall `a BinderInfo.default α <| mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
-        let coeTInstVal ← synthesizeInst coeTInstType
-        let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
-        let eNewType ← inferType eNew
-        unless (← isDefEq expectedType eNewType) do throwMismatch
-        return eNew -- approach 3 worked
-    catch _ =>
-      /- If `m` is not a monad, then we try to use `tryCoe?`. -/
-      tryCoeSimple
-  else
-    tryCoeSimple
+    | .error _ msg => throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f? msg
+    | _            => throwTypeMismatchError errorMsgHeader? expectedType (← inferType e) e f?
 
 /--
   If `expectedType?` is `some t`, then ensure `t` and `eType` are definitionally equal.
   If they are not, then try coercions.
 
   Argument `f?` is used only for generating error messages. -/
-def ensureHasTypeAux (expectedType? : Option Expr) (eType : Expr) (e : Expr)
-    (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
-  match expectedType? with
-  | none              => return e
-  | some expectedType =>
-    if (← isDefEq eType expectedType) then
-      return e
-    else
-      tryLiftAndCoe errorMsgHeader? expectedType eType e f?
-
-/--
-  If `expectedType?` is `some t`, then ensure `t` and type of `e` are definitionally equal.
-  If they are not, then try coercions. -/
-def ensureHasType (expectedType? : Option Expr) (e : Expr) (errorMsgHeader? : Option String := none) : TermElabM Expr :=
-  match expectedType? with
-  | none => return e
-  | _    => do
-    let eType ← inferType e
-    ensureHasTypeAux expectedType? eType e none errorMsgHeader?
+def ensureHasType (expectedType? : Option Expr) (e : Expr)
+    (errorMsgHeader? : Option String := none) (f? : Option Expr := none) : TermElabM Expr := do
+  let some expectedType := expectedType? | return e
+  if (← isDefEq (← inferType e) expectedType) then
+    return e
+  else
+    mkCoe expectedType e f? errorMsgHeader?
 
 /--
   Create a synthetic sorry for the given expected type. If `expectedType? = none`, then a fresh
@@ -1425,32 +1241,6 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
   return mvar
 
 /--
-  Relevant definitions:
-  ```
-  class CoeSort (α : Sort u) (β : outParam (Sort v))
-  ```
-  -/
-private def tryCoeSort (α : Expr) (a : Expr) : TermElabM Expr := do
-  let β ← mkFreshTypeMVar
-  let u ← getLevel α
-  let v ← getLevel β
-  let coeSortInstType := mkAppN (Lean.mkConst ``CoeSort [u, v]) #[α, β]
-  let mvar ← mkFreshExprMVar coeSortInstType .synthetic
-  let mvarId := mvar.mvarId!
-  try
-    withoutMacroStackAtErr do
-      if (← synthesizeCoeInstMVarCore mvarId) then
-        let result ← expandCoe <| mkAppN (Lean.mkConst ``CoeSort.coe [u, v]) #[α, β, mvar, a]
-        unless (← isType result) do
-          throwError "failed to coerce{indentExpr a}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr result}\nthis is often due to incorrect `CoeSort` instances, the synthesized value for{indentExpr coeSortInstType}\nwas{indentExpr mvar}"
-        return result
-      else
-        throwError "type expected"
-  catch
-    | .error _ msg => throwError "type expected\n{msg}"
-    | _            => throwError "type expected"
-
-/--
   Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
   or is unifiable with `Expr.sort`, or can be coerced into one. -/
 def ensureType (e : Expr) : TermElabM Expr := do
@@ -1461,8 +1251,12 @@ def ensureType (e : Expr) : TermElabM Expr := do
     let u ← mkFreshLevelMVar
     if (← isDefEq eType (mkSort u)) then
       return e
+    else if let some coerced ← coerceToSort? e then
+      return coerced
     else
-      tryCoeSort eType e
+      if (← instantiateMVars e).hasSyntheticSorry then
+        throwAbortTerm
+      throwError "type expected, got\n  ({← instantiateMVars e} : {← instantiateMVars eType})"
 
 /-- Elaborate `stx` and ensure result is a type. -/
 def elabType (stx : Syntax) : TermElabM Expr := do

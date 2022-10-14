@@ -22,9 +22,8 @@ inductive1.lean:82:2-82:8: error: declaration is not a definition 'T1''
 inductive1.lean:85:0-85:17: error: invalid 'private' constructor in a 'private' inductive datatype
 inductive1.lean:93:7-93:26: error: invalid inductive type, cannot mix unsafe and safe declarations in a mutually inductive datatypes
 inductive1.lean:100:0-100:4: error: constructor resulting type must be specified in inductive family declaration
-inductive1.lean:105:7-105:9: error: type expected
-failed to synthesize instance
-  CoeSort (Nat → Type) ?m
+inductive1.lean:105:7-105:9: error: type expected, got
+  (T1 : Nat → Type)
 inductive1.lean:108:0-108:10: error: unexpected constructor resulting type
   Nat
 inductive1.lean:118:7-118:11: error: unknown identifier 'cons'

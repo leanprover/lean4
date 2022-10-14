@@ -261,7 +261,7 @@ passed the result of pre-pretty printing the application *without* implicitly pa
 to true or `pp.notation` is set to false, it will not be called at all.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
-      resolveGlobalConstNoOverloadCore (← Attribute.Builtin.getId stx)
+      Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
 @[builtinInit mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 

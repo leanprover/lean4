@@ -162,7 +162,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
     try
       -- Construct lift from `m` to `n`
       let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
-      let .some monadLiftVal ← trySynthInstanceForCoe monadLiftType | return none
+      let .some monadLiftVal ← trySynthInstance monadLiftType | return none
       let u_1 ← getDecLevel α
       let u_2 ← getDecLevel eType
       let u_3 ← getDecLevel expectedType
@@ -175,7 +175,7 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
         let u ← getLevel α
         let v ← getLevel β
         let coeTInstType := Lean.mkForall `a BinderInfo.default α <| mkAppN (mkConst ``CoeT [u, v]) #[α, mkBVar 0, β]
-        let .some coeTInstVal ← trySynthInstanceForCoe coeTInstType | return none
+        let .some coeTInstVal ← trySynthInstance coeTInstType | return none
         let eNew ← expandCoe (mkAppN (Lean.mkConst ``Lean.Internal.liftCoeM [u_1, u_2, u_3]) #[m, n, α, β, monadLiftVal, coeTInstVal, monadInst, e])
         let eNewType ← inferType eNew
         unless (← isDefEq expectedType eNewType) do return none

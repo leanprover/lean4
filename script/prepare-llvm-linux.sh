@@ -31,23 +31,16 @@ $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # ELF dependencies, must be put there for `--sysroot`
 $CP $GLIBC/lib/*crt* llvm/lib/
 $CP $GLIBC/lib/*crt* stage1/lib/
-# host runtime
-(cd llvm-host; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ./)
-$CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a llvm-host/lib/
-$CP -r llvm-host/include/*/c++ llvm-host/include/
-# target runtime
+# runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/{clang_rt.*.o,libclang_rt.builtins*} ../stage1)
-# The lib/*/ is to copy files regardless of target triple. The underlying path will
-# be of the form 'lib/x86_64-unknown-linux-gnu', 'lib/'aarch64-unknown-linux-gnu', ...
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a stage1/lib/
-# LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include<target-triple>'
-# but clang-15 that we use to compile is linked in such a way that it assumes the path is at 'llvm/lib/',
-# 'llvm/include'. So we manually perform the copying
+# LLVM 15 appears to ship the dependencies in 'llvm/lib/<target-triple>/' and 'llvm/include/<target-triple>/'
+# but clang-15 that we use to compile is linked against 'llvm/lib/' and 'llvm/include'
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
-$CP -r llvm/include/*/c++ llvm/include/
+# https://github.com/llvm/llvm-project/issues/57104
+$CP -r llvm/include/*/c++ llvm/include/c++
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
-$CP $GLIBC/lib/Scrt1.o stage1/lib
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
 echo -n " -DLEAN_STANDALONE=ON"

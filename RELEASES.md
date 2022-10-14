@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Improve fuzzy-matching heuristics](https://github.com/leanprover/lean4/pull/1710).
+
 * [Implementation-detail hypotheses](https://github.com/leanprover/lean4/pull/1692).
 
 * [Hover information for `cases`/`induction` case names](https://github.com/leanprover/lean4/pull/1660).

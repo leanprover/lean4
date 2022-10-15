@@ -6,10 +6,11 @@ open Lean.Compiler.LCNF
 #eval
   Probe.runGlobally (phase := .mono) <|
   Probe.filterByJp (·.params.anyM (fun param => return param.type.isForall)) >=>
-  Probe.declNames
+  Probe.declNames >=>
+  Probe.toString
 
 -- Count lambda lifted functions
-def lambdaCounter : Probe Decl Nat := 
+def lambdaCounter : Probe Decl Nat :=
   Probe.filter (fun decl =>
     if let .str _ val := decl.name then
       return val.startsWith "_lambda"

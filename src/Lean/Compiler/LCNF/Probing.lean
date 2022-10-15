@@ -59,7 +59,7 @@ partial def filterByFun (f : FunDecl → CompilerM Bool) : Probe Decl Decl :=
 where
   go : Code → CompilerM Bool
   | .let _ k | .jp _ k  => go k
-  | .fun decl k => do if (← f decl) then return true else go k 
+  | .fun decl k => do if (← f decl) then return true else go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -68,7 +68,7 @@ partial def filterByJp (f : FunDecl → CompilerM Bool) : Probe Decl Decl :=
 where
   go : Code → CompilerM Bool
   | .let _ k | .fun _ k  => go k
-  | .jp decl k => do if (← f decl) then return true else go k 
+  | .jp decl k => do if (← f decl) then return true else go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -77,7 +77,7 @@ partial def filterByFunDecl (f : FunDecl → CompilerM Bool) : Probe Decl Decl :
 where
   go : Code → CompilerM Bool
   | .let _ k => go k
-  | .fun decl k | .jp decl k => do if (← f decl) then return true else go k 
+  | .fun decl k | .jp decl k => do if (← f decl) then return true else go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -119,6 +119,10 @@ where
 @[inline]
 def declNames : Probe Decl Name :=
   Probe.map (fun decl => return decl.name)
+
+@[inline]
+def toString [ToString α] : Probe α String :=
+  Probe.map (return ToString.toString ·)
 
 @[inline]
 def count : Probe α Nat := fun data => return #[data.size]

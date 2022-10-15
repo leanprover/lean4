@@ -28,6 +28,8 @@ $CP $ZLIB/lib/libz.so* stage1/lib/
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
+# LLVM backend includes
+$CP -r llvm/include/* stage1/include/
 # ELF dependencies, must be put there for `--sysroot`
 $CP $GLIBC/lib/*crt* llvm/lib/
 $CP $GLIBC/lib/*crt* stage1/lib/

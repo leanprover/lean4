@@ -58,7 +58,10 @@ def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
   let indVal     := ctx.typeInfos[i]!
   let header     ← mkHashableHeader indVal
-  let body       ← mkMatch ctx header indVal
+  let mut body   ← mkMatch ctx header indVal
+  if ctx.usePartial then
+    let letDecls ← mkLocalInstanceLetDecls ctx `Hashable header.argNames
+    body ← mkLet letDecls body
   let binders    := header.binders
   if ctx.usePartial then
     -- TODO(Dany): Get rid of this code branch altogether once we have well-founded recursion

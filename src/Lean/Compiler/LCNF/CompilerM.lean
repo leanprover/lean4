@@ -263,24 +263,33 @@ def mkFreshBinderName (binderName := `_x): CompilerM Name := do
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
   return declName
 
+def ensureNotAnonymous (binderName : Name) (baseName : Name) : CompilerM Name :=
+  if binderName.isAnonymous then
+    mkFreshBinderName baseName
+  else
+    return binderName
+
 /-!
 Helper functions for creating LCNF local declarations.
 -/
 
 def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM Param := do
   let fvarId ← mkFreshFVarId
+  let binderName ← ensureNotAnonymous binderName `_y
   let param := { fvarId, binderName, type, borrow }
   modifyLCtx fun lctx => lctx.addParam param
   return param
 
 def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
+  let binderName ← ensureNotAnonymous binderName `_x
   let decl := { fvarId, binderName, type, value }
   modifyLCtx fun lctx => lctx.addLetDecl decl
   return decl
 
 def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
   let fvarId ← mkFreshFVarId
+  let binderName ← ensureNotAnonymous binderName `_f
   let funDecl := { fvarId, binderName, type, params, value }
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl

@@ -233,14 +233,17 @@ class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) 
 export ForM (forM)
 
 /-- Left-to-right composition of Kleisli arrows. -/
+@[alwaysInline]
 def Bind.kleisliRight [Bind m] (f₁ : α → m β) (f₂ : β → m γ) (a : α) : m γ :=
   f₁ a >>= f₂
 
 /-- Right-to-left composition of Kleisli arrows. -/
+@[alwaysInline]
 def Bind.kleisliLeft [Bind m] (f₂ : β → m γ) (f₁ : α → m β) (a : α) : m γ :=
   f₁ a >>= f₂
 
 /-- Same as `Bind.bind` but with arguments swapped. -/
+@[alwaysInline]
 def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
   ma >>= f
 

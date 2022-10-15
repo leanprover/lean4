@@ -142,6 +142,21 @@ def isNum : Name → Bool
   | num .. => true
   | _      => false
 
+/--
+Return `true` if `n` contains a string part `s` that satifies `f`.
+
+Examples:
+```
+#eval (`foo.bla).anyS (·.startsWith "fo") -- true
+#eval (`foo.bla).anyS (·.startsWith "boo") -- false
+```
+-/
+def anyS (n : Name) (f : String → Bool) : Bool :=
+  match n with
+  | .str p s => f s || p.anyS f
+  | .num p _ => p.anyS f
+  | _ => false
+
 end Name
 end Lean
 

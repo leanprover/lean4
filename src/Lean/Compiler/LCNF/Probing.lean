@@ -127,6 +127,9 @@ def toString [ToString α] : Probe α String :=
 @[inline]
 def count : Probe α Nat := fun data => return #[data.size]
 
+@[inline]
+def sum : Probe Nat Nat := fun data => return #[data.foldl (init := 0) (·+·)]
+
 def runOnModule (moduleName : Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv

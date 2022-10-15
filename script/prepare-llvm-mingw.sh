@@ -22,7 +22,7 @@ cp $(ldd llvm/bin/{clang,lld,llvm-ar}.exe | cut -f3 -d' ' --only-delimited | gre
 # lean.h dependencies
 cp llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 # LLVM backend includes
-$CP -r llvm/include/* stage1/include/
+cp -r llvm/include/* stage1/include/
 # single Windows dependency
 echo '
 // https://docs.microsoft.com/en-us/windows/win32/api/errhandlingapi/nf-errhandlingapi-seterrormode

@@ -18,7 +18,7 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 static lean_object* l_Lean_Meta_DiscrTree_instBEqKey___closed__1;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__25;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_root___default(lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1942_(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1949_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__6;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__29;
@@ -36,7 +36,7 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__16;
 LEAN_EXPORT uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_92_(lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
-lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_135_(lean_object*, lean_object*);
+lean_object* l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_137_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__24;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__7;
 static lean_object* l_Lean_Meta_DiscrTree_root___default___closed__1;
@@ -740,7 +740,7 @@ lean_inc(x_47);
 lean_dec(x_1);
 x_48 = lean_unsigned_to_nat(1024u);
 x_49 = lean_nat_dec_le(x_48, x_2);
-x_50 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_135_(x_47, x_48);
+x_50 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_137_(x_47, x_48);
 x_51 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_373____closed__11;
 x_52 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_52, 0, x_51);
@@ -938,7 +938,7 @@ lean_object* x_9; lean_object* x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = 3541;
-x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1942_(x_9);
+x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1949_(x_9);
 x_13 = lean_uint64_of_nat(x_10);
 x_14 = lean_uint64_mix_hash(x_12, x_13);
 x_15 = lean_uint64_mix_hash(x_11, x_14);

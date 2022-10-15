@@ -203,7 +203,7 @@ LEAN_EXPORT lean_object* l_List_foldr___at_Lean_Widget_diffInteractiveGoals___sp
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getForallBodyMaxDepth(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1(uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff(lean_object*);
@@ -4028,7 +4028,7 @@ return x_20;
 else
 {
 uint8_t x_21; 
-x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_13, x_17);
+x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_13, x_17);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
@@ -5101,7 +5101,7 @@ return x_57;
 else
 {
 uint8_t x_58; 
-x_58 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_49, x_53);
+x_58 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_49, x_53);
 if (x_58 == 0)
 {
 uint8_t x_59; lean_object* x_60; lean_object* x_61; 

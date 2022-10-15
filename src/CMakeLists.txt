@@ -260,15 +260,15 @@ find_package(PythonInterp)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 
-# test `llvm-config` 
-if (LLVM)
-    if (NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
+# test `llvm-config`
+if(LLVM)
+    if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
         message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
         find_program(LLVM_CONFIG "llvm-config")
         if(NOT LLVM_CONFIG) # check that it was found
             message(FATAL_ERROR "Unable to find 'llvm-config'")
         endif()
-    endif() 
+    endif()
     # check that we have 'llvm-config' version.
     execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
     message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
@@ -290,14 +290,15 @@ execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFI
 
 message(DEBUG "llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLGAS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
 
-# when using shared libraries, set the `rpath` to help the dynamic loader 
+# when using shared libraries, set the `rpath` to help the dynamic loader
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_package(ZLIB REQUIRED)
-  message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
-  cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
-
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
+  if(LLVM)
+    find_package(ZLIB REQUIRED)
+    message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+    cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
+  endif()
+  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
 else()
@@ -314,6 +315,7 @@ string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
 # Link LLVM for code generation
+string(APPEND LEANC_STATIC_LINKER_FLAGS "${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
 set(APPEND LEAN_EXTRA_CXX_FLAGS  " ${LLVM_CONFIG_CXXFLAGS}")
 

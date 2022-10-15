@@ -34,10 +34,7 @@ option(MULTI_THREAD       "MULTI_THREAD"       ON)
 option(CCACHE             "use ccache"         ON)
 option(SPLIT_STACK        "SPLIT_STACK"        OFF)
 # When OFF we disable LLVM support
-option(LLVM               "LLVM"               OFF)
-# When OFF we disable the LLVM backend
-option(LLVM_BACKEND        "LLVM_BACKEND"      ON)
-
+option(LLVM               "LLVM"               ON)
 # When ON we include githash in the version string
 option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON we install LICENSE files to CMAKE_INSTALL_PREFIX
@@ -160,16 +157,6 @@ if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
 endif()
 
 if(LLVM)
- message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-  include_directories(${LLVM_INCLUDE_DIRS})
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
-else()
-  message(WARNING "Disabling LLVM support")
-endif()
-
-if(LLVM_BACKEND)
   message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
@@ -273,23 +260,23 @@ find_package(PythonInterp)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 
-if (NOT LLVM_CONFIG)
-    message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
-    find_program(LLVM_CONFIG "llvm-config")
-else()
-    message(STATUS "Using given `llvm-config` '${LLVM_CONFIG}'...")
+# test `llvm-config` 
+if (LLVM)
+    if (NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
+        message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
+        find_program(LLVM_CONFIG "llvm-config")
+        if(NOT LLVM_CONFIG) # check that it was found
+            message(FATAL_ERROR "Unable to find 'llvm-config'")
+        endif()
+    endif() 
+    # check that we have 'llvm-config' version.
     execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
-endif()
-
-
-if(NOT LLVM_CONFIG)
-    message(FATAL_ERROR "Unable to find 'llvm-config'")
-else()
     message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
 endif()
 
-# libleancpp/Lean as well as libleanrt/Init are cyclically dependent. This works by default on macOS, which also doesn't like
 
+
+# libleancpp/Lean as well as libleanrt/Init are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
 # Furthermore, add LLVM flags into the list of flags we need when linking.
 execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -301,7 +288,7 @@ execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_C
 # such as '-lrt -ldl -lm -lz -ltinfo -lxml2'
 execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message("llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLGAS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
+message(DEBUG "llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLGAS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
 
 # when using shared libraries, set the `rpath` to help the dynamic loader 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -327,9 +314,6 @@ string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
 # Link LLVM for code generation
-# TODO: hide this behind a flag
-# Is there a guarantee that the build environment for `leanprover/lean-llvm` will match that of
-# `leanprover/lean4`? Some of the system-libs as for hardcoded paths. For example:
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
 set(APPEND LEAN_EXTRA_CXX_FLAGS  " ${LLVM_CONFIG_CXXFLAGS}")
 

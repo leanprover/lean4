@@ -152,7 +152,18 @@ where
 
 def toMono : Pass where
   name     := `toMono
-  run      := fun decls => decls.mapM (·.toMono)
+  run      := fun decls => do
+    let decls ← decls.filterM fun decl => do
+      if hasLocalInst decl.type then
+        /-
+        Declaration is a "template" for the code specialization pass.
+        So, we should delete it before going to next phase.
+        -/
+        decl.erase
+        return false
+      else
+        return true
+    decls.mapM (·.toMono)
   phase    := .base
   phaseOut := .mono
 

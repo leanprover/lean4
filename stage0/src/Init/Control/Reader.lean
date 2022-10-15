@@ -31,6 +31,7 @@ instance : MonadControl m (ReaderT ρ m) where
   liftWith f ctx := f fun x => x ctx
   restoreM x _ := x
 
+@[alwaysInline]
 instance ReaderT.tryFinally [MonadFinally m] [Monad m] : MonadFinally (ReaderT ρ m) where
   tryFinally' x h ctx := tryFinally' (x ctx) (fun a? => h a? ctx)
 

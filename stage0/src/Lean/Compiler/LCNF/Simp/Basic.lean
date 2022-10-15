@@ -9,27 +9,6 @@ import Lean.Compiler.Specialize
 import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
-/--
-Return `true` if the arrow type contains an instance implicit argument.
--/
-def hasLocalInst (type : Expr) : Bool :=
-  match type with
-  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
-  | _ => false
-
-/--
-Return `true` if `decl` is supposed to be inlined/specialized.
--/
-def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
-  if hasLocalInst decl.type then
-    return true -- `decl` applications will be specialized
-  else if (← Meta.isInstance decl.name) then
-    return true -- `decl` is "fuel" for code specialization
-  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
-    return true -- `decl` is going to be inlined or specialized
-  else
-    return false
-
 namespace Simp
 
 partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do

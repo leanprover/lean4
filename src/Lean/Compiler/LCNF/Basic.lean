@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.Meta.Instances
 import Lean.Compiler.InlineAttrs
+import Lean.Compiler.Specialize
 
 namespace Lean.Compiler.LCNF
 
@@ -482,6 +484,27 @@ where
     | .jmp fvarId args => code.updateJmp! fvarId (args.mapMono instExpr)
     | .return .. => code
     | .unreach type => code.updateUnreach! (instExpr type)
+
+/--
+Return `true` if the arrow type contains an instance implicit argument.
+-/
+def hasLocalInst (type : Expr) : Bool :=
+  match type with
+  | .forallE _ _ b bi => bi.isInstImplicit || hasLocalInst b
+  | _ => false
+
+/--
+Return `true` if `decl` is supposed to be inlined/specialized.
+-/
+def Decl.isTemplateLike (decl : Decl) : CoreM Bool := do
+  if hasLocalInst decl.type then
+    return true -- `decl` applications will be specialized
+  else if (← Meta.isInstance decl.name) then
+    return true -- `decl` is "fuel" for code specialization
+  else if decl.inlineable || hasSpecializeAttribute (← getEnv) decl.name then
+    return true -- `decl` is going to be inlined or specialized
+  else
+    return false
 
 mutual
 partial def FunDeclCore.collectUsed (decl : FunDecl) (s : FVarIdSet := {}) : FVarIdSet :=

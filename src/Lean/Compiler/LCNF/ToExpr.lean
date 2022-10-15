@@ -46,11 +46,8 @@ where
 private abbrev _root_.Lean.FVarId.toExprM (fvarId : FVarId) : ToExprM Expr :=
   return fvarId.toExpr (← read) (← get)
 
-private abbrev _root_.Lean.Expr.abstractM (e : Expr) : ToExprM Expr :=
-  return e.abstract' (← read) (← get)
-
 abbrev abstractM (e : Expr) : ToExprM Expr :=
-  e.abstractM
+  return e.abstract' (← read) (← get)
 
 @[inline] def withFVar (fvarId : FVarId) (k : ToExprM α) : ToExprM α := do
   let offset ← read
@@ -84,18 +81,18 @@ partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
 partial def Code.toExprM (code : Code) : ToExprM Expr := do
   match code with
   | .let decl k =>
-    let type ← decl.type.abstractM
-    let value ← decl.value.abstractM
+    let type ← abstractM decl.type
+    let value ← abstractM decl.value
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
   | .fun decl k | .jp decl k =>
-    let type ← decl.type.abstractM
+    let type ← abstractM decl.type
     let value ← decl.toExprM
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
   | .return fvarId => fvarId.toExprM
-  | .jmp fvarId args => return mkAppN (← fvarId.toExprM) (← args.mapM (·.abstractM))
-  | .unreach type => return mkApp (mkConst ``lcUnreachable) (← type.abstractM)
+  | .jmp fvarId args => return mkAppN (← fvarId.toExprM) (← args.mapM abstractM)
+  | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun
       | .alt _ params k => withParams params do mkLambdaM params (← k.toExprM)

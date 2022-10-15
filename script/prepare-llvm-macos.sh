@@ -25,6 +25,8 @@ gcp -L llvm/bin/clang stage1/bin/
 gcp -L llvm/bin/ld64.lld stage1/bin/
 # a static archiver!
 gcp -L llvm/bin/llvm-ar stage1/bin/
+# a LLVM configurator for PATH & LD_LIBRARY_PATH setup!
+gcp -L llvm/bin/llvm-config stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
@@ -36,6 +38,7 @@ $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
 cp $SDK/usr/lib/libSystem.tbd stage1/lib/libc
 # use for linking, use system libs for running
 gcp llvm/lib/lib{c++,c++abi,unwind}.dylib stage1/lib/libc
+echo -n " -DLLVM_CONFIG=$PWD/stage1/bin/llvm-config" # manually point to `llvm-config` location
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK

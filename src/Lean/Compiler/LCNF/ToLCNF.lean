@@ -179,6 +179,16 @@ where
           else
             -- `cases` is dead code
             go seq (i - 1) c
+        else if auxParam.type.headBeta.isForall then
+          /-
+          `cases` produces a function. Thus, we create a local function to store
+          result instead of a joinpoint that takes a closure.
+          -/
+          eraseParam auxParam
+          let auxFunDecl := { auxParam with params := #[], value := .cases cases : FunDecl }
+          modifyLCtx fun lctx => lctx.addFunDecl auxFunDecl
+          let auxFunDecl ← auxFunDecl.etaExpand
+          go seq (i - 1) (.fun auxFunDecl c)
         else
           /- Create a join point for `c` and jump to it from `cases` -/
           let jpDecl ← mkAuxJpDecl' auxParam c

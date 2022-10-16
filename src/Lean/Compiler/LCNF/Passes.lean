@@ -15,6 +15,7 @@ import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.ToMono
 import Lean.Compiler.LCNF.LambdaLifting
 import Lean.Compiler.LCNF.FloatLetIn
+import Lean.Compiler.LCNF.ReduceArity
 
 namespace Lean.Compiler.LCNF
 
@@ -60,6 +61,7 @@ def builtinPassManager : PassManager := {
     reduceJpArity (phase := .mono),
     extendJoinPointContext,
     floatLetIn (phase := .mono) (occurrence := 1),
+    reduceArity,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
     lambdaLifting,

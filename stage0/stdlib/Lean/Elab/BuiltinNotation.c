@@ -51,6 +51,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabAnonymousCtor___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabAnonymousCtor___lambda__4___closed__1;
 static lean_object* l_Lean_Elab_Term_expandShow___closed__18;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabCDotFunctionAlias_x3f___closed__1;
 static lean_object* l_Lean_Elab_Term_expandShow___closed__12;
@@ -178,7 +179,6 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_expandAssert___closed__3;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_mkPairs_loop___closed__2;
 static lean_object* l_Lean_Elab_Term_elabSubst___closed__7;
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabPanic___closed__6;
 uint8_t l_Lean_isPrivateNameFromImportedModule(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isTypeCorrect(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -16478,7 +16478,7 @@ lean_closure_set(x_19, 1, x_14);
 lean_closure_set(x_19, 2, x_3);
 x_20 = 0;
 x_21 = 0;
-x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(x_14, x_20, x_17, x_19, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
+x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(x_14, x_20, x_17, x_19, x_21, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
 if (lean_obj_tag(x_22) == 0)
 {
 uint8_t x_23; 
@@ -16619,7 +16619,7 @@ lean_closure_set(x_18, 0, x_3);
 lean_closure_set(x_18, 1, x_2);
 x_19 = 0;
 x_20 = 0;
-x_21 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(x_13, x_19, x_16, x_18, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_17);
+x_21 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(x_13, x_19, x_16, x_18, x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_17);
 return x_21;
 }
 else
@@ -16915,7 +16915,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_inc(x_10);
-x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(x_17, x_20, x_3, x_19, x_21, x_8, x_9, x_10, x_11, x_12, x_13, x_18);
+x_22 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(x_17, x_20, x_3, x_19, x_21, x_8, x_9, x_10, x_11, x_12, x_13, x_18);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; 
@@ -17713,7 +17713,7 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
-x_32 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(x_27, x_30, x_1, x_29, x_31, x_12, x_13, x_14, x_15, x_16, x_17, x_28);
+x_32 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(x_27, x_30, x_1, x_29, x_31, x_12, x_13, x_14, x_15, x_16, x_17, x_28);
 if (lean_obj_tag(x_32) == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -18331,7 +18331,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
-x_76 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__3___rarg(x_71, x_74, x_57, x_73, x_75, x_3, x_4, x_5, x_6, x_7, x_8, x_72);
+x_76 = l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_withAuxDecl___spec__1___rarg(x_71, x_74, x_57, x_73, x_75, x_3, x_4, x_5, x_6, x_7, x_8, x_72);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; uint8_t x_81; 

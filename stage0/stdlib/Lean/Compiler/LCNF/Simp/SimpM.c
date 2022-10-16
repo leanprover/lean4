@@ -162,7 +162,6 @@ uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption(lean_object*, lean_
 static lean_object* l_Lean_Compiler_LCNF_Simp_instMonadSimpM___closed__5;
 lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_Context_inlineStackOccs___default___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Compiler_LCNF_Simp_withInlining_check___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_State_simplified___default;
@@ -179,6 +178,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_State_funDeclInfoMap___default;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_withInlining_check___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Simp_Context_inlineStackOccs___default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_addFunHoOcc___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Compiler_LCNF_Simp_withInlining___spec__1(lean_object*, lean_object*, lean_object*);
@@ -5405,7 +5405,7 @@ if (x_38 == 0)
 {
 lean_object* x_39; lean_object* x_40; lean_object* x_41; uint8_t x_42; 
 x_39 = lean_ctor_get(x_36, 2);
-x_40 = l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(x_39, x_2, x_24);
+x_40 = l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(x_39, x_2, x_24);
 lean_ctor_set(x_36, 2, x_40);
 x_41 = lean_st_ref_set(x_4, x_36, x_37);
 x_42 = !lean_is_exclusive(x_41);
@@ -5450,7 +5450,7 @@ lean_inc(x_50);
 lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_36);
-x_56 = l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(x_50, x_2, x_24);
+x_56 = l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(x_50, x_2, x_24);
 x_57 = lean_alloc_ctor(0, 7, 1);
 lean_ctor_set(x_57, 0, x_48);
 lean_ctor_set(x_57, 1, x_49);
@@ -5545,7 +5545,7 @@ if (lean_is_exclusive(x_71)) {
  lean_dec_ref(x_71);
  x_81 = lean_box(0);
 }
-x_82 = l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(x_75, x_2, x_24);
+x_82 = l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(x_75, x_2, x_24);
 if (lean_is_scalar(x_81)) {
  x_83 = lean_alloc_ctor(0, 7, 1);
 } else {
@@ -5705,7 +5705,7 @@ if (lean_is_exclusive(x_107)) {
  lean_dec_ref(x_107);
  x_117 = lean_box(0);
 }
-x_118 = l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(x_111, x_2, x_94);
+x_118 = l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(x_111, x_2, x_94);
 if (lean_is_scalar(x_117)) {
  x_119 = lean_alloc_ctor(0, 7, 1);
 } else {
@@ -5938,7 +5938,7 @@ if (lean_is_exclusive(x_163)) {
  lean_dec_ref(x_163);
  x_173 = lean_box(0);
 }
-x_174 = l_Lean_RBNode_insert___at_Lean_Elab_Term_withAuxDecl___spec__1(x_167, x_2, x_149);
+x_174 = l_Lean_RBNode_insert___at_Lean_FVarIdMap_insert___spec__1___rarg(x_167, x_2, x_149);
 if (lean_is_scalar(x_173)) {
  x_175 = lean_alloc_ctor(0, 7, 1);
 } else {

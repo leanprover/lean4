@@ -50,7 +50,7 @@ partial def filterByLet (f : LetDecl → CompilerM Bool) : Probe Decl Decl :=
 where
   go : Code → CompilerM Bool
   | .let decl k => do if (← f decl) then return true else go k
-  | .fun _ k | .jp _ k =>  go k
+  | .fun decl k | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -59,7 +59,7 @@ partial def filterByFun (f : FunDecl → CompilerM Bool) : Probe Decl Decl :=
 where
   go : Code → CompilerM Bool
   | .let _ k | .jp _ k  => go k
-  | .fun decl k => do if (← f decl) then return true else go k
+  | .fun decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -67,8 +67,9 @@ partial def filterByJp (f : FunDecl → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool
-  | .let _ k | .fun _ k  => go k
-  | .jp decl k => do if (← f decl) then return true else go k
+  | .let _ k => go k
+  | .fun decl k => go decl.value <||> go k
+  | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -77,7 +78,7 @@ partial def filterByFunDecl (f : FunDecl → CompilerM Bool) : Probe Decl Decl :
 where
   go : Code → CompilerM Bool
   | .let _ k => go k
-  | .fun decl k | .jp decl k => do if (← f decl) then return true else go k
+  | .fun decl k | .jp decl k => do if (← f decl) then return true else go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -85,7 +86,8 @@ partial def filterByCases (f : Cases → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool
-  | .let _ k => go k | .fun _ k | .jp _ k => go k
+  | .let _ k => go k
+  | .fun decl k | .jp decl k => go decl.value <||> go k
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
@@ -93,7 +95,8 @@ partial def filterByJmp (f : FVarId → Array Expr → CompilerM Bool) : Probe D
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool
-  | .let _ k | .fun _ k | .jp _ k =>  go k
+  | .let _ k => go k
+  | .fun decl k | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp fn var => f fn var
   | .return .. | .unreach .. => return false
@@ -102,7 +105,8 @@ partial def filterByReturn (f : FVarId → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool
-  | .let _ k | .fun _ k | .jp _ k =>  go k
+  | .let _ k => go k
+  | .fun decl k | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .unreach .. => return false
   | .return var  => f var
@@ -111,7 +115,8 @@ partial def filterByUnreach (f : Expr → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool
-  | .let _ k | .fun _ k | .jp _ k =>  go k
+  | .let _ k => go k
+  | .fun decl k | .jp decl k => go decl.value <||> go k
   | .cases cs => cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. => return false
   | .unreach typ  => f typ

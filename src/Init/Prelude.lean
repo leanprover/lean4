@@ -3577,6 +3577,38 @@ inductive Syntax where
   -/
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
 
+/-- Create syntax node with 1 child -/
+def Syntax.node1 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray1 a₁)
+
+/-- Create syntax node with 2 children -/
+def Syntax.node2 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray2 a₁ a₂)
+
+/-- Create syntax node with 3 children -/
+def Syntax.node3 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray3 a₁ a₂ a₃)
+
+/-- Create syntax node with 4 children -/
+def Syntax.node4 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray4 a₁ a₂ a₃ a₄)
+
+/-- Create syntax node with 5 children -/
+def Syntax.node5 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray5 a₁ a₂ a₃ a₄ a₅)
+
+/-- Create syntax node with 6 children -/
+def Syntax.node6 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray6 a₁ a₂ a₃ a₄ a₅ a₆)
+
+/-- Create syntax node with 7 children -/
+def Syntax.node7 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray7 a₁ a₂ a₃ a₄ a₅ a₆ a₇)
+
+/-- Create syntax node with 8 children -/
+def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray8 a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈)
+
 /-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
 def SyntaxNodeKinds := List SyntaxNodeKind
 

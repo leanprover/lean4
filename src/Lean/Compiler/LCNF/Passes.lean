@@ -61,6 +61,7 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext,
     floatLetIn (phase := .mono) (occurrence := 1),
     simp (occurrence := 4) (phase := .mono),
+    floatLetIn (phase := .mono) (occurrence := 2),
     lambdaLifting,
     simp (occurrence := 5) (phase := .mono),
     -- TODO: reduce function arity

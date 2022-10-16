@@ -81,6 +81,6 @@ def foo (x_1 : obj) : obj :=
       let _x.14 := Syntax.ident fst.4 _x.10 _x.12 _x.13
       let _x.15 := "+"
       let _x.16 := Syntax.atom fst.4 _x.15
-      let _x.17 := Lean.instQuoteNatNumLitKind._elambda_0 n
+      let _x.17 := Lean.instQuoteNatNumLitKind._elam_0 n
       let _x.18 := Syntax.node3 fst.4 _x.8 _x.14 _x.16 _x.17
       _x.18

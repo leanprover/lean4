@@ -9,14 +9,14 @@ holes.lean:10:9-10:12: error: don't know how to synthesize implicit argument
 context:
 x : Nat
 ⊢ Type
-holes.lean:11:4-11:5: error: don't know how to synthesize placeholder
-context:
-x : Nat
-y : Nat := g x + g x
-⊢ Nat
 holes.lean:11:8-11:13: error: don't know how to synthesize placeholder
 context:
 case hole
+x : Nat
+y : Nat := g x + g x
+⊢ Nat
+holes.lean:11:4-11:5: error: don't know how to synthesize placeholder
+context:
 x : Nat
 y : Nat := g x + g x
 ⊢ Nat

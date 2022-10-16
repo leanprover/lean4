@@ -1,0 +1,26 @@
+name: add PR to changelog
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-changelog:
+    if: |
+      contains(github.event.pull_request.labels.*.name, 'changelog') &&
+      github.base_ref == 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+          token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - name: Update Changelog
+        run: |
+          # insert link below first dashes line (https://stackoverflow.com/a/9453461/161659)
+          sed -i '0,§^---*§s§^---*§\0\n\n* [${{ github.event.pull_request.title}}](${{ github.event.pull_request.html_url }})§' RELEASES.md
+          head RELEASES.md
+          git commit -i RELEASES.md -m "update changelog"
+          #git remote add origin https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/$GITHUB_REPOSITORY
+          git push origin master

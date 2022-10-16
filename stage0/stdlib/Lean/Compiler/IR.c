@@ -24,6 +24,7 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda_
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_ir_add_decl(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_IR_CompilerM_0__Lean_IR_logDeclsAux(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* lean_ir_add_boxed_version(lean_object*, lean_object*);
@@ -39,7 +40,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionA
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
-static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1;
 lean_object* l_Lean_IR_explicitRC(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__8;
@@ -76,7 +76,6 @@ static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda_
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__4;
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__8;
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_addDecls(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__1;
 extern lean_object* l_Lean_IR_tracePrefixOptionName;
@@ -110,7 +109,6 @@ static lean_object* l_Lean_IR_compile___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__1(size_t, size_t, lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__18;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__5;
-extern lean_object* l_Lean_IR_declMapExt;
 static lean_object* l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___lambda__2___closed__15;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Compiler_IR_0__Lean_IR_compileAux___spec__6(size_t, size_t, lean_object*);
 static lean_object* l_Lean_IR_initFn____x40_Lean_Compiler_IR___hyg_6____closed__4;
@@ -1069,14 +1067,6 @@ return x_16;
 }
 }
 }
-static lean_object* _init_l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_IR_declMapExt;
-return x_1;
-}
-}
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1(lean_object* x_1, size_t x_2, size_t x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -1090,47 +1080,45 @@ x_8 = lean_array_uget(x_1, x_2);
 x_9 = !lean_is_exclusive(x_6);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
+lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; 
 x_10 = lean_ctor_get(x_6, 0);
-x_11 = l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1;
-x_12 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_11, x_10, x_8);
-lean_ctor_set(x_6, 0, x_12);
-x_13 = 1;
-x_14 = lean_usize_add(x_2, x_13);
-x_15 = lean_box(0);
-x_2 = x_14;
-x_4 = x_15;
+x_11 = lean_ir_add_decl(x_10, x_8);
+lean_ctor_set(x_6, 0, x_11);
+x_12 = 1;
+x_13 = lean_usize_add(x_2, x_12);
+x_14 = lean_box(0);
+x_2 = x_13;
+x_4 = x_14;
 goto _start;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; size_t x_22; size_t x_23; lean_object* x_24; 
-x_17 = lean_ctor_get(x_6, 0);
-x_18 = lean_ctor_get(x_6, 1);
-lean_inc(x_18);
+lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; size_t x_20; size_t x_21; lean_object* x_22; 
+x_16 = lean_ctor_get(x_6, 0);
+x_17 = lean_ctor_get(x_6, 1);
 lean_inc(x_17);
+lean_inc(x_16);
 lean_dec(x_6);
-x_19 = l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1;
-x_20 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_19, x_17, x_8);
-x_21 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_18);
-x_22 = 1;
-x_23 = lean_usize_add(x_2, x_22);
-x_24 = lean_box(0);
-x_2 = x_23;
-x_4 = x_24;
-x_6 = x_21;
+x_18 = lean_ir_add_decl(x_16, x_8);
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_18);
+lean_ctor_set(x_19, 1, x_17);
+x_20 = 1;
+x_21 = lean_usize_add(x_2, x_20);
+x_22 = lean_box(0);
+x_2 = x_21;
+x_4 = x_22;
+x_6 = x_19;
 goto _start;
 }
 }
 else
 {
-lean_object* x_26; 
-x_26 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_26, 0, x_4);
-lean_ctor_set(x_26, 1, x_6);
-return x_26;
+lean_object* x_24; 
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_4);
+lean_ctor_set(x_24, 1, x_6);
+return x_24;
 }
 }
 }
@@ -1625,8 +1613,6 @@ l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12 = _init_l___priv
 lean_mark_persistent(l___private_Lean_Compiler_IR_0__Lean_IR_compileAux___closed__12);
 l_Lean_IR_compile___closed__1 = _init_l_Lean_IR_compile___closed__1();
 lean_mark_persistent(l_Lean_IR_compile___closed__1);
-l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1 = _init_l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1();
-lean_mark_persistent(l_Array_foldlMUnsafe_fold___at_Lean_IR_addBoxedVersionAux___spec__1___closed__1);
 l_Lean_IR_addBoxedVersionAux___closed__1 = _init_l_Lean_IR_addBoxedVersionAux___closed__1();
 lean_mark_persistent(l_Lean_IR_addBoxedVersionAux___closed__1);
 return lean_io_result_mk_ok(lean_box(0));

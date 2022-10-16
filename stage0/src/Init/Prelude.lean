@@ -2512,31 +2512,31 @@ def Array.mkArray1 {α : Type u} (a₁ : α) : Array α :=
 
 /-- Create array `#[a₁, a₂]` -/
 def Array.mkArray2 {α : Type u} (a₁ a₂ : α) : Array α :=
-  ((mkEmpty 1).push a₁).push a₂
+  ((mkEmpty 2).push a₁).push a₂
 
 /-- Create array `#[a₁, a₂, a₃]` -/
 def Array.mkArray3 {α : Type u} (a₁ a₂ a₃ : α) : Array α :=
-  (((mkEmpty 1).push a₁).push a₂).push a₃
+  (((mkEmpty 3).push a₁).push a₂).push a₃
 
 /-- Create array `#[a₁, a₂, a₃, a₄]` -/
 def Array.mkArray4 {α : Type u} (a₁ a₂ a₃ a₄ : α) : Array α :=
-  ((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄
+  ((((mkEmpty 4).push a₁).push a₂).push a₃).push a₄
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅]` -/
 def Array.mkArray5 {α : Type u} (a₁ a₂ a₃ a₄ a₅ : α) : Array α :=
-  (((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅
+  (((((mkEmpty 5).push a₁).push a₂).push a₃).push a₄).push a₅
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆]` -/
 def Array.mkArray6 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ : α) : Array α :=
-  ((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
+  ((((((mkEmpty 6).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇]` -/
 def Array.mkArray7 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : α) : Array α :=
-  (((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
+  (((((((mkEmpty 7).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇
 
 /-- Create array `#[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈]` -/
 def Array.mkArray8 {α : Type u} (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : α) : Array α :=
-  ((((((((mkEmpty 1).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
+  ((((((((mkEmpty 8).push a₁).push a₂).push a₃).push a₄).push a₅).push a₆).push a₇).push a₈
 
 /--
 Set an element in an array without bounds checks, using a `Fin` index.
@@ -3576,6 +3576,38 @@ inductive Syntax where
   * `preresolved` is the list of possible declarations this could refer to
   -/
   | ident  (info : SourceInfo) (rawVal : Substring) (val : Name) (preresolved : List Syntax.Preresolved) : Syntax
+
+/-- Create syntax node with 1 child -/
+def Syntax.node1 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray1 a₁)
+
+/-- Create syntax node with 2 children -/
+def Syntax.node2 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray2 a₁ a₂)
+
+/-- Create syntax node with 3 children -/
+def Syntax.node3 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray3 a₁ a₂ a₃)
+
+/-- Create syntax node with 4 children -/
+def Syntax.node4 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray4 a₁ a₂ a₃ a₄)
+
+/-- Create syntax node with 5 children -/
+def Syntax.node5 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray5 a₁ a₂ a₃ a₄ a₅)
+
+/-- Create syntax node with 6 children -/
+def Syntax.node6 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray6 a₁ a₂ a₃ a₄ a₅ a₆)
+
+/-- Create syntax node with 7 children -/
+def Syntax.node7 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray7 a₁ a₂ a₃ a₄ a₅ a₆ a₇)
+
+/-- Create syntax node with 8 children -/
+def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : Syntax) : Syntax :=
+  Syntax.node info kind (Array.mkArray8 a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈)
 
 /-- `SyntaxNodeKinds` is a set of `SyntaxNodeKind` (implemented as a list). -/
 def SyntaxNodeKinds := List SyntaxNodeKind

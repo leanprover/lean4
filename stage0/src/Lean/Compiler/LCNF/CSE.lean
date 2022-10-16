@@ -103,8 +103,8 @@ def Decl.cse (decl : Decl) : CompilerM Decl := do
   let value ← decl.value.cse
   return { decl with value }
 
-def cse : Pass :=
-  .mkPerDeclaration `cse Decl.cse .base
+def cse (phase : Phase := .base) (occurrence := 0) : Pass :=
+  .mkPerDeclaration `cse Decl.cse phase occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.cse (inherited := true)

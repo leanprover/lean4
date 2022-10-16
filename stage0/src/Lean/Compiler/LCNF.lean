@@ -39,3 +39,5 @@ import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.ToMono
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Closure
+import Lean.Compiler.LCNF.LambdaLifting
+import Lean.Compiler.LCNF.ReduceArity

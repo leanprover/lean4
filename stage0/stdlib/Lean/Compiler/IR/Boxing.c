@@ -132,7 +132,6 @@ static lean_object* l_Lean_IR_ExplicitBoxing_getDecl___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_BoxingContext_f___default;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Boxing_0__Lean_IR_ExplicitBoxing_M_mkFresh___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_visitVDeclExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_getDecl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_getScrutineeType(lean_object*);
@@ -1538,8 +1537,12 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 4);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 3);
+lean_inc(x_5);
+lean_dec(x_2);
 x_6 = l_Lean_IR_findEnvDecl_x27(x_4, x_1, x_5);
+lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -1560,15 +1563,6 @@ lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_3);
 return x_10;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_getDecl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_IR_ExplicitBoxing_getDecl(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_withParams___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -3878,6 +3872,7 @@ if (x_107 == 0)
 lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; uint8_t x_122; 
 x_108 = lean_ctor_get(x_3, 0);
 x_109 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
 lean_inc(x_108);
 x_110 = l_Lean_IR_ExplicitBoxing_getDecl(x_108, x_5, x_6);
 x_111 = lean_ctor_get(x_110, 0);
@@ -3938,6 +3933,7 @@ x_130 = lean_ctor_get(x_3, 1);
 lean_inc(x_130);
 lean_inc(x_129);
 lean_dec(x_3);
+lean_inc(x_5);
 lean_inc(x_129);
 x_131 = l_Lean_IR_ExplicitBoxing_getDecl(x_129, x_5, x_6);
 x_132 = lean_ctor_get(x_131, 0);
@@ -4006,6 +4002,7 @@ lean_inc(x_153);
 x_154 = lean_ctor_get(x_152, 1);
 lean_inc(x_154);
 lean_dec(x_152);
+lean_inc(x_5);
 lean_inc(x_150);
 x_155 = l_Lean_IR_ExplicitBoxing_getDecl(x_150, x_5, x_154);
 x_156 = lean_ctor_get(x_155, 0);
@@ -4129,6 +4126,7 @@ lean_inc(x_190);
 x_191 = lean_ctor_get(x_189, 1);
 lean_inc(x_191);
 lean_dec(x_189);
+lean_inc(x_5);
 lean_inc(x_187);
 x_192 = l_Lean_IR_ExplicitBoxing_getDecl(x_187, x_5, x_191);
 x_193 = lean_ctor_get(x_192, 0);

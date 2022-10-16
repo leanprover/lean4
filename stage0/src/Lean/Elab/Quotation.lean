@@ -77,19 +77,32 @@ def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
-def empty : ArrayStxBuilder := Sum.inl #[]
+def empty : ArrayStxBuilder := .inl #[]
 
 def build : ArrayStxBuilder → Term
-  | Sum.inl elems => quote elems
-  | Sum.inr arr   => arr
+  | .inl elems => quote elems
+  | .inr arr   => arr
 
 def push (b : ArrayStxBuilder) (elem : Syntax) : ArrayStxBuilder :=
   match b with
-  | Sum.inl elems => Sum.inl <| elems.push elem
-  | Sum.inr arr   => Sum.inr <| mkCApp ``Array.push #[arr, elem]
+  | .inl elems => .inl <| elems.push elem
+  | .inr arr   => .inr <| mkCApp ``Array.push #[arr, elem]
 
 def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) : ArrayStxBuilder :=
-  Sum.inr <| mkCApp appendName #[b.build, arr]
+  .inr <| mkCApp appendName #[b.build, arr]
+
+def mkNode (b : ArrayStxBuilder) (k : SyntaxNodeKind) : TermElabM Term := do
+  let k := quote k
+  match b with
+  | .inl #[a₁] => `(Syntax.node1 info $(k) $(a₁))
+  | .inl #[a₁, a₂] => `(Syntax.node2 info $(k) $(a₁) $(a₂))
+  | .inl #[a₁, a₂, a₃] => `(Syntax.node3 info $(k) $(a₁) $(a₂) $(a₃))
+  | .inl #[a₁, a₂, a₃, a₄] => `(Syntax.node4 info $(k) $(a₁) $(a₂) $(a₃) $(a₄))
+  | .inl #[a₁, a₂, a₃, a₄, a₅] => `(Syntax.node5 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆] => `(Syntax.node6 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆, a₇] => `(Syntax.node7 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆) $(a₇))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈] => `(Syntax.node8 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆) $(a₇) $(a₈))
+  | _ => `(Syntax.node info $(k) $(b.build))
 
 end ArrayStxBuilder
 
@@ -186,7 +199,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
         else do
           let arg ← quoteSyntax arg
           args := args.push arg
-      `(Syntax.node info $(quote k) $(args.build))
+      args.mkNode k
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax

@@ -65,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_getMaxCtorFields___boxed(lean_object*
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_IR_Checker_getDecl___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkObjType(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_Checker_getDecl___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_Checker_getDecl___closed__1;
 lean_object* l_Lean_RBNode_insert___at_Lean_IR_mkIndexSet___spec__1(lean_object*, lean_object*, lean_object*);
@@ -420,9 +419,13 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 2);
+lean_inc(x_5);
+lean_dec(x_2);
 lean_inc(x_1);
 x_6 = l_Lean_IR_findEnvDecl_x27(x_4, x_1, x_5);
+lean_dec(x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
@@ -454,15 +457,6 @@ lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_3);
 return x_17;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_IR_Checker_getDecl___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_IR_Checker_getDecl(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
 }
 }
 static lean_object* _init_l_Lean_IR_Checker_checkVar___closed__1() {
@@ -1683,6 +1677,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkFullApp(lean_object* x_1, lean_o
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
+lean_inc(x_3);
 lean_inc(x_1);
 x_5 = l_Lean_IR_Checker_getDecl(x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);
@@ -1965,6 +1960,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_Checker_checkPartialApp(lean_object* x_1, lea
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
+lean_inc(x_3);
 lean_inc(x_1);
 x_5 = l_Lean_IR_Checker_getDecl(x_1, x_3, x_4);
 x_6 = lean_ctor_get(x_5, 0);

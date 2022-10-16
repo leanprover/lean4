@@ -45,6 +45,21 @@ where
   start (decls : Array Decl) : StateRefT (Array Expr) CompilerM Unit :=
     decls.forM (fun decl => decl.forEachExpr go skipTypes)
 
+partial def getJps : Probe Decl FunDecl := fun decls => do
+  let (_, res) ← start decls |>.run #[]
+  return res
+where
+  go (code : Code) : StateRefT (Array FunDecl) CompilerM Unit := do
+    match code with
+    | .let _ k => go k
+    | .fun decl k => go decl.value; go k
+    | .jp decl k => modify (·.push decl); go decl.value; go k
+    | .cases cs => cs.alts.forM (go ·.getCode)
+    | .jmp .. | .return .. | .unreach .. => return ()
+
+  start (decls : Array Decl) : StateRefT (Array FunDecl) CompilerM Unit :=
+    decls.forM fun decl => go decl.value
+
 partial def filterByLet (f : LetDecl → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where

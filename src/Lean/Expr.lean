@@ -232,6 +232,9 @@ def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
 
 instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
+def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
+  RBTree.insert s fvarId
+
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
@@ -243,6 +246,9 @@ def FVarIdHashSet := HashSet FVarId
 A mapping from free variable identifiers to values of type `α`.
 This is a persistent data structure implemented using red-black trees. -/
 def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+
+def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
+  RBMap.insert s fvarId a
 
 instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
@@ -260,9 +266,15 @@ instance : Repr MVarId where
 def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
+def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
+  RBTree.insert s mvarId
+
 instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
 def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+
+def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
+  RBMap.insert s mvarId a
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 

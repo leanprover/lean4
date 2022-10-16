@@ -639,9 +639,6 @@ instance : MonadCache Expr Expr CheckAssignmentM where
   findCached? := findCached?
   cache       := cache
 
-@[inline] private def visit (f : Expr → CheckAssignmentM Expr) (e : Expr) : CheckAssignmentM Expr :=
-  if !e.hasExprMVar && !e.hasFVar then pure e else checkCache e (fun _ => f e)
-
 private def addAssignmentInfo (msg : MessageData) : CheckAssignmentM MessageData := do
   let ctx ← read
   return m!"{msg} @ {mkMVar ctx.mvarId} {ctx.fvars} := {ctx.rhs}"
@@ -665,7 +662,7 @@ mutual
     else
       let lctx := ctxMeta.lctx
       match lctx.findFVar? fvar with
-      | some (.ldecl (value := v) ..) => visit check v
+      | some (.ldecl (value := v) ..) => check v
       | _ =>
         if ctx.fvars.contains fvar then pure fvar
         else
@@ -755,10 +752,10 @@ mutual
     e.withApp fun f args => do
       let ctxMeta ← readThe Meta.Context
       if f.isMVar && ctxMeta.config.ctxApprox && args.all Expr.isFVar then
-        let f ← visit checkMVar f
+        let f ← check f
         catchInternalId outOfScopeExceptionId
           (do
-            let args ← args.mapM (visit check)
+            let args ← args.mapM check
             return mkAppN f args)
           (fun ex => do
             if !f.isMVar then
@@ -777,36 +774,39 @@ mutual
               else
                 throw ex)
       else
-        let f ← visit check f
-        let args ← args.mapM (visit check)
+        let f ← check f
+        let args ← args.mapM check
         return mkAppN f args
 
   partial def check (e : Expr) : CheckAssignmentM Expr := do
-    match e with
-    | Expr.mdata _ b       => return e.updateMData! (← visit check b)
-    | Expr.proj _ _ s      => return e.updateProj! (← visit check s)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← visit check d) (← visit check b)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← visit check d) (← visit check b)
-    | Expr.letE _ t v b _  => return e.updateLet! (← visit check t) (← visit check v) (← visit check b)
-    | Expr.bvar ..         => return e
-    | Expr.sort ..         => return e
-    | Expr.const ..        => return e
-    | Expr.lit ..          => return e
-    | Expr.fvar ..         => visit checkFVar e
-    | Expr.mvar ..         => visit checkMVar e
-    | Expr.app ..          =>
-      checkApp e
-      -- TODO: investigate whether the following feature is too expensive or not
-      /-
-      catchInternalIds [checkAssignmentExceptionId, outOfScopeExceptionId]
-        (checkApp e)
-        fun ex => do
-          let e' ← whnfR e
-          if e != e' then
-            check e'
-          else
-            throw ex
-      -/
+    if !e.hasExprMVar && !e.hasFVar then
+      return e
+    else checkCache e fun _ =>
+      match e with
+      | Expr.mdata _ b       => return e.updateMData! (← check b)
+      | Expr.proj _ _ s      => return e.updateProj! (← check s)
+      | Expr.lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
+      | Expr.forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
+      | Expr.letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
+      | Expr.bvar ..         => return e
+      | Expr.sort ..         => return e
+      | Expr.const ..        => return e
+      | Expr.lit ..          => return e
+      | Expr.fvar ..         => checkFVar e
+      | Expr.mvar ..         => checkMVar e
+      | Expr.app ..          =>
+        checkApp e
+        -- TODO: investigate whether the following feature is too expensive or not
+        /-
+        catchInternalIds [checkAssignmentExceptionId, outOfScopeExceptionId]
+          (checkApp e)
+          fun ex => do
+            let e' ← whnfR e
+            if e != e' then
+              check e'
+            else
+              throw ex
+        -/
 end
 
 end CheckAssignment

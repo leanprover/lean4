@@ -23,6 +23,12 @@ def filter (f : α → CompilerM Bool) : Probe α α := fun data => data.filterM
 @[inline]
 def sorted [Inhabited α] [inst : LT α] [DecidableRel inst.lt] : Probe α α := fun data => return data.qsort (· < ·)
 
+@[inline]
+def sortedBySize : Probe Decl (Nat × Decl) := fun decls =>
+  let decls := decls.map fun decl => (decl.size, decl)
+  return decls.qsort fun (sz₁, decl₁) (sz₂, decl₂) =>
+    if sz₁ == sz₂ then Name.lt decl₁.name decl₂.name else sz₁ < sz₂
+
 def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := fun data => do
   let mut map := HashMap.empty
   for d in data do
@@ -149,6 +155,12 @@ def count : Probe α Nat := fun data => return #[data.size]
 
 @[inline]
 def sum : Probe Nat Nat := fun data => return #[data.foldl (init := 0) (·+·)]
+
+@[inline]
+def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
+
+@[inline]
+def head (n : Nat) : Probe α α := fun data => return data[:n]
 
 def runOnModule (moduleName : Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase

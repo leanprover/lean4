@@ -13,7 +13,7 @@ open Lean.Compiler.LCNF
 def lambdaCounter : Probe Decl Nat :=
   Probe.filter (fun decl =>
     if let .str _ val := decl.name then
-      return val.startsWith "_lambda"
+      return val.startsWith "_lam"
     else
       return false) >=>
   Probe.declNames >=>

@@ -104,17 +104,16 @@ def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array 
         let names := codeActionProviderExt.getState env |>.toArray
         let caps ← names.mapM evalCodeActionProvider
         return Array.zip names caps
-      caps.concatMapM (fun (providerName, cap) => do
+      caps.concatMapM fun (providerName, cap) => do
         let cas ← cap params snap
-        cas.mapIdxM (fun i lca => do
+        cas.mapIdxM fun i lca => do
+          if lca.lazy?.isNone then return lca.eager
           let data : CodeActionResolveData := {
             params, providerName, providerResultIndex := i
           }
           let j : Json := toJson data
           let ca := { lca.eager with data? := some j }
           return ca
-        )
-      )
 
 builtin_initialize
   registerLspRequestHandler "textDocument/codeAction" CodeActionParams (Array CodeAction) handleCodeAction

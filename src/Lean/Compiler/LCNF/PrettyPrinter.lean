@@ -93,11 +93,11 @@ mutual
 
   partial def ppCode (c : Code) : M Format := do
     match c with
-    | .let decl k => return (← ppLetDecl decl) ++ .line ++ (← ppCode k)
-    | .fun decl k => return f!"fun " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
-    | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ .line ++ (← ppCode k)
+    | .let decl k => return (← ppLetDecl decl) ++ ";" ++ .line ++ (← ppCode k)
+    | .fun decl k => return f!"fun " ++ (← ppFunDecl decl) ++ ";" ++ .line ++ (← ppCode k)
+    | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ ";" ++ .line ++ (← ppCode k)
     | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
-    | .return fvarId => ppFVar fvarId
+    | .return fvarId => return f!"return {← ppFVar fvarId}"
     | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
     | .unreach .. => return "⊥"
 end

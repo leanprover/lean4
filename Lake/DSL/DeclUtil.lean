@@ -52,6 +52,7 @@ syntax simpleBinder :=
   ident <|> bracketedSimpleBinder
 
 abbrev SimpleBinder := TSyntax ``simpleBinder
+open Lean.Parser.Term in
 def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
   match stx? with
   | some stx =>

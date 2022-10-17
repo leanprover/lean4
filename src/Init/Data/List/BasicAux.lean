@@ -125,7 +125,7 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
 `sizeOf a < sizeOf as` when `a ∈ as`, which is useful for well founded recursions
 over a nested inductive like `inductive T | mk : List T → T`. -/
 macro "sizeOf_list_dec" : tactic =>
-  `(first
+  `(tactic| first
     | apply sizeOf_lt_of_mem; assumption; done
     | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
       case' h => assumption

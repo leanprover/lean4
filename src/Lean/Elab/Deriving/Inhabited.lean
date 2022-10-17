@@ -6,8 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Elab.Deriving.Basic
 
 namespace Lean.Elab
-open Command
-open Meta
+open Command Meta Parser Term
 
 private abbrev IndexSet := RBTree Nat compare
 private abbrev LocalInst2Index := FVarIdMap Nat
@@ -66,10 +65,10 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(bracketedBinder| { $arg:ident })
+      let binder ← `(bracketedBinderF| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(bracketedBinder| [Inhabited $arg:ident ])
+        let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]

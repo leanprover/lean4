@@ -1283,7 +1283,7 @@ namespace Parser.Tactic
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
 macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
-  `(rw (config := { transparency := .default }) $s $(loc)?)
+  `(tactic| rw (config := { transparency := .default }) $s $(loc)?)
 
 syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
 syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"

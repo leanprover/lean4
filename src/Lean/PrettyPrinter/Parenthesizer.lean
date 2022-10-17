@@ -539,7 +539,10 @@ def parenthesizeTerm := parenthesizeCategory `term
 def parenthesizeTactic := parenthesizeCategory `tactic
 def parenthesizeCommand := parenthesizeCategory `command
 
-builtin_initialize registerTraceClass `PrettyPrinter.parenthesize
+builtin_initialize
+  registerTraceClass `PrettyPrinter.parenthesize
+  registerTraceClass `PrettyPrinter.parenthesize.backtrack (inherited := true)
+  registerTraceClass `PrettyPrinter.parenthesize.input (inherited := true)
 
 end PrettyPrinter
 end Lean

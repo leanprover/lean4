@@ -538,7 +538,10 @@ def formatTerm := formatCategory `term
 def formatTactic := formatCategory `tactic
 def formatCommand := formatCategory `command
 
-builtin_initialize registerTraceClass `PrettyPrinter.format;
+builtin_initialize
+  registerTraceClass `PrettyPrinter.format
+  registerTraceClass `PrettyPrinter.format.backtrack (inherited := true)
+  registerTraceClass `PrettyPrinter.format.input (inherited := true)
 
 end PrettyPrinter
 end Lean

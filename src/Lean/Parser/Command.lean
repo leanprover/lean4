@@ -130,7 +130,6 @@ declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|
 @[builtinCommandParser] def exit           := leading_parser "#exit"
 @[builtinCommandParser] def print          := leading_parser "#print " >> (ident <|> strLit)
 @[builtinCommandParser] def printAxioms    := leading_parser "#print " >> nonReservedSymbol "axioms " >> ident
-@[builtinCommandParser] def «resolve_name» := leading_parser "#resolve_name " >> ident
 @[builtinCommandParser] def «init_quot»    := leading_parser "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 @[builtinCommandParser] def «set_option»   := leading_parser "set_option " >> ident >> ppSpace >> optionValue

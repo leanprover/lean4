@@ -57,7 +57,7 @@ return ()
 
 #eval gTest
 
-macro "ret!" x:term : doElem => `(return $x)
+macro "ret!" x:term : doElem => `(doElem| return $x)
 
 def f1 (x : Nat) : Nat := Id.run <| do
   let mut x := x

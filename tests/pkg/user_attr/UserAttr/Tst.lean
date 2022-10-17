@@ -36,7 +36,7 @@ example : f x = id (x + 2) := by
   simp
   simp [my_simp]
 
-macro "my_simp" : tactic => `(simp [my_simp])
+macro "my_simp" : tactic => `(tactic| simp [my_simp])
 
 example : f x = id (x + 2) := by
   my_simp

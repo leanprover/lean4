@@ -138,9 +138,11 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
 
+open Lean.Parser.Term
+
 private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × Bool)
-  | `(bracketedBinder|($ids*)) => some <| (ids, true)
-  | `(bracketedBinder|{$ids*}) => some <| (ids, false)
+  | `(bracketedBinderF|($ids*)) => some (ids, true)
+  | `(bracketedBinderF|{$ids*}) => some (ids, false)
   | _                          => none
 
 /--  If `id` is an identifier, return true if `ids` contains `id`. -/
@@ -167,15 +169,15 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut modifiedVarDecls := false
   for varDecl in varDecls do
     let (ids, ty?, explicit') ← match varDecl with
-      | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) =>
+      | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
           for binderId in binderIds do
             if containsId ids binderId then
               throwErrorAt binderId "cannot update binder annotation of variables with default values/tactics"
         pure (ids, ty?, true)
-      | `(bracketedBinder|{$ids* $[: $ty?]?}) =>
+      | `(bracketedBinderF|{$ids* $[: $ty?]?}) =>
         pure (ids, ty?, false)
-      | `(bracketedBinder|[$id : $_]) =>
+      | `(bracketedBinderF|[$id : $_]) =>
         for binderId in binderIds do
           if binderId.raw.isIdent && binderId.raw.getId == id.getId then
             throwErrorAt binderId "cannot change the binder annotation of the previously declared local instance `{id.getId}`"
@@ -194,9 +196,9 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     else
       let mkBinder (id : TSyntax [`ident, ``Parser.Term.hole]) (explicit : Bool) : CommandElabM (TSyntax ``Parser.Term.bracketedBinder) :=
         if explicit then
-          `(bracketedBinder| ($id $[: $ty?]?))
+          `(bracketedBinderF| ($id $[: $ty?]?))
         else
-          `(bracketedBinder| {$id $[: $ty?]?})
+          `(bracketedBinderF| {$id $[: $ty?]?})
       for id in ids do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
@@ -209,9 +211,9 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
-        `(bracketedBinder| ($binderId))
+        `(bracketedBinderF| ($binderId))
       else
-        `(bracketedBinder| {$binderId})
+        `(bracketedBinderF| {$binderId})
   else
     return #[binder]
 

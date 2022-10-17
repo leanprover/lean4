@@ -278,9 +278,10 @@ elab t1:tactic " ⟨|⟩ " t2:tactic : tactic =>
 
 elab "fail" m:term  : tactic => throwError m
 
-macro "out" : tactic => `(apply escape_north ⟨|⟩ apply escape_south ⟨|⟩
-                           apply escape_east ⟨|⟩ apply escape_west ⟨|⟩
-                           fail "not currently at maze boundary")
+macro "out" : tactic => `(tactic|
+  apply escape_north ⟨|⟩ apply escape_south ⟨|⟩
+  apply escape_east ⟨|⟩ apply escape_west ⟨|⟩
+  fail "not currently at maze boundary")
 
 def maze1 := ┌───┐
              │▓▓▓│

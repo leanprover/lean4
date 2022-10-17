@@ -72,7 +72,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
     -- create the constructor
     let fieldStxs ← argVars.mapM fun arg => do
       let name := (← getFVarLocalDecl arg).userName
-      `(bracketedBinder| ($(mkIdent name) : Json))
+      `(bracketedBinderF| ($(mkIdent name) : Json))
     let pktCtor ← `(Parser.Command.ctor|
       | $ctorId:ident $[$fieldStxs]* : RpcEncodablePacket)
 
@@ -124,7 +124,7 @@ private def deriveInstance (declNames : Array Name) : CommandElabM Bool := do
   elabCommand <| ← liftTermElabM do
     forallTelescopeReducing indVal.type fun params _ => do
       let encInstBinders ← (← params.filterM (isType ·)).mapM fun p => do
-        `(bracketedBinder| [RpcEncodable $(mkIdent (← getFVarLocalDecl p).userName):ident])
+        `(bracketedBinderF| [RpcEncodable $(mkIdent (← getFVarLocalDecl p).userName):ident])
       if isStructure (← getEnv) typeName then
           deriveStructureInstance indVal params encInstBinders
       else

@@ -236,7 +236,7 @@ and push it to the front `n` times. If `n` is omitted, it defaults to `1`.
 syntax (name := rotateRight) "rotate_right" (num)? : tactic
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:tacticSeq : tactic => `(first | $t | skip)
+macro "try " t:tacticSeq : tactic => `(tactic| first | $t | skip)
 
 /--
 `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
@@ -464,7 +464,7 @@ syntax (name := unfold) "unfold " (colGt ident)+ (location)? : tactic
 Auxiliary macro for lifting have/suffices/let/...
 It makes sure the "continuation" `?_` is the main goal after refining.
 -/
-macro "refine_lift " e:term : tactic => `(focus (refine no_implicit_lambda% $e; rotate_right))
+macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
 `have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term
@@ -476,7 +476,7 @@ of type `t`.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
+macro "have " d:haveDecl : tactic => `(tactic| refine_lift have $d:haveDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -485,7 +485,7 @@ Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal w
 The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
 If `h :` is omitted, the name `this` is used.
  -/
-macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
+macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -494,12 +494,12 @@ and it is convenient for types that have only applicable constructor.
 Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses
 `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
+macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
+macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -507,13 +507,13 @@ macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
 /-- Similar to `refine_lift`, but using `refine'` -/
-macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
+macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
+macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
 /-- Similar to `have`, but using `refine'` -/
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x : _ := $p)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
+macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
@@ -678,7 +678,7 @@ example : ∀ x : Nat, x = x := by unhygienic
   exact Eq.refl x  -- refer to x
 ```
 -/
-macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t)
+macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic
@@ -812,7 +812,7 @@ to prove any side conditions that arise when constructing the term
 users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
-  `(first
+  `(tactic| first
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid

@@ -39,14 +39,6 @@ namespace Syntax
 
 end Syntax
 
-namespace Term
-
-@[builtinTermParser] def stx.quot : Parser := leading_parser "`(stx|"  >> incQuotDepth syntaxParser >> ")"
-@[builtinTermParser] def prec.quot : Parser := leading_parser "`(prec|"  >> incQuotDepth precedenceParser >> ")"
-@[builtinTermParser] def prio.quot : Parser := leading_parser "`(prio|"  >> incQuotDepth priorityParser >> ")"
-
-end Term
-
 namespace Command
 
 def namedName := leading_parser (atomic ("(" >> nonReservedSymbol "name") >> " := " >> ident >> ")")
@@ -75,11 +67,8 @@ def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
 def catBehavior := optional ("(" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
 @[builtinCommandParser] def syntaxCat := leading_parser optional docComment >> "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
-def macroRhs (quotP : Parser) : Parser := leading_parser "`(" >> incQuotDepth quotP >> ")" <|> withPosition termParser
-def macroTailTactic   : Parser := atomic (" : " >> identEq "tactic") >> darrow >> macroRhs Tactic.seq1
-def macroTailCommand  : Parser := atomic (" : " >> identEq "command") >> darrow >> macroRhs (many1Unbox commandParser)
-def macroTailDefault  : Parser := atomic (" : " >> ident) >> darrow >> macroRhs (categoryParserOfStack 2)
-def macroTail := leading_parser macroTailTactic <|> macroTailCommand <|> macroTailDefault
+def macroRhs : Parser := leading_parser withPosition termParser
+def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
 @[builtinCommandParser] def «macro»       := leading_parser suppressInsideQuot (optional docComment >> optional Term.«attributes» >> Term.attrKind >> "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 macroArg >> macroTail)
 
 @[builtinCommandParser] def «elab_rules» := leading_parser suppressInsideQuot (optional docComment >> optional Term.«attributes» >> Term.attrKind >> "elab_rules" >> optKind >> optional (" : " >> ident)  >> optional (" <= " >> ident) >> Term.matchAlts)

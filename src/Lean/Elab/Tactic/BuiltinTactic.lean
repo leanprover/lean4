@@ -402,7 +402,7 @@ where
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic dbgTrace] def evalDbgTrace : Tactic := fun stx => do
+@[builtinTactic Parser.Tactic.dbgTrace] def evalDbgTrace : Tactic := fun stx => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => dbg_trace msg

@@ -71,7 +71,7 @@ def fixName (id : Ident) : Option Name → Ident
 
 def mkConfigStructDecl (name? : Option Name)
 (doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
-: (spec : Syntax) → MacroM Syntax
+: (spec : Syntax) → MacroM Syntax.Command
 | `(structDeclSig| $id:ident) =>
   `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty :=
     {name := $(quote id.getId)})

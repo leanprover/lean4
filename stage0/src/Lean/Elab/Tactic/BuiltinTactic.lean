@@ -379,6 +379,31 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
     setGoals (acc.toList ++ (← getGoals))
   | _ => throwUnsupportedSyntax
 
+@[builtinTactic «show»] def evalShow : Tactic
+  | `(tactic| show $e) => do
+    let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
+    let s ← saveState
+    try
+      mvarId.withContext do
+        let mvarIdNew ← mkFreshExprMVar (← Term.elabType e)
+        mvarId.assign (← Term.ensureHasType (← mvarId.getType) mvarIdNew "'show' tactic failed")
+        setGoals (mvarIdNew.mvarId! :: mvarIds)
+      return
+    catch err =>
+      let errState ← saveState
+      s.restore
+      for mvarId' in mvarIds do
+        try
+          mvarId'.withContext do
+            let mvarIdNew ← mkFreshExprMVar (← Term.elabType e)
+            mvarId'.assign (← Term.ensureHasType (← mvarId'.getType) mvarIdNew)
+            setGoals (mvarIdNew.mvarId! :: mvarId :: mvarIds.erase mvarId')
+          return
+        catch _ => s.restore
+      errState.restore -- restore state to the first error
+      throw err
+  | _ => throwUnsupportedSyntax
+
 @[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
   | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax

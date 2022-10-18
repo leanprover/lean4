@@ -128,3 +128,15 @@ example (f : Foo 0) : True := by
 example (f : Foo n) (h : n = 0) : True := by
   induction f with simp at h
   | _ => trivial
+
+example (h : False) : False ∧ True := by
+  constructor
+  show True
+  · trivial
+  show id False
+  · fail_if_success with_reducible exact h
+    exact h
+
+example : Int := by
+  show Nat -- show applies coercions
+  exact 1

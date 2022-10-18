@@ -486,6 +486,7 @@ The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by
 If `h :` is omitted, the name `this` is used.
  -/
 macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
+
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -495,11 +496,13 @@ Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces t
 `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
 macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
+
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
+syntax (name := «show») "show " term : tactic
+
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -508,10 +511,13 @@ macro_rules
 
 /-- Similar to `refine_lift`, but using `refine'` -/
 macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
+
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
+
 /-- Similar to `have`, but using `refine'` -/
 macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
+
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
 

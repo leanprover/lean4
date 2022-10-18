@@ -71,7 +71,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
   else
     throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
-@[builtinTactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
    replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
@@ -91,17 +91,17 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
       return ()
   throwError "invalid '{tacticName}' conv tactic, application has only {mvarIds.length} (nondependent) argument(s)"
 
-@[builtinTactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
+@[builtin_tactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
 
-@[builtinTactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
    selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
 
-@[builtinTactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun _ => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun _ => do
    let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
    selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
-@[builtinTactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
    match stx with
    | `(conv| arg $[@%$tk?]? $i:num) =>
       let i := i.getNat
@@ -174,7 +174,7 @@ private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :
 private def ext (userName? : Option Name) : TacticM Unit := do
   replaceMainGoal [← extCore (← getMainGoal) userName?]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.ext] def evalExt : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.ext] def evalExt : Tactic := fun stx => do
   let ids := stx[1].getArgs
   if ids.isEmpty then
     ext none

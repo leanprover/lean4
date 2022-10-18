@@ -230,9 +230,9 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 TODO: this trick does not work in the old/new code generators anymore.
 TODO: figure out a way to instruct the compiler to optimize this code once,
 and then lambda lift all methods once. Perhaps, we should do it whenever the
-instance is marked as alwaysInline.
+instance is marked as always_inline.
 -/
-@[alwaysInline]
+@[always_inline]
 instance : Monad TermElabM :=
   let i := inferInstanceAs (Monad TermElabM)
   { pure := i.pure, bind := i.bind }
@@ -371,7 +371,7 @@ def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
 unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute TermElab) :=
   mkElabAttribute TermElab `builtin_term_elab `term_elab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
 
-@[implementedBy mkTermElabAttributeUnsafe]
+@[implemented_by mkTermElabAttributeUnsafe]
 opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%

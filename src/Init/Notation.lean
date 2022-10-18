@@ -248,23 +248,23 @@ especially when proving properties about the `ofNat` function itself.
 -/
 syntax (name := rawNatLit) "nat_lit " num : term
 
-@[inheritDoc] infixr:90 " ∘ "  => Function.comp
-@[inheritDoc] infixr:35 " × "  => Prod
+@[inherit_doc] infixr:90 " ∘ "  => Function.comp
+@[inherit_doc] infixr:35 " × "  => Prod
 
-@[inheritDoc] infixl:55 " ||| " => HOr.hOr
-@[inheritDoc] infixl:58 " ^^^ " => HXor.hXor
-@[inheritDoc] infixl:60 " &&& " => HAnd.hAnd
-@[inheritDoc] infixl:65 " + "   => HAdd.hAdd
-@[inheritDoc] infixl:65 " - "   => HSub.hSub
-@[inheritDoc] infixl:70 " * "   => HMul.hMul
-@[inheritDoc] infixl:70 " / "   => HDiv.hDiv
-@[inheritDoc] infixl:70 " % "   => HMod.hMod
-@[inheritDoc] infixl:75 " <<< " => HShiftLeft.hShiftLeft
-@[inheritDoc] infixl:75 " >>> " => HShiftRight.hShiftRight
-@[inheritDoc] infixr:80 " ^ "   => HPow.hPow
-@[inheritDoc] infixl:65 " ++ "  => HAppend.hAppend
-@[inheritDoc] prefix:100 "-"    => Neg.neg
-@[inheritDoc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] infixl:55 " ||| " => HOr.hOr
+@[inherit_doc] infixl:58 " ^^^ " => HXor.hXor
+@[inherit_doc] infixl:60 " &&& " => HAnd.hAnd
+@[inherit_doc] infixl:65 " + "   => HAdd.hAdd
+@[inherit_doc] infixl:65 " - "   => HSub.hSub
+@[inherit_doc] infixl:70 " * "   => HMul.hMul
+@[inherit_doc] infixl:70 " / "   => HDiv.hDiv
+@[inherit_doc] infixl:70 " % "   => HMod.hMod
+@[inherit_doc] infixl:75 " <<< " => HShiftLeft.hShiftLeft
+@[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
+@[inherit_doc] infixr:80 " ^ "   => HPow.hPow
+@[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
+@[inherit_doc] prefix:100 "-"    => Neg.neg
+@[inherit_doc] prefix:100 "~~~"  => Complement.complement
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -282,14 +282,14 @@ macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
-@[inheritDoc] infix:50 " <= " => LE.le
-@[inheritDoc] infix:50 " ≤ "  => LE.le
-@[inheritDoc] infix:50 " < "  => LT.lt
-@[inheritDoc] infix:50 " >= " => GE.ge
-@[inheritDoc] infix:50 " ≥ "  => GE.ge
-@[inheritDoc] infix:50 " > "  => GT.gt
-@[inheritDoc] infix:50 " = "  => Eq
-@[inheritDoc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " <= " => LE.le
+@[inherit_doc] infix:50 " ≤ "  => LE.le
+@[inherit_doc] infix:50 " < "  => LT.lt
+@[inherit_doc] infix:50 " >= " => GE.ge
+@[inherit_doc] infix:50 " ≥ "  => GE.ge
+@[inherit_doc] infix:50 " > "  => GT.gt
+@[inherit_doc] infix:50 " = "  => Eq
+@[inherit_doc] infix:50 " == " => BEq.beq
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
@@ -305,28 +305,28 @@ macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
-@[inheritDoc] infixr:35 " /\\ " => And
-@[inheritDoc] infixr:35 " ∧ "   => And
-@[inheritDoc] infixr:30 " \\/ " => Or
-@[inheritDoc] infixr:30 " ∨  "  => Or
-@[inheritDoc] notation:max "¬" p:40 => Not p
+@[inherit_doc] infixr:35 " /\\ " => And
+@[inherit_doc] infixr:35 " ∧ "   => And
+@[inherit_doc] infixr:30 " \\/ " => Or
+@[inherit_doc] infixr:30 " ∨  "  => Or
+@[inherit_doc] notation:max "¬" p:40 => Not p
 
-@[inheritDoc] infixl:35 " && " => and
-@[inheritDoc] infixl:30 " || " => or
-@[inheritDoc] notation:max "!" b:40 => not b
+@[inherit_doc] infixl:35 " && " => and
+@[inherit_doc] infixl:30 " || " => or
+@[inherit_doc] notation:max "!" b:40 => not b
 
-@[inheritDoc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] infix:50 " ∈ " => Membership.mem
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
-@[inheritDoc] infixr:67 " :: " => List.cons
-@[inheritDoc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inheritDoc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inheritDoc] infixl:55  " >>= " => Bind.bind
-@[inheritDoc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inheritDoc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inheritDoc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
-@[inheritDoc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixr:67 " :: " => List.cons
+@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
+@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
+@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
+@[inherit_doc] infixr:100 " <$> " => Functor.map
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
@@ -350,7 +350,7 @@ syntax caseArg := binderIdent binderIdent*
 end Parser.Tactic
 end Lean
 
-@[inheritDoc dite] syntax (name := termDepIfThenElse)
+@[inherit_doc dite] syntax (name := termDepIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " Lean.binderIdent " : " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -362,7 +362,7 @@ macro_rules
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
 
-@[inheritDoc ite] syntax (name := termIfThenElse)
+@[inherit_doc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -384,7 +384,7 @@ If the pattern does not match, it returns `e` instead.
 macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
   `(match $d:term with | $pat => $t | _ => $e)
 
-@[inheritDoc cond] syntax (name := boolIfThenElse)
+@[inherit_doc cond] syntax (name := boolIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -424,7 +424,7 @@ macro_rules
   | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
-@[inheritDoc Subtype] syntax "{ " ident (" : " term)? " // " term " }" : term
+@[inherit_doc Subtype] syntax "{ " ident (" : " term)? " // " term " }" : term
 
 macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))

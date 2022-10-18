@@ -22,7 +22,7 @@ private def getMonadForIn (expectedType? : Option Expr) : TermElabM Expr := do
 private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   throwError "failed to synthesize instance for 'for_in%' notation{indentExpr forInInstance}"
 
-@[builtinTermElab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
+@[builtin_term_elab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in% $col $init $body) =>
       match (← isLocalIdent? col) with
@@ -48,7 +48,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
+@[builtin_term_elab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in'% $col $init $body) =>
       match (← isLocalIdent? col) with
@@ -261,7 +261,7 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
 
   The motivation is to support default instances such as
   ```
-  @[defaultInstance high]
+  @[default_instance high]
   instance [Mul α] : HMul α (Array α) (Array α) where
     hMul a as := as.map (a * ·)
 
@@ -364,11 +364,11 @@ mutual
 
 end
 
-@[builtinTermElab binop]
+@[builtin_term_elab binop]
 def elabBinOp : TermElab :=  fun stx expectedType? => do
   toExpr (← toTree stx) expectedType?
 
-@[builtinTermElab binop_lazy]
+@[builtin_term_elab binop_lazy]
 def elabBinOpLazy : TermElab := elabBinOp
 
 /--
@@ -445,11 +445,11 @@ where
         return (← ensureHasType (Lean.mkConst ``Bool) e)
     return e
 
-@[builtinTermElab binrel] def elabBinRel : TermElab := elabBinRelCore false
+@[builtin_term_elab binrel] def elabBinRel : TermElab := elabBinRelCore false
 
-@[builtinTermElab binrel_no_prop] def elabBinRelNoProp : TermElab := elabBinRelCore true
+@[builtin_term_elab binrel_no_prop] def elabBinRelNoProp : TermElab := elabBinRelCore true
 
-@[builtinTermElab defaultOrOfNonempty]
+@[builtin_term_elab defaultOrOfNonempty]
 def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   match expectedType? with

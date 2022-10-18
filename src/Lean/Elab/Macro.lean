@@ -10,7 +10,7 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-@[builtinCommandElab Lean.Parser.Command.macro] def elabMacro : CommandElab
+@[builtin_command_elab Lean.Parser.Command.macro] def elabMacro : CommandElab
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       macro%$tk$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* : $cat => $rhs) =>
     -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition

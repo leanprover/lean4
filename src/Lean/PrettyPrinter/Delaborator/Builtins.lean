@@ -22,7 +22,7 @@ def unfoldMDatas : Expr → Expr
   | Expr.mdata _ e => unfoldMDatas e
   | e              => e
 
-@[builtinDelab fvar]
+@[builtin_delab fvar]
 def delabFVar : Delab := do
 let Expr.fvar fvarId ← getExpr | unreachable!
 try
@@ -33,12 +33,12 @@ catch _ =>
   maybeAddBlockImplicit <| mkIdent fvarId.name
 
 -- loose bound variable, use pseudo syntax
-@[builtinDelab bvar]
+@[builtin_delab bvar]
 def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
-@[builtinDelab mvar]
+@[builtin_delab mvar]
 def delabMVar : Delab := do
   let Expr.mvar n ← getExpr | unreachable!
   let mvarDecl ← n.getDecl
@@ -48,7 +48,7 @@ def delabMVar : Delab := do
     | n => n
   `(?$(mkIdent n))
 
-@[builtinDelab sort]
+@[builtin_delab sort]
 def delabSort : Delab := do
   let Expr.sort l ← getExpr | unreachable!
   match l with
@@ -133,7 +133,7 @@ where
         forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
           k (xs ++ ys) b
 
-@[builtinDelab app]
+@[builtin_delab app]
 def delabAppExplicit : Delab := do
   let paramKinds ← getParamKinds
   let tagAppFn ← getPPOption getPPTagAppFns
@@ -204,7 +204,7 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
   `({ $fields,* $[: $tyStx]? })
 
-@[builtinDelab app]
+@[builtin_delab app]
 def delabAppImplicit : Delab := do
   -- TODO: always call the unexpanders, make them guard on the right # args?
   let paramKinds ← getParamKinds
@@ -333,7 +333,7 @@ where
       (x : List α) → (Unit → motive List.nil) → ((a : α) → (as : List α) → motive (a :: as)) → motive x
   ```
 -/
-@[builtinDelab app]
+@[builtin_delab app]
 def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMatch do
   -- incrementally fill `AppMatchState` from arguments
   let st ← withAppFnArgs
@@ -408,7 +408,7 @@ def delabLetFun : Delab := do
     else
       `(let_fun $(mkIdent n) := $stxV; $stxB)
 
-@[builtinDelab mdata]
+@[builtin_delab mdata]
 def delabMData : Delab := do
   if let some _ := inaccessible? (← getExpr) then
     let s ← withMDataExpr delab
@@ -472,7 +472,7 @@ private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab
       let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
       delabGroup (curNames.push stxN) stx
 
-@[builtinDelab lam]
+@[builtin_delab lam]
 def delabLam : Delab :=
   delabBinders fun curNames stxBody => do
     let e ← getExpr
@@ -543,7 +543,7 @@ private partial def delabForallBinders (delabGroup : Array Syntax → Bool → S
       let (stx, stxN) ← withBindingBodyUnusedName fun stxN => return (← delab, stxN)
       delabGroup (curNames.push stxN) curDep stx
 
-@[builtinDelab forallE]
+@[builtin_delab forallE]
 def delabForall : Delab := do
   delabForallBinders fun curNames dependent stxBody => do
     let e ← getExpr
@@ -570,7 +570,7 @@ def delabForall : Delab := do
     else
       `($group:bracketedBinder → $stxBody)
 
-@[builtinDelab letE]
+@[builtin_delab letE]
 def delabLetE : Delab := do
   let Expr.letE n t v b _ ← getExpr | unreachable!
   let n ← getUnusedName n b
@@ -583,7 +583,7 @@ def delabLetE : Delab := do
     `(let $(mkIdent n) : $stxT := $stxV; $stxB)
   else `(let $(mkIdent n) := $stxV; $stxB)
 
-@[builtinDelab lit]
+@[builtin_delab lit]
 def delabLit : Delab := do
   let Expr.lit l ← getExpr | unreachable!
   match l with
@@ -591,13 +591,13 @@ def delabLit : Delab := do
   | Literal.strVal s => pure $ quote s
 
 -- `@OfNat.ofNat _ n _` ~> `n`
-@[builtinDelab app.OfNat.ofNat]
+@[builtin_delab app.OfNat.ofNat]
 def delabOfNat : Delab := whenPPOption getPPCoercions do
   let .app (.app _ (.lit (.natVal n))) _ ← getExpr | failure
   return quote n
 
 -- `@OfDecimal.ofDecimal _ _ m s e` ~> `m*10^(sign * e)` where `sign == 1` if `s = false` and `sign = -1` if `s = true`
-@[builtinDelab app.OfScientific.ofScientific]
+@[builtin_delab app.OfScientific.ofScientific]
 def delabOfScientific : Delab := whenPPOption getPPCoercions do
   let expr ← getExpr
   guard <| expr.getAppNumArgs == 5
@@ -622,7 +622,7 @@ Delaborate a projection primitive. These do not usually occur in
 user code, but are pretty-printed when e.g. `#print`ing a projection
 function.
 -/
-@[builtinDelab proj]
+@[builtin_delab proj]
 def delabProj : Delab := do
   let Expr.proj _ idx _ ← getExpr | unreachable!
   let e ← withProj delab
@@ -633,7 +633,7 @@ def delabProj : Delab := do
   `($(e).$idx:fieldIdx)
 
 /-- Delaborate a call to a projection function such as `Prod.fst`. -/
-@[builtinDelab app]
+@[builtin_delab app]
 def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   let e@(Expr.app fn _) ← getExpr | failure
   let .const c@(.str _ f) _ ← pure fn.getAppFn | failure
@@ -651,7 +651,7 @@ def delabProjectionApp : Delab := whenPPOption getPPStructureProjections $ do
   let appStx ← withAppArg delab
   `($(appStx).$(mkIdent f):ident)
 
-@[builtinDelab app.dite]
+@[builtin_delab app.dite]
 def delabDIte : Delab := whenPPOption getPPNotation do
   -- Note: we keep this as a delaborator for now because it actually accesses the expression.
   guard $ (← getExpr).getAppNumArgs == 5
@@ -668,7 +668,7 @@ where
       | none   => withBindingBodyUnusedName fun h => do
         return (← delab, h.getId)
 
-@[builtinDelab app.cond]
+@[builtin_delab app.cond]
 def delabCond : Delab := whenPPOption getPPNotation do
   guard $ (← getExpr).getAppNumArgs == 4
   let c ← withAppFn $ withAppFn $ withAppArg delab
@@ -676,7 +676,7 @@ def delabCond : Delab := whenPPOption getPPNotation do
   let e ← withAppArg delab
   `(bif $c then $t else $e)
 
-@[builtinDelab app.namedPattern]
+@[builtin_delab app.namedPattern]
 def delabNamedPattern : Delab := do
   -- Note: we keep this as a delaborator because it accesses the DelabM context
   guard (← read).inPattern
@@ -702,10 +702,10 @@ def delabSigmaCore (sigma : Bool) : Delab := whenPPOption getPPNotation do
       else
         if sigma then `((_ : $α) × $b) else `((_ : $α) ×' $b)
 
-@[builtinDelab app.Sigma]
+@[builtin_delab app.Sigma]
 def delabSigma : Delab := delabSigmaCore (sigma := true)
 
-@[builtinDelab app.PSigma]
+@[builtin_delab app.PSigma]
 def delabPSigma : Delab := delabSigmaCore (sigma := false)
 
 partial def delabDoElems : DelabM (List Syntax) := do
@@ -740,7 +740,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
   where
     prependAndRec x : DelabM _ := List.cons <$> x <*> delabDoElems
 
-@[builtinDelab app.Bind.bind]
+@[builtin_delab app.Bind.bind]
 def delabDo : Delab := whenPPOption getPPNotation do
   guard <| (← getExpr).isAppOfArity ``Bind.bind 6
   let elems ← delabDoElems
@@ -753,13 +753,13 @@ def reifyName : Expr → DelabM Name
   | .app (.app (.const ``Lean.Name.num ..) n) (.lit (.natVal i)) => return (← reifyName n).mkNum i
   | _ => failure
 
-@[builtinDelab app.Lean.Name.str]
+@[builtin_delab app.Lean.Name.str]
 def delabNameMkStr : Delab := whenPPOption getPPNotation do
   let n ← reifyName (← getExpr)
   -- not guaranteed to be a syntactically valid name, but usually more helpful than the explicit version
   return mkNode ``Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{n}"]
 
-@[builtinDelab app.Lean.Name.num]
+@[builtin_delab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
 end Lean.PrettyPrinter.Delaborator

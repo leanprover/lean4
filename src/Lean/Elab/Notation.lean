@@ -155,7 +155,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   | some delabDecl => return mkNullNode #[stxDecl, macroDecls, delabDecl]
   | none           => return mkNullNode #[stxDecl, macroDecls]
 
-@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
+@[builtin_macro Lean.Parser.Command.notation] def expandNotation : Macro
   | stx@`($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       notation $[: $prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
     -- trigger scoped checks early and only once

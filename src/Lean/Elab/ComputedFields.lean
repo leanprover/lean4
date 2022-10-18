@@ -199,7 +199,7 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
   for (indName, computedFieldNames) in computedFields do
     for computedFieldName in computedFieldNames do
       unless computedFieldAttr.hasTag (← getEnv) computedFieldName do
-        logError m!"'{computedFieldName}' must be tagged with @[computedField]"
+        logError m!"'{computedFieldName}' must be tagged with @[computed_field]"
     mkComputedFieldOverrides indName computedFieldNames
 
   -- Once all the implemented_by infrastructure is set up, compile everything.

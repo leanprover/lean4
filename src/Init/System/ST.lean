@@ -34,7 +34,7 @@ def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
   | EStateM.Result.ok a _     => a
   | EStateM.Result.error ex _ => nomatch ex
 
-@[alwaysInline]
+@[always_inline]
 instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
   match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -82,12 +82,12 @@ opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
   Ref.set r a
   pure b
 
-@[implementedBy Ref.modifyUnsafe]
+@[implemented_by Ref.modifyUnsafe]
 def Ref.modify {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.get r
   Ref.set r (f v)
 
-@[implementedBy Ref.modifyGetUnsafe]
+@[implemented_by Ref.modifyGetUnsafe]
 def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.get r
   let (b, a) := f v

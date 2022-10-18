@@ -66,11 +66,11 @@ def registerBuiltinAttribute (attr : AttributeImpl) : IO Unit := do
   Helper methods for decoding the parameters of builtin attributes that are defined before `Lean.Parser`.
   We have the following ones:
   ```
-  @[builtinAttrParser] def simple     := leading_parser ident >> optional ident >> optional priorityParser
+  @[builtin_attr_parser] def simple     := leading_parser ident >> optional ident >> optional priorityParser
   /- We can't use `simple` for `class`, `instance`, `export` and `macro` because they are  keywords. -/
-  @[builtinAttrParser] def «class»    := leading_parser "class"
-  @[builtinAttrParser] def «instance» := leading_parser "instance" >> optional priorityParser
-  @[builtinAttrParser] def «macro»    := leading_parser "macro " >> ident
+  @[builtin_attr_parser] def «class»    := leading_parser "class"
+  @[builtin_attr_parser] def «instance» := leading_parser "instance" >> optional priorityParser
+  @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
   ```
   Note that we need the parsers for `class`, `instance`, and `macros` because they are keywords.
 -/
@@ -340,7 +340,7 @@ unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) 
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName
     | _ => throw ("unexpected attribute implementation type at '" ++ toString declName ++ "' (`AttributeImpl` expected")
 
-@[implementedBy mkAttributeImplOfConstantUnsafe]
+@[implemented_by mkAttributeImplOfConstantUnsafe]
 opaque mkAttributeImplOfConstant (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl
 
 def mkAttributeImplOfEntry (env : Environment) (opts : Options) (e : AttributeExtensionOLeanEntry) : IO AttributeImpl :=

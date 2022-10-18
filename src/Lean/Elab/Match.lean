@@ -151,12 +151,12 @@ private def getMatchAlts : Syntax → Array MatchAltView
       | _ => none
   | _ => #[]
 
-@[builtinTermElab inaccessible] def elabInaccessible : TermElab := fun stx expectedType? => do
+@[builtin_term_elab inaccessible] def elabInaccessible : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[1] expectedType?
   return mkInaccessible e
 
 open Lean.Elab.Term.Quotation in
-@[builtinQuotPrecheck Lean.Parser.Term.match] def precheckMatch : Precheck
+@[builtin_quot_precheck Lean.Parser.Term.match] def precheckMatch : Precheck
   | `(match $[$discrs:term],* with $[| $[$patss],* => $rhss]*) => do
     discrs.forM precheck
     for (pats, rhs) in patss.zip rhss do
@@ -1214,7 +1214,7 @@ where
   isAtomicIdent (stx : Syntax) : Bool :=
     stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
 
-@[builtinTermElab «match»] def elabMatch : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(match $discr:term with | $y:ident => $rhs) =>
      if (← isPatternVar y) then expandSimpleMatch stx discr y rhs expectedType? else elabMatchDefault stx expectedType?
@@ -1237,7 +1237,7 @@ builtin_initialize
   registerTraceClass `Elab.match
 
 -- leading_parser:leadPrec "nomatch " >> termParser
-@[builtinTermElab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «nomatch»] def elabNoMatch : TermElab := fun stx expectedType? => do
   match stx with
   | `(nomatch $discrExpr) =>
     if (← isAtomicDiscr discrExpr) then

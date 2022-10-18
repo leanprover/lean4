@@ -169,7 +169,7 @@ def run (manager : PassManager) (installer : PassInstaller) : CoreM PassManager 
 private unsafe def getPassInstallerUnsafe (declName : Name) : CoreM PassInstaller := do
   ofExcept <| (← getEnv).evalConstCheck PassInstaller (← getOptions) ``PassInstaller declName
 
-@[implementedBy getPassInstallerUnsafe]
+@[implemented_by getPassInstallerUnsafe]
 private opaque getPassInstaller (declName : Name) : CoreM PassInstaller
 
 def runFromDecl (manager : PassManager) (declName : Name) : CoreM PassManager := do

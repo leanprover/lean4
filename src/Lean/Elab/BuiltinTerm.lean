@@ -10,7 +10,7 @@ import Lean.Elab.Eval
 namespace Lean.Elab.Term
 open Meta
 
-@[builtinTermElab «prop»] def elabProp : TermElab := fun _ _ =>
+@[builtin_term_elab «prop»] def elabProp : TermElab := fun _ _ =>
   return mkSort levelZero
 
 private def elabOptLevel (stx : Syntax) : TermElabM Level :=
@@ -19,10 +19,10 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   else
     elabLevel stx[0]
 
-@[builtinTermElab «sort»] def elabSort : TermElab := fun stx _ =>
+@[builtin_term_elab «sort»] def elabSort : TermElab := fun stx _ =>
   return mkSort (← elabOptLevel stx[1])
 
-@[builtinTermElab «type»] def elabTypeStx : TermElab := fun stx _ =>
+@[builtin_term_elab «type»] def elabTypeStx : TermElab := fun stx _ =>
   return mkSort (mkLevelSucc (← elabOptLevel stx[1]))
 
 /-!
@@ -31,13 +31,13 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
     It doesn't "hurt" if the identifier can be resolved because the expected type is not used in this case.
     Recall that if the name resolution fails a synthetic sorry is returned.-/
 
-@[builtinTermElab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «pipeCompletion»] def elabPipeCompletion : TermElab := fun stx expectedType? => do
   let e ← elabTerm stx[0] none
   unless e.isSorry do
     addDotCompletionInfo stx e expectedType?
   throwErrorAt stx[1] "invalid field notation, identifier or numeral expected"
 
-@[builtinTermElab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «completion»] def elabCompletion : TermElab := fun stx expectedType? => do
   /- `ident.` is ambiguous in Lean, we may try to be completing a declaration name or access a "field". -/
   if stx[0].isIdent then
     /- If we can elaborate the identifier successfully, we assume it is a dot-completion. Otherwise, we treat it as
@@ -54,13 +54,13 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   else
     elabPipeCompletion stx expectedType?
 
-@[builtinTermElab «hole»] def elabHole : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «hole»] def elabHole : TermElab := fun stx expectedType? => do
   let kind := if (← read).inPattern || !(← read).holesAsSyntheticOpaque then MetavarKind.natural else MetavarKind.syntheticOpaque
   let mvar ← mkFreshExprMVar expectedType? kind
   registerMVarErrorHoleInfo mvar.mvarId! stx
   pure mvar
 
-@[builtinTermElab «syntheticHole»] def elabSyntheticHole : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «syntheticHole»] def elabSyntheticHole : TermElab := fun stx expectedType? => do
   let arg  := stx[1]
   let userName := if arg.isIdent then arg.getId else Name.anonymous
   let mkNewHole : Unit → TermElabM Expr := fun _ => do
@@ -98,7 +98,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
         else
           throwError "synthetic hole has already been defined with an incompatible local context"
 
-@[builtinTermElab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «letMVar»] def elabLetMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(let_mvar% ? $n := $e; $b) =>
      match (← getMCtx).findUserName? n.getId with
@@ -117,14 +117,14 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
   | some mvarId => instantiateMVars (mkMVar mvarId)
 
 
-@[builtinTermElab «waitIfTypeMVar»] def elabWaitIfTypeMVar : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «waitIfTypeMVar»] def elabWaitIfTypeMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(wait_if_type_mvar% ? $n; $b) =>
     tryPostponeIfMVar (← inferType (← getMVarFromUserName n))
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «waitIfTypeContainsMVar»] def elabWaitIfTypeContainsMVar : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «waitIfTypeContainsMVar»] def elabWaitIfTypeContainsMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(wait_if_type_contains_mvar% ? $n; $b) =>
     if (← instantiateMVars (← inferType (← getMVarFromUserName n))).hasExprMVar then
@@ -132,7 +132,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «waitIfContainsMVar»] def elabWaitIfContainsMVar : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «waitIfContainsMVar»] def elabWaitIfContainsMVar : TermElab := fun stx expectedType? => do
   match stx with
   | `(wait_if_contains_mvar% ? $n; $b) =>
     if (← getMVarFromUserName n).hasExprMVar then
@@ -147,20 +147,20 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
   registerSyntheticMVar ref mvarId <| SyntheticMVarKind.tactic tacticCode (← saveContext)
   return mvar
 
-@[builtinTermElab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType => mkTacticMVar expectedType stx
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
 
-@[builtinTermElab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
+@[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
-@[builtinTermElab cdot] def elabBadCDot : TermElab := fun _ _ =>
+@[builtin_term_elab cdot] def elabBadCDot : TermElab := fun _ _ =>
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
-@[builtinTermElab str] def elabStrLit : TermElab := fun stx _ => do
+@[builtin_term_elab str] def elabStrLit : TermElab := fun stx _ => do
   match stx.isStrLit? with
   | some val => pure $ mkStrLit val
   | none     => throwIllFormedSyntax
@@ -172,7 +172,7 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   | _                 => pure ()
   return typeMVar
 
-@[builtinTermElab num] def elabNumLit : TermElab := fun stx expectedType? => do
+@[builtin_term_elab num] def elabNumLit : TermElab := fun stx expectedType? => do
   let val ← match stx.isNatLit? with
     | some val => pure val
     | none     => throwIllFormedSyntax
@@ -183,12 +183,12 @@ private def mkFreshTypeMVarFor (expectedType? : Option Expr) : TermElabM Expr :=
   registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
   return r
 
-@[builtinTermElab rawNatLit] def elabRawNatLit : TermElab :=  fun stx _ => do
+@[builtin_term_elab rawNatLit] def elabRawNatLit : TermElab :=  fun stx _ => do
   match stx[1].isNatLit? with
   | some val => return mkRawNatLit val
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab scientific]
+@[builtin_term_elab scientific]
 def elabScientificLit : TermElab := fun stx expectedType? => do
   match stx.isScientificLit? with
   | none        => throwIllFormedSyntax
@@ -200,31 +200,31 @@ def elabScientificLit : TermElab := fun stx expectedType? => do
     registerMVarErrorImplicitArgInfo mvar.mvarId! stx r
     return r
 
-@[builtinTermElab char] def elabCharLit : TermElab := fun stx _ => do
+@[builtin_term_elab char] def elabCharLit : TermElab := fun stx _ => do
   match stx.isCharLit? with
   | some val => return mkApp (Lean.mkConst ``Char.ofNat) (mkRawNatLit val.toNat)
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab quotedName] def elabQuotedName : TermElab := fun stx _ =>
+@[builtin_term_elab quotedName] def elabQuotedName : TermElab := fun stx _ =>
   match stx[0].isNameLit? with
   | some val => pure $ toExpr val
   | none     => throwIllFormedSyntax
 
-@[builtinTermElab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
+@[builtin_term_elab doubleQuotedName] def elabDoubleQuotedName : TermElab := fun stx _ =>
   return toExpr (← resolveGlobalConstNoOverloadWithInfo stx[2])
 
-@[builtinTermElab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
+@[builtin_term_elab declName] def elabDeclName : TermElab := adaptExpander fun _ => do
   let some declName ← getDeclName?
     | throwError "invalid `decl_name%` macro, the declaration name is not available"
   return (quote declName : Term)
 
-@[builtinTermElab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
+@[builtin_term_elab Parser.Term.withDeclName] def elabWithDeclName : TermElab := fun stx expectedType? => do
   let id := stx[2].getId
   let id := if stx[1].isNone then id else (← getCurrNamespace) ++ id
   let e := stx[3]
   withMacroExpansion stx e <| withDeclName id <| elabTerm e expectedType?
 
-@[builtinTermElab typeOf] def elabTypeOf : TermElab := fun stx _ => do
+@[builtin_term_elab typeOf] def elabTypeOf : TermElab := fun stx _ => do
   inferType (← elabTerm stx[1] none)
 
 /--
@@ -255,7 +255,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   else
     return e
 
-@[builtinTermElab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx _ =>
+@[builtin_term_elab ensureTypeOf] def elabEnsureTypeOf : TermElab := fun stx _ =>
   match stx[2].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => do
@@ -264,12 +264,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     -- See comment at `mkSilentAnnotationIfHole`
     mkSilentAnnotationIfHole (← elabTermEnsuringType stx[3] refTermType (errorMsgHeader? := msg))
 
-@[builtinTermElab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
+@[builtin_term_elab ensureExpectedType] def elabEnsureExpectedType : TermElab := fun stx expectedType? =>
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => elabTermEnsuringType stx[2] expectedType? (errorMsgHeader? := msg)
 
-@[builtinTermElab clear] def elabClear : TermElab := fun stx expectedType? => do
+@[builtin_term_elab clear] def elabClear : TermElab := fun stx expectedType? => do
   let some (.fvar fvarId) ← isLocalIdent? stx[1]
     | throwErrorAt stx[1] "not in scope"
   let body := stx[3]
@@ -289,7 +289,7 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   else
     elabTerm body expectedType?
 
-@[builtinTermElab «open»] def elabOpen : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «open»] def elabOpen : TermElab := fun stx expectedType? => do
   let `(open $decl in $e) := stx | throwUnsupportedSyntax
   try
     pushScope
@@ -299,12 +299,12 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   finally
     popScope
 
-@[builtinTermElab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
   let options ← Elab.elabSetOption stx[1] stx[2]
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
     elabTerm stx[4] expectedType?
 
-@[builtinTermElab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
+@[builtin_term_elab withAnnotateTerm] def elabWithAnnotateTerm : TermElab := fun stx expectedType? => do
   match stx with
   | `(with_annotate_term $stx $e) =>
     withInfoContext' stx (elabTerm e expectedType?) (mkTermInfo .anonymous (expectedType? := expectedType?) stx)
@@ -313,10 +313,10 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
 private unsafe def evalFilePathUnsafe (stx : Syntax) : TermElabM System.FilePath :=
   evalTerm System.FilePath (Lean.mkConst ``System.FilePath) stx
 
-@[implementedBy evalFilePathUnsafe]
+@[implemented_by evalFilePathUnsafe]
 private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
 
-@[builtinTermElab includeStr] def elabIncludeStr : TermElab
+@[builtin_term_elab includeStr] def elabIncludeStr : TermElab
   | `(include_str $path:term), _ => do
     let path ← evalFilePath path
     let ctx ← readThe Lean.Core.Context

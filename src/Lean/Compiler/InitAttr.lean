@@ -69,7 +69,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
                 runInit ctx.env ctx.opts decl initDecl
   }
 
-@[implementedBy registerInitAttrUnsafe]
+@[implemented_by registerInitAttrUnsafe]
 private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name)
 
 @[inline]

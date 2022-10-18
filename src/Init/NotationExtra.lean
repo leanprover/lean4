@@ -72,7 +72,7 @@ macro_rules
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
     let hint : Ident ← `(hint)
-    `($[$doc?:docComment]? @[$kind unificationHint] def $(n.getD hint) $bs* : Sort _ := $body)
+    `($[$doc?:docComment]? @[$kind unification_hint] def $(n.getD hint) $bs* : Sort _ := $body)
 end Lean
 
 open Lean
@@ -133,153 +133,153 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
 
-@[appUnexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
 
-@[appUnexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
+@[app_unexpander List.nil] def unexpandListNil : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `([])
 
-@[appUnexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
+@[app_unexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
   | `($(_) $x [])      => `([$x])
   | `($(_) $x [$xs,*]) => `([$x, $xs,*])
   | _                  => throw ()
 
-@[appUnexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
+@[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])
   | _               => throw ()
 
-@[appUnexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
   | `($(_) $x ($y, $ys,*)) => `(($x, $y, $ys,*))
   | `($(_) $x $y)          => `(($x, $y))
   | _                      => throw ()
 
-@[appUnexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
+@[app_unexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
   | `($(_) $c $t $e) => `(if $c then $t else $e)
   | _                => throw ()
 
-@[appUnexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
+@[app_unexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
   | `($(_) _)   => `(sorry)
   | `($(_) _ _) => `(sorry)
   | _           => throw ()
 
-@[appUnexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)
   | _             => throw ()
 
-@[appUnexpander Eq.rec] def unexpandEqRec : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Eq.rec] def unexpandEqRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)
   | _             => throw ()
 
-@[appUnexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
   | `($(_) fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
   | `($(_) fun $x:ident => $b)                     => `(∃ $x:ident, $b)
   | `($(_) fun ($x:ident : $t) => $b)              => `(∃ ($x:ident : $t), $b)
   | _                                              => throw ()
 
-@[appUnexpander Sigma] def unexpandSigma : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Sigma] def unexpandSigma : Lean.PrettyPrinter.Unexpander
   | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) × $b)
   | _                                  => throw ()
 
-@[appUnexpander PSigma] def unexpandPSigma : Lean.PrettyPrinter.Unexpander
+@[app_unexpander PSigma] def unexpandPSigma : Lean.PrettyPrinter.Unexpander
   | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
   | _                                 => throw ()
 
-@[appUnexpander Subtype] def unexpandSubtype : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Subtype] def unexpandSubtype : Lean.PrettyPrinter.Unexpander
   | `($(_) fun ($x:ident : $type) => $p)  => `({ $x : $type // $p })
   | `($(_) fun $x:ident => $p)            => `({ $x // $p })
   | _                                     => throw ()
 
-@[appUnexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
+@[app_unexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
   | `($f [$k])  => `($f $k)
   | _           => throw ()
 
-@[appUnexpander TSyntaxArray] def unexpandTSyntaxArray : Lean.PrettyPrinter.Unexpander
+@[app_unexpander TSyntaxArray] def unexpandTSyntaxArray : Lean.PrettyPrinter.Unexpander
   | `($f [$k])  => `($f $k)
   | _           => throw ()
 
-@[appUnexpander Syntax.TSepArray] def unexpandTSepArray : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Syntax.TSepArray] def unexpandTSepArray : Lean.PrettyPrinter.Unexpander
   | `($f [$k] $sep)  => `($f $k $sep)
   | _                => throw ()
 
-@[appUnexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
+@[app_unexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index $_) => `($array[$index])
   | _ => throw ()
 
-@[appUnexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
+@[app_unexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index) => `($array[$index]!)
   | _ => throw ()
 
-@[appUnexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
+@[app_unexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
   | `($_ $array $index) => `($array[$index]?)
   | _ => throw ()
 
-@[appUnexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr1] def unexpandMkStr1 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr2] def unexpandMkStr2 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr3] def unexpandMkStr3 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr4] def unexpandMkStr4 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str $a4:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr5] def unexpandMkStr5 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr6] def unexpandMkStr6 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr7] def unexpandMkStr7 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}"]
   | _  => throw ()
 
-@[appUnexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Name.mkStr8] def unexpandMkStr8 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1:str $a2:str $a3:str $a4:str $a5:str $a6:str $a7:str $a8:str) => return mkNode `Lean.Parser.Term.quotedName #[Syntax.mkNameLit s!"`{a1.getString}.{a2.getString}.{a3.getString}.{a4.getString}.{a5.getString}.{a6.getString}.{a7.getString}.{a8.getString}"]
   | _  => throw ()
 
-@[appUnexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
   | _ => `(#[])
 
-@[appUnexpander Array.mkArray0] def unexpandMkArray0 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray0] def unexpandMkArray0 : Lean.PrettyPrinter.Unexpander
   | _ => `(#[])
 
-@[appUnexpander Array.mkArray1] def unexpandMkArray1 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray1] def unexpandMkArray1 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1) => `(#[$a1])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray2] def unexpandMkArray2 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray2] def unexpandMkArray2 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2) => `(#[$a1, $a2])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray3] def unexpandMkArray3 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray3] def unexpandMkArray3 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3) => `(#[$a1, $a2, $a3])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray4] def unexpandMkArray4 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray4] def unexpandMkArray4 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3 $a4) => `(#[$a1, $a2, $a3, $a4])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray5] def unexpandMkArray5 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray5] def unexpandMkArray5 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3 $a4 $a5) => `(#[$a1, $a2, $a3, $a4, $a5])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray6] def unexpandMkArray6 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray6] def unexpandMkArray6 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3 $a4 $a5 $a6) => `(#[$a1, $a2, $a3, $a4, $a5, $a6])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray7] def unexpandMkArray7 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray7] def unexpandMkArray7 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3 $a4 $a5 $a6 $a7) => `(#[$a1, $a2, $a3, $a4, $a5, $a6, $a7])
   | _ => throw ()
 
-@[appUnexpander Array.mkArray8] def unexpandMkArray8 : Lean.PrettyPrinter.Unexpander
+@[app_unexpander Array.mkArray8] def unexpandMkArray8 : Lean.PrettyPrinter.Unexpander
   | `($(_) $a1 $a2 $a3 $a4 $a5 $a6 $a7 $a8) => `(#[$a1, $a2, $a3, $a4, $a5, $a6, $a7, $a8])
   | _ => throw ()
 

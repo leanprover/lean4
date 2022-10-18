@@ -41,7 +41,7 @@ unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
       IO.ofExcept $ env.evalConst Handler opts constName
     | _ => throw ↑s!"unexpected missing docs handler at '{constName}', `MissingDocs.Handler` or `MissingDocs.SimpleHandler` expected"
 
-@[implementedBy mkHandlerUnsafe]
+@[implemented_by mkHandlerUnsafe]
 opaque mkHandler (constName : Name) : ImportM Handler
 
 builtin_initialize builtinHandlersRef : IO.Ref (NameMap Handler) ← IO.mkRef {}
@@ -128,7 +128,7 @@ def lintDeclHead (k : SyntaxNodeKind) (id : Syntax) : CommandElabM Unit := do
   else if k == ``classInductive then lintNamed id "public inductive"
   else if k == ``«structure» then lintNamed id "public structure"
 
-@[builtinMissingDocsHandler declaration]
+@[builtin_missing_docs_handler declaration]
 def checkDecl : SimpleHandler := fun stx => do
   let head := stx[0]; let rest := stx[1]
   if head[2][0].getKind == ``«private» then return -- not private
@@ -169,24 +169,24 @@ def checkDecl : SimpleHandler := fun stx => do
             for stx in stx[2].getArgs do
               lint1 stx
 
-@[builtinMissingDocsHandler «initialize»]
+@[builtin_missing_docs_handler «initialize»]
 def checkInit : SimpleHandler := fun stx => do
   if !stx[2].isNone && declModifiersPubNoDoc stx[0] then
     lintNamed stx[2][0] "initializer"
 
-@[builtinMissingDocsHandler «notation»]
+@[builtin_missing_docs_handler «notation»]
 def checkNotation : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "notation"
     else lintNamed stx[5][0][3] "notation"
 
-@[builtinMissingDocsHandler «mixfix»]
+@[builtin_missing_docs_handler «mixfix»]
 def checkMixfix : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] stx[3][0].getAtomVal
     else lintNamed stx[5][0][3] stx[3][0].getAtomVal
 
-@[builtinMissingDocsHandler «syntax»]
+@[builtin_missing_docs_handler «syntax»]
 def checkSyntax : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "syntax"
@@ -196,42 +196,42 @@ def mkSimpleHandler (name : String) : SimpleHandler := fun stx => do
   if stx[0].isNone then
     lintNamed stx[2] name
 
-@[builtinMissingDocsHandler syntaxAbbrev]
+@[builtin_missing_docs_handler syntaxAbbrev]
 def checkSyntaxAbbrev : SimpleHandler := mkSimpleHandler "syntax"
 
-@[builtinMissingDocsHandler syntaxCat]
+@[builtin_missing_docs_handler syntaxCat]
 def checkSyntaxCat : SimpleHandler := mkSimpleHandler "syntax category"
 
-@[builtinMissingDocsHandler «macro»]
+@[builtin_missing_docs_handler «macro»]
 def checkMacro : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "macro"
     else lintNamed stx[5][0][3] "macro"
 
-@[builtinMissingDocsHandler «elab»]
+@[builtin_missing_docs_handler «elab»]
 def checkElab : SimpleHandler := fun stx => do
   if stx[0].isNone && stx[2][0][0].getKind != ``«local» && !hasInheritDoc stx[1] then
     if stx[5].isNone then lint stx[3] "elab"
     else lintNamed stx[5][0][3] "elab"
 
-@[builtinMissingDocsHandler classAbbrev]
+@[builtin_missing_docs_handler classAbbrev]
 def checkClassAbbrev : SimpleHandler := fun stx => do
   if declModifiersPubNoDoc stx[0] then
     lintNamed stx[3] "class abbrev"
 
-@[builtinMissingDocsHandler Parser.Tactic.declareSimpLikeTactic]
+@[builtin_missing_docs_handler Parser.Tactic.declareSimpLikeTactic]
 def checkSimpLike : SimpleHandler := mkSimpleHandler "simp-like tactic"
 
-@[builtinMissingDocsHandler Option.registerBuiltinOption]
+@[builtin_missing_docs_handler Option.registerBuiltinOption]
 def checkRegisterBuiltinOption : SimpleHandler := mkSimpleHandler "option"
 
-@[builtinMissingDocsHandler Option.registerOption]
+@[builtin_missing_docs_handler Option.registerOption]
 def checkRegisterOption : SimpleHandler := mkSimpleHandler "option"
 
-@[builtinMissingDocsHandler registerSimpAttr]
+@[builtin_missing_docs_handler registerSimpAttr]
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"
 
-@[builtinMissingDocsHandler «in»]
+@[builtin_missing_docs_handler «in»]
 def handleIn : Handler := fun _ stx => do
   if stx[0].getKind == ``«set_option» then
     let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
@@ -240,6 +240,6 @@ def handleIn : Handler := fun _ stx => do
   else
     missingDocs stx[2]
 
-@[builtinMissingDocsHandler «mutual»]
+@[builtin_missing_docs_handler «mutual»]
 def handleMutual : Handler := fun _ stx => do
   stx[1].getArgs.forM missingDocs

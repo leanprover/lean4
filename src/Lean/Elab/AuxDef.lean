@@ -16,7 +16,7 @@ with an internal, unused name based on the suggestion `foo`.
 -/
 scoped syntax (name := aux_def) docComment ? attributes ? "aux_def" ident+ ":" term ":=" term : command
 
-@[builtinCommandElab «aux_def»]
+@[builtin_command_elab «aux_def»]
 def elabAuxDef : CommandElab
   | `($[$doc?:docComment]? $[$attrs?:attributes]? aux_def $suggestion* : $ty := $body) => do
     let id := suggestion.map (·.getId.eraseMacroScopes) |>.foldl (· ++ ·) Name.anonymous

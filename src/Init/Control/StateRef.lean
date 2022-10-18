@@ -13,14 +13,14 @@ def StateRefT' (ω : Type) (σ : Type) (m : Type → Type) (α : Type) : Type :=
 
 /-! Recall that `StateRefT` is a macro that infers `ω` from the `m`. -/
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def StateRefT'.run {ω σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST ω) m] {α : Type} (x : StateRefT' ω σ m α) (s : σ) : m (α × σ) := do
   let ref ← ST.mkRef s
   let a ← x ref
   let s ← ref.get
   pure (a, s)
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def StateRefT'.run' {ω σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST ω) m] {α : Type} (x : StateRefT' ω σ m α) (s : σ) : m α := do
   let (a, _) ← x.run s
   pure a
@@ -28,7 +28,7 @@ def StateRefT'.run' {ω σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST
 namespace StateRefT'
 variable {ω σ : Type} {m : Type → Type} {α : Type}
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def lift (x : m α) : StateRefT' ω σ m α :=
   fun _ => x
 
@@ -54,7 +54,7 @@ instance [MonadLiftT (ST ω) m] [Monad m] : MonadStateOf σ (StateRefT' ω σ m)
   set       := StateRefT'.set
   modifyGet := StateRefT'.modifyGet
 
-@[alwaysInline]
+@[always_inline]
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateRefT' ω σ m) where
   throw    := StateRefT'.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)

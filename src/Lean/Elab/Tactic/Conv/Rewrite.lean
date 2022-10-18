@@ -10,7 +10,7 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.rewrite] def evalRewrite : Tactic := fun stx => do
   let config ← Tactic.elabRewriteConfig stx[1]
   withRWRulesSeq stx[0] stx[2] fun symm term => do
     Term.withSynthesize <| withMainContext do

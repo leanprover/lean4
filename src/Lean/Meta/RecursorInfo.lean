@@ -238,7 +238,7 @@ private def mkRecursorInfoAux (cinfo : ConstantInfo) (majorPos? : Option Nat) : 
     | _ => throwError "invalid user defined recursor '{declName}', type of the major premise must be of the form (I ...), where I is a constant"
 
 /-
-@[builtinAttrParser] def «recursor» := leading_parser "recursor " >> numLit
+@[builtin_attr_parser] def «recursor» := leading_parser "recursor " >> numLit
 -/
 def Attribute.Recursor.getMajorPos (stx : Syntax) : AttrM Nat := do
   if stx.getKind == `Lean.Parser.Attr.recursor then

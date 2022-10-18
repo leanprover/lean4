@@ -75,7 +75,7 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 
-@[alwaysInline]
+@[always_inline]
 instance : Monad SimpM := let i := inferInstanceAs (Monad SimpM); { pure := i.pure, bind := i.bind }
 
 instance : MonadFVarSubst SimpM false where
@@ -112,7 +112,7 @@ def addFunOcc (fvarId : FVarId) : SimpM Unit :=
 def addFunHoOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addHo fvarId }
 
-@[inheritDoc FunDeclInfoMap.update]
+@[inherit_doc FunDeclInfoMap.update]
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit := do
   let map ← modifyGet fun s => (s.funDeclInfoMap, { s with funDeclInfoMap := {} })
   let map ← map.update code mustInline

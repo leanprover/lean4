@@ -60,7 +60,7 @@ unsafe def initCache : State :=
 end FoldConstsImpl
 
 /-- Apply `f` to every constant occurring in `e` once. -/
-@[implementedBy FoldConstsImpl.foldUnsafe]
+@[implemented_by FoldConstsImpl.foldUnsafe]
 opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 def getUsedConstants (e : Expr) : Array Name :=

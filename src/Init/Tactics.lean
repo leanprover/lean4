@@ -821,8 +821,8 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
-@[inheritDoc getElem]
+@[inherit_doc getElem]
 macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
 
-@[inheritDoc getElem]
+@[inherit_doc getElem]
 macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)

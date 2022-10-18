@@ -68,7 +68,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
   return result
 
 /-- Elaborator for the `calc` term mode variant. -/
-@[builtinTermElab «calc»]
+@[builtin_term_elab «calc»]
 def elabCalc : TermElab :=  fun stx expectedType? => do
   let steps := #[stx[1]] ++ stx[2].getArgs
   let result ← elabCalcSteps steps

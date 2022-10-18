@@ -260,7 +260,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
                 (Lean.ParserDescr.symbol ")")))))
     elabCommand cmd
 
-@[builtinCommandElab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do
+@[builtin_command_elab syntaxCat] def elabDeclareSyntaxCat : CommandElab := fun stx => do
   let docString? := stx[0].getOptional?.map fun stx => ⟨stx⟩
   let catName    := stx[2].getId
   let catBehavior :=
@@ -333,7 +333,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   <|>
   throwError "invalid syntax node kind '{k}'"
 
-@[builtinCommandElab «syntax»] def elabSyntax : CommandElab := fun stx => do
+@[builtin_command_elab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
     | throwUnsupportedSyntax
@@ -368,7 +368,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   trace `Elab fun _ => d
   withMacroExpansion stx d <| elabCommand d
 
-@[builtinCommandElab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
+@[builtin_command_elab «syntaxAbbrev»] def elabSyntaxAbbrev : CommandElab := fun stx => do
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous

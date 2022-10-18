@@ -17,7 +17,7 @@ def header     := leading_parser optional («prelude» >> ppLine) >> many («imp
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
   return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
   for it in order to auto-generate helpers such as the pretty printer. -/
-@[runBuiltinParserAttributeHooks]
+@[run_builtin_parser_attribute_hooks]
 def module     := leading_parser header >> many (commandParser >> ppLine >> ppLine)
 
 def updateTokens (c : ParserContext) : ParserContext :=

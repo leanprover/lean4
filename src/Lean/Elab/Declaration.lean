@@ -196,7 +196,7 @@ def getTerminationHints (stx : Syntax) : TerminationHints :=
   else
     {}
 
-@[builtinCommandElab declaration]
+@[builtin_command_elab declaration]
 def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
@@ -289,7 +289,7 @@ where
     | _, _ => .anonymous
 
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualNamespace : Macro := fun stx => do
   let mut nss := #[]
   for elem in stx[1].getArgs do
@@ -307,7 +307,7 @@ def expandMutualNamespace : Macro := fun stx => do
   let stxNew := stx.setArg 1 (mkNullNode elemsNew)
   `(namespace $ns $(⟨stxNew⟩) end $ns)
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualElement : Macro := fun stx => do
   let mut elemsNew := #[]
   let mut modified := false
@@ -320,7 +320,7 @@ def expandMutualElement : Macro := fun stx => do
   else
     Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualPreamble : Macro := fun stx =>
   match splitMutualPreamble stx[1].getArgs with
   | none => Macro.throwUnsupported
@@ -330,7 +330,7 @@ def expandMutualPreamble : Macro := fun stx =>
     let endCmd    ← `(end)
     return mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
-@[builtinCommandElab «mutual»]
+@[builtin_command_elab «mutual»]
 def elabMutual : CommandElab := fun stx => do
   let hints := { terminationBy? := stx[3].getOptional?, decreasingBy? := stx[4].getOptional? }
   if isMutualInductive stx then
@@ -351,7 +351,7 @@ def elabMutual : CommandElab := fun stx => do
     throwError "invalid mutual block"
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
-@[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
+@[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do
   let mut attrInsts := #[]
   let mut toErase := #[]
   for attrKindStx in stx[2].getSepArgs do
@@ -371,7 +371,7 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
+@[builtin_macro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
     let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtin_init
     if let (some id, some type) := (id?, type?) then

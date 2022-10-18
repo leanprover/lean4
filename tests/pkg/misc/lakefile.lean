@@ -2,4 +2,4 @@ import Lake
 open System Lake DSL
 
 package misc
-@[defaultTarget] lean_lib Misc
+@[default_target] lean_lib Misc

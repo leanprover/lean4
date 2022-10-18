@@ -31,12 +31,12 @@ structure Context where
   mainDecl : Decl
   /--
   If true, the lambda-lifted functions inherit the inline attribute from `mainDecl`.
-  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
   -/
   inheritInlineAttrs := false
   /--
   Only local functions with `size > minSize` are lambda lifted.
-  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
   -/
   minSize : Nat := 0
 

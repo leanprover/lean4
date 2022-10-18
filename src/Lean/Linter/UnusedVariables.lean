@@ -126,7 +126,7 @@ unsafe def getUnusedVariablesIgnoreFnsImpl : CommandElabM (Array IgnoreFunction)
   let ents ← ents.mapM (evalConstCheck IgnoreFunction ``IgnoreFunction)
   return (← builtinUnusedVariablesIgnoreFnsRef.get) ++ ents
 
-@[implementedBy getUnusedVariablesIgnoreFnsImpl]
+@[implemented_by getUnusedVariablesIgnoreFnsImpl]
 opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
 
 

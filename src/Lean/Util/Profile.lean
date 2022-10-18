@@ -16,7 +16,7 @@ unsafe def profileitIOUnsafe {ε α : Type} (category : String) (opts : Options)
   | Except.ok a    => pure a
   | Except.error e => throw e
 
-@[implementedBy profileitIOUnsafe]
+@[implemented_by profileitIOUnsafe]
 def profileitIO {ε α : Type} (category : String) (opts : Options) (act : EIO ε α) : EIO ε α := act
 
 -- impossible to infer `ε`

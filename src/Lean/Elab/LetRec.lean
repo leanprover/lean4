@@ -103,7 +103,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
     : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
-@[builtinTermElab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do
   let view ← mkLetRecDeclView stx
   withAuxLocalDecls view.decls fun fvars => do
     for decl in view.decls, fvar in fvars do

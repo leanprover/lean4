@@ -50,7 +50,7 @@ private unsafe def TypeName.typeNameImpl (α) [TypeName α] : Name :=
 /--
 Returns a declaration name of the type.
 -/
-@[implementedBy TypeName.typeNameImpl]
+@[implemented_by TypeName.typeNameImpl]
 opaque TypeName.typeName (α) [TypeName α] : Name
 
 private opaque DynamicPointed : NonemptyType.{0} :=
@@ -72,7 +72,7 @@ private unsafe def Dynamic.typeNameImpl (any : Dynamic) : Name :=
 /--
 The name of the type of the value stored in the `Dynamic`.
 -/
-@[implementedBy Dynamic.typeNameImpl]
+@[implemented_by Dynamic.typeNameImpl]
 opaque Dynamic.typeName (any : Dynamic) : Name
 
 private unsafe def Dynamic.get?Impl (α) (any : Dynamic) [TypeName α] : Option α :=
@@ -86,11 +86,11 @@ private unsafe def Dynamic.get?Impl (α) (any : Dynamic) [TypeName α] : Option 
 Retrieves the value stored in the `Dynamic`.
 Returns `some a` if the value has the right type, and `none` otherwise.
 -/
-@[implementedBy Dynamic.get?Impl]
+@[implemented_by Dynamic.get?Impl]
 opaque Dynamic.get? (α) (any : Dynamic) [TypeName α] : Option α
 
 private unsafe def Dynamic.mkImpl [TypeName α] (obj : α) : Dynamic :=
   unsafeCast (TypeName.typeName α, (unsafeCast obj : NonScalar))
 
-@[implementedBy Dynamic.mkImpl]
+@[implemented_by Dynamic.mkImpl]
 opaque Dynamic.mk [TypeName α] (obj : α) : Dynamic

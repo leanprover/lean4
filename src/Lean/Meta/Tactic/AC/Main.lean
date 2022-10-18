@@ -57,7 +57,7 @@ inductive PreExpr
 | op (lhs rhs : PreExpr)
 | var (e : Expr)
 
-@[matchPattern] def bin (op l r : Expr) :=
+@[match_pattern] def bin (op l r : Expr) :=
   Expr.app (Expr.app op l) r
 
 def toACExpr (op l r : Expr) : MetaM (Array Expr × ACExpr) := do
@@ -168,7 +168,7 @@ where
       | none => return Simp.Step.done { expr := e }
     | e, _ => return Simp.Step.done { expr := e }
 
-@[builtinTactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
+@[builtin_tactic acRfl] def acRflTactic : Lean.Elab.Tactic.Tactic := fun _ => do
   let goal ← getMainGoal
   goal.withContext <| rewriteUnnormalized goal
 

@@ -48,7 +48,7 @@ private def mkAuxiliaryMatchTerm (parentTag : Name) (matchTac : Syntax) : MacroM
   let result  := result.setArg 5 (mkNode ``Parser.Term.matchAlts #[mkNullNode newAlts])
   return (result, newCases)
 
-@[builtinTactic Lean.Parser.Tactic.match]
+@[builtin_tactic Lean.Parser.Tactic.match]
 def evalMatch : Tactic := fun stx => do
   let tag ← getMainTag
   let (matchTerm, casesStx) ← liftMacroM <| mkAuxiliaryMatchTerm tag stx

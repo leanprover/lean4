@@ -57,7 +57,7 @@ def popFront (s : Subarray α) : Subarray α :=
   loop (USize.ofNat s.start) b
 
 -- TODO: provide reference implementation
-@[implementedBy Subarray.forInUnsafe]
+@[implemented_by Subarray.forInUnsafe]
 protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 

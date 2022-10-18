@@ -6,7 +6,7 @@ unsafe def ptrAddrUnsafe {α : Type} (a : @& α) : USize := 0
 @[inline] unsafe def withPtrEqUnsafe {α : Type} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 if ptrAddrUnsafe a == ptrAddrUnsafe b then true else k ()
 
-@[implementedBy withPtrEqUnsafe]
+@[implemented_by withPtrEqUnsafe]
 def withPtrEq {α : Type} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
 k ()
 

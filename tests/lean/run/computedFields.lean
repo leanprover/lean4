@@ -3,7 +3,7 @@ inductive Exp
   | var (i : UInt32)
   | app (a b : Exp)
 with
-  /-- Computes the hash -/ @[simp, computedField] protected hash : Exp → UInt64
+  /-- Computes the hash -/ @[simp, computed_field] protected hash : Exp → UInt64
     | .var i => Hashable.hash i
     | .app a b => mixHash a.hash b.hash
     | .hole => 32
@@ -30,7 +30,7 @@ inductive B.C (α : Type u) : Nat → Type u
   | a : C α 0
   | b (c : C α n) {d : C α (n-1)} : C α (n+1)
 with
-  @[computedField] hash : ∀ α i, C α i → UInt64
+  @[computed_field] hash : ∀ α i, C α i → UInt64
     | _, _, .a => 1
     | _, _, .b c => 42 + c.hash
 
@@ -50,7 +50,7 @@ mutual
     | a (b : B)
     | b (b : B)
   with
-    @[computedField] f : A → Nat
+    @[computed_field] f : A → Nat
       | .a c => 32 + c.f
       | .b c => 42 + 2*c.f
 
@@ -58,7 +58,7 @@ mutual
     | c (a : A)
     | d
   with
-    @[computedField] f : B → Nat
+    @[computed_field] f : B → Nat
       | .c a => a.f
       | .d => 0
 end

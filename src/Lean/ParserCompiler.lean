@@ -88,7 +88,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let some value ← pure cinfo.value?
           | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
         unless (env.getModuleIdxFor? c).isNone || force do
-          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[runParserAttributeHooks]` on its definition instead."
+          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[run_parser_attribute_hooks]` on its definition instead."
         let value ← compileParserExpr <| replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
@@ -147,7 +147,7 @@ unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
           evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
         compileEmbeddedParsers ctx d (builtin := builtin) |>.run'
       else
-        -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
+        -- `[run_builtin_parser_attribute_hooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
         let force := catName.isAnonymous
         discard (compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := force)).run'
   }

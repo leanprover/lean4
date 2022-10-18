@@ -3,12 +3,12 @@ class Foo (α β : Type) :=
 
 export Foo (f)
 
-@[defaultInstance]
+@[default_instance]
 instance : Foo Nat Nat := {
   f := id
 }
 
-@[defaultInstance]
+@[default_instance]
 instance : Foo String String := {
   f := id
 }

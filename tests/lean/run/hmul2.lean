@@ -1,4 +1,4 @@
-@[defaultInstance]
+@[default_instance]
 instance [Mul α] : HMul α (Array α) (Array α) where
   hMul a as := as.map (a * ·)
 

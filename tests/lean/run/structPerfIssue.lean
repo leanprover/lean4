@@ -10,7 +10,7 @@ attribute [eliminator] Id.casesOn
 
 infix:50 (priority := high) " = " => Id
 
-@[matchPattern] abbrev idp {A : Type u} (a : A) : a = a := Id.refl
+@[match_pattern] abbrev idp {A : Type u} (a : A) : a = a := Id.refl
 
 def Id.symm {A : Type u} {a b : A} (p : a = b) : b = a :=
 by { induction p; apply idp }

@@ -30,7 +30,7 @@ class SemiInner (X : Type u) (R : Type v) where
 
 class SemiHilbert (X) (R : Type u) [Vec R] extends Vec X, SemiInner X R
 
-@[inferTCGoalsRL]
+@[infer_tc_goals_rl]
 instance (X R) [Trait X] [Vec R] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
 instance : SemiHilbert ℝ ℝ := sorry
 

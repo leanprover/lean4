@@ -9,12 +9,12 @@ namespace Lean
 namespace Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinSyntaxParser ``Category.stx .both
-  registerBuiltinDynamicParserAttribute `stxParser `stx
+  registerBuiltinParserAttribute `builtin_syntax_parser ``Category.stx .both
+  registerBuiltinDynamicParserAttribute `stx_parser `stx
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinPrecParser ``Category.prec .both
-  registerBuiltinDynamicParserAttribute `precParser `prec
+  registerBuiltinParserAttribute `builtin_prec_parser ``Category.prec .both
+  registerBuiltinDynamicParserAttribute `prec_parser `prec
 
 @[inline] def precedenceParser (rbp : Nat := 0) : Parser :=
   categoryParser `prec rbp

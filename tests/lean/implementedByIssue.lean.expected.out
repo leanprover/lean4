@@ -1,5 +1,5 @@
-implementedByIssue.lean:15:11-15:30: error: invalid 'implementedBy' argument 'Hidden.get_2', 'Hidden.get_2' has 0 universe level parameter(s), but 'Hidden.Array.data' has 1
-implementedByIssue.lean:19:11-19:30: error: invalid 'implementedBy' argument 'Hidden.get_3', 'Hidden.get_3' has type
+implementedByIssue.lean:15:11-15:31: error: invalid 'implemented_by' argument 'Hidden.get_2', 'Hidden.get_2' has 0 universe level parameter(s), but 'Hidden.Array.data' has 1
+implementedByIssue.lean:19:11-19:31: error: invalid 'implemented_by' argument 'Hidden.get_3', 'Hidden.get_3' has type
   {α : Type u} → {n : Nat} → Fin n → Array α n → α
 but 'Hidden.Array.data' has type
   {α : Type u} → {n : Nat} → Array α n → Fin n → α

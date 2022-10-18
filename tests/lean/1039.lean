@@ -21,7 +21,7 @@ namespace Something
 
 namespace MyNamespace
 
-@[local commandElab Lean.Parser.Command.end] def elabEnd' : CommandElab := fun stx =>
+@[local command_elab Lean.Parser.Command.end] def elabEnd' : CommandElab := fun stx =>
   match stx with
   | `(end $id:ident) => do
     println!"boo"

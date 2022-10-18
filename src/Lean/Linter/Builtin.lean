@@ -13,10 +13,10 @@ def suspiciousUnexpanderPatterns : Linter := fun cmdStx => do
   unless getLinterSuspiciousUnexpanderPatterns (← getOptions) do
     return
 
-  -- check `[appUnexpander _]` defs defined by pattern matching
+  -- check `[app_unexpander _]` defs defined by pattern matching
   let `($[$_:docComment]? @[$[$attrs:attr],*] $(_vis)? def $_ : $_ $[| $pats => $_]*) := cmdStx | return
 
-  unless attrs.any (· matches `(attr| appUnexpander $_)) do
+  unless attrs.any (· matches `(attr| app_unexpander $_)) do
     return
 
   for pat in pats do

@@ -6,7 +6,7 @@ linterMissingDocs.lean:39:4-39:11: warning: missing doc string for public def li
 linterMissingDocs.lean:41:10-41:13: warning: missing doc string for public inductive Ind [linter.missingDocs]
 linterMissingDocs.lean:42:4-42:8: warning: missing doc string for public constructor Ind.ind1 [linter.missingDocs]
 linterMissingDocs.lean:43:4-43:8: warning: missing doc string for public constructor Ind.ind2 [linter.missingDocs]
-linterMissingDocs.lean:46:19-46:24: warning: missing doc string for computed field Ind.field [linter.missingDocs]
+linterMissingDocs.lean:46:20-46:25: warning: missing doc string for computed field Ind.field [linter.missingDocs]
 linterMissingDocs.lean:49:10-49:13: warning: missing doc string for public structure Foo [linter.missingDocs]
 linterMissingDocs.lean:50:2-50:5: warning: missing doc string for public field Foo.mk1 [linter.missingDocs]
 linterMissingDocs.lean:53:3-53:6: warning: missing doc string for public field Foo.mk4 [linter.missingDocs]

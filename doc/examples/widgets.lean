@@ -106,7 +106,7 @@ more information for us, in the form of a `snap : Snapshot`. With this in hand, 
 -/
 
 open Server RequestM in
-@[serverRpcMethod]
+@[server_rpc_method]
 def getType (params : GetTypeParams) : RequestM (RequestTask CodeWithInfos) :=
   withWaitFindSnapAtPos params.pos fun snap => do
     runTermElabM snap do

@@ -181,7 +181,7 @@ open Lean.Meta
 open Lean.Elab.Term
 
 syntax (name:= nrmlform)"whnf!" term : term
-@[termElab nrmlform] def normalformImpl : TermElab :=
+@[term_elab nrmlform] def normalformImpl : TermElab :=
   fun stx expectedType? =>
   match stx with
   | `(whnf! $s) =>

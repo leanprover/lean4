@@ -228,7 +228,7 @@ end Hide
 
 Note that in the syntax of the inductive definition ``Foo``, the context ``(a : α)`` is left implicit. In other words, constructors and recursive arguments are written as though they have return type ``Foo`` rather than ``Foo a``.
 
-Elements of the context ``(a : α)`` can be marked implicit as described in [Implicit Arguments](#implicit.md#implicit_arguments). These annotations bear only on the type former, ``Foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[matchPattern]`` [attribute](TODO: missing link) to ensure that these will be used appropriately by the [Equation Compiler](#the-equation-compiler).
+Elements of the context ``(a : α)`` can be marked implicit as described in [Implicit Arguments](#implicit.md#implicit_arguments). These annotations bear only on the type former, ``Foo``. Lean uses a heuristic to determine which arguments to the constructors should be marked implicit, namely, an argument is marked implicit if it can be inferred from the type of a subsequent argument. If the annotation ``{}`` appears after the constructor, a argument is marked implicit if it can be inferred from the type of a subsequent argument *or the return type*. For example, it is useful to let ``nil`` denote the empty list of any type, since the type can usually be inferred in the context in which it appears. These heuristics are imperfect, and you may sometimes wish to define your own constructors in terms of the default ones. In that case, use the ``[match_pattern]`` [attribute](TODO: missing link) to ensure that these will be used appropriately by the [Equation Compiler](#the-equation-compiler).
 
 There are restrictions on the universe ``u`` in the return type ``Sort u`` of the type former. There are also restrictions on the universe ``u`` in the return type ``Sort u`` of the motive of the eliminator. These will be discussed in the next section in the more general setting of inductive families.
 
@@ -251,7 +251,7 @@ inductive List (α : Type u)
 | nil : List α
 | cons (a : α) (l : List α) : List α
 
-@[matchPattern]
+@[match_pattern]
 def List.nil' (α : Type u) : List α := List.nil
 
 def length {α : Type u} : List α → Nat
@@ -457,7 +457,7 @@ In the last case, the pattern must be enclosed in parentheses.
 
 Each term ``tᵢ`` is an expression in the context ``(a : α)`` together with the variables introduced on the left-hand side of the token ``=>``. The term ``tᵢ`` can also include recursive calls to ``foo``, as described below. The equation compiler does case splitting on the variables ``(b : β)`` as necessary to match the patterns, and defines ``foo`` so that it has the value ``tᵢ`` in each of the cases. In ideal circumstances (see below), the equations hold definitionally. Whether they hold definitionally or only propositionally, the equation compiler proves the relevant equations and assigns them internal names. They are accessible by the ``rewrite`` and ``simp`` tactics under the name ``foo`` (see [Rewrite](tactics.md#rewrite) and _[TODO: where is simplifier tactic documented?]_. If some of the patterns overlap, the equation compiler interprets the definition so that the first matching pattern applies in each case. Thus, if the last pattern is a variable, it covers all the remaining cases. If the patterns that are presented do not cover all possible cases, the equation compiler raises an error.
 
-When identifiers are marked with the ``[matchPattern]`` attribute, the equation compiler unfolds them in the hopes of exposing a constructor. For example, this makes it possible to write ``n+1`` and ``0`` instead of ``Nat.succ n`` and ``Nat.zero`` in patterns.
+When identifiers are marked with the ``[match_pattern]`` attribute, the equation compiler unfolds them in the hopes of exposing a constructor. For example, this makes it possible to write ``n+1`` and ``0`` instead of ``Nat.succ n`` and ``Nat.zero`` in patterns.
 
 For a nonrecursive definition involving case splits, the defining equations will hold definitionally. With inductive types like ``Char``, ``String``, and ``Fin n``, a case split would produce definitions with an inordinate number of cases. To avoid this, the equation compiler uses ``if ... then ... else`` instead of ``casesOn`` when defining the function. In this case, the defining equations hold definitionally as well.
 

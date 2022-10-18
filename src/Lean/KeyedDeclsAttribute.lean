@@ -27,9 +27,9 @@ abbrev Key := Name
 
  Important: `mkConst valueTypeName` and `γ` must be definitionally equal. -/
 structure Def (γ : Type) where
-  /-- Builtin attribute name, if any (e.g., `builtinTermElab) -/
+  /-- Builtin attribute name, if any (e.g., `builtin_term_elab) -/
   builtinName   : Name := Name.anonymous
-  /-- Attribute name (e.g., `termElab) -/
+  /-- Attribute name (e.g., `term_elab) -/
   name          : Name
   /-- Attribute description -/
   descr         : String

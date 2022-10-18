@@ -220,7 +220,7 @@ instance : MonadQuotation CommandElabM where
   withFreshMacroScope := Command.withFreshMacroScope
 
 unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
-  mkElabAttribute CommandElab `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
+  mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
 @[implementedBy mkCommandElabAttributeUnsafe]
 opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)

@@ -119,7 +119,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
   } attrDeclName
 
 unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=
-  mkElabAttribute Macro `builtinMacro `macro Name.anonymous `Lean.Macro "macro" ref
+  mkElabAttribute Macro `builtin_macro `macro Name.anonymous `Lean.Macro "macro" ref
 
 @[implementedBy mkMacroAttributeUnsafe]
 opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)

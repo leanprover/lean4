@@ -48,7 +48,7 @@ end ReplaceImpl'
 
 local macro "dec " h:ident : term => `(by apply Nat.le_trans _ $h; simp_arith)
 
-@[implementedBy ReplaceImpl'.replaceUnsafe]
+@[implemented_by ReplaceImpl'.replaceUnsafe]
 def replace' (e0 : Expr) (f? : (e : Expr) → sizeOf e ≤ sizeOf e0 → Option Expr) : Expr :=
   let rec go (e : Expr) (h : sizeOf e ≤ sizeOf e0) : Expr :=
     match f? e h with

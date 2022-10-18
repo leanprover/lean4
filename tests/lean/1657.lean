@@ -11,7 +11,7 @@ def natrec_int {C} (n: Option Nat) -- ERROR
   := n.bind (λn => natrec_inner n z s)
 
 
-@[inlineIfReduce]
+@[inline_if_reduce]
 def foo (xs : List Nat) :=
   match xs with
   | [] => 0

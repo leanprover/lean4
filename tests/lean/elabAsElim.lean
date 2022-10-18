@@ -34,7 +34,7 @@ def f5' (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
 example (h₁ : a = b) (h₂ : b = c) : a = c :=
   Eq.rec h₂ h₁.symm
 
-@[elabAsElim] theorem subst {p : (b : α) → a = b → Prop} (h₁ : a = b) (h₂ : p a rfl) : p b h₁ := by
+@[elab_as_elim] theorem subst {p : (b : α) → a = b → Prop} (h₁ : a = b) (h₂ : p a rfl) : p b h₁ := by
   cases h₁
   assumption
 

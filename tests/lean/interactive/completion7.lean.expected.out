@@ -12,7 +12,7 @@
    "kind": 3,
    "documentation":
    {"value":
-    "`and x y`, or `x && y`, is the boolean \"and\" operation (not to be confused\nwith `And : Prop → Prop → Prop`, which is the propositional connective).\nIt is `@[macroInline]` because it has C-like short-circuiting behavior:\nif `x` is false then `y` is not evaluated.\n",
+    "`and x y`, or `x && y`, is the boolean \"and\" operation (not to be confused\nwith `And : Prop → Prop → Prop`, which is the propositional connective).\nIt is `@[macro_inline]` because it has C-like short-circuiting behavior:\nif `x` is false then `y` is not evaluated.\n",
     "kind": "markdown"},
    "detail": "Bool → Bool → Bool"},
   {"label": "AndOp",

@@ -6,6 +6,7 @@ Authors: Joscha Mennicken
 -/
 import Lean.Data.Lsp.Internal
 import Lean.Server.Utils
+import Lean.Server.Completion
 
 /-! # Representing collected and deduplicated definitions and usages -/
 
@@ -130,13 +131,18 @@ def identOf : Info → Option (RefIdent × Bool)
   | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
   | _ => none
 
+open Completion in
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do
   for tree in trees do
     tree.visitM' (postNode := fun ci info _ => do
       if let some (ident, isBinder) := identOf info then
-        if let some range := info.range? then
-          if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
-            modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
+        let blacklisted? := match ident with
+        | .const name => isBlackListed ci.env name
+        | _ => false
+        unless blacklisted? do
+          if let some range := info.range? then
+            if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
+              modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
   get
 
 /--

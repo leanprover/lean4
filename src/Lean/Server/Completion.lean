@@ -26,14 +26,13 @@ builtin_initialize completionBlackListExt : TagDeclarationExtension ← mkTagDec
 def addToBlackList (env : Environment) (declName : Name) : Environment :=
   completionBlackListExt.tag env declName
 
-private def isBlackListed (declName : Name) : MetaM Bool := do
-  let env ← getEnv
-  (pure (declName.isInternal && !isPrivateName declName))
-  <||> (pure <| isAuxRecursor env declName)
-  <||> (pure <| isNoConfusion env declName)
-  <||> isRec declName
-  <||> (pure <| completionBlackListExt.isTagged env declName)
-  <||> isMatcher declName
+def isBlackListed (env : Environment) (declName : Name) : Bool :=
+  (declName.isInternal && !isPrivateName declName)
+  || isAuxRecursor env declName
+  || isNoConfusion env declName
+  || isRecCore env declName
+  || completionBlackListExt.isTagged env declName
+  || isMatcherCore env declName
 
 private partial def consumeImplicitPrefix (e : Expr) (k : Expr → MetaM α) : MetaM α := do
   match e with
@@ -245,7 +244,7 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
   -- search for matches in the environment
   let env ← getEnv
   env.constants.forM fun declName c => do
-    unless (← isBlackListed declName) do
+    unless isBlackListed (← getEnv) declName do
       let matchUsingNamespace (ns : Name): M Bool := do
         if let some (label, score) ← matchDecl? ns id danglingDot declName then
           -- dbg_trace "matched with {id}, {declName}, {label}"
@@ -279,13 +278,13 @@ private def idCompletionCore (ctx : ContextInfo) (id : Name) (hoverInfo : HoverI
   -- Auxiliary function for `alias`
   let addAlias (alias : Name) (declNames : List Name) (score : Float) : M Unit := do
     declNames.forM fun declName => do
-      unless (← isBlackListed declName) do
+      unless isBlackListed (← getEnv) declName do
         addCompletionItemForDecl alias declName expectedType? score
   -- search explicitily open `ids`
   for openDecl in ctx.openDecls do
     match openDecl with
     | OpenDecl.explicit openedId resolvedId =>
-      unless (← isBlackListed resolvedId) do
+      unless isBlackListed (← getEnv) resolvedId do
         if let some score := matchAtomic id openedId then
           addCompletionItemForDecl openedId resolvedId expectedType? score
     | OpenDecl.simple ns _      =>
@@ -368,7 +367,7 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
       (← getEnv).constants.forM fun declName c => do
         let typeName := (← normPrivateName declName).getPrefix
         if nameSet.contains typeName then
-          unless (← isBlackListed c.name) do
+          unless isBlackListed (← getEnv) c.name do
             if (← isDotCompletionMethod typeName c) then
               addCompletionItem c.name.getString! c.type expectedType? c.name (kind := (← getCompletionKindForDecl c)) 1
 

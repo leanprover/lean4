@@ -209,7 +209,7 @@ def sleep (ms : UInt32) : BaseIO Unit :=
   return t.get
 
 local macro "nonempty_list" : tactic =>
-  `(exact Nat.zero_lt_succ _)
+  `(tactic| exact Nat.zero_lt_succ _)
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
 @[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))

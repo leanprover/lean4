@@ -302,7 +302,7 @@ To see the desugared definition of the actual expansion, we can again use
 ```lean
 
 set_option trace.Elab.definition true in
-macro "exfalso" : tactic => `(apply False.elim)
+macro "exfalso" : tactic => `(tactic| apply False.elim)
 
 /-
 Results in the expansion:

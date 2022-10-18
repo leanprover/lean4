@@ -110,17 +110,17 @@ end Lean
 Maximum precedence used in term parsers, in particular for terms in
 function position (`ident`, `paren`, ...)
 -/
-macro "max"  : prec => `(1024)
+macro "max"  : prec => `(prec| 1024)
 /-- Precedence used for application arguments (`do`, `by`, ...). -/
-macro "arg"  : prec => `(1023)
+macro "arg"  : prec => `(prec| 1023)
 /-- Precedence used for terms not supposed to be used as arguments (`let`, `have`, ...). -/
-macro "lead" : prec => `(1022)
+macro "lead" : prec => `(prec| 1022)
 /-- Parentheses are used for grouping precedence expressions. -/
 macro "(" p:prec ")" : prec => return p
 /-- Minimum precedence used in term parsers. -/
-macro "min"  : prec => `(10)
+macro "min"  : prec => `(prec| 10)
 /-- `(min+1)` (we can only write `min+1` after `Meta.lean`) -/
-macro "min1" : prec => `(11)
+macro "min1" : prec => `(prec| 11)
 /--
 `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
 We use `max_prec` to workaround bootstrapping issues.
@@ -128,13 +128,13 @@ We use `max_prec` to workaround bootstrapping issues.
 macro "max_prec" : term => `(1024)
 
 /-- The default priority `default = 1000`, which is used when no priority is set. -/
-macro "default" : prio => `(1000)
+macro "default" : prio => `(prio| 1000)
 /-- The standardized "low" priority `low = 100`, for things that should be lower than default priority. -/
-macro "low"     : prio => `(100)
+macro "low"     : prio => `(prio| 100)
 /-- The standardized "medium" priority `med = 1000`. This is the same as `default`. -/
-macro "mid"     : prio => `(1000)
+macro "mid"     : prio => `(prio| 1000)
 /-- The standardized "high" priority `high = 10000`, for things that should be higher than default priority. -/
-macro "high"    : prio => `(10000)
+macro "high"    : prio => `(prio| 10000)
 /-- Parentheses are used for grouping priority expressions. -/
 macro "(" p:prio ")" : prio => return p
 
@@ -476,7 +476,8 @@ macro_rules
 -- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
 -- The keyword prevents declaring a `this` binding except through metaprogramming, as is done by `have`/`show`.
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
-macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
+macro tk:"this" : term =>
+  return (⟨(Syntax.ident tk.getHeadInfo "this".toSubstring `this [])⟩ : TSyntax `term)
 
 /--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.

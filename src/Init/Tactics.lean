@@ -257,13 +257,13 @@ syntax (name := refl) "eq_refl" : tactic
 This is supposed to be an extensible tactic and users can add their own support
 for new reflexive relations.
 -/
-macro "rfl" : tactic => `(eq_refl)
+macro "rfl" : tactic => `(tactic| eq_refl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
 -/
-macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
+macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfolding_all rfl)
 
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
@@ -283,16 +283,16 @@ a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
 you can double check if a theorem depends on `sorry` by using
 `#print axioms my_thm` and looking for `sorryAx` in the axiom list.
 -/
-macro "sorry" : tactic => `(exact @sorryAx _ false)
+macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
 
 /-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(exact @sorryAx _ false)
+macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
 
 /--
 `infer_instance` is an abbreviation for `exact inferInstance`.
 It synthesizes a value of any target type by typeclass inference.
 -/
-macro "infer_instance" : tactic => `(exact inferInstance)
+macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 
 /-- Optional configuration option for tactics -/
 syntax config := atomic(" (" &"config") " := " term ")"
@@ -360,7 +360,7 @@ macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
-    `(tactic| rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl)))
+    `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
 /--
@@ -647,7 +647,7 @@ it is defined as `repeat sorry`.
 It is useful when working on the middle of a complex proofs,
 and less messy than commenting the remainder of the proof.
 -/
-macro "stop" tacticSeq : tactic => `(repeat sorry)
+macro "stop" tacticSeq : tactic => `(tactic| repeat sorry)
 
 /--
 The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
@@ -706,7 +706,7 @@ when working on a long tactic proof, by using `save` after expensive tactics.
 (TODO: do this automatically and transparently so that users don't have to use
 this combinator explicitly.)
 -/
-macro (name := save) "save" : tactic => `(skip)
+macro (name := save) "save" : tactic => `(tactic| skip)
 
 /--
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.

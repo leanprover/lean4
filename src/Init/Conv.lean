@@ -242,11 +242,11 @@ which only unfolds `@[reducible]` definitions). -/
 macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
-macro "args" : conv => `(congr)
+macro "args" : conv => `(conv| congr)
 /-- `left` traverses into the left argument. Synonym for `lhs`. -/
-macro "left" : conv => `(lhs)
+macro "left" : conv => `(conv| lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
-macro "right" : conv => `(rhs)
+macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(colGt ident)* : conv => `(conv| ext $xs*)
 

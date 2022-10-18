@@ -63,7 +63,7 @@ by {
   assumption
 }
 
-macro "intro3" : tactic => `(tactic| intro; intro; intro)
+macro "intro3" : tactic => `(tactic| (intro; intro; intro))
 macro "check2" x:term : command => `(#check $x #check $x)
 macro "foo" x:term "," y:term : term => `($x + $y + $x)
 

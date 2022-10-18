@@ -2,4 +2,4 @@ import Lake
 open Lake DSL
 
 package root
-@[defaultTarget] lean_lib Root
+@[default_target] lean_lib Root

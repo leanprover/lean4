@@ -143,11 +143,11 @@ export FamilyDef (family_key_eq_type)
 attribute [simp] family_key_eq_type
 
 /-- Cast a datum from its individual type to its general family. -/
-@[macroInline] def toFamily [FamilyDef Fam a β] (b : β) : Fam a :=
+@[macro_inline] def toFamily [FamilyDef Fam a β] (b : β) : Fam a :=
   cast family_key_eq_type.symm b
 
 /-- Cast a datum from its general family to its individual type. -/
-@[macroInline] def ofFamily [FamilyDef Fam a β] (b : Fam a) : β :=
+@[macro_inline] def ofFamily [FamilyDef Fam a β] (b : Fam a) : β :=
   cast family_key_eq_type b
 
 /--

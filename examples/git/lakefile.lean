@@ -7,7 +7,7 @@ package git_hello
 require hello from
   git "../.."/"examples"/"hello"
 
-@[defaultTarget]
+@[default_target]
 lean_exe git_hello {
   root := `Main
 }

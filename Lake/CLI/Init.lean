@@ -55,7 +55,7 @@ lean_lib {root} \{
   -- add library configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe {pkgName} \{
   root := `Main
 }
@@ -69,7 +69,7 @@ package {pkgName} \{
   -- add package configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe {exeRoot} \{
   -- add executable configuration options here
 }
@@ -83,7 +83,7 @@ package {pkgName} \{
   -- add package configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_lib {libRoot} \{
   -- add library configuration options here
 }
@@ -100,7 +100,7 @@ package {pkgName} \{
 require mathlib from git
   \"https://github.com/leanprover-community/mathlib4.git\"
 
-@[defaultTarget]
+@[default_target]
 lean_lib {libRoot} \{
   -- add any library configuration options here
 }

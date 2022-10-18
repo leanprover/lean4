@@ -27,7 +27,7 @@ during the Lakefile's elaboration.
 -/
 scoped syntax (name := dirConst) "__dir__" : term
 
-@[termElab dirConst]
+@[term_elab dirConst]
 def elabDirConst : TermElab := fun stx expectedType? => do
   let exp :=
     if let some dir := dirExt.getState (← getEnv) then
@@ -47,7 +47,7 @@ or via the `with` clause in a `require` statement.
 -/
 scoped syntax (name := getConfig) "get_config? " ident :term
 
-@[termElab getConfig]
+@[term_elab getConfig]
 def elabGetConfig : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   match stx with

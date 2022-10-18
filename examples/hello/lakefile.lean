@@ -5,7 +5,7 @@ package hello
 
 lean_lib Hello
 
-@[defaultTarget]
+@[default_target]
 lean_exe hello {
   root := `Main
 }

@@ -5,5 +5,5 @@ package foo {
   precompileModules := true
 }
 
-@[defaultTarget]
+@[default_target]
 lean_lib foo

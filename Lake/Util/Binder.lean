@@ -45,7 +45,7 @@ abbrev FunBinder := TSyntax ``Term.funBinder
 instance : Coe BinderIdent FunBinder where
   coe s := ⟨s.raw⟩
 
-@[runParserAttributeHooks]
+@[run_parser_attribute_hooks]
 def binder := Term.binderIdent <|> Term.bracketedBinder
 
 abbrev Binder := TSyntax ``binder

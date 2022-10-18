@@ -7,6 +7,6 @@ require foo from ".."/"foo"
 
 lean_lib Bar
 
-@[defaultTarget]
+@[default_target]
 lean_exe bar where
   root := `Main

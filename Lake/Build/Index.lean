@@ -22,7 +22,7 @@ namespace Lake
 Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
-@[macroInline] def mkTargetFacetBuild (facet : Name) (build : IndexBuildM α)
+@[macro_inline] def mkTargetFacetBuild (facet : Name) (build : IndexBuildM α)
 [h : FamilyDef TargetData facet α] : IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
@@ -81,7 +81,7 @@ def buildIndexTop' (info : BuildInfo) : RecBuildM (BuildData info.key) :=
 Recursively build the given info using the Lake build index
 and a topological / suspending scheduler and return the dynamic result.
 -/
-@[macroInline] def buildIndexTop (info : BuildInfo)
+@[macro_inline] def buildIndexTop (info : BuildInfo)
 [FamilyDef BuildData info.key α] : RecBuildM α := do
   cast (by simp) <| buildIndexTop' info
 

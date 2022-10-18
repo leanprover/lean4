@@ -31,7 +31,7 @@ where
     throw s!"unexpected type at '{const}', `{type}` expected"
 
 /-- Like `Lean.Environment.evalConstCheck`, but with plain universe-polymorphic `Except`. -/
-@[implementedBy unsafeEvalConstCheck] opaque evalConstCheck
+@[implemented_by unsafeEvalConstCheck] opaque evalConstCheck
 (env : Environment) (opts : Options) (α) (type : Name) (const : Name) : Except String α
 
 /-- Construct a `NameMap` from the declarations tagged with `attr`. -/

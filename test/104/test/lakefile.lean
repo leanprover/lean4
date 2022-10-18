@@ -11,7 +11,7 @@ def url : String :=
 
 require hello from git url / "examples" / "hello"
 
-@[defaultTarget]
+@[default_target]
 lean_exe test {
   root := `Main
 }

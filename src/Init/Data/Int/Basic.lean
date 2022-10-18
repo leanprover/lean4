@@ -69,7 +69,7 @@ protected def mul (m n : @& Int) : Int :=
   #check -42
   ```
 -/
-@[defaultInstance mid]
+@[default_instance mid]
 instance : Neg Int where
   neg := Int.neg
 instance : Add Int where

@@ -259,7 +259,7 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
   mkSyntaxQuotation stx kind
 
 macro "elab_stx_quot" kind:ident : command =>
-  `(@[builtinTermElab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
+  `(@[builtin_term_elab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
 
 elab_stx_quot Parser.Term.quot
 elab_stx_quot Parser.Tactic.quot
@@ -663,10 +663,10 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     return stx
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
+@[builtin_term_elab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 
-@[builtinTermElab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
+@[builtin_term_elab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
   match stx with
   | `(no_error_if_unused% $term) => elabTerm term expectedType?
   | _ => throwUnsupportedSyntax

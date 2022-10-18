@@ -81,7 +81,7 @@ private def printId (id : Syntax) : CommandElabM Unit := do
   let cs ← resolveGlobalConstWithInfos id
   cs.forM printIdCore
 
-@[builtinCommandElab «print»] def elabPrint : CommandElab
+@[builtin_command_elab «print»] def elabPrint : CommandElab
   | `(#print%$tk $id:ident) => withRef tk <| printId id
   | `(#print%$tk $s:str) => logInfoAt tk s.getString
   | _                       => throwError "invalid #print command"
@@ -121,7 +121,7 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
   else
     logInfo m!"'{constName}' depends on axioms: {s.axioms.toList}"
 
-@[builtinCommandElab «printAxioms»] def elabPrintAxioms : CommandElab
+@[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
     let cs ← resolveGlobalConstWithInfos id
     cs.forM printAxiomsOf

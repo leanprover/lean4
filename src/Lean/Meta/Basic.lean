@@ -300,7 +300,7 @@ abbrev MetaM  := ReaderT Context $ StateRefT State CoreM
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
-@[alwaysInline]
+@[always_inline]
 instance : Monad MetaM := let i := inferInstanceAs (Monad MetaM); { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (MetaM α) where

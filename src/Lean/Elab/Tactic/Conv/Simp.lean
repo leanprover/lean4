@@ -16,16 +16,16 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
   else
     updateLhs result.expr (← result.getProof)
 
-@[builtinTactic Lean.Parser.Tactic.Conv.simp] def evalSimp : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.Conv.simp] def evalSimp : Tactic := fun stx => withMainContext do
   let { ctx, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
   let lhs ← getLhs
   let (result, _) ← dischargeWrapper.with fun d? => simp lhs ctx (discharge? := d?)
   applySimpResult result
 
-@[builtinTactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do
   applySimpResult (← Split.simpMatch (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.dsimp] def evalDSimp : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.Conv.dsimp] def evalDSimp : Tactic := fun stx => withMainContext do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
   changeLhs (← Lean.Meta.dsimp (← getLhs) ctx).1
 

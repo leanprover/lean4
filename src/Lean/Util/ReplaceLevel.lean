@@ -63,7 +63,7 @@ unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
 
 end ReplaceLevelImpl
 
-@[implementedBy ReplaceLevelImpl.replaceUnsafe]
+@[implemented_by ReplaceLevelImpl.replaceUnsafe]
 partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
   | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b

@@ -28,7 +28,7 @@ private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
 private def getDoSeq (doStx : Syntax) : Syntax :=
   doStx[1]
 
-@[builtinTermElab liftMethod] def elabLiftMethod : TermElab := fun stx _ =>
+@[builtin_term_elab liftMethod] def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
@@ -1658,7 +1658,7 @@ def run (doStx : Syntax) (m : Syntax) (returnType : Syntax) : TermElabM CodeBloc
 
 end ToCodeBlock
 
-@[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
   let m ← Term.exprToSyntax bindInfo.m
@@ -1676,16 +1676,16 @@ private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
   let stx := stx.setKind newKind
   withRef stx `(do $stx:doElem)
 
-@[builtinMacro Lean.Parser.Term.termFor]
+@[builtin_macro Lean.Parser.Term.termFor]
 def expandTermFor : Macro := toDoElem ``Parser.Term.doFor
 
-@[builtinMacro Lean.Parser.Term.termTry]
+@[builtin_macro Lean.Parser.Term.termTry]
 def expandTermTry : Macro := toDoElem ``Parser.Term.doTry
 
-@[builtinMacro Lean.Parser.Term.termUnless]
+@[builtin_macro Lean.Parser.Term.termUnless]
 def expandTermUnless : Macro := toDoElem ``Parser.Term.doUnless
 
-@[builtinMacro Lean.Parser.Term.termReturn]
+@[builtin_macro Lean.Parser.Term.termReturn]
 def expandTermReturn : Macro := toDoElem ``Parser.Term.doReturn
 
 end Lean.Elab.Term

@@ -306,7 +306,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
 
   These two conditions would restrict the method to simple functions that are "morally" in
   the Hindley&Milner fragment.
-  If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
+  If users need to disable expected type propagation, we can add an attribute `[elab_without_expected_type]`.
 -/
 private def propagateExpectedType (arg : Arg) : M Unit := do
   if shouldPropagateExpectedTypeFor arg then
@@ -644,18 +644,18 @@ builtin_initialize elabAsElim : TagAttribute ←
         discard <| getElimInfo declName
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
-          throwError "[elabAsElim] attribute cannot be used in declarations containing optional and auto parameters"
+          throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
       go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
 namespace ElabElim
 
-/-- Context of the `elabAsElim` elaboration procedure. -/
+/-- Context of the `elab_as_elim` elaboration procedure. -/
 structure Context where
   elimInfo : ElimInfo
   expectedType : Expr
 
-/-- State of the `elabAsElim` elaboration procedure. -/
+/-- State of the `elab_as_elim` elaboration procedure. -/
 structure State where
   /-- The resultant expression being built. -/
   f            : Expr
@@ -1367,7 +1367,7 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
         return mkRecAppWithSyntax e stx
   return e
 
-@[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
+@[builtin_term_elab app] def elabApp : TermElab := fun stx expectedType? =>
   universeConstraintsCheckpoint do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     annotateIfRec stx (← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?)
@@ -1375,18 +1375,18 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
 private def elabAtom : TermElab := fun stx expectedType? => do
   annotateIfRec stx (← elabAppAux stx #[] #[] (ellipsis := false) expectedType?)
 
-@[builtinTermElab ident] def elabIdent : TermElab := elabAtom
-@[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
-@[builtinTermElab dotIdent] def elabDotIdent : TermElab := elabAtom
-@[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
-@[builtinTermElab pipeProj] def elabPipeProj : TermElab
+@[builtin_term_elab ident] def elabIdent : TermElab := elabAtom
+@[builtin_term_elab namedPattern] def elabNamedPattern : TermElab := elabAtom
+@[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
+@[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
+@[builtin_term_elab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
-@[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
+@[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
   | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
@@ -1394,8 +1394,8 @@ private def elabAtom : TermElab := fun stx expectedType? => do
   | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                    => throwUnsupportedSyntax
 
-@[builtinTermElab choice] def elabChoice : TermElab := elabAtom
-@[builtinTermElab proj] def elabProj : TermElab := elabAtom
+@[builtin_term_elab choice] def elabChoice : TermElab := elabAtom
+@[builtin_term_elab proj] def elabProj : TermElab := elabAtom
 
 builtin_initialize
   registerTraceClass `Elab.app

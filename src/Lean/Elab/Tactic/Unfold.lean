@@ -17,7 +17,7 @@ def unfoldTarget (declName : Name) : TacticM Unit := do
   replaceMainGoal [← Meta.unfoldTarget (← getMainGoal) declName]
 
 /-- "unfold " ident+ (location)? -/
-@[builtinTactic Lean.Parser.Tactic.unfold] def evalUnfold : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.unfold] def evalUnfold : Tactic := fun stx => do
   let loc := expandOptLocation stx[2]
   for declNameId in stx[1].getArgs do
     go declNameId loc

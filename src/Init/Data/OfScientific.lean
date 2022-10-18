@@ -38,7 +38,7 @@ protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
   #check -42.0 -- must be Float
   ```
 -/
-@[defaultInstance mid+1]
+@[default_instance mid+1]
 instance : OfScientific Float where
   ofScientific := Float.ofScientific
 

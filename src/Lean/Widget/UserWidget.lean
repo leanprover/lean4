@@ -66,7 +66,7 @@ private unsafe def getUserWidgetDefinitionUnsafe
   (decl : Name) : CoreM UserWidgetDefinition :=
   evalConstCheck UserWidgetDefinition ``UserWidgetDefinition decl
 
-@[implementedBy getUserWidgetDefinitionUnsafe]
+@[implemented_by getUserWidgetDefinitionUnsafe]
 private opaque getUserWidgetDefinition
   (decl : Name) : CoreM UserWidgetDefinition
 
@@ -92,7 +92,7 @@ structure GetWidgetSourceParams where
   deriving ToJson, FromJson
 
 open Server RequestM in
-@[serverRpcMethod]
+@[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
   let doc ← readDoc
   let pos := doc.meta.text.lspPosToUtf8Pos args.pos
@@ -139,7 +139,7 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the `UserWidget`s present at a particular position. -/
-@[serverRpcMethod]
+@[server_rpc_method]
 def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
@@ -176,12 +176,12 @@ open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
 private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json :=
   Lean.Elab.Term.evalTerm Json (mkConst ``Json) stx
 
-@[implementedBy evalJsonUnsafe]
+@[implemented_by evalJsonUnsafe]
 private opaque evalJson (stx : Syntax) : TermElabM Json
 
 open Elab Command in
 
-@[commandElab widgetCmd] def elabWidgetCmd : CommandElab := fun
+@[command_elab widgetCmd] def elabWidgetCmd : CommandElab := fun
   | stx@`(#widget $id:ident $props) => do
     let props : Json ← runTermElabM fun _ => evalJson props
     saveWidgetInfo id.getId props stx

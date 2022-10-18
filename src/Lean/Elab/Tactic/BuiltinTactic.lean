@@ -16,15 +16,15 @@ namespace Lean.Elab.Tactic
 open Meta
 open Parser.Tactic
 
-@[builtinTactic withAnnotateState] def evalWithAnnotateState : Tactic
+@[builtin_tactic withAnnotateState] def evalWithAnnotateState : Tactic
   | `(tactic| with_annotate_state $stx $t) =>
     withTacticInfoContext stx (evalTactic t)
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.«done»] def evalDone : Tactic := fun _ =>
   done
 
-@[builtinTactic seq1] def evalSeq1 : Tactic := fun stx => do
+@[builtin_tactic seq1] def evalSeq1 : Tactic := fun stx => do
   let args := stx[0].getArgs
   for i in [:args.size] do
     if i % 2 == 0 then
@@ -32,7 +32,7 @@ open Parser.Tactic
     else
       saveTacticInfoForToken args[i]! -- add `TacticInfo` node for `;`
 
-@[builtinTactic paren] def evalParen : Tactic := fun stx =>
+@[builtin_tactic paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
 def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
@@ -105,17 +105,17 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
     else
       saveTacticInfoForToken arg
 
-@[builtinTactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
+@[builtin_tactic tacticSeq1Indented] def evalTacticSeq1Indented : Tactic := fun stx =>
   evalSepByIndentTactic stx[0]
 
-@[builtinTactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
+@[builtin_tactic tacticSeqBracketed] def evalTacticSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
     withInfoContext (pure ()) initInfo
     evalSepByIndentTactic stx[1]
 
-@[builtinTactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
   focus do
     -- show focused state on `focus`
@@ -125,15 +125,15 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
 private def getOptRotation (stx : Syntax) : Nat :=
   if stx.isNone then 1 else stx[0].toNat
 
-@[builtinTactic Parser.Tactic.rotateLeft] def evalRotateLeft : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.rotateLeft] def evalRotateLeft : Tactic := fun stx => do
   let n := getOptRotation stx[1]
   setGoals <| (← getGoals).rotateLeft n
 
-@[builtinTactic Parser.Tactic.rotateRight] def evalRotateRight : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.rotateRight] def evalRotateRight : Tactic := fun stx => do
   let n := getOptRotation stx[1]
   setGoals <| (← getGoals).rotateRight n
 
-@[builtinTactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.open] def evalOpen : Tactic := fun stx => do
   let `(tactic| open $decl in $tac) := stx | throwUnsupportedSyntax
   try
     pushScope
@@ -143,12 +143,12 @@ private def getOptRotation (stx : Syntax) : Nat :=
   finally
     popScope
 
-@[builtinTactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.set_option] def elabSetOption : Tactic := fun stx => do
   let options ← Elab.elabSetOption stx[1] stx[2]
   withTheReader Core.Context (fun ctx => { ctx with maxRecDepth := maxRecDepth.get options, options := options }) do
     evalTactic stx[4]
 
-@[builtinTactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.allGoals] def evalAllGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
   for mvarId in mvarIds do
@@ -165,7 +165,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
           throw ex
   setGoals mvarIdsNew.toList
 
-@[builtinTactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.anyGoals] def evalAnyGoals : Tactic := fun stx => do
   let mvarIds ← getGoals
   let mut mvarIdsNew := #[]
   let mut succeeded := false
@@ -182,7 +182,7 @@ private def getOptRotation (stx : Syntax) : Nat :=
     throwError "failed on all goals"
   setGoals mvarIdsNew.toList
 
-@[builtinTactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
+@[builtin_tactic tacticSeq] def evalTacticSeq : Tactic := fun stx =>
   evalTactic stx[0]
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
@@ -194,39 +194,39 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   else
     throwUnsupportedSyntax
 
-@[builtinTactic choice] def evalChoice : Tactic := fun stx =>
+@[builtin_tactic choice] def evalChoice : Tactic := fun stx =>
   evalChoiceAux stx.getArgs 0
 
-@[builtinTactic skip] def evalSkip : Tactic := fun _ => pure ()
+@[builtin_tactic skip] def evalSkip : Tactic := fun _ => pure ()
 
-@[builtinTactic unknown] def evalUnknown : Tactic := fun stx => do
+@[builtin_tactic unknown] def evalUnknown : Tactic := fun stx => do
   addCompletionInfo <| CompletionInfo.tactic stx (← getGoals)
 
-@[builtinTactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx =>
+@[builtin_tactic failIfSuccess] def evalFailIfSuccess : Tactic := fun stx =>
   Term.withoutErrToSorry <| withoutRecover do
     let tactic := stx[1]
     if (← try evalTactic tactic; pure true catch _ => pure false) then
       throwError "tactic succeeded"
 
-@[builtinTactic traceState] def evalTraceState : Tactic := fun _ => do
+@[builtin_tactic traceState] def evalTraceState : Tactic := fun _ => do
   let gs ← getUnsolvedGoals
   addRawTrace (goalsToMessageData gs)
 
-@[builtinTactic traceMessage] def evalTraceMessage : Tactic := fun stx => do
+@[builtin_tactic traceMessage] def evalTraceMessage : Tactic := fun stx => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => withRef stx[0] <| addRawTrace msg
 
-@[builtinTactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.assumption; pure []
 
-@[builtinTactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.contradiction; pure []
 
-@[builtinTactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.refl; pure []
 
-@[builtinTactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do
   match stx with
   | `(tactic| intro)                   => introStep none `_
   | `(tactic| intro $h:ident)          => introStep h h.getId
@@ -243,12 +243,12 @@ where
       withMainContext do
         Term.addLocalVarInfo stx (mkFVar fvar)
 
-@[builtinTactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]
   let stxNew ← liftMacroM <| Term.expandMatchAltsIntoMatchTactic stx matchAlts
   withMacroExpansion stx stxNew <| evalTactic stxNew
 
-@[builtinTactic «intros»] def evalIntros : Tactic := fun stx =>
+@[builtin_tactic «intros»] def evalIntros : Tactic := fun stx =>
   match stx with
   | `(tactic| intros) => liftMetaTactic fun mvarId => do
     let (_, mvarId) ← mvarId.intros
@@ -262,14 +262,14 @@ where
         Term.addLocalVarInfo stx (mkFVar fvar)
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
   match stx with
   | `(tactic| revert $hs*) => do
      let (_, mvarId) ← (← getMainGoal).revert (← getFVarIds hs)
      replaceMainGoal [mvarId]
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.clear] def evalClear : Tactic := fun stx =>
   match stx with
   | `(tactic| clear $hs*) => do
     let fvarIds ← getFVarIds hs
@@ -287,12 +287,12 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
       let mvarId ← tac (← getMainGoal) fvarId
       replaceMainGoal [mvarId]
 
-@[builtinTactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.subst] def evalSubst : Tactic := fun stx =>
   match stx with
   | `(tactic| subst $hs*) => forEachVar hs Meta.subst
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.substVars] def evalSubstVars : Tactic := fun _ =>
   liftMetaTactic fun mvarId => return [← substVars mvarId]
 
 /--
@@ -350,7 +350,7 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
     getMainGoal
   return (g, gs.erase g)
 
-@[builtinTactic «case»] def evalCase : Tactic
+@[builtin_tactic «case»] def evalCase : Tactic
   | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>
     for tag in tag, hs in hs do
       let (g, gs) ← getCaseGoals tag
@@ -362,7 +362,7 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
       setGoals gs
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic «case'»] def evalCase' : Tactic
+@[builtin_tactic «case'»] def evalCase' : Tactic
   | `(tactic| case' $[$tag $hs*]|* =>%$arr $tac:tacticSeq) => do
     let mut acc := #[]
     for tag in tag, hs in hs do
@@ -379,11 +379,11 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
     setGoals (acc.toList ++ (← getGoals))
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic «renameI»] def evalRenameInaccessibles : Tactic
+@[builtin_tactic «renameI»] def evalRenameInaccessibles : Tactic
   | `(tactic| rename_i $hs*) => do replaceMainGoal [← renameInaccessibles (← getMainGoal) hs]
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic «first»] partial def evalFirst : Tactic := fun stx => do
+@[builtin_tactic «first»] partial def evalFirst : Tactic := fun stx => do
   let tacs := stx[1].getArgs
   if tacs.isEmpty then throwUnsupportedSyntax
   loop tacs 0
@@ -394,7 +394,7 @@ where
     else
       evalTactic tacs[i]![1] <|> loop tacs (i+1)
 
-@[builtinTactic «fail»] def evalFail : Tactic := fun stx => do
+@[builtin_tactic «fail»] def evalFail : Tactic := fun stx => do
   let goals ← getGoals
   let goalsMsg := MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
   match stx with
@@ -402,12 +402,12 @@ where
   | `(tactic| fail $msg:str) => throwError "{msg.getString}\n{goalsMsg}"
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Parser.Tactic.dbgTrace] def evalDbgTrace : Tactic := fun stx => do
+@[builtin_tactic Parser.Tactic.dbgTrace] def evalDbgTrace : Tactic := fun stx => do
   match stx[1].isStrLit? with
   | none     => throwIllFormedSyntax
   | some msg => dbg_trace msg
 
-@[builtinTactic sleep] def evalSleep : Tactic := fun stx => do
+@[builtin_tactic sleep] def evalSleep : Tactic := fun stx => do
   match stx[1].isNatLit? with
   | none    => throwIllFormedSyntax
   | some ms => IO.sleep ms.toUInt32

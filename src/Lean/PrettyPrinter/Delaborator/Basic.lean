@@ -107,7 +107,7 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   is tried first.",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
-@[builtinInit mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
+@[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -263,7 +263,7 @@ to true or `pp.notation` is set to false, it will not be called at all.",
     evalKey := fun _ stx => do
       Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
-@[builtinInit mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
+@[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 

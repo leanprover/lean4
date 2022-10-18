@@ -116,7 +116,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
   return ext
 
-@[implementedBy registerScopedEnvExtensionUnsafe]
+@[implemented_by registerScopedEnvExtensionUnsafe]
 opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=

@@ -42,7 +42,7 @@ structure CompilerM.Context where
 
 abbrev CompilerM := ReaderT CompilerM.Context $ StateRefT CompilerM.State CoreM
 
-@[alwaysInline]
+@[always_inline]
 instance : Monad CompilerM := let i := inferInstanceAs (Monad CompilerM); { pure := i.pure, bind := i.bind }
 
 @[inline] def withPhase (phase : Phase) (x : CompilerM α) : CompilerM α :=
@@ -242,13 +242,13 @@ See `Check.lean` for the free variable substitution checker.
 @[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (e : Expr) : m Unit :=
   modifySubst fun s => s.insert fvarId e
 
-@[inline, inheritDoc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m FVarId :=
+@[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m FVarId :=
   return normFVarImp (← getSubst) fvarId t
 
-@[inline, inheritDoc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
+@[inline, inherit_doc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
   return normExprImp (← getSubst) e t
 
-@[inheritDoc normExprImp]
+@[inherit_doc normExprImp]
 abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
@@ -302,7 +302,7 @@ private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param :=
     modifyLCtx fun lctx => lctx.addParam p
     return p
 
-@[implementedBy updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
+@[implemented_by updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
 
 private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl := do
   if ptrEq type decl.type && ptrEq value decl.value then
@@ -312,7 +312,7 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
 
-@[implementedBy updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
 
 def LetDecl.updateValue (decl : LetDecl) (value : Expr) : CompilerM LetDecl :=
   decl.update decl.type value
@@ -325,7 +325,7 @@ private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Arra
     modifyLCtx fun lctx => lctx.addFunDecl decl
     return decl
 
-@[implementedBy updateFunDeclImp] opaque FunDeclCore.update (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
+@[implemented_by updateFunDeclImp] opaque FunDeclCore.update (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl
 
 abbrev FunDeclCore.update' (decl : FunDecl) (type : Expr) (value : Code) : CompilerM FunDecl :=
   decl.update type decl.params value

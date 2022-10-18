@@ -14,7 +14,7 @@ def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α �
 
 infixr:100 " <&> " => Functor.mapRev
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
 
@@ -30,10 +30,10 @@ variable {f : Type u → Type v} [Alternative f] {α : Type u}
 
 export Alternative (failure)
 
-@[alwaysInline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
+@[always_inline, inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
   if p then pure () else failure
 
-@[alwaysInline, inline] def optional (x : f α) : f (Option α) :=
+@[always_inline, inline] def optional (x : f α) : f (Option α) :=
   some <$> x <|> pure none
 
 class ToBool (α : Type u) where
@@ -44,12 +44,12 @@ export ToBool (toBool)
 instance : ToBool Bool where
   toBool b := b
 
-@[macroInline] def bool {β : Type u} {α : Type v} [ToBool β] (f t : α) (b : β) : α :=
+@[macro_inline] def bool {β : Type u} {α : Type v} [ToBool β] (f t : α) (b : β) : α :=
   match toBool b with
   | true  => t
   | false => f
 
-@[macroInline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
+@[macro_inline] def orM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
   | true  => pure b
@@ -57,7 +57,7 @@ instance : ToBool Bool where
 
 infixr:30 " <||> " => orM
 
-@[macroInline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
+@[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
   | true  => y
@@ -65,7 +65,7 @@ infixr:30 " <||> " => orM
 
 infixr:35 " <&&> " => andM
 
-@[macroInline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
+@[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x
 
 /-!
@@ -199,7 +199,7 @@ class MonadControlT (m : Type u → Type v) (n : Type u → Type w) where
 
 export MonadControlT (stM liftWith restoreM)
 
-@[alwaysInline]
+@[always_inline]
 instance (m n o) [MonadControl n o] [MonadControlT m n] : MonadControlT m o where
   stM α := stM m n (MonadControl.stM n o α)
   liftWith f := MonadControl.liftWith fun x₂ => liftWith fun x₁ => f (x₁ ∘ x₂)
@@ -210,12 +210,12 @@ instance (m : Type u → Type v) [Pure m] : MonadControlT m m where
   liftWith f := f fun x => x
   restoreM x := pure x
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def controlAt (m : Type u → Type v) {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   liftWith f >>= restoreM
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] [Bind n] {α : Type u}
     (f : ({β : Type u} → n β → m (stM m n β)) → m (stM m n α)) : n α :=
   controlAt m f
@@ -233,22 +233,22 @@ class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) 
 export ForM (forM)
 
 /-- Left-to-right composition of Kleisli arrows. -/
-@[alwaysInline]
+@[always_inline]
 def Bind.kleisliRight [Bind m] (f₁ : α → m β) (f₂ : β → m γ) (a : α) : m γ :=
   f₁ a >>= f₂
 
 /-- Right-to-left composition of Kleisli arrows. -/
-@[alwaysInline]
+@[always_inline]
 def Bind.kleisliLeft [Bind m] (f₂ : β → m γ) (f₁ : α → m β) (a : α) : m γ :=
   f₁ a >>= f₂
 
 /-- Same as `Bind.bind` but with arguments swapped. -/
-@[alwaysInline]
+@[always_inline]
 def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
   ma >>= f
 
 -- Precedence choice taken to be the same as in haskell:
 -- https://hackage.haskell.org/package/base-4.17.0.0/docs/Control-Monad.html#v:-61--60--60-
-@[inheritDoc] infixr:55 " >=> " => Bind.kleisliRight
-@[inheritDoc] infixr:55 " <=< " => Bind.kleisliLeft
-@[inheritDoc] infixr:55 " =<< " => Bind.bindLeft
+@[inherit_doc] infixr:55 " >=> " => Bind.kleisliRight
+@[inherit_doc] infixr:55 " <=< " => Bind.kleisliLeft
+@[inherit_doc] infixr:55 " =<< " => Bind.bindLeft

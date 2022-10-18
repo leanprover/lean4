@@ -76,7 +76,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     -- If users want this feature, they add their own `elab_rules` macro that uses this one as a fallback.
     throwError "unsupported syntax category '{catName}'"
 
-@[builtinCommandElab «elab_rules»] def elabElabRules : CommandElab :=
+@[builtin_command_elab «elab_rules»] def elabElabRules : CommandElab :=
   adaptExpander fun stx => match stx with
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind elab_rules $[: $cat?]? $[<= $expty?]? $alts:matchAlt*) =>
     expandNoKindMacroRulesAux alts "elab_rules" fun kind? alts =>
@@ -85,7 +85,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     do elabElabRulesAux doc? attrs? attrKind (← resolveSyntaxKind kind.getId) cat? expty? alts
   | _  => throwUnsupportedSyntax
 
-@[builtinCommandElab Lean.Parser.Command.elab]
+@[builtin_command_elab Lean.Parser.Command.elab]
 def elabElab : CommandElab
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
     elab%$tk$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* :

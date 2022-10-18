@@ -357,7 +357,7 @@ def applyFolders (decl : LetDecl) (folders : SMap Name Folder) : CompilerM (Opti
 private unsafe def getFolderCoreUnsafe (env : Environment) (opts : Options) (declName : Name) : ExceptT String Id Folder :=
   env.evalConstCheck Folder opts ``Folder declName
 
-@[implementedBy getFolderCoreUnsafe]
+@[implemented_by getFolderCoreUnsafe]
 private opaque getFolderCore (env : Environment) (opts : Options) (declName : Name) : ExceptT String Id Folder
 
 private def getFolder (declName : Name) : CoreM Folder := do

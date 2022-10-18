@@ -10,7 +10,7 @@ import Lean.Elab.Tactic.Location
 namespace Lean.Elab.Tactic
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.split] def evalSplit : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.split] def evalSplit : Tactic := fun stx => do
   unless stx[1].isNone do
     throwError "'split' tactic, term to split is not supported yet"
   let loc := expandOptLocation stx[2]

@@ -55,7 +55,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 
 Remark: see comment at TermElabM
 -/
-@[alwaysInline]
+@[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
@@ -81,7 +81,7 @@ instance : MonadEnv CommandElabM where
   getEnv := do pure (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env }
 
-@[alwaysInline]
+@[always_inline]
 instance : MonadOptions CommandElabM where
   getOptions := do pure (← get).scopes.head!.opts
 
@@ -222,7 +222,7 @@ instance : MonadQuotation CommandElabM where
 unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
   mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
-@[implementedBy mkCommandElabAttributeUnsafe]
+@[implemented_by mkCommandElabAttributeUnsafe]
 opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute decl_name%

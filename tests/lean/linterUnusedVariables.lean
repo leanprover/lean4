@@ -191,7 +191,7 @@ variable {α β} [inst : ToString α]
 @[specialize]
 def specializeDef (x : Nat) : Nat := 3
 
-@[implementedBy specializeDef]
+@[implemented_by specializeDef]
 def implementedByDef (x : Nat) : Nat :=
   let y := 3
   5
@@ -236,7 +236,7 @@ def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → �
   | 0 => H1 rfl
   | succ m => H2 m rfl
 
-@[unusedVariablesIgnoreFn]
+@[unused_variables_ignore_fn]
 def ignoreEverything : Lean.Linter.IgnoreFunction :=
   fun _ _ _ => true
 

@@ -360,7 +360,7 @@ def elabMutual : CommandElab := fun stx => do
       if isAttribute (← getEnv) attrName then
         toErase := toErase.push attrName
       else
-        logErrorAt attrKindStx "unknown attribute [{attrName}]"
+        logErrorAt attrKindStx m!"unknown attribute [{attrName}]"
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
@@ -373,7 +373,7 @@ def elabMutual : CommandElab := fun stx => do
 
 @[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
-    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtinInit
+    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtin_init
     if let (some id, some type) := (id?, type?) then
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
         | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"

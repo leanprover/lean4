@@ -8,7 +8,7 @@ import Lean.Attributes
 namespace Lean
 
 builtin_initialize matchPatternAttr : TagAttribute ←
-  registerTagAttribute `matchPattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
+  registerTagAttribute `match_pattern "mark that a definition can be used in a pattern (remark: the dependent pattern matching compiler will unfold the definition)"
 
 @[export lean_has_match_pattern_attribute]
 def hasMatchPatternAttribute (env : Environment) (n : Name) : Bool :=

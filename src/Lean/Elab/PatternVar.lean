@@ -24,7 +24,7 @@ abbrev PatternVar := Syntax  -- TODO: should be `Ident`
   Macros occurring in patterns are expanded before the `collectPatternVars` method is executed.
   The following kinds of Syntax are handled by this module
   - Constructor applications
-  - Applications of functions tagged with the `[matchPattern]` attribute
+  - Applications of functions tagged with the `[match_pattern]` attribute
   - Identifiers
   - Anonymous constructors
   - Structure instances
@@ -47,7 +47,7 @@ structure State where
 abbrev M := StateRefT State TermElabM
 
 private def throwCtorExpected {α} : M α :=
-  throwError "invalid pattern, constructor or constant marked with '[matchPattern]' expected"
+  throwError "invalid pattern, constructor or constant marked with '[match_pattern]' expected"
 
 private def throwInvalidPattern {α} : M α :=
   throwError "invalid pattern"
@@ -58,7 +58,7 @@ An application in a pattern can be
 1- A constructor application
    The elaborator assumes fields are accessible and inductive parameters are not accessible.
 
-2- A regular application `(f ...)` where `f` is tagged with `[matchPattern]`.
+2- A regular application `(f ...)` where `f` is tagged with `[match_pattern]`.
    The elaborator assumes implicit arguments are not accessible and explicit ones are accessible.
 -/
 
@@ -90,7 +90,7 @@ private def isNextArgAccessible (ctx : Context) : Bool :=
   | some ctorVal => i ≥ ctorVal.numParams -- For constructor applications only fields are accessible
   | none =>
     if h : i < ctx.paramDecls.size then
-      -- For `[matchPattern]` applications, only explicit parameters are accessible.
+      -- For `[match_pattern]` applications, only explicit parameters are accessible.
       let d := ctx.paramDecls.get ⟨i, h⟩
       d.2.isExplicit
     else
@@ -235,7 +235,7 @@ where
   processCtor (stx : Syntax) : M Syntax := do
     processCtorAppCore stx #[] #[] false
 
-  /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[matchPattern]` attribute) -/
+  /-- Check whether `stx` is a pattern variable or constructor-like (i.e., constructor or constant tagged with `[match_pattern]` attribute) -/
   processId (stx : Syntax) : M Syntax := do
     match (← resolveId? stx "pattern") with
     | none   => processVar stx

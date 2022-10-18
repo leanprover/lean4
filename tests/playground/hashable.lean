@@ -5,30 +5,30 @@ inductive SimpleInd
 | B
 deriving Hashable
 
-theorem «inductive fields have different base hashes» : ∀ x, hash x = 
+theorem «inductive fields have different base hashes» : ∀ x, hash x =
 match x with
 | SimpleInd.A => 0
 | SimpleInd.B => 1 := λ x => rfl
-mutual 
+mutual
 inductive Foo : Type → Type
 | A : Int → (3 = 3) → String → Foo Int
-| B : Bar → Foo String 
+| B : Bar → Foo String
 deriving Hashable
 inductive Bar
 | C
-| D : Foo String → Bar 
+| D : Foo String → Bar
 deriving Hashable
 end
 
 #eval hash (Foo.A 3 rfl "bla")
 #eval hash (Foo.B $ Bar.D $ Foo.B Bar.C)
 
-inductive ManyConstructors | A | B | C | D | E | F | G | H | I | J | K | L 
+inductive ManyConstructors | A | B | C | D | E | F | G | H | I | J | K | L
 | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z
 deriving Hashable
 
-theorem «Each constructor is hashed as a different number to make mixing better» : ∀ x, hash x = 
-match x with 
+theorem «Each constructor is hashed as a different number to make mixing better» : ∀ x, hash x =
+match x with
 | ManyConstructors.A => 0
 | ManyConstructors.B => 1
 | ManyConstructors.C => 2
@@ -56,7 +56,7 @@ match x with
 | ManyConstructors.Y => 24
 | ManyConstructors.Z => 25 := λ x => rfl
 
-structure Person := 
+structure Person :=
   FirstName : String
   LastName : String
   Age : Nat
@@ -68,15 +68,15 @@ structure Company :=
   NumberOfEmployees : Nat
 deriving Hashable
 
--- structures hash just fine 
-#eval hash { 
-  Name := "Microsoft" 
-  CEO := { FirstName := "Satya", LastName := "Nadella", Age := 53 } 
+-- structures hash just fine
+#eval hash {
+  Name := "Microsoft"
+  CEO := { FirstName := "Satya", LastName := "Nadella", Age := 53 }
   NumberOfEmployees := 165000 : Company }
 -- 10875484723257753924
 
 -- syntax(name := tst) "tst" : command
--- @[commandElab «tst»] def elab_tst : CommandElab := fun stx => do
+-- @[command_elab «tst»] def elab_tst : CommandElab := fun stx => do
 --   let declNames := #[`Foo, `Bar]
 --   let declNames := #[`Foo]
 --   discard $ mkHashableHandler declNames

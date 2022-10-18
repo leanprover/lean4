@@ -313,7 +313,7 @@ def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) 
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runBuiltinParserAttributeHooks
+    name  := `run_builtin_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by builtin parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -322,7 +322,7 @@ builtin_initialize
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runParserAttributeHooks
+    name  := `run_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -564,16 +564,16 @@ def registerParserCategory (env : Environment) (attrName catName : Name)
   let env ← IO.ofExcept $ addParserCategory env catName ref behavior
   registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
--- declare `termParser` here since it is used everywhere via antiquotations
+-- declare `term_parser` here since it is used everywhere via antiquotations
 
-builtin_initialize registerBuiltinParserAttribute `builtinTermParser ``Category.term
+builtin_initialize registerBuiltinParserAttribute `builtin_term_parser ``Category.term
 
-builtin_initialize registerBuiltinDynamicParserAttribute `termParser `term
+builtin_initialize registerBuiltinDynamicParserAttribute `term_parser `term
 
--- declare `commandParser` to break cyclic dependency
-builtin_initialize registerBuiltinParserAttribute `builtinCommandParser ``Category.command
+-- declare `command_parser` to break cyclic dependency
+builtin_initialize registerBuiltinParserAttribute `builtin_command_parser ``Category.command
 
-builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
+builtin_initialize registerBuiltinDynamicParserAttribute `command_parser `command
 
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp

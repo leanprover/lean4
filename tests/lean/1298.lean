@@ -6,7 +6,7 @@ instance [Semiring R] : OfNat R n where
 
 def Nat.cast [Semiring R] (n : Nat) : R := let _ := n = n; Semiring.zero
 
-@[defaultInstance high] instance [Semiring R] : HPow R Nat R := inferInstance
+@[default_instance high] instance [Semiring R] : HPow R Nat R := inferInstance
 
 instance [Semiring R] : CoeTail Nat R where
   coe n := n.cast

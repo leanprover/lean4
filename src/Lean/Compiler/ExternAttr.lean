@@ -37,7 +37,7 @@ structure ExternAttrData where
   deriving Inhabited
 
 -- def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
--- @[builtinAttrParser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
+-- @[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
 private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   let arity?  := if stx[1].isNone then none else some <| stx[1][0].isNatLit?.getD 0
   let entriesStx := stx[2].getArgs

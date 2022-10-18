@@ -80,7 +80,7 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `unificationHint
+    name  := `unification_hint
     descr := "unification hint"
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx

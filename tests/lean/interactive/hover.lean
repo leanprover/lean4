@@ -70,7 +70,7 @@ elab_rules : term
 #check mynota' 1
      --^ textDocument/hover
 
-@[inheritDoc]
+@[inherit_doc]
 infix:65 (name := myInfix) " >+< " => Nat.add
                    --^ textDocument/hover
                                      --^ textDocument/hover
@@ -78,7 +78,7 @@ infix:65 (name := myInfix) " >+< " => Nat.add
 #check 1 >+< 2
         --^ textDocument/hover
 
-@[inheritDoc] notation "ℕ" => Nat
+@[inherit_doc] notation "ℕ" => Nat
 
 #check ℕ
      --^ textDocument/hover

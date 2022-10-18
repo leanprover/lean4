@@ -19,7 +19,7 @@ open Lean
 open Lean.Elab
 open Lean.Elab.Term
 
-@[termElab emptyS] def elabEmptyS : TermElab :=
+@[term_elab emptyS] def elabEmptyS : TermElab :=
 fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let stxNew ← `(Nat.zero)

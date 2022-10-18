@@ -20,8 +20,8 @@ def docComment := leading_parser ppDedent $ "/--" >> ppSpace >> commentBody >> p
 end Command
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinTacticParser ``Category.tactic .both
-  registerBuiltinDynamicParserAttribute `tacticParser `tactic
+  registerBuiltinParserAttribute `builtin_tactic_parser ``Category.tactic .both
+  registerBuiltinDynamicParserAttribute `tactic_parser `tactic
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
   categoryParser `tactic rbp

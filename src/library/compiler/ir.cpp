@@ -499,7 +499,7 @@ public:
         if (optional<extern_attr_data_value> attr = get_extern_attr_data(env(), fn)) {
             return ir::mk_extern_decl(fn, xs, result_type, *attr);
         } else {
-            // Hack: `fn` is marked with `implementedBy` or `init`
+            // Hack: `fn` is marked with `implemented_by` or `init`
             return ir::mk_dummy_extern_decl(fn, xs, result_type);
         }
     }

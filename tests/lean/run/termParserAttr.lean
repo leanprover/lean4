@@ -14,11 +14,11 @@ pure ()
 
 open Lean.Parser
 
-@[termParser] def tst := leading_parser "(|" >> termParser >> Parser.optional (symbol ", " >> termParser) >> "|)"
+@[term_parser] def tst := leading_parser "(|" >> termParser >> Parser.optional (symbol ", " >> termParser) >> "|)"
 
 def tst2 : Parser := symbol "(||" >> termParser >> symbol "||)"
 
-@[termParser] def boo : ParserDescr :=
+@[term_parser] def boo : ParserDescr :=
 ParserDescr.node `boo 10
   (ParserDescr.binary `andthen
     (ParserDescr.symbol "[|")
@@ -26,21 +26,21 @@ ParserDescr.node `boo 10
       (ParserDescr.cat `term 0)
       (ParserDescr.symbol "|]")))
 
-@[termParser] def boo2 : ParserDescr :=
+@[term_parser] def boo2 : ParserDescr :=
 ParserDescr.node `boo2 10 (ParserDescr.parser `tst2)
 
 open Lean.Elab.Term
 
-@[termElab tst] def elabTst : TermElab :=
+@[term_elab tst] def elabTst : TermElab :=
 adaptExpander $ fun stx => match stx with
  | `((| $e |)) => pure e
  | _           => throwUnsupportedSyntax
 
-@[termElab boo] def elabBoo : TermElab :=
+@[term_elab boo] def elabBoo : TermElab :=
 fun stx expected? =>
   elabTerm (stx.getArg 1) expected?
 
-@[termElab boo2] def elabBool2 : TermElab :=
+@[term_elab boo2] def elabBool2 : TermElab :=
 adaptExpander $ fun stx => match stx with
  | `((|| $e ||)) => `($e + 1)
  | _             => throwUnsupportedSyntax
@@ -52,7 +52,7 @@ adaptExpander $ fun stx => match stx with
 
 -- #eval run "#check (| id 1, id 1 |)" -- it will fail
 
-@[termElab tst] def elabTst2 : TermElab :=
+@[term_elab tst] def elabTst2 : TermElab :=
 adaptExpander $ fun stx => match stx with
  | `((| $e1, $e2 |)) => `(($e1, $e2))
  | _                 => throwUnsupportedSyntax

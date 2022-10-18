@@ -13,7 +13,7 @@
 @[inline] unsafe partial def umap {α β : Type} (f : α → β) (as : Array α) : Array β :=
 unsafeCast (umapAux f 0 (unsafeCast as))
 
-@[implementedBy umap] def map {α β : Type} (f : α → β) (as : Array α) : Array β :=
+@[implemented_by umap] def map {α β : Type} (f : α → β) (as : Array α) : Array β :=
 as.foldl (fun bs a => bs.push (f a)) (Array.mkEmpty as.size)
 
 set_option compiler.extract_closed false

@@ -1,5 +1,5 @@
-1363.lean:4:2-4:13: error: invalid use of `[macro_inline]` attribute at `f`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
-1363.lean:9:2-9:13: error: invalid use of `[macro_inline]` attribute at `g`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
-1363.lean:15:2-15:13: error: invalid use of `[macro_inline]` attribute at `h._unary`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
-1363.lean:15:2-15:13: error: invalid use of `[macro_inline]` attribute at `h`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
-1363.lean:21:2-21:13: error: invalid use of `[macro_inline]` attribute at `skipMany`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
+1363.lean:4:2-4:14: error: invalid use of `[macro_inline]` attribute at `f`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
+1363.lean:9:2-9:14: error: invalid use of `[macro_inline]` attribute at `g`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
+1363.lean:15:2-15:14: error: invalid use of `[macro_inline]` attribute at `h._unary`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
+1363.lean:15:2-15:14: error: invalid use of `[macro_inline]` attribute at `h`, it is not supported in this kind of declaration, declaration must be a non-recursive definition
+1363.lean:21:2-21:14: error: invalid use of `[macro_inline]` attribute at `skipMany`, it is not supported in this kind of declaration, declaration must be a non-recursive definition

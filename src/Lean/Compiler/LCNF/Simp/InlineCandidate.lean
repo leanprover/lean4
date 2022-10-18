@@ -19,7 +19,7 @@ structure InlineCandidateInfo where
   value    : Code
   f        : Expr
   args     : Array Expr
-  /-- `ifReduce = true` if the declaration being inlined was tagged with `inlineIfReduce`. -/
+  /-- `ifReduce = true` if the declaration being inlined was tagged with `inline_if_reduce`. -/
   ifReduce : Bool
   /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
   recursive : Bool := false
@@ -47,7 +47,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
       /-
-      We don't inline instances tagged with `[inline]/[alwaysInline]/[inlineIfReduce]` at the base phase
+      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
       if (← inBasePhase <&&> Meta.isInstance decl.name) then

@@ -111,8 +111,8 @@ abbreviation trailingParser := Syntax → Parser
   | ⟨Result.ok _ it c s _, h⟩   := Result.ok a it c s true
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inlineIfReduce] def eagerOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[inlineIfReduce] def eagerAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[inline_if_reduce] def eagerOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[inline_if_reduce] def eagerAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 @[inline] def parserM.bind {α β : Type} (x : parserM α) (f : α → parserM β) : parserM β :=
 λ ps cfg r,

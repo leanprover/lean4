@@ -106,8 +106,8 @@ abbrev parserCore := parserCoreM Syntax
   | ⟨Result.ok _ it c s _, h⟩   := Result.ok a it c s tt
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inlineIfReduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[inlineIfReduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[inline_if_reduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[inline_if_reduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 @[inline] def parserCoreM.bind {α β : Type} (x : parserCoreM α) (f : α → parserCoreM β) : parserCoreM β :=
 λ r,

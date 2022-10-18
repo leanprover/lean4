@@ -45,7 +45,7 @@ In the case of `@[extern]` all *irrelevant* types are removed first; see next se
   * it has a single constructor with a single parameter of *relevant* type
 
   is represented by the representation of that parameter's type.
-  
+
   For example, `{ x : α // p }`, the `Subtype` structure of a value of type `α` and an irrelevant proof, is represented by the representation of `α`.
 * `Nat` is represented by `lean_object *`.
   Its runtime value is either a pointer to an opaque bignum object or, if the lowest bit of the "pointer" is 1 (`lean_is_scalar`), an encoded unboxed natural number (`lean_box`/`lean_unbox`).
@@ -70,13 +70,13 @@ When including Lean code as part of a larger program, modules must be *initializ
 Module initialization entails
 * initialization of all "constants" (nullary functions), including closed terms lifted out of other functions
 * execution of all `[init]` functions
-* execution of all `[builtinInit]` functions, if the `builtin` parameter of the module initializer has been set
+* execution of all `[builtin_init]` functions, if the `builtin` parameter of the module initializer has been set
 
 The module initializer is automatically run with the `builtin` flag for executables compiled from Lean code and for "plugins" loaded with `lean --plugin`.
 For all other modules imported by `lean`, the initializer is run without `builtin`.
-Thus `[init]` functions are run iff their module is imported, regardless of whether they have native code available or not, while `[builtinInit]` functions are only run for native executable or plugins, regardless of whether their module is imported or not.
+Thus `[init]` functions are run iff their module is imported, regardless of whether they have native code available or not, while `[builtin_init]` functions are only run for native executable or plugins, regardless of whether their module is imported or not.
 `lean` uses built-in initializers for e.g. registering basic parsers that should be available even without importing their module (which is necessary for bootstrapping).
-  
+
 The initializer for module `A.B` is called `initialize_A_B` and will automatically initialize any imported modules.
 Module initializers are idempotent (when run with the same `builtin` flag), but not thread-safe.
 Together with initialization of the Lean runtime, you should execute code like the following exactly once before accessing any Lean declarations:

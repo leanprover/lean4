@@ -2,8 +2,8 @@ import Lean
 
 def HList (αs : List (Type u)) : Type u := αs.foldr Prod.{u, u} PUnit
 
-@[matchPattern] def HList.nil : HList [] := ⟨⟩
-@[matchPattern] def HList.cons (a : α) (as : HList αs): HList (α :: αs) := (a, as)
+@[match_pattern] def HList.nil : HList [] := ⟨⟩
+@[match_pattern] def HList.cons (a : α) (as : HList αs): HList (α :: αs) := (a, as)
 
 def HList.set {αs : List (Type u)} (as : HList αs) (i : Fin αs.length) (v : αs.get i) : HList αs :=
   match αs, as, i, v with

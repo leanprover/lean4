@@ -369,7 +369,7 @@ def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with saveRecAppSyntax := false }) x
 
 unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute TermElab) :=
-  mkElabAttribute TermElab `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
+  mkElabAttribute TermElab `builtin_term_elab `term_elab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
 
 @[implementedBy mkTermElabAttributeUnsafe]
 opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)

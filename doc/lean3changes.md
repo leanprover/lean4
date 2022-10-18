@@ -287,11 +287,11 @@ Lean execution runtime. For example, we cannot prove in Lean that arrays have a 
 the runtime used to execute Lean programs guarantees that an array cannot have more than 2^64 (2^32) elements
 in a 64-bit (32-bit) machine. We can take advantage of this fact to provide a more efficient implementation for
 array functions. However, the efficient version would not be very useful if it can only be used in
-unsafe code. Thus, Lean 4 provides the attribute `@[implementedBy functionName]`. The idea is to provide
+unsafe code. Thus, Lean 4 provides the attribute `@[implemented_by functionName]`. The idea is to provide
 an unsafe (and potentially more efficient) version of a safe definition or constant. The function `f`
-at the attribute `@[implementedBy f]` is very similar to an extern/foreign function,
+at the attribute `@[implemented_by f]` is very similar to an extern/foreign function,
 the key difference is that it is implemented in Lean itself. Again, the logical soundness of the system
-cannot be compromised by using the attribute `implementedBy`, but if the implementation is incorrect your
+cannot be compromised by using the attribute `implemented_by`, but if the implementation is incorrect your
 program may crash at runtime. In the following example, we define `withPtrUnsafe a k h` which
 executes `k` using the memory address where `a` is stored in memory. The argument `h` is proof
 that `k` is a constant function. Then, we "seal" this unsafe implementation at `withPtr`. The proof `h`
@@ -302,7 +302,7 @@ unsafe
 def withPtrUnsafe {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
   k (ptrAddrUnsafe a)
 
-@[implementedBy withPtrUnsafe]
+@[implemented_by withPtrUnsafe]
 def withPtr {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
   k 0
 ```

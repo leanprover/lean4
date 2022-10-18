@@ -340,8 +340,7 @@ partial def f (x : Nat) : IO Unit := do
 
 These are changes to the library which may trip up Lean 3 users:
 
-- `Option` and `List` are no longer monads. Instead there is `OptionM`. This was done to avoid some performance traps. For example `o₁ <|> o₂` where `o₁ o₂ : Option α` will evaluate both `o₁` and `o₂` even if `o₁` evaluates to `some x`. This can be a problem if `o₂` requires a lot of compute to evaluate. A zulip discussion on this design choice is [here](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Option.20do.20notation.20regression.3F).
-
+- `List` is no longer a monad. 
 
 ## Style changes
 

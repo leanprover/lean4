@@ -348,6 +348,14 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
 def enableInfoTree [MonadInfoTree m] (flag := true) : m Unit :=
   modifyInfoState fun s => { s with enabled := flag }
 
+def withEnableInfoTree [Monad m] [MonadInfoTree m] [MonadFinally m] (flag : Bool) (x : m α) : m α := do
+  let saved := (← getInfoState).enabled
+  try
+    enableInfoTree flag
+    x
+  finally
+    enableInfoTree saved
+
 def getInfoTrees [MonadInfoTree m] [Monad m] : m (PersistentArray InfoTree) :=
   return (← getInfoState).trees
 

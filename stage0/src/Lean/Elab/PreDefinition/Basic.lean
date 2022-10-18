@@ -164,17 +164,18 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then
-    addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
-      { preDef with
-        declName  := Compiler.mkUnsafeRecName preDef.declName
-        value     := preDef.value.replace fun e => match e with
-          | Expr.const declName us =>
-            if preDefs.any fun preDef => preDef.declName == declName then
-              some <| mkConst (Compiler.mkUnsafeRecName declName) us
-            else
-              none
-          | _ => none
-        modifiers := {} }
+    withEnableInfoTree false do
+      addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
+        { preDef with
+          declName  := Compiler.mkUnsafeRecName preDef.declName
+          value     := preDef.value.replace fun e => match e with
+            | Expr.const declName us =>
+              if preDefs.any fun preDef => preDef.declName == declName then
+                some <| mkConst (Compiler.mkUnsafeRecName declName) us
+              else
+                none
+            | _ => none
+          modifiers := {} }
 
 private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
   (e.find? fun e => e.isConstOf recFnName).isSome

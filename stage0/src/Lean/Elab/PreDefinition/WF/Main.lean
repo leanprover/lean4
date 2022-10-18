@@ -16,15 +16,7 @@ namespace Lean.Elab
 open WF
 open Meta
 
-private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Bool := do
-  if preDefs.size == 1 then
-    lambdaTelescope preDefs[0]!.value fun xs _ => return xs.size == fixedPrefixSize + 1
-  else
-    return false
-
 private partial def addNonRecPreDefs (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition) (fixedPrefixSize : Nat) : TermElabM Unit := do
-  if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
-    return ()
   let us := preDefNonRec.levelParams.map mkLevelParam
   let all := preDefs.toList.map (·.declName)
   for fidx in [:preDefs.size] do
@@ -80,6 +72,12 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
           return true
     resultRef.get
 
+private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Bool := do
+  if preDefs.size == 1 then
+    lambdaTelescope preDefs[0]!.value fun xs _ => return xs.size == fixedPrefixSize + 1
+  else
+    return false
+
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
   let (unaryPreDef, fixedPrefixSize) ← withoutModifyingEnv do
     for preDef in preDefs do
@@ -103,8 +101,12 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
       return { unaryPreDef with value }
   trace[Elab.definition.wf] ">> {preDefNonRec.declName} :=\n{preDefNonRec.value}"
   let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
-  addNonRec preDefNonRec (applyAttrAfterCompilation := false)
-  addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
+  if (← isOnlyOneUnaryDef preDefs fixedPrefixSize) then
+    addNonRec preDefNonRec (applyAttrAfterCompilation := false)
+  else
+    withEnableInfoTree false do
+      addNonRec preDefNonRec (applyAttrAfterCompilation := false)
+    addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

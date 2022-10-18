@@ -166,10 +166,13 @@ where
     -- wrap lone string literals in `<|>` in dedicated node (#1275)
     let args' ← if aliasName == `orelse then  -- TODO: generalize if necessary
       args.zip args' |>.mapM fun (arg, arg') => do
-        if arg.getNumArgs == 1 && arg[0].isOfKind ``Lean.Parser.Syntax.atom then
-          if let some sym := arg[0][0].isStrLit? then
-            return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (`token ++ sym)) $(arg'.1)), 1)
-        return arg'
+        let mut #[arg] := arg.getArgs | return arg'
+        let sym ← match arg with
+          | `(stx| &$sym) => pure sym
+          | `(stx| $sym:str) => pure sym
+          | _ => return arg'
+        let sym := sym.getString
+        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (`token ++ sym)) $(arg'.1)), 1)
     else
       pure args'
     let (args', stackSz) := if let some stackSz := info.stackSz? then

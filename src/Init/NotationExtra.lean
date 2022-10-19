@@ -61,10 +61,10 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
   let combinator := mkIdentFrom (← getRef) combinatorDeclName
   expandBrackedBindersAux combinator #[bracketedExplicitBinders] body
 
-syntax unifConstraint := term (" =?= " <|> " ≟ ") term
+syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) ("|-" <|> "⊢ ") unifConstraint : command
+syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) patternIgnore("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
@@ -337,14 +337,15 @@ macro_rules
 
 section
 open Lean.Parser.Tactic
+syntax cdotTk := patternIgnore("·" <|> ".")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax ("·" <|> ".") ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
+syntax cdotTk ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
 macro_rules
-  | `(tactic| ·%$dot $[$tacs $[;%$sc]?]*) => do
+  | `(tactic| $cdot:cdotTk $[$tacs $[;%$sc]?]*) => do
     let tacs ← tacs.zip sc |>.mapM fun
       | (tac, none)    => pure tac
       | (tac, some sc) => `(tactic| ($tac; with_annotate_state $sc skip))
-    `(tactic| { with_annotate_state $dot skip; $[$tacs]* })
+    `(tactic| { with_annotate_state $cdot skip; $[$tacs]* })
 end
 
 /--

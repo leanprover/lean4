@@ -244,3 +244,7 @@ example : Nat → Nat
     --v textDocument/hover
   | .succ x => .succ x
                --^ textDocument/hover
+
+example : Inhabited Nat := ⟨Nat.zero⟩
+                         --^ textDocument/hover
+                          --^ textDocument/hover

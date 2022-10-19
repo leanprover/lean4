@@ -509,3 +509,21 @@ null
  {"value":
   "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 247, "character": 27}}
+{"range":
+ {"start": {"line": 247, "character": 27},
+  "end": {"line": 247, "character": 37}},
+ "contents":
+ {"value":
+  "```lean\nInhabited.mk.{1} : {α : Type} → α → Inhabited α\n```\n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 247, "character": 28}}
+{"range":
+ {"start": {"line": 247, "character": 28},
+  "end": {"line": 247, "character": 36}},
+ "contents":
+ {"value":
+  "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}

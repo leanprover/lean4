@@ -238,7 +238,7 @@ partial def check (code : Code) : CheckM Unit := do
     checkJpInScope fvarId
     let decl ← getFunDecl fvarId
     unless decl.getArity == args.size do
-      throwError "invalid LCNF `jmp`, join point has #{decl.getArity} parameters, but #{args.size} were provided"
+      throwError "invalid LCNF `goto`, join point {decl.binderName} has #{decl.getArity} parameters, but #{args.size} were provided"
     checkAppArgs (.fvar fvarId) args
   | .return fvarId => checkFVar fvarId
   | .unreach .. => pure ()

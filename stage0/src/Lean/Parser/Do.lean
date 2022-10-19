@@ -16,7 +16,7 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElem_parser `doElem
 
 namespace Term
 def leftArrow : Parser := unicodeSymbol "← " "<- "
-@[builtinTermParser] def liftMethod := leading_parser:minPrec leftArrow >> termParser
+@[builtin_term_parser] def liftMethod := leading_parser:minPrec leftArrow >> termParser
 
 def doSeqItem      := leading_parser ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := leading_parser many1Indent doSeqItem
@@ -24,7 +24,7 @@ def doSeqBracketed := leading_parser "{" >> withoutPosition (many1 doSeqItem) >>
 def doSeq          := withAntiquot (mkAntiquot "doSeq" `Lean.Parser.Term.doSeq (isPseudoKind := true)) <| doSeqBracketed <|> doSeqIndent
 def termBeforeDo := withForbidden "do" termParser
 
-attribute [runBuiltinParserAttributeHooks] doSeq termBeforeDo
+attribute [run_builtin_parser_attribute_hooks] doSeq termBeforeDo
 
 builtin_initialize
   register_parser_alias doSeq
@@ -35,21 +35,21 @@ def notFollowedByRedefinedTermToken :=
   -- "open" command following `do`-block. If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "let" <|> "have" <|> "do" <|> "dbg_trace" <|> "assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try") "token at 'do' element"
 
-@[builtinDoElemParser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
-@[builtinDoElemParser] def doLetElse  := leading_parser "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
+@[builtin_doElem_parser] def doLet      := leading_parser "let " >> optional "mut " >> letDecl
+@[builtin_doElem_parser] def doLetElse  := leading_parser "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
 
-@[builtinDoElemParser] def doLetRec   := leading_parser group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
+@[builtin_doElem_parser] def doLetRec   := leading_parser group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
 def doIdDecl   := leading_parser atomic (ident >> optType >> ppSpace >> leftArrow) >> doElemParser
 def doPatDecl  := leading_parser atomic (termParser >> ppSpace >> leftArrow) >> doElemParser >> optional (checkColGt >> " | " >> doElemParser)
-@[builtinDoElemParser] def doLetArrow      := leading_parser withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
+@[builtin_doElem_parser] def doLetArrow      := leading_parser withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 
 -- We use `letIdDeclNoBinders` to define `doReassign`.
 -- Motivation: we do not reassign functions, and avoid parser conflict
 def letIdDeclNoBinders := node `Lean.Parser.Term.letIdDecl $ atomic (ident >> pushNone >> optType >> " := ") >> termParser
 
-@[builtinDoElemParser] def doReassign      := leading_parser notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
-@[builtinDoElemParser] def doReassignArrow := leading_parser notFollowedByRedefinedTermToken >> withPosition (doIdDecl <|> doPatDecl)
-@[builtinDoElemParser] def doHave     := leading_parser "have " >> Term.haveDecl
+@[builtin_doElem_parser] def doReassign      := leading_parser notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
+@[builtin_doElem_parser] def doReassignArrow := leading_parser notFollowedByRedefinedTermToken >> withPosition (doIdDecl <|> doPatDecl)
+@[builtin_doElem_parser] def doHave     := leading_parser "have " >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`. Thus, we use indentation to prevent examples such as
 ```
@@ -86,11 +86,11 @@ def doIfLetBind := leading_parser " ← " >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false) "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false) optIdent >> termParser
 def doIfCond    := withAntiquot (mkAntiquot "doIfCond" `Lean.Parser.Term.doIfCond (anonymous := false) (isPseudoKind := true)) <| doIfLet <|> doIfProp
-@[builtinDoElemParser] def doIf := leading_parser withPositionAfterLinebreak $
+@[builtin_doElem_parser] def doIf := leading_parser withPositionAfterLinebreak $
   "if " >> doIfCond >> " then " >> doSeq
   >> many (checkColGe "'else if' in 'do' must be indented" >> group (elseIf >> doIfCond >> " then " >> doSeq))
   >> optional (checkColGe "'else' in 'do' must be indented" >> " else " >> doSeq)
-@[builtinDoElemParser] def doUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtin_doElem_parser] def doUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 def doForDecl := leading_parser optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
 /--
 `for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
@@ -98,20 +98,20 @@ def doForDecl := leading_parser optional (atomic (ident >> " : ")) >> termParser
 `for x in e, x2 in e2, ... do s` iterates of the given collections in parallel, until at least one of them is exhausted.
 The types of `e2` etc. must implement the `ToStream` typeclass.
 -/
-@[builtinDoElemParser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtin_doElem_parser] def doFor    := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
-@[builtinDoElemParser] def doMatch := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 matchDiscr ", " >> " with " >> doMatchAlts
+@[builtin_doElem_parser] def doMatch := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 matchDiscr ", " >> " with " >> doMatchAlts
 
 def doCatch      := leading_parser atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := leading_parser "catch " >> doMatchAlts
 def doFinally    := leading_parser "finally " >> doSeq
-@[builtinDoElemParser] def doTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+@[builtin_doElem_parser] def doTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
 /-- `break` exits the surrounding `for` loop. -/
-@[builtinDoElemParser] def doBreak     := leading_parser "break"
+@[builtin_doElem_parser] def doBreak     := leading_parser "break"
 /-- `continue` skips to the next iteration of the surrounding `for` loop. -/
-@[builtinDoElemParser] def doContinue  := leading_parser "continue"
+@[builtin_doElem_parser] def doContinue  := leading_parser "continue"
 /--
 `return e` inside of a `do` block makes the surrounding block evaluate to `pure e`, skipping any further statements.
 Note that uses of the `do` keyword in other syntax like in `for _ in _ do` do not constitute a surrounding block in this sense;
@@ -119,9 +119,9 @@ in supported editors, the corresponding `do` keyword of the surrounding block is
 
 `return` not followed by a term starting on the same line is equivalent to `return ()`.
 -/
-@[builtinDoElemParser] def doReturn    := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
-@[builtinDoElemParser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
-@[builtinDoElemParser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
+@[builtin_doElem_parser] def doReturn    := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
+@[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
+@[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec "assert! " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.
@@ -135,21 +135,21 @@ Consider the `doElem` `x := (a, b⟩` it contains an error since we are using `�
 However, `doExpr` would succeed consuming just `x`, and cryptic error message is generated after that.
 The second `notFollowedBy` prevents this problem.
 -/
-@[builtinDoElemParser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser >> notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-") "unexpected token after 'expr' in 'do' block"
-@[builtinDoElemParser] def doNested := leading_parser "do " >> doSeq
+@[builtin_doElem_parser] def doExpr   := leading_parser notFollowedByRedefinedTermToken >> termParser >> notFollowedBy (symbol ":=" <|> symbol "←" <|> symbol "<-") "unexpected token after 'expr' in 'do' block"
+@[builtin_doElem_parser] def doNested := leading_parser "do " >> doSeq
 
-@[builtinTermParser] def «do»  := leading_parser:argPrec ppAllowUngrouped >> "do " >> doSeq
+@[builtin_term_parser] def «do»  := leading_parser:argPrec ppAllowUngrouped >> "do " >> doSeq
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/
-@[builtinTermParser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
-@[builtinTermParser] def termFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
-@[builtinTermParser] def termTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
+@[builtin_term_parser] def termUnless := leading_parser "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+@[builtin_term_parser] def termFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+@[builtin_term_parser] def termTry    := leading_parser "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--
 `return` used outside of `do` blocks creates an implicit block around it and thus is equivalent to `pure e`, but helps with
 avoiding parentheses.
 -/
-@[builtinTermParser] def termReturn := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
+@[builtin_term_parser] def termReturn := leading_parser:leadPrec withPosition ("return " >> optional (checkLineEq >> termParser))
 
 end Term
 end Parser

@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Conv.Simp
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.Conv.unfold] def evalUnfold : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.Conv.unfold] def evalUnfold : Tactic := fun stx => withMainContext do
   for declNameId in stx[1].getArgs do
     let declName ← resolveGlobalConstNoOverloadWithInfo declNameId
     applySimpResult (← unfold (← getLhs) declName)

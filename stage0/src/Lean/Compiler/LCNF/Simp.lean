@@ -49,7 +49,7 @@ partial def Decl.simp (decl : Decl) (config : Config) : CompilerM Decl := do
 
     There is an exception: inlineable instances. This is important for auxiliary instances such as
     ```
-    @[alwaysInline]
+    @[always_inline]
     instance : Monad TermElabM := let i := inferInstanceAs (Monad TermElabM); { pure := i.pure, bind := i.bind }
     ```
     by keeping `inlineDefs := true`, we can pre-compute the `pure` and `bind` methods for `TermElabM`.

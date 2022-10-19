@@ -330,7 +330,7 @@ class MonadMCtx (m : Type → Type) where
 
 export MonadMCtx (getMCtx modifyMCtx)
 
-@[alwaysInline]
+@[always_inline]
 instance (m n) [MonadLift m n] [MonadMCtx m] : MonadMCtx n where
   getMCtx    := liftM (getMCtx : m _)
   modifyMCtx := fun f => liftM (modifyMCtx f : m _)

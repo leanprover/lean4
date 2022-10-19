@@ -2048,7 +2048,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = lean_unsigned_to_nat(21u);
+x_2 = lean_unsigned_to_nat(23u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2060,7 +2060,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = lean_unsigned_to_nat(63u);
+x_2 = lean_unsigned_to_nat(65u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2072,9 +2072,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_numPrec_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(21u);
+x_2 = lean_unsigned_to_nat(23u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_numPrec_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(63u);
+x_4 = lean_unsigned_to_nat(65u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2088,7 +2088,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = lean_unsigned_to_nat(25u);
+x_2 = lean_unsigned_to_nat(27u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2100,7 +2100,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(29u);
-x_2 = lean_unsigned_to_nat(32u);
+x_2 = lean_unsigned_to_nat(34u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2112,9 +2112,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_numPrec_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(25u);
+x_2 = lean_unsigned_to_nat(27u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_numPrec_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(32u);
+x_4 = lean_unsigned_to_nat(34u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2351,7 +2351,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(31u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2363,7 +2363,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(31u);
-x_2 = lean_unsigned_to_nat(93u);
+x_2 = lean_unsigned_to_nat(95u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2375,9 +2375,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_paren_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_paren_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(93u);
+x_4 = lean_unsigned_to_nat(95u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2391,7 +2391,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(31u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2403,7 +2403,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(31u);
-x_2 = lean_unsigned_to_nat(32u);
+x_2 = lean_unsigned_to_nat(34u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2415,9 +2415,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_paren_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_paren_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(32u);
+x_4 = lean_unsigned_to_nat(34u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2880,7 +2880,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2892,7 +2892,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_unsigned_to_nat(83u);
+x_2 = lean_unsigned_to_nat(85u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2904,9 +2904,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(83u);
+x_4 = lean_unsigned_to_nat(85u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2920,7 +2920,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -2930,13 +2930,12 @@ return x_3;
 static lean_object* _init_l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+lean_object* x_1; lean_object* x_2; 
 x_1 = lean_unsigned_to_nat(32u);
-x_2 = lean_unsigned_to_nat(30u);
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+x_2 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__6() {
@@ -2944,9 +2943,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_cat_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(30u);
+x_4 = lean_unsigned_to_nat(32u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -3582,7 +3581,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(33u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -3594,7 +3593,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(33u);
-x_2 = lean_unsigned_to_nat(121u);
+x_2 = lean_unsigned_to_nat(123u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -3606,9 +3605,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_unary_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_unary_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(121u);
+x_4 = lean_unsigned_to_nat(123u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -3622,7 +3621,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(33u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -3634,7 +3633,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(33u);
-x_2 = lean_unsigned_to_nat(32u);
+x_2 = lean_unsigned_to_nat(34u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -3646,9 +3645,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_unary_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_unary_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(32u);
+x_4 = lean_unsigned_to_nat(34u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -4039,7 +4038,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(34u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4051,7 +4050,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(34u);
-x_2 = lean_unsigned_to_nat(151u);
+x_2 = lean_unsigned_to_nat(153u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4063,9 +4062,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_binary_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_binary_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(151u);
+x_4 = lean_unsigned_to_nat(153u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -4079,7 +4078,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(34u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4091,7 +4090,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(34u);
-x_2 = lean_unsigned_to_nat(33u);
+x_2 = lean_unsigned_to_nat(35u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4103,9 +4102,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_binary_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_binary_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(33u);
+x_4 = lean_unsigned_to_nat(35u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -4638,7 +4637,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(35u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4650,7 +4649,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(35u);
-x_2 = lean_unsigned_to_nat(216u);
+x_2 = lean_unsigned_to_nat(218u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4662,9 +4661,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_sepBy_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_sepBy_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(216u);
+x_4 = lean_unsigned_to_nat(218u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -4678,7 +4677,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(35u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4690,7 +4689,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(35u);
-x_2 = lean_unsigned_to_nat(32u);
+x_2 = lean_unsigned_to_nat(34u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -4702,9 +4701,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_sepBy_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_sepBy_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(32u);
+x_4 = lean_unsigned_to_nat(34u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5285,7 +5284,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(36u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5297,7 +5296,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(36u);
-x_2 = lean_unsigned_to_nat(217u);
+x_2 = lean_unsigned_to_nat(219u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5309,9 +5308,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_sepBy1_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_sepBy1_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(217u);
+x_4 = lean_unsigned_to_nat(219u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5325,7 +5324,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(36u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5337,7 +5336,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(36u);
-x_2 = lean_unsigned_to_nat(33u);
+x_2 = lean_unsigned_to_nat(35u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5349,9 +5348,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_sepBy1_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_sepBy1_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(33u);
+x_4 = lean_unsigned_to_nat(35u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5655,7 +5654,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(37u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5667,7 +5666,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(37u);
-x_2 = lean_unsigned_to_nat(67u);
+x_2 = lean_unsigned_to_nat(69u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5679,9 +5678,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_atom_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_atom_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(67u);
+x_4 = lean_unsigned_to_nat(69u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -5695,7 +5694,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(37u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5707,7 +5706,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(37u);
-x_2 = lean_unsigned_to_nat(31u);
+x_2 = lean_unsigned_to_nat(33u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5719,9 +5718,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_atom_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_atom_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(31u);
+x_4 = lean_unsigned_to_nat(33u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -6008,7 +6007,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(38u);
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -6020,7 +6019,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(38u);
-x_2 = lean_unsigned_to_nat(74u);
+x_2 = lean_unsigned_to_nat(76u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -6032,9 +6031,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(23u);
+x_2 = lean_unsigned_to_nat(25u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(74u);
+x_4 = lean_unsigned_to_nat(76u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -6048,7 +6047,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(38u);
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -6058,12 +6057,13 @@ return x_3;
 static lean_object* _init_l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(38u);
-x_2 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_2, 0, x_1);
-lean_ctor_set(x_2, 1, x_1);
-return x_2;
+x_2 = lean_unsigned_to_nat(40u);
+x_3 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__6() {
@@ -6071,9 +6071,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(27u);
+x_2 = lean_unsigned_to_nat(29u);
 x_3 = l___regBuiltin_Lean_Parser_Syntax_nonReserved_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(38u);
+x_4 = lean_unsigned_to_nat(40u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -7090,7 +7090,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(53u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7102,7 +7102,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(53u);
-x_2 = lean_unsigned_to_nat(228u);
+x_2 = lean_unsigned_to_nat(230u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7114,9 +7114,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_mixfix_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_mixfix_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(228u);
+x_4 = lean_unsigned_to_nat(230u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -7130,7 +7130,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(53u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7142,7 +7142,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(53u);
-x_2 = lean_unsigned_to_nat(36u);
+x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -7154,9 +7154,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_mixfix_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_mixfix_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(36u);
+x_4 = lean_unsigned_to_nat(38u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -9425,7 +9425,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(61u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -9437,7 +9437,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(61u);
-x_2 = lean_unsigned_to_nat(234u);
+x_2 = lean_unsigned_to_nat(236u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -9449,9 +9449,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_notation_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_notation_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(234u);
+x_4 = lean_unsigned_to_nat(236u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -9465,7 +9465,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(61u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -9477,7 +9477,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(61u);
-x_2 = lean_unsigned_to_nat(38u);
+x_2 = lean_unsigned_to_nat(40u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -9489,9 +9489,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_notation_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_notation_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(38u);
+x_4 = lean_unsigned_to_nat(40u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -10330,7 +10330,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(62u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -10342,7 +10342,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(62u);
-x_2 = lean_unsigned_to_nat(194u);
+x_2 = lean_unsigned_to_nat(196u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -10354,9 +10354,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_macro__rules_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_macro__rules_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(194u);
+x_4 = lean_unsigned_to_nat(196u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -10370,7 +10370,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(62u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -10382,7 +10382,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(62u);
-x_2 = lean_unsigned_to_nat(41u);
+x_2 = lean_unsigned_to_nat(43u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -10394,9 +10394,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_macro__rules_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_macro__rules_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(41u);
+x_4 = lean_unsigned_to_nat(43u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -11045,7 +11045,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(63u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11057,7 +11057,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(63u);
-x_2 = lean_unsigned_to_nat(238u);
+x_2 = lean_unsigned_to_nat(240u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11069,9 +11069,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntax_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntax_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(238u);
+x_4 = lean_unsigned_to_nat(240u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -11085,7 +11085,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(63u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11097,7 +11097,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(63u);
-x_2 = lean_unsigned_to_nat(36u);
+x_2 = lean_unsigned_to_nat(38u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11109,9 +11109,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntax_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntax_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(36u);
+x_4 = lean_unsigned_to_nat(38u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -11687,7 +11687,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(64u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11699,7 +11699,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(64u);
-x_2 = lean_unsigned_to_nat(133u);
+x_2 = lean_unsigned_to_nat(135u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11711,9 +11711,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntaxAbbrev_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntaxAbbrev_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(133u);
+x_4 = lean_unsigned_to_nat(135u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -11727,7 +11727,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(64u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11739,7 +11739,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(64u);
-x_2 = lean_unsigned_to_nat(40u);
+x_2 = lean_unsigned_to_nat(42u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -11751,9 +11751,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntaxAbbrev_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntaxAbbrev_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(40u);
+x_4 = lean_unsigned_to_nat(42u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -12399,7 +12399,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(68u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -12411,7 +12411,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(68u);
-x_2 = lean_unsigned_to_nat(124u);
+x_2 = lean_unsigned_to_nat(126u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -12423,9 +12423,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntaxCat_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntaxCat_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(124u);
+x_4 = lean_unsigned_to_nat(126u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -12439,7 +12439,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(68u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -12451,7 +12451,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(68u);
-x_2 = lean_unsigned_to_nat(37u);
+x_2 = lean_unsigned_to_nat(39u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -12463,9 +12463,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_syntaxCat_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_syntaxCat_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(37u);
+x_4 = lean_unsigned_to_nat(39u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -13750,7 +13750,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(72u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -13762,7 +13762,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(72u);
-x_2 = lean_unsigned_to_nat(239u);
+x_2 = lean_unsigned_to_nat(241u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -13774,9 +13774,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_macro_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_macro_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(239u);
+x_4 = lean_unsigned_to_nat(241u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -13790,7 +13790,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(72u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -13802,7 +13802,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(72u);
-x_2 = lean_unsigned_to_nat(35u);
+x_2 = lean_unsigned_to_nat(37u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -13814,9 +13814,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_macro_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_macro_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(35u);
+x_4 = lean_unsigned_to_nat(37u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -15111,7 +15111,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(74u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15123,7 +15123,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(74u);
-x_2 = lean_unsigned_to_nat(251u);
+x_2 = lean_unsigned_to_nat(253u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15135,9 +15135,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_elab__rules_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_elab__rules_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(251u);
+x_4 = lean_unsigned_to_nat(253u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -15151,7 +15151,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(74u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15163,7 +15163,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(74u);
-x_2 = lean_unsigned_to_nat(40u);
+x_2 = lean_unsigned_to_nat(42u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15175,9 +15175,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_elab__rules_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_elab__rules_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(40u);
+x_4 = lean_unsigned_to_nat(42u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -15962,7 +15962,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(77u);
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15974,7 +15974,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(77u);
-x_2 = lean_unsigned_to_nat(235u);
+x_2 = lean_unsigned_to_nat(237u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -15986,9 +15986,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_elab_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(24u);
+x_2 = lean_unsigned_to_nat(26u);
 x_3 = l___regBuiltin_Lean_Parser_Command_elab_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(235u);
+x_4 = lean_unsigned_to_nat(237u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -16002,7 +16002,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(77u);
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -16014,7 +16014,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(77u);
-x_2 = lean_unsigned_to_nat(34u);
+x_2 = lean_unsigned_to_nat(36u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -16026,9 +16026,9 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Parser_Command_elab_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(28u);
+x_2 = lean_unsigned_to_nat(30u);
 x_3 = l___regBuiltin_Lean_Parser_Command_elab_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(34u);
+x_4 = lean_unsigned_to_nat(36u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

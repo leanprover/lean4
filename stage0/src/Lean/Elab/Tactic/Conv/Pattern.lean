@@ -101,7 +101,7 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
   else
     return Simp.Step.visit { expr := e }
 
-@[builtinTactic Lean.Parser.Tactic.Conv.pattern] def evalPattern : Tactic := fun stx => withMainContext do
+@[builtin_tactic Lean.Parser.Tactic.Conv.pattern] def evalPattern : Tactic := fun stx => withMainContext do
   match stx with
   | `(conv| pattern $[(occs := $occs)]? $p) =>
     let patternA ←

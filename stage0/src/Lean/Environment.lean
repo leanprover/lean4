@@ -328,7 +328,7 @@ unsafe def imp : EnvExtensionInterface := {
 
 end EnvExtensionInterfaceUnsafe
 
-@[implementedBy EnvExtensionInterfaceUnsafe.imp]
+@[implemented_by EnvExtensionInterfaceUnsafe.imp]
 opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
@@ -468,7 +468,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   persistentEnvExtensionsRef.modify fun pExts => pExts.push (unsafeCast pExt)
   return pExt
 
-@[implementedBy registerPersistentEnvExtensionUnsafe]
+@[implemented_by registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
@@ -869,7 +869,7 @@ class MonadEnv (m : Type → Type) where
 
 export MonadEnv (getEnv modifyEnv)
 
-@[alwaysInline]
+@[always_inline]
 instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)

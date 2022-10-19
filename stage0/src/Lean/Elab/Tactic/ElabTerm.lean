@@ -58,7 +58,7 @@ def filterOldMVars (mvarIds : Array MVarId) (mvarCounterSaved : Nat) : MetaM (Ar
   let mctx ← getMCtx
   return mvarIds.filter fun mvarId => (mctx.getDecl mvarId |>.index) >= mvarCounterSaved
 
-@[builtinTactic «exact»] def evalExact : Tactic := fun stx =>
+@[builtin_tactic «exact»] def evalExact : Tactic := fun stx =>
   match stx with
   | `(tactic| exact $e) => closeMainGoalUsing (checkUnassigned := false) fun type => do
     let mvarCounterSaved := (← getMCtx).mvarCounter
@@ -154,17 +154,17 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
       mvarId.assign val
     replaceMainGoal mvarIds'
 
-@[builtinTactic «refine»] def evalRefine : Tactic := fun stx =>
+@[builtin_tactic «refine»] def evalRefine : Tactic := fun stx =>
   match stx with
   | `(tactic| refine $e) => refineCore e `refine (allowNaturalHoles := false)
   | _                    => throwUnsupportedSyntax
 
-@[builtinTactic «refine'»] def evalRefine' : Tactic := fun stx =>
+@[builtin_tactic «refine'»] def evalRefine' : Tactic := fun stx =>
   match stx with
   | `(tactic| refine' $e) => refineCore e `refine' (allowNaturalHoles := true)
   | _                     => throwUnsupportedSyntax
 
-@[builtinTactic «specialize»] def evalSpecialize : Tactic := fun stx => withMainContext do
+@[builtin_tactic «specialize»] def evalSpecialize : Tactic := fun stx => withMainContext do
   match stx with
   | `(tactic| specialize $e:term) =>
     let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
@@ -255,24 +255,24 @@ def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
 
-@[builtinTactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with
   | `(tactic| apply $e) => evalApplyLikeTactic (·.apply) e
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.constructor] def evalConstructor : Tactic := fun _ =>
   withMainContext do
     let mvarIds' ← (← getMainGoal).constructor
     Term.synthesizeSyntheticMVarsNoPostponing
     replaceMainGoal mvarIds'
 
-@[builtinTactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.withReducible] def evalWithReducible : Tactic := fun stx =>
   withReducible <| evalTactic stx[1]
 
-@[builtinTactic Lean.Parser.Tactic.withReducibleAndInstances] def evalWithReducibleAndInstances : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.withReducibleAndInstances] def evalWithReducibleAndInstances : Tactic := fun stx =>
   withReducibleAndInstances <| evalTactic stx[1]
 
-@[builtinTactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.withUnfoldingAll] def evalWithUnfoldingAll : Tactic := fun stx =>
   withTransparency TransparencyMode.all <| evalTactic stx[1]
 
 /--
@@ -296,7 +296,7 @@ def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId
       | none          => intro `h false
       | some userName => intro userName true
 
-@[builtinTactic Lean.Parser.Tactic.rename] def evalRename : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.rename] def evalRename : Tactic := fun stx =>
   match stx with
   | `(tactic| rename $typeStx:term => $h:ident) => do
     withMainContext do
@@ -325,7 +325,7 @@ private def preprocessPropToDecide (expectedType : Expr) : TermElabM Expr := do
     throwError "expected type must not contain free or meta variables{indentExpr expectedType}"
   return expectedType
 
-@[builtinTactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.decide] def evalDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType
@@ -348,7 +348,7 @@ private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Na
   compileDecl decl
   pure auxName
 
-@[builtinTactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.nativeDecide] def evalNativeDecide : Tactic := fun _ =>
   closeMainGoalUsing fun expectedType => do
     let expectedType ← preprocessPropToDecide expectedType
     let d ← mkDecide expectedType

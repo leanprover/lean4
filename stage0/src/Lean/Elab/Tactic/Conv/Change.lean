@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Conv.Basic
 namespace Lean.Elab.Tactic.Conv
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.Conv.change] def evalChange : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.change] def evalChange : Tactic := fun stx => do
   match stx with
   | `(conv| change $e) => withMainContext do
     let lhs ← getLhs

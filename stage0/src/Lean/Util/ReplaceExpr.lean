@@ -53,7 +53,7 @@ end ReplaceImpl
 /- TODO: use withPtrAddr, withPtrEq to avoid unsafe tricks above.
    We also need an invariant at `State` and proofs for the `uget` operations. -/
 
-@[implementedBy ReplaceImpl.replaceUnsafe]
+@[implemented_by ReplaceImpl.replaceUnsafe]
 partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
   /- This is a reference implementation for the unsafe one above -/
   match f? e with

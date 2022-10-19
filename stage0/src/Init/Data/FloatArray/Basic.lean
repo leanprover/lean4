@@ -102,7 +102,7 @@ partial def toList (ds : FloatArray) : List Float :=
   loop 0 b
 
 /-- Reference implementation for `forIn` -/
-@[implementedBy FloatArray.forInUnsafe]
+@[implemented_by FloatArray.forInUnsafe]
 protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : FloatArray) (b : β) (f : Float → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
@@ -137,7 +137,7 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
     pure init
 
 /-- Reference implementation for `foldlM` -/
-@[implementedBy foldlMUnsafe]
+@[implemented_by foldlMUnsafe]
 def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → Float → m β) (init : β) (as : FloatArray) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (i : Nat) (j : Nat) (b : β) : m β := do

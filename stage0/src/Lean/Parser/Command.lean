@@ -10,8 +10,8 @@ namespace Lean
 namespace Parser
 
 /-- Syntax quotation for terms. -/
-@[builtinTermParser] def Term.quot := leading_parser "`(" >> incQuotDepth termParser >> ")"
-@[builtinTermParser] def Term.precheckedQuot := leading_parser "`" >> Term.quot
+@[builtin_term_parser] def Term.quot := leading_parser "`(" >> incQuotDepth termParser >> ")"
+@[builtin_term_parser] def Term.precheckedQuot := leading_parser "`" >> Term.quot
 
 namespace Command
 
@@ -20,7 +20,7 @@ namespace Command
   `` `($x $y) `` will be parsed as an application, not two commands. Use `` `($x:command $y:command) `` instead.
   Multiple commands will be put in a `` `null `` node, but a single command will not (so that you can directly
   match against a quotation in a command kind's elaborator). -/
-@[builtinTermParser low] def quot := leading_parser "`(" >> incQuotDepth (many1Unbox commandParser) >> ")"
+@[builtin_term_parser low] def quot := leading_parser "`(" >> incQuotDepth (many1Unbox commandParser) >> ")"
 
 /-
   A mutual block may be broken in different cliques, we identify them using an `ident` (an element of the clique)
@@ -40,7 +40,7 @@ def terminationBy          := leading_parser ppLine >> "termination_by " >> many
 
 def terminationSuffix := optional (terminationBy <|> terminationByCore) >> optional decreasingBy
 
-@[builtinCommandParser]
+@[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent $ "/-!" >> commentBody >> ppLine
 
 def namedPrio := leading_parser (atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")")
@@ -113,30 +113,30 @@ def «structure»          := leading_parser
     (structureTk <|> classTk) >> declId >> many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType
     >> optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields)
     >> optDeriving
-@[builtinCommandParser] def declaration := leading_parser
+@[builtin_command_parser] def declaration := leading_parser
 declModifiers false >> («abbrev» <|> «def» <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|> «inductive» <|> classInductive <|> «structure»)
-@[builtinCommandParser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
-@[builtinCommandParser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
-@[builtinCommandParser] def «section»      := leading_parser "section " >> optional ident
-@[builtinCommandParser] def «namespace»    := leading_parser "namespace " >> ident
-@[builtinCommandParser] def «end»          := leading_parser "end " >> optional ident
-@[builtinCommandParser] def «variable»     := leading_parser "variable" >> many1 (ppSpace >> Term.bracketedBinder)
-@[builtinCommandParser] def «universe»     := leading_parser "universe " >> many1 ident
-@[builtinCommandParser] def check          := leading_parser "#check " >> termParser
-@[builtinCommandParser] def check_failure  := leading_parser "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
-@[builtinCommandParser] def reduce         := leading_parser "#reduce " >> termParser
-@[builtinCommandParser] def eval           := leading_parser "#eval " >> termParser
-@[builtinCommandParser] def synth          := leading_parser "#synth " >> termParser
-@[builtinCommandParser] def exit           := leading_parser "#exit"
-@[builtinCommandParser] def print          := leading_parser "#print " >> (ident <|> strLit)
-@[builtinCommandParser] def printAxioms    := leading_parser "#print " >> nonReservedSymbol "axioms " >> ident
-@[builtinCommandParser] def «init_quot»    := leading_parser "init_quot"
+@[builtin_command_parser] def «deriving»     := leading_parser "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
+@[builtin_command_parser] def noncomputableSection := leading_parser "noncomputable " >> "section " >> optional ident
+@[builtin_command_parser] def «section»      := leading_parser "section " >> optional ident
+@[builtin_command_parser] def «namespace»    := leading_parser "namespace " >> ident
+@[builtin_command_parser] def «end»          := leading_parser "end " >> optional ident
+@[builtin_command_parser] def «variable»     := leading_parser "variable" >> many1 (ppSpace >> Term.bracketedBinder)
+@[builtin_command_parser] def «universe»     := leading_parser "universe " >> many1 ident
+@[builtin_command_parser] def check          := leading_parser "#check " >> termParser
+@[builtin_command_parser] def check_failure  := leading_parser "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
+@[builtin_command_parser] def reduce         := leading_parser "#reduce " >> termParser
+@[builtin_command_parser] def eval           := leading_parser "#eval " >> termParser
+@[builtin_command_parser] def synth          := leading_parser "#synth " >> termParser
+@[builtin_command_parser] def exit           := leading_parser "#exit"
+@[builtin_command_parser] def print          := leading_parser "#print " >> (ident <|> strLit)
+@[builtin_command_parser] def printAxioms    := leading_parser "#print " >> nonReservedSymbol "axioms " >> ident
+@[builtin_command_parser] def «init_quot»    := leading_parser "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
-@[builtinCommandParser] def «set_option»   := leading_parser "set_option " >> ident >> ppSpace >> optionValue
+@[builtin_command_parser] def «set_option»   := leading_parser "set_option " >> ident >> ppSpace >> optionValue
 def eraseAttr := leading_parser "-" >> rawIdent
-@[builtinCommandParser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
-@[builtinCommandParser] def «export»       := leading_parser "export " >> ident >> " (" >> many1 ident >> ")"
-@[builtinCommandParser] def «import»       := leading_parser "import" -- not a real command, only for error messages
+@[builtin_command_parser] def «attribute»    := leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "] " >> many1 ident
+@[builtin_command_parser] def «export»       := leading_parser "export " >> ident >> " (" >> many1 ident >> ")"
+@[builtin_command_parser] def «import»       := leading_parser "import" -- not a real command, only for error messages
 def openHiding       := leading_parser atomic (ident >> "hiding") >> many1 (checkColGt >> ident)
 def openRenamingItem := leading_parser ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
 def openRenaming     := leading_parser atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
@@ -145,23 +145,23 @@ def openSimple       := leading_parser many1 (checkColGt >> ident)
 def openScoped       := leading_parser "scoped " >> many1 (checkColGt >> ident)
 def openDecl         := withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
   openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
-@[builtinCommandParser] def «open»    := leading_parser withPosition ("open " >> openDecl)
+@[builtin_command_parser] def «open»    := leading_parser withPosition ("open " >> openDecl)
 
-@[builtinCommandParser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix
+@[builtin_command_parser] def «mutual» := leading_parser "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >> ppDedent (ppLine >> "end") >> terminationSuffix
 def initializeKeyword := leading_parser "initialize " <|> "builtin_initialize "
-@[builtinCommandParser] def «initialize» := leading_parser declModifiers false >> initializeKeyword >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+@[builtin_command_parser] def «initialize» := leading_parser declModifiers false >> initializeKeyword >> optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
-@[builtinCommandParser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
+@[builtin_command_parser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
 
-@[builtinCommandParser] def addDocString := leading_parser docComment >> "add_decl_doc" >> ident
+@[builtin_command_parser] def addDocString := leading_parser docComment >> "add_decl_doc" >> ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for inductive types defined at `Prelude.lean`.
   It is meant for bootstrapping purposes only. -/
-@[builtinCommandParser] def genInjectiveTheorems := leading_parser "gen_injective_theorems% " >> ident
+@[builtin_command_parser] def genInjectiveTheorems := leading_parser "gen_injective_theorems% " >> ident
 
-@[runBuiltinParserAttributeHooks] abbrev declModifiersF := declModifiers false
-@[runBuiltinParserAttributeHooks] abbrev declModifiersT := declModifiers true
+@[run_builtin_parser_attribute_hooks] abbrev declModifiersF := declModifiers false
+@[run_builtin_parser_attribute_hooks] abbrev declModifiersT := declModifiers true
 
 builtin_initialize
   register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF
@@ -180,26 +180,26 @@ namespace Term
 `open Foo in e` is like `open Foo` but scoped to a single term.
 It makes the given namespaces available in the term `e`.
 -/
-@[builtinTermParser] def «open» := leading_parser:leadPrec
+@[builtin_term_parser] def «open» := leading_parser:leadPrec
   "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
 
 /--
 `set_option opt val in e` is like `set_option opt val` but scoped to a single term.
 It sets the option `opt` to the value `val` in the term `e`.
 -/
-@[builtinTermParser] def «set_option» := leading_parser:leadPrec
+@[builtin_term_parser] def «set_option» := leading_parser:leadPrec
   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> termParser
 end Term
 
 namespace Tactic
 /-- `open Foo in tacs` (the tactic) acts like `open Foo` at command level,
 but it opens a namespace only within the tactics `tacs`. -/
-@[builtinTacticParser] def «open» := leading_parser:leadPrec
+@[builtin_tactic_parser] def «open» := leading_parser:leadPrec
   "open " >> Command.openDecl >> withOpenDecl (" in " >> tacticSeq)
 
 /-- `set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,
 but it sets the option only within the tactics `tacs`. -/
-@[builtinTacticParser] def «set_option» := leading_parser:leadPrec
+@[builtin_tactic_parser] def «set_option» := leading_parser:leadPrec
   "set_option " >> ident >> ppSpace >> Command.optionValue >> " in " >> tacticSeq
 end Tactic
 

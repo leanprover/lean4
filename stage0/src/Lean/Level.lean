@@ -94,7 +94,7 @@ inductive Level where
   | param  : Name → Level
   | mvar   : LMVarId → Level
 with
-  @[computedField] data : Level → Data
+  @[computed_field] data : Level → Data
     | .zero => mkData 2221 0 false false
     | .mvar mvarId => mkData (mixHash 2237 <| hash mvarId) 0 true false
     | .param name => mkData (mixHash 2239 <| hash name) 0 false true
@@ -533,7 +533,7 @@ the compiler will eliminate the double-match.
   | succ l => if ptrEq l newLvl then lvl else mkLevelSucc newLvl
   | _      => panic! "succ level expected"
 
-@[implementedBy updateSucc!Impl]
+@[implemented_by updateSucc!Impl]
 def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
   match lvl with
   | succ _ => mkLevelSucc newLvl
@@ -544,7 +544,7 @@ def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
   | max lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelMax' newLhs newRhs lvl else mkLevelMax' newLhs newRhs
   | _           => panic! "max level expected"
 
-@[implementedBy updateMax!Impl]
+@[implemented_by updateMax!Impl]
 def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
   | max _ _ => mkLevelMax' newLhs newRhs
@@ -555,7 +555,7 @@ def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   | imax lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelIMax' newLhs newRhs lvl else mkLevelIMax' newLhs newRhs
   | _            => panic! "imax level expected"
 
-@[implementedBy updateIMax!Impl]
+@[implemented_by updateIMax!Impl]
 def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
   | imax _ _ => mkLevelIMax' newLhs newRhs

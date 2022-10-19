@@ -7,7 +7,7 @@ import Lean.Elab.Attributes
 
 namespace Lean.Elab.Command
 
-@[builtinMacro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
+@[builtin_macro Lean.Parser.Command.mixfix] def expandMixfix : Macro := fun stx =>
   withAttrKindGlobal stx fun stx => do
     match stx with
     | `($[$doc?:docComment]? $[@[$attrs?,*]]? infixl:$prec $[(name := $name)]? $[(priority := $prio)]? $op => $f) =>

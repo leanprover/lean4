@@ -14,7 +14,7 @@ def Id (type : Type u) : Type u := type
 
 namespace Id
 
-@[alwaysInline]
+@[always_inline]
 instance : Monad Id where
   pure x := x
   bind x f := f x
@@ -23,7 +23,7 @@ instance : Monad Id where
 def hasBind : Bind Id :=
   inferInstance
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=

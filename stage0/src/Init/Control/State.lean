@@ -14,11 +14,11 @@ universe u v w
 def StateT (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   σ → m (α × σ)
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def StateT.run {σ : Type u} {m : Type u → Type v} {α : Type u} (x : StateT σ m α) (s : σ) : m (α × σ) :=
   x s
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def StateT.run' {σ : Type u} {m : Type u → Type v} [Functor m] {α : Type u} (x : StateT σ m α) (s : σ) : m α :=
   (·.1) <$> x s
 
@@ -38,29 +38,29 @@ section
 variable {σ : Type u} {m : Type u → Type v}
 variable [Monad m] {α β : Type u}
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def pure (a : α) : StateT σ m α :=
   fun s => pure (a, s)
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
   fun s => do let (a, s) ← x s; f a s
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
   fun s => do let (a, s) ← x s; pure (f a, s)
 
-@[alwaysInline]
+@[always_inline]
 instance : Monad (StateT σ m) where
   pure := StateT.pure
   bind := StateT.bind
   map  := StateT.map
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def orElse [Alternative m] {α : Type u} (x₁ : StateT σ m α) (x₂ : Unit → StateT σ m α) : StateT σ m α :=
   fun s => x₁ s <|> x₂ () s
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def failure [Alternative m] {α : Type u} : StateT σ m α :=
   fun _ => failure
 
@@ -68,28 +68,28 @@ instance [Alternative m] : Alternative (StateT σ m) where
   failure := StateT.failure
   orElse  := StateT.orElse
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def get : StateT σ m σ :=
   fun s => pure (s, s)
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def set : σ → StateT σ m PUnit :=
   fun s' _ => pure (⟨⟩, s')
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def modifyGet (f : σ → α × σ) : StateT σ m α :=
   fun s => pure (f s)
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 protected def lift {α : Type u} (t : m α) : StateT σ m α :=
   fun s => do let a ← t; pure (a, s)
 
 instance : MonadLift m (StateT σ m) := ⟨StateT.lift⟩
 
-@[alwaysInline]
+@[always_inline]
 instance (σ m) [Monad m] : MonadFunctor m (StateT σ m) := ⟨fun f x s => f (x s)⟩
 
-@[alwaysInline]
+@[always_inline]
 instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (StateT σ m) := {
   throw    := StateT.lift ∘ throwThe ε
   tryCatch := fun x c s => tryCatchThe ε (x s) (fun e => c e s)
@@ -99,7 +99,7 @@ end
 end StateT
 
 /-- Adapter to create a ForIn instance from a ForM instance -/
-@[alwaysInline, inline]
+@[always_inline, inline]
 def ForM.forIn [Monad m] [ForM (StateT β (ExceptT β m)) ρ α]
     (x : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
   let g a b := .mk do
@@ -120,13 +120,13 @@ instance [Monad m] : MonadStateOf σ (StateT σ m) where
 
 end
 
-@[alwaysInline]
+@[always_inline]
 instance StateT.monadControl (σ : Type u) (m : Type u → Type v) [Monad m] : MonadControl m (StateT σ m) where
   stM      := fun α   => α × σ
   liftWith := fun f => do let s ← get; liftM (f (fun x => x.run s))
   restoreM := fun x => do let (a, s) ← liftM x; set s; pure a
 
-@[alwaysInline]
+@[always_inline]
 instance StateT.tryFinally {m : Type u → Type v} {σ : Type u} [MonadFinally m] [Monad m] : MonadFinally (StateT σ m) where
   tryFinally' := fun x h s => do
     let ((a, _), (b, s'')) ← tryFinally' (x s) fun

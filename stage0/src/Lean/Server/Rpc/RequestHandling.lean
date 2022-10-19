@@ -27,7 +27,7 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
     Except String RpcProcedure :=
   env.evalConstCheck RpcProcedure opts ``RpcProcedure procName
 
-@[implementedBy evalRpcProcedureUnsafe]
+@[implemented_by evalRpcProcedureUnsafe]
 opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 

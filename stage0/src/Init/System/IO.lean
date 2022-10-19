@@ -43,20 +43,20 @@ def BaseIO := EIO Empty
 instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
 instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
   fun s => match act s with
   | EStateM.Result.ok a s => EStateM.Result.ok a s
 
 instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
   fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
   | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
 
-@[alwaysInline, inline]
+@[always_inline, inline]
 def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   fun s => match act s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s

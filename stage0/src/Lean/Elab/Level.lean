@@ -25,7 +25,7 @@ abbrev LevelElabM := ReaderT Context (EStateM Exception State)
 instance : MonadOptions LevelElabM where
   getOptions := return (← read).options
 
-@[alwaysInline]
+@[always_inline]
 instance : MonadRef LevelElabM where
   getRef        := return (← read).ref
   withRef ref x := withReader (fun ctx => { ctx with ref := ref }) x
@@ -33,7 +33,7 @@ instance : MonadRef LevelElabM where
 instance : AddMessageContext LevelElabM where
   addMessageContext msg := pure msg
 
-@[alwaysInline]
+@[always_inline]
 instance : MonadNameGenerator LevelElabM where
   getNGen := return (← get).ngen
   setNGen ngen := modify fun s => { s with ngen := ngen }

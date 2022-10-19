@@ -88,7 +88,7 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : A
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts `Lean.Syntax constName
 
-@[implementedBy evalSyntaxConstantUnsafe]
+@[implemented_by evalSyntaxConstantUnsafe]
 opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
 unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
@@ -121,7 +121,7 @@ unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespa
 unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=
   mkElabAttribute Macro `builtin_macro `macro Name.anonymous `Lean.Macro "macro" ref
 
-@[implementedBy mkMacroAttributeUnsafe]
+@[implemented_by mkMacroAttributeUnsafe]
 opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)
 
 builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute decl_name%
@@ -145,7 +145,7 @@ class MonadMacroAdapter (m : Type → Type) where
   getNextMacroScope                  : m MacroScope
   setNextMacroScope                  : MacroScope → m Unit
 
-@[alwaysInline]
+@[always_inline]
 instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
   getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
   getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)

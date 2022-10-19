@@ -1,12 +1,12 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages_14,
   ... } @ args:
 with builtins;
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp llvmPackages.llvm.dev];
+    buildInputs = [ gmp llvmPackages_14.libllvm.dev];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);

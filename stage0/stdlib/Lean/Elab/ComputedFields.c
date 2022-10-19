@@ -349,7 +349,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("The @[computedField] attribute can only be used in the with-block of an inductive", 81);
+x_1 = lean_mk_string_from_bytes("The @[computed_field] attribute can only be used in the with-block of an inductive", 82);
 return x_1;
 }
 }
@@ -392,7 +392,7 @@ static lean_object* _init_l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_Com
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("computedField", 13);
+x_1 = lean_mk_string_from_bytes("computed_field", 14);
 return x_1;
 }
 }

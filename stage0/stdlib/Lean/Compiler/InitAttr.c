@@ -3416,7 +3416,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_InitAttr___hyg_1133
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtinInit", 11);
+x_1 = lean_mk_string_from_bytes("builtin_init", 12);
 return x_1;
 }
 }

@@ -30,7 +30,7 @@ def getMaxHeartbeats (opts : Options) : Nat :=
   synthInstance.maxHeartbeats.get opts * 1000
 
 builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
-  registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
+  registerTagAttribute `infer_tc_goals_rl "instruct type class resolution procedure to solve goals from right to left for this instance"
 
 def hasInferTCGoalsRLAttribute (env : Environment) (constName : Name) : Bool :=
   inferTCGoalsRLAttr.hasTag env constName

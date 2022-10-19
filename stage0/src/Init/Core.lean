@@ -1618,7 +1618,7 @@ external type checkers (e.g., Trepplein) that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 
-Recall that the compiler trusts the correctness of all `[implementedBy ...]` and `[extern ...]` annotations.
+Recall that the compiler trusts the correctness of all `[implemented_by ...]` and `[extern ...]` annotations.
 If an extern function is executed, then the trusted code base will also include the implementation of the associated
 foreign function.
 -/

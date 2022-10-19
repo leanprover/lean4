@@ -2682,7 +2682,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inheritDoc]` attribute, could not infer doc source", 60);
+x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute, could not infer doc source", 61);
 return x_1;
 }
 }
@@ -2916,7 +2916,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inheritDoc]` attribute", 32);
+x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute", 33);
 return x_1;
 }
 }
@@ -3055,7 +3055,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____l
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid `[inheritDoc]` attribute, must be global", 48);
+x_1 = lean_mk_string_from_bytes("invalid `[inherit_doc]` attribute, must be global", 49);
 return x_1;
 }
 }
@@ -3262,7 +3262,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inheritDoc", 10);
+x_1 = lean_mk_string_from_bytes("inherit_doc", 11);
 return x_1;
 }
 }

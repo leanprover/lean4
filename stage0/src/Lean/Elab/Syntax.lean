@@ -79,26 +79,21 @@ def checkLeftRec (stx : Syntax) : ToParserDescrM Bool := do
   markAsTrailingParser (prec?.getD 0)
   return true
 
-/-- Resolve the given parser name and return a list of candidates.
-    Each candidate is a pair `(resolvedParserName, isDescr)`.
-    `isDescr == true` if the type of `resolvedParserName` is a `ParserDescr`. -/
-def resolveParserName [Monad m] [MonadInfoTree m] [MonadResolveName m] [MonadEnv m] [MonadError m] (parserName : Syntax) : m (List (Name × Bool)) := do
-  try
-    let candidates ← resolveGlobalConstWithInfos parserName
-    /- Convert `candidates` in a list of pairs `(c, isDescr)`, where `c` is the parser name,
-        and `isDescr` is true iff `c` has type `Lean.ParserDescr` or `Lean.TrailingParser` -/
-    let env ← getEnv
-    return candidates.filterMap fun c =>
-        match env.find? c with
-        | none      => none
-        | some info =>
-          match info.type with
-        | Expr.const ``Lean.Parser.TrailingParser _ => (c, false)
-        | Expr.const ``Lean.Parser.Parser _         => (c, false)
-        | Expr.const ``Lean.ParserDescr _           => (c, true)
-        | Expr.const ``Lean.TrailingParserDescr _   => (c, true)
-        | _                                         => none
-  catch _ => return []
+def elabParserName? (stx : Syntax.Ident) : TermElabM (Option Parser.ParserName) := do
+  match ← Parser.resolveParserName stx with
+  | [n@(.category cat)] =>
+    addCategoryInfo stx cat
+    return n
+  | [n@(.parser parser _)] =>
+    addTermInfo' stx (Lean.mkConst parser)
+    return n
+  | _::_::_ => throwErrorAt stx "ambiguous parser {stx}"
+  | [] => return none
+
+def elabParserName (stx : Syntax.Ident) : TermElabM Parser.ParserName := do
+  match ← elabParserName? stx with
+  | some n => return n
+  | none => throwErrorAt stx "unknown parser {stx}"
 
 open TSyntax.Compat in
 /--
@@ -161,7 +156,6 @@ where
       throwErrorAt stx "invalid atomic left recursive syntax"
     let prec? ← liftMacroM <| expandOptPrecedence stx[1]
     let prec := prec?.getD 0
-    addCategoryInfo stx catName
     return (← `(ParserDescr.cat $(quote catName) $(quote prec)), 1)
 
   processAlias (id : Syntax) (args : Array Syntax) := do
@@ -185,23 +179,22 @@ where
     return (stx, stackSz)
 
   processNullaryOrCat (stx : Syntax) := do
-    match (← resolveParserName stx[0]) with
-    | [(c, true)]      =>
+    match (← elabParserName? stx[0]) with
+    | some (.parser c (isDescr := true)) =>
       ensureNoPrec stx
       -- `syntax _ :=` at least enforces this
       let stackSz := 1
       return (mkIdentFrom stx c, stackSz)
-    | [(c, false)]     =>
+    | some (.parser c (isDescr := false)) =>
       ensureNoPrec stx
       -- as usual, we assume that people using `Parser` know what they are doing
       let stackSz := 1
       return (← `(ParserDescr.parser $(quote c)), stackSz)
-    | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"
-    | [] =>
+    | some (.category _) =>
+      processParserCategory stx
+    | none =>
       let id := stx[0].getId.eraseMacroScopes
-      if Parser.isParserCategory (← getEnv) id then
-        processParserCategory stx
-      else if (← Parser.isParserAlias id) then
+      if (← Parser.isParserAlias id) then
         ensureNoPrec stx
         processAlias stx[0] #[]
       else
@@ -258,7 +251,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
     let quotSymbol := "`(" ++ suffix ++ "|"
     let name := catName ++ `quot
     let cmd ← `(
-      @[termParser] def $(mkIdent name) : Lean.ParserDescr :=
+      @[term_parser] def $(mkIdent name) : Lean.ParserDescr :=
         Lean.ParserDescr.node `Lean.Parser.Term.quot $(quote Lean.Parser.maxPrec)
           (Lean.ParserDescr.node $(quote name) $(quote Lean.Parser.maxPrec)
             (Lean.ParserDescr.binary `andthen (Lean.ParserDescr.symbol $(quote quotSymbol))
@@ -277,7 +270,7 @@ private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := d
       Parser.LeadingIdentBehavior.both
     else
       Parser.LeadingIdentBehavior.symbol
-  let attrName := catName.appendAfter "Parser"
+  let attrName := catName.appendAfter "_parser"
   let catDeclName := ``Lean.Parser.Category ++ catName
   setEnv (← Parser.registerParserCategory (← getEnv) attrName catName catBehavior catDeclName)
   let cmd ← `($[$docString?]? def $(mkIdentFrom stx[2] (`_root_ ++ catDeclName) (canonical := true)) : Lean.Parser.Category := {})
@@ -360,7 +353,7 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
   let stxNodeKind := (← getCurrNamespace) ++ name
-  let catParserId := mkIdentFrom idRef (cat.appendAfter "Parser")
+  let catParserId := mkIdentFrom idRef (cat.appendAfter "_parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
   let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
   let attrInstance ← `(attrInstance| $attrKind:attrKind $catParserId:ident $(quote prio):num)

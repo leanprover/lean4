@@ -22,7 +22,7 @@ structure ConfigOptions where
   -/
   maxRecInline : Nat := 1
   /--
-  Maximum number of times a recursive definition tagged with `[inlineIfReduce]` can be recursively inlined
+  Maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined
   before generating an error during compilation.
   -/
   maxRecInlineIfReduce : Nat := 16
@@ -43,7 +43,7 @@ register_builtin_option compiler.maxRecInline : Nat := {
 register_builtin_option compiler.maxRecInlineIfReduce : Nat := {
   defValue := 16
   group    := "compiler"
-  descr    := "(compiler) maximum number of times a recursive definition tagged with `[inlineIfReduce]` can be recursively inlined before generating an error during compilation."
+  descr    := "(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation."
 }
 
 def toConfigOptions (opts : Options) : ConfigOptions := {

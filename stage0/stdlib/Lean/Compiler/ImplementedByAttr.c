@@ -1499,7 +1499,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid 'implementedBy' argument '", 34);
+x_1 = lean_mk_string_from_bytes("invalid 'implemented_by' argument '", 35);
 return x_1;
 }
 }
@@ -2085,7 +2085,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Implemente
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implementedBy", 13);
+x_1 = lean_mk_string_from_bytes("implemented_by", 14);
 return x_1;
 }
 }

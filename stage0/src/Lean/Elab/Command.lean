@@ -220,7 +220,7 @@ instance : MonadQuotation CommandElabM where
   withFreshMacroScope := Command.withFreshMacroScope
 
 unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
-  mkElabAttribute CommandElab `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
+  mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
 @[implementedBy mkCommandElabAttributeUnsafe]
 opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
@@ -339,12 +339,13 @@ private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
+open Lean.Parser.Term in
 /-- Return identifier names in the given bracketed binder. -/
 def getBracketedBinderIds : Syntax → Array Name
-  | `(bracketedBinder|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
-  | `(bracketedBinder|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
-  | `(bracketedBinder|[$id : $_])                     => #[id.getId]
-  | `(bracketedBinder|[$_])                           => #[Name.anonymous]
+  | `(bracketedBinderF|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinderF|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
+  | `(bracketedBinderF|[$id : $_])                     => #[id.getId]
+  | `(bracketedBinderF|[$_])                           => #[Name.anonymous]
   | _                                                 => #[]
 
 private def mkTermContext (ctx : Context) (s : State) : Term.Context := Id.run do

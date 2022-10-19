@@ -307,7 +307,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("(compiler) maximum number of times a recursive definition tagged with `[inlineIfReduce]` can be recursively inlined before generating an error during compilation.", 162);
+x_1 = lean_mk_string_from_bytes("(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation.", 164);
 return x_1;
 }
 }

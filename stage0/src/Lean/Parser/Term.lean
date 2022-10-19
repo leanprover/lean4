@@ -20,8 +20,8 @@ def docComment := leading_parser ppDedent $ "/--" >> ppSpace >> commentBody >> p
 end Command
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinTacticParser ``Category.tactic .both
-  registerBuiltinDynamicParserAttribute `tacticParser `tactic
+  registerBuiltinParserAttribute `builtin_tactic_parser ``Category.tactic .both
+  registerBuiltinDynamicParserAttribute `tactic_parser `tactic
 
 @[inline] def tacticParser (rbp : Nat := 0) : Parser :=
   categoryParser `tactic rbp
@@ -448,12 +448,8 @@ See the Chapter "Quantifiers and Equality" in the manual "Theorem Proving in Lea
 -/
 @[builtinTermParser] def subst := trailing_parser:75 " ▸ " >> sepBy1 (termParser 75) " ▸ "
 
--- NOTE: Doesn't call `categoryParser` directly in contrast to most other "static" quotations, so call `evalInsideQuot` explicitly
-@[builtinTermParser] def funBinder.quot : Parser := leading_parser "`(funBinder|"  >> incQuotDepth (evalInsideQuot ``funBinder funBinder) >> ")"
 def bracketedBinderF := bracketedBinder  -- no default arg
-@[builtinTermParser] def bracketedBinder.quot : Parser := leading_parser "`(bracketedBinder|"  >> incQuotDepth (evalInsideQuot ``bracketedBinderF bracketedBinder) >> ")"
-@[builtinTermParser] def matchDiscr.quot : Parser := leading_parser "`(matchDiscr|"  >> incQuotDepth (evalInsideQuot ``matchDiscr matchDiscr) >> ")"
-@[builtinTermParser] def attr.quot : Parser := leading_parser "`(attr|"  >> incQuotDepth attrParser >> ")"
+instance : Coe (TSyntax ``bracketedBinderF) (TSyntax ``bracketedBinder) where coe s := ⟨s⟩
 
 /--
 `panic! msg` formally evaluates to `@Inhabited.default α` if the expected type
@@ -490,8 +486,6 @@ end Term
 
 @[builtinTermParser default+1] def Tactic.quot    : Parser := leading_parser "`(tactic|" >> incQuotDepth tacticParser >> ")"
 @[builtinTermParser] def Tactic.quotSeq : Parser := leading_parser "`(tactic|" >> incQuotDepth Tactic.seq1 >> ")"
-
-@[builtinTermParser] def Level.quot  : Parser := leading_parser "`(level|" >> incQuotDepth levelParser >> ")"
 
 open Term in
 builtin_initialize

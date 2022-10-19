@@ -4411,7 +4411,7 @@ static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHan
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("serverRpcMethod", 15);
+x_1 = lean_mk_string_from_bytes("server_rpc_method", 17);
 return x_1;
 }
 }

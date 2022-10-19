@@ -18,7 +18,7 @@ namespace Lean.Compiler.LCNF
 We do not generate code for `declName` if
 - Its type is a proposition.
 - Its type is a type former.
-- It is tagged as `[macroInline]`.
+- It is tagged as `[macro_inline]`.
 - It is a type class instance.
 
 Remark: we still generate code for declarations tagged as `[inline]`

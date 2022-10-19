@@ -77,12 +77,15 @@ end Lean
 
 open Lean
 
+section
+open TSyntax.Compat
 macro "∃ " xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
 macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
 macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``PSigma xs b
 macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBinders ``Sigma xs b
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
+end
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))

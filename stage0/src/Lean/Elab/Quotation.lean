@@ -10,6 +10,7 @@ import Lean.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Quotation.Util
 import Lean.Elab.Quotation.Precheck
+import Lean.Elab.Syntax
 import Lean.Parser.Syntax
 
 namespace Lean.Elab.Term.Quotation
@@ -218,30 +219,20 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   match stx.getKind with
   | ``Parser.Command.quot => addNamedQuotInfo stx `command
   | ``Parser.Term.quot => addNamedQuotInfo stx `term
-  | ``Parser.Level.quot => addNamedQuotInfo stx `level
   | ``Parser.Tactic.quot => addNamedQuotInfo stx `tactic
   | ``Parser.Tactic.quotSeq => addNamedQuotInfo stx `tactic.seq
-  | ``Parser.Term.stx.quot => addNamedQuotInfo stx `stx
-  | ``Parser.Term.prec.quot => addNamedQuotInfo stx `prec
-  | ``Parser.Term.attr.quot => addNamedQuotInfo stx `attr
-  | ``Parser.Term.prio.quot => addNamedQuotInfo stx `prio
-  | ``Parser.Term.doElem.quot => addNamedQuotInfo stx `doElem
   | .str kind "quot" => addNamedQuotInfo stx kind
-  | ``dynamicQuot =>
-    match (← resolveGlobalConstWithInfos stx[1]) with
-    | [parser] => pure parser
-    | _ => throwError "unknown parser {stx[1]}"
+  | ``dynamicQuot => match ← elabParserName stx[1] with
+    | .parser n _ => return n
+    | .category c => return c
   | k => throwError "unexpected quotation kind {k}"
 
-def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
-  let stx := if stx.getNumArgs == 1 then stx[0] else stx
+def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
-  let kind ← getQuotKind stx
-  let stx ← quoteSyntax stx.getQuotContent
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
         Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
@@ -261,23 +252,18 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      implementation is "self-stabilizing". It was in fact originally compiled
      by an unhygienic prototype implementation. -/
 
+def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
+  let stx := if stx.getNumArgs == 1 then stx[0] else stx
+  let kind ← getQuotKind stx
+  let stx ← quoteSyntax stx.getQuotContent
+  mkSyntaxQuotation stx kind
+
 macro "elab_stx_quot" kind:ident : command =>
   `(@[builtinTermElab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
 
---
-
-elab_stx_quot Parser.Level.quot
 elab_stx_quot Parser.Term.quot
-elab_stx_quot Parser.Term.funBinder.quot
-elab_stx_quot Parser.Term.bracketedBinder.quot
-elab_stx_quot Parser.Term.matchDiscr.quot
 elab_stx_quot Parser.Tactic.quot
 elab_stx_quot Parser.Tactic.quotSeq
-elab_stx_quot Parser.Term.stx.quot
-elab_stx_quot Parser.Term.prec.quot
-elab_stx_quot Parser.Term.attr.quot
-elab_stx_quot Parser.Term.prio.quot
-elab_stx_quot Parser.Term.doElem.quot
 elab_stx_quot Parser.Term.dynamicQuot
 elab_stx_quot Parser.Command.quot
 

@@ -707,7 +707,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at___private_Lean_Elab_Deri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("implementedBy", 13);
+x_1 = lean_mk_string_from_bytes("implemented_by", 14);
 return x_1;
 }
 }

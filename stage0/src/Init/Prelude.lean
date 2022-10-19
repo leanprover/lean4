@@ -2396,7 +2396,7 @@ and returns `default`. It is primarily intended for debugging in pure contexts,
 and assertion failures.
 
 Because this is a pure function with side effects, it is marked as
-`@[neverExtract]` so that the compiler will not perform common sub-expression
+`@[never_extract]` so that the compiler will not perform common sub-expression
 elimination and other optimizations that assume that the expression is pure.
 -/
 @[noinline, neverExtract]

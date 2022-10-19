@@ -313,7 +313,7 @@ def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) 
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runBuiltinParserAttributeHooks
+    name  := `run_builtin_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by builtin parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -322,7 +322,7 @@ builtin_initialize
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runParserAttributeHooks
+    name  := `run_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -564,16 +564,16 @@ def registerParserCategory (env : Environment) (attrName catName : Name)
   let env ← IO.ofExcept $ addParserCategory env catName ref behavior
   registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
--- declare `termParser` here since it is used everywhere via antiquotations
+-- declare `term_parser` here since it is used everywhere via antiquotations
 
-builtin_initialize registerBuiltinParserAttribute `builtinTermParser ``Category.term
+builtin_initialize registerBuiltinParserAttribute `builtin_term_parser ``Category.term
 
-builtin_initialize registerBuiltinDynamicParserAttribute `termParser `term
+builtin_initialize registerBuiltinDynamicParserAttribute `term_parser `term
 
--- declare `commandParser` to break cyclic dependency
-builtin_initialize registerBuiltinParserAttribute `builtinCommandParser ``Category.command
+-- declare `command_parser` to break cyclic dependency
+builtin_initialize registerBuiltinParserAttribute `builtin_command_parser ``Category.command
 
-builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
+builtin_initialize registerBuiltinDynamicParserAttribute `command_parser `command
 
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
@@ -633,17 +633,56 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   fn   := withOpenDeclFn  p.fn
 }
 
-def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
-  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
+inductive ParserName
+  | category (cat : Name)
+  | parser (decl : Name) (isDescr : Bool)
+  -- TODO(gabriel): add parser aliases (this is blocked on doing IO in parsers)
+  deriving Repr
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def resolveParserNameCore (env : Environment) (currNamespace : Name)
+    (openDecls : List OpenDecl) (ident : Ident) : List ParserName := Id.run do
+  let ⟨.ident (val := val) (preresolved := pre) ..⟩ := ident | return []
+
+  let rec isParser (name : Name) : Option Bool :=
+    (env.find? name).bind fun ci =>
+      match ci.type with
+      | .const ``Parser _ | .const ``TrailingParser _ => some false
+      | .const ``ParserDescr _ | .const ``TrailingParserDescr _ => some true
+      | _ => none
+
+  for pre in pre do
+    if let .decl n [] := pre then
+      if let some isDescr := isParser n then
+        return [.parser n isDescr]
+
+  let erased := val.eraseMacroScopes
+
+  if isParserCategory env erased then
+    return [.category erased]
+
+  ResolveName.resolveGlobalName env currNamespace openDecls val |>.filterMap fun
+      | (name, []) => (isParser name).map fun isDescr => .parser name isDescr
+      | _ => none
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserName :=
+  Parser.resolveParserNameCore ctx.env ctx.currNamespace ctx.openDecls id
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def resolveParserName (id : Ident) : CoreM (List ParserName) :=
+  return resolveParserNameCore (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack
   if stack.size < offset + 1 then
     return s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
-  let Syntax.ident (val := parserName) .. := stack.get! (stack.size - offset - 1)
+  let parserName@(.ident ..) := stack.get! (stack.size - offset - 1)
     | s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
-  match ctx.resolveName parserName with
-  | [(parserName, [])] =>
+  match ctx.resolveParserName ⟨parserName⟩ with
+  | [.category cat] =>
+    categoryParserFn cat ctx s
+  | [.parser parserName _] =>
     let iniSz := s.stackSize
     let mut ctx' := ctx
     if !internal.parseQuotWithCurrentStage.get ctx'.options then
@@ -656,7 +695,7 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
     else
       s
   | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
-  | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
+  | [] => s.mkUnexpectedError s!"unknown parser {parserName}"
 
 def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
   { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }

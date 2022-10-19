@@ -1086,7 +1086,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkFormatterAttribute___closed__1(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtinFormatter", 16);
+x_1 = lean_mk_string_from_bytes("builtin_formatter", 17);
 return x_1;
 }
 }
@@ -1263,7 +1263,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("combinatorFormatter", 19);
+x_1 = lean_mk_string_from_bytes("combinator_formatter", 20);
 return x_1;
 }
 }
@@ -1300,7 +1300,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorFormatterAttribute___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a formatter for a parser combinator.\n\n  [combinatorFormatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.\n  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Formatter` in the parameter types.", 469);
+x_1 = lean_mk_string_from_bytes("Register a formatter for a parser combinator.\n\n  [combinator_formatter c] registers a declaration of type `Lean.PrettyPrinter.Formatter` for the `Parser` declaration `c`.\n  Note that, unlike with [formatter], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Formatter` in the parameter types.", 470);
 return x_1;
 }
 }

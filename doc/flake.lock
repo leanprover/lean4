@@ -42,7 +42,7 @@
       },
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-I1BerSQdtJpLd3reG/JeGDurYvJvAM9aevv5CwARq4I=",
+        "narHash": "sha256-18nUWebi3zAkP1uG27VrAJiO8vjnxnIKT4ibDx9CKYY=",
         "path": "../.",
         "type": "path"
       },
@@ -85,11 +85,11 @@
     "leanInk": {
       "flake": false,
       "locked": {
-        "lastModified": 1665521117,
-        "narHash": "sha256-lKhQGpYDo4wfRLwZJ7f+HgVYcVYLp3T14nVkEhBvX8M=",
-        "owner": "gebner",
+        "lastModified": 1666154782,
+        "narHash": "sha256-0ELqEca6jZT4BW/mqkDD+uYuxW5QlZUFlNwZkvugsg8=",
+        "owner": "digama0",
         "repo": "LeanInk",
-        "rev": "8b7c65ca752a9a9bd4909f55a4b22ac292a07fad",
+        "rev": "12a2aec9b5f4aa84e84fb01a9af1da00d8aaff4e",
         "type": "github"
       },
       "original": {

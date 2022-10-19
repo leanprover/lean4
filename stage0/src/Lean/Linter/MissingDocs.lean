@@ -96,8 +96,8 @@ builtin_initialize
       else
         setEnv <| missingDocsExt.addEntry env (declName, key, ← mkHandler declName)
   }
-  mkAttr true `builtinMissingDocsHandler
-  mkAttr false `missingDocsHandler
+  mkAttr true `builtin_missing_docs_handler
+  mkAttr false `missing_docs_handler
 
 def lint (stx : Syntax) (msg : String) : CommandElabM Unit :=
   logLint linter.missingDocs stx m!"missing doc string for {msg}"
@@ -114,7 +114,7 @@ def lintStructField (parent stx : Syntax) (msg : String) : CommandElabM Unit :=
 def hasInheritDoc (attrs : Syntax) : Bool :=
   attrs[0][1].getSepArgs.any fun attr =>
     attr[1].isOfKind ``Parser.Attr.simple &&
-    attr[1][0].getId.eraseMacroScopes == `inheritDoc
+    attr[1][0].getId.eraseMacroScopes == `inherit_doc
 
 def declModifiersPubNoDoc (mods : Syntax) : Bool :=
   mods[2][0].getKind != ``«private» && mods[0].isNone && !hasInheritDoc mods[1]

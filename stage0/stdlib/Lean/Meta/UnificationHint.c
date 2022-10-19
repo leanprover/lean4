@@ -4577,7 +4577,7 @@ static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unificationHint", 15);
+x_1 = lean_mk_string_from_bytes("unification_hint", 16);
 return x_1;
 }
 }

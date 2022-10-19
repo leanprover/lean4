@@ -1216,7 +1216,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("inlineIfReduce", 14);
+x_1 = lean_mk_string_from_bytes("inline_if_reduce", 16);
 return x_1;
 }
 }
@@ -1318,7 +1318,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("macroInline", 11);
+x_1 = lean_mk_string_from_bytes("macro_inline", 12);
 return x_1;
 }
 }
@@ -1369,7 +1369,7 @@ static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttr
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("alwaysInline", 12);
+x_1 = lean_mk_string_from_bytes("always_inline", 13);
 return x_1;
 }
 }

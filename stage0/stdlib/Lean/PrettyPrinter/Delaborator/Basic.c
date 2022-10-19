@@ -1431,7 +1431,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtinDelab", 12);
+x_1 = lean_mk_string_from_bytes("builtin_delab", 13);
 return x_1;
 }
 }
@@ -7922,7 +7922,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("appUnexpander", 13);
+x_1 = lean_mk_string_from_bytes("app_unexpander", 14);
 return x_1;
 }
 }
@@ -7959,7 +7959,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_Delaborator_mkAppUnexpanderAttrib
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register an unexpander for applications of a given constant.\n\n[appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is\npassed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set\nto true or `pp.notation` is set to false, it will not be called at all.", 371);
+x_1 = lean_mk_string_from_bytes("Register an unexpander for applications of a given constant.\n\n[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is\npassed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set\nto true or `pp.notation` is set to false, it will not be called at all.", 372);
 return x_1;
 }
 }

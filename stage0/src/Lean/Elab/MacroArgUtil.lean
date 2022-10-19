@@ -45,22 +45,23 @@ where
     return ⟨mkNullNode #[mkAntiquotSuffixSpliceNode kind (← mkAntiquotNode stx id) suffix]⟩
   mkAntiquotNode : TSyntax `stx → Term → CommandElabM Term
     | `(stx| $id:ident$[:$_]?), term => do
-      let kind ← match (← Elab.Term.resolveParserName id) with
-        | [(`Lean.Parser.ident, _)] => pure identKind
-        | [(`Lean.Parser.Term.ident, _)] => pure identKind
-        | [(`Lean.Parser.strLit, _)] => pure strLitKind
-        -- a syntax abbrev, assume kind == decl name
-        | [(c, _)]      => pure c
-        | cs@(_ :: _ :: _) => throwError "ambiguous parser declaration {cs.map (·.1)}"
-        | [] =>
+      match (← liftTermElabM do Elab.Term.elabParserName? id) with
+        | some (.parser n _) =>
+          let kind := match n with
+            | ``Parser.ident => identKind
+            | ``Parser.Term.ident => identKind
+            | ``Parser.strLit => strLitKind
+            | _ => n -- assume kind == decl name
+          return ⟨Syntax.mkAntiquotNode kind term⟩
+        | some (.category cat) =>
+          return ⟨Syntax.mkAntiquotNode cat term (isPseudoKind := true)⟩
+        | none =>
           let id := id.getId.eraseMacroScopes
-          if Parser.isParserCategory (← getEnv) id then
-            return ⟨Syntax.mkAntiquotNode id term (isPseudoKind := true)⟩
-          else if (← Parser.isParserAlias id) then
-            pure <| (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
+          if (← Parser.isParserAlias id) then
+            let kind := (← Parser.getSyntaxKindOfParserAlias? id).getD Name.anonymous
+            return ⟨Syntax.mkAntiquotNode kind term⟩
           else
             throwError "unknown parser declaration/category/alias '{id}'"
-      pure ⟨Syntax.mkAntiquotNode kind term⟩
     | stx, term => do
       -- can't match against `` `(stx| ($stxs*)) `` as `*` is interpreted as the `stx` operator
       if stx.raw.isOfKind ``Parser.Syntax.paren then

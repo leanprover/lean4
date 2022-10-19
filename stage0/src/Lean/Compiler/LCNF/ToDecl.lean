@@ -10,7 +10,7 @@ import Lean.Compiler.LCNF.ToLCNF
 
 namespace Lean.Compiler.LCNF
 /--
-Inline constants tagged with the `[macroInline]` attribute occurring in `e`.
+Inline constants tagged with the `[macro_inline]` attribute occurring in `e`.
 -/
 def macroInline (e : Expr) : CoreM Expr :=
   Core.transform e fun e => do
@@ -89,7 +89,7 @@ The steps for this are roughly:
 - partially erasing type information of the declaration
 - eta-expanding the declaration value.
 - if the declaration has an unsafe-rec version, use it.
-- expand declarations tagged with the `[macroInline]` attribute
+- expand declarations tagged with the `[macro_inline]` attribute
 - turn the resulting term into LCNF declaration
 -/
 def toDecl (declName : Name) : CompilerM Decl := do
@@ -101,9 +101,9 @@ def toDecl (declName : Name) : CompilerM Decl := do
     let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
     let value ← replaceUnsafeRecNames value
     let value ← macroInline value
-    /- Recall that some declarations tagged with `macroInline` contain matchers. -/
+    /- Recall that some declarations tagged with `macro_inline` contain matchers. -/
     let value ← inlineMatchers value
-    /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macroInline]`. -/
+    /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
     let value ← macroInline value
     /-
     Remark: we have disabled the following transformation, we will perform it at phase 2, after code specialization.

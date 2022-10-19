@@ -24,7 +24,7 @@ structure Config where
   -/
   inlinePartial := false
   /--
-  If `implementedBy` is `true`, we apply the `implementedBy` replacements.
+  If `implementedBy` is `true`, we apply the `implemented_by` replacements.
   Remark: we only apply `casesOn` replacements at phase 2 because `cases` constructor
   may not have enough information for reconstructing the original `casesOn` application at
   phase 1.

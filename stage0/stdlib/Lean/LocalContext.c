@@ -217,7 +217,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_LocalContext_instFor
 LEAN_EXPORT lean_object* lean_local_ctx_num_indices(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_isLet___boxed(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-LEAN_EXPORT uint64_t l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268_(uint8_t);
+LEAN_EXPORT uint64_t l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266_(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_LocalContext_instForInLocalContextLocalDecl___spec__2___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldrMAux___at_Lean_LocalContext_foldr___spec__3___rarg(lean_object*, lean_object*, lean_object*);
@@ -454,8 +454,8 @@ LEAN_EXPORT lean_object* l_Array_mapM_x27___at_Lean_LocalContext_replaceFVarId__
 LEAN_EXPORT lean_object* l_Lean_LocalContext_any___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_setUserName(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_mkLambda(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266____boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldrMAux___at_Lean_LocalContext_foldr___spec__3(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalDecl_replaceFVarId(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_instForInLocalContextLocalDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedLocalContext___closed__1;
@@ -1080,7 +1080,7 @@ x_6 = lean_box(x_5);
 return x_6;
 }
 }
-LEAN_EXPORT uint64_t l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268_(uint8_t x_1) {
+LEAN_EXPORT uint64_t l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266_(uint8_t x_1) {
 _start:
 {
 switch (x_1) {
@@ -1105,13 +1105,13 @@ return x_4;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268____boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266____boxed(lean_object* x_1) {
 _start:
 {
 uint8_t x_2; uint64_t x_3; lean_object* x_4; 
 x_2 = lean_unbox(x_1);
 lean_dec(x_1);
-x_3 = l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268_(x_2);
+x_3 = l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266_(x_2);
 x_4 = lean_box_uint64(x_3);
 return x_4;
 }
@@ -1120,7 +1120,7 @@ static lean_object* _init_l_Lean_instHashableLocalDeclKind___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_268____boxed), 1, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_LocalContext_0__Lean_hashLocalDeclKind____x40_Lean_LocalContext___hyg_266____boxed), 1, 0);
 return x_1;
 }
 }

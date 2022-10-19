@@ -1145,7 +1145,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtinParenthesizer", 20);
+x_1 = lean_mk_string_from_bytes("builtin_parenthesizer", 21);
 return x_1;
 }
 }
@@ -1322,7 +1322,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid [categoryParenthesizer] argument, unknown parser category '", 67);
+x_1 = lean_mk_string_from_bytes("invalid [category_parenthesizer] argument, unknown parser category '", 68);
 return x_1;
 }
 }
@@ -1465,7 +1465,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("builtinCategoryParenthesizer", 28);
+x_1 = lean_mk_string_from_bytes("builtin_category_parenthesizer", 30);
 return x_1;
 }
 }
@@ -1483,7 +1483,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("categoryParenthesizer", 21);
+x_1 = lean_mk_string_from_bytes("category_parenthesizer", 22);
 return x_1;
 }
 }
@@ -1520,7 +1520,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a syntax category.\n\n  [categoryParenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,\n  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`\n  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,\n  but still be traversed for parenthesizing nested categories.", 479);
+x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a syntax category.\n\n  [category_parenthesizer cat] registers a declaration of type `Lean.PrettyPrinter.CategoryParenthesizer` for the category `cat`,\n  which is used when parenthesizing calls of `categoryParser cat prec`. Implementations should call `maybeParenthesize`\n  with the precedence and `cat`. If no category parenthesizer is registered, the category will never be parenthesized,\n  but still be traversed for parenthesizing nested categories.", 480);
 return x_1;
 }
 }
@@ -1595,7 +1595,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("combinatorParenthesizer", 23);
+x_1 = lean_mk_string_from_bytes("combinator_parenthesizer", 24);
 return x_1;
 }
 }
@@ -1632,7 +1632,7 @@ static lean_object* _init_l_Lean_PrettyPrinter_mkCombinatorParenthesizerAttribut
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a parser combinator.\n\n  [combinatorParenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.\n  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Parenthesizer` in the parameter types.", 489);
+x_1 = lean_mk_string_from_bytes("Register a parenthesizer for a parser combinator.\n\n  [combinator_parenthesizer c] registers a declaration of type `Lean.PrettyPrinter.Parenthesizer` for the `Parser` declaration `c`.\n  Note that, unlike with [parenthesizer], this is not a node kind since combinators usually do not introduce their own node kinds.\n  The tagged declaration may optionally accept parameters corresponding to (a prefix of) those of `c`, where `Parser` is replaced\n  with `Parenthesizer` in the parameter types.", 490);
 return x_1;
 }
 }

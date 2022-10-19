@@ -50,7 +50,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NeverExtractAttr___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("neverExtract", 12);
+x_1 = lean_mk_string_from_bytes("never_extract", 13);
 return x_1;
 }
 }

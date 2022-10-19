@@ -129,7 +129,7 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
     else if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else
-      -- TODO: `casesOn` `[implementedBy]` support
+      -- TODO: `casesOn` `[implemented_by]` support
       let type ← toMonoType c.resultType
       let alts ← c.alts.mapM fun alt =>
         match alt with

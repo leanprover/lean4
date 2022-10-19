@@ -123,11 +123,11 @@ def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `defaultInstance
+    name  := `default_instance
     descr := "type class default instance"
     add   := fun declName stx kind => do
       let prio ← getAttrParamOptPrio stx[1]
-      unless kind == AttributeKind.global do throwError "invalid attribute 'defaultInstance', must be global"
+      unless kind == AttributeKind.global do throwError "invalid attribute 'default_instance', must be global"
       discard <| addDefaultInstance declName prio |>.run {} {}
   }
 

@@ -52,19 +52,19 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
       | none => #[attr]
   if let some expId := expty? then
     if catName == `term then
-      `($[$doc?:docComment]? @[$(← mkAttrs `termElab),*]
+      `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
         aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
         fun stx expectedType? => Lean.Elab.Command.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else
       throwErrorAt expId "syntax category '{catName}' does not support expected type specification"
   else if catName == `term then
-    `($[$doc?:docComment]? @[$(← mkAttrs `termElab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `term_elab),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Term.TermElab :=
       fun stx _ => match stx with
         $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `command then
-    `($[$doc?:docComment]? @[$(← mkAttrs `commandElab),*]
+    `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `tactic then

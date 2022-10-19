@@ -13,13 +13,13 @@ inductive InlineAttributeKind where
   deriving Inhabited, BEq, Hashable
 
 /--
-  This is an approximate test for testing whether `declName` can be annotated with the `[macroInline]` attribute or not.
+  This is an approximate test for testing whether `declName` can be annotated with the `[macro_inline]` attribute or not.
 -/
 private def isValidMacroInline (declName : Name) : CoreM Bool := do
   let .defnInfo info ← getConstInfo declName
     | return false
   unless info.all.length = 1 do
-    -- We do not allow `[macroInline]` attributes at mutual recursive definitions
+    -- We do not allow `[macro_inline]` attributes at mutual recursive definitions
     return false
   let env ← getEnv
   let isRec (declName' : Name) : Bool :=
@@ -34,10 +34,10 @@ private def isValidMacroInline (declName : Name) : CoreM Bool := do
 builtin_initialize inlineAttrs : EnumAttributes InlineAttributeKind ←
   registerEnumAttributes
     [(`inline, "mark definition to be inlined", .inline),
-     (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", .inlineIfReduce),
+     (`inline_if_reduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", .inlineIfReduce),
      (`noinline, "mark definition to never be inlined", .noinline),
-     (`macroInline, "mark definition to always be inlined before ANF conversion", .macroInline),
-     (`alwaysInline, "mark definition to be always inlined", .alwaysInline)]
+     (`macro_inline, "mark definition to always be inlined before ANF conversion", .macroInline),
+     (`always_inline, "mark definition to be always inlined", .alwaysInline)]
     fun declName kind => do
       ofExcept <| checkIsDefinition (← getEnv) declName
       if kind matches .macroInline then

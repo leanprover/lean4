@@ -51,7 +51,7 @@ termination_by aux j _ => as.size - j
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions
 over a nested inductive like `inductive T | mk : Array T → T`. -/
 macro "array_get_dec" : tactic =>
-  `(first
+  `(tactic| first
     | apply sizeOf_get
     | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
 

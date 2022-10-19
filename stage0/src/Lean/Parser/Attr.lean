@@ -9,12 +9,12 @@ import Lean.Parser.Extra
 namespace Lean.Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinPrioParser ``Category.prio .both
-  registerBuiltinDynamicParserAttribute `prioParser `prio
+  registerBuiltinParserAttribute `builtin_prio_parser ``Category.prio .both
+  registerBuiltinDynamicParserAttribute `prio_parser `prio
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParser ``Category.attr .symbol
-  registerBuiltinDynamicParserAttribute `attrParser `attr
+  registerBuiltinParserAttribute `builtin_attr_parser ``Category.attr .symbol
+  registerBuiltinDynamicParserAttribute `attr_parser `attr
 
 @[inline] def priorityParser (rbp : Nat := 0) : Parser :=
   categoryParser `prio rbp
@@ -38,11 +38,11 @@ namespace Attr
 @[builtinAttrParser] def «export»   := leading_parser "export " >> ident
 
 /- We don't use `simple` for recursor because the argument is not a priority -/
-@[builtinAttrParser] def recursor        := leading_parser nonReservedSymbol "recursor " >> numLit
-@[builtinAttrParser] def «class»         := leading_parser "class"
-@[builtinAttrParser] def «instance»      := leading_parser "instance" >> optional priorityParser
-@[builtinAttrParser] def defaultInstance := leading_parser nonReservedSymbol "defaultInstance " >> optional priorityParser
-@[builtinAttrParser] def «specialize»    := leading_parser (nonReservedSymbol "specialize") >> many (ident <|> numLit)
+@[builtinAttrParser] def recursor         := leading_parser nonReservedSymbol "recursor " >> numLit
+@[builtinAttrParser] def «class»          := leading_parser "class"
+@[builtinAttrParser] def «instance»       := leading_parser "instance" >> optional priorityParser
+@[builtinAttrParser] def default_instance := leading_parser nonReservedSymbol "default_instance " >> optional priorityParser
+@[builtinAttrParser] def «specialize»     := leading_parser (nonReservedSymbol "specialize") >> many (ident <|> numLit)
 
 def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
 @[builtinAttrParser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry

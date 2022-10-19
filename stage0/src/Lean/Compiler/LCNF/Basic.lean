@@ -421,7 +421,7 @@ def Decl.inlineIfReduceAttr (decl : Decl) : Bool :=
 def Decl.alwaysInlineAttr (decl : Decl) : Bool :=
   decl.inlineAttr? matches some .alwaysInline
 
-/-- Return `true` if the given declaration has been annotated with `[inline]`, `[inlineIfReduce]`, `[macroInline]`, or `[alwaysInline]` -/
+/-- Return `true` if the given declaration has been annotated with `[inline]`, `[inline_if_reduce]`, `[macro_inline]`, or `[always_inline]` -/
 def Decl.inlineable (decl : Decl) : Bool :=
   match decl.inlineAttr? with
   | some .noinline => false
@@ -439,7 +439,7 @@ def f (a_0 ... a_i ...) :=
 ```
 That is, `f` is a sequence of declarations followed by a `cases` on the parameter `i`.
 We use this function to decide whether we should inline a declaration tagged with
-`[inlineIfReduce]` or not.
+`[inline_if_reduce]` or not.
 -/
 def Decl.isCasesOnParam? (decl : Decl) : Option Nat :=
   go decl.value

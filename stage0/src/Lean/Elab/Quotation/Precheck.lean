@@ -38,11 +38,11 @@ register_builtin_option quotPrecheck.allowSectionVars : Bool := {
 
 unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
   KeyedDeclsAttribute.init {
-    builtinName := `builtinQuotPrecheck,
-    name := `quotPrecheck,
+    builtinName := `builtin_quot_precheck,
+    name := `quot_precheck,
     descr    := "Register a double backtick syntax quotation pre-check.
 
-[quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
+[quot_precheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
 It should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,
 and calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).
 Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
@@ -61,7 +61,7 @@ partial def precheck : Precheck := fun stx => do
   if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or `[quotPrecheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasQuotedIdent

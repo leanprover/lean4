@@ -247,7 +247,7 @@ def elabBinder (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 /-- If `binder` is a `_` or an identifier, return a `bracketedBinder` using `type` otherwise throw an exception. -/
 def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :=
   if binder.isOfKind ``hole || binder.isIdent then
-    `(bracketedBinder| ($binder : $type))
+    `(bracketedBinderF| ($binder : $type))
   else
     Macro.throwErrorAt type "unexpected type ascription"
 

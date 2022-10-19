@@ -8,8 +8,8 @@ import Lean.Parser.Term
 namespace Lean
 namespace Parser
 
-builtin_initialize registerBuiltinParserAttribute `builtinDoElemParser ``Category.doElem
-builtin_initialize registerBuiltinDynamicParserAttribute `doElemParser `doElem
+builtin_initialize registerBuiltinParserAttribute `builtin_doElem_parser ``Category.doElem
+builtin_initialize registerBuiltinDynamicParserAttribute `doElem_parser `doElem
 
 @[inline] def doElemParser (rbp : Nat := 0) : Parser :=
   categoryParser `doElem rbp
@@ -139,8 +139,6 @@ The second `notFollowedBy` prevents this problem.
 @[builtinDoElemParser] def doNested := leading_parser "do " >> doSeq
 
 @[builtinTermParser] def «do»  := leading_parser:argPrec ppAllowUngrouped >> "do " >> doSeq
-
-@[builtinTermParser] def doElem.quot : Parser := leading_parser "`(doElem|" >> incQuotDepth doElemParser >> ")"
 
 /- macros for using `unless`, `for`, `try`, `return` as terms. They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...` -/
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/

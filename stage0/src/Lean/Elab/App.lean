@@ -17,7 +17,7 @@ namespace Lean.Elab.Term
 open Meta
 
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
-  registerTagAttribute `elabWithoutExpectedType "mark that applications of the given declaration should be elaborated without the expected type"
+  registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 
 def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
   elabWithoutExpectedTypeAttr.hasTag env declName
@@ -637,7 +637,7 @@ end
 end ElabAppArgs
 
 builtin_initialize elabAsElim : TagAttribute ←
-  registerTagAttribute `elabAsElim
+  registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
     fun declName => do
       let go : MetaM Unit := do

@@ -33,8 +33,9 @@ open Lean.Parser.Command
       let macroRulesCmd ← if rhs.getArgs.size == 1 then
         -- `rhs` is a `term`
         let rhs := ⟨rhs[0]⟩
-        `($[$doc?:docComment]? macro_rules | `($pat) => $rhs)
+        `($[$doc?:docComment]? macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
       else
+        -- TODO(gabriel): remove after bootstrap
         -- `rhs` is of the form `` `( $body ) ``
         let rhsBody := ⟨rhs[1]⟩
         `($[$doc?:docComment]? macro_rules | `($pat) => `($rhsBody))

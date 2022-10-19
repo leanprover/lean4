@@ -304,7 +304,7 @@ syntax locationWildcard := "*"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (colGt term:max)+ ("⊢" <|> "|-")?
+syntax locationHyp := (colGt term:max)+ patternIgnore("⊢" <|> "|-")?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -337,7 +337,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := ("← " <|> "<- ")? term
+syntax rwRule    := patternIgnore("← " <|> "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
@@ -388,7 +388,7 @@ syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 The discharger clause of `simp` and related tactics.
 This is a tactic used to discharge the side conditions on conditional rewrite rules.
 -/
-syntax discharger := atomic(" (" (&"discharger" <|> &"disch")) " := " withoutPosition(tacticSeq) ")"
+syntax discharger := atomic(" (" patternIgnore(&"discharger" <|> &"disch")) " := " withoutPosition(tacticSeq) ")"
 
 /-- Use this rewrite rule before entering the subterms -/
 syntax simpPre   := "↓"
@@ -400,7 +400,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
+syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/

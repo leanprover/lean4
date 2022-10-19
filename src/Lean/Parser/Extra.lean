@@ -89,6 +89,9 @@ attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 @[run_builtin_parser_attribute_hooks] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
 
+/-- No-op parser combinator that annotates subtrees to be ignored in syntax patterns. -/
+@[inline, run_builtin_parser_attribute_hooks] def patternIgnore : Parser → Parser := node `patternIgnore
+
 /-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
 @[inline] def ppHardSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
@@ -182,6 +185,8 @@ macro_rules
          PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
+  register_parser_alias patternIgnore { autoGroupArgs := false }
+
   register_parser_alias group { autoGroupArgs := false }
   register_parser_alias ppHardSpace { stackSz? := some 0 }
   register_parser_alias ppSpace { stackSz? := some 0 }

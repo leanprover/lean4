@@ -340,7 +340,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     if let some (k, _) := quoted.antiquotKind? then
       if let some name := getAntiquotKindSpec? quoted then
         tryAddSyntaxNodeKindInfo name k
-    if quoted.isAtom then
+    if quoted.isAtom || quoted.isOfKind `patternIgnore then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
     else if quoted.isTokenAntiquot then

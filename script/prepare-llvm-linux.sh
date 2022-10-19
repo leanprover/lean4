@@ -47,12 +47,7 @@ $CP -r llvm/include/*-*-* llvm-host/include/
 $CP $GLIBC/lib/libc_nonshared.a stage1/lib/glibc
 for f in $GLIBC/lib/lib{c,dl,m,rt,pthread}-*; do b=$(basename $f); cp $f stage1/lib/glibc/${b%-*}.so; done
 OPTIONS=()
-# move llvm-config to path/to/stage1/, as llvm-config always gives paths relative to
-# its directory. Note that we copy the `llvm-config` of the `llvm-host`, since we need to *run*
-# the executable on the host machine.
-# TODO: delete 'stage1/bin/llvm-config' before shipping off to users.
-cp $PWD/llvm-host/bin/llvm-config stage1/bin/llvm-config
-echo -n " -DLLVM_CONFIG=$PWD/stage1/bin/llvm-config" # manually point to `llvm-config` location
+echo -n " -DLLVM_CONFIG=$PWD/llvm-host/bin/llvm-config" # manually point to `llvm-config` location
 echo -n " -DLEAN_STANDALONE=ON"
 echo -n " -DCMAKE_CXX_COMPILER=$PWD/llvm-host/bin/clang++ -DLEAN_CXX_STDLIB='-Wl,-Bstatic -lc++ -lc++abi -Wl,-Bdynamic'"
 echo -n " -DLEAN_EXTRA_CXX_FLAGS='--sysroot $PWD/llvm -idirafter $GLIBC_DEV/include ${EXTRA_FLAGS:-}'"

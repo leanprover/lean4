@@ -84,10 +84,11 @@ private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
   let endPos := stx.getTailPos?.getD pos
   f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
 where fmtPos pos info :=
-    let pos := format <| ctx.fileMap.toPosition pos
-    match info with
-    | SourceInfo.original ..  => pos
-    | _                       => f!"{pos}†"
+  let pos := format <| ctx.fileMap.toPosition pos
+  match info with
+  | .original ..                      => pos
+  | .synthetic (canonical := true) .. => f!"{pos}†!"
+  | _                                 => f!"{pos}†"
 
 private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
   if info.elaborator.isAnonymous then

@@ -9,15 +9,7 @@
        "end": {"line": 29, "character": 4}},
       "newText": "hello!!!"}]}],
   "changes": {},
-  "changeAnnotations": {}},
- "data":
- {"providerResultIndex": 0,
-  "providerName": "helloProvider",
-  "params":
-  {"textDocument": {"uri": "file://codeaction.lean"},
-   "range":
-   {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
-   "context": {"diagnostics": []}}}}
+  "changeAnnotations": {}}}
 {"title": "a long-running action",
  "kind": "refactor",
  "data":

@@ -3,17 +3,17 @@ import Lean
 open Lean
 
 def checkDefEq (a b : Name) : CoreM Unit := do
-let env ← getEnv;
-let a := mkConst a;
-let b := mkConst b;
-let r := Kernel.isDefEq env {} a b;
-IO.println (toString a ++ " =?= " ++ toString b ++ " := " ++ toString r)
+  let env ← getEnv
+  let a := mkConst a
+  let b := mkConst b
+  let r ← ofExceptKernelException (Kernel.isDefEq env {} a b)
+  IO.println (toString a ++ " =?= " ++ toString b ++ " := " ++ toString r)
 
 def whnf (a : Name) : CoreM Unit := do
-let env ← getEnv;
-let a := mkConst a;
-let r := Kernel.whnf env {} a;
-IO.println (toString a ++ " ==> " ++ toString r)
+  let env ← getEnv
+  let a := mkConst a
+  let r ← ofExceptKernelException (Kernel.whnf env {} a)
+  IO.println (toString a ++ " ==> " ++ toString r)
 
 partial def fact : Nat → Nat
 | 0     => 1

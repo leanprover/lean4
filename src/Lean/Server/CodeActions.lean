@@ -85,7 +85,7 @@ private unsafe def evalCodeActionProviderUnsafe [MonadEnv M] [MonadOptions M] [M
   evalConstCheck CodeActionProvider ``CodeActionProvider declName
 
 /-- Get a `CodeActionProvider` from a declaration name. -/
-@[implementedBy evalCodeActionProviderUnsafe]
+@[implemented_by evalCodeActionProviderUnsafe]
 private opaque evalCodeActionProvider [MonadEnv M] [MonadOptions M] [MonadError M] [Monad M] (declName : Name) : M CodeActionProvider
 
 /-- Handles a `textDocument/codeAction` request.

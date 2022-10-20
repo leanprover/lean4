@@ -86,7 +86,7 @@ lean_lib Hello {
   -- add library configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_exe hello {
   root := `Main
 }
@@ -164,7 +164,7 @@ The archive's full file name will end up being `nameToArchive buildArchive?`.
 
 ## Defining Build Targets
 
-A Lake package can have many build targets, such as different Lean libraries and multiple binary executables. Any number of these declarations can be marked with the `@[defaultTarget]` attribute to tell Lake to build them on a bare `lake build` of the package.
+A Lake package can have many build targets, such as different Lean libraries and multiple binary executables. Any number of these declarations can be marked with the `@[default_target]` attribute to tell Lake to build them on a bare `lake build` of the package.
 
 ### Lean Libraries
 

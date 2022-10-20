@@ -222,6 +222,16 @@ opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelExcept
 
 end Environment
 
+namespace ConstantInfo
+
+@[extern "lean_instantiate_type_lparams"]
+opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Except KernelException Expr
+
+@[extern "lean_instantiate_value_lparams"]
+opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Except KernelException Expr
+
+end ConstantInfo
+
 /-- Interface for managing environment extensions. -/
 structure EnvExtensionInterface where
   ext          : Type → Type
@@ -852,14 +862,17 @@ namespace Kernel
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
+opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except KernelException Bool
+
+def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
+  if let .ok result := isDefEq env lctx a b then result else false
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
+opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
 
 end Kernel
 

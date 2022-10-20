@@ -31,7 +31,7 @@ lean_lib «target-name» := /- config -/
 scoped macro (name := leanLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "lean_lib " sig:structDeclSig : command => do
-  let attr ← `(Term.attrInstance| leanLib)
+  let attr ← `(Term.attrInstance| lean_lib)
   let ty := mkCIdentFrom (← getRef) ``LeanLibConfig
   let attrs := #[attr] ++ expandAttrs attrs?
   mkConfigStructDecl none doc? attrs ty sig
@@ -51,7 +51,7 @@ lean_exe «target-name» := /- config -/
 scoped macro (name := leanExeDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "lean_exe " sig:structDeclSig : command => do
-  let attr ← `(Term.attrInstance| leanExe)
+  let attr ← `(Term.attrInstance| lean_exe)
   let ty := mkCIdentFrom (← getRef) ``LeanExeConfig
   let attrs := #[attr] ++ expandAttrs attrs?
   mkConfigStructDecl none doc? attrs ty sig

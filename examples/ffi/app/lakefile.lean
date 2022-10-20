@@ -5,7 +5,7 @@ package app
 
 require ffi from ".."/"lib"
 
-@[defaultTarget]
+@[default_target]
 lean_exe app {
   root := `Main
 }

@@ -5,7 +5,7 @@ package targets {
   srcDir := "src"
 }
 
-@[defaultTarget]
+@[default_target]
 lean_lib foo
 lean_lib bar
 lean_lib baz
@@ -13,10 +13,10 @@ lean_lib baz
 lean_exe a
 lean_exe b
 
-@[defaultTarget]
+@[default_target]
 lean_exe c
 
-@[defaultTarget]
+@[default_target]
 target meow (pkg : Package) : Unit := do
   IO.FS.writeFile (pkg.buildDir / "meow.txt") "Meow!"
   return .nil

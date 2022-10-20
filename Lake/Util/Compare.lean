@@ -88,7 +88,7 @@ instance : LawfulCmpEq String compare where
   eq_of_cmp := eq_of_compareOfLessAndEq
   cmp_rfl := compareOfLessAndEq_rfl <| String.lt_irrefl _
 
-@[macroInline]
+@[macro_inline]
 def Option.compareWith (cmp : α → α → Ordering) : Option α → Option α → Ordering
 | none,   none    => .eq
 | none,   some _  => .lt

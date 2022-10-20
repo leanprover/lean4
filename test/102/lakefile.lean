@@ -5,7 +5,7 @@ package tba {
   -- add package configuration options here
 }
 
-@[defaultTarget]
+@[default_target]
 lean_lib TBA := {
   name := `TBA
   globs := #[.andSubmodules `TBA]

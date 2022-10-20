@@ -7,5 +7,5 @@ package bar {
 
 require foo from "../foo"
 
-@[defaultTarget]
+@[default_target]
 lean_lib Bar

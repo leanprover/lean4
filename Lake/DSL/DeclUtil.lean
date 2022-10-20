@@ -52,6 +52,7 @@ syntax simpleBinder :=
   ident <|> bracketedSimpleBinder
 
 abbrev SimpleBinder := TSyntax ``simpleBinder
+open Lean.Parser.Term in
 def expandOptSimpleBinder (stx? : Option SimpleBinder) : MacroM FunBinder := do
   match stx? with
   | some stx =>
@@ -70,7 +71,7 @@ def fixName (id : Ident) : Option Name → Ident
 
 def mkConfigStructDecl (name? : Option Name)
 (doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
-: (spec : Syntax) → MacroM Syntax
+: (spec : Syntax) → MacroM Syntax.Command
 | `(structDeclSig| $id:ident) =>
   `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty :=
     {name := $(quote id.getId)})

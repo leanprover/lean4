@@ -23,14 +23,14 @@ def expandDepSpec : TSyntax ``depSpec → MacroM Command
   let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
   let path ← match path? with | some path => `(some $path) | none => `(none)
   let opts := opts?.getD <| ← `({})
-  `(@[packageDep] def $name : Dependency := {
+  `(@[package_dep] def $name : Dependency := {
     name := $(quote name.getId),
     src := Source.git $url $rev $path,
     options := $opts
   })
 | `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
   let opts := opts?.getD <| ← `({})
-  `(@[packageDep] def $name : Dependency := {
+  `(@[package_dep] def $name : Dependency := {
     name :=  $(quote name.getId),
     src := Source.path $path,
     options := $opts

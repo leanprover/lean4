@@ -5,7 +5,7 @@ package lake
 
 lean_lib Lake
 
-@[defaultTarget]
+@[default_target]
 lean_exe lake where
   root := `Lake.Main
   supportInterpreter := true

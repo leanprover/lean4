@@ -34,7 +34,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"module_facet " sig:buildDeclSig : command => do
   match sig with
   | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$wds?]?) =>
-    let attr ← withRef kw `(Term.attrInstance| moduleFacet)
+    let attr ← withRef kw `(Term.attrInstance| module_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_modFacet")
@@ -63,7 +63,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"package_facet " sig:buildDeclSig : command => do
   match sig with
   | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?]?) =>
-    let attr ← withRef kw `(Term.attrInstance| packageFacet)
+    let attr ← withRef kw `(Term.attrInstance| package_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
@@ -92,7 +92,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"library_facet " sig:buildDeclSig : command => do
   match sig with
   | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$wds?]?) =>
-    let attr ← withRef kw `(Term.attrInstance| libraryFacet)
+    let attr ← withRef kw `(Term.attrInstance| library_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_libFacet")
@@ -159,7 +159,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
 "extern_lib " spec:externLibDeclSpec : command => do
   match spec with
   | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?]?) =>
-    let attr ← `(Term.attrInstance| externLib)
+    let attr ← `(Term.attrInstance| extern_lib)
     let attrs := #[attr] ++ expandAttrs attrs?
     let pkgName := mkIdentFrom id `_package.name
     let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)

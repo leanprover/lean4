@@ -8,6 +8,6 @@ require b from ".."/"b"
 
 lean_lib Foo
 
-@[defaultTarget]
+@[default_target]
 lean_exe foo where
   root := `Main

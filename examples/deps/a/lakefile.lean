@@ -3,4 +3,4 @@ open System Lake DSL
 
 package a
 require root from ".."/"root"
-@[defaultTarget] lean_lib A
+@[default_target] lean_lib A

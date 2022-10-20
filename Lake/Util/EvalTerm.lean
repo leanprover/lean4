@@ -11,7 +11,7 @@ open Lean Elab
 unsafe def unsafeEvalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α := do
   Term.evalTerm α (toTypeExpr α) term .unsafe
 
-@[implementedBy unsafeEvalTerm]
+@[implemented_by unsafeEvalTerm]
 opaque evalTerm (α) [ToExpr α] (term : Syntax) : TermElabM α
 
 /-! ## ToExpr Instances -/

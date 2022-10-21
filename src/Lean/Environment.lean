@@ -224,11 +224,11 @@ end Environment
 
 namespace ConstantInfo
 
-@[extern "lean_instantiate_type_lparams"]
-opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Except KernelException Expr
+def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
 
-@[extern "lean_instantiate_value_lparams"]
-opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Except KernelException Expr
+def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
+  c.value!.instantiateLevelParams c.levelParams ls
 
 end ConstantInfo
 

@@ -78,19 +78,19 @@ end ReplaceImpl
 /- TODO: use withPtrAddr, withPtrEq to avoid unsafe tricks above.
    We also need an invariant at `State` and proofs for the `uget` operations. -/
 
-@[implemented_by ReplaceImpl.replaceUnsafe]
-partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
-  /- This is a reference implementation for the unsafe one above -/
+@[specialize]
+def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
   match f? e with
   | some eNew => eNew
   | none      => match e with
-    | Expr.forallE _ d b _   => let d := replace f? d; let b := replace f? b; e.updateForallE! d b
-    | Expr.lam _ d b _       => let d := replace f? d; let b := replace f? b; e.updateLambdaE! d b
-    | Expr.mdata _ b         => let b := replace f? b; e.updateMData! b
-    | Expr.letE _ t v b _    => let t := replace f? t; let v := replace f? v; let b := replace f? b; e.updateLet! t v b
-    | Expr.app f a           => let f := replace f? f; let a := replace f? a; e.updateApp! f a
-    | Expr.proj _ _ b        => let b := replace f? b; e.updateProj! b
-    | e                      => e
-end Expr
+    | .forallE _ d b _ => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateForallE! d b
+    | .lam _ d b _     => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateLambdaE! d b
+    | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
+    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
+    | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
+    | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
+    | e                => e
 
-end Lean
+@[implemented_by ReplaceImpl.replaceUnsafe]
+partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=
+  e.replaceNoCache f?

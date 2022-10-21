@@ -451,16 +451,16 @@ where
     | _ => none
 
 def Decl.instantiateTypeLevelParams (decl : Decl) (us : List Level) : Expr :=
-  decl.type.instantiateLevelParams decl.levelParams us
+  decl.type.instantiateLevelParamsNoCache decl.levelParams us
 
 def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Param :=
-  decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParams decl.levelParams us)
+  decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParamsNoCache decl.levelParams us)
 
 partial def Decl.instantiateValueLevelParams (decl : Decl) (us : List Level) : Code :=
   instCode decl.value
 where
   instExpr (e : Expr) :=
-    e.instantiateLevelParams decl.levelParams us
+    e.instantiateLevelParamsNoCache decl.levelParams us
 
   instParams (ps : Array Param) :=
     ps.mapMono fun p => p.updateCore (instExpr p.type)

@@ -247,15 +247,4 @@ expr instantiate_value_lparams(constant_info const & info, levels const & ls) {
     return instantiate_lparams(info.get_value(), info.get_lparams(), ls);
 }
 
-extern "C" LEAN_EXPORT object * lean_instantiate_type_lparams(b_obj_arg info, b_obj_arg ls) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return instantiate_type_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
-    });
-}
-
-extern "C" LEAN_EXPORT object * lean_instantiate_value_lparams(b_obj_arg info, b_obj_arg ls) {
-    return catch_kernel_exceptions<object*>([&]() {
-        return instantiate_value_lparams(TO_REF(constant_info, info), TO_REF(levels, ls)).steal();
-    });
-}
 }

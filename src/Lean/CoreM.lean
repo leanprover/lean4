@@ -138,7 +138,7 @@ def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r
-  let r ← ofExceptKernelException (c.instantiateTypeLevelParams us)
+  let r := c.instantiateTypeLevelParams us
   modifyInstLevelTypeCache fun s => s.insert c.name (us, r)
   return r
 
@@ -146,7 +146,9 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
   if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
     if us == us' then
       return r
-  let r ← ofExceptKernelException (c.instantiateValueLevelParams us)
+  unless c.hasValue do
+    throwError "Not a definition or theorem: {c.name}"
+  let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
 

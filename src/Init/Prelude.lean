@@ -1061,19 +1061,31 @@ class LT (α : Type u) where
 /-- `a > b` is an abbreviation for `b < a`. -/
 @[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
 
-/--
-`max a b` is the maximum of `a` and `b`. It is defined simply as
-`if b < a then a else b`, and works as long as `<` is decidable.
--/
-@[inline] def max [LT α] [DecidableRel (@LT.lt α _)] (a b : α) : α :=
-  ite (LT.lt b a) a b
+/-- `Max α` is the typeclass which supports the operation `max x y` where `x y : α`.-/
+class Max (α : Type u) where
+  /-- The maximum operation: `max x y`. -/
+  max : α → α → α
 
-/--
-`min a b` is the minimum of `a` and `b`. It is defined simply as
-`if a ≤ b then a else b`, and works as long as `≤` is decidable.
--/
-@[inline] def min [LE α] [DecidableRel (@LE.le α _)] (a b : α) : α :=
-  ite (LE.le a b) a b
+export Max (max)
+
+/-- Implementation of the `max` operation using `≤`. -/
+-- Marked inline so that `min x y + max x y` can be optimized to a single branch.
+@[inline]
+def maxOfLe [LE α] [DecidableRel (@LE.le α _)] : Max α where
+  max x y := ite (LE.le x y) y x
+
+/-- `Min α` is the typeclass which supports the operation `min x y` where `x y : α`.-/
+class Min (α : Type u) where
+  /-- The minimum operation: `min x y`. -/
+  min : α → α → α
+
+export Min (min)
+
+/-- Implementation of the `min` operation using `≤`. -/
+-- Marked inline so that `min x y + max x y` can be optimized to a single branch.
+@[inline]
+def minOfLe [LE α] [DecidableRel (@LE.le α _)] : Min α where
+  min x y := ite (LE.le x y) x y
 
 /--
 Transitive chaining of proofs, used e.g. by `calc`.
@@ -1888,6 +1900,8 @@ def UInt32.decLe (a b : UInt32) : Decidable (LE.le a b) :=
 
 instance (a b : UInt32) : Decidable (LT.lt a b) := UInt32.decLt a b
 instance (a b : UInt32) : Decidable (LE.le a b) := UInt32.decLe a b
+instance : Max UInt32 := maxOfLe
+instance : Min UInt32 := minOfLe
 
 /-- The size of type `UInt64`, that is, `2^64 = 18446744073709551616`. -/
 def UInt64.size : Nat := 18446744073709551616

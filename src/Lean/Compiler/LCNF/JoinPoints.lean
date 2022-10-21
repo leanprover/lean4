@@ -386,11 +386,11 @@ partial def extend (decl : Decl) : CompilerM Decl := do
   let decl := { decl with value := newValue }
   decl.pullFunDecls
 where
+  goFVar (fvar : FVarId) : ExtendM FVarId := do
+    extendByIfNecessary fvar
+    replaceFVar fvar
   goExpr (e : Expr) : ExtendM Expr :=
-    let visitor := fun fvar => do
-      extendByIfNecessary fvar
-      replaceFVar fvar
-    mapFVarM visitor e
+    mapFVarM goFVar e
   go (code : Code) : ExtendM Code := do
     match code with
     | .let decl k =>
@@ -422,14 +422,10 @@ where
     | .jmp fn args =>
       let mut newArgs ← args.mapM goExpr
       let additionalArgs := (← get).fvarMap.find! fn |>.toArray |>.map Prod.fst
-      if let some currentJp := (← read).currentJp? then
-        let translator := (← get).fvarMap.find! currentJp
-        let f := fun arg =>
-          if let some translated := translator.find? arg then
-            .fvar translated.fvarId
-          else
-            .fvar arg
-        newArgs := (additionalArgs.map f) ++ newArgs
+      if let some _currentJp := (← read).currentJp? then
+        let f := fun arg => do
+          return .fvar (← goFVar arg)
+        newArgs := (←additionalArgs.mapM f) ++ newArgs
       else
         newArgs := (additionalArgs.map .fvar) ++ newArgs
       return Code.updateJmp! code fn newArgs

@@ -7,6 +7,8 @@ instance : LE Date := ⟨InvImage (Nat.le) Date.val⟩
 instance bad (a b : Date) : Decidable (a <= b) :=
   if h0 : (a.val <= b.val) then isTrue h0 else isFalse (fun hf => False.elim (h0 hf))
 
+instance : Min Date := minOfLe
+
 /-
 This implementation also fails:
 instance (a b : Date) : Decidable (a <= b) :=

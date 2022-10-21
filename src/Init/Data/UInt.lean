@@ -73,6 +73,8 @@ def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
 
 instance (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
 instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
+instance : Max UInt8 := maxOfLe
+instance : Min UInt8 := minOfLe
 
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat n⟩
@@ -143,6 +145,8 @@ def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
 
 instance (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
 instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
+instance : Max UInt16 := maxOfLe
+instance : Min UInt16 := minOfLe
 
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
@@ -277,6 +281,8 @@ def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
 
 instance (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
 instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
+instance : Max UInt64 := maxOfLe
+instance : Min UInt64 := minOfLe
 
 theorem usize_size_gt_zero : USize.size > 0 :=
   Nat.pos_pow_of_pos System.Platform.numBits (Nat.zero_lt_succ _)
@@ -350,6 +356,8 @@ def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
 
 instance (a b : USize) : Decidable (a < b) := USize.decLt a b
 instance (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
+instance : Max USize := maxOfLe
+instance : Min USize := minOfLe
 
 theorem USize.modn_lt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u % m) < m
   | ⟨u⟩, h => Fin.modn_lt u h

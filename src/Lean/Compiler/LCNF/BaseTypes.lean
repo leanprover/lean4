@@ -29,9 +29,6 @@ def getOtherDeclBaseType (declName : Name) (us : List Level) : CoreM Expr := do
       let type ← Meta.MetaM.run' <| toLCNFType info.type
       modifyEnv fun env => baseTypeExt.modifyState env fun s => { s with base := s.base.insert declName type }
       pure type
-  if us.isEmpty then
-    return type
-  else
-    return type.instantiateLevelParams info.levelParams us
+  return type.instantiateLevelParamsNoCache info.levelParams us
 
 end Lean.Compiler.LCNF

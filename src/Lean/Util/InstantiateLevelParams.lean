@@ -12,7 +12,9 @@ namespace Lean.Expr
 Instantiate level parameters
 -/
 @[specialize] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
-  e.replace fun e =>
+  e.replace replaceFn
+where
+  @[specialize] replaceFn (e : Expr) : Option Expr :=
     if !e.hasLevelParam then e else match e with
     | const _ us => e.updateConst! (us.map fun u => u.instantiateParams s)
     | sort u => e.updateSort! (u.instantiateParams s)
@@ -29,6 +31,15 @@ If the two lists have different length, the smallest one is used.
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
   if paramNames.isEmpty || lvls.isEmpty then e else
     instantiateLevelParamsCore (getParamSubst paramNames lvls) e
+
+/--
+Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+If the two lists have different length, the smallest one is used.
+(Does not preserve expression sharing.)
+-/
+def instantiateLevelParamsNoCache (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
+  if paramNames.isEmpty || lvls.isEmpty then e else
+    e.replaceNoCache (instantiateLevelParamsCore.replaceFn (getParamSubst paramNames lvls))
 
 private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
   if h : i < ps.size then
@@ -47,5 +58,3 @@ def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Arr
   if paramNames.isEmpty || lvls.isEmpty then e else
     e.instantiateLevelParamsCore fun p =>
       getParamSubstArray paramNames lvls p 0
-
-end Expr

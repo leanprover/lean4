@@ -1590,51 +1590,6 @@ partial def eta (e : Expr) : Expr :=
   | _ => e
 
 /--
-Instantiate level parameters
--/
-@[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
-  let rec @[specialize] visit (e : Expr) : Expr :=
-    if !e.hasLevelParam then e
-    else match e with
-    | lam _ d b _     => e.updateLambdaE! (visit d) (visit b)
-    | forallE _ d b _ => e.updateForallE! (visit d) (visit b)
-    | letE _ t v b _  => e.updateLet! (visit t) (visit v) (visit b)
-    | app f a         => e.updateApp! (visit f) (visit a)
-    | proj _ _ s      => e.updateProj! (visit s)
-    | mdata _ b       => e.updateMData! (visit b)
-    | const _ us      => e.updateConst! (us.map (fun u => u.instantiateParams s))
-    | sort u          => e.updateSort! (u.instantiateParams s)
-    | e               => e
-  visit e
-
-private def getParamSubst : List Name → List Level → Name → Option Level
-  | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
-  | _,     _,     _  => none
-
-/--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
-If the two lists have different length, the smallest one is used.
--/
-def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
-  instantiateLevelParamsCore (getParamSubst paramNames lvls) e
-
-private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
-  if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
-    if h : i < us.size then
-      let u := us.get ⟨i, h⟩
-      if p == p' then some u else getParamSubstArray ps us p' (i+1)
-    else none
-  else none
-
-/--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
-If the two arrays have different length, the smallest one is used.
--/
-def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
-  instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
-
-/--
 Annotate `e` with the given option.
 The information is stored using metadata around `e`.
 -/

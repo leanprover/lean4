@@ -11,6 +11,7 @@ import Lean.LocalContext
 import Lean.Util.Path
 import Lean.Util.FindExpr
 import Lean.Util.Profile
+import Lean.Util.InstantiateLevelParams
 
 namespace Lean
 /-- Opaque environment extension state. -/

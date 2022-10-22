@@ -96,6 +96,16 @@
    "end": {"line": 40, "character": 34}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
+   "end": {"line": 43, "character": 11}}},
+ {"targetUri": "file:///home/gcloud/lean4/src/Init/Prelude.lean",
+  "targetSelectionRange":
+  {"start": {"line": 1045, "character": 0},
+   "end": {"line": 1045, "character": 8}},
+  "targetRange":
+  {"start": {"line": 1045, "character": 0},
+   "end": {"line": 1046, "character": 12}},
+  "originSelectionRange":
+  {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]
 {"textDocument": {"uri": "file://goTo.lean"},
  "position": {"line": 48, "character": 28}}
@@ -132,6 +142,16 @@
   {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
   "targetRange":
   {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
+  "originSelectionRange":
+  {"start": {"line": 60, "character": 7},
+   "end": {"line": 60, "character": 11}}},
+ {"targetUri": "file:///home/gcloud/lean4/src/Init/Prelude.lean",
+  "targetSelectionRange":
+  {"start": {"line": 1045, "character": 0},
+   "end": {"line": 1045, "character": 8}},
+  "targetRange":
+  {"start": {"line": 1045, "character": 0},
+   "end": {"line": 1046, "character": 12}},
   "originSelectionRange":
   {"start": {"line": 60, "character": 7},
    "end": {"line": 60, "character": 11}}}]

@@ -35,4 +35,3 @@ import Lean.Widget
 import Lean.Log
 import Lean.Linter
 import Lean.SubExpr
-import Lean.Deprecated

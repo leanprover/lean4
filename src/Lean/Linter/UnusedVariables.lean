@@ -1,3 +1,4 @@
+import Lean.Elab.Command
 import Lean.Linter.Util
 import Lean.Server.References
 
@@ -21,6 +22,7 @@ def getLinterUnusedVariables (o : Options) : Bool := getLinterValue linter.unuse
 def getLinterUnusedVariablesFunArgs (o : Options) : Bool := o.get linter.unusedVariables.funArgs.name (getLinterUnusedVariables o)
 def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unusedVariables.patternVars.name (getLinterUnusedVariables o)
 
+abbrev IgnoreFunction := Syntax → Syntax.Stack → Options → Bool
 
 builtin_initialize builtinUnusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFunction ← IO.mkRef #[]
 

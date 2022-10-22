@@ -108,7 +108,7 @@ using meta-programming.
 structure Environment where
   /--
   Mapping from constant name to module (index) where constant has been declared.
-  Recall that a Leah file has a header where previously compiled modules can be imported.
+  Recall that a Lean file has a header where previously compiled modules can be imported.
   Each imported module has a unique `ModuleIdx`.
   Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
 

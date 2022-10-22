@@ -1383,7 +1383,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   /-
   "Match" function for auxiliary declarations that correspond to recursive definitions being defined.
   This function is used in the first-pass.
-  Note that we do not check for `localDecl.userName == giveName` in this pass as we do for regular local declarations.
+  Note that we do not check for `localDecl.userName == givenName` in this pass as we do for regular local declarations.
   Reason: consider the following example
   ```
     mutual

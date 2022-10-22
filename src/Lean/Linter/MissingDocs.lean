@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 import Lean.Meta.Tactic.Simp.SimpTheorems
+import Lean.Elab.Command
 import Lean.Elab.SetOption
 import Lean.Linter.Util
 

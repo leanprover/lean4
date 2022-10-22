@@ -1,3 +1,5 @@
+set_option linter.deprecated true
+
 def g (x : Nat) := x + 1
 
 @[deprecated g]
@@ -25,5 +27,7 @@ open Foo
 @[deprecated g1]
 def f4 (x : Nat) := x + 1
 
+#eval f2 0 + 1
+set_option linter.deprecated false in
 #eval f2 0 + 1
 #eval f4 0 + 1

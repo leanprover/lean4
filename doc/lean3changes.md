@@ -42,7 +42,7 @@ def Sum.str : Option Nat → String :=
 ## Implicit lambdas
 
 In Lean 3 stdlib, we find many [instances](https://github.com/leanprover/lean/blob/master/library/init/category/reader.lean#L39) of the dreadful `@`+`_` idiom.
-It is often used when we the expected type is a function type with implicit arguments,
+It is often used when the expected type is a function type with implicit arguments,
 and we have a constant (`reader_t.pure` in the example) which also takes implicit arguments. In Lean 4, the elaborator automatically introduces lambdas
 for consuming implicit arguments. We are still exploring this feature and analyzing its impact, but the experience so far has been very positive. As an example,
 here is the example in the link above using Lean 4 implicit lambdas.
@@ -340,7 +340,7 @@ partial def f (x : Nat) : IO Unit := do
 
 These are changes to the library which may trip up Lean 3 users:
 
-- `List` is no longer a monad. 
+- `List` is no longer a monad.
 
 ## Style changes
 

@@ -2260,6 +2260,7 @@ x_8 = 0;
 x_9 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_InferType_mkForallParams___spec__1(x_7, x_8, x_1);
 x_10 = lean_unsigned_to_nat(0u);
 x_11 = l_Lean_Compiler_LCNF_instantiateForall_go(x_9, x_10, x_2, x_3, x_4, x_5);
+lean_dec(x_9);
 return x_11;
 }
 }
@@ -2269,6 +2270,7 @@ _start:
 lean_object* x_6; 
 x_6 = l_Lean_Compiler_LCNF_PP_getFunType(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
+lean_dec(x_3);
 return x_6;
 }
 }
@@ -2312,7 +2314,6 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = lean_ctor_get(x_1, 3);
 lean_inc(x_12);
-lean_inc(x_5);
 x_13 = l_Lean_Compiler_LCNF_PP_getFunType(x_8, x_12, x_5, x_6, x_11);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -3877,7 +3878,6 @@ _start:
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 2);
 lean_inc(x_10);
-lean_inc(x_7);
 x_11 = l_Lean_Compiler_LCNF_PP_getFunType(x_2, x_10, x_7, x_8, x_9);
 if (lean_obj_tag(x_11) == 0)
 {

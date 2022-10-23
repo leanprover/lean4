@@ -171,4 +171,8 @@ instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption
   rfl := by simp [BEq.beq]
 
+instance : Min Int := minOfLe
+
+instance : Max Int := maxOfLe
+
 end Int

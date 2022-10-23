@@ -231,7 +231,8 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro)                   => introStep none `_
   | `(tactic| intro $h:ident)          => introStep h h.getId
   | `(tactic| intro _%$tk)             => introStep tk `_
-  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match h with | $pat:term => ?_; try clear h))
+  /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
+  | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where

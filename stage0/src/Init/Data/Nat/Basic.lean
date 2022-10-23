@@ -473,11 +473,18 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
 
 /-! # min/max -/
 
-protected def min (n m : Nat) : Nat :=
-  if n ≤ m then n else m
+instance : Min Nat := minOfLe
 
-protected def max (n m : Nat) : Nat :=
-  if n ≤ m then m else n
+protected abbrev min (n m : Nat) := min n m
+
+protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+
+instance : Max Nat := maxOfLe
+
+protected abbrev max (n m : Nat) := max n m
+
+protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+
 
 /-! # Auxiliary theorems for well-founded recursion -/
 

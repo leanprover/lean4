@@ -228,7 +228,6 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___e
 static lean_object* l_Lean_PrettyPrinter_Formatter_ident_formatter___closed__1;
 lean_object* l_Lean_Parser_scientificLit_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_8____closed__145;
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_8____closed__83;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_interpretParserDescr___elambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser___hyg_8____closed__39;
@@ -6152,7 +6151,7 @@ if (x_108 == 0)
 {
 lean_object* x_109; lean_object* x_110; 
 x_109 = lean_ctor_get(x_107, 0);
-x_110 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3___boxed), 8, 3);
+x_110 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3), 8, 3);
 lean_closure_set(x_110, 0, x_104);
 lean_closure_set(x_110, 1, x_105);
 lean_closure_set(x_110, 2, x_109);
@@ -6167,7 +6166,7 @@ x_112 = lean_ctor_get(x_107, 1);
 lean_inc(x_112);
 lean_inc(x_111);
 lean_dec(x_107);
-x_113 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3___boxed), 8, 3);
+x_113 = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3), 8, 3);
 lean_closure_set(x_113, 0, x_104);
 lean_closure_set(x_113, 1, x_105);
 lean_closure_set(x_113, 2, x_111);
@@ -6626,15 +6625,6 @@ return x_213;
 }
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_2);
-return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Parenthesizer_interpretParserDescr___elambda__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

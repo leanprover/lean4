@@ -27,12 +27,14 @@ LEAN_EXPORT lean_object* l_ST_Ref_swap___rarg(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_runST(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftSTEST(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftSTEST___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_mkRef___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modifyGet___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_take(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_take___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_get___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq(lean_object*, lean_object*);
@@ -55,6 +57,7 @@ LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe___rarg(lean_object*, lean
 LEAN_EXPORT lean_object* l_ST_Ref_modify___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_instMonadExceptOfEStateM___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_runEST(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_ptrEq___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_mkRef(lean_object*, lean_object*);
@@ -65,10 +68,13 @@ LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Prim_Ref_modifyGetUnsafe(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_ptr_eq(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSTWorld(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_modify(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadExceptOfEST(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ST_Ref_take___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_runST___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_instMonadEST___closed__1() {
 _start:
 {
@@ -637,6 +643,81 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_ST_Ref_modifyGet___rarg), 5, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_ST_Prim_Ref_modifyGetUnsafe___rarg___boxed), 3, 2);
+lean_closure_set(x_5, 0, x_1);
+lean_closure_set(x_5, 1, x_4);
+x_6 = lean_apply_2(x_2, lean_box(0), x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___elambda__1___rarg), 4, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_alloc_closure((void*)(l_ST_Prim_Ref_set___boxed), 5, 4);
+lean_closure_set(x_5, 0, lean_box(0));
+lean_closure_set(x_5, 1, lean_box(0));
+lean_closure_set(x_5, 2, x_3);
+lean_closure_set(x_5, 3, x_4);
+x_6 = lean_apply_2(x_1, lean_box(0), x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___elambda__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___elambda__2___rarg), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+lean_inc(x_3);
+x_4 = lean_alloc_closure((void*)(l_ST_Prim_Ref_get___boxed), 4, 3);
+lean_closure_set(x_4, 0, lean_box(0));
+lean_closure_set(x_4, 1, lean_box(0));
+lean_closure_set(x_4, 2, x_3);
+lean_inc(x_1);
+x_5 = lean_apply_2(x_1, lean_box(0), x_4);
+lean_inc(x_3);
+lean_inc(x_1);
+x_6 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___elambda__2___rarg), 4, 3);
+lean_closure_set(x_6, 0, x_1);
+lean_closure_set(x_6, 1, lean_box(0));
+lean_closure_set(x_6, 2, x_3);
+x_7 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___elambda__1___rarg), 4, 2);
+lean_closure_set(x_7, 0, x_3);
+lean_closure_set(x_7, 1, x_1);
+x_8 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_6);
+lean_ctor_set(x_8, 2, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_ST_Ref_toMonadStateOf(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_ST_Ref_toMonadStateOf___rarg), 3, 0);
 return x_3;
 }
 }

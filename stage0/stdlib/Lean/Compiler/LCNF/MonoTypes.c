@@ -2585,8 +2585,8 @@ lean_inc(x_43);
 x_44 = lean_unsigned_to_nat(0u);
 x_45 = l_Array_toSubarray___rarg(x_3, x_44, x_43);
 x_46 = l_Array_ofSubarray___rarg(x_45);
-lean_inc(x_5);
 x_47 = l_Lean_Compiler_LCNF_instantiateForall_go(x_46, x_44, x_41, x_5, x_6, x_42);
+lean_dec(x_46);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 

@@ -30,8 +30,7 @@ def registerCombinatorAttribute (name : Name) (descr : String) (ref : Name := by
     descr := descr,
     add   := fun decl stx _ => do
       let env ← getEnv
-      let parserDeclName ← Attribute.Builtin.getId stx
-      discard <| getConstInfo parserDeclName
+      let parserDeclName ← Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
       setEnv <| ext.addEntry env (parserDeclName, decl)
   }
   registerBuiltinAttribute attrImpl

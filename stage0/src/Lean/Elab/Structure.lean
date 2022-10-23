@@ -691,9 +691,8 @@ private opaque mkProjections (env : Environment) (structName : Name) (projs : Li
 
 private def addProjections (structName : Name) (projs : List Name) (isClass : Bool) : TermElabM Unit := do
   let env ← getEnv
-  match mkProjections env structName projs isClass with
-  | Except.ok env   => setEnv env
-  | Except.error ex => throwKernelException ex
+  let env ← ofExceptKernelException (mkProjections env structName projs isClass)
+  setEnv env
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do

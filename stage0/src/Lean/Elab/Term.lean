@@ -226,11 +226,6 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 whole monad stack at every use site. May eventually be covered by `deriving`.
-
-TODO: this trick does not work in the old/new code generators anymore.
-TODO: figure out a way to instruct the compiler to optimize this code once,
-and then lambda lift all methods once. Perhaps, we should do it whenever the
-instance is marked as always_inline.
 -/
 @[always_inline]
 instance : Monad TermElabM :=
@@ -1388,7 +1383,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   /-
   "Match" function for auxiliary declarations that correspond to recursive definitions being defined.
   This function is used in the first-pass.
-  Note that we do not check for `localDecl.userName == giveName` in this pass as we do for regular local declarations.
+  Note that we do not check for `localDecl.userName == givenName` in this pass as we do for regular local declarations.
   Reason: consider the following example
   ```
     mutual

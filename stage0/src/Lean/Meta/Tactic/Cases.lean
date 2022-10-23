@@ -256,7 +256,7 @@ end Cases
 
 /--
 Apply `casesOn` using the free variable `majorFVarId` as the major premise (aka discriminant).
-`giveNames` contains user-facing names for each alternative.
+`givenNames` contains user-facing names for each alternative.
 -/
 def _root_.Lean.MVarId.cases (mvarId : MVarId) (majorFVarId : FVarId) (givenNames : Array AltVarNames := #[]) : MetaM (Array CasesSubgoal) :=
   Cases.cases mvarId majorFVarId givenNames

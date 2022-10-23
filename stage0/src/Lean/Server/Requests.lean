@@ -33,6 +33,9 @@ def methodNotFound (method : String) : RequestError :=
   { code := ErrorCode.methodNotFound
     message := s!"No request handler found for '{method}'" }
 
+def invalidParams (message : String) : RequestError :=
+  {code := ErrorCode.invalidParams, message}
+
 def internalError (message : String) : RequestError :=
   { code := ErrorCode.internalError, message }
 

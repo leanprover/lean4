@@ -2095,8 +2095,8 @@ x_11 = 0;
 lean_inc(x_2);
 x_12 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_InferType_mkForallParams___spec__1(x_10, x_11, x_2);
 x_13 = lean_unsigned_to_nat(0u);
-lean_inc(x_6);
 x_14 = l_Lean_Compiler_LCNF_instantiateForall_go(x_12, x_13, x_1, x_6, x_7, x_8);
+lean_dec(x_12);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; size_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 

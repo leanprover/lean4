@@ -19,9 +19,8 @@ namespace Lean
 variable [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m]
 
 @[inline] private def adaptFn (f : Environment → Name → Except KernelException Environment) (declName : Name) : m Unit := do
-  match f (← getEnv) declName with
-  | Except.ok env   => modifyEnv fun _ => env
-  | Except.error ex => throwKernelException ex
+  let env ← ofExceptKernelException (f (← getEnv) declName)
+  modifyEnv fun _ => env
 
 def mkCasesOn (declName : Name) : m Unit := adaptFn mkCasesOnImp declName
 def mkRecOn (declName : Name) : m Unit := adaptFn mkRecOnImp declName

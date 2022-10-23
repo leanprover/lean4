@@ -13,8 +13,8 @@ namespace Command
 def commentBody : Parser :=
 { fn := rawFn (finishCommentBlock 1) (trailingWs := true) }
 
-@[combinator_parenthesizer Lean.Parser.Command.commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
-@[combinator_formatter Lean.Parser.Command.commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
+@[combinator_parenthesizer commentBody] def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+@[combinator_formatter commentBody] def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 def docComment := leading_parser ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
 end Command

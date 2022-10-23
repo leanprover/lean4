@@ -199,7 +199,7 @@ syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 the goal be closed at the end like `· tacs`. Like `by` itself, the tactics
 can be either separated by newlines or `;`.
 -/
-syntax (name := paren) "(" tacticSeq ")" : tactic
+syntax (name := paren) "(" withoutPosition(tacticSeq) ")" : tactic
 
 /--
 `with_reducible tacs` excutes `tacs` using the reducible transparency setting.
@@ -295,7 +295,7 @@ It synthesizes a value of any target type by typeclass inference.
 macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 
 /-- Optional configuration option for tactics -/
-syntax config := atomic(" (" &"config") " := " term ")"
+syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := "*"
@@ -339,7 +339,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 -/
 syntax rwRule    := ("← " <|> "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
-syntax rwRuleSeq := " [" rwRule,*,? "]"
+syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
 /--
 `rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
@@ -388,7 +388,7 @@ syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 The discharger clause of `simp` and related tactics.
 This is a tactic used to discharge the side conditions on conditional rewrite rules.
 -/
-syntax discharger := atomic(" (" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
+syntax discharger := atomic(" (" (&"discharger" <|> &"disch")) " := " withoutPosition(tacticSeq) ")"
 
 /-- Use this rewrite rule before entering the subterms -/
 syntax simpPre   := "↓"
@@ -426,14 +426,14 @@ non-dependent hypotheses. It has many variants:
   other hypotheses.
 -/
 syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
-  (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
 are simplified multiple times until no simplication is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
 syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
-  (" [" (simpErase <|> simpLemma),* "]")? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : tactic
 
 /--
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only
@@ -441,7 +441,7 @@ applies theorems that hold by reflexivity. Thus, the result is guaranteed to be
 definitionally equal to the input.
 -/
 syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
-  (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? (location)? : tactic
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
@@ -789,7 +789,8 @@ It is useful for referring to hypotheses without accessible names.
 `t` may contain holes that are solved by unification with the expected type;
 in particular, `‹_›` is a shortcut for `by assumption`.
 -/
-macro "‹" type:term "›" : term => `((by assumption : $type))
+syntax "‹" withoutPosition(term) "›" : term
+macro_rules | `(‹$type›) => `((by assumption : $type))
 
 /--
 `get_elem_tactic_trivial` is an extensible tactic automatically called
@@ -822,7 +823,9 @@ macro "get_elem_tactic" : tactic =>
    )
 
 @[inherit_doc getElem]
-macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
+syntax:max term noWs "[" withoutPosition(term) "]" : term
+macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 
 @[inherit_doc getElem]
-macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)
+syntax term noWs "[" withoutPosition(term) "]'" term:max : term
+macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)

@@ -17,7 +17,7 @@ macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
 -- Auxiliary parsers and functions for declaring notation with binders
 
 syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
-syntax bracketedExplicitBinders   := "(" binderIdent+ " : " term ")"
+syntax bracketedExplicitBinders   := "(" withoutPosition(binderIdent+ " : " term) ")"
 syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
 
 open TSyntax.Compat in

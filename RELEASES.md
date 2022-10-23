@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Add `linter.deprecated` option to silence deprecation warnings](https://github.com/leanprover/lean4/pull/1768).
+
 * [Improve fuzzy-matching heuristics](https://github.com/leanprover/lean4/pull/1710).
 
 * [Implementation-detail hypotheses](https://github.com/leanprover/lean4/pull/1692).

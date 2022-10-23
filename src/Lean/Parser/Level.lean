@@ -17,7 +17,7 @@ builtin_initialize
 namespace Level
 
 @[builtin_level_parser] def paren  := leading_parser
-  "(" >> levelParser >> ")"
+  "(" >> withoutPosition levelParser >> ")"
 @[builtin_level_parser] def max    := leading_parser
   nonReservedSymbol "max" true  >> many1 (ppSpace >> levelParser maxPrec)
 @[builtin_level_parser] def imax   := leading_parser

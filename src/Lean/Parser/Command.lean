@@ -11,7 +11,7 @@ namespace Parser
 
 /-- Syntax quotation for terms. -/
 @[builtin_term_parser] def Term.quot := leading_parser
-  "`(" >> incQuotDepth termParser >> ")"
+  "`(" >> withoutPosition (incQuotDepth termParser) >> ")"
 @[builtin_term_parser] def Term.precheckedQuot := leading_parser
   "`" >> Term.quot
 
@@ -26,7 +26,7 @@ Multiple commands will be put in a `` `null `` node,
 but a single command will not (so that you can directly
 match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
-  "`(" >> incQuotDepth (many1Unbox commandParser) >> ")"
+  "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
 /-
 A mutual block may be broken in different cliques,
@@ -60,7 +60,7 @@ def moduleDoc := leading_parser ppDedent <|
   "/-!" >> commentBody >> ppLine
 
 def namedPrio := leading_parser
-  atomic ("(" >> nonReservedSymbol "priority") >> " := " >> priorityParser >> ")"
+  atomic ("(" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
 def optNamedPrio := optional (ppSpace >> namedPrio)
 
 def «private»        := leading_parser "private "
@@ -157,12 +157,12 @@ def classInductive   := leading_parser
   optional (symbol " :=" <|> " where") >> many ctor >> optDeriving
 def structExplicitBinder := leading_parser
   atomic (declModifiers true >> "(") >>
-  many1 ident >> ppIndent optDeclSig >>
-  optional (Term.binderTactic <|> Term.binderDefault) >> ")"
+  withoutPosition (many1 ident >> ppIndent optDeclSig >>
+    optional (Term.binderTactic <|> Term.binderDefault)) >> ")"
 def structImplicitBinder := leading_parser
-  atomic (declModifiers true >> "{") >> many1 ident >> declSig >> "}"
+  atomic (declModifiers true >> "{") >> withoutPosition (many1 ident >> declSig) >> "}"
 def structInstBinder     := leading_parser
-  atomic (declModifiers true >> "[") >> many1 ident >> declSig >> "]"
+  atomic (declModifiers true >> "[") >> withoutPosition (many1 ident >> declSig) >> "]"
 def structSimpleBinder   := leading_parser
   atomic (declModifiers true >> ident) >> optDeclSig >>
   optional (Term.binderTactic <|> Term.binderDefault)
@@ -228,7 +228,7 @@ def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser
   "attribute " >> "[" >>
-  sepBy1 (eraseAttr <|> Term.attrInstance) ", " >>
+    withoutPosition (sepBy1 (eraseAttr <|> Term.attrInstance) ", ") >>
   "] " >> many1 ident
 @[builtin_command_parser] def «export»       := leading_parser
   "export " >> ident >> " (" >> many1 ident >> ")"

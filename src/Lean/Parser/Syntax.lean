@@ -30,19 +30,19 @@ namespace Syntax
 @[builtin_prec_parser] def numPrec := checkPrec maxPrec >> numLit
 
 @[builtin_syntax_parser] def paren           := leading_parser
-  "(" >> many1 syntaxParser >> ")"
+  "(" >> withoutPosition (many1 syntaxParser) >> ")"
 @[builtin_syntax_parser] def cat             := leading_parser
   ident >> optPrecedence
 @[builtin_syntax_parser] def unary           := leading_parser
-  ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ")"
+  ident >> checkNoWsBefore >> "(" >> withoutPosition (many1 syntaxParser) >> ")"
 @[builtin_syntax_parser] def binary          := leading_parser
-  ident >> checkNoWsBefore >> "(" >> many1 syntaxParser >> ", " >> many1 syntaxParser >> ")"
+  ident >> checkNoWsBefore >> "(" >> withoutPosition (many1 syntaxParser >> ", " >> many1 syntaxParser) >> ")"
 @[builtin_syntax_parser] def sepBy           := leading_parser
-  "sepBy(" >> many1 syntaxParser >> ", " >> strLit >>
-  optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep") >> ")"
+  "sepBy(" >> withoutPosition (many1 syntaxParser >> ", " >> strLit >>
+    optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep")) >> ")"
 @[builtin_syntax_parser] def sepBy1          := leading_parser
-  "sepBy1(" >> many1 syntaxParser >> ", " >> strLit >>
-  optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep") >> ")"
+  "sepBy1(" >> withoutPosition (many1 syntaxParser >> ", " >> strLit >>
+    optional (", " >> many1 syntaxParser) >> optional (", " >> nonReservedSymbol "allowTrailingSep")) >> ")"
 @[builtin_syntax_parser] def atom            := leading_parser
   strLit
 @[builtin_syntax_parser] def nonReserved     := leading_parser

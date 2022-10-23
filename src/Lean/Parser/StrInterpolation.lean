@@ -54,7 +54,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
       parse startPos c s
 
 @[inline] def interpolatedStrNoAntiquot (p : Parser) : Parser := {
-  fn   := interpolatedStrFn p.fn,
+  fn   := interpolatedStrFn (withoutPosition p).fn,
   info := mkAtomicInfo "interpolatedStr"
 }
 

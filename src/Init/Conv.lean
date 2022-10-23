@@ -18,7 +18,7 @@ only on the left side of an equality. -/
 declare_syntax_cat conv (behavior := both)
 
 syntax convSeq1Indented := sepBy1IndentSemicolon(conv)
-syntax convSeqBracketed := "{" sepByIndentSemicolon(conv) "}"
+syntax convSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(conv)) "}"
 -- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented
@@ -122,7 +122,8 @@ syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
-syntax (name := simp) "simp" (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
 /--
 `dsimp` is the definitional simplifier in `conv`-mode. It differs from `simp` in that it only
@@ -138,7 +139,8 @@ example (a : Nat): (0 + 0) = a - a := by
     rw [← Nat.sub_self a]
 ```
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : conv
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")?
+  ("[" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```
@@ -165,7 +167,7 @@ syntax (name := nestedConv) convSeqBracketed : conv
 
 /-- `(convs)` runs the `convs` in sequence on the current list of targets.
 This is pure grouping with no added effects. -/
-syntax (name := paren) "(" convSeq ")" : conv
+syntax (name := paren) "(" withoutPosition(convSeq) ")" : conv
 
 /-- `rfl` closes one conv goal "trivially", by using reflexivity
 (that is, no rewriting). -/

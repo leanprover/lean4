@@ -451,12 +451,6 @@ def all : ConstantInfo → List Name
   | opaqueInfo val => val.all
   | info           => [info.name]
 
-@[extern "lean_instantiate_type_lparams"]
-opaque instantiateTypeLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
-
-@[extern "lean_instantiate_value_lparams"]
-opaque instantiateValueLevelParams (c : @& ConstantInfo) (ls : @& List Level) : Expr
-
 end ConstantInfo
 
 def mkRecName (declName : Name) : Name :=

@@ -134,6 +134,10 @@ instance : ReprAtom Float  := ⟨⟩
 
 instance : Pow Float Float := ⟨Float.pow⟩
 
+instance : Min Float := minOfLe
+
+instance : Max Float := maxOfLe
+
 /--
 Efficiently computes `x * 2^i`.
 -/

@@ -288,7 +288,7 @@ execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_C
 # such as '-lrt -ldl -lm -lz -ltinfo -lxml2'
 execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-message("TODO: change to debug | llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLGAS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
+message("TODO: change to debug | llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLAGS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
 
 # when using shared libraries, set the `rpath` to help the dynamic loader
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -317,7 +317,8 @@ string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 # Link LLVM for code generation
 if(LLVM)
     string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
-    set(APPEND LEAN_EXTRA_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDUR} ${LLVM_CONFIG_CXXFLAGS}")
+    set(APPEND LEAN_EXTRA_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR} ${LLVM_CONFIG_CXXFLAGS}")
+    message("TODO: change to debug | leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTRA_CXXL_FLAGS}'")
 endif()
 
 # get rid of unused parts of C++ stdlib

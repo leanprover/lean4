@@ -40,6 +40,8 @@ builtin_initialize
   register_parser_alias many1Indent
   register_parser_alias optional { autoGroupArgs := false }
   register_parser_alias withPosition { stackSz? := none }
+  register_parser_alias withoutPosition { stackSz? := none }
+  register_parser_alias withoutForbidden { stackSz? := none }
   register_parser_alias (kind := interpolatedStrKind) interpolatedStr
   register_parser_alias orelse
   register_parser_alias andthen { stackSz? := none }

@@ -159,7 +159,7 @@ def sufficesDecl := leading_parser
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
 def structInstArrayRef := leading_parser
-  "[" >> termParser >>"]"
+  "[" >> withoutPosition termParser >>"]"
 def structInstLVal   := leading_parser
   (ident <|> fieldIdx <|> structInstArrayRef) >>
   many (group ("." >> (ident <|> fieldIdx)) <|> structInstArrayRef)
@@ -180,10 +180,10 @@ The structure type can be specified if not inferable:
 `{ x := 1, y := 2 : Point }`.
 -/
 @[builtin_term_parser] def structInst := leading_parser
-  "{" >> ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
+  "{" >> withoutPosition (ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
     >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
     >> optEllipsis
-    >> optional (" : " >> termParser) >> " }"
+    >> optional (" : " >> termParser)) >> " }"
 def typeSpec := leading_parser " : " >> termParser
 def optType : Parser := optional typeSpec
 /--
@@ -197,7 +197,7 @@ def optType : Parser := optional typeSpec
 In contrast to regular patterns, `e` may be an arbitrary term of the appropriate type.
 -/
 @[builtin_term_parser] def inaccessible := leading_parser
-  ".(" >> termParser >> ")"
+  ".(" >> withoutPosition termParser >> ")"
 def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser :=
   if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
@@ -206,13 +206,13 @@ def binderTactic  := leading_parser
 def binderDefault := leading_parser
   " := " >> termParser
 def explicitBinder (requireType := false) := ppGroup $ leading_parser
-  "(" >> many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault) >> ")"
+  "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
 /--
 Implicit binder. In regular applications without `@`, it is automatically inserted
 and solved by unification whenever all explicit parameters before it are specified.
 -/
 def implicitBinder (requireType := false) := ppGroup $ leading_parser
-  "{" >> many1 binderIdent >> binderType requireType >> "}"
+  "{" >> withoutPosition (many1 binderIdent >> binderType requireType) >> "}"
 def strictImplicitLeftBracket := atomic (group (symbol "{" >> "{")) <|> "⦃"
 def strictImplicitRightBracket := atomic (group (symbol "}" >> "}")) <|> "⦄"
 /--
@@ -228,7 +228,7 @@ Instance-implicit binder. In regular applications without `@`, it is automatical
 and solved by typeclass inference of the specified class.
 -/
 def instBinder := ppGroup <| leading_parser
-  "[" >> optIdent >> termParser >> "]"
+  "[" >> withoutPosition (optIdent >> termParser) >> "]"
 def bracketedBinder (requireType := false) :=
   withAntiquot (mkAntiquot "bracketedBinder" decl_name% (isPseudoKind := true)) <|
     explicitBinder requireType <|> strictImplicitBinder requireType <|>
@@ -286,7 +286,7 @@ def generalizingParam := leading_parser
 
 def motive := leading_parser
   atomic ("(" >> nonReservedSymbol "motive" >> " := ") >>
-  termParser >> ")" >> ppSpace
+    withoutPosition termParser >> ")" >> ppSpace
 
 /--
 Pattern matching. `match e, ... with | p, ... => f | ...` matches each given
@@ -461,7 +461,7 @@ def attrKind := leading_parser optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 
 def attributes       := leading_parser
-  "@[" >> sepBy1 attrInstance ", " >> "]"
+  "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "]"
 def letRecDecl       := leading_parser
   optional Command.docComment >> optional «attributes» >> letDecl
 def letRecDecls      := leading_parser
@@ -544,7 +544,7 @@ We use them to implement `macro_rules` and `elab_rules`
   "no_error_if_unused%" >> termParser
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
-  atomic ("(" >> ident >> " := ") >> termParser >> ")"
+  atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
 def ellipsis       := leading_parser (withAnonymousAntiquot := false) ".."
 def argument       :=
   checkWsBefore "expected space" >>
@@ -646,7 +646,7 @@ def macroLastArg   := macroDollarArg <|> macroArg
   "StateRefT" >> macroArg >> macroLastArg
 
 @[builtin_term_parser] def dynamicQuot := leading_parser
-  "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
+  "`(" >> ident >> "|" >> withoutPosition (incQuotDepth (parserOfStack 1)) >> ")"
 
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent
@@ -654,9 +654,9 @@ def macroLastArg   := macroDollarArg <|> macroArg
 end Term
 
 @[builtin_term_parser default+1] def Tactic.quot : Parser := leading_parser
-  "`(tactic|" >> incQuotDepth tacticParser >> ")"
+  "`(tactic|" >> withoutPosition (incQuotDepth tacticParser) >> ")"
 @[builtin_term_parser] def Tactic.quotSeq : Parser := leading_parser
-  "`(tactic|" >> incQuotDepth Tactic.seq1 >> ")"
+  "`(tactic|" >> withoutPosition (incQuotDepth Tactic.seq1) >> ")"
 
 open Term in
 builtin_initialize

@@ -824,7 +824,7 @@ def dsimp (e : Expr) (ctx : Simp.Context)
 
 /--
   Auxiliary method.
-  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equaal to the current one.
+  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equal to the current one.
 -/
 def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) : MetaM MVarId := do
   match r.proof? with

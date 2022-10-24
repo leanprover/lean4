@@ -176,8 +176,8 @@ jobs:
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
       - name: Print Leanc flags
         run: |
-          lean-*/bin/leanc --print-cflags
-          lean-*/bin/leanc --print-ldflags
+          lean-*/bin/leanc --print-cflags || true
+          lean-*/bin/leanc --print-ldflags || true
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...

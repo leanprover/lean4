@@ -324,7 +324,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
 def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
   let mvar ← instantiateMVars mvar
   if !(← hasAssignableMVar mvar) then
-    /- The metavariable `mvar` may have been assinged when solving typing constraints.
+    /- The metavariable `mvar` may have been assigned when solving typing constraints.
        This may happen when a local instance type depends on other local instances.
        For example, in Mathlib, we have
        ```

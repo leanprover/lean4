@@ -16,8 +16,8 @@ Instantiate level parameters
 where
   @[specialize] replaceFn (e : Expr) : Option Expr :=
     if !e.hasLevelParam then e else match e with
-    | const _ us => e.updateConst! (us.map fun u => u.instantiateParams s)
-    | sort u => e.updateSort! (u.instantiateParams s)
+    | const _ us => e.updateConst! (us.map fun u => u.substParams s)
+    | sort u => e.updateSort! (u.substParams s)
     | _ => none
 
 private def getParamSubst : List Name → List Level → Name → Option Level
@@ -25,7 +25,7 @@ private def getParamSubst : List Name → List Level → Name → Option Level
   | _,     _,     _  => none
 
 /--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two lists have different length, the smallest one is used.
 -/
 def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
@@ -33,7 +33,7 @@ def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Leve
     instantiateLevelParamsCore (getParamSubst paramNames lvls) e
 
 /--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two lists have different length, the smallest one is used.
 (Does not preserve expression sharing.)
 -/
@@ -51,7 +51,7 @@ private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' 
   else none
 
 /--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
+Instantiate universe level parameters names `paramNames` with `lvls` in `e`.
 If the two arrays have different length, the smallest one is used.
 -/
 def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=

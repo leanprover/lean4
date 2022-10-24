@@ -566,17 +566,26 @@ def mkNaryMax : List Level → Level
   | [u]   => u
   | u::us => mkLevelMax' u (mkNaryMax us)
 
-/- Level to Format -/
+@[specialize] def substParams (u : Level) (s : Name → Option Level) : Level :=
+  go u
+where
+  go (u : Level) : Level :=
+    match u with
+    | .zero       => u
+    | .succ v     => if u.hasParam then u.updateSucc! (go v) else u
+    | .max v₁ v₂  => if u.hasParam then u.updateMax! (go v₁) (go v₂) else u
+    | .imax v₁ v₂ => if u.hasParam then u.updateIMax! (go v₁) (go v₂) else u
+    | .param n    => match s n with
+      | some u' => u'
+      | none    => u
+    | u => u
 
-@[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
-  | u@(zero)       => u
-  | u@(succ v)     => if u.hasParam then u.updateSucc! (instantiateParams s v) else u
-  | u@(max v₁ v₂)  => if u.hasParam then u.updateMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
-  | u@(imax v₁ v₂) => if u.hasParam then u.updateIMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
-  | u@(param n)    => match s n with
-    | some u' => u'
-    | none    => u
-  | u           => u
+def getParamSubst : List Name → List Level → Name → Option Level
+  | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
+  | _,     _,     _  => none
+
+def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
+  u.substParams (getParamSubst paramNames vs)
 
 def geq (u v : Level) : Bool :=
   go u.normalize v.normalize

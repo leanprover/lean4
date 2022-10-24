@@ -181,14 +181,14 @@ where
     extra state, and return it. Otherwise, we just return `stx`. -/
   go : Syntax → StateT (Array Ident) MacroM Syntax
     | stx@`(($(_))) => pure stx
-    | `(·) => withFreshMacroScope do
-      let id : Ident ← `(a)
-      modify fun s => s.push id
+    | stx@`(·) => withFreshMacroScope do
+      let id ← mkFreshIdent stx (canonical := true)
+      modify (·.push id)
       pure id
     | stx => match stx with
-      | .node i k args => do
+      | .node _ k args => do
         let args ← args.mapM go
-        pure $ Syntax.node i k args
+        return .node (.fromRef stx (canonical := true)) k args
       | _ => pure stx
 
 /--

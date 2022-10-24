@@ -600,7 +600,7 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
-def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Syntax :=
+def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Ident :=
   return mkIdentFrom ref (← mkFreshBinderName) canonical
 
 private def applyAttributesCore

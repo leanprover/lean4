@@ -386,9 +386,15 @@ null
  "position": {"line": 201, "character": 8}}
 {"range":
  {"start": {"line": 201, "character": 8}, "end": {"line": 201, "character": 9}},
+ "contents": {"value": "```lean\n?m\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 201, "character": 10}}
+{"range":
+ {"start": {"line": 201, "character": 8},
+  "end": {"line": 201, "character": 13}},
  "contents":
  {"value":
-  "A placeholder for an implicit lambda abstraction's variable. The lambda abstraction is scoped to the surrounding parentheses.\nFor example, `(· + ·)` is equivalent to `fun x y => x + y`.\n",
+  "```lean\n?m x✝¹ x✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 209, "character": 28}}

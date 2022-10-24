@@ -101,7 +101,7 @@ the kernel is to type check these declarations and refuse type incorrect ones. T
 kernel does not allow declarations containing metavariables and/or free variables
 to be added to an environment. Environments are never destructively updated.
 
-The environment also contains a collction of extensions. For example, the `simp` theorems
+The environment also contains a collection of extensions. For example, the `simp` theorems
 declared by users are stored in an environment extension. Users can declare new extensions
 using meta-programming.
 -/

@@ -7,5 +7,5 @@ number of parameters: 1
 constructors:
 Foo.mk : {α : Type} → Bar (α → α) → (Bool → α) → Nat → Foo α
 def f : Nat → Foo Nat :=
-fun x => { toBar := { a := fun y => x + y, b := fun a a_1 => a + a_1 }, c := fun x_1 => x, d := x }
+fun x => { toBar := { a := fun y => x + y, b := fun x x_1 => x + x_1 }, c := fun x_1 => x, d := x }
 diamond1.lean:27:47-27:52: warning: field 'a' from 'Baz' has already been declared

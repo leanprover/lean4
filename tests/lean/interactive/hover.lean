@@ -201,7 +201,7 @@ example : Nat := Id.run do (← 1)
 
 #check (· + ·)
       --^ textDocument/hover
-
+        --^ textDocument/hover
 macro "my_intro" x:(ident <|> "_") : tactic =>
   match x with
   | `($x:ident) => `(tactic| intro $x:ident)

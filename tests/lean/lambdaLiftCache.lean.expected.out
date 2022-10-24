@@ -1,6 +1,6 @@
 [Compiler.saveMono] size: 1
-    def foo._lam_0 x a.1 : Nat :=
-      let _x.2 := Nat.add a.1 x;
+    def foo._lam_0 x x.1 : Nat :=
+      let _x.2 := Nat.add x.1 x;
       return _x.2
 [Compiler.saveMono] size: 2
     def foo x xs : List Nat :=

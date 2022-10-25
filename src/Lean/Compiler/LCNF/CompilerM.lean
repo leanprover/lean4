@@ -191,6 +191,23 @@ where
       e
 
 /--
+Replace the free variables in `arg` using the given substitution.
+
+See `normExprImp`
+-/
+private partial def normArgImp (s : FVarSubst) (arg : Arg) (translator : Bool) : Arg :=
+  match arg with
+  | .erased => arg
+  | .fvar fvarId =>
+    match s.find? fvarId with
+    | some (.fvar fvarId') =>
+      let arg' := .fvar fvarId'
+      if translator then arg' else normArgImp s arg' translator
+    | some e => if e.isErased then .erased else .type e
+    | none => arg
+  | .type e => arg.updateType! (normExprImp s e translator)
+
+/--
 Normalize the given free variable.
 See `normExprImp` for documentation on the `translator` parameter.
 This function is meant to be used in contexts where the input free-variable is computationally relevant.
@@ -207,6 +224,22 @@ private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : 
       normFVarImp s fvarId' translator
   | some e => panic! s!"invalid LCNF substitution of free variable with expression {e}"
   | none => fvarId
+
+
+private def normArgsImp (s : FVarSubst) (args : Array Arg) (translator : Bool) : Array Arg :=
+  args.mapMono (normArgImp s · translator)
+
+/--
+Replace the free variables in `e` using the given substitution.
+
+See `normExprImp`
+-/
+private partial def normLetExprImp (s : FVarSubst) (e : LetExpr) (translator : Bool) : LetExpr :=
+  match e with
+  | .erased | .value .. => e
+  | .proj _ _ fvarId => e.updateProj! (normFVarImp s fvarId translator)
+  | .const _ _ args => e.updateArgs! (normArgsImp s args translator)
+  | .fvar fvarId args => e.updateFVar! (normFVarImp s fvarId translator) (normArgsImp s args translator)
 
 /--
 Interface for monads that have a free substitutions.
@@ -248,15 +281,21 @@ See `Check.lean` for the free variable substitution checker.
 @[inline, inherit_doc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
   return normExprImp (← getSubst) e t
 
+@[inline, inherit_doc normArgImp] def normArg [MonadFVarSubst m t] [Monad m] (arg : Arg) : m Arg :=
+  return normArgImp (← getSubst) arg t
+
+@[inline, inherit_doc normLetExprImp] def normLetExpr [MonadFVarSubst m t] [Monad m] (e : LetExpr) : m LetExpr :=
+  return normLetExprImp (← getSubst) e t
+
 @[inherit_doc normExprImp]
 abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
   normExprImp s e translator
 
 /--
-Normalize the given expressions using the current substitution.
+Normalize the given arguments using the current substitution.
 -/
-def normExprs [MonadFVarSubst m t] [Monad m] (es : Array Expr) : m (Array Expr) :=
-  es.mapMonoM normExpr
+def normArgs [MonadFVarSubst m t] [Monad m] (args : Array Arg) : m (Array Arg) :=
+  return normArgsImp (← getSubst) args t
 
 def mkFreshBinderName (binderName := `_x): CompilerM Name := do
   let declName := .num binderName (← get).nextIdx
@@ -280,7 +319,7 @@ def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM Param 
   modifyLCtx fun lctx => lctx.addParam param
   return param
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) : CompilerM LetDecl := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : LetExpr) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_x
   let decl := { fvarId, binderName, type, value }
@@ -304,7 +343,7 @@ private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param :=
 
 @[implemented_by updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
 
-private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl := do
+private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetExpr) : CompilerM LetDecl := do
   if ptrEq type decl.type && ptrEq value decl.value then
     return decl
   else
@@ -312,9 +351,9 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : Expr
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
 
-@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : Expr) : CompilerM LetDecl
+@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : LetExpr) : CompilerM LetDecl
 
-def LetDecl.updateValue (decl : LetDecl) (value : Expr) : CompilerM LetDecl :=
+def LetDecl.updateValue (decl : LetDecl) (value : LetExpr) : CompilerM LetDecl :=
   decl.update decl.type value
 
 private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
@@ -340,7 +379,7 @@ def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (ps : Arr
   ps.mapMonoM normParam
 
 def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (decl : LetDecl) : m LetDecl := do
-  decl.update (← normExpr decl.type) (← normExpr decl.value)
+  decl.update (← normExpr decl.type) (← normLetExpr decl.value)
 
 abbrev NormalizerM (_translator : Bool) := ReaderT FVarSubst CompilerM
 
@@ -359,7 +398,7 @@ mutual
     | .let decl k => return code.updateLet! (← normLetDecl decl) (← normCodeImp k)
     | .fun decl k | .jp decl k => return code.updateFun! (← normFunDeclImp decl) (← normCodeImp k)
     | .return fvarId => return code.updateReturn! (← normFVar fvarId)
-    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normExprs args)
+    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normArgs args)
     | .unreach type => return code.updateUnreach! (← normExpr type)
     | .cases c =>
       let resultType ← normExpr c.resultType

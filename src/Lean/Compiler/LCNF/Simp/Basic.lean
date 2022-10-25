@@ -11,25 +11,29 @@ import Lean.Compiler.LCNF.CompilerM
 namespace Lean.Compiler.LCNF
 namespace Simp
 
-partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do
+/-
+-- TODO: cleanup
+partial def findExpr (e : LetExpr) : CompilerM LetExpr := do
   match e with
-  | .fvar fvarId =>
-    let some decl ← findLetDecl? fvarId | return e
-    findExpr decl.value
-  | .mdata _ e' => if skipMData then findExpr e' else return e
+  | .fvar fvarId args =>
+    if args.isEmpty then
+      let some decl ← findLetDecl? fvarId | return e
+      findExpr decl.value
+    else
+      return e
   | _ => return e
 
-partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
+partial def findFunDecl? (e : LetExpr) : CompilerM (Option FunDecl) := do
   match e with
-  | .fvar fvarId =>
+  | .fvar fvarId args =>
+
     if let some decl ← LCNF.findFunDecl? fvarId then
       return some decl
     else if let some decl ← findLetDecl? fvarId then
       findFunDecl? decl.value
     else
       return none
-  | .mdata _ e => findFunDecl? e
   | _ => return none
-
+-/
 end Simp
 end Lean.Compiler.LCNF

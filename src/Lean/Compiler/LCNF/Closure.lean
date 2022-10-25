@@ -71,7 +71,20 @@ mutual
   contain other type parameters.
   -/
   partial def collectParams (params : Array Param) : ClosureM Unit :=
-    params.forM (collectExpr ·.type)
+    params.forM (collectType ·.type)
+
+  partial def collectArg (arg : Arg) : ClosureM Unit :=
+    match arg with
+    | .erased => return ()
+    | .type e => collectType e
+    | .fvar fvarId => collectFVar fvarId
+
+  partial def collectLetExpr (e : LetExpr) : ClosureM Unit := do
+    match e with
+    | .erased | .value .. => return ()
+    | .proj _ _ fvarId => collectFVar fvarId
+    | .const _ _ args => args.forM collectArg
+    | .fvar fvarId args => collectFVar fvarId; args.forM collectArg
 
   /--
   Collect dependencies in the given code. We need this function to be able
@@ -79,22 +92,22 @@ mutual
   -/
   partial def collectCode (c : Code) : ClosureM Unit := do
     match c with
-    | .let decl k => collectExpr decl.type; collectExpr decl.value; collectCode k
+    | .let decl k => collectType decl.type; collectLetExpr decl.value; collectCode k
     | .fun decl k | .jp decl k => collectFunDecl decl; collectCode k
     | .cases c =>
-      collectExpr c.resultType
+      collectType c.resultType
       collectFVar c.discr
       c.alts.forM fun alt => do
         match alt with
         | .default k => collectCode k
         | .alt _ ps k => collectParams ps; collectCode k
-    | .jmp _ args => args.forM collectExpr
-    | .unreach type => collectExpr type
+    | .jmp _ args => args.forM collectArg
+    | .unreach type => collectType type
     | .return fvarId => collectFVar fvarId
 
   /-- Collect dependencies of a local function declaration. -/
   partial def collectFunDecl (decl : FunDecl) : ClosureM Unit := do
-    collectExpr decl.type
+    collectType decl.type
     collectParams decl.params
     collectCode decl.value
 
@@ -114,21 +127,21 @@ mutual
             collectFunDecl funDecl
             modify fun s => { s with decls := s.decls.push <| .fun funDecl }
         else if let some param ← findParam? fvarId then
-          collectExpr param.type
+          collectType param.type
           modify fun s => { s with params := s.params.push param }
         else if let some letDecl ← findLetDecl? fvarId then
-          collectExpr letDecl.type
+          collectType letDecl.type
           if (← read).abstract letDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
-            collectExpr letDecl.value
+            collectLetExpr letDecl.value
             modify fun s => { s with decls := s.decls.push <| .let letDecl }
         else
           unreachable!
 
   /-- Collect dependencies of the given expression. -/
-  partial def collectExpr (e : Expr) : ClosureM Unit := do
-    e.forEach fun e => do
+  partial def collectType (type : Expr) : ClosureM Unit := do
+    type.forEach fun e => do
       match e with
       | .fvar fvarId => collectFVar fvarId
       | _ => pure ()

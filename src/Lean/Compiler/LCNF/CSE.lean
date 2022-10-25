@@ -57,12 +57,13 @@ where
     | .let decl k =>
       let decl ← normLetDecl decl
       -- We only apply CSE to pure code
-      match (← get).map.find? decl.value with
+      let key := decl.value.toExpr
+      match (← get).map.find? key with
       | some fvarId =>
         replaceLet decl fvarId
         go k
       | none =>
-        addEntry decl.value decl.fvarId
+        addEntry key decl.fvarId
         return code.updateLet! decl (← go k)
     | .fun decl k =>
       let decl ← goFunDecl decl
@@ -91,7 +92,7 @@ where
         | .default k => withNewScope do return alt.updateCode (← go k)
       return code.updateCases! resultType discr alts
     | .return fvarId => return code.updateReturn! (← normFVar fvarId)
-    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normExprs args)
+    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normArgs args)
     | .unreach .. => return code
 
 end CSE

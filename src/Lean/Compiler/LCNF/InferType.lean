@@ -101,21 +101,22 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
     getOtherDeclType declName us
 
 mutual
+  partial def inferArgType (arg : Arg) : InferTypeM Expr :=
+    match arg with
+    | .erased => return erasedExpr
+    | .type e => inferType e
+    | .fvar fvarId => LCNF.getType fvarId
 
+-- TODO: stopped here
   partial def inferType (e : Expr) : InferTypeM Expr :=
     match e with
     | .const c us    => inferConstType c us
-    | .proj n i s    => inferProjType n i s
     | .app ..        => inferAppType e
-    | .mvar ..       => throwError "unexpected metavariable {e}"
     | .fvar fvarId   => InferType.getType fvarId
-    | .bvar ..       => throwError "unexpected bound variable {e}"
-    | .mdata _ e     => inferType e
-    | .lit v         => return v.type
     | .sort lvl      => return .sort (mkLevelSucc lvl)
     | .forallE ..    => inferForallType e
     | .lam ..        => inferLambdaType e
-    | .letE ..       => inferLambdaType e
+    | .letE .. | .mvar .. | .mdata .. | .lit .. | .bvar .. | .proj .. => unreachable!
 
   partial def inferAppTypeCore (f : Expr) (args : Array Expr) : InferTypeM Expr := do
     let mut j := 0

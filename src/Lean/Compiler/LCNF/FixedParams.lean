@@ -34,7 +34,7 @@ marked as not fixed.
 -/
 
 /-- Abstract value for the "fixed parameter" analysis. -/
-inductive Value where
+inductive AbsValue where
   | top
   | erased
   | val (i : Nat)
@@ -52,7 +52,7 @@ structure Context where
   The assignment maps free variable ids in the current code being analyzed to abstract values.
   We only track the abstract value assigned to parameters.
   -/
-  assignment : FVarIdMap Value
+  assignment : FVarIdMap AbsValue
 
 structure State where
   /--
@@ -61,7 +61,7 @@ structure State where
   Whenever there is function application `f a₁ ... aₙ`, where `f` is in `decls`, `f` is not `main`, and
   we visit with the abstract values assigned to `aᵢ`, but first we record the visit here.
   -/
-  visited : HashSet (Name × Array Value) := {}
+  visited : HashSet (Name × Array AbsValue) := {}
   /--
   Bitmask containing the result, i.e., which parameters of `main` are fixed.
   We initialize it with `true` everywhere.
@@ -76,17 +76,18 @@ abbrev abort : FixParamM α := do
   modify fun s => { s with fixed := s.fixed.map fun _ => false }
   throw ()
 
-def evalArg (arg : Expr) : FixParamM Value := do
-  if arg.isErased then
-    return .erased
-  let .fvar fvarId := arg | return .top
-  let some val := (← read).assignment.find? fvarId | return .top
-  return val
+def evalArg (arg : Arg) : FixParamM AbsValue := do
+  match arg with
+  | .erased => return .erased
+  | .type _ => return .top
+  | .fvar fvarId =>
+    let some val := (← read).assignment.find? fvarId | return .top
+    return val
 
 def inMutualBlock (declName : Name) : FixParamM Bool :=
   return (← read).decls.any (·.name == declName)
 
-def mkAssignment (decl : Decl) (values : Array Value) : FVarIdMap Value := Id.run do
+def mkAssignment (decl : Decl) (values : Array AbsValue) : FVarIdMap AbsValue := Id.run do
   let mut assignment := {}
   for param in decl.params, value in values do
     assignment := assignment.insert param.fvarId value
@@ -94,23 +95,19 @@ def mkAssignment (decl : Decl) (values : Array Value) : FVarIdMap Value := Id.ru
 
 mutual
 
-partial def evalExpr (e : Expr) : FixParamM Unit := do
+partial def evalLetExpr (e : LetExpr) : FixParamM Unit := do
   match e with
-  | .const declName _ => evalApp declName #[]
-  | .app .. =>
-    let .const declName _ := e.getAppFn | return ()
-    if (← inMutualBlock declName) then
-      evalApp declName e.getAppArgs
+  | .const declName _ args => evalApp declName args
   | _ => return ()
 
 partial def evalCode (code : Code) : FixParamM Unit := do
   match code with
-  | .let decl k => evalExpr decl.value; evalCode k
+  | .let decl k => evalLetExpr decl.value; evalCode k
   | .fun decl k | .jp decl k => evalCode decl.value; evalCode k
   | .cases c => c.alts.forM fun alt => evalCode alt.getCode
   | .unreach .. | .jmp .. | .return .. => return ()
 
-partial def evalApp (declName : Name) (args : Array Expr) : FixParamM Unit := do
+partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
   let main := (← read).main
   if declName == main.name then
     -- Recursive call to the function being analyzed
@@ -145,7 +142,7 @@ partial def evalApp (declName : Name) (args : Array Expr) : FixParamM Unit := do
 
 end
 
-def mkInitialValues (numParams : Nat) : Array Value := Id.run do
+def mkInitialValues (numParams : Nat) : Array AbsValue := Id.run do
   let mut values := #[]
   for i in [:numParams] do
     values := values.push <| .val i

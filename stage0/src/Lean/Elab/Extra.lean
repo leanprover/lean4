@@ -76,14 +76,16 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         | .none     => throwForInFailure forInInstance
   | _ => throwUnsupportedSyntax
 
-namespace BinOp
+namespace Op
 /-!
 
-The elaborator for `binop%` terms works as follows:
+The elaborator for `binop%`, `binop_lazy%`, and `unop%` terms.
+
+It works as follows:
 
 1- Expand macros.
-2- Convert `Syntax` object corresponding to the `binop%` term into a `Tree`.
-   The `toTree` method visits nested `binop%` terms and parentheses.
+2- Convert `Syntax` object corresponding to the `binop%` (`binop_lazy%` and `unop%`) term into a `Tree`.
+   The `toTree` method visits nested `binop%` (`binop_lazy%` and `unop%`) terms and parentheses.
 3- Synthesize pending metavariables without applying default instances and using the
    `(mayPostpone := true)`.
 4- Tries to compute a maximal type for the tree computed at step 2.
@@ -115,7 +117,7 @@ coercions inside of a `HAdd` instance.
 
 Remarks:
 
-In the new `binop%` elaborator the decision whether a coercion will be inserted or not
+In the new `binop%` and related elaborators the decision whether a coercion will be inserted or not
 is made at `binop%` elaboration time. This was not the case in the old elaborator.
 For example, an instance, such as `HAdd Int ?m ?n`, could be created when executing
 the `binop%` elaborator, and only resolved much later. We try to minimize this problem
@@ -139,7 +141,14 @@ private inductive Tree where
   `macroName` is the `macro_rule` that produce the expansion. We store this information
   here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
   -/
-  | op (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  | binop (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  /--
+  `ref` is the original syntax that expanded into `unop%`.
+  `macroName` is the `macro_rule` that produce the expansion. We store this information
+  here to make sure "go to definition" behaves similarly to notation defined without using `unop%` helper elaborator.
+  -/
+  | unop (ref : Syntax) (macroName : Name) (f : Expr) (arg : Tree)
+
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
   /-
@@ -154,8 +163,9 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
 where
   go (s : Syntax) := do
     match s with
-    | `(binop% $f $lhs $rhs) => processOp (lazy := false) s .anonymous f lhs rhs
-    | `(binop_lazy% $f $lhs $rhs) => processOp (lazy := true) s .anonymous f lhs rhs
+    | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s .anonymous f lhs rhs
+    | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s .anonymous f lhs rhs
+    | `(unop% $f $arg) => processUnOp s .anonymous f arg
     | `(($e)) =>
       if hasCDot e then
         processLeaf s
@@ -166,14 +176,19 @@ where
        | some (macroName, s?) =>
          let s' ← liftMacroM <| liftExcept s?
          match s' with
-         | `(binop% $f $lhs $rhs) => processOp (lazy := false) s macroName f lhs rhs
-         | `(binop_lazy% $f $lhs $rhs) => processOp (lazy := true) s macroName f lhs rhs
+         | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s macroName f lhs rhs
+         | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s macroName f lhs rhs
+         | `(unop% $f $arg) => processUnOp s .anonymous f arg
          | _  => processLeaf s
        | none => processLeaf s
 
-  processOp (ref : Syntax) (declName : Name) (f lhs rhs : Syntax) (lazy : Bool) := do
+  processBinOp (ref : Syntax) (declName : Name) (f lhs rhs : Syntax) (lazy : Bool) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
-    return .op (lazy := lazy) ref declName f (← go lhs) (← go rhs)
+    return .binop (lazy := lazy) ref declName f (← go lhs) (← go rhs)
+
+  processUnOp (ref : Syntax) (declName : Name) (f arg : Syntax) := do
+    let some f ← resolveId? f | throwUnknownConstant f.getId
+    return .unop ref declName f (← go arg)
 
   processLeaf (s : Syntax) := do
     let e ← elabTerm s none
@@ -202,7 +217,7 @@ private def isUnknow : Expr → Bool
   | .app f _        => isUnknow f
   | .letE _ _ _ b _ => isUnknow b
   | .mdata _ b      => isUnknow b
-  | _                   => false
+  | _               => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
   let max? ←
@@ -216,7 +231,8 @@ where
    go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
      unless (← get).hasUncomparable do
        match t with
-       | .op _ _ _ _ lhs rhs => go lhs; go rhs
+       | .binop _ _ _ _ lhs rhs => go lhs; go rhs
+       | .unop _ _ _ arg => go arg
        | .term _ _ val =>
          let type ← instantiateMVars (← inferType val)
          unless isUnknow type do
@@ -232,19 +248,25 @@ where
                  trace[Elab.binop] "uncomparable types: {max}, {type}"
                  modify fun s => { s with hasUncomparable := true }
 
-private def mkOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
+private def mkBinOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
   elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
+
+private def mkUnOp (f : Expr) (arg : Expr) : TermElabM Expr := do
+  elabAppArgs f #[] #[Arg.expr arg] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
 private def toExprCore (t : Tree) : TermElabM Expr := do
   match t with
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
-  | .op ref macroName true f lhs rhs  =>
+  | .binop ref macroName true f lhs rhs  =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
-      mkOp f (← toExprCore lhs) (← mkFunUnit (← toExprCore rhs))
-  | .op ref macroName false f lhs rhs =>
+      mkBinOp f (← toExprCore lhs) (← mkFunUnit (← toExprCore rhs))
+  | .binop ref macroName false f lhs rhs =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
-      mkOp f (← toExprCore lhs) (← toExprCore rhs)
+      mkBinOp f (← toExprCore lhs) (← toExprCore rhs)
+  | .unop ref macroName f arg =>
+    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
+      mkUnOp f (← toExprCore arg)
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -323,7 +345,7 @@ mutual
   where
     go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
       match t with
-      | .op ref macroName lazy f lhs rhs =>
+      | .binop ref macroName lazy f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
           `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
@@ -331,12 +353,14 @@ mutual
           Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
-          return Tree.op ref macroName lazy f (← go lhs f true false) (← go rhs f false false)
+          return .binop ref macroName lazy f (← go lhs f true false) (← go rhs f false false)
         else
           let r ← withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
-            mkOp f (← toExpr lhs none) (← toExpr rhs none)
+            mkBinOp f (← toExpr lhs none) (← toExpr rhs none)
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
+      | .unop ref macroName f arg =>
+        return .unop ref macroName f (← go arg none false false)
       | .term ref trees e =>
         let type ← instantiateMVars (← inferType e)
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
@@ -364,12 +388,17 @@ mutual
 
 end
 
-@[builtin_term_elab binop]
-def elabBinOp : TermElab :=  fun stx expectedType? => do
+def elabOp : TermElab := fun stx expectedType? => do
   toExpr (← toTree stx) expectedType?
 
+@[builtin_term_elab binop]
+def elabBinOp : TermElab := elabOp
+
 @[builtin_term_elab binop_lazy]
-def elabBinOpLazy : TermElab := elabBinOp
+def elabBinOpLazy : TermElab := elabOp
+
+@[builtin_term_elab unop]
+def elabUnOp : TermElab := elabOp
 
 /--
   Elaboration functionf for `binrel%` and `binrel_no_prop%` notations.
@@ -414,7 +443,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     -/
     let lhs ← withRef stx[2] <| toTree stx[2]
     let rhs ← withRef stx[3] <| toTree stx[3]
-    let tree := Tree.op (lazy := false) stx .anonymous f lhs rhs
+    let tree := .binop (lazy := false) stx .anonymous f lhs rhs
     let r ← analyze tree none
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then
@@ -471,6 +500,6 @@ builtin_initialize
   registerTraceClass `Elab.binop
   registerTraceClass `Elab.binrel
 
-end BinOp
+end Op
 
 end Lean.Elab.Term

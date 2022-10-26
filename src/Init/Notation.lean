@@ -280,6 +280,7 @@ macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
+macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 @[inherit_doc] infix:50 " <= " => LE.le

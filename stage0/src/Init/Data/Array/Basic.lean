@@ -496,7 +496,7 @@ end Array
 
 export Array (mkArray)
 
-syntax "#[" sepBy(term, ", ") "]" : term
+syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term
 
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])

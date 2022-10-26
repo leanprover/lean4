@@ -132,9 +132,9 @@ def extract (as : Array α) (start stop : Nat) : Array α :=
 
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
-syntax:max term noWs "[" term ":" term "]" : term
-syntax:max term noWs "[" term ":" "]" : term
-syntax:max term noWs "[" ":" term "]" : term
+syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term
+syntax:max term noWs "[" withoutPosition(term ":") "]" : term
+syntax:max term noWs "[" withoutPosition(":" term) "]" : term
 
 macro_rules
   | `($a[$start : $stop]) => `(Array.toSubarray $a $start $stop)

@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__1___closed__7;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling___hyg_59____closed__1;
 lean_object* l_Lean_initializing(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_ExtensionState_erase___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__4___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_registerRpcProcedure___lambda__2___boxed(lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -187,6 +186,7 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Rpc_RequestHandling_
 lean_object* l_Lean_Elab_Term_withoutErrToSorryImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Core_instantiateValueLevelParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedRpcProcedure___rarg___closed__1;
 size_t lean_usize_land(size_t, size_t);
 lean_object* l_Lean_Environment_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4105,7 +4105,7 @@ else
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
 lean_dec(x_1);
 x_12 = l_Lean_Server_registerRpcProcedure___lambda__4___closed__5;
-x_13 = l_Lean_throwError___at_Lean_KeyedDeclsAttribute_ExtensionState_erase___spec__1(x_12, x_4, x_5, x_6);
+x_13 = l_Lean_throwError___at_Lean_Core_instantiateValueLevelParams___spec__1(x_12, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 x_14 = !lean_is_exclusive(x_13);
@@ -4206,7 +4206,7 @@ lean_object* x_18; lean_object* x_19; uint8_t x_20;
 lean_dec(x_8);
 lean_dec(x_1);
 x_18 = l_Lean_Server_registerRpcProcedure___closed__4;
-x_19 = l_Lean_throwError___at_Lean_KeyedDeclsAttribute_ExtensionState_erase___spec__1(x_18, x_2, x_3, x_14);
+x_19 = l_Lean_throwError___at_Lean_Core_instantiateValueLevelParams___spec__1(x_18, x_2, x_3, x_14);
 lean_dec(x_3);
 lean_dec(x_2);
 x_20 = !lean_is_exclusive(x_19);

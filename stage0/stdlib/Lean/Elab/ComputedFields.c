@@ -149,6 +149,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_ComputedFields_ov
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_ComputedFields_isScalarField___spec__1___closed__4;
 static lean_object* l_Lean_getConstInfo___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_ComputedFields_validateComputedFields___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_instantiateLevelParams(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__5___closed__5;
 static lean_object* l_Lean_Elab_ComputedFields_initFn____x40_Lean_Elab_ComputedFields___hyg_6____closed__1;
@@ -309,7 +310,6 @@ lean_object* l_Lean_Meta_whnfEasyCases___at_Lean_Meta_whnfCore_go___spec__3(uint
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withLetDeclImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplType___spec__2___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Elab_ComputedFields_mkImplType___spec__2___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_indentExpr(lean_object*);
@@ -2623,9 +2623,7 @@ lean_inc(x_47);
 lean_dec(x_45);
 x_48 = l_Lean_Expr_getAppFn(x_27);
 x_49 = l_Lean_Expr_constLevels_x21(x_48);
-x_50 = l_Lean_Expr_instantiateLevelParamsCore_visit___at_Lean_Expr_instantiateLevelParams___spec__1(x_47, x_49, x_46);
-lean_dec(x_49);
-lean_dec(x_47);
+x_50 = l_Lean_Expr_instantiateLevelParams(x_46, x_47, x_49);
 x_51 = lean_unsigned_to_nat(0u);
 x_52 = l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(x_27, x_51);
 x_53 = l_Lean_Elab_ComputedFields_getComputedFieldValue___closed__3;

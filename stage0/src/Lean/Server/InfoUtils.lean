@@ -150,14 +150,23 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
-    let priority :=
-      if r.stop == hoverPos then
-        0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-      else if info matches .ofTermInfo { expr := .fvar .., .. } then
-        0  -- prefer results for constants over variables (which overlap at declaration names)
-      else 1
+    let priority := (
+      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      if r.stop == hoverPos then 0 else 1,
+      -- relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
+      -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
+      -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
+      -- surrounding the cursor
+      Int.negOfNat (r.stop - r.start).byteIdx,
+      -- prefer results for constants over variables (which overlap at declaration names)
+      if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
     [(priority, ctx, info)]) |>.getD []
-  let maxPrio? := results.map (·.1) |>.maximum?
+  -- sort results by lexicographical priority
+  let maxPrio? :=
+    let _ := @lexOrd
+    let _ := @leOfOrd.{0}
+    let _ := @maxOfLe
+    results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then
     if let .ofTermInfo ti := i then

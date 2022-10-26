@@ -26,8 +26,11 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tail_x3f(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tacticSizeOf__list__dec;
 static lean_object* l_List_tail_x21___rarg___closed__2;
+uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l_List_mapMono___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_get_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__11;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -49,6 +52,7 @@ LEAN_EXPORT lean_object* l_List___aux__Init__Data__List__BasicAux______macroRule
 LEAN_EXPORT lean_object* l_List_head(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__44;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__8;
+LEAN_EXPORT lean_object* l_List_mapMono(lean_object*);
 LEAN_EXPORT lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__12;
 LEAN_EXPORT lean_object* l_List_head_x21___rarg(lean_object*, lean_object*);
@@ -73,7 +77,9 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List_tacticSizeOf__list__dec___closed__2;
 LEAN_EXPORT lean_object* l_List_getLast_x3f___rarg(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_tail_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__43;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__31;
@@ -95,6 +101,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 LEAN_EXPORT lean_object* l_List_getLast_x21(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_head_x21___rarg___closed__2;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__15;
 LEAN_EXPORT lean_object* l_List_get_x21(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__18;
@@ -113,17 +120,20 @@ lean_object* l_List_drop___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__33;
 LEAN_EXPORT lean_object* l_panic___at_List_tail_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_tail_x3f___rarg___boxed(lean_object*);
+size_t lean_ptr_addr(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__20;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__25;
 LEAN_EXPORT lean_object* l_List_instAntisymmListLeInstLEList___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rotateRight___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__46;
 LEAN_EXPORT lean_object* l_List_rotateRight(lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__56;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__32;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__10;
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 lean_object* l_String_toSubstring_x27(lean_object*);
 LEAN_EXPORT lean_object* l_List_get_x21___rarg(lean_object*, lean_object*, lean_object*);
@@ -156,6 +166,7 @@ static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__Li
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__22;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__4;
 LEAN_EXPORT lean_object* l_List_getD(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg(lean_object*, lean_object*);
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__27;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__9;
 static lean_object* l_List___aux__Init__Data__List__BasicAux______macroRules__List__tacticSizeOf__list__dec__1___closed__40;
@@ -1914,6 +1925,263 @@ x_4 = l_List_instAntisymmListLeInstLEList(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+size_t x_7; size_t x_8; uint8_t x_9; 
+x_7 = lean_ptr_addr(x_1);
+x_8 = lean_ptr_addr(x_2);
+x_9 = lean_usize_dec_eq(x_7, x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_dec(x_5);
+x_10 = lean_ctor_get(x_3, 0);
+lean_inc(x_10);
+lean_dec(x_3);
+x_11 = lean_ctor_get(x_10, 1);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_6);
+x_13 = lean_apply_2(x_11, lean_box(0), x_12);
+return x_13;
+}
+else
+{
+size_t x_14; size_t x_15; uint8_t x_16; 
+x_14 = lean_ptr_addr(x_6);
+x_15 = lean_ptr_addr(x_4);
+x_16 = lean_usize_dec_eq(x_14, x_15);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
+lean_dec(x_5);
+x_17 = lean_ctor_get(x_3, 0);
+lean_inc(x_17);
+lean_dec(x_3);
+x_18 = lean_ctor_get(x_17, 1);
+lean_inc(x_18);
+lean_dec(x_17);
+x_19 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_19, 0, x_1);
+lean_ctor_set(x_19, 1, x_6);
+x_20 = lean_apply_2(x_18, lean_box(0), x_19);
+return x_20;
+}
+else
+{
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_dec(x_6);
+lean_dec(x_1);
+x_21 = lean_ctor_get(x_3, 0);
+lean_inc(x_21);
+lean_dec(x_3);
+x_22 = lean_ctor_get(x_21, 1);
+lean_inc(x_22);
+lean_dec(x_21);
+x_23 = lean_apply_2(x_22, lean_box(0), x_5);
+return x_23;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
+_start:
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_8 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_box(0), lean_box(0));
+lean_inc(x_2);
+lean_inc(x_1);
+x_9 = lean_apply_3(x_8, x_1, x_2, x_3);
+x_10 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_10, 0, x_7);
+lean_closure_set(x_10, 1, x_4);
+lean_closure_set(x_10, 2, x_1);
+lean_closure_set(x_10, 3, x_2);
+lean_closure_set(x_10, 4, x_5);
+x_11 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_9, x_10);
+return x_11;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_dec(x_3);
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+x_6 = lean_apply_2(x_5, lean_box(0), x_2);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_7 = lean_ctor_get(x_2, 0);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_2, 1);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_1, 1);
+lean_inc(x_9);
+lean_inc(x_3);
+lean_inc(x_7);
+x_10 = lean_apply_1(x_3, x_7);
+lean_inc(x_9);
+x_11 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__2), 7, 6);
+lean_closure_set(x_11, 0, x_1);
+lean_closure_set(x_11, 1, x_8);
+lean_closure_set(x_11, 2, x_3);
+lean_closure_set(x_11, 3, x_7);
+lean_closure_set(x_11, 4, x_2);
+lean_closure_set(x_11, 5, x_9);
+x_12 = lean_apply_4(x_9, lean_box(0), lean_box(0), x_10, x_11);
+return x_12;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_2);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_dec(x_2);
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; uint8_t x_10; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
+lean_inc(x_2);
+lean_inc(x_3);
+x_5 = lean_apply_1(x_2, x_3);
+x_6 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_box(0));
+lean_inc(x_4);
+x_7 = lean_apply_2(x_6, x_4, x_2);
+x_8 = lean_ptr_addr(x_5);
+x_9 = lean_ptr_addr(x_3);
+lean_dec(x_3);
+x_10 = lean_usize_dec_eq(x_8, x_9);
+if (x_10 == 0)
+{
+uint8_t x_11; 
+lean_dec(x_4);
+x_11 = !lean_is_exclusive(x_1);
+if (x_11 == 0)
+{
+lean_object* x_12; lean_object* x_13; 
+x_12 = lean_ctor_get(x_1, 1);
+lean_dec(x_12);
+x_13 = lean_ctor_get(x_1, 0);
+lean_dec(x_13);
+lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set(x_1, 0, x_5);
+return x_1;
+}
+else
+{
+lean_object* x_14; 
+lean_dec(x_1);
+x_14 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_14, 0, x_5);
+lean_ctor_set(x_14, 1, x_7);
+return x_14;
+}
+}
+else
+{
+size_t x_15; size_t x_16; uint8_t x_17; 
+x_15 = lean_ptr_addr(x_7);
+x_16 = lean_ptr_addr(x_4);
+lean_dec(x_4);
+x_17 = lean_usize_dec_eq(x_15, x_16);
+if (x_17 == 0)
+{
+uint8_t x_18; 
+x_18 = !lean_is_exclusive(x_1);
+if (x_18 == 0)
+{
+lean_object* x_19; lean_object* x_20; 
+x_19 = lean_ctor_get(x_1, 1);
+lean_dec(x_19);
+x_20 = lean_ctor_get(x_1, 0);
+lean_dec(x_20);
+lean_ctor_set(x_1, 1, x_7);
+lean_ctor_set(x_1, 0, x_5);
+return x_1;
+}
+else
+{
+lean_object* x_21; 
+lean_dec(x_1);
+x_21 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_21, 0, x_5);
+lean_ctor_set(x_21, 1, x_7);
+return x_21;
+}
+}
+else
+{
+lean_dec(x_7);
+lean_dec(x_5);
+return x_1;
+}
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapMono___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_box(0));
+x_4 = lean_apply_2(x_3, x_1, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_mapMono(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_mapMono___rarg), 2, 0);
+return x_2;
 }
 }
 lean_object* initialize_Init_Data_Nat_Linear(uint8_t builtin, lean_object*);

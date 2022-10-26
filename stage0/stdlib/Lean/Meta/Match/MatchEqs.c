@@ -92,6 +92,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match
 lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Match_getEquationsForImpl___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_SimpH_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_substRHS___closed__5;
 lean_object* l_Lean_Meta_heqToEq(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -729,6 +730,7 @@ static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Meta_Match_MatchE
 extern lean_object* l_instInhabitedPUnit;
 static lean_object* l_Lean_Meta_Match_getEquationsForImpl___closed__1;
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_injectionAnyCandidate_x3f___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___boxed(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_injectionAny___spec__4___closed__5;
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___closed__2;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Match_proveCondEqThm_go___spec__1(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5710,7 +5712,6 @@ _start:
 if (lean_obj_tag(x_2) == 0)
 {
 lean_object* x_3; 
-lean_dec(x_1);
 x_3 = lean_box(0);
 return x_3;
 }
@@ -5724,7 +5725,6 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 x_7 = l_Lean_Expr_fvar___override(x_5);
-lean_inc(x_1);
 x_8 = l_Lean_Meta_FVarSubst_apply(x_1, x_7);
 if (lean_obj_tag(x_8) == 1)
 {
@@ -5754,7 +5754,6 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_dec(x_2);
 x_14 = l_Lean_Expr_fvar___override(x_12);
-lean_inc(x_1);
 x_15 = l_Lean_Meta_FVarSubst_apply(x_1, x_14);
 if (lean_obj_tag(x_15) == 1)
 {
@@ -5783,6 +5782,24 @@ _start:
 {
 lean_object* x_3; 
 x_3 = l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst(x_1, x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -5939,16 +5956,15 @@ x_37 = lean_ctor_get(x_35, 1);
 lean_inc(x_37);
 x_38 = l_List_erase___at_Lean_MVarId_getNondepPropHyps___spec__9(x_37, x_2);
 lean_dec(x_2);
-lean_inc(x_30);
 x_39 = l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1(x_30, x_38);
 x_40 = lean_ctor_get(x_35, 2);
 lean_inc(x_40);
-lean_inc(x_30);
 x_41 = l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1(x_30, x_40);
 x_42 = lean_ctor_get(x_35, 3);
 lean_inc(x_42);
 lean_dec(x_35);
 x_43 = l_List_filterMap___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_applySubst___spec__1(x_30, x_42);
+lean_dec(x_30);
 x_44 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_44, 0, x_31);
 lean_ctor_set(x_44, 1, x_39);

@@ -1399,5 +1399,8 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 builtin_initialize
   registerTraceClass `Elab.app
+  registerTraceClass `Elab.app.args (inherited := true)
+  registerTraceClass `Elab.app.propagateExpectedType (inherited := true)
+  registerTraceClass `Elab.app.finalize (inherited := true)
 
 end Lean.Elab.Term

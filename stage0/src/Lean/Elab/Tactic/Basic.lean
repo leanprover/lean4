@@ -342,7 +342,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   if e.hasExprMVar then
     throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
-/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassinged metavariables. -/
+/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassigned metavariables. -/
 def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
   if checkUnassigned then
     ensureHasNoMVars val

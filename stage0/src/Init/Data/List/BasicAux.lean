@@ -184,4 +184,27 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
 instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
 
+@[inline] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
+  match as with
+  | [] => return as
+  | b :: bs =>
+    let b'  ← f b
+    let bs' ← mapMonoMImp bs f
+    if ptrEq b' b && ptrEq bs' bs then
+      return as
+    else
+      return b' :: bs'
+
+/--
+Monomorphic `List.mapM`. The internal implementation uses pointer equality, and does not allocate a new list
+if the result of each `f a` is a pointer equal value `a`.
+-/
+@[implemented_by mapMonoMImp] def mapMonoM [Monad m] (as : List α) (f : α → m α) : m (List α) :=
+  match as with
+  | [] => return []
+  | a :: as => return (← f a) :: (← mapMonoM as f)
+
+def mapMono (as : List α) (f : α → α) : List α :=
+  Id.run <| as.mapMonoM f
+
 end List

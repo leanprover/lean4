@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrFn___closed__2;
 static lean_object* l_Lean_Parser_interpolatedStr___closed__1;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+lean_object* l_Lean_Parser_withoutPosition___elambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_setError(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStrFn_parse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrNoAntiquot___closed__2;
@@ -372,9 +373,8 @@ LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStrNoAntiquot(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-lean_dec(x_1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_withoutPosition___elambda__1), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_interpolatedStrFn), 3, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = l_Lean_Parser_interpolatedStrNoAntiquot___closed__2;
@@ -400,9 +400,8 @@ LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStr(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-lean_dec(x_1);
+x_2 = lean_alloc_closure((void*)(l_Lean_Parser_withoutPosition___elambda__1), 3, 1);
+lean_closure_set(x_2, 0, x_1);
 x_3 = lean_alloc_closure((void*)(l_Lean_Parser_interpolatedStrFn), 3, 1);
 lean_closure_set(x_3, 0, x_2);
 x_4 = l_Lean_Parser_interpolatedStrNoAntiquot___closed__2;

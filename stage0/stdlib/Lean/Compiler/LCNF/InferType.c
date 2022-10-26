@@ -1053,7 +1053,6 @@ x_16 = lean_ctor_get(x_11, 0);
 lean_inc(x_16);
 lean_dec(x_11);
 x_17 = l_Lean_Compiler_LCNF_Decl_instantiateTypeLevelParams(x_16, x_2);
-lean_dec(x_2);
 lean_ctor_set(x_10, 0, x_17);
 return x_10;
 }
@@ -1067,7 +1066,6 @@ x_19 = lean_ctor_get(x_11, 0);
 lean_inc(x_19);
 lean_dec(x_11);
 x_20 = l_Lean_Compiler_LCNF_Decl_instantiateTypeLevelParams(x_19, x_2);
-lean_dec(x_2);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_18);

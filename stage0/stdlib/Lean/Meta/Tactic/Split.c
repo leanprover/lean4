@@ -5761,7 +5761,6 @@ x_21 = lean_ctor_get(x_4, 1);
 lean_inc(x_21);
 lean_dec(x_4);
 x_22 = l_Lean_Expr_fvar___override(x_12);
-lean_inc(x_20);
 x_23 = l_Lean_Meta_FVarSubst_apply(x_20, x_22);
 if (lean_obj_tag(x_23) == 1)
 {

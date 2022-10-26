@@ -424,7 +424,7 @@ macro_rules
   | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
-@[inherit_doc Subtype] syntax "{ " ident (" : " term)? " // " term " }" : term
+@[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
 
 macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
@@ -448,7 +448,7 @@ which uses let bindings as intermediates as in
 Note that this changes the order of evaluation, although it should not be observable
 unless you use side effecting operations like `dbg_trace`.
 -/
-syntax "[" term,* "]"  : term
+syntax "[" withoutPosition(term,*) "]"  : term
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
@@ -456,7 +456,7 @@ The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
 It uses binary partitioning to construct a tree of intermediate let bindings as in
 `let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
 -/
-syntax "%[" term,* "|" term "]" : term
+syntax "%[" withoutPosition(term,* "|" term) "]" : term
 
 namespace Lean
 

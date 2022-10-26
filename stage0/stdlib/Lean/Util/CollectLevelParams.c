@@ -24,6 +24,7 @@ LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_collect(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_CollectLevelParams_visitLevel___spec__2___boxed(lean_object*, lean_object*);
 uint64_t l_Lean_Level_hash(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevel___spec__6(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_visitLevels(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_collect(lean_object*, lean_object*);
@@ -34,7 +35,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_CollectLevelParams_instInhabitedState___closed__2;
 LEAN_EXPORT lean_object* l_List_replace___at_Lean_CollectLevelParams_visitLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
-LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_main___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_getUnusedLevelParam_loop(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -65,6 +65,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashSet___at_Lean_CollectLevelParams_State_visitedExpr___default___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___at_Lean_CollectLevelParams_visitExpr___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_State_visitedExpr___default;
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_moveEntries___at_Lean_CollectLevelParams_visitLevel___spec__5(lean_object*, lean_object*, lean_object*);
@@ -641,6 +642,36 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+lean_dec(x_2);
+x_5 = l_Lean_CollectLevelParams_visitLevel(x_3, x_1);
+x_1 = x_5;
+x_2 = x_4;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_visitLevels(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(x_2, x_1);
+return x_3;
+}
+}
 LEAN_EXPORT uint8_t l_List_elem___at_Lean_CollectLevelParams_visitExpr___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1033,28 +1064,6 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at_Lean_CollectLevelParams_main___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_2, 0);
-lean_inc(x_3);
-x_4 = lean_ctor_get(x_2, 1);
-lean_inc(x_4);
-lean_dec(x_2);
-x_5 = l_Lean_CollectLevelParams_visitLevel(x_3, x_1);
-x_1 = x_5;
-x_2 = x_4;
-goto _start;
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lean_CollectLevelParams_main(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1074,7 +1083,7 @@ lean_object* x_5; lean_object* x_6;
 x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = l_List_foldl___at_Lean_CollectLevelParams_main___spec__1(x_2, x_5);
+x_6 = l_List_foldl___at_Lean_CollectLevelParams_visitLevels___spec__1(x_2, x_5);
 return x_6;
 }
 case 5:

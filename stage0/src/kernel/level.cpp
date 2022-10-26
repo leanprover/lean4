@@ -492,7 +492,7 @@ level normalize(level const & l) {
     case level_kind::IMax: {
         auto l1 = normalize(imax_lhs(r));
         auto l2 = normalize(imax_rhs(r));
-        return mk_imax(l1, l2);
+        return mk_succ(mk_imax(l1, l2), p.second);
     }
     case level_kind::Max: {
         buffer<level> todo;

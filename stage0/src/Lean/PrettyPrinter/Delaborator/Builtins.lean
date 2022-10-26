@@ -340,7 +340,7 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
     (do
       let (Expr.const c us) ← getExpr | failure
       let (some info) ← getMatcherInfo? c | failure
-      let .ok matcherTy := (← getConstInfo c).instantiateTypeLevelParams us | failure
+      let matcherTy ← instantiateTypeLevelParams (← getConstInfo c) us
       return { matcherTy, info : AppMatchState })
     (fun st => do
       if st.params.size < st.info.numParams then

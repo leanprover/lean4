@@ -228,10 +228,10 @@ where
         modify fun s => s.insert param.fvarId arg
       else
         -- Keep the parameter
-        let param := { param with type := param.type.instantiateLevelParams decl.levelParams us }
+        let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
         params := params.push (← internalizeParam param)
     for param in decl.params[argMask.size:] do
-      let param := { param with type := param.type.instantiateLevelParams decl.levelParams us }
+      let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
     let value := decl.instantiateValueLevelParams us
     let value ← internalizeCode value

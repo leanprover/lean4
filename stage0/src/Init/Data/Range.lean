@@ -62,10 +62,10 @@ instance : ForIn' m Range Nat inferInstance where
 instance : ForM m Range Nat where
   forM := Range.forM
 
-syntax:max "[" ":" term "]" : term
-syntax:max "[" term ":" term "]" : term
-syntax:max "[" ":" term ":" term "]" : term
-syntax:max "[" term ":" term ":" term "]" : term
+syntax:max "[" withoutPosition(":" term) "]" : term
+syntax:max "[" withoutPosition(term ":" term) "]" : term
+syntax:max "[" withoutPosition(":" term ":" term) "]" : term
+syntax:max "[" withoutPosition(term ":" term ":" term) "]" : term
 
 macro_rules
   | `([ : $stop]) => `({ stop := $stop : Range })

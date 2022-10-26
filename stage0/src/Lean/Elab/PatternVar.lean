@@ -171,6 +171,9 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     let lhs ← collect stx[2]
     let rhs ← collect stx[3]
     return stx.setArg 2 lhs |>.setArg 3 rhs
+  else if k == ``Lean.Parser.Term.unop then
+    let arg ← collect stx[2]
+    return stx.setArg 2 arg
   else if k == ``Lean.Parser.Term.inaccessible then
     return stx
   else if k == strLitKind then

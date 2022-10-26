@@ -491,6 +491,8 @@ def matchAltsWhereDecls := leading_parser
   "binop% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
 @[builtin_term_parser] def binop_lazy  := leading_parser
   "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> termParser maxPrec
+@[builtin_term_parser] def unop  := leading_parser
+  "unop% " >> ident >> ppSpace >> termParser maxPrec
 
 @[builtin_term_parser] def forInMacro := leading_parser
   "for_in% " >> termParser maxPrec >> termParser maxPrec >> termParser maxPrec

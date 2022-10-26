@@ -36,6 +36,8 @@ deriving Inhabited, Repr, DecidableEq, Ord
 
 instance : LT BuildType := ltOfOrd
 instance : LE BuildType := leOfOrd
+instance : Min BuildType := minOfLe
+instance : Max BuildType := maxOfLe
 
 /-- The arguments to pass to `leanc` based on the build type. -/
 def BuildType.leancArgs : BuildType → Array String

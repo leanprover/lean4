@@ -153,6 +153,8 @@ instance : Repr MTime := inferInstanceAs (Repr SystemTime)
 instance : Ord MTime := inferInstanceAs (Ord SystemTime)
 instance : LT MTime := ltOfOrd
 instance : LE MTime := leOfOrd
+instance : Min MTime := minOfLe
+instance : Max MTime := maxOfLe
 
 instance : NilTrace MTime := ⟨0⟩
 instance : MixTrace MTime := ⟨max⟩

@@ -175,6 +175,9 @@ example : Nat → Nat → Nat :=
     x
   --^ textDocument/hover
 
+           -- textDocument/definition -- removed because the result is platform-dependent
+set_option linter.unusedVariables false in
+          --^ textDocument/hover
 example : Nat → Nat → Nat := by
   intro x y
       --^ textDocument/hover

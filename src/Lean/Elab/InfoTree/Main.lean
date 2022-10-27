@@ -116,6 +116,9 @@ def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Forma
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
   return f!"command @ {formatElabInfo ctx info.toElabInfo}"
 
+def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
+  return f!"option {info.optionName} @ {formatStxRange ctx info.stx}"
+
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
     return f!"{info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
@@ -152,6 +155,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTermInfo i           => i.format ctx
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
+  | ofOptionInfo i         => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -164,6 +168,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofTermInfo i           => some i.toElabInfo
   | ofCommandInfo i        => some i.toElabInfo
   | ofMacroExpansionInfo _ => none
+  | ofOptionInfo _         => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
   | ofUserWidgetInfo _     => none

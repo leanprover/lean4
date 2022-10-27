@@ -66,7 +66,7 @@ attribute [run_builtin_parser_attribute_hooks]
   withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
 
 open PrettyPrinter Syntax.MonadTraverser Formatter in
-@[combinator_formatter Lean.Parser.sepByIndent]
+@[combinator_formatter sepByIndent]
 def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
   let stx ← getCur
   let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n => i % 2 == 1 && n.matchesNull 0) |>.any id
@@ -82,7 +82,7 @@ def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : F
     -- HACK: allow formatter to put initial brace on previous line in structure instances
     modify ({ · with mustBeGrouped := false })
 
-@[combinator_formatter Lean.Parser.sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
+@[combinator_formatter sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
 
 attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 
@@ -137,26 +137,26 @@ attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 end Parser
 
 section
-open PrettyPrinter
+open PrettyPrinter Parser
 
-@[combinator_formatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
-@[combinator_formatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
-@[combinator_formatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
-@[combinator_formatter Lean.Parser.ppRealFill] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
-@[combinator_formatter Lean.Parser.ppRealGroup] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
-@[combinator_formatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
-@[combinator_formatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
+@[combinator_formatter ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
+@[combinator_formatter ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
+@[combinator_formatter ppLine] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
+@[combinator_formatter ppRealFill] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
+@[combinator_formatter ppRealGroup] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
+@[combinator_formatter ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
+@[combinator_formatter ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
   Formatter.indent p (some ((0:Int) - Std.Format.getIndent opts))
 
-@[combinator_formatter Lean.Parser.ppAllowUngrouped] def ppAllowUngrouped.formatter : Formatter := do
+@[combinator_formatter ppAllowUngrouped] def ppAllowUngrouped.formatter : Formatter := do
   modify ({ · with mustBeGrouped := false })
-@[combinator_formatter Lean.Parser.ppDedentIfGrouped] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
+@[combinator_formatter ppDedentIfGrouped] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
   Formatter.concat p
   let indent := Std.Format.getIndent (← getOptions)
   unless (← get).isUngrouped do
     modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (·.nest (0 - indent)) }
-@[combinator_formatter Lean.Parser.ppHardLineUnlessUngrouped] def ppHardLineUnlessUngrouped.formatter : Formatter := do
+@[combinator_formatter ppHardLineUnlessUngrouped] def ppHardLineUnlessUngrouped.formatter : Formatter := do
   if (← get).isUngrouped then
     Formatter.pushLine
   else

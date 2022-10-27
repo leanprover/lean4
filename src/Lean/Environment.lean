@@ -706,17 +706,18 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
     for mod in s.moduleData do
-      numConsts := numConsts + mod.constants.size
+      numConsts := numConsts + mod.constants.size + mod.extraConstNames.size
     let mut modIdx : Nat := 0
     let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
     let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
     for mod in s.moduleData do
       for cinfo in mod.constants do
-        const2ModIdx := const2ModIdx.insert cinfo.name modIdx
-        match constantMap.insert' cinfo.name cinfo with
+        let cname := cinfo.name
+        const2ModIdx := const2ModIdx.insert cname modIdx
+        match constantMap.insert' cname cinfo with
         | (constantMap', replaced) =>
           constantMap := constantMap'
-          if replaced then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+          if replaced then throw (IO.userError s!"import failed, environment already contains '{cname}'")
       for cname in mod.extraConstNames do
         const2ModIdx := const2ModIdx.insert cname modIdx
       modIdx := modIdx + 1

@@ -128,6 +128,7 @@ def identOf : Info → Option (RefIdent × Bool)
     | Expr.fvar id .. => some (RefIdent.fvar id, ti.isBinder)
     | _ => none
   | Info.ofFieldInfo fi => some (RefIdent.const fi.projName, false)
+  | Info.ofOptionInfo oi => some (RefIdent.const oi.declName, false)
   | _ => none
 
 def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do

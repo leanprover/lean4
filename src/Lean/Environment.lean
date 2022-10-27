@@ -792,7 +792,16 @@ Environment extension for tracking all `namespace` declared by users.
 -/
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
-    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch
+    addImportedFn   := fun as =>
+      /-
+      We compute a `HashMap Name Unit` and then convert to `NameSSet` to improve Lean startup time.
+      Note: we have used `perf` to profile Lean startup cost when processing a file containing just `import Lean`.
+      6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
+      -/
+      let capacity := as.foldl (init := 0) fun r e => r + e.size
+      let map : HashMap Name Unit := mkHashMap capacity
+      let map := mkStateFromImportedEntries (fun map name => map.insert name ()) map as
+      SMap.fromHashMap map |>.switch
     addEntryFn      := fun s n => s.insert n
   }
 

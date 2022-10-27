@@ -692,7 +692,7 @@ where
       return env
 
 structure ImportState where
-  moduleNameSet : NameSet := {}
+  moduleNameSet : NameHashSet := {}
   moduleNames   : Array Name := #[]
   moduleData    : Array ModuleData := #[]
   regions       : Array CompactedRegion := #[]

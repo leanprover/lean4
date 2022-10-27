@@ -18,5 +18,6 @@ builtin_initialize registerTraceClass `Meta.Tactic.simp.discharge (inherited := 
 builtin_initialize registerTraceClass `Meta.Tactic.simp.rewrite (inherited := true)
 builtin_initialize registerTraceClass `Meta.Tactic.simp.unify (inherited := true)
 builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp
+builtin_initialize registerTraceClass `Debug.Meta.Tactic.simp.congr (inherited := true)
 
 end Lean

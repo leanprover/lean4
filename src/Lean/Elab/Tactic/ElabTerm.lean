@@ -237,13 +237,6 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
   -/
   withoutRecover <| elabTerm stx none mayPostpone
 
-def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
-  withMainContext do
-    let val  ← elabTermForApply e
-    let mvarIds'  ← tac (← getMainGoal) val
-    Term.synthesizeSyntheticMVarsNoPostponing
-    replaceMainGoal mvarIds'
-
 def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
   -- use apply-like elaboration to suppress insertion of implicit arguments
   let e ← withMainContext do
@@ -254,6 +247,26 @@ def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId
+
+def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syntax) : TacticM Unit := do
+  withMainContext do
+    let mut val ← instantiateMVars (← elabTermForApply e)
+    if val.isMVar then
+      /-
+      If `val` is a metavariable, we force the elaboration of postponed terms.
+      This is useful for producing a more useful error message in examples such as
+      ```
+      example (h : P) : P ∨ Q := by
+        apply .inl
+      ```
+      Recall that `apply` elaborates terms without using the expected type,
+      and the notation `.inl` requires the expected type to be available.
+      -/
+      Term.synthesizeSyntheticMVarsNoPostponing
+      val ← instantiateMVars val
+    let mvarIds' ← tac (← getMainGoal) val
+    Term.synthesizeSyntheticMVarsNoPostponing
+    replaceMainGoal mvarIds'
 
 @[builtin_tactic Lean.Parser.Tactic.apply] def evalApply : Tactic := fun stx =>
   match stx with

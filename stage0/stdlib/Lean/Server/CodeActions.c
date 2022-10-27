@@ -140,7 +140,6 @@ extern lean_object* l_Lean_Server_requestHandlers;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____closed__5;
 static lean_object* l___private_Lean_Server_CodeActions_0__Lean_Server_fromJsonCodeActionResolveData____x40_Lean_Server_CodeActions___hyg_125____closed__15;
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__6(lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____closed__18;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____closed__15;
 static lean_object* l___private_Lean_Server_CodeActions_0__Lean_Server_fromJsonCodeActionResolveData____x40_Lean_Server_CodeActions___hyg_125____closed__5;
@@ -269,6 +268,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_CodeActions_0__Lean_Server_eval
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_handleCodeActionResolve___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instCodeActionProviderInhabited___lambda__2___closed__2;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____closed__11;
+lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__7(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____closed__19;
 lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonRpcCallParams____x40_Lean_Data_Lsp_Extra___hyg_1695____spec__1(lean_object*, lean_object*);
@@ -2237,7 +2237,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = l_Lean_NameSet_instInhabitedNameSet;
 x_7 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_582____lambda__1___closed__1;
 x_8 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_6, x_7, x_1);
-x_9 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__6(x_8);
+x_9 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__7(x_8);
 x_10 = lean_array_get_size(x_9);
 x_11 = lean_usize_of_nat(x_10);
 lean_dec(x_10);

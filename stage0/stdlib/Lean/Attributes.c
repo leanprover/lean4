@@ -377,7 +377,6 @@ LEAN_EXPORT lean_object* l_Lean_registerAttributeImplBuilder___lambda__1(lean_ob
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_getIdent_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_registerBuiltinAttribute___spec__3(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Attributes___hyg_265____closed__24;
-lean_object* l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__7(lean_object*, lean_object*);
 static lean_object* l_Lean_registerTagAttribute___lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_registerEnumAttributes___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Attributes___hyg_265____closed__29;
@@ -414,6 +413,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_getBuiltinAt
 LEAN_EXPORT lean_object* l_Lean_registerBuiltinAttribute___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_registerParametricAttribute___spec__1___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_4524____closed__7;
+lean_object* l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__8(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedTagAttribute___lambda__2___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_size___spec__1___rarg(lean_object*, lean_object*);
@@ -3901,7 +3901,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = l___auto____x40_Lean_Attributes___hyg_265____closed__6;
-x_3 = l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__7(x_2, x_1);
+x_3 = l_Lean_RBNode_fold___at_Lean_mkModuleData___spec__8(x_2, x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = lean_unsigned_to_nat(1u);
 x_6 = lean_nat_sub(x_4, x_5);

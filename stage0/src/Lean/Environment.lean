@@ -56,6 +56,13 @@ instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
   imports         : Array Import
+  /--
+  `constNames` contains all constant names in `constants`.
+  This information is redundant. It is equal to `constants.map fun c => c.name`,
+  but it improves the performance of `importModules`. `perf` reports that 12% of the
+  runtime was being spent on `ConstantInfo.name` when importing a file containing only `import Lean`
+  -/
+  constNames      : Array Name
   constants       : Array ConstantInfo
   /--
   Extra entries for the `const2ModIdx` map in the `Environment` object.
@@ -626,11 +633,12 @@ def mkModuleData (env : Environment) : IO ModuleData := do
   let entries := pExts.map fun pExt =>
     let state := pExt.getState env
     (pExt.name, pExt.exportEntriesFn state)
-  pure {
+  let constNames := env.constants.foldStage2 (fun names name _ => names.push name) #[]
+  let constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  return {
     imports         := env.header.imports
-    constants       := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
     extraConstNames := env.extraConstNames.toArray
-    entries         := entries
+    constNames, constants, entries
   }
 
 @[export lean_write_module]
@@ -692,7 +700,7 @@ where
       return env
 
 structure ImportState where
-  moduleNameSet : NameSet := {}
+  moduleNameSet : NameHashSet := {}
   moduleNames   : Array Name := #[]
   moduleData    : Array ModuleData := #[]
   regions       : Array CompactedRegion := #[]
@@ -706,17 +714,17 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
     for mod in s.moduleData do
-      numConsts := numConsts + mod.constants.size
+      numConsts := numConsts + mod.constants.size + mod.extraConstNames.size
     let mut modIdx : Nat := 0
     let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
     let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
     for mod in s.moduleData do
-      for cinfo in mod.constants do
-        const2ModIdx := const2ModIdx.insert cinfo.name modIdx
-        match constantMap.insert' cinfo.name cinfo with
+      for cname in mod.constNames, cinfo in mod.constants do
+        const2ModIdx := const2ModIdx.insert cname modIdx
+        match constantMap.insert' cname cinfo with
         | (constantMap', replaced) =>
           constantMap := constantMap'
-          if replaced then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+          if replaced then throw (IO.userError s!"import failed, environment already contains '{cname}'")
       for cname in mod.extraConstNames do
         const2ModIdx := const2ModIdx.insert cname modIdx
       modIdx := modIdx + 1

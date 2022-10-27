@@ -645,20 +645,33 @@ def mkModuleData (env : Environment) : IO ModuleData := do
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   saveModuleData fname env.mainModule (← mkModuleData env)
 
-private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
-  if i < mod.entries.size then
-    let curr := mod.entries.get! i;
-    if curr.1 == extId then curr.2 else getEntriesFor mod extId (i+1)
-  else
-    #[]
+/--
+Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
+We only consider extensions starting with index `>= startingAt`.
+-/
+private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+  let descrs ← persistentEnvExtensionsRef.get
+  let mut result := {}
+  for h : i in [startingAt : descrs.size] do
+    have : i < descrs.size := h.upper
+    let descr := descrs[i]
+    result := result.insert descr.name i
+  return result
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) (startingAt : Nat := 0) : IO Environment := do
   let mut env := env
-  let pExtDescrs ← persistentEnvExtensionsRef.get
-  for mod in mods do
-    for extDescr in pExtDescrs[startingAt:] do
-      let entries := getEntriesFor mod extDescr.name 0
-      env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
+  let extDescrs ← persistentEnvExtensionsRef.get
+  /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
+  for extDescr in extDescrs[startingAt:] do
+    env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := mkArray mods.size #[] }
+  /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
+  let extNameIdx ← mkExtNameMap startingAt
+  for h : modIdx in [:mods.size] do
+    have : modIdx < mods.size := h.upper
+    let mod := mods[modIdx]
+    for (extName, entries) in mod.entries do
+      if let some entryIdx := extNameIdx.find? extName then
+        env := extDescrs[entryIdx]!.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
   return env
 
 /--

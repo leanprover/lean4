@@ -676,6 +676,9 @@ theorem Iff.symm (h : a ↔ b) : b ↔ a :=
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
   Iff.intro Iff.symm Iff.symm
 
+theorem Iff.of_eq (h : a = b) : a ↔ b :=
+  h ▸ Iff.refl _
+
 theorem And.comm : a ∧ b ↔ b ∧ a := by
   constructor <;> intro ⟨h₁, h₂⟩ <;> exact ⟨h₂, h₁⟩
 

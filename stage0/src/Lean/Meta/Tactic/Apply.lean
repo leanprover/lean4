@@ -111,12 +111,46 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     mvarId.checkNotAssigned `apply
     let targetType ← mvarId.getType
     let eType      ← inferType e
-    let mut (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
-    unless hasMVarHead do
+    let (numArgs, hasMVarHead) ← getExpectedNumArgsAux eType
+    /-
+    The `apply` tactic adds `_`s to `e`, and some of these `_`s become new goals.
+    When `hasMVarHead` is `false` we try different numbers, until we find a type compatible with `targetType`.
+    We used to try only `numArgs-targetTypeNumArgs` when `hasMVarHead = false`, but this is not always correct.
+    For example, consider the following example
+    ```
+    example {α β} [LE_trans β] (x y z : α → β) (h₀ : x ≤ y) (h₁ : y ≤ z) : x ≤ z := by
+      apply le_trans
+      assumption
+      assumption
+    ```
+    In this example, `targetTypeNumArgs = 1` because `LE` for functions is defined as
+    ```
+    instance {α : Type u} {β : Type v} [LE β] : LE (α → β) where
+      le f g := ∀ i, f i ≤ g i
+    ```
+    -/
+    let rangeNumArgs ← if hasMVarHead then
+      pure [numArgs : numArgs+1]
+    else
       let targetTypeNumArgs ← getExpectedNumArgs targetType
-      numArgs := numArgs - targetTypeNumArgs
-    let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType (some numArgs)
-    unless (← isDefEq eType targetType) do throwApplyError mvarId eType targetType
+      pure [numArgs - targetTypeNumArgs : numArgs+1]
+    /-
+    Auxiliary function for trying to add `n` underscores where `n ∈ [i: rangeNumArgs.stop)`
+    See comment above
+    -/
+    let rec go (i : Nat) : MetaM (Array Expr × Array BinderInfo) := do
+      if i < rangeNumArgs.stop then
+        let s ← saveState
+        let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
+        if (← isDefEqGuarded eType targetType) then
+          return (newMVars, binderInfos)
+        else
+          s.restore
+          go (i+1)
+      else
+        let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
+        throwApplyError mvarId eType targetType
+    let (newMVars, binderInfos) ← go rangeNumArgs.start
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
@@ -127,6 +161,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let result := newMVarIds ++ otherMVarIds.toList
     result.forM (·.headBetaType)
     return result
+termination_by go i => rangeNumArgs.stop - i
 
 @[deprecated MVarId.apply]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=

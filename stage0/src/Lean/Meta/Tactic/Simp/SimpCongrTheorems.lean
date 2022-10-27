@@ -52,9 +52,9 @@ builtin_initialize congrExtension : SimpleScopedEnvExtension SimpCongrTheorem Si
 def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem := withReducible do
   let c ← mkConstWithLevelParams declName
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
-  match type.eq? with
+  match type.eqOrIff? with
   | none => throwError "invalid 'congr' theorem, equality expected{indentExpr type}"
-  | some (_, lhs, rhs) =>
+  | some (lhs, rhs) =>
     lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
       unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
         throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
@@ -67,9 +67,9 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
       for x in xs, bi in bis do
         if bi.isExplicit && !foundMVars.contains x.mvarId! then
           let rhsFn? ← forallTelescopeReducing (← inferType x) fun ys xType => do
-            match xType.eq? with
+            match xType.eqOrIff? with
             | none => pure none -- skip
-            | some (_, xLhs, xRhs) =>
+            | some (xLhs, xRhs) =>
               let mut j := 0
               for y in ys do
                 let yType ← inferType y

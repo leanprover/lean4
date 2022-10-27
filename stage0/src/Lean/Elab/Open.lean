@@ -76,6 +76,7 @@ def elabOpenDecl [MonadResolveName m] (stx : TSyntax ``Parser.Command.openDecl) 
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
     | `(Parser.Command.openDecl| $ns hiding $ids*) =>
       let ns ← resolveUniqueNamespace ns
+      activateScoped ns
       for id in ids do
         let _ ← resolveId ns id
       let ids := ids.map (·.getId) |>.toList

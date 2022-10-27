@@ -488,7 +488,11 @@ where
         let val ← mkLambdaFVars zs r.expr
         unless (← isDefEq m val) do
           throwCongrHypothesisFailed
-        unless (← isDefEq h (← mkLambdaFVars xs (← r.getProof))) do
+        let mut proof ← r.getProof
+        if hType.isAppOf ``Iff then
+          try proof ← mkIffOfEq proof
+          catch _ => throwCongrHypothesisFailed
+        unless (← isDefEq h (← mkLambdaFVars xs proof)) do
           throwCongrHypothesisFailed
         /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
            assumed `dsimp` would also be able to simplify the term, but this is not true
@@ -515,6 +519,7 @@ where
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
     if c.hypothesesPos.any (· ≥ xs.size) then
       return none
+    let isIff := type.isAppOf ``Iff
     let lhs := type.appFn!.appArg!
     let rhs := type.appArg!
     let numArgs := lhs.getAppNumArgs
@@ -545,7 +550,10 @@ where
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
-      let proof ← instantiateMVars (mkAppN thm xs)
+      let mut proof ← instantiateMVars (mkAppN thm xs)
+      if isIff then
+        try proof ← mkAppM ``propext #[proof]
+        catch _ => return none
       congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none

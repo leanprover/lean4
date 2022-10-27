@@ -65,6 +65,7 @@ static lean_object* l_Lean_Expr_iff_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Expr_heq_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_app4_x3f___boxed(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_eqOrIff_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_eq_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_iff_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_natAdd_x3f(lean_object*);
@@ -118,6 +119,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Lean_Expr_not_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_not_x3f___boxed(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21_x27(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_eqOrIff_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_listLit_x3f_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_isConstructorApp_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_constructorApp_x3f___closed__3;
@@ -495,6 +497,65 @@ _start:
 {
 lean_object* x_2; 
 x_2 = l_Lean_Expr_iff_x3f(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_eqOrIff_x3f(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = l_Lean_Expr_eq_x3f___closed__2;
+x_3 = lean_unsigned_to_nat(3u);
+x_4 = l_Lean_Expr_isAppOfArity(x_1, x_2, x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_5 = l_Lean_Expr_iff_x3f___closed__2;
+x_6 = lean_unsigned_to_nat(2u);
+x_7 = l_Lean_Expr_isAppOfArity(x_1, x_5, x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = lean_box(0);
+return x_8;
+}
+else
+{
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_9 = l_Lean_Expr_appFn_x21(x_1);
+x_10 = l_Lean_Expr_appArg_x21(x_9);
+lean_dec(x_9);
+x_11 = l_Lean_Expr_appArg_x21(x_1);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_13, 0, x_12);
+return x_13;
+}
+}
+else
+{
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_14 = l_Lean_Expr_appFn_x21(x_1);
+x_15 = l_Lean_Expr_appArg_x21(x_14);
+lean_dec(x_14);
+x_16 = l_Lean_Expr_appArg_x21(x_1);
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_15);
+lean_ctor_set(x_17, 1, x_16);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+return x_18;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Expr_eqOrIff_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Expr_eqOrIff_x3f(x_1);
 lean_dec(x_1);
 return x_2;
 }

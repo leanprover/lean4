@@ -413,6 +413,7 @@ where
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
+              addDocString' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }
               copy (i+1) infos (fieldMap.insert fieldName fieldFVar) expandedStructNames

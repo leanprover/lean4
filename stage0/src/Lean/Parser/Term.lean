@@ -547,7 +547,8 @@ We use them to implement `macro_rules` and `elab_rules`
 
 def namedArgument  := leading_parser (withAnonymousAntiquot := false)
   atomic ("(" >> ident >> " := ") >> withoutPosition termParser >> ")"
-def ellipsis       := leading_parser (withAnonymousAntiquot := false) ".."
+def ellipsis       := leading_parser (withAnonymousAntiquot := false)
+  ".." >> notFollowedBy "." "`.` immediately after `..`"
 def argument       :=
   checkWsBefore "expected space" >>
   checkColGt "expected to be indented" >>

@@ -30,6 +30,7 @@ lean_object* l_Lean_Meta_mkForallFVars(lean_object*, lean_object*, uint8_t, uint
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_Elab_WF_packDomain_packApplications_visit___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_userName(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_mkUnaryArg_go___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_WF_packDomain_packApplications_visit___spec__4___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_mkUnaryArg_go___closed__8;
@@ -204,7 +205,6 @@ static lean_object* l_Lean_Elab_WF_packDomain___closed__1;
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_WF_packDomain___spec__4___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain_isAppOfPreDef_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_packDomain_isAppOfPreDef_x3f(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain___spec__2___lambda__3___closed__1;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Lean_Elab_WF_mkUnaryArg_go___closed__10;
@@ -14608,7 +14608,7 @@ x_19 = l_Array_forInUnsafe_loop___at_Lean_Elab_WF_packDomain___spec__2___lambda_
 x_20 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__5(x_20, x_6, x_7, x_8, x_9, x_10);
+x_21 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_20, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -14782,7 +14782,7 @@ x_9 = lean_ctor_get(x_5, 5);
 x_10 = l_Lean_replaceRef(x_1, x_9);
 lean_dec(x_9);
 lean_ctor_set(x_5, 5, x_10);
-x_11 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__5(x_2, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_5);
 return x_11;
 }
@@ -14826,7 +14826,7 @@ lean_ctor_set(x_24, 7, x_19);
 lean_ctor_set(x_24, 8, x_20);
 lean_ctor_set(x_24, 9, x_21);
 lean_ctor_set(x_24, 10, x_22);
-x_25 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__5(x_2, x_3, x_4, x_24, x_6, x_7);
+x_25 = l_Lean_throwError___at_Lean_Meta_mkSimpCongrTheorem___spec__4(x_2, x_3, x_4, x_24, x_6, x_7);
 lean_dec(x_24);
 return x_25;
 }

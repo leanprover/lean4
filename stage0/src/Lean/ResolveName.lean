@@ -20,7 +20,7 @@ abbrev AliasEntry := Name × Name
 def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
   match s.find? e.1 with
   | none    => s.insert e.1 [e.2]
-  | some es => if es.elem e.2 then s else s.insert e.1 (e.2 :: es)
+  | some es => if es.contains e.2 then s else s.insert e.1 (e.2 :: es)
 
 builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
   registerSimplePersistentEnvExtension {
@@ -93,7 +93,7 @@ private def resolveExact (env : Environment) (id : Name) : Option Name :=
 private def resolveOpenDecls (env : Environment) (id : Name) : List OpenDecl → List Name → List Name
   | [], resolvedIds => resolvedIds
   | OpenDecl.simple ns exs :: openDecls, resolvedIds =>
-    if exs.elem id then
+    if exs.contains id then
       resolveOpenDecls env id openDecls resolvedIds
     else
       let newResolvedIds := resolveQualifiedName env ns id
@@ -145,9 +145,13 @@ def resolveNamespaceUsingScope? (env : Environment) (n : Name) : Name → Option
   | _             => unreachable!
 
 def resolveNamespaceUsingOpenDecls (env : Environment) (n : Name) : List OpenDecl → List Name
-  | []                          => []
-  | OpenDecl.simple ns [] :: ds =>  if env.isNamespace (ns ++ n) then (ns ++ n) :: resolveNamespaceUsingOpenDecls env n ds else resolveNamespaceUsingOpenDecls env n ds
-  | _ :: ds                     => resolveNamespaceUsingOpenDecls env n ds
+  | [] => []
+  | OpenDecl.simple ns exs :: ds =>
+    if env.isNamespace (ns ++ n) && !exs.contains n then
+      (ns ++ n) :: resolveNamespaceUsingOpenDecls env n ds
+    else
+      resolveNamespaceUsingOpenDecls env n ds
+  | _ :: ds => resolveNamespaceUsingOpenDecls env n ds
 
 /--
 Given a name `id` try to find namespaces it may refer to. The resolution procedure works as follows

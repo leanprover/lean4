@@ -646,8 +646,8 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   saveModuleData fname env.mainModule (← mkModuleData env)
 
 private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
-  if i < mod.entries.size then
-    let curr := mod.entries.get! i;
+  if h : i < mod.entries.size then
+    let curr := mod.entries[i]
     if curr.1 == extId then curr.2 else getEntriesFor mod extId (i+1)
   else
     #[]

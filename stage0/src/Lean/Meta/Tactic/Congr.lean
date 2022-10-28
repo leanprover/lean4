@@ -40,7 +40,7 @@ private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (
 Try to apply a `simp` congruence theorem.
 -/
 def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
-  mvarId.withContext do
+  mvarId.withContext do commitWhenSomeNoEx? do
     mvarId.checkNotAssigned `congr
     let target ← mvarId.getType'
     let some (_, lhs, _) := target.eq? | return none
@@ -53,15 +53,17 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
 Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
 using `Eq.refl`, `HEq.refl`, and assumption.
 -/
-def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
-  mvarId.withContext do
+def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
+  commitWhenSomeNoEx? do
     mvarId.checkNotAssigned `congr
-    let target ← mvarId.getType'
-    let some (_, lhs, _, _) := target.heq? | return none
-    let lhs := lhs.cleanupAnnotations
-    unless lhs.isApp do return none
-    let congrThm ← mkHCongr lhs.getAppFn
-    applyCongrThm? mvarId congrThm
+    let mvarId ← mvarId.eqOfHEq
+    mvarId.withContext do
+      let target ← mvarId.getType'
+      let some (_, lhs, _, _) := target.heq? | return none
+      let lhs := lhs.cleanupAnnotations
+      unless lhs.isApp do return none
+      let congrThm ← mkHCongr lhs.getAppFn
+      applyCongrThm? mvarId congrThm
 
 /--
 Try to apply `implies_congr`.

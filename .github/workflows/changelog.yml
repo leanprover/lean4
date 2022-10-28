@@ -29,5 +29,5 @@ jobs:
           # commit as github-actions bot (https://github.com/orgs/community/discussions/26560#discussioncomment-3252339)
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git commit -i RELEASES.md -m "update changelog"
+          git commit -i RELEASES.md -m "doc: update changelog"
           git push

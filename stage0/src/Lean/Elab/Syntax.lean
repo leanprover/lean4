@@ -162,16 +162,28 @@ where
     let aliasName := id.getId.eraseMacroScopes
     let info ← Parser.getParserAliasInfo aliasName
     addAliasInfo id info
-    let args ← args.mapM (withNestedParser ∘ process)
-    let (args, stackSz) := if let some stackSz := info.stackSz? then
-      if !info.autoGroupArgs then
-        (args.map (·.1), stackSz)
-      else
-        (args.map ensureUnaryOutput, stackSz)
+    let args' ← args.mapM (withNestedParser ∘ process)
+    -- wrap lone string literals in `<|>` in dedicated node (#1275)
+    let args' ← if aliasName == `orelse then  -- TODO: generalize if necessary
+      args.zip args' |>.mapM fun (arg, arg') => do
+        let mut #[arg] := arg.getArgs | return arg'
+        let sym ← match arg with
+          | `(stx| &$sym) => pure sym
+          | `(stx| $sym:str) => pure sym
+          | _ => return arg'
+        let sym := sym.getString
+        return (← `(ParserDescr.nodeWithAntiquot $(quote sym) $(quote (`token ++ sym)) $(arg'.1)), 1)
     else
-      let (args, stackSzs) := args.unzip
-      (args, stackSzs.foldl (· + ·) 0)
-    let stx ← match args with
+      pure args'
+    let (args', stackSz) := if let some stackSz := info.stackSz? then
+      if !info.autoGroupArgs then
+        (args'.map (·.1), stackSz)
+      else
+        (args'.map ensureUnaryOutput, stackSz)
+    else
+      let (args', stackSzs) := args'.unzip
+      (args', stackSzs.foldl (· + ·) 0)
+    let stx ← match args' with
       | #[]       => Parser.ensureConstantParserAlias aliasName; ``(ParserDescr.const $(quote aliasName))
       | #[p1]     => Parser.ensureUnaryParserAlias aliasName; ``(ParserDescr.unary $(quote aliasName) $p1)
       | #[p1, p2] => Parser.ensureBinaryParserAlias aliasName; ``(ParserDescr.binary $(quote aliasName) $p1 $p2)

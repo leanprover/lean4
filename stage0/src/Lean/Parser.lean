@@ -76,7 +76,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Parenthesizer
   | ParserDescr.unary n d                           => return (← getUnaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d)
   | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parenthesizerAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
   | ParserDescr.node k prec d                       => return leadingNode.parenthesizer k prec (← interpretParserDescr d)
-  | ParserDescr.nodeWithAntiquot _ k d              => return node.parenthesizer k (← interpretParserDescr d)
+  | ParserDescr.nodeWithAntiquot n k d              => return withAntiquot.parenthesizer (mkAntiquot.parenthesizer' n k (anonymous := true)) <|
+                                                                node.parenthesizer k (← interpretParserDescr d)
   | ParserDescr.sepBy p sep psep trail              => return sepBy.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.parenthesizer (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.parenthesizer k prec lhsPrec (← interpretParserDescr d)
@@ -107,7 +108,8 @@ unsafe def interpretParserDescr : ParserDescr → CoreM Formatter
   | ParserDescr.unary n d                           => return (← getUnaryAlias formatterAliasesRef n) (← interpretParserDescr d)
   | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias formatterAliasesRef n) (← interpretParserDescr d₁) (← interpretParserDescr d₂)
   | ParserDescr.node k _ d                          => return node.formatter k (← interpretParserDescr d)
-  | ParserDescr.nodeWithAntiquot _ k d              => return node.formatter k (← interpretParserDescr d)
+  | ParserDescr.nodeWithAntiquot n k d              => return withAntiquot.formatter (mkAntiquot.formatter' n k (anonymous := true)) <|
+                                                                node.formatter k (← interpretParserDescr d)
   | ParserDescr.sepBy p sep psep trail              => return sepBy.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.sepBy1 p sep psep trail             => return sepBy1.formatter (← interpretParserDescr p) sep (← interpretParserDescr psep) trail
   | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode.formatter k prec lhsPrec (← interpretParserDescr d)

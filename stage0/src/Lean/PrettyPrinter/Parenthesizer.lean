@@ -247,10 +247,16 @@ def visitToken : Parenthesizer := do
   modify fun st => { st with contPrec := none, contCat := Name.anonymous, visitedToken := true }
   goLeft
 
-@[combinator_parenthesizer orelse] def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
-  -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
-  -- them in turn. Uses the syntax traverser non-linearly!
-  p1 <|> p2
+@[combinator_parenthesizer orelse] partial def orelse.parenthesizer (p1 p2 : Parenthesizer) : Parenthesizer := do
+  let stx ← getCur
+  -- `orelse` may produce `choice` nodes for antiquotations
+  if stx.getKind == `choice then
+    visitArgs $ stx.getArgs.size.forM fun _ => do
+      orelse.parenthesizer p1 p2
+  else
+    -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
+    -- them in turn. Uses the syntax traverser non-linearly!
+    p1 <|> p2
 
 -- `mkAntiquot` is quite complex, so we'd rather have its parenthesizer synthesized below the actual parser definition.
 -- Note that there is a mutual recursion
@@ -299,13 +305,12 @@ def tokenWithAntiquot.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   else
     p
 
-def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer :=
+partial def parenthesizeCategoryCore (cat : Name) (_prec : Nat) : Parenthesizer :=
   withReader (fun ctx => { ctx with cat := cat }) do
     let stx ← getCur
     if stx.getKind == `choice then
       visitArgs $ stx.getArgs.size.forM fun _ => do
-        let stx ← getCur
-        parenthesizerForKind stx.getKind
+        parenthesizeCategoryCore cat _prec
     else
       withAntiquot.parenthesizer (mkAntiquot.parenthesizer' cat.toString cat (isPseudoKind := true)) (parenthesizerForKind stx.getKind)
     modify fun st => { st with contCat := cat }

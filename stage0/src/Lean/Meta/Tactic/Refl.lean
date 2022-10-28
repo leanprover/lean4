@@ -53,6 +53,14 @@ def _root_.Lean.MVarId.heqOfEq (mvarId : MVarId) : MetaM MVarId :=
     return mvarId
 
 /--
+Try to apply `eq_of_heq`. If successful, then return new goal, otherwise return `mvarId`.
+-/
+def _root_.Lean.MVarId.eqOfHEq (mvarId : MVarId) : MetaM MVarId :=
+  mvarId.withContext do
+    let some [mvarId] ← observing? do mvarId.apply (mkConst ``eq_of_heq [← mkFreshLevelMVar]) | return mvarId
+    return mvarId
+
+/--
 Close given goal using `HEq.refl`.
 -/
 def _root_.Lean.MVarId.hrefl (mvarId : MVarId) : MetaM Unit := do

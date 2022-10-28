@@ -173,10 +173,18 @@ def withMaybeTag (pos? : Option String.Pos) (x : FormatterM Unit) : Formatter :=
   else
     x
 
-@[combinator_formatter orelse] def orelse.formatter (p1 p2 : Formatter) : Formatter :=
-  -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
-  -- them in turn. Uses the syntax traverser non-linearly!
-  p1 <|> p2
+@[combinator_formatter orelse] partial def orelse.formatter (p1 p2 : Formatter) : Formatter := do
+  let stx ← getCur
+  -- `orelse` may produce `choice` nodes for antiquotations
+  if stx.getKind == `choice then
+    visitArgs do
+      -- format only last choice
+      -- TODO: We could use elaborator data here to format the chosen child when available
+      orelse.formatter p1 p2
+  else
+    -- HACK: We have no (immediate) information on which side of the orelse could have produced the current node, so try
+    -- them in turn. Uses the syntax traverser non-linearly!
+    p1 <|> p2
 
 -- `mkAntiquot` is quite complex, so we'd rather have its formatter synthesized below the actual parser definition.
 -- Note that there is a mutual recursion

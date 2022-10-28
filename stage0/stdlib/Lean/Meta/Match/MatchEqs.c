@@ -147,8 +147,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match
 static lean_object* l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__11;
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Lean_Meta_subst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_forallAltTelescope_go___rarg___lambda__5___closed__4;
-lean_object* l_Lean_observing_x3f___at_Lean_Meta_subst_x3f___spec__1___at_Lean_Meta_subst_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___lambda__3___closed__1;
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_SimpH_substRHS___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__14(lean_object*, lean_object*);
@@ -172,6 +172,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___closed__1;
 size_t lean_usize_shift_right(size_t, size_t);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor___lambda__4___closed__1;
+lean_object* l_Lean_Meta_splitIfTarget_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_forallAltTelescope(lean_object*);
@@ -555,7 +556,6 @@ lean_object* l_Lean_Meta_simpIfTarget(lean_object*, uint8_t, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_injectionAnyCandidate_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertTemplate___spec__6(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkEquationsFor___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_commitWhenSome_x3f___at_Lean_Meta_splitIfTarget_x3f___spec__1___at_Lean_Meta_splitIfTarget_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_proveSubgoal___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_simpH_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Match_forallAltTelescope_go___rarg___closed__11;
@@ -10258,7 +10258,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_1);
-x_48 = l_Lean_observing_x3f___at_Lean_Meta_subst_x3f___spec__1___at_Lean_Meta_subst_x3f___spec__2(x_1, x_43, x_8, x_9, x_10, x_11, x_47);
+x_48 = l_Lean_Meta_subst_x3f(x_1, x_43, x_8, x_9, x_10, x_11, x_47);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 if (lean_obj_tag(x_49) == 0)
@@ -10778,7 +10778,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_1);
-x_49 = l_Lean_observing_x3f___at_Lean_Meta_subst_x3f___spec__1___at_Lean_Meta_subst_x3f___spec__2(x_1, x_44, x_8, x_9, x_10, x_11, x_48);
+x_49 = l_Lean_Meta_subst_x3f(x_1, x_44, x_8, x_9, x_10, x_11, x_48);
 x_50 = lean_ctor_get(x_49, 0);
 lean_inc(x_50);
 if (lean_obj_tag(x_50) == 0)
@@ -11832,7 +11832,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_12);
-x_99 = l_Lean_commitWhenSome_x3f___at_Lean_Meta_splitIfTarget_x3f___spec__1___at_Lean_Meta_splitIfTarget_x3f___spec__2(x_12, x_74, x_5, x_6, x_7, x_8, x_77);
+x_99 = l_Lean_Meta_splitIfTarget_x3f(x_12, x_74, x_5, x_6, x_7, x_8, x_77);
 if (lean_obj_tag(x_99) == 0)
 {
 lean_object* x_100; 

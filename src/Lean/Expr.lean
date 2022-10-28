@@ -1470,6 +1470,11 @@ def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
   | app _ _ => mkApp newFn newArg
   | _       => panic! "application expected"
 
+@[inline] def updateFVar! (e : Expr) (fvarIdNew : FVarId) : Expr :=
+  match e with
+  | .fvar fvarId => if fvarId == fvarIdNew then e else .fvar fvarIdNew
+  | _            => panic! "fvar expected"
+
 @[inline] private unsafe def updateConst!Impl (e : Expr) (newLevels : List Level) : Expr :=
   match e with
   | const n ls => if ptrEqList ls newLevels then e else mkConst n newLevels

@@ -5,10 +5,9 @@ Author: Leonardo de Moura
 -/
 import Lean.Data.AssocList
 namespace Lean
-universe u v w
 
 def HashMapBucket (α : Type u) (β : Type v) :=
-  { b : Array (AssocList α β) // b.size > 0 }
+  { b : Array (AssocList α β) // b.size.isPowerOfTwo }
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
@@ -22,22 +21,27 @@ private def numBucketsForCapacity (capacity : Nat) : Nat :=
   -- a "load factor" of 0.75 is the usual standard for hash maps
   capacity * 4 / 3
 
-def mkHashMapImp {α : Type u} {β : Type v} (capacity := 0) : HashMapImp α β :=
-  let_fun nbuckets := numBucketsForCapacity capacity
-  let n := if nbuckets = 0 then 8 else nbuckets
-  { size       := 0,
+def mkHashMapImp {α : Type u} {β : Type v} (capacity := 8) : HashMapImp α β :=
+  { size       := 0
     buckets    :=
-    ⟨ mkArray n AssocList.nil,
-      by simp; cases nbuckets; decide; apply Nat.zero_lt_succ; done ⟩ }
+    ⟨mkArray (numBucketsForCapacity capacity).nextPowerOfTwo AssocList.nil,
+     by simp; apply Nat.isPowerOfTwo_nextPowerOfTwo⟩ }
 
 namespace HashMapImp
 variable {α : Type u} {β : Type v}
 
-def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
-  ⟨u % n, USize.modn_lt _ h⟩
+/- Remark: we use a C implementation because this function is performance critical. -/
+@[extern c inline "(size_t)(#2) & (lean_unbox(#1) - 1)"]
+private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize // u.toNat < sz } :=
+  -- TODO: avoid `if` in the reference implementation
+  let u := hash.toUSize &&& (sz.toUSize - 1)
+  if h' : u.toNat < sz then
+    ⟨u, h'⟩
+  else
+    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat, Fin.ofNat']; rw [Nat.zero_mod]; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
-  let ⟨i, h⟩ := mkIdx data.property (hashFn a |>.toUSize)
+  let ⟨i, h⟩ := mkIdx (hashFn a) data.property
   data.update i (AssocList.cons a b data.val[i]) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
@@ -61,19 +65,19 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].findEntry? a
 
 def find? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].find? a
 
 def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].contains a
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (target : HashMapBucket α β) : HashMapBucket α β :=
@@ -88,16 +92,17 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
 termination_by _ i source _ => source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
-  let nbuckets := buckets.val.size * 2
-  have : nbuckets > 0 := Nat.mul_pos buckets.property (by decide)
-  let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, by simp; assumption⟩
+  let bucketsNew : HashMapBucket α β := ⟨
+    mkArray (buckets.val.size * 2) AssocList.nil,
+    by simp; apply Nat.mul2_isPowerOfTwo_of_isPowerOfTwo buckets.property
+  ⟩
   { size    := size,
-    buckets := moveEntries 0 buckets.val new_buckets }
+    buckets := moveEntries 0 buckets.val bucketsNew }
 
 @[inline] def insert [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β × Bool :=
   match m with
   | ⟨size, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then
       (⟨size, buckets.update i (bkt.replace a b) h⟩, true)
@@ -112,7 +117,7 @@ def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapI
 def erase [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
   match m with
   | ⟨ size, buckets ⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
@@ -129,7 +134,7 @@ def HashMap (α : Type u) (β : Type v) [BEq α] [Hashable α] :=
 
 open Lean.HashMapImp
 
-def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (capacity := 0) : HashMap α β :=
+def mkHashMap {α : Type u} {β : Type v} [BEq α] [Hashable α] (capacity := 8) : HashMap α β :=
   ⟨ mkHashMapImp capacity, WellFormed.mkWff capacity ⟩
 
 namespace HashMap

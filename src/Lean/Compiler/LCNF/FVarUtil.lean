@@ -17,22 +17,16 @@ export TraverseFVar (mapFVarM forFVarM)
 
 partial def Expr.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : Expr) : m Expr := do
   match e with
-  | .proj typ idx struct => return .proj typ idx (← mapFVarM f struct)
-  | .app fn arg => return .app (← mapFVarM f fn) (← mapFVarM f arg)
-  | .fvar fvarId => return .fvar (← f fvarId)
-  | .lam arg ty body bi =>
-    return .lam arg (← mapFVarM f ty) (← mapFVarM f body) bi
-  | .forallE arg ty body bi =>
-    return .forallE arg (←mapFVarM f ty) (← mapFVarM f body) bi
-  | .letE var ty value body nonDep  =>
-    return .letE var (← mapFVarM f ty) (← mapFVarM f value) (← mapFVarM f body) nonDep
+  | .app fn arg => return e.updateApp! (← mapFVarM f fn) (← mapFVarM f arg)
+  | .fvar fvarId => return e.updateFVar! (← f fvarId)
+  | .lam _ ty body _ => return e.updateLambdaE! (← mapFVarM f ty) (← mapFVarM f body)
+  | .forallE _ ty body _ => return e.updateForallE! (← mapFVarM f ty) (← mapFVarM f body)
   | .bvar .. | .sort .. => return e
   | .mdata .. | .const .. | .lit .. => return e
-  | .mvar .. => unreachable!
+  | .letE ..  | .proj .. | .mvar .. => unreachable! -- LCNF types do not have this kind of expr
 
 partial def Expr.forFVarM [Monad m] (f : FVarId → m Unit) (e : Expr) : m Unit := do
   match e with
-  | .proj _ _ struct => forFVarM f struct
   | .app fn arg =>
     forFVarM f fn
     forFVarM f arg
@@ -43,24 +37,54 @@ partial def Expr.forFVarM [Monad m] (f : FVarId → m Unit) (e : Expr) : m Unit 
   | .forallE _ ty body .. =>
     forFVarM f ty
     forFVarM f body
-  | .letE _ ty value body ..  =>
-    forFVarM f ty
-    forFVarM f value
-    forFVarM f body
   | .bvar .. | .sort .. => return
   | .mdata .. | .const .. | .lit .. => return
-  | .mvar .. => unreachable!
+  | .mvar .. | .letE .. | .proj .. => unreachable! -- LCNF types do not have this kind of expr
 
 instance : TraverseFVar Expr where
   mapFVarM := Expr.mapFVarM
   forFVarM := Expr.forFVarM
 
+def Arg.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (arg : Arg) : m Arg := do
+  match arg with
+  | .erased => return .erased
+  | .type e => return arg.updateType! (← TraverseFVar.mapFVarM f e)
+  | .fvar fvarId => return arg.updateFVar! (← f fvarId)
+
+def Arg.forFVarM [Monad m] (f : FVarId → m Unit) (arg : Arg) : m Unit := do
+  match arg with
+  | .erased => return ()
+  | .type e => TraverseFVar.forFVarM f e
+  | .fvar fvarId => f fvarId
+
+instance : TraverseFVar Arg where
+  mapFVarM := Arg.mapFVarM
+  forFVarM := Arg.forFVarM
+
+def LetExpr.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetExpr) : m LetExpr := do
+  match e with
+  | .value .. | .erased => return e
+  | .proj _ _ fvarId => return e.updateProj! (← f fvarId)
+  | .const _ _ args => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
+  | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
+
+def LetExpr.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetExpr) : m Unit := do
+  match e with
+  | .value .. | .erased => return ()
+  | .proj _ _ fvarId => f fvarId
+  | .const _ _ args => args.forM (TraverseFVar.forFVarM f)
+  | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)
+
+instance : TraverseFVar LetExpr where
+  mapFVarM := LetExpr.mapFVarM
+  forFVarM := LetExpr.forFVarM
+
 partial def LetDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : LetDecl) : m LetDecl := do
-  decl.update (← Expr.mapFVarM f decl.type) (← Expr.mapFVarM f decl.value)
+  decl.update (← Expr.mapFVarM f decl.type) (← LetExpr.mapFVarM f decl.value)
 
 partial def LetDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : LetDecl) : m Unit := do
   Expr.forFVarM f decl.type
-  Expr.forFVarM f decl.value
+  LetExpr.forFVarM f decl.value
 
 instance : TraverseFVar LetDecl where
   mapFVarM := LetDecl.mapFVarM
@@ -92,7 +116,7 @@ partial def Code.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m F
   | .cases cs =>
     return Code.updateCases! c (← Expr.mapFVarM f cs.resultType) (← f cs.discr) (← cs.alts.mapM (·.mapCodeM (mapFVarM f)))
   | .jmp fn args =>
-    return Code.updateJmp! c (← f fn) (← args.mapM (Expr.mapFVarM f))
+    return Code.updateJmp! c (← f fn) (← args.mapM (Arg.mapFVarM f))
   | .return var =>
     return Code.updateReturn! c (← f var)
   | .unreach typ =>
@@ -119,7 +143,7 @@ partial def Code.forFVarM [Monad m] (f : FVarId → m Unit) (c : Code) : m Unit 
     cs.alts.forM (·.forCodeM (forFVarM f))
   | .jmp fn args =>
     f fn
-    args.forM (Expr.forFVarM f)
+    args.forM (Arg.forFVarM f)
   | .return var => f var
   | .unreach typ =>
     Expr.forFVarM f typ

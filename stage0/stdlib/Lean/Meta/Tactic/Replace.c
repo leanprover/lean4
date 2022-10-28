@@ -2430,7 +2430,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_Replace_0__Lean_Meta_repl
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
+x_1 = lean_unsigned_to_nat(8u);
 x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }

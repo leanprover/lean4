@@ -1405,7 +1405,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Probe_countUnique___rarg___closed
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
+x_1 = lean_unsigned_to_nat(8u);
 x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }

@@ -25267,7 +25267,7 @@ static lean_object* _init_l_Array_forInUnsafe_loop___at_Lean_Elab_Term_checkForH
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
+x_1 = lean_unsigned_to_nat(8u);
 x_2 = l_Lean_mkHashMapImp___rarg(x_1);
 return x_2;
 }

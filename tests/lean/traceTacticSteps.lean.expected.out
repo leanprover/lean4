@@ -6,13 +6,13 @@
       skip
       trivial
   [Elab.step.result] ?m
+[Elab.step] 
+      skip
+      trivial
+[Elab.step] 
+      skip
+      trivial
 [Elab.step] skip
-[Elab.step] 
-      skip
-      trivial
-[Elab.step] 
-      skip
-      trivial
 [Elab.step] trivial
 [Elab.step] (apply And.intro✝) <;> trivial
 [Elab.step] focus

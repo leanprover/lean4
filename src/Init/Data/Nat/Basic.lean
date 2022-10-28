@@ -233,6 +233,11 @@ theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
   | 0        => by rw [Nat.sub_zero]
   | (succ n) => by rw [succ_sub_succ, Nat.sub_self n]
 
+theorem sub_add_eq (a b c : Nat) : a - (b + c) = a - b - c := by
+  induction c with
+  | zero => simp
+  | succ c ih => simp [Nat.add_succ, Nat.sub_succ, ih]
+
 protected theorem lt_of_lt_of_le {n m k : Nat} : n < m → m ≤ k → n < k :=
   Nat.le_trans
 

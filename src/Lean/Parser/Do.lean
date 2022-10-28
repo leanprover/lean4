@@ -103,7 +103,7 @@ else if c_2 then
        action_3
 ```
 -/
-def elseIf := atomic (group (withPosition (" else " >> checkLineEq >> " if ")))
+def elseIf := atomic (group (withPosition ("else " >> checkLineEq >> " if ")))
 -- ensure `if $e then ...` still binds to `e:term`
 def doIfLetPure := leading_parser " := " >> termParser
 def doIfLetBind := leading_parser " ← " >> termParser
@@ -114,12 +114,12 @@ def doIfProp    := leading_parser (withAnonymousAntiquot := false)
 def doIfCond    :=
   withAntiquot (mkAntiquot "doIfCond" decl_name% (anonymous := false) (isPseudoKind := true)) <|
     doIfLet <|> doIfProp
-@[builtin_doElem_parser] def doIf := leading_parser withPositionAfterLinebreak <|
-  "if " >> doIfCond >> " then " >> doSeq >>
+@[builtin_doElem_parser] def doIf := leading_parser withPositionAfterLinebreak <| ppRealGroup <|
+  ppRealFill (ppIndent ("if " >> doIfCond >> " then") >> ppSpace >> doSeq) >>
   many (checkColGe "'else if' in 'do' must be indented" >>
-    group (elseIf >> doIfCond >> " then " >> doSeq)) >>
+    group (ppDedent ppSpace >> ppRealFill (elseIf >> doIfCond >> " then " >> doSeq))) >>
   optional (checkColGe "'else' in 'do' must be indented" >>
-    " else " >> doSeq)
+    ppDedent ppSpace >> ppRealFill ("else " >> doSeq))
 @[builtin_doElem_parser] def doUnless := leading_parser
   "unless " >> withForbidden "do" termParser >> "do " >> doSeq
 def doForDecl := leading_parser

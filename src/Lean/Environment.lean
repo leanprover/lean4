@@ -718,6 +718,11 @@ structure ImportState where
   moduleData    : Array ModuleData := #[]
   regions       : Array CompactedRegion := #[]
 
+def throwAlreadyImported (s : ImportState) (const2ModIdx : HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
+  let modName := s.moduleNames[modIdx]!
+  let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
+  throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
+
 @[export lean_import_modules]
 partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
   for imp in imports do
@@ -737,10 +742,7 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
         | (constantMap', replaced) =>
           constantMap := constantMap'
           if replaced then
-            let modName := s.moduleNames[modIdx]!
-            let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
-            throw <| IO.userError
-              s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
+            throwAlreadyImported s const2ModIdx modIdx cname
         const2ModIdx := const2ModIdx.insert cname modIdx
       for cname in mod.extraConstNames do
         const2ModIdx := const2ModIdx.insert cname modIdx

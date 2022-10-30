@@ -681,4 +681,16 @@ where
   go : StateM NameSet Unit :=
     decls.forM fun decl => visit decl.value
 
+def instantiateRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array Arg) : Expr :=
+  if !e.hasFVar then
+    e
+  else
+    e.instantiateRange beginIdx endIdx (args.map (·.toExpr))
+
+def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array Arg) : Expr :=
+  if !e.hasFVar then
+    e
+  else
+    e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
+
 end Lean.Compiler.LCNF

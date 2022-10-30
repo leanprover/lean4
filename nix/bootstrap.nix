@@ -140,7 +140,7 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
-        buildInputs = [ gmp perl ];
+        buildInputs = [ gmp perl llvmPackages_14.llvm llvmPackages_14.libllvm llvmPackages_14.libllvm.dev llvmPackages_14.bintools ];
         preConfigure = ''
           cd src
         '';

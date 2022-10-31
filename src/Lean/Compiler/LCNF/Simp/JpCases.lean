@@ -9,6 +9,9 @@ import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Simp.Basic
 import Lean.Compiler.LCNF.Simp.DiscrM
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace Simp
 

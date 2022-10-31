@@ -8,6 +8,10 @@ import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.ForEachExpr
 
+
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 abbrev Probe α β := Array α → CompilerM (Array β)

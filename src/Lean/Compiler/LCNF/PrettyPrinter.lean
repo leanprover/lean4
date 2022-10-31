@@ -39,29 +39,29 @@ def ppFVar (fvarId : FVarId) : M Format :=
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }
 
-def ppArg (e : Expr) : M Format := do
-  if e.isFVar then
-    ppFVar e.fvarId!
-  else if pp.explicit.get (← getOptions) then
-    if e.isConst || e.isProp || e.isType0 then
-      ppExpr e
+def ppArg (e : Arg) : M Format := do
+  match e with
+  | .erased => return "◾"
+  | .fvar fvarId => ppFVar fvarId
+  | .type e =>
+    if pp.explicit.get (← getOptions) then
+      if e.isConst || e.isProp || e.isType0 then
+        ppExpr e
+      else
+        return Format.paren (←  ppExpr e)
     else
-      return Format.paren (←  ppExpr e)
-  else
-    return "_"
+      return "_"
 
-def ppArgs (args : Array Expr) : M Format := do
+def ppArgs (args : Array Arg) : M Format := do
   join args ppArg
 
-def ppApp (e : Expr) : M Format := do
-  return f!"{← ppExpr e.getAppFn} {← ppArgs e.getAppArgs}"
-
-def ppValue (e : Expr) : M Format := do
+def ppLetExpr (e : LetExpr) : M Format := do
   match e with
-  | .app .. => ppApp e
-  | .fvar fvarId => ppFVar fvarId
-  | .proj _ i e => return f!"{← ppArg e} # {i}"
-  | _ => ppExpr e
+  | .erased => return "◾"
+  | .value v => ppExpr v.toExpr
+  | .proj _ i fvarId => return f!"{← ppFVar fvarId} # {i}"
+  | .fvar fvarId args => return f!"{← ppFVar fvarId} {← ppArgs args}"
+  | .const declName us args => return f!"{← ppExpr (.const declName us)} {← ppArgs args}"
 
 def ppParam (param : Param) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -75,9 +75,9 @@ def ppParams (params : Array Param) : M Format := do
 
 def ppLetDecl (letDecl : LetDecl) : M Format := do
   if pp.letVarTypes.get (← getOptions) then
-    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppValue letDecl.value}"
+    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetExpr letDecl.value}"
   else
-    return f!"let {letDecl.binderName} := {← ppValue letDecl.value}"
+    return f!"let {letDecl.binderName} := {← ppLetExpr letDecl.value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
   instantiateForall type (ps.map (mkFVar ·.fvarId))

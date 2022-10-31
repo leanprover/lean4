@@ -7,6 +7,8 @@ import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.PassManager
 
+set_option warningAsError false
+#exit
 
 namespace Lean.Compiler.LCNF.Simp
 namespace ConstantFold

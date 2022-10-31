@@ -48,7 +48,7 @@ def internalizeParam (p : Param) : InternalizeM Param := do
 def internalizeLetDecl (decl : LetDecl) : InternalizeM LetDecl := do
   let binderName ← refreshBinderName decl.binderName
   let type ← normExpr decl.type
-  let value ← normExpr decl.value
+  let value ← normLetExpr decl.value
   let fvarId ← mkNewFVarId decl.fvarId
   let decl := { decl with binderName, fvarId, type, value }
   modifyLCtx fun lctx => lctx.addLetDecl decl
@@ -72,7 +72,7 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
   | .fun decl k => return .fun (← internalizeFunDecl decl) (← internalizeCode k)
   | .jp decl k => return .jp (← internalizeFunDecl decl) (← internalizeCode k)
   | .return fvarId => return .return (← normFVar fvarId)
-  | .jmp fvarId args => return .jmp (← normFVar fvarId) (← args.mapM normExpr)
+  | .jmp fvarId args => return .jmp (← normFVar fvarId) (← args.mapM normArg)
   | .unreach type => return .unreach (← normExpr type)
   | .cases c =>
     let resultType ← normExpr c.resultType

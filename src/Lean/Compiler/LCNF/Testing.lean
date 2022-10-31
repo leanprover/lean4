@@ -6,6 +6,9 @@ Authors: Henrik Böving
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PrettyPrinter
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 partial def Code.containsConst (constName : Name) (code : Code) : Bool :=

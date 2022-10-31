@@ -629,7 +629,8 @@ where
             let major := mkAppN major args[arity+1:]
             visit major
         else
-          mkUnreachable (← inferType e)
+          let type ← toLCNFType (← liftMetaM <| Meta.inferType e)
+          mkUnreachable type
       | _, _ =>
         throwError "code generator failed, unsupported occurrence of `{declName}`"
 

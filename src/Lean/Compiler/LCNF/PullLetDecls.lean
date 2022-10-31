@@ -8,6 +8,10 @@ import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.PassManager
 
+
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace PullLetDecls
 

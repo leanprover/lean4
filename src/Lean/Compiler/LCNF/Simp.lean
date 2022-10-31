@@ -17,6 +17,9 @@ import Lean.Compiler.LCNF.Simp.DefaultAlt
 import Lean.Compiler.LCNF.Simp.SimpValue
 import Lean.Compiler.LCNF.Simp.Used
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 open Simp
 

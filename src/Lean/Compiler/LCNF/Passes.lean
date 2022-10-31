@@ -42,7 +42,8 @@ def saveMono : Pass :=
 
 def builtinPassManager : PassManager := {
   passes := #[
-    init,
+    init
+/-
     pullInstances,
     cse,
     simp,
@@ -71,6 +72,7 @@ def builtinPassManager : PassManager := {
     cse (occurrence := 2) (phase := .mono),
     -- TODO: reduce function arity
     saveMono  -- End of mono phase
+-/
   ]
 }
 

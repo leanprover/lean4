@@ -10,6 +10,9 @@ import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.ScopeM
 import Lean.Compiler.LCNF.InferType
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 namespace JoinPointFinder
@@ -523,11 +526,11 @@ where
       let scope ← getScope
       withReader (fun ctx => { ctx with jpScopes := ctx.jpScopes.insert decl.fvarId scope }) do
         addToScope decl.fvarId
-        goAnalyze k 
+        goAnalyze k
     | .fun decl k =>
       goAnalyzeFunDecl decl
       addToScope decl.fvarId
-      goAnalyze k 
+      goAnalyze k
     | .cases cs =>
       let visitor alt := do
         withNewScope do
@@ -537,7 +540,7 @@ where
     | .jmp fn args =>
       let decl ← getFunDecl fn
       if let some knownArgs := (← get).jpJmpArgs.find? fn then
-        let mut newArgs := knownArgs 
+        let mut newArgs := knownArgs
         for (param, arg) in decl.params.zip args do
           if let some knownVal := newArgs.find? param.fvarId then
             if arg != knownVal then
@@ -566,10 +569,10 @@ where
         let mut newValue ← goReduce decl.value
         newValue ← replaceFVars newValue reducibleArgs false
         let newType ←
-          if newParams.size != decl.params.size then 
+          if newParams.size != decl.params.size then
             mkForallParams newParams (← newValue.inferType)
           else
-            pure decl.type 
+            pure decl.type
         let k ← goReduce k
         let decl ← decl.update newType newParams newValue
         return Code.updateFun! code decl k

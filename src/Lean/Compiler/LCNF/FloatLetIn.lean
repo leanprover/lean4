@@ -8,6 +8,9 @@ import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.Types
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 namespace FloatLetIn

@@ -8,6 +8,9 @@ import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Internalize
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 /-!
 # Function arity reduction

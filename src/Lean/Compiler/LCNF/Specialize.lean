@@ -13,6 +13,9 @@ import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Closure
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace Specialize
 

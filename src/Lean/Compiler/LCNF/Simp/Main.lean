@@ -16,6 +16,9 @@ import Lean.Compiler.LCNF.Simp.DefaultAlt
 import Lean.Compiler.LCNF.Simp.SimpValue
 import Lean.Compiler.LCNF.Simp.ConstantFold
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace Simp
 

@@ -8,6 +8,9 @@ import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Simp.Basic
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace Simp
 
@@ -31,7 +34,7 @@ abbrev DiscrM := ReaderT DiscrM.Context CompilerM
 This method uses `findExpr`, and if the result is a free variable, checks whether it is in the map `discrCtorMap`.
 We use this method when simplifying projections and cases-constructor.
 -/
-def findCtor (e : Expr) : DiscrM Expr := do
+def findCtormer (e : Expr) : DiscrM Expr := do
   let e ← findExpr e
   let .fvar fvarId := e | return e
   let some ctor := (← read).discrCtorMap.find? fvarId | return e

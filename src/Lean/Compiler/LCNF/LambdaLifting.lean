@@ -12,6 +12,9 @@ import Lean.Compiler.LCNF.Internalize
 import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.AuxDeclCache
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 namespace LambdaLifting
 

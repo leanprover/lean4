@@ -6,6 +6,9 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.PrettyPrinter
 
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 /-!

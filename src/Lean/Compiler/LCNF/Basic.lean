@@ -41,6 +41,10 @@ inductive Value where
   -- TODO: add constructors for `Int`, `Float`, `UInt` ...
   deriving Inhabited, BEq, Hashable
 
+def Value.toExpr : Value → Expr
+  | .natVal v => .lit (.natVal v)
+  | .strVal v => .lit (.strVal v)
+
 inductive Arg where
   | erased
   | fvar (fvarId : FVarId)

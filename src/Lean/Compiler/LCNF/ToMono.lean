@@ -6,6 +6,10 @@ Authors: Leonardo de Moura
 import Lean.Compiler.LCNF.MonoTypes
 import Lean.Compiler.LCNF.InferType
 
+
+set_option warningAsError false
+#exit
+
 namespace Lean.Compiler.LCNF
 
 structure ToMonoM.State where

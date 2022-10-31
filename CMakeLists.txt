@@ -11,7 +11,7 @@ foreach(var ${vars})
     list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
   elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    set(FORWARDED_OPTIONS "USE_GMP" "LLVM_CONFIG")
+    set(FORWARDED_OPTIONS "USE_GMP" "LLVM_CONFIG" "LLVM")
     if("${var}" IN_LIST FORWARDED_OPTIONS)
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")

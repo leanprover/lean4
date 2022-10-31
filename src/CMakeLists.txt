@@ -263,6 +263,7 @@ if(LLVM)
         # check that we have 'llvm-config' version.
         execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
         message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+        string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
     else()
         message("LLVM support turned on. Skipping LLVM configuration for stage0.")
     endif()

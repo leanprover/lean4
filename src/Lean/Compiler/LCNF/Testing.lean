@@ -6,19 +6,15 @@ Authors: Henrik Böving
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PrettyPrinter
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 
 partial def Code.containsConst (constName : Name) (code : Code) : Bool :=
   match code with
-  | .let decl k => goExpr decl.value || containsConst constName k
+  | .let decl k => goLetExpr decl.value || containsConst constName k
   | .fun decl k => containsConst constName decl.value || containsConst constName k
   | .jp decl k => containsConst constName decl.value || containsConst constName k
-  | .jmp _ args => args.any goExpr
   | .cases cs => cs.alts.any fun alt => containsConst constName alt.getCode
-  | .return .. | .unreach .. => false
+  | .return .. | .unreach .. | .jmp .. => false
 where
   goExpr (e : Expr) : Bool :=
     match e with
@@ -28,6 +24,10 @@ where
     | .proj _ _ struct .. => goExpr struct
     | .letE .. => unreachable! -- not possible in LCNF
     | _ => false
+  goLetExpr (l : LetExpr) : Bool :=
+    match l with
+    | .value .. | .erased | .proj .. | .fvar .. => false
+    | .const name .. => name == constName
 
 namespace Testing
 

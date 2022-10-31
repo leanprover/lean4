@@ -8,10 +8,6 @@ import Lean.Compiler.LCNF.DependsOn
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.PassManager
 
-
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace PullLetDecls
 
@@ -107,7 +103,7 @@ def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
   decl.pullLetDecls fun letDecl candidates => do
     if (← isClass? letDecl.type).isSome then
       return true
-    else if let .proj _ _ (.fvar fvarId) := letDecl.value then
+    else if let .proj _ _ fvarId := letDecl.value then
       return candidates.contains fvarId
     else
       return false

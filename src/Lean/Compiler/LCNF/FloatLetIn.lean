@@ -8,9 +8,6 @@ import Lean.Compiler.LCNF.FVarUtil
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.Types
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 
 namespace FloatLetIn
@@ -103,7 +100,7 @@ Whether to ignore `decl` for the floating mechanism. We want to do this if:
 def ignore? (decl : LetDecl) : BaseFloatM Bool :=  do
    if (← isArrowClass? decl.type).isSome then
      return true
-   else if let .proj _ _ (.fvar fvarId) := decl.value then
+   else if let .proj _ _ fvarId := decl.value then
      return (← isArrowClass? (← getType fvarId)).isSome
    else
      return false

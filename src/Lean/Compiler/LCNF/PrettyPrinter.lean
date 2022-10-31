@@ -99,7 +99,11 @@ mutual
     | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
     | .return fvarId => return f!"return {← ppFVar fvarId}"
     | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
-    | .unreach .. => return "⊥"
+    | .unreach type =>
+      if pp.all.get (← getOptions) then
+        return f!"⊥ : {← ppExpr type}"
+      else
+        return "⊥"
 end
 
 def run (x : M α) : CompilerM α :=

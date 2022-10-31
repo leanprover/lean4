@@ -289,7 +289,7 @@ message("TODO: change to debug | llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | l
 
 # when using shared libraries, set the `rpath` to help the dynamic loader
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  if(LLVM AND ${STAGE} GREATER 0) # link to Zlib because LLVM depends on it. LLVM is only linked on stage > 0
+  if(LLVM) # link to Zlib because LLVM depends on it.
     find_package(ZLIB REQUIRED)
     message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
     cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
@@ -311,8 +311,7 @@ endif()
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
-# Link LLVM for code generation for stage > 0
-if(LLVM AND ${STAGE} GREATER 0)
+if(LLVM)
     string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
     # string(APPEND LEAN_EXTRA_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")

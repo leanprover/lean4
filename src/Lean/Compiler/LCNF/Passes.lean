@@ -42,10 +42,10 @@ def saveMono : Pass :=
 
 def builtinPassManager : PassManager := {
   passes := #[
-    init
-/-
+    init,
     pullInstances,
-    cse,
+    cse
+/-
     simp,
     floatLetIn,
     findJoinPoints,

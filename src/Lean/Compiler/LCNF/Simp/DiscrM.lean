@@ -8,17 +8,19 @@ import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Simp.Basic
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace Simp
+
+inductive CtorInfo where
+  | ctor (val : ConstructorVal) (args : Array Arg)
+  | /-- Natural numbers are morally constructor applications -/
+    natVal (n : Nat)
 
 structure DiscrM.Context where
   /--
   A mapping from discriminant to constructor application it is equal to in the current context.
   -/
-  discrCtorMap : FVarIdMap Expr := {}
+  discrCtorMap : FVarIdMap CtorInfo := {}
   /--
   A mapping from constructor application to discriminant it is equal to in the current context.
   -/
@@ -31,24 +33,32 @@ The combinator `withDiscrCtor` should be used when visiting `cases` alternatives
 abbrev DiscrM := ReaderT DiscrM.Context CompilerM
 
 /--
-This method uses `findExpr`, and if the result is a free variable, checks whether it is in the map `discrCtorMap`.
-We use this method when simplifying projections and cases-constructor.
+If `fvarId` is a constructor application, returns constructor information.
+Remark: we use the map `discrCtorMap`.
+Remark: We use this method when simplifying projections and cases-constructor.
 -/
-def findCtormer (e : Expr) : DiscrM Expr := do
-  let e ← findExpr e
-  let .fvar fvarId := e | return e
-  let some ctor := (← read).discrCtorMap.find? fvarId | return e
-  return ctor
+def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
+  match (← findLetDecl? fvarId) with
+  | some { value := .value (.natVal n), .. } =>
+    return some <| .natVal n
+  | some { value := .const declName _ args, .. } =>
+    let .ctorInfo val ← getConstInfo declName | return none
+    return some <| .ctor val args
+  | some _ => return none
+  | none => return (← read).discrCtorMap.find? fvarId
 
 /--
 If `type` is an inductive datatype, return its universe levels and parameters.
 -/
-def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Expr)) := do
+def getIndInfo? (type : Expr) : CoreM (Option (List Level × Array Arg)) := do
   let type := type.headBeta
   let .const declName us := type.getAppFn | return none
   let .inductInfo info ← getConstInfo declName | return none
   unless type.getAppNumArgs >= info.numParams do return none
-  return some (us, type.getAppArgs[:info.numParams])
+  let args := type.getAppArgs[:info.numParams].toArray.map fun
+    | .fvar fvarId => .fvar fvarId
+    | e => if e.isErased then .erased else .type e
+  return some (us, args)
 
 /--
 Execute `x` with the information that `discr = ctorName ctorFields`.
@@ -59,16 +69,18 @@ We use this information to simplify nested cases on the same discriminant.
   withReader (fun _ => ctx) x
 where
   updateCtx : DiscrM DiscrM.Context := do
-    let ctorInfo ← getConstInfoCtor ctorName
-    let fieldArgs := ctorFields.map (.fvar ·.fvarId)
+    let ctorVal ← getConstInfoCtor ctorName
+    let fieldArgs := ctorFields.map (Arg.fvar ·.fvarId)
     let ctx ← read
     if let some (us, params) ← getIndInfo? (← getType discr) then
-      let ctor := mkAppN (mkAppN (mkConst ctorName us) params) fieldArgs
-      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor discr }
+      let ctorArgs := params ++ fieldArgs
+      let ctorInfo := .ctor ctorVal ctorArgs
+      let ctor := LetExpr.const ctorVal.name us ctorArgs
+      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
     else
       -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information
-      let ctor := mkAppN (mkAppN (mkConst ctorName) (mkArray ctorInfo.numParams erasedExpr)) fieldArgs
-      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctor }
+      let ctorInfo := .ctor ctorVal (mkArray ctorVal.numParams Arg.erased ++ fieldArgs)
+      return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo }
 
 @[inline, inherit_doc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=
   monadMap (m := DiscrM) <| withDiscrCtorImp discr ctorName ctorFields

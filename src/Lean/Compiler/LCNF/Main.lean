@@ -53,9 +53,9 @@ def checkpoint (stepName : Name) (decls : Array Decl) : CompilerM Unit := do
       if (← Lean.isTracingEnabledFor clsName) then
         Lean.addTrace clsName m!"size: {decl.size}\n{← ppDecl' decl}"
       if compiler.check.get (← getOptions) then
-        decl.check
+        pure () -- TODO: decl.check
   if compiler.check.get (← getOptions) then
-    checkDeadLocalDecls decls
+    pure () -- TODO: checkDeadLocalDecls decls
 
 namespace PassManager
 

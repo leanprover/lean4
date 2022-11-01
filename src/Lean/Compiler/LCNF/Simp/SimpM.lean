@@ -15,9 +15,6 @@ import Lean.Compiler.LCNF.Simp.DiscrM
 import Lean.Compiler.LCNF.Simp.FunDeclInfo
 import Lean.Compiler.LCNF.Simp.Config
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace Simp
 

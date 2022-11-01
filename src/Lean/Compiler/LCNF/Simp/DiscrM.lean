@@ -16,6 +16,20 @@ inductive CtorInfo where
   | /-- Natural numbers are morally constructor applications -/
     natVal (n : Nat)
 
+def CtorInfo.getName : CtorInfo → Name
+  | .ctor val _ => val.name
+  | .natVal 0   => ``Nat.zero
+  | .natVal _   => ``Nat.succ
+
+def CtorInfo.getNumParams : CtorInfo → Nat
+  | .ctor val _ => val.numParams
+  | .natVal _ => 0
+
+def CtorInfo.getNumFields : CtorInfo → Nat
+  | .ctor val _ => val.numFields
+  | .natVal 0   => 0
+  | .natVal _   => 1
+
 structure DiscrM.Context where
   /--
   A mapping from discriminant to constructor application it is equal to in the current context.
@@ -46,6 +60,10 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
     return some <| .ctor val args
   | some _ => return none
   | none => return (← read).discrCtorMap.find? fvarId
+
+def findCtorName? (fvarId : FVarId) : DiscrM (Option Name) := do
+  let some ctorInfo ← findCtor? fvarId | return none
+  return ctorInfo.getName
 
 /--
 If `type` is an inductive datatype, return its universe levels and parameters.

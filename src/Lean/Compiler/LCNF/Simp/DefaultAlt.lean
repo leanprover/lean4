@@ -5,9 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.Simp.SimpM
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace Simp
 

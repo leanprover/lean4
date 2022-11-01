@@ -103,10 +103,10 @@ where
 @[inline, inherit_doc withDiscrCtorImp] def withDiscrCtor [MonadFunctorT DiscrM m] (discr : FVarId) (ctorName : Name) (ctorFields : Array Param) : m α → m α :=
   monadMap (m := DiscrM) <| withDiscrCtorImp discr ctorName ctorFields
 
-def simpCtorDiscrCore? (e : Expr) : DiscrM (Option Expr) := do
+def simpCtorDiscrCore? (e : Expr) : DiscrM (Option FVarId) := do
   let some discr := (← read).ctorDiscrMap.find? e | return none
   unless eqvTypes (← getType discr) (← inferType e) do return none
-  return some <| .fvar discr
+  return some <| discr
 
 end Simp
 end Lean.Compiler.LCNF

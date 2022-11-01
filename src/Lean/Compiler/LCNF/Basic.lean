@@ -80,6 +80,11 @@ inductive LetExpr where
   -- TODO: add constructors for mono and impure phases
   deriving Inhabited, BEq, Hashable
 
+def Arg.toLetExpr (arg : Arg) : LetExpr :=
+  match arg with
+  | .fvar fvarId => .fvar fvarId #[]
+  | .erased | .type .. => .erased
+
 private unsafe def LetExpr.updateProjImp (e : LetExpr) (fvarId' : FVarId) : LetExpr :=
   match e with
   | .proj s i fvarId => if fvarId == fvarId' then e else .proj s i fvarId'

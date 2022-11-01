@@ -209,10 +209,10 @@ LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
-def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
+def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInline := false) : SimpM Code := do
   let mut subst := {}
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg.toExpr
   let code ← code.internalize subst
   updateFunDeclInfo code mustInline
   return code

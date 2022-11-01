@@ -5,9 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.Simp.SimpM
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace Simp
 
@@ -37,11 +34,11 @@ and the free variable containing the result (`FVarId`). The resulting `FVarId` o
 subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
 We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
-partial def inlineProjInst? (e : Expr) : SimpM (Option (Array CodeDecl × FVarId)) := do
+partial def inlineProjInst? (e : LetExpr) : SimpM (Option (Array CodeDecl × FVarId)) := do
   let .proj _ i s := e | return none
-  let sType ← inferType s
+  let sType ← getType s
   unless (← isClass? sType).isSome do return none
-  let eType ← inferType e
+  let eType ← e.inferType
   unless  (← isClass? eType).isNone do return none
   let (fvarId?, decls) ← visit s [i] |>.run |>.run #[]
   if let some fvarId := fvarId? then
@@ -50,30 +47,31 @@ partial def inlineProjInst? (e : Expr) : SimpM (Option (Array CodeDecl × FVarId
     eraseCodeDecls decls
     return none
 where
-  visit (e : Expr) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
-    let e ← findExpr e
-    if let .proj _ i s := e then
-      visit s (i :: projs)
-    else if let some (ctorVal, ctorArgs) := e.constructorApp? (← getEnv) then
-      let i :: projs := projs | unreachable!
-      let e := ctorArgs[ctorVal.numParams + i]!
-      if projs.isEmpty then
-        let .fvar fvarId := e | unreachable!
-        return fvarId
+  visit (fvarId : FVarId) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
+    let some letDecl ← findLetDecl? fvarId | failure
+    match letDecl.value with
+    | .proj _ i s => visit s (i :: projs)
+    | .fvar .. | .value .. | .erased => failure
+    | .const declName us args =>
+      if let .ctorInfo ctorVal ← getConstInfo declName then
+        let i :: projs := projs | unreachable!
+        let arg := args[ctorVal.numParams + i]!
+        let .fvar fvarId := arg | unreachable!
+        if projs.isEmpty then
+          return fvarId
+        else
+          visit fvarId projs
       else
-        visit e projs
-    else
-      let .const declName us := e.getAppFn | failure
-      let some decl ← getDecl? declName | failure
-      guard (decl.getArity == e.getAppNumArgs)
-      let params := decl.instantiateParamsLevelParams us
-      let code := decl.instantiateValueLevelParams us
-      let code ← betaReduce params code e.getAppArgs (mustInline := true)
-      visitCode code projs
+        let some decl ← getDecl? declName | failure
+        guard (decl.getArity == args.size)
+        let params := decl.instantiateParamsLevelParams us
+        let code := decl.instantiateValueLevelParams us
+        let code ← betaReduce params code args (mustInline := true)
+        visitCode code projs
 
   visitCode (code : Code) (projs : List Nat) : OptionT (StateRefT (Array CodeDecl) SimpM) FVarId := do
     match code with
     | .let decl k => modify (·.push (.let decl)); visitCode k projs
     | .fun decl k => modify (·.push (.fun decl)); visitCode k projs
-    | .return fvarId => visit (.fvar fvarId) projs
+    | .return fvarId => visit fvarId projs
     | _ => eraseCode code; failure

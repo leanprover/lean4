@@ -30,8 +30,6 @@ $CP llvm/lib/lib{clang-cpp,LLVM}.dylib stage1/lib/
 #find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang
-# LLVM backend includes
-$CP -r llvm/include/* stage1/include/
 # runtime
 (cd llvm; $CP --parents lib/clang/*/lib/*/libclang_rt.osx.a ../stage1)
 # libSystem stub, includes libc

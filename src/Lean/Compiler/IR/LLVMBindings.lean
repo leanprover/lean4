@@ -274,11 +274,6 @@ def voidPtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
 def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
   voidPtrType ctx
 
--- TODO: What is the correct way to find out `size_t`? 
--- Investigate: instantiate target triple and query `size_t` value.
--- We currently assume that is always `i64`.
-def size_tType (ctx: @&Ptr Context): IO (Ptr LLVMType) := i64Type ctx
-
 def True (ctx: Ptr Context): IO (Ptr Value) :=
   do constInt (← i1Type ctx) 1 (signExtend := false)
 

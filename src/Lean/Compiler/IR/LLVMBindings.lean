@@ -3,7 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Siddharth Bhat
 
-This file defnes bindings for LLVM. The main mechanisms
+This file defines bindings for LLVM. The main mechanisms
 are to:
 - Mirror the values of C enumerations.
 - Create opaque values for LLVM's pointer based API

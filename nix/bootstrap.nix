@@ -16,7 +16,7 @@ rec {
     '';
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DLLVM=ON" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
       sed -i 's!lake/Lake.lean!!' CMakeLists.txt

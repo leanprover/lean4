@@ -29,7 +29,7 @@ let
   stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = overrideCC stdenv' cc;
-    inherit buildLeanPackage;
+    inherit buildLeanPackage llvmPackages;
   });
   makeOverridableLeanPackage = f:
     let newF = origArgs: f origArgs // {

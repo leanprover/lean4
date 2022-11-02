@@ -1,12 +1,12 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages_14,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages,
   ... } @ args:
 with builtins;
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp llvmPackages_14.libllvm.dev];
+    buildInputs = [ gmp llvmPackages.llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -114,7 +114,7 @@ rec {
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
           ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
-          $(${llvmPackages_14.libllvm.dev}/bin/llvm-config --ldflags) $(${llvmPackages_14.libllvm.dev}/bin/llvm-config --libs) \
+          $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
       mods = Init.mods // Lean.mods;
@@ -140,10 +140,11 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
-        buildInputs = [ gmp perl llvmPackages_14.libllvm.dev];
+        buildInputs = [ gmp perl ];
         preConfigure = ''
           cd src
         '';
+        extraCMakeFlags = [ "-DLLVM=OFF" ];
         postConfigure = ''
           patchShebangs ../../tests
           rm -r bin lib include share

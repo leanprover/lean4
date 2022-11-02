@@ -38,7 +38,7 @@ $CP -r llvm/include/* stage1/include/
 cp $SDK/usr/lib/libSystem.tbd stage1/lib/libc
 # use for linking, use system libs for running
 gcp llvm/lib/lib{c++,c++abi,unwind}.dylib stage1/lib/libc
-echo -n " -DLLVM=ON -DLLVM_CONFIG=$PWD/llvm/bin/llvm-config" # manually point to `llvm-config` location
+echo -n " -DLLVM=ON -DCMAKE_CXX_COMPILER_ID=Clang -DCMAKE_C_COMPILER_ID=Clang -DLLVM_CONFIG=$PWD/llvm/bin/llvm-config" # manually point to `llvm-config` location
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK

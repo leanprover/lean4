@@ -260,6 +260,7 @@ if(LLVM)
         endif()
     endif()
     # check that we have 'llvm-config' version.
+    message(STATUS "Executing 'llvm-config --version' at '${LLVM_CONFIG}' to check configuration.")
     execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
     message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
     # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM 

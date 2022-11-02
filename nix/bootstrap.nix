@@ -6,7 +6,7 @@ rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp llvmPackages_14.llvm llvmPackages_14.libllvm llvmPackages_14.libllvm.dev llvmPackages_14.bintools];
+    buildInputs = [ gmp llvmPackages_14.libllvm.dev];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -140,7 +140,7 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
-        buildInputs = [ gmp perl llvmPackages_14.llvm llvmPackages_14.libllvm llvmPackages_14.libllvm.dev llvmPackages_14.bintools ];
+        buildInputs = [ gmp perl llvmPackages_14.libllvm.dev];
         preConfigure = ''
           cd src
         '';

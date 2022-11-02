@@ -122,9 +122,8 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
-  let f := value.getAppFn
-  if let .const declName _ := f then
+@[inline] def withInlining (value : LetExpr) (recursive : Bool) (x : SimpM α) : SimpM α := do
+  if let .const declName _ _ := value then
     let numOccs ← check declName
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
   else

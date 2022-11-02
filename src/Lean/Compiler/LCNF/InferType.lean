@@ -233,6 +233,9 @@ end InferType
 def inferType (e : Expr) : CompilerM Expr :=
   InferType.inferType e |>.run {}
 
+def inferAppType (fnType : Expr) (args : Array Arg) : CompilerM Expr :=
+  InferType.inferAppTypeCore fnType args |>.run {}
+
 def getLevel (type : Expr) : CompilerM Level := do
   match (← inferType type) with
   | .sort u => return u

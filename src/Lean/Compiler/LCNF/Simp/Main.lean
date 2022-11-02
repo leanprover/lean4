@@ -48,7 +48,7 @@ We use this function to inline/specialize a partial application of a local funct
 def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   let mut subst := {}
   for param in info.params, arg in info.args do
-    subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg.toExpr
   let mut paramsNew := #[]
   for param in info.params[info.args.size:] do
     let type ← replaceExprFVars param.type subst (translator := true)
@@ -62,7 +62,7 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
 /--
 Try to inline a join point.
 -/
-partial def inlineJp? (fvarId : FVarId) (args : Array Expr) : SimpM (Option Code) := do
+partial def inlineJp? (fvarId : FVarId) (args : Array Arg) : SimpM (Option Code) := do
   let some decl ← LCNF.findFunDecl? fvarId | return none
   unless (← shouldInlineLocal decl) do return none
   markSimplified
@@ -76,16 +76,14 @@ simplification opportunities by eta-expanding them.
 -/
 def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
-  let .const declName _ := letDecl.value.getAppFn | failure
+  let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| hasLocalInst info.type
   guard <| !(← Meta.isInstance declName)
   let some decl ← getDecl? declName | failure
-  let numArgs := letDecl.value.getAppNumArgs
-  guard <| decl.getArity > numArgs
+  guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type
-  let value := mkAppN letDecl.value (params.map (.fvar ·.fvarId))
-  let auxDecl ← mkAuxLetDecl value
+  let auxDecl ← mkAuxLetDecl (.const declName us (args ++ params.map (.fvar ·.fvarId)))
   let funDecl ← mkAuxFunDecl params (.let auxDecl (.return auxDecl.fvarId))
   addFVarSubst letDecl.fvarId funDecl.fvarId
   eraseLetDecl letDecl
@@ -131,7 +129,6 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let expectedType ← inferType (mkAppN info.f info.args[:info.arity])
     let code ← betaReduce info.params info.value info.args[:info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
@@ -142,7 +139,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (mkAppN (.fvar result) info.args[info.arity:])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity:])
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
@@ -159,6 +156,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
+        let expectedType ← inferAppType info.fType info.args[:info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)

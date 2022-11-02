@@ -252,21 +252,17 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 
 # test `llvm-config`
 if(LLVM)
-    if (${STAGE} GREATER 0)
-        if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
-            message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
-            find_program(LLVM_CONFIG "llvm-config")
-            if(NOT LLVM_CONFIG) # check that it was found
-                message(FATAL_ERROR "Unable to find 'llvm-config'")
-            endif()
+    if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
+        message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
+        find_program(LLVM_CONFIG "llvm-config")
+        if(NOT LLVM_CONFIG) # check that it was found
+            message(FATAL_ERROR "Unable to find 'llvm-config'")
         endif()
-        # check that we have 'llvm-config' version.
-        execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
-        message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
-        string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
-    else()
-        message("LLVM support turned on. Skipping LLVM configuration for stage0.")
     endif()
+    # check that we have 'llvm-config' version.
+    execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
+    message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+    string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
 else()
   message(WARNING "Disabling LLVM support")
 endif()

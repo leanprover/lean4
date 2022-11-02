@@ -92,8 +92,12 @@ def findLetDecl? (fvarId : FVarId) : CompilerM (Option LetDecl) :=
 def findFunDecl? (fvarId : FVarId) : CompilerM (Option FunDecl) :=
   return (← get).lctx.funDecls.find? fvarId
 
+def findLetExpr? (fvarId : FVarId) : CompilerM (Option LetExpr) := do
+  let some { value, .. } ← findLetDecl? fvarId | return none
+  return some value
+
 def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
-  let some { value := .const declName _ _, .. } ← findLetDecl? fvarId | return false
+  let some (.const declName _ _) ← findLetExpr? fvarId | return false
   return (← getConstInfo declName) matches .ctorInfo ..
 
 def Arg.isConstructorApp (arg : Arg) : CompilerM Bool := do

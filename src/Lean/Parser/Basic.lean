@@ -1750,8 +1750,8 @@ def unicodeSymbol (sym asciiSym : String) : Parser :=
   tokenWithAntiquot (unicodeSymbolNoAntiquot sym asciiSym)
 
 /--
-  Define parser for `$e` (if anonymous == true) and `$e:name`.
-  `kind` is embedded in the antiquotation's kind, and checked at syntax `match` unless `isPseudoKind` is false.
+  Define parser for `$e` (if `anonymous == true`) and `$e:name`.
+  `kind` is embedded in the antiquotation's kind, and checked at syntax `match` unless `isPseudoKind` is true.
   Antiquotations can be escaped as in `$$e`, which produces the syntax tree for `$e`. -/
 def mkAntiquot (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parser :=
   let kind := kind ++ (if isPseudoKind then `pseudo else Name.anonymous) ++ `antiquot

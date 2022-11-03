@@ -89,12 +89,30 @@ structure TokenCacheEntry where
   stopPos  : String.Pos := 0
   token    : Syntax := Syntax.missing
 
-structure ParserCache where
-  tokenCache : TokenCacheEntry
+structure CategoryCacheKey where
+  cat : Name
+  prec : Nat
+  pos : String.Pos
+  deriving BEq, Hashable
 
-def initCacheForInput (input : String) : ParserCache := {
-  tokenCache := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
-}
+structure Error where
+  unexpected : String := ""
+  expected : List String := []
+  deriving Inhabited, BEq
+
+structure CategoryCacheEntry where
+  stx      : Syntax
+  lhsPrec  : Nat
+  newPos   : String.Pos
+  errorMsg : Option Error
+
+structure ParserCache where
+  tokenCache    : TokenCacheEntry
+  categoryCache : HashMap CategoryCacheKey CategoryCacheEntry
+
+def initCacheForInput (input : String) : ParserCache where
+  tokenCache    := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
+  categoryCache := {}
 
 abbrev TokenTable := Trie Token
 
@@ -128,11 +146,6 @@ structure ParserContext extends InputContext, ParserModuleContext where
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
-
-structure Error where
-  unexpected : String := ""
-  expected : List String := []
-  deriving Inhabited, BEq
 
 namespace Error
 
@@ -1080,14 +1093,14 @@ private def tokenFnAux : ParserFn := fun c s =>
     let (_, tk) := c.tokens.matchPrefix input i
     identFnAux i tk .anonymous c s
 
-private def updateCache (startPos : String.Pos) (s : ParserState) : ParserState :=
+private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`
   match s with
-  | ⟨stack, lhsPrec, pos, _, none⟩ =>
+  | ⟨stack, lhsPrec, pos, ⟨_, catCache⟩, none⟩ =>
     if stack.size == 0 then s
     else
       let tk := stack.back
-      ⟨stack, lhsPrec, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
+      ⟨stack, lhsPrec, pos, ⟨{ startPos := startPos, stopPos := pos, token := tk }, catCache⟩, none⟩
   | other => other
 
 def tokenFn (expected : List String := []) : ParserFn := fun c s =>
@@ -1101,7 +1114,7 @@ def tokenFn (expected : List String := []) : ParserFn := fun c s =>
       s.setPos tkc.stopPos
     else
       let s := tokenFnAux c s
-      updateCache i s
+      updateTokenCache i s
 
 def peekTokenAux (c : ParserContext) (s : ParserState) : ParserState × Except ParserState Syntax :=
   let iniSz  := s.stackSize
@@ -1687,7 +1700,17 @@ def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
   categoryParserFnExtension.getState ctx.env catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser := {
-  fn := fun c s => categoryParserFn catName { c with prec := prec } s
+  fn := fun c s => Id.run do
+    let key := ⟨catName, prec, s.pos⟩
+    if let some r := s.cache.categoryCache.find? key then
+      match s with
+      | ⟨stack, _, _, cache, _⟩ => return ⟨stack.push r.stx, r.lhsPrec, r.newPos, cache, r.errorMsg⟩
+    let initStackSz := s.stackSize
+    let s := categoryParserFn catName { c with prec := prec } s
+    if s.stackSize > initStackSz + 1 then
+      panic! "categoryParser: unexpected stack growth"
+    let s := if s.stackSize == initStackSz then s.pushSyntax .missing else s
+    { s with cache.categoryCache := s.cache.categoryCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 }
 
 -- Define `termParser` here because we need it for antiquotations

@@ -16,9 +16,6 @@ import Lean.Compiler.LCNF.Simp.DefaultAlt
 import Lean.Compiler.LCNF.Simp.SimpValue
 import Lean.Compiler.LCNF.Simp.ConstantFold
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 namespace Simp
 
@@ -97,8 +94,8 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
-def elimVar? (value : Expr) : SimpM (Option FVarId) := do
-  let .fvar fvarId := value | return none
+def elimVar? (value : LetExpr) : SimpM (Option FVarId) := do
+  let .fvar fvarId #[] := value | return none
   return fvarId
 
 mutual
@@ -187,31 +184,29 @@ Try to simplify `cases` of `constructor`
 -/
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discr ← normFVar cases.discr
-  let discrExpr ← findCtor (.fvar discr)
-  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) (useRaw := true) | return none
-  let (alt, cases) := cases.extractAlt! ctorVal.name
+  let some ctorInfo ← findCtor? discr | return none
+  let (alt, cases) := cases.extractAlt! ctorInfo.getName
   eraseCode (.cases cases)
   markSimplified
   match alt with
   | .default k => simp k
   | .alt _ params k =>
-    let fields := ctorArgs[ctorVal.numParams:]
-    let mut auxDecls := #[]
-    for param in params, field in fields do
-      /-
-      `field` may not be a free variable. Recall that `constructorApp?` has special support for numerals,
-      and `ctorArgs` contains a numeral if `discrExpr` is a numeral. We may have other cases in the future.
-      To make the code robust, we add auxiliary declarations whenever the `field` is not a free variable.
-      -/
-      if field.isFVar then
-        addFVarSubst param.fvarId field.fvarId!
-      else
-        let auxDecl ← mkAuxLetDecl field
-        auxDecls := auxDecls.push (CodeDecl.let auxDecl)
-        addFVarSubst param.fvarId auxDecl.fvarId
-    let k ← simp k
-    eraseParams params
-    attachCodeDecls auxDecls k
+    match ctorInfo with
+    | .ctor ctorVal ctorArgs =>
+      let fields := ctorArgs[ctorVal.numParams:]
+      for param in params, field in fields do
+        let .fvar fvarId := field | return none
+        addFVarSubst param.fvarId fvarId
+      let k ← simp k
+      eraseParams params
+      return k
+    | .natVal 0 => simp k
+    | .natVal (n+1) =>
+      let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+      addFVarSubst params[0]!.fvarId auxDecl.fvarId
+      let k ← simp k
+      eraseParams params
+      return k
 
 /--
 Simplify `code`
@@ -298,12 +293,12 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     return code.updateUnreach! (← normExpr type)
   | .jmp fvarId args =>
     let fvarId ← normFVar fvarId
-    let args ← normExprs args
+    let args ← normArgs args
     if let some code ← inlineJp? fvarId args then
       simp code
     else
       markUsedFVar fvarId
-      args.forM markUsedExpr
+      args.forM markUsedArg
       return code.updateJmp! fvarId args
   | .cases c =>
     if let some k ← simpCasesOnCtor? c then

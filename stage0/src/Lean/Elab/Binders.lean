@@ -374,14 +374,13 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
               else
                 processAsPattern ()
             | none => processAsPattern ()
-          else if special[0].getKind != `Lean.Parser.Term.typeAscription then
+          else if special[0].getKind != ``Lean.Parser.Term.typeAscription then
             processAsPattern ()
-          else
-            -- typeAscription := `:` term
-            let type := special[0][1]
-            match (← getFunBinderIds? term) with
-            | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
-            | none        => processAsPattern ()
+          -- typeAscription := `:` (term)?
+          else if let some idents ← getFunBinderIds? term then
+            let type := special[0][1].getOptional?.getD (mkHole binder)
+            loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · type))
+          else processAsPattern ()
       | _ => processAsPattern ()
     else
       pure (newBinders, body, false)

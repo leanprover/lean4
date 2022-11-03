@@ -99,10 +99,10 @@ Remark: this method assumes that `typeNew` is definitionally equal to the curren
 -/
 def _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) : MetaM MVarId := do
   mvarId.withContext do
-    let mvarDecl ← mvarId.getDecl
-    if typeNew == mvarDecl.type then
+    if typeNew == (← fvarId.getType) then
       return mvarId
     else
+      let mvarDecl ← mvarId.getDecl
       let lctxNew := (← getLCtx).modifyLocalDecl fvarId (·.setType typeNew)
       let mvarNew ← mkFreshExprMVarAt lctxNew (← getLocalInstances) mvarDecl.type mvarDecl.kind mvarDecl.userName
       mvarId.assign mvarNew

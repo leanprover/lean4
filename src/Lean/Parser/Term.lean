@@ -120,7 +120,7 @@ For example, `(· + ·)` is equivalent to `fun x y => x + y`.
 @[builtin_term_parser] def cdot   := leading_parser
   symbol "·" <|> "."
 def typeAscription := leading_parser
-  " : " >> termParser
+  " : " >> optional termParser
 def tupleTail      := leading_parser
   ", " >> sepBy1 termParser ", "
 def parenSpecial : Parser :=

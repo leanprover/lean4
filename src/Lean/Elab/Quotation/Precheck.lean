@@ -117,12 +117,13 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.paren] def precheckParen : Precheck
-  | `(())           => pure ()
-  | `(($e : $type)) => do
+  | `(())                => pure ()
+  | `(($e : $type:term)) => do
     precheck e
     precheck type
-  | `(($e))         => precheck e
-  | `(($e, $es,*))  => do
+  | `(($e :))
+  | `(($e))              => precheck e
+  | `(($e, $es,*))       => do
     precheck e
     es.getElems.raw.forM precheck
   | _ => throwUnsupportedSyntax

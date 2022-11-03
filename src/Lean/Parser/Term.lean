@@ -11,7 +11,7 @@ namespace Parser
 
 namespace Command
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock 1) (trailingWs := true) }
+{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
 
 @[combinator_parenthesizer commentBody]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken

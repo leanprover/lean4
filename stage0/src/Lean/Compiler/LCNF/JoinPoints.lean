@@ -612,8 +612,8 @@ builtin_initialize
 def Decl.extendJoinPointContext (decl : Decl) : CompilerM Decl := do
   JoinPointContextExtender.extend decl
 
-def extendJoinPointContext : Pass :=
-  .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext .mono
+def extendJoinPointContext (occurrence : Nat := 0) (phase := Phase.mono) (_h : phase ≠ .base := by simp): Pass :=
+  .mkPerDeclaration `extendJoinPointContext Decl.extendJoinPointContext phase (occurrence := occurrence)
 
 builtin_initialize
   registerTraceClass `Compiler.extendJoinPointContext (inherited := true)

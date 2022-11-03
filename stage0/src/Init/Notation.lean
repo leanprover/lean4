@@ -382,8 +382,13 @@ match d with
 It matches `d` against the pattern `pat` and the bindings are available in `t`.
 If the pattern does not match, it returns `e` instead.
 -/
-macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
-  `(match $d:term with | $pat => $t | _ => $e)
+syntax (name := termIfLet)
+  ppRealGroup(ppRealFill(ppIndent("if " "let " term " := " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
+
+macro_rules
+  | `(if let $pat := $d then $t else $e) =>
+    `(match $d:term with | $pat => $t | _ => $e)
 
 @[inherit_doc cond] syntax (name := boolIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)

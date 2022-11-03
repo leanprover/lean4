@@ -12,6 +12,9 @@ import Lean.Parser.Do
 -- HACK: avoid code explosion until heuristics are improved
 set_option compiler.reuse false
 
+-- remove after stage0 update
+set_option quotPrecheck false
+
 namespace Lean.Elab.Term
 open Lean.Parser.Term
 open Meta

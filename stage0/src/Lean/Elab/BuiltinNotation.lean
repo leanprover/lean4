@@ -218,9 +218,9 @@ where
 
 @[builtin_macro Lean.Parser.Term.paren] def expandParen : Macro
   | `(())           => `(Unit.unit)
-  | `(($e : $type)) => do
+  | `(($e : $(type)?)) => do
     match (← expandCDot? e) with
-    | some e => `(($e : $type))
+    | some e => `(($e : $(type)?))
     | none   => Macro.throwUnsupported
   | `(($e))         => return (← expandCDot? e).getD e
   | `(($e, $es,*))  => do
@@ -233,12 +233,15 @@ where
     else
       throw <| Macro.Exception.error stx "unexpected parentheses notation"
 
-@[builtin_term_elab paren] def elabParen : TermElab := fun stx _ => do
+@[builtin_term_elab paren] def elabParen : TermElab := fun stx expectedType? => do
   match stx with
-  | `(($e : $type)) =>
+  | `(($e : $type:term)) =>
     let type ← withSynthesize (mayPostpone := true) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
+  | `(($e :)) =>
+    let e ← withSynthesize (mayPostpone := false) <| elabTerm e none
+    ensureHasType expectedType? e
   | _ => throwUnsupportedSyntax
 
 /-- Return `true` if `lhs` is a free variable and `rhs` does not depend on it. -/

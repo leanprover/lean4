@@ -24,8 +24,8 @@ StxQuot.lean:19:15: error: expected term
 0
 1
 "1"
-"(Term.fun\n \"fun\"\n (Term.basicFun\n  [`a._@.UnhygienicMain._hyg.1\n   (Term.paren \"(\" [`b._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\")]\n  []\n  \"=>\"\n  (num \"1\")))"
-"#[(Term.paren \"(\" [`a._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\"), `b._@.UnhygienicMain._hyg.1]"
+"(Term.fun\n \"fun\"\n (Term.basicFun\n  [`a._@.UnhygienicMain._hyg.1\n   (Term.paren \"(\" [`b._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" [`Nat._@.UnhygienicMain._hyg.1])]] \")\")]\n  []\n  \"=>\"\n  (num \"1\")))"
+"#[(Term.paren \"(\" [`a._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" [`Nat._@.UnhygienicMain._hyg.1])]] \")\"), `b._@.UnhygienicMain._hyg.1]"
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.forall \"∀\" [(Term.hole \"_\")] [] \",\" `c._@.UnhygienicMain._hyg.1)"
 "(Term.hole \"_\")"

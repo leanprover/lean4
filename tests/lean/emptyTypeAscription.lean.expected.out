@@ -1,0 +1,18 @@
+emptyTypeAscription.lean:3:19-3:24: error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
+  ?m
+emptyTypeAscription.lean:4:29-4:34: error: invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant
+  ?m
+emptyTypeAscription.lean:9:63-9:70: error: invalid `▸` notation, expected result type of cast is 
+  w = add x y
+however, the equality 
+  h₁
+of type 
+  z = x + y
+does not contain the expected result type on either the left or the right hand side
+emptyTypeAscription.lean:10:55-10:62: error: invalid `▸` notation, expected result type of cast is 
+  w = add x y
+however, the equality 
+  h₁
+of type 
+  z = x + y
+does not contain the expected result type on either the left or the right hand side

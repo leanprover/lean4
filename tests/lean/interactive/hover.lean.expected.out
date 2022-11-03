@@ -380,7 +380,7 @@ null
   "end": {"line": 198, "character": 32}},
  "contents":
  {"value":
-  "```lean\nId ℕ\n```\n***\nParentheses, used for\n- Grouping expressions, e.g., `a * (b + c)`.\n- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.\n- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.\n- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.\n- Creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n",
+  "```lean\nId ℕ\n```\n***\nParentheses, used for\n- Grouping expressions, e.g., `a * (b + c)`.\n- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.\n- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.\n  - An empty type ascription `(e :)` elaborates `e` without the expected type.\n    This is occasionally useful when Lean's heuristics for filling arguments from the expected type\n    do not yield the right result.\n- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.\n- Creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 201, "character": 8}}

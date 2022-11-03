@@ -258,9 +258,9 @@ def mkError (s : ParserState) (msg : String) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
 
-def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String := []) : ParserState :=
+def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String := []) (pushMissing := true) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨if pushMissing then stack.push .missing else stack, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
 
 def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
   s.mkUnexpectedError "unexpected end of input" expected
@@ -740,6 +740,7 @@ def takeWhileFn (p : Char → Bool) : ParserFn :=
 def takeWhile1Fn (p : Char → Bool) (errorMsg : String) : ParserFn :=
   andthenFn (satisfyFn p errorMsg) (takeWhileFn p)
 
+variable (pushMissingOnError : Bool) in
 partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
@@ -764,7 +765,7 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
         else finishCommentBlock nesting c (s.setPos i)
     else finishCommentBlock nesting c (s.setPos i)
 where
-  eoi s := s.mkUnexpectedError "unterminated comment"
+  eoi s := s.mkUnexpectedError (pushMissing := pushMissingOnError) "unterminated comment"
 
 /-- Consume whitespace and comments -/
 partial def whitespace : ParserFn := fun c s =>
@@ -774,7 +775,7 @@ partial def whitespace : ParserFn := fun c s =>
   else
     let curr := input.get' i h
     if curr == '\t' then
-      s.mkUnexpectedError "tabs are not allowed; please configure your editor to expand them"
+      s.mkUnexpectedError (pushMissing := false) "tabs are not allowed; please configure your editor to expand them"
     else if curr.isWhitespace then whitespace c (s.next' input i h)
     else if curr == '-' then
       let i    := input.next' i h
@@ -788,7 +789,7 @@ partial def whitespace : ParserFn := fun c s =>
         let i    := input.next i
         let curr := input.get i
         if curr == '-' || curr == '!' then s -- "/--" and "/-!" doc comment are actual tokens
-        else andthenFn (finishCommentBlock 1) whitespace c (s.next input i)
+        else andthenFn (finishCommentBlock (pushMissingOnError := false) 1) whitespace c (s.next input i)
       else s
     else s
 
@@ -856,8 +857,10 @@ def isQuotableCharDefault (c : Char) : Bool :=
 def quotedCharFn : ParserFn :=
   quotedCharCoreFn isQuotableCharDefault
 
-/-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
-def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) : ParserFn := fun c s =>
+/-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
+def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) : ParserFn := fun c s => Id.run do
+  if s.hasError then
+    return s
   let input     := c.input
   let stopPos   := s.pos
   let leading   := mkEmptySubstringAt input startPos
@@ -1708,7 +1711,7 @@ def categoryParser (catName : Name) (prec : Nat) : Parser := {
     let initStackSz := s.stackSize
     let s := categoryParserFn catName { c with prec := prec } s
     if s.stackSize > initStackSz + 1 then
-      panic! "categoryParser: unexpected stack growth"
+      panic! s!"categoryParser: unexpected stack growth {s.stxStack}"
     let s := if s.stackSize == initStackSz then s.pushSyntax .missing else s
     { s with cache.categoryCache := s.cache.categoryCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 }

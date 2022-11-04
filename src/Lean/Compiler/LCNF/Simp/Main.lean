@@ -195,8 +195,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
     | .ctor ctorVal ctorArgs =>
       let fields := ctorArgs[ctorVal.numParams:]
       for param in params, field in fields do
-        let .fvar fvarId := field | return none
-        addFVarSubst param.fvarId fvarId
+        addSubst param.fvarId field.toExpr
       let k ← simp k
       eraseParams params
       return k

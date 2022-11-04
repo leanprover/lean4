@@ -37,7 +37,7 @@ def simpAppApp? (e : LetExpr) : OptionT SimpM LetExpr := do
 
 def simpCtorDiscr? (e : LetExpr) : OptionT SimpM LetExpr := do
   let .const declName _ _ := e | failure
-  let .ctorInfo _ ← getConstInfo declName | failure
+  let some (.ctorInfo _) := (← getEnv).find? declName | failure
   let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
   return .fvar fvarId #[]
 

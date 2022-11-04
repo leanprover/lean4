@@ -56,7 +56,7 @@ def findCtor? (fvarId : FVarId) : DiscrM (Option CtorInfo) := do
   | some { value := .value (.natVal n), .. } =>
     return some <| .natVal n
   | some { value := .const declName _ args, .. } =>
-    let .ctorInfo val ← getConstInfo declName | return none
+    let some (.ctorInfo val) := (← getEnv).find? declName | return none
     return some <| .ctor val args
   | some _ => return none
   | none => return (← read).discrCtorMap.find? fvarId

@@ -98,7 +98,7 @@ def findLetExpr? (fvarId : FVarId) : CompilerM (Option LetExpr) := do
 
 def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
   let some (.const declName _ _) ← findLetExpr? fvarId | return false
-  return (← getConstInfo declName) matches .ctorInfo ..
+  return (← getEnv).find? declName matches some (.ctorInfo ..)
 
 def Arg.isConstructorApp (arg : Arg) : CompilerM Bool := do
   let .fvar fvarId := arg | return false

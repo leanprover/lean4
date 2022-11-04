@@ -180,8 +180,10 @@ def incQuotDepth (p : Parser) : Parser := addQuotDepth 1 p
 
 def decQuotDepth (p : Parser) : Parser := addQuotDepth (-1) p
 
-def suppressInsideQuot (p : Parser) : Parser :=
-  adaptCacheableContext ({ · with suppressInsideQuot := true }) p
+def suppressInsideQuot : Parser → Parser :=
+  adaptCacheableContext fun c =>
+    -- if we are already within a quotation, don't change anything
+    if c.quotDepth == 0 then { c with suppressInsideQuot := true } else c
 
 def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
   checkPrec prec >> node n p >> setLhsPrec prec

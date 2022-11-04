@@ -115,6 +115,9 @@ end PP
 def ppCode (code : Code) : CompilerM Format :=
   PP.run <| PP.ppCode code
 
+def ppLetExpr (e : LetExpr) : CompilerM Format :=
+  PP.run <| PP.ppLetExpr e
+
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
     return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppCode decl.value)}"

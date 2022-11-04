@@ -95,7 +95,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   (stack.matches [`null, ``Lean.Parser.Term.basicFun] ||
-  stack.matches [`null, ``Lean.Parser.Term.paren, `null, ``Lean.Parser.Term.basicFun]))
+  stack.matches [``Lean.Parser.Term.typeAscription, `null, ``Lean.Parser.Term.basicFun]))
 
 -- is pattern variable
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>

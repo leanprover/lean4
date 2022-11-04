@@ -159,10 +159,11 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       pure acc
   loop (elems.size - 1) elems.back
 
+open Parser in
 partial def hasCDot : Syntax → Bool
   | Syntax.node _ k args =>
-    if k == ``Lean.Parser.Term.paren then false
-    else if k == ``Lean.Parser.Term.cdot then true
+    if k == ``Term.paren || k == ``Term.typeAscription || k == ``Term.tuple then false
+    else if k == ``Term.cdot then true
     else args.any hasCDot
   | _ => false
 
@@ -222,32 +223,32 @@ where
     | _ => Term.expandCDot? stx
 
 @[builtin_macro Lean.Parser.Term.paren] def expandParen : Macro
-  | `(())           => `(Unit.unit)
+  | `(($e)) => return (← expandCDot? e).getD e
+  | _       => Macro.throwUnsupported
+
+@[builtin_macro Lean.Parser.Term.tuple] def expandTuple : Macro
+  | `(()) => ``(Unit.unit)
+  | `(($e, $es,*)) => do
+    let pairs ← mkPairs (#[e] ++ es)
+    return (← expandCDot? pairs).getD pairs
+  | _ => Macro.throwUnsupported
+
+@[builtin_macro Lean.Parser.Term.typeAscription] def expandTypeAscription : Macro
   | `(($e : $(type)?)) => do
     match (← expandCDot? e) with
     | some e => `(($e : $(type)?))
     | none   => Macro.throwUnsupported
-  | `(($e))         => return (← expandCDot? e).getD e
-  | `(($e, $es,*))  => do
-    let pairs ← mkPairs (#[e] ++ es)
-    return (← expandCDot? pairs).getD pairs
-  | stx =>
-    if !stx[1][0].isMissing && stx[1][1].isMissing then
-      -- parsed `(` and `term`, assume it's a basic parenthesis to get any elaboration output at all
-      `(($(⟨stx[1][0]⟩)))
-    else
-      throw <| Macro.Exception.error stx "unexpected parentheses notation"
+  | _ => Macro.throwUnsupported
 
-@[builtin_term_elab paren] def elabParen : TermElab := fun stx expectedType? => do
-  match stx with
-  | `(($e : $type:term)) =>
+@[builtin_term_elab typeAscription] def elabTypeAscription : TermElab
+  | `(($e : $type)), _ => do
     let type ← withSynthesize (mayPostpone := true) <| elabType type
     let e ← elabTerm e type
     ensureHasType type e
-  | `(($e :)) =>
+  | `(($e :)), expectedType? => do
     let e ← withSynthesize (mayPostpone := false) <| elabTerm e none
     ensureHasType expectedType? e
-  | _ => throwUnsupportedSyntax
+  | _, _ => throwUnsupportedSyntax
 
 /-- Return `true` if `lhs` is a free variable and `rhs` does not depend on it. -/
 private def isSubstCandidate (lhs rhs : Expr) : MetaM Bool :=

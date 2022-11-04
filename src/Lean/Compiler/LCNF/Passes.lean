@@ -52,7 +52,7 @@ def builtinPassManager : PassManager := {
     reduceJpArity,
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
-    -- specialize,
+    specialize,
     simp (occurrence := 2),
     cse (occurrence := 1),
     saveBase, -- End of base phase

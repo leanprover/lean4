@@ -12,9 +12,7 @@ import Lean.Compiler.LCNF.Level
 import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.MonadScope
 import Lean.Compiler.LCNF.Closure
-
-set_option warningAsError false
-#exit
+import Lean.Compiler.LCNF.FVarUtil
 
 namespace Lean.Compiler.LCNF
 namespace Specialize
@@ -67,11 +65,11 @@ instance : MonadScope SpecializeM where
 
 /--
 Return `true` if `e` is a ground term. That is,
-it contains only free variables t
+it contains only free variables tagged as ground
 -/
-def isGround (e : Expr) : SpecializeM Bool := do
+def isGround [TraverseFVar α] (e : α) : SpecializeM Bool := do
   let s := (← read).ground
-  return !e.hasAnyFVar (!s.contains ·)
+  return allFVar (s.contains ·) e
 
 @[inline] def withLetDecl (decl : LetDecl) (x : SpecializeM α) : SpecializeM α := do
   let grd ← isGround decl.value
@@ -136,7 +134,7 @@ That is, `mask` contains only the arguments that are contributing to the code sp
 We use this information to compute a "key" to uniquely identify the code specialization, and
 creating the specialized code.
 -/
-def collect (paramsInfo : Array SpecParamInfo) (args : Array Expr) : SpecializeM (Array (Option Expr) × Array Param × Array CodeDecl) := do
+def collect (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM (Array (Option Arg) × Array Param × Array CodeDecl) := do
   let ctx ← read
   let lctx := (← getThe CompilerM.State).lctx
   let abstract (fvarId : FVarId) : Bool :=
@@ -150,7 +148,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array Expr) : SpecializeM
         argMask := argMask.push none
       | .fixedNeutral | .user | .fixedInst | .fixedHO =>
         argMask := argMask.push (some arg)
-        Closure.collectExpr arg
+        Closure.collectArg arg
     return argMask
 
 end Collector
@@ -158,7 +156,7 @@ end Collector
 /--
 Return `true` if it is worth using arguments `args` for specialization given the parameter specialization information.
 -/
-def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Expr) : SpecializeM Bool := do
+def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : SpecializeM Bool := do
   for paramInfo in paramsInfo, arg in args do
     match paramInfo with
     | .other => pure ()
@@ -171,10 +169,10 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Expr) : Sp
 Convert the given declarations into `Expr`, and "zeta-reduce" them into body.
 This function is used to compute the key that uniquely identifies an code specialization.
 -/
-def expandCodeDecls (decls : Array CodeDecl) (body : Expr) : CompilerM Expr := do
+def expandCodeDecls (decls : Array CodeDecl) (body : LetExpr) : CompilerM Expr := do
   let xs := decls.map (mkFVar ·.fvarId)
   let values := decls.map fun
-    | .let decl => decl.value
+    | .let decl => decl.value.toExpr
     | .fun decl | .jp decl => decl.toExpr
   let rec go (i : Nat) (subst : Array Expr) : Expr :=
     if h : i < values.size then
@@ -182,7 +180,7 @@ def expandCodeDecls (decls : Array CodeDecl) (body : Expr) : CompilerM Expr := d
       let value := value.instantiateRev subst
       go (i+1) (subst.push value)
     else
-      (body.abstract xs).instantiateRev subst
+      (body.toExpr.abstract xs).instantiateRev subst
   return go 0 #[]
 termination_by go => values.size - i
 
@@ -192,7 +190,7 @@ Create the "key" that uniquely identifies a code specialization.
 The result contains the list of universe level parameter names the key that `params`, `decls`, and `body` depends on.
 We use this information to create the new auxiliary declaration and resulting application.
 -/
-def mkKey (params : Array Param) (decls : Array CodeDecl) (body : Expr) : CompilerM (Expr × List Name) := do
+def mkKey (params : Array Param) (decls : Array CodeDecl) (body : LetExpr) : CompilerM (Expr × List Name) := do
   let body ← expandCodeDecls decls body
   let key := ToExpr.run do
     ToExpr.withParams params do
@@ -208,7 +206,7 @@ Specialize `decl` using
 - `decls`: local declarations that arguments in `argMask` depend on.
 - `levelParamsNew`: the universe level parameters for the new declaration.
 -/
-def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Expr)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
+def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
   let nameNew := decl.name ++ `_at_ ++ (← read).declName ++ (`spec).appendIndexAfter (← get).decls.size
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
@@ -227,8 +225,8 @@ where
     let decls ← decls.mapM internalizeCodeDecl
     for param in decl.params, arg in argMask do
       if let some arg := arg then
-        let arg ← normExpr arg
-        modify fun s => s.insert param.fvarId arg
+        let arg ← normArg arg
+        modify fun s => s.insert param.fvarId arg.toExpr
       else
         -- Keep the parameter
         let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
@@ -250,7 +248,7 @@ where
 Given the specialization mask `paramsInfo` and the arguments `args`,
 return the arguments that have not been considered for specialization.
 -/
-def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Expr) : Array Expr := Id.run do
+def getRemainingArgs (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Array Arg := Id.run do
   let mut result := #[]
   for info in paramsInfo, arg in args do
     if info matches .other then
@@ -262,27 +260,25 @@ mutual
   Try to specialize the function application in the given let-declaration.
   `k` is the continuation for the let-declaration.
   -/
-  partial def specializeApp? (e : Expr) : SpecializeM (Option Expr) := do
-    unless e.isApp do return none
-    let f := e.getAppFn
-    let .const declName us := f | return none
+  partial def specializeApp? (e : LetExpr) : SpecializeM (Option LetExpr) := do
+    let .const declName us args := e | return none
+    if args.isEmpty then return none
     if (← Meta.isInstance declName) then return none
     let some paramsInfo ← getSpecParamInfo? declName | return none
-    let args := e.getAppArgs
     unless (← shouldSpecialize paramsInfo args) do return none
     let some decl ← getDecl? declName | return none
-    trace[Compiler.specialize.candidate] "{e}, {paramsInfo}"
+    trace[Compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
     let (argMask, params, decls) ← Collector.collect paramsInfo args
-    let keyBody := mkAppN f (argMask.filterMap id)
+    let keyBody := .const declName us (argMask.filterMap id)
     let (key, levelParamsNew) ← mkKey params decls keyBody
     trace[Compiler.specialize.candidate] "key: {key}"
     assert! !key.hasLooseBVars
     assert! !key.hasFVar
     let usNew := levelParamsNew.map mkLevelParam
-    let argsNew := params.map (mkFVar ·.fvarId) ++ getRemainingArgs paramsInfo args
+    let argsNew := params.map (.fvar ·.fvarId) ++ getRemainingArgs paramsInfo args
     if let some declName ← findSpecCache? key then
       trace[Compiler.specialize.step] "cached: {declName}"
-      return mkAppN (.const declName usNew) argsNew
+      return some (.const declName usNew argsNew)
     else
       let specDecl ← mkSpecDecl decl us argMask params decls levelParamsNew
       trace[Compiler.specialize.step] "new: {specDecl.name}"
@@ -296,7 +292,7 @@ mutual
          withParams specDecl.params <| visitCode specDecl.value
       let specDecl := { specDecl with value }
       modify fun s => { s with decls := s.decls.push specDecl }
-      return mkAppN (.const specDecl.name usNew) argsNew
+      return some (.const specDecl.name usNew argsNew)
 
   partial def visitFunDecl (funDecl : FunDecl) : SpecializeM FunDecl := do
     let value ← withParams funDecl.params <| visitCode funDecl.value

@@ -192,19 +192,21 @@ instance : TraverseFVar Alt where
     | .default c => Code.forFVarM f c
 
 def anyFVarM [Monad m] [TraverseFVar α] (f : FVarId → m Bool) (x : α) : m Bool := do
-  let (_, res) ← TraverseFVar.forFVarM go x |>.run false
-  return res
+  return (← TraverseFVar.forFVarM go x |>.run) matches none
 where
-  -- TODO: StateRefT, early return?
-  go (fvar : FVarId) : StateT Bool m Unit := do
-    if (← f fvar) then set true
+  go (fvar : FVarId) : OptionT m Unit := do
+    if (← f fvar) then failure
 
 def allFVarM [Monad m] [TraverseFVar α] (f : FVarId → m Bool) (x : α) : m Bool := do
-  let (_, res) ← TraverseFVar.forFVarM go x |>.run true
-  return res
+  return (← TraverseFVar.forFVarM go x |>.run) matches .some ..
 where
-  -- TODO: StateRefT, early return?
-  go (fvar : FVarId) : StateT Bool m Unit := do
-    if !(← f fvar) then set false
+  go (fvar : FVarId) : OptionT m Unit := do
+    if !(← f fvar) then failure
+
+def anyFVar [TraverseFVar α] (f : FVarId → Bool) (x : α) : Bool :=
+  Id.run <| anyFVarM f x
+
+def allFVar [TraverseFVar α] (f : FVarId → Bool) (x : α) : Bool :=
+  Id.run <| allFVarM f x
 
 end Lean.Compiler.LCNF

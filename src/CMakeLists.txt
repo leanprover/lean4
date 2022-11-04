@@ -252,27 +252,27 @@ include_directories(${CMAKE_BINARY_DIR}/include)
 
 # Pick up `llvm-config` to setup LLVM flags.
 if(LLVM)
-    if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
-        message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
-        find_program(LLVM_CONFIG "llvm-config")
-        if(NOT LLVM_CONFIG) # check that it was found
-            message(FATAL_ERROR "Unable to find 'llvm-config'")
-        endif()
+  if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
+    message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
+    find_program(LLVM_CONFIG "llvm-config")
+    if(NOT LLVM_CONFIG) # check that it was found
+        message(FATAL_ERROR "Unable to find 'llvm-config'")
     endif()
-    # check that we have 'llvm-config' version.
-    message(STATUS "Executing 'llvm-config --version' at '${LLVM_CONFIG}' to check configuration.")
-    execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
-    message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
-    # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM 
-    string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+  endif()
+  # check that we have 'llvm-config' version.
+  message(STATUS "Executing 'llvm-config --version' at '${LLVM_CONFIG}' to check configuration.")
+  execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
+  message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+  # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
 
-    execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${LLVM_CONFIG}  --libdir OUTPUT_VARIABLE LLVM_CONFIG_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${LLVM_CONFIG}  --includedir OUTPUT_VARIABLE LLVM_CONFIG_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
-    message(STATUS "llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLAGS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
+  execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --libdir OUTPUT_VARIABLE LLVM_CONFIG_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --includedir OUTPUT_VARIABLE LLVM_CONFIG_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLAGS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
 else()
   message(WARNING "Disabling LLVM support")
 endif()

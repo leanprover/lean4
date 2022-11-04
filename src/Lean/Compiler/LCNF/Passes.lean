@@ -56,12 +56,12 @@ def builtinPassManager : PassManager := {
     simp (occurrence := 2),
     cse (occurrence := 1),
     saveBase, -- End of base phase
+    toMono,
+    simp (occurrence := 3) (phase := .mono),
     -- TODO
     saveMono  -- End of mono phase
 
 /-
-    toMono,
-    simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
     extendJoinPointContext (phase := .mono) (occurrence := 0),
     floatLetIn (phase := .mono) (occurrence := 1),

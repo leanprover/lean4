@@ -241,6 +241,9 @@ def getLevel (type : Expr) : CompilerM Level := do
   | .sort u => return u
   | e => if e.isErased then return levelOne else throwError "type expected{indentExpr type}"
 
+def Arg.inferType (arg : Arg) : CompilerM Expr :=
+  InferType.inferArgType arg |>.run {}
+
 def LetExpr.inferType (e : LetExpr) : CompilerM Expr :=
   InferType.inferLetExprType e |>.run {}
 

@@ -9,6 +9,10 @@ options get_default_options() {
     opts = opts.update({"interpreter", "prefer_native"}, false);
     // switch to `true` for changing built-in parsers used in quotations
     opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
+    // toggling `parseQuotWithCurrentStage` may also require toggling the following option if macros/syntax
+    // with custom precheck hooks were affected
+    opts = opts.update({"quotPrecheck"}, true);
+
     opts = opts.update({"pp", "rawOnError"}, true);
 #endif
     return opts;

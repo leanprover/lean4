@@ -1389,8 +1389,7 @@ def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Po
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, some err⟩ =>
-    if oldError == err then s
-    else ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some (oldError.merge err)⟩
+    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, if oldError == err then some err else some (oldError.merge err)⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=

@@ -80,8 +80,8 @@ where
     | .return .. | .unreach .. => return ()
     | .jmp fvarId args =>
       if let some info := (← get).find? fvarId then
-        let .fvar fvarId := args[info.paramIdx]! | return ()
-        let some ctorName ← findCtorName? fvarId | return ()
+        let .fvar argFVarId := args[info.paramIdx]! | return ()
+        let some ctorName ← findCtorName? argFVarId | return ()
         modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert ctorName }
 
 /--

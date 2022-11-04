@@ -8,10 +8,10 @@ options get_default_options() {
     // switch to `true` for ABI-breaking changes affecting meta code
     opts = opts.update({"interpreter", "prefer_native"}, false);
     // switch to `true` for changing built-in parsers used in quotations
-    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
+    opts = opts.update({"internal", "parseQuotWithCurrentStage"}, true);
     // toggling `parseQuotWithCurrentStage` may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
-    opts = opts.update({"quotPrecheck"}, true);
+    opts = opts.update({"quotPrecheck"}, false);
 
     opts = opts.update({"pp", "rawOnError"}, true);
 #endif

@@ -129,11 +129,9 @@ For example, `(· + ·)` is equivalent to `fun x y => x + y`.
 @[builtin_term_parser] def cdot   := leading_parser
   symbol "·" <|> "."
 def typeAscription := leading_parser
-  " : " >> optional termParser
-def tupleTail      := leading_parser
-  ", " >> sepBy1 termParser ", "
-def parenSpecial : Parser :=
-  optional (tupleTail <|> typeAscription)
+  "(" >> withoutPosition (withoutForbidden (termParser >> " : " >> optional termParser)) >> ")"
+def tuple := leading_parser
+  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", "))) >> ")"
 /--
 Parentheses, used for
 - Grouping expressions, e.g., `a * (b + c)`.
@@ -149,8 +147,8 @@ Parentheses, used for
   - `(f · a b)` is shorthand for `fun x => f x a b`
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
 -/
-@[builtin_term_parser] def paren := leading_parser
-  "(" >> (withoutPosition (withoutForbidden (optional (ppDedentIfGrouped termParser >> parenSpecial)))) >> ")"
+@[builtin_term_parser] def paren := (leading_parser
+  atomic ("(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")")) <|> atomic typeAscription <|> tuple
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.

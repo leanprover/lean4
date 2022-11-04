@@ -128,27 +128,28 @@ For example, `(· + ·)` is equivalent to `fun x y => x + y`.
 -/
 @[builtin_term_parser] def cdot   := leading_parser
   symbol "·" <|> "."
-def typeAscription := leading_parser
-  "(" >> withoutPosition (withoutForbidden (termParser >> " : " >> optional termParser)) >> ")"
-def tuple := leading_parser
+/--
+Type ascription notation: `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
+An empty type ascription `(e :)` elaborates `e` without the expected type.
+This is occasionally useful when Lean's heuristics for filling arguments from the expected type
+do not yield the right result.
+-/
+@[builtin_term_parser] def typeAscription := leading_parser
+  "(" >> (withoutPosition (withoutForbidden (termParser >> " : " >> optional termParser))) >> ")"
+/-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
+@[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", "))) >> ")"
 /--
-Parentheses, used for
-- Grouping expressions, e.g., `a * (b + c)`.
-- Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
-- Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
-  - An empty type ascription `(e :)` elaborates `e` without the expected type.
-    This is occasionally useful when Lean's heuristics for filling arguments from the expected type
-    do not yield the right result.
-- Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.
-- Creating simple functions when combined with `·`. Here are some examples:
+Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
+Can also be used for creating simple functions when combined with `·`. Here are some examples:
   - `(· + 1)` is shorthand for `fun x => x + 1`
   - `(· + ·)` is shorthand for `fun x y => x + y`
   - `(f · a b)` is shorthand for `fun x => f x a b`
   - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`
+  - also applies to other parentheses-like notations such as `(·, 1)`
 -/
-@[builtin_term_parser] def paren := (leading_parser
-  atomic ("(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")")) <|> atomic typeAscription <|> tuple
+@[builtin_term_parser] def paren := leading_parser
+  "(" >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.

@@ -65,6 +65,7 @@ def ppValue (e : Expr) : M Format := do
 
 def ppParam (param : Param) : M Format := do
   let borrow := if param.borrow then "@&" else ""
+  modifyLCtx fun lctx => lctx.addParam param
   if pp.funBinderTypes.get (← getOptions) then
     return Format.paren f!"{param.binderName} : {borrow}{← ppExpr param.type}"
   else
@@ -74,6 +75,7 @@ def ppParams (params : Array Param) : M Format := do
   prefixJoin " " params ppParam
 
 def ppLetDecl (letDecl : LetDecl) : M Format := do
+  modifyLCtx fun lctx => lctx.addLetDecl letDecl
   if pp.letVarTypes.get (← getOptions) then
     return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppValue letDecl.value}"
   else
@@ -84,6 +86,7 @@ def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
 
 mutual
   partial def ppFunDecl (funDecl : FunDecl) : M Format := do
+    modifyLCtx fun lctx => lctx.addFunDecl funDecl
     return f!"{funDecl.binderName}{← ppParams funDecl.params} : {← ppExpr (← getFunType funDecl.params funDecl.type)} :={indentD (← ppCode funDecl.value)}"
 
   partial def ppAlt (alt : Alt) : M Format := do

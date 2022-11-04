@@ -177,6 +177,12 @@ def runGlobally (probe : Probe Decl β) (phase : Phase := Phase.base) : CoreM (A
     decls := decls.append <| ext.getModuleEntries env modIdx
   probe decls |>.run (phase := phase)
 
+def runOnDecls (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
+  let ext := getExt phase
+  let env ← getEnv
+  let decls := declNames.filterMap ( getDeclCore? env ext · )
+  probe decls |>.run (phase := phase)
+
 def toPass [ToString β] (probe : Probe Decl β) (phase : Phase) : Pass where
   phase := phase
   name := `probe

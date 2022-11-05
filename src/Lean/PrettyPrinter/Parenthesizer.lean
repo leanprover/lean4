@@ -395,6 +395,9 @@ def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer 
 def checkPrec.parenthesizer (prec : Nat) : Parenthesizer :=
   addPrecCheck prec
 
+@[combinator_parenthesizer withCache]
+def withCache.parenthesizer (_parserName : Name) (p : Parenthesizer) : Parenthesizer := p
+
 @[combinator_parenthesizer leadingNode]
 def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
   node.parenthesizer k p

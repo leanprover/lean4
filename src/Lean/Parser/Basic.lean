@@ -160,24 +160,24 @@ structure TokenCacheEntry where
   stopPos  : String.Pos := 0
   token    : Syntax := Syntax.missing
 
-structure CategoryCacheKey extends ParserContextCacheKey where
-  cat : Name
-  pos : String.Pos
+structure ParserCacheKey extends ParserContextCacheKey where
+  parserName : Name
+  pos        : String.Pos
   deriving BEq, Hashable
 
-structure CategoryCacheEntry where
+structure ParserCacheEntry where
   stx      : Syntax
   lhsPrec  : Nat
   newPos   : String.Pos
   errorMsg : Option Error
 
 structure ParserCache where
-  tokenCache    : TokenCacheEntry
-  categoryCache : HashMap CategoryCacheKey CategoryCacheEntry
+  tokenCache  : TokenCacheEntry
+  parserCache : HashMap ParserCacheKey ParserCacheEntry
 
 def initCacheForInput (input : String) : ParserCache where
-  tokenCache    := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
-  categoryCache := {}
+  tokenCache  := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
+  parserCache := {}
 
 structure ParserState where
   stxStack : Array Syntax := #[]
@@ -482,6 +482,23 @@ def suppressInsideQuot (p : Parser) : Parser := {
   info := p.info
   fn   := suppressInsideQuotFn p.fn
 }
+
+def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
+  let key := ⟨c.toParserContextCacheKey, parserName, s.pos⟩
+  if let some r := s.cache.parserCache.find? key then
+    -- TODO: turn this into a proper trace once we have these in the parser
+    --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
+    match s with
+    | ⟨stack, _, _, cache, _⟩ => return ⟨stack.push r.stx, r.lhsPrec, r.newPos, cache, r.errorMsg⟩
+  let initStackSz := s.stackSize
+  let s := p c s
+  if s.stackSize != initStackSz + 1 then
+    panic! s!"withCacheFn: unexpected stack growth {s.stxStack}"
+  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
+
+def withCache (parserName : Name) (p : Parser) : Parser where
+  info := p.info
+  fn   := withCacheFn parserName p.fn
 
 def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
   checkPrec prec >> node n p >> setLhsPrec prec
@@ -1708,20 +1725,8 @@ builtin_initialize categoryParserFnExtension : EnvExtension CategoryParserFn ←
 def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
   categoryParserFnExtension.getState ctx.env catName ctx s
 
-def categoryParser (catName : Name) (prec : Nat) : Parser := {
-  fn := fun c s => Id.run do
-    let c := { c with prec }
-    let key := ⟨c.toParserContextCacheKey, catName, s.pos⟩
-    if let some r := s.cache.categoryCache.find? key then
-      match s with
-      | ⟨stack, _, _, cache, _⟩ => return ⟨stack.push r.stx, r.lhsPrec, r.newPos, cache, r.errorMsg⟩
-    let initStackSz := s.stackSize
-    let s := categoryParserFn catName c s
-    if s.stackSize > initStackSz + 1 then
-      panic! s!"categoryParser: unexpected stack growth {s.stxStack}"
-    let s := if s.stackSize == initStackSz then s.pushSyntax .missing else s
-    { s with cache.categoryCache := s.cache.categoryCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
-}
+def categoryParser (catName : Name) (prec : Nat) : Parser where
+  fn c s := withCacheFn catName (categoryParserFn catName) { c with prec } s
 
 -- Define `termParser` here because we need it for antiquotations
 def termParser (prec : Nat := 0) : Parser :=

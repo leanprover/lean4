@@ -305,6 +305,9 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
   checkKind k;
   visitArgs p
 
+@[combinator_formatter withCache]
+def withCache.formatter (_parserName : Name) (p : Formatter) : Formatter := p
+
 @[combinator_formatter trailingNode]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do
   checkKind k

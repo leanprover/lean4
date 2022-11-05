@@ -84,36 +84,6 @@ def minPrec  : Nat := eval_prec min
 
 abbrev Token := String
 
-structure TokenCacheEntry where
-  startPos : String.Pos := 0
-  stopPos  : String.Pos := 0
-  token    : Syntax := Syntax.missing
-
-structure CategoryCacheKey where
-  cat : Name
-  prec : Nat
-  pos : String.Pos
-  deriving BEq, Hashable
-
-structure Error where
-  unexpected : String := ""
-  expected : List String := []
-  deriving Inhabited, BEq
-
-structure CategoryCacheEntry where
-  stx      : Syntax
-  lhsPrec  : Nat
-  newPos   : String.Pos
-  errorMsg : Option Error
-
-structure ParserCache where
-  tokenCache    : TokenCacheEntry
-  categoryCache : HashMap CategoryCacheKey CategoryCacheEntry
-
-def initCacheForInput (input : String) : ParserCache where
-  tokenCache    := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
-  categoryCache := {}
-
 abbrev TokenTable := Trie Token
 
 abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
@@ -147,6 +117,11 @@ structure ParserContext extends InputContext, ParserModuleContext where
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
 
+structure Error where
+  unexpected : String := ""
+  expected : List String := []
+  deriving Inhabited, BEq
+
 namespace Error
 
 private def expectedToString : List String → String
@@ -171,6 +146,31 @@ def merge (e₁ e₂ : Error) : Error :=
   | { unexpected := u, .. } => { unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
 
 end Error
+
+structure TokenCacheEntry where
+  startPos : String.Pos := 0
+  stopPos  : String.Pos := 0
+  token    : Syntax := Syntax.missing
+
+structure CategoryCacheKey where
+  cat : Name
+  prec : Nat
+  pos : String.Pos
+  deriving BEq, Hashable
+
+structure CategoryCacheEntry where
+  stx      : Syntax
+  lhsPrec  : Nat
+  newPos   : String.Pos
+  errorMsg : Option Error
+
+structure ParserCache where
+  tokenCache    : TokenCacheEntry
+  categoryCache : HashMap CategoryCacheKey CategoryCacheEntry
+
+def initCacheForInput (input : String) : ParserCache where
+  tokenCache    := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
+  categoryCache := {}
 
 structure ParserState where
   stxStack : Array Syntax := #[]

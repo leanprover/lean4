@@ -100,22 +100,30 @@ structure InputContext where
   fileMap  : FileMap
   deriving Inhabited
 
-/-- Input context derived from elaboration of previous commands. -/
-structure ParserModuleContext where
-  env           : Environment
+structure ParserModuleContextCacheKey where
   options       : Options
   -- for name lookup
   currNamespace : Name := .anonymous
   openDecls     : List OpenDecl := []
+  deriving BEq, Hashable
 
-structure ParserContext extends InputContext, ParserModuleContext where
+/-- Input context derived from elaboration of previous commands. -/
+structure ParserModuleContext extends ParserModuleContextCacheKey where
+  -- within a command parse currently determined by initial state plus `openDecls`
+  env : Environment
+
+structure ParserContextCacheKey extends ParserModuleContextCacheKey where
   prec               : Nat
-  tokens             : TokenTable
   -- used for bootstrapping only
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
+  deriving BEq, Hashable
+
+structure ParserContext extends ParserContextCacheKey, InputContext, ParserModuleContext where
+  -- within a command parse currently determined by initial state plus `openDecls`
+  tokens : TokenTable
 
 structure Error where
   unexpected : String := ""
@@ -152,9 +160,8 @@ structure TokenCacheEntry where
   stopPos  : String.Pos := 0
   token    : Syntax := Syntax.missing
 
-structure CategoryCacheKey where
+structure CategoryCacheKey extends ParserContextCacheKey where
   cat : Name
-  prec : Nat
   pos : String.Pos
   deriving BEq, Hashable
 
@@ -1703,12 +1710,13 @@ def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
 
 def categoryParser (catName : Name) (prec : Nat) : Parser := {
   fn := fun c s => Id.run do
-    let key := ⟨catName, prec, s.pos⟩
+    let c := { c with prec }
+    let key := ⟨c.toParserContextCacheKey, catName, s.pos⟩
     if let some r := s.cache.categoryCache.find? key then
       match s with
       | ⟨stack, _, _, cache, _⟩ => return ⟨stack.push r.stx, r.lhsPrec, r.newPos, cache, r.errorMsg⟩
     let initStackSz := s.stackSize
-    let s := categoryParserFn catName { c with prec := prec } s
+    let s := categoryParserFn catName c s
     if s.stackSize > initStackSz + 1 then
       panic! s!"categoryParser: unexpected stack growth {s.stxStack}"
     let s := if s.stackSize == initStackSz then s.pushSyntax .missing else s

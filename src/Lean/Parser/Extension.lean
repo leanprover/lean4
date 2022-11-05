@@ -445,11 +445,10 @@ def mkInputContext (input : String) (fileName : String) : InputContext := {
   fileMap  := input.toFileMap
 }
 
-def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : ParserContext := {
-  prec                  := 0,
-  toInputContext        := ictx,
-  toParserModuleContext := pmctx,
-  tokens                := getTokenTable pmctx.env
+def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : ParserContext := { pmctx with
+  prec           := 0,
+  toInputContext := ictx,
+  tokens         := getTokenTable pmctx.env,
 }
 
 def mkParserState (input : String) : ParserState :=

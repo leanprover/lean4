@@ -1,3 +1,3 @@
-structInst1.lean:12:11-12:19: error: field 'toA' has already beed specified
+structInst1.lean:12:11-12:19: error: field 'toA' has already been specified
 f5 : C → A → C
 f6 : C → A → A

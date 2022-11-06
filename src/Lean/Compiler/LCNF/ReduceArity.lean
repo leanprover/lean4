@@ -80,7 +80,7 @@ def visitLetExpr (e : LetExpr) : FindUsedM Unit := do
         | .fvar fvarId =>
           unless fvarId == param.fvarId do
             visitFVar fvarId
-        | .erased | .type .. => return ()
+        | .erased | .type .. => pure ()
       -- over-application
       for arg in args[decl.params.size:] do
         visitArg arg
@@ -88,6 +88,8 @@ def visitLetExpr (e : LetExpr) : FindUsedM Unit := do
       for param in decl.params[args.size:] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
+    else
+      args.forM visitArg
 
 partial def visit (code : Code) : FindUsedM Unit := do
   match code with

@@ -263,7 +263,7 @@ syntax (name := rawNatLit) "nat_lit " num : term
 @[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
 @[inherit_doc] infixr:80 " ^ "   => HPow.hPow
 @[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
-@[inherit_doc] prefix:100 "-"    => Neg.neg
+@[inherit_doc] prefix:75 "-"    => Neg.neg
 @[inherit_doc] prefix:100 "~~~"  => Complement.complement
 
 /-!

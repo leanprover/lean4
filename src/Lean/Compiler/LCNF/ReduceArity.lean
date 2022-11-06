@@ -8,9 +8,6 @@ import Lean.Compiler.LCNF.PhaseExt
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.Internalize
 
-set_option warningAsError false
-#exit
-
 namespace Lean.Compiler.LCNF
 /-!
 # Function arity reduction
@@ -65,24 +62,25 @@ def visitFVar (fvarId : FVarId) : FindUsedM Unit := do
   if (← read).params.contains fvarId then
     modify fun s => { s with used := s.used.insert fvarId }
 
-def visitArg (e : Expr) : FindUsedM Unit := do
-  let .fvar fvarId := e | return ()
-  visitFVar fvarId
-
-def visitExpr (e : Expr) : FindUsedM Unit := do
-  match e with
+def visitArg (arg : Arg) : FindUsedM Unit := do
+  match arg with
+  | .erased | .type .. => return ()
   | .fvar fvarId => visitFVar fvarId
-  | .lit .. | .const .. | .sort .. | .forallE .. | .lam .. | .letE .. | .bvar .. | .mvar .. => return ()
-  | .mdata _ b => visitExpr b
-  | .proj _ _ b => visitExpr b
-  | .app .. =>
-    let f := e.getAppFn
-    let args := e.getAppArgs
+
+def visitLetExpr (e : LetExpr) : FindUsedM Unit := do
+  match e with
+  | .erased | .value .. => return ()
+  | .proj _ _ fvarId => visitFVar fvarId
+  | .fvar fvarId args => visitFVar fvarId; args.forM visitArg
+  | .const declName _ args =>
     let decl := (← read).decl
-    if f.isConstOf decl.name then
+    if declName == decl.name then
       for param in decl.params, arg in args do
-        unless arg.isFVarOf param.fvarId do
-          visitArg arg
+        match arg with
+        | .fvar fvarId =>
+          unless fvarId == param.fvarId do
+            visitFVar fvarId
+        | .erased | .type .. => return ()
       -- over-application
       for arg in args[decl.params.size:] do
         visitArg arg
@@ -90,14 +88,11 @@ def visitExpr (e : Expr) : FindUsedM Unit := do
       for param in decl.params[args.size:] do
         -- If recursive function is partially applied, we assume missing parameters are used because we don't want to eta-expand.
         visitFVar param.fvarId
-    else
-      visitArg f
-      args.forM visitArg
 
 partial def visit (code : Code) : FindUsedM Unit := do
   match code with
   | .let decl k =>
-    visitExpr decl.value
+    visitLetExpr decl.value
     visit k
   | .jp decl k | .fun decl k =>
     visit decl.value; visit k
@@ -127,15 +122,14 @@ abbrev ReduceM := ReaderT Context CompilerM
 partial def reduce (code : Code) : ReduceM Code := do
   match code with
   | .let decl k =>
-    if decl.value.isAppOf (← read).declName then
-      let mut args := #[]
-      for used in (← read).paramMask, arg in decl.value.getAppArgs do
-        if used then
-          args := args.push arg
-      let decl ← decl.updateValue (mkAppN (mkConst (← read).auxDeclName) args)
-      return code.updateLet! decl (← reduce k)
-    else
-      return code.updateLet! decl (← reduce k)
+    let .const declName _ args := decl.value | return code.updateLet! decl (← reduce k)
+    unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
+    let mut argsNew := #[]
+    for used in (← read).paramMask, arg in args do
+      if used then
+        argsNew := argsNew.push arg
+    let decl ← decl.updateValue (.const (← read).auxDeclName [] argsNew)
+    return code.updateLet! decl (← reduce k)
   | .fun decl k | .jp decl k =>
     let decl ← decl.updateValue (← reduce decl.value)
     return code.updateFun! decl (← reduce k)
@@ -169,8 +163,8 @@ def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
       let mut args := #[]
       for used in mask, param in params do
         if used then
-          args := args.push param.toExpr
-      let letDecl ← mkAuxLetDecl (mkAppN (mkConst auxName) args)
+          args := args.push param.toArg
+      let letDecl ← mkAuxLetDecl (.const auxName [] args)
       let value := .let letDecl (.return letDecl.fvarId)
       let decl := { decl with params, value, inlineAttr? := some .inline, recursive := false }
       decl.saveMono

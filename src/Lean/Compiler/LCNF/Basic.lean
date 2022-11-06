@@ -51,6 +51,9 @@ inductive Arg where
   | type (expr : Expr)
   deriving Inhabited, BEq, Hashable
 
+def Param.toArg (p : Param) : Arg :=
+  .fvar p.fvarId
+
 def Arg.toExpr (arg : Arg) : Expr :=
   match arg with
   | .erased => erasedExpr

@@ -251,7 +251,7 @@ def Code.inferType (code : Code) : CompilerM Expr := do
   match code with
   | .let _ k | .fun _ k | .jp _ k => k.inferType
   | .return fvarId => getType fvarId
-  | .jmp fvarId args => InferType.inferAppTypeCore (.fvar fvarId) args |>.run {}
+  | .jmp fvarId args => InferType.inferAppTypeCore (← getType fvarId) args |>.run {}
   | .unreach type => return type
   | .cases c => return c.resultType
 

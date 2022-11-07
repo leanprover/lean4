@@ -34,13 +34,17 @@ def mkArgs (n : Nat) : String := mkArgsFrom 0 n
 def mkAsArgs (n : Nat) : String :=
   genSeq n (s!"as[{·}]")
 
--- make string: "fx(0), ..., fx(n-1)"
-def mkFsArgs (n : Nat) : String :=
-  genSeq n (s!"fx({·})")
+-- make string: "obj* fx0 = fx(0); ..., obj* fn-1 = fx(n-1); "
+def mkFsVars (n : Nat) : String :=
+  genSeq n (fun i => s!"obj* fx{i} = fx({i}); ") (sep := "")
 
--- make string: "lean_inc(fx(0)); ...; lean_inc(fx(n-1))"
+-- make string: "fx0, ..., fx{n-1}, "
+def mkFsArgs (n : Nat) : String :=
+  genSeq n (s!"fx{·}, ") (sep := "")
+
+-- make string: "lean_inc(fx0); ...; lean_inc(fxn-1)"
 def mkIncFs (n : Nat) : String :=
-  genSeq n (s!"lean_inc(fx({·})); ") (sep := "")
+  genSeq n (s!"lean_inc(fx{·}); ") (sep := "")
 
 def mkApplyI (n : Nat) (max : Nat) : M Unit := do
   let argDecls := mkArgDecls n
@@ -54,25 +58,23 @@ if (arity == fixed + {n}) \{
     switch (arity) \{\n"
   for j in [n:max + 1] do
     let fs := mkFsArgs (j - n)
-    let sep := if j = n then "" else ", "
-    emit s!"    case {j}: \{ obj* r = FN{j}(f)({fs}{sep}{args}); lean_free_small_object(f); return r; }\n"
+    emit s!"    case {j}: \{ {mkFsVars (j-n)}fn{j} fn = FN{j}(f); lean_free_small_object(f); return fn({fs}{args}); }\n"
   emit "    }
   }
   switch (arity) {\n"
   for j in [n:max + 1] do
-    let lean_incfs := mkIncFs (j - n)
+    let incfs := mkIncFs (j - n)
     let fs := mkFsArgs (j - n)
-    let sep := if j = n then "" else ", "
-    emit  s!"  case {j}: \{ {lean_incfs}obj* r = FN{j}(f)({fs}{sep}{args}); lean_dec_ref(f); return r; }\n"
+    emit  s!"  case {j}: \{ {mkFsVars (j-n)}{incfs}fn{j} fn = FN{j}(f); lean_dec_ref(f); return fn({fs}{args}); }\n"
   emit s!"  default:
     lean_assert(arity > {max});
     obj * as[{n}] = \{ {args} };
     obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
     for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
     for (unsigned i = 0; i < {n}; i++) args[fixed+i] = as[i];
-    obj * r = FNN(f)(args);
+    fnn fn = FNN(f);
     lean_dec_ref(f);
-    return r;
+    return fn(args);
   }
 } else if (arity < fixed + {n}) \{\n"
   if n ≥ 2 then do
@@ -123,15 +125,17 @@ if (arity == fixed + n) \{
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < n; i++) args[fixed+i] = as[i];
-  obj * r = FNN(f)(args);
+  fnn fn = FNN(f);
   lean_dec_ref(f);
+  obj * r = fn(args);
   return r;
 } else if (arity < fixed + n) \{
   obj ** args = static_cast<obj**>(LEAN_ALLOCA(arity*sizeof(obj*))); // NOLINT
   for (unsigned i = 0; i < fixed; i++) \{ lean_inc(fx(i)); args[i] = fx(i); }
   for (unsigned i = 0; i < arity-fixed; i++) args[fixed+i] = as[i];
-  obj * new_f = FNN(f)(args);
+  fnn fn = FNN(f);
   lean_dec_ref(f);
+  obj * new_f = fn(args);
   return lean_apply_n(new_f, n+fixed-arity, &as[arity-fixed]);
 } else \{
   return fix_args(f, n, as);

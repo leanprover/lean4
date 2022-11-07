@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Add empty type ascription syntax `(e :)`](https://github.com/leanprover/lean4/pull/1797).
+
 * [Make tokens in `<|>` relevant to syntax match](https://github.com/leanprover/lean4/pull/1744).
 
 * [Add `linter.deprecated` option to silence deprecation warnings](https://github.com/leanprover/lean4/pull/1768).

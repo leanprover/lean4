@@ -16,8 +16,7 @@ builtin_initialize
       unless kind == AttributeKind.global do
         throwError "invalid `[inherit_doc]` attribute, must be global"
       match stx with
-      | `(attr| inherit_doc $[$id?:ident]?) =>
-        withRef stx[0] do
+      | `(attr| inherit_doc $[$id?:ident]?) => withRef stx[0] do
         let some id := id?
           | throwError "invalid `[inherit_doc]` attribute, could not infer doc source"
         let declName ← Elab.resolveGlobalConstNoOverloadWithInfo id

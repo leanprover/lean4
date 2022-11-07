@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Add hover/go-to-def/refs for options](https://github.com/leanprover/lean4/pull/1783).
+
 * [Add empty type ascription syntax `(e :)`](https://github.com/leanprover/lean4/pull/1797).
 
 * [Make tokens in `<|>` relevant to syntax match](https://github.com/leanprover/lean4/pull/1744).

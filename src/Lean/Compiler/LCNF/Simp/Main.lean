@@ -60,7 +60,8 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
 Try to inline a join point.
 -/
 partial def inlineJp? (fvarId : FVarId) (args : Array Arg) : SimpM (Option Code) := do
-  let some decl ← LCNF.findFunDecl? fvarId | return none
+  /- Remark: we don't need to use `findFunDecl'?` here. -/
+  let some decl ← findFunDecl? fvarId | return none
   unless (← shouldInlineLocal decl) do return none
   markSimplified
   betaReduce decl.params decl.value args

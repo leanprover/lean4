@@ -96,7 +96,7 @@ where
   addArgOcc (arg : Arg) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match arg with
     | .fvar fvarId =>
-      let some funDecl ← findFunDecl? fvarId | return ()
+      let some funDecl ← findFunDecl'? fvarId | return ()
       modify fun s => s.addHo funDecl.fvarId
     | .erased .. | .type .. => return ()
 
@@ -105,7 +105,7 @@ where
     | .erased | .value .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
     | .fvar fvarId args =>
-      let some funDecl ← findFunDecl? fvarId | return ()
+      let some funDecl ← findFunDecl'? fvarId | return ()
       modify fun s => s.add funDecl.fvarId
       args.forM addArgOcc
 

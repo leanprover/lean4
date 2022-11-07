@@ -11,6 +11,23 @@ import Lean.Compiler.LCNF.CompilerM
 namespace Lean.Compiler.LCNF
 namespace Simp
 
+/--
+Similar to `findFunDecl?`, but follows aliases (i.e., `let _x.i := _x.j`).
+Consider the following example
+```
+fun _f.1 ... := ...
+let _x.2 := _f.1
+```
+`findFunDecl? _x.2` returns `none`, but `findFunDecl'? _x.2` returns the declaration for `_f.1`.
+-/
+partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option FunDecl) := do
+  if let some decl ← findFunDecl? fvarId then
+    return decl
+  else if let some (.fvar fvarId' #[]) ← findLetExpr? fvarId then
+    findFunDecl'? fvarId'
+  else
+    return none
+
 /-
 -- TODO: cleanup
 partial def findExpr (e : LetExpr) : CompilerM LetExpr := do
@@ -22,18 +39,6 @@ partial def findExpr (e : LetExpr) : CompilerM LetExpr := do
     else
       return e
   | _ => return e
-
-partial def findFunDecl? (e : LetExpr) : CompilerM (Option FunDecl) := do
-  match e with
-  | .fvar fvarId args =>
-
-    if let some decl ← LCNF.findFunDecl? fvarId then
-      return some decl
-    else if let some decl ← findLetDecl? fvarId then
-      findFunDecl? decl.value
-    else
-      return none
-  | _ => return none
 -/
 end Simp
 end Lean.Compiler.LCNF

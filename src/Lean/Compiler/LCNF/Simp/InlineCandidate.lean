@@ -88,7 +88,7 @@ def inlineCandidate? (e : LetExpr) : SimpM (Option InlineCandidateInfo) := do
       params, value
     }
   else if let .fvar f args := e then
-    let some decl ← findFunDecl? f | return none
+    let some decl ← findFunDecl'? f | return none
     unless args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless mustInline || (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied

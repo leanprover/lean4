@@ -49,7 +49,7 @@ def notFollowedByRedefinedTermToken :=
   "let " >> optional "mut " >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
-  checkColGt >> " | " >> doElemParser
+  checkColGt >> " | " >> doSeq
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
   group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -58,7 +58,7 @@ def doIdDecl   := leading_parser
   doElemParser
 def doPatDecl  := leading_parser
   atomic (termParser >> ppSpace >> leftArrow) >>
-  doElemParser >> optional (checkColGt >> " | " >> doElemParser)
+  doElemParser >> optional (checkColGt >> " | " >> doSeq)
 @[builtin_doElem_parser] def doLetArrow      := leading_parser
   withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
 

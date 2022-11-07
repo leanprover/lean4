@@ -681,9 +681,6 @@ def getDoReassignVars (doReassign : Syntax) : TermElabM (Array Var) := do
 def mkDoSeq (doElems : Array Syntax) : Syntax :=
   mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode <| doElems.map fun doElem => mkNullNode #[doElem, mkNullNode]]
 
-def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
-  mkDoSeq #[doElem]
-
 /--
   If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
@@ -1301,7 +1298,7 @@ mutual
      where
      ```
      def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
+     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doSeq)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1336,17 +1333,17 @@ mutual
         else
           pure doElems.toArray
         let contSeq := mkDoSeq contSeq
-        let elseSeq := mkSingletonDoSeq optElse[1]
+        let elseSeq := optElse[1]
         let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
+    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq
     let pattern := doLetElse[2]
     let val     := doLetElse[4]
-    let elseSeq := mkSingletonDoSeq doLetElse[6]
+    let elseSeq := doLetElse[6]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
       pure (vars ++ doElems.toArray)

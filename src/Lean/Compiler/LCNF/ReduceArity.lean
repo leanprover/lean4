@@ -124,7 +124,7 @@ abbrev ReduceM := ReaderT Context CompilerM
 partial def reduce (code : Code) : ReduceM Code := do
   match code with
   | .let decl k =>
-    let .const declName _ args := decl.value | return code.updateLet! decl (← reduce k)
+    let .const declName _ args := decl.value | do return code.updateLet! decl (← reduce k)
     unless declName == (← read).declName do return code.updateLet! decl (← reduce k)
     let mut argsNew := #[]
     for used in (← read).paramMask, arg in args do

@@ -53,15 +53,15 @@ def ppArg (e : Arg) : M Format := do
       return "_"
 
 def ppArgs (args : Array Arg) : M Format := do
-  join args ppArg
+  prefixJoin " " args ppArg
 
 def ppLetExpr (e : LetExpr) : M Format := do
   match e with
   | .erased => return "◾"
   | .value v => ppExpr v.toExpr
   | .proj _ i fvarId => return f!"{← ppFVar fvarId} # {i}"
-  | .fvar fvarId args => return f!"{← ppFVar fvarId} {← ppArgs args}"
-  | .const declName us args => return f!"{← ppExpr (.const declName us)} {← ppArgs args}"
+  | .fvar fvarId args => return f!"{← ppFVar fvarId}{← ppArgs args}"
+  | .const declName us args => return f!"{← ppExpr (.const declName us)}{← ppArgs args}"
 
 def ppParam (param : Param) : M Format := do
   let borrow := if param.borrow then "@&" else ""
@@ -98,7 +98,7 @@ mutual
     | .jp decl k => return f!"jp " ++ (← ppFunDecl decl) ++ ";" ++ .line ++ (← ppCode k)
     | .cases c => return f!"cases {← ppFVar c.discr} : {← ppExpr c.resultType}{← prefixJoin .line c.alts ppAlt}"
     | .return fvarId => return f!"return {← ppFVar fvarId}"
-    | .jmp fvarId args => return f!"goto {← ppFVar fvarId} {← ppArgs args}"
+    | .jmp fvarId args => return f!"goto {← ppFVar fvarId}{← ppArgs args}"
     | .unreach type =>
       if pp.all.get (← getOptions) then
         return f!"⊥ : {← ppExpr type}"

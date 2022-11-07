@@ -303,26 +303,24 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     if let some k ← simpCasesOnCtor? c then
       return k
     else
-      let simpCasesDefault := do
-        let discr ← normFVar c.discr
-        let resultType ← normExpr c.resultType
-        markUsedFVar discr
-        let alts ← c.alts.mapMonoM fun alt => do
-          match alt with
-          | .alt ctorName ps k =>
-            if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
-              let type ← k.inferType
-              eraseCode k
-              markSimplified
-              return alt.updateCode (.unreach type)
-            else
-              withDiscrCtor discr ctorName ps do
-                return alt.updateCode (← simp k)
-          | .default k => return alt.updateCode (← simp k)
-        let alts ← addDefaultAlt alts
-        if alts.size == 1 && alts[0]! matches .default .. then
-          return alts[0]!.getCode
-        else
-          return code.updateCases! resultType discr alts
-      simpCasesDefault
+      let discr ← normFVar c.discr
+      let resultType ← normExpr c.resultType
+      markUsedFVar discr
+      let alts ← c.alts.mapMonoM fun alt => do
+        match alt with
+        | .alt ctorName ps k =>
+          if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
+            let type ← k.inferType
+            eraseCode k
+            markSimplified
+            return alt.updateCode (.unreach type)
+          else
+            withDiscrCtor discr ctorName ps do
+              return alt.updateCode (← simp k)
+        | .default k => return alt.updateCode (← simp k)
+      let alts ← addDefaultAlt alts
+      if alts.size == 1 && alts[0]! matches .default .. then
+        return alts[0]!.getCode
+      else
+        return code.updateCases! resultType discr alts
 end

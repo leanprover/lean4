@@ -110,6 +110,8 @@ structure ParserModuleContext where
 
 structure ParserContext extends InputContext, ParserModuleContext where
   prec               : Nat
+  -- used by `evalParserConst` to correctly cache changes to the token table
+  evalParserStack    : List Name := []
   tokens             : TokenTable
   -- used for bootstrapping only
   quotDepth          : Nat := 0
@@ -171,7 +173,8 @@ instance : BEq ParserCacheKey where
     let res :=
       k₁.pos == k₂.pos && k₁.parserName == k₂.parserName &&
       k₁.forbiddenTk? == k₂.forbiddenTk? && k₁.openDecls == k₂.openDecls && k₁.options == k₂.options &&
-      k₁.prec == k₂.prec && k₁.quotDepth == k₂.quotDepth && k₁.savedPos? == k₂.savedPos?
+      k₁.prec == k₂.prec && k₁.quotDepth == k₂.quotDepth && k₁.savedPos? == k₂.savedPos? &&
+      k₁.evalParserStack == k₂.evalParserStack
     if res && !k₁.sanityBEq k₂ then
       panic! s!"unexpected context divergence in parser cache at {k₁.parserName}:{k₁.pos}"
     else res

@@ -52,8 +52,17 @@ def tacticSeq1Indented : Parser := leading_parser
 It runs the tactics in sequence, and fails if the goal is not solved. -/
 def tacticSeqBracketed : Parser := leading_parser
   "{" >> sepByIndentSemicolon tacticParser >> ppDedent (ppLine >> "}")
+
+/-- A sequence of tactics in brackets, or a delimiter-free indented sequence of tactics.
+Delimiter-free indentation is determined by the *first* tactic of the sequence. -/
 def tacticSeq := leading_parser
   tacticSeqBracketed <|> tacticSeq1Indented
+
+/-- Same as [`tacticSeq`] but requires delimiter-free tactic sequence to have strict indentation.
+The strict indentation requirement only apply to *nested* `by`s, as top-level `by`s do not have a
+position set. -/
+def tacticSeqIndentGt := withAntiquot (mkAntiquot "tacticSeq" ``tacticSeq) <| node ``tacticSeq <|
+  tacticSeqBracketed <|> (checkColGt "strict indentation" >> tacticSeq1Indented)
 
 /- Raw sequence for quotation and grouping -/
 def seq1 :=
@@ -70,7 +79,7 @@ namespace Term
 
 /-- `by tac` constructs a term of the expected type by running the tactic(s) `tac`. -/
 @[builtin_term_parser] def byTactic := leading_parser:leadPrec
-  ppAllowUngrouped >> "by " >> Tactic.tacticSeq
+  ppAllowUngrouped >> "by " >> Tactic.tacticSeqIndentGt
 
 /-
   This is the same as `byTactic`, but it uses a different syntax kind. This is
@@ -79,7 +88,7 @@ namespace Term
   safely find-replace `by exact $e` by `$e` in any context without causing
   incorrect syntax when the full expression is `show $T by exact $e`. -/
 def byTactic' := leading_parser
-  "by " >> Tactic.tacticSeq
+  "by " >> Tactic.tacticSeqIndentGt
 
 -- TODO: rename to e.g. `afterSemicolonOrLinebreak`
 def optSemicolon (p : Parser) : Parser :=

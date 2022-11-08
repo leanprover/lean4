@@ -36,11 +36,12 @@ def mkFoo₂ := mkFoo₁
 
 syntax (name := elabTest) "test" : term
 
-@[term_elab elabTest] def elabElabTest : Lean.Elab.Term.TermElab := fun _ _ => do
+@[term_elab elabTest] def elabElabTest : Lean.Elab.Term.TermElab := fun orig _ => do
   let stx ← `(2)
-  Lean.Elab.Term.elabTerm stx none
+  Lean.Elab.Term.withMacroExpansion orig stx $ Lean.Elab.Term.elabTerm stx none
 
      --v textDocument/declaration
+set_option trace.Elab.step true in
 #check test
      --^ textDocument/definition
 
@@ -60,6 +61,31 @@ where
 macro_rules | `(test) => `(3)
 #check test
      --^ textDocument/definition
+
+class Foo2 where
+  foo : Nat → Nat
+  foo' : Nat
+
+class Foo3 [Foo2] where
+  foo : [Foo2] → Nat
+
+class inductive Foo4 : Nat → Type where
+| mk : Nat → Foo4 0
+
+instance : Foo2 := .mk id 0
+instance : Foo3 := .mk 0
+
+#check Foo2.foo 2
+          --^ textDocument/definition
+#check Foo2.foo
+          --^ textDocument/definition
+#check Foo2.foo'
+          --^ textDocument/definition
+#check @Foo2.foo
+           --^ textDocument/definition
+
+#check Foo3.foo
+          --^ textDocument/definition
 
 -- duplicate definitions link to the original
 def mkFoo₁ := 1

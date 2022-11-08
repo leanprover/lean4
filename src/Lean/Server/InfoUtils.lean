@@ -138,8 +138,14 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
     let mut results := results.bind (·.getD [])
-    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-      results := results.filter (·.2.2.stx != info.stx[0])
+    if omitAppFns then
+      if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+        results := results.filter (·.2.2.stx != info.stx[0])
+      -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
+      else if info.stx.isIdent then
+        if let .ofTermInfo ti := info then
+          if ti.expr matches .app _ _ then
+            results := results.filter (·.2.2.stx != info.stx)
     unless results.isEmpty do
       return results  -- prefer innermost results
     /-

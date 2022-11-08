@@ -76,13 +76,16 @@ abbrev abort : FixParamM α := do
   modify fun s => { s with fixed := s.fixed.map fun _ => false }
   throw ()
 
+def evalFVar (fvarId : FVarId) : FixParamM AbsValue := do
+  let some val := (← read).assignment.find? fvarId | return .top
+  return val
+
 def evalArg (arg : Arg) : FixParamM AbsValue := do
   match arg with
   | .erased => return .erased
+  | .type (.fvar fvarId) => evalFVar fvarId
   | .type _ => return .top
-  | .fvar fvarId =>
-    let some val := (← read).assignment.find? fvarId | return .top
-    return val
+  | .fvar fvarId => evalFVar fvarId
 
 def inMutualBlock (declName : Name) : FixParamM Bool :=
   return (← read).decls.any (·.name == declName)

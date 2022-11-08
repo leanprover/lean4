@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [feat: allow `doSeq` in `let x <- e | seq`](https://github.com/leanprover/lean4/pull/1809).
+
 * [Add hover/go-to-def/refs for options](https://github.com/leanprover/lean4/pull/1783).
 
 * [Add empty type ascription syntax `(e :)`](https://github.com/leanprover/lean4/pull/1797).

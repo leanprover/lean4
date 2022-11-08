@@ -364,7 +364,10 @@ unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => un
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
-    let ctx := { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }
+    let ctx := { ctx with
+      evalParserStack := declName :: ctx.evalParserStack
+      tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens
+    }
     return p.fn ctx s
   | .error e   => return s.mkUnexpectedError e.toString
 

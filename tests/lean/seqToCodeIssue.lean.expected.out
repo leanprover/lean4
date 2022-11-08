@@ -10,8 +10,8 @@
           return _x.4;
       cases b : EStateM.Result IO.Error PUnit PUnit
       | Bool.false =>
-        let a.10 := 1;
-        goto _jp.2 a.10 a.1
+        let _x.10 := 1;
+        goto _jp.2 _x.10 a.1
       | Bool.true =>
-        let a.11 := 0;
-        goto _jp.2 a.11 a.1
+        let _x.11 := 0;
+        goto _jp.2 _x.11 a.1

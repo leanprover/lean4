@@ -100,30 +100,22 @@ structure InputContext where
   fileMap  : FileMap
   deriving Inhabited
 
-structure ParserModuleContextCacheKey where
+/-- Input context derived from elaboration of previous commands. -/
+structure ParserModuleContext where
+  env : Environment
   options       : Options
   -- for name lookup
   currNamespace : Name := .anonymous
   openDecls     : List OpenDecl := []
-  deriving BEq, Hashable
 
-/-- Input context derived from elaboration of previous commands. -/
-structure ParserModuleContext extends ParserModuleContextCacheKey where
-  -- within a command parse currently determined by initial state plus `openDecls`
-  env : Environment
-
-structure ParserContextCacheKey extends ParserModuleContextCacheKey where
+structure ParserContext extends InputContext, ParserModuleContext where
   prec               : Nat
+  tokens             : TokenTable
   -- used for bootstrapping only
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
-  deriving BEq, Hashable
-
-structure ParserContext extends ParserContextCacheKey, InputContext, ParserModuleContext where
-  -- within a command parse currently determined by initial state plus `openDecls`
-  tokens : TokenTable
 
 structure Error where
   unexpected : String := ""
@@ -160,10 +152,29 @@ structure TokenCacheEntry where
   stopPos  : String.Pos := 0
   token    : Syntax := Syntax.missing
 
-structure ParserCacheKey extends ParserContextCacheKey where
+structure ParserCacheKey extends ParserContext where
   parserName : Name
   pos        : String.Pos
-  deriving BEq, Hashable
+
+instance : Hashable ParserCacheKey where
+  -- sufficient to avoid most collisions, relatively cheap to compute
+  hash k := hash (k.pos, k.parserName)
+
+unsafe def ParserCacheKey.sanityBEqUnsafe (k₁ k₂ : ParserCacheKey) : Bool :=
+  ptrEq k₁.env k₂.env && ptrEq k₁.tokens k₂.tokens
+
+@[implemented_by ParserCacheKey.sanityBEqUnsafe]
+opaque ParserCacheKey.sanityBEq (k₁ k₂ : ParserCacheKey) : Bool
+
+instance : BEq ParserCacheKey where
+  beq k₁ k₂ :=
+    let res :=
+      k₁.pos == k₂.pos && k₁.parserName == k₂.parserName &&
+      k₁.forbiddenTk? == k₂.forbiddenTk? && k₁.openDecls == k₂.openDecls && k₁.options == k₂.options &&
+      k₁.prec == k₂.prec && k₁.quotDepth == k₂.quotDepth && k₁.savedPos? == k₂.savedPos?
+    if res && !k₁.sanityBEq k₂ then
+      panic! s!"unexpected context divergence in parser cache at {k₁.parserName}:{k₁.pos}"
+    else res
 
 structure ParserCacheEntry where
   stx      : Syntax
@@ -484,7 +495,7 @@ def suppressInsideQuot (p : Parser) : Parser := {
 }
 
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
-  let key := ⟨c.toParserContextCacheKey, parserName, s.pos⟩
+  let key := ⟨c, parserName, s.pos⟩
   if let some r := s.cache.parserCache.find? key then
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"

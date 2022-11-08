@@ -100,26 +100,54 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
     /- Declaration does not have code associated with it: constructor, inductive type, foreign function -/
     getOtherDeclType declName us
 
+def inferValueType (value : Value) : Expr :=
+  match value with
+  | .natVal .. => mkConst ``Nat
+  | .strVal .. => mkConst ``String
+
 mutual
+  partial def inferArgType (arg : Arg) : InferTypeM Expr :=
+    match arg with
+    | .erased => return erasedExpr
+    | .type e => inferType e
+    | .fvar fvarId => LCNF.getType fvarId
 
   partial def inferType (e : Expr) : InferTypeM Expr :=
     match e with
     | .const c us    => inferConstType c us
-    | .proj n i s    => inferProjType n i s
     | .app ..        => inferAppType e
-    | .mvar ..       => throwError "unexpected metavariable {e}"
     | .fvar fvarId   => InferType.getType fvarId
-    | .bvar ..       => throwError "unexpected bound variable {e}"
-    | .mdata _ e     => inferType e
-    | .lit v         => return v.type
     | .sort lvl      => return .sort (mkLevelSucc lvl)
     | .forallE ..    => inferForallType e
     | .lam ..        => inferLambdaType e
-    | .letE ..       => inferLambdaType e
+    | .letE .. | .mvar .. | .mdata .. | .lit .. | .bvar .. | .proj .. => unreachable!
 
-  partial def inferAppTypeCore (f : Expr) (args : Array Expr) : InferTypeM Expr := do
+  partial def inferLetExprType (e : LetExpr) : InferTypeM Expr := do
+    match e with
+    | .erased => return erasedExpr
+    | .value v => return inferValueType v
+    | .proj structName idx fvarId => inferProjType structName idx fvarId
+    | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
+    | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args
+
+  partial def inferAppTypeCore (fType : Expr) (args : Array Arg) : InferTypeM Expr := do
     let mut j := 0
-    let mut fType ← inferType f
+    let mut fType := fType
+    for i in [:args.size] do
+      fType := fType.headBeta
+      match fType with
+      | .forallE _ _ b _ => fType := b
+      | _ =>
+        fType := instantiateRevRangeArgs fType j i args |>.headBeta
+        match fType with
+        | .forallE _ _ b _ => j := i; fType := b
+        | _ => return erasedExpr
+    return instantiateRevRangeArgs fType j args.size args |>.headBeta
+
+  partial def inferAppType (e : Expr) : InferTypeM Expr := do
+    let mut j := 0
+    let mut fType ← inferType e.getAppFn
+    let args := e.getAppArgs
     for i in [:args.size] do
       fType := fType.headBeta
       match fType with
@@ -131,13 +159,10 @@ mutual
         | _ => return erasedExpr
     return fType.instantiateRevRange j args.size args |>.headBeta
 
-  partial def inferAppType (e : Expr) : InferTypeM Expr := do
-    inferAppTypeCore e.getAppFn e.getAppArgs
-
-  partial def inferProjType (structName : Name) (idx : Nat) (s : Expr) : InferTypeM Expr := do
+  partial def inferProjType (structName : Name) (idx : Nat) (s : FVarId) : InferTypeM Expr := do
     let failed {α} : Unit → InferTypeM α := fun _ =>
-      throwError "invalid projection{indentExpr (mkProj structName idx s)}"
-    let structType := (← inferType s).headBeta
+      throwError "invalid projection{indentExpr (mkProj structName idx (mkFVar s))}"
+    let structType := (← getType s).headBeta
     if structType.isErased then
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/
       return erasedExpr
@@ -208,16 +233,25 @@ end InferType
 def inferType (e : Expr) : CompilerM Expr :=
   InferType.inferType e |>.run {}
 
+def inferAppType (fnType : Expr) (args : Array Arg) : CompilerM Expr :=
+  InferType.inferAppTypeCore fnType args |>.run {}
+
 def getLevel (type : Expr) : CompilerM Level := do
   match (← inferType type) with
   | .sort u => return u
   | e => if e.isErased then return levelOne else throwError "type expected{indentExpr type}"
 
+def Arg.inferType (arg : Arg) : CompilerM Expr :=
+  InferType.inferArgType arg |>.run {}
+
+def LetExpr.inferType (e : LetExpr) : CompilerM Expr :=
+  InferType.inferLetExprType e |>.run {}
+
 def Code.inferType (code : Code) : CompilerM Expr := do
   match code with
   | .let _ k | .fun _ k | .jp _ k => k.inferType
   | .return fvarId => getType fvarId
-  | .jmp fvarId args => InferType.inferAppTypeCore (.fvar fvarId) args |>.run {}
+  | .jmp fvarId args => InferType.inferAppTypeCore (← getType fvarId) args |>.run {}
   | .unreach type => return type
   | .cases c => return c.resultType
 
@@ -229,8 +263,8 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
 def AltCore.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
-def mkAuxLetDecl (e : Expr) (prefixName := `_x) : CompilerM LetDecl := do
-  mkLetDecl (← mkFreshBinderName prefixName) (← inferType e) e
+def mkAuxLetDecl (e : LetExpr) (prefixName := `_x) : CompilerM LetDecl := do
+  mkLetDecl (← mkFreshBinderName prefixName) (← e.inferType) e
 
 def mkForallParams (params : Array Param) (type : Expr) : CompilerM Expr :=
   InferType.mkForallParams params type |>.run {}

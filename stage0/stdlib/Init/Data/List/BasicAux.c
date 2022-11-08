@@ -1992,19 +1992,18 @@ return x_23;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp(lean_box(0), lean_box(0));
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_9 = lean_apply_3(x_8, x_1, x_2, x_3);
-x_10 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1___boxed), 6, 5);
-lean_closure_set(x_10, 0, x_7);
-lean_closure_set(x_10, 1, x_4);
-lean_closure_set(x_10, 2, x_1);
-lean_closure_set(x_10, 3, x_2);
-lean_closure_set(x_10, 4, x_5);
-x_11 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_9, x_10);
-return x_11;
+x_8 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg(x_1, x_2, x_3);
+x_9 = lean_alloc_closure((void*)(l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg___lambda__1___boxed), 6, 5);
+lean_closure_set(x_9, 0, x_7);
+lean_closure_set(x_9, 1, x_4);
+lean_closure_set(x_9, 2, x_1);
+lean_closure_set(x_9, 3, x_2);
+lean_closure_set(x_9, 4, x_5);
+x_10 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_8, x_9);
+return x_10;
 }
 }
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2069,91 +2068,90 @@ return x_7;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-if (lean_obj_tag(x_1) == 0)
+if (lean_obj_tag(x_2) == 0)
 {
-lean_dec(x_2);
-return x_1;
+lean_dec(x_1);
+return x_2;
 }
 else
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; uint8_t x_10; 
-x_3 = lean_ctor_get(x_1, 0);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; uint8_t x_9; 
+x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
-x_4 = lean_ctor_get(x_1, 1);
+x_4 = lean_ctor_get(x_2, 1);
 lean_inc(x_4);
-lean_inc(x_2);
+lean_inc(x_1);
 lean_inc(x_3);
-x_5 = lean_apply_1(x_2, x_3);
-x_6 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_box(0));
+x_5 = lean_apply_1(x_1, x_3);
 lean_inc(x_4);
-x_7 = lean_apply_2(x_6, x_4, x_2);
-x_8 = lean_ptr_addr(x_5);
-x_9 = lean_ptr_addr(x_3);
+x_6 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg(x_1, x_4);
+x_7 = lean_ptr_addr(x_5);
+x_8 = lean_ptr_addr(x_3);
 lean_dec(x_3);
-x_10 = lean_usize_dec_eq(x_8, x_9);
+x_9 = lean_usize_dec_eq(x_7, x_8);
+if (x_9 == 0)
+{
+uint8_t x_10; 
+lean_dec(x_4);
+x_10 = !lean_is_exclusive(x_2);
 if (x_10 == 0)
 {
-uint8_t x_11; 
-lean_dec(x_4);
-x_11 = !lean_is_exclusive(x_1);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; 
-x_12 = lean_ctor_get(x_1, 1);
+lean_object* x_11; lean_object* x_12; 
+x_11 = lean_ctor_get(x_2, 1);
+lean_dec(x_11);
+x_12 = lean_ctor_get(x_2, 0);
 lean_dec(x_12);
-x_13 = lean_ctor_get(x_1, 0);
-lean_dec(x_13);
-lean_ctor_set(x_1, 1, x_7);
-lean_ctor_set(x_1, 0, x_5);
-return x_1;
+lean_ctor_set(x_2, 1, x_6);
+lean_ctor_set(x_2, 0, x_5);
+return x_2;
 }
 else
 {
-lean_object* x_14; 
-lean_dec(x_1);
-x_14 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_14, 0, x_5);
-lean_ctor_set(x_14, 1, x_7);
-return x_14;
+lean_object* x_13; 
+lean_dec(x_2);
+x_13 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_13, 0, x_5);
+lean_ctor_set(x_13, 1, x_6);
+return x_13;
 }
 }
 else
 {
-size_t x_15; size_t x_16; uint8_t x_17; 
-x_15 = lean_ptr_addr(x_7);
-x_16 = lean_ptr_addr(x_4);
+size_t x_14; size_t x_15; uint8_t x_16; 
+x_14 = lean_ptr_addr(x_6);
+x_15 = lean_ptr_addr(x_4);
 lean_dec(x_4);
-x_17 = lean_usize_dec_eq(x_15, x_16);
+x_16 = lean_usize_dec_eq(x_14, x_15);
+if (x_16 == 0)
+{
+uint8_t x_17; 
+x_17 = !lean_is_exclusive(x_2);
 if (x_17 == 0)
 {
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_1);
-if (x_18 == 0)
-{
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_1, 1);
+lean_object* x_18; lean_object* x_19; 
+x_18 = lean_ctor_get(x_2, 1);
+lean_dec(x_18);
+x_19 = lean_ctor_get(x_2, 0);
 lean_dec(x_19);
-x_20 = lean_ctor_get(x_1, 0);
-lean_dec(x_20);
-lean_ctor_set(x_1, 1, x_7);
-lean_ctor_set(x_1, 0, x_5);
-return x_1;
+lean_ctor_set(x_2, 1, x_6);
+lean_ctor_set(x_2, 0, x_5);
+return x_2;
 }
 else
 {
-lean_object* x_21; 
-lean_dec(x_1);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_5);
-lean_ctor_set(x_21, 1, x_7);
-return x_21;
+lean_object* x_20; 
+lean_dec(x_2);
+x_20 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_20, 0, x_5);
+lean_ctor_set(x_20, 1, x_6);
+return x_20;
 }
 }
 else
 {
-lean_dec(x_7);
+lean_dec(x_6);
 lean_dec(x_5);
-return x_1;
+return x_2;
 }
 }
 }
@@ -2170,10 +2168,9 @@ return x_2;
 LEAN_EXPORT lean_object* l_List_mapMono___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1(lean_box(0));
-x_4 = lean_apply_2(x_3, x_1, x_2);
-return x_4;
+lean_object* x_3; 
+x_3 = l___private_Init_Data_List_BasicAux_0__List_mapMonoMImp___at_List_mapMono___spec__1___rarg(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_List_mapMono(lean_object* x_1) {

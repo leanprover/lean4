@@ -106,6 +106,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Compiler_LCNF_LCtx_to
 static lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext___closed__2;
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_erase___at_Lean_Compiler_LCNF_LCtx_eraseFunDecl___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Compiler_LCNF_LCtx_letDecls___default___spec__1(lean_object*);
+lean_object* l_Lean_Compiler_LCNF_LetExpr_toExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_LCtx_eraseAlts(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LCtx_toLocalContext___closed__4;
@@ -2469,7 +2470,7 @@ return x_4;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; size_t x_18; size_t x_19; 
 x_6 = lean_array_uget(x_1, x_3);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
@@ -2483,22 +2484,23 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_7, 3);
 lean_inc(x_11);
 lean_dec(x_7);
-x_12 = lean_unsigned_to_nat(0u);
-x_13 = 1;
-x_14 = 0;
-x_15 = lean_alloc_ctor(1, 5, 2);
-lean_ctor_set(x_15, 0, x_12);
-lean_ctor_set(x_15, 1, x_8);
-lean_ctor_set(x_15, 2, x_9);
-lean_ctor_set(x_15, 3, x_10);
-lean_ctor_set(x_15, 4, x_11);
-lean_ctor_set_uint8(x_15, sizeof(void*)*5, x_13);
-lean_ctor_set_uint8(x_15, sizeof(void*)*5 + 1, x_14);
-x_16 = l_Lean_LocalContext_addDecl(x_4, x_15);
-x_17 = 1;
-x_18 = lean_usize_add(x_3, x_17);
-x_3 = x_18;
-x_4 = x_16;
+x_12 = l_Lean_Compiler_LCNF_LetExpr_toExpr(x_11);
+x_13 = lean_unsigned_to_nat(0u);
+x_14 = 1;
+x_15 = 0;
+x_16 = lean_alloc_ctor(1, 5, 2);
+lean_ctor_set(x_16, 0, x_13);
+lean_ctor_set(x_16, 1, x_8);
+lean_ctor_set(x_16, 2, x_9);
+lean_ctor_set(x_16, 3, x_10);
+lean_ctor_set(x_16, 4, x_12);
+lean_ctor_set_uint8(x_16, sizeof(void*)*5, x_14);
+lean_ctor_set_uint8(x_16, sizeof(void*)*5 + 1, x_15);
+x_17 = l_Lean_LocalContext_addDecl(x_4, x_16);
+x_18 = 1;
+x_19 = lean_usize_add(x_3, x_18);
+x_3 = x_19;
+x_4 = x_17;
 goto _start;
 }
 }

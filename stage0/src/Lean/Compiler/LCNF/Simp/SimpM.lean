@@ -122,9 +122,8 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
-  let f := value.getAppFn
-  if let .const declName _ := f then
+@[inline] def withInlining (value : LetExpr) (recursive : Bool) (x : SimpM α) : SimpM α := do
+  if let .const declName _ _ := value then
     let numOccs ← check declName
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
   else
@@ -209,10 +208,10 @@ LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
-def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
+def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInline := false) : SimpM Code := do
   let mut subst := {}
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg.toExpr
   let code ← code.internalize subst
   updateFunDeclInfo code mustInline
   return code

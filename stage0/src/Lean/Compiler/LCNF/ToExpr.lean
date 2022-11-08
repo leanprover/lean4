@@ -74,6 +74,9 @@ end ToExpr
 
 open ToExpr
 
+private def Arg.toExprM (arg : Arg) : ToExprM Expr :=
+  return arg.toExpr.abstract' (← read) (← get)
+
 mutual
 partial def FunDeclCore.toExprM (decl : FunDecl) : ToExprM Expr :=
   withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
@@ -82,7 +85,7 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
   match code with
   | .let decl k =>
     let type ← abstractM decl.type
-    let value ← abstractM decl.value
+    let value ← abstractM decl.value.toExpr
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
   | .fun decl k | .jp decl k =>
@@ -91,7 +94,7 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
     let body ← withFVar decl.fvarId k.toExprM
     return .letE decl.binderName type value body true
   | .return fvarId => fvarId.toExprM
-  | .jmp fvarId args => return mkAppN (← fvarId.toExprM) (← args.mapM abstractM)
+  | .jmp fvarId args => return mkAppN (← fvarId.toExprM) (← args.mapM Arg.toExprM)
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)
   | .cases c =>
     let alts ← c.alts.mapM fun

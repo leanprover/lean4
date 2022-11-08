@@ -17199,11 +17199,11 @@ if (lean_is_exclusive(x_35)) {
  x_39 = lean_box(0);
 }
 x_40 = lean_ctor_get(x_2, 0);
-x_41 = lean_ctor_get(x_18, 0);
+x_41 = lean_ctor_get(x_18, 1);
 lean_inc(x_41);
 x_42 = l_Lean_KVMap_findCore(x_6, x_17);
 lean_dec(x_17);
-x_43 = lean_ctor_get(x_18, 2);
+x_43 = lean_ctor_get(x_18, 3);
 lean_inc(x_43);
 lean_dec(x_18);
 x_44 = lean_box(0);
@@ -19659,7 +19659,7 @@ x_13 = lean_ctor_get(x_12, 1);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
-if (lean_obj_tag(x_14) == 5)
+if (lean_obj_tag(x_14) == 6)
 {
 lean_object* x_15; 
 x_15 = lean_ctor_get(x_14, 0);

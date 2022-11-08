@@ -18,65 +18,58 @@ def Param.toMono (param : Param) : ToMonoM Param := do
     modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def isTrivialConstructorApp? (e : Expr) : ToMonoM (Option Expr) := do
-  let some ctorInfo := e.isConstructorApp? (← getEnv) | return none
+def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetExpr) := do
+  let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
-  assert! ctorInfo.numParams + info.fieldIdx < e.getAppNumArgs
-  return e.getArg! (ctorInfo.numParams + info.fieldIdx)
+  return args[ctorInfo.numParams + info.fieldIdx]!.toLetExpr
 
-def fvarToMono (e : Expr) : ToMonoM Expr := do
-  if (← get).typeParams.contains e.fvarId! then
-    return erasedExpr
-  else
-    return e
+def argToMono (arg : Arg) : ToMonoM Arg := do
+  match arg with
+  | .erased | .type .. => return .erased
+  | .fvar fvarId =>
+    if (← get).typeParams.contains fvarId then
+      return .erased
+    else
+      return arg
 
-def argToMono (arg : Expr) : ToMonoM Expr := do
-  if arg.isFVar then
-    fvarToMono arg
-  else
-    return erasedExpr
-
-def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Expr) : ToMonoM Expr := do
-  let argsNew ← args[:ctorInfo.numParams].toArray.mapM fun param => do
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetExpr := do
+  let argsNew : Array Arg ← args[:ctorInfo.numParams].toArray.mapM fun arg => do
     -- We only preserve constructor parameters that are types
-    if isTypeFormerType (← inferType param) then
-      toMonoType param
-    else
-      return erasedExpr
+    match arg with
+    | .type type => return .type (← toMonoType type)
+    | .fvar .. | .erased => return .erased
   let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
-  return mkAppN (mkConst ctorInfo.name) argsNew
+  return .const ctorInfo.name [] argsNew
 
-partial def _root_.Lean.Expr.toMono (e : Expr) : ToMonoM Expr := do
+partial def LetExpr.toMono (e : LetExpr) : ToMonoM LetExpr := do
   match e with
-  | .fvar .. => fvarToMono e
-  | .lit .. => return e
-  | .const declName _ => return mkConst declName
-  | .sort .. => return erasedExpr
-  | .mvar .. | .bvar .. | .letE .. => unreachable!
-  | .mdata _ b => return e.updateMData! (← b.toMono)
-  | .proj structName fieldIdx b =>
-    if let some info ← hasTrivialStructure? structName then
+  | .erased | .value .. => return e
+  | .const declName _ args =>
+    if declName == ``Decidable.isTrue then
+      return .const ``Bool.true [] #[]
+    else if declName == ``Decidable.isFalse then
+      return .const ``Bool.false [] #[]
+    else if let some e' ← isTrivialConstructorApp? declName args then
+      e'.toMono
+    else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
+      ctorAppToMono ctorInfo args
+    else
+      return .const declName [] (← args.mapM argToMono)
+  | .fvar fvarId args =>
+    if (← get).typeParams.contains fvarId then
+      return .erased
+    else
+      return .fvar fvarId (← args.mapM argToMono)
+  | .proj structName fieldIdx fvarId =>
+    if (← get).typeParams.contains fvarId then
+      return .erased
+    else if let some info ← hasTrivialStructure? structName then
       if info.fieldIdx == fieldIdx then
-        b.toMono
+        return .fvar fvarId #[]
       else
-        return erasedExpr
+        return .erased
     else
-      return e.updateProj! (← b.toMono)
-  | .forallE .. | .lam .. => return erasedExpr
-  | .app .. =>
-    if e.isAppOf ``Decidable.isTrue then
-      return mkConst ``Bool.true
-    else if e.isAppOf ``Decidable.isFalse then
-      return mkConst ``Bool.false
-    else if let some arg ← isTrivialConstructorApp? e then
-      arg.toMono
-    else if let some ctorInfo := e.isConstructorApp? (← getEnv) then
-      ctorAppToMono ctorInfo e.getAppArgs
-    else
-      let f := e.getAppFn
-      let args := e.getAppArgs
-      let args ← args.mapM argToMono
-      return mkAppN (← f.toMono) args
+      return e
 
 def LetDecl.toMono (decl : LetDecl) : ToMonoM LetDecl := do
   let type ← toMonoType decl.type
@@ -112,7 +105,7 @@ partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMo
   let p := ps[info.fieldIdx]!
   eraseParams ps
   /- We reuse `p`s `fvarId` to avoid substitution -/
-  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := (← toMonoType p.type), value := .fvar c.discr }
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := (← toMonoType p.type), value := .fvar c.discr #[] }
   modifyLCtx fun lctx => lctx.addLetDecl decl
   let k ← k.toMono
   return .let decl k

@@ -105,9 +105,9 @@ def etaExpandCore (type : Expr) (params : Array Param) (value : Code) : Compiler
   let valueType ← instantiateForall type (params.map (mkFVar ·.fvarId))
   let psNew ← mkNewParams valueType
   let params := params ++ psNew
-  let xs := psNew.map fun p => Expr.fvar p.fvarId
+  let xs := psNew.map fun p => .fvar p.fvarId
   let value ← value.bind fun fvarId => do
-    let auxDecl ← mkAuxLetDecl (mkAppN (.fvar fvarId) xs)
+    let auxDecl ← mkAuxLetDecl (.fvar fvarId xs)
     return .let auxDecl (.return auxDecl.fvarId)
   return (params, value)
 

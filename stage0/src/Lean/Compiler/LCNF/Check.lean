@@ -102,7 +102,7 @@ def isCtorParam (f : Expr) (i : Nat) : CoreM Bool := do
   let .ctorInfo info ← getConstInfo declName | return false
   return i < info.numParams
 
-def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
+def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
   let mut fType ← inferType f
   let mut j := 0
   for i in [:args.size] do
@@ -114,36 +114,27 @@ def checkAppArgs (f : Expr) (args : Array Expr) : CheckM Unit := do
       match fType with
       | .forallE _ d b _ => pure (d, b)
       | _ =>
-        fType := fType.instantiateRevRange j i args |>.headBeta
+        fType := instantiateRevRangeArgs fType j i args |>.headBeta
         match fType with
         | .forallE _ d b _ => j := i; pure (d, b)
         | _ => return ()
-    let expectedType := d.instantiateRevRange j i args
+    let expectedType := instantiateRevRangeArgs d j i args
     unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
-      if arg.isFVar then
-        checkFVar arg.fvarId!
-      else
+      match arg with
+      | .fvar fvarId => checkFVar fvarId
+      | .erased => pure ()
+      | .type _ =>
         -- Constructor parameters that are not type formers are erased at phase .mono
-        unless arg.isErased && (← getPhase) ≥ .mono && (← isCtorParam f i) do
-          throwError "invalid LCNF application{indentExpr (mkAppN f args)}\nargument{indentExpr arg}\nhas type{indentExpr expectedType}\nmust be a free variable"
+        unless (← getPhase) ≥ .mono && (← isCtorParam f i) do
+          throwError "invalid LCNF application{indentExpr (mkAppN f (args.map (·.toExpr)))}\nargument{indentExpr arg.toExpr}\nhas type{indentExpr expectedType}\nmust be a free variable"
     fType := b
 
-def checkApp (f : Expr) (args : Array Expr) : CheckM Unit := do
-  unless f.isConst || f.isFVar do
-    throwError "unexpected function application, function must be a constant or free variable{indentExpr (mkAppN f args)}"
-  if f.isFVar then
-    checkFVar f.fvarId!
-  checkAppArgs f args
-
-def checkExpr (e : Expr) : CheckM Unit :=
+def checkLetExpr (e : LetExpr) : CheckM Unit := do
   match e with
-  | .lit _ => pure ()
-  | .app .. => checkApp e.getAppFn e.getAppArgs
-  | .proj _ _ (.fvar fvarId) => checkFVar fvarId
-  | .mdata _ (.fvar fvarId)  => checkFVar fvarId
-  | .const _ _ => pure () -- TODO: check number of universe level parameters
-  | .fvar fvarId => checkFVar fvarId
-  | _ => throwError "unexpected expression at LCNF{indentExpr e}"
+  | .value .. | .erased => pure ()
+  | .const declName us args => checkAppArgs (mkConst declName us) args
+  | .fvar fvarId args => checkFVar fvarId; checkAppArgs (.fvar fvarId) args
+  | .proj _ _ fvarId => checkFVar fvarId
 
 def checkJpInScope (jp : FVarId) : CheckM Unit := do
   unless (← read).jps.contains jp do
@@ -167,7 +158,7 @@ def checkParams (params : Array Param) : CheckM Unit :=
   params.forM checkParam
 
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
-  checkExpr letDecl.value
+  checkLetExpr letDecl.value
   unless letDecl == (← getLetDecl letDecl.fvarId) do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, does not match value in local context"
 

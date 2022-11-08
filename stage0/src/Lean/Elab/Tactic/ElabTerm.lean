@@ -174,7 +174,7 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
       let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
       let (_, mvarId) ← mvarId.intro1P
       let mvarId ← mvarId.tryClear h.fvarId!
-      replaceMainGoal (mvarId :: mvarIds')
+      replaceMainGoal (mvarIds' ++ [mvarId])
     else
       throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
   | _ => throwUnsupportedSyntax

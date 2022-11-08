@@ -98,7 +98,7 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   | .alreadyCached declName =>
     auxDecl.erase
     pure declName
-  let value := mkAppN (.const auxDeclName us) (closure.map (mkFVar ·.fvarId))
+  let value := .const auxDeclName us (closure.map (.fvar ·.fvarId))
   /- We reuse `decl`s `fvarId` to avoid substitution -/
   let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
   modifyLCtx fun lctx => lctx.addLetDecl declNew
@@ -194,4 +194,3 @@ builtin_initialize
   registerTraceClass `Compiler.lambdaLifting (inherited := true)
 
 end Lean.Compiler.LCNF
-

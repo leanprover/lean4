@@ -184,7 +184,7 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
 instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
 
-@[inline] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
+@[specialize] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
   match as with
   | [] => return as
   | b :: bs =>

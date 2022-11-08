@@ -69,7 +69,6 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
-    -- TODO: reduce function arity
     saveMono  -- End of mono phase
   ]
 }

@@ -45,7 +45,7 @@ We use this function to inline/specialize a partial application of a local funct
 def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
   let mut subst := {}
   for param in info.params, arg in info.args do
-    subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg.toExpr
   let mut paramsNew := #[]
   for param in info.params[info.args.size:] do
     let type ← replaceExprFVars param.type subst (translator := true)
@@ -59,8 +59,9 @@ def specializePartialApp (info : InlineCandidateInfo) : SimpM FunDecl := do
 /--
 Try to inline a join point.
 -/
-partial def inlineJp? (fvarId : FVarId) (args : Array Expr) : SimpM (Option Code) := do
-  let some decl ← LCNF.findFunDecl? fvarId | return none
+partial def inlineJp? (fvarId : FVarId) (args : Array Arg) : SimpM (Option Code) := do
+  /- Remark: we don't need to use `findFunDecl'?` here. -/
+  let some decl ← findFunDecl? fvarId | return none
   unless (← shouldInlineLocal decl) do return none
   markSimplified
   betaReduce decl.params decl.value args
@@ -73,16 +74,14 @@ simplification opportunities by eta-expanding them.
 -/
 def etaPolyApp? (letDecl : LetDecl) : OptionT SimpM FunDecl := do
   guard <| (← read).config.etaPoly
-  let .const declName _ := letDecl.value.getAppFn | failure
+  let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| hasLocalInst info.type
   guard <| !(← Meta.isInstance declName)
   let some decl ← getDecl? declName | failure
-  let numArgs := letDecl.value.getAppNumArgs
-  guard <| decl.getArity > numArgs
+  guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type
-  let value := mkAppN letDecl.value (params.map (.fvar ·.fvarId))
-  let auxDecl ← mkAuxLetDecl value
+  let auxDecl ← mkAuxLetDecl (.const declName us (args ++ params.map (.fvar ·.fvarId)))
   let funDecl ← mkAuxFunDecl params (.let auxDecl (.return auxDecl.fvarId))
   addFVarSubst letDecl.fvarId funDecl.fvarId
   eraseLetDecl letDecl
@@ -96,8 +95,8 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
-def elimVar? (value : Expr) : SimpM (Option FVarId) := do
-  let .fvar fvarId := value | return none
+def elimVar? (value : LetExpr) : SimpM (Option FVarId) := do
+  let .fvar fvarId #[] := value | return none
   return fvarId
 
 mutual
@@ -128,7 +127,6 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
     markSimplified
     simp (.fun funDecl k)
   else
-    let expectedType ← inferType (mkAppN info.f info.args[:info.arity])
     let code ← betaReduce info.params info.value info.args[:info.arity]
     if k.isReturnOf fvarId && numArgs == info.arity then
       /- Easy case, the continuation `k` is just returning the result of the application. -/
@@ -139,7 +137,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       let simpK (result : FVarId) : SimpM Code := do
         /- `result` contains the result of the inlined code -/
         if numArgs > info.arity then
-          let decl ← mkAuxLetDecl (mkAppN (.fvar result) info.args[info.arity:])
+          let decl ← mkAuxLetDecl (.fvar result info.args[info.arity:])
           addFVarSubst fvarId decl.fvarId
           simp (.let decl k)
         else
@@ -156,6 +154,7 @@ partial def inlineApp? (letDecl : LetDecl) (k : Code) : SimpM (Option Code) := d
       --  return none
       else
         markSimplified
+        let expectedType ← inferAppType info.fType info.args[:info.arity]
         if expectedType.headBeta.isForall then
           /-
           If `code` returns a function, we create an auxiliary local function declaration (and eta-expand it)
@@ -186,31 +185,28 @@ Try to simplify `cases` of `constructor`
 -/
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
   let discr ← normFVar cases.discr
-  let discrExpr ← findCtor (.fvar discr)
-  let some (ctorVal, ctorArgs) := discrExpr.constructorApp? (← getEnv) (useRaw := true) | return none
-  let (alt, cases) := cases.extractAlt! ctorVal.name
+  let some ctorInfo ← findCtor? discr | return none
+  let (alt, cases) := cases.extractAlt! ctorInfo.getName
   eraseCode (.cases cases)
   markSimplified
   match alt with
   | .default k => simp k
   | .alt _ params k =>
-    let fields := ctorArgs[ctorVal.numParams:]
-    let mut auxDecls := #[]
-    for param in params, field in fields do
-      /-
-      `field` may not be a free variable. Recall that `constructorApp?` has special support for numerals,
-      and `ctorArgs` contains a numeral if `discrExpr` is a numeral. We may have other cases in the future.
-      To make the code robust, we add auxiliary declarations whenever the `field` is not a free variable.
-      -/
-      if field.isFVar then
-        addFVarSubst param.fvarId field.fvarId!
-      else
-        let auxDecl ← mkAuxLetDecl field
-        auxDecls := auxDecls.push (CodeDecl.let auxDecl)
-        addFVarSubst param.fvarId auxDecl.fvarId
-    let k ← simp k
-    eraseParams params
-    attachCodeDecls auxDecls k
+    match ctorInfo with
+    | .ctor ctorVal ctorArgs =>
+      let fields := ctorArgs[ctorVal.numParams:]
+      for param in params, field in fields do
+        addSubst param.fvarId field.toExpr
+      let k ← simp k
+      eraseParams params
+      return k
+    | .natVal 0 => simp k
+    | .natVal (n+1) =>
+      let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+      addFVarSubst params[0]!.fvarId auxDecl.fvarId
+      let k ← simp k
+      eraseParams params
+      return some <| .let auxDecl k
 
 /--
 Simplify `code`
@@ -297,37 +293,35 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     return code.updateUnreach! (← normExpr type)
   | .jmp fvarId args =>
     let fvarId ← normFVar fvarId
-    let args ← normExprs args
+    let args ← normArgs args
     if let some code ← inlineJp? fvarId args then
       simp code
     else
       markUsedFVar fvarId
-      args.forM markUsedExpr
+      args.forM markUsedArg
       return code.updateJmp! fvarId args
   | .cases c =>
     if let some k ← simpCasesOnCtor? c then
       return k
     else
-      let simpCasesDefault := do
-        let discr ← normFVar c.discr
-        let resultType ← normExpr c.resultType
-        markUsedFVar discr
-        let alts ← c.alts.mapMonoM fun alt => do
-          match alt with
-          | .alt ctorName ps k =>
-            if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
-              let type ← k.inferType
-              eraseCode k
-              markSimplified
-              return alt.updateCode (.unreach type)
-            else
-              withDiscrCtor discr ctorName ps do
-                return alt.updateCode (← simp k)
-          | .default k => return alt.updateCode (← simp k)
-        let alts ← addDefaultAlt alts
-        if alts.size == 1 && alts[0]! matches .default .. then
-          return alts[0]!.getCode
-        else
-          return code.updateCases! resultType discr alts
-      simpCasesDefault
+      let discr ← normFVar c.discr
+      let resultType ← normExpr c.resultType
+      markUsedFVar discr
+      let alts ← c.alts.mapMonoM fun alt => do
+        match alt with
+        | .alt ctorName ps k =>
+          if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
+            let type ← k.inferType
+            eraseCode k
+            markSimplified
+            return alt.updateCode (.unreach type)
+          else
+            withDiscrCtor discr ctorName ps do
+              return alt.updateCode (← simp k)
+        | .default k => return alt.updateCode (← simp k)
+      let alts ← addDefaultAlt alts
+      if alts.size == 1 && alts[0]! matches .default .. then
+        return alts[0]!.getCode
+      else
+        return code.updateCases! resultType discr alts
 end

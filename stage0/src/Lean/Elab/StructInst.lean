@@ -435,7 +435,7 @@ private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
-          throwErrorAt field.ref "field '{fieldName}' has already beed specified"
+          throwErrorAt field.ref "field '{fieldName}' has already been specified"
         else
           return fieldMap.insert fieldName (field::prevField::restFields)
       | _ => return fieldMap.insert fieldName [field]

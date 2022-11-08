@@ -42,14 +42,22 @@ def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := f
 def countUniqueSorted [ToString α] [BEq α] [Hashable α] [Inhabited α] : Probe α (α × Nat) :=
   countUnique >=> fun data => return data.qsort (fun l r => l.snd < r.snd)
 
-def getExprs (skipTypes : Bool := true) : Probe Decl Expr := fun decls => do
+partial def getLetExprs : Probe Decl LetExpr := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
-  go (e : Expr) : StateRefT (Array Expr) CompilerM Unit := do
-    modify fun s => s.push e
-  start (decls : Array Decl) : StateRefT (Array Expr) CompilerM Unit :=
-    decls.forM (fun decl => decl.forEachExpr go skipTypes)
+  go (c : Code) : StateRefT (Array LetExpr) CompilerM Unit := do
+    match c with
+    | .let (decl : LetDecl) (k : Code) =>
+      modify fun s => s.push decl.value
+      go k
+    | .fun decl k | .jp decl k =>
+      go decl.value
+      go k
+    | .cases (cases : CasesCore Code) => cases.alts.forM (go ·.getCode)
+    | .jmp .. | .return .. | .unreach .. => return ()
+  start (decls : Array Decl) : StateRefT (Array LetExpr) CompilerM Unit :=
+    decls.forM (go ·.value)
 
 partial def getJps : Probe Decl FunDecl := fun decls => do
   let (_, res) ← start decls |>.run #[]
@@ -112,7 +120,7 @@ where
   | .cases cs => do if (← f cs) then return true else cs.alts.anyM (go ·.getCode)
   | .jmp .. | .return .. | .unreach .. => return false
 
-partial def filterByJmp (f : FVarId → Array Expr → CompilerM Bool) : Probe Decl Decl :=
+partial def filterByJmp (f : FVarId → Array Arg → CompilerM Bool) : Probe Decl Decl :=
   filter (fun decl => go decl.value)
 where
   go : Code → CompilerM Bool

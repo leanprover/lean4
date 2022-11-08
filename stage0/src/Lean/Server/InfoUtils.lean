@@ -77,6 +77,7 @@ def Info.stx : Info → Syntax
   | ofTermInfo i           => i.stx
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
+  | ofOptionInfo i         => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
@@ -147,7 +148,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     -/
     if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
       return results
-    unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
     let priority := (
@@ -182,11 +183,18 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
-  if let Info.ofTermInfo ti := i then
+  match i with
+  | Info.ofTermInfo ti =>
     if let some n := ti.expr.constName? then
       return ← findDocString? env n
-  if let Info.ofFieldInfo fi := i then
-    return ← findDocString? env fi.projName
+  | .ofFieldInfo fi => return ← findDocString? env fi.projName
+  | .ofOptionInfo oi =>
+    if let some doc ← findDocString? env oi.declName then
+      return doc
+    if let some decl := (← getOptionDecls).find? oi.optionName then
+      return decl.descr
+    return none
+  | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none

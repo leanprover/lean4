@@ -173,9 +173,10 @@ that is, `set_option trace.foo true` does not imply `set_option trace.foo.bar tr
 Calling ``registerTraceClass `foo.bar (inherited := true)`` enables this inheritance
 on an opt-in basis.
 -/
-def registerTraceClass (traceClassName : Name) (inherited := false) : IO Unit := do
+def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name := by exact decl_name%) : IO Unit := do
   let optionName := `trace ++ traceClassName
   registerOption optionName {
+    declName := ref
     group := "trace"
     defValue := false
     descr := "enable/disable tracing for the given module and submodules"

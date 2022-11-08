@@ -103,7 +103,7 @@ def Decl.pullInstances (decl : Decl) : CompilerM Decl :=
   decl.pullLetDecls fun letDecl candidates => do
     if (← isClass? letDecl.type).isSome then
       return true
-    else if let .proj _ _ (.fvar fvarId) := letDecl.value then
+    else if let .proj _ _ fvarId := letDecl.value then
       return candidates.contains fvarId
     else
       return false

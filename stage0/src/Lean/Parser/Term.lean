@@ -130,6 +130,9 @@ Parentheses, used for
 - Grouping expressions, e.g., `a * (b + c)`.
 - Creating tuples, e.g., `(a, b, c)` is notation for `Prod.mk a (Prod.mk b c)`.
 - Performing type ascription, e.g., `(0 : Int)` instructs Lean to process `0` as a value of type `Int`.
+  - An empty type ascription `(e :)` elaborates `e` without the expected type.
+    This is occasionally useful when Lean's heuristics for filling arguments from the expected type
+    do not yield the right result.
 - Creating `Unit.unit`, `()` is just a shorthand for `Unit.unit`.
 - Creating simple functions when combined with `·`. Here are some examples:
   - `(· + 1)` is shorthand for `fun x => x + 1`

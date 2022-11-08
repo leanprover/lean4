@@ -11,25 +11,34 @@ import Lean.Compiler.LCNF.CompilerM
 namespace Lean.Compiler.LCNF
 namespace Simp
 
-partial def findExpr (e : Expr) (skipMData := true) : CompilerM Expr := do
-  match e with
-  | .fvar fvarId =>
-    let some decl ← findLetDecl? fvarId | return e
-    findExpr decl.value
-  | .mdata _ e' => if skipMData then findExpr e' else return e
-  | _ => return e
+/--
+Similar to `findFunDecl?`, but follows aliases (i.e., `let _x.i := _x.j`).
+Consider the following example
+```
+fun _f.1 ... := ...
+let _x.2 := _f.1
+```
+`findFunDecl? _x.2` returns `none`, but `findFunDecl'? _x.2` returns the declaration for `_f.1`.
+-/
+partial def findFunDecl'? (fvarId : FVarId) : CompilerM (Option FunDecl) := do
+  if let some decl ← findFunDecl? fvarId then
+    return decl
+  else if let some (.fvar fvarId' #[]) ← findLetExpr? fvarId then
+    findFunDecl'? fvarId'
+  else
+    return none
 
-partial def findFunDecl? (e : Expr) : CompilerM (Option FunDecl) := do
+/-
+-- TODO: cleanup
+partial def findExpr (e : LetExpr) : CompilerM LetExpr := do
   match e with
-  | .fvar fvarId =>
-    if let some decl ← LCNF.findFunDecl? fvarId then
-      return some decl
-    else if let some decl ← findLetDecl? fvarId then
-      findFunDecl? decl.value
+  | .fvar fvarId args =>
+    if args.isEmpty then
+      let some decl ← findLetDecl? fvarId | return e
+      findExpr decl.value
     else
-      return none
-  | .mdata _ e => findFunDecl? e
-  | _ => return none
-
+      return e
+  | _ => return e
+-/
 end Simp
 end Lean.Compiler.LCNF

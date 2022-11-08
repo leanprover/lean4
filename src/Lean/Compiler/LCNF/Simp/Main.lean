@@ -206,7 +206,7 @@ partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
       addFVarSubst params[0]!.fvarId auxDecl.fvarId
       let k ← simp k
       eraseParams params
-      return k
+      return some <| .let auxDecl k
 
 /--
 Simplify `code`

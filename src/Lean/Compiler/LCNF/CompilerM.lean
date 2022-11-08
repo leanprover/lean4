@@ -92,12 +92,12 @@ def findLetDecl? (fvarId : FVarId) : CompilerM (Option LetDecl) :=
 def findFunDecl? (fvarId : FVarId) : CompilerM (Option FunDecl) :=
   return (← get).lctx.funDecls.find? fvarId
 
-def findLetExpr? (fvarId : FVarId) : CompilerM (Option LetExpr) := do
+def findLetValue? (fvarId : FVarId) : CompilerM (Option LetValue) := do
   let some { value, .. } ← findLetDecl? fvarId | return none
   return some value
 
 def isConstructorApp (fvarId : FVarId) : CompilerM Bool := do
-  let some (.const declName _ _) ← findLetExpr? fvarId | return false
+  let some (.const declName _ _) ← findLetValue? fvarId | return false
   return (← getEnv).find? declName matches some (.ctorInfo ..)
 
 def Arg.isConstructorApp (arg : Arg) : CompilerM Bool := do
@@ -246,7 +246,7 @@ Replace the free variables in `e` using the given substitution.
 
 See `normExprImp`
 -/
-private partial def normLetExprImp (s : FVarSubst) (e : LetExpr) (translator : Bool) : LetExpr :=
+private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator : Bool) : LetValue :=
   match e with
   | .erased | .value .. => e
   | .proj _ _ fvarId => e.updateProj! (normFVarImp s fvarId translator)
@@ -296,8 +296,8 @@ See `Check.lean` for the free variable substitution checker.
 @[inline, inherit_doc normArgImp] def normArg [MonadFVarSubst m t] [Monad m] (arg : Arg) : m Arg :=
   return normArgImp (← getSubst) arg t
 
-@[inline, inherit_doc normLetExprImp] def normLetExpr [MonadFVarSubst m t] [Monad m] (e : LetExpr) : m LetExpr :=
-  return normLetExprImp (← getSubst) e t
+@[inline, inherit_doc normLetValueImp] def normLetValue [MonadFVarSubst m t] [Monad m] (e : LetValue) : m LetValue :=
+  return normLetValueImp (← getSubst) e t
 
 @[inherit_doc normExprImp]
 abbrev normExprCore (s : FVarSubst) (e : Expr) (translator : Bool) : Expr :=
@@ -331,7 +331,7 @@ def mkParam (binderName : Name) (type : Expr) (borrow : Bool) : CompilerM Param 
   modifyLCtx fun lctx => lctx.addParam param
   return param
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : LetExpr) : CompilerM LetDecl := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : LetValue) : CompilerM LetDecl := do
   let fvarId ← mkFreshFVarId
   let binderName ← ensureNotAnonymous binderName `_x
   let decl := { fvarId, binderName, type, value }
@@ -355,7 +355,7 @@ private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param :=
 
 @[implemented_by updateParamImp] opaque Param.update (p : Param) (type : Expr) : CompilerM Param
 
-private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetExpr) : CompilerM LetDecl := do
+private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetValue) : CompilerM LetDecl := do
   if ptrEq type decl.type && ptrEq value decl.value then
     return decl
   else
@@ -363,9 +363,9 @@ private unsafe def updateLetDeclImp (decl : LetDecl) (type : Expr) (value : LetE
     modifyLCtx fun lctx => lctx.addLetDecl decl
     return decl
 
-@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : LetExpr) : CompilerM LetDecl
+@[implemented_by updateLetDeclImp] opaque LetDecl.update (decl : LetDecl) (type : Expr) (value : LetValue) : CompilerM LetDecl
 
-def LetDecl.updateValue (decl : LetDecl) (value : LetExpr) : CompilerM LetDecl :=
+def LetDecl.updateValue (decl : LetDecl) (value : LetValue) : CompilerM LetDecl :=
   decl.update decl.type value
 
 private unsafe def updateFunDeclImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : CompilerM FunDecl := do
@@ -391,7 +391,7 @@ def normParams [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (ps : Arr
   ps.mapMonoM normParam
 
 def normLetDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (decl : LetDecl) : m LetDecl := do
-  decl.update (← normExpr decl.type) (← normLetExpr decl.value)
+  decl.update (← normExpr decl.type) (← normLetValue decl.value)
 
 abbrev NormalizerM (_translator : Bool) := ReaderT FVarSubst CompilerM
 

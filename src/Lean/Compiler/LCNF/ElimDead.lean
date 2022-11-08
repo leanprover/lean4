@@ -34,7 +34,7 @@ def collectLocalDeclsArg (s : UsedLocalDecls) (arg : Arg) : UsedLocalDecls :=
 def collectLocalDeclsArgs (s : UsedLocalDecls) (args : Array Arg) : UsedLocalDecls :=
   args.foldl (init := s) collectLocalDeclsArg
 
-def collectLocalDeclsLetExpr (s : UsedLocalDecls) (e : LetExpr) : UsedLocalDecls :=
+def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue) : UsedLocalDecls :=
   match e with
   | .erased  | .value .. => s
   | .proj _ _ fvarId => s.insert fvarId
@@ -48,8 +48,8 @@ abbrev M := StateRefT UsedLocalDecls CompilerM
 private abbrev collectArgM (arg : Arg) : M Unit :=
   modify (collectLocalDeclsArg · arg)
 
-private abbrev collectLetExprM (e : LetExpr) : M Unit :=
-  modify (collectLocalDeclsLetExpr · e)
+private abbrev collectLetValueM (e : LetValue) : M Unit :=
+  modify (collectLocalDeclsLetValue · e)
 
 private abbrev collectFVarM (fvarId : FVarId) : M Unit :=
   modify (·.insert fvarId)
@@ -65,7 +65,7 @@ partial def elimDead (code : Code) : M Code := do
     let k ← elimDead k
     if (← get).contains decl.fvarId then
       /- Remark: we don't need to collect `decl.type` because LCNF local declarations do not occur in types. -/
-      collectLetExprM decl.value
+      collectLetValueM decl.value
       return code.updateCont! k
     else
       eraseLetDecl decl

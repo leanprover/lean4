@@ -35,13 +35,13 @@ inductive AltCore (Code : Type) where
   | default (code : Code)
   deriving Inhabited
 
-inductive Value where
+inductive LitValue where
   | natVal (val : Nat)
   | strVal (val : String)
   -- TODO: add constructors for `Int`, `Float`, `UInt` ...
   deriving Inhabited, BEq, Hashable
 
-def Value.toExpr : Value → Expr
+def LitValue.toExpr : LitValue → Expr
   | .natVal v => .lit (.natVal v)
   | .strVal v => .lit (.strVal v)
 
@@ -74,8 +74,8 @@ private unsafe def Arg.updateFVarImp (arg : Arg) (fvarId' : FVarId) : Arg :=
 
 @[implemented_by Arg.updateFVarImp] opaque Arg.updateFVar! (arg : Arg) (fvarId' : FVarId) : Arg
 
-inductive LetExpr where
-  | value (value : Value)
+inductive LetValue where
+  | value (value : LitValue)
   | erased
   | proj (typeName : Name) (idx : Nat) (struct : FVarId)
   | const (declName : Name) (us : List Level) (args : Array Arg)
@@ -83,41 +83,41 @@ inductive LetExpr where
   -- TODO: add constructors for mono and impure phases
   deriving Inhabited, BEq, Hashable
 
-def Arg.toLetExpr (arg : Arg) : LetExpr :=
+def Arg.toLetValue (arg : Arg) : LetValue :=
   match arg with
   | .fvar fvarId => .fvar fvarId #[]
   | .erased | .type .. => .erased
 
-private unsafe def LetExpr.updateProjImp (e : LetExpr) (fvarId' : FVarId) : LetExpr :=
+private unsafe def LetValue.updateProjImp (e : LetValue) (fvarId' : FVarId) : LetValue :=
   match e with
   | .proj s i fvarId => if fvarId == fvarId' then e else .proj s i fvarId'
   | _ => unreachable!
 
-@[implemented_by LetExpr.updateProjImp] opaque LetExpr.updateProj! (e : LetExpr) (fvarId' : FVarId) : LetExpr
+@[implemented_by LetValue.updateProjImp] opaque LetValue.updateProj! (e : LetValue) (fvarId' : FVarId) : LetValue
 
-private unsafe def LetExpr.updateConstImp (e : LetExpr) (declName' : Name) (us' : List Level) (args' : Array Arg) : LetExpr :=
+private unsafe def LetValue.updateConstImp (e : LetValue) (declName' : Name) (us' : List Level) (args' : Array Arg) : LetValue :=
   match e with
   | .const declName us args => if declName == declName' && ptrEq us us' && ptrEq args args' then e else .const declName' us' args'
   | _ => unreachable!
 
-@[implemented_by LetExpr.updateConstImp] opaque LetExpr.updateConst! (e : LetExpr) (declName' : Name) (us' : List Level) (args' : Array Arg) : LetExpr
+@[implemented_by LetValue.updateConstImp] opaque LetValue.updateConst! (e : LetValue) (declName' : Name) (us' : List Level) (args' : Array Arg) : LetValue
 
-private unsafe def LetExpr.updateFVarImp (e : LetExpr) (fvarId' : FVarId) (args' : Array Arg) : LetExpr :=
+private unsafe def LetValue.updateFVarImp (e : LetValue) (fvarId' : FVarId) (args' : Array Arg) : LetValue :=
   match e with
   | .fvar fvarId args => if fvarId == fvarId' && ptrEq args args' then e else .fvar fvarId' args'
   | _ => unreachable!
 
-@[implemented_by LetExpr.updateFVarImp] opaque LetExpr.updateFVar! (e : LetExpr) (fvarId' : FVarId) (args' : Array Arg) : LetExpr
+@[implemented_by LetValue.updateFVarImp] opaque LetValue.updateFVar! (e : LetValue) (fvarId' : FVarId) (args' : Array Arg) : LetValue
 
-private unsafe def LetExpr.updateArgsImp (e : LetExpr) (args' : Array Arg) : LetExpr :=
+private unsafe def LetValue.updateArgsImp (e : LetValue) (args' : Array Arg) : LetValue :=
   match e with
   | .const declName us args => if ptrEq args args' then e else .const declName us args'
   | .fvar fvarId args => if ptrEq args args' then e else .fvar fvarId args'
   | _ => unreachable!
 
-@[implemented_by LetExpr.updateArgsImp] opaque LetExpr.updateArgs! (e : LetExpr) (args' : Array Arg) : LetExpr
+@[implemented_by LetValue.updateArgsImp] opaque LetValue.updateArgs! (e : LetValue) (args' : Array Arg) : LetValue
 
-def LetExpr.toExpr (e : LetExpr) : Expr :=
+def LetValue.toExpr (e : LetValue) : Expr :=
   match e with
   | .value (.natVal val) => .lit (.natVal val)
   | .value (.strVal val) => .lit (.strVal val)
@@ -130,7 +130,7 @@ structure LetDecl where
   fvarId : FVarId
   binderName : Name
   type : Expr
-  value : LetExpr
+  value : LetValue
   deriving Inhabited, BEq
 
 structure FunDeclCore (Code : Type) where
@@ -337,7 +337,7 @@ to be updated.
 -/
 @[implemented_by updateParamCoreImp] opaque Param.updateCore (p : Param) (type : Expr) : Param
 
-private unsafe def updateLetDeclCoreImp (decl : LetDecl) (type : Expr) (value : LetExpr) : LetDecl :=
+private unsafe def updateLetDeclCoreImp (decl : LetDecl) (type : Expr) (value : LetValue) : LetDecl :=
   if ptrEq type decl.type && ptrEq value decl.value then
     decl
   else
@@ -348,7 +348,7 @@ Low-level update `LetDecl` function. It does not update the local context.
 Consider using `LetDecl.update : LetDecl → Expr → Expr → CompilerM LetDecl` if you want the local context
 to be updated.
 -/
-@[implemented_by updateLetDeclCoreImp] opaque LetDecl.updateCore (decl : LetDecl) (type : Expr) (value : LetExpr) : LetDecl
+@[implemented_by updateLetDeclCoreImp] opaque LetDecl.updateCore (decl : LetDecl) (type : Expr) (value : LetValue) : LetDecl
 
 private unsafe def updateFunDeclCoreImp (decl: FunDecl) (type : Expr) (params : Array Param) (value : Code) : FunDecl :=
   if ptrEq type decl.type && ptrEq params decl.params && ptrEq value decl.value then
@@ -570,14 +570,14 @@ where
     | .type e => arg.updateType! (instExpr e)
     | .fvar .. | .erased => arg
 
-  instLetExpr (e : LetExpr) : LetExpr :=
+  instLetValue (e : LetValue) : LetValue :=
     match e with
     | .const declName vs args => e.updateConst! declName (vs.mapMono instLevel) (args.mapMono instArg)
     | .fvar fvarId args => e.updateFVar! fvarId (args.mapMono instArg)
     | .proj .. | .value .. | .erased => e
 
   instLetDecl (decl : LetDecl) :=
-    decl.updateCore (instExpr decl.type) (instLetExpr decl.value)
+    decl.updateCore (instExpr decl.type) (instLetValue decl.value)
 
   instFunDecl (decl : FunDecl) :=
     decl.updateCore (instExpr decl.type) (instParams decl.params) (instCode decl.value)
@@ -630,7 +630,7 @@ private def collectArg (arg : Arg) (s : FVarIdSet) : FVarIdSet :=
 private def collectArgs (args : Array Arg) (s : FVarIdSet) : FVarIdSet :=
   args.foldl (init := s) fun s arg => collectArg arg s
 
-private def collectLetExpr (e : LetExpr) (s : FVarIdSet) : FVarIdSet :=
+private def collectLetValue (e : LetValue) (s : FVarIdSet) : FVarIdSet :=
   match e with
   | .fvar fvarId args => collectArgs args <| s.insert fvarId
   | .const _ _ args => collectArgs args s
@@ -646,7 +646,7 @@ partial def FunDeclCore.collectUsed (decl : FunDecl) (s : FVarIdSet := {}) : FVa
 
 partial def Code.collectUsed (code : Code) (s : FVarIdSet := {}) : FVarIdSet :=
   match code with
-  | .let decl k => k.collectUsed <| collectLetExpr decl.value <| collectType decl.type s
+  | .let decl k => k.collectUsed <| collectLetValue decl.value <| collectType decl.type s
   | .jp decl k | .fun decl k => k.collectUsed <| decl.collectUsed s
   | .cases c =>
     let s := s.insert c.discr

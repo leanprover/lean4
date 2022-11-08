@@ -22,7 +22,7 @@ private def argDepOn (a : Arg) : M Bool := do
   | .fvar fvarId => fvarDepOn fvarId
   | .type e => typeDepOn e
 
-private def letExprDepOn (e : LetExpr) : M Bool :=
+private def letValueDepOn (e : LetValue) : M Bool :=
   match e with
   | .erased | .value .. => return false
   | .proj _ _ fvarId => fvarDepOn fvarId
@@ -30,7 +30,7 @@ private def letExprDepOn (e : LetExpr) : M Bool :=
   | .const _ _ args => args.anyM argDepOn
 
 private def LetDecl.depOn (decl : LetDecl) : M Bool :=
-  typeDepOn decl.type <||> letExprDepOn decl.value
+  typeDepOn decl.type <||> letValueDepOn decl.value
 
 private partial def depOn (c : Code) : M Bool :=
   match c with

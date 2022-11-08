@@ -79,7 +79,7 @@ mutual
     | .type e => collectType e
     | .fvar fvarId => collectFVar fvarId
 
-  partial def collectLetExpr (e : LetExpr) : ClosureM Unit := do
+  partial def collectLetValue (e : LetValue) : ClosureM Unit := do
     match e with
     | .erased | .value .. => return ()
     | .proj _ _ fvarId => collectFVar fvarId
@@ -92,7 +92,7 @@ mutual
   -/
   partial def collectCode (c : Code) : ClosureM Unit := do
     match c with
-    | .let decl k => collectType decl.type; collectLetExpr decl.value; collectCode k
+    | .let decl k => collectType decl.type; collectLetValue decl.value; collectCode k
     | .fun decl k | .jp decl k => collectFunDecl decl; collectCode k
     | .cases c =>
       collectType c.resultType
@@ -134,7 +134,7 @@ mutual
           if (← read).abstract letDecl.fvarId then
             modify fun s => { s with params := s.params.push <| { letDecl with borrow := false } }
           else
-            collectLetExpr letDecl.value
+            collectLetValue letDecl.value
             modify fun s => { s with decls := s.decls.push <| .let letDecl }
         else
           unreachable!

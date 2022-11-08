@@ -100,7 +100,7 @@ def inferConstType (declName : Name) (us : List Level) : CompilerM Expr := do
     /- Declaration does not have code associated with it: constructor, inductive type, foreign function -/
     getOtherDeclType declName us
 
-def inferValueType (value : Value) : Expr :=
+def inferLitValueType (value : LitValue) : Expr :=
   match value with
   | .natVal .. => mkConst ``Nat
   | .strVal .. => mkConst ``String
@@ -122,10 +122,10 @@ mutual
     | .lam ..        => inferLambdaType e
     | .letE .. | .mvar .. | .mdata .. | .lit .. | .bvar .. | .proj .. => unreachable!
 
-  partial def inferLetExprType (e : LetExpr) : InferTypeM Expr := do
+  partial def inferLetValueType (e : LetValue) : InferTypeM Expr := do
     match e with
     | .erased => return erasedExpr
-    | .value v => return inferValueType v
+    | .value v => return inferLitValueType v
     | .proj structName idx fvarId => inferProjType structName idx fvarId
     | .const declName us args => inferAppTypeCore (← inferConstType declName us) args
     | .fvar fvarId args => inferAppTypeCore (← getType fvarId) args
@@ -244,8 +244,8 @@ def getLevel (type : Expr) : CompilerM Level := do
 def Arg.inferType (arg : Arg) : CompilerM Expr :=
   InferType.inferArgType arg |>.run {}
 
-def LetExpr.inferType (e : LetExpr) : CompilerM Expr :=
-  InferType.inferLetExprType e |>.run {}
+def LetValue.inferType (e : LetValue) : CompilerM Expr :=
+  InferType.inferLetValueType e |>.run {}
 
 def Code.inferType (code : Code) : CompilerM Expr := do
   match code with
@@ -263,7 +263,7 @@ def Code.inferParamType (params : Array Param) (code : Code) : CompilerM Expr :=
 def AltCore.inferType (alt : Alt) : CompilerM Expr :=
   alt.getCode.inferType
 
-def mkAuxLetDecl (e : LetExpr) (prefixName := `_x) : CompilerM LetDecl := do
+def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : CompilerM LetDecl := do
   mkLetDecl (← mkFreshBinderName prefixName) (← e.inferType) e
 
 def mkForallParams (params : Array Param) (type : Expr) : CompilerM Expr :=

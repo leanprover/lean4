@@ -70,7 +70,7 @@ where
   findFun? (f : FVarId) : CompilerM (Option FunDecl) := do
     if let some funDecl ← findFunDecl? f then
       return funDecl
-    else if let some (.fvar f' #[]) ← findLetExpr? f then
+    else if let some (.fvar f' #[]) ← findLetValue? f then
       findFun? f'
     else
       return none
@@ -225,7 +225,7 @@ def mkUnreachable (type : Expr) : M Arg := do
   pushElement (.unreach p)
   return .fvar p.fvarId
 
-def mkAuxLetDecl (e : LetExpr) (prefixName := `_x) : M FVarId := do
+def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : M FVarId := do
   match e with
   | .fvar fvarId #[] => return fvarId
   | _ =>
@@ -233,7 +233,7 @@ def mkAuxLetDecl (e : LetExpr) (prefixName := `_x) : M FVarId := do
     pushElement (.let letDecl)
     return letDecl.fvarId
 
-def letExprToArg (e : LetExpr) (prefixName := `_x) : M Arg :=
+def letValueToArg (e : LetValue) (prefixName := `_x) : M Arg :=
   return .fvar (← mkAuxLetDecl e prefixName)
 
 /-- Create `Code` that executes the current `seq` and then returns `result` -/
@@ -401,7 +401,7 @@ partial def etaReduceImplicit (e : Expr) : Expr :=
       e
   | _ => e
 
-def litToValue (lit : Literal) : Value :=
+def litToValue (lit : Literal) : LitValue :=
   match lit with
   | .natVal val => .natVal val
   | .strVal val => .strVal val
@@ -449,7 +449,7 @@ where
     visitCore e
 
   visitLit (lit : Literal) : M Arg :=
-    letExprToArg (.value (litToValue lit))
+    letValueToArg (.value (litToValue lit))
 
   visitAppArg (e : Expr) : M Arg := do
     if isLCProof e then
@@ -472,7 +472,7 @@ where
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
     let .const declName us := f | unreachable!
     let args ← args.mapM visitAppArg
-    letExprToArg <| .const declName us args
+    letValueToArg <| .const declName us args
 
   /-- Eta expand if under applied, otherwise apply k -/
   etaIfUnderApplied (e : Expr) (arity : Nat) (k : M Arg) : M Arg := do
@@ -499,7 +499,7 @@ where
         let mut argsNew := #[]
         for i in [arity : args.size] do
           argsNew := argsNew.push (← visitAppArg args[i]!)
-        letExprToArg <| .fvar f argsNew
+        letValueToArg <| .fvar f argsNew
       | .erased | .type .. => return .erased
 
   /--
@@ -581,7 +581,7 @@ where
       match f with
       | .erased => return .erased
       | .type _ => unreachable!
-      | .fvar fvarId => mkOverApplication (← letExprToArg <| .fvar fvarId #[.fvar invq]) args arity
+      | .fvar fvarId => mkOverApplication (← letValueToArg <| .fvar fvarId #[.fvar invq]) args arity
 
   visitEqRec (e : Expr) : M Arg :=
     let arity := 6
@@ -687,7 +687,7 @@ where
         | .erased | .type .. => return .erased
         | .fvar fvarId =>
           let args ← args.mapM visitAppArg
-          letExprToArg <| .fvar fvarId args
+          letValueToArg <| .fvar fvarId args
 
   visitLambda (e : Expr) : M Arg := do
     let b := etaReduceImplicit e
@@ -734,7 +734,7 @@ where
   visitProj (s : Name) (i : Nat) (e : Expr) : M Arg := do
     match (← visit e) with
     | .erased | .type .. => return .erased
-    | .fvar fvarId => letExprToArg <| .proj s i fvarId
+    | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with

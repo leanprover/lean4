@@ -34,7 +34,7 @@ and the free variable containing the result (`FVarId`). The resulting `FVarId` o
 subset of `Array CodeDecl`. However, this method does try to filter the relevant ones.
 We rely on the `used` var set available in `SimpM` to filter them. See `attachCodeDecls`.
 -/
-partial def inlineProjInst? (e : LetExpr) : SimpM (Option (Array CodeDecl × FVarId)) := do
+partial def inlineProjInst? (e : LetValue) : SimpM (Option (Array CodeDecl × FVarId)) := do
   let .proj _ i s := e | return none
   let sType ← getType s
   unless (← isClass? sType).isSome do return none

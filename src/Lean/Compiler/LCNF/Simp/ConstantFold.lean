@@ -21,7 +21,7 @@ A constant folder for a specific function, takes all the arguments of a
 certain function and produces a new `Expr` + auxiliary declarations in
 the `FolderM` monad on success. If the folding fails it returns `none`.
 -/
-abbrev Folder := Array Arg → FolderM (Option LetExpr)
+abbrev Folder := Array Arg → FolderM (Option LetValue)
 
 /--
 A typeclass for detecting and producing literals of arbitrary types
@@ -39,7 +39,7 @@ class Literal (α : Type) where
   final `Expr` putting them all together into a literal of type `α`,
   where again the idea of what a literal is depends on `α`.
   -/
-  mkLit : α → FolderM LetExpr
+  mkLit : α → FolderM LetValue
 
 export Literal (getLit mkLit)
 
@@ -47,7 +47,7 @@ export Literal (getLit mkLit)
 A wrapper around `LCNF.mkAuxLetDecl` that will automatically store the
 `LetDecl` in the state of `FolderM`.
 -/
-def mkAuxLetDecl (e : LetExpr) (prefixName := `_x) : FolderM FVarId := do
+def mkAuxLetDecl (e : LetValue) (prefixName := `_x) : FolderM FVarId := do
   let decl ← LCNF.mkAuxLetDecl e prefixName
   modify fun s => s.push <| .let decl
   return decl.fvarId
@@ -62,10 +62,10 @@ def mkAuxLit [Literal α] (x : α) (prefixName := `_x) : FolderM FVarId := do
   mkAuxLetDecl lit prefixName
 
 partial def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
-  let some (.value (.natVal n)) ← findLetExpr? fvarId | return none
+  let some (.value (.natVal n)) ← findLetValue? fvarId | return none
   return n
 
-def mkNatLit (n : Nat) : FolderM LetExpr :=
+def mkNatLit (n : Nat) : FolderM LetValue :=
   return .value (.natVal n)
 
 instance : Literal Nat where
@@ -73,10 +73,10 @@ instance : Literal Nat where
   mkLit := mkNatLit
 
 partial def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
-  let some (.value (.strVal s)) ← findLetExpr? fvarId | return none
+  let some (.value (.strVal s)) ← findLetValue? fvarId | return none
   return s
 
-def mkStringLit (n : String) : FolderM LetExpr :=
+def mkStringLit (n : String) : FolderM LetValue :=
   return .value (.strVal n)
 
 instance : Literal String where
@@ -84,7 +84,7 @@ instance : Literal String where
   mkLit := mkStringLit
 
 private partial def getLitAux [Inhabited α] (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
-  let some (.const declName _ #[.fvar fvarId]) ← findLetExpr? fvarId | return none
+  let some (.const declName _ #[.fvar fvarId]) ← findLetValue? fvarId | return none
   unless declName == ofNatName do return none
   let some natLit ← getLit fvarId | return none
   return ofNat natLit
@@ -119,7 +119,7 @@ partial def getPseudoListLiteral (fvarId : FVarId) : CompilerM (Option (List FVa
   go fvarId []
 where
   go (fvarId : FVarId) (fvarIds : List FVarId) : CompilerM (Option (List FVarId × Expr × Level)) := do
-    let some e ← findLetExpr? fvarId | return none
+    let some e ← findLetValue? fvarId | return none
     match e with
     | .const ``List.nil [u] #[.type α] =>
       return some (fvarIds.reverse, α, u)
@@ -138,7 +138,7 @@ let _x.26 := @Array.push _ _x.24 z
 _x.26
 ```
 -/
-def mkPseudoArrayLiteral (elements : Array FVarId) (typ : Expr) (typLevel : Level) : FolderM LetExpr := do
+def mkPseudoArrayLiteral (elements : Array FVarId) (typ : Expr) (typLevel : Level) : FolderM LetValue := do
   let sizeLit ← mkAuxLit elements.size
   let mut literal ← mkAuxLetDecl <| .const ``Array.mkEmpty [typLevel] #[.type typ, .fvar sizeLit]
   for element in elements do

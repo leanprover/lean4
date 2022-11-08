@@ -61,30 +61,30 @@ instance : TraverseFVar Arg where
   mapFVarM := Arg.mapFVarM
   forFVarM := Arg.forFVarM
 
-def LetExpr.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetExpr) : m LetExpr := do
+def LetValue.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (e : LetValue) : m LetValue := do
   match e with
   | .value .. | .erased => return e
   | .proj _ _ fvarId => return e.updateProj! (← f fvarId)
   | .const _ _ args => return e.updateArgs! (← args.mapM (TraverseFVar.mapFVarM f))
   | .fvar fvarId args => return e.updateFVar! (← f fvarId) (← args.mapM (TraverseFVar.mapFVarM f))
 
-def LetExpr.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetExpr) : m Unit := do
+def LetValue.forFVarM [Monad m] (f : FVarId → m Unit) (e : LetValue) : m Unit := do
   match e with
   | .value .. | .erased => return ()
   | .proj _ _ fvarId => f fvarId
   | .const _ _ args => args.forM (TraverseFVar.forFVarM f)
   | .fvar fvarId args => f fvarId; args.forM (TraverseFVar.forFVarM f)
 
-instance : TraverseFVar LetExpr where
-  mapFVarM := LetExpr.mapFVarM
-  forFVarM := LetExpr.forFVarM
+instance : TraverseFVar LetValue where
+  mapFVarM := LetValue.mapFVarM
+  forFVarM := LetValue.forFVarM
 
 partial def LetDecl.mapFVarM [MonadLiftT CompilerM m] [Monad m] (f : FVarId → m FVarId) (decl : LetDecl) : m LetDecl := do
-  decl.update (← Expr.mapFVarM f decl.type) (← LetExpr.mapFVarM f decl.value)
+  decl.update (← Expr.mapFVarM f decl.type) (← LetValue.mapFVarM f decl.value)
 
 partial def LetDecl.forFVarM [Monad m] (f : FVarId → m Unit) (decl : LetDecl) : m Unit := do
   Expr.forFVarM f decl.type
-  LetExpr.forFVarM f decl.value
+  LetValue.forFVarM f decl.value
 
 instance : TraverseFVar LetDecl where
   mapFVarM := LetDecl.mapFVarM

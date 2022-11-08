@@ -32,7 +32,7 @@ def lambdaCounter : Probe Decl Nat :=
 -- Find most commonly used function with threshold
 #eval
   Probe.runOnModule `Lean.Compiler.LCNF.JoinPoints (phase := .mono) <|
-  Probe.getLetExprs >=>
+  Probe.getLetValues >=>
   Probe.filter (fun e => return e matches .const ..) >=>
   Probe.map (fun | .const declName .. => return s!"{declName}" | _ => unreachable!) >=>
   Probe.countUniqueSorted >=>

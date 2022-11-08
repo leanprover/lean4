@@ -18,10 +18,10 @@ def Param.toMono (param : Param) : ToMonoM Param := do
     modify fun { typeParams, .. } => { typeParams := typeParams.insert param.fvarId }
   param.update (← toMonoType param.type)
 
-def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetExpr) := do
+def isTrivialConstructorApp? (declName : Name) (args : Array Arg) : ToMonoM (Option LetValue) := do
   let some (.ctorInfo ctorInfo) := (← getEnv).find? declName | return none
   let some info ← hasTrivialStructure? ctorInfo.induct | return none
-  return args[ctorInfo.numParams + info.fieldIdx]!.toLetExpr
+  return args[ctorInfo.numParams + info.fieldIdx]!.toLetValue
 
 def argToMono (arg : Arg) : ToMonoM Arg := do
   match arg with
@@ -32,7 +32,7 @@ def argToMono (arg : Arg) : ToMonoM Arg := do
     else
       return arg
 
-def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetExpr := do
+def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetValue := do
   let argsNew : Array Arg ← args[:ctorInfo.numParams].toArray.mapM fun arg => do
     -- We only preserve constructor parameters that are types
     match arg with
@@ -41,7 +41,7 @@ def ctorAppToMono (ctorInfo : ConstructorVal) (args : Array Arg) : ToMonoM LetEx
   let argsNew := argsNew ++ (← args[ctorInfo.numParams:].toArray.mapM argToMono)
   return .const ctorInfo.name [] argsNew
 
-partial def LetExpr.toMono (e : LetExpr) : ToMonoM LetExpr := do
+partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
   match e with
   | .erased | .value .. => return e
   | .const declName _ args =>

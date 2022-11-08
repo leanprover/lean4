@@ -93,7 +93,7 @@ where
     if let some (us, params) ← getIndInfo? (← getType discr) then
       let ctorArgs := params ++ fieldArgs
       let ctorInfo := .ctor ctorVal ctorArgs
-      let ctor := LetExpr.const ctorVal.name us ctorArgs
+      let ctor := LetValue.const ctorVal.name us ctorArgs
       return { ctx with discrCtorMap := ctx.discrCtorMap.insert discr ctorInfo, ctorDiscrMap := ctx.ctorDiscrMap.insert ctor.toExpr discr }
     else
       -- For the discrCtor map, the constructor parameters are irrelevant for optimizations that use this information

@@ -17,13 +17,6 @@ instance : Inhabited Options where
 instance : ToString Options := inferInstanceAs (ToString KVMap)
 instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
 instance : BEq Options := inferInstanceAs (BEq KVMap)
-instance : Hashable Options where
-  hash opts :=
-    let _ : Hashable DataValue := ⟨fun
-      | .ofString v | .ofBool v | .ofName v | .ofNat v | .ofInt v => hash v
-      -- `Syntax` should never be an option value
-      | .ofSyntax _ => 0⟩
-    hash opts.entries
 
 structure OptionDecl where
   declName : Name := by exact decl_name%

@@ -45,7 +45,6 @@ def builtinPassManager : PassManager := {
     init,
     pullInstances,
     cse,
-/-
     simp,
     floatLetIn,
     findJoinPoints,
@@ -56,9 +55,7 @@ def builtinPassManager : PassManager := {
     specialize,
     simp (occurrence := 2),
     cse (occurrence := 1),
--/
     saveBase, -- End of base phase
-/-
     toMono,
     simp (occurrence := 3) (phase := .mono),
     reduceJpArity (phase := .mono),
@@ -72,7 +69,6 @@ def builtinPassManager : PassManager := {
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),
     cse (occurrence := 2) (phase := .mono),
--/
     saveMono  -- End of mono phase
   ]
 }

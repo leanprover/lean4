@@ -30,7 +30,10 @@ def simpAppApp? (e : LetExpr) : OptionT SimpM LetExpr := do
   let .fvar g args := e | failure
   let some decl ← findLetDecl? g | failure
   match decl.value with
-  | .fvar f args' => return .fvar f (args' ++ args)
+  | .fvar f args' =>
+    /- If `args'` is empty then `g` is an alias that is going to be eliminated by `elimVar?` -/
+    guard (!args'.isEmpty)
+    return .fvar f (args' ++ args)
   | .const declName us args' => return .const declName us (args' ++ args)
   | .erased => return .erased
   | .proj .. | .value .. => failure

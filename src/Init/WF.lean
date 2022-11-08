@@ -151,20 +151,20 @@ namespace Nat
 def lt_wfRel : WellFoundedRelation Nat where
   rel := Nat.lt
   wf  := by
-  apply WellFounded.intro
-  intro n
-  induction n with
-  | zero      =>
-    apply Acc.intro 0
-    intro _ h
-    apply absurd h (Nat.not_lt_zero _)
-  | succ n ih =>
-    apply Acc.intro (Nat.succ n)
-    intro m h
-    have : m = n ∨ m < n := Nat.eq_or_lt_of_le (Nat.le_of_succ_le_succ h)
-    match this with
-    | Or.inl e => subst e; assumption
-    | Or.inr e => exact Acc.inv ih e
+    apply WellFounded.intro
+    intro n
+    induction n with
+    | zero      =>
+      apply Acc.intro 0
+      intro _ h
+      apply absurd h (Nat.not_lt_zero _)
+    | succ n ih =>
+      apply Acc.intro (Nat.succ n)
+      intro m h
+      have : m = n ∨ m < n := Nat.eq_or_lt_of_le (Nat.le_of_succ_le_succ h)
+      match this with
+      | Or.inl e => subst e; assumption
+      | Or.inr e => exact Acc.inv ih e
 
 protected theorem strongInductionOn
     {motive : Nat → Sort u}
@@ -256,9 +256,9 @@ def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb 
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := RProd ha.rel hb.rel
   wf  := by
-  apply Subrelation.wf (r := Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
-  intro a b h
-  exact RProdSubLex a b h
+    apply Subrelation.wf (r := Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
+    intro a b h
+    exact RProdSubLex a b h
 
 end
 

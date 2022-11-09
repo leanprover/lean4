@@ -44,3 +44,4 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.Eval
 import Lean.Elab.Calc
 import Lean.Elab.InheritDoc
+import Lean.Elab.ParseImportsFast

@@ -318,14 +318,14 @@ def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Fo
 
 def parseToken (s : String) : FormatterM ParserState :=
   -- include comment tokens, e.g. when formatting `- -0`
-  return (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])) {
+  return (Parser.andthenFn Parser.whitespace (Parser.tokenFn [])).run {
     input := s,
     fileName := "",
-    fileMap := FileMap.ofString "",
-    prec := 0,
+    fileMap := FileMap.ofString ""
+  } {
     env := ← getEnv,
-    options := ← getOptions,
-    tokens := (← read).table } (Parser.mkParserState s)
+    options := ← getOptions
+  } ((← read).table) (Parser.mkParserState s)
 
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   match info with

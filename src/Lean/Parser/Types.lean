@@ -55,16 +55,22 @@ structure ParserModuleContext where
   currNamespace : Name := .anonymous
   openDecls     : List OpenDecl := []
 
-structure ParserContext extends InputContext, ParserModuleContext where
+/-- Parser context parts that can be updated without invalidating the parser cache. -/
+structure CacheableParserContext where
   prec               : Nat
-  -- used by `evalParserConst` to correctly cache changes to the token table
-  evalParserStack    : List Name := []
-  tokens             : TokenTable
   -- used for bootstrapping only
   quotDepth          : Nat := 0
   suppressInsideQuot : Bool := false
   savedPos?          : Option String.Pos := none
   forbiddenTk?       : Option Token := none
+  deriving BEq
+
+/-- Parser context updateable in `adaptUncacheableContextFn`. -/
+structure ParserContextCore extends InputContext, ParserModuleContext, CacheableParserContext where
+  tokens : TokenTable
+
+/-- Opaque parser context updateable using `adaptCacheableContextFn` and `adaptUncacheableContextFn`. -/
+structure ParserContext extends ParserContextCore where private mk ::
 
 structure Error where
   unexpected : String := ""
@@ -101,20 +107,14 @@ structure TokenCacheEntry where
   stopPos  : String.Pos := 0
   token    : Syntax := Syntax.missing
 
-structure ParserCacheKey extends ParserContext where
+structure ParserCacheKey extends CacheableParserContext where
   parserName : Name
   pos        : String.Pos
+  deriving BEq
 
 instance : Hashable ParserCacheKey where
   -- sufficient to avoid most collisions, relatively cheap to compute
   hash k := hash (k.pos, k.parserName)
-
-instance : BEq ParserCacheKey where
-  beq k₁ k₂ :=
-    k₁.pos == k₂.pos && k₁.parserName == k₂.parserName &&
-    k₁.forbiddenTk? == k₂.forbiddenTk? && k₁.openDecls == k₂.openDecls && k₁.options == k₂.options &&
-    k₁.prec == k₂.prec && k₁.quotDepth == k₂.quotDepth && k₁.savedPos? == k₂.savedPos? &&
-    k₁.evalParserStack == k₂.evalParserStack
 
 structure ParserCacheEntry where
   stx      : Syntax
@@ -174,7 +174,7 @@ def next (s : ParserState) (input : String) (pos : String.Pos) : ParserState :=
 def next' (s : ParserState) (input : String) (pos : String.Pos) (h : ¬ input.atEnd pos): ParserState :=
   { s with pos := input.next' pos h }
 
-def toErrorMsg (ctx : ParserContext) (s : ParserState) : String :=
+def toErrorMsg (ctx : InputContext) (s : ParserState) : String :=
   match s.errorMsg with
   | none     => ""
   | some msg =>
@@ -295,3 +295,29 @@ structure Parser where
   deriving Inhabited
 
 abbrev TrailingParser := Parser
+
+/-- Create a simple parser combinator that inherits the `info` of the nested parser. -/
+@[inline]
+def withFn (f : ParserFn → ParserFn) (p : Parser) : Parser where
+  info := p.info
+  fn   := f p.fn
+
+def adaptCacheableContextFn (f : CacheableParserContext → CacheableParserContext) (p : ParserFn) : ParserFn := fun c s =>
+  p { c with toCacheableParserContext := f c.toCacheableParserContext } s
+
+def adaptCacheableContext (f : CacheableParserContext → CacheableParserContext) : Parser → Parser :=
+  withFn (adaptCacheableContextFn f)
+
+/-- Run `p` under the given context transformation with a fresh cache, restore outer cache afterwards. -/
+def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p : ParserFn) : ParserFn := fun c s =>
+  -- extract and temporarily reset parser cache
+  let ⟨stack, lhsPrec, pos, ⟨tkCache, pCache⟩, errorMsg⟩ := s
+  let ⟨stack, lhsPrec, pos, ⟨tkCache, _⟩, errorMsg⟩ := p ⟨f c.toParserContextCore⟩ ⟨stack, lhsPrec, pos, ⟨tkCache, {}⟩, errorMsg⟩
+  ⟨stack, lhsPrec, pos, ⟨tkCache, pCache⟩, errorMsg⟩
+
+def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState): ParserState :=
+  p { pmctx with
+    prec           := 0
+    toInputContext := ictx
+    tokens
+  } s

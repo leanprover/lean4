@@ -175,29 +175,18 @@ def setLhsPrec (prec : Nat) : Parser := {
   fn   := setLhsPrecFn prec
 }
 
-private def addQuotDepthFn (i : Int) (p : ParserFn) : ParserFn := fun c s =>
-  p { c with quotDepth := c.quotDepth + i |>.toNat } s
+private def addQuotDepth (i : Int) (p : Parser) : Parser :=
+  adaptCacheableContext (fun c => { c with quotDepth := c.quotDepth + i |>.toNat }) p
 
-def incQuotDepth (p : Parser) : Parser := {
-  info := p.info
-  fn   := addQuotDepthFn 1 p.fn
-}
+def incQuotDepth (p : Parser) : Parser := addQuotDepth 1 p
 
-def decQuotDepth (p : Parser) : Parser := {
-  info := p.info
-  fn   := addQuotDepthFn (-1) p.fn
-}
+def decQuotDepth (p : Parser) : Parser := addQuotDepth (-1) p
 
-def suppressInsideQuotFn (p : ParserFn) : ParserFn := fun c s =>
-  p { c with suppressInsideQuot := true } s
-
-def suppressInsideQuot (p : Parser) : Parser := {
-  info := p.info
-  fn   := suppressInsideQuotFn p.fn
-}
+def suppressInsideQuot (p : Parser) : Parser :=
+  adaptCacheableContext ({ · with suppressInsideQuot := true }) p
 
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
-  let key := ⟨c, parserName, s.pos⟩
+  let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
   if let some r := s.cache.parserCache.find? key then
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
@@ -1272,31 +1261,24 @@ def checkLineEq (errorMsg : String := "checkLineEq") : Parser :=
 def withPosition (p : Parser) : Parser := {
   info := p.info
   fn   := fun c s =>
-    p.fn { c with savedPos? := s.pos } s
+    adaptCacheableContextFn ({ · with savedPos? := s.pos }) p.fn c s
 }
 
 def withPositionAfterLinebreak (p : Parser) : Parser := {
   info := p.info
   fn   := fun c s =>
     let prev := s.stxStack.back
-    let c := if checkTailLinebreak prev then { c with savedPos? := s.pos } else c
-    p.fn c s
+    adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) p.fn c s
 }
 
-def withoutPosition (p : Parser) : Parser := {
-  info := p.info
-  fn   := fun c s => p.fn { c with savedPos? := none } s
-}
+def withoutPosition (p : Parser) : Parser :=
+  adaptCacheableContext ({ · with savedPos? := none }) p
 
-def withForbidden (tk : Token) (p : Parser) : Parser := {
-  info := p.info
-  fn   := fun c s => p.fn { c with forbiddenTk? := tk } s
-}
+def withForbidden (tk : Token) (p : Parser) : Parser :=
+  adaptCacheableContext ({ · with forbiddenTk? := tk }) p
 
-def withoutForbidden (p : Parser) : Parser := {
-  info := p.info
-  fn   := fun c s => p.fn { c with forbiddenTk? := none } s
-}
+def withoutForbidden (p : Parser) : Parser :=
+  adaptCacheableContext ({ · with forbiddenTk? := none }) p
 
 def eoiFn : ParserFn := fun c s =>
   let i := s.pos
@@ -1439,7 +1421,7 @@ def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
   categoryParserFnExtension.getState ctx.env catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where
-  fn c s := withCacheFn catName (categoryParserFn catName) { c with prec } s
+  fn := adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))
 
 -- Define `termParser` here because we need it for antiquotations
 def termParser (prec : Nat := 0) : Parser :=
@@ -1613,9 +1595,8 @@ def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
     | .ident _ _ catName _ => categoryParserFn catName ctx s
     | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
 
-def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser := {
-  fn := fun c s => categoryParserOfStackFn offset { c with prec := prec } s
-}
+def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser where
+  fn := adaptCacheableContextFn ({ · with prec }) (categoryParserOfStackFn offset)
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s

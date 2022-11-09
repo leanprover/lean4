@@ -364,11 +364,7 @@ unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => un
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
-    let ctx := { ctx with
-      evalParserStack := declName :: ctx.evalParserStack
-      tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens
-    }
-    return p.fn ctx s
+    return adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
   | .error e   => return s.mkUnexpectedError e.toString
 
 @[implemented_by evalParserConstUnsafe]
@@ -448,27 +444,20 @@ def mkInputContext (input : String) (fileName : String) : InputContext := {
   fileMap  := input.toFileMap
 }
 
-def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : ParserContext := { pmctx with
-  prec           := 0,
-  toInputContext := ictx,
-  tokens         := getTokenTable pmctx.env,
-}
-
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
 
 /-- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
-  let c := mkParserContext (mkInputContext input fileName) { env := env, options := {} }
-  let s := mkParserState input
-  let s := whitespace c s
-  let s := categoryParserFnImpl catName c s
+  let p := andthenFn whitespace (categoryParserFnImpl catName)
+  let ictx := mkInputContext input fileName
+  let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if s.hasError then
-    Except.error (s.toErrorMsg c)
+    Except.error (s.toErrorMsg ictx)
   else if input.atEnd s.pos then
     Except.ok s.stxStack.back
   else
-    Except.error ((s.mkError "end of input").toErrorMsg c)
+    Except.error ((s.mkError "end of input").toErrorMsg ictx)
 
 def declareBuiltinParser (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
   let val := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
@@ -580,7 +569,7 @@ builtin_initialize registerBuiltinDynamicParserAttribute `command_parser `comman
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
 
-private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
+private def withNamespaces (ids : Array Name) (addOpenSimple : Bool) : ParserFn → ParserFn := adaptUncacheableContextFn fun c =>
   let c := ids.foldl (init := c) fun c id =>
     let nss := ResolveName.resolveNamespace c.env c.currNamespace c.openDecls id
     let (env, openDecls) := nss.foldl (init := (c.env, c.openDecls)) fun (env, openDecls) ns =>
@@ -589,7 +578,7 @@ private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bo
       (env, openDecls)
     { c with env, openDecls }
   let tokens := parserExtension.getState c.env |>.tokens
-  p { c with tokens } s
+  { c with tokens }
 
 def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>
   if openDeclStx.getKind == `Lean.Parser.Command.openSimple then
@@ -686,12 +675,12 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
     categoryParserFn cat ctx s
   | [.parser parserName _] =>
     let iniSz := s.stackSize
-    let mut ctx' := ctx
-    if !internal.parseQuotWithCurrentStage.get ctx'.options then
-      -- static quotations such as `(e) do not use the interpreter unless the above option is set,
-      -- so for consistency neither should dynamic quotations using this function
-      ctx' := { ctx' with options := ctx'.options.setBool `interpreter.prefer_native true }
-    let s := evalParserConst parserName ctx' s
+    let s := adaptUncacheableContextFn (fun ctx =>
+      if !internal.parseQuotWithCurrentStage.get ctx.options then
+        -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+        -- so for consistency neither should dynamic quotations using this function
+        { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
+      else ctx) (evalParserConst parserName) ctx s
     if !s.hasError && s.stackSize != iniSz + 1 then
       s.mkUnexpectedError "expected parser to return exactly one syntax object"
     else
@@ -699,8 +688,8 @@ def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
   | [] => s.mkUnexpectedError s!"unknown parser {parserName}"
 
-def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
-  { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }
+def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser where
+  fn := adaptCacheableContextFn ({ · with prec }) (parserOfStackFn offset)
 
 end Parser
 end Lean

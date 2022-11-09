@@ -660,8 +660,8 @@ def macroLastArg   := macroDollarArg <|> macroArg
 @[builtin_term_parser] def stateRefT := leading_parser
   "StateRefT" >> macroArg >> macroLastArg
 
-@[builtin_term_parser] def dynamicQuot := leading_parser
-  "`(" >> ident >> "|" >> withoutPosition (incQuotDepth (parserOfStack 1)) >> ")"
+@[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
+  "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent

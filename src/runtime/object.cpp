@@ -1868,6 +1868,14 @@ extern "C" LEAN_EXPORT obj_res lean_string_utf8_next(b_obj_arg s, b_obj_arg i0) 
     return lean_box(i+1);
 }
 
+extern "C" LEAN_EXPORT obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c) {
+    if ((c & 0xe0) == 0xc0) return lean_box(i+2);
+    if ((c & 0xf0) == 0xe0) return lean_box(i+3);
+    if ((c & 0xf8) == 0xf0) return lean_box(i+4);
+    /* invalid UTF-8 encoded string */
+    return lean_box(i+1);
+}
+
 static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }

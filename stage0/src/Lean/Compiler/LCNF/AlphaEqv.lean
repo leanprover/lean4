@@ -51,7 +51,7 @@ def eqvArgs (as₁ as₂ : Array Arg) : EqvM Bool := do
   else
     return false
 
-def eqvLetExpr (e₁ e₂ : LetExpr) : EqvM Bool := do
+def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
   match e₁, e₂ with
   | .value v₁, .value v₂ => return v₁ == v₂
   | .erased, .erased => return true
@@ -107,7 +107,7 @@ partial def eqv (code₁ code₂ : Code) : EqvM Bool := do
   match code₁, code₂ with
   | .let decl₁ k₁, .let decl₂ k₂ =>
     eqvType decl₁.type decl₂.type <&&>
-    eqvLetExpr decl₁.value decl₂.value <&&>
+    eqvLetValue decl₁.value decl₂.value <&&>
     withFVar decl₁.fvarId decl₂.fvarId (eqv k₁ k₂)
   | .fun decl₁ k₁, .fun decl₂ k₂
   | .jp decl₁ k₁, .jp decl₂ k₂ =>

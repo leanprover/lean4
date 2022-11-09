@@ -11,11 +11,11 @@ namespace Simp
 /--
 Try to simplify projections `.proj _ i s` where `s` is constructor.
 -/
-def simpProj? (e : LetExpr) : OptionT SimpM LetExpr := do
+def simpProj? (e : LetValue) : OptionT SimpM LetValue := do
   let .proj _ i s := e | failure
   let some ctorInfo ← findCtor? s | failure
   match ctorInfo with
-  | .ctor ctorVal args => return args[ctorVal.numParams + i]!.toLetExpr
+  | .ctor ctorVal args => return args[ctorVal.numParams + i]!.toLetValue
   | .natVal .. => failure
 
 /--
@@ -26,7 +26,7 @@ g b
 ```
 is simplified to `f a b`.
 -/
-def simpAppApp? (e : LetExpr) : OptionT SimpM LetExpr := do
+def simpAppApp? (e : LetValue) : OptionT SimpM LetValue := do
   let .fvar g args := e | failure
   let some decl ← findLetDecl? g | failure
   match decl.value with
@@ -38,19 +38,19 @@ def simpAppApp? (e : LetExpr) : OptionT SimpM LetExpr := do
   | .erased => return .erased
   | .proj .. | .value .. => failure
 
-def simpCtorDiscr? (e : LetExpr) : OptionT SimpM LetExpr := do
+def simpCtorDiscr? (e : LetValue) : OptionT SimpM LetValue := do
   let .const declName _ _ := e | failure
   let some (.ctorInfo _) := (← getEnv).find? declName | failure
   let some fvarId ← simpCtorDiscrCore? e.toExpr | failure
   return .fvar fvarId #[]
 
-def applyImplementedBy? (e : LetExpr) : OptionT SimpM LetExpr := do
+def applyImplementedBy? (e : LetValue) : OptionT SimpM LetValue := do
   guard <| (← read).config.implementedBy
   let .const declName us args := e | failure
   let some declNameNew := getImplementedBy? (← getEnv) declName | failure
   return .const declNameNew us args
 
 /-- Try to apply simple simplifications. -/
-def simpValue? (e : LetExpr) : SimpM (Option LetExpr) :=
+def simpValue? (e : LetValue) : SimpM (Option LetValue) :=
   -- TODO: more simplifications
   simpProj? e <|> simpAppApp? e <|> simpCtorDiscr? e <|> applyImplementedBy? e

@@ -100,7 +100,7 @@ where
       modify fun s => s.addHo funDecl.fvarId
     | .erased .. | .type .. => return ()
 
-  addLetExprOccs (e : LetExpr) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addLetValueOccs (e : LetValue) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match e with
     | .erased | .value .. | .proj .. => return ()
     | .const _ _ args => args.forM addArgOcc
@@ -112,7 +112,7 @@ where
   go (code : Code) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match code with
     | .let decl k =>
-      addLetExprOccs decl.value
+      addLetValueOccs decl.value
       go k
     | .fun decl k =>
       if mustInline then

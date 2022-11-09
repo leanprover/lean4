@@ -95,7 +95,7 @@ def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   | .return fvarId' => return (← normFVar fvarId') == fvarId
   | _ => return false
 
-def elimVar? (value : LetExpr) : SimpM (Option FVarId) := do
+def elimVar? (value : LetValue) : SimpM (Option FVarId) := do
   let .fvar fvarId #[] := value | return none
   return fvarId
 

@@ -67,7 +67,7 @@ def visitArg (arg : Arg) : FindUsedM Unit := do
   | .erased | .type .. => return ()
   | .fvar fvarId => visitFVar fvarId
 
-def visitLetExpr (e : LetExpr) : FindUsedM Unit := do
+def visitLetValue (e : LetValue) : FindUsedM Unit := do
   match e with
   | .erased | .value .. => return ()
   | .proj _ _ fvarId => visitFVar fvarId
@@ -94,7 +94,7 @@ def visitLetExpr (e : LetExpr) : FindUsedM Unit := do
 partial def visit (code : Code) : FindUsedM Unit := do
   match code with
   | .let decl k =>
-    visitLetExpr decl.value
+    visitLetValue decl.value
     visit k
   | .jp decl k | .fun decl k =>
     visit decl.value; visit k

@@ -34,7 +34,7 @@ def markUsedArg (arg : Arg) : SimpM Unit :=
 /--
 Mark all free variables occurring in `e` as used.
 -/
-def markUsedLetExpr (e : LetExpr) : SimpM Unit := do
+def markUsedLetValue (e : LetValue) : SimpM Unit := do
   match e with
   | .value .. | .erased => return ()
   | .proj _ _ fvarId => markUsedFVar fvarId
@@ -46,7 +46,7 @@ Mark all free variables occurring on the right-hand side of the given let declar
 This is information is used to eliminate dead local declarations.
 -/
 def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
-  markUsedLetExpr letDecl.value
+  markUsedLetValue letDecl.value
 
 mutual
 /--

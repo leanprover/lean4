@@ -549,6 +549,7 @@ You can prove theorems about the resulting element by induction on `h`, since
 @[macro_inline] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
   h ▸ b
 
+@[elab_as_elim]
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 

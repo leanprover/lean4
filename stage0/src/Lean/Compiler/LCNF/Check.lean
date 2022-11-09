@@ -129,7 +129,7 @@ def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
           throwError "invalid LCNF application{indentExpr (mkAppN f (args.map (·.toExpr)))}\nargument{indentExpr arg.toExpr}\nhas type{indentExpr expectedType}\nmust be a free variable"
     fType := b
 
-def checkLetExpr (e : LetExpr) : CheckM Unit := do
+def checkLetValue (e : LetValue) : CheckM Unit := do
   match e with
   | .value .. | .erased => pure ()
   | .const declName us args => checkAppArgs (mkConst declName us) args
@@ -158,7 +158,7 @@ def checkParams (params : Array Param) : CheckM Unit :=
   params.forM checkParam
 
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
-  checkLetExpr letDecl.value
+  checkLetValue letDecl.value
   unless letDecl == (← getLetDecl letDecl.fvarId) do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, does not match value in local context"
 

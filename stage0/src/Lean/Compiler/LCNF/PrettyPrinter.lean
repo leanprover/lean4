@@ -55,7 +55,7 @@ def ppArg (e : Arg) : M Format := do
 def ppArgs (args : Array Arg) : M Format := do
   prefixJoin " " args ppArg
 
-def ppLetExpr (e : LetExpr) : M Format := do
+def ppLetValue (e : LetValue) : M Format := do
   match e with
   | .erased => return "◾"
   | .value v => ppExpr v.toExpr
@@ -75,9 +75,9 @@ def ppParams (params : Array Param) : M Format := do
 
 def ppLetDecl (letDecl : LetDecl) : M Format := do
   if pp.letVarTypes.get (← getOptions) then
-    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetExpr letDecl.value}"
+    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetValue letDecl.value}"
   else
-    return f!"let {letDecl.binderName} := {← ppLetExpr letDecl.value}"
+    return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
   instantiateForall type (ps.map (mkFVar ·.fvarId))
@@ -115,8 +115,8 @@ end PP
 def ppCode (code : Code) : CompilerM Format :=
   PP.run <| PP.ppCode code
 
-def ppLetExpr (e : LetExpr) : CompilerM Format :=
-  PP.run <| PP.ppLetExpr e
+def ppLetValue (e : LetValue) : CompilerM Format :=
+  PP.run <| PP.ppLetValue e
 
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do

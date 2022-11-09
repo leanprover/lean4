@@ -31,7 +31,7 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 /--
 Return `some info` if `e` should be inlined.
 -/
-def inlineCandidate? (e : LetExpr) : SimpM (Option InlineCandidateInfo) := do
+def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
   let mut e := e
   let mut mustInline := false
   if let .const ``inline _ #[_, .fvar argFVarId] := e then

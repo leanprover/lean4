@@ -169,7 +169,7 @@ def shouldSpecialize (paramsInfo : Array SpecParamInfo) (args : Array Arg) : Spe
 Convert the given declarations into `Expr`, and "zeta-reduce" them into body.
 This function is used to compute the key that uniquely identifies an code specialization.
 -/
-def expandCodeDecls (decls : Array CodeDecl) (body : LetExpr) : CompilerM Expr := do
+def expandCodeDecls (decls : Array CodeDecl) (body : LetValue) : CompilerM Expr := do
   let xs := decls.map (mkFVar ·.fvarId)
   let values := decls.map fun
     | .let decl => decl.value.toExpr
@@ -190,7 +190,7 @@ Create the "key" that uniquely identifies a code specialization.
 The result contains the list of universe level parameter names the key that `params`, `decls`, and `body` depends on.
 We use this information to create the new auxiliary declaration and resulting application.
 -/
-def mkKey (params : Array Param) (decls : Array CodeDecl) (body : LetExpr) : CompilerM (Expr × List Name) := do
+def mkKey (params : Array Param) (decls : Array CodeDecl) (body : LetValue) : CompilerM (Expr × List Name) := do
   let body ← expandCodeDecls decls body
   let key := ToExpr.run do
     ToExpr.withParams params do
@@ -260,7 +260,7 @@ mutual
   Try to specialize the function application in the given let-declaration.
   `k` is the continuation for the let-declaration.
   -/
-  partial def specializeApp? (e : LetExpr) : SpecializeM (Option LetExpr) := do
+  partial def specializeApp? (e : LetValue) : SpecializeM (Option LetValue) := do
     let .const declName us args := e | return none
     if args.isEmpty then return none
     if (← Meta.isInstance declName) then return none

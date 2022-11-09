@@ -98,14 +98,14 @@ def mkAssignment (decl : Decl) (values : Array AbsValue) : FVarIdMap AbsValue :=
 
 mutual
 
-partial def evalLetExpr (e : LetExpr) : FixParamM Unit := do
+partial def evalLetValue (e : LetValue) : FixParamM Unit := do
   match e with
   | .const declName _ args => evalApp declName args
   | _ => return ()
 
 partial def evalCode (code : Code) : FixParamM Unit := do
   match code with
-  | .let decl k => evalLetExpr decl.value; evalCode k
+  | .let decl k => evalLetValue decl.value; evalCode k
   | .fun decl k | .jp decl k => evalCode decl.value; evalCode k
   | .cases c => c.alts.forM fun alt => evalCode alt.getCode
   | .unreach .. | .jmp .. | .return .. => return ()

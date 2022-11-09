@@ -80,7 +80,7 @@ private partial def removeCandidatesInArg (a : Arg) : FindM Unit := do
 /--
 Remove all join point candidates contained in `a`.
 -/
-private partial def removeCandidatesInLetExpr (e : LetExpr) : FindM Unit := do
+private partial def removeCandidatesInLetValue (e : LetValue) : FindM Unit := do
   forFVarM eraseCandidate e
 
 /--
@@ -151,7 +151,7 @@ where
       else
         eraseCandidate fvarId
     | _, _ =>
-      removeCandidatesInLetExpr decl.value
+      removeCandidatesInLetValue decl.value
       go k
   | .fun decl k => do
     withReader (fun _ => some decl.fvarId) do

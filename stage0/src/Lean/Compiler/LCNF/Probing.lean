@@ -42,11 +42,11 @@ def countUnique [ToString α] [BEq α] [Hashable α] : Probe α (α × Nat) := f
 def countUniqueSorted [ToString α] [BEq α] [Hashable α] [Inhabited α] : Probe α (α × Nat) :=
   countUnique >=> fun data => return data.qsort (fun l r => l.snd < r.snd)
 
-partial def getLetExprs : Probe Decl LetExpr := fun decls => do
+partial def getLetValues : Probe Decl LetValue := fun decls => do
   let (_, res) ← start decls |>.run #[]
   return res
 where
-  go (c : Code) : StateRefT (Array LetExpr) CompilerM Unit := do
+  go (c : Code) : StateRefT (Array LetValue) CompilerM Unit := do
     match c with
     | .let (decl : LetDecl) (k : Code) =>
       modify fun s => s.push decl.value
@@ -56,7 +56,7 @@ where
       go k
     | .cases (cases : CasesCore Code) => cases.alts.forM (go ·.getCode)
     | .jmp .. | .return .. | .unreach .. => return ()
-  start (decls : Array Decl) : StateRefT (Array LetExpr) CompilerM Unit :=
+  start (decls : Array Decl) : StateRefT (Array LetValue) CompilerM Unit :=
     decls.forM (go ·.value)
 
 partial def getJps : Probe Decl FunDecl := fun decls => do

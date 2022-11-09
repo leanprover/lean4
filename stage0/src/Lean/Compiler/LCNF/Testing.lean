@@ -10,7 +10,7 @@ namespace Lean.Compiler.LCNF
 
 partial def Code.containsConst (constName : Name) (code : Code) : Bool :=
   match code with
-  | .let decl k => goLetExpr decl.value || containsConst constName k
+  | .let decl k => goLetValue decl.value || containsConst constName k
   | .fun decl k => containsConst constName decl.value || containsConst constName k
   | .jp decl k => containsConst constName decl.value || containsConst constName k
   | .cases cs => cs.alts.any fun alt => containsConst constName alt.getCode
@@ -24,7 +24,7 @@ where
     | .proj _ _ struct .. => goExpr struct
     | .letE .. => unreachable! -- not possible in LCNF
     | _ => false
-  goLetExpr (l : LetExpr) : Bool :=
+  goLetValue (l : LetValue) : Bool :=
     match l with
     | .value .. | .erased | .proj .. | .fvar .. => false
     | .const name .. => name == constName

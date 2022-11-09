@@ -108,7 +108,7 @@ def visitArg (arg : Arg) : Visitor :=
 def visitArgs (args : Array Arg) : Visitor :=
   fun s => args.foldl (init := s) fun s arg => visitArg arg s
 
-def visitLetExpr (e : LetExpr) : Visitor :=
+def visitLetValue (e : LetValue) : Visitor :=
   match e with
   | .erased | .value .. | .proj .. => id
   | .const _ us args => visitLevels us ∘ visitArgs args
@@ -130,7 +130,7 @@ mutual
     fun s => alts.foldl (init := s) fun s alt => visitAlt alt s
 
   partial def visitCode : Code → Visitor
-    | .let decl k => visitCode k ∘ visitLetExpr decl.value ∘ visitType decl.type
+    | .let decl k => visitCode k ∘ visitLetValue decl.value ∘ visitType decl.type
     | .fun decl k | .jp decl k => visitCode k ∘ visitCode decl.value ∘ visitParams decl.params ∘ visitType decl.type
     | .cases c => visitAlts c.alts ∘ visitType c.resultType
     | .unreach type => visitType type

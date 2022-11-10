@@ -234,7 +234,9 @@ environment compile(environment const & env, options const & opts, names cs) {
         return new_env;
     }
     std::tie(new_env, ds) = specialize(new_env, ds, cfg);
-    lean_assert(lcnf_check_let_decls(new_env, ds));
+    // The following check is incorrect. It was exposed by issue #1812.
+    // We will not fix the check since we will delete the compiler.
+    // lean_assert(lcnf_check_let_decls(new_env, ds));
     trace_compiler(name({"compiler", "specialize"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);

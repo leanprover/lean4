@@ -595,8 +595,14 @@ optional<expr> mk_enf_fix_core(unsigned n) {
 }
 
 
-/* Auxiliary visitor used to detect let-decl LCNF violations.
-   In LCNF, the type `ty` in `let x : ty := v in t` must not be irrelevant. */
+/*
+Auxiliary visitor used to detect let-decl LCNF violations.
+In LCNF, the type `ty` in `let x : ty := v in t` must not be irrelevant.
+
+Remark: this validator is incorrect. When specializing polymorphic code,
+we can get an irrelevant `ty`.
+We disabled this validator since we will delete the code generator written in C++.
+*/
 class lcnf_valid_let_decls_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;

@@ -185,23 +185,6 @@ def decQuotDepth (p : Parser) : Parser := addQuotDepth (-1) p
 def suppressInsideQuot (p : Parser) : Parser :=
   adaptCacheableContext ({ · with suppressInsideQuot := true }) p
 
-def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
-  let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
-  if let some r := s.cache.parserCache.find? key then
-    -- TODO: turn this into a proper trace once we have these in the parser
-    --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
-    match s with
-    | ⟨stack, _, _, cache, _⟩ => return ⟨stack.push r.stx, r.lhsPrec, r.newPos, cache, r.errorMsg⟩
-  let initStackSz := s.stackSize
-  let s := p c s
-  if s.stackSize != initStackSz + 1 then
-    panic! s!"withCacheFn: unexpected stack growth {s.stxStack}"
-  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
-
-def withCache (parserName : Name) (p : Parser) : Parser where
-  info := p.info
-  fn   := withCacheFn parserName p.fn
-
 def leadingNode (n : SyntaxNodeKind) (prec : Nat) (p : Parser) : Parser :=
   checkPrec prec >> node n p >> setLhsPrec prec
 
@@ -979,8 +962,8 @@ def checkLinebreakBefore (errorMsg : String := "line break") : Parser := {
   fn   := checkLinebreakBeforeFn errorMsg
 }
 
-private def pickNonNone (stack : Array Syntax) : Syntax :=
-  match stack.findRev? fun stx => !stx.isNone with
+private def pickNonNone (stack : SyntaxStack) : Syntax :=
+  match stack.toSubarray.findRev? fun stx => !stx.isNone with
   | none => Syntax.missing
   | some stx => stx
 
@@ -1100,7 +1083,7 @@ def identEq (id : Name) : Parser := {
 
 namespace ParserState
 
-def keepTop (s : Array Syntax) (startStackSize : Nat) : Array Syntax :=
+def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
   let node  := s.back
   s.shrink startStackSize |>.push node
 

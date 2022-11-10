@@ -130,8 +130,59 @@ def initCacheForInput (input : String) : ParserCache where
   tokenCache  := { startPos := input.endPos + ' ' /- make sure it is not a valid position -/ }
   parserCache := {}
 
+/-- A syntax array with an inaccessible prefix, used for sound caching. -/
+structure SyntaxStack where
+  private raw  : Array Syntax
+  private drop : Nat
+
+namespace SyntaxStack
+
+def toSubarray (stack : SyntaxStack) : Subarray Syntax :=
+  stack.raw.toSubarray stack.drop
+
+def empty : SyntaxStack where
+  raw  := #[]
+  drop := 0
+
+def size (stack : SyntaxStack) : Nat :=
+  stack.raw.size - stack.drop
+
+def isEmpty (stack : SyntaxStack) : Bool :=
+  stack.size == 0
+
+def shrink (stack : SyntaxStack) (n : Nat) : SyntaxStack :=
+  { stack with raw := stack.raw.shrink (stack.drop + n) }
+
+def push (stack : SyntaxStack) (a : Syntax) : SyntaxStack :=
+  { stack with raw := stack.raw.push a }
+
+def pop (stack : SyntaxStack) : SyntaxStack :=
+  if stack.size > 0 then
+    { stack with raw := stack.raw.pop }
+  else stack
+
+def back (stack : SyntaxStack) : Syntax :=
+  if stack.size > 0 then
+    stack.raw.back
+  else
+    panic! "SyntaxStack.back: element is inaccessible"
+
+def get! (stack : SyntaxStack) (i : Nat) : Syntax :=
+  if i < stack.size then
+    stack.raw.get! (stack.drop + i)
+  else
+    panic! "SyntaxStack.get!: element is inaccessible"
+
+def extract (stack : SyntaxStack) (start stop : Nat) : Array Syntax :=
+  stack.raw.extract (stack.drop + start) (stack.drop + stop)
+
+instance : HAppend SyntaxStack (Array Syntax) SyntaxStack where
+  hAppend stack stxs := { stack with raw := stack.raw ++ stxs }
+
+end SyntaxStack
+
 structure ParserState where
-  stxStack : Array Syntax := #[]
+  stxStack : SyntaxStack := .empty
   /--
     Set to the precedence of the preceding (not surrounding) parser by `runLongestMatchParser`
     for the use of `checkLhsPrec` in trailing parsers.
@@ -171,7 +222,7 @@ def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
 def next (s : ParserState) (input : String) (pos : String.Pos) : ParserState :=
   { s with pos := input.next pos }
 
-def next' (s : ParserState) (input : String) (pos : String.Pos) (h : ¬ input.atEnd pos): ParserState :=
+def next' (s : ParserState) (input : String) (pos : String.Pos) (h : ¬ input.atEnd pos) : ParserState :=
   { s with pos := input.next' pos h }
 
 def toErrorMsg (ctx : InputContext) (s : ParserState) : String :=
@@ -315,7 +366,29 @@ def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p :
   let ⟨stack, lhsPrec, pos, ⟨tkCache, _⟩, errorMsg⟩ := p ⟨f c.toParserContextCore⟩ ⟨stack, lhsPrec, pos, ⟨tkCache, {}⟩, errorMsg⟩
   ⟨stack, lhsPrec, pos, ⟨tkCache, pCache⟩, errorMsg⟩
 
-def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState): ParserState :=
+/--
+Run `p` and record result in parser cache for any further invocation with this `parserName`, parser context, and parser state.
+`p` cannot access syntax stack elements pushed before the invocation in order to make caching independent of parser history. -/
+def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
+  let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
+  if let some r := s.cache.parserCache.find? key then
+    -- TODO: turn this into a proper trace once we have these in the parser
+    --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
+    return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg⟩
+  let initDrop := s.stxStack.drop
+  let initStackSz := s.stxStack.raw.size
+  let s := p c { s with stxStack.drop := initStackSz }
+  let s := { s with stxStack.drop := initDrop }
+  if s.stxStack.raw.size != initStackSz + 1 then
+    panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
+  { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
+
+@[inherit_doc withCacheFn]
+def withCache (parserName : Name) (p : Parser) : Parser where
+  info := p.info
+  fn   := withCacheFn parserName p.fn
+
+def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=
   p { pmctx with
     prec           := 0
     toInputContext := ictx

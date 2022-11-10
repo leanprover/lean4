@@ -277,8 +277,6 @@ def parserOfStack.formatter (offset : Nat) (_prec : Nat := 0) : Formatter := do
 def error.formatter (_msg : String) : Formatter := pure ()
 @[combinator_formatter errorAtSavedPos]
 def errorAtSavedPos.formatter (_msg : String) (_delta : Bool) : Formatter := pure ()
-@[combinator_formatter atomic]
-def atomic.formatter (p : Formatter) : Formatter := p
 @[combinator_formatter lookahead]
 def lookahead.formatter (_ : Formatter) : Formatter := pure ()
 
@@ -299,8 +297,8 @@ def node.formatter (k : SyntaxNodeKind) (p : Formatter) : Formatter := do
   checkKind k;
   visitArgs p
 
-@[combinator_formatter withCache]
-def withCache.formatter (_parserName : Name) (p : Formatter) : Formatter := p
+@[combinator_formatter withFn]
+def withFn.formatter (_ : ParserFn → ParserFn) (p : Formatter) : Formatter := p
 
 @[combinator_formatter trailingNode]
 def trailingNode.formatter (k : SyntaxNodeKind) (_ _ : Nat) (p : Formatter) : Formatter := do
@@ -459,20 +457,7 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 
 @[combinator_formatter sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 
-@[combinator_formatter withPosition] def withPosition.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter withPositionAfterLinebreak] def withPositionAfterLinebreak.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter withoutPosition] def withoutPosition.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter withForbidden] def withForbidden.formatter (_tk : Token) (p : Formatter) : Formatter := p
-@[combinator_formatter withoutForbidden] def withoutForbidden.formatter (p : Formatter) : Formatter := p
 @[combinator_formatter withoutInfo] def withoutInfo.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter setExpected]
-def setExpected.formatter (_expected : List String) (p : Formatter) : Formatter := p
-
-@[combinator_formatter incQuotDepth] def incQuotDepth.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter decQuotDepth] def decQuotDepth.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter suppressInsideQuot] def suppressInsideQuot.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter evalInsideQuot] def evalInsideQuot.formatter (_declName : Name) (p : Formatter) : Formatter := p
-
 @[combinator_formatter checkWsBefore] def checkWsBefore.formatter : Formatter := do
   let st ← get
   if st.leadWord != "" then
@@ -498,17 +483,12 @@ def setExpected.formatter (_expected : List String) (p : Formatter) : Formatter 
 
 @[combinator_formatter pushNone] def pushNone.formatter : Formatter := goLeft
 
-@[combinator_formatter withOpenDecl] def withOpenDecl.formatter (p : Formatter) : Formatter := p
-@[combinator_formatter withOpen] def withOpen.formatter (p : Formatter) : Formatter := p
-
 @[combinator_formatter interpolatedStr]
 def interpolatedStr.formatter (p : Formatter) : Formatter := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
     match chunk.isLit? interpolatedStrLitKind with
     | some str => push str *> goLeft
     | none     => p
-
-@[combinator_formatter dbgTraceState] def dbgTraceState.formatter (_label : String) (p : Formatter) : Formatter := p
 
 @[combinator_formatter _root_.ite, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Formatter) : Formatter :=
   if c then t else e

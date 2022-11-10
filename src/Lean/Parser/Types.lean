@@ -349,9 +349,7 @@ abbrev TrailingParser := Parser
 
 /-- Create a simple parser combinator that inherits the `info` of the nested parser. -/
 @[inline]
-def withFn (f : ParserFn → ParserFn) (p : Parser) : Parser where
-  info := p.info
-  fn   := f p.fn
+def withFn (f : ParserFn → ParserFn) (p : Parser) : Parser := { p with fn := f p.fn }
 
 def adaptCacheableContextFn (f : CacheableParserContext → CacheableParserContext) (p : ParserFn) : ParserFn := fun c s =>
   p { c with toCacheableParserContext := f c.toCacheableParserContext } s
@@ -383,9 +381,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }
 
 @[inherit_doc withCacheFn]
-def withCache (parserName : Name) (p : Parser) : Parser where
-  info := p.info
-  fn   := withCacheFn parserName p.fn
+def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)
 
 def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=
   p { pmctx with

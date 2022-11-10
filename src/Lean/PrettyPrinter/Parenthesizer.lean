@@ -389,8 +389,8 @@ def node.parenthesizer (k : SyntaxNodeKind) (p : Parenthesizer) : Parenthesizer 
 def checkPrec.parenthesizer (prec : Nat) : Parenthesizer :=
   addPrecCheck prec
 
-@[combinator_parenthesizer withCache]
-def withCache.parenthesizer (_parserName : Name) (p : Parenthesizer) : Parenthesizer := p
+@[combinator_parenthesizer withFn]
+def withFn.parenthesizer (_ : ParserFn → ParserFn) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinator_parenthesizer leadingNode]
 def leadingNode.parenthesizer (k : SyntaxNodeKind) (prec : Nat) (p : Parenthesizer) : Parenthesizer := do
@@ -467,17 +467,8 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinator_parenthesizer withPositionAfterLinebreak] def withPositionAfterLinebreak.parenthesizer (p : Parenthesizer) : Parenthesizer :=
   -- TODO: improve?
   withPosition.parenthesizer p
-@[combinator_parenthesizer withoutPosition] def withoutPosition.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer withForbidden] def withForbidden.parenthesizer (_tk : Parser.Token) (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer withoutForbidden] def withoutForbidden.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer withoutInfo] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer setExpected]
-def setExpected.parenthesizer (_expected : List String) (p : Parenthesizer) : Parenthesizer := p
 
-@[combinator_parenthesizer incQuotDepth] def incQuotDepth.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer decQuotDepth] def decQuotDepth.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer suppressInsideQuot] def suppressInsideQuot.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer evalInsideQuot] def evalInsideQuot.parenthesizer (_declName : Name) (p : Parenthesizer) : Parenthesizer := p
+@[combinator_parenthesizer withoutInfo] def withoutInfo.parenthesizer (p : Parenthesizer) : Parenthesizer := p
 
 @[combinator_parenthesizer checkStackTop] def checkStackTop.parenthesizer : Parenthesizer := pure ()
 @[combinator_parenthesizer checkWsBefore] def checkWsBefore.parenthesizer : Parenthesizer := pure ()
@@ -494,9 +485,6 @@ def setExpected.parenthesizer (_expected : List String) (p : Parenthesizer) : Pa
 
 @[combinator_parenthesizer pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
 
-@[combinator_parenthesizer withOpenDecl] def withOpenDecl.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-@[combinator_parenthesizer withOpen] def withOpen.parenthesizer (p : Parenthesizer) : Parenthesizer := p
-
 @[combinator_parenthesizer interpolatedStr]
 def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
   visitArgs $ (← getCur).getArgs.reverse.forM fun chunk =>
@@ -504,8 +492,6 @@ def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do
       goLeft
     else
       p
-
-@[combinator_parenthesizer dbgTraceState] def dbgTraceState.parenthesizer (_label : String) (p : Parenthesizer) : Parenthesizer := p
 
 @[combinator_parenthesizer _root_.ite, macro_inline] def ite {_ : Type} (c : Prop) [Decidable c] (t e : Parenthesizer) : Parenthesizer :=
   if c then t else e

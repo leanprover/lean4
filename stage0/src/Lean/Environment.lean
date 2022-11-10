@@ -31,6 +31,7 @@ abbrev ConstMap := SMap Name ConstantInfo
 structure Import where
   module      : Name
   runtimeOnly : Bool := false
+  deriving Repr, Inhabited
 
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 

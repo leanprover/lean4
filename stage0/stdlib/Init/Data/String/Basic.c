@@ -146,7 +146,7 @@ LEAN_EXPORT uint8_t l_Substring_contains(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_String_mapAux___at_String_toLower___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_instDecidableEqIterator___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_capitalize(lean_object*);
-lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Substring_nextn___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Iterator_pos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_isNat___lambda__1___boxed(lean_object*);
@@ -797,7 +797,7 @@ LEAN_EXPORT lean_object* l_String_next_x27___boxed(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_string_utf8_next(x_1, x_2);
+x_4 = lean_string_utf8_next_fast(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_4;

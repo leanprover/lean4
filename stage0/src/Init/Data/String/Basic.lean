@@ -119,7 +119,7 @@ def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
   match s with
   | ⟨s⟩ => utf8GetAux s 0 p
 
-@[extern "lean_string_utf8_next"] -- TODO: use `_fast` here
+@[extern "lean_string_utf8_next_fast"]
 def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
   let c := get s p
   p + c

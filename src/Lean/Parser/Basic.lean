@@ -1582,22 +1582,6 @@ def sepBy (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTraili
 def sepBy1 (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   sepBy1NoAntiquot (sepByElemParser p sep) psep allowTrailingSep
 
-def categoryParserOfStackFn (offset : Nat) : ParserFn := fun ctx s =>
-  let stack := s.stxStack
-  if h : stack.size < offset + 1 then
-    s.mkUnexpectedError ("failed to determine parser category using syntax stack, stack is too small")
-  else
-    have : stack.size - (offset + 1) < stack.size := by
-      apply Nat.sub_lt <;> simp_all_arith
-      apply Nat.le_trans (m := offset + 1)
-      apply Nat.le_add_left; assumption
-    match stack[stack.size - (offset + 1)] with
-    | .ident _ _ catName _ => categoryParserFn catName ctx s
-    | _ => s.mkUnexpectedError ("failed to determine parser category using syntax stack, the specified element on the stack is not an identifier")
-
-def categoryParserOfStack (offset : Nat) (prec : Nat := 0) : Parser where
-  fn := adaptCacheableContextFn ({ · with prec }) (categoryParserOfStackFn offset)
-
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
   if s.stackSize == iniSz + 1 then s
   else s.mkNode nullKind iniSz -- throw error instead?

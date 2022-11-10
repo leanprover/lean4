@@ -365,7 +365,11 @@ def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p :
 
 /--
 Run `p` and record result in parser cache for any further invocation with this `parserName`, parser context, and parser state.
-`p` cannot access syntax stack elements pushed before the invocation in order to make caching independent of parser history. -/
+`p` cannot access syntax stack elements pushed before the invocation in order to make caching independent of parser history.
+As this excludes trailing parsers from being cached, we also reset `lhsPrec`, which is not read but set by leading parsers, to 0
+in order to increase cache hits. Finally, `errorMsg` is also reset to `none` as a leading parser should not be called in the first
+place if there was an error.
+-/
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
   let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
   if let some r := s.cache.parserCache.find? key then
@@ -374,7 +378,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg⟩
   let initDrop := s.stxStack.drop
   let initStackSz := s.stxStack.raw.size
-  let s := p c { s with stxStack.drop := initStackSz }
+  let s := p c { s with stxStack.drop := initStackSz, lhsPrec := 0, errorMsg := none }
   let s := { s with stxStack.drop := initDrop }
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"

@@ -92,7 +92,9 @@ Similar to `Code.isReturnOf`, but taking the current substitution into account.
 -/
 def isReturnOf (c : Code) (fvarId : FVarId) : SimpM Bool := do
   match c with
-  | .return fvarId' => return (← normFVar fvarId') == fvarId
+  | .return fvarId' => match (← normFVar fvarId') with
+    | .fvar fvarId'' => return fvarId'' == fvarId
+    | .erased => return false
   | _ => return false
 
 def elimVar? (value : LetValue) : SimpM (Option FVarId) := do
@@ -184,29 +186,31 @@ partial def simpFunDecl (decl : FunDecl) : SimpM FunDecl := do
 Try to simplify `cases` of `constructor`
 -/
 partial def simpCasesOnCtor? (cases : Cases) : SimpM (Option Code) := do
-  let discr ← normFVar cases.discr
-  let some ctorInfo ← findCtor? discr | return none
-  let (alt, cases) := cases.extractAlt! ctorInfo.getName
-  eraseCode (.cases cases)
-  markSimplified
-  match alt with
-  | .default k => simp k
-  | .alt _ params k =>
-    match ctorInfo with
-    | .ctor ctorVal ctorArgs =>
-      let fields := ctorArgs[ctorVal.numParams:]
-      for param in params, field in fields do
-        addSubst param.fvarId field.toExpr
-      let k ← simp k
-      eraseParams params
-      return k
-    | .natVal 0 => simp k
-    | .natVal (n+1) =>
-      let auxDecl ← mkAuxLetDecl (.value (.natVal n))
-      addFVarSubst params[0]!.fvarId auxDecl.fvarId
-      let k ← simp k
-      eraseParams params
-      return some <| .let auxDecl k
+  match (← normFVar cases.discr) with
+  | .erased => mkReturnErased
+  | .fvar discr =>
+    let some ctorInfo ← findCtor? discr | return none
+    let (alt, cases) := cases.extractAlt! ctorInfo.getName
+    eraseCode (.cases cases)
+    markSimplified
+    match alt with
+    | .default k => simp k
+    | .alt _ params k =>
+      match ctorInfo with
+      | .ctor ctorVal ctorArgs =>
+        let fields := ctorArgs[ctorVal.numParams:]
+        for param in params, field in fields do
+          addSubst param.fvarId field.toExpr
+        let k ← simp k
+        eraseParams params
+        return k
+      | .natVal 0 => simp k
+      | .natVal (n+1) =>
+        let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+        addFVarSubst params[0]!.fvarId auxDecl.fvarId
+        let k ← simp k
+        eraseParams params
+        return some <| .let auxDecl k
 
 /--
 Simplify `code`
@@ -286,42 +290,42 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
       eraseFunDecl decl
       return k
   | .return fvarId =>
-    let fvarId ← normFVar fvarId
-    markUsedFVar fvarId
-    return code.updateReturn! fvarId
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      markUsedFVar fvarId
+      return code.updateReturn! fvarId
   | .unreach type =>
     return code.updateUnreach! (← normExpr type)
   | .jmp fvarId args =>
-    let fvarId ← normFVar fvarId
-    let args ← normArgs args
-    if let some code ← inlineJp? fvarId args then
-      simp code
-    else
-      markUsedFVar fvarId
-      args.forM markUsedArg
-      return code.updateJmp! fvarId args
+    withNormFVarResult (← normFVar fvarId) fun fvarId => do
+      let args ← normArgs args
+      if let some code ← inlineJp? fvarId args then
+        simp code
+      else
+        markUsedFVar fvarId
+        args.forM markUsedArg
+        return code.updateJmp! fvarId args
   | .cases c =>
     if let some k ← simpCasesOnCtor? c then
       return k
     else
-      let discr ← normFVar c.discr
-      let resultType ← normExpr c.resultType
-      markUsedFVar discr
-      let alts ← c.alts.mapMonoM fun alt => do
-        match alt with
-        | .alt ctorName ps k =>
-          if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
-            let type ← k.inferType
-            eraseCode k
-            markSimplified
-            return alt.updateCode (.unreach type)
-          else
-            withDiscrCtor discr ctorName ps do
-              return alt.updateCode (← simp k)
-        | .default k => return alt.updateCode (← simp k)
-      let alts ← addDefaultAlt alts
-      if alts.size == 1 && alts[0]! matches .default .. then
-        return alts[0]!.getCode
-      else
-        return code.updateCases! resultType discr alts
+      withNormFVarResult (← normFVar c.discr) fun discr => do
+        let resultType ← normExpr c.resultType
+        markUsedFVar discr
+        let alts ← c.alts.mapMonoM fun alt => do
+          match alt with
+          | .alt ctorName ps k =>
+            if !(k matches .unreach ..) && (← ps.anyM fun p => isInductiveWithNoCtors p.type) then
+              let type ← k.inferType
+              eraseCode k
+              markSimplified
+              return alt.updateCode (.unreach type)
+            else
+              withDiscrCtor discr ctorName ps do
+                return alt.updateCode (← simp k)
+          | .default k => return alt.updateCode (← simp k)
+        let alts ← addDefaultAlt alts
+        if alts.size == 1 && alts[0]! matches .default .. then
+          return alts[0]!.getCode
+        else
+          return code.updateCases! resultType discr alts
 end

@@ -3,7 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
-import Lean.Elab.Import
+import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 
 open System
@@ -170,7 +170,7 @@ def Module.recParseImports (mod : Module)
   let mut directImports := #[]
   let mut importSet := ModuleSet.empty
   let contents ← IO.FS.readFile mod.leanFile
-  let (imports, _, _) ← Lean.Elab.parseImports contents mod.leanFile.toString
+  let imports ← Lean.parseImports' contents mod.leanFile.toString
   for imp in imports do
     if let some mod ← findModule? imp.module then
       let (_, impTransImports) ← mod.imports.fetch

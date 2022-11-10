@@ -16,6 +16,10 @@ namespace Parser
 attribute [run_builtin_parser_attribute_hooks]
   leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
   unicodeSymbol nonReservedSymbol
+  withCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
+  incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
+  withOpen withOpenDecl
+  dbgTraceState
 
 @[run_builtin_parser_attribute_hooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))

@@ -377,12 +377,11 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
 }
 
 /-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
-def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
-  fn := fun c s =>
-    if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
-      evalParserConst declName c s
-    else
-      p.fn c s }
+def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
+  if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
+    evalParserConst declName c s
+  else
+    f c s
 
 def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
   let p := evalInsideQuot declName p
@@ -606,10 +605,7 @@ def withOpenFn (p : ParserFn) : ParserFn := fun c s =>
     p c s
 
 
-@[inline] def withOpen (p : Parser) : Parser := {
-  info := p.info
-  fn   := withOpenFn  p.fn
-}
+@[inline] def withOpen : Parser → Parser := withFn withOpenFn
 
 /-- If the parsing stack is of the form `#[.., openDecl]`, we process the open declaration, and execute `p` -/
 def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
@@ -619,10 +615,7 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   else
     p c s
 
-@[inline] def withOpenDecl (p : Parser) : Parser := {
-  info := p.info
-  fn   := withOpenDeclFn  p.fn
-}
+@[inline] def withOpenDecl : Parser → Parser := withFn withOpenDeclFn
 
 inductive ParserName
   | category (cat : Name)

@@ -68,9 +68,7 @@ def dbgTraceStateFn (label : String) (p : ParserFn) : ParserFn :=
   out: {s'.stxStack.extract sz s'.stxStack.size}"
     s'
 
-def dbgTraceState (label : String) (p : Parser) : Parser where
-  fn   := dbgTraceStateFn label p.fn
-  info := p.info
+def dbgTraceState (label : String) : Parser → Parser := withFn (dbgTraceStateFn label)
 
 @[noinline]def epsilonInfo : ParserInfo :=
   { firstTokens := FirstTokens.epsilon }
@@ -273,10 +271,7 @@ def atomicFn (p : ParserFn) : ParserFn := fun c s =>
   | ⟨stack, lhsPrec, _, cache, some msg⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg⟩
   | other                       => other
 
-def atomic (p : Parser) : Parser := {
-  info := p.info
-  fn   := atomicFn p.fn
-}
+def atomic : Parser → Parser := withFn atomicFn
 
 def optionalFn (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -302,10 +297,7 @@ def lookaheadFn (p : ParserFn) : ParserFn := fun c s =>
   let s      := p c s
   if s.hasError then s else s.restore iniSz iniPos
 
-def lookahead (p : Parser) : Parser := {
-  info := p.info
-  fn   := lookaheadFn p.fn
-}
+def lookahead : Parser → Parser := withFn lookaheadFn
 
 def notFollowedByFn (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
@@ -348,10 +340,7 @@ def many1Fn (p : ParserFn) : ParserFn := fun c s =>
   let s := andthenFn p (manyAux p) c s
   s.mkNode nullKind iniSz
 
-def many1NoAntiquot (p : Parser) : Parser := {
-  info := p.info
-  fn   := many1Fn p.fn
-}
+def many1NoAntiquot : Parser → Parser := withFn many1Fn
 
 private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) (pOpt : Bool) : ParserFn :=
   let rec parse (pOpt : Bool) (c s) := Id.run do
@@ -1241,18 +1230,12 @@ def checkLineEqFn (errorMsg : String) : ParserFn := fun c s =>
 def checkLineEq (errorMsg : String := "checkLineEq") : Parser :=
   { fn := checkLineEqFn errorMsg }
 
-def withPosition (p : Parser) : Parser := {
-  info := p.info
-  fn   := fun c s =>
-    adaptCacheableContextFn ({ · with savedPos? := s.pos }) p.fn c s
-}
+def withPosition : Parser → Parser := withFn fun f c s =>
+    adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
 
-def withPositionAfterLinebreak (p : Parser) : Parser := {
-  info := p.info
-  fn   := fun c s =>
-    let prev := s.stxStack.back
-    adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) p.fn c s
-}
+def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
+  let prev := s.stxStack.back
+  adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) f c s
 
 def withoutPosition (p : Parser) : Parser :=
   adaptCacheableContext ({ · with savedPos? := none }) p
@@ -1435,9 +1418,7 @@ def setExpectedFn (expected : List String) (p : ParserFn) : ParserFn := fun c s 
     | s'@{ errorMsg := some msg, .. } => { s' with errorMsg := some { msg with expected } }
     | s'                              => s'
 
-def setExpected (expected : List String) (p : Parser) : Parser := {
-  fn := setExpectedFn expected p.fn, info := p.info
-}
+def setExpected (expected : List String) : Parser → Parser := withFn (setExpectedFn expected)
 
 def pushNone : Parser := {
   fn := fun _ s => s.pushSyntax mkNullNode
@@ -1457,15 +1438,13 @@ def tokenAntiquotFn : ParserFn := fun c s => Id.run do
     return s.restore iniSz iniPos
   s.mkNode (`token_antiquot) (iniSz - 1)
 
-def tokenWithAntiquot (p : Parser) : Parser where
-  fn c s :=
-    let s := p.fn c s
-    -- fast check that is false in most cases
-    if c.input.get s.pos == '%' then
-      tokenAntiquotFn c s
-    else
-      s
-  info := p.info
+def tokenWithAntiquot : Parser → Parser := withFn fun f c s =>
+  let s := f c s
+  -- fast check that is false in most cases
+  if c.input.get s.pos == '%' then
+    tokenAntiquotFn c s
+  else
+    s
 
 def symbol (sym : String) : Parser :=
   tokenWithAntiquot (symbolNoAntiquot sym)

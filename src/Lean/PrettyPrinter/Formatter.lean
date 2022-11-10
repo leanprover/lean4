@@ -267,12 +267,6 @@ def categoryParser.formatter (cat : Name) : Formatter := do
 def categoryFormatter (cat : Name) : Formatter :=
   fill <| indent <| categoryFormatterCore cat
 
-@[combinator_formatter categoryParserOfStack]
-def categoryParserOfStack.formatter (offset : Nat) : Formatter := do
-  let st ← get
-  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
-  categoryParser.formatter stx.getId
-
 @[combinator_formatter parserOfStack]
 def parserOfStack.formatter (offset : Nat) (_prec : Nat := 0) : Formatter := do
   let st ← get

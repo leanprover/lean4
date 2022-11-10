@@ -324,12 +324,6 @@ def categoryParser.parenthesizer (cat : Name) (prec : Nat) : Parenthesizer := do
   -- In this case this node will never be parenthesized since we don't know which parentheses to use.
   | _    => parenthesizeCategoryCore cat prec
 
-@[combinator_parenthesizer categoryParserOfStack]
-def categoryParserOfStack.parenthesizer (offset : Nat) (prec : Nat) : Parenthesizer := do
-  let st ← get
-  let stx := st.stxTrav.parents.back.getArg (st.stxTrav.idxs.back - offset)
-  categoryParser.parenthesizer stx.getId prec
-
 @[combinator_parenthesizer parserOfStack]
 def parserOfStack.parenthesizer (offset : Nat) (_prec : Nat := 0) : Parenthesizer := do
   let st ← get

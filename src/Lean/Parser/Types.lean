@@ -361,10 +361,9 @@ def adaptCacheableContext (f : CacheableParserContext → CacheableParserContext
 
 /-- Run `p` under the given context transformation with a fresh cache, restore outer cache afterwards. -/
 def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p : ParserFn) : ParserFn := fun c s =>
-  -- extract and temporarily reset parser cache
-  let ⟨stack, lhsPrec, pos, ⟨tkCache, pCache⟩, errorMsg⟩ := s
-  let ⟨stack, lhsPrec, pos, ⟨tkCache, _⟩, errorMsg⟩ := p ⟨f c.toParserContextCore⟩ ⟨stack, lhsPrec, pos, ⟨tkCache, {}⟩, errorMsg⟩
-  ⟨stack, lhsPrec, pos, ⟨tkCache, pCache⟩, errorMsg⟩
+  let parserCache := s.cache.parserCache
+  let s' := p ⟨f c.toParserContextCore⟩ { s with cache.parserCache := {} }
+  { s' with cache.parserCache := parserCache }
 
 /--
 Run `p` and record result in parser cache for any further invocation with this `parserName`, parser context, and parser state.

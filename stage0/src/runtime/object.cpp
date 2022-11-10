@@ -1697,7 +1697,6 @@ static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uin
     unsigned c = static_cast<unsigned char>(str[i]);
     /* zero continuation (0 to 127) */
     if ((c & 0x80) == 0) {
-        i++;
         result = c;
         return true;
     }
@@ -1707,7 +1706,6 @@ static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uin
         unsigned c1 = static_cast<unsigned char>(str[i+1]);
         result = ((c & 0x1f) << 6) | (c1 & 0x3f);
         if (result >= 128) {
-            i += 2;
             return true;
         }
     }
@@ -1718,7 +1716,6 @@ static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uin
         unsigned c2 = static_cast<unsigned char>(str[i+2]);
         result = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
         if (result >= 2048 && (result < 55296 || result > 57343)) {
-            i += 3;
             return true;
         }
     }
@@ -1730,7 +1727,6 @@ static bool lean_string_utf8_get_core(char const * str, usize size, usize i, uin
         unsigned c3 = static_cast<unsigned char>(str[i+3]);
         result = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
         if (result >= 65536 && result <= 1114111) {
-            i += 4;
             return true;
         }
     }

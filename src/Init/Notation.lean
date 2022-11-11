@@ -131,12 +131,29 @@ macro "max_prec" : term => `(1024)
 macro "default" : prio => `(prio| 1000)
 /-- The standardized "low" priority `low = 100`, for things that should be lower than default priority. -/
 macro "low"     : prio => `(prio| 100)
-/-- The standardized "medium" priority `med = 1000`. This is the same as `default`. -/
-macro "mid"     : prio => `(prio| 1000)
+/--
+The standardized "medium" priority `med = 1000`. This is lower than `default`, and higher than `low`.
+-/
+macro "mid"     : prio => `(prio| 500)
 /-- The standardized "high" priority `high = 10000`, for things that should be higher than default priority. -/
 macro "high"    : prio => `(prio| 10000)
 /-- Parentheses are used for grouping priority expressions. -/
 macro "(" p:prio ")" : prio => return p
+
+/-
+Note regarding priorities. We want `low < mid < default` because we have the following default instances:
+```
+@[default_instance low] instance (n : Nat) : OfNat Nat n where ...
+@[default_instance mid] instance : Neg Int where ...
+@[default_instance default] instance [Add α] : HAdd α α α where ...
+@[default_instance default] instance [Sub α] : HSub α α α where ...
+...
+```
+
+Monomorphic default instances must always "win" to preserve the Lean 3 monomorphic "look&feel".
+The `Neg Int` instance must have precedence over the `OfNat Nat n` one, otherwise we fail to elaborate `#check -42`
+See issue #1813 for an example that failed when `mid = default`.
+-/
 
 -- Basic notation for defining parsers
 -- NOTE: precedence must be at least `arg` to be used in `macro` without parentheses

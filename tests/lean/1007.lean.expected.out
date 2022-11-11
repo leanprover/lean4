@@ -1,6 +1,6 @@
 1007.lean:8:9-8:17: warning: declaration uses 'sorry'
 1007.lean:9:9-9:20: warning: declaration uses 'sorry'
-1007.lean:11:29-11:37: warning: declaration uses 'sorry'
+1007.lean:11:33-11:41: warning: declaration uses 'sorry'
 1007.lean:15:9-15:20: warning: declaration uses 'sorry'
 1007.lean:34:0-34:8: warning: declaration uses 'sorry'
 1007.lean:35:0-35:8: warning: declaration uses 'sorry'

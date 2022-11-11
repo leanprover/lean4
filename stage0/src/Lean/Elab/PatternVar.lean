@@ -134,20 +134,11 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
     `(.( $stx ))
   else if k == ``Lean.Parser.Term.syntheticHole then
     `(.( $stx ))
-  else if k == ``Lean.Parser.Term.paren then
-    let arg := stx[1]
-    if arg.isNone then
-      return stx -- `()`
-    else
-      let t := arg[0]
-      let s := arg[1]
-      if s.isNone || s[0].getKind == ``Lean.Parser.Term.typeAscription then
-        -- Ignore `s`, since it empty or it is a type ascription
-        let t ← collect t
-        let arg := arg.setArg 0 t
-        return stx.setArg 1 arg
-      else
-        return stx
+  else if k == ``Lean.Parser.Term.typeAscription then
+    -- Ignore type term
+    let t := stx[1]
+    let t ← collect t
+    return stx.setArg 1 t
   else if k == ``Lean.Parser.Term.explicitUniv then
     processCtor stx[0]
   else if k == ``Lean.Parser.Term.namedPattern then

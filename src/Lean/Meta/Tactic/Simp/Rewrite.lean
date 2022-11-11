@@ -92,11 +92,18 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none, .. } => return some { expr := mkAppN eNew extraArgs }
+  | some { expr := eNew, proof? := none, .. } =>
+    if (← hasAssignableMVar eNew) then
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
+      return none
+    return some { expr := mkAppN eNew extraArgs }
   | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg
+    if (← hasAssignableMVar eNew) then
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
+      return none
     return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=

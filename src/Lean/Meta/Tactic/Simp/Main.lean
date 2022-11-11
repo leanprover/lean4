@@ -554,6 +554,9 @@ where
       if isIff then
         try proof ← mkAppM ``propext #[proof]
         catch _ => return none
+      if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
+        trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
+        return none
       congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none

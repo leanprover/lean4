@@ -136,6 +136,7 @@ with builtins; let
   buildMod = mod: deps: mkBareDerivation rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
+    LEAN_ABORT_ON_PANIC = "1";
     relpath = modToPath mod;
     buildInputs = [ lean ];
     leanPath = relpath + ".lean";

@@ -3,6 +3,7 @@ SHELL := /usr/bin/env bash -euo pipefail
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
 export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
+export LEAN_ABORT_ON_PANIC=1
 
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed

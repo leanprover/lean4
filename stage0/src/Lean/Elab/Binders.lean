@@ -352,35 +352,26 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
       | ``Lean.Parser.Term.explicitBinder
       | ``Lean.Parser.Term.hole | `ident => loop body (i+1) (newBinders.push binder)
       | ``Lean.Parser.Term.paren =>
-        -- `(` (termParser >> parenSpecial)? `)`
-        -- parenSpecial := (tupleTail <|> typeAscription)?
-        let binderBody := binder[1]
-        if binderBody.isNone then
-          processAsPattern ()
-        else
-          let term    := binderBody[0]
-          let special := binderBody[1]
-          if special.isNone then
-            match (← getFunBinderIds? term) with
-            | some idents =>
-              -- `fun (x ...) ...` ~> `fun (x : _) ...`
-              -- Interpret `(x ...)` as sequence of binders instead of pattern only if none of the idents
-              -- are defined in the global scope. Technically, it would be sufficient to only check the
-              -- first ident to be sure that the syntax cannot possibly be a valid pattern. However, for
-              -- consistency we apply the same check to all idents so that the possibility of shadowing
-              -- a global decl is identical for all of them.
-              if (← idents.allM fun ident => return List.isEmpty (← Macro.resolveGlobalName ident.getId)) then
-                loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · (mkHole binder)))
-              else
-                processAsPattern ()
-            | none => processAsPattern ()
-          else if special[0].getKind != ``Lean.Parser.Term.typeAscription then
+        let term := binder[1]
+        match (← getFunBinderIds? term) with
+        | some idents =>
+          -- `fun (x ...) ...` ~> `fun (x : _) ...`
+          -- Interpret `(x ...)` as sequence of binders instead of pattern only if none of the idents
+          -- are defined in the global scope. Technically, it would be sufficient to only check the
+          -- first ident to be sure that the syntax cannot possibly be a valid pattern. However, for
+          -- consistency we apply the same check to all idents so that the possibility of shadowing
+          -- a global decl is identical for all of them.
+          if (← idents.allM fun ident => return List.isEmpty (← Macro.resolveGlobalName ident.getId)) then
+            loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · (mkHole binder)))
+          else
             processAsPattern ()
-          -- typeAscription := `:` (term)?
-          else if let some idents ← getFunBinderIds? term then
-            let type := special[0][1].getOptional?.getD (mkHole binder)
-            loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · type))
-          else processAsPattern ()
+        | none => processAsPattern ()
+      | ``Lean.Parser.Term.typeAscription =>
+        let term := binder[1]
+        let type := binder[3].getOptional?.getD (mkHole binder)
+        match (← getFunBinderIds? term) with
+        | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
+        | none        => processAsPattern ()
       | _ => processAsPattern ()
     else
       pure (newBinders, body, false)

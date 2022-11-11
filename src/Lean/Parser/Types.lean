@@ -392,7 +392,7 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
     return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg⟩
   let initStackSz := s.stxStack.raw.size
-  let s := withStackDrop initStackSz (fun c s => p c { s with lhsPrec := 0, errorMsg := none }) c s
+  let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }

@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Introduce parser memoization to avoid exponentional behavior](https://github.com/leanprover/lean4/pull/1799).
+
 * [feat: allow `doSeq` in `let x <- e | seq`](https://github.com/leanprover/lean4/pull/1809).
 
 * [Add hover/go-to-def/refs for options](https://github.com/leanprover/lean4/pull/1783).

@@ -357,11 +357,26 @@ def adaptCacheableContextFn (f : CacheableParserContext → CacheableParserConte
 def adaptCacheableContext (f : CacheableParserContext → CacheableParserContext) : Parser → Parser :=
   withFn (adaptCacheableContextFn f)
 
-/-- Run `p` under the given context transformation with a fresh cache, restore outer cache afterwards. -/
-def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p : ParserFn) : ParserFn := fun c s =>
+private def withStackDrop (drop : Nat) (p : ParserFn) : ParserFn := fun c s =>
+  let initDrop := s.stxStack.drop
+  let s := p c { s with stxStack.drop := drop }
+  { s with stxStack.drop := initDrop }
+
+/--
+Run `p` with a fresh cache, restore outer cache afterwards.
+`p` may access the entire syntax stack.
+-/
+def withResetCacheFn (p : ParserFn) : ParserFn := withStackDrop 0 fun c s =>
   let parserCache := s.cache.parserCache
-  let s' := p ⟨f c.toParserContextCore⟩ { s with cache.parserCache := {} }
+  let s' := p c { s with cache.parserCache := {} }
   { s' with cache.parserCache := parserCache }
+
+@[inherit_doc withResetCacheFn]
+def withResetCache : Parser → Parser := withFn withResetCacheFn
+
+/-- Run `p` under the given context transformation with a fresh cache (see also `withResetCacheFn`). -/
+def adaptUncacheableContextFn (f : ParserContextCore → ParserContextCore) (p : ParserFn) : ParserFn :=
+  withResetCacheFn (fun c s => p ⟨f c.toParserContextCore⟩ s)
 
 /--
 Run `p` and record result in parser cache for any further invocation with this `parserName`, parser context, and parser state.
@@ -376,10 +391,8 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
     -- TODO: turn this into a proper trace once we have these in the parser
     --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
     return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg⟩
-  let initDrop := s.stxStack.drop
   let initStackSz := s.stxStack.raw.size
-  let s := p c { s with stxStack.drop := initStackSz, lhsPrec := 0, errorMsg := none }
-  let s := { s with stxStack.drop := initDrop }
+  let s := withStackDrop initStackSz (fun c s => p c { s with lhsPrec := 0, errorMsg := none }) c s
   if s.stxStack.raw.size != initStackSz + 1 then
     panic! s!"withCacheFn: unexpected stack growth {s.stxStack.raw}"
   { s with cache.parserCache := s.cache.parserCache.insert key ⟨s.stxStack.back, s.lhsPrec, s.pos, s.errorMsg⟩ }

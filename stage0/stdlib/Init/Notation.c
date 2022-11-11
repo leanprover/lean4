@@ -1186,6 +1186,7 @@ static lean_object* l_term___x24_______closed__7;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c____1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_x7e_x7e_x7e_____closed__6;
+static lean_object* l___aux__Init__Notation______macroRules__prioMid__1___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______unexpand__HAppend__hAppend__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_binderIdent___closed__2;
 static lean_object* l_term___x26_x26_____closed__1;
@@ -2929,6 +2930,14 @@ x_1 = l_prioMid___closed__5;
 return x_1;
 }
 }
+static lean_object* _init_l___aux__Init__Notation______macroRules__prioMid__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("500", 3);
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__prioMid__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2953,7 +2962,7 @@ lean_inc(x_8);
 lean_dec(x_2);
 x_9 = 0;
 x_10 = l_Lean_SourceInfo_fromRef(x_8, x_9);
-x_11 = l___aux__Init__Notation______macroRules__prioDefault__1___closed__1;
+x_11 = l___aux__Init__Notation______macroRules__prioMid__1___closed__1;
 lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
@@ -27422,6 +27431,8 @@ l_prioMid___closed__5 = _init_l_prioMid___closed__5();
 lean_mark_persistent(l_prioMid___closed__5);
 l_prioMid = _init_l_prioMid();
 lean_mark_persistent(l_prioMid);
+l___aux__Init__Notation______macroRules__prioMid__1___closed__1 = _init_l___aux__Init__Notation______macroRules__prioMid__1___closed__1();
+lean_mark_persistent(l___aux__Init__Notation______macroRules__prioMid__1___closed__1);
 l_prioHigh___closed__1 = _init_l_prioHigh___closed__1();
 lean_mark_persistent(l_prioHigh___closed__1);
 l_prioHigh___closed__2 = _init_l_prioHigh___closed__2();

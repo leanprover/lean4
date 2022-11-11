@@ -11,7 +11,7 @@ namespace Parser
 
 namespace Command
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock 1) (trailingWs := true) }
+{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
 
 @[combinator_parenthesizer commentBody]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
@@ -660,8 +660,8 @@ def macroLastArg   := macroDollarArg <|> macroArg
 @[builtin_term_parser] def stateRefT := leading_parser
   "StateRefT" >> macroArg >> macroLastArg
 
-@[builtin_term_parser] def dynamicQuot := leading_parser
-  "`(" >> ident >> "|" >> withoutPosition (incQuotDepth (parserOfStack 1)) >> ")"
+@[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
+  "`(" >> ident >> "|" >> incQuotDepth (parserOfStack 1) >> ")"
 
 @[builtin_term_parser] def dotIdent := leading_parser
   "." >> checkNoWsBefore >> rawIdent

@@ -83,16 +83,16 @@ where
       -/
       return code.updateFun! decl (← go k)
     | .cases c =>
-      let discr ← normFVar c.discr
-      let resultType ← normExpr c.resultType
-      let alts ← c.alts.mapMonoM fun alt => do
-        match alt with
-        | .alt _ ps k => withNewScope do
-          return alt.updateAlt! (← normParams ps) (← go k)
-        | .default k => withNewScope do return alt.updateCode (← go k)
-      return code.updateCases! resultType discr alts
-    | .return fvarId => return code.updateReturn! (← normFVar fvarId)
-    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normArgs args)
+      withNormFVarResult (← normFVar c.discr) fun discr => do
+        let resultType ← normExpr c.resultType
+        let alts ← c.alts.mapMonoM fun alt => do
+          match alt with
+          | .alt _ ps k => withNewScope do
+            return alt.updateAlt! (← normParams ps) (← go k)
+          | .default k => withNewScope do return alt.updateCode (← go k)
+        return code.updateCases! resultType discr alts
+    | .return fvarId => withNormFVarResult (← normFVar fvarId) fun fvarId => return code.updateReturn! fvarId
+    | .jmp fvarId args => withNormFVarResult (← normFVar fvarId) fun fvarId => return code.updateJmp! fvarId (← normArgs args)
     | .unreach .. => return code
 
 end CSE

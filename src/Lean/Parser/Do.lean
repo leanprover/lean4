@@ -114,7 +114,9 @@ def doIfProp    := leading_parser (withAnonymousAntiquot := false)
 def doIfCond    :=
   withAntiquot (mkAntiquot "doIfCond" decl_name% (anonymous := false) (isPseudoKind := true)) <|
     doIfLet <|> doIfProp
-@[builtin_doElem_parser] def doIf := leading_parser withPositionAfterLinebreak <| ppRealGroup <|
+-- must reset cache as `withPositionAfterLinebreak` will look at syntax not produced by this parser (or even
+-- current category call)
+@[builtin_doElem_parser] def doIf := leading_parser withResetCache <| withPositionAfterLinebreak <| ppRealGroup <|
   ppRealFill (ppIndent ("if " >> doIfCond >> " then") >> ppSpace >> doSeq) >>
   many (checkColGe "'else if' in 'do' must be indented" >>
     group (ppDedent ppSpace >> ppRealFill (elseIf >> doIfCond >> " then " >> doSeq))) >>

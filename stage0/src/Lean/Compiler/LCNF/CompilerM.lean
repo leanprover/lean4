@@ -203,6 +203,40 @@ where
       e
 
 /--
+Result type for `normFVar` and `normFVarImp`.
+-/
+inductive NormFVarResult where
+  | /-- New free variable. -/
+    fvar (fvarId : FVarId)
+  | /--
+    Free variable has been erased. This can happen when instantiating polymorphic code
+    with computationally irrelant stuff. -/
+    erased
+  deriving Inhabited
+
+/--
+Normalize the given free variable.
+See `normExprImp` for documentation on the `translator` parameter.
+This function is meant to be used in contexts where the input free-variable is computationally relevant.
+This function panics if the substitution is mapping `fvarId` to an expression that is not another free variable.
+That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
+expressions that are free variables, `lcErased`, or type formers.
+-/
+private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : NormFVarResult :=
+  match s.find? fvarId with
+  | some (.fvar fvarId') =>
+    if translator then
+      .fvar fvarId'
+    else
+      normFVarImp s fvarId' translator
+  | some e =>
+    if e.isErased then
+      .erased
+    else
+      panic! s!"invalid LCNF substitution of free variable with expression {e}"
+  | none => .fvar fvarId
+
+/--
 Replace the free variables in `arg` using the given substitution.
 
 See `normExprImp`
@@ -219,25 +253,6 @@ private partial def normArgImp (s : FVarSubst) (arg : Arg) (translator : Bool) :
     | none => arg
   | .type e => arg.updateType! (normExprImp s e translator)
 
-/--
-Normalize the given free variable.
-See `normExprImp` for documentation on the `translator` parameter.
-This function is meant to be used in contexts where the input free-variable is computationally relevant.
-This function panics if the substitution is mapping `fvarId` to an expression that is not another free variable.
-That is, it is not a type (or type former), nor `lcErased`. Recall that a valid `FVarSubst` contains only
-expressions that are free variables, `lcErased`, or type formers.
--/
-private partial def normFVarImp (s : FVarSubst) (fvarId : FVarId) (translator : Bool) : FVarId :=
-  match s.find? fvarId with
-  | some (.fvar fvarId') =>
-    if translator then
-      fvarId'
-    else
-      normFVarImp s fvarId' translator
-  | some e => panic! s!"invalid LCNF substitution of free variable with expression {e}"
-  | none => fvarId
-
-
 private def normArgsImp (s : FVarSubst) (args : Array Arg) (translator : Bool) : Array Arg :=
   args.mapMono (normArgImp s · translator)
 
@@ -249,9 +264,13 @@ See `normExprImp`
 private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator : Bool) : LetValue :=
   match e with
   | .erased | .value .. => e
-  | .proj _ _ fvarId => e.updateProj! (normFVarImp s fvarId translator)
+  | .proj _ _ fvarId => match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateProj! fvarId'
+    | .erased => .erased
   | .const _ _ args => e.updateArgs! (normArgsImp s args translator)
-  | .fvar fvarId args => e.updateFVar! (normFVarImp s fvarId translator) (normArgsImp s args translator)
+  | .fvar fvarId args => match normFVarImp s fvarId translator with
+    | .fvar fvarId' => e.updateFVar! fvarId' (normArgsImp s args translator)
+    | .erased => .erased
 
 /--
 Interface for monads that have a free substitutions.
@@ -287,7 +306,7 @@ See `Check.lean` for the free variable substitution checker.
 @[inline] def addSubst [MonadFVarSubstState m] (fvarId : FVarId) (e : Expr) : m Unit :=
   modifySubst fun s => s.insert fvarId e
 
-@[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m FVarId :=
+@[inline, inherit_doc normFVarImp] def normFVar [MonadFVarSubst m t] [Monad m] (fvarId : FVarId) : m NormFVarResult :=
   return normFVarImp (← getSubst) fvarId t
 
 @[inline, inherit_doc normExprImp] def normExpr [MonadFVarSubst m t] [Monad m] (e : Expr) : m Expr :=
@@ -345,6 +364,10 @@ def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : 
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl
 
+def mkReturnErased : CompilerM Code := do
+  let auxDecl ← mkLetDecl (← mkFreshBinderName `_x) erasedExpr .erased
+  return .let auxDecl (.return auxDecl.fvarId)
+
 private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param := do
   if ptrEq type p.type then
     return p
@@ -398,6 +421,15 @@ abbrev NormalizerM (_translator : Bool) := ReaderT FVarSubst CompilerM
 instance : MonadFVarSubst (NormalizerM t) t where
   getSubst := read
 
+/--
+If `result` is `.fvar fvarId`, then return `x fvarId`. Otherwise, it is `.erased`,
+and method returns `let _x.i := .erased; return _x.i`.
+-/
+@[inline] def withNormFVarResult [MonadLiftT CompilerM m] [Monad m] (result : NormFVarResult) (x : FVarId → m Code) : m Code := do
+  match result with
+  | .fvar fvarId => x fvarId
+  | .erased => mkReturnErased
+
 mutual
   partial def normFunDeclImp (decl : FunDecl) : NormalizerM t FunDecl  := do
     let type ← normExpr decl.type
@@ -409,17 +441,17 @@ mutual
     match code with
     | .let decl k => return code.updateLet! (← normLetDecl decl) (← normCodeImp k)
     | .fun decl k | .jp decl k => return code.updateFun! (← normFunDeclImp decl) (← normCodeImp k)
-    | .return fvarId => return code.updateReturn! (← normFVar fvarId)
-    | .jmp fvarId args => return code.updateJmp! (← normFVar fvarId) (← normArgs args)
+    | .return fvarId => withNormFVarResult (← normFVar fvarId) fun fvarId => return code.updateReturn! fvarId
+    | .jmp fvarId args => withNormFVarResult (← normFVar fvarId) fun fvarId => return code.updateJmp! fvarId (← normArgs args)
     | .unreach type => return code.updateUnreach! (← normExpr type)
     | .cases c =>
       let resultType ← normExpr c.resultType
-      let discr ← normFVar c.discr
-      let alts ← c.alts.mapMonoM fun alt =>
-        match alt with
-        | .alt _ params k => return alt.updateAlt! (← normParams params) (← normCodeImp k)
-        | .default k => return alt.updateCode (← normCodeImp k)
-      return code.updateCases! resultType discr alts
+      withNormFVarResult (← normFVar c.discr) fun discr => do
+        let alts ← c.alts.mapMonoM fun alt =>
+          match alt with
+          | .alt _ params k => return alt.updateAlt! (← normParams params) (← normCodeImp k)
+          | .default k => return alt.updateCode (← normCodeImp k)
+        return code.updateCases! resultType discr alts
 end
 
 @[inline] def normFunDecl [MonadLiftT CompilerM m] [Monad m] [MonadFVarSubst m t] (decl : FunDecl) : m FunDecl := do

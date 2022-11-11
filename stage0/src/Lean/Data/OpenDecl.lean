@@ -11,6 +11,7 @@ namespace Lean
 inductive OpenDecl where
   | simple   (ns : Name) (except : List Name)
   | explicit (id : Name) (declName : Name)
+  deriving BEq
 
 namespace OpenDecl
 instance : Inhabited OpenDecl := ⟨simple Name.anonymous []⟩

@@ -89,15 +89,20 @@ private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : 
   match extractMacroScopes declName with
   | { name := .str _ s, .. } =>
     let kind := quote declName
-    let s    := quote s
-    ``(withAntiquot (mkAntiquot $s $kind $(quote withAnonymousAntiquot)) (leadingNode $kind $prec $e))
+    let mut p ← ``(withAntiquot
+      (mkAntiquot $(quote s) $kind $(quote withAnonymousAntiquot))
+      (leadingNode $kind $prec $e))
+    -- cache only unparameterized parsers
+    if (← getLCtx).all (·.isAuxDecl) then
+      p ← ``(withCache $kind $p)
+    return p
   | _  => throwError "invalid `leading_parser` macro, unexpected declaration name"
 
 @[builtin_term_elab «leading_parser»] def elabLeadingParserMacro : TermElab :=
-  adaptExpander fun stx => match stx with
-  | `(leading_parser $[: $prec?]? $[(withAnonymousAntiquot := $anon?)]? $e) =>
-    elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.raw.isOfKind ``Parser.Term.trueVal))
-  | _ => throwUnsupportedSyntax
+  adaptExpander fun
+    | `(leading_parser $[: $prec?]? $[(withAnonymousAntiquot := $anon?)]? $e) =>
+        elabParserMacroAux (prec?.getD (quote Parser.maxPrec)) e (anon?.all (·.raw.isOfKind ``Parser.Term.trueVal))
+    | _ => throwUnsupportedSyntax
 
 private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   let declName? ← getDeclName?

@@ -71,18 +71,18 @@ partial def internalizeCode (code : Code) : InternalizeM Code := do
   | .let decl k => return .let (← internalizeLetDecl decl) (← internalizeCode k)
   | .fun decl k => return .fun (← internalizeFunDecl decl) (← internalizeCode k)
   | .jp decl k => return .jp (← internalizeFunDecl decl) (← internalizeCode k)
-  | .return fvarId => return .return (← normFVar fvarId)
-  | .jmp fvarId args => return .jmp (← normFVar fvarId) (← args.mapM normArg)
+  | .return fvarId => withNormFVarResult (← normFVar fvarId) fun fvarId => return .return fvarId
+  | .jmp fvarId args => withNormFVarResult (← normFVar fvarId) fun fvarId => return .jmp fvarId (← args.mapM normArg)
   | .unreach type => return .unreach (← normExpr type)
   | .cases c =>
-    let resultType ← normExpr c.resultType
-    let internalizeAltCode (k : Code) : InternalizeM Code :=
-      internalizeCode k
-    let discr ← normFVar c.discr
-    let alts ← c.alts.mapM fun
-      | .alt ctorName params k => return .alt ctorName (← params.mapM internalizeParam) (← internalizeAltCode k)
-      | .default k => return .default (← internalizeAltCode k)
-    return .cases { c with discr, alts, resultType }
+    withNormFVarResult (← normFVar c.discr) fun discr => do
+      let resultType ← normExpr c.resultType
+      let internalizeAltCode (k : Code) : InternalizeM Code :=
+        internalizeCode k
+      let alts ← c.alts.mapM fun
+        | .alt ctorName params k => return .alt ctorName (← params.mapM internalizeParam) (← internalizeAltCode k)
+        | .default k => return .default (← internalizeAltCode k)
+      return .cases { c with discr, alts, resultType }
 
 end
 

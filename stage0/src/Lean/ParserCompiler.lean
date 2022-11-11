@@ -37,9 +37,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   let e ← whnfCore e
   if e matches Expr.lam .. then
     lambdaLetTelescope e fun _ e => parserNodeKind? e
-  else if e.isAppOfArity ``nodeWithAntiquot 4 then
-    reduceEval? (e.getArg! 1)
-  else if e.isAppOfArity ``withAntiquot 2 then
+  else if e.isAppOfArity ``nodeWithAntiquot 4 || e.isAppOfArity ``withAntiquot 2 || e.isAppOfArity ``withCache 2 then
     parserNodeKind? (e.getArg! 1)
   else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
     reduceEval? (e.getArg! 0)

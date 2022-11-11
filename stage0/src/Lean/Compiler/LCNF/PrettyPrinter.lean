@@ -127,23 +127,31 @@ def ppFunDecl (decl : FunDecl) : CompilerM Format :=
     return f!"fun {← PP.ppFunDecl decl}"
 
 /--
+Execute `x` in `CoreM` without modifying `Core`s state.
+This is useful if we want make sure we do not affect the next free variable id.
+-/
+def runCompilerWithoutModifyingState (x : CompilerM α) : CoreM α := do
+  let s ← get
+  try
+    x |>.run {}
+  finally
+    set s
+
+/--
 Similar to `ppDecl`, but in `CoreM`, and it does not assume
 `decl` has already been internalized.
-
 This function is used for debugging purposes.
 -/
 def ppDecl' (decl : Decl) : CoreM Format := do
-  /-
-  We save/restore the state to make sure we do not affect the next free variable id.
-  -/
-  let s ← get
-  try
-    go |>.run {}
-  finally
-    set s
-where
-  go : CompilerM Format := do
-    let decl ← decl.internalize
-    ppDecl decl
+  runCompilerWithoutModifyingState do
+    ppDecl (← decl.internalize)
+
+/--
+Similar to `ppCode`, but in `CoreM`, and it does not assume
+`code` has already been internalized.
+-/
+def ppCode' (code : Code) : CoreM Format := do
+  runCompilerWithoutModifyingState do
+    ppCode (← code.internalize)
 
 end Lean.Compiler.LCNF

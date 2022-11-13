@@ -167,7 +167,7 @@ end Nat
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
 
-def Int.repr : Int → String
+protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
     | negSucc m => "-" ++ Nat.repr (succ m)
 

@@ -72,7 +72,7 @@ instance : Literal Nat where
   getLit := getNatLit
   mkLit := mkNatLit
 
-partial def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
+def getStringLit (fvarId : FVarId) : CompilerM (Option String) := do
   let some (.value (.strVal s)) ← findLetValue? fvarId | return none
   return s
 
@@ -82,6 +82,18 @@ def mkStringLit (n : String) : FolderM LetValue :=
 instance : Literal String where
   getLit := getStringLit
   mkLit := mkStringLit
+
+def getBoolLit (fvarId : FVarId) : CompilerM (Option Bool) := do
+  let some (.const ctor [] #[]) ← findLetValue? fvarId | return none
+  return ctor == ``Bool.true
+
+def mkBoolLit (b : Bool) : FolderM LetValue :=
+  let ctor := if b then ``Bool.true else ``Bool.false
+  return .const ctor [] #[]
+
+instance : Literal Bool where
+  getLit := getBoolLit
+  mkLit := mkBoolLit
 
 private partial def getLitAux [Inhabited α] (fvarId : FVarId) (ofNat : Nat → α) (ofNatName : Name) : CompilerM (Option α) := do
   let some (.const declName _ #[.fvar fvarId]) ← findLetValue? fvarId | return none
@@ -188,6 +200,15 @@ def Folder.mkBinary [Literal α] [Literal β] [Literal γ] (folder : α → β �
   let some arg₂ ← getLit fvarId₂ | return none
   mkLit <| folder arg₁ arg₂
 
+def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β → Prop} (folder : (a : α) → (b : β) → Decidable (r a b)) : Folder := fun args => do
+  if (← getPhase) < .mono then
+    return none
+  let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
+  let some arg₁ ← getLit fvarId₁ | return none
+  let some arg₂ ← getLit fvarId₂ | return none
+  let boolLit := folder arg₁ arg₂ |>.decide
+  mkLit boolLit
+
 /--
 Provide a folder for an operation with a left neutral element.
 -/
@@ -282,6 +303,26 @@ def arithmeticFolders : List (Name × Folder) := [
  (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64)])
 ]
 
+def relationFolders : List (Name × Folder) := [
+  (``Nat.decEq, Folder.mkBinaryDecisionProcedure Nat.decEq),
+  (``Nat.decLt, Folder.mkBinaryDecisionProcedure Nat.decLt),
+  (``Nat.decLe, Folder.mkBinaryDecisionProcedure Nat.decLe),
+  (``UInt8.decEq, Folder.mkBinaryDecisionProcedure UInt8.decEq),
+  (``UInt8.decLt, Folder.mkBinaryDecisionProcedure UInt8.decLt),
+  (``UInt8.decLe, Folder.mkBinaryDecisionProcedure UInt8.decLe),
+  (``UInt16.decEq, Folder.mkBinaryDecisionProcedure UInt16.decEq),
+  (``UInt16.decLt, Folder.mkBinaryDecisionProcedure UInt16.decLt),
+  (``UInt16.decLe, Folder.mkBinaryDecisionProcedure UInt16.decLe),
+  (``UInt32.decEq, Folder.mkBinaryDecisionProcedure UInt32.decEq),
+  (``UInt32.decLt, Folder.mkBinaryDecisionProcedure UInt32.decLt),
+  (``UInt32.decLe, Folder.mkBinaryDecisionProcedure UInt32.decLe),
+  (``UInt64.decEq, Folder.mkBinaryDecisionProcedure UInt64.decEq),
+  (``UInt64.decLt, Folder.mkBinaryDecisionProcedure UInt64.decLt),
+  (``UInt64.decLe, Folder.mkBinaryDecisionProcedure UInt64.decLe),
+  (``Bool.decEq, Folder.mkBinaryDecisionProcedure Bool.decEq),
+  (``Bool.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
+]
+
 /--
 All string folders.
 -/
@@ -314,7 +355,7 @@ private def getFolder (declName : Name) : CoreM Folder := do
   ofExcept <| getFolderCore (← getEnv) (← getOptions) declName
 
 def builtinFolders : SMap Name Folder :=
-  (arithmeticFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
+  (arithmeticFolders ++ relationFolders ++ higherOrderLiteralFolders ++ stringFolders).foldl (init := {}) fun s (declName, folder) =>
     s.insert declName folder
 
 structure FolderOleanEntry where

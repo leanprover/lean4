@@ -67,7 +67,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
     `($[$doc?:docComment]? @[$(← mkAttrs `command_elab),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Command.CommandElab :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
-  else if catName == `tactic then
+  else if catName == `tactic || catName == `conv then
     `($[$doc?:docComment]? @[$(← mkAttrs `tactic),*]
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)

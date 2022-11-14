@@ -412,6 +412,10 @@ opaque elabEval : CommandElab
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
     let declName ← resolveGlobalConstNoOverloadWithInfo id
+    if let .none ← findDeclarationRangesCore? declName then
+      -- this is only relevant for declarations added without a declaration range
+      -- in particular `Quot.mk` et al which are added by `init_quot`
+      addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 

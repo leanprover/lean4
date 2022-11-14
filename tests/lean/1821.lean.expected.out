@@ -1,0 +1,9 @@
+1821.lean:2:8: error: application type mismatch
+  Lean.ofReduceBool boom'._nativeDecide_1 true (Eq.refl true)
+argument has type
+  true = true
+but function has type
+  Lean.reduceBool boom'._nativeDecide_1 = true → boom'._nativeDecide_1 = true
+1821.lean:4:10: error: unknown identifier 'boom''
+1821.lean:3:26: error: unsolved goals
+⊢ False

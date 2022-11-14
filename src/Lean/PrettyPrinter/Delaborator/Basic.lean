@@ -106,6 +106,14 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
   is tried first.",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
+    evalKey := fun _ stx => do
+      let stx ← Attribute.Builtin.getIdent stx
+      let kind := stx.getId
+      if (← Elab.getInfoState).enabled && kind.getRoot == `app then
+        let c := kind.replacePrefix `app .anonymous
+        if (← getEnv).contains c then
+          Elab.addConstInfo stx c none
+      pure kind
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 

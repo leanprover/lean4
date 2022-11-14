@@ -142,7 +142,7 @@ jobs:
         if: matrix.os == 'windows-2022'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils
+          brew install ccache tree zstd coreutils gmp
         if: matrix.os == 'macos-latest'
       - name: Cache
         uses: actions/cache@v2

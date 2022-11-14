@@ -47,7 +47,7 @@ mpz::mpz(uint64 v):
 
 mpz::mpz(int64 v) {
     uint64 w;
-    if (v < 0) w = -v;
+    if (v < 0) w = -static_cast<uint64>(v);
     else w = v;
     mpz_init_set_ui(m_val, static_cast<unsigned>(w));
     mpz tmp(static_cast<unsigned>(w >> 32));
@@ -146,13 +146,13 @@ mpz & mpz::operator+=(mpz const & o) { mpz_add(m_val, m_val, o.m_val); return *t
 
 mpz & mpz::operator+=(unsigned u) { mpz_add_ui(m_val, m_val, u); return *this; }
 
-mpz & mpz::operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -u); return *this; }
+mpz & mpz::operator+=(int u) { if (u >= 0) mpz_add_ui(m_val, m_val, u); else mpz_sub_ui(m_val, m_val, -static_cast<unsigned>(u)); return *this; }
 
 mpz & mpz::operator-=(mpz const & o) { mpz_sub(m_val, m_val, o.m_val); return *this; }
 
 mpz & mpz::operator-=(unsigned u) { mpz_sub_ui(m_val, m_val, u); return *this; }
 
-mpz & mpz::operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -u); return *this; }
+mpz & mpz::operator-=(int u) { if (u >= 0) mpz_sub_ui(m_val, m_val, u); else mpz_add_ui(m_val, m_val, -static_cast<unsigned>(u)); return *this; }
 
 mpz & mpz::operator*=(mpz const & o) { mpz_mul(m_val, m_val, o.m_val); return *this; }
 

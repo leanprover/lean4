@@ -364,8 +364,11 @@ def mkFunDecl (binderName : Name) (type : Expr) (params : Array Param) (value : 
   modifyLCtx fun lctx => lctx.addFunDecl funDecl
   return funDecl
 
+def mkLetDeclErased : CompilerM LetDecl := do
+  mkLetDecl (← mkFreshBinderName `_x) erasedExpr .erased
+
 def mkReturnErased : CompilerM Code := do
-  let auxDecl ← mkLetDecl (← mkFreshBinderName `_x) erasedExpr .erased
+  let auxDecl ← mkLetDeclErased
   return .let auxDecl (.return auxDecl.fvarId)
 
 private unsafe def updateParamImp (p : Param) (type : Expr) : CompilerM Param := do

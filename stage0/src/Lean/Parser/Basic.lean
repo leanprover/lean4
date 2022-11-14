@@ -46,8 +46,8 @@ The `Parser` type is extended with additional metadata over the mere parsing fun
 token set used to speed up parser selection in `prattParser`. This approach of combining static and dynamic information
 in the parser type is inspired by the paper "Deterministic, Error-Correcting Combinator Parsers" by Swierstra and Duponcheel.
 If multiple parsers accept the same current token, `prattParser` tries all of them using the backtracking `longestMatchFn` combinator.
-This is the only case where standard parsers might execute arbitrary backtracking. At the moment there is no memoization shared by these
-parallel parsers apart from the first token, though we might change this in the future if the need arises.
+This is the only case where standard parsers might execute arbitrary backtracking. Repeated invocations of the same category or concrete
+parser at the same position are cached where possible; see `withCache`.
 
 Finally, error reporting follows the standard combinatoric approach of collecting a single unexpected token/... and zero
 or more expected tokens (see `Error` below). Expected tokens are e.g. set by `symbol` and merged by `<|>`. Combinators

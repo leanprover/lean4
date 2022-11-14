@@ -56,7 +56,12 @@ where
       if let some (.ctorInfo ctorVal) := (← getEnv).find? declName then
         let i :: projs := projs | unreachable!
         let arg := args[ctorVal.numParams + i]!
-        let .fvar fvarId := arg | unreachable!
+        let fvarId ← match arg with
+          | .fvar fvarId => pure fvarId
+          | .erased | .type .. =>
+            let auxDecl ← mkLetDeclErased
+            modify (·.push (.let auxDecl))
+            pure auxDecl.fvarId
         if projs.isEmpty then
           return fvarId
         else

@@ -457,7 +457,7 @@ inductive PNonScalar : Type u where
   /-- You should not use this function -/
   | mk (v : Nat) : PNonScalar
 
-@[simp] theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
+@[simp] protected theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
 theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
 

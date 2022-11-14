@@ -50,6 +50,11 @@ def builtinPassManager : PassManager := {
     findJoinPoints,
     pullFunDecls,
     reduceJpArity,
+    /-
+    We apply `implementedBy` replacements before `specialize` to ensure we specialize the replacement.
+    One possible improvement is to perform only the replacements if the target declaration is a specialization target,
+    and on phase 2 (aka mono) perform the remaining replacements.
+    -/
     simp { etaPoly := true, inlinePartial := true, implementedBy := true } (occurrence := 1),
     eagerLambdaLifting,
     specialize,

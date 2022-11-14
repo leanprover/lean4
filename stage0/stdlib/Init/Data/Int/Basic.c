@@ -16,7 +16,6 @@ extern "C" {
 static lean_object* l_Int_instNegInt___closed__1;
 static lean_object* l_Int_instAddInt___closed__1;
 LEAN_EXPORT lean_object* l_Int_instNegInt;
-LEAN_EXPORT lean_object* l_Int_natMod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_sub___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_instDecidableEqInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_negSucc___boxed(lean_object*);
@@ -49,7 +48,6 @@ LEAN_EXPORT lean_object* l_Int_negOfNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMinInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_pow(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instLEInt;
-LEAN_EXPORT lean_object* l_Int_natMod___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_toNat(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instHPowIntNat;
@@ -463,26 +461,6 @@ lean_object* x_2;
 x_2 = l_Int_toNat(x_1);
 lean_dec(x_1);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Int_natMod(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = lean_int_mod(x_1, x_2);
-x_4 = l_Int_toNat(x_3);
-lean_dec(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Int_natMod___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Int_natMod(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 static lean_object* _init_l_Int_pow___closed__1() {

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Compiler.LCNF.InferType
 import Lean.Compiler.LCNF.PrettyPrinter
+import Lean.Compiler.LCNF.CompatibleTypes
 
 namespace Lean.Compiler.LCNF
 
@@ -92,6 +93,9 @@ structure State where
 
 abbrev CheckM := ReaderT Context $ StateRefT State InferTypeM
 
+def checkTypes : CheckM Bool := do
+  return (← getConfig).checkTypes
+
 def checkFVar (fvarId : FVarId) : CheckM Unit :=
   unless (← read).vars.contains fvarId do
     throwError "invalid out of scope free variable {← getBinderName fvarId}"
@@ -119,6 +123,10 @@ def checkAppArgs (f : Expr) (args : Array Arg) : CheckM Unit := do
         | .forallE _ d b _ => j := i; pure (d, b)
         | _ => return ()
     let expectedType := instantiateRevRangeArgs d j i args
+    if (← checkTypes) then
+      let argType ← arg.inferType
+      unless (← InferType.compatibleTypes argType expectedType) do
+        throwError "type mismatch at LCNF application{indentExpr (mkAppN f (args.map Arg.toExpr))}\nargument {arg.toExpr} has type{indentExpr argType}\nbut is expected to have type{indentExpr expectedType}"
     unless (← pure (maybeTypeFormerType expectedType) <||> isErasedCompatible expectedType) do
       match arg with
       | .fvar fvarId => checkFVar fvarId
@@ -159,6 +167,10 @@ def checkParams (params : Array Param) : CheckM Unit :=
 
 def checkLetDecl (letDecl : LetDecl) : CheckM Unit := do
   checkLetValue letDecl.value
+  if (← checkTypes) then
+    let valueType ← letDecl.value.inferType
+    unless (← InferType.compatibleTypes letDecl.type valueType) do
+      throwError "type mismatch at `{letDecl.binderName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr letDecl.type}"
   unless letDecl == (← getLetDecl letDecl.fvarId) do
     throwError "LCNF let declaration mismatch at `{letDecl.binderName}`, does not match value in local context"
 
@@ -182,13 +194,19 @@ def addFVarId (fvarId : FVarId) : CheckM Unit := do
 
 mutual
 
-partial def checkFunDeclCore (params : Array Param) (value : Code) : CheckM Unit := do
+set_option linter.all false
+
+partial def checkFunDeclCore (declName : Name) (params : Array Param) (type : Expr) (value : Code) : CheckM Unit := do
   checkParams params
   withParams params do
     discard <| check value
+    if (← checkTypes) then
+      let valueType ← mkForallParams params (← value.inferType)
+      unless (← InferType.compatibleTypes type valueType) do
+        throwError "type mismatch at `{declName}`, value has type{indentExpr valueType}\nbut is expected to have type{indentExpr type}"
 
 partial def checkFunDecl (funDecl : FunDecl) : CheckM Unit := do
-  checkFunDeclCore funDecl.params funDecl.value
+  checkFunDeclCore funDecl.binderName funDecl.params funDecl.type funDecl.value
   let decl ← getFunDecl funDecl.fvarId
   unless decl.binderName == funDecl.binderName do
     throwError "LCNF local function declaration mismatch at `{funDecl.binderName}`, binder name in local context `{decl.binderName}`"
@@ -242,7 +260,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Check
 
 def Decl.check (decl : Decl) : CompilerM Unit := do
-  Check.run do Check.checkFunDeclCore decl.params decl.value
+  Check.run do Check.checkFunDeclCore decl.name decl.params decl.type decl.value
 
 /--
 Check whether every local declaration in the local context is used in one of given `decls`.

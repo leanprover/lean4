@@ -158,8 +158,6 @@ def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0
 
-def natMod (m n : Int) : Nat := (m % n).toNat
-
 protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m

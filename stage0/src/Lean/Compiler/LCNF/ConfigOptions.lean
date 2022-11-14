@@ -26,6 +26,10 @@ structure ConfigOptions where
   before generating an error during compilation.
   -/
   maxRecInlineIfReduce : Nat := 16
+  /--
+  Perform type compatibility checking after each compiler pass.
+  -/
+  checkTypes : Bool := false
   deriving Inhabited
 
 register_builtin_option compiler.small : Nat := {
@@ -46,10 +50,17 @@ register_builtin_option compiler.maxRecInlineIfReduce : Nat := {
   descr    := "(compiler) maximum number of times a recursive definition tagged with `[inline_if_reduce]` can be recursively inlined before generating an error during compilation."
 }
 
+register_builtin_option compiler.checkTypes : Bool := {
+  defValue := false
+  group    := "compiler"
+  descr    := "(compiler) perform type compatibility checking after each compiler pass. Note this is not a complete check, and it is used only for debugging purposes. It fails in code that makes heavy use of dependent types."
+}
+
 def toConfigOptions (opts : Options) : ConfigOptions := {
   smallThreshold := compiler.small.get opts
   maxRecInline   := compiler.maxRecInline.get opts
   maxRecInlineIfReduce := compiler.maxRecInlineIfReduce.get opts
+  checkTypes := compiler.checkTypes.get opts
 }
 
 end Lean.Compiler.LCNF

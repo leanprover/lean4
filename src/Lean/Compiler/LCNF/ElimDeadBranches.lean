@@ -465,6 +465,12 @@ where
           return .top
     | .fvar _ args =>
       args.forM handleFunArg
+      /-
+      Since free variables in `LetValue`s cannot be of the form
+      `let x := y` after a simplifier pass we know they are in fact a
+      partially applied function, we cannot know anything about the result
+      of a partially applied function.
+      -/
       return .top
     | .erased => return .top
 
@@ -573,6 +579,12 @@ open UnreachableBranches in
 def Decl.elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let mut assignments := decls.map fun _ => {}
   let initialVal i :=
+    /-
+    Non terminating functions are marked as unsafe, we don't want to run
+    any analysis on them since we cannot be sure they will ever return
+    the constructor that we inferred for them. For more information
+    refer to the docstring of `Decl.safe`.
+    -/
     if decls[i]!.safe then .bot else .top
   let mut funVals := decls.size.fold (init := .empty) fun i p => p.push (initialVal i)
   let ctx := { decls }

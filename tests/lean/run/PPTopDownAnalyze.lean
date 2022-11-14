@@ -327,7 +327,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Nat.mod_lt
 #testDelabN Array.qsort
 #testDelabN List.partition
-#testDelabN List.partitionAux
+#testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
 #testDelabN List.hasDecidableLt

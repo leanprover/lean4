@@ -1,9 +1,9 @@
-tests/lean/1821.lean:2:8-2:13: error: application type mismatch
+1821.lean:2:8-2:13: error: application type mismatch
   Lean.ofReduceBool boom'._nativeDecide_1 true (Eq.refl true)
 argument has type
   true = true
 but function has type
   Lean.reduceBool boom'._nativeDecide_1 = true → boom'._nativeDecide_1 = true
-tests/lean/1821.lean:4:10-4:15: error: unknown identifier 'boom''
-tests/lean/1821.lean:3:26-5:21: error: unsolved goals
+1821.lean:4:10-4:15: error: unknown identifier 'boom''
+1821.lean:3:26-5:21: error: unsolved goals
 ⊢ False

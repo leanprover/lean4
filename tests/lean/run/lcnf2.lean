@@ -10,7 +10,7 @@ def f (x : Nat) : Nat :=
   | 0 => 2
   | z+1 => z + y + 2
 
-#eval Compiler.compile #[``f]
+set_option trace.Compiler true
 
 def g (x : Nat) : Bool :=
   let pred? := match x with
@@ -19,9 +19,6 @@ def g (x : Nat) : Bool :=
   match pred? with
   | none => true
   | some _  => false
-
-set_option trace.Compiler true
-#eval Compiler.compile #[``g]
 
 
 abbrev TupleNTyp : Nat → Type 1

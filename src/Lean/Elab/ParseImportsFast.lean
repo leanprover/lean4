@@ -201,4 +201,24 @@ def parseImports' (input : String) (fileName : String) : IO (Array Lean.Import) 
   | none => return s.imports
   | some err => throw <| IO.userError s!"{fileName}: {err}"
 
+deriving instance ToJson for Import
+
+structure PrintImportResult where
+  imports? : Option (Array Import) := none
+  errors   : Array String := #[]
+  deriving ToJson
+
+structure PrintImportsResult where
+  imports : Array PrintImportResult
+  deriving ToJson
+
+@[export lean_print_imports_json]
+def printImportsJson (fileNames : Array String) : IO Unit := do
+  let rs ← fileNames.mapM fun fn => do
+    try
+      let deps ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
+      return { imports? := some deps }
+    catch e => return { errors := #[e.toString] }
+  IO.println (toJson { imports := rs : PrintImportsResult } |>.compress)
+
 end Lean

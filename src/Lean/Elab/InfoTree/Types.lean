@@ -36,7 +36,6 @@ structure TermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
   expectedType? : Option Expr
   expr : Expr
-  isExprGenerator : Bool := false -- Is this node's `stx` directly responsible for generating `expr`?
   isBinder : Bool := false
   deriving Inhabited
 

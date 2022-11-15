@@ -927,23 +927,12 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
     | _                                  => return none
   | _ => pure none
 
-def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM ((PersistentArray InfoTree) → Sum Info MVarId) := do
+def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (isBinder := false) : TermElabM (Sum Info MVarId) := do
   match (← isTacticOrPostponedHole? e) with
-  | some mvarId => return fun _ => Sum.inr mvarId
+  | some mvarId => return Sum.inr mvarId
   | none =>
     let e := removeSaveInfoAnnotation e
-    let lctx ← getLCtx
-    return fun trees =>
-      -- NOTE: this can probably be made more efficient, but for now
-      -- a sufficient check for whether this node is responsible for `e` is to make sure
-      -- that no term subtree has the same expression
-      let isExprGenerator :=
-        trees.all fun tree => match tree with
-        | .node (Info.ofTermInfo info) _ =>
-          info.expr != e
-        | _ => true
-
-      Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD lctx, expr := e, isExprGenerator, stx, expectedType?, isBinder }
+    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder }
 
 /--
 Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
@@ -972,7 +961,7 @@ def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
 def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none) (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false) : TermElabM Unit :=
   discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
 
-def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → TermElabM ((PersistentArray InfoTree) → Sum Info MVarId)) : TermElabM Expr := do
+def withInfoContext' (stx : Syntax) (x : TermElabM Expr) (mkInfo : Expr → TermElabM (Sum Info MVarId)) : TermElabM Expr := do
   if (← read).inPattern then
     let e ← x
     return mkPatternWithRef e stx

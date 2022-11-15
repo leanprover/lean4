@@ -273,20 +273,20 @@ def resolveGlobalNameWithInfos [MonadResolveName m] [MonadEnv m] [MonadError m]
 
 /-- Use this to descend a node on the infotree that is being built.
 
-It saves the current list of trees `t₀` and resets it and then runs `x >>= mkInfo`, producing either an `i : Info` or a hole id.
+It saves the current list of trees `t₀` and resets it and then runs `(x >>= mkInfo) <*> getInfoTrees`, producing either an `i : Info` or a hole id.
 Running `x >>= mkInfo` will modify the trees state and produce a new list of trees `t₁`.
 In the `i : Info` case, `t₁` become the children of a node `node i t₁` that is appended to `t₀`.
  -/
-def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m (Sum Info MVarId)) : m α := do
+def withInfoContext' [MonadFinally m] (x : m α) (mkInfo : α → m ((PersistentArray InfoTree) → Sum Info MVarId)) : m α := do
   if (← getInfoState).enabled then
     let treesSaved ← getResetInfoTrees
     Prod.fst <$> MonadFinally.tryFinally' x fun a? => do
       match a? with
       | none   => modifyInfoTrees fun _ => treesSaved
       | some a =>
-        let info ← mkInfo a
+        let infoFn ← mkInfo a
         modifyInfoTrees fun trees =>
-          match info with
+          match infoFn trees with
           | Sum.inl info   => treesSaved.push <| InfoTree.node info trees
           | Sum.inr mvarId => treesSaved.push <| InfoTree.hole mvarId
   else

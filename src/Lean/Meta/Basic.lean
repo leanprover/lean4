@@ -97,14 +97,11 @@ structure Config where
       the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
       this last unification step is not really part of the term elaboration. -/
   assignSyntheticOpaque : Bool := false
-  /-- When `ignoreLevelDepth` is `false`, only universe level metavariables with depth == metavariable context depth
+  /-- When `ignoreLevelDepth` is `false`, only universe level metavariables with `depth == metavariable` context depth
       can be assigned.
       We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
       cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
-      We still use this restriction for regular metavariables. See discussion at the beginning of `MetavarContext.lean`.
-      We claim it is reasonable to ignore this restriction for universe metavariables because their values are often
-      contrained by the terms is instances and simp theorems.
-      TODO: we should delete this configuration option and the method `isReadOnlyLevelMVar` after we have more tests.
+      We set `ignoreLevelMVarDepth := false` during `simp`. See comment at `withSimpConfig` and issue #1829.
   -/
   ignoreLevelMVarDepth  : Bool := true
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/

@@ -118,9 +118,6 @@ partial def whitespace : Parser := fun input s =>
 @[inline] partial def keyword (k : String) : Parser :=
   keywordCore k (fun _ s => s.mkError s!"`{k}` expected") (fun _ s => s)
 
-@[inline] partial def keywordOpt (k : String) : Parser :=
-  keywordCore k (fun _ s => s) (fun _ s => s)
-
 @[inline] def isIdCont : String → State → Bool := fun input s =>
   let i := s.pos
   let curr := input.get i
@@ -186,8 +183,11 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
+@[inline] partial def preludeOpt (k : String) : Parser :=
+  keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
+
 def main : Parser :=
-  keywordOpt "prelude" >>
+  preludeOpt "prelude" >>
   many (keyword "import" >> keywordCore "runtime" (moduleIdent false) (moduleIdent true))
 
 end ParseImports

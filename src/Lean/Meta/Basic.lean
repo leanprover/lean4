@@ -1322,12 +1322,11 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
     modify fun s => { s with mctx := saved.mctx, postponed := saved.postponed }
 
 /--
-  Save cache and `MetavarContext`, bump the `MetavarContext` depth, execute `x`,
-  and restore saved data.
-
-  Metavariable context depths are used to control which metavariables may be assigned in `isDefEq`.
+  `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
+  where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
+  Note that this does not affect level metavariables (by default).
   See the docstring of `isDefEq` for more information.
-   -/
+-/
 def withNewMCtxDepth : n α → n α :=
   mapMetaM withNewMCtxDepthImp
 
@@ -1663,6 +1662,10 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
   The combinator `withNewMCtxDepth x` will bump the depth while executing `x`.
   So, `withNewMCtxDepth (isDefEq a b)` is `isDefEq` without any mvar assignment happening
   whereas `isDefEq a b` will assign any metavariables of the current depth in `a` and `b` to unify them.
+
+  By default, level metavariables can be assigned at any depth.
+  That is, `withNewMCtxDepth (isDefEq a b)` will still assign level mvars in `a` and `b`.
+  Setting the option `ignoreLevelMVarDepth := false` will disable this behavior.
 
   For matching (where only mvars in `b` should be assigned), we create the term inside the `withNewMCtxDepth`.
   For an example, see [Lean.Meta.Simp.tryTheoremWithExtraArgs?](https://github.com/leanprover/lean4/blob/master/src/Lean/Meta/Tactic/Simp/Rewrite.lean#L100-L106)

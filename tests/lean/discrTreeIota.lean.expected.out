@@ -1,0 +1,2 @@
+[Meta.Tactic.simp.rewrite] PUnit.default_eq_unit:1000, default ==> PUnit.unit
+[Meta.Tactic.simp.rewrite] @eq_self:1000, PUnit.unit = x ==> True

@@ -223,11 +223,30 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
-private partial def whnfEta (e : Expr) : MetaM Expr := do
-  let e ← whnf e
-  match e.etaExpandedStrict? with
-  | some e => whnfEta e
-  | none   => return e
+/--
+Reduction procedure for the discrimination tree indexing.
+It only unfolds reducible definitions, and does not perform iota reduction.
+
+We disable iota reduction because of simp theorems such as
+```
+@[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
+    Quot.liftOn (Quot.mk r a) f h = f a := rfl
+```
+If we use iota, the lhs becomes `f a`
+
+We have considered disabling other reductions (e.g., projection reduction), but
+we could not even compile `Init` with this setup.
+
+Remark: rnote it is not sufficient to just unfold reducible definitions and perform
+beta-reduction, we must also instantiate assgined metavariables, and perform zeta-reduction.
+-/
+partial def reduce (e : Expr) : MetaM Expr := do
+  let e ← whnfCore e (iota := false)
+  match (← unfoldDefinition? e) with
+  | some e => reduce e
+  | none => match e.etaExpandedStrict? with
+    | some e => reduce e
+    | none   => return e
 
 /--
   Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
@@ -247,22 +266,22 @@ private def isBadKey (fn : Expr) : Bool :=
 /--
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
-  We use this method instead of `whnfEta` for root terms at `pushArgs`. -/
-private partial def whnfUntilBadKey (e : Expr) : MetaM Expr := do
+  We use this method instead of `reduce` for root terms at `pushArgs`. -/
+private partial def reduceUntilBadKey (e : Expr) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
-  | some e => whnfUntilBadKey e
+  | some e => reduceUntilBadKey e
   | none   => return e
 where
   step (e : Expr) := do
-    let e ← whnfCore e
+    let e ← whnfCore e (iota := false)
     match (← unfoldDefinition? e) with
     | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
-  if root then whnfUntilBadKey e else whnfEta e
+def reduceDT (e : Expr) (root : Bool) : MetaM Expr :=
+  if root then reduceUntilBadKey e else reduce e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
@@ -270,7 +289,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
-    let e ← whnfDT e root
+    let e ← reduceDT e root
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
@@ -363,7 +382,7 @@ def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α
   return d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
-  let e ← whnfDT e root
+  let e ← reduceDT e root
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>

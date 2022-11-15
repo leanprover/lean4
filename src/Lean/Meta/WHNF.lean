@@ -492,7 +492,7 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
   then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
   We only set this flag to `false` when implementing `isDefEq`.
 -/
-partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) : MetaM Expr :=
+partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) (iota := true) : MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr :=
@@ -516,16 +516,19 @@ where
           | ReduceMatcherResult.partialApp   => pure e
           | ReduceMatcherResult.stuck _      => pure e
           | ReduceMatcherResult.notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
-              | c@(ConstantInfo.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+            if !iota then
+              return e
+            else
+              matchConstAux f' (fun _ => return e) fun cinfo lvls =>
+                match cinfo with
+                | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
+                | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+                | c@(ConstantInfo.defnInfo _) => do
+                  if (← isAuxDef c.name) then
+                    deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+                  else
+                    return e
+                | _ => return e
       | Expr.proj _ i c =>
         let c ← if deltaAtProj then whnf c else whnfCore c
         match (← projectCore? c i) with

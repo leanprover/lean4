@@ -36,19 +36,20 @@ def Ty.i1: Ty := Ty.int 1
 def Ty.i8: Ty := Ty.int 8
 def Ty.i8ptr: Ty := .ptr <| Ty.i8
 
-structure BasicBlock where
-structure Context where
-structure Module where
-structure Builder where
-structure LLVMType where
-structure Value where
-structure MemoryBuffer where
-structure Target where
-structure TargetMachine where
+opaque BasicBlock : Type
+opaque Context : Type
+opaque Module : Type
+opaque Builder : Type
+opaque LLVMType : Type
+opaque Value : Type
+opaque MemoryBuffer : Type
+opaque Target : Type
+opaque TargetMachine : Type
 
 -- A raw pointer to a C object, whose Lean representation
 -- is given by α
-opaque Ptr (α: Type): Type := Unit
+structure Ptr (α: Type): Type where
+  ptr: USize
 
 @[extern "lean_llvm_create_context"]
 opaque createContext: IO (Ptr Context)
@@ -271,7 +272,7 @@ def i64Type (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
 def voidPtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   do LLVM.pointerType (← LLVM.intTypeInContext ctx 8)
 
-def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) := 
+def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   voidPtrType ctx
 
 def True (ctx: Ptr Context): IO (Ptr Value) :=

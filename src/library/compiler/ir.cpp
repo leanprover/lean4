@@ -589,6 +589,24 @@ string_ref emit_c(environment const & env, name const & mod_name) {
     }
 }
 
+extern "C" object * lean_ir_emit_llvm(object *env, object *mod_name, object *filepath, object* w);
+
+void emit_llvm(environment const & env, name const & mod_name, std::string const &filepath) {
+    object * r = lean_ir_emit_llvm(env.to_obj_arg(), mod_name.to_obj_arg(),
+            lean::string_ref(filepath).to_obj_arg(), lean_io_mk_world());
+    if (lean_io_result_is_ok(r)) {
+        dec_ref(r);
+        return; 
+    } else {
+        string_ref s(lean_io_result_get_error(r), true);
+        // dec_ref(r);
+        throw exception(s.to_std_string());
+    }
+
+    // assert (lean_io_result_is_ok(r) && "expected LLVM function to return successful result.");
+    // return;
+}
+
 /*
 inductive CtorFieldInfo
 | irrelevant

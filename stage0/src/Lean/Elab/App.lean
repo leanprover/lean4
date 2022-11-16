@@ -654,6 +654,17 @@ namespace ElabElim
 structure Context where
   elimInfo : ElimInfo
   expectedType : Expr
+  /--
+  Position of additonal arguments that should be elabored eagerly
+  because they can contribute to the motive inference procedure.
+  For example, in the following theorem the argument `h : a = b`
+  should be elaborated eagerly because it contains `b` which occurs
+  in `motive b`.
+  ```
+  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
+  ```
+  -/
+  extraArgsPos : Array Nat
 
 /-- State of the `elab_as_elim` elaboration procedure. -/
 structure State where
@@ -802,7 +813,12 @@ partial def main : M Expr := do
     | .undef => finalize
     | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr discr; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
-    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.stx stx) =>
+      if (← read).extraArgsPos.contains idx then
+        let arg ← elabArg (.stx stx) binderType
+        addArgAndContinue arg
+      else
+        addArgAndContinue (← postponeElabTerm stx binderType)
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
     | .undef => finalize
     | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
@@ -856,7 +872,8 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"
     let expectedType ← instantiateMVars expectedType
     if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
-    ElabElim.main.run { elimInfo, expectedType } |>.run' {
+    let extraArgsPos ← getElabAsElimExtraArgsPos elimInfo
+    ElabElim.main.run { elimInfo, expectedType, extraArgsPos } |>.run' {
       f, fType
       args := args.toList
       namedArgs := namedArgs.toList
@@ -885,6 +902,33 @@ where
         return some elimInfo
       else
         return none
+
+  /--
+  Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.
+  The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
+  -/
+  getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
+    let cinfo ← getConstInfo elimInfo.name
+    forallTelescope cinfo.type fun xs type => do
+      let resultArgs := type.getAppArgs
+      let mut extraArgsPos := #[]
+      for i in [:xs.size] do
+        let x := xs[i]!
+        unless elimInfo.targetsPos.contains i do
+          let xType ← inferType x
+          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
+          if isFirstOrder xType
+             && Option.isSome (xType.find? fun e => e.isFVar && resultArgs.contains e) then
+            extraArgsPos := extraArgsPos.push i
+      return extraArgsPos
+
+  /-
+  Helper function for implementing `elab_as_elim`.
+  We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
+  -/
+  isFirstOrder (e : Expr) : Bool :=
+    Option.isNone <| e.find? fun e =>
+      e.isApp && !e.getAppFn.isConst
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where

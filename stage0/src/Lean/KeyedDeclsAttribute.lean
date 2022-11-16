@@ -35,7 +35,12 @@ structure Def (γ : Type) where
   descr         : String
   valueTypeName : Name
   /-- Convert `Syntax` into a `Key`, the default implementation expects an identifier. -/
-  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := Attribute.Builtin.getId stx
+  evalKey (builtin : Bool) (stx : Syntax) : AttrM Key := do
+    let stx ← Attribute.Builtin.getIdent stx
+    let kind := stx.getId
+    if (← getEnv).contains kind && (← Elab.getInfoState).enabled then
+      Elab.addConstInfo stx kind none
+    pure kind
   onAdded (builtin : Bool) (declName : Name) : AttrM Unit := pure ()
   deriving Inhabited
 
@@ -127,7 +132,7 @@ protected unsafe def init {γ} (df : Def γ) (attrDeclName : Name := by exact de
           if c != df.valueTypeName then throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"
           else
             /- builtin_initialize @addBuiltin $(mkConst valueTypeName) $(mkConst attrDeclName) $(key) $(declName) $(mkConst declName) -/
-            let val := mkAppN (mkConst `Lean.KeyedDeclsAttribute.addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
+            let val := mkAppN (mkConst ``addBuiltin) #[mkConst df.valueTypeName, mkConst attrDeclName, toExpr key, toExpr declName, mkConst declName]
             declareBuiltin declName val
             df.onAdded true declName
         | _ => throwError "unexpected type at '{declName}', '{df.valueTypeName}' expected"

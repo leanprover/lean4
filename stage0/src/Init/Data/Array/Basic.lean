@@ -627,7 +627,7 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 @[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 := by
   match a with
   | ⟨[]⟩ => rfl
-  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
+  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
 
 theorem reverse.termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
   rw [Nat.sub_sub, Nat.add_comm]

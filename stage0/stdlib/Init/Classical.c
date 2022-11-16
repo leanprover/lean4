@@ -146,7 +146,7 @@ static lean_object* _init_l_Classical_tacticBy__cases___x3a_____closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by_cases", 8);
+x_1 = lean_mk_string_from_bytes("by_cases ", 9);
 return x_1;
 }
 }
@@ -230,7 +230,7 @@ static lean_object* _init_l_Classical_tacticBy__cases___x3a_____closed__15() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(":", 1);
+x_1 = lean_mk_string_from_bytes(" : ", 3);
 return x_1;
 }
 }

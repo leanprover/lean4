@@ -122,6 +122,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Contradiction_Config_searchFuel___default;
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhen___at_Lean_Meta_ElimEmptyInductive_elim___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Meta_ACLt_main_lexSameCtor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_elimEmptyInductive___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___closed__1;
 lean_object* l_Lean_Meta_mkAbsurd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -234,7 +235,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Contradictio
 static lean_object* l_Lean_MVarId_contradictionCore___closed__4;
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_contradictionCore___spec__4___lambda__3___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Meta_ACLt_lt_lexSameCtor___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_mkGenDiseqMask___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_ElimEmptyInductive_elim___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescope(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5098,7 +5098,7 @@ lean_dec(x_8);
 lean_dec(x_2);
 lean_dec(x_1);
 x_10 = l___private_Lean_Meta_Tactic_Contradiction_0__Lean_Meta_processGenDiseq___closed__6;
-x_11 = l_panic___at_Lean_Meta_ACLt_lt_lexSameCtor___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
+x_11 = l_panic___at_Lean_Meta_ACLt_main_lexSameCtor___spec__1(x_10, x_3, x_4, x_5, x_6, x_7);
 return x_11;
 }
 else

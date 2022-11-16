@@ -16,6 +16,7 @@ import Lean.Compiler.LCNF.ToMono
 import Lean.Compiler.LCNF.LambdaLifting
 import Lean.Compiler.LCNF.FloatLetIn
 import Lean.Compiler.LCNF.ReduceArity
+import Lean.Compiler.LCNF.ElimDeadBranches
 
 namespace Lean.Compiler.LCNF
 
@@ -70,6 +71,7 @@ def builtinPassManager : PassManager := {
     commonJoinPointArgs,
     simp (occurrence := 4) (phase := .mono),
     floatLetIn (phase := .mono) (occurrence := 2),
+    elimDeadBranches,
     lambdaLifting,
     extendJoinPointContext (phase := .mono) (occurrence := 1),
     simp (occurrence := 5) (phase := .mono),

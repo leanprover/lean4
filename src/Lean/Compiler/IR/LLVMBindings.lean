@@ -265,10 +265,10 @@ def voidPtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
 def i8PtrType (ctx: LLVM.Ptr LLVM.Context): IO (LLVM.Ptr LLVM.LLVMType) :=
   voidPtrType ctx
 
-def True (ctx: Ptr Context): IO (Ptr Value) :=
+def constTrue (ctx: Ptr Context): IO (Ptr Value) :=
   do constInt (← i1Type ctx) 1 (signExtend := false)
 
-def False (ctx: Ptr Context): IO (Ptr Value) :=
+def constFalse (ctx: Ptr Context): IO (Ptr Value) :=
   do constInt (← i1Type ctx) 0 (signExtend := false)
 
 def constInt' (ctx: Ptr Context) (width: UInt64) (value: UInt64) (signExtend: Bool := false): IO (Ptr Value) :=

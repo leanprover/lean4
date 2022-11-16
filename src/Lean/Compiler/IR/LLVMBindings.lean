@@ -26,16 +26,6 @@ def NE : UInt64 := EQ + 1
 def UGT : UInt64 := NE + 1
 end IntPredicate
 
-inductive Ty where
-| int: Nat → Ty
-| float: Nat → Ty
-| ptr: Ty → Ty
-
-def Ty.i32: Ty := Ty.int 32
-def Ty.i1: Ty := Ty.int 1
-def Ty.i8: Ty := Ty.int 8
-def Ty.i8ptr: Ty := .ptr <| Ty.i8
-
 opaque BasicBlock : Type
 opaque Context : Type
 opaque Module : Type

@@ -17,7 +17,7 @@ Lean's IR.
 #include "runtime/debug.h"
 #include "runtime/string_ref.h"
 
-#define LLVM_DEBUG 1
+#define LLVM_DEBUG 0
 
 #ifdef LEAN_LLVM
 #include <llvm-c/BitReader.h>

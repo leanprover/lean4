@@ -69,8 +69,9 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       if e == rhs then
         return none
       if thm.perm then
-        if !(← Expr.acLt rhs e) then
-          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
+        let lhs ← instantiateMVars lhs
+        if !(← Expr.acLt rhs lhs) then
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {lhs} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
       recordSimpTheorem thm.origin

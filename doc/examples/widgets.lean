@@ -180,4 +180,38 @@ the infoview we need to:
 
 In the RubiksCube sample, we provide a working `rollup.js` build configuration in
 [rollup.config.js](https://github.com/leanprover/lean4-samples/blob/main/RubiksCube/widget/rollup.config.js).
+
+## Inserting text
+
+We can also instruct the editor to insert text, copy text to the clipboard, or
+reveal a certain location in the document.
+To do this, use the `React.useContext(EditorContext)` React context.
+This will return an `EditorConnection` whose `api` field contains a number of methods to
+interact with the text editor.
+
+You can see the full API for this [here](https://github.com/leanprover/vscode-lean4/blob/1edd92230c7630627f18dbe76cd139903a4cbcee/lean4-infoview-api/src/infoviewApi.ts#L52)
+
 -/
+
+
+@[widget]
+def insertTextWidget : UserWidgetDefinition where
+  name := "textInserter"
+  javascript := "
+import * as React from 'react';
+const e = React.createElement;
+import { EditorContext } from '@leanprover/infoview';
+
+export default function(props) {
+  const editorConnection = React.useContext(EditorContext)
+  function onClick() {
+    editorConnection.api.insertText('-- hello!!!', 'above')
+  }
+
+  return e('div', null, e('button', { value: name, onClick }, 'insert'))
+}
+"
+
+/-! Finally, we can try this out: -/
+
+#widget insertTextWidget .null

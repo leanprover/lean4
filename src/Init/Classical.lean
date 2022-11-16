@@ -126,7 +126,7 @@ theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
 /--
 `by_cases (h :)? p` splits the main goal into two cases, assuming `h : p` in the first branch, and `h : ¬ p` in the second branch.
 -/
-syntax "by_cases" (atomic(ident ":"))? term : tactic
+syntax "by_cases " (atomic(ident " : "))? term : tactic
 
 macro_rules
   | `(tactic| by_cases $h : $e) =>

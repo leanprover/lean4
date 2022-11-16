@@ -28,9 +28,13 @@ endif()
 
 add_custom_target(lean ALL
   WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
-  DEPENDS leanshared shell runtime_bc
+  DEPENDS leanshared shell
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL="$<TARGET_OBJECTS:shell>"
   COMMAND_EXPAND_LISTS)
+
+if(LLVM)
+   add_dependencies(lean runtime_bc)
+endif()
 
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")

@@ -118,9 +118,6 @@ partial def whitespace : Parser := fun input s =>
 @[inline] partial def keyword (k : String) : Parser :=
   keywordCore k (fun _ s => s.mkError s!"`{k}` expected") (fun _ s => s)
 
-@[inline] partial def keywordOpt (k : String) : Parser :=
-  keywordCore k (fun _ s => s) (fun _ s => s)
-
 @[inline] def isIdCont : String → State → Bool := fun input s =>
   let i := s.pos
   let curr := input.get i
@@ -186,8 +183,11 @@ partial def moduleIdent (runtimeOnly : Bool) : Parser := fun input s =>
   | none => many p input s
   | some _ => { pos, error? := none, imports := s.imports.shrink size }
 
+@[inline] partial def preludeOpt (k : String) : Parser :=
+  keywordCore k (fun _ s => s.pushModule `Init false) (fun _ s => s)
+
 def main : Parser :=
-  keywordOpt "prelude" >>
+  preludeOpt "prelude" >>
   many (keyword "import" >> keywordCore "runtime" (moduleIdent false) (moduleIdent true))
 
 end ParseImports
@@ -200,5 +200,25 @@ def parseImports' (input : String) (fileName : String) : IO (Array Lean.Import) 
   match s.error? with
   | none => return s.imports
   | some err => throw <| IO.userError s!"{fileName}: {err}"
+
+deriving instance ToJson for Import
+
+structure PrintImportResult where
+  imports? : Option (Array Import) := none
+  errors   : Array String := #[]
+  deriving ToJson
+
+structure PrintImportsResult where
+  imports : Array PrintImportResult
+  deriving ToJson
+
+@[export lean_print_imports_json]
+def printImportsJson (fileNames : Array String) : IO Unit := do
+  let rs ← fileNames.mapM fun fn => do
+    try
+      let deps ← parseImports' (← IO.FS.readFile ⟨fn⟩) fn
+      return { imports? := some deps }
+    catch e => return { errors := #[e.toString] }
+  IO.println (toJson { imports := rs : PrintImportsResult } |>.compress)
 
 end Lean

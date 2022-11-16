@@ -40,27 +40,4 @@ def printImports (input : String) (fileName : Option String) : IO Unit := do
     let fname ← findOLean dep.module
     IO.println fname
 
-deriving instance ToJson for Import
-
-structure PrintImportResult where
-  imports? : Option (Array Import) := none
-  errors   : Array String := #[]
-  deriving ToJson
-
-structure PrintImportsResult where
-  imports : Array PrintImportResult
-  deriving ToJson
-
-@[export lean_print_imports_json]
-def printImportsJson (fileNames : Array String) : IO Unit := do
-  let rs ← fileNames.mapM fun fn => do
-    try
-      let (deps, _, msgs) ← parseImports (← IO.FS.readFile ⟨fn⟩) fn
-      if msgs.hasErrors then
-        return { errors := (← msgs.toList.toArray.mapM (·.toString)) }
-      else
-        return { imports? := some deps.toArray }
-    catch e => return { errors := #[e.toString] }
-  IO.println (toJson { imports := rs : PrintImportsResult })
-
 end Lean.Elab

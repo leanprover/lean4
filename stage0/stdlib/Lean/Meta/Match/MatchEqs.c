@@ -384,7 +384,7 @@ size_t lean_usize_shift_left(size_t, size_t);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_mkMap___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_proveSubgoalLoop___closed__1;
-lean_object* l_Lean_Meta_whnfCore_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_whnfCore_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_refl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_withSplitterAlts_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at___private_Lean_Meta_Match_MatchEqs_0__Lean_Meta_Match_mkSplitterProof_convertCastEqRec_go___spec__1___closed__1;
@@ -11530,12 +11530,15 @@ return x_10;
 static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__1() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; 
+uint8_t x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 1;
-x_2 = lean_box(x_1);
-x_3 = lean_alloc_closure((void*)(l_Lean_Meta_whnfCore_go___boxed), 7, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
+x_2 = 0;
+x_3 = lean_box(x_1);
+x_4 = lean_box(x_2);
+x_5 = lean_alloc_closure((void*)(l_Lean_Meta_whnfCore_go___boxed), 8, 2);
+lean_closure_set(x_5, 0, x_3);
+lean_closure_set(x_5, 1, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_Lean_Meta_Match_proveCondEqThm_go___lambda__2___closed__2() {

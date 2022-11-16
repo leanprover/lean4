@@ -50,6 +50,19 @@ def Origin.key : Origin → Name
 instance : BEq Origin := ⟨(·.key == ·.key)⟩
 instance : Hashable Origin := ⟨(hash ·.key)⟩
 
+/-
+Note: we want to use iota reduction when indexing instaces. Otherwise,
+we cannot use simp theorems such as
+```
+@[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
+    Quot.liftOn (Quot.mk r a) f h = f a := rfl
+```
+If we use `iota`, then the lhs is reduced to `f a`.
+See comment at `DiscrTree`.
+-/
+
+abbrev SimpTheoremKey := DiscrTree.Key (simpleReduce := true)
+
 /--
   The fields `levelParams` and `proof` are used to encode the proof of the simp theorem.
   If the `proof` is a global declaration `c`, we store `Expr.const c []` at `proof` without the universe levels, and `levelParams` is set to `#[]`
@@ -60,7 +73,7 @@ instance : Hashable Origin := ⟨(hash ·.key)⟩
   Then, we use `abstractMVars` to abstract the universe metavariables and create new fresh universe parameters that are stored at the field `levelParams`.
 -/
 structure SimpTheorem where
-  keys        : Array DiscrTree.Key := #[]
+  keys        : Array SimpTheoremKey := #[]
   /--
     It stores universe parameter names for universe polymorphic proofs.
     Recall that it is non-empty only when we elaborate an expression provided by the user.
@@ -137,9 +150,11 @@ def ppSimpTheorem [Monad m] [MonadLiftT IO m] [MonadEnv m] [MonadError m] (s : S
 instance : BEq SimpTheorem where
   beq e₁ e₂ := e₁.proof == e₂.proof
 
+abbrev SimpTheoremTree := DiscrTree SimpTheorem (simpleReduce := true)
+
 structure SimpTheorems where
-  pre          : DiscrTree SimpTheorem := DiscrTree.empty
-  post         : DiscrTree SimpTheorem := DiscrTree.empty
+  pre          : SimpTheoremTree := DiscrTree.empty
+  post         : SimpTheoremTree := DiscrTree.empty
   lemmaNames   : PHashSet Origin := {}
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}
@@ -202,7 +217,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
-  let lhs ← DiscrTree.whnfDT lhs (root := true)
+  let lhs ← DiscrTree.reduceDT lhs (root := true) (simpleReduce := true)
   if lhs == rhs && lhs.isFVar then
     throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 

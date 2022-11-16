@@ -668,7 +668,6 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   -/
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false,
-                                          ignoreLevelMVarDepth := true,
                                           etaStruct := .notClasses }) do
     let type ← instantiateMVars type
     let type ← preprocess type

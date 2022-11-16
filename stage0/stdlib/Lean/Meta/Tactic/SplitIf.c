@@ -199,7 +199,7 @@ lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_Simp_synthesizeArgs_synth
 static lean_object* l_Lean_Meta_SplitIf_discharge_x3f___lambda__2___closed__1;
 static lean_object* l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_5____lambda__1___closed__1;
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
+lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_1870____closed__12;
 extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Instances_instanceNames___default___spec__1;
 lean_object* l_Lean_Meta_getSimpCongrTheorems___rarg(lean_object*, lean_object*);
@@ -509,9 +509,10 @@ return x_59;
 static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_5____closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lean_Meta_DiscrTree_empty(lean_box(0));
-return x_1;
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = l_Lean_Meta_DiscrTree_empty(lean_box(0), x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_5____closed__2() {

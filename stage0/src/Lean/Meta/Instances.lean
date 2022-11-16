@@ -9,8 +9,32 @@ import Lean.Meta.DiscrTree
 
 namespace Lean.Meta
 
+/-
+Note: we want to use iota reduction when indexing instaces. Otherwise,
+we cannot elaborate examples such as
+```
+inductive Ty where
+  | int
+  | bool
+
+@[reducible] def Ty.interp (ty : Ty) : Type :=
+  Ty.casesOn (motive := fun _ => Type) ty Int Bool
+
+def test {a b c : Ty} (f : a.interp → b.interp → c.interp) (x : a.interp) (y : b.interp) : c.interp :=
+  f x y
+
+def f (a b : Ty.bool.interp) : Ty.bool.interp :=
+  -- We want to synthesize `BEq Ty.bool.interp` here, and it will fail
+  -- if we do not reduce `Ty.bool.interp` to `Bool`.
+  test (.==.) a b
+```
+See comment at `DiscrTree`.
+-/
+
+abbrev InstanceKey := DiscrTree.Key (simpleReduce := false)
+
 structure InstanceEntry where
-  keys        : Array DiscrTree.Key
+  keys        : Array InstanceKey
   val         : Expr
   priority    : Nat
   globalName? : Option Name := none
@@ -24,8 +48,10 @@ instance : ToFormat InstanceEntry where
     | some n => format n
     | _      => "<local>"
 
+abbrev InstanceTree := DiscrTree InstanceEntry (simpleReduce := false)
+
 structure Instances where
-  discrTree     : DiscrTree InstanceEntry := DiscrTree.empty
+  discrTree     : InstanceTree := DiscrTree.empty
   instanceNames : PHashSet Name := {}
   erased        : PHashSet Name := {}
   deriving Inhabited
@@ -49,7 +75,7 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
     addEntry := addInstanceEntry
   }
 
-private def mkInstanceKey (e : Expr) : MetaM (Array DiscrTree.Key) := do
+private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
   let type ← inferType e
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
@@ -74,7 +100,7 @@ builtin_initialize
       modifyEnv fun env => instanceExtension.modifyState env fun _ => s
   }
 
-def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry) :=
+def getGlobalInstancesIndex : CoreM (DiscrTree InstanceEntry (simpleReduce := false)) :=
   return Meta.instanceExtension.getState (← getEnv) |>.discrTree
 
 def getErasedInstances : CoreM (PHashSet Name) :=

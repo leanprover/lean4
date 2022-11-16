@@ -47,7 +47,7 @@ namespace Lean.Meta.DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-def Key.ctorIdx : Key → Nat
+def Key.ctorIdx : Key s → Nat
   | .star     => 0
   | .other    => 1
   | .lit ..   => 2
@@ -56,17 +56,17 @@ def Key.ctorIdx : Key → Nat
   | .arrow    => 5
   | .proj ..  => 6
 
-def Key.lt : Key → Key → Bool
+def Key.lt : Key s → Key s → Bool
   | .lit v₁,      .lit v₂      => v₁ < v₂
   | .fvar n₁ a₁,  .fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
   | .const n₁ a₁, .const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | .proj s₁ i₁,  .proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
   | k₁,           k₂           => k₁.ctorIdx < k₂.ctorIdx
 
-instance : LT Key := ⟨fun a b => Key.lt a b⟩
-instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
+instance : LT (Key s) := ⟨fun a b => Key.lt a b⟩
+instance (a b : Key s) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
-def Key.format : Key → Format
+def Key.format : Key s → Format
   | .star                   => "*"
   | .other                  => "◾"
   | .lit (Literal.natVal v) => Std.format v
@@ -76,41 +76,41 @@ def Key.format : Key → Format
   | .fvar k _               => Std.format k.name
   | .arrow                  => "→"
 
-instance : ToFormat Key := ⟨Key.format⟩
+instance : ToFormat (Key s) := ⟨Key.format⟩
 
-def Key.arity : Key → Nat
+def Key.arity : (Key s) → Nat
   | .const _ a => a
   | .fvar _ a  => a
   | .arrow     => 2
   | .proj ..   => 1
   | _          => 0
 
-instance : Inhabited (Trie α) := ⟨.node #[] #[]⟩
+instance : Inhabited (Trie α s) := ⟨.node #[] #[]⟩
 
-def empty : DiscrTree α := { root := {} }
+def empty : DiscrTree α s := { root := {} }
 
-partial def Trie.format [ToFormat α] : Trie α → Format
+partial def Trie.format [ToFormat α] : Trie α s → Format
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
-instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
+instance [ToFormat α] : ToFormat (Trie α s) := ⟨Trie.format⟩
 
-partial def format [ToFormat α] (d : DiscrTree α) : Format :=
+partial def format [ToFormat α] (d : DiscrTree α s) : Format :=
   let (_, r) := d.root.foldl
     (fun (p : Bool × Format) k c =>
       (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (Std.format k ++ " => " ++ Std.format c)))
     (true, Format.nil)
   Format.group r
 
-instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
+instance [ToFormat α] : ToFormat (DiscrTree α s) := ⟨format⟩
 
 /-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
-instance : Inhabited (DiscrTree α) where
+instance : Inhabited (DiscrTree α s) where
   default := {}
 
 /--
@@ -223,11 +223,19 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
-private partial def whnfEta (e : Expr) : MetaM Expr := do
-  let e ← whnf e
-  match e.etaExpandedStrict? with
-  | some e => whnfEta e
-  | none   => return e
+/--
+Reduction procedure for the discrimination tree indexing.
+The parameter `simpleReduce` controls how aggressive the term is reduced.
+The parameter at type `DiscrTree` controls this value.
+See comment at `DiscrTree`.
+-/
+partial def reduce (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
+  let e ← whnfCore e (simpleReduceOnly := simpleReduce)
+  match (← unfoldDefinition? e) with
+  | some e => reduce e simpleReduce
+  | none => match e.etaExpandedStrict? with
+    | some e => reduce e simpleReduce
+    | none   => return e
 
 /--
   Return `true` if `fn` is a "bad" key. That is, `pushArgs` would add `Key.other` or `Key.star`.
@@ -247,32 +255,32 @@ private def isBadKey (fn : Expr) : Bool :=
 /--
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
-  We use this method instead of `whnfEta` for root terms at `pushArgs`. -/
-private partial def whnfUntilBadKey (e : Expr) : MetaM Expr := do
+  We use this method instead of `reduce` for root terms at `pushArgs`. -/
+private partial def reduceUntilBadKey (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
-  | some e => whnfUntilBadKey e
+  | some e => reduceUntilBadKey e simpleReduce
   | none   => return e
 where
   step (e : Expr) := do
-    let e ← whnfCore e
+    let e ← whnfCore e (simpleReduceOnly := simpleReduce)
     match (← unfoldDefinition? e) with
     | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-def whnfDT (e : Expr) (root : Bool) : MetaM Expr :=
-  if root then whnfUntilBadKey e else whnfEta e
+def reduceDT (e : Expr) (root : Bool) (simpleReduce : Bool) : MetaM Expr :=
+  if root then reduceUntilBadKey e simpleReduce else reduce e simpleReduce
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key × Array Expr) := do
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
-    let e ← whnfDT e root
+    let e ← reduceDT e root (simpleReduce := s)
     let fn := e.getAppFn
-    let push (k : Key) (nargs : Nat) : MetaM (Key × Array Expr) := do
+    let push (k : Key s) (nargs : Nat) : MetaM (Key s × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
@@ -305,7 +313,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key �
     | _ =>
       return (.other, todo)
 
-partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) : MetaM (Array Key) := do
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array (Key s)) : MetaM (Array (Key s)) := do
   if todo.isEmpty then
     return keys
   else
@@ -316,13 +324,13 @@ partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) : Met
 
 private def initCapacity := 8
 
-def mkPath (e : Expr) : MetaM (Array Key) := do
+def mkPath (e : Expr) : MetaM (Array (Key s)) := do
   withReducible do
     let todo : Array Expr := .mkEmpty initCapacity
-    let keys : Array Key  := .mkEmpty initCapacity
+    let keys : Array (Key s) := .mkEmpty initCapacity
     mkPathAux (root := true) (todo.push e) keys
 
-private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
+private partial def createNodes (keys : Array (Key s)) (v : α) (i : Nat) : Trie α s :=
   if h : i < keys.size then
     let k := keys.get ⟨i, h⟩
     let c := createNodes keys v (i+1)
@@ -333,7 +341,7 @@ private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α 
 private def insertVal [BEq α] (vs : Array α) (v : α) : Array α :=
   if vs.contains v then vs else vs.push v
 
-private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
+private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) : Nat → Trie α s → Trie α s
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys.get ⟨i, h⟩
@@ -346,7 +354,7 @@ private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Tri
     else
       .node (insertVal vs v) cs
 
-def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
+def insertCore [BEq α] (d : DiscrTree α s) (keys : Array (Key s)) (v : α) : DiscrTree α s :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!
@@ -358,12 +366,12 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
-def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) : MetaM (DiscrTree α) := do
+def insert [BEq α] (d : DiscrTree α s) (e : Expr) (v : α) : MetaM (DiscrTree α s) := do
   let keys ← mkPath e
   return d.insertCore keys v
 
-private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
-  let e ← whnfDT e root
+private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array Expr) := do
+  let e ← reduceDT e root (simpleReduce := s)
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>
@@ -435,22 +443,22 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Ex
   | _ =>
     return (.other, #[])
 
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key s × Array Expr) :=
   getKeyArgs e (isMatch := true) (root := root)
 
-private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key s × Array Expr) :=
   getKeyArgs e (isMatch := false) (root := root)
 
-private def getStarResult (d : DiscrTree α) : Array α :=
+private def getStarResult (d : DiscrTree α s) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
   | none                  => result
   | some (.node vs _) => result ++ vs
 
-private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
+private abbrev findKey (cs : Array (Key s × Trie α s)) (k : Key s) : Option (Key s × Trie α s) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
-private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : Array α) : MetaM (Array α) := do
   match c with
   | .node vs cs =>
     if todo.isEmpty then
@@ -470,7 +478,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
           getMatchLoop todo first.2 result
         else
           return result
-      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+      let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
@@ -485,12 +493,12 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       | .arrow => visitNonStar .other #[] (← visitNonStar k args result)
       | _      => visitNonStar k args result
 
-private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+private def getMatchRoot (d : DiscrTree α s) (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
   | none   => return result
   | some c => getMatchLoop args c result
 
-private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α) :=
+private def getMatchCore (d : DiscrTree α s) (e : Expr) : MetaM (Key s × Array α) :=
   withReducible do
     let result := getStarResult d
     let (k, args) ← getMatchKeyArgs e (root := true)
@@ -503,13 +511,13 @@ private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α)
 /--
   Find values that match `e` in `d`.
 -/
-def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+def getMatch (d : DiscrTree α s) (e : Expr) : MetaM (Array α) :=
   return (← getMatchCore d e).2
 
 /--
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
   We store the number of ignored arguments in the result.-/
-partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) := do
+partial def getMatchWithExtra (d : DiscrTree α s) (e : Expr) : MetaM (Array (α × Nat)) := do
   let (k, result) ← getMatchCore d e
   let result := result.map (·, 0)
   if !e.isApp then
@@ -519,8 +527,8 @@ partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α �
   else
     go e.appFn! 1 result
 where
-  mayMatchPrefix (k : Key) : MetaM Bool :=
-    let cont (k : Key) : MetaM Bool :=
+  mayMatchPrefix (k : Key s) : MetaM Bool :=
+    let cont (k : Key s) : MetaM Bool :=
       if d.root.find? k |>.isSome then
         return true
       else
@@ -537,7 +545,7 @@ where
     else
       return result
 
-partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+partial def getUnify (d : DiscrTree α s) (e : Expr) : MetaM (Array α) :=
   withReducible do
     let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
@@ -548,7 +556,7 @@ partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
       | none   => return result
       | some c => process 0 args c result
 where
-  process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
+  process (skip : Nat) (todo : Array Expr) (c : Trie α s) (result : Array α) : MetaM (Array α) := do
     match skip, c with
     | skip+1, .node _  cs =>
       if cs.isEmpty then
@@ -570,7 +578,7 @@ where
             process 0 todo first.2 result
           else
             return result
-        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+        let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
           match findKey cs k with
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result

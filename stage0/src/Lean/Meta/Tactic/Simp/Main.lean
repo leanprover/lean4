@@ -701,9 +701,31 @@ where
       modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
     return r
 
+@[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
+  /-
+  We set `ignoreLevelMVarDepth := false` because we don't want a `simp` theorem to constraint a universe level metavariable.
+  For example, consider the following example from issue #1829
+  ```
+  @[simp] theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  ⟨fun _ => ⟨⟩, fun _ => (Subsingleton.elim ..)⟩
+
+  structure Func' (α : Sort _) (β : Sort _) :=
+  (toFun    : α → β)
+
+  def r : Func' α α := ⟨id⟩
+
+  example (x y : α) (h : x = y) : r.toFun x = y := by simp <;> rw [h]
+  ```
+  `α` has type `Sort ?u`. If `ignoreLevelMVarDepth := true`, then `eq_iff_true_of_subsingleton` is applicable
+  by setting `?u := 0` and using instance `instance (p : Prop) : Subsingleton p`.
+  Moreover, the assignment is lost since `simp`, and a type error is produced later. Even if we prevented the assignment
+  from being lost, the situation is far from ideal since `simp` would be restricting the universe level.
+  -/
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct, ignoreLevelMVarDepth := false }) <| withReducible x
+
 def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Result × UsedSimps) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
+  withSimpConfig ctx do
     try
       let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
       pure (r, s.usedTheorems)
@@ -711,7 +733,7 @@ def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Met
       if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Expr × UsedSimps) := do
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
+  withSimpConfig ctx do
     try
       let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
       pure (r, s.usedTheorems)

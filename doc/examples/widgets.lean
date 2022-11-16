@@ -137,24 +137,21 @@ def checkWidget : UserWidgetDefinition where
   javascript := "
 import * as React from 'react';
 const e = React.createElement;
-import { RpcContext, InteractiveCode, useAsync, mapRpcError } from '@leanprover/infoview';
+import { RpcContext, InteractiveCode } from '@leanprover/infoview';
 
 export default function(props) {
   const rs = React.useContext(RpcContext)
   const [name, setName] = React.useState('getType')
+  const [value, setValue] = React.useState(undefined)
 
-  const [status, val, err] = useAsync(() =>
-    rs.call('getType', { name, pos: props.pos }), [name, rs, props.pos])
+  function run() {
+    rs.call('getType', { name, pos: props.pos }).then(setValue)
+  }
 
-  const type = status === 'fulfilled' ? val && e(InteractiveCode, {fmt: val})
-    : status === 'rejected' ? e('p', null, mapRpcError(err).message)
-      : e('p', null, 'Loading..')
-
+  React.useEffect(() => run(), [name])
+  const type = value &&  e(InteractiveCode, {fmt: value})
   const onChange = (event) => { setName(event.target.value) }
-  return e('div', null,
-    e('input', { value: name, onChange }),
-    ' : ',
-    type)
+  return e('div', null, e('input', { value: name, onChange }), ' : ', type)
 }
 "
 

@@ -10,13 +10,17 @@ import Lean.Meta.SynthInstance
 
 namespace Lean.Meta
 
+abbrev UnificationHintKey := DiscrTree.Key (simpleReduce := true)
+
 structure UnificationHintEntry where
-  keys        : Array DiscrTree.Key
+  keys        : Array UnificationHintKey
   val         : Name
   deriving Inhabited
 
+abbrev UnificationHintTree := DiscrTree Name (simpleReduce := true)
+
 structure UnificationHints where
-  discrTree       : DiscrTree Name := DiscrTree.empty
+  discrTree : UnificationHintTree := DiscrTree.empty
   deriving Inhabited
 
 instance : ToFormat UnificationHints where

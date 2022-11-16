@@ -10,7 +10,7 @@ namespace Expr
 
 namespace ReplaceImpl
 
-@[inline] def cacheSize : USize := 8192
+@[inline] def cacheSize : USize := 8192 - 1
 
 structure Cache where
   -- First cacheSize elements are the keys.
@@ -23,7 +23,7 @@ unsafe def Cache.new : Cache :=
 
 @[inline]
 unsafe def Cache.keyIdx (key : Expr) : USize :=
-  (ptrAddrUnsafe key >>> 4) % cacheSize
+  ptrAddrUnsafe key % cacheSize
 
 @[inline]
 unsafe def Cache.resultIdx (key : Expr) : USize :=

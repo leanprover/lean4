@@ -18,6 +18,9 @@ target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
 endif()
 
 if(LLVM)
+  if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+      message(FATAL_ERROR "building 'libleanrt.bc', need CMAKE_CXX_COMPILER_ID to match Clang to build LLVM bitcode file of Lean runtime.")
+  endif()
   add_custom_command(
     OUTPUT libleanrt.bc
     DEPENDS ${RUNTIME_OBJS} lean_inlines.c

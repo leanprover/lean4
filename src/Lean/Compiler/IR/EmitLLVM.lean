@@ -46,12 +46,6 @@ structure Context where
 structure State where
   var2val: HashMap VarId (LLVM.Ptr LLVM.Value)
   jp2bb: HashMap JoinPointId (LLVM.Ptr LLVM.BasicBlock)
-  -- arg2val: Std.HashMap Arg (LLVM.Ptr LLVM.Value)
-
--- def State.createInitStateIO (modName: Name): IO State := do
---   let ctx ← LLVM.createContext
---   let module ← LLVM.createModule ctx modName.toString -- TODO: pass module name
---   return { ctx := ctx, module := module : State }
 
 inductive Error where
 | unknownDeclaration: Name → Error
@@ -85,15 +79,6 @@ def emitJp (jp: JoinPointId): M (LLVM.Ptr LLVM.BasicBlock) := do
   | .some bb => return bb
   | .none => throw (Error.compileError s!"unable to find join point {jp}")
 
-/-
-def getEnv : M Environment := Context.env <$> read
-def getModName : M Name := Context.modName <$> read
-def getDecl (n : Name) : M Decl := do
-  let env ← getEnv
-  match findEnvDecl env n with
-  | some d => pure d
-  | none   => throw s!"unknown declaration '{n}'"
--/
 def getLLVMContext : M (LLVM.Ptr LLVM.Context) := Context.llvmctx <$> read
 def getLLVMModule : M (LLVM.Ptr LLVM.Module) := Context.llvmmodule <$> read
 def getEnv : M Environment := Context.env <$> read
@@ -118,7 +103,7 @@ def getOrCreateFunctionPrototype (_ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LL
   LLVM.getOrAddFunction mod name $
      (← LLVM.functionType retty args (isVarArg := false))
 
--- ***lean_box***
+-- `lean_box`
 def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   getOrCreateFunctionPrototype ctx (← getLLVMModule)
@@ -127,52 +112,14 @@ def getOrCreateLeanBoxFn: M (LLVM.Ptr LLVM.Value) := do
 def callLeanBox (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String := ""): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanBoxFn) #[arg] name
 
--- ***void lean_mark_persistent (void *) ***--
+-- `void lean_mark_persistent (void *)`
 def getOrCreateLeanMarkPersistentFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidType ctx) "lean_mark_persistent"  #[(← LLVM.voidPtrType ctx)]
 
 def callLeanMarkPersistentFn (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value): M Unit := do
   let _ ← LLVM.buildCall builder (← getOrCreateLeanMarkPersistentFn (← getLLVMContext) (← getLLVMModule)) #[arg] ""
 
-
-namespace CProto
--- open Lean Elab Syntax Macro
--- Machinery to generate calling conventions for functions from their C prototypes
-
-declare_syntax_cat ctypeish
-/-
-syntax "i64" : ctypeish
-syntax "i32" : ctypeish
-syntax "i1" : ctypeish
-syntax "i8*" : ctypeish
-syntax "unsigned" : ctypeish
-syntax "float" : ctypeish
-syntax "void" : ctypeish
-syntax "double" : ctypeish
-
-syntax "[ctypeish|" ctypeish "]" : term
-
-macro_rules
-| `([ctypeish| i64 ]) => `(LLVM.i64Type (← getLLVMContext))
-| `([ctypeish| i32 ]) => `(LLVM.i32Type (← getLLVMContext))
-| `([ctypeish| i1 ]) => `(LLVM.i1Type (← getLLVMContext))
-| `([ctypeish| i8* ]) => `(LLVM.voidPtrType (← getLLVMContext))
-
-
-open Lean Elab Term Macro in
-macro (name := declareLLVMFFI) "#declareLLVMFFI" retty:ctypeish leanName:ident "->" cName: ident "(" args:ctypeish* ")" : command => do
-  let nameStr : String := "getOrCreate" ++ leanName.getId.toString ++ "Fn"
-  let name := mkIdentFrom leanName nameStr
-  dbg_trace name
-  `(def $(name) ( $args )f := 42)
-
-#declareLLVMFFI i8* MkLeanPersistent ->  mk_lean_persistent ()
--/
-
-
-end CProto
-
--- ***lean_{inc, dec}_{ref?}_{1,n}***
+-- `lean_{inc, dec}_{ref?}_{1,n}`
 inductive RefcountKind where
 | inc | dec
 
@@ -206,7 +153,7 @@ def callLeanRefcountFn (builder: LLVM.Ptr LLVM.Builder)
 
 
 
--- **decRef1***
+-- `decRef1`
 def getOrCreateLeanDecRefFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   getOrCreateFunctionPrototype ctx (← getLLVMModule)
@@ -227,7 +174,7 @@ def callLeanUnsignedToNatFn (builder: LLVM.Ptr LLVM.Builder) (n: Nat) (name: Str
   LLVM.buildCall builder f #[nv] name
 
 
--- **lean_mk_string_from_bytes***
+-- `lean_mk_string_from_bytes`
 def getOrCreateMkStringFromBytesFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_mk_string_from_bytes"
     #[← LLVM.voidPtrType ctx, ← LLVM.i64Type ctx]
@@ -237,7 +184,7 @@ def callLeanMkStringFromBytesFn
   let ctx ← getLLVMContext
   LLVM.buildCall builder (← getOrCreateMkStringFromBytesFn ctx (← getLLVMModule)) #[strPtr, nBytes] name
 
--- **lean_mk_string**
+-- `lean_mk_string`
 def callLeanMkString
    (builder: LLVM.Ptr LLVM.Builder) (strPtr: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
@@ -251,8 +198,7 @@ def callLeanMkString
 
 
 
--- ***lean_cstr_to_nat***
--- TODO: build strings.
+-- `lean_cstr_to_nat`
 def getOrCreateLeanCStrToNatFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_cstr_to_nat"  #[← LLVM.voidPtrType ctx]
 
@@ -265,34 +211,22 @@ def callLeanCStrToNatFn (builder: LLVM.Ptr LLVM.Builder) (n: Nat) (name: String)
 
 
 
--- ***lean_io_mk_world***
+-- `lean_object* lean_io_mk_world()`
 def getOrCreateLeanIOMkWorldFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
-  -- lean_object* lean_io_mk_world();
   getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_mk_world"  #[]
 
 def callLeanIOMkWorld (builder: LLVM.Ptr LLVM.Builder): M (LLVM.Ptr LLVM.Value) := do
    LLVM.buildCall builder (← getOrCreateLeanIOMkWorldFn (← getLLVMContext) (← getLLVMModule)) #[] "mk_io_out"
 
 
--- ***bool lean_io_result_is_err(lean_object *o);***
+-- `bool lean_io_result_is_err(lean_object *o);`
 def getOrCreateLeanIOResultIsErrorFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
   getOrCreateFunctionPrototype ctx mod (← LLVM.i1Type ctx) "lean_io_result_is_error"  #[(← LLVM.voidPtrType ctx)]
 
 def callLeanIOResultIsError (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
   LLVM.buildCall builder (← getOrCreateLeanIOResultIsErrorFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
 
-/-
--- ***lean_object *lean_io_result_get_value(lean_object *o)***
-def getOrCreateLeanIOResultGetValueFn (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module): M (LLVM.Ptr LLVM.Value) := do
-  getOrCreateFunctionPrototype ctx mod (← LLVM.voidPtrType ctx) "lean_io_result_get_value"  #[(← LLVM.voidPtrType ctx)]
-
-def callLeanIOResultGetValueFn (builder: LLVM.Ptr LLVM.Builder) (arg: LLVM.Ptr LLVM.Value) (name: String): M (LLVM.Ptr LLVM.Value) := do
-  LLVM.buildCall builder (← getOrCreateLeanIOResultGetValueFn (← getLLVMContext) (← getLLVMModule)) #[arg] name
--/
-
-
-
--- lean_alloc_ctor (unsigned tag, unsigned num_obj, unsigned scalar_sz)
+-- `lean_alloc_ctor (unsigned tag, unsigned num_obj, unsigned scalar_sz)`
 def getOrCreateLeanAllocCtorFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   -- let unsigned ← LLVM.size_tType ctx
@@ -307,7 +241,7 @@ def callLeanAllocCtor (builder: LLVM.Ptr LLVM.Builder) (tag num_objs scalar_sz: 
   let scalar_sz ← LLVM.constInt32 ctx (UInt64.ofNat scalar_sz)
   LLVM.buildCall builder (← getOrCreateLeanAllocCtorFn) #[tag, num_objs, scalar_sz] name
 
--- void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v)
+-- `void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v)`
 def getOrCreateLeanCtorSetFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let unsigned ← LLVM.size_tType ctx
@@ -320,7 +254,7 @@ def callLeanCtorSet (builder: LLVM.Ptr LLVM.Builder) (o i v: LLVM.Ptr LLVM.Value
   LLVM.buildCall builder (← getOrCreateLeanCtorSetFn) #[o, i, v] name
 
 
--- lean_obj_res io_result_mk_ok(lean_obj_arg a)
+-- `lean_obj_res io_result_mk_ok(lean_obj_arg a)`
 def getOrCreateLeanIOResultMkOkFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let voidptr ← LLVM.voidPtrType ctx
@@ -331,8 +265,7 @@ def callLeanIOResultMKOk (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Valu
   LLVM.buildCall builder (← getOrCreateLeanIOResultMkOkFn) #[v] name
 
 
-
--- ***void* lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed)***
+-- `void* lean_obj_res lean_alloc_closure(void * fun, unsigned arity, unsigned num_fixed)`
 def callLeanAllocClosureFn (builder: LLVM.Ptr LLVM.Builder) (f arity nys: LLVM.Ptr LLVM.Value) (retName: String): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_alloc_closure"
@@ -341,7 +274,7 @@ def callLeanAllocClosureFn (builder: LLVM.Ptr LLVM.Builder) (f arity nys: LLVM.P
   let fn ← getOrCreateFunctionPrototype ctx (← getLLVMModule) retty fnName argtys
   LLVM.buildCall builder fn  #[f, arity, nys] retName
 
--- ***void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a)***
+-- `void lean_closure_set(u_lean_obj_arg o, unsigned i, lean_obj_arg a)`
 def callLeanClosureSetFn (builder: LLVM.Ptr LLVM.Builder) (closure ix arg: LLVM.Ptr LLVM.Value) (retName: String): M Unit := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_closure_set"
@@ -351,7 +284,7 @@ def callLeanClosureSetFn (builder: LLVM.Ptr LLVM.Builder) (closure ix arg: LLVM.
   let _ ← LLVM.buildCall builder fn  #[closure, ix, arg] retName
 
 
--- ***int lean_obj_tag(lean_obj_arg o)***
+-- `int lean_obj_tag(lean_obj_arg o)`
 def callLeanObjTag (builder: LLVM.Ptr LLVM.Builder) (closure: LLVM.Ptr LLVM.Value) (retName: String): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_obj_tag"
@@ -361,7 +294,7 @@ def callLeanObjTag (builder: LLVM.Ptr LLVM.Builder) (closure: LLVM.Ptr LLVM.Valu
   let out ← LLVM.buildCall builder fn  #[closure] retName
   LLVM.buildSextOrTrunc builder out (← LLVM.i64Type ctx)
 
--- ***lean_io_result_get_value**
+-- `lean_io_result_get_value**
 def getOrCreateLeanIOResultGetValueFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   getOrCreateFunctionPrototype ctx (← getLLVMModule)
@@ -372,7 +305,7 @@ def callLeanIOResultGetValue (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.
 
 
 -- TODO(bollu): what does this actually release?
--- ** void lean_ctor_release (lean_obj_arg o, int i)***
+-- ** void lean_ctor_release (lean_obj_arg o, int i)`
 def callLeanCtorRelease (builder: LLVM.Ptr LLVM.Builder)
   (closure i: LLVM.Ptr LLVM.Value) (retName: String := ""): M Unit := do
   let ctx ← getLLVMContext
@@ -383,7 +316,7 @@ def callLeanCtorRelease (builder: LLVM.Ptr LLVM.Builder)
   let _ ← LLVM.buildCall builder fn  #[closure, i] retName
 
 
--- ** void lean_ctor_set_tag (lean_obj_arg o, int new_tag)***
+-- ** void lean_ctor_set_tag (lean_obj_arg o, int new_tag)`
 def callLeanCtorSetTag (builder: LLVM.Ptr LLVM.Builder)
   (closure i: LLVM.Ptr LLVM.Value) (retName: String := ""): M Unit := do
   let ctx ← getLLVMContext
@@ -393,23 +326,6 @@ def callLeanCtorSetTag (builder: LLVM.Ptr LLVM.Builder)
   let fn ← getOrCreateFunctionPrototype ctx (← getLLVMModule) retty fnName argtys
   let _ ← LLVM.buildCall builder fn  #[closure, i] retName
 
-
-
-
-/-
-def toCType : IRType → String
-  | IRType.float      => "double"
-  | IRType.uint8      => "uint8_t"
-  | IRType.uint16     => "uint16_t"
-  | IRType.uint32     => "uint32_t"
-  | IRType.uint64     => "uint64_t"
-  | IRType.usize      => "size_t"
-  | IRType.object     => "lean_object*"
-  | IRType.tobject    => "lean_object*"
-  | IRType.irrelevant => "lean_object*"
-  | IRType.struct _ _ => panic! "not implemented yet"
-  | IRType.union _ _  => panic! "not implemented yet"
--/
 def toLLVMType (t: IRType): M (LLVM.Ptr LLVM.LLVMType) := do
   let ctx ← getLLVMContext
   match t with
@@ -427,22 +343,9 @@ def toLLVMType (t: IRType): M (LLVM.Ptr LLVM.LLVMType) := do
   | IRType.union _ _  => panic! "not implemented yet"
 
 
-/-
-def throwInvalidExportName {α : Type} (n : Name) : M α :=
-  throw s!"invalid export name '{n}'"
--/
 def throwInvalidExportName {α : Type} (n : Name) : M α := do
   IO.eprintln "invalid export Name!"; throw (Error.invalidExportName n)
 
-/-
-def toCName (n : Name) : M String := do
-  let env ← getEnv;
-  -- TODO: we should support simple export names only
-  match getExportNameFor? env n with
-  | some (.str .anonymous s) => pure s
-  | some _                   => throwInvalidExportName n
-  | none                     => if n == `main then pure leanMainFn else pure n.mangle
--/
 def toCName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
@@ -451,15 +354,6 @@ def toCName (n : Name) : M String := do
   | some _                   => throwInvalidExportName n
   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
-/-
-def toCInitName (n : Name) : M String := do
-  let env ← getEnv;
-  -- TODO: we should support simple export names only
-  match getExportNameFor? env n with
-  | some (.str .anonymous s) => return "_init_" ++ s
-  | some _                   => throwInvalidExportName n
-  | none                     => pure ("_init_" ++ n.mangle)
--/
 def toCInitName (n : Name) : M String := do
   let env ← getEnv;
   -- TODO: we should support simple export names only
@@ -469,7 +363,7 @@ def toCInitName (n : Name) : M String := do
   | none                     => pure ("_init_" ++ n.mangle)
 
 
--- vvvv LLVM UTILS vvvv
+-- ## LLVM UTILS ##
 
 -- indicates whether the API for building the blocks for then/else should
 -- forward the control flow to the merge block.
@@ -583,34 +477,7 @@ def buildLeanBoolTrue? (builder: LLVM.Ptr LLVM.Builder) (b: LLVM.Ptr LLVM.Value)
 
 
 
--- ^^^^ LLVM UTILS ^^^^
-
--- vvemitFnDeclsvv
-
-/-
-def emitFnDeclAux (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M Unit := do
-  let ps := decl.params
-  let env ← getEnv
-  if ps.isEmpty then
-    if isClosedTermName env decl.name then emit "static "
-    else if isExternal then emit "extern "
-    else emit "LEAN_EXPORT "
-  else
-    if !isExternal then emit "LEAN_EXPORT "
-  emit (toCType decl.resultType ++ " " ++ cppBaseName)
-  unless ps.isEmpty do
-    emit "("
-    -- We omit irrelevant parameters for extern constants
-    let ps := if isExternC env decl.name then ps.filter (fun p => !p.ty.isIrrelevant) else ps
-    if ps.size > closureMaxArgs && isBoxedName decl.name then
-      emit "lean_object**"
-    else
-      ps.size.forM fun i => do
-        if i > 0 then emit ", "
-        emit (toCType ps[i]!.ty)
-    emit ")"
-  emitLn ";"
--/
+-- ## `emitFnDecls`
 
 def emitFnDeclAux (ctx: LLVM.Ptr LLVM.Context) (mod: LLVM.Ptr LLVM.Module)
   (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M (LLVM.Ptr LLVM.Value) := do
@@ -1142,7 +1009,7 @@ def emitLit (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (t : IRType) (v : LitVa
 
 
 
--- ***void *lean_ctor_get(void *obj, int ix)***
+-- `void *lean_ctor_get(void *obj, int ix)`
 def callLeanCtorGet (builder: LLVM.Ptr LLVM.Builder) (x i: LLVM.Ptr LLVM.Value) (retName: String): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_ctor_get"
@@ -1159,7 +1026,7 @@ def emitProj (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (i : Nat) (x : VarId) 
   let zval ← callLeanCtorGet builder xval (← constIntUnsigned i) ""
   emitLhsSlotStore builder z zval
 
--- ***usize lean_ctor_get_usize(void *obj, int ix)***
+-- `usize lean_ctor_get_usize(void *obj, int ix)`
 def callLeanCtorGetUsize (builder: LLVM.Ptr LLVM.Builder) (x i: LLVM.Ptr LLVM.Value) (retName: String): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_ctor_get_usize"
@@ -1219,7 +1086,7 @@ def emitSProj (builder: LLVM.Ptr LLVM.Builder) (z : VarId) (t : IRType) (n offse
   emitLhsSlotStore builder z zval
 
 
--- ***bool lean_is_exclusive(lean_obj_arg o)***
+-- `bool lean_is_exclusive(lean_obj_arg o)`
 def callLeanIsExclusive (builder: LLVM.Ptr LLVM.Builder) (closure: LLVM.Ptr LLVM.Value) (retName: String := ""): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_is_exclusive"
@@ -1229,7 +1096,7 @@ def callLeanIsExclusive (builder: LLVM.Ptr LLVM.Builder) (closure: LLVM.Ptr LLVM
   let out ← LLVM.buildCall builder fn  #[closure] retName
   LLVM.buildSextOrTrunc builder out (← LLVM.i8Type ctx)
 
--- ***bool lean_is_scalar(lean_obj_arg o)***
+-- `bool lean_is_scalar(lean_obj_arg o)`
 def callLeanIsScalar (builder: LLVM.Ptr LLVM.Builder) (closure: LLVM.Ptr LLVM.Value) (retName: String := ""): M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   let fnName :=  "lean_is_scalar"
@@ -2147,7 +2014,7 @@ def callLeanUnboxUint32 (builder: LLVM.Ptr LLVM.Builder) (v: LLVM.Ptr LLVM.Value
 
 
 
--- ***lean_io_result_show_error**
+-- `lean_io_result_show_error**
 def getOrCreateLeanIOResultShowErrorFn: M (LLVM.Ptr LLVM.Value) := do
   let ctx ← getLLVMContext
   getOrCreateFunctionPrototype ctx (← getLLVMModule)

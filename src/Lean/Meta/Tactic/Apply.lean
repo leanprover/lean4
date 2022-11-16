@@ -26,6 +26,11 @@ structure ApplyConfig where
   one inferred. The `congr` tactic sets this flag to false.
   -/
   synthAssignedInstances := true
+  /--
+  If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
+  the `approxDefEq` combinator.
+  -/
+  approx : Bool := true
 
 /--
   Compute the number of expected arguments and whether the result type is of the form
@@ -103,6 +108,13 @@ private def reorderGoals (mvars : Array Expr) : ApplyNewGoals → MetaM (List MV
       return nonDeps.toList
   | ApplyNewGoals.all => return mvars.toList.map Lean.Expr.mvarId!
 
+/-- Custom `isDefEq` for the `apply` tactic -/
+private def isDefEqApply (cfg : ApplyConfig) (a b : Expr) : MetaM Bool := do
+  if cfg.approx then
+    approxDefEq <| isDefEqGuarded a b
+  else
+    isDefEqGuarded a b
+
 /--
 Close the given goal using `apply e`.
 -/
@@ -142,7 +154,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
       if i < rangeNumArgs.stop then
         let s ← saveState
         let (newMVars, binderInfos, eType) ← forallMetaTelescopeReducing eType i
-        if (← isDefEqGuarded eType targetType) then
+        if (← isDefEqApply cfg eType targetType) then
           return (newMVars, binderInfos)
         else
           s.restore

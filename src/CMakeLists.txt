@@ -265,10 +265,10 @@ if(LLVM)
   execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
   message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
-  # string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
-  # string(APPEND LEANSHARED_LINKER_FLAGS " -D LEAN_LLVM") # hack: this should be FLAGS
-  # string(APPEND LEANSHARED_CXX_FLAGS " -D LEAN_LLVM") # hack: this should be FLAGS
-  set(CMAKE_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} ${CMAKE_CXX_FLAGS} -DLEAN_LLVM")
+  # TODO: I am unsure how to correctly communicate '-DLEAN_LLVM' to 'libleanshared' build. Setting `'LEAN_EXTRA_CXX_FLAGS'
+  #       does not succeed in communicating this.
+  string(APPEND LEAN_EXTRA_CXX_FLAGS "-DLEAN_LLVM")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLEAN_LLVM")
 
 
   execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)

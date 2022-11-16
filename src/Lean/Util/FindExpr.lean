@@ -10,7 +10,7 @@ namespace Expr
 
 namespace FindImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   keys : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr

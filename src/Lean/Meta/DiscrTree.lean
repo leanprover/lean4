@@ -225,23 +225,12 @@ def hasNoindexAnnotation (e : Expr) : Bool :=
 
 /--
 Reduction procedure for the discrimination tree indexing.
-It only unfolds reducible definitions, and does not perform iota reduction.
-
-We disable iota reduction because of simp theorems such as
-```
-@[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
-    Quot.liftOn (Quot.mk r a) f h = f a := rfl
-```
-If we use iota, the lhs becomes `f a`
-
-We have considered disabling other reductions (e.g., projection reduction), but
-we could not even compile `Init` with this setup.
-
-Remark: rnote it is not sufficient to just unfold reducible definitions and perform
-beta-reduction, we must also instantiate assgined metavariables, and perform zeta-reduction.
+The parameter `simpleReduce` controls how aggressive the term is reduced.
+The parameter at type `DiscrTree` controls this value.
+See comment at `DiscrTree`.
 -/
 partial def reduce (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
-  let e ← whnfCore e (iota := !simpleReduce)
+  let e ← whnfCore e (simpleReduceOnly := simpleReduce)
   match (← unfoldDefinition? e) with
   | some e => reduce e simpleReduce
   | none => match e.etaExpandedStrict? with
@@ -267,21 +256,21 @@ private def isBadKey (fn : Expr) : Bool :=
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
   We use this method instead of `reduce` for root terms at `pushArgs`. -/
-private partial def reduceUntilBadKey (e : Expr) : MetaM Expr := do
+private partial def reduceUntilBadKey (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
-  | some e => reduceUntilBadKey e
+  | some e => reduceUntilBadKey e simpleReduce
   | none   => return e
 where
   step (e : Expr) := do
-    let e ← whnfCore e (iota := false)
+    let e ← whnfCore e (simpleReduceOnly := simpleReduce)
     match (← unfoldDefinition? e) with
     | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
 def reduceDT (e : Expr) (root : Bool) (simpleReduce : Bool) : MetaM Expr :=
-  if root then reduceUntilBadKey e else reduce e simpleReduce
+  if root then reduceUntilBadKey e simpleReduce else reduce e simpleReduce
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 

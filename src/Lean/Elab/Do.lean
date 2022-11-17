@@ -1213,18 +1213,29 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a `do` sequence"
 
+variable (baseId : Name) in
 private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
   | stx@(Syntax.node i k args) =>
-    if liftMethodDelimiter k then
+    if k == choiceKind then do
+      -- choice node: check that lifts are consistent
+      let alts ← stx.getArgs.mapM (expandLiftMethodAux inQuot inBinder · |>.run [])
+      let (_, lifts) := alts[0]!
+      unless alts.all (·.2 == lifts) do
+        throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
+      modify (· ++ lifts)
+      return .node i k (alts.map (·.1))
+    else if liftMethodDelimiter k then
       return stx
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]!
       let term ← expandLiftMethodAux inQuot inBinder term
-      let auxDoElem : Syntax ← `(doElem| let __do_lift ← $term:term)
+      -- keep name deterministic across choice branches
+      let id ← mkIdentFromRef (.num baseId (← get).length)
+      let auxDoElem : Syntax ← `(doElem| let $id:ident ← $term:term)
       modify fun s => s ++ [auxDoElem]
-      `(__do_lift)
+      return id
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
       let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
@@ -1236,7 +1247,8 @@ def expandLiftMethod (doElem : Syntax) : M (List Syntax × Syntax) := do
   if !hasLiftMethod doElem then
     return ([], doElem)
   else
-    let (doElem, doElemsNew) ← (expandLiftMethodAux false false doElem).run []
+    let baseId ← withFreshMacroScope (MonadQuotation.addMacroScope `__do_lift)
+    let (doElem, doElemsNew) ← (expandLiftMethodAux baseId false false doElem).run []
     return (doElemsNew, doElem)
 
 def checkLetArrowRHS (doElem : Syntax) : M Unit := do

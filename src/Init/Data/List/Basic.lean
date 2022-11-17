@@ -47,7 +47,7 @@ def reverseAux : List α → List α → List α
 `O(|as|)`. Reverse of a list:
 * `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
 
-Note that because of the "functional but in place" optimization implemented by lean's compiler,
+Note that because of the "functional but in place" optimization implemented by Lean's compiler,
 this function works without any allocations provided that the input list is unshared:
 it simply walks the linked list and reverses all the node pointers.
 -/
@@ -584,7 +584,7 @@ def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
-/-- Tail-recursive version of `List.append`. -/
+/-- Tail-recursive version of `iota`. -/
 def iotaTR (n : Nat) : List Nat :=
   let rec go : Nat → List Nat → List Nat
     | 0, r => r.reverse
@@ -626,7 +626,7 @@ def intersperse (sep : α) : List α → List α
   | x::xs => x :: sep :: intersperse sep xs
 
 /--
-`O(|l|)`. `intercalate sep xs` alternates `sep` and the elements of `l`:
+`O(|xs|)`. `intercalate sep xs` alternates `sep` and the elements of `xs`:
 * `intercalate sep [] = []`
 * `intercalate sep [a] = a`
 * `intercalate sep [a, b] = a ++ sep ++ b`

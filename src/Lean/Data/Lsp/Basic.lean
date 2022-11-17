@@ -266,7 +266,7 @@ structure ApplyWorkspaceEditParams where
   presented in the user interface for example on an undo
   stack to undo the workspace edit. -/
   label? : Option String := none
-  /-- * The edits to apply. -/
+  /-- The edits to apply. -/
   edit : WorkspaceEdit
   deriving ToJson, FromJson
 

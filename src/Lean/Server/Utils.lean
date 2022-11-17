@@ -138,6 +138,10 @@ def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut
 
+-- TODO: should return a request ID (or task?) when we add response handling
+def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : IO Unit :=
+  hOut.writeLspRequest ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
+
 end Lean.Server
 
 def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=

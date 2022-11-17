@@ -258,6 +258,18 @@ def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
 
 end WorkspaceEdit
 
+/-- The `workspace/applyEdit` request is sent from the server to the client to modify resource on the client side.
+
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#applyWorkspaceEditParams) -/
+structure ApplyWorkspaceEditParams where
+  /-- An optional label of the workspace edit. This label is
+  presented in the user interface for example on an undo
+  stack to undo the workspace edit. -/
+  label? : Option String := none
+  /-- * The edits to apply. -/
+  edit : WorkspaceEdit
+  deriving ToJson, FromJson
+
 /-- An item to transfer a text document from the client to the server.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocumentItem)

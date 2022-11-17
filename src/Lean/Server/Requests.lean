@@ -63,6 +63,7 @@ structure RequestContext where
   srcSearchPath : SearchPath
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
+  hOut          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)

@@ -52,11 +52,17 @@ mutual
 unsafe def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool :=
   lt a b
 where
-  reduce (e : Expr) : MetaM Expr :=
-    match mode with
-    | .reduce => DiscrTree.reduce e (simpleReduce := false)
-    | .reduceSimpleOnly => DiscrTree.reduce e (simpleReduce := true)
-    | .none => return e
+  reduce (e : Expr) : MetaM Expr := do
+    if e.hasLooseBVars then
+      -- We don't reduce terms occurring inside binders.
+      -- See issue #1841.
+      -- TODO: investigate whether we have to create temporary fresh free variables in practice.
+      -- Drawback: cost.
+      return e
+    else match mode with
+      | .reduce => DiscrTree.reduce e (simpleReduce := false)
+      | .reduceSimpleOnly => DiscrTree.reduce e (simpleReduce := true)
+      | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do
     if ptrAddrUnsafe a == ptrAddrUnsafe b then

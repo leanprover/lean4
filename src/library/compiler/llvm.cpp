@@ -30,6 +30,19 @@ Lean's IR.
 #include <llvm-c/Transforms/PassBuilder.h>
 #include <llvm-c/Transforms/PassManagerBuilder.h>
 
+extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
+                                                      lean_object *);
+
+namespace lean {
+namespace llvm {
+void initialize_llvm() {
+  initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, lean_io_mk_world());
+}
+
+void finalize_llvm() {}
+}  // namespace llvm
+}  // namespace lean
+
 // == LLVM <-> Lean: Target ==
 static inline size_t Target_to_lean(LLVMTargetRef s) {
     return reinterpret_cast<size_t>(s);

@@ -51,7 +51,6 @@ if (lean_is_trace_enabled(CName)) {             \
     tout() << tclass(CName); CODE               \
 }}
 
-void trace_expr(environment const & env, options const & opts, expr const & e);
 std::string trace_pp_expr(expr const & e);
 
 void initialize_trace();

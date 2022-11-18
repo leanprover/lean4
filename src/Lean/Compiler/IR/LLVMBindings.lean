@@ -32,20 +32,28 @@ def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
 structure Context where 
   private mk :: ptr : USize
+
 structure BasicBlock (ctx : Context)  where 
   private mk :: ptr : USize
+
 structure Module (ctx : Context) where 
   private mk :: ptr : USize
+
 structure Builder (ctx : Context) where 
   private mk :: ptr : USize
+
 structure LLVMType (ctx : Context) where 
   private mk :: ptr : USize
+
 structure Value (ctx : Context) where 
   private mk :: ptr : USize
+
 structure MemoryBuffer (ctx : Context) where 
   private mk :: ptr : USize
+
 structure Target (ctx : Context) where 
   private mk :: ptr : USize
+
 structure TargetMachine (ctx : Context) where 
   private mk :: ptr : USize
 

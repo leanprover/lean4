@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "runtime/list_ref.h"
 #include "util/name.h"
 #include "util/options.h"
-#include "util/format.h"
 
 namespace lean {
 class environment;
@@ -196,15 +195,6 @@ std::ostream & operator<<(std::ostream & out, level const & l);
     in \c l, l[A] != zero. */
 bool is_not_zero(level const & l);
 
-/** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
-format pp(level l, bool unicode, unsigned indent);
-/** \brief Pretty print the given level expression using the given configuration options. */
-format pp(level const & l, options const & opts = options());
-
-/** \brief Pretty print lhs <= rhs, unicode characters are used if \c unicode is \c true. */
-format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
-/** \brief Pretty print lhs <= rhs using the given configuration options. */
-format pp(level const & lhs, level const & rhs, options const & opts = options());
 /** \brief Convert a list of universe level parameter names into a list of levels. */
 levels lparams_to_levels(names const & ps);
 

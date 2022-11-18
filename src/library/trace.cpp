@@ -183,10 +183,6 @@ std::string pp_expr(environment const & env, options const & opts, expr const & 
     return pp_expr(env, opts, lctx, e);
 }
 
-void trace_expr(environment const & env, options const & opts, expr const & e) {
-    tout() << pp_expr(env, opts, e);
-}
-
 std::string trace_pp_expr(expr const & e) {
     return pp_expr(*g_env, *g_opts, e);
 }

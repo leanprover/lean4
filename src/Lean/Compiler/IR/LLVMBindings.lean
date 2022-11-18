@@ -30,25 +30,22 @@ def IntPredicate.EQ : IntPredicate := { val := 32 }
 def IntPredicate.NE : IntPredicate := { val := IntPredicate.EQ.val + 1 }
 def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
-structure Context where 
-  private mk :: ptr : USize
-
 structure BasicBlock (ctx : Context)  where 
-  private mk :: ptr : USize
-
-structure Module (ctx : Context) where 
   private mk :: ptr : USize
 
 structure Builder (ctx : Context) where 
   private mk :: ptr : USize
 
+structure Context where 
+  private mk :: ptr : USize
+
 structure LLVMType (ctx : Context) where 
   private mk :: ptr : USize
 
-structure Value (ctx : Context) where 
+structure MemoryBuffer (ctx : Context) where 
   private mk :: ptr : USize
 
-structure MemoryBuffer (ctx : Context) where 
+structure Module (ctx : Context) where 
   private mk :: ptr : USize
 
 structure Target (ctx : Context) where 
@@ -57,10 +54,8 @@ structure Target (ctx : Context) where
 structure TargetMachine (ctx : Context) where 
   private mk :: ptr : USize
 
--- A raw pointer to a C object, whose Lean representation
--- is given by α
-structure Ptr (α: Type) : Type where
-  ptr : USize
+structure Value (ctx : Context) where 
+  private mk :: ptr : USize
 
 @[extern "lean_llvm_create_context"]
 opaque createContext : IO (Context)
@@ -199,7 +194,7 @@ opaque buildSub (builder : @&Builder ctx) (x y : @&Value ctx) (name : @&String :
 opaque buildNot (builder : @&Builder ctx) (x : @&Value ctx) (name : @&String := "") : IO (Value ctx)
 
 @[extern "lean_llvm_build_icmp"]
-opaque buildICmp (builder : @&Builder ctx) (predicate : UInt64) (x y : @&Value ctx) (name : @&String := "") : IO (Value ctx)
+opaque buildICmp (builder : @&Builder ctx) (predicate : IntPredicate) (x y : @&Value ctx) (name : @&String := "") : IO (Value ctx)
 
 @[extern "lean_llvm_add_case"]
 opaque addCase (switch onVal : @&Value ctx) (destBB : @&BasicBlock ctx) : IO Unit
@@ -226,10 +221,10 @@ opaque printModuletoString (mod : @&Module ctx) : IO (String)
 opaque printModuletoFile (mod : @&Module ctx) (file : @&String) : IO Unit
 
 @[extern "llvm_count_params"]
-opaque countParams (fn : @&Ptr Function) : UInt64 -- will this cause problems..?
+opaque countParams (fn : @&Value ctx) : UInt64 -- will this cause problems..?
 
 @[extern "llvm_get_param"]
-opaque getParam (fn : @&Ptr Function) (ix : UInt64) : IO (Value ctx)
+opaque getParam (fn : @&Value ctx) (ix : UInt64) : IO (Value ctx)
 
 @[extern "lean_llvm_create_memory_buffer_with_contents_of_file"]
 opaque createMemoryBufferWithContentsOfFile (path : @&String) : IO (MemoryBuffer ctx)
@@ -250,7 +245,7 @@ opaque getTargetFromTriple (triple : @&String) : IO (Target ctx)
 opaque createTargetMachine (target : @&Target ctx) (tripleStr : @&String) (cpu : @&String) (features : @&String) : IO (TargetMachine ctx)
 
 @[extern "lean_llvm_target_machine_emit_to_file"]
-opaque targetMachineEmitToFile (targetMachine : @&TargetMachine ctx) (module : @&Module ctx) (filepath : @&String) (codegenType : @&UInt64) : IO Unit
+opaque targetMachineEmitToFile (targetMachine : @&TargetMachine ctx) (module : @&Module ctx) (filepath : @&String) (codegenType : @&LLVM.CodegenFileType) : IO Unit
 
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.

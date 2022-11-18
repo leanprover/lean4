@@ -15,18 +15,20 @@ are to:
 
 namespace LLVM
 
-namespace CodeGenFileType
 -- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/TargetMachine.h#L64
-def AssemblyFile : UInt64 := 0
-def ObjectFile : UInt64 := 1
-end CodeGenFileType
+structure CodegenFileType where
+  private mk :: val : UInt64
 
-namespace IntPredicate
+def CodegenFileType.AssemblyFile : CodegenFileType := { val := 0 }
+def CodegenFileType.ObjectFile : CodegenFileType := { val := 1 }
+
 -- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L290
-def EQ : UInt64 := 32
-def NE : UInt64 := EQ + 1
-def UGT : UInt64 := NE + 1
-end IntPredicate
+structure IntPredicate where
+  private mk :: val : UInt64
+
+def IntPredicate.EQ : IntPredicate := { val := 32 }
+def IntPredicate.NE : IntPredicate := { val := IntPredicate.EQ.val + 1 }
+def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
 structure Context where 
   private mk :: ptr : USize

@@ -190,7 +190,7 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
 def getTerminationHints (stx : Syntax) : TerminationHints :=
   let decl := stx[1]
   let k := decl.getKind
-  if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
+  if k == ``Parser.Command.def || k == ``Parser.Command.abbrev || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
     let args := decl.getArgs
     { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
   else

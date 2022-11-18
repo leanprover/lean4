@@ -101,7 +101,7 @@ def declVal          :=
   withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
-  "abbrev " >> declId >> ppIndent optDeclSig >> declVal
+  "abbrev " >> declId >> ppIndent optDeclSig >> declVal >> terminationSuffix
 def optDefDeriving   :=
   optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser

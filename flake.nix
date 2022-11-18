@@ -8,6 +8,10 @@
     url = github:leanprover/lean4-mode;
     flake = false;
   };
+  inputs.lake = {
+    url = github:leanprover/lake;
+    flake = false;
+  };
   # used *only* by `stage0-from-input` below
   #inputs.lean-stage0 = {
   #  url = github:leanprover/lean4;
@@ -24,7 +28,7 @@
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix lean4-mode; };
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix lean4-mode lake; };
     in {
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };

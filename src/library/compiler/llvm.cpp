@@ -19,17 +19,6 @@ Lean's IR.
 
 #define LLVM_DEBUG 0
 
-#ifdef LEAN_LLVM
-#include <llvm-c/BitReader.h>
-#include <llvm-c/BitWriter.h>
-#include <llvm-c/Core.h>
-#include <llvm-c/Linker.h>
-#include <llvm-c/Target.h>
-#include <llvm-c/TargetMachine.h>
-#include <llvm-c/Types.h>
-#include <llvm-c/Transforms/PassBuilder.h>
-#include <llvm-c/Transforms/PassManagerBuilder.h>
-
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
 
@@ -42,6 +31,18 @@ void initialize_llvm() {
 void finalize_llvm() {}
 }  // namespace llvm
 }  // namespace lean
+
+
+#ifdef LEAN_LLVM
+#include <llvm-c/BitReader.h>
+#include <llvm-c/BitWriter.h>
+#include <llvm-c/Core.h>
+#include <llvm-c/Linker.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/TargetMachine.h>
+#include <llvm-c/Types.h>
+#include <llvm-c/Transforms/PassBuilder.h>
+#include <llvm-c/Transforms/PassManagerBuilder.h>
 
 // == LLVM <-> Lean: Target ==
 static inline size_t Target_to_lean(LLVMTargetRef s) {

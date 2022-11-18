@@ -23,9 +23,9 @@ if(LLVM)
   endif()
   add_custom_command(
     OUTPUT libleanrt.bc
-    DEPENDS ${RUNTIME_OBJS} lean_inlines.cpp
+    DEPENDS ${RUNTIME_OBJS}
     # compile each runtime file with the original compile flags plus `-emit-llvm`, then `llvm-link` them together
-    COMMAND bash -ec "rm -rf runtmp || true; mkdir runtmp; ${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_SOURCE_DIR}/lean_inlines.cpp -emit-llvm -o libleanrt.bc"
+    COMMAND bash -ec "rm -rf runtmp || true; mkdir runtmp; cp ${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h runtmp/lean_inlines.cpp; sed -i 's/static inline//' runtmp/lean_inlines.cpp; ${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c runtmp/lean_inlines.cpp -emit-llvm -o libleanrt.bc"
     VERBATIM)
   add_custom_target(runtime_bc DEPENDS libleanrt.bc)
 endif()

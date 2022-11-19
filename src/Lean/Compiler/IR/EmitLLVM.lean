@@ -2252,6 +2252,8 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
          let targetmachine ← LLVM.createTargetMachine target tripleStr cpu features
          let codegenType := LLVM.CodegenFileType.ObjectFile
          LLVM.targetMachineEmitToFile targetmachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
+         LLVM.disposeModule emitLLVMCtx.llvmmodule
+         LLVM.disposeTargetMachine targetmachine
 
   | .error err => IO.eprintln ("ERROR: " ++ toString err); return () -- throw (IO.userError <| toString err)
 end Lean.IR

@@ -406,7 +406,8 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
-          if (← localDeclDependsOn xDecl curr.fvarId!) then
+          /- Remark: a default value at `optParam` does not count as a dependency -/
+          if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return true
       return false
 

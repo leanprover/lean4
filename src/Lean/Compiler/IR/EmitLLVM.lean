@@ -1214,10 +1214,8 @@ def emitVDecl (builder: LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Expr
   debugPrint "emitVDecl"
   match v with
   | Expr.ctor c ys      => emitCtor builder z c ys -- throw (Error.unimplemented "emitCtor z c ys")
-  | Expr.reset n x      =>
-     if ResetReuse.shouldEmitResetReuse? then emitReset builder z n x else throw (Error.unimplemented "emitReset")
-  | Expr.reuse x c u ys =>
-     if ResetReuse.shouldEmitResetReuse? then emitReuse builder z x c u ys else throw (Error.unimplemented "emitReuse")
+  | Expr.reset n x      => emitReset builder z n x
+  | Expr.reuse x c u ys => emitReuse builder z x c u ys
   | Expr.proj i x       => emitProj builder z i x
   | Expr.uproj _i _x      => throw (Error.unimplemented "emitUProj z i x")
   | Expr.sproj n o x    => emitSProj builder z t n o x

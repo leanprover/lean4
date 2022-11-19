@@ -144,20 +144,16 @@ partial def R : FnBody → M FnBody
       let b ← R b
       pure (instr.setBody b)
 
-def shouldEmitResetReuse? : Bool := False
-
 end ResetReuse
 
 open ResetReuse
 
 def Decl.insertResetReuse (d : Decl) : Decl :=
-  if shouldEmitResetReuse? then
-    match d with
-    | .fdecl (body := b) ..=>
-      let nextIndex := d.maxIndex + 1
-      let bNew      := (R b {}).run' nextIndex
-      d.updateBody! bNew
-    | other => other
-  else d
+  match d with
+  | .fdecl (body := b) ..=>
+    let nextIndex := d.maxIndex + 1
+    let bNew      := (R b {}).run' nextIndex
+    d.updateBody! bNew
+  | other => other
 
 end Lean.IR

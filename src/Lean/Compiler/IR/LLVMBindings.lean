@@ -77,179 +77,179 @@ instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
 opaque createContext : BaseIO (Context)
 
 @[extern "lean_llvm_create_module"]
-opaque createModule (ctx : @&Context) (name : @&String) : BaseIO (Module ctx)
+opaque createModule (ctx : Context) (name : @&String) : BaseIO (Module ctx)
 
 @[extern "lean_llvm_module_to_string"]
-opaque moduleToString (m : @&Module ctx) : BaseIO String
+opaque moduleToString (m : Module ctx) : BaseIO String
 
 @[extern "lean_llvm_write_bitcode_to_file"]
-opaque writeBitcodeToFile (m : @&Module ctx) (path : @&String) : BaseIO Unit
+opaque writeBitcodeToFile (m : Module ctx) (path : @&String) : BaseIO Unit
 
 @[extern "lean_llvm_add_function"]
-opaque addFunction (m : @&Module ctx) (name : @&String) (type : @&LLVMType ctx) : BaseIO (Value ctx)
+opaque addFunction (m : Module ctx) (name : @&String) (type : LLVMType ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_get_named_function"]
-opaque getNamedFunction (m : @&Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
+opaque getNamedFunction (m : Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
 
 @[extern "lean_llvm_add_global"]
-opaque addGlobal (m : @&Module ctx) (name : @&String) (type : @&LLVMType ctx) : BaseIO (Value ctx)
+opaque addGlobal (m : Module ctx) (name : @&String) (type : LLVMType ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_get_named_global"]
-opaque getNamedGlobal (m : @&Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
+opaque getNamedGlobal (m : Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
 
 @[extern "lean_llvm_build_global_string"]
-opaque buildGlobalString (builder : @&Builder ctx) (value : @&String) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildGlobalString (builder : Builder ctx) (value : @&String) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_set_initializer"]
-opaque setInitializer (glbl : @&Value ctx) (val : @&Value ctx) : BaseIO Unit
+opaque setInitializer (glbl : Value ctx) (val : Value ctx) : BaseIO Unit
 
 @[extern "lean_llvm_function_type"]
-opaque functionType (retty : @&LLVMType ctx) (args : @&Array (LLVMType ctx)) (isVarArg : Bool := false) : BaseIO (LLVMType ctx)
+opaque functionType (retty : LLVMType ctx) (args : @&Array (LLVMType ctx)) (isVarArg : Bool := false) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_void_type_in_context"]
-opaque voidType (ctx : @&Context) : BaseIO (LLVMType ctx)
+opaque voidType (ctx : Context) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_int_type_in_context"]
-opaque intTypeInContext (ctx : @&Context) (width : UInt64) : BaseIO (LLVMType ctx)
+opaque intTypeInContext (ctx : Context) (width : UInt64) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_float_type_in_context"]
-opaque floatTypeInContext (ctx : @&Context) : BaseIO (LLVMType ctx)
+opaque floatTypeInContext (ctx : Context) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_double_type_in_context"]
-opaque doubleTypeInContext (ctx : @&Context) : BaseIO (LLVMType ctx)
+opaque doubleTypeInContext (ctx : Context) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_pointer_type"]
-opaque pointerType (elemty : @&LLVMType ctx) : BaseIO (LLVMType ctx)
+opaque pointerType (elemty : LLVMType ctx) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_array_type"]
-opaque arrayType (elemty : @&LLVMType ctx) (nelem : @&UInt64) : BaseIO (LLVMType ctx)
+opaque arrayType (elemty : LLVMType ctx) (nelem : UInt64) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_const_array"]
-opaque constArray (elemty : @&LLVMType ctx) (vals : @&Array (Value ctx)) : BaseIO (LLVMType ctx)
+opaque constArray (elemty : LLVMType ctx) (vals : @&Array (Value ctx)) : BaseIO (LLVMType ctx)
 
 -- `constString` provides a `String` as a constant array of element type `i8`
 @[extern "lean_llvm_const_string"]
-opaque constString (ctx : @&Context) (str : @&String) : BaseIO (Value ctx)
+opaque constString (ctx : Context) (str : @&String) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_const_pointer_null"]
-opaque constPointerNull (elemty : @&LLVMType ctx) : BaseIO (Value ctx)
+opaque constPointerNull (elemty : LLVMType ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_get_undef"]
-opaque getUndef (elemty : @&LLVMType ctx) : BaseIO (Value ctx)
+opaque getUndef (elemty : LLVMType ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_create_builder_in_context"]
-opaque createBuilderInContext (ctx : @&Context) : BaseIO (Builder ctx)
+opaque createBuilderInContext (ctx : Context) : BaseIO (Builder ctx)
 
 @[extern "lean_llvm_append_basic_block_in_context"]
-opaque appendBasicBlockInContext (ctx : @&Context) (fn : @& Value ctx) (name :  @&String) : BaseIO (BasicBlock ctx)
+opaque appendBasicBlockInContext (ctx : Context) (fn :  Value ctx) (name :  @&String) : BaseIO (BasicBlock ctx)
 
 @[extern "lean_llvm_position_builder_at_end"]
-opaque positionBuilderAtEnd (builder : @&Builder ctx) (bb : @& BasicBlock ctx) : BaseIO Unit
+opaque positionBuilderAtEnd (builder : Builder ctx) (bb :  BasicBlock ctx) : BaseIO Unit
 
 @[extern "lean_llvm_build_call"]
-opaque buildCall (builder : @&Builder ctx) (fn : @&Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
+opaque buildCall (builder : Builder ctx) (fn : Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_set_tail_call"]
-opaque setTailCall (fn : @&Value ctx) (istail : Bool) : BaseIO Unit
+opaque setTailCall (fn : Value ctx) (istail : Bool) : BaseIO Unit
 
 @[extern "lean_llvm_build_cond_br"]
-opaque buildCondBr (builder : @&Builder ctx) (if_ : @&Value ctx) (thenbb : @&BasicBlock ctx) (elsebb : @&BasicBlock ctx) : BaseIO (Value ctx)
+opaque buildCondBr (builder : Builder ctx) (if_ : Value ctx) (thenbb : BasicBlock ctx) (elsebb : BasicBlock ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_br"]
-opaque buildBr (builder : @&Builder ctx) (bb : @&BasicBlock ctx) : BaseIO (Value ctx)
+opaque buildBr (builder : Builder ctx) (bb : BasicBlock ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_alloca"]
-opaque buildAlloca (builder : @&Builder ctx) (ty : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildAlloca (builder : Builder ctx) (ty : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_load"]
-opaque buildLoad (builder : @&Builder ctx) (val : @&Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildLoad (builder : Builder ctx) (val : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_store"]
-opaque buildStore (builder : @&Builder ctx) (val : @&Value ctx) (store_loc_ptr : @&Value ctx) : BaseIO Unit
+opaque buildStore (builder : Builder ctx) (val : Value ctx) (store_loc_ptr : Value ctx) : BaseIO Unit
 
 @[extern "lean_llvm_build_ret"]
-opaque buildRet (builder : @&Builder ctx) (val : @&Value ctx) : BaseIO (Value ctx)
+opaque buildRet (builder : Builder ctx) (val : Value ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_unreachable"]
-opaque buildUnreachable (builder : @&Builder ctx) : BaseIO (Value ctx)
+opaque buildUnreachable (builder : Builder ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_gep"]
-opaque buildGEP (builder : @&Builder ctx) (base : @&Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_inbounds_gep"]
-opaque buildInBoundsGEP (builder : @&Builder ctx) (base : @&Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildInBoundsGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_pointer_cast"]
-opaque buildPointerCast (builder : @&Builder ctx) (val : @&Value ctx) (destTy : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildPointerCast (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sext"]
-opaque buildSext (builder : @&Builder ctx) (val : @&Value ctx) (destTy : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildSext (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_zext"]
-opaque buildZext (builder : @&Builder ctx) (val : @&Value ctx) (destTy : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildZext (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sext_or_trunc"]
-opaque buildSextOrTrunc (builder : @&Builder ctx) (val : @&Value ctx) (destTy : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildSextOrTrunc (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_switch"]
-opaque buildSwitch (builder : @&Builder ctx) (val : @&Value ctx) (elseBB : @&BasicBlock ctx) (numCasesHint : @&UInt64) : BaseIO (Value ctx)
+opaque buildSwitch (builder : Builder ctx) (val : Value ctx) (elseBB : BasicBlock ctx) (numCasesHint : UInt64) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_ptr_to_int"]
-opaque buildPtrToInt (builder : @&Builder ctx) (ptr : @&Value ctx) (destTy : @&LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildPtrToInt (builder : Builder ctx) (ptr : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_mul"]
-opaque buildMul (builder : @&Builder ctx) (x y : @&Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildMul (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_add"]
-opaque buildAdd (builder : @&Builder ctx) (x y : @&Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildAdd (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sub"]
-opaque buildSub (builder : @&Builder ctx) (x y : @&Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildSub (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_not"]
-opaque buildNot (builder : @&Builder ctx) (x : @&Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildNot (builder : Builder ctx) (x : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_icmp"]
-opaque buildICmp (builder : @&Builder ctx) (predicate : IntPredicate) (x y : @&Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+opaque buildICmp (builder : Builder ctx) (predicate : IntPredicate) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_add_case"]
-opaque addCase (switch onVal : @&Value ctx) (destBB : @&BasicBlock ctx) : BaseIO Unit
+opaque addCase (switch onVal : Value ctx) (destBB : BasicBlock ctx) : BaseIO Unit
 
 @[extern "lean_llvm_get_insert_block"]
-opaque getInsertBlock (builder : @&Builder ctx) : BaseIO (BasicBlock ctx)
+opaque getInsertBlock (builder : Builder ctx) : BaseIO (BasicBlock ctx)
 
 @[extern "lean_llvm_clear_insertion_position"]
-opaque clearInsertionPosition (builder : @&Builder ctx) : BaseIO Unit
+opaque clearInsertionPosition (builder : Builder ctx) : BaseIO Unit
 
 @[extern "lean_llvm_get_basic_block_parent"]
-opaque getBasicBlockParent (bb : @&BasicBlock ctx) : BaseIO (Value ctx)
+opaque getBasicBlockParent (bb : BasicBlock ctx) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_type_of"]
-opaque typeOf (val : @&Value ctx) : BaseIO (LLVMType ctx)
+opaque typeOf (val : Value ctx) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_const_int"]
-opaque constInt (intty : @&LLVMType ctx) (value : @&UInt64) (signExtend : @Bool := false) : BaseIO (Value ctx)
+opaque constInt (intty : LLVMType ctx) (value : UInt64) (signExtend : @Bool := false) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_print_module_to_string"]
-opaque printModuletoString (mod : @&Module ctx) : BaseIO (String)
+opaque printModuletoString (mod : Module ctx) : BaseIO (String)
 
 @[extern "lean_llvm_print_module_to_file"]
-opaque printModuletoFile (mod : @&Module ctx) (file : @&String) : BaseIO Unit
+opaque printModuletoFile (mod : Module ctx) (file : @&String) : BaseIO Unit
 
 @[extern "llvm_count_params"]
-opaque countParams (fn : @&Value ctx) : UInt64 
+opaque countParams (fn : Value ctx) : UInt64
 
 @[extern "llvm_get_param"]
-opaque getParam (fn : @&Value ctx) (ix : UInt64) : BaseIO (Value ctx)
+opaque getParam (fn : Value ctx) (ix : UInt64) : BaseIO (Value ctx)
 
 @[extern "lean_llvm_create_memory_buffer_with_contents_of_file"]
 opaque createMemoryBufferWithContentsOfFile (path : @&String) : BaseIO (MemoryBuffer ctx)
 
 @[extern "lean_llvm_parse_bitcode"]
-opaque parseBitcode (ctx : @&Context) (membuf : @&MemoryBuffer ctx) : BaseIO (Module ctx)
+opaque parseBitcode (ctx : Context) (membuf : MemoryBuffer ctx) : BaseIO (Module ctx)
 
 @[extern "lean_llvm_link_modules"]
-opaque linkModules (dest : @Module ctx) (src : @&Module ctx) : BaseIO Unit
+opaque linkModules (dest : Module ctx) (src : Module ctx) : BaseIO Unit
 
 @[extern "lean_llvm_get_default_target_triple"]
 opaque getDefaultTargetTriple : BaseIO String
@@ -258,10 +258,10 @@ opaque getDefaultTargetTriple : BaseIO String
 opaque getTargetFromTriple (triple : @&String) : BaseIO (Target ctx)
 
 @[extern "lean_llvm_create_target_machine"]
-opaque createTargetMachine (target : @&Target ctx) (tripleStr : @&String) (cpu : @&String) (features : @&String) : BaseIO (TargetMachine ctx)
+opaque createTargetMachine (target : Target ctx) (tripleStr : @&String) (cpu : @&String) (features : @&String) : BaseIO (TargetMachine ctx)
 
 @[extern "lean_llvm_target_machine_emit_to_file"]
-opaque targetMachineEmitToFile (targetMachine : @&TargetMachine ctx) (module : @&Module ctx) (filepath : @&String) (codegenType : @&LLVM.CodegenFileType) : BaseIO Unit
+opaque targetMachineEmitToFile (targetMachine : TargetMachine ctx) (module : Module ctx) (filepath : @&String) (codegenType : LLVM.CodegenFileType) : BaseIO Unit
 
 @[extern "lean_llvm_create_pass_manager"]
 opaque createPassManager : BaseIO (PassManager ctx)

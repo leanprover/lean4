@@ -2,6 +2,8 @@
 *.lean.c
 *.lean.c.ll
 *.lean.bc
+*.lean.linked.bc
+*.lean.linked.bc.o
 *.lean.bc.ll
 *.lean.bc.o2.ll
 *.lean.c.o2.ll

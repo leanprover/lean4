@@ -4,10 +4,4 @@
 [Meta.Tactic.simp.discharge] @ex, failed to discharge hypotheses
       ?p x
 [Meta.Tactic.simp.discharge] >> discharge?: ?p (f x)
-[Meta.Tactic.simp.discharge] >> discharge?: ?p x
-[Meta.Tactic.simp.discharge] @ex, failed to discharge hypotheses
-      ?p x
-[Meta.Tactic.simp.discharge] >> discharge?: ?p x
-[Meta.Tactic.simp.discharge] @ex, failed to discharge hypotheses
-      ?p x
 [Meta.Tactic.simp.discharge] @ex, failed to discharge hypotheses ?p (f x)

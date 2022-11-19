@@ -26,7 +26,7 @@ def f7 (xs : Vec α n) : Nat :=
   xs.casesOn (a := 10) 0 -- Error unused named args
 
 def f8 (xs : List Nat) : xs ≠ [] → xs.length > 0 :=
-  @List.casesOn _ (motive := fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
+  @List.casesOn _ (fun xs => xs ≠ [] → xs.length > 0) xs (by dsimp; intros; contradiction) (by dsimp; intros; simp_arith)
 
 def f5' (xs : List Nat) (h : xs ≠ []) : xs.length > 0 :=
   xs.casesOn (fun h => absurd rfl h) (fun _ _ _ => Nat.zero_lt_succ ..) h
@@ -87,4 +87,3 @@ noncomputable def f : Nat → Nat :=
 
 example : ∀ x, x ≥ 0 :=
   Nat.rec (Nat.le_refl 0) (fun _ ih => Nat.le_succ_of_le ih)
-

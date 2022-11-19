@@ -121,7 +121,7 @@ Lake uses a lot of terms common in software development -- like workspace, packa
 
 * A **Lean binary executable** is a binary executable (i.e., a program a user can run on their computer without Lean installed) built from a Lean module termed its **root** (which should have a `main` definition). See the [Binary Executables section](#binary-executables) for more details.
 
-* An **external library** is a native (static) library built from foreign code (e.g., C) that is required by a package's Lean code in order to function (e.g., because it uses `@[extern]` to invoke a written in the foreign language). An `extern_lib` target is used to inform Lake of such a requirement and instruct Lake on how to build requisite library. Lake then automatically links the external library when appropriate to give the Lean code access to the foreign functions (or, more technically, the foreign symbols) it needs. See the [External Libraries section](#external-libraries) for more details.
+* An **external library** is a native (static) library built from foreign code (e.g., C) that is required by a package's Lean code in order to function (e.g., because it uses `@[extern]` to invoke code written in a foreign language). An `extern_lib` target is used to inform Lake of such a requirement and instruct Lake on how to build requisite library. Lake then automatically links the external library when appropriate to give the Lean code access to the foreign functions (or, more technically, the foreign symbols) it needs. See the [External Libraries section](#external-libraries) for more details.
 
 * A **target** is the **fundamental build unit of Lake**. A package can defining any number of targets. Each target has a name, which is used to instruct Lake to build the target (e.g., through `lake buld <target>`) and to keep track internally of a target's build status.  Lake defines a set of builtin target types -- [Lean libraries](#lean-libraries), [binary executables](#binary-executables), and [external libraries](#external-libraries) -- but a user can [define their own custom targets as well](#custom-targets). Complex types (e.g., packages, libraries, modules) have multiple facets, each of which count as separate buildable targets. See the [Defining Build Targets section](#defining-build-targets) for more details.
 
@@ -160,7 +160,7 @@ Lake provides a large assortment of configuration options for packages.
 * `releaseRepo?`: The optional URL of the GitHub repository to upload and download releases of this package.  If `none` (the default), for downloads, Lake uses the URL the package was download from (if it is a dependency) and for uploads, uses `gh`'s default.
 * `buildArchive?`: The name of the build archive on GitHub. Defaults to `none`.
 The archive's full file name will end up being `nameToArchive buildArchive?`.
-* `preferReleaseBuild`: Whether to Prefer downloading a prebuilt release (from GitHub) rather than building this package from the source when this package is used as a dependency.
+* `preferReleaseBuild`: Whether to prefer downloading a prebuilt release (from GitHub) rather than building this package from the source when this package is used as a dependency.
 
 ## Defining Build Targets
 
@@ -180,13 +180,13 @@ lean_lib «target-name» {
 
 **Configuration Options**
 
-* `srcDir`: The subdirectory of the package' source directory containing the library's source files. Defaults simply to said `srcDir`. (This will be passed to `lean` as the `-R` option.)
+* `srcDir`: The subdirectory of the package' source directory containing the library's source files. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
 * `roots`: An `Array` of root module `Name`(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
 * `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
 * `libName`: The `String` name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.
 * `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the library's static and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
-* `precompileModules`, `buildType`, `moreLeanArgs`, `moreLinkArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
+* `precompileModules`, `buildType`, `moreLeanArgs`, `moreLeancArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
 
 ### Binary Executables
 
@@ -205,7 +205,7 @@ lean_exe «target-name» {
 * `root`: The root module `Name` of the binary executable. Should include a `main` definition that will serve as the entry point of the program. The root is built by recursively building its local imports (i.e., fellow modules of the workspace). Defaults to the name of the target.
 * `exeName`: The `String` name of the binary executable. Defaults to the target name with any `.` replaced with a `-`.
 * `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
-* `buildType`, `moreLeanArgs`, `moreLinkArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
+* `buildType`, `moreLeanArgs`, `moreLeancArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### External Libraries
 

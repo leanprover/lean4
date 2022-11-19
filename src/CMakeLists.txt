@@ -267,7 +267,7 @@ if(LLVM)
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
   # TODO: I am unsure how to correctly communicate '-DLEAN_LLVM' to 'libleanshared' build. Setting `'LEAN_EXTRA_CXX_FLAGS'
   #       does not succeed in communicating this.
-  string(APPEND LEAN_EXTRA_CXX_FLAGS "-DLEAN_LLVM")
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -DLEAN_LLVM")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLEAN_LLVM")
 
 

@@ -284,6 +284,12 @@ opaque PassManagerBuilder.setOptLevel (pmb : PassManagerBuilder ctx) (optLevel :
 @[extern "lean_llvm_pass_manager_builder_populate_module_pass_manager"]
 opaque PassManagerBuilder.populateModulePassManager (pmb : PassManagerBuilder ctx) (pm : PassManager ctx): BaseIO Unit
 
+@[extern "lean_llvm_dispose_target_machine"]
+opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
+
+@[extern "lean_llvm_dispose_module"]
+opaque disposeModule (m : Module ctx) : BaseIO Unit
+
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m : Module ctx) (name : String) (type : LLVMType ctx) : BaseIO (Value ctx) :=  do

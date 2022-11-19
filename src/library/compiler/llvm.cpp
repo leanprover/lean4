@@ -1743,3 +1743,27 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_pass_manager_builder_populate_modu
     return lean_io_result_mk_ok(lean_box(0));
 #endif  // LEAN_LLVM
 }
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_target_machine(size_t ctx, size_t tm,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMDisposeTargetMachine(lean_to_TargetMachine(tm));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_module(size_t ctx, size_t mod,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMDisposeModule(lean_to_Module(mod));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}

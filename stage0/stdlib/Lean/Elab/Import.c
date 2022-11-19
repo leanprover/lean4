@@ -19,6 +19,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__4;
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_headerToImports___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object*);
 lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
@@ -42,13 +43,12 @@ lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
 lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Elab_headerToImports___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object*, lean_object*);
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -215,7 +215,7 @@ x_7 = l_Lean_Syntax_getArgs(x_6);
 lean_dec(x_6);
 x_8 = lean_array_to_list(lean_box(0), x_7);
 x_9 = lean_box(0);
-x_10 = l_List_mapTRAux___at_Lean_Elab_headerToImports___spec__1(x_8, x_9);
+x_10 = l_List_mapTR_loop___at_Lean_Elab_headerToImports___spec__1(x_8, x_9);
 if (x_4 == 0)
 {
 lean_object* x_11; 

@@ -72,6 +72,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstStruct___rarg(lean_object*, lean_objec
 static lean_object* l_Lean_getConstInfoDefn___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withEnv___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
 lean_object* lean_name_append_index_after(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkConstWithLevelParams___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -111,7 +112,6 @@ static lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_isRec___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_evalConstCheck___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -1133,7 +1133,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_getConstInfo___rarg), 4, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1193,7 +1193,7 @@ lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_Lean_ConstantInfo_levelParams(x_3);
 x_7 = lean_box(0);
-x_8 = l_List_mapTRAux___at_Lean_mkConstWithLevelParams___spec__1(x_6, x_7);
+x_8 = l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(x_6, x_7);
 x_9 = l_Lean_Expr_const___override(x_2, x_8);
 x_10 = lean_apply_2(x_5, lean_box(0), x_9);
 return x_10;

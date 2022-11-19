@@ -116,7 +116,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInteractiveGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_1320____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableInteractiveGoal_enc____x40_Lean_Widget_InteractiveGoal___hyg_1320____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveGoals_append(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableInteractiveTermGoal___closed__2;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -215,7 +214,6 @@ static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJ
 extern lean_object* l_Lean_Meta_pp_implementationDetailHyps;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_goalToInteractive___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_178____closed__1;
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__2(lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Widget_goalToInteractive___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_InteractiveHypothesisBundle_isInserted_x3f___default;
@@ -248,6 +246,7 @@ static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJ
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_1473____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_2815____boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_178____closed__42;
+LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addInteractiveHypothesisBundle___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instFromJsonRpcEncodablePacket__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__4(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -374,6 +373,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodabl
 static lean_object* l___private_Lean_Widget_InteractiveGoal_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveGoal___hyg_3294____closed__5;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__2___closed__3;
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_901_(lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__2(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isSort(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Widget_goalToInteractive___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_sanitizeNames(lean_object*, lean_object*);
@@ -12021,7 +12021,7 @@ return x_1;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_filterTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_filterTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -12088,7 +12088,7 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -12247,8 +12247,8 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 x_10 = lean_array_to_list(lean_box(0), x_9);
 x_11 = lean_box(0);
-x_12 = l_List_filterTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__1(x_10, x_11);
-x_13 = l_List_mapTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__2(x_12, x_11);
+x_12 = l_List_filterTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__1(x_10, x_11);
+x_13 = l_List_mapTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__2(x_12, x_11);
 x_14 = l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__3___closed__1;
 x_15 = l_String_intercalate(x_14, x_13);
 x_16 = l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__2;
@@ -12425,8 +12425,8 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 x_10 = lean_array_to_list(lean_box(0), x_9);
 x_11 = lean_box(0);
-x_12 = l_List_filterTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__1(x_10, x_11);
-x_13 = l_List_mapTRAux___at_Lean_Widget_InteractiveGoal_pretty___spec__2(x_12, x_11);
+x_12 = l_List_filterTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__1(x_10, x_11);
+x_13 = l_List_mapTR_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__2(x_12, x_11);
 x_14 = l_Array_forInUnsafe_loop___at_Lean_Widget_InteractiveGoal_pretty___spec__3___closed__1;
 x_15 = l_String_intercalate(x_14, x_13);
 x_16 = l_Lean_Widget_instInhabitedInteractiveHypothesisBundle___closed__2;

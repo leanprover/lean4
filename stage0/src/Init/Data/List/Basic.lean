@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
+set_option linter.missingDocs true -- keep it documented
 open Decidable List
 
 universe u v w
@@ -37,11 +38,20 @@ theorem length_add_eq_lengthTRAux (as : List α) (n : Nat) : as.length + n = as.
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
+/-- Auxiliary for `List.reverse`. `List.reverseAux l r = l.reverse ++ r`, but it is defined directly. -/
 def reverseAux : List α → List α → List α
   | [],   r => r
   | a::l, r => reverseAux l (a::r)
 
-def reverse (as : List α) :List α :=
+/--
+`O(|as|)`. Reverse of a list:
+* `[1, 2, 3, 4].reverse = [4, 3, 2, 1]`
+
+Note that because of the "functional but in place" optimization implemented by Lean's compiler,
+this function works without any allocations provided that the input list is unshared:
+it simply walks the linked list and reverses all the node pointers.
+-/
+def reverse (as : List α) : List α :=
   reverseAux as []
 
 theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
@@ -57,10 +67,15 @@ theorem reverseAux_reverseAux (as bs cs : List α) : reverseAux (reverseAux as b
 @[simp] theorem reverse_reverse (as : List α) : as.reverse.reverse = as := by
   simp [reverse]; rw [reverseAux_reverseAux_nil]; rfl
 
-protected def append : List α → List α → List α
+/--
+`O(|xs|)`: append two lists. `[1, 2, 3] ++ [4, 5] = [1, 2, 3, 4, 5]`.
+It takes time proportional to the first list.
+-/
+protected def append : (xs ys : List α) → List α
   | [],    bs => bs
   | a::as, bs => a :: List.append as bs
 
+/-- Tail-recursive version of `List.append`. -/
 def appendTR (as bs : List α) : List α :=
   reverseAux as.reverse bs
 
@@ -97,31 +112,53 @@ theorem append_cons (as : List α) (b : α) (bs : List α) : as ++ b :: bs = as 
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
+/--
+`O(|l|)`. `erase l a` removes the first occurrence of `a` from `l`.
+* `erase [1, 5, 3, 2, 5] 5 = [1, 3, 2, 5]`
+* `erase [1, 5, 3, 2, 5] 6 = [1, 5, 3, 2, 5]`
+-/
 protected def erase {α} [BEq α] : List α → α → List α
   | [],    _ => []
   | a::as, b => match a == b with
     | true  => as
     | false => a :: List.erase as b
 
+/--
+`O(i)`. `eraseIdx l i` removes the `i`'th element of the list `l`.
+* `erase [a, b, c, d, e] 0 = [b, c, d, e]`
+* `erase [a, b, c, d, e] 1 = [a, c, d, e]`
+* `erase [a, b, c, d, e] 5 = [a, b, c, d, e]`
+-/
 def eraseIdx : List α → Nat → List α
   | [],    _   => []
   | _::as, 0   => as
   | a::as, n+1 => a :: eraseIdx as n
 
+/--
+`O(1)`. `isEmpty l` is true if the list is empty.
+* `isEmpty [] = true`
+* `isEmpty [a] = false`
+* `isEmpty [a, b] = false`
+-/
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
 
+/--
+`O(|l|)`. `map f l` applies `f` to each element of the list.
+* `map f [a, b, c] = [f a, f b, f c]`
+-/
 @[specialize] def map (f : α → β) : List α → List β
   | []    => []
   | a::as => f a :: map f as
 
-@[specialize] def mapTRAux (f : α → β) : List α → List β → List β
-  | [],    bs => bs.reverse
-  | a::as, bs => mapTRAux f as (f a :: bs)
-
+/-- Tail-recursive version of `List.map`. -/
 @[inline] def mapTR (f : α → β) (as : List α) : List β :=
-  mapTRAux f as []
+  loop as []
+where
+  @[specialize] loop : List α → List β → List β
+  | [],    bs => bs.reverse
+  | a::as, bs => loop as (f a :: bs)
 
 theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux as [] ++ bs := by
   induction as generalizing bs with
@@ -143,22 +180,37 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
   | nil => simp
   | cons a as ih => simp [ih]; rw [append_assoc]
 
-theorem mapTRAux_eq (f : α → β) (as : List α) (bs : List β) : mapTRAux f as bs = bs.reverse ++ map f as := by
+theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
+    mapTR.loop f as bs = bs.reverse ++ map f as := by
   induction as generalizing bs with
-  | nil => simp [mapTRAux, map]
+  | nil => simp [mapTR.loop, map]
   | cons a as ih =>
-    simp [mapTRAux, map]
+    simp [mapTR.loop, map]
     rw [ih (f a :: bs), reverse_cons, append_assoc]
     rfl
 
 @[csimp] theorem map_eq_mapTR : @map = @mapTR :=
   funext fun α => funext fun β => funext fun f => funext fun as => by
-    simp [mapTR, mapTRAux_eq]
+    simp [mapTR, mapTR_loop_eq]
 
+/--
+`O(|join L|)`. `join L` concatenates all the lists in `L` into one list.
+* `join [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
+-/
 def join : List (List α) → List α
   | []      => []
   | a :: as => a ++ join as
 
+/--
+`O(|l|)`. `filterMap f l` takes a function `f : α → Option β` and applies it to each element of `l`;
+the resulting non-`none` values are collected to form the output list.
+```
+filterMap
+  (fun x => if x > 2 then some (2 * x) else none)
+  [1, 2, 5, 2, 7, 7]
+= [10, 14, 14]
+```
+-/
 @[specialize] def filterMap (f : α → Option β) : List α → List β
   | []   => []
   | a::as =>
@@ -166,82 +218,139 @@ def join : List (List α) → List α
     | none   => filterMap f as
     | some b => b :: filterMap f as
 
+/--
+`O(|l|)`. `filter f l` returns the list of elements in `l` for which `f` returns true.
+```
+filter (· > 2) [1, 2, 5, 2, 7, 7] = [5, 7, 7]
+```
+-/
 def filter (p : α → Bool) : List α → List α
   | [] => []
   | a::as => match p a with
     | true => a :: filter p as
     | false => filter p as
 
-@[specialize] def filterTRAux (p : α → Bool) : List α → List α → List α
+/-- Tail-recursive version of `List.filter`. -/
+@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
+  loop as []
+where
+  @[specialize] loop : List α → List α → List α
   | [],    rs => rs.reverse
   | a::as, rs => match p a with
-     | true  => filterTRAux p as (a::rs)
-     | false => filterTRAux p as rs
+     | true  => loop as (a::rs)
+     | false => loop as rs
 
-@[inline] def filterTR (p : α → Bool) (as : List α) : List α :=
-  filterTRAux p as []
-
-theorem filterTRAux_eq (p : α → Bool) (as bs : List α) : filterTRAux p as bs = bs.reverse ++ filter p as := by
+theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
+    filterTR.loop p as bs = bs.reverse ++ filter p as := by
   induction as generalizing bs with
-  | nil => simp [filterTRAux, filter]
+  | nil => simp [filterTR.loop, filter]
   | cons a as ih =>
-    simp [filterTRAux, filter]
+    simp [filterTR.loop, filter]
     split
     next => rw [ih, reverse_cons, append_assoc]; simp
     next => rw [ih]
 
 @[csimp] theorem filter_eq_filterTR : @filter = @filterTR := by
   apply funext; intro α; apply funext; intro p; apply funext; intro as
-  simp [filterTR, filterTRAux_eq]
+  simp [filterTR, filterTR_loop_eq]
 
-@[specialize] def partitionAux (p : α → Bool) : List α → List α × List α → List α × List α
+/--
+`O(|l|)`. `partition p l` calls `p` on each element of `l`, partitioning the list into two lists
+`(l_true, l_false)` where `l_true` has the elements where `p` was true
+and `l_false` has the elements where `p` is false.
+`partition p l = (filter p l, filter (not ∘ p) l)`, but it is slightly more efficient
+since it only has to do one pass over the list.
+```
+partition (· > 2) [1, 2, 5, 2, 7, 7] = ([5, 7, 7], [1, 2, 2])
+```
+-/
+@[inline] def partition (p : α → Bool) (as : List α) : List α × List α :=
+  loop as ([], [])
+where
+  @[specialize] loop : List α → List α × List α → List α × List α
   | [],    (bs, cs) => (bs.reverse, cs.reverse)
   | a::as, (bs, cs) =>
     match p a with
-    | true  => partitionAux p as (a::bs, cs)
-    | false => partitionAux p as (bs, a::cs)
+    | true  => loop as (a::bs, cs)
+    | false => loop as (bs, a::cs)
 
-@[inline] def partition (p : α → Bool) (as : List α) : List α × List α :=
-  partitionAux p as ([], [])
-
+/--
+`O(|l|)`. `dropWhile p l` removes elements from the list until it finds the first element
+for which `p` returns false; this element and everything after it is returned.
+```
+dropWhile (· < 4) [1, 3, 2, 4, 2, 7, 4] = [4, 2, 7, 4]
+```
+-/
 def dropWhile (p : α → Bool) : List α → List α
   | []   => []
   | a::l => match p a with
     | true  => dropWhile p l
     | false =>  a::l
 
+/--
+`O(|l|)`. `find? p l` returns the first element for which `p` returns true,
+or `none` if no such element is found.
+
+* `find? (· < 5) [7, 6, 5, 8, 1, 2, 6] = some 1`
+* `find? (· < 1) [7, 6, 5, 8, 1, 2, 6] = none`
+-/
 def find? (p : α → Bool) : List α → Option α
   | []    => none
   | a::as => match p a with
     | true  => some a
     | false => find? p as
 
+/--
+`O(|l|)`. `findSome? f l` applies `f` to each element of `l`, and returns the first non-`none` result.
+
+* `findSome? (fun x => if x < 5 then some (10 * x) else none) [7, 6, 5, 8, 1, 2, 6] = some 10`
+-/
 def findSome? (f : α → Option β) : List α → Option β
   | []    => none
   | a::as => match f a with
     | some b => some b
     | none   => findSome? f as
 
+/--
+`O(|l|)`. `replace l a b` replaces the first element in the list equal to `a` with `b`.
+
+* `replace [1, 4, 2, 3, 3, 7] 3 6 = [1, 4, 2, 6, 3, 7]`
+* `replace [1, 4, 2, 3, 3, 7] 5 6 = [1, 4, 2, 3, 3, 7]`
+-/
 def replace [BEq α] : List α → α → α → List α
   | [],    _, _ => []
   | a::as, b, c => match a == b with
     | true  => c::as
-    | false => a :: (replace as b c)
+    | false => a :: replace as b c
 
+/--
+`O(|l|)`. `elem a l` or `l.contains a` is true if there is an element in `l` equal to `a`.
+
+* `elem 3 [1, 4, 2, 3, 3, 7] = true`
+* `elem 5 [1, 4, 2, 3, 3, 7] = false`
+-/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
   | b::bs => match a == b with
     | true  => true
     | false => elem a bs
 
+/-- `notElem a l` is `!(elem a l)`. -/
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
   !(as.elem a)
 
-abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
+@[inherit_doc elem] abbrev contains [BEq α] (as : List α) (a : α) : Bool :=
   elem a as
 
+/--
+`a ∈ l` is a predicate which asserts that `a` is in the list `l`.
+Unlike `elem`, this uses `=` instead of `==` and is suited for mathematical reasoning.
+* `a ∈ [x, y, z] ↔ a = x ∨ a = y ∨ a = z`
+-/
 inductive Mem (a : α) : List α → Prop
+  /-- The head of a list is a member: `a ∈ a :: as`. -/
   | head (as : List α) : Mem a (a::as)
+  /-- A member of the tail of a list is a member of the list: `a ∈ l → a ∈ b :: l`. -/
   | tail (b : α) {as : List α} : Mem a as → Mem a (b::as)
 
 instance : Membership α (List α) where
@@ -276,54 +385,93 @@ theorem mem_append_of_mem_right {b : α} {bs : List α} (as : List α) : b ∈ b
   | nil  => simp [h]
   | cons => apply Mem.tail; assumption
 
-def eraseDupsAux {α} [BEq α] : List α → List α → List α
+/-- `O(|l|^2)`. Erase duplicated elements in the list.
+Keeps the first occurrence of duplicated elements.
+* `eraseDups [1, 3, 2, 2, 3, 5] = [1, 3, 2, 5]`
+-/
+def eraseDups {α} [BEq α] (as : List α) : List α :=
+  loop as []
+where
+  loop : List α → List α → List α
   | [],    bs => bs.reverse
   | a::as, bs => match bs.elem a with
-    | true  => eraseDupsAux as bs
-    | false => eraseDupsAux as (a::bs)
+    | true  => loop as bs
+    | false => loop as (a::bs)
 
-def eraseDups {α} [BEq α] (as : List α) : List α :=
-  eraseDupsAux as []
-
-def eraseRepsAux {α} [BEq α] : α → List α → List α → List α
-  | a, [], rs => (a::rs).reverse
-  | a, a'::as, rs => match a == a' with
-    | true  => eraseRepsAux a as rs
-    | false => eraseRepsAux a' as (a::rs)
-
-/-- Erase repeated adjacent elements. -/
+/--
+`O(|l|)`. Erase repeated adjacent elements. Keeps the first occurrence of each run.
+* `eraseReps [1, 3, 2, 2, 2, 3, 5] = [1, 3, 2, 3, 5]`
+-/
 def eraseReps {α} [BEq α] : List α → List α
   | []    => []
-  | a::as => eraseRepsAux a as []
+  | a::as => loop a as []
+where
+  loop {α} [BEq α] : α → List α → List α → List α
+  | a, [], rs => (a::rs).reverse
+  | a, a'::as, rs => match a == a' with
+    | true  => loop a as rs
+    | false => loop a' as (a::rs)
 
-@[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
+/--
+`O(|l|)`. `span p l` splits the list `l` into two parts, where the first part
+contains the longest initial segment for which `p` returns true
+and the second part is everything else.
+
+* `span (· > 5) [6, 8, 9, 5, 2, 9] = ([6, 8, 9], [5, 2, 9])`
+* `span (· > 10) [6, 8, 9, 5, 2, 9] = ([6, 8, 9, 5, 2, 9], [])`
+-/
+@[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
+  loop as []
+where
+  @[specialize] loop : List α → List α → List α × List α
   | [],    rs => (rs.reverse, [])
   | a::as, rs => match p a with
-    | true  => spanAux p as (a::rs)
+    | true  => loop as (a::rs)
     | false => (rs.reverse, a::as)
 
-@[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
-  spanAux p as []
+/--
+`O(|l|)`. `groupBy R l` splits `l` into chains of elements
+such that adjacent elements are related by `R`.
 
-@[specialize] def groupByAux (eq : α → α → Bool) : List α → List (List α) → List (List α)
-  | a::as, (ag::g)::gs => match eq a ag with
-    | true  => groupByAux eq as ((a::ag::g)::gs)
-    | false => groupByAux eq as ([a]::(ag::g).reverse::gs)
+* `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
+* `groupBy (·<·) [1, 2, 5, 4, 5, 4, 1] = [[1, 2, 5], [4, 5], [4], [1]]`
+-/
+@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+  | []    => []
+  | a::as => loop as [[a]]
+where
+  @[specialize] loop : List α → List (List α) → List (List α)
+  | a::as, (ag::g)::gs => match R ag a with
+    | true  => loop as ((a::ag::g)::gs)
+    | false => loop as ([a]::(ag::g).reverse::gs)
   | _, gs => gs.reverse
 
-@[specialize] def groupBy (p : α → α → Bool) : List α → List (List α)
-  | []    => []
-  | a::as => groupByAux p as [[a]]
+/--
+`O(|l|)`. `lookup a l` treats `l : List (α × β)` like an association list,
+and returns the first `β` value corresponding to an `α` value in the list equal to `a`.
 
+* `lookup 3 [(1, 2), (3, 4), (3, 5)] = some 4`
+* `lookup 2 [(1, 2), (3, 4), (3, 5)] = none`
+-/
 def lookup [BEq α] : α → List (α × β) → Option β
   | _, []        => none
   | a, (k,b)::es => match a == k with
     | true  => some b
     | false => lookup a es
 
+/-- `O(|xs|)`. Computes the "set difference" of lists,
+by filtering out all elements of `xs` which are also in `ys`.
+* `removeAll [1, 1, 5, 1, 2, 4, 5] [1, 2, 2] = [5, 4, 5]`
+ -/
 def removeAll [BEq α] (xs ys : List α) : List α :=
   xs.filter (fun x => ys.notElem x)
 
+/--
+`O(min n |xs|)`. Removes the first `n` elements of `xs`.
+* `drop 0 [a, b, c, d, e] = [a, b, c, d, e]`
+* `drop 3 [a, b, c, d, e] = [d, e]`
+* `drop 6 [a, b, c, d, e] = []`
+-/
 def drop : Nat → List α → List α
   | 0,   a     => a
   | _+1, []    => []
@@ -337,53 +485,106 @@ theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] ::
   | _::_, 0   => rfl
   | _::_, i+1 => get_drop_eq_drop _ i _
 
+/--
+`O(min n |xs|)`. Returns the first `n` elements of `xs`, or the whole list if `n` is too large.
+* `take 0 [a, b, c, d, e] = []`
+* `take 3 [a, b, c, d, e] = [a, b, c]`
+* `take 6 [a, b, c, d, e] = [a, b, c, d, e]`
+-/
 def take : Nat → List α → List α
   | 0,   _     => []
   | _+1, []    => []
   | n+1, a::as => a :: take n as
 
-def takeWhile (p : α → Bool) : List α → List α
+/--
+`O(|xs|)`. Returns the longest initial segment of `xs` for which `p` returns true.
+* `takeWhile (· > 5) [7, 6, 4, 8] = [7, 6]`
+* `takeWhile (· > 5) [7, 6, 6, 8] = [7, 6, 6, 8]`
+-/
+def takeWhile (p : α → Bool) : (xs : List α) → List α
   | []       => []
   | hd :: tl => match p hd with
    | true  => hd :: takeWhile p tl
    | false => []
 
+/--
+`O(|l|)`. Applies function `f` to all of the elements of the list, from right to left.
+* `foldr f init [a, b, c] = f a <| f b <| f c <| init`
+-/
 @[specialize] def foldr (f : α → β → β) (init : β) : List α → β
   | []     => init
   | a :: l => f a (foldr f init l)
 
+/--
+`O(|l|)`. Returns true if `p` is true for any element of `l`.
+* `any p [a, b, c] = p a || p b || p c`
+-/
 @[inline] def any (l : List α) (p : α → Bool) : Bool :=
   foldr (fun a r => p a || r) false l
 
+/--
+`O(|l|)`. Returns true if `p` is true for every element of `l`.
+* `any p [a, b, c] = p a && p b && p c`
+-/
 @[inline] def all (l : List α) (p : α → Bool) : Bool :=
   foldr (fun a r => p a && r) true l
 
+/--
+`O(|l|)`. Returns true if `true` is an element of the list of booleans `l`.
+* `or [a, b, c] = a || b || c`
+-/
 def or  (bs : List Bool) : Bool := bs.any id
 
+/--
+`O(|l|)`. Returns true if every element of `l` is the value `true`.
+* `and [a, b, c] = a && b && c`
+-/
 def and (bs : List Bool) : Bool := bs.all id
 
-@[specialize] def zipWith (f : α → β → γ) : List α → List β → List γ
+/--
+`O(min |xs| |ys|)`. Applies `f` to the two lists in parallel, stopping at the shorter list.
+* `zipWith f [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [f x₁ y₁, f x₂ y₂, f x₃ y₃]`
+-/
+@[specialize] def zipWith (f : α → β → γ) : (xs : List α) → (ys : List β) → List γ
   | x::xs, y::ys => f x y :: zipWith f xs ys
   | _,     _     => []
 
+/--
+`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.
+The longer list is truncated to match the shorter list.
+* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`
+-/
 def zip : List α → List β → List (Prod α β) :=
   zipWith Prod.mk
 
+/--
+`O(|l|)`. Separates a list of pairs into two lists containing the first components and second components.
+* `unzip [(x₁, y₁), (x₂, y₂), (x₃, y₃)] = ([x₁, x₂, x₃], [y₁, y₂, y₃])`
+-/
 def unzip : List (α × β) → List α × List β
   | []          => ([], [])
   | (a, b) :: t => match unzip t with | (al, bl) => (a::al, b::bl)
 
-def rangeAux : Nat → List Nat → List Nat
-  | 0,   ns => ns
-  | n+1, ns => rangeAux n (n::ns)
-
+/--
+`O(n)`. `range n` is the numbers from `0` to `n` exclusive, in increasing order.
+* `range 5 = [0, 1, 2, 3, 4]`
+-/
 def range (n : Nat) : List Nat :=
-  rangeAux n []
+  loop n []
+where
+  loop : Nat → List Nat → List Nat
+  | 0,   ns => ns
+  | n+1, ns => loop n (n::ns)
 
+/--
+`O(n)`. `iota n` is the numbers from `1` to `n` inclusive, in decreasing order.
+* `iota 5 = [5, 4, 3, 2, 1]`
+-/
 def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
+/-- Tail-recursive version of `iota`. -/
 def iotaTR (n : Nat) : List Nat :=
   let rec go : Nat → List Nat → List Nat
     | 0, r => r.reverse
@@ -398,27 +599,62 @@ theorem iota_eq_iotaTR : @iota = @iotaTR :=
     | succ n ih => simp [iota, iotaTR.go, ih, append_assoc]
   funext fun n => by simp [iotaTR, aux]
 
+/--
+`O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
+* `enumFrom 5 [a, b, c] = [(5, a), (6, b), (7, c)]`
+-/
 def enumFrom : Nat → List α → List (Nat × α)
   | _, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
+/--
+`O(|l|)`. `enum l` pairs up each element with its index in the list.
+* `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
+-/
 def enum : List α → List (Nat × α) := enumFrom 0
 
+/--
+`O(|l|)`. `intersperse sep l` alternates `sep` and the elements of `l`:
+* `intersperse sep [] = []`
+* `intersperse sep [a] = [a]`
+* `intersperse sep [a, b] = [a, sep, b]`
+* `intersperse sep [a, b, c] = [a, sep, b, sep, c]`
+-/
 def intersperse (sep : α) : List α → List α
   | []    => []
   | [x]   => [x]
   | x::xs => x :: sep :: intersperse sep xs
 
+/--
+`O(|xs|)`. `intercalate sep xs` alternates `sep` and the elements of `xs`:
+* `intercalate sep [] = []`
+* `intercalate sep [a] = a`
+* `intercalate sep [a, b] = a ++ sep ++ b`
+* `intercalate sep [a, b, c] = a ++ sep ++ b ++ sep ++ c`
+-/
 def intercalate (sep : List α) (xs : List (List α)) : List α :=
   join (intersperse sep xs)
 
+/--
+`bind xs f` is the bind operation of the list monad. It applies `f` to each element of `xs`
+to get a list of lists, and then concatenates them all together.
+* `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
+-/
 @[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := join (map b a)
 
+/-- `pure x = [x]` is the `pure` operation of the list monad. -/
 @[inline] protected def pure {α : Type u} (a : α) : List α := [a]
 
+/--
+The lexicographic order on lists.
+`[] < a::as`, and `a::as < b::bs` if `a < b` or if `a` and `b` are equivalent and `as < bs`.
+-/
 inductive lt [LT α] : List α → List α → Prop where
+  /-- `[]` is the smallest element in the order. -/
   | nil  (b : α) (bs : List α) : lt [] (b::bs)
+  /-- If `a < b` then `a::as < b::bs`. -/
   | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → lt (a::as) (b::bs)
+  /-- If `a` and `b` are equivalent and `as < bs`, then `a::as < b::bs`. -/
   | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → lt as bs → lt (a::as) (b::bs)
 
 instance [LT α] : LT (List α) := ⟨List.lt⟩
@@ -442,6 +678,7 @@ instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂
            | List.lt.head _ _ h₁' => absurd h₁' h₁
            | List.lt.tail _ _ h₃' => absurd h₃' h₃)
 
+/-- The lexicographic order on lists. -/
 @[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
 
 instance [LT α] : LE (List α) := ⟨List.le⟩
@@ -472,11 +709,19 @@ def isSuffixOf [BEq α] (l₁ l₂ : List α) : Bool :=
 def isSuffixOf? [BEq α] (l₁ l₂ : List α) : Option (List α) :=
   Option.map List.reverse <| isPrefixOf? l₁.reverse l₂.reverse
 
-@[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
+/--
+`O(min |as| |bs|)`. Returns true if `as` and `bs` have the same length,
+and they are pairwise related by `eqv`.
+-/
+@[specialize] def isEqv : (as bs : List α) → (eqv : α → α → Bool) → Bool
   | [],    [],    _   => true
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     _   => false
 
+/--
+The equality relation on lists asserts that they have the same length
+and they are pairwise `BEq`.
+-/
 protected def beq [BEq α] : List α → List α → Bool
   | [],    []    => true
   | a::as, b::bs => a == b && List.beq as bs
@@ -484,10 +729,15 @@ protected def beq [BEq α] : List α → List α → Bool
 
 instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
+/--
+`replicate n a` is `n` copies of `a`:
+* `replicate 5 a = [a, a, a, a, a]`
+-/
 @[simp] def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a
 
+/-- Tail-recursive version of `List.replicate`. -/
 def replicateTR {α : Type u} (n : Nat) (a : α) : List α :=
   let rec loop : Nat → List α → List α
     | 0, as => as
@@ -503,6 +753,12 @@ theorem replicateTR_loop_replicate_eq (a : α) (m n : Nat) :
   apply funext; intro α; apply funext; intro n; apply funext; intro a
   exact (replicateTR_loop_replicate_eq _ 0 n).symm
 
+/--
+Removes the last element of the list.
+* `dropLast [] = []`
+* `dropLast [a] = []`
+* `dropLast [a, b, c] = [a, b]`
+-/
 def dropLast {α} : List α → List α
   | []    => []
   | [_]   => []
@@ -546,10 +802,22 @@ def dropLast {α} : List α → List α
   | nil => rfl
   | cons a as ih => simp [ih]
 
+/--
+Returns the largest element of the list, if it is not empty.
+* `[].maximum? = none`
+* `[4].maximum? = some 4`
+* `[1, 4, 2, 10, 6].maximum? = some 10`
+-/
 def maximum? [Max α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl max a
 
+/--
+Returns the smallest element of the list, if it is not empty.
+* `[].maximum? = none`
+* `[4].maximum? = some 4`
+* `[1, 4, 2, 10, 6].maximum? = some 1`
+-/
 def minimum? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a

@@ -158,7 +158,6 @@ static lean_object* l_Lean_Server_RpcEncodable_initFn____x40_Lean_Server_Rpc_Der
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveInductiveInstance___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__4;
-lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___lambda__1___closed__8;
 static lean_object* l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__2;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__1___closed__17;
@@ -454,6 +453,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_D
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getFVarLocalDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___spec__3___closed__4;
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Server_RpcEncodable_isOptField___closed__1() {
 _start:
 {
@@ -4290,7 +4290,7 @@ lean_ctor_set(x_31, 1, x_30);
 lean_inc(x_2);
 x_32 = lean_array_to_list(lean_box(0), x_2);
 x_33 = lean_box(0);
-x_34 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_32, x_33);
+x_34 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_32, x_33);
 x_35 = l_Lean_MessageData_ofList(x_34);
 lean_dec(x_34);
 x_36 = lean_alloc_ctor(10, 2, 0);
@@ -7710,7 +7710,7 @@ lean_ctor_set(x_25, 1, x_24);
 lean_inc(x_2);
 x_26 = lean_array_to_list(lean_box(0), x_2);
 x_27 = lean_box(0);
-x_28 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
+x_28 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
 x_29 = l_Lean_MessageData_ofList(x_28);
 lean_dec(x_28);
 x_30 = lean_alloc_ctor(10, 2, 0);

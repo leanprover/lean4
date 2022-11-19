@@ -66,7 +66,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_reduc
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_ReduceArity___hyg_2768____closed__11;
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__10___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_reduceArity___closed__2;
-lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_inheritedTraceOptions;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
@@ -105,7 +104,6 @@ size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_addTrace___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__12___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_reduceArity___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FindUsed_visitLetValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_mkAuxLetDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Decl_reduceArity___lambda__1___closed__1;
@@ -125,6 +123,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_isTracingEnabledFor___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__1___closed__1;
 lean_object* l_Lean_Compiler_LCNF_AltCore_getCode(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Decl_reduceArity___lambda__1___closed__7;
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(lean_object*, lean_object*);
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_eraseParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Util_Trace_0__Lean_checkTraceOption(lean_object*, lean_object*, lean_object*);
@@ -168,6 +167,7 @@ static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_Reduce
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ReduceArity_reduce(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FindUsed_collectUsedParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_FindUsed_visitLetValue___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Compiler_LCNF_FindUsed_State_used___default() {
 _start:
@@ -3778,7 +3778,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -4662,8 +4662,8 @@ lean_ctor_set(x_35, 1, x_34);
 lean_inc(x_9);
 x_36 = l_Lean_RBTree_toList___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__9(x_9);
 x_37 = lean_box(0);
-x_38 = l_List_mapTRAux___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(x_36, x_37);
-x_39 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_38, x_37);
+x_38 = l_List_mapTR_loop___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(x_36, x_37);
+x_39 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_38, x_37);
 x_40 = l_Lean_MessageData_ofList(x_39);
 lean_dec(x_39);
 x_41 = lean_alloc_ctor(10, 2, 0);
@@ -4775,8 +4775,8 @@ lean_ctor_set(x_75, 1, x_74);
 lean_inc(x_49);
 x_76 = l_Lean_RBTree_toList___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__9(x_49);
 x_77 = lean_box(0);
-x_78 = l_List_mapTRAux___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(x_76, x_77);
-x_79 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_78, x_77);
+x_78 = l_List_mapTR_loop___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__11(x_76, x_77);
+x_79 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_78, x_77);
 x_80 = l_Lean_MessageData_ofList(x_79);
 lean_dec(x_79);
 x_81 = lean_alloc_ctor(10, 2, 0);

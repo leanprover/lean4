@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_instToStringPos;
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_SubExpr_0__Lean_SubExpr_Pos_ofStringCoord___closed__6;
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_SubExpr_Pos_toString___spec__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_SubExpr_Pos_fromString_x3f___spec__1(size_t, size_t, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
@@ -119,6 +118,7 @@ lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_traverseAppWithPos(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_instToJsonPos___closed__1;
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_SubExpr_Pos_toString___spec__1(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SubExpr_Pos_head(lean_object*);
 static lean_object* l_Lean_SubExpr_Pos_fromString_x3f___closed__1;
@@ -1166,7 +1166,7 @@ return x_2;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_SubExpr_Pos_toString___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_SubExpr_Pos_toString___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1229,7 +1229,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_obj
 x_2 = l_Lean_SubExpr_Pos_toArray(x_1);
 x_3 = lean_array_to_list(lean_box(0), x_2);
 x_4 = lean_box(0);
-x_5 = l_List_mapTRAux___at_Lean_SubExpr_Pos_toString___spec__1(x_3, x_4);
+x_5 = l_List_mapTR_loop___at_Lean_SubExpr_Pos_toString___spec__1(x_3, x_4);
 x_6 = l_Lean_SubExpr_Pos_toString___closed__1;
 x_7 = l_String_intercalate(x_6, x_5);
 x_8 = lean_string_append(x_6, x_7);

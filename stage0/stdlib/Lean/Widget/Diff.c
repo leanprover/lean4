@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_diffInteractiveGoal___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -34,8 +33,8 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_diffInteractiveGoal
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Widget_instToStringExprDiff___closed__2;
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChangePos(lean_object*, lean_object*, uint8_t);
-static lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Widget_diffInteractiveGoals___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSuffixOf_x3f___at_Lean_Widget_exprDiffCore_piDiff___spec__1(lean_object*, lean_object*);
@@ -57,6 +56,7 @@ lean_object* l_Lean_SubExpr_Pos_pushNaryArg(lean_object*, lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_insertBeforeChange___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff(lean_object*, lean_object*);
+static lean_object* l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
 static lean_object* l_Lean_Widget_diffHypothesesBundle___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffHypotheses___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -70,7 +70,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_changesBefore___default;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Widget_diffHypothesesBundle_withTypeDiff___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_withGoalCtx___at_Lean_Widget_goalToInteractive___spec__6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Widget_ExprDiff_insertBeforeChange___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -164,8 +163,8 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_diffInteractiveGoal
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__10;
 static lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__3___closed__1;
+static lean_object* l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
 lean_object* l_Lean_LocalDecl_type(lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Widget_exprDiffCore___spec__1(lean_object*, lean_object*, lean_object*);
@@ -215,6 +214,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_addDiffTags___lambda__1(uint8_t, lean_obj
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_Diff___hyg_6____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_instToStringExprDiff(lean_object*);
 static lean_object* l_Lean_Widget_diffInteractiveGoal___closed__5;
+static lean_object* l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_isEmpty___boxed(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -733,7 +733,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1() {
+static lean_object* _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -741,7 +741,7 @@ x_1 = lean_mk_string_from_bytes("(", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2() {
+static lean_object* _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -749,7 +749,7 @@ x_1 = lean_mk_string_from_bytes(":", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3() {
+static lean_object* _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -757,7 +757,7 @@ x_1 = lean_mk_string_from_bytes(")", 1);
 return x_1;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -781,17 +781,17 @@ x_8 = lean_ctor_get(x_5, 1);
 lean_inc(x_8);
 lean_dec(x_5);
 x_9 = l_Lean_SubExpr_Pos_toString(x_7);
-x_10 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
+x_10 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
 x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
-x_12 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
+x_12 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
 x_13 = lean_string_append(x_11, x_12);
 x_14 = lean_unbox(x_8);
 lean_dec(x_8);
 x_15 = l_Lean_Widget_ExprDiffTag_toString(x_14);
 x_16 = lean_string_append(x_13, x_15);
 lean_dec(x_15);
-x_17 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
+x_17 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
 x_18 = lean_string_append(x_16, x_17);
 lean_ctor_set(x_1, 1, x_2);
 lean_ctor_set(x_1, 0, x_18);
@@ -817,17 +817,17 @@ x_23 = lean_ctor_get(x_20, 1);
 lean_inc(x_23);
 lean_dec(x_20);
 x_24 = l_Lean_SubExpr_Pos_toString(x_22);
-x_25 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
+x_25 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
-x_27 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
+x_27 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2;
 x_28 = lean_string_append(x_26, x_27);
 x_29 = lean_unbox(x_23);
 lean_dec(x_23);
 x_30 = l_Lean_Widget_ExprDiffTag_toString(x_29);
 x_31 = lean_string_append(x_28, x_30);
 lean_dec(x_30);
-x_32 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
+x_32 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3;
 x_33 = lean_string_append(x_31, x_32);
 x_34 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_34, 0, x_33);
@@ -863,7 +863,7 @@ x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDiff___spec__1(x_2);
 x_4 = lean_box(0);
-x_5 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3(x_3, x_4);
+x_5 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(x_3, x_4);
 x_6 = l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(x_5);
 x_7 = l_Lean_Widget_instToStringExprDiff___closed__1;
 x_8 = lean_string_append(x_7, x_6);
@@ -874,7 +874,7 @@ x_11 = lean_ctor_get(x_1, 1);
 lean_inc(x_11);
 lean_dec(x_1);
 x_12 = l_Lean_RBMap_toList___at_Lean_Widget_instToStringExprDiff___spec__1(x_11);
-x_13 = l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3(x_12, x_4);
+x_13 = l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3(x_12, x_4);
 x_14 = l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(x_13);
 x_15 = lean_string_append(x_10, x_14);
 lean_dec(x_14);
@@ -9046,12 +9046,12 @@ l_Lean_Widget_instAppendExprDiff___closed__1 = _init_l_Lean_Widget_instAppendExp
 lean_mark_persistent(l_Lean_Widget_instAppendExprDiff___closed__1);
 l_Lean_Widget_instAppendExprDiff___closed__2 = _init_l_Lean_Widget_instAppendExprDiff___closed__2();
 lean_mark_persistent(l_Lean_Widget_instAppendExprDiff___closed__2);
-l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1 = _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1();
-lean_mark_persistent(l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1);
-l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2 = _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2();
-lean_mark_persistent(l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2);
-l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3 = _init_l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3();
-lean_mark_persistent(l_List_mapTRAux___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3);
+l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1 = _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1();
+lean_mark_persistent(l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__1);
+l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2 = _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2();
+lean_mark_persistent(l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__2);
+l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3 = _init_l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3();
+lean_mark_persistent(l_List_mapTR_loop___at_Lean_Widget_instToStringExprDiff___spec__3___closed__3);
 l_Lean_Widget_instToStringExprDiff___closed__1 = _init_l_Lean_Widget_instToStringExprDiff___closed__1();
 lean_mark_persistent(l_Lean_Widget_instToStringExprDiff___closed__1);
 l_Lean_Widget_instToStringExprDiff___closed__2 = _init_l_Lean_Widget_instToStringExprDiff___closed__2();

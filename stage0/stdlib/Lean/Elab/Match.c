@@ -25,6 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Elab_Term_ToDepElim
 lean_object* l_Lean_Elab_Term_collectPatternVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t l___private_Lean_Data_HashMap_0__Lean_HashMapImp_mkIdx(lean_object*, uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__50(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_ToDepElimPattern_savePatternInfo_go(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
@@ -327,11 +328,9 @@ lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Term_elabMatch_elabMatchDefault___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___spec__15___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withInPattern___at_Lean_Elab_Term_ToDepElimPattern_main___spec__2___closed__2;
-LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
 static lean_object* l_Lean_Elab_Term_isAtomicDiscr___closed__2;
-lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_mkFreshBinderName___at___private_Lean_Elab_Match_0__Lean_Elab_Term_mkUserNameFor___spec__1___rarg___closed__1;
 lean_object* l_Lean_Meta_Match_instantiatePatternMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1114,6 +1113,7 @@ extern lean_object* l_Lean_matchPatternAttr;
 lean_object* l_Lean_localDeclDependsOn___at_Lean_Elab_Term_addAutoBoundImplicits_go___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchTypeAndDiscrs_elabDiscrs___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Term_elabNoMatch(lean_object*);
 static lean_object* _init_l___private_Lean_Elab_Match_0__Lean_Elab_Term_expandSimpleMatch___closed__1() {
 _start:
@@ -27959,7 +27959,7 @@ lean_ctor_set(x_28, 1, x_27);
 lean_inc(x_6);
 x_29 = lean_array_to_list(lean_box(0), x_6);
 x_30 = lean_box(0);
-x_31 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_29, x_30);
+x_31 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_29, x_30);
 x_32 = l_Array_forInUnsafe_loop___at_Lean_Elab_Term_ToDepElimPattern_main___spec__4___closed__6;
 x_33 = l_Lean_MessageData_joinSep(x_31, x_32);
 lean_dec(x_31);
@@ -28301,7 +28301,7 @@ lean_inc(x_25);
 lean_dec(x_19);
 x_26 = lean_array_to_list(lean_box(0), x_4);
 x_27 = lean_box(0);
-x_28 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
+x_28 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
 x_29 = l_Lean_MessageData_ofList(x_28);
 lean_dec(x_28);
 x_30 = l_Lean_Elab_Term_ToDepElimPattern_main___rarg___lambda__2___closed__2;
@@ -28790,7 +28790,7 @@ lean_dec(x_38);
 lean_inc(x_35);
 x_47 = lean_array_to_list(lean_box(0), x_35);
 x_48 = lean_box(0);
-x_49 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_47, x_48);
+x_49 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_47, x_48);
 x_50 = l_Lean_MessageData_ofList(x_49);
 lean_dec(x_49);
 x_51 = l_Lean_Elab_Term_ToDepElimPattern_main___rarg___closed__4;
@@ -29277,7 +29277,7 @@ lean_dec(x_34);
 lean_inc(x_31);
 x_50 = lean_array_to_list(lean_box(0), x_31);
 x_51 = lean_box(0);
-x_52 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_50, x_51);
+x_52 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_50, x_51);
 x_53 = l_Lean_MessageData_ofList(x_52);
 lean_dec(x_52);
 x_54 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_withElaboratedLHS___rarg___closed__2;
@@ -29436,7 +29436,7 @@ lean_dec(x_76);
 lean_inc(x_73);
 x_92 = lean_array_to_list(lean_box(0), x_73);
 x_93 = lean_box(0);
-x_94 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_92, x_93);
+x_94 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_92, x_93);
 x_95 = l_Lean_MessageData_ofList(x_94);
 lean_dec(x_94);
 x_96 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_withElaboratedLHS___rarg___closed__2;
@@ -32422,7 +32422,7 @@ lean_inc(x_13);
 x_26 = l_Array_mapMUnsafe_map___at_Lean_LocalContext_getFVars___spec__1(x_24, x_25, x_13);
 x_27 = lean_array_to_list(lean_box(0), x_26);
 x_28 = lean_box(0);
-x_29 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_27, x_28);
+x_29 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_27, x_28);
 x_30 = l_Lean_MessageData_ofList(x_29);
 lean_dec(x_29);
 x_31 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_withToClear___rarg___closed__2;
@@ -33180,7 +33180,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalInstances___at___private_L
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -34172,7 +34172,7 @@ lean_dec(x_22);
 lean_inc(x_19);
 x_30 = lean_array_to_list(lean_box(0), x_19);
 x_31 = lean_box(0);
-x_32 = l_List_mapTRAux___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(x_30, x_31);
+x_32 = l_List_mapTR_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(x_30, x_31);
 x_33 = l_Lean_MessageData_ofList(x_32);
 lean_dec(x_32);
 x_34 = l_Lean_Elab_Term_ToDepElimPattern_main___rarg___lambda__2___closed__2;
@@ -34318,7 +34318,7 @@ lean_dec(x_66);
 lean_inc(x_63);
 x_74 = lean_array_to_list(lean_box(0), x_63);
 x_75 = lean_box(0);
-x_76 = l_List_mapTRAux___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(x_74, x_75);
+x_76 = l_List_mapTR_loop___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltView___spec__4(x_74, x_75);
 x_77 = l_Lean_MessageData_ofList(x_76);
 lean_dec(x_76);
 x_78 = l_Lean_Elab_Term_ToDepElimPattern_main___rarg___lambda__2___closed__2;
@@ -38292,7 +38292,7 @@ lean_dec(x_19);
 lean_inc(x_2);
 x_26 = lean_array_to_list(lean_box(0), x_2);
 x_27 = lean_box(0);
-x_28 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
+x_28 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_26, x_27);
 x_29 = l_Lean_MessageData_ofList(x_28);
 lean_dec(x_28);
 x_30 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAltViews_loop___lambda__2___closed__2;

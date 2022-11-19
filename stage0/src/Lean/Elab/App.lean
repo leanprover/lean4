@@ -406,7 +406,8 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
-          if (← localDeclDependsOn xDecl curr.fvarId!) then
+          /- Remark: a default value at `optParam` does not count as a dependency -/
+          if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return true
       return false
 
@@ -527,6 +528,32 @@ mutual
   private partial def processExplictArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
+      if (← anyNamedArgDependsOnCurrent) then
+        /-
+        We treat the explicit argument `argName` as implicit if we have named arguments that depend on it.
+        The idea is that this explicit argument can be inferred using the type of the named argument one.
+        Note that we also use this approach in the branch where there are no explicit arguments left.
+        This is important to make sure the system behaves in a uniform way.
+        Moreover, users rely on this behavior. For example, consider the example on issue #1851
+        ```
+        class Approx {α : Type} (a : α) (X : Type) : Type where
+          val : X
+
+        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)] [x : Approx x' X]
+
+        #check f.val
+        #check f.val x.val
+        ```
+        The type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`
+        Note that the argument `a` is explicit since there is no way to infer it from the expected
+        type or the type of other explicit arguments.
+        Recall that `f.val` is sugar for `Approx.val (self := f)`. In both `#check` commands above
+        the user assumed that `a` does not need to be provided since it can be inferred from the type
+        of `self`.
+        We used to that only in the branch where `(← get).args` was empty, but it created an asymmetry
+        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`
+        -/
+        return (← addImplicitArg argName)
       propagateExpectedType arg
       modify fun s => { s with args }
       elabAndAddNewArg argName arg

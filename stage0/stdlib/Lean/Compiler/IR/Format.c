@@ -71,6 +71,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_formatArray___at_Lean_IR_formatParams___spec_
 static lean_object* l_Lean_IR_formatAlt___closed__2;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType___closed__19;
 LEAN_EXPORT lean_object* l_Lean_IR_instToStringIRType___lambda__1(lean_object*);
+LEAN_EXPORT lean_object* lean_ir_format_fn_body_head(lean_object*);
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__11;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__8;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatLitVal(lean_object*);
@@ -157,7 +158,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatCt
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__31;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__25;
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatParam___closed__2;
-LEAN_EXPORT lean_object* lean_ir_format_fn_body_head(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_formatFnBodyHead(lean_object*);
 static lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatExpr___closed__12;
 static lean_object* l_Lean_IR_formatAlt___closed__3;
 static lean_object* l_Lean_IR_formatFnBodyHead___closed__34;
@@ -2755,7 +2756,7 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* lean_ir_format_fn_body_head(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_IR_formatFnBodyHead(lean_object* x_1) {
 _start:
 {
 switch (lean_obj_tag(x_1)) {
@@ -3224,6 +3225,16 @@ x_195 = l_Lean_IR_formatFnBodyHead___closed__43;
 return x_195;
 }
 }
+}
+}
+LEAN_EXPORT lean_object* lean_ir_format_fn_body_head(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = l_Lean_IR_formatFnBodyHead(x_1);
+x_3 = l_Std_Format_defWidth;
+x_4 = lean_format_pretty(x_2, x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_formatFnBody_loop___spec__1(lean_object* x_1, lean_object* x_2, size_t x_3, size_t x_4, lean_object* x_5) {

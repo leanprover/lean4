@@ -406,6 +406,7 @@ section MessageHandling
          srcSearchPath
          doc := st.doc
          hLog := ctx.hLog
+         hOut := ctx.hOut
          initParams := ctx.initParams }
      let t? ← EIO.toIO' <| handleLspRequest method params rc
      let t₁ ← match t? with

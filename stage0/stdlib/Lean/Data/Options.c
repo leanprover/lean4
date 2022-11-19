@@ -184,6 +184,7 @@ static lean_object* l___auto____x40_Lean_Data_Options___hyg_103____closed__4;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__27;
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__17;
 lean_object* l_String_intercalate(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_setOptionFromString___spec__1(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_103____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Option_get_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadWithOptions___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -266,7 +267,6 @@ static lean_object* l___auto____x40_Lean_Data_Options___hyg_103____closed__13;
 static lean_object* l_Lean_Option_registerOption___closed__4;
 LEAN_EXPORT lean_object* l_Lean_getNatOption___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_getOptionDeclsArray___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedOption___rarg(lean_object*);
 static lean_object* l_Lean_Option_registerBuiltinOption___closed__3;
 static lean_object* l_Lean_Option_registerOption___closed__9;
@@ -1297,7 +1297,7 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_setOptionFromString___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1458,7 +1458,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7;
 x_4 = l_Lean_setOptionFromString___closed__1;
 x_5 = l_String_splitOn(x_2, x_4);
 x_6 = lean_box(0);
-x_7 = l_List_mapTRAux___at_Lean_setOptionFromString___spec__1(x_5, x_6);
+x_7 = l_List_mapTR_loop___at_Lean_setOptionFromString___spec__1(x_5, x_6);
 if (lean_obj_tag(x_7) == 0)
 {
 lean_object* x_8; lean_object* x_9; 

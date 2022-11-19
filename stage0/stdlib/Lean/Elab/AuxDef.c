@@ -83,6 +83,7 @@ static lean_object* l_Lean_Elab_Command_elabAuxDef___lambda__1___closed__4;
 lean_object* l_Lean_Syntax_getId(lean_object*);
 static lean_object* l_Lean_Elab_Command_aux__def___closed__6;
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Command_elabAuxDef___spec__2(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabAuxDef___closed__3;
 lean_object* l_Lean_Elab_Command_elabCommand(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_aux__def___closed__34;
@@ -129,7 +130,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabAu
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_aux__def___closed__3;
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Elab_Command_elabAuxDef___spec__2(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_aux__def___closed__25;
@@ -626,7 +626,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Elab_throwUnsupportedSyntax___at_Lean_El
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Elab_Command_elabAuxDef___spec__2(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Command_elabAuxDef___spec__2(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1063,7 +1063,7 @@ x_22 = l_Lean_Name_append(x_21, x_15);
 lean_dec(x_21);
 x_23 = l_Lean_Name_components(x_22);
 x_24 = lean_box(0);
-x_25 = l_List_mapTRAux___at_Lean_Elab_Command_elabAuxDef___spec__2(x_23, x_24);
+x_25 = l_List_mapTR_loop___at_Lean_Elab_Command_elabAuxDef___spec__2(x_23, x_24);
 x_26 = l_Lean_Elab_Command_elabAuxDef___lambda__1___closed__3;
 x_27 = l_String_intercalate(x_26, x_25);
 x_28 = l_Lean_Elab_Command_getScope___rarg(x_6, x_17);

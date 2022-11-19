@@ -151,6 +151,10 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
 
 private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   let cfg := (← read).config
+  if e.getAppFn.isMVar then
+    let e' ← instantiateMVars e
+    if e' != e then
+      return (← reduce e')
   if cfg.beta then
     let e' := e.headBeta
     if e' != e then

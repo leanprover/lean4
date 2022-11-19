@@ -31,39 +31,47 @@ def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
 
 structure Builder (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (Builder ctx) := ⟨{ ptr := default }⟩
 
 structure Context where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty Context := ⟨{ ptr := default }⟩
 
 structure LLVMType (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (LLVMType ctx) := ⟨{ ptr := default }⟩
 
 structure MemoryBuffer (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (MemoryBuffer ctx) := ⟨{ ptr := default }⟩
 
 structure Module (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (Module ctx) := ⟨{ ptr := default }⟩
+
+structure PassManager (ctx : Context) where
+  private mk :: ptr : USize
+instance : Nonempty (PassManager ctx) := ⟨{ ptr := default }⟩
+
+structure PassManagerBuilder (ctx : Context) where
+  private mk :: ptr : USize
+instance : Nonempty (PassManagerBuilder ctx) := ⟨{ ptr := default }⟩
 
 structure Target (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (Target ctx) := ⟨{ ptr := default }⟩
 
 structure TargetMachine (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (TargetMachine ctx) := ⟨{ ptr := default }⟩
 
 structure Value (ctx : Context) where
   private mk :: ptr : USize
-  deriving Inhabited
+instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
 
 @[extern "lean_llvm_create_context"]
 opaque createContext : BaseIO (Context)
@@ -229,7 +237,7 @@ opaque printModuletoString (mod : @&Module ctx) : BaseIO (String)
 opaque printModuletoFile (mod : @&Module ctx) (file : @&String) : BaseIO Unit
 
 @[extern "llvm_count_params"]
-opaque countParams (fn : @&Value ctx) : UInt64 -- will this cause problems..?
+opaque countParams (fn : @&Value ctx) : UInt64 
 
 @[extern "llvm_get_param"]
 opaque getParam (fn : @&Value ctx) (ix : UInt64) : BaseIO (Value ctx)
@@ -254,6 +262,27 @@ opaque createTargetMachine (target : @&Target ctx) (tripleStr : @&String) (cpu :
 
 @[extern "lean_llvm_target_machine_emit_to_file"]
 opaque targetMachineEmitToFile (targetMachine : @&TargetMachine ctx) (module : @&Module ctx) (filepath : @&String) (codegenType : @&LLVM.CodegenFileType) : BaseIO Unit
+
+@[extern "lean_llvm_create_pass_manager"]
+opaque createPassManager : BaseIO (PassManager ctx)
+
+@[extern "lean_llvm_dispose_pass_manager"]
+opaque disposePassManager (pm : PassManager ctx) : BaseIO Unit
+
+@[extern "lean_llvm_run_pass_manager"]
+opaque runPassManager (pm : PassManager ctx) (mod : Module ctx): BaseIO Unit
+
+@[extern "lean_llvm_create_pass_manager_builder"]
+opaque createPassManagerBuilder : BaseIO (PassManagerBuilder ctx)
+
+@[extern "lean_llvm_dispose_pass_manager_builder"]
+opaque disposePassManagerBuilder (pmb : PassManagerBuilder ctx) : BaseIO Unit
+
+@[extern "lean_llvm_pass_manager_builder_set_opt_level"]
+opaque PassManagerBuilder.setOptLevel (pmb : PassManagerBuilder ctx) (optLevel : unsigned) : BaseIO Unit
+
+@[extern "lean_llvm_pass_manager_builder_populate_module_pass_manager"]
+opaque PassManagerBuilder.populateModulePassManager (pmb : PassManagerBuilder ctx) (pm : PassManager ctx): BaseIO Unit
 
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.

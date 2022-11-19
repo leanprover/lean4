@@ -35,21 +35,21 @@ function compile_lean_llvm_backend {
     rm "*.bc" || true # remove bitcode files
     rm "*.o" || true # remove object files
     # print the original C program well-formatted, and LLVM sources for handy debugging.
-    lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
-    clang-format -i "$f.c"
     if [[ -v DEBUG_LLVM ]]; then
+      lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
+      clang-format -i "$f.c"
       clang $(leanc --print-cflags) -S -emit-llvm "$f.c" -o "$f.c.ll" # generate ll.
       sed -i "s/optnone//g" "$f.c.ll" # remove optnone to actually allow some optimisation.
       opt -S -O2 "$f.c.ll" -o "$f.c.o2.ll" # optimise it a little to be much more readable.
     fi
 
-    echo "using lean: $(which lean); leanc: $(which leanc)"
     lean --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
     if [[ -v DEBUG_LLVM ]]; then
+      echo "using lean: $(which lean); leanc: $(which leanc)"
       opt -S "$f.linked.bc" -o "$f.linked.bc.ll" # generate easy to read ll from bitcode
       opt -S -O2 "$f.linked.bc" -o "$f.linked.bc.o2.ll" # generate easy to read ll from bitcode
     fi
-    leanc -o "$f.out" "$@" "$f.linked.bc.o" || fail "Failed to link object file '$f.o', generated from bitcode file $f.linked.bc"
+    leanc -o "$f.out" "$@" "$f.linked.bc.o" || fail "Failed to link object file '$f.linked.bc.o'"
     set +o xtrace
 }
 

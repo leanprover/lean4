@@ -60,7 +60,7 @@ instance : ToString Error where
    | .compileError s => s!"compile error '{s}'"
 
 
-abbrev M (llvmctx: LLVM.Context) := 
+abbrev M (llvmctx: LLVM.Context) :=
   StateT (State llvmctx) (ReaderT (Context llvmctx) (ExceptT Error IO))
 
 instance : Inhabited (M llvmctx α) where
@@ -2219,8 +2219,17 @@ def getLibLeanRtPath : IO FilePath := do
   return buildDir / "runtime" / "libleanrt.bc"
 
 
+def optimizeLLVMModule (mod: LLVM.Module ctx): IO Unit := do
+  let pm  ← LLVM.createPassManager
+  let pmb ← LLVM.createPassManagerBuilder
+  pmb.setOptLevel 3
+  pmb.populateModulePassManager pm
+  LLVM.runPassManager pm mod
+  LLVM.disposePassManager pm
+  LLVM.disposePassManagerBuilder pmb
+
+
 -- | TODO: Use a beter type signature than this.
--- | TODO: produce bitcode instead of an LLVM string.
 @[export lean_ir_emit_llvm]
 def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit := do
   let llvmctx ← LLVM.createContext
@@ -2236,18 +2245,13 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
          -- so we can then remove the
          -- unused portions after inlining
          LLVM.linkModules (dest := emitLLVMCtx.llvmmodule) (src := modruntime)
-         LLVM.printModuletoFile emitLLVMCtx.llvmmodule "/home/bollu/temp/lean-llvm.linked.ll"
-         -- TODO (bollu): run pass pipeline
+         optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
-         -- TODO (bollu): produce object code directly.
-         -- https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl08.html
          let tripleStr ← LLVM.getDefaultTargetTriple
          let target ← LLVM.getTargetFromTriple tripleStr
          let cpu := "generic"
          let features := ""
          let targetmachine ← LLVM.createTargetMachine target tripleStr cpu features
-         -- TheModule->setDataLayout(TargetMachine->createDataLayout());
-         -- TheModule->setTargetTriple(TargetTriple);
          let codegenType := LLVM.CodegenFileType.ObjectFile
          LLVM.targetMachineEmitToFile targetmachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
 

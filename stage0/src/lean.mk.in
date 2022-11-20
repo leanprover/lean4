@@ -25,10 +25,15 @@ LEAN_OPTS = @LEAN_EXTRA_MAKE_OPTS@
 LEANC_OPTS = -O3 -DNDEBUG
 LINK_OPTS =
 
-SRCS = $(shell find $(PKG) -name '*.lean' 2> /dev/null || true; find $(PKG).lean 2> /dev/null)
+SRCS = $(shell find $(PKG) $(PKG).lean -name '*.lean')
 DEPS = $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.depend))
 export LEAN_PATH += @LEAN_PATH_SEPARATOR@$(OLEAN_OUT)
 OBJS = $(addprefix $(OLEAN_OUT)/, $(SRCS:.lean=.olean))
+ifdef C_ONLY
+REL_OS = $(patsubst %.c,%.o,$(shell cd $(C_OUT); find $(PKG) $(PKG).c -name '*.c'))
+else
+REL_OS = $(SRCS:.lean=.o)
+endif
 
 SHELL = /usr/bin/env bash -euo pipefail
 
@@ -81,7 +86,7 @@ else
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
 endif
 
-$(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(BIN_OUT)
+$(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
@@ -91,7 +96,7 @@ else
 	$(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS)
 endif
 
-$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(SRCS:.lean=.o)) | $(LIB_OUT)
+$(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 	@rm -f $@
 	@$(LEAN_AR) rcs $@ $^
 

@@ -12,9 +12,9 @@ for pkg in Init Lean; do
 done
 # don't copy untracked files
 for f in $(git ls-files src); do
-    if [[ $f != src/lake ]]; then
+    if [[ $f != src/lake && $f != *.lean ]]; then
         mkdir -p $(dirname stage0/$f)
-        cp ${CP_PARAMS:-} $f stage0/$f
+        cp $f stage0/$f
     fi
 done
 git add stage0

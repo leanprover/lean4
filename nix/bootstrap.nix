@@ -158,7 +158,7 @@ rec {
       update-stage0 =
         let cTree = symlinkJoin { name = "cs"; paths = map (l: l.cTree) stdlib; }; in
         writeShellScriptBin "update-stage0" ''
-          CSRCS=${cTree} CP_PARAMS="--dereference --no-preserve=all" ${../script/update-stage0}
+          CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${../script/update-stage0}
         '';
       update-stage0-commit = writeShellScriptBin "update-stage0-commit" ''
         set -euo pipefail

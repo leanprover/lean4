@@ -563,7 +563,7 @@ private def mkLetRecClosureFor (toLift : LetRecToLift) (freeVars : Array FVarId)
       xs.mapM fun x => do
         let localDecl ← x.fvarId!.getDecl
         return (localDecl.userName, localDecl.binderInfo)
-    /- Auxiliary map for preserving binder user-facind names and `BinderInfo` for types. -/
+    /- Auxiliary map for preserving binder user-facing names and `BinderInfo` for types. -/
     let mut userNameBinderInfoMap : FVarIdMap (Name × BinderInfo) := {}
     for x in xs, (userName, bi) in userNameAndBinderInfos do
       userNameBinderInfoMap := userNameBinderInfoMap.insert x.fvarId! (userName, bi)
@@ -639,11 +639,17 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       type, value
     }
 
-def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : Array PreDefinition :=
-  letRecClosures.foldl (init := preDefs) fun preDefs c =>
+def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : MetaM (Array PreDefinition) :=
+  letRecClosures.foldlM (init := preDefs) fun preDefs c => do
     let type  := Closure.mkForall c.localDecls c.toLift.type
     let value := Closure.mkLambda c.localDecls c.toLift.val
-    preDefs.push {
+    -- Convert any proof let recs inside a `def` to `theorem` kind
+    let kind ← if kind.isDefOrAbbrevOrOpaque then
+      withLCtx c.toLift.lctx c.toLift.localInstances do
+        return if (← inferType c.toLift.type).isProp then .theorem else kind
+    else
+      pure kind
+    return preDefs.push {
       ref         := c.ref
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
@@ -694,7 +700,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } }
     let letRecKind     := getKindForLetRecs mainHeaders
     let letRecMods     := getModifiersForLetRecs mainHeaders
-    pushMain (pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
+    pushMain (← pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
 
 end MutualClosure
 

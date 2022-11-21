@@ -1,12 +1,12 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages,
   ... } @ args:
 with builtins;
 rec {
   inherit stdenv;
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
-    buildInputs = [ gmp ];
+    buildInputs = [ gmp llvmPackages.llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
     dontStrip = (args.debug or debug);
@@ -16,7 +16,7 @@ rec {
     '';
   } // args // {
     src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DLLVM=ON" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
       sed -i 's!lake/Lake.lean!!' CMakeLists.txt
@@ -114,6 +114,7 @@ rec {
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} \
           ${if stdenv.isDarwin then "-Wl,-force_load,${Init.staticLib}/libInit.a -Wl,-force_load,${Lean.staticLib}/libLean.a -Wl,-force_load,${leancpp}/lib/lean/libleancpp.a ${leancpp}/lib/libleanrt_initial-exec.a -lc++"
             else "-Wl,--whole-archive -lInit -lLean -lleancpp ${leancpp}/lib/libleanrt_initial-exec.a -Wl,--no-whole-archive -lstdc++"} -lm ${stdlibLinkFlags} \
+          $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
       mods = Init.mods // Lean.mods;
@@ -143,6 +144,7 @@ rec {
         preConfigure = ''
           cd src
         '';
+        extraCMakeFlags = [ "-DLLVM=OFF" ];
         postConfigure = ''
           patchShebangs ../../tests
           rm -r bin lib include share

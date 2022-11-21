@@ -157,19 +157,6 @@ if(AUTO_THREAD_FINALIZATION AND NOT MSVC)
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_AUTO_THREAD_FINALIZATION")
 endif()
 
-if(LLVM)
-  if(NOT (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    message(FATAL_ERROR "LLVM=ON must be used with clang. Set `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER` accordingly.")
-  endif()
-  message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-  message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-  include_directories(${LLVM_INCLUDE_DIRS})
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
-else()
-  #message(WARNING "Disabling LLVM support.  JIT compilation will not be available")
-endif()
-
 # Set Module Path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
@@ -263,9 +250,44 @@ find_package(PythonInterp)
 
 include_directories(${CMAKE_BINARY_DIR}/include)
 
+# Pick up `llvm-config` to setup LLVM flags.
+if(LLVM)
+  if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
+    message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
+    find_program(LLVM_CONFIG "llvm-config")
+    if(NOT LLVM_CONFIG) # check that it was found
+        message(FATAL_ERROR "Unable to find 'llvm-config'")
+    endif()
+  endif()
+  # check that we have 'llvm-config' version.
+  message(STATUS "Executing 'llvm-config --version' at '${LLVM_CONFIG}' to check configuration.")
+  execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
+  message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+  # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+
+  execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --libdir OUTPUT_VARIABLE LLVM_CONFIG_LIBDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --includedir OUTPUT_VARIABLE LLVM_CONFIG_INCLUDEDIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --cxxflags OUTPUT_VARIABLE LLVM_CONFIG_CXXFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  execute_process(COMMAND ${LLVM_CONFIG}  --system-libs OUTPUT_VARIABLE LLVM_CONFIG_SYSTEM_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  message(STATUS "llvm-config: libdir '${LLVM_CONFIG_LIBDIR}' | ldflags '${LLVM_CONFIG_LDFLAGS}' | libs '${LLVM_CONFIG_LIBS}' | system libs '${LLVM_CONFIG_SYSTEM_LIBS}' | cxxflags: ${LLVM_CONFIG_CXXFLAGS} | includedir: ${LLVM_CONFIG_INCLUDEDIR}")
+else()
+  message(WARNING "Disabling LLVM support")
+endif()
+
 # libleancpp/Lean as well as libleanrt/Init are cyclically dependent. This works by default on macOS, which also doesn't like
 # the linker flags necessary on other platforms.
+# Furthermore, add LLVM flags into the list of flags we need when linking.
+# when using shared libraries, set the `rpath` to help the dynamic loader
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  if(LLVM) # link to Zlib because LLVM depends on it.
+    find_package(ZLIB REQUIRED)
+    message(STATUS "ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+    cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
+    string(APPEND LEAN_EXTRA_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
+  endif()
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lnodefs.js -lleanrt")
@@ -281,6 +303,27 @@ endif()
 
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
+
+if(LLVM)
+    # Here, we perform a replacement of `llvm-host` with `llvm`. This is necessary for our cross-compile
+    #   builds in `script/prepare-llvm-*.sh`. 
+    # - Recall that the host's copy of LLVM binaries and libraries is at
+    #   `llvm-host`, and the target's copy of LLVM binaries and libraries is at
+    #   `llvm`.
+    # - In an ideal world, we would run the target's `llvm/bin/llvm-config` and get the corrct link options for the target 
+    #   (e.g. `-Lllvm/lib/libLLVM`.)
+    # - However, the target's `llvm/bin/llvm-config` has a different target
+    #   triple from the host, and thus cannot be run on the host.
+    # - So, we run the host `llvm-host/bin/llvm-config` from which we pick up
+    #   compiler options, and change the output of the host to point to the target.
+    # - In particular, `host/bin/llvm-config` produces flags like `-Lllvm-host/lib/libLLVM`, while 
+    #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
+    string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+    string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
+    set(APPEND LEAN_EXTRA_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
+    string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
+    message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
+endif()
 
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")

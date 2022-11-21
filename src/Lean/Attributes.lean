@@ -441,7 +441,7 @@ def updateEnvAttributesImpl (env : Environment) : IO Environment := do
   return attributeExtension.setState env s
 
 /-- `getNumBuiltinAttributes` implementation -/
-@[export lean_get_num_attributes] def getNumBuiltiAttributesImpl : IO Nat :=
+@[export lean_get_num_attributes] def getNumBuiltinAttributesImpl : IO Nat :=
   return (← attributeMapRef.get).size
 
 end Lean

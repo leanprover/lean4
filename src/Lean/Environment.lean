@@ -686,7 +686,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
 -/
 @[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltiAttributes : IO Nat
+@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -698,11 +698,11 @@ where
       let extDescr := pExtDescrs[i]!
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
-      let prevAttrSize ← getNumBuiltiAttributes
+      let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
       let mut env := extDescr.toEnvExtension.setState env { s with state := newState }
       env ← ensureExtensionsArraySize env
-      if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltiAttributes) > prevAttrSize then
+      if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
         -- a user-defined persistent extension is imported.
         -- Thus, we invoke `setImportedEntries` to update the array `importedEntries` with the entries for the new extensions.

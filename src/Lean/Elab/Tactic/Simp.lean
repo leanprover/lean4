@@ -249,7 +249,14 @@ register_builtin_option tactic.simp.trace : Bool := {
   descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
 }
 
-def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+/--
+If `stx` is the syntax of a `simp`, `simp_all` or `dsimp` tactic invocation, and
+`usedSimps` is the set of simp lemmas used by this invocation, then `mkSimpOnly`
+creates the syntax of an equivalent `simp only`, `simp_all only` or `dsimp only`
+invocation.
+-/
+def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax.Tactic := do
+  let isSimpAll := stx[0].getAtomVal == "simp_all"
   let mut stx := stx
   if stx[3].isNone then
     stx := stx.setArg 3 (mkNullNode #[mkAtom "only"])
@@ -263,6 +270,14 @@ def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
       if env.contains declName && !simpOnlyBuiltins.contains declName then
         args := args.push (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident))
     | .fvar fvarId => -- local hypotheses in the context
+      if isSimpAll then
+        continue
+        -- `simp_all` uses all hypotheses anyway, so we do not need to include
+        -- them in the arguments. In fact, it would be harmful to do so:
+        -- `simp_all only [h]`, where `h` is a hypothesis, simplifies `h` to
+        -- `True` and subsequenly removes it from the context, whereas
+        -- `simp_all` does not. So to get behavior equivalent to `simp_all`, we
+        -- must omit `h`.
       if let some ldecl := lctx.find? fvarId then
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName &&
@@ -281,8 +296,10 @@ def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
   else
     args := args.push (← `(Parser.Tactic.simpStar| *))
   let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
-  stx := stx.setArg 4 (mkNullNode argsStx)
-  logInfoAt stx[0] m!"Try this: {stx}"
+  return stx.setArg 4 (mkNullNode argsStx)
+
+def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+  logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
 /--
 `simpLocation ctx discharge? varIdToLemmaId loc`

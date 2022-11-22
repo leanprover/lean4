@@ -139,12 +139,16 @@ def addTrace (cls : Name) (msg : MessageData) : m Unit := do
     let msg ← mkMsg
     addTrace cls msg
 
+private def addTraceNodeCore (oldTraces : PersistentArray TraceElem)
+    (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
+  modifyTraces fun newTraces =>
+    oldTraces.push { ref, msg := .trace cls msg (newTraces.toArray.map (·.msg)) collapsed }
+
 private def addTraceNode (oldTraces : PersistentArray TraceElem)
     (cls : Name) (ref : Syntax) (msg : MessageData) (collapsed : Bool) : m Unit :=
   withRef ref do
   let msg ← addMessageContext msg
-  modifyTraces fun newTraces =>
-    oldTraces.push { ref, msg := .trace cls msg (newTraces.toArray.map (·.msg)) collapsed }
+  addTraceNodeCore oldTraces cls ref msg collapsed
 
 def withTraceNode [MonadExcept ε m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
     (collapsed := true) : m α := do
@@ -204,5 +208,33 @@ def exceptOptionEmoji : Except ε (Option α) → String
   | .error _ => bombEmoji
   | .ok (some _) => checkEmoji
   | .ok none => crossEmoji
+
+class ExceptToEmoji (ε α : Type) where
+  toEmoji : Except ε α → String
+
+instance : ExceptToEmoji ε Bool where
+  toEmoji := exceptBoolEmoji
+
+instance : ExceptToEmoji ε (Option α) where
+  toEmoji := exceptOptionEmoji
+
+/--
+Similar to `withTraceNode`, but msg is constructed **before** executing `k`.
+This is important when debugging methods such as `isDefEq`, and we want to generate the message
+before `k` updates the metavariable assignment. The class `ExceptToEmoji` is used to convert
+the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
+
+TODO: find better name for this function.
+-/
+def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
+  if !(← isTracingEnabledFor cls) then
+    k
+  else
+    let ref ← getRef
+    let oldTraces ← getResetTraces
+    let msg ← withRef ref do addMessageContext (← msg)
+    let res ← observing k
+    addTraceNodeCore oldTraces cls ref m!"{ExceptToEmoji.toEmoji res} {msg}" collapsed
+    MonadExcept.ofExcept res
 
 end Lean

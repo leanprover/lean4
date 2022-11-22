@@ -308,7 +308,7 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   isDefEqBindingAux lctx #[] a b #[]
 
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
-  withTraceNode `Meta.isDefEq.assign.checkTypes (return m!"{exceptBoolEmoji ·} ({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
+  withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
       trace[Meta.isDefEq.assign.checkTypes] "metavariable expected"
       return false
@@ -1010,7 +1010,7 @@ private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patter
 /-- Tries to solve `?m a₁ ... aₙ =?= v` by assigning `?m`.
     It assumes `?m` is unassigned. -/
 private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :=
-  withTraceNode `Meta.isDefEq.assign (return m!"{exceptBoolEmoji ·} {mvarApp} := {v}") do
+  withTraceNodeBefore `Meta.isDefEq.assign (return m!"{mvarApp} := {v}") do
     let mvar := mvarApp.getAppFn
     let mvarDecl ← mvar.mvarId!.getDecl
     let rec process (i : Nat) (args : Array Expr) (v : Expr) := do
@@ -1126,7 +1126,7 @@ private def tryHeuristic (t s : Expr) : MetaM Bool := do
   unless info.hints.isRegular || isMatcherCore (← getEnv) tFn.constName! do
     unless t.hasExprMVar || s.hasExprMVar do
       return false
-  withTraceNode `Meta.isDefEq.delta (return m!"{exceptBoolEmoji ·} {t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq.delta (return m!"{t} =?= {s}") do
     /-
       We process arguments before universe levels to reduce a source of brittleness in the TC procedure.
 
@@ -1608,10 +1608,10 @@ end
   | none   => failK
 
 private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
-  trace[Meta.isDefEq.onFailure] "{t} =?= {s}"
-  unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
-  unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
-  tryUnificationHints t s <||> tryUnificationHints s t
+  withTraceNodeBefore `Meta.isDefEq.onFailure (return m!"{t} =?= {s}") do
+    unstuckMVar t (fun t => Meta.isExprDefEqAux t s) <|
+    unstuckMVar s (fun s => Meta.isExprDefEqAux t s) <|
+    tryUnificationHints t s <||> tryUnificationHints s t
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
   | Expr.proj _ i t, Expr.proj _ j s => pure (i == j) <&&> Meta.isExprDefEqAux t s
@@ -1718,7 +1718,7 @@ private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNode `Meta.isDefEq (return m!"{exceptBoolEmoji ·} {t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
   checkMaxHeartbeats "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do

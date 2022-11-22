@@ -96,6 +96,9 @@ abbrev MonadLogT.adaptMethods [Monad n]
 (f : MonadLog m → MonadLog m') (self : MonadLogT m' n α) : MonadLogT m n α :=
   ReaderT.adapt f self
 
+abbrev MonadLogT.ignoreLog [Pure m] (self : MonadLogT m n α) : n α :=
+  self MonadLog.nop
+
 abbrev LogIO :=
   MonadLogT BaseIO OptionIO
 

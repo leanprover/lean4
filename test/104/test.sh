@@ -9,6 +9,7 @@ MANIFEST=lake-manifest.json
 ./clean.sh
 
 cd test
+$LAKE update
 $LAKE build
 cat $MANIFEST
 if [ "`uname`" = Darwin ]; then

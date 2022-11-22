@@ -6,6 +6,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 import Lake.Util.Git
 import Lake.Load.Manifest
 import Lake.Config.Dependency
+import Lake.Config.Package
 
 open System Lean
 
@@ -26,89 +27,76 @@ def cloneGitPkg (repo : GitRepo) (url : String) (rev? : Option String) : LogIO P
     let hash ← repo.resolveRemoteRevision rev
     repo.checkoutDetach hash
 
-/--
-Materializes a Git package in `dir`, cloning and/or updating it as necessary.
-
-Attempts to reproduce the `PackageEntry` in the manifest (if one exists) unless
-`shouldUpdate` is true. Otherwise, produces the package based on `url` and `rev`
-and returns a record of the result to later save into the manifest.
--/
-def materializeGitPkg (name : String) (dir : FilePath)
-(url : String) (rev? : Option String) (manifestEntry? : Option PackageEntry)
- : LogIO PackageEntry := do
-  let repo := GitRepo.mk dir
-  if let some entry := manifestEntry? then
-    if entry.shouldUpdate then
-      if (← repo.dirExists) then
-        if url = entry.url then
-          updateGitPkg repo rev?
-        else
-          logInfo s!"{name}: URL has changed; deleting {dir} and cloning again"
-          IO.FS.removeDirAll dir
-          cloneGitPkg repo url rev?
+def updateGitRepo (repo : GitRepo) (url : String)
+(rev? : Option String) (name : String) : LogIO Unit := do
+  if (← repo.dirExists) then
+    if (← repo.getRemoteUrl?) = url then
+      updateGitPkg repo rev?
+    else
+      -- TODO: git resolves local file paths so we always hit this case for local repos
+      if System.Platform.isWindows then
+        -- Deleting git repositories via IO.FS.removeDirAll does not work reliably on windows
+        logInfo s!"{name}: URL has changed; you might need to delete {repo.dir} manually"
+        updateGitPkg repo rev?
       else
+        logInfo s!"{name}: URL has changed; deleting {repo.dir} and cloning again"
+        IO.FS.removeDirAll repo.dir
         cloneGitPkg repo url rev?
-      let rev ← repo.headRevision
-      return {entry with url, rev, inputRev? := rev?}
-    else
-      if let some rev := rev? then
-        if let some inputRev := entry.inputRev? then
-          if inputRev ≠ rev then
-            logWarning <|
-              s!"{name}: revision `{inputRev}` listed in manifest " ++
-              s!"does not match `{rev}` listed in the configuration file; " ++
-              "you may wish to run `lake update` to update"
-      if (← repo.dirExists) then
-        if url = entry.url then
-          /-
-          Do not update (fetch remote) if already on revision
-          Avoids errors when offline e.g. [leanprover/lake#104][104]
-          [104]: https://github.com/leanprover/lake/issues/104
-          -/
-          unless (← repo.headRevision) = entry.rev do
-            updateGitPkg repo entry.rev
-        else
-          logWarning <|
-            s!"{name}: URL has changed; " ++
-            "still using old package, use `lake update` to update"
-      else
-        cloneGitPkg repo entry.url entry.rev
-      return entry
   else
-    if (← repo.dirExists) then
-      logInfo s!"{name}: no manifest entry; deleting {dir} and cloning again"
-      IO.FS.removeDirAll dir
-      cloneGitPkg repo url rev?
-    else
-      cloneGitPkg repo url rev?
+    cloneGitPkg repo url rev?
+
+def updateSource (relParentDir packagesDir : FilePath) (name : String) (source : Source) : LogIO PackageEntry :=
+  match source with
+  | .path dir => return .path name (relParentDir / dir)
+  | .git url inputRev? subDir? => do
+    let dir := packagesDir / name
+    let repo := GitRepo.mk dir
+    updateGitRepo repo url inputRev? name
     let rev ← repo.headRevision
-    return {name, url, rev, inputRev? := rev?}
+    return .git name url rev inputRev? subDir?
 
 structure MaterializeResult where
   pkgDir : FilePath
+  relPkgDir : FilePath
   remoteUrl? : Option String
   gitTag? : Option String
-  manifestEntry? : Option PackageEntry
+  manifestEntry : PackageEntry
+  deriving Repr, Inhabited
 
 /--
-Materializes a `Dependency`, downloading nd/or updating it as necessary.
-Local dependencies are materialized relative to `localRoot` and remote
-dependencies are stored in `packagesDir`.
+Materializes a package entry, cloning and/or checkout it out as necessary.
 -/
-def materializeDep (packagesDir localRoot : FilePath)
-(dep : Dependency) (manifestEntry? : Option PackageEntry)
-: LogIO MaterializeResult :=
-  match dep.src with
-  | Source.path dir =>
-    return ⟨localRoot / dir, none, none, none⟩
-  | Source.git url rev? subDir? => do
-    let name := dep.name.toString (escape := false)
-    let gitDir := packagesDir / name
-    let entry? ← materializeGitPkg name gitDir url rev? manifestEntry?
-    let pkgDir :=
-      match subDir? with
-      | some subDir => gitDir / subDir
-      | none => gitDir
-    let tag? ← GitRepo.mk gitDir |>.findTag?
-    let url? := Git.filterUrl? url
-    return ⟨pkgDir, url?, tag?, entry?⟩
+def materializePackageEntry (rootPkg : Package) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
+  match manifestEntry with
+  | .path _name pkgDir =>
+    return {
+      pkgDir := rootPkg.dir / pkgDir
+      relPkgDir := pkgDir
+      remoteUrl? := none
+      gitTag? := none
+      manifestEntry
+    }
+  | .git name url rev _inputRev? subDir? => do
+    let relGitDir := rootPkg.config.packagesDir / name
+    let gitDir := rootPkg.dir / relGitDir
+    let repo := GitRepo.mk gitDir
+    /-
+    Do not update (fetch remote) if already on revision
+    Avoids errors when offline e.g. [leanprover/lake#104][104]
+
+    [104]: https://github.com/leanprover/lake/issues/104
+    -/
+    let updateNecessary ← id do
+      if (← repo.dirExists) then
+        return (← repo.headRevision?) != rev
+      return true
+    if updateNecessary then
+      updateGitRepo repo url rev name
+    let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
+    return {
+      pkgDir := rootPkg.dir / relPkgDir
+      relPkgDir
+      remoteUrl? := url
+      gitTag? := ← repo.findTag?
+      manifestEntry
+    }

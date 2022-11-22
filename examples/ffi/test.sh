@@ -1,4 +1,4 @@
-set -e
+set -ex
 
 ./clean.sh
 ./package.sh

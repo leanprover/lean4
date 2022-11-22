@@ -56,15 +56,13 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall)
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
-def LakeOptions.mkLoadConfig
-(opts : LakeOptions) (updateDeps := false) : EIO CliError LoadConfig :=
+def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
     env := ← opts.computeEnv
     rootDir := opts.rootDir
     configFile := opts.rootDir / opts.configFile
     configOpts := opts.configOpts
     leanOpts := Lean.Options.empty
-    updateDeps
   }
 
 export LakeOptions (mkLoadConfig)
@@ -266,16 +264,16 @@ protected def build : CliM PUnit := do
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts (updateDeps := false)
+  let config ← mkLoadConfig opts
   noArgsRem do
     liftM <| discard <| (loadWorkspace config).run (MonadLog.io opts.verbosity)
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts (updateDeps := true)
+  let config ← mkLoadConfig opts
   noArgsRem do
-    liftM <| discard <| (loadWorkspace config).run (MonadLog.io opts.verbosity)
+    liftM <| (updateManifest config).run (MonadLog.io opts.verbosity)
 
 protected def upload : CliM PUnit := do
   processOptions lakeOption

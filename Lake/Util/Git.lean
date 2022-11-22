@@ -83,6 +83,9 @@ def cwd : GitRepo := ⟨"."⟩
 @[inline] def headRevision (repo : GitRepo) : LogIO String :=
   repo.resolveRevision "HEAD"
 
+@[inline] def headRevision? (repo : GitRepo) : BaseIO (Option String) :=
+  repo.resolveRevision? "HEAD"
+
 def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
   if Git.isFullObjectName rev then return rev
   if let some rev ← repo.resolveRevision? s!"{remote}/{rev}"  then return rev

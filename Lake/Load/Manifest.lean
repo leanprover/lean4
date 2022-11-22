@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2022 Mac Malone. All rights reserved.
+Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Mac Malone
+Authors: Mac Malone, Gabriel Ebner
 -/
 import Lean.Data.Json
 import Lake.Util.Log
@@ -11,27 +11,23 @@ open System Lean
 namespace Lake
 
 /-- Current version of the manifest format. -/
-def Manifest.version : Nat := 2
+def Manifest.version : Nat := 3
 
 /-- An entry for a package stored in the manifest. -/
-structure PersistentPackageEntry where
-  name : String
-  url : String
-  rev : String
-  inputRev? : Option String
-  deriving Inhabited, Repr, FromJson, ToJson
+inductive PackageEntry
+  | path (name : String) (dir : FilePath)
+    -- `dir` is relative to the package directory
+    -- of the package containing the manifest
+  | git (name : String) (url : String) (rev : String)
+    (inputRev? : Option String) (subDir? : Option FilePath)
+  deriving FromJson, ToJson, Repr, Inhabited
 
-/-- An entry for a package used when resolving dependencies. -/
-structure PackageEntry extends PersistentPackageEntry where
-  contributors : NameMap PersistentPackageEntry := {}
-  shouldUpdate : Bool := false
-  deriving Inhabited
+def PackageEntry.name : PackageEntry → String
+  | path name .. | git name .. => name
 
-instance : ToJson PackageEntry where
-  toJson x := toJson x.toPersistentPackageEntry
-
-instance : FromJson PackageEntry where
-  fromJson? x := ({toPersistentPackageEntry := ·}) <$> fromJson? x
+def PackageEntry.inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
+  | path name dir => path name (pkgDir / dir)
+  | entry => entry
 
 /-- Manifest file format. -/
 structure Manifest where
@@ -82,10 +78,10 @@ instance : ToJson Manifest := ⟨Manifest.toJson⟩
 protected def fromJson? (json : Json) : Except String Manifest := do
   let ver ← (← json.getObjVal? "version").getNat?
   match ver with
-  | 1 | 2 =>
+  | 3 =>
     return ofArray <| ← (fromJson? (← json.getObjVal? "packages"))
   | v =>
-    throw s!"unknown manifest version `{v}`"
+    throw s!"incompatible manifest version `{v}`"
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

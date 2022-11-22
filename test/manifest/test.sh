@@ -61,7 +61,8 @@ cat >>lakefile.lean <<EOF
 require b from git "../b" @ "master"
 require c from git "../c" @ "master"
 EOF
-$LAKE update -v 2>&1 | grep -m8 -E '`[abc]`|master'
+# make sure we pick up the version from b's manifest, and not current master
+$LAKE update -v 2>&1 | grep 'first commit in a'
 git add .
 git config user.name test
 git config user.email test@example.com
@@ -75,7 +76,7 @@ pushd b
 $LAKE update -v
 git diff | grep -m1 manifest
 sed_i 's/master/init/g' lakefile.lean
-$LAKE resolve-deps -v 2>&1 | grep -m1 'listed in manifest does not match `init`'
+$LAKE resolve-deps -v 2>&1 | grep 'manifest out of date'
 git reset --hard
 popd
 

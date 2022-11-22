@@ -41,6 +41,19 @@ inductive Format where
   /-- A position where a newline may be inserted
   if the current group does not fit within the allotted column width. -/
   | line                : Format
+  /-- `align` tells the formatter to pad with spaces to the current indent,
+  or else add a newline if we are already past the indent. For example:
+  ```
+  nest 2 <| "." ++ align ++ "a" ++ line ++ "b"
+  ```
+  results in:
+  ```
+  . a
+    b
+  ```
+  If `force` is true, then it will pad to the indent even if it is in a flattened group.
+  -/
+  | align (force : Bool) : Format
   /-- A node containing a plain string. -/
   | text                : String → Format
   /-- `nest n f` tells the formatter that `f` is nested inside something with length `n`
@@ -70,6 +83,7 @@ namespace Format
 def isEmpty : Format → Bool
   | nil          => true
   | line         => false
+  | align _      => true
   | text msg     => msg == ""
   | nest _ f     => f.isEmpty
   | append f₁ f₂ => f₁.isEmpty && f₂.isEmpty
@@ -103,17 +117,23 @@ private structure SpaceResult where
     let r₂ := r₂ (w - r₁.space);
     { r₂ with space := r₁.space + r₂.space }
 
-private def spaceUptoLine : Format → Bool → Nat → SpaceResult
-  | nil,          _,       _ => {}
-  | line,         flatten, _ => if flatten then { space := 1 } else { foundLine := true }
-  | text s,       flatten, _ =>
-    let p := s.posOf '\n';
-    let off := s.offsetOfPos p;
+private def spaceUptoLine : Format → Bool → Int → Nat → SpaceResult
+  | nil,          _,       _, _ => {}
+  | line,         flatten, _, _ => if flatten then { space := 1 } else { foundLine := true }
+  | align force,  flatten, m, w =>
+    if flatten && !force then {}
+    else if w ≤ m then
+      { space := (m - w).toNat }
+    else
+      { foundLine := true }
+  | text s,       flatten, _, _ =>
+    let p := s.posOf '\n'
+    let off := s.offsetOfPos p
     { foundLine := p != s.endPos, foundFlattenedHardLine := flatten && p != s.endPos, space := off }
-  | append f₁ f₂, flatten, w => merge w (spaceUptoLine f₁ flatten w) (spaceUptoLine f₂ flatten)
-  | nest _ f,     flatten, w => spaceUptoLine f flatten w
-  | group f _,    _,       w => spaceUptoLine f true w
-  | tag _ f,      flatten, w => spaceUptoLine f flatten w
+  | append f₁ f₂, flatten, m, w => merge w (spaceUptoLine f₁ flatten m w) (spaceUptoLine f₂ flatten m)
+  | nest n f,     flatten, m, w => spaceUptoLine f flatten (m - n) w
+  | group f _,    _,       m, w => spaceUptoLine f true m w
+  | tag _ f,      flatten, m, w => spaceUptoLine f flatten m w
 
 private structure WorkItem where
   f : Format
@@ -125,10 +145,13 @@ private structure WorkGroup where
   flb     : FlattenBehavior
   items   : List WorkItem
 
-private partial def spaceUptoLine' : List WorkGroup → Nat → SpaceResult
-  |   [],                         _ => {}
-  |   { items := [],    .. }::gs, w => spaceUptoLine' gs w
-  | g@{ items := i::is, .. }::gs, w => merge w (spaceUptoLine i.f g.flatten w) (spaceUptoLine' ({ g with items := is }::gs))
+private partial def spaceUptoLine' : List WorkGroup → Nat → Nat → SpaceResult
+  |   [],                         _,   _ => {}
+  |   { items := [],    .. }::gs, col, w => spaceUptoLine' gs col w
+  | g@{ items := i::is, .. }::gs, col, w =>
+    merge w
+      (spaceUptoLine i.f g.flatten (w + col - i.indent) w)
+      (spaceUptoLine' ({ g with items := is }::gs) col)
 
 /-- A monad in which we can pretty-print `Format` objects. -/
 class MonadPrettyFormat (m : Type → Type) where
@@ -145,8 +168,8 @@ private def pushGroup (flb : FlattenBehavior) (items : List WorkItem) (gs : List
   let k  ← currColumn
   -- Flatten group if it + the remainder (gs) fits in the remaining space. For `fill`, measure only up to the next (ungrouped) line break.
   let g  := { flatten := flb == FlattenBehavior.allOrNone, flb := flb, items := items : WorkGroup }
-  let r  := spaceUptoLine' [g] (w-k)
-  let r' := merge (w-k) r (spaceUptoLine' gs);
+  let r  := spaceUptoLine' [g] k (w-k)
+  let r' := merge (w-k) r (spaceUptoLine' gs k)
   -- Prevent flattening if any item contains a hard line break, except within `fill` if it is ungrouped (=> unflattened)
   return { g with flatten := !r.foundFlattenedHardLine && r'.space <= w-k }::gs
 
@@ -199,13 +222,28 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
           let gs'@(g'::_) ← pushGroup FlattenBehavior.fill is gs (w - " ".length)
             | panic "unreachable"
           if g'.flatten then
-            pushOutput " ";
+            pushOutput " "
             endTags i.activeTags
             be w gs'  -- TODO: use `return`
           else
             breakHere
         else
           breakHere
+    | align force =>
+      if g.flatten && !force then
+        -- flatten (align false) = nil
+        endTags i.activeTags
+        be w (gs' is)
+      else
+        let k ← currColumn
+        if k ≤ i.indent then
+          pushOutput ("".pushn ' ' (i.indent - k).toNat)
+          endTags i.activeTags
+          be w (gs' is)
+        else
+          pushNewline i.indent.toNat
+          endTags i.activeTags
+          be w (gs' is)
     | group f flb =>
       if g.flatten then
         -- flatten (group f) = flatten f

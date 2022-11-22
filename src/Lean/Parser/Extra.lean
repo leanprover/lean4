@@ -73,18 +73,17 @@ open PrettyPrinter Syntax.MonadTraverser Formatter in
 @[combinator_formatter sepByIndent]
 def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
   let stx ← getCur
-  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n => i % 2 == 1 && n.matchesNull 0) |>.any id
+  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n =>
+    i % 2 == 1 && n.matchesNull 0 && i != stx.getArgs.size - 1) |>.any id
   visitArgs do
     for i in (List.range stx.getArgs.size).reverse do
       if i % 2 == 0 then p else pSep <|>
         -- If the final separator is a newline, skip it.
         ((if i == stx.getArgs.size - 1 then pure () else pushWhitespace "\n") *> goLeft)
-  -- If there is any newline separator, then we need to force a newline at the
-  -- start so that `withPosition` will pick up the right column.
+  -- If there is any newline separator, then we add an `align` at the start
+  -- so that `withPosition` will pick up the right column.
   if hasNewlineSep then
-    pushWhitespace "\n"
-    -- HACK: allow formatter to put initial brace on previous line in structure instances
-    modify ({ · with mustBeGrouped := false })
+    pushAlign (force := true)
 
 @[combinator_formatter sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
 

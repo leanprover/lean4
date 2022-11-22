@@ -32,3 +32,33 @@ do
     t.1
   else
     e.1
+def foo.1 := by 
+  · skip; skip
+  · skip; skip
+    skip
+    (skip; skip)
+    ( skip; skip
+      try skip; skip
+      try 
+        skip
+        skip
+      skip)
+by
+  try 
+    skip
+    skip
+by
+   try 
+      skip
+      skip
+by try  skip
+        skip
+by  try skip
+        skip
+    skip
+{ foo.1 := bar.1
+  bar.1 := foo.1 + bar.1 }
+let x.1 :=
+  { foo.1 := bar.1
+    bar.1 := foo.1 + bar.1 }
+x.1

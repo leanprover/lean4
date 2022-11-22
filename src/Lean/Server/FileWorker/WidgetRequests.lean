@@ -127,7 +127,7 @@ builtin_initialize
     (Array Lsp.LocationLink)
     fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
       let rc ← read
-      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info
+      let ls ← FileWorker.locationLinksOfInfo kind i.ctx i.info i.children
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]

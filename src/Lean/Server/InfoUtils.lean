@@ -135,17 +135,17 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info × (PersistentArray InfoTree)) := Id.run do
+  let results := t.visitM (m := Id) (postNode := fun ctx info c results => do
     let mut results := results.bind (·.getD [])
     if omitAppFns then
       if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-        results := results.filter (·.2.2.stx != info.stx[0])
+        results := results.filter (·.2.2.1.stx != info.stx[0])
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
       else if info.stx.isIdent then
         if let .ofTermInfo ti := info then
           if ti.expr matches .app _ _ then
-            results := results.filter (·.2.2.stx != info.stx)
+            results := results.filter (·.2.2.1.stx != info.stx)
     unless results.isEmpty do
       return results  -- prefer innermost results
     /-
@@ -167,7 +167,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
       Int.negOfNat (r.stop - r.start).byteIdx,
       -- prefer results for constants over variables (which overlap at declaration names)
       if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
-    [(priority, ctx, info)]) |>.getD []
+    [(priority, ctx, info, c)]) |>.getD []
   -- sort results by lexicographical priority
   let maxPrio? :=
     let _ := @lexOrd
@@ -175,7 +175,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     let _ := @maxOfLe
     results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
-  if let some (_, i) := res? then
+  if let some (_, i, _) := res? then
     if let .ofTermInfo ti := i then
       if ti.expr.isSyntheticSorry then
         return none
@@ -329,7 +329,7 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
 
-partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
+partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info × (PersistentArray InfoTree)) :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
   hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
 

@@ -45,6 +45,10 @@ set_option trace.Elab.step true in
 #check test
      --^ textDocument/definition
 
+def temp := test
+
+#print temp
+
 def Baz (α : Type) := α
 
 #check fun (b : Baz Nat) => b

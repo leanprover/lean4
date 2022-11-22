@@ -66,7 +66,7 @@ where
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {
-          info := WithRpcRef.mk { ctx, info := i }
+          info := WithRpcRef.mk { ctx, info := i, children := .empty}
           subexprPos := n
         }
         TaggedText.tag t (go subTt)

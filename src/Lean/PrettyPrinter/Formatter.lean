@@ -125,6 +125,10 @@ def pushWhitespace (f : Format) : FormatterM Unit := do
 def pushLine : FormatterM Unit :=
   pushWhitespace Format.line
 
+def pushAlign (force : Bool) : FormatterM Unit :=
+  -- don't reset leadWord because .align may introduce zero space
+  push (.align force)
+
 /-- Execute `x` at the right-most child of the current node, if any, then advance to the left. -/
 def visitArgs (x : FormatterM Unit) : FormatterM Unit := do
   let stx ← getCur

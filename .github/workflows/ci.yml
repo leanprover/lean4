@@ -63,7 +63,7 @@ jobs:
     - name: Check Lake
       run: make check-lake
     - name: Test Lake
-      run: make test-ci -j4
+      run: make test-ci
     - name: Time Bootstrap
       run: make time-bootstrap
     - name: Check Bootstrap

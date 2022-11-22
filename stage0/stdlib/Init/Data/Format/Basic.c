@@ -111,7 +111,6 @@ LEAN_EXPORT uint8_t l_Std_Format_defUnicode;
 LEAN_EXPORT lean_object* l_StateT_bind___at_Std_Format_instMonadPrettyFormatStateMState___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_beqFlattenBehavior____x40_Init_Data_Format_Basic___hyg_26____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_instMonadPrettyFormatStateMState;
-LEAN_EXPORT lean_object* lean_format_group(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_toCtorIdx(uint8_t);
 LEAN_EXPORT uint8_t l_Std_Format_instInhabitedFlattenBehavior;
 LEAN_EXPORT lean_object* l_Std_Format_fill(lean_object*);
@@ -123,7 +122,6 @@ LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion(lean_object*);
 extern lean_object* l_Id_instMonadId;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___rarg___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_format_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_StateT_bind___at_Std_Format_instMonadPrettyFormatStateMState___spec__2(lean_object*, lean_object*);
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__3;
 LEAN_EXPORT lean_object* l_Std_Format_instMonadPrettyFormatStateMState___lambda__3(lean_object*, lean_object*);
@@ -388,27 +386,6 @@ _start:
 {
 uint8_t x_2; lean_object* x_3; 
 x_2 = 1;
-x_3 = lean_alloc_ctor(5, 1, 1);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* lean_format_append(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* lean_format_group(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = 0;
 x_3 = lean_alloc_ctor(5, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);

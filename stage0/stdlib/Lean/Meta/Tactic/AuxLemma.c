@@ -40,6 +40,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_mkAuxLemma___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AuxLemmas_lemmas___default___closed__2;
+uint8_t l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1(lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AuxLemmas_idx___default;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_mkAuxLemma___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -86,7 +87,6 @@ extern lean_object* l_Lean_Expr_instBEqExpr;
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__11;
 lean_object* lean_usize_to_nat(size_t);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
-uint8_t l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_mkAuxLemma___spec__1(lean_object*, lean_object*);
@@ -1356,7 +1356,7 @@ lean_inc(x_96);
 x_97 = lean_ctor_get(x_95, 1);
 lean_inc(x_97);
 lean_dec(x_95);
-x_98 = l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_1, x_97);
+x_98 = l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1(x_1, x_97);
 lean_dec(x_97);
 if (x_98 == 0)
 {
@@ -1814,7 +1814,7 @@ lean_inc(x_221);
 x_222 = lean_ctor_get(x_220, 1);
 lean_inc(x_222);
 lean_dec(x_220);
-x_223 = l_List_beq___at_Lean_OpenDecl_instToStringOpenDecl___spec__1(x_1, x_222);
+x_223 = l_List_beq___at___private_Lean_Data_OpenDecl_0__Lean_beqOpenDecl____x40_Lean_Data_OpenDecl___hyg_39____spec__1(x_1, x_222);
 lean_dec(x_222);
 if (x_223 == 0)
 {

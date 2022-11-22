@@ -89,10 +89,10 @@
  "position": {"line": 43, "character": 7}}
 [{"targetUri": "file://goTo.lean",
   "targetSelectionRange":
-  {"start": {"line": 38, "character": 25},
-   "end": {"line": 38, "character": 37}},
+  {"start": {"line": 38, "character": 26},
+   "end": {"line": 38, "character": 38}},
   "targetRange":
-  {"start": {"line": 38, "character": 21},
+  {"start": {"line": 38, "character": 22},
    "end": {"line": 40, "character": 34}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},

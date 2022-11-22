@@ -75,7 +75,7 @@
 - [Significant Changes from Lean 3](./lean3changes.md)
 - [Syntax Highlighting Lean in LaTeX](./syntax_highlight_in_latex.md)
 - [User Widgets](examples/widgets.lean.md)
-- [Sematic Highlighting](./semantic_highlighting.md)
+- [Semantic Highlighting](./semantic_highlighting.md)
 
 # Development
 

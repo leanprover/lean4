@@ -71,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefi
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_inheritedTraceOptions;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -175,6 +174,7 @@ lean_object* l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(lean_object*, lean_o
 static lean_object* l_Lean_Expr_withAppAux___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop___spec__2___closed__1;
 lean_object* l_Lean_Meta_check(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMatcherInfo_x3f___at___private_Lean_Elab_PreDefinition_Structural_IndPred_0__Lean_Elab_Structural_replaceIndPredRecApps_loop_addBelow___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
 _start:
 {
@@ -4661,7 +4661,7 @@ x_28 = lean_ctor_get(x_2, 0);
 lean_inc(x_28);
 x_29 = lean_array_to_list(lean_box(0), x_28);
 x_30 = lean_box(0);
-x_31 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_29, x_30);
+x_31 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_29, x_30);
 x_32 = l_Lean_MessageData_ofList(x_31);
 lean_dec(x_31);
 x_33 = l_Lean_Elab_Structural_mkIndPredBRecOn___closed__2;
@@ -4674,7 +4674,7 @@ lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
 lean_inc(x_23);
 x_37 = lean_array_to_list(lean_box(0), x_23);
-x_38 = l_List_mapTRAux___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_37, x_30);
+x_38 = l_List_mapTR_loop___at_Lean_MessageData_instCoeListExprMessageData___spec__1(x_37, x_30);
 x_39 = l_Lean_MessageData_ofList(x_38);
 lean_dec(x_38);
 x_40 = lean_alloc_ctor(10, 2, 0);

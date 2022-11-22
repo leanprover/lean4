@@ -11,6 +11,7 @@ import Lean.LocalContext
 import Lean.Util.Path
 import Lean.Util.FindExpr
 import Lean.Util.Profile
+import Lean.Util.InstantiateLevelParams
 
 namespace Lean
 /-- Opaque environment extension state. -/
@@ -30,6 +31,7 @@ abbrev ConstMap := SMap Name ConstantInfo
 structure Import where
   module      : Name
   runtimeOnly : Bool := false
+  deriving Repr, Inhabited
 
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
@@ -55,6 +57,13 @@ instance : Nonempty EnvExtensionEntry := EnvExtensionEntrySpec.property
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData where
   imports         : Array Import
+  /--
+  `constNames` contains all constant names in `constants`.
+  This information is redundant. It is equal to `constants.map fun c => c.name`,
+  but it improves the performance of `importModules`. `perf` reports that 12% of the
+  runtime was being spent on `ConstantInfo.name` when importing a file containing only `import Lean`
+  -/
+  constNames      : Array Name
   constants       : Array ConstantInfo
   /--
   Extra entries for the `const2ModIdx` map in the `Environment` object.
@@ -101,14 +110,14 @@ the kernel is to type check these declarations and refuse type incorrect ones. T
 kernel does not allow declarations containing metavariables and/or free variables
 to be added to an environment. Environments are never destructively updated.
 
-The environment also contains a collction of extensions. For example, the `simp` theorems
+The environment also contains a collection of extensions. For example, the `simp` theorems
 declared by users are stored in an environment extension. Users can declare new extensions
 using meta-programming.
 -/
 structure Environment where
   /--
   Mapping from constant name to module (index) where constant has been declared.
-  Recall that a Leah file has a header where previously compiled modules can be imported.
+  Recall that a Lean file has a header where previously compiled modules can be imported.
   Each imported module has a unique `ModuleIdx`.
   Many extensions use the `ModuleIdx` to efficiently retrieve information stored in imported modules.
 
@@ -222,6 +231,16 @@ opaque addDecl (env : Environment) (decl : @& Declaration) : Except KernelExcept
 
 end Environment
 
+namespace ConstantInfo
+
+def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
+
+def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
+  c.value!.instantiateLevelParams c.levelParams ls
+
+end ConstantInfo
+
 /-- Interface for managing environment extensions. -/
 structure EnvExtensionInterface where
   ext          : Type → Type
@@ -328,7 +347,7 @@ unsafe def imp : EnvExtensionInterface := {
 
 end EnvExtensionInterfaceUnsafe
 
-@[implementedBy EnvExtensionInterfaceUnsafe.imp]
+@[implemented_by EnvExtensionInterfaceUnsafe.imp]
 opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
@@ -468,7 +487,7 @@ unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ]
   persistentEnvExtensionsRef.modify fun pExts => pExts.push (unsafeCast pExt)
   return pExt
 
-@[implementedBy registerPersistentEnvExtensionUnsafe]
+@[implemented_by registerPersistentEnvExtensionUnsafe]
 opaque registerPersistentEnvExtension {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ)
 
 /-- Simple `PersistentEnvExtension` that implements `exportEntriesFn` using a list of entries. -/
@@ -615,31 +634,45 @@ def mkModuleData (env : Environment) : IO ModuleData := do
   let entries := pExts.map fun pExt =>
     let state := pExt.getState env
     (pExt.name, pExt.exportEntriesFn state)
-  pure {
+  let constNames := env.constants.foldStage2 (fun names name _ => names.push name) #[]
+  let constants  := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
+  return {
     imports         := env.header.imports
-    constants       := env.constants.foldStage2 (fun cs _ c => cs.push c) #[]
     extraConstNames := env.extraConstNames.toArray
-    entries         := entries
+    constNames, constants, entries
   }
 
 @[export lean_write_module]
 def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
   saveModuleData fname env.mainModule (← mkModuleData env)
 
-private partial def getEntriesFor (mod : ModuleData) (extId : Name) (i : Nat) : Array EnvExtensionEntry :=
-  if i < mod.entries.size then
-    let curr := mod.entries.get! i;
-    if curr.1 == extId then curr.2 else getEntriesFor mod extId (i+1)
-  else
-    #[]
+/--
+Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
+We only consider extensions starting with index `>= startingAt`.
+-/
+private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+  let descrs ← persistentEnvExtensionsRef.get
+  let mut result := {}
+  for h : i in [startingAt : descrs.size] do
+    have : i < descrs.size := h.upper
+    let descr := descrs[i]
+    result := result.insert descr.name i
+  return result
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) (startingAt : Nat := 0) : IO Environment := do
   let mut env := env
-  let pExtDescrs ← persistentEnvExtensionsRef.get
-  for mod in mods do
-    for extDescr in pExtDescrs[startingAt:] do
-      let entries := getEntriesFor mod extDescr.name 0
-      env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.push entries }
+  let extDescrs ← persistentEnvExtensionsRef.get
+  /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
+  for extDescr in extDescrs[startingAt:] do
+    env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := mkArray mods.size #[] }
+  /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
+  let extNameIdx ← mkExtNameMap startingAt
+  for h : modIdx in [:mods.size] do
+    have : modIdx < mods.size := h.upper
+    let mod := mods[modIdx]
+    for (extName, entries) in mod.entries do
+      if let some entryIdx := extNameIdx.find? extName then
+        env := extDescrs[entryIdx]!.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
   return env
 
 /--
@@ -653,7 +686,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
 -/
 @[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
-@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltiAttributes : IO Nat
+@[extern 1 "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -665,11 +698,11 @@ where
       let extDescr := pExtDescrs[i]!
       let s := extDescr.toEnvExtension.getState env
       let prevSize := (← persistentEnvExtensionsRef.get).size
-      let prevAttrSize ← getNumBuiltiAttributes
+      let prevAttrSize ← getNumBuiltinAttributes
       let newState ← extDescr.addImportedFn s.importedEntries { env := env, opts := opts }
       let mut env := extDescr.toEnvExtension.setState env { s with state := newState }
       env ← ensureExtensionsArraySize env
-      if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltiAttributes) > prevAttrSize then
+      if (← persistentEnvExtensionsRef.get).size > prevSize || (← getNumBuiltinAttributes) > prevAttrSize then
         -- This branch is executed when `pExtDescrs[i]` is the extension associated with the `init` attribute, and
         -- a user-defined persistent extension is imported.
         -- Thus, we invoke `setImportedEntries` to update the array `importedEntries` with the entries for the new extensions.
@@ -681,10 +714,15 @@ where
       return env
 
 structure ImportState where
-  moduleNameSet : NameSet := {}
+  moduleNameSet : NameHashSet := {}
   moduleNames   : Array Name := #[]
   moduleData    : Array ModuleData := #[]
   regions       : Array CompactedRegion := #[]
+
+def throwAlreadyImported (s : ImportState) (const2ModIdx : HashMap Name ModuleIdx) (modIdx : Nat) (cname : Name) : IO α := do
+  let modName := s.moduleNames[modIdx]!
+  let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
+  throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
 
 @[export lean_import_modules]
 partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
@@ -695,17 +733,18 @@ partial def importModules (imports : List Import) (opts : Options) (trustLevel :
     let (_, s) ← importMods imports |>.run {}
     let mut numConsts := 0
     for mod in s.moduleData do
-      numConsts := numConsts + mod.constants.size
+      numConsts := numConsts + mod.constants.size + mod.extraConstNames.size
     let mut modIdx : Nat := 0
     let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
     let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
     for mod in s.moduleData do
-      for cinfo in mod.constants do
-        const2ModIdx := const2ModIdx.insert cinfo.name modIdx
-        match constantMap.insert' cinfo.name cinfo with
+      for cname in mod.constNames, cinfo in mod.constants do
+        match constantMap.insert' cname cinfo with
         | (constantMap', replaced) =>
           constantMap := constantMap'
-          if replaced then throw (IO.userError s!"import failed, environment already contains '{cinfo.name}'")
+          if replaced then
+            throwAlreadyImported s const2ModIdx modIdx cname
+        const2ModIdx := const2ModIdx.insert cname modIdx
       for cname in mod.extraConstNames do
         const2ModIdx := const2ModIdx.insert cname modIdx
       modIdx := modIdx + 1
@@ -760,7 +799,16 @@ Environment extension for tracking all `namespace` declared by users.
 -/
 builtin_initialize namespacesExt : SimplePersistentEnvExtension Name NameSSet ←
   registerSimplePersistentEnvExtension {
-    addImportedFn   := fun as => mkStateFromImportedEntries NameSSet.insert NameSSet.empty as |>.switch
+    addImportedFn   := fun as =>
+      /-
+      We compute a `HashMap Name Unit` and then convert to `NameSSet` to improve Lean startup time.
+      Note: we have used `perf` to profile Lean startup cost when processing a file containing just `import Lean`.
+      6.18% of the runtime is here. It was 9.31% before the `HashMap` optimization.
+      -/
+      let capacity := as.foldl (init := 0) fun r e => r + e.size
+      let map : HashMap Name Unit := mkHashMap capacity
+      let map := mkStateFromImportedEntries (fun map name => map.insert name ()) map as
+      SMap.fromHashMap map |>.switch
     addEntryFn      := fun s n => s.insert n
   }
 
@@ -852,14 +900,17 @@ namespace Kernel
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_is_def_eq"]
-opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool
+opaque isDefEq (env : Environment) (lctx : LocalContext) (a b : Expr) : Except KernelException Bool
+
+def isDefEqGuarded (env : Environment) (lctx : LocalContext) (a b : Expr) : Bool :=
+  if let .ok result := isDefEq env lctx a b then result else false
 
 /--
   Kernel WHNF function. We use it mainly for debugging purposes.
   Recall that the Kernel type checker does not support metavariables.
   When implementing automation, consider using the `MetaM` methods. -/
 @[extern "lean_kernel_whnf"]
-opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Expr
+opaque whnf (env : Environment) (lctx : LocalContext) (a : Expr) : Except KernelException Expr
 
 end Kernel
 
@@ -869,6 +920,7 @@ class MonadEnv (m : Type → Type) where
 
 export MonadEnv (getEnv modifyEnv)
 
+@[always_inline]
 instance (m n) [MonadLift m n] [MonadEnv m] : MonadEnv n where
   getEnv    := liftM (getEnv : m Environment)
   modifyEnv := fun f => liftM (modifyEnv f : m Unit)

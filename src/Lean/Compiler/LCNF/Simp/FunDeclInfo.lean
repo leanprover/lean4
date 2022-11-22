@@ -93,22 +93,26 @@ partial def FunDeclInfoMap.update (s : FunDeclInfoMap) (code : Code) (mustInline
   let (_, s) ← go code |>.run s
   return s
 where
-  addArgOcc (e : Expr) : StateRefT FunDeclInfoMap CompilerM Unit := do
-    let some funDecl ← findFunDecl? e | return ()
-    modify fun s => s.addHo funDecl.fvarId
+  addArgOcc (arg : Arg) : StateRefT FunDeclInfoMap CompilerM Unit := do
+    match arg with
+    | .fvar fvarId =>
+      let some funDecl ← findFunDecl'? fvarId | return ()
+      modify fun s => s.addHo funDecl.fvarId
+    | .erased .. | .type .. => return ()
 
-  addOccs (e : Expr) : StateRefT FunDeclInfoMap CompilerM Unit := do
+  addLetValueOccs (e : LetValue) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match e with
-    | .app f a => addArgOcc a; addOccs f
-    | .fvar _ =>
-      let some funDecl ← findFunDecl? e | return ()
+    | .erased | .value .. | .proj .. => return ()
+    | .const _ _ args => args.forM addArgOcc
+    | .fvar fvarId args =>
+      let some funDecl ← findFunDecl'? fvarId | return ()
       modify fun s => s.add funDecl.fvarId
-    | _ => return ()
+      args.forM addArgOcc
 
   go (code : Code) : StateRefT FunDeclInfoMap CompilerM Unit := do
     match code with
     | .let decl k =>
-      addOccs decl.value
+      addLetValueOccs decl.value
       go k
     | .fun decl k =>
       if mustInline then

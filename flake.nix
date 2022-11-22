@@ -9,15 +9,15 @@
     flake = false;
   };
   # used *only* by `stage0-from-input` below
-  inputs.lean-stage0 = {
-    url = github:leanprover/lean4;
-    inputs.nixpkgs.follows = "nixpkgs";
-    inputs.flake-utils.follows = "flake-utils";
-    inputs.nix.follows = "nix";
-    inputs.lean4-mode.follows = "lean4-mode";
-  };
+  #inputs.lean-stage0 = {
+  #  url = github:leanprover/lean4;
+  #  inputs.nixpkgs.follows = "nixpkgs";
+  #  inputs.flake-utils.follows = "flake-utils";
+  #  inputs.nix.follows = "nix";
+  #  inputs.lean4-mode.follows = "lean4-mode";
+  #};
 
-  outputs = { self, nixpkgs, flake-utils, nix, lean4-mode, lean-stage0 }: flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, flake-utils, nix, lean4-mode, ... }@inputs: flake-utils.lib.eachDefaultSystem (system:
     let
       pkgs = import nixpkgs {
         inherit system;
@@ -42,7 +42,7 @@
         tsandebug = tsan.override { debug = true; };
         stage0-from-input = lean-packages.override {
           stage0 = pkgs.writeShellScriptBin "lean" ''
-            exec ${lean-stage0.packages.${system}.lean}/bin/lean -Dinterpreter.prefer_native=false "$@"
+            exec ${inputs.lean-stage0.packages.${system}.lean}/bin/lean -Dinterpreter.prefer_native=false "$@"
           '';
         };
         inherit self;

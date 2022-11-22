@@ -95,7 +95,7 @@ instance : MonadQuotation DelabM := {
 
 unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   KeyedDeclsAttribute.init {
-    builtinName := `builtinDelab,
+    builtinName := `builtin_delab,
     name := `delab,
     descr    := "Register a delaborator.
 
@@ -106,8 +106,16 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   to reduce special casing. If the term is an `Expr.mdata` with a single key `k`, `mdata.k`
   is tried first.",
     valueTypeName := `Lean.PrettyPrinter.Delaborator.Delab
+    evalKey := fun _ stx => do
+      let stx ← Attribute.Builtin.getIdent stx
+      let kind := stx.getId
+      if (← Elab.getInfoState).enabled && kind.getRoot == `app then
+        let c := kind.replacePrefix `app .anonymous
+        if (← getEnv).contains c then
+          Elab.addConstInfo stx c none
+      pure kind
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
-@[builtinInit mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
+@[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
 def getExprKind : DelabM Name := do
   let e ← getExpr
@@ -253,17 +261,17 @@ partial def delab : Delab := do
 
 unsafe def mkAppUnexpanderAttribute : IO (KeyedDeclsAttribute Unexpander) :=
   KeyedDeclsAttribute.init {
-    name  := `appUnexpander,
+    name  := `app_unexpander,
     descr := "Register an unexpander for applications of a given constant.
 
-[appUnexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
+[app_unexpander c] registers a `Lean.PrettyPrinter.Unexpander` for applications of the constant `c`. The unexpander is
 passed the result of pre-pretty printing the application *without* implicitly passed arguments. If `pp.explicit` is set
 to true or `pp.notation` is set to false, it will not be called at all.",
     valueTypeName := `Lean.PrettyPrinter.Unexpander
     evalKey := fun _ stx => do
       Elab.resolveGlobalConstNoOverloadWithInfo (← Attribute.Builtin.getIdent stx)
   } `Lean.PrettyPrinter.Delaborator.appUnexpanderAttribute
-@[builtinInit mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
+@[builtin_init mkAppUnexpanderAttribute] opaque appUnexpanderAttribute : KeyedDeclsAttribute Unexpander
 
 end Delaborator
 

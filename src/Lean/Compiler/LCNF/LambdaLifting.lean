@@ -31,12 +31,12 @@ structure Context where
   mainDecl : Decl
   /--
   If true, the lambda-lifted functions inherit the inline attribute from `mainDecl`.
-  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
   -/
   inheritInlineAttrs := false
   /--
   Only local functions with `size > minSize` are lambda lifted.
-  We use this feature to implement `@[inline] instance ...` and `@[alwaysInline] instance ...`
+  We use this feature to implement `@[inline] instance ...` and `@[always_inline] instance ...`
   -/
   minSize : Nat := 0
 
@@ -98,7 +98,7 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
   | .alreadyCached declName =>
     auxDecl.erase
     pure declName
-  let value := mkAppN (.const auxDeclName us) (closure.map (mkFVar ·.fvarId))
+  let value := .const auxDeclName us (closure.map (.fvar ·.fvarId))
   /- We reuse `decl`s `fvarId` to avoid substitution -/
   let declNew := { fvarId := decl.fvarId, binderName := decl.binderName, type := decl.type, value }
   modifyLCtx fun lctx => lctx.addLetDecl declNew
@@ -164,7 +164,7 @@ def lambdaLifting : Pass where
   phase      := .mono
   name       := `lambdaLifting
   run        := fun decls => do
-    decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.lambdaLifting false (suffix := `_lambda))
+    decls.foldlM (init := #[]) fun decls decl => return decls ++ (← decl.lambdaLifting false (suffix := `_lam))
 
 /--
 During eager lambda lifting, we lift
@@ -185,13 +185,12 @@ def eagerLambdaLifting : Pass where
 
         Note: we have tried `if decl.inlineable then return decls.push decl`, but it didn't help in our preliminary experiments.
         -/
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elambda) (inheritInlineAttrs := true) (minSize := 3))
+        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := false) (suffix := `_elam) (inheritInlineAttrs := true) (minSize := 3))
       else
-        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elambda))
+        return decls ++ (← decl.lambdaLifting (liftInstParamOnly := true) (suffix := `_elam))
 
 builtin_initialize
   registerTraceClass `Compiler.eagerLambdaLifting (inherited := true)
   registerTraceClass `Compiler.lambdaLifting (inherited := true)
 
 end Lean.Compiler.LCNF
-

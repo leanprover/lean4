@@ -190,13 +190,13 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
 def getTerminationHints (stx : Syntax) : TerminationHints :=
   let decl := stx[1]
   let k := decl.getKind
-  if k == ``Parser.Command.def || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
+  if k == ``Parser.Command.def || k == ``Parser.Command.abbrev || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
     let args := decl.getArgs
     { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
   else
     {}
 
-@[builtinCommandElab declaration]
+@[builtin_command_elab declaration]
 def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
   | some (ns, newStx) => do
@@ -289,7 +289,7 @@ where
     | _, _ => .anonymous
 
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualNamespace : Macro := fun stx => do
   let mut nss := #[]
   for elem in stx[1].getArgs do
@@ -307,7 +307,7 @@ def expandMutualNamespace : Macro := fun stx => do
   let stxNew := stx.setArg 1 (mkNullNode elemsNew)
   `(namespace $ns $(⟨stxNew⟩) end $ns)
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualElement : Macro := fun stx => do
   let mut elemsNew := #[]
   let mut modified := false
@@ -320,7 +320,7 @@ def expandMutualElement : Macro := fun stx => do
   else
     Macro.throwUnsupported
 
-@[builtinMacro Lean.Parser.Command.mutual]
+@[builtin_macro Lean.Parser.Command.mutual]
 def expandMutualPreamble : Macro := fun stx =>
   match splitMutualPreamble stx[1].getArgs with
   | none => Macro.throwUnsupported
@@ -330,7 +330,7 @@ def expandMutualPreamble : Macro := fun stx =>
     let endCmd    ← `(end)
     return mkNullNode (#[secCmd] ++ preamble ++ #[newMutual] ++ #[endCmd])
 
-@[builtinCommandElab «mutual»]
+@[builtin_command_elab «mutual»]
 def elabMutual : CommandElab := fun stx => do
   let hints := { terminationBy? := stx[3].getOptional?, decreasingBy? := stx[4].getOptional? }
   if isMutualInductive stx then
@@ -351,7 +351,7 @@ def elabMutual : CommandElab := fun stx => do
     throwError "invalid mutual block"
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
-@[builtinCommandElab «attribute»] def elabAttr : CommandElab := fun stx => do
+@[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do
   let mut attrInsts := #[]
   let mut toErase := #[]
   for attrKindStx in stx[2].getSepArgs do
@@ -360,7 +360,7 @@ def elabMutual : CommandElab := fun stx => do
       if isAttribute (← getEnv) attrName then
         toErase := toErase.push attrName
       else
-        logErrorAt attrKindStx "unknown attribute [{attrName}]"
+        logErrorAt attrKindStx m!"unknown attribute [{attrName}]"
     else
       attrInsts := attrInsts.push attrKindStx
   let attrs ← elabAttrs attrInsts
@@ -371,9 +371,9 @@ def elabMutual : CommandElab := fun stx => do
     for attrName in toErase do
       Attribute.erase declName attrName
 
-@[builtinMacro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
+@[builtin_macro Lean.Parser.Command.«initialize»] def expandInitialize : Macro
   | stx@`($declModifiers:declModifiers $kw:initializeKeyword $[$id? : $type? ←]? $doSeq) => do
-    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtinInit
+    let attrId := mkIdentFrom stx <| if kw.raw[0].isToken "initialize" then `init else `builtin_init
     if let (some id, some type) := (id?, type?) then
       let `(Parser.Command.declModifiersT| $[$doc?:docComment]? $[@[$attrs?,*]]? $(vis?)? $[unsafe%$unsafe?]?) := stx[0]
         | Macro.throwErrorAt declModifiers "invalid initialization command, unexpected modifiers"

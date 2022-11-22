@@ -528,7 +528,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
-@[builtinTactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.induction] def evalInduction : Tactic := fun stx =>
   match expandInduction? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
@@ -587,7 +587,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
     else
       return args.map (·.expr)
 
-@[builtinTactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
   match expandCases? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do

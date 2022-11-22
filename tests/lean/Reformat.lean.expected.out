@@ -30,7 +30,7 @@ def idDelta {α : Sort u} (a : α) : α :=
   a
 
 /- `idRhs` is an auxiliary declaration used to implement "smart unfolding". It is used as a marker. -/
-@[macroInline, reducible]
+@[macro_inline, reducible]
 def idRhs (α : Sort u) (a : α) : α :=
   a
 
@@ -56,7 +56,7 @@ set_option bootstrap.inductiveCheckResultingUniverse false in
 abbrev Unit : Type :=
   PUnit
 
-@[matchPattern]
+@[match_pattern]
 abbrev Unit.unit : Unit :=
   PUnit.unit
 
@@ -76,11 +76,11 @@ inductive Empty : Type
 def Not (a : Prop) : Prop :=
   a → False
 
-@[macroInline]
+@[macro_inline]
 def False.elim {C : Sort u} (h : False) : C :=
   False.rec (fun _ => C) h
 
-@[macroInline]
+@[macro_inline]
 def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   False.elim (h₂ h₁)
 
@@ -90,7 +90,7 @@ inductive Eq : α → α → Prop
 abbrev Eq.ndrec.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} (m : motive a) {b : α} (h : Eq a b) : motive b :=
   Eq.rec (motive := fun α _ => motive α) m h
 
-@[matchPattern]
+@[match_pattern]
 def rfl {α : Sort u} {a : α} : Eq a a :=
   Eq.refl a
 
@@ -100,7 +100,7 @@ theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b)
 theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
 
-@[macroInline]
+@[macro_inline]
 def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   Eq.rec (motive := fun α _ => α) a h
 
@@ -125,7 +125,7 @@ init_quot
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop
   | refl (a : α) : HEq a a
 
-@[matchPattern]
+@[match_pattern]
 def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
@@ -255,7 +255,7 @@ class inductive Decidable (p : Prop)
   | isFalse (h : Not p) : Decidable p
   | isTrue (h : p) : Decidable p
 
-@[inlineIfReduce, nospecialize]
+@[inline_if_reduce, nospecialize]
 def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   Decidable.casesOn (motive := fun _ => Bool) h (fun _ => false) (fun _ => true)
 
@@ -313,7 +313,7 @@ instance {α : Type u} [DecidableEq α] : BEq α :=
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-@[macroInline]
+@[macro_inline]
 def dite {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
   Decidable.casesOn (motive := fun _ => α) h e t
 

@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Basic
 namespace Lean.Elab.Tactic
 
 namespace Lean.Elab.Tactic
-@[builtinTactic Parser.Tactic.congr] def evalCongr : Tactic := fun stx =>
+@[builtin_tactic Parser.Tactic.congr] def evalCongr : Tactic := fun stx =>
   match stx with
   | `(tactic| congr $[$n?]?) =>
     let hugeDepth := 1000000

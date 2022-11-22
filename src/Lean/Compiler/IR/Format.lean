@@ -85,7 +85,6 @@ def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
 def formatParams (ps : Array Param) : Format :=
   formatArray ps
 
-@[export lean_ir_format_fn_body_head]
 def formatFnBodyHead : FnBody → Format
   | FnBody.vdecl x ty e _      => "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e
   | FnBody.jdecl j xs _ _      => format j ++ formatParams xs ++ " := ..."
@@ -101,6 +100,10 @@ def formatFnBodyHead : FnBody → Format
   | FnBody.jmp j ys            => "jmp " ++ format j ++ formatArray ys
   | FnBody.ret x               => "ret " ++ format x
   | FnBody.unreachable         => "⊥"
+
+@[export lean_ir_format_fn_body_head]
+private def formatFnBodyHead' (fn : FnBody) : String :=
+  formatFnBodyHead fn |>.pretty
 
 partial def formatFnBody (fnBody : FnBody) (indent : Nat := 2) : Format :=
   let rec loop : FnBody → Format

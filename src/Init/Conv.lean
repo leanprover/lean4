@@ -18,7 +18,7 @@ only on the left side of an equality. -/
 declare_syntax_cat conv (behavior := both)
 
 syntax convSeq1Indented := sepBy1IndentSemicolon(conv)
-syntax convSeqBracketed := "{" sepByIndentSemicolon(conv) "}"
+syntax convSeqBracketed := "{" withoutPosition(sepByIndentSemicolon(conv)) "}"
 -- Order is important: a missing `conv` proof should not be parsed as `{ <missing> }`,
 -- automatically closing goals
 syntax convSeq := convSeqBracketed <|> convSeq1Indented
@@ -122,7 +122,8 @@ syntax (name := rewrite) "rewrite" (config)? rwRuleSeq : conv
 
 /-- `simp [thm]` performs simplification using `thm` and marked `@[simp]` lemmas.
 See the `simp` tactic for more information. -/
-syntax (name := simp) "simp" (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? : conv
+syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
 /--
 `dsimp` is the definitional simplifier in `conv`-mode. It differs from `simp` in that it only
@@ -138,7 +139,8 @@ example (a : Nat): (0 + 0) = a - a := by
     rw [← Nat.sub_self a]
 ```
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")? ("[" (simpErase <|> simpLemma),* "]")? : conv
+syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")?
+  ("[" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```
@@ -165,17 +167,17 @@ syntax (name := nestedConv) convSeqBracketed : conv
 
 /-- `(convs)` runs the `convs` in sequence on the current list of targets.
 This is pure grouping with no added effects. -/
-syntax (name := paren) "(" convSeq ")" : conv
+syntax (name := paren) "(" withoutPosition(convSeq) ")" : conv
 
 /-- `rfl` closes one conv goal "trivially", by using reflexivity
 (that is, no rewriting). -/
-macro "rfl" : conv => `(tactic => rfl)
+macro "rfl" : conv => `(conv| tactic => rfl)
 
 /-- `done` succeeds iff there are no goals remaining. -/
-macro "done" : conv => `(tactic' => done)
+macro "done" : conv => `(conv| tactic' => done)
 
 /-- `trace_state` prints the current goal state. -/
-macro "trace_state" : conv => `(tactic' => trace_state)
+macro "trace_state" : conv => `(conv| tactic' => trace_state)
 
 /-- `all_goals tac` runs `tac` on each goal, concatenating the resulting goals, if any. -/
 macro (name := allGoals) tk:"all_goals " s:convSeq : conv =>
@@ -225,7 +227,7 @@ resulting in `t'`, which becomes the new target subgoal. -/
 syntax (name := convConvSeq) "conv" " => " convSeq : conv
 
 /-- `· conv` focuses on the main conv goal and tries to solve it using `s`. -/
-macro dot:("·" <|> ".") s:convSeq : conv => `({%$dot ($s) })
+macro dot:patternIgnore("·" <|> ".") s:convSeq : conv => `(conv| {%$dot ($s) })
 
 
 /-- `fail_if_success t` fails if the tactic `t` succeeds. -/
@@ -234,19 +236,19 @@ macro (name := failIfSuccess) tk:"fail_if_success " s:convSeq : conv =>
 
 /-- `rw [rules]` applies the given list of rewrite rules to the target.
 See the `rw` tactic for more information. -/
-macro "rw" c:(config)? s:rwRuleSeq : conv => `(rewrite $[$c]? $s)
+macro "rw" c:(config)? s:rwRuleSeq : conv => `(conv| rewrite $[$c]? $s)
 
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw" s:rwRuleSeq : conv => `(rw (config := { transparency := .default }) $s)
+macro "erw" s:rwRuleSeq : conv => `(conv| rw (config := { transparency := .default }) $s)
 
 /-- `args` traverses into all arguments. Synonym for `congr`. -/
-macro "args" : conv => `(congr)
+macro "args" : conv => `(conv| congr)
 /-- `left` traverses into the left argument. Synonym for `lhs`. -/
-macro "left" : conv => `(lhs)
+macro "left" : conv => `(conv| lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
-macro "right" : conv => `(rhs)
+macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
 macro "intro" xs:(colGt ident)* : conv => `(conv| ext $xs*)
 
@@ -270,13 +272,13 @@ macro_rules
 There are no restrictions on `thm`, but strange results may occur if `thm`
 cannot be reasonably interpreted as proving one equality from a list of others. -/
 -- TODO: error if non-conv subgoals?
-macro "apply " e:term : conv => `(tactic => apply $e)
+macro "apply " e:term : conv => `(conv| tactic => apply $e)
 
 /-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:convSeq : conv => `(first | $t | skip)
+macro "try " t:convSeq : conv => `(conv| first | $t | skip)
 
 macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
   `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))

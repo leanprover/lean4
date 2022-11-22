@@ -1,5 +1,5 @@
 notationPrecheck.lean:1:25-1:26: error: unknown identifier 'a' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
-notationPrecheck.lean:4:16-4:19: error: no macro or `[quotPrecheck]` instance for syntax kind 'termB_' found
+notationPrecheck.lean:4:16-4:19: error: no macro or `[quot_precheck]` instance for syntax kind 'termB_' found
   b x
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check.
 notationPrecheck.lean:8:7-8:8: error: elaboration function for 'termB_' has not been implemented

@@ -3,7 +3,7 @@ class ArrSort (α : Sort u1) where
 class Arr (α : Sort u1) (γ : Sort u2) where
   Arr : α → α → γ
 infix:70 " ~> " => Arr.Arr
-@[defaultInstance]
+@[default_instance]
 instance inst1 {α : Sort _} [ArrSort α] : Arr α (Sort _) := { Arr := ArrSort.Arr }
 instance inst2 : ArrSort Prop := { Arr := λ a b => a → b }
 

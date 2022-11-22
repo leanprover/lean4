@@ -1,2 +1,0 @@
-973.lean:4:2-4:6: error: invalid `simp` theorem, equation is equivalent to
-  x = x

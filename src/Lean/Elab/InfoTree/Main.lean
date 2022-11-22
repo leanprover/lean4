@@ -84,10 +84,11 @@ private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
   let endPos := stx.getTailPos?.getD pos
   f!"{fmtPos pos stx.getHeadInfo}-{fmtPos endPos stx.getTailInfo}"
 where fmtPos pos info :=
-    let pos := format <| ctx.fileMap.toPosition pos
-    match info with
-    | SourceInfo.original ..  => pos
-    | _                       => f!"{pos}†"
+  let pos := format <| ctx.fileMap.toPosition pos
+  match info with
+  | .original ..                      => pos
+  | .synthetic (canonical := true) .. => f!"{pos}†!"
+  | _                                 => f!"{pos}†"
 
 private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
   if info.elaborator.isAnonymous then
@@ -114,6 +115,9 @@ def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Forma
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
   return f!"command @ {formatElabInfo ctx info.toElabInfo}"
+
+def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
+  return f!"option {info.optionName} @ {formatStxRange ctx info.stx}"
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
   ctx.runMetaM info.lctx do
@@ -151,6 +155,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTermInfo i           => i.format ctx
   | ofCommandInfo i        => i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
+  | ofOptionInfo i         => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -163,6 +168,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofTermInfo i           => some i.toElabInfo
   | ofCommandInfo i        => some i.toElabInfo
   | ofMacroExpansionInfo _ => none
+  | ofOptionInfo _         => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
   | ofUserWidgetInfo _     => none
@@ -347,6 +353,14 @@ def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLC
 
 def enableInfoTree [MonadInfoTree m] (flag := true) : m Unit :=
   modifyInfoState fun s => { s with enabled := flag }
+
+def withEnableInfoTree [Monad m] [MonadInfoTree m] [MonadFinally m] (flag : Bool) (x : m α) : m α := do
+  let saved := (← getInfoState).enabled
+  try
+    enableInfoTree flag
+    x
+  finally
+    enableInfoTree saved
 
 def getInfoTrees [MonadInfoTree m] [Monad m] : m (PersistentArray InfoTree) :=
   return (← getInfoState).trees

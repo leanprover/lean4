@@ -8,6 +8,7 @@ import Lean.Util.CollectFVars
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
+import Lean.Meta.Match.MatchEqs
 
 namespace Lean.Elab.Eqns
 open Meta

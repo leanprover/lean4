@@ -70,11 +70,11 @@ private partial def generalizeCore (mvarId : MVarId) (args : Array GeneralizeArg
       mvarId.assign (mkAppN (mkAppN mvarNew es) rfls.toArray)
       mvarNew.mvarId!.introNP (args.size + rfls.length)
 
-@[inheritDoc generalizeCore]
+@[inherit_doc generalizeCore]
 def _root_.Lean.MVarId.generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
   generalizeCore mvarId args
 
-@[inheritDoc generalizeCore, deprecated MVarId.generalize]
+@[inherit_doc generalizeCore, deprecated MVarId.generalize]
 def generalize (mvarId : MVarId) (args : Array GeneralizeArg) : MetaM (Array FVarId × MVarId) :=
   generalizeCore mvarId args
 

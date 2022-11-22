@@ -10,7 +10,7 @@ namespace Expr
 
 namespace FindImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   keys : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
@@ -53,7 +53,7 @@ unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
 
 end FindImpl
 
-@[implementedBy FindImpl.findUnsafe?]
+@[implemented_by FindImpl.findUnsafe?]
 def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   /- This is a reference implementation for the unsafe one above -/
   if p e then
@@ -113,7 +113,7 @@ end FindExtImpl
 /--
   Similar to `find?`, but `p` can return `FindStep.done` to interrupt the search on subterms.
   Remark: Differently from `find?`, we do not invoke `p` for partial applications of an application. -/
-@[implementedBy FindExtImpl.findUnsafe?]
+@[implemented_by FindExtImpl.findUnsafe?]
 opaque findExt? (p : Expr → FindStep) (e : Expr) : Option Expr
 
 end Expr

@@ -91,8 +91,8 @@ structure Iff (a b : Prop) : Prop where
   /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
   mpr : b → a
 
-@[inheritDoc] infix:20 " <-> " => Iff
-@[inheritDoc] infix:20 " ↔ "   => Iff
+@[inherit_doc] infix:20 " <-> " => Iff
+@[inherit_doc] infix:20 " ↔ "   => Iff
 
 /--
 `Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
@@ -105,7 +105,7 @@ inductive Sum (α : Type u) (β : Type v) where
   /-- Right injection into the sum type `α ⊕ β`. If `b : β` then `.inr b : α ⊕ β`. -/
   | inr (val : β) : Sum α β
 
-@[inheritDoc] infixr:30 " ⊕ " => Sum
+@[inherit_doc] infixr:30 " ⊕ " => Sum
 
 /--
 `PSum α β`, or `α ⊕' β`, is the disjoint union of types `α` and `β`.
@@ -124,7 +124,7 @@ inductive PSum (α : Sort u) (β : Sort v) where
   /-- Right injection into the sum type `α ⊕' β`. If `b : β` then `.inr b : α ⊕' β`. -/
   | inr (val : β) : PSum α β
 
-@[inheritDoc] infixr:30 " ⊕' " => PSum
+@[inherit_doc] infixr:30 " ⊕' " => PSum
 
 /--
 `Sigma β`, also denoted `Σ a : α, β a` or `(a : α) × β a`, is the type of dependent pairs
@@ -340,7 +340,7 @@ class HasEquiv (α : Sort u) where
   the notion of equivalence is type-dependent. -/
   Equiv : α → α → Sort v
 
-@[inheritDoc] infix:50 " ≈ "  => HasEquiv.Equiv
+@[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
 /-- `EmptyCollection α` is the typeclass which supports the notation `∅`, also written as `{}`. -/
 class EmptyCollection (α : Type u) where
@@ -348,8 +348,8 @@ class EmptyCollection (α : Type u) where
   It is supported by the `EmptyCollection` typeclass. -/
   emptyCollection : α
 
-@[inheritDoc] notation "{" "}" => EmptyCollection.emptyCollection
-@[inheritDoc] notation "∅"     => EmptyCollection.emptyCollection
+@[inherit_doc] notation "{" "}" => EmptyCollection.emptyCollection
+@[inherit_doc] notation "∅"     => EmptyCollection.emptyCollection
 
 /--
 `Task α` is a primitive for asynchronous computation.
@@ -457,7 +457,7 @@ inductive PNonScalar : Type u where
   /-- You should not use this function -/
   | mk (v : Nat) : PNonScalar
 
-@[simp] theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
+@[simp] protected theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
 theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
 
@@ -485,7 +485,7 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 @[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
-@[inheritDoc] infix:50 " != " => bne
+@[inherit_doc] infix:50 " != " => bne
 
 /--
 `LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
@@ -514,7 +514,7 @@ instance : LawfulBEq String := inferInstance
 
 /-! # Logical connectives and equality -/
 
-@[inheritDoc True.intro] def trivial : True := ⟨⟩
+@[inherit_doc True.intro] def trivial : True := ⟨⟩
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a :=
   fun ha => h₂ (h₁ ha)
@@ -536,7 +536,7 @@ If `h : α = β` is a proof of type equality, then `h.mp : α → β` is the ind
 You can prove theorems about the resulting element by induction on `h`, since
 `rfl.mp` is definitionally the identity function.
 -/
-@[macroInline] def Eq.mp {α β : Sort u} (h : α = β) (a : α) : β :=
+@[macro_inline] def Eq.mp {α β : Sort u} (h : α = β) (a : α) : β :=
   h ▸ a
 
 /--
@@ -546,9 +546,10 @@ If `h : α = β` is a proof of type equality, then `h.mpr : β → α` is the in
 You can prove theorems about the resulting element by induction on `h`, since
 `rfl.mpr` is definitionally the identity function.
 -/
-@[macroInline] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
+@[macro_inline] def Eq.mpr {α β : Sort u} (h : α = β) (b : β) : α :=
   h ▸ b
 
+@[elab_as_elim]
 theorem Eq.substr {α : Sort u} {p : α → Prop} {a b : α} (h₁ : b = a) (h₂ : p a) : p b :=
   h₁ ▸ h₂
 
@@ -562,7 +563,7 @@ and asserts that `a` and `b` are not equal.
 @[reducible] def Ne {α : Sort u} (a b : α) :=
   ¬(a = b)
 
-@[inheritDoc] infix:50 " ≠ "  => Ne
+@[inherit_doc] infix:50 " ≠ "  => Ne
 
 section Ne
 variable {α : Sort u}
@@ -676,6 +677,9 @@ theorem Iff.symm (h : a ↔ b) : b ↔ a :=
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
   Iff.intro Iff.symm Iff.symm
 
+theorem Iff.of_eq (h : a = b) : a ↔ b :=
+  h ▸ Iff.refl _
+
 theorem And.comm : a ∧ b ↔ b ∧ a := by
   constructor <;> intro ⟨h₁, h₂⟩ <;> exact ⟨h₂, h₁⟩
 
@@ -700,7 +704,7 @@ theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
-  decide p (h := d)
+  decide (h := d)
 
 theorem toBoolUsing_eq_true {p : Prop} (d : Decidable p) (h : p) : toBoolUsing d = true :=
   decide_eq_true (inst := d) h
@@ -725,7 +729,7 @@ Synonym for `dite` (dependent if-then-else). We can construct an element `q`
 (of any sort, not just a proposition) by cases on whether `p` is true or false,
 provided `p` is decidable.
 -/
-@[macroInline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
+@[macro_inline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with
   | isTrue h  => h1 h
   | isFalse h => h2 h
@@ -766,7 +770,7 @@ variable {p q : Prop}
   decidable_of_decidable_of_iff (p := p) (h ▸ Iff.rfl)
 end
 
-@[macroInline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
+@[macro_inline] instance {p q} [Decidable p] [Decidable q] : Decidable (p → q) :=
   if hp : p then
     if hq : q then isTrue (fun _ => hq)
     else isFalse (fun h => absurd (h hp) hq)
@@ -1222,7 +1226,7 @@ protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop}
   (q : Quot r) (f : α → β) (c : (a b : α) → r a b → f a = f b) : β :=
   lift f c q
 
-@[elabAsElim]
+@[elab_as_elim]
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (q : Quot r)
     (h : (a : α) → motive (Quot.mk r a))
@@ -1238,7 +1242,7 @@ variable {r : α → α → Prop}
 variable {motive : Quot r → Sort v}
 
 /-- Auxiliary definition for `Quot.rec`. -/
-@[reducible, macroInline]
+@[reducible, macro_inline]
 protected def indep (f : (a : α) → motive (Quot.mk r a)) (a : α) : PSigma motive :=
   ⟨Quot.mk r a, f a⟩
 
@@ -1270,7 +1274,7 @@ protected abbrev rec
     (q : Quot r) : motive q :=
   Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
-@[inheritDoc Quot.rec] protected abbrev recOn
+@[inherit_doc Quot.rec] protected abbrev recOn
     (q : Quot r)
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
@@ -1354,7 +1358,7 @@ then it lifts to a function on `Quotient s` such that `lift (mk a) f h = f a`.
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
 
-@[elabAsElim]
+@[elab_as_elim]
 protected theorem inductionOn {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
     (q : Quotient s)
     (h : (a : α) → motive (Quotient.mk s a))
@@ -1370,7 +1374,7 @@ variable {s : Setoid α}
 variable {motive : Quotient s → Sort v}
 
 /-- The analogue of `Quot.rec` for `Quotient`. See `Quot.rec`. -/
-@[inline, elabAsElim]
+@[inline, elab_as_elim]
 protected def rec
     (f : (a : α) → motive (Quotient.mk s a))
     (h : (a b : α) → (p : a ≈ b) → Eq.ndrec (f a) (Quotient.sound p) = f b)
@@ -1379,7 +1383,7 @@ protected def rec
   Quot.rec f h q
 
 /-- The analogue of `Quot.recOn` for `Quotient`. See `Quot.recOn`. -/
-@[elabAsElim]
+@[elab_as_elim]
 protected abbrev recOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
@@ -1388,7 +1392,7 @@ protected abbrev recOn
   Quot.recOn q f h
 
 /-- The analogue of `Quot.recOnSubsingleton` for `Quotient`. See `Quot.recOnSubsingleton`. -/
-@[elabAsElim]
+@[elab_as_elim]
 protected abbrev recOnSubsingleton
     [h : (a : α) → Subsingleton (motive (Quotient.mk s a))]
     (q : Quotient s)
@@ -1397,7 +1401,7 @@ protected abbrev recOnSubsingleton
   Quot.recOnSubsingleton (h := h) q f
 
 /-- The analogue of `Quot.hrecOn` for `Quotient`. See `Quot.hrecOn`. -/
-@[elabAsElim]
+@[elab_as_elim]
 protected abbrev hrecOn
     (q : Quotient s)
     (f : (a : α) → motive (Quotient.mk s a))
@@ -1431,7 +1435,7 @@ protected abbrev liftOn₂
     : φ :=
   Quotient.lift₂ f c q₁ q₂
 
-@[elabAsElim]
+@[elab_as_elim]
 protected theorem ind₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (h : (a : α) → (b : β) → motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))
@@ -1442,7 +1446,7 @@ protected theorem ind₂
   induction q₂ using Quotient.ind
   apply h
 
-@[elabAsElim]
+@[elab_as_elim]
 protected theorem inductionOn₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (q₁ : Quotient s₁)
@@ -1453,7 +1457,7 @@ protected theorem inductionOn₂
   induction q₂ using Quotient.ind
   apply h
 
-@[elabAsElim]
+@[elab_as_elim]
 protected theorem inductionOn₃
     {s₃ : Setoid φ}
     {motive : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop}
@@ -1498,7 +1502,7 @@ variable {α : Sort uA} {β : Sort uB}
 variable {s₁ : Setoid α} {s₂ : Setoid β}
 
 /-- Lift a binary function to a quotient on both arguments. -/
-@[elabAsElim]
+@[elab_as_elim]
 protected abbrev recOnSubsingleton₂
     {motive : Quotient s₁ → Quotient s₂ → Sort uC}
     [s : (a : α) → (b : β) → Subsingleton (motive (Quotient.mk s₁ a) (Quotient.mk s₂ b))]
@@ -1618,7 +1622,7 @@ external type checkers (e.g., Trepplein) that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 
-Recall that the compiler trusts the correctness of all `[implementedBy ...]` and `[extern ...]` annotations.
+Recall that the compiler trusts the correctness of all `[implemented_by ...]` and `[extern ...]` annotations.
 If an extern function is executed, then the trusted code base will also include the implementation of the associated
 foreign function.
 -/

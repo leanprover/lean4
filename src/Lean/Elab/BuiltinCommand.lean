@@ -13,7 +13,7 @@ import Lean.Elab.SetOption
 
 namespace Lean.Elab.Command
 
-@[builtinCommandElab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
+@[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
    match stx[1] with
    | Syntax.atom _ val =>
      let doc := val.extract 0 (val.endPos - ⟨2⟩)
@@ -60,24 +60,24 @@ private def checkEndHeader : Name → List Scope → Bool
   | .str p s,   { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
   | _,          _                             => false
 
-@[builtinCommandElab «namespace»] def elabNamespace : CommandElab := fun stx =>
+@[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
   | `(namespace $n) => addNamespace n.getId
   | _               => throwUnsupportedSyntax
 
-@[builtinCommandElab «section»] def elabSection : CommandElab := fun stx => do
+@[builtin_command_elab «section»] def elabSection : CommandElab := fun stx => do
   match stx with
   | `(section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := false) header.getId
   | `(section)               => addScope (isNewNamespace := false) (isNoncomputable := false) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
-@[builtinCommandElab noncomputableSection] def elabNonComputableSection : CommandElab := fun stx => do
+@[builtin_command_elab noncomputableSection] def elabNonComputableSection : CommandElab := fun stx => do
   match stx with
   | `(noncomputable section $header:ident) => addScopes (isNewNamespace := false) (isNoncomputable := true) header.getId
   | `(noncomputable section)               => addScope (isNewNamespace := false) (isNoncomputable := true) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
-@[builtinCommandElab «end»] def elabEnd : CommandElab := fun stx => do
+@[builtin_command_elab «end»] def elabEnd : CommandElab := fun stx => do
   let header? := (stx.getArg 1).getOptionalIdent?;
   let endSize := match header? with
     | none   => 1
@@ -109,18 +109,18 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   else
     throwUnsupportedSyntax
 
-@[builtinCommandElab choice] def elabChoice : CommandElab := fun stx =>
+@[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
-@[builtinCommandElab «universe»] def elabUniverse : CommandElab := fun n => do
+@[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
-@[builtinCommandElab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
+@[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
   match (← getEnv).addDecl Declaration.quotDecl with
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
-@[builtinCommandElab «export»] def elabExport : CommandElab := fun stx => do
+@[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
   let currNamespace ← getCurrNamespace
@@ -132,15 +132,17 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
-@[builtinCommandElab «open»] def elabOpen : CommandElab
+@[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
     let openDecls ← elabOpenDecl decl
     modifyScope fun scope => { scope with openDecls := openDecls }
   | _ => throwUnsupportedSyntax
 
+open Lean.Parser.Term
+
 private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × Bool)
-  | `(bracketedBinder|($ids*)) => some <| (ids, true)
-  | `(bracketedBinder|{$ids*}) => some <| (ids, false)
+  | `(bracketedBinderF|($ids*)) => some (ids, true)
+  | `(bracketedBinderF|{$ids*}) => some (ids, false)
   | _                          => none
 
 /--  If `id` is an identifier, return true if `ids` contains `id`. -/
@@ -167,15 +169,15 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut modifiedVarDecls := false
   for varDecl in varDecls do
     let (ids, ty?, explicit') ← match varDecl with
-      | `(bracketedBinder|($ids* $[: $ty?]? $(annot?)?)) =>
+      | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
           for binderId in binderIds do
             if containsId ids binderId then
               throwErrorAt binderId "cannot update binder annotation of variables with default values/tactics"
         pure (ids, ty?, true)
-      | `(bracketedBinder|{$ids* $[: $ty?]?}) =>
+      | `(bracketedBinderF|{$ids* $[: $ty?]?}) =>
         pure (ids, ty?, false)
-      | `(bracketedBinder|[$id : $_]) =>
+      | `(bracketedBinderF|[$id : $_]) =>
         for binderId in binderIds do
           if binderId.raw.isIdent && binderId.raw.getId == id.getId then
             throwErrorAt binderId "cannot change the binder annotation of the previously declared local instance `{id.getId}`"
@@ -194,9 +196,9 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     else
       let mkBinder (id : TSyntax [`ident, ``Parser.Term.hole]) (explicit : Bool) : CommandElabM (TSyntax ``Parser.Term.bracketedBinder) :=
         if explicit then
-          `(bracketedBinder| ($id $[: $ty?]?))
+          `(bracketedBinderF| ($id $[: $ty?]?))
         else
-          `(bracketedBinder| {$id $[: $ty?]?})
+          `(bracketedBinderF| {$id $[: $ty?]?})
       for id in ids do
         if let some idx := binderIds.findIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
@@ -209,13 +211,13 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
       if explicit then
-        `(bracketedBinder| ($binderId))
+        `(bracketedBinderF| ($binderId))
       else
-        `(bracketedBinder| {$binderId})
+        `(bracketedBinderF| {$binderId})
   else
     return #[binder]
 
-@[builtinCommandElab «variable»] def elabVariable : CommandElab
+@[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withAutoBoundImplicit <|
@@ -240,9 +242,9 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
       logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 
-@[builtinCommandElab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
+@[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
-@[builtinCommandElab Lean.Parser.Command.reduce] def elabReduce : CommandElab
+@[builtin_command_elab Lean.Parser.Command.reduce] def elabReduce : CommandElab
   | `(#reduce%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing
@@ -276,7 +278,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
   if succeeded then
     throwError "unexpected success"
 
-@[builtinCommandElab «check_failure»] def elabCheckFailure : CommandElab
+@[builtin_command_elab «check_failure»] def elabCheckFailure : CommandElab
   | `(#check_failure $term) => do
     failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
   | _ => throwUnsupportedSyntax
@@ -384,10 +386,10 @@ unsafe def elabEvalUnsafe : CommandElab
       elabEval
   | _ => throwUnsupportedSyntax
 
-@[builtinCommandElab «eval», implementedBy elabEvalUnsafe]
+@[builtin_command_elab «eval», implemented_by elabEvalUnsafe]
 opaque elabEval : CommandElab
 
-@[builtinCommandElab «synth»] def elabSynth : CommandElab := fun stx => do
+@[builtin_command_elab «synth»] def elabSynth : CommandElab := fun stx => do
   let term := stx[1]
   withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_synth_cmd do
     let inst ← Term.elabTerm term none
@@ -397,26 +399,30 @@ opaque elabEval : CommandElab
     logInfo val
     pure ()
 
-@[builtinCommandElab «set_option»] def elabSetOption : CommandElab := fun stx => do
+@[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
   let options ← Elab.elabSetOption stx[1] stx[2]
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 
-@[builtinMacro Lean.Parser.Command.«in»] def expandInCmd : Macro
+@[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in $cmd₂) => `(section $cmd₁:command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
-@[builtinCommandElab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
+@[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
     let declName ← resolveGlobalConstNoOverloadWithInfo id
+    if let .none ← findDeclarationRangesCore? declName then
+      -- this is only relevant for declarations added without a declaration range
+      -- in particular `Quot.mk` et al which are added by `init_quot`
+      addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 
-@[builtinCommandElab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
+@[builtin_command_elab Parser.Command.exit] def elabExit : CommandElab := fun _ =>
   logWarning "using 'exit' to interrupt Lean"
 
-@[builtinCommandElab Parser.Command.import] def elabImport : CommandElab := fun _ =>
+@[builtin_command_elab Parser.Command.import] def elabImport : CommandElab := fun _ =>
   throwError "invalid 'import' command, it must be used in the beginning of the file"
 
 end Lean.Elab.Command

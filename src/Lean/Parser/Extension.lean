@@ -271,7 +271,7 @@ unsafe def mkParserOfConstantUnsafe (constName : Name) (compileParserDescr : Par
       pure ⟨false, p⟩
     | _ => throw ↑s!"unexpected parser type at '{constName}' (`ParserDescr`, `TrailingParserDescr`, `Parser` or `TrailingParser` expected)"
 
-@[implementedBy mkParserOfConstantUnsafe]
+@[implemented_by mkParserOfConstantUnsafe]
 opaque mkParserOfConstantAux (constName : Name) (compileParserDescr : ParserDescr → ImportM Parser) : ImportM (Bool × Parser)
 
 partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr) : ImportM Parser :=
@@ -280,7 +280,7 @@ partial def compileParserDescr (categories : ParserCategories) (d : ParserDescr)
     | ParserDescr.unary n d                           => return (← getUnaryAlias parserAliasesRef n) (← visit d)
     | ParserDescr.binary n d₁ d₂                      => return (← getBinaryAlias parserAliasesRef n) (← visit d₁) (← visit d₂)
     | ParserDescr.node k prec d                       => return leadingNode k prec (← visit d)
-    | ParserDescr.nodeWithAntiquot n k d              => return nodeWithAntiquot n k (← visit d) (anonymous := true)
+    | ParserDescr.nodeWithAntiquot n k d              => return withCache k (nodeWithAntiquot n k (← visit d) (anonymous := true))
     | ParserDescr.sepBy p sep psep trail              => return sepBy (← visit p) sep (← visit psep) trail
     | ParserDescr.sepBy1 p sep psep trail             => return sepBy1 (← visit p) sep (← visit psep) trail
     | ParserDescr.trailingNode k prec lhsPrec d       => return trailingNode k prec lhsPrec (← visit d)
@@ -313,7 +313,7 @@ def runParserAttributeHooks (catName : Name) (declName : Name) (builtin : Bool) 
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runBuiltinParserAttributeHooks
+    name  := `run_builtin_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by builtin parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -322,7 +322,7 @@ builtin_initialize
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `runParserAttributeHooks
+    name  := `run_parser_attribute_hooks
     descr := "explicitly run hooks normally activated by parser attributes"
     add   := fun decl stx _ => do
       Attribute.Builtin.ensureNoArgs stx
@@ -364,11 +364,10 @@ unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => un
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
-    let ctx := { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }
-    return p.fn ctx s
+    return adaptUncacheableContextFn (fun ctx => { ctx with tokens := p.info.collectTokens [] |>.foldl (fun tks tk => tks.insert tk tk) ctx.tokens }) p.fn ctx s
   | .error e   => return s.mkUnexpectedError e.toString
 
-@[implementedBy evalParserConstUnsafe]
+@[implemented_by evalParserConstUnsafe]
 opaque evalParserConst (declName : Name) : ParserFn
 
 register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
@@ -378,12 +377,11 @@ register_builtin_option internal.parseQuotWithCurrentStage : Bool := {
 }
 
 /-- Run `declName` if possible and inside a quotation, or else `p`. The `ParserInfo` will always be taken from `p`. -/
-def evalInsideQuot (declName : Name) (p : Parser) : Parser := { p with
-  fn := fun c s =>
-    if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
-      evalParserConst declName c s
-    else
-      p.fn c s }
+def evalInsideQuot (declName : Name) : Parser → Parser := withFn fun f c s =>
+  if c.quotDepth > 0 && !c.suppressInsideQuot && internal.parseQuotWithCurrentStage.get c.options && c.env.contains declName then
+    evalParserConst declName c s
+  else
+    f c s
 
 def addBuiltinParser (catName : Name) (declName : Name) (leading : Bool) (p : Parser) (prio : Nat) : IO Unit := do
   let p := evalInsideQuot declName p
@@ -445,28 +443,20 @@ def mkInputContext (input : String) (fileName : String) : InputContext := {
   fileMap  := input.toFileMap
 }
 
-def mkParserContext (ictx : InputContext) (pmctx : ParserModuleContext) : ParserContext := {
-  prec                  := 0,
-  toInputContext        := ictx,
-  toParserModuleContext := pmctx,
-  tokens                := getTokenTable pmctx.env
-}
-
 def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
 
 /-- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
-  let c := mkParserContext (mkInputContext input fileName) { env := env, options := {} }
-  let s := mkParserState input
-  let s := whitespace c s
-  let s := categoryParserFnImpl catName c s
+  let p := andthenFn whitespace (categoryParserFnImpl catName)
+  let ictx := mkInputContext input fileName
+  let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
   if s.hasError then
-    Except.error (s.toErrorMsg c)
+    Except.error (s.toErrorMsg ictx)
   else if input.atEnd s.pos then
     Except.ok s.stxStack.back
   else
-    Except.error ((s.mkError "end of input").toErrorMsg c)
+    Except.error ((s.mkError "end of input").toErrorMsg ictx)
 
 def declareBuiltinParser (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
   let val := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]
@@ -564,21 +554,21 @@ def registerParserCategory (env : Environment) (attrName catName : Name)
   let env ← IO.ofExcept $ addParserCategory env catName ref behavior
   registerAttributeOfBuilder env `parserAttr ref [DataValue.ofName attrName, DataValue.ofName catName]
 
--- declare `termParser` here since it is used everywhere via antiquotations
+-- declare `term_parser` here since it is used everywhere via antiquotations
 
-builtin_initialize registerBuiltinParserAttribute `builtinTermParser ``Category.term
+builtin_initialize registerBuiltinParserAttribute `builtin_term_parser ``Category.term
 
-builtin_initialize registerBuiltinDynamicParserAttribute `termParser `term
+builtin_initialize registerBuiltinDynamicParserAttribute `term_parser `term
 
--- declare `commandParser` to break cyclic dependency
-builtin_initialize registerBuiltinParserAttribute `builtinCommandParser ``Category.command
+-- declare `command_parser` to break cyclic dependency
+builtin_initialize registerBuiltinParserAttribute `builtin_command_parser ``Category.command
 
-builtin_initialize registerBuiltinDynamicParserAttribute `commandParser `command
+builtin_initialize registerBuiltinDynamicParserAttribute `command_parser `command
 
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
 
-private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bool) : ParserFn := fun c s =>
+private def withNamespaces (ids : Array Name) (addOpenSimple : Bool) : ParserFn → ParserFn := adaptUncacheableContextFn fun c =>
   let c := ids.foldl (init := c) fun c id =>
     let nss := ResolveName.resolveNamespace c.env c.currNamespace c.openDecls id
     let (env, openDecls) := nss.foldl (init := (c.env, c.openDecls)) fun (env, openDecls) ns =>
@@ -587,7 +577,7 @@ private def withNamespaces (ids : Array Name) (p : ParserFn) (addOpenSimple : Bo
       (env, openDecls)
     { c with env, openDecls }
   let tokens := parserExtension.getState c.env |>.tokens
-  p { c with tokens } s
+  { c with tokens }
 
 def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>
   if openDeclStx.getKind == `Lean.Parser.Command.openSimple then
@@ -615,10 +605,7 @@ def withOpenFn (p : ParserFn) : ParserFn := fun c s =>
     p c s
 
 
-@[inline] def withOpen (p : Parser) : Parser := {
-  info := p.info
-  fn   := withOpenFn  p.fn
-}
+@[inline] def withOpen : Parser → Parser := withFn withOpenFn
 
 /-- If the parsing stack is of the form `#[.., openDecl]`, we process the open declaration, and execute `p` -/
 def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
@@ -628,38 +615,74 @@ def withOpenDeclFn (p : ParserFn) : ParserFn := fun c s =>
   else
     p c s
 
-@[inline] def withOpenDecl (p : Parser) : Parser := {
-  info := p.info
-  fn   := withOpenDeclFn  p.fn
-}
+@[inline] def withOpenDecl : Parser → Parser := withFn withOpenDeclFn
 
-def ParserContext.resolveName (ctx : ParserContext) (id : Name) : List (Name × List String) :=
-  ResolveName.resolveGlobalName ctx.env ctx.currNamespace ctx.openDecls id
+inductive ParserName
+  | category (cat : Name)
+  | parser (decl : Name) (isDescr : Bool)
+  -- TODO(gabriel): add parser aliases (this is blocked on doing IO in parsers)
+  deriving Repr
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def resolveParserNameCore (env : Environment) (currNamespace : Name)
+    (openDecls : List OpenDecl) (ident : Ident) : List ParserName := Id.run do
+  let ⟨.ident (val := val) (preresolved := pre) ..⟩ := ident | return []
+
+  let rec isParser (name : Name) : Option Bool :=
+    (env.find? name).bind fun ci =>
+      match ci.type with
+      | .const ``Parser _ | .const ``TrailingParser _ => some false
+      | .const ``ParserDescr _ | .const ``TrailingParserDescr _ => some true
+      | _ => none
+
+  for pre in pre do
+    if let .decl n [] := pre then
+      if let some isDescr := isParser n then
+        return [.parser n isDescr]
+
+  let erased := val.eraseMacroScopes
+
+  if isParserCategory env erased then
+    return [.category erased]
+
+  ResolveName.resolveGlobalName env currNamespace openDecls val |>.filterMap fun
+      | (name, []) => (isParser name).map fun isDescr => .parser name isDescr
+      | _ => none
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def ParserContext.resolveParserName (ctx : ParserContext) (id : Ident) : List ParserName :=
+  Parser.resolveParserNameCore ctx.env ctx.currNamespace ctx.openDecls id
+
+/-- Resolve the given parser name and return a list of candidates. -/
+def resolveParserName (id : Ident) : CoreM (List ParserName) :=
+  return resolveParserNameCore (← getEnv) (← getCurrNamespace) (← getOpenDecls) id
 
 def parserOfStackFn (offset : Nat) : ParserFn := fun ctx s => Id.run do
   let stack := s.stxStack
   if stack.size < offset + 1 then
     return s.mkUnexpectedError ("failed to determine parser using syntax stack, stack is too small")
-  let Syntax.ident (val := parserName) .. := stack.get! (stack.size - offset - 1)
+  let parserName@(.ident ..) := stack.get! (stack.size - offset - 1)
     | s.mkUnexpectedError ("failed to determine parser using syntax stack, the specified element on the stack is not an identifier")
-  match ctx.resolveName parserName with
-  | [(parserName, [])] =>
+  match ctx.resolveParserName ⟨parserName⟩ with
+  | [.category cat] =>
+    categoryParserFn cat ctx s
+  | [.parser parserName _] =>
     let iniSz := s.stackSize
-    let mut ctx' := ctx
-    if !internal.parseQuotWithCurrentStage.get ctx'.options then
-      -- static quotations such as `(e) do not use the interpreter unless the above option is set,
-      -- so for consistency neither should dynamic quotations using this function
-      ctx' := { ctx' with options := ctx'.options.setBool `interpreter.prefer_native true }
-    let s := evalParserConst parserName ctx' s
+    let s := adaptUncacheableContextFn (fun ctx =>
+      if !internal.parseQuotWithCurrentStage.get ctx.options then
+        -- static quotations such as `(e) do not use the interpreter unless the above option is set,
+        -- so for consistency neither should dynamic quotations using this function
+        { ctx with options := ctx.options.setBool `interpreter.prefer_native true }
+      else ctx) (evalParserConst parserName) ctx s
     if !s.hasError && s.stackSize != iniSz + 1 then
       s.mkUnexpectedError "expected parser to return exactly one syntax object"
     else
       s
   | _::_::_ => s.mkUnexpectedError s!"ambiguous parser name {parserName}"
-  | _ => s.mkUnexpectedError s!"unknown parser {parserName}"
+  | [] => s.mkUnexpectedError s!"unknown parser {parserName}"
 
-def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser :=
-  { fn := fun c s => parserOfStackFn offset { c with prec := prec } s }
+def parserOfStack (offset : Nat) (prec : Nat := 0) : Parser where
+  fn := adaptCacheableContextFn ({ · with prec }) (parserOfStackFn offset)
 
 end Parser
 end Lean

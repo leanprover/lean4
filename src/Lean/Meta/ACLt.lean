@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
+import Lean.Meta.DiscrTree
 
 namespace Lean
 
@@ -25,6 +26,11 @@ def Expr.ctorWeight : Expr → UInt8
 namespace Meta
 namespace ACLt
 
+inductive ReduceMode where
+  | reduce
+  | reduceSimpleOnly
+  | none
+
 mutual
 
 /--
@@ -43,17 +49,32 @@ mutual
    - We ignore metadata.
    - We ignore universe parameterst at constants.
 -/
-unsafe def lt (a b : Expr) : MetaM Bool :=
-  if ptrAddrUnsafe a == ptrAddrUnsafe b then
-    return false
-  -- We ignore metadata
-  else if a.isMData then
-    lt a.mdataExpr! b
-  else if b.isMData then
-    lt a b.mdataExpr!
-  else
-    lpo a b
+unsafe def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool :=
+  lt a b
 where
+  reduce (e : Expr) : MetaM Expr := do
+    if e.hasLooseBVars then
+      -- We don't reduce terms occurring inside binders.
+      -- See issue #1841.
+      -- TODO: investigate whether we have to create temporary fresh free variables in practice.
+      -- Drawback: cost.
+      return e
+    else match mode with
+      | .reduce => DiscrTree.reduce e (simpleReduce := false)
+      | .reduceSimpleOnly => DiscrTree.reduce e (simpleReduce := true)
+      | .none => return e
+
+  lt (a b : Expr) : MetaM Bool := do
+    if ptrAddrUnsafe a == ptrAddrUnsafe b then
+      return false
+    -- We ignore metadata
+    else if a.isMData then
+      lt a.mdataExpr! b
+    else if b.isMData then
+      lt a b.mdataExpr!
+    else
+      lpo (← reduce a) (← reduce b)
+
   ltPair (a₁ a₂ b₁ b₂ : Expr) : MetaM Bool := do
     if (← lt a₁ b₁) then
       return true
@@ -95,25 +116,25 @@ where
   lexSameCtor (a b : Expr) : MetaM Bool :=
     match a with
     -- Atomic
-    | Expr.bvar i ..    => return i < b.bvarIdx!
-    | Expr.fvar id ..   => return Name.lt id.name b.fvarId!.name
-    | Expr.mvar id ..   => return Name.lt id.name b.mvarId!.name
-    | Expr.sort u ..    => return Level.normLt u b.sortLevel!
-    | Expr.const n ..   => return Name.lt n b.constName! -- We igore the levels
-    | Expr.lit v ..     => return Literal.lt v b.litValue!
+    | .bvar i ..    => return i < b.bvarIdx!
+    | .fvar id ..   => return Name.lt id.name b.fvarId!.name
+    | .mvar id ..   => return Name.lt id.name b.mvarId!.name
+    | .sort u ..    => return Level.normLt u b.sortLevel!
+    | .const n ..   => return Name.lt n b.constName! -- We igore the levels
+    | .lit v ..     => return Literal.lt v b.litValue!
     -- Composite
-    | Expr.proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!
-    | Expr.app ..           => ltApp a b
-    | Expr.lam _ d e ..     => ltPair d e b.bindingDomain! b.bindingBody!
-    | Expr.forallE _ d e .. => ltPair d e b.bindingDomain! b.bindingBody!
-    | Expr.letE _ _ v e ..  => ltPair v e b.letValue! b.letBody!
+    | .proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!
+    | .app ..           => ltApp a b
+    | .lam _ d e ..     => ltPair d e b.bindingDomain! b.bindingBody!
+    | .forallE _ d e .. => ltPair d e b.bindingDomain! b.bindingBody!
+    | .letE _ _ v e ..  => ltPair v e b.letValue! b.letBody!
     -- See main function
-    | Expr.mdata ..         => unreachable!
+    | .mdata ..         => unreachable!
 
   allChildrenLt (a b : Expr) : MetaM Bool :=
     match a with
-    | Expr.proj _ _ e ..    => lt e b
-    | Expr.app ..           =>
+    | .proj _ _ e ..    => lt e b
+    | .app ..           =>
       a.withApp fun f args => do
         let infos := (← getFunInfoNArgs f args.size).paramInfo
         for i in [:infos.size] do
@@ -125,9 +146,9 @@ where
           if !(← lt args[i]! b) then
             return false
         return true
-    | Expr.lam _ d e ..     => lt d b <&&> lt e b
-    | Expr.forallE _ d e .. => lt d b <&&> lt e b
-    | Expr.letE _ _ v e ..  => lt v b <&&> lt e b
+    | .lam _ d e ..     => lt d b <&&> lt e b
+    | .forallE _ d e .. => lt d b <&&> lt e b
+    | .letE _ _ v e ..  => lt v b <&&> lt e b
     | _ => return true
 
   someChildGe (a b : Expr) : MetaM Bool :=
@@ -154,7 +175,7 @@ end
 
 end ACLt
 
-@[implementedBy ACLt.lt]
-opaque Expr.acLt : Expr → Expr → MetaM Bool
+@[implemented_by ACLt.main, inherit_doc ACLt.main]
+opaque Expr.acLt : Expr → Expr → (mode : ACLt.ReduceMode := .none) → MetaM Bool
 
 end Lean.Meta

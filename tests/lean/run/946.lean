@@ -76,7 +76,7 @@ theorem consistentConcatOfConsistentRow
   match df with
     | ⟨_, rows, hr⟩ => by
       induction rows with
-        | nil         => simp [hc] -- breaks here
+        | nil         => simp at hc; simp [hc]
         | cons _ _ hi => exact ⟨hr.1, hi hr.2 hc⟩
 
 def addRow (df : DataFrame) (row : List DataEntry)

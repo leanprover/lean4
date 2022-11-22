@@ -83,7 +83,6 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGener
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__17(lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__55___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_Meta_getFVarSetToGeneralize___spec__34(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkGeneralizationForbiddenSet(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getFVarSetToGeneralize___spec__70___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
@@ -180,6 +179,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGener
 lean_object* l_Lean_MetavarContext_getDecl(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__40(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__32(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getFVarSetToGeneralize___spec__75(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_mkGeneralizationForbiddenSet___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_getFVarSetToGeneralize___spec__44(lean_object*, lean_object*, lean_object*, size_t, size_t);
@@ -297,7 +297,7 @@ x_22 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_20);
 x_23 = lean_box(0);
-x_24 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_19, x_12, x_23);
+x_24 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_19, x_12, x_23);
 lean_ctor_set(x_16, 1, x_22);
 lean_ctor_set(x_16, 0, x_24);
 x_2 = x_13;
@@ -332,7 +332,7 @@ x_30 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_30, 0, x_12);
 lean_ctor_set(x_30, 1, x_28);
 x_31 = lean_box(0);
-x_32 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_27, x_12, x_31);
+x_32 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_27, x_12, x_31);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_30);
@@ -405,7 +405,7 @@ x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_11);
 lean_ctor_set(x_21, 1, x_19);
 x_22 = lean_box(0);
-x_23 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_18, x_11, x_22);
+x_23 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_18, x_11, x_22);
 lean_ctor_set(x_15, 1, x_21);
 lean_ctor_set(x_15, 0, x_23);
 x_1 = x_12;
@@ -440,7 +440,7 @@ x_29 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_29, 0, x_11);
 lean_ctor_set(x_29, 1, x_27);
 x_30 = lean_box(0);
-x_31 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_26, x_11, x_30);
+x_31 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_26, x_11, x_30);
 x_32 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_29);
@@ -717,7 +717,7 @@ if (lean_obj_tag(x_11) == 0)
 lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_12 = lean_box(0);
 lean_inc(x_9);
-x_13 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_2, x_9, x_12);
+x_13 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_2, x_9, x_12);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
@@ -8154,8 +8154,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -9129,8 +9129,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -10262,8 +10262,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -11225,8 +11225,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -12020,7 +12020,7 @@ else
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_11 = l_Lean_Expr_fvarId_x21(x_6);
 x_12 = lean_box(0);
-x_13 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_4, x_11, x_12);
+x_13 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_4, x_11, x_12);
 x_2 = x_9;
 x_4 = x_13;
 goto _start;
@@ -12383,8 +12383,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {
@@ -13346,8 +13346,8 @@ else
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_58 = lean_box(0);
 lean_inc(x_52);
-x_59 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_49, x_52, x_58);
-x_60 = l_Lean_RBNode_insert___at_Lean_CollectFVars_State_add___spec__1(x_50, x_52, x_58);
+x_59 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_49, x_52, x_58);
+x_60 = l_Lean_RBNode_insert___at_Lean_FVarIdSet_insert___spec__1(x_50, x_52, x_58);
 if (lean_is_scalar(x_51)) {
  x_61 = lean_alloc_ctor(0, 2, 0);
 } else {

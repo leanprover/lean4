@@ -37,14 +37,17 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   let e ← whnfCore e
   if e matches Expr.lam .. then
     lambdaLetTelescope e fun _ e => parserNodeKind? e
-  else if e.isAppOfArity ``nodeWithAntiquot 4 then
-    reduceEval? (e.getArg! 1)
-  else if e.isAppOfArity ``withAntiquot 2 then
-    parserNodeKind? (e.getArg! 1)
   else if e.isAppOfArity ``leadingNode 3 || e.isAppOfArity ``trailingNode 4 || e.isAppOfArity ``node 2 then
     reduceEval? (e.getArg! 0)
-  else
-    return none
+  else if e.isAppOfArity ``withAntiquot 2 then
+    parserNodeKind? (e.getArg! 1)
+  else forallTelescope (← inferType e.getAppFn) fun params _ => do
+    let lctx ← getLCtx
+    -- if there is exactly one parameter of type `Parser`, search there
+    if let [(i, _)] := params.toList.enum.filter (lctx.getFVar! ·.2 |>.type.isConstOf ``Parser) then
+      parserNodeKind? (e.getArg! i)
+    else
+      return none
 
 section
 open Meta
@@ -88,7 +91,7 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
         let some value ← pure cinfo.value?
           | throwError "don't know how to generate {ctx.varName} for non-definition '{e}'"
         unless (env.getModuleIdxFor? c).isNone || force do
-          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[runParserAttributeHooks]` on its definition instead."
+          throwError "refusing to generate code for imported parser declaration '{c}'; use `@[run_parser_attribute_hooks]` on its definition instead."
         let value ← compileParserExpr <| replaceParserTy ctx value
         let ty ← forallTelescope cinfo.type fun params _ =>
           params.foldrM (init := mkConst ctx.tyName) fun param ty => do
@@ -147,7 +150,7 @@ unsafe def registerParserCompiler {α} (ctx : Context α) : IO Unit := do
           evalConstCheck TrailingParserDescr `Lean.TrailingParserDescr constName
         compileEmbeddedParsers ctx d (builtin := builtin) |>.run'
       else
-        -- `[runBuiltinParserAttributeHooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
+        -- `[run_builtin_parser_attribute_hooks]` => force compilation even if imported, do not apply `ctx.categoryAttr`.
         let force := catName.isAnonymous
         discard (compileParserExpr ctx (mkConst constName) (builtin := builtin) (force := force)).run'
   }

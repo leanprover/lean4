@@ -42,3 +42,6 @@ false
 "abcd".toSubstring
 ["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
 ["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
+'α'
+'β'
+{ byteIdx := 4 }

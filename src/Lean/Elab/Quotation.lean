@@ -10,6 +10,7 @@ import Lean.ResolveName
 import Lean.Elab.Term
 import Lean.Elab.Quotation.Util
 import Lean.Elab.Quotation.Precheck
+import Lean.Elab.Syntax
 import Lean.Parser.Syntax
 
 namespace Lean.Elab.Term.Quotation
@@ -77,19 +78,32 @@ def ArrayStxBuilder := Sum (Array Term) Term
 
 namespace ArrayStxBuilder
 
-def empty : ArrayStxBuilder := Sum.inl #[]
+def empty : ArrayStxBuilder := .inl #[]
 
 def build : ArrayStxBuilder → Term
-  | Sum.inl elems => quote elems
-  | Sum.inr arr   => arr
+  | .inl elems => quote elems
+  | .inr arr   => arr
 
 def push (b : ArrayStxBuilder) (elem : Syntax) : ArrayStxBuilder :=
   match b with
-  | Sum.inl elems => Sum.inl <| elems.push elem
-  | Sum.inr arr   => Sum.inr <| mkCApp ``Array.push #[arr, elem]
+  | .inl elems => .inl <| elems.push elem
+  | .inr arr   => .inr <| mkCApp ``Array.push #[arr, elem]
 
 def append (b : ArrayStxBuilder) (arr : Syntax) (appendName := ``Array.append) : ArrayStxBuilder :=
-  Sum.inr <| mkCApp appendName #[b.build, arr]
+  .inr <| mkCApp appendName #[b.build, arr]
+
+def mkNode (b : ArrayStxBuilder) (k : SyntaxNodeKind) : TermElabM Term := do
+  let k := quote k
+  match b with
+  | .inl #[a₁] => `(Syntax.node1 info $(k) $(a₁))
+  | .inl #[a₁, a₂] => `(Syntax.node2 info $(k) $(a₁) $(a₂))
+  | .inl #[a₁, a₂, a₃] => `(Syntax.node3 info $(k) $(a₁) $(a₂) $(a₃))
+  | .inl #[a₁, a₂, a₃, a₄] => `(Syntax.node4 info $(k) $(a₁) $(a₂) $(a₃) $(a₄))
+  | .inl #[a₁, a₂, a₃, a₄, a₅] => `(Syntax.node5 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆] => `(Syntax.node6 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆, a₇] => `(Syntax.node7 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆) $(a₇))
+  | .inl #[a₁, a₂, a₃, a₄, a₅, a₆, a₇, a₈] => `(Syntax.node8 info $(k) $(a₁) $(a₂) $(a₃) $(a₄) $(a₅) $(a₆) $(a₇) $(a₈))
+  | _ => `(Syntax.node info $(k) $(b.build))
 
 end ArrayStxBuilder
 
@@ -186,7 +200,7 @@ private partial def quoteSyntax : Syntax → TermElabM Term
         else do
           let arg ← quoteSyntax arg
           args := args.push arg
-      `(Syntax.node info $(quote k) $(args.build))
+      args.mkNode k
   | Syntax.atom _ val =>
     `(Syntax.atom info $(quote val))
   | Syntax.missing => throwUnsupportedSyntax
@@ -205,30 +219,20 @@ def getQuotKind (stx : Syntax) : TermElabM SyntaxNodeKind := do
   match stx.getKind with
   | ``Parser.Command.quot => addNamedQuotInfo stx `command
   | ``Parser.Term.quot => addNamedQuotInfo stx `term
-  | ``Parser.Level.quot => addNamedQuotInfo stx `level
   | ``Parser.Tactic.quot => addNamedQuotInfo stx `tactic
   | ``Parser.Tactic.quotSeq => addNamedQuotInfo stx `tactic.seq
-  | ``Parser.Term.stx.quot => addNamedQuotInfo stx `stx
-  | ``Parser.Term.prec.quot => addNamedQuotInfo stx `prec
-  | ``Parser.Term.attr.quot => addNamedQuotInfo stx `attr
-  | ``Parser.Term.prio.quot => addNamedQuotInfo stx `prio
-  | ``Parser.Term.doElem.quot => addNamedQuotInfo stx `doElem
   | .str kind "quot" => addNamedQuotInfo stx kind
-  | ``dynamicQuot =>
-    match (← resolveGlobalConstWithInfos stx[1]) with
-    | [parser] => pure parser
-    | _ => throwError "unknown parser {stx[1]}"
+  | ``dynamicQuot => match ← elabParserName stx[1] with
+    | .parser n _ => return n
+    | .category c => return c
   | k => throwError "unexpected quotation kind {k}"
 
-def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
-  let stx := if stx.getNumArgs == 1 then stx[0] else stx
+def mkSyntaxQuotation (stx : Syntax) (kind : Name) : TermElabM Syntax := do
   /- Syntax quotations are monadic values depending on the current macro scope. For efficiency, we bind
      the macro scope once for each quotation, then build the syntax tree in a completely pure computation
      depending on this binding. Note that regular function calls do not introduce a new macro scope (i.e.
      we preserve referential transparency), so we can refer to this same `scp` inside `quoteSyntax` by
      including it literally in a syntax quotation. -/
-  let kind ← getQuotKind stx
-  let stx ← quoteSyntax stx.getQuotContent
   `(Bind.bind MonadRef.mkInfoFromRefPos (fun info =>
       Bind.bind getCurrMacroScope (fun scp =>
         Bind.bind getMainModule (fun mainModule => Pure.pure (@TSyntax.mk $(quote kind) $stx)))))
@@ -248,23 +252,18 @@ def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
      implementation is "self-stabilizing". It was in fact originally compiled
      by an unhygienic prototype implementation. -/
 
+def stxQuot.expand (stx : Syntax) : TermElabM Syntax := do
+  let stx := if stx.getNumArgs == 1 then stx[0] else stx
+  let kind ← getQuotKind stx
+  let stx ← quoteSyntax stx.getQuotContent
+  mkSyntaxQuotation stx kind
+
 macro "elab_stx_quot" kind:ident : command =>
-  `(@[builtinTermElab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
+  `(@[builtin_term_elab $kind:ident] def elabQuot : TermElab := adaptExpander stxQuot.expand)
 
---
-
-elab_stx_quot Parser.Level.quot
 elab_stx_quot Parser.Term.quot
-elab_stx_quot Parser.Term.funBinder.quot
-elab_stx_quot Parser.Term.bracketedBinder.quot
-elab_stx_quot Parser.Term.matchDiscr.quot
 elab_stx_quot Parser.Tactic.quot
 elab_stx_quot Parser.Tactic.quotSeq
-elab_stx_quot Parser.Term.stx.quot
-elab_stx_quot Parser.Term.prec.quot
-elab_stx_quot Parser.Term.attr.quot
-elab_stx_quot Parser.Term.prio.quot
-elab_stx_quot Parser.Term.doElem.quot
 elab_stx_quot Parser.Term.dynamicQuot
 elab_stx_quot Parser.Command.quot
 
@@ -341,7 +340,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
     if let some (k, _) := quoted.antiquotKind? then
       if let some name := getAntiquotKindSpec? quoted then
         tryAddSyntaxNodeKindInfo name k
-    if quoted.isAtom then
+    if quoted.isAtom || quoted.isOfKind `patternIgnore then
       -- We assume that atoms are uniquely determined by the node kind and never have to be checked
       unconditionally pure
     else if quoted.isTokenAntiquot then
@@ -664,10 +663,10 @@ def match_syntax.expand (stx : Syntax) : TermElabM Syntax := do
     return stx
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «match»] def elabMatchSyntax : TermElab :=
+@[builtin_term_elab «match»] def elabMatchSyntax : TermElab :=
   adaptExpander match_syntax.expand
 
-@[builtinTermElab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
+@[builtin_term_elab noErrorIfUnused] def elabNoErrorIfUnused : TermElab := fun stx expectedType? =>
   match stx with
   | `(no_error_if_unused% $term) => elabTerm term expectedType?
   | _ => throwUnsupportedSyntax

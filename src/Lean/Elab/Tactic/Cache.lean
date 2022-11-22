@@ -52,7 +52,7 @@ private def findCache? (cacheRef : IO.Ref Cache) (mvarId : MVarId) (stx : Syntax
     dbg_cache "cached state is not compatible"
     return none
 
-@[builtinTactic checkpoint] def evalCheckpoint : Tactic := fun stx =>
+@[builtin_tactic checkpoint] def evalCheckpoint : Tactic := fun stx =>
   focus do
     let mvarId ← getMainGoal
     let some cacheRef := (← readThe Term.Context).tacticCache? | evalTactic stx[1]

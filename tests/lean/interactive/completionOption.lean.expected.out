@@ -1,187 +1,166 @@
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 1, "character": 13}}
+ "position": {"line": 1, "character": 17}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}},
+     "end": {"line": 1, "character": 17}},
+    "newText": "trace.PrettyPrinter.format",
+    "insert":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 1, "character": 11},
+     "end": {"line": 1, "character": 17}},
     "newText": "format.indent",
     "insert":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}}},
+     "end": {"line": 1, "character": 17}}},
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}},
+     "end": {"line": 1, "character": 17}},
     "newText": "format.unicode",
     "insert":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}}},
+     "end": {"line": 1, "character": 17}}},
    "label": "format.unicode",
    "kind": 10,
    "detail": "(true), unicode characters"},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}},
+     "end": {"line": 1, "character": 17}},
     "newText": "format.width",
     "insert":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}}},
+     "end": {"line": 1, "character": 17}}},
    "label": "format.width",
    "kind": 10,
    "detail": "(120), indentation"},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}},
-    "newText": "trace.PrettyPrinter.format",
+     "end": {"line": 1, "character": 17}},
+    "newText": "trace.PrettyPrinter.format.backtrack",
     "insert":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}}},
-   "label": "trace.PrettyPrinter.format",
+     "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}},
-    "newText": "trace.Meta.isDefEq.foApprox",
+     "end": {"line": 1, "character": 17}},
+    "newText": "trace.PrettyPrinter.format.input",
     "insert":
     {"start": {"line": 1, "character": 11},
-     "end": {"line": 1, "character": 13}}},
-   "label": "trace.Meta.isDefEq.foApprox",
+     "end": {"line": 1, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 4, "character": 17}}
+ "position": {"line": 4, "character": 20}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}},
-    "newText": "trace.PrettyPrinter.format",
-    "insert":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}}},
-   "label": "trace.PrettyPrinter.format",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}},
+     "end": {"line": 4, "character": 20}},
     "newText": "format.indent",
     "insert":
     {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}}},
+     "end": {"line": 4, "character": 20}}},
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
   {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}},
-    "newText": "format.unicode",
+     "end": {"line": 4, "character": 20}},
+    "newText": "trace.PrettyPrinter.format.input",
     "insert":
     {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}}},
-   "label": "format.unicode",
+     "end": {"line": 4, "character": 20}}},
+   "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
-   "detail": "(true), unicode characters"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}},
-    "newText": "format.width",
-    "insert":
-    {"start": {"line": 4, "character": 11},
-     "end": {"line": 4, "character": 17}}},
-   "label": "format.width",
-   "kind": 10,
-   "detail": "(120), indentation"}],
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 7, "character": 20}}
+ "position": {"line": 7, "character": 23}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
-     "end": {"line": 7, "character": 20}},
-    "newText": "format.indent",
+     "end": {"line": 7, "character": 23}},
+    "newText": "trace.pp.analyze",
     "insert":
     {"start": {"line": 7, "character": 11},
-     "end": {"line": 7, "character": 20}}},
-   "label": "format.indent",
+     "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze",
    "kind": 10,
-   "detail": "(2), indentation"}],
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}},
+    "newText": "trace.pp.analyze.annotate",
+    "insert":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.annotate",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}},
+    "newText": "trace.pp.analyze.error",
+    "insert":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.error",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}},
+    "newText": "trace.pp.analyze.tryUnify",
+    "insert":
+    {"start": {"line": 7, "character": 11},
+     "end": {"line": 7, "character": 23}}},
+   "label": "trace.pp.analyze.tryUnify",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 10, "character": 18}}
+ "position": {"line": 10, "character": 27}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.PrettyPrinter",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.PrettyPrinter",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.PrettyPrinter.delab",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.PrettyPrinter.delab",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.PrettyPrinter.format",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.PrettyPrinter.format",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.PrettyPrinter.parenthesize",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.PrettyPrinter.parenthesize",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
+     "end": {"line": 10, "character": 27}},
     "newText": "trace.pp.analyze",
     "insert":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
+     "end": {"line": 10, "character": 27}}},
    "label": "trace.pp.analyze",
    "kind": 10,
    "detail":
@@ -189,11 +168,11 @@
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
+     "end": {"line": 10, "character": 27}},
     "newText": "trace.pp.analyze.annotate",
     "insert":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
+     "end": {"line": 10, "character": 27}}},
    "label": "trace.pp.analyze.annotate",
    "kind": 10,
    "detail":
@@ -201,11 +180,11 @@
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
+     "end": {"line": 10, "character": 27}},
     "newText": "trace.pp.analyze.error",
     "insert":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
+     "end": {"line": 10, "character": 27}}},
    "label": "trace.pp.analyze.error",
    "kind": 10,
    "detail":
@@ -213,243 +192,27 @@
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
+     "end": {"line": 10, "character": 27}},
     "newText": "trace.pp.analyze.tryUnify",
     "insert":
     {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
+     "end": {"line": 10, "character": 27}}},
    "label": "trace.pp.analyze.tryUnify",
    "kind": 10,
    "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Compiler.pullFunDecls",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Compiler.pullFunDecls",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Compiler.pullInstances",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Compiler.pullInstances",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Elab.postpone",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Elab.postpone",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.IndPredBelow",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.IndPredBelow",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.isLevelDefEq.postponed",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.isLevelDefEq.postponed",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.synthPending",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.synthPending",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.compiler.lambda_pure",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.compiler.lambda_pure",
-   "kind": 10,
-   "detail":
-   "(false), (trace) enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Compiler.extendJoinPointContext",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Compiler.extendJoinPointContext",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Compiler.findJoinPoints",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Compiler.findJoinPoints",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.Meta.IndPredBelow.match",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.Meta.IndPredBelow.match",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}},
-    "newText": "trace.compiler.ir.push_proj",
-    "insert":
-    {"start": {"line": 10, "character": 11},
-     "end": {"line": 10, "character": 18}}},
-   "label": "trace.compiler.ir.push_proj",
-   "kind": 10,
-   "detail":
-   "(false), (trace) enable/disable tracing for the given module and submodules"}],
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 13, "character": 19}}
+ "position": {"line": 13, "character": 17}}
 {"items":
  [{"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.pp.analyze",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.pp.analyze",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.pp.analyze.annotate",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.pp.analyze.annotate",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.pp.analyze.error",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.pp.analyze.error",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.pp.analyze.tryUnify",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.pp.analyze.tryUnify",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.PrettyPrinter",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.PrettyPrinter",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.PrettyPrinter.parenthesize",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.PrettyPrinter.parenthesize",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.PrettyPrinter.delab",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.PrettyPrinter.delab",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
+     "end": {"line": 13, "character": 17}},
     "newText": "trace.PrettyPrinter.format",
     "insert":
     {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
+     "end": {"line": 13, "character": 17}}},
    "label": "trace.PrettyPrinter.format",
    "kind": 10,
    "detail":
@@ -457,239 +220,119 @@
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.Elab.postpone",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.Elab.postpone",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.Meta.isLevelDefEq.postponed",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.Meta.isLevelDefEq.postponed",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}},
-    "newText": "trace.compiler.ir.push_proj",
-    "insert":
-    {"start": {"line": 13, "character": 11},
-     "end": {"line": 13, "character": 19}}},
-   "label": "trace.compiler.ir.push_proj",
-   "kind": 10,
-   "detail":
-   "(false), (trace) enable/disable tracing for the given module and submodules"}],
- "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 16, "character": 23}}
-{"items":
- [{"textEdit":
-   {"replace":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}},
-    "newText": "trace.pp.analyze",
-    "insert":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}}},
-   "label": "trace.pp.analyze",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}},
-    "newText": "trace.pp.analyze.annotate",
-    "insert":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}}},
-   "label": "trace.pp.analyze.annotate",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}},
-    "newText": "trace.pp.analyze.error",
-    "insert":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}}},
-   "label": "trace.pp.analyze.error",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}},
-    "newText": "trace.pp.analyze.tryUnify",
-    "insert":
-    {"start": {"line": 16, "character": 11},
-     "end": {"line": 16, "character": 23}}},
-   "label": "trace.pp.analyze.tryUnify",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
- "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 19, "character": 27}}
-{"items":
- [{"textEdit":
-   {"replace":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}},
-    "newText": "trace.pp.analyze",
-    "insert":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}}},
-   "label": "trace.pp.analyze",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}},
-    "newText": "trace.pp.analyze.annotate",
-    "insert":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}}},
-   "label": "trace.pp.analyze.annotate",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}},
-    "newText": "trace.pp.analyze.error",
-    "insert":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}}},
-   "label": "trace.pp.analyze.error",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"},
-  {"textEdit":
-   {"replace":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}},
-    "newText": "trace.pp.analyze.tryUnify",
-    "insert":
-    {"start": {"line": 19, "character": 11},
-     "end": {"line": 19, "character": 27}}},
-   "label": "trace.pp.analyze.tryUnify",
-   "kind": 10,
-   "detail":
-   "(false), enable/disable tracing for the given module and submodules"}],
- "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 22, "character": 13}}
-{"items":
- [{"textEdit":
-   {"replace":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}},
+     "end": {"line": 13, "character": 17}},
     "newText": "format.indent",
     "insert":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}}},
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}},
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
     "newText": "format.unicode",
     "insert":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}}},
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
    "label": "format.unicode",
    "kind": 10,
    "detail": "(true), unicode characters"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}},
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
     "newText": "format.width",
     "insert":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}}},
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
    "label": "format.width",
    "kind": 10,
    "detail": "(120), indentation"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}},
-    "newText": "trace.PrettyPrinter.format",
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
+    "newText": "trace.PrettyPrinter.format.backtrack",
     "insert":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}}},
-   "label": "trace.PrettyPrinter.format",
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}},
-    "newText": "trace.Meta.isDefEq.foApprox",
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}},
+    "newText": "trace.PrettyPrinter.format.input",
     "insert":
-    {"start": {"line": 22, "character": 11},
-     "end": {"line": 22, "character": 13}}},
-   "label": "trace.Meta.isDefEq.foApprox",
+    {"start": {"line": 13, "character": 11},
+     "end": {"line": 13, "character": 17}}},
+   "label": "trace.PrettyPrinter.format.input",
    "kind": 10,
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completionOption.lean"},
- "position": {"line": 25, "character": 18}}
+ "position": {"line": 16, "character": 18}}
 {"items":
  [{"textEdit":
    {"replace":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
     "newText": "format.indent",
     "insert":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
    "label": "format.indent",
    "kind": 10,
    "detail": "(2), indentation"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
     "newText": "format.unicode",
     "insert":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
    "label": "format.unicode",
    "kind": 10,
    "detail": "(true), unicode characters"},
   {"textEdit":
    {"replace":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
     "newText": "format.width",
     "insert":
-    {"start": {"line": 25, "character": 11},
-     "end": {"line": 25, "character": 18}}},
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
    "label": "format.width",
    "kind": 10,
-   "detail": "(120), indentation"}],
+   "detail": "(120), indentation"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
+    "newText": "trace.PrettyPrinter.format.backtrack",
+    "insert":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
+   "label": "trace.PrettyPrinter.format.backtrack",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"},
+  {"textEdit":
+   {"replace":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}},
+    "newText": "trace.PrettyPrinter.format.input",
+    "insert":
+    {"start": {"line": 16, "character": 11},
+     "end": {"line": 16, "character": 18}}},
+   "label": "trace.PrettyPrinter.format.input",
+   "kind": 10,
+   "detail":
+   "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}

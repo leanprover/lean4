@@ -31,7 +31,7 @@ private partial def antiquote (vars : Array Syntax) : Syntax → Syntax
     | `($f:ident $_args*) | `($f:ident) =>
       attrs.getElems.map fun stx => Unhygienic.run do
         if let `(attrInstance| $attr:ident) := stx then
-          if attr.getId.eraseMacroScopes == `inheritDoc then
+          if attr.getId.eraseMacroScopes == `inherit_doc then
             return ← `(attrInstance| $attr:ident $f:ident)
         pure ⟨stx⟩
     | _ => attrs
@@ -106,7 +106,7 @@ def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Ma
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)
   let lhs := Syntax.mkApp lhs (.mk args)
-  `(@[$attrKind appUnexpander $(mkIdent c)]
+  `(@[$attrKind app_unexpander $(mkIdent c)]
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs)             => withRef f `($pat)
       -- must be a separate case as the LHS and RHS above might not be `app` nodes
@@ -155,7 +155,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   | some delabDecl => return mkNullNode #[stxDecl, macroDecls, delabDecl]
   | none           => return mkNullNode #[stxDecl, macroDecls]
 
-@[builtinMacro Lean.Parser.Command.notation] def expandNotation : Macro
+@[builtin_macro Lean.Parser.Command.notation] def expandNotation : Macro
   | stx@`($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       notation $[: $prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $items* => $rhs) => do
     -- trigger scoped checks early and only once

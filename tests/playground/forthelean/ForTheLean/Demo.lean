@@ -8,7 +8,7 @@ open Prelim
 -- {{{ [synonym]
 syntax variant := "-"? wlexem
 syntax [synonym] "[synonym " wlexem ("/" (wlexem <|> variant))+ "]" : command
-@[commandElab synonym]
+@[command_elab synonym]
 def elabSynonym : CommandElab :=
 fun stx => match_syntax stx with
 | `([synonym $w:ident/ -$w':ident]) => modifyEnv $ fun env => addSynonym env w.getId (w.getId.appendAfter w'.getId.toString)

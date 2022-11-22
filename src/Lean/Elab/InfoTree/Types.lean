@@ -55,6 +55,12 @@ inductive CompletionInfo where
   | tactic (stx : Syntax) (goals : List MVarId)
   -- TODO `import`
 
+/-- Info for an option reference (e.g. in `set_option`). -/
+structure OptionInfo where
+  stx : Syntax
+  optionName : Name
+  declName : Name
+
 structure FieldInfo where
   /-- Name of the projection. -/
   projName  : Name
@@ -126,6 +132,7 @@ inductive Info where
   | ofTermInfo (i : TermInfo)
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
+  | ofOptionInfo (i : OptionInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
   | ofUserWidgetInfo (i : UserWidgetInfo)

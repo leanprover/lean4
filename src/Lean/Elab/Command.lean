@@ -55,7 +55,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 
 Remark: see comment at TermElabM
 -/
-@[alwaysInline]
+@[always_inline]
 instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
 
 def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options := {}) : State := {
@@ -81,7 +81,7 @@ instance : MonadEnv CommandElabM where
   getEnv := do pure (← get).env
   modifyEnv f := modify fun s => { s with env := f s.env }
 
-@[alwaysInline]
+@[always_inline]
 instance : MonadOptions CommandElabM where
   getOptions := do pure (← get).scopes.head!.opts
 
@@ -220,9 +220,9 @@ instance : MonadQuotation CommandElabM where
   withFreshMacroScope := Command.withFreshMacroScope
 
 unsafe def mkCommandElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute CommandElab) :=
-  mkElabAttribute CommandElab `builtinCommandElab `commandElab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
+  mkElabAttribute CommandElab `builtin_command_elab `command_elab `Lean.Parser.Command `Lean.Elab.Command.CommandElab "command" ref
 
-@[implementedBy mkCommandElabAttributeUnsafe]
+@[implemented_by mkCommandElabAttributeUnsafe]
 opaque mkCommandElabAttribute (ref : Name) : IO (KeyedDeclsAttribute CommandElab)
 
 builtin_initialize commandElabAttribute : KeyedDeclsAttribute CommandElab ← mkCommandElabAttribute decl_name%
@@ -339,12 +339,13 @@ private def mkMetaContext : Meta.Context := {
   config := { foApprox := true, ctxApprox := true, quasiPatternApprox := true }
 }
 
+open Lean.Parser.Term in
 /-- Return identifier names in the given bracketed binder. -/
 def getBracketedBinderIds : Syntax → Array Name
-  | `(bracketedBinder|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
-  | `(bracketedBinder|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
-  | `(bracketedBinder|[$id : $_])                     => #[id.getId]
-  | `(bracketedBinder|[$_])                           => #[Name.anonymous]
+  | `(bracketedBinderF|($ids* $[: $ty?]? $(_annot?)?)) => ids.map Syntax.getId
+  | `(bracketedBinderF|{$ids* $[: $ty?]?})             => ids.map Syntax.getId
+  | `(bracketedBinderF|[$id : $_])                     => #[id.getId]
+  | `(bracketedBinderF|[$_])                           => #[Name.anonymous]
   | _                                                 => #[]
 
 private def mkTermContext (ctx : Context) (s : State) : Term.Context := Id.run do

@@ -11,7 +11,7 @@ open Lean
 open Lean.Parser
 
 -- for declaring simple parsers I can still use within other `syntax`
-@[commandParser] def syntaxAbbrev := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
+@[command_parser] def syntaxAbbrev := parser! "syntax " >> ident >> " := " >> many1 syntaxParser
 @[macro syntaxAbbrev] def elabSyntaxAbbrev : Macro :=
 fun stx => match_syntax stx with
 | `(syntax $id := $p*) => `(declare_syntax_cat $id  syntax:0 $p* : $id)
@@ -48,7 +48,7 @@ open Lean.Elab.Command
 open Prelim
 
 syntax [type_of] "type_of" term:max : term
-@[termElab «type_of»]
+@[term_elab «type_of»]
 def elabTypeOf : Term.TermElab :=
 fun stx _ => match_syntax stx with
 | `(type_of $e) =>
@@ -56,7 +56,7 @@ fun stx _ => match_syntax stx with
 | _ => Term.throwUnsupportedSyntax
 
 syntax [syntax_synonyms] "syntax_synonyms" "[" ident "]" «syntax»+ ":" ident : command
-@[commandElab «syntax_synonyms»] def elabSyntaxSynonyms : CommandElab :=
+@[command_elab «syntax_synonyms»] def elabSyntaxSynonyms : CommandElab :=
 fun stx => match_syntax stx with
 | `(syntax_synonyms [$kind] $stxs* : $cat) =>
   -- TODO: do notation

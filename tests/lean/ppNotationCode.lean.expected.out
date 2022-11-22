@@ -16,11 +16,10 @@
         let mainModule ← Lean.getMainModule
         pure
             { raw :=
-                  Lean.Syntax.node info `Lean.Parser.Term.app
-                    #[Lean.Syntax.ident info (String.toSubstring' "Nat.add")
-                        (Lean.addMacroScope mainModule `Nat.add scp)
-                        [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add],
-                      Lean.Syntax.node info `null #[lhs.raw, rhs.raw]] }.raw
+                  Lean.Syntax.node2 info `Lean.Parser.Term.app
+                    (Lean.Syntax.ident info (String.toSubstring' "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
+                      [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add])
+                    (Lean.Syntax.node2 info `null lhs.raw rhs.raw) }.raw
       else
         let_fun __discr := x;
         throw Lean.Macro.Exception.unsupportedSyntax
@@ -41,7 +40,7 @@
               let info ← Lean.MonadRef.mkInfoFromRefPos
               let _ ← Lean.getCurrMacroScope
               let _ ← Lean.getMainModule
-              pure { raw := Lean.Syntax.node info `term_+++_ #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw] }.raw
+              pure { raw := Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw }.raw
           else
             let_fun __discr := Lean.Syntax.getArg __discr 1;
             throw ()
@@ -65,9 +64,9 @@
                   let _ ← Lean.getMainModule
                   pure
                       { raw :=
-                            Lean.Syntax.node info `Lean.Parser.Term.app
-                              #[Lean.Syntax.node info `term_+++_ #[lhs.raw, Lean.Syntax.atom info "+++", rhs.raw],
-                                Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))] }.raw
+                            Lean.Syntax.node2 info `Lean.Parser.Term.app
+                              (Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw)
+                              (Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))) }.raw
               else
                 let_fun __discr_5 := Lean.Syntax.getArg __discr_2 1;
                 let_fun __discr := Lean.Syntax.getArg __discr 1;

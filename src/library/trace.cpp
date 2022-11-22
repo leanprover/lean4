@@ -20,8 +20,8 @@ MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 LEAN_THREAD_PTR(environment,           g_env);
 LEAN_THREAD_PTR(options,               g_opts);
 
-void register_trace_class(name const & n) {
-    register_option(name("trace") + n, data_value_kind::Bool, "false",
+void register_trace_class(name const & n, name const & decl_name) {
+    register_option(name("trace") + n, decl_name, data_value_kind::Bool, "false",
                     "(trace) enable/disable tracing for the given module and submodules");
     g_trace_classes->insert(n);
 }
@@ -181,10 +181,6 @@ std::string pp_expr(environment const & env, options const & opts, local_ctx con
 std::string pp_expr(environment const & env, options const & opts, expr const & e) {
     local_ctx lctx;
     return pp_expr(env, opts, lctx, e);
-}
-
-void trace_expr(environment const & env, options const & opts, expr const & e) {
-    tout() << pp_expr(env, opts, e);
 }
 
 std::string trace_pp_expr(expr const & e) {

@@ -151,6 +151,10 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
 
 private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   let cfg := (← read).config
+  if e.getAppFn.isMVar then
+    let e' ← instantiateMVars e
+    if e' != e then
+      return (← reduce e')
   if cfg.beta then
     let e' := e.headBeta
     if e' != e then
@@ -488,7 +492,11 @@ where
         let val ← mkLambdaFVars zs r.expr
         unless (← isDefEq m val) do
           throwCongrHypothesisFailed
-        unless (← isDefEq h (← mkLambdaFVars xs (← r.getProof))) do
+        let mut proof ← r.getProof
+        if hType.isAppOf ``Iff then
+          try proof ← mkIffOfEq proof
+          catch _ => throwCongrHypothesisFailed
+        unless (← isDefEq h (← mkLambdaFVars xs proof)) do
           throwCongrHypothesisFailed
         /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
            assumed `dsimp` would also be able to simplify the term, but this is not true
@@ -515,6 +523,7 @@ where
     let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
     if c.hypothesesPos.any (· ≥ xs.size) then
       return none
+    let isIff := type.isAppOf ``Iff
     let lhs := type.appFn!.appArg!
     let rhs := type.appArg!
     let numArgs := lhs.getAppNumArgs
@@ -545,7 +554,13 @@ where
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs
-      let proof ← instantiateMVars (mkAppN thm xs)
+      let mut proof ← instantiateMVars (mkAppN thm xs)
+      if isIff then
+        try proof ← mkAppM ``propext #[proof]
+        catch _ => return none
+      if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
+        trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
+        return none
       congrArgs { expr := eNew, proof? := proof } extraArgs
     else
       return none
@@ -690,9 +705,31 @@ where
       modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
     return r
 
+@[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
+  /-
+  We set `ignoreLevelMVarDepth := false` because we don't want a `simp` theorem to constraint a universe level metavariable.
+  For example, consider the following example from issue #1829
+  ```
+  @[simp] theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
+  ⟨fun _ => ⟨⟩, fun _ => (Subsingleton.elim ..)⟩
+
+  structure Func' (α : Sort _) (β : Sort _) :=
+  (toFun    : α → β)
+
+  def r : Func' α α := ⟨id⟩
+
+  example (x y : α) (h : x = y) : r.toFun x = y := by simp <;> rw [h]
+  ```
+  `α` has type `Sort ?u`. If `ignoreLevelMVarDepth := true`, then `eq_iff_true_of_subsingleton` is applicable
+  by setting `?u := 0` and using instance `instance (p : Prop) : Subsingleton p`.
+  Moreover, the assignment is lost since `simp`, and a type error is produced later. Even if we prevented the assignment
+  from being lost, the situation is far from ideal since `simp` would be restricting the universe level.
+  -/
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct, ignoreLevelMVarDepth := false }) <| withReducible x
+
 def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Result × UsedSimps) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
+  withSimpConfig ctx do
     try
       let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
       pure (r, s.usedTheorems)
@@ -700,7 +737,7 @@ def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Met
       if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Expr × UsedSimps) := do
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible do
+  withSimpConfig ctx do
     try
       let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
       pure (r, s.usedTheorems)
@@ -824,7 +861,7 @@ def dsimp (e : Expr) (ctx : Simp.Context)
 
 /--
   Auxiliary method.
-  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equaal to the current one.
+  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equal to the current one.
 -/
 def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) : MetaM MVarId := do
   match r.proof? with

@@ -30,7 +30,7 @@ def getMaxHeartbeats (opts : Options) : Nat :=
   synthInstance.maxHeartbeats.get opts * 1000
 
 builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
-  registerTagAttribute `inferTCGoalsRL "instruct type class resolution procedure to solve goals from right to left for this instance"
+  registerTagAttribute `infer_tc_goals_rl "instruct type class resolution procedure to solve goals from right to left for this instance"
 
 def hasInferTCGoalsRLAttribute (env : Environment) (constName : Name) : Bool :=
   inferTCGoalsRLAttr.hasTag env constName
@@ -89,7 +89,7 @@ structure State where
 
 abbrev M := StateM State
 
-@[alwaysInline]
+@[always_inline]
 instance : MonadMCtx M where
   getMCtx := return (← get).mctx
   modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
@@ -324,7 +324,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
 def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
   let mvar ← instantiateMVars mvar
   if !(← hasAssignableMVar mvar) then
-    /- The metavariable `mvar` may have been assinged when solving typing constraints.
+    /- The metavariable `mvar` may have been assigned when solving typing constraints.
        This may happen when a local instance type depends on other local instances.
        For example, in Mathlib, we have
        ```
@@ -441,11 +441,11 @@ private def hasUnusedArguments : Expr → Bool
   When we look for such an instance it is enough to look for an instance `c : C` and then return `fun _ => c`.
 
   Tomas' approach makes sure that instance of a type like `a : A → C` never gets tabled/cached. More on that later.
-  At the core is the this methos. it takes an expression E and does two things:
+  At the core is this method. it takes an expression E and does two things:
 
   The modification to TC resolution works this way: We are looking for an instance of `E`, if it is tabled
   just get it as normal, but if not first remove all unused arguments producing `E'`. Now we look up the table again but
-  for `E'`. If it exists, use the transforme to create E. If it does not exists, create a new goal `E'`.
+  for `E'`. If it exists, use the transformer to create E. If it does not exists, create a new goal `E'`.
 -/
 private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM (Option (Expr × Expr)) :=
   withMCtx mctx do
@@ -668,7 +668,6 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   -/
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false,
-                                          ignoreLevelMVarDepth := true,
                                           etaStruct := .notClasses }) do
     let type ← instantiateMVars type
     let type ← preprocess type

@@ -114,3 +114,7 @@ syntax "foo" term : term
   | `(a) => pure "0"
   | `(b) => pure "1"
   | _    => pure "2"
+
+declare_syntax_cat mycat
+syntax "mystx" : mycat
+#eval run `(mycat| mystx)

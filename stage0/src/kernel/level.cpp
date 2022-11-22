@@ -363,60 +363,6 @@ std::ostream & operator<<(std::ostream & out, level const & l) {
     return out;
 }
 
-format pp(level l, bool unicode, unsigned indent);
-
-static format pp_child(level const & l, bool unicode, unsigned indent) {
-    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
-        return pp(l, unicode, indent);
-    } else {
-        return paren(pp(l, unicode, indent));
-    }
-}
-
-format pp(level l, bool unicode, unsigned indent) {
-    if (is_explicit(l)) {
-        return format(get_depth(l));
-    } else {
-        switch (kind(l)) {
-        case level_kind::Zero:
-            lean_unreachable(); // LCOV_EXCL_LINE
-        case level_kind::Param:
-            return format(param_id(l));
-        case level_kind::MVar:
-            return format("?") + format(mvar_id(l));
-        case level_kind::Succ: {
-            auto p    = to_offset(l);
-            auto fmt1 = pp_child(p.first, unicode, indent);
-            return fmt1 + format("+") + format(p.second);
-        }
-        case level_kind::Max: case level_kind::IMax: {
-            format r = format(is_max(l) ? "max" : "imax");
-            r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            // max and imax are right associative
-            while (kind(level_rhs(l)) == kind(l)) {
-                l = level_rhs(l);
-                r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            }
-            r += nest(indent, compose(line(), pp_child(level_rhs(l), unicode, indent)));
-            return group(r);
-        }}
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-}
-
-format pp(level const & l, options const & opts) {
-    return pp(l, get_pp_unicode(opts), get_pp_indent(opts));
-}
-
-format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent) {
-    format leq = unicode ? format("≤") : format("<=");
-    return group(pp(lhs, unicode, indent) + space() + leq + line() + pp(rhs, unicode, indent));
-}
-
-format pp(level const & lhs, level const & rhs, options const & opts) {
-    return pp(lhs, rhs, get_pp_unicode(opts), get_pp_indent(opts));
-}
-
 // A total order on level expressions that has the following properties
 //  - succ(l) is an immediate successor of l.
 //  - zero is the minimal element.
@@ -492,7 +438,7 @@ level normalize(level const & l) {
     case level_kind::IMax: {
         auto l1 = normalize(imax_lhs(r));
         auto l2 = normalize(imax_rhs(r));
-        return mk_imax(l1, l2);
+        return mk_succ(mk_imax(l1, l2), p.second);
     }
     case level_kind::Max: {
         buffer<level> todo;

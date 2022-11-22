@@ -94,7 +94,7 @@ inductive Level where
   | param  : Name → Level
   | mvar   : LMVarId → Level
 with
-  @[computedField] data : Level → Data
+  @[computed_field] data : Level → Data
     | .zero => mkData 2221 0 false false
     | .mvar mvarId => mkData (mixHash 2237 <| hash mvarId) 0 true false
     | .param name => mkData (mixHash 2239 <| hash name) 0 false true
@@ -533,7 +533,7 @@ the compiler will eliminate the double-match.
   | succ l => if ptrEq l newLvl then lvl else mkLevelSucc newLvl
   | _      => panic! "succ level expected"
 
-@[implementedBy updateSucc!Impl]
+@[implemented_by updateSucc!Impl]
 def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
   match lvl with
   | succ _ => mkLevelSucc newLvl
@@ -544,7 +544,7 @@ def updateSucc! (lvl : Level) (newLvl : Level) : Level :=
   | max lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelMax' newLhs newRhs lvl else mkLevelMax' newLhs newRhs
   | _           => panic! "max level expected"
 
-@[implementedBy updateMax!Impl]
+@[implemented_by updateMax!Impl]
 def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
   | max _ _ => mkLevelMax' newLhs newRhs
@@ -555,7 +555,7 @@ def updateMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   | imax lhs rhs => if ptrEq lhs newLhs && ptrEq rhs newRhs then simpLevelIMax' newLhs newRhs lvl else mkLevelIMax' newLhs newRhs
   | _            => panic! "imax level expected"
 
-@[implementedBy updateIMax!Impl]
+@[implemented_by updateIMax!Impl]
 def updateIMax! (lvl : Level) (newLhs : Level) (newRhs : Level) : Level :=
   match lvl with
   | imax _ _ => mkLevelIMax' newLhs newRhs
@@ -566,17 +566,26 @@ def mkNaryMax : List Level → Level
   | [u]   => u
   | u::us => mkLevelMax' u (mkNaryMax us)
 
-/- Level to Format -/
+@[specialize] def substParams (u : Level) (s : Name → Option Level) : Level :=
+  go u
+where
+  go (u : Level) : Level :=
+    match u with
+    | .zero       => u
+    | .succ v     => if u.hasParam then u.updateSucc! (go v) else u
+    | .max v₁ v₂  => if u.hasParam then u.updateMax! (go v₁) (go v₂) else u
+    | .imax v₁ v₂ => if u.hasParam then u.updateIMax! (go v₁) (go v₂) else u
+    | .param n    => match s n with
+      | some u' => u'
+      | none    => u
+    | u => u
 
-@[specialize] def instantiateParams (s : Name → Option Level) : Level → Level
-  | u@(zero)       => u
-  | u@(succ v)     => if u.hasParam then u.updateSucc! (instantiateParams s v) else u
-  | u@(max v₁ v₂)  => if u.hasParam then u.updateMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
-  | u@(imax v₁ v₂) => if u.hasParam then u.updateIMax! (instantiateParams s v₁) (instantiateParams s v₂) else u
-  | u@(param n)    => match s n with
-    | some u' => u'
-    | none    => u
-  | u           => u
+def getParamSubst : List Name → List Level → Name → Option Level
+  | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
+  | _,     _,     _  => none
+
+def instantiateParams (u : Level) (paramNames : List Name) (vs : List Level) : Level :=
+  u.substParams (getParamSubst paramNames vs)
 
 def geq (u v : Level) : Bool :=
   go u.normalize v.normalize

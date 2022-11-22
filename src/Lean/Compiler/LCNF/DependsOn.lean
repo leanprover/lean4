@@ -12,19 +12,32 @@ private abbrev M := ReaderT FVarIdSet Id
 private def fvarDepOn (fvarId : FVarId) : M Bool :=
   return (← read).contains fvarId
 
-private def exprDepOn (e : Expr) : M Bool := do
+private def typeDepOn (e : Expr) : M Bool := do
   let s ← read
   return e.hasAnyFVar fun fvarId => s.contains fvarId
 
+private def argDepOn (a : Arg) : M Bool := do
+  match a with
+  | .erased => return false
+  | .fvar fvarId => fvarDepOn fvarId
+  | .type e => typeDepOn e
+
+private def letValueDepOn (e : LetValue) : M Bool :=
+  match e with
+  | .erased | .value .. => return false
+  | .proj _ _ fvarId => fvarDepOn fvarId
+  | .fvar fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
+  | .const _ _ args => args.anyM argDepOn
+
 private def LetDecl.depOn (decl : LetDecl) : M Bool :=
-  exprDepOn decl.type <||> exprDepOn decl.value
+  typeDepOn decl.type <||> letValueDepOn decl.value
 
 private partial def depOn (c : Code) : M Bool :=
   match c with
   | .let decl k => decl.depOn <||> depOn k
-  | .jp decl k | .fun decl k => exprDepOn decl.type <||> depOn decl.value <||> depOn k
-  | .cases c => exprDepOn c.resultType <||> fvarDepOn c.discr <||> c.alts.anyM fun alt => depOn alt.getCode
-  | .jmp fvarId args => fvarDepOn fvarId <||> args.anyM exprDepOn
+  | .jp decl k | .fun decl k => typeDepOn decl.type <||> depOn decl.value <||> depOn k
+  | .cases c => typeDepOn c.resultType <||> fvarDepOn c.discr <||> c.alts.anyM fun alt => depOn alt.getCode
+  | .jmp fvarId args => fvarDepOn fvarId <||> args.anyM argDepOn
   | .return fvarId => fvarDepOn fvarId
   | .unreach _ => return false
 
@@ -32,7 +45,7 @@ abbrev LetDecl.dependsOn (decl : LetDecl) (s : FVarIdSet) :  Bool :=
   decl.depOn s
 
 abbrev FunDecl.dependsOn (decl : FunDecl) (s : FVarIdSet) :  Bool :=
-  exprDepOn decl.type s || depOn decl.value s
+  typeDepOn decl.type s || depOn decl.value s
 
 def CodeDecl.dependsOn (decl : CodeDecl) (s : FVarIdSet) : Bool :=
   match decl with

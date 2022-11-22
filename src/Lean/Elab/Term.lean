@@ -3,11 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Deprecated
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
-
+import Lean.Linter.Deprecated
 import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
@@ -226,13 +225,8 @@ abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 whole monad stack at every use site. May eventually be covered by `deriving`.
-
-TODO: this trick does not work in the old/new code generators anymore.
-TODO: figure out a way to instruct the compiler to optimize this code once,
-and then lambda lift all methods once. Perhaps, we should do it whenever the
-instance is marked as alwaysInline.
 -/
-@[alwaysInline]
+@[always_inline]
 instance : Monad TermElabM :=
   let i := inferInstanceAs (Monad TermElabM)
   { pure := i.pure, bind := i.bind }
@@ -369,9 +363,9 @@ def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with saveRecAppSyntax := false }) x
 
 unsafe def mkTermElabAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute TermElab) :=
-  mkElabAttribute TermElab `builtinTermElab `termElab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
+  mkElabAttribute TermElab `builtin_term_elab `term_elab `Lean.Parser.Term `Lean.Elab.Term.TermElab "term" ref
 
-@[implementedBy mkTermElabAttributeUnsafe]
+@[implemented_by mkTermElabAttributeUnsafe]
 opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
@@ -606,7 +600,7 @@ def mkFreshBinderName [Monad m] [MonadQuotation m] : m Name :=
   Auxiliary method for creating a `Syntax.ident` containing
   a fresh name. This method is intended for creating fresh binder names.
   It is just a thin layer on top of `mkFreshUserName`. -/
-def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Syntax :=
+def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false) : m Ident :=
   return mkIdentFrom ref (← mkFreshBinderName) canonical
 
 private def applyAttributesCore
@@ -618,11 +612,24 @@ private def applyAttributesCore
     match getAttributeImpl env attr.name with
     | Except.error errMsg => throwError errMsg
     | Except.ok attrImpl  =>
+      let runAttr := attrImpl.add declName attr.stx attr.kind
+      let runAttr := do
+        -- not truly an elaborator, but a sensible target for go-to-definition
+        let elaborator := attrImpl.ref
+        if (← getInfoState).enabled && (← getEnv).contains elaborator then
+          withInfoContext (mkInfo := return .ofCommandInfo { elaborator, stx := attr.stx }) do
+            try runAttr
+            finally if attr.stx[0].isIdent || attr.stx[0].isAtom then
+              -- Add an additional node over the leading identifier if there is one to make it look more function-like.
+              -- Do this last because we want user-created infos to take precedence
+              pushInfoLeaf <| .ofCommandInfo { elaborator, stx := attr.stx[0] }
+        else
+          runAttr
       match applicationTime? with
-      | none => attrImpl.add declName attr.stx attr.kind
+      | none => runAttr
       | some applicationTime =>
         if applicationTime == attrImpl.applicationTime then
-          attrImpl.add declName attr.stx attr.kind
+          runAttr
 
 /-- Apply given attributes **at** a given application time -/
 def applyAttributesAt (declName : Name) (attrs : Array Attribute) (applicationTime : AttributeApplicationTime) : TermElabM Unit :=
@@ -1388,7 +1395,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   /-
   "Match" function for auxiliary declarations that correspond to recursive definitions being defined.
   This function is used in the first-pass.
-  Note that we do not check for `localDecl.userName == giveName` in this pass as we do for regular local declarations.
+  Note that we do not check for `localDecl.userName == givenName` in this pass as we do for regular local declarations.
   Reason: consider the following example
   ```
     mutual
@@ -1489,22 +1496,42 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         let localDecl ← localDecl?
         guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
-  let rec loop (n : Name) (projs : List String) :=
+  /- 
+  We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
+  We set it to true if we found a global declaration `n` as we iterate over the `loop`.
+  Without this workaround, we would not be able to elaborate example such as
+  ```
+  def foo.aux := 1
+  def foo : Nat → Nat
+    | n => foo.aux -- should not be interpreted as `(foo).bar`
+  ```
+  See test `aStructPerfIssue.lean` for another example.
+  We skip auxiliary declarations when `projs` is not empty and `globalDeclFound` is true.
+  Remark: we did not use to have the `globalDeclFound` parameter. Without this extra check we failed
+  to elaborate
+  ```
+  example : Nat :=
+    let n := 0
+    n.succ + (m |>.succ) + m.succ
+  where
+    m := 1  
+  ```
+  See issue #1850.
+  -/
+  let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
-    /- We do not consider dot notation for local decls corresponding to recursive functions being defined.
-       The following example would not be elaborated correctly without this case.
-       ```
-        def foo.aux := 1
-        def foo : Nat → Nat
-          | n => foo.aux -- should not be interpreted as `(foo).bar`
-       ```
-    -/
-    match findLocalDecl? givenNameView (skipAuxDecl := not projs.isEmpty) with
-    | some decl => some (decl.toExpr, projs)
+    let mut globalDeclFound := globalDeclFound
+    unless globalDeclFound do 
+      let r ← resolveGlobalName givenNameView.review
+      let r := r.filter fun (_, fieldList) => fieldList.isEmpty
+      unless r.isEmpty do
+        globalDeclFound := true
+    match findLocalDecl? givenNameView (skipAuxDecl := globalDeclFound && not projs.isEmpty) with
+    | some decl => return some (decl.toExpr, projs)
     | none => match n with
-      | .str pre s => loop pre (s::projs)
-      | _ => none
-  return loop view.name []
+      | .str pre s => loop pre (s::projs) globalDeclFound
+      | _ => return none
+  loop view.name [] (globalDeclFound := false)
 
 /-- Return true iff `stx` is a `Syntax.ident`, and it is a local variable. -/
 def isLocalIdent? (stx : Syntax) : TermElabM (Option Expr) :=
@@ -1532,7 +1559,7 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM E
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
-    checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
+    Linter.checkDeprecated declName -- TODO: check is occurring too early if there are multiple alternatives. Fix if it is not ok in practice
     let const ← mkConst declName explicitLevels
     return (const, projs) :: result
 

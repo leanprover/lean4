@@ -1,1 +1,1 @@
-matchOrIssue.lean:7:10-7:13: error: invalid pattern, constructor or constant marked with '[matchPattern]' expected
+matchOrIssue.lean:7:10-7:13: error: invalid pattern, constructor or constant marked with '[match_pattern]' expected

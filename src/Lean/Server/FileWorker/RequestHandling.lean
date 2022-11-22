@@ -113,7 +113,8 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
       return #[ll]
     return #[]
 
-  if let Info.ofTermInfo ti := i then
+  match i with
+  | .ofTermInfo ti =>
     let mut expr := ti.expr
     if kind == type then
       expr ← ci.runMetaM i.lctx do
@@ -122,7 +123,7 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
     | Expr.const n .. => return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     | Expr.fvar id .. => return ← ci.runMetaM i.lctx <| locationLinksFromBinder i id
     | _ => pure ()
-  if let Info.ofFieldInfo fi := i then
+  | .ofFieldInfo fi =>
     if kind == type then
       let expr ← ci.runMetaM i.lctx do
         instantiateMVars (← Meta.inferType fi.val)
@@ -130,9 +131,12 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
         return ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
     else
       return ← ci.runMetaM i.lctx <| locationLinksFromDecl i fi.projName
-  if let Info.ofCommandInfo ⟨`import, _⟩ := i then
+  | .ofOptionInfo oi =>
+    return ← ci.runMetaM i.lctx <| locationLinksFromDecl i oi.declName
+  | .ofCommandInfo ⟨`import, _⟩ =>
     if kind == definition || kind == declaration then
       return ← ci.runMetaM i.lctx <| locationLinksFromImport i
+  | _ => pure ()
   -- If other go-tos fail, we try to show the elaborator or parser
   if let some ei := i.toElabInfo? then
     if kind == declaration && ci.env.contains ei.stx.getKind then

@@ -16,8 +16,10 @@ instance : Inhabited Options where
   default := {}
 instance : ToString Options := inferInstanceAs (ToString KVMap)
 instance : ForIn m Options (Name × DataValue) := inferInstanceAs (ForIn _ KVMap _)
+instance : BEq Options := inferInstanceAs (BEq KVMap)
 
 structure OptionDecl where
+  declName : Name := by exact decl_name%
   defValue : DataValue
   group    : String := ""
   descr    : String := ""
@@ -143,8 +145,13 @@ protected def set [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val 
 protected def setIfNotSet [KVMap.Value α] (opts : Options) (opt : Lean.Option α) (val : α) : Options :=
   if opts.contains opt.name then opts else opt.set opts val
 
-protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) : IO (Lean.Option α) := do
-  registerOption name { defValue := KVMap.Value.toDataValue decl.defValue, group := decl.group, descr := decl.descr }
+protected def register [KVMap.Value α] (name : Name) (decl : Lean.Option.Decl α) (ref : Name := by exact decl_name%) : IO (Lean.Option α) := do
+  registerOption name {
+    declName := ref
+    defValue := KVMap.Value.toDataValue decl.defValue
+    group := decl.group
+    descr := decl.descr
+  }
   return { name := name, defValue := decl.defValue }
 
 macro (name := registerBuiltinOption) doc?:(docComment)? "register_builtin_option" name:ident " : " type:term " := " decl:term : command =>

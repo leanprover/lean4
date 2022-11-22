@@ -605,6 +605,11 @@ section MainLoop
       | Message.request id method (some params) =>
         handleRequest id method (toJson params)
         mainLoop (←runClientTask)
+      | Message.response .. =>
+        -- TODO: handle client responses
+        mainLoop (←runClientTask)
+      | Message.responseError _ _ e .. =>
+        throwServerError s!"Unhandled response error: {e}"
       | Message.notification "textDocument/didChange" (some params) =>
         let p ← parseParams DidChangeTextDocumentParams (toJson params)
         let fw ← findFileWorker! p.textDocument.uri
@@ -642,8 +647,6 @@ section MainLoop
         mainLoop (←runClientTask)
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
-        mainLoop (←runClientTask)
-      | Message.response "register_ilean_watcher" _      =>
         mainLoop (←runClientTask)
       | _ => throwServerError "Got invalid JSON-RPC message"
     | ServerEvent.clientError e => throw e
@@ -689,6 +692,10 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     }
     full  := true
     range := true
+  }
+  codeActionProvider? := some {
+    resolveProvider? := true,
+    codeActionKinds? := some #["quickfix", "refactor"]
   }
 }
 

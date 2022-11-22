@@ -121,7 +121,7 @@ partial def toList (bs : ByteArray) : List UInt8 :=
   loop 0 b
 
 /-- Reference implementation for `forIn` -/
-@[implementedBy ByteArray.forInUnsafe]
+@[implemented_by ByteArray.forInUnsafe]
 protected def forIn {β : Type v} {m : Type v → Type w} [Monad m] (as : ByteArray) (b : β) (f : UInt8 → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
@@ -156,7 +156,7 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
     pure init
 
 /-- Reference implementation for `foldlM` -/
-@[implementedBy foldlMUnsafe]
+@[implemented_by foldlMUnsafe]
 def foldlM {β : Type v} {m : Type v → Type w} [Monad m] (f : β → UInt8 → m β) (init : β) (as : ByteArray) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (i : Nat) (j : Nat) (b : β) : m β := do

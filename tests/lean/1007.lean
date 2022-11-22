@@ -8,7 +8,7 @@ structure ℝ where
 instance instFoo1 {X : Type u} {Y : Type v} [Vec X] [Vec Y] : Vec (X × Y) := sorry
 instance instProblem {α : Type u} {X : Type v} [Vec X] : Vec (α → X) := sorry
 
-instance (priority := mid+1) instFoo2 : Vec ℝ := sorry
+instance (priority := default+1) instFoo2 : Vec ℝ := sorry
 
 --------------
 
@@ -30,7 +30,7 @@ class SemiInner (X : Type u) (R : Type v) where
 
 class SemiHilbert (X) (R : Type u) [Vec R] extends Vec X, SemiInner X R
 
-@[inferTCGoalsRL]
+@[infer_tc_goals_rl]
 instance (X R) [Trait X] [Vec R] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
 instance : SemiHilbert ℝ ℝ := sorry
 

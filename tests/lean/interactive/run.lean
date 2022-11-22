@@ -107,6 +107,16 @@ partial def main (args : List String) : IO Unit := do
           for diag in diags do
             IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
+        | "codeAction" =>
+          let params : CodeActionParams := {
+            textDocument := {uri := uri},
+            range := ⟨pos, pos⟩
+          }
+          Ipc.writeRequest ⟨requestNo, "textDocument/codeAction", params⟩
+          let r ← Ipc.readResponseAs requestNo (Array Json)
+          for x in r.result do
+            IO.eprintln x
+          requestNo := requestNo + 1
         | "goals" =>
           if rpcSessionId.isNone then
             Ipc.writeRequest ⟨requestNo, "$/lean/rpc/connect",  RpcConnectParams.mk uri⟩

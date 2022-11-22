@@ -39,7 +39,7 @@ def checkDelab (e : Expr) (tgt? : Option Term) (name? : Option Name := none) : T
 
 syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
 
-@[commandElab testDelabTD] def elabTestDelabTD : CommandElab
+@[command_elab testDelabTD] def elabTestDelabTD : CommandElab
   | `(#testDelab $stx:term expecting $tgt:term) => liftTermElabM do withDeclName `delabTD do
      let e ← elabTerm stx none
      let e ← levelMVarToParam e
@@ -49,7 +49,7 @@ syntax (name := testDelabTD) "#testDelab " term " expecting " term : command
 
 syntax (name := testDelabTDN) "#testDelabN " ident : command
 
-@[commandElab testDelabTDN] def elabTestDelabTDN : CommandElab
+@[command_elab testDelabTDN] def elabTestDelabTDN : CommandElab
   | `(#testDelabN $name:ident) => liftTermElabM do withDeclName `delabTD do
     let name := name.getId
     let [name] ← resolveGlobalConst (mkIdent name) | throwError "cannot resolve name"
@@ -327,7 +327,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN Nat.mod_lt
 #testDelabN Array.qsort
 #testDelabN List.partition
-#testDelabN List.partitionAux
+#testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
 #testDelabN List.hasDecidableLt

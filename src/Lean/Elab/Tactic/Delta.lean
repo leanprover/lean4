@@ -27,7 +27,7 @@ def deltaTarget (declNames : Array Name) : TacticM Unit := do
   replaceMainGoal [← mvarId.replaceTargetDefEq targetNew]
 
 /-- "delta " ident+ (location)? -/
-@[builtinTactic Lean.Parser.Tactic.delta] def evalDelta : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.delta] def evalDelta : Tactic := fun stx => do
   let declNames ← stx[1].getArgs.mapM resolveGlobalConstNoOverloadWithInfo
   let loc := expandOptLocation stx[2]
   withLocation loc (deltaLocalDecl declNames) (deltaTarget declNames)

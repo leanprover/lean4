@@ -10,7 +10,7 @@ open Lean.Syntax
 open Lean.Parser.Term hiding macroArg
 open Lean.Parser.Command
 
-@[builtinCommandElab Lean.Parser.Command.macro] def elabMacro : CommandElab
+@[builtin_command_elab Lean.Parser.Command.macro] def elabMacro : CommandElab
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       macro%$tk$[:$prec?]? $[(name := $name?)]? $[(priority := $prio?)]? $args:macroArg* : $cat => $rhs) =>
     -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition
@@ -33,8 +33,9 @@ open Lean.Parser.Command
       let macroRulesCmd ← if rhs.getArgs.size == 1 then
         -- `rhs` is a `term`
         let rhs := ⟨rhs[0]⟩
-        `($[$doc?:docComment]? macro_rules | `($pat) => $rhs)
+        `($[$doc?:docComment]? macro_rules | `($pat) => Functor.map (@TSyntax.raw $(quote cat.getId.eraseMacroScopes)) $rhs)
       else
+        -- TODO(gabriel): remove after bootstrap
         -- `rhs` is of the form `` `( $body ) ``
         let rhsBody := ⟨rhs[1]⟩
         `($[$doc?:docComment]? macro_rules | `($pat) => `($rhsBody))

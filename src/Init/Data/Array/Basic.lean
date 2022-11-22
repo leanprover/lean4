@@ -123,7 +123,7 @@ unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : 
   else
     pure a
 
-@[implementedBy modifyMUnsafe]
+@[implemented_by modifyMUnsafe]
 def modifyM [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
   if h : i < a.size then
     let idx := ⟨i, h⟩
@@ -158,7 +158,7 @@ def modifyOp (self : Array α) (idx : Nat) (f : α → α) : Array α :=
   loop 0 b
 
 /-- Reference implementation for `forIn` -/
-@[implementedBy Array.forInUnsafe]
+@[implemented_by Array.forInUnsafe]
 protected def forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     match i, h with
@@ -192,7 +192,7 @@ unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
     pure init
 
 /-- Reference implementation for `foldlM` -/
-@[implementedBy foldlMUnsafe]
+@[implemented_by foldlMUnsafe]
 def foldlM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
   let fold (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (i : Nat) (j : Nat) (b : β) : m β := do
@@ -229,7 +229,7 @@ unsafe def foldrMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Mon
     pure init
 
 /-- Reference implementation for `foldrM` -/
-@[implementedBy foldrMUnsafe]
+@[implemented_by foldrMUnsafe]
 def foldrM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → β → m β) (init : β) (as : Array α) (start := as.size) (stop := 0) : m β :=
   let rec fold (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
     if i == stop then
@@ -267,7 +267,7 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
   unsafeCast <| map 0 (unsafeCast as)
 
 /-- Reference implementation for `mapM` -/
-@[implementedBy mapMUnsafe]
+@[implemented_by mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
   as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
 
@@ -327,7 +327,7 @@ unsafe def anyMUnsafe {α : Type u} {m : Type → Type w} [Monad m] (p : α → 
   else
     pure false
 
-@[implementedBy anyMUnsafe]
+@[implemented_by anyMUnsafe]
 def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
   let any (stop : Nat) (h : stop ≤ as.size) :=
     let rec loop (j : Nat) : m Bool := do
@@ -496,7 +496,7 @@ end Array
 
 export Array (mkArray)
 
-syntax "#[" sepBy(term, ", ") "]" : term
+syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term
 
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
@@ -627,7 +627,7 @@ def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 @[simp] theorem size_pop (a : Array α) : a.pop.size = a.size - 1 := by
   match a with
   | ⟨[]⟩ => rfl
-  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub]
+  | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
 
 theorem reverse.termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
   rw [Nat.sub_sub, Nat.add_comm]

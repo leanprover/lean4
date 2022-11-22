@@ -122,21 +122,34 @@ def widening (env : Environment) (v₁ v₂ : Value) : Value :=
 
 end Value
 
-abbrev FunctionSummaries := SMap FunId Value
+abbrev FunctionSummaries := PHashMap FunId Value
+
+private abbrev declLt (a b : FunId × Value) :=
+  Name.quickLt a.1 b.1
+
+private abbrev sortEntries (entries : Array (FunId × Value)) : Array (FunId × Value) :=
+  entries.qsort declLt
+
+private abbrev findAtSorted? (entries : Array (FunId × Value)) (fid : FunId) : Option Value :=
+  if let some (_, value) := entries.binSearch (fid, default) declLt then
+    some value
+  else
+    none
 
 builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) FunctionSummaries ←
   registerSimplePersistentEnvExtension {
-    addImportedFn := fun as =>
-      let cache : FunctionSummaries := mkStateFromImportedEntries (fun s (p : FunId × Value) => s.insert p.1 p.2) {} as
-      cache.switch,
+    addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
+    toArrayFn := fun s => sortEntries s.toArray
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry env (fid, v)
+  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
-  (functionSummariesExt.getState env).find? fid
+  match env.getModuleIdxFor? fid with
+  | some modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid
+  | none        => functionSummariesExt.getState env |>.find? fid
 
 abbrev Assignment := HashMap VarId Value
 

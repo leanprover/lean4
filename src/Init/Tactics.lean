@@ -199,7 +199,7 @@ syntax (name := failIfSuccess) "fail_if_success " tacticSeq : tactic
 the goal be closed at the end like `· tacs`. Like `by` itself, the tactics
 can be either separated by newlines or `;`.
 -/
-syntax (name := paren) "(" tacticSeq ")" : tactic
+syntax (name := paren) "(" withoutPosition(tacticSeq) ")" : tactic
 
 /--
 `with_reducible tacs` excutes `tacs` using the reducible transparency setting.
@@ -236,7 +236,7 @@ and push it to the front `n` times. If `n` is omitted, it defaults to `1`.
 syntax (name := rotateRight) "rotate_right" (num)? : tactic
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
-macro "try " t:tacticSeq : tactic => `(first | $t | skip)
+macro "try " t:tacticSeq : tactic => `(tactic| first | $t | skip)
 
 /--
 `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
@@ -257,13 +257,13 @@ syntax (name := refl) "eq_refl" : tactic
 This is supposed to be an extensible tactic and users can add their own support
 for new reflexive relations.
 -/
-macro "rfl" : tactic => `(eq_refl)
+macro "rfl" : tactic => `(tactic| eq_refl)
 
 /--
 `rfl'` is similar to `rfl`, but disables smart unfolding and unfolds all kinds of definitions,
 theorems included (relevant for declarations defined by well-founded recursion).
 -/
-macro "rfl'" : tactic => `(set_option smartUnfolding false in with_unfolding_all rfl)
+macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfolding_all rfl)
 
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
@@ -283,19 +283,19 @@ a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
 you can double check if a theorem depends on `sorry` by using
 `#print axioms my_thm` and looking for `sorryAx` in the axiom list.
 -/
-macro "sorry" : tactic => `(exact @sorryAx _ false)
+macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
 
 /-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(exact @sorryAx _ false)
+macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
 
 /--
 `infer_instance` is an abbreviation for `exact inferInstance`.
 It synthesizes a value of any target type by typeclass inference.
 -/
-macro "infer_instance" : tactic => `(exact inferInstance)
+macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 
 /-- Optional configuration option for tactics -/
-syntax config := atomic(" (" &"config") " := " term ")"
+syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := "*"
@@ -304,7 +304,7 @@ syntax locationWildcard := "*"
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (colGt term:max)+ ("⊢" <|> "|-")?
+syntax locationHyp := (colGt term:max)+ patternIgnore("⊢" <|> "|-")?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -337,9 +337,9 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := ("← " <|> "<- ")? term
+syntax rwRule    := patternIgnore("← " <|> "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
-syntax rwRuleSeq := " [" rwRule,*,? "]"
+syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
 /--
 `rewrite [e]` applies identity `e` as a rewrite rule to the target of the main goal.
@@ -360,7 +360,7 @@ macro (name := rwSeq) "rw" c:(config)? s:rwRuleSeq l:(location)? : tactic =>
   match s with
   | `(rwRuleSeq| [$rs,*]%$rbrak) =>
     -- We show the `rfl` state on `]`
-    `(tactic| rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl)))
+    `(tactic| (rewrite $(c)? [$rs,*] $(l)?; with_annotate_state $rbrak (try (with_reducible rfl))))
   | _ => Macro.throwUnsupported
 
 /--
@@ -388,7 +388,7 @@ syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
 The discharger clause of `simp` and related tactics.
 This is a tactic used to discharge the side conditions on conditional rewrite rules.
 -/
-syntax discharger := atomic(" (" (&"discharger" <|> &"disch")) " := " tacticSeq ")"
+syntax discharger := atomic(" (" patternIgnore(&"discharger" <|> &"disch")) " := " withoutPosition(tacticSeq) ")"
 
 /-- Use this rewrite rule before entering the subterms -/
 syntax simpPre   := "↓"
@@ -400,7 +400,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := (simpPre <|> simpPost)? ("← " <|> "<- ")? term
+syntax simpLemma := (simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -426,14 +426,14 @@ non-dependent hypotheses. It has many variants:
   other hypotheses.
 -/
 syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
-  (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
 are simplified multiple times until no simplication is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
 syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
-  (" [" (simpErase <|> simpLemma),* "]")? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : tactic
 
 /--
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only
@@ -441,7 +441,7 @@ applies theorems that hold by reflexivity. Thus, the result is guaranteed to be
 definitionally equal to the input.
 -/
 syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
-  (" [" (simpErase <|> simpLemma),* "]")? (location)? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? (location)? : tactic
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
@@ -464,7 +464,7 @@ syntax (name := unfold) "unfold " (colGt ident)+ (location)? : tactic
 Auxiliary macro for lifting have/suffices/let/...
 It makes sure the "continuation" `?_` is the main goal after refining.
 -/
-macro "refine_lift " e:term : tactic => `(focus (refine no_implicit_lambda% $e; rotate_right))
+macro "refine_lift " e:term : tactic => `(tactic| focus (refine no_implicit_lambda% $e; rotate_right))
 
 /--
 `have h : t := e` adds the hypothesis `h : t` to the current goal if `e` a term
@@ -476,7 +476,7 @@ of type `t`.
   For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the
   hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "have " d:haveDecl : tactic => `(refine_lift have $d:haveDecl; ?_)
+macro "have " d:haveDecl : tactic => `(tactic| refine_lift have $d:haveDecl; ?_)
 
 /--
 Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,
@@ -485,7 +485,7 @@ Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal w
 The variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.
 If `h :` is omitted, the name `this` is used.
  -/
-macro "suffices " d:sufficesDecl : tactic => `(refine_lift suffices $d; ?_)
+macro "suffices " d:sufficesDecl : tactic => `(tactic| refine_lift suffices $d; ?_)
 /--
 `let h : t := e` adds the hypothesis `h : t := e` to the current goal if `e` a term of type `t`.
 If `t` is omitted, it will be inferred.
@@ -494,12 +494,12 @@ and it is convenient for types that have only applicable constructor.
 Example: given `h : p ∧ q ∧ r`, `let ⟨h₁, h₂, h₃⟩ := h` produces the hypotheses
 `h₁ : p`, `h₂ : q`, and `h₃ : r`.
 -/
-macro "let " d:letDecl : tactic => `(refine_lift let $d:letDecl; ?_)
+macro "let " d:letDecl : tactic => `(tactic| refine_lift let $d:letDecl; ?_)
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
  performs the unification, and replaces the target with the unified version of `t`.
 -/
-macro "show " e:term : tactic => `(refine_lift show $e from ?_) -- TODO: fix, see comment
+macro "show " e:term : tactic => `(tactic| refine_lift show $e from ?_) -- TODO: fix, see comment
 /-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
 The syntax is the same as term-mode `let rec`. -/
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
@@ -507,13 +507,13 @@ macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
 
 /-- Similar to `refine_lift`, but using `refine'` -/
-macro "refine_lift' " e:term : tactic => `(focus (refine' no_implicit_lambda% $e; rotate_right))
+macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
-macro "have' " d:haveDecl : tactic => `(refine_lift' have $d:haveDecl; ?_)
+macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
 /-- Similar to `have`, but using `refine'` -/
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(have' $x : _ := $p)
+macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x : _ := $p)
 /-- Similar to `let`, but using `refine'` -/
-macro "let' " d:letDecl : tactic => `(refine_lift' let $d:letDecl; ?_)
+macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
@@ -647,7 +647,7 @@ it is defined as `repeat sorry`.
 It is useful when working on the middle of a complex proofs,
 and less messy than commenting the remainder of the proof.
 -/
-macro "stop" tacticSeq : tactic => `(repeat sorry)
+macro "stop" tacticSeq : tactic => `(tactic| repeat sorry)
 
 /--
 The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
@@ -678,7 +678,7 @@ example : ∀ x : Nat, x = x := by unhygienic
   exact Eq.refl x  -- refer to x
 ```
 -/
-macro "unhygienic " t:tacticSeq : tactic => `(set_option tactic.hygienic false in $t)
+macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
 syntax (name := fail) "fail " (str)? : tactic
@@ -706,7 +706,7 @@ when working on a long tactic proof, by using `save` after expensive tactics.
 (TODO: do this automatically and transparently so that users don't have to use
 this combinator explicitly.)
 -/
-macro (name := save) "save" : tactic => `(skip)
+macro (name := save) "save" : tactic => `(tactic| skip)
 
 /--
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.
@@ -789,7 +789,8 @@ It is useful for referring to hypotheses without accessible names.
 `t` may contain holes that are solved by unification with the expected type;
 in particular, `‹_›` is a shortcut for `by assumption`.
 -/
-macro "‹" type:term "›" : term => `((by assumption : $type))
+syntax "‹" withoutPosition(term) "›" : term
+macro_rules | `(‹$type›) => `((by assumption : $type))
 
 /--
 `get_elem_tactic_trivial` is an extensible tactic automatically called
@@ -812,7 +813,7 @@ to prove any side conditions that arise when constructing the term
 users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 -/
 macro "get_elem_tactic" : tactic =>
-  `(first
+  `(tactic| first
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:
   - Use `have`-expressions to prove the index is valid
@@ -821,8 +822,10 @@ macro "get_elem_tactic" : tactic =>
   - Use `a[i]'h` notation instead, where `h` is a proof that index is valid"
    )
 
-@[inheritDoc getElem]
-macro:max x:term noWs "[" i:term "]" : term => `(getElem $x $i (by get_elem_tactic))
+@[inherit_doc getElem]
+syntax:max term noWs "[" withoutPosition(term) "]" : term
+macro_rules | `($x[$i]) => `(getElem $x $i (by get_elem_tactic))
 
-@[inheritDoc getElem]
-macro x:term noWs "[" i:term "]'" h:term:max : term => `(getElem $x $i $h)
+@[inherit_doc getElem]
+syntax term noWs "[" withoutPosition(term) "]'" term:max : term
+macro_rules | `($x[$i]'$h) => `(getElem $x $i $h)

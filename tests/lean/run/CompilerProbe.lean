@@ -13,7 +13,7 @@ open Lean.Compiler.LCNF
 def lambdaCounter : Probe Decl Nat :=
   Probe.filter (fun decl =>
     if let .str _ val := decl.name then
-      return val.startsWith "_lambda"
+      return val.startsWith "_lam"
     else
       return false) >=>
   Probe.declNames >=>
@@ -32,19 +32,8 @@ def lambdaCounter : Probe Decl Nat :=
 -- Find most commonly used function with threshold
 #eval
   Probe.runOnModule `Lean.Compiler.LCNF.JoinPoints (phase := .mono) <|
-  Probe.getExprs >=>
-  Probe.filter (fun e => return e.isApp && e.getAppFn.isConst) >=>
-  Probe.map (fun e => return s!"{e.getAppFn.constName!}") >=>
+  Probe.getLetValues >=>
+  Probe.filter (fun e => return e matches .const ..) >=>
+  Probe.map (fun | .const declName .. => return s!"{declName}" | _ => unreachable!) >=>
   Probe.countUniqueSorted >=>
-  Probe.filter (fun (_, count) => return count > 100)
-
--- To get that real shell feeling
-infixr:55 " | " => Bind.kleisliRight
-
-#eval
-  Probe.runOnModule `Lean.Compiler.LCNF.JoinPoints (phase := .mono) <|
-  Probe.getExprs |
-  Probe.filter (fun e => return e.isApp && e.getAppFn.isConst) |
-  Probe.map (fun e => return s!"{e.getAppFn.constName!}") |
-  Probe.countUniqueSorted |
   Probe.filter (fun (_, count) => return count > 100)

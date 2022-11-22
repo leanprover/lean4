@@ -303,7 +303,7 @@ def mkDerivingToString (typeName : Name) : CommandElabM Unit := do
 
 syntax[runTstKind] "runTst" : command
 
-@[commandElab runTstKind] def elabTst : CommandElab := fun stx =>
+@[command_elab runTstKind] def elabTst : CommandElab := fun stx =>
   mkDerivingToString `Test.Foo
 
 set_option trace.Meta.debug true

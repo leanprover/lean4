@@ -176,7 +176,8 @@ The modifier `local` specifies the scope of the macro.
 /-- The `have_eq lhs rhs` tactic (tries to) prove that `lhs = rhs`,
     and then replaces `lhs` with `rhs`. -/
 local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
-  `((have h : $lhs = $rhs :=
+  `(tactic|
+    (have h : $lhs = $rhs :=
        -- TODO: replace with linarith
        by simp_arith at *; apply Nat.le_antisymm <;> assumption
      try subst $lhs))
@@ -191,7 +192,7 @@ useful if `e` is the condition of an `if`-statement.
 -/
 /-- `by_cases' e` is a shorthand form `by_cases e <;> simp[*]` -/
 local macro "by_cases' " e:term :  tactic =>
-  `(by_cases $e <;> simp [*])
+  `(tactic| by_cases $e <;> simp [*])
 
 
 /-!

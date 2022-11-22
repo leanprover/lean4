@@ -111,6 +111,19 @@ def back (s : String) : Char :=
 def atEnd : (@& String) → (@& Pos) → Bool
   | s, p => p.byteIdx ≥ utf8ByteSize s
 
+/--
+Similar to `get` but runtime does not perform bounds check.
+-/
+@[extern "lean_string_utf8_get_fast"]
+def get' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Char :=
+  match s with
+  | ⟨s⟩ => utf8GetAux s 0 p
+
+@[extern "lean_string_utf8_next_fast"]
+def next' (s : @& String) (p : @& Pos) (h : ¬ s.atEnd p) : Pos :=
+  let c := get s p
+  p + c
+
 /- TODO: remove `partial` keywords after we restore the tactic
   framework and wellfounded recursion support -/
 

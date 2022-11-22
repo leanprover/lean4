@@ -58,3 +58,7 @@ def ssDots : Substring := "____abc.αβγ.123.____".toSubstring.extract ⟨4⟩ 
 #eval ssDots.splitOn "."
 def ssHyphs : Substring := "____abc--αβγ--123--____".toSubstring.extract ⟨4⟩ ⟨22⟩
 #eval ssHyphs.splitOn "--"
+
+#eval "αβγ".get' 0 (by decide)
+#eval "αβγ".get' ⟨2⟩ (by decide)
+#eval "αβγ".next' ⟨2⟩ (by decide)

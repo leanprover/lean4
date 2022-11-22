@@ -48,17 +48,8 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
   else match attr.getKind with
     | .str _ s => pure <| Name.mkSimple s
     | _ => throwErrorAt attr  "unknown attribute"
-  let .ok impl := getAttributeImpl (← getEnv) attrName
+  let .ok _impl := getAttributeImpl (← getEnv) attrName
     | throwError "unknown attribute [{attrName}]"
-  let attrSyntaxNodeKind := attrInstance[1].getKind
-  -- `Lean.Parser.Attr.simple` is a generic `attribute` parser used in simple attributes.
-  -- We don't want to create an info tree node from a simple attribute to the generic parser.
-  let declTarget := if attrSyntaxNodeKind == ``Lean.Parser.Attr.simple then impl.ref else attrSyntaxNodeKind
-  if (← getEnv).contains declTarget && (← getInfoState).enabled then
-    pushInfoLeaf <| .ofCommandInfo {
-      elaborator := declTarget  -- not truly an elaborator, but a sensible target for go-to-definition
-      stx        := attrInstance[1][0] -- We want to associate the information to the first atom only
-    }
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
   return { kind := attrKind, name := attrName, stx := attr }

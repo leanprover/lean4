@@ -1,0 +1,7 @@
+1781.lean:24:0-24:59: error: (kernel) declaration type mismatch, 'Univ'' has type
+  Type ((imax 1 u) + 1)
+but it is expected to have type
+  Type (imax 1 u)
+1781.lean:25:12-25:17: error: unknown identifier 'Univ''
+1781.lean:26:15-26:19: error: unknown identifier 'Univ'
+1781.lean:26:8-26:12: error: unknown identifier 'Univ'

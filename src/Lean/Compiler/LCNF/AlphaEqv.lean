@@ -19,24 +19,46 @@ def eqvFVar (fvarId₁ fvarId₂ : FVarId) : EqvM Bool := do
   let fvarId₂ := (← read).find? fvarId₂ |>.getD fvarId₂
   return fvarId₁ == fvarId₂
 
-def eqvExpr (e₁ e₂ : Expr) : EqvM Bool := do
+def eqvType (e₁ e₂ : Expr) : EqvM Bool := do
   match e₁, e₂ with
-  | .app f₁ a₁, .app f₂ a₂ => eqvExpr a₁ a₂ <&&> eqvExpr f₁ f₂
-  | .proj s₁ i₁ e₁, .proj s₂ i₂ e₂ => pure (s₁ == s₂ && i₁ == i₂) <&&> eqvExpr e₁ e₂
-  | .mdata m₁ e₁, .mdata m₂ e₂ => pure (m₁ == m₂) <&&> eqvExpr e₁ e₂
+  | .app f₁ a₁, .app f₂ a₂ => eqvType a₁ a₂ <&&> eqvType f₁ f₂
   | .fvar fvarId₁, .fvar fvarId₂ => eqvFVar fvarId₁ fvarId₂
-  | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => eqvExpr d₁ d₂ <&&> eqvExpr b₁ b₂
-  | .letE .., _ | _, .letE .. => unreachable!
+  | .forallE _ d₁ b₁ _, .forallE _ d₂ b₂ _ => eqvType d₁ d₂ <&&> eqvType b₁ b₂
   | _, _ => return e₁ == e₂
 
-def eqvExprs (es₁ es₂ : Array Expr) : EqvM Bool := do
+def eqvTypes (es₁ es₂ : Array Expr) : EqvM Bool := do
   if es₁.size = es₂.size then
     for e₁ in es₁, e₂ in es₂ do
-      unless (← eqvExpr e₁ e₂) do
+      unless (← eqvType e₁ e₂) do
         return false
     return true
   else
     return false
+
+def eqvArg (a₁ a₂ : Arg) : EqvM Bool := do
+  match a₁, a₂ with
+  | .type e₁, .type e₂ => eqvType e₁ e₂
+  | .fvar x₁, .fvar x₂ => eqvFVar x₁ x₂
+  | .erased, .erased => return true
+  | _, _ => return false
+
+def eqvArgs (as₁ as₂ : Array Arg) : EqvM Bool := do
+  if as₁.size = as₂.size then
+    for a₁ in as₁, a₂ in as₂ do
+      unless (← eqvArg a₁ a₂) do
+        return false
+    return true
+  else
+    return false
+
+def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
+  match e₁, e₂ with
+  | .value v₁, .value v₂ => return v₁ == v₂
+  | .erased, .erased => return true
+  | .proj s₁ i₁ x₁, .proj s₂ i₂ x₂ => pure (s₁ == s₂ && i₁ == i₂) <&&> eqvFVar x₁ x₂
+  | .const n₁ us₁ as₁, .const n₂ us₂ as₂ => pure (n₁ == n₂ && us₁ == us₂) <&&> eqvArgs as₁ as₂
+  | .fvar f₁ as₁, .fvar f₂ as₂ => eqvFVar f₁ f₂ <&&> eqvArgs as₁ as₂
+  | _, _ => return false
 
 @[inline] def withFVar (fvarId₁ fvarId₂ : FVarId) (x : EqvM α) : EqvM α :=
   withReader (·.insert fvarId₂ fvarId₁) x
@@ -48,7 +70,7 @@ def eqvExprs (es₁ es₂ : Array Expr) : EqvM Bool := do
         let p₁ := params₁[i]
         have : i < params₂.size := by simp_all_arith
         let p₂ := params₂[i]
-        unless (← eqvExpr p₁.type p₂.type) do return false
+        unless (← eqvType p₁.type p₂.type) do return false
         withFVar p₁.fvarId p₂.fvarId do
           go (i+1)
       else
@@ -84,20 +106,20 @@ partial def eqvAlts (alts₁ alts₂ : Array Alt) : EqvM Bool := do
 partial def eqv (code₁ code₂ : Code) : EqvM Bool := do
   match code₁, code₂ with
   | .let decl₁ k₁, .let decl₂ k₂ =>
-    eqvExpr decl₁.type decl₂.type <&&>
-    eqvExpr decl₁.value decl₂.value <&&>
+    eqvType decl₁.type decl₂.type <&&>
+    eqvLetValue decl₁.value decl₂.value <&&>
     withFVar decl₁.fvarId decl₂.fvarId (eqv k₁ k₂)
   | .fun decl₁ k₁, .fun decl₂ k₂
   | .jp decl₁ k₁, .jp decl₂ k₂ =>
-    eqvExpr decl₁.type decl₂.type <&&>
+    eqvType decl₁.type decl₂.type <&&>
     withParams decl₁.params decl₂.params (eqv decl₁.value decl₂.value) <&&>
     withFVar decl₁.fvarId decl₂.fvarId (eqv k₁ k₂)
   | .return fvarId₁, .return fvarId₂ => eqvFVar fvarId₁ fvarId₂
-  | .unreach type₁, .unreach type₂ => eqvExpr type₁ type₂
-  | .jmp fvarId₁ args₁, .jmp fvarId₂ args₂ => eqvFVar fvarId₁ fvarId₂ <&&> eqvExprs args₁ args₂
+  | .unreach type₁, .unreach type₂ => eqvType type₁ type₂
+  | .jmp fvarId₁ args₁, .jmp fvarId₂ args₂ => eqvFVar fvarId₁ fvarId₂ <&&> eqvArgs args₁ args₂
   | .cases c₁, .cases c₂ =>
     eqvFVar c₁.discr c₂.discr <&&>
-    eqvExpr c₁.resultType c₂.resultType <&&>
+    eqvType c₁.resultType c₂.resultType <&&>
     eqvAlts c₁.alts c₂.alts
   | _, _ => return false
 

@@ -754,7 +754,14 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         display_cumulative_profiling_times(std::cerr);
 
+#ifdef LEAN_SMALL_ALLOCATOR
+        // If the small allocator is not enabled, then we assume we are not using the sanitizer.
+        // Thus, we interrupt execution without garbage collecting.
+        // This is useful when profiling improvements to Lean startup time.
+        exit(ok ? 0 : 1);
+#else
         return ok ? 0 : 1;
+#endif
     } catch (lean::throwable & ex) {
         std::cerr << ex.what() << "\n";
     } catch (std::bad_alloc & ex) {

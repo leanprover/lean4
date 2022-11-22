@@ -1,6 +1,18 @@
 Unreleased
 ---------
 
+* [Introduce parser memoization to avoid exponentional behavior](https://github.com/leanprover/lean4/pull/1799).
+
+* [feat: allow `doSeq` in `let x <- e | seq`](https://github.com/leanprover/lean4/pull/1809).
+
+* [Add hover/go-to-def/refs for options](https://github.com/leanprover/lean4/pull/1783).
+
+* [Add empty type ascription syntax `(e :)`](https://github.com/leanprover/lean4/pull/1797).
+
+* [Make tokens in `<|>` relevant to syntax match](https://github.com/leanprover/lean4/pull/1744).
+
+* [Add `linter.deprecated` option to silence deprecation warnings](https://github.com/leanprover/lean4/pull/1768).
+
 * [Improve fuzzy-matching heuristics](https://github.com/leanprover/lean4/pull/1710).
 
 * [Implementation-detail hypotheses](https://github.com/leanprover/lean4/pull/1692).

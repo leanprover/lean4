@@ -7,7 +7,7 @@ namespace Lean
 universe u v w
 
 def HashSetBucket (α : Type u) :=
-  { b : Array (List α) // b.size > 0 }
+  { b : Array (List α) // b.size.isPowerOfTwo }
 
 def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) : HashSetBucket α :=
   ⟨ data.val.uset i d h,
@@ -17,21 +17,27 @@ structure HashSetImp (α : Type u) where
   size       : Nat
   buckets    : HashSetBucket α
 
-def mkHashSetImp {α : Type u} (nbuckets := 8) : HashSetImp α :=
-  let n := if nbuckets = 0 then 8 else nbuckets
-  { size       := 0,
+def mkHashSetImp {α : Type u} (capacity := 8) : HashSetImp α :=
+  { size       := 0
     buckets    :=
-    ⟨ mkArray n [],
-      by rw [Array.size_mkArray]; cases nbuckets; decide; apply Nat.zero_lt_succ ⟩ }
+    ⟨mkArray ((capacity * 4) / 3).nextPowerOfTwo [],
+     by simp; apply Nat.isPowerOfTwo_nextPowerOfTwo⟩ }
 
 namespace HashSetImp
 variable {α : Type u}
 
-def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
-  ⟨u % n, USize.modn_lt _ h⟩
+/- Remark: we use a C implementation because this function is performance critical. -/
+@[extern c inline "(size_t)(#2) & (lean_unbox(#1) - 1)"]
+private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize // u.toNat < sz } :=
+  -- TODO: avoid `if` in the reference implementation
+  let u := hash.toUSize &&& (sz.toUSize - 1)
+  if h' : u.toNat < sz then
+    ⟨u, h'⟩
+  else
+    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat, Fin.ofNat']; rw [Nat.zero_mod]; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
-  let ⟨i, h⟩ := mkIdx data.property (hashFn a |>.toUSize)
+  let ⟨i, h⟩ := mkIdx (hashFn a) data.property
   data.update i (a :: data.val[i]) h
 
 @[inline] def foldBucketsM {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (d : δ) (f : δ → α → m δ) : m δ :=
@@ -55,13 +61,13 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].find? (fun a' => a == a')
 
 def contains [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
   match m with
   | ⟨_, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].contains a
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : HashSetBucket α) : HashSetBucket α :=
@@ -77,16 +83,17 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : Has
 termination_by _ i source _ => source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
-  let nbuckets := buckets.val.size * 2
-  have : nbuckets > 0 := Nat.mul_pos buckets.property (by decide)
-  let new_buckets : HashSetBucket α := ⟨mkArray nbuckets [], by rw [Array.size_mkArray]; assumption⟩
+  let bucketsNew : HashSetBucket α := ⟨
+    mkArray (buckets.val.size * 2) [],
+    by simp; apply Nat.mul2_isPowerOfTwo_of_isPowerOfTwo buckets.property
+  ⟩
   { size    := size,
-    buckets := moveEntries 0 buckets.val new_buckets }
+    buckets := moveEntries 0 buckets.val bucketsNew }
 
 def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   match m with
   | ⟨size, buckets⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a
     then ⟨size, buckets.update i (bkt.replace a a) h⟩
@@ -100,7 +107,7 @@ def insert [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :
 def erase [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : HashSetImp α :=
   match m with
   | ⟨ size, buckets ⟩ =>
-    let ⟨i, h⟩ := mkIdx buckets.property (hash a |>.toUSize)
+    let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     let bkt    := buckets.val[i]
     if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
     else m
@@ -117,8 +124,8 @@ def HashSet (α : Type u) [BEq α] [Hashable α] :=
 
 open HashSetImp
 
-def mkHashSet {α : Type u} [BEq α] [Hashable α] (nbuckets := 8) : HashSet α :=
-  ⟨ mkHashSetImp nbuckets, WellFormed.mkWff nbuckets ⟩
+def mkHashSet {α : Type u} [BEq α] [Hashable α] (capacity := 8) : HashSet α :=
+  ⟨ mkHashSetImp capacity, WellFormed.mkWff capacity ⟩
 
 namespace HashSet
 @[inline] def empty [BEq α] [Hashable α] : HashSet α :=

@@ -14,17 +14,16 @@ namespace Lean
 open Meta
 
 /--
-Postprocessor after applying congruence theorem.
+Preprocessor before applying congruence theorem.
 Tries to close new goals using `Eq.refl`, `HEq.refl`, and `assumption`.
 It also tries to apply `heq_of_eq`.
 -/
-private def congrPost (mvarIds : List MVarId) : MetaM (List MVarId) :=
-  mvarIds.filterMapM fun mvarId => do
-    let mvarId ← mvarId.heqOfEq
-    try mvarId.refl; return none catch _ => pure ()
-    try mvarId.hrefl; return none catch _ => pure ()
-    if (← mvarId.assumptionCore) then return none
-    return some mvarId
+def MVarId.congrPre (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let mvarId ← mvarId.heqOfEq
+  try mvarId.refl; return none catch _ => pure ()
+  try mvarId.hrefl; return none catch _ => pure ()
+  if (← mvarId.assumptionCore) then return none
+  return some mvarId
 
 /--
 Asserts the given congruence theorem as fresh hypothesis, and then applies it.
@@ -40,7 +39,7 @@ private def applyCongrThm? (mvarId : MVarId) (congrThm : CongrTheorem) : MetaM (
 Try to apply a `simp` congruence theorem.
 -/
 def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
-  mvarId.withContext do
+  mvarId.withContext do commitWhenSomeNoEx? do
     mvarId.checkNotAssigned `congr
     let target ← mvarId.getType'
     let some (_, lhs, _) := target.eq? | return none
@@ -53,15 +52,17 @@ def MVarId.congr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
 Try to apply a `hcongr` congruence theorem, and then tries to close resulting goals
 using `Eq.refl`, `HEq.refl`, and assumption.
 -/
-def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
-  mvarId.withContext do
+def MVarId.hcongr? (mvarId : MVarId) : MetaM (Option (List MVarId)) := do
+  commitWhenSomeNoEx? do
     mvarId.checkNotAssigned `congr
-    let target ← mvarId.getType'
-    let some (_, lhs, _, _) := target.heq? | return none
-    let lhs := lhs.cleanupAnnotations
-    unless lhs.isApp do return none
-    let congrThm ← mkHCongr lhs.getAppFn
-    applyCongrThm? mvarId congrThm
+    let mvarId ← mvarId.eqOfHEq
+    mvarId.withContext do
+      let target ← mvarId.getType'
+      let some (_, lhs, _, _) := target.heq? | return none
+      let lhs := lhs.cleanupAnnotations
+      unless lhs.isApp do return none
+      let congrThm ← mkHCongr lhs.getAppFn
+      applyCongrThm? mvarId congrThm
 
 /--
 Try to apply `implies_congr`.
@@ -73,11 +74,10 @@ def MVarId.congrImplies? (mvarId : MVarId) : MetaM (Option (List MVarId)) :=
 
 /--
 Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
-It takes proof irrelevance into account, the fact that `Decidable p` is a subsingleton.
-If `closeEasy := true`, it tries to close new subgoals using `Eq.refl`, `HEq.refl`, and `assumption`.
+It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
 -/
-def MVarId.congr (mvarId : MVarId) (closeEasy := true) : MetaM (List MVarId) := do
-  let mvarIds ← if let some mvarIds ← mvarId.congr? then
+def MVarId.congrCore (mvarId : MVarId) : MetaM (List MVarId) := do
+  if let some mvarIds ← mvarId.congr? then
     pure mvarIds
   else if let some mvarIds ← mvarId.hcongr? then
     pure mvarIds
@@ -85,26 +85,33 @@ def MVarId.congr (mvarId : MVarId) (closeEasy := true) : MetaM (List MVarId) := 
     pure mvarIds
   else
     throwTacticEx `congr mvarId "failed to apply congruence"
-  if closeEasy then
-    congrPost mvarIds
-  else
-    return mvarIds
 
 /--
-Applies `congr` recursively up to depth `n`.
+Given a goal of the form `⊢ f as = f bs`, `⊢ (p → q) = (p' → q')`, or `⊢ HEq (f as) (f bs)`, try to apply congruence.
+It takes proof irrelevance into account, and the fact that `Decidable p` is a subsingleton.
+
+* Applies `congr` recursively up to depth `depth`.
+* If `closePre := true`, it will attempt to close new goals
+  using `Eq.refl`, `HEq.refl`, and `assumption` with reducible transparency.
+* If `closePost := true`, it will try again on goals on which `congr` failed to make progress
+  with default transparency.
 -/
-def MVarId.congrN (mvarId : MVarId) (n : Nat) : MetaM (List MVarId) := do
-  if n == 1 then
-    mvarId.congr
-  else
-    let (_, s) ← go n mvarId |>.run #[]
-    return s.toList
+def MVarId.congrN (mvarId : MVarId) (depth : Nat := 1000000) (closePre := true) (closePost := true) : MetaM (List MVarId) := do
+  let (_, s) ← go depth mvarId |>.run #[]
+  return s.toList
 where
+  post (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
+    if closePost && (← getTransparency) != .reducible then
+      if let some mvarId ← mvarId.congrPre then
+        modify (·.push mvarId)
+    else
+      modify (·.push mvarId)
+
   go (n : Nat) (mvarId : MVarId) : StateRefT (Array MVarId) MetaM Unit := do
-    match n with
-    | 0 => modify (·.push mvarId)
-    | n+1 =>
-      let some mvarIds ← observing? (m := MetaM) mvarId.congr
-        | modify (·.push mvarId)
-      mvarIds.forM (go n)
-end Lean
+    if let some mvarId ← if closePre then withReducible mvarId.congrPre else pure mvarId then
+      match n with
+      | 0 => post mvarId
+      | n+1 =>
+        let some mvarIds ← observing? (m := MetaM) mvarId.congrCore
+          | post mvarId
+        mvarIds.forM (go n)

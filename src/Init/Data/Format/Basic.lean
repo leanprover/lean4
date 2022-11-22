@@ -80,14 +80,6 @@ def isEmpty : Format → Bool
 def fill (f : Format) : Format :=
   group f (behavior := FlattenBehavior.fill)
 
-@[export lean_format_append]
-protected def appendEx (a b : Format) : Format :=
-  append a b
-
-@[export lean_format_group]
-protected def groupEx : Format → Format :=
-  group
-
 instance : Append Format     := ⟨Format.append⟩
 instance : Coe String Format := ⟨text⟩
 

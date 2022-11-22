@@ -2,11 +2,17 @@
 set -euo pipefail
 
 rm -r stage0 || true
-for pkg in Init Lean; do
-    # ensure deterministic ordering
-    c_files="$pkg.c $(cd src; find $pkg -name '*.lean' | sed 's/\.lean/.c/' | LC_ALL=C sort | tr '\n' ' ')"
-    for f in $c_files; do mkdir -p $(dirname stage0/stdlib/$f); cp ${CP_PARAMS:-} $CSRCS/$f stage0/stdlib/$f; done
+# don't copy untracked files
+for f in $(git ls-files src); do
+    [[ $f != src/lake && $f != src/Leanc.lean ]] || continue
+    if [[ $f == *.lean ]]; then
+        f=${f#src/}
+        f=${f%.lean}.c
+        mkdir -p $(dirname stage0/stdlib/$f)
+        cp ${CP_C_PARAMS:-} $CSRCS/$f stage0/stdlib/$f
+    else
+        mkdir -p $(dirname stage0/$f)
+        cp $f stage0/$f
+    fi
 done
-# don't copy untracked crap
-git ls-files -z src | xargs -0 -I '{}' bash -c '[ "{}" = "src/lake" ] || (mkdir -p `dirname stage0/{}` && cp {} stage0/{})'
 git add stage0

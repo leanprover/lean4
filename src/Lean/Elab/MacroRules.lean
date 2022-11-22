@@ -46,7 +46,7 @@ def elabMacroRulesAux (doc? : Option (TSyntax ``docComment))
     aux_def macroRules $(mkIdentFrom tk k (canonical := true)) : Macro :=
      fun $alts:matchAlt* | _ => no_error_if_unused% throw Lean.Macro.Exception.unsupportedSyntax)
 
-@[builtinCommandElab «macro_rules»] def elabMacroRules : CommandElab :=
+@[builtin_command_elab «macro_rules»] def elabMacroRules : CommandElab :=
   adaptExpander fun stx => match stx with
   | `($[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind macro_rules%$tk $alts:matchAlt*) =>
     -- exclude command prefix from synthetic position used for e.g. jumping to the macro definition

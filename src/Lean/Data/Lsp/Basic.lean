@@ -244,7 +244,31 @@ instance : Append WorkspaceEdit where
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
   { documentChanges := #[DocumentChange.edit e]}
 
+def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
+  /- [note], there is a bug in vscode where not including the version will cause an error,
+  even though the version field is not used to validate the change.
+
+  References:
+  - [a fix in the wild](https://github.com/stylelint/vscode-stylelint/pull/330/files).
+    Note that the version field needs to be present, even if the value is `undefined`.
+  - [angry comment](https://github.com/tsqllint/tsqllint-vscode-extension/blob/727026fce9f8c6a33d113373666d0776f8f6c23c/server/src/server.ts#L70)
+  -/
+  let doc := {uri, version? := some 0}
+  ofTextDocumentEdit { textDocument := doc, edits := #[te]}
+
 end WorkspaceEdit
+
+/-- The `workspace/applyEdit` request is sent from the server to the client to modify resource on the client side.
+
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#applyWorkspaceEditParams) -/
+structure ApplyWorkspaceEditParams where
+  /-- An optional label of the workspace edit. This label is
+  presented in the user interface for example on an undo
+  stack to undo the workspace edit. -/
+  label? : Option String := none
+  /-- The edits to apply. -/
+  edit : WorkspaceEdit
+  deriving ToJson, FromJson
 
 /-- An item to transfer a text document from the client to the server.
 

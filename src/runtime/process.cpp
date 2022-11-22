@@ -160,19 +160,40 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     siStartInfo.hStdError = child_stderr;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // TODO(gabriel): this is thread-unsafe
-    std::unordered_map<std::string, optional<std::string>> old_env_vars;
-    for (auto & entry : env) {
-        optional<std::string> old;
-        if (auto old_val = getenv(entry.fst().data()))
-            old = std::string(old_val);
-        old_env_vars[entry.fst().to_std_string()] = old;
+    std::unique_ptr<char[]> new_env(nullptr);
 
-        if (entry.snd()) {
-            SetEnvironmentVariable(entry.fst().data(), entry.snd().get()->data());
-        } else {
-            SetEnvironmentVariable(entry.fst().data(), nullptr);
+    if (env.size()) {
+        auto * esp = GetEnvironmentStrings();
+
+        std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
+        for (auto & entry : env) {
+            new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
         }
+        static constexpr auto env_buf_size = 0x7fff; // according to MS docs 0x7fff is the max total size of env block
+        new_env = std::make_unique<char[]>(env_buf_size);
+        // First copy old evars not in new evars.
+        char *new_envp = new_env.get(), *key_begin = esp;
+        while (*key_begin) {
+            char *key_end = strchr(key_begin, '=');
+            char *entry_end = key_end + strlen(key_end);
+            if (!new_env_vars.count({key_begin, key_end})) {
+                new_envp = std::copy(key_begin, entry_end + 1, new_envp);
+            }
+            key_begin = entry_end + 1;
+        }
+        // Then copy new evars if nonempty
+        for(const auto & ev : new_env_vars) {
+          if (ev.second.empty()) continue;
+          // Check if the destination buffer has enough room.
+          if (new_envp + ev.first.length() + 1 + ev.second.length() + 1 > new_env.get() + env_buf_size - 1) break;
+          new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
+          *new_envp++ = '=';
+          new_envp = std::copy(ev.second.cbegin(), ev.second.cend(), new_envp);
+          *new_envp++ = '\0';
+        }
+        *new_envp = '\0';
+
+        FreeEnvironmentStrings(esp);
     }
 
     // Create the child process.
@@ -183,14 +204,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         NULL,                                // primary thread security attributes
         TRUE,                                // handles are inherited
         0,                                   // creation flags
-        NULL,                                // use parent's environment
+        new_env.get(),                       // new environment
         cwd ? cwd.get()->data() : NULL,      // current directory
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
-
-    for (auto & entry : old_env_vars) {
-        SetEnvironmentVariable(entry.first.c_str(), entry.second ? entry.second->c_str() : nullptr);
-    }
 
     if (!bSuccess) {
         throw std::system_error(GetLastError(), std::system_category());

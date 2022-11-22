@@ -24,7 +24,7 @@ open TSyntax.Compat
           >> " }"
 -/
 
-@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstExpectedType : Macro := fun stx =>
+@[builtin_macro Lean.Parser.Term.structInst] def expandStructInstExpectedType : Macro := fun stx =>
   let expectedArg := stx[4]
   if expectedArg.isNone then
     Macro.throwUnsupported
@@ -34,7 +34,7 @@ open TSyntax.Compat
     `(($stxNew : $expected))
 
 /-- Expand field abbreviations. Example: `{ x, y := 0 }` expands to `{ x := x, y := 0 }` -/
-@[builtinMacro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro
+@[builtin_macro Lean.Parser.Term.structInst] def expandStructInstFieldAbbrev : Macro
   | `({ $[$srcs,* with]? $fields,* $[..%$ell]? $[: $ty]? }) =>
     if fields.getElems.raw.any (·.getKind == ``Lean.Parser.Term.structInstFieldAbbrev) then do
       let fieldsNew ← fields.getElems.mapM fun
@@ -435,7 +435,7 @@ private def mkFieldMap (fields : Fields) : TermElabM FieldMap :=
       match fieldMap.find? fieldName with
       | some (prevField::restFields) =>
         if field.isSimple || prevField.isSimple then
-          throwErrorAt field.ref "field '{fieldName}' has already beed specified"
+          throwErrorAt field.ref "field '{fieldName}' has already been specified"
         else
           return fieldMap.insert fieldName (field::prevField::restFields)
       | _ => return fieldMap.insert fieldName [field]
@@ -900,7 +900,7 @@ private def elabStructInstAux (stx : Syntax) (expectedType? : Option Expr) (sour
   synthesizeAppInstMVars instMVars r
   return r
 
-@[builtinTermElab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
+@[builtin_term_elab structInst] def elabStructInst : TermElab := fun stx expectedType? => do
   match (← expandNonAtomicExplicitSources stx) with
   | some stxNew => withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
   | none =>

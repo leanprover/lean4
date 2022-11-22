@@ -17,7 +17,7 @@ namespace Lean.Elab.Term
 open Meta
 
 builtin_initialize elabWithoutExpectedTypeAttr : TagAttribute ←
-  registerTagAttribute `elabWithoutExpectedType "mark that applications of the given declaration should be elaborated without the expected type"
+  registerTagAttribute `elab_without_expected_type "mark that applications of the given declaration should be elaborated without the expected type"
 
 def hasElabWithoutExpectedType (env : Environment) (declName : Name) : Bool :=
   elabWithoutExpectedTypeAttr.hasTag env declName
@@ -306,7 +306,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
 
   These two conditions would restrict the method to simple functions that are "morally" in
   the Hindley&Milner fragment.
-  If users need to disable expected type propagation, we can add an attribute `[elabWithoutExpectedType]`.
+  If users need to disable expected type propagation, we can add an attribute `[elab_without_expected_type]`.
 -/
 private def propagateExpectedType (arg : Arg) : M Unit := do
   if shouldPropagateExpectedTypeFor arg then
@@ -406,7 +406,8 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
-          if (← localDeclDependsOn xDecl curr.fvarId!) then
+          /- Remark: a default value at `optParam` does not count as a dependency -/
+          if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return true
       return false
 
@@ -527,6 +528,32 @@ mutual
   private partial def processExplictArg (argName : Name) : M Expr := do
     match (← get).args with
     | arg::args =>
+      if (← anyNamedArgDependsOnCurrent) then
+        /-
+        We treat the explicit argument `argName` as implicit if we have named arguments that depend on it.
+        The idea is that this explicit argument can be inferred using the type of the named argument one.
+        Note that we also use this approach in the branch where there are no explicit arguments left.
+        This is important to make sure the system behaves in a uniform way.
+        Moreover, users rely on this behavior. For example, consider the example on issue #1851
+        ```
+        class Approx {α : Type} (a : α) (X : Type) : Type where
+          val : X
+
+        variable {α β X Y : Type} {f' : α → β} {x' : α} [f : Approx f' (X → Y)] [x : Approx x' X]
+
+        #check f.val
+        #check f.val x.val
+        ```
+        The type of `Approx.val` is `{α : Type} → (a : α) → {X : Type} → [self : Approx a X] → X`
+        Note that the argument `a` is explicit since there is no way to infer it from the expected
+        type or the type of other explicit arguments.
+        Recall that `f.val` is sugar for `Approx.val (self := f)`. In both `#check` commands above
+        the user assumed that `a` does not need to be provided since it can be inferred from the type
+        of `self`.
+        We used to that only in the branch where `(← get).args` was empty, but it created an asymmetry
+        because `#check f.val` worked as expected, but one would have to write `#check f.val _ x.val`
+        -/
+        return (← addImplicitArg argName)
       propagateExpectedType arg
       modify fun s => { s with args }
       elabAndAddNewArg argName arg
@@ -637,25 +664,36 @@ end
 end ElabAppArgs
 
 builtin_initialize elabAsElim : TagAttribute ←
-  registerTagAttribute `elabAsElim
+  registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
     fun declName => do
       let go : MetaM Unit := do
         discard <| getElimInfo declName
         let info ← getConstInfo declName
         if (← hasOptAutoParams info.type) then
-          throwError "[elabAsElim] attribute cannot be used in declarations containing optional and auto parameters"
+          throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
       go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
 namespace ElabElim
 
-/-- Context of the `elabAsElim` elaboration procedure. -/
+/-- Context of the `elab_as_elim` elaboration procedure. -/
 structure Context where
   elimInfo : ElimInfo
   expectedType : Expr
+  /--
+  Position of additonal arguments that should be elabored eagerly
+  because they can contribute to the motive inference procedure.
+  For example, in the following theorem the argument `h : a = b`
+  should be elaborated eagerly because it contains `b` which occurs
+  in `motive b`.
+  ```
+  theorem Eq.subst' {α} {motive : α → Prop} {a b : α} (h : a = b) : motive a → motive b
+  ```
+  -/
+  extraArgsPos : Array Nat
 
-/-- State of the `elabAsElim` elaboration procedure. -/
+/-- State of the `elab_as_elim` elaboration procedure. -/
 structure State where
   /-- The resultant expression being built. -/
   f            : Expr
@@ -802,7 +840,12 @@ partial def main : M Expr := do
     | .undef => finalize
     | .none => let discr ← mkImplicitArg binderType binderInfo; addDiscr discr; addArgAndContinue discr
   else match (← getNextArg? binderName binderInfo) with
-    | .some (.stx stx) => addArgAndContinue (← postponeElabTerm stx binderType)
+    | .some (.stx stx) =>
+      if (← read).extraArgsPos.contains idx then
+        let arg ← elabArg (.stx stx) binderType
+        addArgAndContinue arg
+      else
+        addArgAndContinue (← postponeElabTerm stx binderType)
     | .some (.expr val) => addArgAndContinue (← ensureArgType (← get).f val binderType)
     | .undef => finalize
     | .none => addArgAndContinue (← mkImplicitArg binderType binderInfo)
@@ -856,7 +899,8 @@ def elabAppArgs (f : Expr) (namedArgs : Array NamedArg) (args : Array Arg)
     let some expectedType := expectedType? | throwError "failed to elaborate eliminator, expected type is not available"
     let expectedType ← instantiateMVars expectedType
     if expectedType.getAppFn.isMVar then throwError "failed to elaborate eliminator, expected type is not available"
-    ElabElim.main.run { elimInfo, expectedType } |>.run' {
+    let extraArgsPos ← getElabAsElimExtraArgsPos elimInfo
+    ElabElim.main.run { elimInfo, expectedType, extraArgsPos } |>.run' {
       f, fType
       args := args.toList
       namedArgs := namedArgs.toList
@@ -885,6 +929,33 @@ where
         return some elimInfo
       else
         return none
+
+  /--
+  Collect extra argument positions that must be elaborated eagerly when using `elab_as_elim`.
+  The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
+  -/
+  getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
+    let cinfo ← getConstInfo elimInfo.name
+    forallTelescope cinfo.type fun xs type => do
+      let resultArgs := type.getAppArgs
+      let mut extraArgsPos := #[]
+      for i in [:xs.size] do
+        let x := xs[i]!
+        unless elimInfo.targetsPos.contains i do
+          let xType ← inferType x
+          /- We only consider "first-order" types because we can reliably "extract" information from them. -/
+          if isFirstOrder xType
+             && Option.isSome (xType.find? fun e => e.isFVar && resultArgs.contains e) then
+            extraArgsPos := extraArgsPos.push i
+      return extraArgsPos
+
+  /-
+  Helper function for implementing `elab_as_elim`.
+  We say a term is "first-order" if all applications are of the form `f ...` where `f` is a constant.
+  -/
+  isFirstOrder (e : Expr) : Bool :=
+    Option.isNone <| e.find? fun e =>
+      e.isApp && !e.getAppFn.isConst
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where
@@ -1367,7 +1438,7 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
         return mkRecAppWithSyntax e stx
   return e
 
-@[builtinTermElab app] def elabApp : TermElab := fun stx expectedType? =>
+@[builtin_term_elab app] def elabApp : TermElab := fun stx expectedType? =>
   universeConstraintsCheckpoint do
     let (f, namedArgs, args, ellipsis) ← expandApp stx
     annotateIfRec stx (← elabAppAux f namedArgs args (ellipsis := ellipsis) expectedType?)
@@ -1375,18 +1446,18 @@ private def annotateIfRec (stx : Syntax) (e : Expr) : TermElabM Expr := do
 private def elabAtom : TermElab := fun stx expectedType? => do
   annotateIfRec stx (← elabAppAux stx #[] #[] (ellipsis := false) expectedType?)
 
-@[builtinTermElab ident] def elabIdent : TermElab := elabAtom
-@[builtinTermElab namedPattern] def elabNamedPattern : TermElab := elabAtom
-@[builtinTermElab dotIdent] def elabDotIdent : TermElab := elabAtom
-@[builtinTermElab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
-@[builtinTermElab pipeProj] def elabPipeProj : TermElab
+@[builtin_term_elab ident] def elabIdent : TermElab := elabAtom
+@[builtin_term_elab namedPattern] def elabNamedPattern : TermElab := elabAtom
+@[builtin_term_elab dotIdent] def elabDotIdent : TermElab := elabAtom
+@[builtin_term_elab explicitUniv] def elabExplicitUniv : TermElab := elabAtom
+@[builtin_term_elab pipeProj] def elabPipeProj : TermElab
   | `($e |>.$f $args*), expectedType? =>
     universeConstraintsCheckpoint do
       let (namedArgs, args, ellipsis) ← expandArgs args
       elabAppAux (← `($e |>.$f)) namedArgs args (ellipsis := ellipsis) expectedType?
   | _, _ => throwUnsupportedSyntax
 
-@[builtinTermElab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
+@[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
   | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
@@ -1394,10 +1465,13 @@ private def elabAtom : TermElab := fun stx expectedType? => do
   | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                    => throwUnsupportedSyntax
 
-@[builtinTermElab choice] def elabChoice : TermElab := elabAtom
-@[builtinTermElab proj] def elabProj : TermElab := elabAtom
+@[builtin_term_elab choice] def elabChoice : TermElab := elabAtom
+@[builtin_term_elab proj] def elabProj : TermElab := elabAtom
 
 builtin_initialize
   registerTraceClass `Elab.app
+  registerTraceClass `Elab.app.args (inherited := true)
+  registerTraceClass `Elab.app.propagateExpectedType (inherited := true)
+  registerTraceClass `Elab.app.finalize (inherited := true)
 
 end Lean.Elab.Term

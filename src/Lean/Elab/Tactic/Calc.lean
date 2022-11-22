@@ -22,7 +22,7 @@ where
     instantiateMVars e
 
 /-- Elaborator for the `calc` tactic mode variant. -/
-@[builtinTactic calcTactic]
+@[builtin_tactic calcTactic]
 def evalCalc : Tactic := fun stx => do
   withMainContext do
     let steps := #[stx[1]] ++ stx[2].getArgs

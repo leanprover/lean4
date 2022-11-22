@@ -63,7 +63,7 @@ by {
   assumption
 }
 
-macro "intro3" : tactic => `(intro; intro; intro)
+macro "intro3" : tactic => `(tactic| (intro; intro; intro))
 macro "check2" x:term : command => `(#check $x #check $x)
 macro "foo" x:term "," y:term : term => `($x + $y + $x)
 
@@ -228,7 +228,7 @@ by {
   exact h1
 }
 
-macro "blabla" : tactic => `(assumption)
+macro "blabla" : tactic => `(tactic| assumption)
 
 -- Tactic head symbols do not become reserved words
 def blabla := 100

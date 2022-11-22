@@ -377,13 +377,13 @@ class erase_irrelevant_fn {
             } else if (optional<name> n = get_implemented_by_attribute(env(), fn)) {
                 if (is_cases_on_recursor(env(), fn) || has_inline_attribute(env(), *n)) {
                     // casesOn has a different representation in the LCNF than applications,
-                    // so we can't just replace the constant by the implementedBy override.
+                    // so we can't just replace the constant by the implemented_by override.
                     // Additionally, csimp ignores inline annotation after erase so inline now.
                     expr e2 = mk_app(mk_const(mk_cstage1_name(*n), const_levels(f)), to_list(args));
                     if (optional<expr> e3 = unfold_app(env(), e2)) {
                         return visit(*e3);
                     } else {
-                        throw exception(sstream() << "code generation failed, unsupported implementedBy for '" << fn << "'");
+                        throw exception(sstream() << "code generation failed, unsupported implemented_by for '" << fn << "'");
                     }
                 } else {
                     f = mk_const(*n, const_levels(f));

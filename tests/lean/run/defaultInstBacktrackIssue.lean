@@ -4,7 +4,7 @@ class LOp (α β) where lOp : α → β → β
 
 class Op (α) where op : α → α → α
 
-@[defaultInstance]
+@[default_instance]
 instance inst1 [LOp α β] : HOp α β β := ⟨LOp.lOp⟩
 
 instance inst2 [Op α] : LOp α α := ⟨Op.op⟩
@@ -19,7 +19,7 @@ example : n ⋆ x = z := sorry -- TC works
 
 example : 1 ⋆ x = z := sorry -- TC works
 
-attribute [defaultInstance] inst2
+attribute [default_instance] inst2
 
 example : n ⋆ x = z := sorry -- TC works
 

@@ -17,9 +17,9 @@ structure InlineCandidateInfo where
   params   : Array Param
   /-- Value (lambda expression) of the function to be inlined. -/
   value    : Code
-  f        : Expr
-  args     : Array Expr
-  /-- `ifReduce = true` if the declaration being inlined was tagged with `inlineIfReduce`. -/
+  fType    : Expr
+  args     : Array Arg
+  /-- `ifReduce = true` if the declaration being inlined was tagged with `inline_if_reduce`. -/
   ifReduce : Bool
   /-- `recursive = true` if the declaration being inline is in a mutually recursive block. -/
   recursive : Bool := false
@@ -31,15 +31,14 @@ def InlineCandidateInfo.arity : InlineCandidateInfo → Nat
 /--
 Return `some info` if `e` should be inlined.
 -/
-def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
+def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
   let mut e := e
   let mut mustInline := false
-  if e.isAppOfArity ``inline 2 then
-    e ← findExpr e.appArg!
+  if let .const ``inline _ #[_, .fvar argFVarId] := e then
+    let some decl ← findLetDecl? argFVarId | return none
+    e := decl.value
     mustInline := true
-  let numArgs := e.getAppNumArgs
-  let f := e.getAppFn
-  if let .const declName us ← findExpr f then
+  if let .const declName us args := e then
     unless (← read).config.inlineDefs do
       return none
     let some decl ← getDecl? declName | return none
@@ -47,7 +46,7 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
       /-
-      We don't inline instances tagged with `[inline]/[alwaysInline]/[inlineIfReduce]` at the base phase
+      We don't inline instances tagged with `[inline]/[always_inline]/[inline_if_reduce]` at the base phase
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
       if (← inBasePhase <&&> Meta.isInstance decl.name) then
@@ -70,33 +69,35 @@ def inlineCandidate? (e : Expr) : SimpM (Option InlineCandidateInfo) := do
     /- check arity -/
     let arity := decl.getArity
     let inlinePartial := (← read).config.inlinePartial
-    if !mustInline && !inlinePartial && numArgs < arity then return none
+    if !mustInline && !inlinePartial && args.size < arity then return none
     if decl.inlineIfReduceAttr then
       let some paramIdx := decl.isCasesOnParam? | return none
-      unless paramIdx < numArgs do return none
-      let arg ← findExpr (e.getArg! paramIdx)
-      unless arg.isConstructorApp (← getEnv) do return none
+      unless paramIdx < args.size do return none
+      let arg := args[paramIdx]!
+      unless (← arg.isConstructorApp) do return none
     let params := decl.instantiateParamsLevelParams us
     let value := decl.instantiateValueLevelParams us
+    let type := decl.instantiateTypeLevelParams us
     incInline
     return some {
       isLocal   := false
-      f         := e.getAppFn
-      args      := e.getAppArgs
+      fType     := type
+      args      := args
       ifReduce  := decl.inlineIfReduceAttr
       recursive := decl.recursive
       params, value
     }
-  else if let some decl ← findFunDecl? f then
-    unless numArgs > 0 do return none -- It is not worth to inline a local function that does not take any arguments
+  else if let .fvar f args := e then
+    let some decl ← findFunDecl'? f | return none
+    unless args.size > 0 do return none -- It is not worth to inline a local function that does not take any arguments
     unless mustInline || (← shouldInlineLocal decl) do return none
     -- Remark: we inline local function declarations even if they are partial applied
     incInlineLocal
     modify fun s => { s with inlineLocal := s.inlineLocal + 1 }
     return some {
       isLocal  := true
-      f        := e.getAppFn
-      args     := e.getAppArgs
+      fType    := (← getType f)
+      args     := args
       params   := decl.params
       value    := decl.value
       ifReduce := false

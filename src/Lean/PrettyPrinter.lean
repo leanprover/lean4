@@ -86,7 +86,7 @@ builtin_initialize
 builtin_initialize
   registerTraceClass `PrettyPrinter
 
-@[builtinInit]
+@[builtin_init]
 unsafe def registerParserCompilers : IO Unit := do
   ParserCompiler.registerParserCompiler ⟨`parenthesizer, parenthesizerAttribute, combinatorParenthesizerAttribute⟩
   ParserCompiler.registerParserCompiler ⟨`formatter, formatterAttribute, combinatorFormatterAttribute⟩

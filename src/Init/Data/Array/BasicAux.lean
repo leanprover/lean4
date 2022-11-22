@@ -67,7 +67,7 @@ where
 Monomorphic `Array.mapM`. The internal implementation uses pointer equality, and does not allocate a new array
 if the result of each `f a` is a pointer equal value `a`.
 -/
-@[implementedBy mapMonoMImp] def Array.mapMonoM [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
+@[implemented_by mapMonoMImp] def Array.mapMonoM [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
   as.mapM f
 
 @[inline] def Array.mapMono (as : Array α) (f : α → α) : Array α :=

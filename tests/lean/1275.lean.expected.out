@@ -1,0 +1,20 @@
+fun x => do
+  let info ← MonadRef.mkInfoFromRefPos
+  let scp ← getCurrMacroScope
+  let mainModule ← getMainModule
+  pure
+      { raw :=
+          Syntax.node2 info `term👉__ (Syntax.atom info "👉")
+            x.raw } : (x : TSyntax [`ident, `token._]) → ?m x (TSyntax `term)
+true
+true
+fun x => do
+  let info ← MonadRef.mkInfoFromRefPos
+  let scp ← getCurrMacroScope
+  let mainModule ← getMainModule
+  pure
+      { raw :=
+          Syntax.node2 info `termBarBazBoing (Syntax.atom info "bar")
+            x.raw } : (x : TSyntax [`token.baz, `token.boing]) → ?m x (TSyntax `term)
+true
+true

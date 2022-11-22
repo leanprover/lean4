@@ -46,6 +46,12 @@ namespace Expr
 @[inline] def iff? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``Iff
 
+@[inline] def eqOrIff? (p : Expr) : Option (Expr × Expr) :=
+  if let some (_, lhs, rhs) := p.app3? ``Eq then
+    some (lhs, rhs)
+  else
+    p.iff?
+
 @[inline] def not? (p : Expr) : Option Expr :=
   p.app1? ``Not
 

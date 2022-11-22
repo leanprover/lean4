@@ -80,9 +80,9 @@ where
     | .return .. | .unreach .. => return ()
     | .jmp fvarId args =>
       if let some info := (← get).find? fvarId then
-        let arg ← findCtor args[info.paramIdx]!
-        let some (cval, _) := arg.constructorApp? (← getEnv) | return ()
-        modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert cval.name }
+        let .fvar argFVarId := args[info.paramIdx]! | return ()
+        let some ctorName ← findCtorName? argFVarId | return ()
+        modify fun map => map.insert fvarId <| { info with ctorNames := info.ctorNames.insert ctorName }
 
 /--
 Extract the let-declarations and `cases` for a join point body that satisfies `isJpCases?`.
@@ -134,7 +134,7 @@ where
     return { decl := (← mkAuxJpDecl paramsNew value), default, dependsOnDiscr }
 
 /-- Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`. -/
-private def mkJmpNewArgs (args : Array Expr) (targetParamIdx : Nat) (fields : Array Expr) (dependsOnTarget : Bool) : Array Expr :=
+private def mkJmpNewArgs (args : Array Arg) (targetParamIdx : Nat) (fields : Array Arg) (dependsOnTarget : Bool) : Array Arg :=
   if dependsOnTarget then
     args[:targetParamIdx+1] ++ fields ++ args[targetParamIdx+1:]
   else
@@ -144,8 +144,8 @@ private def mkJmpNewArgs (args : Array Expr) (targetParamIdx : Nat) (fields : Ar
 Create the arguments for a jump to an auxiliary join point created using `mkJpAlt`.
 This function is used to create jumps from the join point satisfying `isJpCases?` to the new auxiliary join points created using `mkJpAlt`.
 -/
-private def mkJmpArgsAtJp (params : Array Param) (targetParamIdx : Nat) (fields : Array Param) (dependsOnTarget : Bool) : Array Expr := Id.run do
-  mkJmpNewArgs (params.map (mkFVar ·.fvarId)) targetParamIdx (fields.map (mkFVar ·.fvarId)) dependsOnTarget
+private def mkJmpArgsAtJp (params : Array Param) (targetParamIdx : Nat) (fields : Array Param) (dependsOnTarget : Bool) : Array Arg := Id.run do
+  mkJmpNewArgs (params.map (Arg.fvar ·.fvarId)) targetParamIdx (fields.map (Arg.fvar ·.fvarId)) dependsOnTarget
 
 /--
 Try to optimize `jpCases` join points.
@@ -270,27 +270,28 @@ where
     let code := .jp decl (← visit k)
     return LCNF.attachCodeDecls jpAltDecls code
 
-  visitJmp? (fvarId : FVarId) (args : Array Expr) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
+  visitJmp? (fvarId : FVarId) (args : Array Arg) : ReaderT JpCasesInfoMap (StateRefT Ctor2JpCasesAlt DiscrM) (Option Code) := do
     let some ctorJpAltMap := (← get).find? fvarId | return none
     let some info := (← read).find? fvarId | return none
-    let arg ← findCtor args[info.paramIdx]!
-    let some (ctorVal, ctorArgs) := arg.constructorApp? (← getEnv) (useRaw := true) | return none
-    let some jpAlt := ctorJpAltMap.find? ctorVal.name | return none
-    let fields := ctorArgs[ctorVal.numParams:]
-    -- Recall that if `arg` is a `Nat` literal, then `ctorArgs` is a literal too.
-    -- We use a for-loop because we may have other special cases in the future.
-    let mut auxDecls := #[]
-    let mut fieldsNew := #[]
-    unless jpAlt.default do
-      for field in fields do
-        if field.isFVar then
-          fieldsNew := fieldsNew.push field
-        else
-          let letDecl ← mkAuxLetDecl field
-          auxDecls := auxDecls.push (CodeDecl.let letDecl)
-          fieldsNew := fieldsNew.push (.fvar letDecl.fvarId)
-    let argsNew := mkJmpNewArgs args info.paramIdx fieldsNew jpAlt.dependsOnDiscr
-    return some <| LCNF.attachCodeDecls auxDecls (.jmp jpAlt.decl.fvarId argsNew)
+    let .fvar argFVarId := args[info.paramIdx]! | return none
+    let some ctorInfo ← findCtor? argFVarId | return none
+    let some jpAlt := ctorJpAltMap.find? ctorInfo.getName | return none
+    if jpAlt.default then
+      let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
+      return some <| .jmp jpAlt.decl.fvarId argsNew
+    else
+      match ctorInfo with
+      | .ctor ctorVal ctorArgs =>
+         let fields := ctorArgs[ctorVal.numParams:]
+         let argsNew := mkJmpNewArgs args info.paramIdx fields jpAlt.dependsOnDiscr
+         return some <| .jmp jpAlt.decl.fvarId argsNew
+      | .natVal 0 =>
+        let argsNew := mkJmpNewArgs args info.paramIdx #[] jpAlt.dependsOnDiscr
+        return some <| .jmp jpAlt.decl.fvarId argsNew
+      | .natVal (n+1) =>
+        let auxDecl ← mkAuxLetDecl (.value (.natVal n))
+        let argsNew := mkJmpNewArgs args info.paramIdx #[.fvar auxDecl.fvarId] jpAlt.dependsOnDiscr
+        return some <| .let auxDecl (.jmp jpAlt.decl.fvarId argsNew)
 
 end Simp
 

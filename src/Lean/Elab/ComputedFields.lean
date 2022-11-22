@@ -26,16 +26,16 @@ with
 ```
 
 This file implements the computed fields feature by simulating it via
-`implementedBy`.  The main function is `setComputedFields`.
+`implemented_by`.  The main function is `setComputedFields`.
 -/
 
 namespace Lean.Elab.ComputedFields
 open Meta
 
 builtin_initialize computedFieldAttr : TagAttribute ←
-  registerTagAttribute `computedField "Marks a function as a computed field of an inductive" fun _ => do
+  registerTagAttribute `computed_field "Marks a function as a computed field of an inductive" fun _ => do
     unless (← getOptions).getBool `elaboratingComputedFields do
-      throwError "The @[computedField] attribute can only be used in the with-block of an inductive"
+      throwError "The @[computed_field] attribute can only be used in the with-block of an inductive"
 
 def mkUnsafeCastTo (expectedType : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``unsafeCast #[none, expectedType, e]
@@ -188,7 +188,7 @@ def mkComputedFieldOverrides (declName : Name) (compFields : Array Name) : MetaM
 
 /--
 Sets the computed fields for a block of mutual inductives,
-adding the implementation via `implementedBy`.
+adding the implementation via `implemented_by`.
 
 The `computedFields` argument contains a pair
 for every inductive in the mutual block,
@@ -199,10 +199,10 @@ def setComputedFields (computedFields : Array (Name × Array Name)) : MetaM Unit
   for (indName, computedFieldNames) in computedFields do
     for computedFieldName in computedFieldNames do
       unless computedFieldAttr.hasTag (← getEnv) computedFieldName do
-        logError m!"'{computedFieldName}' must be tagged with @[computedField]"
+        logError m!"'{computedFieldName}' must be tagged with @[computed_field]"
     mkComputedFieldOverrides indName computedFieldNames
 
-  -- Once all the implementedBy infrastructure is set up, compile everything.
+  -- Once all the implemented_by infrastructure is set up, compile everything.
   compileDecls <| computedFields.toList.map fun (indName, _) =>
     mkCasesOnName indName ++ `_override
 

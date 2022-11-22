@@ -15,8 +15,8 @@ extern "C" {
 #endif
 lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*, lean_object*);
 lean_object* lean_environment_find(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*, lean_object*);
 lean_object* lean_compile_decls(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -126,7 +126,7 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTRAux___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -206,7 +206,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box(0);
-x_6 = l_List_mapTRAux___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_4, x_5);
+x_6 = l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_4, x_5);
 return x_6;
 }
 case 6:

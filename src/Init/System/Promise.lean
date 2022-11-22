@@ -51,7 +51,7 @@ The result task of a `Promise`.
 
 The task blocks until `Promise.resolve` is called.
 -/
-@[implementedBy Promise.resultImpl]
+@[implemented_by Promise.resultImpl]
 opaque Promise.result (promise : Promise α) : Task α :=
   have : Nonempty α := (PromiseImpl α).2.2 ⟨promise⟩
   Classical.choice inferInstance

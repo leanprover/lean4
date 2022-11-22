@@ -76,7 +76,7 @@ abbrev CoreM := ReaderT Context <| StateRefT State (EIO Exception)
 
 -- Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
 -- whole monad stack at every use site. May eventually be covered by `deriving`.
-@[alwaysInline]
+@[always_inline]
 instance : Monad CoreM := let i := inferInstanceAs (Monad CoreM); { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (CoreM α) where
@@ -146,7 +146,9 @@ def instantiateValueLevelParams (c : ConstantInfo) (us : List Level) : CoreM Exp
   if let some (us', r) := (← get).cache.instLevelValue.find? c.name then
     if us == us' then
       return r
-  let r := c.instantiateValueLevelParams us
+  unless c.hasValue do
+    throwError "Not a definition or theorem: {c.name}"
+  let r := c.instantiateValueLevelParams! us
   modifyInstLevelValueCache fun s => s.insert c.name (us, r)
   return r
 

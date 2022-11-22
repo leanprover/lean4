@@ -245,7 +245,7 @@ where
       | Expr.mdata _ b       => visit b
       | _ => return ()
 
-@[implementedBy Expr.dagSizeUnsafe]
+@[implemented_by Expr.dagSizeUnsafe]
 opaque Expr.dagSize (e : Expr) : IO Nat
 
 def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do

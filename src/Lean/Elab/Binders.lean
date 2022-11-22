@@ -247,17 +247,17 @@ def elabBinder (binder : Syntax) (x : Expr → TermElabM α) : TermElabM α :=
 /-- If `binder` is a `_` or an identifier, return a `bracketedBinder` using `type` otherwise throw an exception. -/
 def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :=
   if binder.isOfKind ``hole || binder.isIdent then
-    `(bracketedBinder| ($binder : $type))
+    `(bracketedBinderF| ($binder : $type))
   else
     Macro.throwErrorAt type "unexpected type ascription"
 
-@[builtinMacro Lean.Parser.Term.forall] def expandForall : Macro
+@[builtin_macro Lean.Parser.Term.forall] def expandForall : Macro
   | `(forall $binders* : $ty, $term) => do
     let binders ← binders.mapM (expandSimpleBinderWithType ty)
     `(forall $binders*, $term)
   | _ => Macro.throwUnsupported
 
-@[builtinTermElab «forall»] def elabForall : TermElab := fun stx _ =>
+@[builtin_term_elab «forall»] def elabForall : TermElab := fun stx _ =>
   match stx with
   | `(forall $binders*, $term) =>
     elabBinders binders fun xs => do
@@ -266,13 +266,13 @@ def expandSimpleBinderWithType (type : Term) (binder : Syntax) : MacroM Syntax :
   | _ => throwUnsupportedSyntax
 
 open Lean.Elab.Term.Quotation in
-@[builtinQuotPrecheck Lean.Parser.Term.arrow] def precheckArrow : Precheck
+@[builtin_quot_precheck Lean.Parser.Term.arrow] def precheckArrow : Precheck
   | `($dom:term -> $rng) => do
     precheck dom
     precheck rng
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab arrow] def elabArrow : TermElab := fun stx _ =>
+@[builtin_term_elab arrow] def elabArrow : TermElab := fun stx _ =>
   match stx with
   | `($dom:term -> $rng) => do
     -- elaborate independently from each other
@@ -285,7 +285,7 @@ open Lean.Elab.Term.Quotation in
 The dependent arrow. `(x : α) → β` is equivalent to `∀ x : α, β`, but we usually
 reserve the latter for propositions. Also written as `Π x : α, β` (the "Pi-type")
 in the literature. -/
-@[builtinTermElab depArrow] def elabDepArrow : TermElab := fun stx _ =>
+@[builtin_term_elab depArrow] def elabDepArrow : TermElab := fun stx _ =>
   -- bracketedBinder `->` term
   let binder := stx[0]
   let term   := stx[2]
@@ -352,36 +352,26 @@ partial def expandFunBinders (binders : Array Syntax) (body : Syntax) : MacroM (
       | ``Lean.Parser.Term.explicitBinder
       | ``Lean.Parser.Term.hole | `ident => loop body (i+1) (newBinders.push binder)
       | ``Lean.Parser.Term.paren =>
-        -- `(` (termParser >> parenSpecial)? `)`
-        -- parenSpecial := (tupleTail <|> typeAscription)?
-        let binderBody := binder[1]
-        if binderBody.isNone then
-          processAsPattern ()
-        else
-          let term    := binderBody[0]
-          let special := binderBody[1]
-          if special.isNone then
-            match (← getFunBinderIds? term) with
-            | some idents =>
-              -- `fun (x ...) ...` ~> `fun (x : _) ...`
-              -- Interpret `(x ...)` as sequence of binders instead of pattern only if none of the idents
-              -- are defined in the global scope. Technically, it would be sufficient to only check the
-              -- first ident to be sure that the syntax cannot possibly be a valid pattern. However, for
-              -- consistency we apply the same check to all idents so that the possibility of shadowing
-              -- a global decl is identical for all of them.
-              if (← idents.allM fun ident => return List.isEmpty (← Macro.resolveGlobalName ident.getId)) then
-                loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · (mkHole binder)))
-              else
-                processAsPattern ()
-            | none => processAsPattern ()
-          else if special[0].getKind != `Lean.Parser.Term.typeAscription then
-            processAsPattern ()
+        let term := binder[1]
+        match (← getFunBinderIds? term) with
+        | some idents =>
+          -- `fun (x ...) ...` ~> `fun (x : _) ...`
+          -- Interpret `(x ...)` as sequence of binders instead of pattern only if none of the idents
+          -- are defined in the global scope. Technically, it would be sufficient to only check the
+          -- first ident to be sure that the syntax cannot possibly be a valid pattern. However, for
+          -- consistency we apply the same check to all idents so that the possibility of shadowing
+          -- a global decl is identical for all of them.
+          if (← idents.allM fun ident => return List.isEmpty (← Macro.resolveGlobalName ident.getId)) then
+            loop body (i+1) (newBinders ++ idents.map (mkExplicitBinder · (mkHole binder)))
           else
-            -- typeAscription := `:` term
-            let type := special[0][1]
-            match (← getFunBinderIds? term) with
-            | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
-            | none        => processAsPattern ()
+            processAsPattern ()
+        | none => processAsPattern ()
+      | ``Lean.Parser.Term.typeAscription =>
+        let term := binder[1]
+        let type := binder[3].getOptional?.getD (mkHole binder)
+        match (← getFunBinderIds? term) with
+        | some idents => loop body (i+1) (newBinders ++ idents.map (fun ident => mkExplicitBinder ident type))
+        | none        => processAsPattern ()
       | _ => processAsPattern ()
     else
       pure (newBinders, body, false)
@@ -593,7 +583,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(@fun x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtinMacro Parser.Term.fun] partial def expandFun : Macro
+@[builtin_macro Parser.Term.fun] partial def expandFun : Macro
   | `(fun $binders* : $ty => $body) => do
     let binders ← binders.mapM (expandSimpleBinderWithType ty)
     `(fun $binders* => $body)
@@ -606,13 +596,13 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m (useExplicit := false)
   | _ => Macro.throwUnsupported
 
-@[builtinMacro Parser.Term.explicit] partial def expandExplicitFun : Macro := fun stx =>
+@[builtin_macro Parser.Term.explicit] partial def expandExplicitFun : Macro := fun stx =>
   match stx with
   | `(@fun $m:matchAlts) => expandMatchAltsIntoMatch stx[1] m (useExplicit := true)
   | _ => Macro.throwUnsupported
 
 open Lean.Elab.Term.Quotation in
-@[builtinQuotPrecheck Lean.Parser.Term.fun] def precheckFun : Precheck
+@[builtin_quot_precheck Lean.Parser.Term.fun] def precheckFun : Precheck
   | `(fun $binders* $[: $ty?]? => $body) => do
     let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
     let mut ids := #[]
@@ -623,7 +613,7 @@ open Lean.Elab.Term.Quotation in
     Quotation.withNewLocals ids <| precheck body
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab «fun»] partial def elabFun : TermElab := fun stx expectedType? =>
+@[builtin_term_elab «fun»] partial def elabFun : TermElab := fun stx expectedType? =>
   match stx with
   | `(fun $binders* => $body) => do
     -- We can assume all `match` binders have been iteratively expanded by the above macro here, though
@@ -748,16 +738,16 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
   else
     throwUnsupportedSyntax
 
-@[builtinTermElab «let»] def elabLetDecl : TermElab :=
+@[builtin_term_elab «let»] def elabLetDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := false)
 
-@[builtinTermElab «let_fun»] def elabLetFunDecl : TermElab :=
+@[builtin_term_elab «let_fun»] def elabLetFunDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := false) (elabBodyFirst := false) (usedLetOnly := false)
 
-@[builtinTermElab «let_delayed»] def elabLetDelayedDecl : TermElab :=
+@[builtin_term_elab «let_delayed»] def elabLetDelayedDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := true) (usedLetOnly := false)
 
-@[builtinTermElab «let_tmp»] def elabLetTmpDecl : TermElab :=
+@[builtin_term_elab «let_tmp»] def elabLetTmpDecl : TermElab :=
   fun stx expectedType? => elabLetDeclCore stx expectedType? (useLetExpr := true) (elabBodyFirst := false) (usedLetOnly := true)
 
 builtin_initialize registerTraceClass `Elab.let

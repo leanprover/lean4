@@ -46,7 +46,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 
 See comment at `Monad TermElabM`
 -/
-@[alwaysInline]
+@[always_inline]
 instance : Monad TacticM :=
   let i := inferInstanceAs (Monad TacticM);
   { pure := i.pure, bind := i.bind }
@@ -103,9 +103,9 @@ protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Cor
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 
 unsafe def mkTacticAttribute : IO (KeyedDeclsAttribute Tactic) :=
-  mkElabAttribute Tactic `builtinTactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" `Lean.Elab.Tactic.tacticElabAttribute
+  mkElabAttribute Tactic `builtin_tactic `tactic `Lean.Parser.Tactic `Lean.Elab.Tactic.Tactic "tactic" `Lean.Elab.Tactic.tacticElabAttribute
 
-@[builtinInit mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
+@[builtin_init mkTacticAttribute] opaque tacticElabAttribute : KeyedDeclsAttribute Tactic
 
 def mkTacticInfo (mctxBefore : MetavarContext) (goalsBefore : List MVarId) (stx : Syntax) : TacticM Info :=
   return Info.ofTacticInfo {
@@ -342,7 +342,7 @@ def ensureHasNoMVars (e : Expr) : TacticM Unit := do
   if e.hasExprMVar then
     throwError "tactic failed, resulting expression contains metavariables{indentExpr e}"
 
-/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassinged metavariables. -/
+/-- Close main goal using the given expression. If `checkUnassigned == true`, then `val` must not contain unassigned metavariables. -/
 def closeMainGoal (val : Expr) (checkUnassigned := true): TacticM Unit := do
   if checkUnassigned then
     ensureHasNoMVars val

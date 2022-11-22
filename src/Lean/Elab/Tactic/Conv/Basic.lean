@@ -85,15 +85,15 @@ def changeLhs (lhs' : Expr) : TacticM Unit := do
   liftMetaTactic1 fun mvarId => do
     mvarId.replaceTargetDefEq (mkLHSGoalRaw (← mkEq lhs' rhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.whnf] def evalWhnf : Tactic := fun _ =>
    withMainContext do
      changeLhs (← whnf (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.reduce] def evalReduce : Tactic := fun _ =>
    withMainContext do
      changeLhs (← reduce (← getLhs))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.zeta] def evalZeta : Tactic := fun _ =>
    withMainContext do
      changeLhs (← zetaReduce (← getLhs))
 
@@ -105,10 +105,10 @@ def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
     else
       saveTacticInfoForToken arg
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeq1Indented] def evalConvSeq1Indented : Tactic := fun stx => do
   evalSepByIndentConv stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeqBracketed] def evalConvSeqBracketed : Tactic := fun stx => do
   let initInfo ← mkInitialTacticInfo stx[0]
   withRef stx[2] <| closeUsingOrAdmit do
     -- save state before/after entering focus on `{`
@@ -116,18 +116,18 @@ def evalSepByIndentConv (stx : Syntax) : TacticM Unit := do
     evalSepByIndentConv stx[1]
     evalTactic (← `(tactic| all_goals (try rfl)))
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedConv] def evalNestedConv : Tactic := fun stx => do
   evalConvSeqBracketed stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.convSeq] def evalConvSeq : Tactic := fun stx => do
   evalTactic stx[0]
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convConvSeq] def evalConvConvSeq : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.convConvSeq] def evalConvConvSeq : Tactic := fun stx =>
   withMainContext do
     let (lhsNew, proof) ← convert (← getLhs) (evalTactic stx[2][0])
     updateLhs lhsNew proof
 
-@[builtinTactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.paren] def evalParen : Tactic := fun stx =>
   evalTactic stx[1]
 
 /-- Mark goals of the form `⊢ a = ?m ..` with the conv goal annotation -/
@@ -143,11 +143,11 @@ def remarkAsConvGoal : TacticM Unit := do
       return mvarId
   setGoals newGoals
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedTacticCore] def evalNestedTacticCore : Tactic := fun stx => do
   let seq := stx[2]
   evalTactic seq; remarkAsConvGoal
 
-@[builtinTactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.nestedTactic] def evalNestedTactic : Tactic := fun stx => do
   let seq := stx[2]
   let target ← getMainTarget
   if let some _ := isLHSGoal? target then
@@ -155,7 +155,7 @@ def remarkAsConvGoal : TacticM Unit := do
       mvarId.replaceTargetDefEq target.mdataExpr!
   focus do evalTactic seq; remarkAsConvGoal
 
-@[builtinTactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.Conv.convTactic] def evalConvTactic : Tactic := fun stx =>
   evalTactic stx[2]
 
 private def convTarget (conv : Syntax) : TacticM Unit := withMainContext do
@@ -170,7 +170,7 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
    liftMetaTactic1 fun mvarId =>
      return some (← mvarId.replaceLocalDecl localDecl.fvarId typeNew proof).mvarId
 
-@[builtinTactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.Conv.conv] def evalConv : Tactic := fun stx => do
   match stx with
   | `(tactic| conv%$tk $[at $loc?]? in $(occs)? $p =>%$arr $code) =>
     evalTactic (← `(tactic| conv%$tk $[at $loc?]? =>%$arr pattern $(occs)? $p; ($code:convSeq)))
@@ -183,7 +183,7 @@ private def convLocalDecl (conv : Syntax) (hUserName : Name) : TacticM Unit := w
         convTarget code
   | _ => throwUnsupportedSyntax
 
-@[builtinTactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=
+@[builtin_tactic Lean.Parser.Tactic.Conv.first] partial def evalFirst : Tactic :=
   Tactic.evalFirst
 
 end Lean.Elab.Tactic.Conv

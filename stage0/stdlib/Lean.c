@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean
-// Imports: Init Lean.Data Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.ResolveName Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.PrettyPrinter Lean.CoreM Lean.InternalExceptionId Lean.Server Lean.ScopedEnvExtension Lean.DocString Lean.DeclarationRange Lean.LazyInitExtension Lean.LoadDynlib Lean.Widget Lean.Log Lean.Linter Lean.SubExpr Lean.Deprecated
+// Imports: Init Lean.Data Lean.Compiler Lean.Environment Lean.Modifiers Lean.ProjFns Lean.Runtime Lean.ResolveName Lean.Attributes Lean.Parser Lean.ReducibilityAttrs Lean.Elab Lean.Class Lean.LocalContext Lean.MetavarContext Lean.AuxRecursor Lean.Meta Lean.Util Lean.Eval Lean.Structure Lean.PrettyPrinter Lean.CoreM Lean.InternalExceptionId Lean.Server Lean.ScopedEnvExtension Lean.DocString Lean.DeclarationRange Lean.LazyInitExtension Lean.LoadDynlib Lean.Widget Lean.Log Lean.Linter Lean.SubExpr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -46,7 +46,6 @@ lean_object* initialize_Lean_Widget(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Log(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Linter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_SubExpr(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Deprecated(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -149,9 +148,6 @@ res = initialize_Lean_Linter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_SubExpr(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Deprecated(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

@@ -110,17 +110,17 @@ end Lean
 Maximum precedence used in term parsers, in particular for terms in
 function position (`ident`, `paren`, ...)
 -/
-macro "max"  : prec => `(1024)
+macro "max"  : prec => `(prec| 1024)
 /-- Precedence used for application arguments (`do`, `by`, ...). -/
-macro "arg"  : prec => `(1023)
+macro "arg"  : prec => `(prec| 1023)
 /-- Precedence used for terms not supposed to be used as arguments (`let`, `have`, ...). -/
-macro "lead" : prec => `(1022)
+macro "lead" : prec => `(prec| 1022)
 /-- Parentheses are used for grouping precedence expressions. -/
 macro "(" p:prec ")" : prec => return p
 /-- Minimum precedence used in term parsers. -/
-macro "min"  : prec => `(10)
+macro "min"  : prec => `(prec| 10)
 /-- `(min+1)` (we can only write `min+1` after `Meta.lean`) -/
-macro "min1" : prec => `(11)
+macro "min1" : prec => `(prec| 11)
 /--
 `max:prec` as a term. It is equivalent to `eval_prec max` for `eval_prec` defined at `Meta.lean`.
 We use `max_prec` to workaround bootstrapping issues.
@@ -128,15 +128,32 @@ We use `max_prec` to workaround bootstrapping issues.
 macro "max_prec" : term => `(1024)
 
 /-- The default priority `default = 1000`, which is used when no priority is set. -/
-macro "default" : prio => `(1000)
+macro "default" : prio => `(prio| 1000)
 /-- The standardized "low" priority `low = 100`, for things that should be lower than default priority. -/
-macro "low"     : prio => `(100)
-/-- The standardized "medium" priority `med = 1000`. This is the same as `default`. -/
-macro "mid"     : prio => `(1000)
+macro "low"     : prio => `(prio| 100)
+/--
+The standardized "medium" priority `med = 1000`. This is lower than `default`, and higher than `low`.
+-/
+macro "mid"     : prio => `(prio| 500)
 /-- The standardized "high" priority `high = 10000`, for things that should be higher than default priority. -/
-macro "high"    : prio => `(10000)
+macro "high"    : prio => `(prio| 10000)
 /-- Parentheses are used for grouping priority expressions. -/
 macro "(" p:prio ")" : prio => return p
+
+/-
+Note regarding priorities. We want `low < mid < default` because we have the following default instances:
+```
+@[default_instance low] instance (n : Nat) : OfNat Nat n where ...
+@[default_instance mid] instance : Neg Int where ...
+@[default_instance default] instance [Add α] : HAdd α α α where ...
+@[default_instance default] instance [Sub α] : HSub α α α where ...
+...
+```
+
+Monomorphic default instances must always "win" to preserve the Lean 3 monomorphic "look&feel".
+The `Neg Int` instance must have precedence over the `OfNat Nat n` one, otherwise we fail to elaborate `#check -42`
+See issue #1813 for an example that failed when `mid = default`.
+-/
 
 -- Basic notation for defining parsers
 -- NOTE: precedence must be at least `arg` to be used in `macro` without parentheses
@@ -248,23 +265,23 @@ especially when proving properties about the `ofNat` function itself.
 -/
 syntax (name := rawNatLit) "nat_lit " num : term
 
-@[inheritDoc] infixr:90 " ∘ "  => Function.comp
-@[inheritDoc] infixr:35 " × "  => Prod
+@[inherit_doc] infixr:90 " ∘ "  => Function.comp
+@[inherit_doc] infixr:35 " × "  => Prod
 
-@[inheritDoc] infixl:55 " ||| " => HOr.hOr
-@[inheritDoc] infixl:58 " ^^^ " => HXor.hXor
-@[inheritDoc] infixl:60 " &&& " => HAnd.hAnd
-@[inheritDoc] infixl:65 " + "   => HAdd.hAdd
-@[inheritDoc] infixl:65 " - "   => HSub.hSub
-@[inheritDoc] infixl:70 " * "   => HMul.hMul
-@[inheritDoc] infixl:70 " / "   => HDiv.hDiv
-@[inheritDoc] infixl:70 " % "   => HMod.hMod
-@[inheritDoc] infixl:75 " <<< " => HShiftLeft.hShiftLeft
-@[inheritDoc] infixl:75 " >>> " => HShiftRight.hShiftRight
-@[inheritDoc] infixr:80 " ^ "   => HPow.hPow
-@[inheritDoc] infixl:65 " ++ "  => HAppend.hAppend
-@[inheritDoc] prefix:100 "-"    => Neg.neg
-@[inheritDoc] prefix:100 "~~~"  => Complement.complement
+@[inherit_doc] infixl:55 " ||| " => HOr.hOr
+@[inherit_doc] infixl:58 " ^^^ " => HXor.hXor
+@[inherit_doc] infixl:60 " &&& " => HAnd.hAnd
+@[inherit_doc] infixl:65 " + "   => HAdd.hAdd
+@[inherit_doc] infixl:65 " - "   => HSub.hSub
+@[inherit_doc] infixl:70 " * "   => HMul.hMul
+@[inherit_doc] infixl:70 " / "   => HDiv.hDiv
+@[inherit_doc] infixl:70 " % "   => HMod.hMod
+@[inherit_doc] infixl:75 " <<< " => HShiftLeft.hShiftLeft
+@[inherit_doc] infixl:75 " >>> " => HShiftRight.hShiftRight
+@[inherit_doc] infixr:80 " ^ "   => HPow.hPow
+@[inherit_doc] infixl:65 " ++ "  => HAppend.hAppend
+@[inherit_doc] prefix:75 "-"    => Neg.neg
+@[inherit_doc] prefix:100 "~~~"  => Complement.complement
 
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
@@ -280,16 +297,17 @@ macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
 macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
+macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
-@[inheritDoc] infix:50 " <= " => LE.le
-@[inheritDoc] infix:50 " ≤ "  => LE.le
-@[inheritDoc] infix:50 " < "  => LT.lt
-@[inheritDoc] infix:50 " >= " => GE.ge
-@[inheritDoc] infix:50 " ≥ "  => GE.ge
-@[inheritDoc] infix:50 " > "  => GT.gt
-@[inheritDoc] infix:50 " = "  => Eq
-@[inheritDoc] infix:50 " == " => BEq.beq
+@[inherit_doc] infix:50 " <= " => LE.le
+@[inherit_doc] infix:50 " ≤ "  => LE.le
+@[inherit_doc] infix:50 " < "  => LT.lt
+@[inherit_doc] infix:50 " >= " => GE.ge
+@[inherit_doc] infix:50 " ≥ "  => GE.ge
+@[inherit_doc] infix:50 " > "  => GT.gt
+@[inherit_doc] infix:50 " = "  => Eq
+@[inherit_doc] infix:50 " == " => BEq.beq
 /-!
   Remark: the infix commands above ensure a delaborator is generated for each relations.
   We redefine the macros below to be able to use the auxiliary `binrel%` elaboration helper for binary relations.
@@ -305,28 +323,28 @@ macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
-@[inheritDoc] infixr:35 " /\\ " => And
-@[inheritDoc] infixr:35 " ∧ "   => And
-@[inheritDoc] infixr:30 " \\/ " => Or
-@[inheritDoc] infixr:30 " ∨  "  => Or
-@[inheritDoc] notation:max "¬" p:40 => Not p
+@[inherit_doc] infixr:35 " /\\ " => And
+@[inherit_doc] infixr:35 " ∧ "   => And
+@[inherit_doc] infixr:30 " \\/ " => Or
+@[inherit_doc] infixr:30 " ∨  "  => Or
+@[inherit_doc] notation:max "¬" p:40 => Not p
 
-@[inheritDoc] infixl:35 " && " => and
-@[inheritDoc] infixl:30 " || " => or
-@[inheritDoc] notation:max "!" b:40 => not b
+@[inherit_doc] infixl:35 " && " => and
+@[inherit_doc] infixl:30 " || " => or
+@[inherit_doc] notation:max "!" b:40 => not b
 
-@[inheritDoc] infix:50 " ∈ " => Membership.mem
+@[inherit_doc] infix:50 " ∈ " => Membership.mem
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
-@[inheritDoc] infixr:67 " :: " => List.cons
-@[inheritDoc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
-@[inheritDoc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
-@[inheritDoc] infixl:55  " >>= " => Bind.bind
-@[inheritDoc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
-@[inheritDoc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
-@[inheritDoc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
-@[inheritDoc] infixr:100 " <$> " => Functor.map
+@[inherit_doc] infixr:67 " :: " => List.cons
+@[inherit_doc HOrElse.hOrElse] syntax:20 term:21 " <|> " term:20 : term
+@[inherit_doc HAndThen.hAndThen] syntax:60 term:61 " >> " term:60 : term
+@[inherit_doc] infixl:55  " >>= " => Bind.bind
+@[inherit_doc] notation:60 a:60 " <*> " b:61 => Seq.seq a fun _ : Unit => b
+@[inherit_doc] notation:60 a:60 " <* " b:61 => SeqLeft.seqLeft a fun _ : Unit => b
+@[inherit_doc] notation:60 a:60 " *> " b:61 => SeqRight.seqRight a fun _ : Unit => b
+@[inherit_doc] infixr:100 " <$> " => Functor.map
 
 macro_rules | `($x <|> $y) => `(binop_lazy% HOrElse.hOrElse $x $y)
 macro_rules | `($x >> $y)  => `(binop_lazy% HAndThen.hAndThen $x $y)
@@ -350,7 +368,7 @@ syntax caseArg := binderIdent binderIdent*
 end Parser.Tactic
 end Lean
 
-@[inheritDoc dite] syntax (name := termDepIfThenElse)
+@[inherit_doc dite] syntax (name := termDepIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " Lean.binderIdent " : " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -362,7 +380,7 @@ macro_rules
     let mvar ← Lean.withRef c `(?m)
     `(let_mvar% ?m := $c; wait_if_type_mvar% ?m; dite $mvar (fun _%$h => $t) (fun _%$h => $e))
 
-@[inheritDoc ite] syntax (name := termIfThenElse)
+@[inherit_doc ite] syntax (name := termIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -381,10 +399,15 @@ match d with
 It matches `d` against the pattern `pat` and the bindings are available in `t`.
 If the pattern does not match, it returns `e` instead.
 -/
-macro "if " "let " pat:term " := " d:term " then " t:term " else " e:term : term =>
-  `(match $d:term with | $pat => $t | _ => $e)
+syntax (name := termIfLet)
+  ppRealGroup(ppRealFill(ppIndent("if " "let " term " := " term " then") ppSpace term)
+    ppDedent(ppSpace) ppRealFill("else " term)) : term
 
-@[inheritDoc cond] syntax (name := boolIfThenElse)
+macro_rules
+  | `(if let $pat := $d then $t else $e) =>
+    `(match $d:term with | $pat => $t | _ => $e)
+
+@[inherit_doc cond] syntax (name := boolIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("bif " term " then") ppSpace term)
     ppDedent(ppSpace) ppRealFill("else " term)) : term
 
@@ -424,7 +447,7 @@ macro_rules
   | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
-@[inheritDoc Subtype] syntax "{ " ident (" : " term)? " // " term " }" : term
+@[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
 
 macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
@@ -448,7 +471,7 @@ which uses let bindings as intermediates as in
 Note that this changes the order of evaluation, although it should not be observable
 unless you use side effecting operations like `dbg_trace`.
 -/
-syntax "[" term,* "]"  : term
+syntax "[" withoutPosition(term,*) "]"  : term
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
@@ -456,7 +479,7 @@ The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
 It uses binary partitioning to construct a tree of intermediate let bindings as in
 `let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
 -/
-syntax "%[" term,* "|" term "]" : term
+syntax "%[" withoutPosition(term,* "|" term) "]" : term
 
 namespace Lean
 
@@ -476,7 +499,8 @@ macro_rules
 -- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
 -- The keyword prevents declaring a `this` binding except through metaprogramming, as is done by `have`/`show`.
 /-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
-macro tk:"this" : term => return Syntax.ident tk.getHeadInfo "this".toSubstring `this []
+macro tk:"this" : term =>
+  return (⟨(Syntax.ident tk.getHeadInfo "this".toSubstring `this [])⟩ : TSyntax `term)
 
 /--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.

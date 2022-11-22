@@ -8,7 +8,7 @@ import Lean.Meta.Injective
 
 namespace Lean.Elab.Command
 
-@[builtinCommandElab genInjectiveTheorems] def elabGenInjectiveTheorems : CommandElab := fun stx => do
+@[builtin_command_elab genInjectiveTheorems] def elabGenInjectiveTheorems : CommandElab := fun stx => do
   let declName ← resolveGlobalConstNoOverloadWithInfo stx[1]
   liftTermElabM do
     Meta.mkInjectiveTheorems declName

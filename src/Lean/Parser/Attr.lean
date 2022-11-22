@@ -9,12 +9,12 @@ import Lean.Parser.Extra
 namespace Lean.Parser
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinPrioParser ``Category.prio .both
-  registerBuiltinDynamicParserAttribute `prioParser `prio
+  registerBuiltinParserAttribute `builtin_prio_parser ``Category.prio .both
+  registerBuiltinDynamicParserAttribute `prio_parser `prio
 
 builtin_initialize
-  registerBuiltinParserAttribute `builtinAttrParser ``Category.attr .symbol
-  registerBuiltinDynamicParserAttribute `attrParser `attr
+  registerBuiltinParserAttribute `builtin_attr_parser ``Category.attr .symbol
+  registerBuiltinDynamicParserAttribute `attr_parser `attr
 
 @[inline] def priorityParser (rbp : Nat := 0) : Parser :=
   categoryParser `prio rbp
@@ -22,30 +22,30 @@ builtin_initialize
 @[inline] def attrParser (rbp : Nat := 0) : Parser :=
   categoryParser `attr rbp
 
-attribute [runBuiltinParserAttributeHooks]
+attribute [run_builtin_parser_attribute_hooks]
   priorityParser attrParser
 
 namespace Priority
-@[builtinPrioParser] def numPrio  := checkPrec maxPrec >> numLit
-attribute [runBuiltinParserAttributeHooks] numPrio
+@[builtin_prio_parser] def numPrio  := checkPrec maxPrec >> numLit
+attribute [run_builtin_parser_attribute_hooks] numPrio
 end Priority
 
 namespace Attr
 
-@[builtinAttrParser] def simple     := leading_parser ident >> optional (priorityParser <|> ident)
+@[builtin_attr_parser] def simple     := leading_parser ident >> optional (priorityParser <|> ident)
 /- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are keywords. -/
-@[builtinAttrParser] def «macro»    := leading_parser "macro " >> ident
-@[builtinAttrParser] def «export»   := leading_parser "export " >> ident
+@[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
+@[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
 
 /- We don't use `simple` for recursor because the argument is not a priority -/
-@[builtinAttrParser] def recursor        := leading_parser nonReservedSymbol "recursor " >> numLit
-@[builtinAttrParser] def «class»         := leading_parser "class"
-@[builtinAttrParser] def «instance»      := leading_parser "instance" >> optional priorityParser
-@[builtinAttrParser] def defaultInstance := leading_parser nonReservedSymbol "defaultInstance " >> optional priorityParser
-@[builtinAttrParser] def «specialize»    := leading_parser (nonReservedSymbol "specialize") >> many (ident <|> numLit)
+@[builtin_attr_parser] def recursor         := leading_parser nonReservedSymbol "recursor " >> numLit
+@[builtin_attr_parser] def «class»          := leading_parser "class"
+@[builtin_attr_parser] def «instance»       := leading_parser "instance" >> optional priorityParser
+@[builtin_attr_parser] def default_instance := leading_parser nonReservedSymbol "default_instance " >> optional priorityParser
+@[builtin_attr_parser] def «specialize»     := leading_parser (nonReservedSymbol "specialize") >> many (ident <|> numLit)
 
 def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
-@[builtinAttrParser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
+@[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
 
 end Attr
 

@@ -485,14 +485,17 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
     return none
 
 /--
-  Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
-  expand let-expressions, expand assigned meta-variables.
+Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
+expand let-expressions, expand assigned meta-variables.
 
-  The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
-  then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
-  We only set this flag to `false` when implementing `isDefEq`.
+The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
+then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
+We only set this flag to `false` when implementing `isDefEq`.
+
+If `simpleReduceOnly`, then `iota` and projection reduction are not performed.
+Note that the value of `deltaAtProj` is irrelevant if `simpleReduceOnly = true`.
 -/
-partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) : MetaM Expr :=
+partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) (simpleReduceOnly := false) : MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr :=
@@ -511,26 +514,32 @@ where
           go eNew
         else
           let e := if f == f' then e else e.updateFn f'
-          match (← reduceMatcher? e) with
-          | ReduceMatcherResult.reduced eNew => go eNew
-          | ReduceMatcherResult.partialApp   => pure e
-          | ReduceMatcherResult.stuck _      => pure e
-          | ReduceMatcherResult.notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-              | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
-              | c@(ConstantInfo.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+          if simpleReduceOnly then
+            return e
+          else
+            match (← reduceMatcher? e) with
+            | ReduceMatcherResult.reduced eNew => go eNew
+            | ReduceMatcherResult.partialApp   => pure e
+            | ReduceMatcherResult.stuck _      => pure e
+            | ReduceMatcherResult.notMatcher   =>
+              matchConstAux f' (fun _ => return e) fun cinfo lvls =>
+                match cinfo with
+                | ConstantInfo.recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
+                | ConstantInfo.quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+                | c@(ConstantInfo.defnInfo _) => do
+                  if (← isAuxDef c.name) then
+                    deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+                  else
+                    return e
+                | _ => return e
       | Expr.proj _ i c =>
-        let c ← if deltaAtProj then whnf c else whnfCore c
-        match (← projectCore? c i) with
-        | some e => go e
-        | none => return e
+        if simpleReduceOnly then
+          return e
+        else
+          let c ← if deltaAtProj then whnf c else whnfCore c
+          match (← projectCore? c i) with
+          | some e => go e
+          | none => return e
       | _ => unreachable!
 
 /--
@@ -747,8 +756,8 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
 
 unsafe def reduceBoolNativeUnsafe (constName : Name) : MetaM Bool := evalConstCheck Bool `Bool constName
 unsafe def reduceNatNativeUnsafe (constName : Name) : MetaM Nat := evalConstCheck Nat `Nat constName
-@[implementedBy reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
-@[implementedBy reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
+@[implemented_by reduceBoolNativeUnsafe] opaque reduceBoolNative (constName : Name) : MetaM Bool
+@[implemented_by reduceNatNativeUnsafe] opaque reduceNatNative (constName : Name) : MetaM Nat
 
 def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   match e with

@@ -16,18 +16,37 @@ def markUsedFVar (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with used := s.used.insert fvarId }
 
 /--
-Mark all free variables occurring in `e` as used.
+Mark all free variables occurring in `type` as used.
 This is information is used to eliminate dead local declarations.
 -/
-def markUsedExpr (e : Expr) : SimpM Unit :=
-  modify fun s => { s with used := collectLocalDecls s.used e }
+def markUsedType (type : Expr) : SimpM Unit :=
+  modify fun s => { s with used := collectLocalDeclsType s.used type }
+
+/--
+Mark all free variables occurring in `arg` as used.
+-/
+def markUsedArg (arg : Arg) : SimpM Unit :=
+  match arg with
+  | .fvar fvarId => markUsedFVar fvarId
+  | .type type => markUsedType type
+  | .erased => return ()
+
+/--
+Mark all free variables occurring in `e` as used.
+-/
+def markUsedLetValue (e : LetValue) : SimpM Unit := do
+  match e with
+  | .value .. | .erased => return ()
+  | .proj _ _ fvarId => markUsedFVar fvarId
+  | .const _ _ args => args.forM markUsedArg
+  | .fvar fvarId args => markUsedFVar fvarId; args.forM markUsedArg
 
 /--
 Mark all free variables occurring on the right-hand side of the given let declaration as used.
 This is information is used to eliminate dead local declarations.
 -/
 def markUsedLetDecl (letDecl : LetDecl) : SimpM Unit :=
-  markUsedExpr letDecl.value
+  markUsedLetValue letDecl.value
 
 mutual
 /--
@@ -39,7 +58,7 @@ partial def markUsedCode (code : Code) : SimpM Unit := do
   | .jp decl k | .fun decl k => markUsedFunDecl decl; markUsedCode k
   | .return fvarId => markUsedFVar fvarId
   | .unreach .. => return ()
-  | .jmp fvarId args => markUsedFVar fvarId; args.forM markUsedExpr
+  | .jmp fvarId args => markUsedFVar fvarId; args.forM markUsedArg
   | .cases c => markUsedFVar c.discr; c.alts.forM fun alt => markUsedCode alt.getCode
 
 /--

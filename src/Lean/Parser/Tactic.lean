@@ -18,9 +18,10 @@ to improve syntax error messages.
 example : True := by foo -- unknown tactic
 ```
 -/
-@[builtinTacticParser] def «unknown»    := leading_parser withPosition (ident >> errorAtSavedPos "unknown tactic" true)
+@[builtin_tactic_parser] def «unknown»    := leading_parser
+  withPosition (ident >> errorAtSavedPos "unknown tactic" true)
 
-@[builtinTacticParser] def nestedTactic := tacticSeqBracketed
+@[builtin_tactic_parser] def nestedTactic := tacticSeqBracketed
 
 def matchRhs  := Term.hole <|> Term.syntheticHole <|> tacticSeq
 def matchAlts := Term.matchAlts (rhsParser := matchRhs)
@@ -38,7 +39,10 @@ example (n : Nat) : n = n := by
 
 [tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/induction_and_recursion.html
 -/
-@[builtinTacticParser] def «match» := leading_parser:leadPrec "match " >> optional Term.generalizingParam >> optional Term.motive >> sepBy1 Term.matchDiscr ", " >> " with " >> ppDedent matchAlts
+@[builtin_tactic_parser] def «match» := leading_parser:leadPrec
+  "match " >> optional Term.generalizingParam >>
+  optional Term.motive >> sepBy1 Term.matchDiscr ", " >>
+  " with " >> ppDedent matchAlts
 
 /--
 The tactic
@@ -57,7 +61,8 @@ match x with
 That is, `intro` can be followed by match arms and it introduces the values while
 doing a pattern match. This is equivalent to `fun` with match arms in term mode.
 -/
-@[builtinTacticParser] def introMatch := leading_parser nonReservedSymbol "intro " >> matchAlts
+@[builtin_tactic_parser] def introMatch := leading_parser
+  nonReservedSymbol "intro " >> matchAlts
 
 /-- `decide` will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Because this uses kernel
@@ -67,7 +72,8 @@ by well founded recursion, since this requires reducing proofs.
 example : 2 + 2 ≠ 5 := by decide
 ```
 -/
-@[builtinTacticParser] def decide := leading_parser nonReservedSymbol "decide"
+@[builtin_tactic_parser] def decide := leading_parser
+  nonReservedSymbol "decide"
 
 /-- `native_decide` will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
@@ -82,7 +88,8 @@ large computations this is one way to run external programs and trust the result
 example : (List.range 1000).length = 1000 := by native_decide
 ```
 -/
-@[builtinTacticParser] def nativeDecide := leading_parser nonReservedSymbol "native_decide"
+@[builtin_tactic_parser] def nativeDecide := leading_parser
+  nonReservedSymbol "native_decide"
 
 end Tactic
 end Parser

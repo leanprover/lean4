@@ -1,21 +1,13 @@
 import Lean.Data.Options
-import Lean.Elab.Command
 import Lean.Server.InfoUtils
+import Lean.Linter.Basic
 
 namespace Lean.Linter
 
-register_builtin_option linter.all : Bool := {
-  defValue := false
-  descr := "enable all linters"
-}
+open Lean.Elab
 
-def getLinterAll (o : Options) (defValue := linter.all.defValue) : Bool := o.get linter.all.name defValue
-
-def getLinterValue (opt : Lean.Option Bool) (o : Options) : Bool := o.get opt.name (getLinterAll o opt.defValue)
-
-open Lean.Elab Lean.Elab.Command
-
-def logLint (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : CommandElabM Unit :=
+def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   logWarningAt stx (.tagged linterOption.name m!"{msg} [{linterOption.name}]")
 
 /-- Go upwards through the given `tree` starting from the smallest node that
@@ -26,10 +18,10 @@ The result is `some []` if no `MacroExpansionInfo` was found on the way and
 Return the result reversed, s.t. the macro expansion that would be applied to
 the original syntax first is the first element of the returned list. -/
 def collectMacroExpansions? {m} [Monad m] (range : String.Range) (tree : Elab.InfoTree) : m <| Option <| List Elab.MacroExpansionInfo := do
-    if let .some <| .some result ← go then
-      return some result.reverse
-    else
-      return none
+  if let .some <| .some result ← go then
+    return some result.reverse
+  else
+    return none
 where
   go : m <| Option <| Option <| List Elab.MacroExpansionInfo := tree.visitM (postNode := fun _ i _ results => do
     let results := results |>.filterMap id |>.filterMap id
@@ -47,7 +39,3 @@ where
         return some []
     else
       return none)
-
-abbrev IgnoreFunction := Syntax → Syntax.Stack → Options → Bool
-
-end Lean.Linter

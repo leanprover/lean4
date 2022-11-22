@@ -202,8 +202,8 @@ string_ref name_mangle(name const & n, string_ref const & pre) {
 }
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
-format format_fn_body_head(fn_body const & b) {
-    return format(lean_ir_format_fn_body_head(b.to_obj_arg()));
+std::string format_fn_body_head(fn_body const & b) {
+    return string_to_std(lean_ir_format_fn_body_head(b.to_obj_arg()));
 }
 
 static bool type_is_scalar(type t) {
@@ -297,11 +297,18 @@ void print_value(tout const & ios, value const & v, type t) {
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
-    HMODULE hmods[128];  // 128 modules should be enough for everyone
+    std::vector<HMODULE> hmods(128);
     DWORD bytes_needed;
-    lean_always_assert(EnumProcessModules(GetCurrentProcess(), hmods, sizeof(hmods), &bytes_needed));
-    for (int i = 0; i < bytes_needed / sizeof(HMODULE); i++) {
-        void * addr = reinterpret_cast<void *>(GetProcAddress(hmods[i], sym));
+    lean_always_assert(EnumProcessModules(GetCurrentProcess(), &hmods[0], hmods.size() * sizeof(HMODULE), &bytes_needed));
+    unsigned num_mods = bytes_needed / sizeof(HMODULE);
+    if (num_mods > hmods.size()) {
+        hmods.resize(num_mods);
+        lean_always_assert(EnumProcessModules(GetCurrentProcess(), &hmods[0], hmods.size() * sizeof(HMODULE), &bytes_needed));
+    } else {
+        hmods.resize(num_mods);
+    }
+    for (HMODULE hmod : hmods) {
+        void * addr = reinterpret_cast<void *>(GetProcAddress(hmod, sym));
         if (addr) {
             return addr;
         }

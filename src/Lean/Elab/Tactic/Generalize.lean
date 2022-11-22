@@ -12,7 +12,7 @@ import Lean.Elab.Tactic.Location
 namespace Lean.Elab.Tactic
 open Meta
 
-@[builtinTactic Lean.Parser.Tactic.generalize] def evalGeneralize : Tactic := fun stx =>
+@[builtin_tactic Lean.Parser.Tactic.generalize] def evalGeneralize : Tactic := fun stx =>
   withMainContext do
     let args ← stx[1].getSepArgs.mapM fun arg => do
       let hName? := if arg[0].isNone then none else some arg[0][0].getId

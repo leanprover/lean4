@@ -27,7 +27,7 @@ def _root_.Lean.MVarId.refl (mvarId : MVarId) : MetaM Unit := do
     let lhs ← instantiateMVars targetType.appFn!.appArg!
     let rhs ← instantiateMVars targetType.appArg!
     let success ← if (← useKernel lhs rhs) then
-      pure (Kernel.isDefEq (← getEnv) {} lhs rhs)
+      ofExceptKernelException (Kernel.isDefEq (← getEnv) {} lhs rhs)
     else
       isDefEq lhs rhs
     unless success do
@@ -50,6 +50,14 @@ Try to apply `heq_of_eq`. If successful, then return new goal, otherwise return 
 def _root_.Lean.MVarId.heqOfEq (mvarId : MVarId) : MetaM MVarId :=
   mvarId.withContext do
     let some [mvarId] ← observing? do mvarId.apply (mkConst ``heq_of_eq [← mkFreshLevelMVar]) | return mvarId
+    return mvarId
+
+/--
+Try to apply `eq_of_heq`. If successful, then return new goal, otherwise return `mvarId`.
+-/
+def _root_.Lean.MVarId.eqOfHEq (mvarId : MVarId) : MetaM MVarId :=
+  mvarId.withContext do
+    let some [mvarId] ← observing? do mvarId.apply (mkConst ``eq_of_heq [← mkFreshLevelMVar]) | return mvarId
     return mvarId
 
 /--

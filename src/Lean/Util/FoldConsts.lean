@@ -10,7 +10,7 @@ namespace Lean
 namespace Expr
 namespace FoldConstsImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   visitedTerms  : Array Expr  -- Remark: cache based on pointer address. Our "unsafe" implementation relies on the fact that `()` is not a valid Expr
@@ -60,7 +60,7 @@ unsafe def initCache : State :=
 end FoldConstsImpl
 
 /-- Apply `f` to every constant occurring in `e` once. -/
-@[implementedBy FoldConstsImpl.foldUnsafe]
+@[implemented_by FoldConstsImpl.foldUnsafe]
 opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 def getUsedConstants (e : Expr) : Array Name :=

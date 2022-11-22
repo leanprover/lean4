@@ -58,7 +58,7 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
 
 declare_config_elab elabRewriteConfig Rewrite.Config
 
-@[builtinTactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.rewriteSeq] def evalRewriteSeq : Tactic := fun stx => do
   let cfg ← elabRewriteConfig stx[1]
   let loc   := expandOptLocation stx[3]
   withRWRulesSeq stx[0] stx[2] fun symm term => do

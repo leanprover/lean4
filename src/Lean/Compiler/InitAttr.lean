@@ -69,7 +69,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
                 runInit ctx.env ctx.opts decl initDecl
   }
 
-@[implementedBy registerInitAttrUnsafe]
+@[implemented_by registerInitAttrUnsafe]
 private opaque registerInitAttrInner (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name)
 
 @[inline]
@@ -77,7 +77,7 @@ def registerInitAttr (attrName : Name) (runAfterImport : Bool) (ref : Name := by
   registerInitAttrInner attrName runAfterImport ref
 
 builtin_initialize regularInitAttr : ParametricAttribute Name ← registerInitAttr `init true
-builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtinInit false
+builtin_initialize builtinInitAttr : ParametricAttribute Name ← registerInitAttr `builtin_init false
 
 def getInitFnNameForCore? (env : Environment) (attr : ParametricAttribute Name) (fn : Name) : Option Name :=
   match attr.getParam? env fn with

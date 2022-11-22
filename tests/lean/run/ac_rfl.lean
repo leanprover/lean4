@@ -8,25 +8,49 @@ instance : IsAssociative (α := Nat) HMul.hMul := ⟨Nat.mul_assoc⟩
 instance : IsCommutative (α := Nat) HMul.hMul := ⟨Nat.mul_comm⟩
 instance : IsNeutral HMul.hMul 1 := ⟨Nat.one_mul, Nat.mul_one⟩
 
-theorem max_assoc (n m k : Nat) : max (max n m) k = max n (max m k) := by
-  simp [max]; split <;> split <;> try split <;> try rfl
-  case inl hmn nhkn hkm => exact False.elim $ nhkn $ Nat.lt_trans hkm hmn
-  . rfl
-  case inl nhmn nhkm hkn => apply absurd hkn; simp [Nat.not_lt_eq] at *; exact Nat.le_trans nhmn nhkm
+@[simp] theorem succ_le_succ_iff {x y : Nat} : x.succ ≤ y.succ ↔ x ≤ y :=
+  ⟨Nat.le_of_succ_le_succ, Nat.succ_le_succ⟩
 
-theorem max_comm (n m : Nat) : max n m = max m n := by
-  simp [max]; split <;> split <;> try rfl
-  case inl h₁ h₂ => apply absurd (Nat.lt_trans h₁ h₂); apply Nat.lt_irrefl
-  case inr h₁ h₂ => simp [Nat.not_lt_eq] at *; apply Nat.le_antisymm <;> assumption
+@[simp] theorem add_le_add_right_iff {x y z : Nat} : x + z ≤ y + z ↔ x ≤ y := by
+  induction z <;> simp_all [Nat.add_succ]
 
-theorem max_idem (n : Nat) : max n n = n := by
-  simp [max]
+set_option linter.unusedVariables false in
+theorem le_ext : ∀ {x y : Nat} (h : ∀ z, z ≤ x ↔ z ≤ y), x = y
+  | 0, 0, _ => rfl
+  | x+1, y+1, h => congrArg (· + 1) <| le_ext fun z => have := h (z + 1); by simp_all
+  | 0, y+1, h => have := h 1; by simp_all
+  | x+1, 0, h => have := h 1; by simp_all
 
-theorem Nat.zero_max (n : Nat) : max 0 n = n := by
-  simp [max]; rfl
+theorem le_or_le : ∀ (a b : Nat), a ≤ b ∨ b ≤ a
+  | x+1, y+1 => by simp [le_or_le x y]
+  | 0, 0 | x+1, 0 | 0, y+1 => by simp
 
-theorem Nat.max_zero (n : Nat) : max n 0 = n := by
-  rw [max_comm, Nat.zero_max]
+theorem le_of_not_le {a b : Nat} (h : ¬ a ≤ b) : b ≤ a :=
+  match le_or_le a b with | .inl ab => (h ab).rec | .inr ba => ba
+
+@[simp] theorem le_max_iff {x y z : Nat} : x ≤ max y z ↔ x ≤ y ∨ x ≤ z := by
+  simp only [Nat.max_def]
+  split
+  · exact Iff.intro .inr fun | .inl xy => Nat.le_trans ‹_› ‹_› | .inr xz => ‹_›
+  · exact Iff.intro .inl fun | .inl xy => ‹_› | .inr xz => Nat.le_trans ‹_› (le_of_not_le ‹_›)
+
+theorem or_assoc : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := by
+  by_cases p <;> by_cases q <;> by_cases r <;> simp_all
+
+theorem or_comm : p ∨ q ↔ q ∨ p := by
+  by_cases p <;> by_cases q <;> simp_all
+
+theorem max_assoc (n m k : Nat) : max (max n m) k = max n (max m k) :=
+  le_ext (by simp [or_assoc])
+
+theorem max_comm (n m : Nat) : max n m = max m n :=
+  le_ext (by simp [or_comm])
+
+theorem max_idem (n : Nat) : max n n = n := le_ext (by simp)
+
+theorem Nat.zero_max (n : Nat) : max 0 n = n := by simp [Nat.max_def]
+
+theorem Nat.max_zero (n : Nat) : max n 0 = n := by rw [max_comm, Nat.zero_max]
 
 instance : IsAssociative (α := Nat) max := ⟨max_assoc⟩
 instance : IsCommutative (α := Nat) max := ⟨max_comm⟩
@@ -39,11 +63,7 @@ instance : IsIdempotent And := ⟨λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp
 instance : IsNeutral And True :=
   ⟨λ p => propext ⟨λ ⟨_, hp⟩ => hp, λ hp => ⟨True.intro, hp⟩⟩, λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, True.intro⟩⟩⟩
 
-theorem or_assoc (p q r : Prop) : ((p ∨ q) ∨ r) = (p ∨ q ∨ r) :=
-  propext ⟨λ hpqr => hpqr.elim (λ hpq => hpq.elim Or.inl $ λ hq => Or.inr $ Or.inl hq) $ λ hr => Or.inr $ Or.inr hr,
-    λ hpqr => hpqr.elim (λ hp => Or.inl $ Or.inl hp) $ λ hqr => hqr.elim (λ hq => Or.inl $ Or.inr hq) Or.inr⟩
-
-instance : IsAssociative Or := ⟨or_assoc⟩
+instance : IsAssociative Or := ⟨by simp [or_assoc]⟩
 instance : IsCommutative Or := ⟨λ p q => propext ⟨λ hpq => hpq.elim Or.inr Or.inl, λ hqp => hqp.elim Or.inr Or.inl⟩⟩
 instance : IsIdempotent Or := ⟨λ p => propext ⟨λ hp => hp.elim id id, Or.inl⟩⟩
 instance : IsNeutral Or False :=

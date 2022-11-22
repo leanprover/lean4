@@ -57,7 +57,7 @@ def popFront (s : Subarray α) : Subarray α :=
   loop (USize.ofNat s.start) b
 
 -- TODO: provide reference implementation
-@[implementedBy Subarray.forInUnsafe]
+@[implemented_by Subarray.forInUnsafe]
 protected opaque forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (s : Subarray α) (b : β) (f : α → β → m (ForInStep β)) : m β :=
   pure b
 
@@ -104,6 +104,28 @@ def any {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
 def all {α : Type u} (p : α → Bool) (as : Subarray α) : Bool :=
   Id.run <| as.allM p
 
+@[inline]
+def findSomeRevM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Subarray α) (f : α → m (Option β)) : m (Option β) :=
+  let rec @[specialize] find : (i : Nat) → i ≤ as.size → m (Option β)
+    | 0,   _ => pure none
+    | i+1, h => do
+      have : i < as.size := Nat.lt_of_lt_of_le (Nat.lt_succ_self _) h
+      let r ← f as[i]
+      match r with
+      | some _ => pure r
+      | none   =>
+        have : i ≤ as.size := Nat.le_of_lt this
+        find i this
+  find as.size (Nat.le_refl _)
+
+@[inline]
+def findRevM? {α : Type} {m : Type → Type w} [Monad m] (as : Subarray α) (p : α → m Bool) : m (Option α) :=
+  as.findSomeRevM? fun a => return if (← p a) then some a else none
+
+@[inline]
+def findRev? {α : Type} (as : Subarray α) (p : α → Bool) : Option α :=
+  Id.run <| as.findRevM? p
+
 end Subarray
 
 namespace Array
@@ -132,9 +154,9 @@ def extract (as : Array α) (start stop : Nat) : Array α :=
 
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
-syntax:max term noWs "[" term ":" term "]" : term
-syntax:max term noWs "[" term ":" "]" : term
-syntax:max term noWs "[" ":" term "]" : term
+syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term
+syntax:max term noWs "[" withoutPosition(term ":") "]" : term
+syntax:max term noWs "[" withoutPosition(":" term) "]" : term
 
 macro_rules
   | `($a[$start : $stop]) => `(Array.toSubarray $a $start $stop)

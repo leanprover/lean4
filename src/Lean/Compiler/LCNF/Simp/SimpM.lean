@@ -75,7 +75,7 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 
-@[alwaysInline]
+@[always_inline]
 instance : Monad SimpM := let i := inferInstanceAs (Monad SimpM); { pure := i.pure, bind := i.bind }
 
 instance : MonadFVarSubst SimpM false where
@@ -112,7 +112,7 @@ def addFunOcc (fvarId : FVarId) : SimpM Unit :=
 def addFunHoOcc (fvarId : FVarId) : SimpM Unit :=
   modify fun s => { s with funDeclInfoMap := s.funDeclInfoMap.addHo fvarId }
 
-@[inheritDoc FunDeclInfoMap.update]
+@[inherit_doc FunDeclInfoMap.update]
 partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit := do
   let map ← modifyGet fun s => (s.funDeclInfoMap, { s with funDeclInfoMap := {} })
   let map ← map.update code mustInline
@@ -122,9 +122,8 @@ partial def updateFunDeclInfo (code : Code) (mustInline := false) : SimpM Unit :
 Execute `x` with an updated `inlineStack`. If `value` is of the form `const ...`, add `const` to the stack.
 Otherwise, do not change the `inlineStack`.
 -/
-@[inline] def withInlining (value : Expr) (recursive : Bool) (x : SimpM α) : SimpM α := do
-  let f := value.getAppFn
-  if let .const declName _ := f then
+@[inline] def withInlining (value : LetValue) (recursive : Bool) (x : SimpM α) : SimpM α := do
+  if let .const declName _ _ := value then
     let numOccs ← check declName
     withReader (fun ctx => { ctx with inlineStack := declName :: ctx.inlineStack, inlineStackOccs := ctx.inlineStackOccs.insert declName numOccs }) x
   else
@@ -136,7 +135,7 @@ where
     let numOccs := numOccs + 1
     let inlineIfReduce ← if let some decl ← getDecl? declName then pure decl.inlineIfReduceAttr else pure false
     if recursive && inlineIfReduce && numOccs > (← getConfig).maxRecInlineIfReduce then
-      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inlineIfReduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
+      throwError "function `{declName}` has been recursively inlined more than #{(← getConfig).maxRecInlineIfReduce}, consider removing the attribute `[inline_if_reduce]` from this declaration or increasing the limit using `set_option compiler.maxRecInlineIfReduce <num>`"
     return numOccs
 
 /--
@@ -209,10 +208,10 @@ LCNF "Beta-reduce". The equivalent of `(fun params => code) args`.
 If `mustInline` is true, the local function declarations in the resulting code are marked as `.mustInline`.
 See comment at `updateFunDeclInfo`.
 -/
-def betaReduce (params : Array Param) (code : Code) (args : Array Expr) (mustInline := false) : SimpM Code := do
+def betaReduce (params : Array Param) (code : Code) (args : Array Arg) (mustInline := false) : SimpM Code := do
   let mut subst := {}
   for param in params, arg in args do
-    subst := subst.insert param.fvarId arg
+    subst := subst.insert param.fvarId arg.toExpr
   let code ← code.internalize subst
   updateFunDeclInfo code mustInline
   return code

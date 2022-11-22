@@ -69,7 +69,7 @@ protected def mul (m n : @& Int) : Int :=
   #check -42
   ```
 -/
-@[defaultInstance mid]
+@[default_instance mid]
 instance : Neg Int where
   neg := Int.neg
 instance : Add Int where
@@ -158,8 +158,6 @@ def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0
 
-def natMod (m n : Int) : Nat := (m % n).toNat
-
 protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
@@ -170,5 +168,9 @@ instance : HPow Int Nat Int where
 instance : LawfulBEq Int where
   eq_of_beq h := by simp [BEq.beq] at h; assumption
   rfl := by simp [BEq.beq]
+
+instance : Min Int := minOfLe
+
+instance : Max Int := maxOfLe
 
 end Int

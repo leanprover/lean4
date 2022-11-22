@@ -16,7 +16,7 @@ example (n : Nat) : True := by
 
 
 /-- My tactic -/
-macro "mytac" o:"only"? e:term : tactic => `(exact $e)
+macro "mytac" o:"only"? e:term : tactic => `(tactic| exact $e)
 
 example : True := by
   mytac only True.intro
@@ -70,7 +70,7 @@ elab_rules : term
 #check mynota' 1
      --^ textDocument/hover
 
-@[inheritDoc]
+@[inherit_doc]
 infix:65 (name := myInfix) " >+< " => Nat.add
                    --^ textDocument/hover
                                      --^ textDocument/hover
@@ -78,7 +78,7 @@ infix:65 (name := myInfix) " >+< " => Nat.add
 #check 1 >+< 2
         --^ textDocument/hover
 
-@[inheritDoc] notation "ℕ" => Nat
+@[inherit_doc] notation "ℕ" => Nat
 
 #check ℕ
      --^ textDocument/hover
@@ -175,6 +175,9 @@ example : Nat → Nat → Nat :=
     x
   --^ textDocument/hover
 
+           -- textDocument/definition -- removed because the result is platform-dependent
+set_option linter.unusedVariables false in
+          --^ textDocument/hover
 example : Nat → Nat → Nat := by
   intro x y
       --^ textDocument/hover
@@ -201,7 +204,7 @@ example : Nat := Id.run do (← 1)
 
 #check (· + ·)
       --^ textDocument/hover
-
+        --^ textDocument/hover
 macro "my_intro" x:(ident <|> "_") : tactic =>
   match x with
   | `($x:ident) => `(tactic| intro $x:ident)
@@ -244,3 +247,7 @@ example : Nat → Nat
     --v textDocument/hover
   | .succ x => .succ x
                --^ textDocument/hover
+
+example : Inhabited Nat := ⟨Nat.zero⟩
+                         --^ textDocument/hover
+                          --^ textDocument/hover

@@ -24,8 +24,8 @@ StxQuot.lean:19:15: error: expected term
 0
 1
 "1"
-"(Term.fun\n \"fun\"\n (Term.basicFun\n  [`a._@.UnhygienicMain._hyg.1\n   (Term.paren \"(\" [`b._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\")]\n  []\n  \"=>\"\n  (num \"1\")))"
-"#[(Term.paren \"(\" [`a._@.UnhygienicMain._hyg.1 [(Term.typeAscription \":\" `Nat._@.UnhygienicMain._hyg.1)]] \")\"), `b._@.UnhygienicMain._hyg.1]"
+"(Term.fun\n \"fun\"\n (Term.basicFun\n  [`a._@.UnhygienicMain._hyg.1\n   (Term.typeAscription \"(\" `b._@.UnhygienicMain._hyg.1 \":\" [`Nat._@.UnhygienicMain._hyg.1] \")\")]\n  []\n  \"=>\"\n  (num \"1\")))"
+"#[(Term.typeAscription \"(\" `a._@.UnhygienicMain._hyg.1 \":\" [`Nat._@.UnhygienicMain._hyg.1] \")\"), `b._@.UnhygienicMain._hyg.1]"
 "`a._@.UnhygienicMain._hyg.1"
 "(Term.forall \"∀\" [(Term.hole \"_\")] [] \",\" `c._@.UnhygienicMain._hyg.1)"
 "(Term.hole \"_\")"
@@ -44,7 +44,7 @@ StxQuot.lean:19:15: error: expected term
 "#[(num \"1\"), [(num \"2\") (num \"3\")], (num \"4\")]"
 "#[(num \"2\")]"
 StxQuot.lean:95:39-95:44: error: unexpected antiquotation splice
-fun a => sorryAx (?m a) true : (a : ?m) → ?m a
+fun x => sorryAx (?m x) true : (x : ?m) → ?m x
 "#[(some 1), (some 2)]"
 StxQuot.lean:102:13-102:14: error: unknown identifier 'x' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check.
 "`id._@.UnhygienicMain._hyg.1"
@@ -55,3 +55,4 @@ StxQuot.lean:108:22-108:23: error: unknown identifier 'y' at quotation precheck;
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [`x._@.UnhygienicMain._hyg.1 `y._@.UnhygienicMain._hyg.1]\n  []\n  \"=>\"\n  (Term.app `x._@.UnhygienicMain._hyg.1 [`y._@.UnhygienicMain._hyg.1])))"
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [(Term.anonymousCtor \"⟨\" [`x._@.UnhygienicMain._hyg.1 \",\" `y._@.UnhygienicMain._hyg.1] \"⟩\")]\n  []\n  \"=>\"\n  `x._@.UnhygienicMain._hyg.1))"
 "1"
+"(mycatMystx \"mystx\")"

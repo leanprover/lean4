@@ -17,14 +17,13 @@ def header     := leading_parser optional («prelude» >> ppLine) >> many («imp
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
   return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
   for it in order to auto-generate helpers such as the pretty printer. -/
-@[runBuiltinParserAttributeHooks]
+@[run_builtin_parser_attribute_hooks]
 def module     := leading_parser header >> many (commandParser >> ppLine >> ppLine)
 
-def updateTokens (c : ParserContext) : ParserContext :=
-  { c with
-    tokens := match addParserTokens c.tokens header.info with
-      | Except.ok tables => tables
-      | Except.error _   => unreachable! }
+def updateTokens (tokens : TokenTable) : TokenTable :=
+  match addParserTokens tokens header.info with
+    | Except.ok tables => tables
+    | Except.error _   => unreachable!
 
 end Module
 
@@ -33,21 +32,19 @@ structure ModuleParserState where
   recovering : Bool       := false
   deriving Inhabited
 
-private def mkErrorMessage (c : ParserContext) (pos : String.Pos) (errorMsg : String) : Message :=
+private def mkErrorMessage (c : InputContext) (pos : String.Pos) (errorMsg : String) : Message :=
   let pos := c.fileMap.toPosition pos
   { fileName := c.fileName, pos := pos, data := errorMsg }
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
-  let ctx := mkParserContext inputCtx { env := dummyEnv, options := {} }
-  let ctx := Module.updateTokens ctx
-  let s   := mkParserState ctx.input
-  let s   := whitespace ctx s
-  let s   := Module.header.fn ctx s
+  let p   := andthenFn whitespace Module.header.fn
+  let tokens := Module.updateTokens (getTokenTable dummyEnv)
+  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
   let stx := s.stxStack.back
   match s.errorMsg with
   | some errorMsg =>
-    let msg := mkErrorMessage ctx s.pos (toString errorMsg)
+    let msg := mkErrorMessage inputCtx s.pos (toString errorMsg)
     pure (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
   | none =>
     pure (stx, { pos := s.pos }, {})
@@ -62,9 +59,9 @@ def isEOI (s : Syntax) : Bool :=
 def isTerminalCommand (s : Syntax) : Bool :=
   s.isOfKind ``Command.exit || s.isOfKind ``Command.import
 
-private def consumeInput (c : ParserContext) (pos : String.Pos) : String.Pos :=
-  let s : ParserState := { cache := initCacheForInput c.input, pos := pos }
-  let s := tokenFn [] c s
+private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext) (pos : String.Pos) : String.Pos :=
+  let s : ParserState := { cache := initCacheForInput inputCtx.input, pos := pos }
+  let s := tokenFn [] |>.run inputCtx pmctx (getTokenTable pmctx.env) s
   match s.errorMsg with
   | some _ => pos + ' '
   | none   => s.pos
@@ -82,10 +79,8 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       stx := mkEOI pos
       break
     let pos' := pos
-    let c := mkParserContext inputCtx pmctx
-    let s := { cache := initCacheForInput c.input, pos := pos : ParserState }
-    let s := whitespace c s
-    let s := topLevelCommandParserFn c s
+    let p := andthenFn whitespace topLevelCommandParserFn
+    let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.input, pos }
     pos := s.pos
     if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
       -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
@@ -98,13 +93,13 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     | some errorMsg =>
       -- advance at least one token to prevent infinite loops
       if pos == pos' then
-        pos := consumeInput c pos
+        pos := consumeInput inputCtx pmctx pos
       /- We ignore commands where `getPos?` is none. This happens only on commands that have a prefix comprised of optional elements.
           For example, unification hints start with `optional («scoped» <|> «local»)`.
           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
       let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
       unless recovering && ignore do
-        messages := messages.add <| mkErrorMessage c s.pos (toString errorMsg)
+        messages := messages.add <| mkErrorMessage inputCtx s.pos (toString errorMsg)
       recovering := true
       if ignore then
         continue

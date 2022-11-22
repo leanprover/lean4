@@ -42,7 +42,7 @@ def Sum.str : Option Nat → String :=
 ## Implicit lambdas
 
 In Lean 3 stdlib, we find many [instances](https://github.com/leanprover/lean/blob/master/library/init/category/reader.lean#L39) of the dreadful `@`+`_` idiom.
-It is often used when we the expected type is a function type with implicit arguments,
+It is often used when the expected type is a function type with implicit arguments,
 and we have a constant (`reader_t.pure` in the example) which also takes implicit arguments. In Lean 4, the elaborator automatically introduces lambdas
 for consuming implicit arguments. We are still exploring this feature and analyzing its impact, but the experience so far has been very positive. As an example,
 here is the example in the link above using Lean 4 implicit lambdas.
@@ -287,11 +287,11 @@ Lean execution runtime. For example, we cannot prove in Lean that arrays have a 
 the runtime used to execute Lean programs guarantees that an array cannot have more than 2^64 (2^32) elements
 in a 64-bit (32-bit) machine. We can take advantage of this fact to provide a more efficient implementation for
 array functions. However, the efficient version would not be very useful if it can only be used in
-unsafe code. Thus, Lean 4 provides the attribute `@[implementedBy functionName]`. The idea is to provide
+unsafe code. Thus, Lean 4 provides the attribute `@[implemented_by functionName]`. The idea is to provide
 an unsafe (and potentially more efficient) version of a safe definition or constant. The function `f`
-at the attribute `@[implementedBy f]` is very similar to an extern/foreign function,
+at the attribute `@[implemented_by f]` is very similar to an extern/foreign function,
 the key difference is that it is implemented in Lean itself. Again, the logical soundness of the system
-cannot be compromised by using the attribute `implementedBy`, but if the implementation is incorrect your
+cannot be compromised by using the attribute `implemented_by`, but if the implementation is incorrect your
 program may crash at runtime. In the following example, we define `withPtrUnsafe a k h` which
 executes `k` using the memory address where `a` is stored in memory. The argument `h` is proof
 that `k` is a constant function. Then, we "seal" this unsafe implementation at `withPtr`. The proof `h`
@@ -302,7 +302,7 @@ unsafe
 def withPtrUnsafe {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
   k (ptrAddrUnsafe a)
 
-@[implementedBy withPtrUnsafe]
+@[implemented_by withPtrUnsafe]
 def withPtr {α β : Type} (a : α) (k : USize → β) (h : ∀ u, k u = k 0) : β :=
   k 0
 ```
@@ -340,8 +340,7 @@ partial def f (x : Nat) : IO Unit := do
 
 These are changes to the library which may trip up Lean 3 users:
 
-- `Option` and `List` are no longer monads. Instead there is `OptionM`. This was done to avoid some performance traps. For example `o₁ <|> o₂` where `o₁ o₂ : Option α` will evaluate both `o₁` and `o₂` even if `o₁` evaluates to `some x`. This can be a problem if `o₂` requires a lot of compute to evaluate. A zulip discussion on this design choice is [here](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/Option.20do.20notation.20regression.3F).
-
+- `List` is no longer a monad.
 
 ## Style changes
 

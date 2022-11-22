@@ -34,7 +34,7 @@ def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
   | EStateM.Result.ok a _     => a
   | EStateM.Result.error ex _ => nomatch ex
 
-@[alwaysInline]
+@[always_inline]
 instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
   match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -82,12 +82,12 @@ opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
   Ref.set r a
   pure b
 
-@[implementedBy Ref.modifyUnsafe]
+@[implemented_by Ref.modifyUnsafe]
 def Ref.modify {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.get r
   Ref.set r (f v)
 
-@[implementedBy Ref.modifyGetUnsafe]
+@[implemented_by Ref.modifyGetUnsafe]
 def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.get r
   let (b, a) := f v
@@ -107,6 +107,11 @@ variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 @[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref σ α) : m Bool := liftM <| Prim.Ref.ptrEq r1 r2
 @[inline] def Ref.modify {α : Type} (r : Ref σ α) (f : α → α) : m Unit := liftM <| Prim.Ref.modify r f
 @[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref σ α) (f : α → β × α) : m β := liftM <| Prim.Ref.modifyGet r f
+
+def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
+  get := r.get
+  set := r.set
+  modifyGet := r.modifyGet
 
 end
 

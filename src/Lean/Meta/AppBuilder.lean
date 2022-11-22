@@ -589,6 +589,13 @@ def mkLE (a b : Expr) : MetaM Expr := mkBinaryRel ``LE ``LE.le a b
 /-- Return `a < b`. This method assumes `a` and `b` have the same type. -/
 def mkLT (a b : Expr) : MetaM Expr := mkBinaryRel ``LT ``LT.lt a b
 
+/-- Given `h : a = b`, return a proof for `a ↔ b`. -/
+def mkIffOfEq (h : Expr) : MetaM Expr := do
+  if h.isAppOfArity ``propext 3 then
+    return h.appArg!
+  else
+    mkAppM ``Iff.of_eq #[h]
+
 builtin_initialize do
   registerTraceClass `Meta.appBuilder
   registerTraceClass `Meta.appBuilder.result (inherited := true)

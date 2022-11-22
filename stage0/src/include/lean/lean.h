@@ -1005,7 +1005,25 @@ static inline lean_obj_res lean_string_length(b_lean_obj_arg s) { return lean_bo
 LEAN_SHARED lean_obj_res lean_string_mk(lean_obj_arg cs);
 LEAN_SHARED lean_obj_res lean_string_data(lean_obj_arg s);
 LEAN_SHARED uint32_t  lean_string_utf8_get(b_lean_obj_arg s, b_lean_obj_arg i);
+LEAN_SHARED uint32_t lean_string_utf8_get_fast_cold(char const * str, size_t i, size_t size, unsigned char c);
+static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
+  char const * str = lean_string_cstr(s);
+  size_t idx = lean_unbox(i);
+  unsigned char c = (unsigned char)(str[idx]);
+  if ((c & 0x80) == 0) return c;
+  return lean_string_utf8_get_fast_cold(str, idx, lean_string_size(s), c);
+}
+
 LEAN_SHARED lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
+LEAN_SHARED lean_obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c);
+static inline lean_obj_res lean_string_utf8_next_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
+  char const * str = lean_string_cstr(s);
+  size_t idx = lean_unbox(i);
+  unsigned char c = (unsigned char)(str[idx]);
+  if ((c & 0x80) == 0) return lean_box(idx+1);
+  return lean_string_utf8_next_fast_cold(idx, c);
+}
+
 LEAN_SHARED lean_obj_res lean_string_utf8_prev(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_SHARED lean_obj_res lean_string_utf8_set(lean_obj_arg s, b_lean_obj_arg i, uint32_t c);
 static inline uint8_t lean_string_utf8_at_end(b_lean_obj_arg s, b_lean_obj_arg i) {

@@ -125,7 +125,7 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : List α} (h : a ∈ as) : sizeOf a < 
 `sizeOf a < sizeOf as` when `a ∈ as`, which is useful for well founded recursions
 over a nested inductive like `inductive T | mk : List T → T`. -/
 macro "sizeOf_list_dec" : tactic =>
-  `(first
+  `(tactic| first
     | apply sizeOf_lt_of_mem; assumption; done
     | apply Nat.lt_trans (sizeOf_lt_of_mem ?h)
       case' h => assumption
@@ -183,5 +183,28 @@ theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as
 
 instance [LT α] [Antisymm (¬ · < · : α → α → Prop)] : Antisymm (· ≤ · : List α → List α → Prop) where
   antisymm h₁ h₂ := le_antisymm h₁ h₂
+
+@[specialize] private unsafe def mapMonoMImp [Monad m] (as : List α) (f : α → m α) : m (List α) := do
+  match as with
+  | [] => return as
+  | b :: bs =>
+    let b'  ← f b
+    let bs' ← mapMonoMImp bs f
+    if ptrEq b' b && ptrEq bs' bs then
+      return as
+    else
+      return b' :: bs'
+
+/--
+Monomorphic `List.mapM`. The internal implementation uses pointer equality, and does not allocate a new list
+if the result of each `f a` is a pointer equal value `a`.
+-/
+@[implemented_by mapMonoMImp] def mapMonoM [Monad m] (as : List α) (f : α → m α) : m (List α) :=
+  match as with
+  | [] => return []
+  | a :: as => return (← f a) :: (← mapMonoM as f)
+
+def mapMono (as : List α) (f : α → α) : List α :=
+  Id.run <| as.mapMonoM f
 
 end List

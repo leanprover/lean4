@@ -32,7 +32,7 @@ def succ := mkConst `Nat.succ
 def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.add]
 
 def tst1 : MetaM Unit :=
-do let d : DiscrTree Nat := {};
+do let d : DiscrTree Nat true := {};
    let mvar ← mkFreshExprMVar nat;
    let d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1;
    let d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2;

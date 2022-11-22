@@ -10,7 +10,7 @@ import Init.WF
 /-- Unfold definitions commonly used in well founded relation definitions.
 This is primarily intended for internal use in `decreasing_tactic`. -/
 macro "simp_wf" : tactic =>
-  `(simp [invImage, InvImage, Prod.lex, sizeOfWFRel,
+  `(tactic| simp [invImage, InvImage, Prod.lex, sizeOfWFRel,
           measure, Nat.lt_wfRel, WellFoundedRelation.rel])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
@@ -32,7 +32,8 @@ macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply Nat.pred_lt; assu
 lexicographic order lemmas and using `ts` to solve the base case. If it fails,
 it prints a message to help the user diagnose an ill-founded recursive definition. -/
 macro "decreasing_with " ts:tacticSeq : tactic =>
- `((simp_wf
+ `(tactic|
+   (simp_wf
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first
@@ -49,4 +50,4 @@ on the recursive definition, and it can also be globally extended by adding
 more definitions for `decreasing_tactic` (or `decreasing_trivial`,
 which this tactic calls). -/
 macro "decreasing_tactic" : tactic =>
-  `(decreasing_with first | decreasing_trivial | subst_vars; decreasing_trivial)
+  `(tactic| decreasing_with first | decreasing_trivial | subst_vars; decreasing_trivial)

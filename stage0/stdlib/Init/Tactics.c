@@ -39,13 +39,13 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_fail;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_first;
 static lean_object* l_Lean_Parser_Tactic_withUnfoldingAll___closed__6;
 static lean_object* l_Lean_Parser_Tactic_case_x27___closed__7;
-static lean_object* l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6;
 static lean_object* l_Lean_Parser_Tactic_letrec___closed__12;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_x27___x3a_x3d_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_revert___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_dsimp;
 static lean_object* l_Lean_Parser_Tactic_induction___closed__13;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__5;
+static lean_object* l_Lean_Parser_Tactic_discharger___closed__14;
 static lean_object* l_Lean_Parser_Tactic_simp___closed__12;
 static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__6;
 static lean_object* l_Lean_Parser_Tactic_generalize___closed__1;
@@ -55,6 +55,7 @@ static lean_object* l_Lean_Parser_Tactic_first___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_____closed__6;
 static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__11;
 static lean_object* l_Lean_Parser_Tactic_case___closed__6;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__18;
 static lean_object* l_Lean_Parser_Tactic_apply___closed__2;
 static lean_object* l_Lean_Parser_Tactic_dbgTrace___closed__5;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__5;
@@ -71,6 +72,7 @@ static lean_object* l_Lean_Parser_Tactic_induction___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticRfl;
 static lean_object* l_Lean_Parser_Tactic_generalize___closed__2;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
+lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_rwSeq;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_traceMessage;
 static lean_object* l_Lean_Parser_Tactic_config___closed__8;
@@ -104,6 +106,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 static lean_object* l_Lean_Parser_Tactic_tacticNext___x3d_x3e_____closed__7;
 static lean_object* l_Lean_Parser_Tactic_first___closed__2;
 static lean_object* l_Lean_Parser_Tactic_rwRule___closed__4;
+static lean_object* l_Lean_Parser_Tactic_paren___closed__10;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__4;
 static lean_object* l_Lean_Parser_Tactic_locationWildcard___closed__1;
 static lean_object* l_Lean_Parser_Tactic_rwRule___closed__9;
@@ -114,6 +117,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_changeWith;
 static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__8;
 static lean_object* l_Lean_Parser_Attr_simp___closed__2;
 static lean_object* l_Lean_Parser_Tactic_skip___closed__3;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__15;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticLet____1___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticSuffices_____closed__1;
 static lean_object* l_Lean_Parser_Tactic_induction___closed__2;
@@ -153,11 +157,13 @@ static lean_object* l_Lean_Parser_Tactic_simpPost___closed__2;
 static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__8;
 static lean_object* l_Lean_Parser_Tactic_config___closed__9;
 static lean_object* l_Lean_Parser_Tactic_simpPre___closed__4;
+static lean_object* l_Lean_Parser_Tactic_discharger___closed__15;
 static lean_object* l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__1;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__8;
 static lean_object* l_Lean_Parser_Tactic_simpStar___closed__2;
 static lean_object* l_Lean_Parser_Tactic_location___closed__3;
 static lean_object* l_Lean_Parser_Tactic_refine_x27___closed__6;
+lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_fail___closed__7;
 static lean_object* l_Lean_Parser_Tactic_tacticStop_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_clear___closed__6;
@@ -187,6 +193,7 @@ static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__19;
 static lean_object* l_Lean_Parser_Tactic_tacticStop_____closed__7;
 static lean_object* l_Lean_Parser_Tactic_injection___closed__8;
 static lean_object* l_Lean_Parser_Tactic_changeWith___closed__5;
+static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__14;
 static lean_object* l_Lean_Parser_Tactic_inductionAltLHS___closed__13;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticInfer__instance___closed__3;
@@ -231,6 +238,7 @@ static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__9;
 static lean_object* l_Lean_Parser_Tactic_cases___closed__5;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_x27___x3a_x3d_____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__letrec__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Tactic_rwRule___closed__13;
 static lean_object* l_Lean_Parser_Tactic_first___closed__11;
 static lean_object* l_Lean_Parser_Tactic_refine___closed__5;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_x27___x3a_x3d_____closed__1;
@@ -245,6 +253,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__1;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__5;
 static lean_object* l_Lean_Parser_Tactic_contradiction___closed__1;
+static lean_object* l_Lean_Parser_Tactic_simp___closed__20;
 static lean_object* l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3;
 static lean_object* l_term_____x5b___x5d_x27_____closed__2;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
@@ -258,7 +267,9 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 static lean_object* l_Lean_Parser_Tactic_rotateRight___closed__1;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__5;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__3;
+static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20;
 static lean_object* l_term_____x5b___x5d_x27_____closed__4;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__16;
 static lean_object* l_Lean_Parser_Tactic_renameI___closed__2;
 static lean_object* l_Lean_Parser_Tactic_cases___closed__3;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__5;
@@ -349,6 +360,7 @@ static lean_object* l_Lean_Parser_Tactic_tacticHave_____closed__7;
 static lean_object* l_Lean_Parser_Tactic_tacticStop_____closed__3;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__2;
 static lean_object* l_Lean_Parser_Tactic_withReducible___closed__4;
+lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tacticAdmit___closed__3;
 static lean_object* l_Lean_Parser_Tactic_tacticInfer__instance___closed__1;
 static lean_object* l_Lean_Parser_Tactic_cases___closed__4;
@@ -383,10 +395,10 @@ static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__10;
 static lean_object* l_Lean_Parser_Tactic_config___closed__7;
 static lean_object* l_Lean_Parser_Tactic_location___closed__6;
 static lean_object* l_Lean_Parser_Tactic_clear___closed__3;
-static lean_object* l_term_____x5b___x5d___closed__11;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__8;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__5___closed__3;
 static lean_object* l_Lean_Parser_Tactic_split___closed__1;
+static lean_object* l_Lean_Parser_Tactic_rwRule___closed__12;
 static lean_object* l_Lean_Parser_Attr_simp___closed__7;
 static lean_object* l_Lean_Parser_Tactic_inductionAltLHS___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_unfold;
@@ -419,6 +431,7 @@ static lean_object* l_Lean_Parser_Tactic_allGoals___closed__3;
 static lean_object* l_Lean_Parser_Tactic_subst___closed__6;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticRefine__lift__;
+static lean_object* l_Lean_Parser_Tactic_paren___closed__12;
 static lean_object* l_Lean_Parser_Attr_simp___closed__5;
 static lean_object* l_Lean_Parser_Tactic_assumption___closed__1;
 static lean_object* l_Lean_Parser_Tactic_letrec___closed__13;
@@ -428,6 +441,7 @@ static lean_object* l_Lean_Parser_Tactic_withReducible___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_x27___x3a_x3d_____closed__6;
 static lean_object* l_Lean_Parser_Tactic_tacticTry_____closed__5;
 static lean_object* l_Lean_Parser_Tactic_apply___closed__3;
+static lean_object* l_Lean_Parser_Tactic_discharger___closed__13;
 static lean_object* l_Lean_Parser_Tactic_clear___closed__5;
 static lean_object* l_Lean_Parser_Tactic_unfold___closed__2;
 static lean_object* l_Lean_Parser_Tactic_tacticInfer__instance___closed__4;
@@ -435,11 +449,13 @@ static lean_object* l_Lean_Parser_Tactic_tacticAdmit___closed__2;
 static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__5;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__8;
 static lean_object* l_Lean_Parser_Tactic_tacticUnhygienic_____closed__4;
+static lean_object* l_Lean_Parser_Tactic_paren___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_revert;
 static lean_object* l_term_____x5b___x5d_x27_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_generalize;
 static lean_object* l_Lean_Parser_Tactic_failIfSuccess___closed__3;
 static lean_object* l_Lean_Parser_Tactic_changeWith___closed__2;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__14;
 static lean_object* l_Lean_Parser_Tactic_withReducible___closed__2;
 static lean_object* l_Lean_Parser_Tactic_simpErase___closed__1;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__13;
@@ -533,7 +549,6 @@ static lean_object* l_Lean_Parser_Tactic_substVars___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tacticShow_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_revert___closed__6;
-static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
 static lean_object* l_Lean_Parser_Tactic_discharger___closed__1;
 static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__9;
 static lean_object* l_Lean_Parser_Tactic_simpLemma___closed__4;
@@ -543,6 +558,7 @@ static lean_object* l_Lean_Parser_Tactic_casesTarget___closed__1;
 static lean_object* l_Lean_Parser_Tactic_injections___closed__4;
 static lean_object* l_Lean_Parser_Tactic_changeWith___closed__4;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__13;
+static lean_object* l_Lean_Parser_Tactic_rwRule___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_letrec___closed__1;
 static lean_object* l_Lean_Parser_Tactic_traceMessage___closed__4;
@@ -555,6 +571,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_rwRuleSeq;
 static lean_object* l_Lean_Parser_Tactic_cases___closed__8;
+static lean_object* l_Lean_Parser_Tactic_discharger___closed__17;
 static lean_object* l_Lean_Parser_Tactic_location___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_locationWildcard;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl_x27__1___closed__7;
@@ -574,7 +591,6 @@ static lean_object* l_Lean_Parser_Tactic_inductionAlts___closed__3;
 static lean_object* l_Lean_Parser_Tactic_paren___closed__5;
 static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__save__1(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_mkArray4___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__10;
 static lean_object* l_Lean_Parser_Tactic_discharger___closed__4;
 extern lean_object* l_Lean_Parser_Tactic_caseArg;
@@ -669,6 +685,7 @@ static lean_object* l_Lean_Parser_Tactic_withReducible___closed__6;
 static lean_object* l_Lean_Parser_Tactic_tacticLet_x27_____closed__2;
 static lean_object* l_Lean_Parser_Tactic_config___closed__6;
 static lean_object* l_Lean_Parser_Tactic_anyGoals___closed__5;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__13;
 static lean_object* l_Lean_Parser_Tactic_simpAll___closed__1;
 static lean_object* l_Lean_Parser_Tactic_sleep___closed__2;
 static lean_object* l_Lean_Parser_Tactic_withReducible___closed__5;
@@ -695,6 +712,7 @@ static lean_object* l_Lean_Parser_Tactic_subst___closed__5;
 static lean_object* l_Lean_Parser_Tactic_inductionAlt___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_subst;
 static lean_object* l_Lean_Parser_Tactic_congr___closed__2;
+static lean_object* l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8;
 static lean_object* l_Lean_Parser_Tactic_case___closed__14;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticExists___x2c_x2c;
 static lean_object* l_Lean_Parser_Tactic_tacticLet_x27_____closed__1;
@@ -705,6 +723,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticLet__;
 static lean_object* l_Lean_Parser_Tactic_tacticRfl___closed__1;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__4;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__3;
+lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_change___closed__6;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_x27___x3a_x3d_____closed__7;
 static lean_object* l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__4;
@@ -722,6 +741,7 @@ static lean_object* l_Lean_Parser_Tactic_tacticNext___x3d_x3e_____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_sleep___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticLet_x27_____closed__3;
+static lean_object* l_Lean_Parser_Tactic_config___closed__16;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_specialize;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__letrec__1___closed__2;
@@ -732,6 +752,7 @@ static lean_object* l_Lean_Parser_Tactic_injections___closed__5;
 static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__8;
 static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__17;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__15;
+static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21;
 static lean_object* l_Lean_Parser_Tactic_simp___closed__14;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__2;
@@ -752,7 +773,6 @@ static lean_object* l_Lean_Parser_Tactic_refine___closed__2;
 static lean_object* l_Lean_Parser_Tactic_congr___closed__3;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__18;
 static lean_object* l_Lean_Parser_Tactic_first___closed__3;
-static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticSorry___closed__5;
 static lean_object* l_Lean_Parser_Tactic_case___closed__3;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__3;
@@ -762,7 +782,6 @@ static lean_object* l_term_____x5b___x5d___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_first___closed__15;
 static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__4___closed__1;
-lean_object* l_Array_mkArray5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_tacticNext___x3d_x3e_____closed__5;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 static lean_object* l_Lean_Parser_Tactic_inductionAlts___closed__2;
@@ -771,7 +790,6 @@ static lean_object* l_Lean_Parser_Tactic_changeWith___closed__6;
 static lean_object* l_Lean_Parser_Tactic_simpPre___closed__2;
 static lean_object* l_Lean_Parser_Tactic_generalizeArg___closed__11;
 static lean_object* l_Lean_Parser_Tactic_fail___closed__3;
-lean_object* l_Array_mkArray1___rarg(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__13;
 static lean_object* l_Lean_Parser_Tactic_sleep___closed__1;
 static lean_object* l_Lean_Parser_Tactic_focus___closed__5;
@@ -809,6 +827,7 @@ static lean_object* l_Lean_Parser_Tactic_case___closed__1;
 static lean_object* l_Lean_Parser_Tactic_tacticHave_____closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__8;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__17;
 static lean_object* l_Lean_Parser_Tactic_revert___closed__7;
 static lean_object* l_Lean_Parser_Tactic_allGoals___closed__5;
 static lean_object* l_Lean_Parser_Tactic_induction___closed__15;
@@ -856,7 +875,6 @@ static lean_object* l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
 static lean_object* l_Lean_Parser_Tactic_letrec___closed__8;
 static lean_object* l_Lean_Parser_Tactic_acRfl___closed__3;
 static lean_object* l_Lean_Parser_Tactic_traceMessage___closed__6;
-lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_rwRule___closed__10;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_withReducibleAndInstances;
@@ -893,7 +911,6 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_intros;
 static lean_object* l_Lean_Parser_Tactic_rewriteSeq___closed__3;
 static lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__6;
-lean_object* l_Array_mkArray6___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tacticTry__;
 static lean_object* l_Lean_Parser_Tactic_simpAll___closed__9;
 static lean_object* l_Lean_Parser_Tactic_discharger___closed__10;
@@ -915,6 +932,7 @@ static lean_object* l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__L
 static lean_object* l_Lean_Parser_Tactic_tacticExists___x2c_x2c___closed__4;
 static lean_object* l_Lean_Parser_Tactic_exact___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticRefine__lift_____closed__4;
+lean_object* l_Lean_Syntax_node1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_done___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticRfl_x27___closed__3;
 static lean_object* l_Lean_Parser_Tactic_simpLemma___closed__7;
@@ -979,9 +997,11 @@ static lean_object* l_Lean_Parser_Tactic_fail___closed__5;
 static lean_object* l_tacticGet__elem__tactic___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_discharger;
 static lean_object* l_term_____x5b___x5d_x27_____closed__3;
+lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__8;
 static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__9;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__11;
 static lean_object* l_Lean_Parser_Tactic_inductionAltLHS___closed__9;
 LEAN_EXPORT lean_object* l_term_u2039___u203a;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_withUnfoldingAll;
@@ -992,7 +1012,6 @@ static lean_object* l_Lean_Parser_Tactic_tacticNext___x3d_x3e_____closed__3;
 static lean_object* l_Lean_Parser_Tactic_specialize___closed__3;
 static lean_object* l_term_____x5b___x5d___closed__3;
 static lean_object* l_Lean_Parser_Tactic_tacticSorry___closed__1;
-lean_object* l_Array_mkArray3___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_u2039___u203a___closed__8;
 static lean_object* l_Lean_Parser_Tactic_fail___closed__6;
 static lean_object* l_Lean_Parser_Tactic_rotateLeft___closed__1;
@@ -1034,6 +1053,7 @@ static lean_object* l_Lean_Parser_Tactic_rewriteSeq___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e__;
 static lean_object* l_Lean_Parser_Tactic_constructor___closed__4;
 static lean_object* l_Lean_Parser_Tactic_tacticExists___x2c_x2c___closed__5;
+static lean_object* l_Lean_Parser_Tactic_simpAll___closed__14;
 static lean_object* l_Lean_Parser_Tactic_dbgTrace___closed__4;
 static lean_object* l_Lean_Parser_Tactic_intro___closed__5;
 static lean_object* l_Lean_Parser_Tactic_simpAll___closed__5;
@@ -1096,12 +1116,14 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_locationHyp;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_refine;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__6;
 static lean_object* l_Lean_Parser_Tactic_tacticSuffices_____closed__2;
+static lean_object* l_Lean_Parser_Tactic_rwRule___closed__15;
 static lean_object* l_Lean_Parser_Tactic_config___closed__1;
 LEAN_EXPORT lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_generalize___closed__5;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__2;
 static lean_object* l_Lean_Parser_Tactic_config___closed__2;
 static lean_object* l_Lean_Parser_Tactic_inductionAlts___closed__11;
+static lean_object* l_Lean_Parser_Tactic_rwRule___closed__14;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 static lean_object* l_Lean_Parser_Tactic_withAnnotateState___closed__22;
 static lean_object* l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11;
@@ -1122,6 +1144,7 @@ static lean_object* l_Lean_Parser_Tactic_tacticAdmit___closed__4;
 static lean_object* l_Lean_Parser_Tactic_refine_x27___closed__1;
 static lean_object* l_Lean_Parser_Tactic_specialize___closed__4;
 static lean_object* l_Lean_Parser_Attr_simp___closed__4;
+static lean_object* l_Lean_Parser_Tactic_locationHyp___closed__12;
 static lean_object* l_Lean_Parser_Tactic_inductionAltLHS___closed__5;
 static lean_object* l_Lean_Parser_Tactic_intros___closed__10;
 static lean_object* l_Lean_Parser_Tactic_refine_x27___closed__2;
@@ -1130,6 +1153,7 @@ static lean_object* l_Lean_Parser_Tactic_simpPost___closed__1;
 static lean_object* l_term_____x5b___x5d___closed__9;
 static lean_object* l_Lean_Parser_Tactic_paren___closed__7;
 static lean_object* l_Lean_Parser_Tactic_letrec___closed__5;
+static lean_object* l_Lean_Parser_Tactic_discharger___closed__16;
 static lean_object* l_Lean_Parser_Tactic_tacticSuffices_____closed__3;
 static lean_object* l_Lean_Parser_Tactic_rwSeq___closed__5;
 static lean_object* l_Lean_Parser_Tactic_anyGoals___closed__4;
@@ -3234,7 +3258,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(3u);
@@ -3257,57 +3281,37 @@ lean_inc(x_15);
 x_19 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_19, 0, x_15);
 lean_ctor_set(x_19, 1, x_18);
-x_20 = l_Array_mkArray1___rarg(x_19);
-x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_20 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_15);
-x_22 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_22, 0, x_15);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__6;
+x_21 = l_Lean_Syntax_node1(x_15, x_20, x_19);
+x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__6;
 lean_inc(x_15);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_15);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
-x_27 = l_Array_appendCore___rarg(x_26, x_12);
+x_23 = l_Lean_Syntax_node1(x_15, x_22, x_21);
+x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
+x_25 = l_Array_appendCore___rarg(x_24, x_12);
 lean_dec(x_12);
-x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_15);
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_15);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_27);
-x_30 = l_Array_mkArray2___rarg(x_25, x_29);
-x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__4;
+x_27 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_27, 0, x_15);
+lean_ctor_set(x_27, 1, x_26);
+lean_ctor_set(x_27, 2, x_25);
+x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__4;
 lean_inc(x_15);
-x_32 = lean_alloc_ctor(1, 3, 0);
+x_29 = l_Lean_Syntax_node2(x_15, x_28, x_23, x_27);
+lean_inc(x_15);
+x_30 = l_Lean_Syntax_node1(x_15, x_26, x_29);
+x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__11;
+lean_inc(x_15);
+x_32 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_32, 0, x_15);
 lean_ctor_set(x_32, 1, x_31);
-lean_ctor_set(x_32, 2, x_30);
-x_33 = l_Array_mkArray1___rarg(x_32);
-lean_inc(x_15);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_15);
-lean_ctor_set(x_34, 1, x_28);
-lean_ctor_set(x_34, 2, x_33);
-x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__11;
-lean_inc(x_15);
-x_36 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_36, 0, x_15);
-lean_ctor_set(x_36, 1, x_35);
-x_37 = l_Array_mkArray4___rarg(x_17, x_34, x_36, x_11);
-x_38 = l_Lean_Parser_Tactic_case___closed__2;
-x_39 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_39, 0, x_15);
-lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set(x_39, 2, x_37);
-x_40 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_40, 0, x_39);
-lean_ctor_set(x_40, 1, x_3);
-return x_40;
+x_33 = l_Lean_Parser_Tactic_case___closed__2;
+x_34 = l_Lean_Syntax_node4(x_15, x_33, x_17, x_30, x_32, x_11);
+x_35 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_35, 0, x_34);
+lean_ctor_set(x_35, 1, x_3);
+return x_35;
 }
 }
 }
@@ -3932,33 +3936,31 @@ return x_3;
 static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_paren___closed__4;
-x_3 = l_Lean_Parser_Tactic_case___closed__12;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("withoutPosition", 15);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__6() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(")", 1);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Parser_Tactic_paren___closed__5;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_paren___closed__6;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+x_2 = l_Lean_Parser_Tactic_case___closed__12;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__8() {
@@ -3966,7 +3968,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_paren___closed__5;
+x_2 = l_Lean_Parser_Tactic_paren___closed__4;
 x_3 = l_Lean_Parser_Tactic_paren___closed__7;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -3978,10 +3980,42 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__9() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes(")", 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Tactic_paren___closed__9;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_paren___closed__8;
+x_3 = l_Lean_Parser_Tactic_paren___closed__10;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_paren___closed__12() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_paren___closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
-x_3 = l_Lean_Parser_Tactic_paren___closed__8;
+x_3 = l_Lean_Parser_Tactic_paren___closed__11;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -3993,7 +4027,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_paren() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_paren___closed__9;
+x_1 = l_Lean_Parser_Tactic_paren___closed__12;
 return x_1;
 }
 }
@@ -4718,26 +4752,6 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("seq1", 4);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
-x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
-x_3 = l_Lean_Parser_Tactic_withAnnotateState___closed__3;
-x_4 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
@@ -4747,7 +4761,7 @@ x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -4755,14 +4769,14 @@ x_1 = lean_mk_string_from_bytes("tacticSeq1Indented", 18);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
 x_3 = l_Lean_Parser_Tactic_withAnnotateState___closed__3;
-x_4 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4;
+x_4 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -4787,7 +4801,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -4806,82 +4820,37 @@ lean_inc(x_12);
 x_16 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_16, 0, x_12);
 lean_ctor_set(x_16, 1, x_15);
+x_17 = l_Lean_Parser_Tactic_first___closed__8;
 lean_inc(x_16);
-x_17 = l_Array_mkArray2___rarg(x_16, x_9);
-x_18 = l_Lean_Parser_Tactic_first___closed__8;
 lean_inc(x_12);
-x_19 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_19, 0, x_12);
-lean_ctor_set(x_19, 1, x_18);
-lean_ctor_set(x_19, 2, x_17);
-x_20 = l_Lean_Parser_Tactic_skip___closed__1;
+x_18 = l_Lean_Syntax_node2(x_12, x_17, x_16, x_9);
+x_19 = l_Lean_Parser_Tactic_skip___closed__1;
 lean_inc(x_12);
-x_21 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_20);
-x_22 = l_Array_mkArray1___rarg(x_21);
-x_23 = l_Lean_Parser_Tactic_skip___closed__2;
+x_20 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_20, 0, x_12);
+lean_ctor_set(x_20, 1, x_19);
+x_21 = l_Lean_Parser_Tactic_skip___closed__2;
 lean_inc(x_12);
-x_24 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_24, 0, x_12);
-lean_ctor_set(x_24, 1, x_23);
-lean_ctor_set(x_24, 2, x_22);
-x_25 = l_Array_mkArray1___rarg(x_24);
-x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_22 = l_Lean_Syntax_node1(x_12, x_21, x_20);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_12);
-x_27 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_27, 0, x_12);
-lean_ctor_set(x_27, 1, x_26);
-lean_ctor_set(x_27, 2, x_25);
-x_28 = l_Array_mkArray1___rarg(x_27);
-x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_12);
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_12);
-lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = l_Array_mkArray1___rarg(x_30);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_26 = l_Lean_Syntax_node1(x_12, x_25, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_12);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_12);
-lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l_Array_mkArray2___rarg(x_16, x_33);
+x_28 = l_Lean_Syntax_node1(x_12, x_27, x_26);
 lean_inc(x_12);
-x_35 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_35, 0, x_12);
-lean_ctor_set(x_35, 1, x_18);
-lean_ctor_set(x_35, 2, x_34);
-x_36 = l_Array_mkArray2___rarg(x_19, x_35);
+x_29 = l_Lean_Syntax_node2(x_12, x_17, x_16, x_28);
 lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_26);
-lean_ctor_set(x_37, 2, x_36);
-x_38 = l_Array_mkArray2___rarg(x_14, x_37);
-x_39 = l_Lean_Parser_Tactic_first___closed__2;
-lean_inc(x_12);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = l_Array_mkArray1___rarg(x_40);
-lean_inc(x_12);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_12);
-lean_ctor_set(x_42, 1, x_26);
-lean_ctor_set(x_42, 2, x_41);
-x_43 = l_Array_mkArray1___rarg(x_42);
-x_44 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_45 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_45, 0, x_12);
-lean_ctor_set(x_45, 1, x_44);
-lean_ctor_set(x_45, 2, x_43);
-x_46 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_46, 0, x_45);
-lean_ctor_set(x_46, 1, x_3);
-return x_46;
+x_30 = l_Lean_Syntax_node2(x_12, x_23, x_18, x_29);
+x_31 = l_Lean_Parser_Tactic_first___closed__2;
+x_32 = l_Lean_Syntax_node2(x_12, x_31, x_14, x_30);
+x_33 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_33, 0, x_32);
+lean_ctor_set(x_33, 1, x_3);
+return x_33;
 }
 }
 }
@@ -4997,7 +4966,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(1u);
@@ -5032,81 +5001,41 @@ lean_inc(x_16);
 x_25 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_25, 0, x_16);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Array_mkArray1___rarg(x_25);
-x_27 = l_Lean_Parser_Tactic_skip___closed__2;
+x_26 = l_Lean_Parser_Tactic_skip___closed__2;
 lean_inc(x_16);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_16);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray3___rarg(x_23, x_11, x_28);
-x_30 = l_Lean_Parser_Tactic_withAnnotateState___closed__5;
+x_27 = l_Lean_Syntax_node1(x_16, x_26, x_25);
+x_28 = l_Lean_Parser_Tactic_withAnnotateState___closed__5;
 lean_inc(x_16);
-x_31 = lean_alloc_ctor(1, 3, 0);
+x_29 = l_Lean_Syntax_node3(x_16, x_28, x_23, x_11, x_27);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__2;
+lean_inc(x_16);
+x_31 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_31, 0, x_16);
 lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__2;
 lean_inc(x_16);
-x_33 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_33, 0, x_16);
-lean_ctor_set(x_33, 1, x_32);
-x_34 = l_Array_mkArray1___rarg(x_13);
+x_32 = l_Lean_Syntax_node1(x_16, x_19, x_13);
+x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_16);
-x_35 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_35, 0, x_16);
-lean_ctor_set(x_35, 1, x_19);
-lean_ctor_set(x_35, 2, x_34);
-x_36 = l_Array_mkArray1___rarg(x_35);
-x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_34 = l_Lean_Syntax_node1(x_16, x_33, x_32);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_16);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_16);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
-x_39 = l_Array_mkArray1___rarg(x_38);
-x_40 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_36 = l_Lean_Syntax_node1(x_16, x_35, x_34);
+x_37 = l_Lean_Parser_Tactic_allGoals___closed__2;
 lean_inc(x_16);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_16);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Array_mkArray2___rarg(x_33, x_41);
-x_43 = l_Lean_Parser_Tactic_allGoals___closed__2;
-lean_inc(x_16);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_16);
-lean_ctor_set(x_44, 1, x_43);
-lean_ctor_set(x_44, 2, x_42);
+x_38 = l_Lean_Syntax_node2(x_16, x_37, x_31, x_36);
 lean_inc(x_21);
-x_45 = l_Array_mkArray5___rarg(x_9, x_21, x_31, x_21, x_44);
 lean_inc(x_16);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_16);
-lean_ctor_set(x_46, 1, x_19);
-lean_ctor_set(x_46, 2, x_45);
-x_47 = l_Array_mkArray1___rarg(x_46);
+x_39 = l_Lean_Syntax_node5(x_16, x_19, x_9, x_21, x_29, x_21, x_38);
 lean_inc(x_16);
-x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_16);
-lean_ctor_set(x_48, 1, x_37);
-lean_ctor_set(x_48, 2, x_47);
-x_49 = l_Array_mkArray1___rarg(x_48);
+x_40 = l_Lean_Syntax_node1(x_16, x_33, x_39);
 lean_inc(x_16);
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_16);
-lean_ctor_set(x_50, 1, x_40);
-lean_ctor_set(x_50, 2, x_49);
-x_51 = l_Array_mkArray2___rarg(x_18, x_50);
-x_52 = l_Lean_Parser_Tactic_focus___closed__2;
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_16);
-lean_ctor_set(x_53, 1, x_52);
-lean_ctor_set(x_53, 2, x_51);
-x_54 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_54, 0, x_53);
-lean_ctor_set(x_54, 1, x_3);
-return x_54;
+x_41 = l_Lean_Syntax_node1(x_16, x_35, x_40);
+x_42 = l_Lean_Parser_Tactic_focus___closed__2;
+x_43 = l_Lean_Syntax_node2(x_16, x_42, x_18, x_41);
+x_44 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_44, 0, x_43);
+lean_ctor_set(x_44, 1, x_3);
+return x_44;
 }
 }
 }
@@ -5252,7 +5181,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -5263,30 +5192,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_refl___closed__2;
-lean_inc(x_10);
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = l_Array_mkArray1___rarg(x_15);
-x_17 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_10);
-x_18 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_18, 0, x_10);
-lean_ctor_set(x_18, 1, x_17);
-lean_ctor_set(x_18, 2, x_16);
-x_19 = l_Array_mkArray1___rarg(x_18);
-x_20 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_10);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_19);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_3);
-return x_22;
+x_13 = l_Lean_Parser_Tactic_refl___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -5441,7 +5352,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -5486,82 +5397,33 @@ lean_inc(x_10);
 x_27 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_27, 0, x_10);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Array_mkArray1___rarg(x_27);
-x_29 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
+x_28 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
 lean_inc(x_10);
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_10);
-lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = l_Array_mkArray1___rarg(x_30);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_29 = l_Lean_Syntax_node1(x_10, x_28, x_27);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_10);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_10);
-lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l_Array_mkArray1___rarg(x_33);
-x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_31 = l_Lean_Syntax_node1(x_10, x_30, x_29);
+x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_10);
-x_36 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_36, 0, x_10);
-lean_ctor_set(x_36, 1, x_35);
-lean_ctor_set(x_36, 2, x_34);
-x_37 = l_Array_mkArray1___rarg(x_36);
-x_38 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_33 = l_Lean_Syntax_node1(x_10, x_32, x_31);
+x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_10);
-x_39 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_39, 0, x_10);
-lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set(x_39, 2, x_37);
-x_40 = l_Array_mkArray2___rarg(x_25, x_39);
-x_41 = l_Lean_Parser_Tactic_withUnfoldingAll___closed__2;
+x_35 = l_Lean_Syntax_node1(x_10, x_34, x_33);
+x_36 = l_Lean_Parser_Tactic_withUnfoldingAll___closed__2;
 lean_inc(x_10);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_10);
-lean_ctor_set(x_42, 1, x_41);
-lean_ctor_set(x_42, 2, x_40);
-x_43 = l_Array_mkArray1___rarg(x_42);
+x_37 = l_Lean_Syntax_node2(x_10, x_36, x_25, x_35);
 lean_inc(x_10);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_10);
-lean_ctor_set(x_44, 1, x_32);
-lean_ctor_set(x_44, 2, x_43);
-x_45 = l_Array_mkArray1___rarg(x_44);
+x_38 = l_Lean_Syntax_node1(x_10, x_30, x_37);
 lean_inc(x_10);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_10);
-lean_ctor_set(x_46, 1, x_35);
-lean_ctor_set(x_46, 2, x_45);
-x_47 = l_Array_mkArray1___rarg(x_46);
+x_39 = l_Lean_Syntax_node1(x_10, x_32, x_38);
 lean_inc(x_10);
-x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_10);
-lean_ctor_set(x_48, 1, x_38);
-lean_ctor_set(x_48, 2, x_47);
-x_49 = l_Array_mkArray5___rarg(x_14, x_19, x_21, x_23, x_48);
-x_50 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl_x27__1___closed__2;
-lean_inc(x_10);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_10);
-lean_ctor_set(x_51, 1, x_50);
-lean_ctor_set(x_51, 2, x_49);
-x_52 = l_Array_mkArray1___rarg(x_51);
-lean_inc(x_10);
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_10);
-lean_ctor_set(x_53, 1, x_32);
-lean_ctor_set(x_53, 2, x_52);
-x_54 = l_Array_mkArray1___rarg(x_53);
-x_55 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_10);
-lean_ctor_set(x_56, 1, x_55);
-lean_ctor_set(x_56, 2, x_54);
-x_57 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_57, 0, x_56);
-lean_ctor_set(x_57, 1, x_3);
-return x_57;
+x_40 = l_Lean_Syntax_node1(x_10, x_34, x_39);
+x_41 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl_x27__1___closed__2;
+x_42 = l_Lean_Syntax_node5(x_10, x_41, x_14, x_19, x_21, x_23, x_40);
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_42);
+lean_ctor_set(x_43, 1, x_3);
+return x_43;
 }
 }
 }
@@ -5867,7 +5729,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -5899,72 +5761,39 @@ lean_ctor_set(x_21, 0, x_10);
 lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_18);
 lean_ctor_set(x_21, 3, x_20);
-x_22 = l_Array_mkArray2___rarg(x_16, x_21);
-x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__4;
+x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__4;
 lean_inc(x_10);
-x_24 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_24, 0, x_10);
-lean_ctor_set(x_24, 1, x_23);
-lean_ctor_set(x_24, 2, x_22);
-x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
+x_23 = l_Lean_Syntax_node2(x_10, x_22, x_16, x_21);
+x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
 lean_inc(x_10);
-x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_10);
-lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Array_mkArray1___rarg(x_26);
-x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_25 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_25, 0, x_10);
+lean_ctor_set(x_25, 1, x_24);
+x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_10);
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_10);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_27);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__12;
-x_31 = l_Lean_addMacroScope(x_12, x_30, x_11);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__11;
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__16;
+x_27 = l_Lean_Syntax_node1(x_10, x_26, x_25);
+x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__12;
+x_29 = l_Lean_addMacroScope(x_12, x_28, x_11);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__11;
+x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__16;
 lean_inc(x_10);
-x_34 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_34, 0, x_10);
-lean_ctor_set(x_34, 1, x_32);
-lean_ctor_set(x_34, 2, x_31);
-lean_ctor_set(x_34, 3, x_33);
-x_35 = l_Array_mkArray2___rarg(x_29, x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_32 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_32, 0, x_10);
+lean_ctor_set(x_32, 1, x_30);
+lean_ctor_set(x_32, 2, x_29);
+lean_ctor_set(x_32, 3, x_31);
+x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_10);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_10);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray2___rarg(x_24, x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
+x_34 = l_Lean_Syntax_node2(x_10, x_33, x_27, x_32);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
 lean_inc(x_10);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_10);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = l_Array_mkArray2___rarg(x_14, x_40);
-x_42 = l_Lean_Parser_Tactic_exact___closed__2;
-lean_inc(x_10);
-x_43 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_43, 0, x_10);
-lean_ctor_set(x_43, 1, x_42);
-lean_ctor_set(x_43, 2, x_41);
-x_44 = l_Array_mkArray1___rarg(x_43);
-lean_inc(x_10);
-x_45 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_45, 0, x_10);
-lean_ctor_set(x_45, 1, x_36);
-lean_ctor_set(x_45, 2, x_44);
-x_46 = l_Array_mkArray1___rarg(x_45);
-x_47 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_10);
-lean_ctor_set(x_48, 1, x_47);
-lean_ctor_set(x_48, 2, x_46);
-x_49 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_49, 0, x_48);
-lean_ctor_set(x_49, 1, x_3);
-return x_49;
+x_36 = l_Lean_Syntax_node2(x_10, x_35, x_23, x_34);
+x_37 = l_Lean_Parser_Tactic_exact___closed__2;
+x_38 = l_Lean_Syntax_node2(x_10, x_37, x_14, x_36);
+x_39 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_39, 0, x_38);
+lean_ctor_set(x_39, 1, x_3);
+return x_39;
 }
 }
 }
@@ -6048,7 +5877,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -6080,72 +5909,39 @@ lean_ctor_set(x_21, 0, x_10);
 lean_ctor_set(x_21, 1, x_19);
 lean_ctor_set(x_21, 2, x_18);
 lean_ctor_set(x_21, 3, x_20);
-x_22 = l_Array_mkArray2___rarg(x_16, x_21);
-x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__4;
+x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__4;
 lean_inc(x_10);
-x_24 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_24, 0, x_10);
-lean_ctor_set(x_24, 1, x_23);
-lean_ctor_set(x_24, 2, x_22);
-x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
+x_23 = l_Lean_Syntax_node2(x_10, x_22, x_16, x_21);
+x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
 lean_inc(x_10);
-x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_10);
-lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Array_mkArray1___rarg(x_26);
-x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_25 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_25, 0, x_10);
+lean_ctor_set(x_25, 1, x_24);
+x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_10);
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_10);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_27);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__12;
-x_31 = l_Lean_addMacroScope(x_12, x_30, x_11);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__11;
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__16;
+x_27 = l_Lean_Syntax_node1(x_10, x_26, x_25);
+x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__12;
+x_29 = l_Lean_addMacroScope(x_12, x_28, x_11);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__11;
+x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__16;
 lean_inc(x_10);
-x_34 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_34, 0, x_10);
-lean_ctor_set(x_34, 1, x_32);
-lean_ctor_set(x_34, 2, x_31);
-lean_ctor_set(x_34, 3, x_33);
-x_35 = l_Array_mkArray2___rarg(x_29, x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_32 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_32, 0, x_10);
+lean_ctor_set(x_32, 1, x_30);
+lean_ctor_set(x_32, 2, x_29);
+lean_ctor_set(x_32, 3, x_31);
+x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_10);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_10);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray2___rarg(x_24, x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
+x_34 = l_Lean_Syntax_node2(x_10, x_33, x_27, x_32);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
 lean_inc(x_10);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_10);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = l_Array_mkArray2___rarg(x_14, x_40);
-x_42 = l_Lean_Parser_Tactic_exact___closed__2;
-lean_inc(x_10);
-x_43 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_43, 0, x_10);
-lean_ctor_set(x_43, 1, x_42);
-lean_ctor_set(x_43, 2, x_41);
-x_44 = l_Array_mkArray1___rarg(x_43);
-lean_inc(x_10);
-x_45 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_45, 0, x_10);
-lean_ctor_set(x_45, 1, x_36);
-lean_ctor_set(x_45, 2, x_44);
-x_46 = l_Array_mkArray1___rarg(x_45);
-x_47 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_10);
-lean_ctor_set(x_48, 1, x_47);
-lean_ctor_set(x_48, 2, x_46);
-x_49 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_49, 0, x_48);
-lean_ctor_set(x_49, 1, x_3);
-return x_49;
+x_36 = l_Lean_Syntax_node2(x_10, x_35, x_23, x_34);
+x_37 = l_Lean_Parser_Tactic_exact___closed__2;
+x_38 = l_Lean_Syntax_node2(x_10, x_37, x_14, x_36);
+x_39 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_39, 0, x_38);
+lean_ctor_set(x_39, 1, x_3);
+return x_39;
 }
 }
 }
@@ -6302,7 +6098,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -6327,30 +6123,12 @@ lean_ctor_set(x_19, 0, x_10);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
-x_20 = l_Array_mkArray2___rarg(x_14, x_19);
-x_21 = l_Lean_Parser_Tactic_exact___closed__2;
-lean_inc(x_10);
-x_22 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_22, 0, x_10);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_10);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_10);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray1___rarg(x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_10);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_29, 0, x_28);
-lean_ctor_set(x_29, 1, x_3);
-return x_29;
+x_20 = l_Lean_Parser_Tactic_exact___closed__2;
+x_21 = l_Lean_Syntax_node2(x_10, x_20, x_14, x_19);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_3);
+return x_22;
 }
 }
 }
@@ -6483,15 +6261,13 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_config___closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_config___closed__12;
-x_3 = l_Lean_Parser_Tactic_rename___closed__5;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_paren___closed__6;
+x_2 = l_Lean_Parser_Tactic_rename___closed__5;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_config___closed__14() {
@@ -6499,8 +6275,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_config___closed__13;
-x_3 = l_Lean_Parser_Tactic_paren___closed__7;
+x_2 = l_Lean_Parser_Tactic_config___closed__12;
+x_3 = l_Lean_Parser_Tactic_config___closed__13;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -6512,9 +6288,23 @@ static lean_object* _init_l_Lean_Parser_Tactic_config___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_config___closed__14;
+x_3 = l_Lean_Parser_Tactic_paren___closed__10;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_config___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_config___closed__1;
 x_2 = l_Lean_Parser_Tactic_config___closed__2;
-x_3 = l_Lean_Parser_Tactic_config___closed__14;
+x_3 = l_Lean_Parser_Tactic_config___closed__15;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -6526,7 +6316,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_config() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_config___closed__15;
+x_1 = l_Lean_Parser_Tactic_config___closed__16;
 return x_1;
 }
 }
@@ -6614,72 +6404,64 @@ static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("⊢", 3);
+x_1 = lean_mk_string_from_bytes("patternIgnore", 13);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_locationHyp___closed__3;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("|-", 2);
+x_1 = lean_mk_string_from_bytes("token", 5);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("⊢", 3);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_intros___closed__6;
-x_2 = l_Lean_Parser_Tactic_locationHyp___closed__4;
-x_3 = l_Lean_Parser_Tactic_locationHyp___closed__6;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__6;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
-x_2 = l_Lean_Parser_Tactic_locationHyp___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__6;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_revert___closed__7;
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__6;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__7;
 x_3 = l_Lean_Parser_Tactic_locationHyp___closed__8;
-x_4 = lean_alloc_ctor(2, 3, 0);
+x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
@@ -6689,10 +6471,104 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__10() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("|-", 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__10;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__10;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__10;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__11;
+x_3 = l_Lean_Parser_Tactic_locationHyp___closed__12;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_intros___closed__6;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__9;
+x_3 = l_Lean_Parser_Tactic_locationHyp___closed__13;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__4;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__14;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
+x_2 = l_Lean_Parser_Tactic_locationHyp___closed__15;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_revert___closed__7;
+x_3 = l_Lean_Parser_Tactic_locationHyp___closed__16;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_locationHyp___closed__18() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_locationHyp___closed__1;
 x_2 = l_Lean_Parser_Tactic_locationHyp___closed__2;
-x_3 = l_Lean_Parser_Tactic_locationHyp___closed__9;
+x_3 = l_Lean_Parser_Tactic_locationHyp___closed__17;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -6704,7 +6580,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_locationHyp() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_locationHyp___closed__10;
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__18;
 return x_1;
 }
 }
@@ -7043,6 +6919,16 @@ return x_1;
 static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__4() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__3;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Tactic_rwRule___closed__3;
 x_2 = lean_alloc_ctor(5, 1, 0);
@@ -7050,7 +6936,21 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_rwRule___closed__3;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__4;
+x_3 = l_Lean_Parser_Tactic_rwRule___closed__5;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__7() {
 _start:
 {
 lean_object* x_1; 
@@ -7058,23 +6958,47 @@ x_1 = lean_mk_string_from_bytes("<- ", 3);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__6() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__7;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_rwRule___closed__5;
+x_1 = l_Lean_Parser_Tactic_rwRule___closed__7;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__7() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_rwRule___closed__7;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__8;
+x_3 = l_Lean_Parser_Tactic_rwRule___closed__9;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_intros___closed__6;
-x_2 = l_Lean_Parser_Tactic_rwRule___closed__4;
-x_3 = l_Lean_Parser_Tactic_rwRule___closed__6;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__6;
+x_3 = l_Lean_Parser_Tactic_rwRule___closed__10;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -7082,24 +7006,36 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__8() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
-x_2 = l_Lean_Parser_Tactic_rwRule___closed__7;
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__4;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__11;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__9() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__12;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_rwRule___closed__8;
+x_2 = l_Lean_Parser_Tactic_rwRule___closed__13;
 x_3 = l_Lean_Parser_Tactic_rename___closed__5;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -7108,13 +7044,13 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRule___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_rwRule___closed__1;
 x_2 = l_Lean_Parser_Tactic_rwRule___closed__2;
-x_3 = l_Lean_Parser_Tactic_rwRule___closed__9;
+x_3 = l_Lean_Parser_Tactic_rwRule___closed__14;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -7126,7 +7062,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_rwRule() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_rwRule___closed__10;
+x_1 = l_Lean_Parser_Tactic_rwRule___closed__15;
 return x_1;
 }
 }
@@ -7213,10 +7149,22 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__9() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_paren___closed__6;
+x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__8;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__10() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__4;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__8;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -7224,7 +7172,7 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__10() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__11() {
 _start:
 {
 lean_object* x_1; 
@@ -7232,23 +7180,23 @@ x_1 = lean_mk_string_from_bytes("]", 1);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__11() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__12() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Tactic_rwRuleSeq___closed__10;
+x_1 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
 x_2 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__13() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__9;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
+x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__10;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -7256,13 +7204,13 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__13() {
+static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_rwRuleSeq___closed__1;
 x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__2;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__13;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -7274,7 +7222,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_rwRuleSeq() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_rwRuleSeq___closed__13;
+x_1 = l_Lean_Parser_Tactic_rwRuleSeq___closed__14;
 return x_1;
 }
 }
@@ -7576,368 +7524,294 @@ lean_inc(x_11);
 x_17 = l_Lean_Syntax_isOfKind(x_11, x_16);
 if (lean_obj_tag(x_14) == 0)
 {
-lean_object* x_133; 
-x_133 = lean_box(0);
-x_18 = x_133;
-goto block_132;
+lean_object* x_114; 
+x_114 = lean_box(0);
+x_18 = x_114;
+goto block_113;
 }
 else
 {
-uint8_t x_134; 
-x_134 = !lean_is_exclusive(x_14);
-if (x_134 == 0)
+uint8_t x_115; 
+x_115 = !lean_is_exclusive(x_14);
+if (x_115 == 0)
 {
 x_18 = x_14;
-goto block_132;
+goto block_113;
 }
 else
 {
-lean_object* x_135; lean_object* x_136; 
-x_135 = lean_ctor_get(x_14, 0);
-lean_inc(x_135);
+lean_object* x_116; lean_object* x_117; 
+x_116 = lean_ctor_get(x_14, 0);
+lean_inc(x_116);
 lean_dec(x_14);
-x_136 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_136, 0, x_135);
-x_18 = x_136;
-goto block_132;
+x_117 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_117, 0, x_116);
+x_18 = x_117;
+goto block_113;
 }
 }
-block_132:
+block_113:
 {
 lean_object* x_19; 
 if (lean_obj_tag(x_15) == 0)
 {
-lean_object* x_128; 
-x_128 = lean_box(0);
-x_19 = x_128;
-goto block_127;
+lean_object* x_109; 
+x_109 = lean_box(0);
+x_19 = x_109;
+goto block_108;
 }
 else
 {
-uint8_t x_129; 
-x_129 = !lean_is_exclusive(x_15);
-if (x_129 == 0)
+uint8_t x_110; 
+x_110 = !lean_is_exclusive(x_15);
+if (x_110 == 0)
 {
 x_19 = x_15;
-goto block_127;
+goto block_108;
 }
 else
 {
-lean_object* x_130; lean_object* x_131; 
-x_130 = lean_ctor_get(x_15, 0);
-lean_inc(x_130);
+lean_object* x_111; lean_object* x_112; 
+x_111 = lean_ctor_get(x_15, 0);
+lean_inc(x_111);
 lean_dec(x_15);
-x_131 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_131, 0, x_130);
-x_19 = x_131;
-goto block_127;
+x_112 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_112, 0, x_111);
+x_19 = x_112;
+goto block_108;
 }
 }
-block_127:
+block_108:
 {
+uint8_t x_20; 
 if (x_17 == 0)
 {
-lean_object* x_20; lean_object* x_21; 
+uint8_t x_106; 
+x_106 = 0;
+x_20 = x_106;
+goto block_105;
+}
+else
+{
+uint8_t x_107; 
+x_107 = 1;
+x_20 = x_107;
+goto block_105;
+}
+block_105:
+{
+if (x_20 == 0)
+{
+lean_object* x_21; lean_object* x_22; 
 lean_dec(x_19);
 lean_dec(x_18);
 lean_dec(x_11);
 lean_dec(x_2);
-x_20 = lean_box(1);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_20);
-lean_ctor_set(x_21, 1, x_3);
-return x_21;
+x_21 = lean_box(1);
+x_22 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_3);
+return x_22;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; 
-x_22 = l_Lean_Syntax_getArg(x_11, x_8);
-x_23 = l_Lean_Syntax_getArg(x_11, x_10);
+lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; 
+x_23 = l_Lean_Syntax_getArg(x_11, x_8);
+x_24 = l_Lean_Syntax_getArg(x_11, x_10);
 lean_dec(x_11);
-x_24 = l_Lean_Syntax_getArgs(x_22);
-lean_dec(x_22);
-x_25 = lean_ctor_get(x_2, 5);
-lean_inc(x_25);
+x_25 = l_Lean_Syntax_getArgs(x_23);
+lean_dec(x_23);
+x_26 = lean_ctor_get(x_2, 5);
+lean_inc(x_26);
 lean_dec(x_2);
-x_26 = 0;
-x_27 = l_Lean_SourceInfo_fromRef(x_25, x_26);
-x_28 = l_Lean_Parser_Tactic_rewriteSeq___closed__3;
-lean_inc(x_27);
-x_29 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_29, 0, x_27);
-lean_ctor_set(x_29, 1, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__1;
-lean_inc(x_27);
-x_31 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_31, 0, x_27);
-lean_ctor_set(x_31, 1, x_30);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
-x_33 = l_Array_appendCore___rarg(x_32, x_24);
-lean_dec(x_24);
-x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_27);
-x_35 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_35, 0, x_27);
-lean_ctor_set(x_35, 1, x_34);
-lean_ctor_set(x_35, 2, x_33);
-x_36 = l_Lean_Parser_Tactic_rwRuleSeq___closed__10;
-lean_inc(x_27);
-x_37 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_37, 0, x_27);
-lean_ctor_set(x_37, 1, x_36);
-x_38 = l_Array_mkArray3___rarg(x_31, x_35, x_37);
-lean_inc(x_27);
-x_39 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_39, 0, x_27);
-lean_ctor_set(x_39, 1, x_16);
-lean_ctor_set(x_39, 2, x_38);
-x_40 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
-lean_inc(x_27);
-x_41 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_41, 0, x_27);
-lean_ctor_set(x_41, 1, x_40);
-x_42 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__1;
-lean_inc(x_27);
+x_27 = 0;
+x_28 = l_Lean_SourceInfo_fromRef(x_26, x_27);
+x_29 = l_Lean_Parser_Tactic_paren___closed__3;
+lean_inc(x_28);
+x_30 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_30, 0, x_28);
+lean_ctor_set(x_30, 1, x_29);
+x_31 = l_Lean_Parser_Tactic_rewriteSeq___closed__3;
+lean_inc(x_28);
+x_32 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_32, 0, x_28);
+lean_ctor_set(x_32, 1, x_31);
+x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__1;
+lean_inc(x_28);
+x_34 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_34, 0, x_28);
+lean_ctor_set(x_34, 1, x_33);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
+x_36 = l_Array_appendCore___rarg(x_35, x_25);
+lean_dec(x_25);
+x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+lean_inc(x_28);
+x_38 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_38, 0, x_28);
+lean_ctor_set(x_38, 1, x_37);
+lean_ctor_set(x_38, 2, x_36);
+x_39 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
+lean_inc(x_28);
+x_40 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_40, 0, x_28);
+lean_ctor_set(x_40, 1, x_39);
+lean_inc(x_28);
+x_41 = l_Lean_Syntax_node3(x_28, x_16, x_34, x_38, x_40);
+x_42 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+lean_inc(x_28);
 x_43 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_43, 0, x_27);
+lean_ctor_set(x_43, 0, x_28);
 lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Lean_Parser_Tactic_paren___closed__3;
-lean_inc(x_27);
+x_44 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tactic___x3c_x3b_x3e____1___closed__1;
+lean_inc(x_28);
 x_45 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_45, 0, x_27);
+lean_ctor_set(x_45, 0, x_28);
 lean_ctor_set(x_45, 1, x_44);
 x_46 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__3;
-lean_inc(x_27);
+lean_inc(x_28);
 x_47 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_47, 0, x_27);
+lean_ctor_set(x_47, 0, x_28);
 lean_ctor_set(x_47, 1, x_46);
 x_48 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__4;
-lean_inc(x_27);
+lean_inc(x_28);
 x_49 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_49, 0, x_27);
+lean_ctor_set(x_49, 0, x_28);
 lean_ctor_set(x_49, 1, x_48);
 x_50 = l_Lean_Parser_Tactic_tacticRfl___closed__3;
-lean_inc(x_27);
+lean_inc(x_28);
 x_51 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_51, 0, x_27);
+lean_ctor_set(x_51, 0, x_28);
 lean_ctor_set(x_51, 1, x_50);
-x_52 = l_Array_mkArray1___rarg(x_51);
-x_53 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
-lean_inc(x_27);
-x_54 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_54, 0, x_27);
-lean_ctor_set(x_54, 1, x_53);
-lean_ctor_set(x_54, 2, x_52);
-x_55 = l_Array_mkArray1___rarg(x_54);
-lean_inc(x_27);
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_27);
-lean_ctor_set(x_56, 1, x_34);
-lean_ctor_set(x_56, 2, x_55);
-x_57 = l_Array_mkArray1___rarg(x_56);
-x_58 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
-lean_inc(x_27);
-x_59 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_59, 0, x_27);
-lean_ctor_set(x_59, 1, x_58);
-lean_ctor_set(x_59, 2, x_57);
-x_60 = l_Array_mkArray1___rarg(x_59);
-x_61 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
-lean_inc(x_27);
-x_62 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_62, 0, x_27);
-lean_ctor_set(x_62, 1, x_61);
-lean_ctor_set(x_62, 2, x_60);
-x_63 = l_Array_mkArray2___rarg(x_49, x_62);
-x_64 = l_Lean_Parser_Tactic_withReducible___closed__2;
-lean_inc(x_27);
-x_65 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_65, 0, x_27);
+x_52 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
+lean_inc(x_28);
+x_53 = l_Lean_Syntax_node1(x_28, x_52, x_51);
+lean_inc(x_28);
+x_54 = l_Lean_Syntax_node1(x_28, x_37, x_53);
+x_55 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+lean_inc(x_28);
+x_56 = l_Lean_Syntax_node1(x_28, x_55, x_54);
+x_57 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
+lean_inc(x_28);
+x_58 = l_Lean_Syntax_node1(x_28, x_57, x_56);
+x_59 = l_Lean_Parser_Tactic_withReducible___closed__2;
+lean_inc(x_28);
+x_60 = l_Lean_Syntax_node2(x_28, x_59, x_49, x_58);
+lean_inc(x_28);
+x_61 = l_Lean_Syntax_node1(x_28, x_37, x_60);
+lean_inc(x_28);
+x_62 = l_Lean_Syntax_node1(x_28, x_55, x_61);
+lean_inc(x_28);
+x_63 = l_Lean_Syntax_node1(x_28, x_57, x_62);
+x_64 = l_Lean_Parser_Tactic_paren___closed__9;
+lean_inc(x_28);
+x_65 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_65, 0, x_28);
 lean_ctor_set(x_65, 1, x_64);
-lean_ctor_set(x_65, 2, x_63);
-x_66 = l_Array_mkArray1___rarg(x_65);
-lean_inc(x_27);
-x_67 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_67, 0, x_27);
-lean_ctor_set(x_67, 1, x_34);
-lean_ctor_set(x_67, 2, x_66);
-x_68 = l_Array_mkArray1___rarg(x_67);
-lean_inc(x_27);
-x_69 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_69, 0, x_27);
-lean_ctor_set(x_69, 1, x_58);
-lean_ctor_set(x_69, 2, x_68);
-x_70 = l_Array_mkArray1___rarg(x_69);
-lean_inc(x_27);
-x_71 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_71, 0, x_27);
-lean_ctor_set(x_71, 1, x_61);
-lean_ctor_set(x_71, 2, x_70);
-x_72 = l_Lean_Parser_Tactic_paren___closed__6;
-lean_inc(x_27);
-x_73 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_73, 0, x_27);
-lean_ctor_set(x_73, 1, x_72);
-lean_inc(x_73);
-lean_inc(x_45);
-x_74 = l_Array_mkArray3___rarg(x_45, x_71, x_73);
-x_75 = l_Lean_Parser_Tactic_paren___closed__2;
-lean_inc(x_27);
-x_76 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_76, 0, x_27);
-lean_ctor_set(x_76, 1, x_75);
-lean_ctor_set(x_76, 2, x_74);
-x_77 = l_Array_mkArray1___rarg(x_76);
-lean_inc(x_27);
-x_78 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_78, 0, x_27);
-lean_ctor_set(x_78, 1, x_34);
-lean_ctor_set(x_78, 2, x_77);
-x_79 = l_Array_mkArray1___rarg(x_78);
-lean_inc(x_27);
-x_80 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_80, 0, x_27);
-lean_ctor_set(x_80, 1, x_58);
-lean_ctor_set(x_80, 2, x_79);
-x_81 = l_Array_mkArray1___rarg(x_80);
-lean_inc(x_27);
-x_82 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_82, 0, x_27);
-lean_ctor_set(x_82, 1, x_61);
-lean_ctor_set(x_82, 2, x_81);
-x_83 = l_Array_mkArray2___rarg(x_47, x_82);
-x_84 = l_Lean_Parser_Tactic_tacticTry_____closed__2;
-lean_inc(x_27);
-x_85 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_85, 0, x_27);
-lean_ctor_set(x_85, 1, x_84);
-lean_ctor_set(x_85, 2, x_83);
-x_86 = l_Array_mkArray1___rarg(x_85);
-lean_inc(x_27);
-x_87 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_87, 0, x_27);
-lean_ctor_set(x_87, 1, x_34);
-lean_ctor_set(x_87, 2, x_86);
-x_88 = l_Array_mkArray1___rarg(x_87);
-lean_inc(x_27);
-x_89 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_89, 0, x_27);
-lean_ctor_set(x_89, 1, x_58);
-lean_ctor_set(x_89, 2, x_88);
-x_90 = l_Array_mkArray1___rarg(x_89);
-lean_inc(x_27);
-x_91 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_91, 0, x_27);
-lean_ctor_set(x_91, 1, x_61);
-lean_ctor_set(x_91, 2, x_90);
-x_92 = l_Array_mkArray3___rarg(x_45, x_91, x_73);
-lean_inc(x_27);
-x_93 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_93, 0, x_27);
-lean_ctor_set(x_93, 1, x_75);
-lean_ctor_set(x_93, 2, x_92);
-x_94 = l_Array_mkArray3___rarg(x_43, x_23, x_93);
-x_95 = l_Lean_Parser_Tactic_withAnnotateState___closed__5;
-lean_inc(x_27);
-x_96 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_96, 0, x_27);
-lean_ctor_set(x_96, 1, x_95);
-lean_ctor_set(x_96, 2, x_94);
+x_66 = l_Lean_Parser_Tactic_paren___closed__2;
+lean_inc(x_65);
+lean_inc(x_30);
+lean_inc(x_28);
+x_67 = l_Lean_Syntax_node3(x_28, x_66, x_30, x_63, x_65);
+lean_inc(x_28);
+x_68 = l_Lean_Syntax_node1(x_28, x_37, x_67);
+lean_inc(x_28);
+x_69 = l_Lean_Syntax_node1(x_28, x_55, x_68);
+lean_inc(x_28);
+x_70 = l_Lean_Syntax_node1(x_28, x_57, x_69);
+x_71 = l_Lean_Parser_Tactic_tacticTry_____closed__2;
+lean_inc(x_28);
+x_72 = l_Lean_Syntax_node2(x_28, x_71, x_47, x_70);
+lean_inc(x_28);
+x_73 = l_Lean_Syntax_node1(x_28, x_37, x_72);
+lean_inc(x_28);
+x_74 = l_Lean_Syntax_node1(x_28, x_55, x_73);
+lean_inc(x_28);
+x_75 = l_Lean_Syntax_node1(x_28, x_57, x_74);
+lean_inc(x_65);
+lean_inc(x_30);
+lean_inc(x_28);
+x_76 = l_Lean_Syntax_node3(x_28, x_66, x_30, x_75, x_65);
+x_77 = l_Lean_Parser_Tactic_withAnnotateState___closed__5;
+lean_inc(x_28);
+x_78 = l_Lean_Syntax_node3(x_28, x_77, x_45, x_24, x_76);
 if (lean_obj_tag(x_19) == 0)
 {
-x_97 = x_32;
-goto block_124;
+x_79 = x_35;
+goto block_102;
 }
 else
 {
-lean_object* x_125; lean_object* x_126; 
-x_125 = lean_ctor_get(x_19, 0);
-lean_inc(x_125);
+lean_object* x_103; lean_object* x_104; 
+x_103 = lean_ctor_get(x_19, 0);
+lean_inc(x_103);
 lean_dec(x_19);
-x_126 = lean_array_push(x_32, x_125);
-x_97 = x_126;
-goto block_124;
+x_104 = lean_array_push(x_35, x_103);
+x_79 = x_104;
+goto block_102;
 }
-block_124:
+block_102:
 {
-lean_object* x_98; lean_object* x_99; 
-x_98 = l_Array_appendCore___rarg(x_32, x_97);
-lean_dec(x_97);
-lean_inc(x_27);
-x_99 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_99, 0, x_27);
-lean_ctor_set(x_99, 1, x_34);
-lean_ctor_set(x_99, 2, x_98);
+lean_object* x_80; lean_object* x_81; 
+x_80 = l_Array_appendCore___rarg(x_35, x_79);
+lean_dec(x_79);
+lean_inc(x_28);
+x_81 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_81, 0, x_28);
+lean_ctor_set(x_81, 1, x_37);
+lean_ctor_set(x_81, 2, x_80);
 if (lean_obj_tag(x_18) == 0)
 {
-lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; 
-x_100 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__5;
-lean_inc(x_27);
-x_101 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_101, 0, x_27);
-lean_ctor_set(x_101, 1, x_34);
-lean_ctor_set(x_101, 2, x_100);
-x_102 = l_Array_mkArray4___rarg(x_29, x_99, x_39, x_101);
-x_103 = l_Lean_Parser_Tactic_rewriteSeq___closed__2;
-lean_inc(x_27);
-x_104 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_104, 0, x_27);
-lean_ctor_set(x_104, 1, x_103);
-lean_ctor_set(x_104, 2, x_102);
-x_105 = l_Array_mkArray3___rarg(x_104, x_41, x_96);
-lean_inc(x_27);
-x_106 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_106, 0, x_27);
-lean_ctor_set(x_106, 1, x_34);
-lean_ctor_set(x_106, 2, x_105);
-x_107 = l_Array_mkArray1___rarg(x_106);
-x_108 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_109 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_109, 0, x_27);
-lean_ctor_set(x_109, 1, x_108);
-lean_ctor_set(x_109, 2, x_107);
-x_110 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_110, 0, x_109);
-lean_ctor_set(x_110, 1, x_3);
-return x_110;
+lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; 
+x_82 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__5;
+lean_inc(x_28);
+x_83 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_83, 0, x_28);
+lean_ctor_set(x_83, 1, x_37);
+lean_ctor_set(x_83, 2, x_82);
+x_84 = l_Lean_Parser_Tactic_rewriteSeq___closed__2;
+lean_inc(x_28);
+x_85 = l_Lean_Syntax_node4(x_28, x_84, x_32, x_81, x_41, x_83);
+lean_inc(x_28);
+x_86 = l_Lean_Syntax_node3(x_28, x_37, x_85, x_43, x_78);
+lean_inc(x_28);
+x_87 = l_Lean_Syntax_node1(x_28, x_55, x_86);
+lean_inc(x_28);
+x_88 = l_Lean_Syntax_node1(x_28, x_57, x_87);
+x_89 = l_Lean_Syntax_node3(x_28, x_66, x_30, x_88, x_65);
+x_90 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_90, 0, x_89);
+lean_ctor_set(x_90, 1, x_3);
+return x_90;
 }
 else
 {
-lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; 
-x_111 = lean_ctor_get(x_18, 0);
-lean_inc(x_111);
+lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; 
+x_91 = lean_ctor_get(x_18, 0);
+lean_inc(x_91);
 lean_dec(x_18);
-x_112 = lean_array_push(x_32, x_111);
-x_113 = l_Array_appendCore___rarg(x_32, x_112);
-lean_dec(x_112);
-lean_inc(x_27);
-x_114 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_114, 0, x_27);
-lean_ctor_set(x_114, 1, x_34);
-lean_ctor_set(x_114, 2, x_113);
-x_115 = l_Array_mkArray4___rarg(x_29, x_99, x_39, x_114);
-x_116 = l_Lean_Parser_Tactic_rewriteSeq___closed__2;
-lean_inc(x_27);
-x_117 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_117, 0, x_27);
-lean_ctor_set(x_117, 1, x_116);
-lean_ctor_set(x_117, 2, x_115);
-x_118 = l_Array_mkArray3___rarg(x_117, x_41, x_96);
-lean_inc(x_27);
-x_119 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_119, 0, x_27);
-lean_ctor_set(x_119, 1, x_34);
-lean_ctor_set(x_119, 2, x_118);
-x_120 = l_Array_mkArray1___rarg(x_119);
-x_121 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_122 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_122, 0, x_27);
-lean_ctor_set(x_122, 1, x_121);
-lean_ctor_set(x_122, 2, x_120);
-x_123 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_123, 0, x_122);
-lean_ctor_set(x_123, 1, x_3);
-return x_123;
+x_92 = lean_array_push(x_35, x_91);
+x_93 = l_Array_appendCore___rarg(x_35, x_92);
+lean_dec(x_92);
+lean_inc(x_28);
+x_94 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_94, 0, x_28);
+lean_ctor_set(x_94, 1, x_37);
+lean_ctor_set(x_94, 2, x_93);
+x_95 = l_Lean_Parser_Tactic_rewriteSeq___closed__2;
+lean_inc(x_28);
+x_96 = l_Lean_Syntax_node4(x_28, x_95, x_32, x_81, x_41, x_94);
+lean_inc(x_28);
+x_97 = l_Lean_Syntax_node3(x_28, x_37, x_96, x_43, x_78);
+lean_inc(x_28);
+x_98 = l_Lean_Syntax_node1(x_28, x_55, x_97);
+lean_inc(x_28);
+x_99 = l_Lean_Syntax_node1(x_28, x_57, x_98);
+x_100 = l_Lean_Syntax_node3(x_28, x_66, x_30, x_99, x_65);
+x_101 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_101, 0, x_100);
+lean_ctor_set(x_101, 1, x_3);
+return x_101;
+}
 }
 }
 }
@@ -8165,6 +8039,16 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__3() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__4() {
+_start:
+{
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Tactic_discharger___closed__1;
 x_2 = 0;
@@ -8174,7 +8058,21 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__4() {
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_discharger___closed__1;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__3;
+x_3 = l_Lean_Parser_Tactic_discharger___closed__4;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__6() {
 _start:
 {
 lean_object* x_1; 
@@ -8182,11 +8080,21 @@ x_1 = lean_mk_string_from_bytes("disch", 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__5() {
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__5;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__6;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__8() {
 _start:
 {
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_discharger___closed__4;
+x_1 = l_Lean_Parser_Tactic_discharger___closed__6;
 x_2 = 0;
 x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
@@ -8194,54 +8102,14 @@ lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_intros___closed__6;
-x_2 = l_Lean_Parser_Tactic_discharger___closed__3;
-x_3 = l_Lean_Parser_Tactic_discharger___closed__5;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_config___closed__6;
-x_3 = l_Lean_Parser_Tactic_discharger___closed__6;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_config___closed__4;
-x_2 = l_Lean_Parser_Tactic_discharger___closed__7;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__9() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_discharger___closed__8;
-x_3 = l_Lean_Parser_Tactic_config___closed__11;
-x_4 = lean_alloc_ctor(2, 3, 0);
+x_1 = l_Lean_Parser_Tactic_discharger___closed__6;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__7;
+x_3 = l_Lean_Parser_Tactic_discharger___closed__8;
+x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
 lean_ctor_set(x_4, 2, x_3);
@@ -8252,9 +8120,9 @@ static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_discharger___closed__9;
-x_3 = l_Lean_Parser_Tactic_case___closed__12;
+x_1 = l_Lean_Parser_Tactic_intros___closed__6;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__5;
+x_3 = l_Lean_Parser_Tactic_discharger___closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8265,9 +8133,61 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__11() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_locationHyp___closed__4;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__10;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__12() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_discharger___closed__10;
+x_2 = l_Lean_Parser_Tactic_config___closed__6;
+x_3 = l_Lean_Parser_Tactic_discharger___closed__11;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_config___closed__4;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__12;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__13;
+x_3 = l_Lean_Parser_Tactic_config___closed__11;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__15() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__14;
 x_3 = l_Lean_Parser_Tactic_paren___closed__7;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -8276,13 +8196,27 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__12() {
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_discharger___closed__15;
+x_3 = l_Lean_Parser_Tactic_paren___closed__10;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_discharger___closed__17() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_discharger___closed__1;
 x_2 = l_Lean_Parser_Tactic_discharger___closed__2;
-x_3 = l_Lean_Parser_Tactic_discharger___closed__11;
+x_3 = l_Lean_Parser_Tactic_discharger___closed__16;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8294,7 +8228,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_discharger() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_discharger___closed__12;
+x_1 = l_Lean_Parser_Tactic_discharger___closed__17;
 return x_1;
 }
 }
@@ -8470,7 +8404,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 x_2 = l_Lean_Parser_Tactic_simpLemma___closed__4;
-x_3 = l_Lean_Parser_Tactic_rwRule___closed__8;
+x_3 = l_Lean_Parser_Tactic_rwRule___closed__13;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8795,15 +8729,13 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__14() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__4;
-x_3 = l_Lean_Parser_Tactic_simp___closed__13;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_paren___closed__6;
+x_2 = l_Lean_Parser_Tactic_simp___closed__13;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__15() {
@@ -8811,8 +8743,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_simp___closed__14;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
+x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__4;
+x_3 = l_Lean_Parser_Tactic_simp___closed__14;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8823,22 +8755,10 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__16() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
-x_2 = l_Lean_Parser_Tactic_simp___closed__15;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__17() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_simp___closed__10;
-x_3 = l_Lean_Parser_Tactic_simp___closed__16;
+x_2 = l_Lean_Parser_Tactic_simp___closed__15;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8846,13 +8766,25 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
+x_2 = l_Lean_Parser_Tactic_simp___closed__16;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__18() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_simp___closed__17;
-x_3 = l_Lean_Parser_Tactic_change___closed__6;
+x_2 = l_Lean_Parser_Tactic_simp___closed__10;
+x_3 = l_Lean_Parser_Tactic_simp___closed__17;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8864,9 +8796,23 @@ static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_simp___closed__18;
+x_3 = l_Lean_Parser_Tactic_change___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_simp___closed__20() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_simp___closed__2;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_Lean_Parser_Tactic_simp___closed__18;
+x_3 = l_Lean_Parser_Tactic_simp___closed__19;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -8878,7 +8824,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_simp() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_simp___closed__19;
+x_1 = l_Lean_Parser_Tactic_simp___closed__20;
 return x_1;
 }
 }
@@ -8983,15 +8929,13 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__4;
-x_3 = l_Lean_Parser_Tactic_simpAll___closed__8;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_paren___closed__6;
+x_2 = l_Lean_Parser_Tactic_simpAll___closed__8;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__10() {
@@ -8999,8 +8943,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_simpAll___closed__9;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
+x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__4;
+x_3 = l_Lean_Parser_Tactic_simpAll___closed__9;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -9011,22 +8955,10 @@ return x_4;
 static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__11() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
-x_2 = l_Lean_Parser_Tactic_simpAll___closed__10;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__12() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_Lean_Parser_Tactic_simpAll___closed__7;
-x_3 = l_Lean_Parser_Tactic_simpAll___closed__11;
+x_2 = l_Lean_Parser_Tactic_simpAll___closed__10;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -9034,13 +8966,39 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
+static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic_rotateLeft___closed__6;
+x_2 = l_Lean_Parser_Tactic_simpAll___closed__11;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_Lean_Parser_Tactic_simpAll___closed__7;
+x_3 = l_Lean_Parser_Tactic_simpAll___closed__12;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Tactic_simpAll___closed__14() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_simpAll___closed__2;
 x_2 = lean_unsigned_to_nat(1022u);
-x_3 = l_Lean_Parser_Tactic_simpAll___closed__12;
+x_3 = l_Lean_Parser_Tactic_simpAll___closed__13;
 x_4 = lean_alloc_ctor(3, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -9052,7 +9010,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_simpAll() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Tactic_simpAll___closed__13;
+x_1 = l_Lean_Parser_Tactic_simpAll___closed__14;
 return x_1;
 }
 }
@@ -9136,7 +9094,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 x_2 = l_Lean_Parser_Tactic_dsimp___closed__6;
-x_3 = l_Lean_Parser_Tactic_simpAll___closed__11;
+x_3 = l_Lean_Parser_Tactic_simpAll___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -9510,7 +9468,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -9539,117 +9497,60 @@ lean_inc(x_12);
 x_20 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_20, 0, x_12);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Array_mkArray2___rarg(x_20, x_9);
-x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRefine__lift____1___closed__2;
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRefine__lift____1___closed__2;
 lean_inc(x_12);
-x_23 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_23, 0, x_12);
-lean_ctor_set(x_23, 1, x_22);
-lean_ctor_set(x_23, 2, x_21);
-x_24 = l_Array_mkArray2___rarg(x_18, x_23);
-x_25 = l_Lean_Parser_Tactic_refine___closed__2;
+x_22 = l_Lean_Syntax_node2(x_12, x_21, x_20, x_9);
+x_23 = l_Lean_Parser_Tactic_refine___closed__2;
 lean_inc(x_12);
-x_26 = lean_alloc_ctor(1, 3, 0);
+x_24 = l_Lean_Syntax_node2(x_12, x_23, x_18, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+lean_inc(x_12);
+x_26 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_26, 0, x_12);
 lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set(x_26, 2, x_24);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_27 = l_Lean_Parser_Tactic_rotateRight___closed__3;
 lean_inc(x_12);
 x_28 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_28, 0, x_12);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_Parser_Tactic_rotateRight___closed__3;
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
 lean_inc(x_12);
-x_30 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_30, 0, x_12);
-lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
+x_31 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_31, 0, x_12);
+lean_ctor_set(x_31, 1, x_29);
+lean_ctor_set(x_31, 2, x_30);
+x_32 = l_Lean_Parser_Tactic_rotateRight___closed__2;
 lean_inc(x_12);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_12);
-lean_ctor_set(x_33, 1, x_31);
-lean_ctor_set(x_33, 2, x_32);
-x_34 = l_Array_mkArray2___rarg(x_30, x_33);
-x_35 = l_Lean_Parser_Tactic_rotateRight___closed__2;
+x_33 = l_Lean_Syntax_node2(x_12, x_32, x_28, x_31);
 lean_inc(x_12);
-x_36 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_36, 0, x_12);
-lean_ctor_set(x_36, 1, x_35);
-lean_ctor_set(x_36, 2, x_34);
-x_37 = l_Array_mkArray3___rarg(x_26, x_28, x_36);
+x_34 = l_Lean_Syntax_node3(x_12, x_29, x_24, x_26, x_33);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_12);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_31);
-lean_ctor_set(x_38, 2, x_37);
-x_39 = l_Array_mkArray1___rarg(x_38);
-x_40 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_36 = l_Lean_Syntax_node1(x_12, x_35, x_34);
+x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_12);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_12);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Array_mkArray1___rarg(x_41);
-x_43 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_38 = l_Lean_Syntax_node1(x_12, x_37, x_36);
+x_39 = l_Lean_Parser_Tactic_paren___closed__9;
 lean_inc(x_12);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_12);
-lean_ctor_set(x_44, 1, x_43);
-lean_ctor_set(x_44, 2, x_42);
-x_45 = l_Lean_Parser_Tactic_paren___closed__6;
+x_40 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_40, 0, x_12);
+lean_ctor_set(x_40, 1, x_39);
+x_41 = l_Lean_Parser_Tactic_paren___closed__2;
 lean_inc(x_12);
-x_46 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_46, 0, x_12);
-lean_ctor_set(x_46, 1, x_45);
-x_47 = l_Array_mkArray3___rarg(x_16, x_44, x_46);
-x_48 = l_Lean_Parser_Tactic_paren___closed__2;
+x_42 = l_Lean_Syntax_node3(x_12, x_41, x_16, x_38, x_40);
 lean_inc(x_12);
-x_49 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_49, 0, x_12);
-lean_ctor_set(x_49, 1, x_48);
-lean_ctor_set(x_49, 2, x_47);
-x_50 = l_Array_mkArray1___rarg(x_49);
+x_43 = l_Lean_Syntax_node1(x_12, x_29, x_42);
 lean_inc(x_12);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_12);
-lean_ctor_set(x_51, 1, x_31);
-lean_ctor_set(x_51, 2, x_50);
-x_52 = l_Array_mkArray1___rarg(x_51);
+x_44 = l_Lean_Syntax_node1(x_12, x_35, x_43);
 lean_inc(x_12);
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_12);
-lean_ctor_set(x_53, 1, x_40);
-lean_ctor_set(x_53, 2, x_52);
-x_54 = l_Array_mkArray1___rarg(x_53);
-lean_inc(x_12);
-x_55 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_55, 0, x_12);
-lean_ctor_set(x_55, 1, x_43);
-lean_ctor_set(x_55, 2, x_54);
-x_56 = l_Array_mkArray2___rarg(x_14, x_55);
-x_57 = l_Lean_Parser_Tactic_focus___closed__2;
-lean_inc(x_12);
-x_58 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_58, 0, x_12);
-lean_ctor_set(x_58, 1, x_57);
-lean_ctor_set(x_58, 2, x_56);
-x_59 = l_Array_mkArray1___rarg(x_58);
-lean_inc(x_12);
-x_60 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_60, 0, x_12);
-lean_ctor_set(x_60, 1, x_31);
-lean_ctor_set(x_60, 2, x_59);
-x_61 = l_Array_mkArray1___rarg(x_60);
-x_62 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_63 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_63, 0, x_12);
-lean_ctor_set(x_63, 1, x_62);
-lean_ctor_set(x_63, 2, x_61);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_63);
-lean_ctor_set(x_64, 1, x_3);
-return x_64;
+x_45 = l_Lean_Syntax_node1(x_12, x_37, x_44);
+x_46 = l_Lean_Parser_Tactic_focus___closed__2;
+x_47 = l_Lean_Syntax_node2(x_12, x_46, x_14, x_45);
+x_48 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_48, 0, x_47);
+lean_ctor_set(x_48, 1, x_3);
+return x_48;
 }
 }
 }
@@ -9833,7 +9734,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -9867,51 +9768,21 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray4___rarg(x_16, x_9, x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__3;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__3;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_14, x_31);
-x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
-lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray1___rarg(x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_3);
-return x_41;
+x_28 = l_Lean_Syntax_node4(x_12, x_27, x_16, x_9, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_14, x_28);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_3);
+return x_31;
 }
 }
 }
@@ -10059,7 +9930,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -10093,51 +9964,21 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray4___rarg(x_16, x_9, x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSuffices____1___closed__2;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSuffices____1___closed__2;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_14, x_31);
-x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
-lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray1___rarg(x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_3);
-return x_41;
+x_28 = l_Lean_Syntax_node4(x_12, x_27, x_16, x_9, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_14, x_28);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_3);
+return x_31;
 }
 }
 }
@@ -10285,7 +10126,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -10319,51 +10160,21 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray4___rarg(x_16, x_9, x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticLet____1___closed__2;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticLet____1___closed__2;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_14, x_31);
-x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
-lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray1___rarg(x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_3);
-return x_41;
+x_28 = l_Lean_Syntax_node4(x_12, x_27, x_16, x_9, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_14, x_28);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_3);
+return x_31;
 }
 }
 }
@@ -10511,7 +10322,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -10545,58 +10356,24 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray2___rarg(x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticShow____1___closed__4;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticShow____1___closed__4;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray3___rarg(x_16, x_9, x_31);
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticShow____1___closed__2;
+x_28 = l_Lean_Syntax_node2(x_12, x_27, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticShow____1___closed__2;
 lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray2___rarg(x_14, x_34);
-x_36 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = l_Array_mkArray1___rarg(x_40);
-x_42 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_43 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_43, 0, x_12);
-lean_ctor_set(x_43, 1, x_42);
-lean_ctor_set(x_43, 2, x_41);
-x_44 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_44, 0, x_43);
-lean_ctor_set(x_44, 1, x_3);
-return x_44;
+x_30 = l_Lean_Syntax_node3(x_12, x_29, x_16, x_9, x_28);
+x_31 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
+x_32 = l_Lean_Syntax_node2(x_12, x_31, x_14, x_30);
+x_33 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_33, 0, x_32);
+lean_ctor_set(x_33, 1, x_3);
+return x_33;
 }
 }
 }
@@ -10792,7 +10569,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
 x_8 = lean_unsigned_to_nat(2u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -10816,59 +10593,39 @@ lean_inc(x_12);
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_12);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Array_mkArray2___rarg(x_16, x_18);
-x_20 = l_Lean_Parser_Tactic_first___closed__8;
+x_19 = l_Lean_Parser_Tactic_first___closed__8;
 lean_inc(x_12);
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_19);
-x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_20 = l_Lean_Syntax_node2(x_12, x_19, x_16, x_18);
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
 lean_inc(x_12);
-x_23 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_23, 0, x_12);
-lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__6;
+x_22 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_22, 0, x_12);
+lean_ctor_set(x_22, 1, x_21);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__6;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_23);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
 lean_inc(x_12);
-x_27 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_27, 0, x_12);
-lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Array_mkArray1___rarg(x_27);
-x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_26 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_26, 0, x_12);
+lean_ctor_set(x_26, 1, x_25);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_12);
-lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = l_Array_mkArray2___rarg(x_25, x_30);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_28 = l_Lean_Syntax_node1(x_12, x_27, x_26);
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_12);
-lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l_Array_mkArray4___rarg(x_21, x_9, x_23, x_33);
-x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__letrec__1___closed__1;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_24, x_28);
+x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__letrec__1___closed__1;
 lean_inc(x_12);
-x_36 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_36, 0, x_12);
-lean_ctor_set(x_36, 1, x_35);
-lean_ctor_set(x_36, 2, x_34);
-x_37 = l_Array_mkArray2___rarg(x_14, x_36);
-x_38 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
-x_39 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_39, 0, x_12);
-lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set(x_39, 2, x_37);
-x_40 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_40, 0, x_39);
-lean_ctor_set(x_40, 1, x_3);
-return x_40;
+x_32 = l_Lean_Syntax_node4(x_12, x_31, x_20, x_9, x_22, x_30);
+x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_____closed__2;
+x_34 = l_Lean_Syntax_node2(x_12, x_33, x_14, x_32);
+x_35 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_35, 0, x_34);
+lean_ctor_set(x_35, 1, x_3);
+return x_35;
 }
 }
 }
@@ -10968,7 +10725,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -10997,117 +10754,60 @@ lean_inc(x_12);
 x_20 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_20, 0, x_12);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l_Array_mkArray2___rarg(x_20, x_9);
-x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRefine__lift____1___closed__2;
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRefine__lift____1___closed__2;
 lean_inc(x_12);
-x_23 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_23, 0, x_12);
-lean_ctor_set(x_23, 1, x_22);
-lean_ctor_set(x_23, 2, x_21);
-x_24 = l_Array_mkArray2___rarg(x_18, x_23);
-x_25 = l_Lean_Parser_Tactic_refine_x27___closed__2;
+x_22 = l_Lean_Syntax_node2(x_12, x_21, x_20, x_9);
+x_23 = l_Lean_Parser_Tactic_refine_x27___closed__2;
 lean_inc(x_12);
-x_26 = lean_alloc_ctor(1, 3, 0);
+x_24 = l_Lean_Syntax_node2(x_12, x_23, x_18, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+lean_inc(x_12);
+x_26 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_26, 0, x_12);
 lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set(x_26, 2, x_24);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_27 = l_Lean_Parser_Tactic_rotateRight___closed__3;
 lean_inc(x_12);
 x_28 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_28, 0, x_12);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Lean_Parser_Tactic_rotateRight___closed__3;
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
 lean_inc(x_12);
-x_30 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_30, 0, x_12);
-lean_ctor_set(x_30, 1, x_29);
-x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
+x_31 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_31, 0, x_12);
+lean_ctor_set(x_31, 1, x_29);
+lean_ctor_set(x_31, 2, x_30);
+x_32 = l_Lean_Parser_Tactic_rotateRight___closed__2;
 lean_inc(x_12);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_12);
-lean_ctor_set(x_33, 1, x_31);
-lean_ctor_set(x_33, 2, x_32);
-x_34 = l_Array_mkArray2___rarg(x_30, x_33);
-x_35 = l_Lean_Parser_Tactic_rotateRight___closed__2;
+x_33 = l_Lean_Syntax_node2(x_12, x_32, x_28, x_31);
 lean_inc(x_12);
-x_36 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_36, 0, x_12);
-lean_ctor_set(x_36, 1, x_35);
-lean_ctor_set(x_36, 2, x_34);
-x_37 = l_Array_mkArray3___rarg(x_26, x_28, x_36);
+x_34 = l_Lean_Syntax_node3(x_12, x_29, x_24, x_26, x_33);
+x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_12);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_31);
-lean_ctor_set(x_38, 2, x_37);
-x_39 = l_Array_mkArray1___rarg(x_38);
-x_40 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_36 = l_Lean_Syntax_node1(x_12, x_35, x_34);
+x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_12);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_12);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Array_mkArray1___rarg(x_41);
-x_43 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_38 = l_Lean_Syntax_node1(x_12, x_37, x_36);
+x_39 = l_Lean_Parser_Tactic_paren___closed__9;
 lean_inc(x_12);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_12);
-lean_ctor_set(x_44, 1, x_43);
-lean_ctor_set(x_44, 2, x_42);
-x_45 = l_Lean_Parser_Tactic_paren___closed__6;
+x_40 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_40, 0, x_12);
+lean_ctor_set(x_40, 1, x_39);
+x_41 = l_Lean_Parser_Tactic_paren___closed__2;
 lean_inc(x_12);
-x_46 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_46, 0, x_12);
-lean_ctor_set(x_46, 1, x_45);
-x_47 = l_Array_mkArray3___rarg(x_16, x_44, x_46);
-x_48 = l_Lean_Parser_Tactic_paren___closed__2;
+x_42 = l_Lean_Syntax_node3(x_12, x_41, x_16, x_38, x_40);
 lean_inc(x_12);
-x_49 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_49, 0, x_12);
-lean_ctor_set(x_49, 1, x_48);
-lean_ctor_set(x_49, 2, x_47);
-x_50 = l_Array_mkArray1___rarg(x_49);
+x_43 = l_Lean_Syntax_node1(x_12, x_29, x_42);
 lean_inc(x_12);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_12);
-lean_ctor_set(x_51, 1, x_31);
-lean_ctor_set(x_51, 2, x_50);
-x_52 = l_Array_mkArray1___rarg(x_51);
+x_44 = l_Lean_Syntax_node1(x_12, x_35, x_43);
 lean_inc(x_12);
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_12);
-lean_ctor_set(x_53, 1, x_40);
-lean_ctor_set(x_53, 2, x_52);
-x_54 = l_Array_mkArray1___rarg(x_53);
-lean_inc(x_12);
-x_55 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_55, 0, x_12);
-lean_ctor_set(x_55, 1, x_43);
-lean_ctor_set(x_55, 2, x_54);
-x_56 = l_Array_mkArray2___rarg(x_14, x_55);
-x_57 = l_Lean_Parser_Tactic_focus___closed__2;
-lean_inc(x_12);
-x_58 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_58, 0, x_12);
-lean_ctor_set(x_58, 1, x_57);
-lean_ctor_set(x_58, 2, x_56);
-x_59 = l_Array_mkArray1___rarg(x_58);
-lean_inc(x_12);
-x_60 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_60, 0, x_12);
-lean_ctor_set(x_60, 1, x_31);
-lean_ctor_set(x_60, 2, x_59);
-x_61 = l_Array_mkArray1___rarg(x_60);
-x_62 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_63 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_63, 0, x_12);
-lean_ctor_set(x_63, 1, x_62);
-lean_ctor_set(x_63, 2, x_61);
-x_64 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_64, 0, x_63);
-lean_ctor_set(x_64, 1, x_3);
-return x_64;
+x_45 = l_Lean_Syntax_node1(x_12, x_37, x_44);
+x_46 = l_Lean_Parser_Tactic_focus___closed__2;
+x_47 = l_Lean_Syntax_node2(x_12, x_46, x_14, x_45);
+x_48 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_48, 0, x_47);
+lean_ctor_set(x_48, 1, x_3);
+return x_48;
 }
 }
 }
@@ -11215,7 +10915,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -11249,51 +10949,21 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray4___rarg(x_16, x_9, x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__3;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__3;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_14, x_31);
-x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_x27_____closed__2;
-lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray1___rarg(x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_3);
-return x_41;
+x_28 = l_Lean_Syntax_node4(x_12, x_27, x_16, x_9, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic_tacticRefine__lift_x27_____closed__2;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_14, x_28);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_3);
+return x_31;
 }
 }
 }
@@ -11489,7 +11159,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 x_10 = lean_unsigned_to_nat(3u);
@@ -11512,84 +11182,43 @@ x_19 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_19, 0, x_14);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_18);
-x_20 = l_Array_mkArray2___rarg(x_9, x_19);
 lean_inc(x_14);
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_14);
-lean_ctor_set(x_21, 1, x_17);
-lean_ctor_set(x_21, 2, x_20);
-x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__6;
+x_20 = l_Lean_Syntax_node2(x_14, x_17, x_9, x_19);
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__6;
 lean_inc(x_14);
-x_23 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_23, 0, x_14);
-lean_ctor_set(x_23, 1, x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
+x_22 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_22, 0, x_14);
+lean_ctor_set(x_22, 1, x_21);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__9;
 lean_inc(x_14);
-x_25 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_25, 0, x_14);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Array_mkArray1___rarg(x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_14);
+lean_ctor_set(x_24, 1, x_23);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_14);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_14);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray2___rarg(x_23, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__5;
+x_26 = l_Lean_Syntax_node1(x_14, x_25, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__5;
 lean_inc(x_14);
-x_31 = lean_alloc_ctor(1, 3, 0);
+x_28 = l_Lean_Syntax_node2(x_14, x_27, x_22, x_26);
+lean_inc(x_14);
+x_29 = l_Lean_Syntax_node1(x_14, x_17, x_28);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__7;
+lean_inc(x_14);
+x_31 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_31, 0, x_14);
 lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray1___rarg(x_31);
+x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__3;
 lean_inc(x_14);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_14);
-lean_ctor_set(x_33, 1, x_17);
-lean_ctor_set(x_33, 2, x_32);
-x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__7;
+x_33 = l_Lean_Syntax_node4(x_14, x_32, x_20, x_29, x_31, x_11);
+x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__1;
 lean_inc(x_14);
-x_35 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_35, 0, x_14);
-lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Array_mkArray4___rarg(x_21, x_33, x_35, x_11);
-x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__3;
-lean_inc(x_14);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_14);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
-x_39 = l_Array_mkArray1___rarg(x_38);
-x_40 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__1;
-lean_inc(x_14);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_14);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Array_mkArray2___rarg(x_16, x_41);
-x_43 = l_Lean_Parser_Tactic_tacticHave_x27_____closed__2;
-lean_inc(x_14);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_14);
-lean_ctor_set(x_44, 1, x_43);
-lean_ctor_set(x_44, 2, x_42);
-x_45 = l_Array_mkArray1___rarg(x_44);
-lean_inc(x_14);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_14);
-lean_ctor_set(x_46, 1, x_17);
-lean_ctor_set(x_46, 2, x_45);
-x_47 = l_Array_mkArray1___rarg(x_46);
-x_48 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_49 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_49, 0, x_14);
-lean_ctor_set(x_49, 1, x_48);
-lean_ctor_set(x_49, 2, x_47);
-x_50 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_50, 0, x_49);
-lean_ctor_set(x_50, 1, x_3);
-return x_50;
+x_35 = l_Lean_Syntax_node1(x_14, x_34, x_33);
+x_36 = l_Lean_Parser_Tactic_tacticHave_x27_____closed__2;
+x_37 = l_Lean_Syntax_node2(x_14, x_36, x_16, x_35);
+x_38 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_38, 0, x_37);
+lean_ctor_set(x_38, 1, x_3);
+return x_38;
 }
 }
 }
@@ -11689,7 +11318,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -11723,51 +11352,21 @@ lean_inc(x_12);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_12);
 lean_ctor_set(x_22, 1, x_21);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray2___rarg(x_20, x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray4___rarg(x_16, x_9, x_18, x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticLet____1___closed__2;
+x_26 = l_Lean_Syntax_node2(x_12, x_25, x_20, x_24);
+x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticLet____1___closed__2;
 lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_14, x_31);
-x_33 = l_Lean_Parser_Tactic_tacticRefine__lift_x27_____closed__2;
-lean_inc(x_12);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = l_Array_mkArray1___rarg(x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_37 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_37, 0, x_12);
-lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Array_mkArray1___rarg(x_37);
-x_39 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_39);
-lean_ctor_set(x_40, 2, x_38);
-x_41 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_3);
-return x_41;
+x_28 = l_Lean_Syntax_node4(x_12, x_27, x_16, x_9, x_18, x_26);
+x_29 = l_Lean_Parser_Tactic_tacticRefine__lift_x27_____closed__2;
+x_30 = l_Lean_Syntax_node2(x_12, x_29, x_14, x_28);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_30);
+lean_ctor_set(x_31, 1, x_3);
+return x_31;
 }
 }
 }
@@ -13165,7 +12764,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -13189,116 +12788,64 @@ lean_inc(x_12);
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_12);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Lean_Parser_Tactic_paren___closed__6;
+x_19 = l_Lean_Parser_Tactic_paren___closed__9;
 lean_inc(x_12);
 x_20 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_20, 0, x_12);
 lean_ctor_set(x_20, 1, x_19);
+x_21 = l_Lean_Parser_Tactic_paren___closed__2;
 lean_inc(x_9);
-x_21 = l_Array_mkArray3___rarg(x_18, x_9, x_20);
-x_22 = l_Lean_Parser_Tactic_paren___closed__2;
 lean_inc(x_12);
-x_23 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_23, 0, x_12);
-lean_ctor_set(x_23, 1, x_22);
-lean_ctor_set(x_23, 2, x_21);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_22 = l_Lean_Syntax_node3(x_12, x_21, x_18, x_9, x_20);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
 lean_inc(x_12);
-x_25 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_25, 0, x_12);
-lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRepeat____1___closed__1;
+x_24 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_24, 0, x_12);
+lean_ctor_set(x_24, 1, x_23);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRepeat____1___closed__1;
 lean_inc(x_12);
-x_27 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_27, 0, x_12);
-lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Array_mkArray2___rarg(x_27, x_9);
+x_26 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_26, 0, x_12);
+lean_ctor_set(x_26, 1, x_25);
 lean_inc(x_12);
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_12);
-lean_ctor_set(x_29, 1, x_4);
-lean_ctor_set(x_29, 2, x_28);
-x_30 = l_Array_mkArray3___rarg(x_23, x_25, x_29);
-x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_27 = l_Lean_Syntax_node2(x_12, x_4, x_26, x_9);
+x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_12);
-x_32 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_32, 0, x_12);
-lean_ctor_set(x_32, 1, x_31);
-lean_ctor_set(x_32, 2, x_30);
-x_33 = l_Array_mkArray1___rarg(x_32);
-x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_29 = l_Lean_Syntax_node3(x_12, x_28, x_22, x_24, x_27);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_12);
-x_35 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_35, 0, x_12);
-lean_ctor_set(x_35, 1, x_34);
-lean_ctor_set(x_35, 2, x_33);
-x_36 = l_Array_mkArray1___rarg(x_35);
-x_37 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_31 = l_Lean_Syntax_node1(x_12, x_30, x_29);
+x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_12);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
+x_33 = l_Lean_Syntax_node1(x_12, x_32, x_31);
+x_34 = l_Lean_Parser_Tactic_first___closed__8;
 lean_inc(x_16);
-x_39 = l_Array_mkArray2___rarg(x_16, x_38);
-x_40 = l_Lean_Parser_Tactic_first___closed__8;
 lean_inc(x_12);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_12);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Lean_Parser_Tactic_skip___closed__1;
+x_35 = l_Lean_Syntax_node2(x_12, x_34, x_16, x_33);
+x_36 = l_Lean_Parser_Tactic_skip___closed__1;
 lean_inc(x_12);
-x_43 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_43, 0, x_12);
-lean_ctor_set(x_43, 1, x_42);
-x_44 = l_Array_mkArray1___rarg(x_43);
-x_45 = l_Lean_Parser_Tactic_skip___closed__2;
+x_37 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_37, 0, x_12);
+lean_ctor_set(x_37, 1, x_36);
+x_38 = l_Lean_Parser_Tactic_skip___closed__2;
 lean_inc(x_12);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_12);
-lean_ctor_set(x_46, 1, x_45);
-lean_ctor_set(x_46, 2, x_44);
-x_47 = l_Array_mkArray1___rarg(x_46);
+x_39 = l_Lean_Syntax_node1(x_12, x_38, x_37);
 lean_inc(x_12);
-x_48 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_48, 0, x_12);
-lean_ctor_set(x_48, 1, x_31);
-lean_ctor_set(x_48, 2, x_47);
-x_49 = l_Array_mkArray1___rarg(x_48);
+x_40 = l_Lean_Syntax_node1(x_12, x_28, x_39);
 lean_inc(x_12);
-x_50 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_50, 0, x_12);
-lean_ctor_set(x_50, 1, x_34);
-lean_ctor_set(x_50, 2, x_49);
-x_51 = l_Array_mkArray1___rarg(x_50);
+x_41 = l_Lean_Syntax_node1(x_12, x_30, x_40);
 lean_inc(x_12);
-x_52 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_52, 0, x_12);
-lean_ctor_set(x_52, 1, x_37);
-lean_ctor_set(x_52, 2, x_51);
-x_53 = l_Array_mkArray2___rarg(x_16, x_52);
+x_42 = l_Lean_Syntax_node1(x_12, x_32, x_41);
 lean_inc(x_12);
-x_54 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_54, 0, x_12);
-lean_ctor_set(x_54, 1, x_40);
-lean_ctor_set(x_54, 2, x_53);
-x_55 = l_Array_mkArray2___rarg(x_41, x_54);
+x_43 = l_Lean_Syntax_node2(x_12, x_34, x_16, x_42);
 lean_inc(x_12);
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_12);
-lean_ctor_set(x_56, 1, x_31);
-lean_ctor_set(x_56, 2, x_55);
-x_57 = l_Array_mkArray2___rarg(x_14, x_56);
-x_58 = l_Lean_Parser_Tactic_first___closed__2;
-x_59 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_59, 0, x_12);
-lean_ctor_set(x_59, 1, x_58);
-lean_ctor_set(x_59, 2, x_57);
-x_60 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_60, 0, x_59);
-lean_ctor_set(x_60, 1, x_3);
-return x_60;
+x_44 = l_Lean_Syntax_node2(x_12, x_28, x_35, x_43);
+x_45 = l_Lean_Parser_Tactic_first___closed__2;
+x_46 = l_Lean_Syntax_node2(x_12, x_45, x_14, x_44);
+x_47 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_47, 0, x_46);
+lean_ctor_set(x_47, 1, x_3);
+return x_47;
 }
 }
 }
@@ -13662,7 +13209,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -13678,57 +13225,24 @@ lean_inc(x_10);
 x_14 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_14, 0, x_10);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l_Array_mkArray1___rarg(x_14);
-x_16 = l_Lean_Parser_Tactic_tacticSorry___closed__2;
+x_15 = l_Lean_Parser_Tactic_tacticSorry___closed__2;
 lean_inc(x_10);
-x_17 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_17, 0, x_10);
-lean_ctor_set(x_17, 1, x_16);
-lean_ctor_set(x_17, 2, x_15);
-x_18 = l_Array_mkArray1___rarg(x_17);
-x_19 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_16 = l_Lean_Syntax_node1(x_10, x_15, x_14);
+x_17 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_10);
-x_20 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_20, 0, x_10);
-lean_ctor_set(x_20, 1, x_19);
-lean_ctor_set(x_20, 2, x_18);
-x_21 = l_Array_mkArray1___rarg(x_20);
-x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_18 = l_Lean_Syntax_node1(x_10, x_17, x_16);
+x_19 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_10);
-x_23 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_23, 0, x_10);
-lean_ctor_set(x_23, 1, x_22);
-lean_ctor_set(x_23, 2, x_21);
-x_24 = l_Array_mkArray1___rarg(x_23);
-x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_20 = l_Lean_Syntax_node1(x_10, x_19, x_18);
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_10);
-x_26 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_26, 0, x_10);
-lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set(x_26, 2, x_24);
-x_27 = l_Array_mkArray2___rarg(x_12, x_26);
-x_28 = l_Lean_Parser_Tactic_tacticRepeat_____closed__2;
-lean_inc(x_10);
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_10);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_27);
-x_30 = l_Array_mkArray1___rarg(x_29);
-lean_inc(x_10);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_10);
-lean_ctor_set(x_31, 1, x_19);
-lean_ctor_set(x_31, 2, x_30);
-x_32 = l_Array_mkArray1___rarg(x_31);
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_10);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_34);
-lean_ctor_set(x_35, 1, x_3);
-return x_35;
+x_22 = l_Lean_Syntax_node1(x_10, x_21, x_20);
+x_23 = l_Lean_Parser_Tactic_tacticRepeat_____closed__2;
+x_24 = l_Lean_Syntax_node2(x_10, x_23, x_12, x_22);
+x_25 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_25, 0, x_24);
+lean_ctor_set(x_25, 1, x_3);
+return x_25;
 }
 }
 }
@@ -13826,7 +13340,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -13837,16 +13351,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_assumption___closed__2;
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_3);
-return x_16;
+x_13 = l_Lean_Parser_Tactic_assumption___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -13868,7 +13378,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -13879,16 +13389,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_3);
-return x_16;
+x_13 = l_Lean_Parser_Tactic_tacticRfl___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -13910,7 +13416,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -13921,16 +13427,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_contradiction___closed__2;
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_3);
-return x_16;
+x_13 = l_Lean_Parser_Tactic_contradiction___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -13972,7 +13474,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -13983,16 +13485,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__4___closed__2;
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_3);
-return x_16;
+x_13 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__4___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -14073,7 +13571,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -14098,16 +13596,12 @@ lean_ctor_set(x_19, 0, x_10);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
-x_20 = l_Array_mkArray2___rarg(x_14, x_19);
-x_21 = l_Lean_Parser_Tactic_apply___closed__2;
-x_22 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_22, 0, x_10);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_3);
-return x_23;
+x_20 = l_Lean_Parser_Tactic_apply___closed__2;
+x_21 = l_Lean_Syntax_node2(x_10, x_20, x_14, x_19);
+x_22 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_22, 0, x_21);
+lean_ctor_set(x_22, 1, x_3);
+return x_22;
 }
 }
 }
@@ -14196,7 +13690,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -14221,39 +13715,27 @@ lean_ctor_set(x_19, 0, x_10);
 lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
-x_20 = l_Array_mkArray2___rarg(x_14, x_19);
-x_21 = l_Lean_Parser_Tactic_apply___closed__2;
+x_20 = l_Lean_Parser_Tactic_apply___closed__2;
 lean_inc(x_10);
-x_22 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_22, 0, x_10);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__6___closed__7;
+x_21 = l_Lean_Syntax_node2(x_10, x_20, x_14, x_19);
+x_22 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTrivial__6___closed__7;
 lean_inc(x_10);
-x_24 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_24, 0, x_10);
-lean_ctor_set(x_24, 1, x_23);
-x_25 = l_Lean_Parser_Tactic_tacticTrivial___closed__3;
+x_23 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_23, 0, x_10);
+lean_ctor_set(x_23, 1, x_22);
+x_24 = l_Lean_Parser_Tactic_tacticTrivial___closed__3;
 lean_inc(x_10);
-x_26 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_26, 0, x_10);
-lean_ctor_set(x_26, 1, x_25);
-x_27 = l_Array_mkArray1___rarg(x_26);
+x_25 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_25, 0, x_10);
+lean_ctor_set(x_25, 1, x_24);
 lean_inc(x_10);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_10);
-lean_ctor_set(x_28, 1, x_4);
-lean_ctor_set(x_28, 2, x_27);
-x_29 = l_Array_mkArray3___rarg(x_22, x_24, x_28);
-x_30 = l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__2;
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_10);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_3);
-return x_32;
+x_26 = l_Lean_Syntax_node1(x_10, x_4, x_25);
+x_27 = l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__2;
+x_28 = l_Lean_Syntax_node3(x_10, x_27, x_21, x_23, x_26);
+x_29 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_3);
+return x_29;
 }
 }
 }
@@ -14388,7 +13870,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -14426,30 +13908,12 @@ lean_inc(x_12);
 x_25 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_25, 0, x_12);
 lean_ctor_set(x_25, 1, x_24);
-x_26 = l_Array_mkArray5___rarg(x_16, x_21, x_23, x_25, x_9);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl_x27__1___closed__2;
-lean_inc(x_12);
-x_28 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_28, 0, x_12);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-x_29 = l_Array_mkArray1___rarg(x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_12);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_12);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray1___rarg(x_31);
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_12);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_35, 0, x_34);
-lean_ctor_set(x_35, 1, x_3);
-return x_35;
+x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticRfl_x27__1___closed__2;
+x_27 = l_Lean_Syntax_node5(x_12, x_26, x_16, x_21, x_23, x_25, x_9);
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_28, 1, x_3);
+return x_28;
 }
 }
 }
@@ -14689,7 +14153,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -14700,30 +14164,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_skip___closed__2;
-lean_inc(x_10);
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = l_Array_mkArray1___rarg(x_15);
-x_17 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
-lean_inc(x_10);
-x_18 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_18, 0, x_10);
-lean_ctor_set(x_18, 1, x_17);
-lean_ctor_set(x_18, 2, x_16);
-x_19 = l_Array_mkArray1___rarg(x_18);
-x_20 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_10);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_19);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_3);
-return x_22;
+x_13 = l_Lean_Parser_Tactic_skip___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -14927,7 +14373,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -14972,128 +14418,76 @@ lean_inc(x_13);
 x_28 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_28, 0, x_13);
 lean_ctor_set(x_28, 1, x_27);
-x_29 = l_Array_mkArray1___rarg(x_28);
-x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__8;
 lean_inc(x_13);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_13);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Array_mkArray2___rarg(x_26, x_31);
-x_33 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
+x_30 = l_Lean_Syntax_node1(x_13, x_29, x_28);
+x_31 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave____1___closed__5;
 lean_inc(x_13);
-x_34 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_34, 0, x_13);
-lean_ctor_set(x_34, 1, x_33);
-lean_ctor_set(x_34, 2, x_32);
-x_35 = lean_array_push(x_24, x_34);
-x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_32 = l_Lean_Syntax_node2(x_13, x_31, x_26, x_30);
+x_33 = lean_array_push(x_24, x_32);
+x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_13);
-x_37 = lean_alloc_ctor(1, 3, 0);
+x_35 = lean_alloc_ctor(1, 3, 0);
+lean_ctor_set(x_35, 0, x_13);
+lean_ctor_set(x_35, 1, x_34);
+lean_ctor_set(x_35, 2, x_33);
+x_36 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticExists___x2c_x2c__1___closed__4;
+lean_inc(x_13);
+x_37 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_37, 0, x_13);
 lean_ctor_set(x_37, 1, x_36);
-lean_ctor_set(x_37, 2, x_35);
-x_38 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticExists___x2c_x2c__1___closed__4;
+x_38 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticExists___x2c_x2c__1___closed__2;
 lean_inc(x_13);
-x_39 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_39, 0, x_13);
-lean_ctor_set(x_39, 1, x_38);
-x_40 = l_Array_mkArray3___rarg(x_19, x_37, x_39);
-x_41 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticExists___x2c_x2c__1___closed__2;
+x_39 = l_Lean_Syntax_node3(x_13, x_38, x_19, x_35, x_37);
+x_40 = l_Lean_Parser_Tactic_refine___closed__2;
 lean_inc(x_13);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_13);
-lean_ctor_set(x_42, 1, x_41);
-lean_ctor_set(x_42, 2, x_40);
-x_43 = l_Array_mkArray2___rarg(x_17, x_42);
-x_44 = l_Lean_Parser_Tactic_refine___closed__2;
+x_41 = l_Lean_Syntax_node2(x_13, x_40, x_17, x_39);
+x_42 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
 lean_inc(x_13);
-x_45 = lean_alloc_ctor(1, 3, 0);
+x_43 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_43, 0, x_13);
+lean_ctor_set(x_43, 1, x_42);
+x_44 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__3;
+lean_inc(x_13);
+x_45 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_45, 0, x_13);
 lean_ctor_set(x_45, 1, x_44);
-lean_ctor_set(x_45, 2, x_43);
-x_46 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_46 = l_Lean_Parser_Tactic_tacticTrivial___closed__3;
 lean_inc(x_13);
 x_47 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_47, 0, x_13);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__3;
+x_48 = l_Lean_Parser_Tactic_tacticTrivial___closed__2;
 lean_inc(x_13);
-x_49 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_49, 0, x_13);
-lean_ctor_set(x_49, 1, x_48);
-x_50 = l_Lean_Parser_Tactic_tacticTrivial___closed__3;
+x_49 = l_Lean_Syntax_node1(x_13, x_48, x_47);
 lean_inc(x_13);
-x_51 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_51, 0, x_13);
-lean_ctor_set(x_51, 1, x_50);
-x_52 = l_Array_mkArray1___rarg(x_51);
-x_53 = l_Lean_Parser_Tactic_tacticTrivial___closed__2;
+x_50 = l_Lean_Syntax_node1(x_13, x_34, x_49);
+x_51 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_13);
-x_54 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_54, 0, x_13);
-lean_ctor_set(x_54, 1, x_53);
-lean_ctor_set(x_54, 2, x_52);
-x_55 = l_Array_mkArray1___rarg(x_54);
+x_52 = l_Lean_Syntax_node1(x_13, x_51, x_50);
+x_53 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_13);
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_13);
-lean_ctor_set(x_56, 1, x_36);
-lean_ctor_set(x_56, 2, x_55);
-x_57 = l_Array_mkArray1___rarg(x_56);
-x_58 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_54 = l_Lean_Syntax_node1(x_13, x_53, x_52);
+x_55 = l_Lean_Parser_Tactic_tacticTry_____closed__2;
 lean_inc(x_13);
-x_59 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_59, 0, x_13);
-lean_ctor_set(x_59, 1, x_58);
-lean_ctor_set(x_59, 2, x_57);
-x_60 = l_Array_mkArray1___rarg(x_59);
-x_61 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_56 = l_Lean_Syntax_node2(x_13, x_55, x_45, x_54);
 lean_inc(x_13);
-x_62 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_62, 0, x_13);
-lean_ctor_set(x_62, 1, x_61);
-lean_ctor_set(x_62, 2, x_60);
-x_63 = l_Array_mkArray2___rarg(x_49, x_62);
-x_64 = l_Lean_Parser_Tactic_tacticTry_____closed__2;
+x_57 = l_Lean_Syntax_node3(x_13, x_34, x_41, x_43, x_56);
 lean_inc(x_13);
-x_65 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_65, 0, x_13);
-lean_ctor_set(x_65, 1, x_64);
-lean_ctor_set(x_65, 2, x_63);
-x_66 = l_Array_mkArray3___rarg(x_45, x_47, x_65);
+x_58 = l_Lean_Syntax_node1(x_13, x_51, x_57);
 lean_inc(x_13);
-x_67 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_67, 0, x_13);
-lean_ctor_set(x_67, 1, x_36);
-lean_ctor_set(x_67, 2, x_66);
-x_68 = l_Array_mkArray1___rarg(x_67);
+x_59 = l_Lean_Syntax_node1(x_13, x_53, x_58);
+x_60 = l_Lean_Parser_Tactic_paren___closed__9;
 lean_inc(x_13);
-x_69 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_69, 0, x_13);
-lean_ctor_set(x_69, 1, x_58);
-lean_ctor_set(x_69, 2, x_68);
-x_70 = l_Array_mkArray1___rarg(x_69);
-lean_inc(x_13);
-x_71 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_71, 0, x_13);
-lean_ctor_set(x_71, 1, x_61);
-lean_ctor_set(x_71, 2, x_70);
-x_72 = l_Lean_Parser_Tactic_paren___closed__6;
-lean_inc(x_13);
-x_73 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_73, 0, x_13);
-lean_ctor_set(x_73, 1, x_72);
-x_74 = l_Array_mkArray3___rarg(x_15, x_71, x_73);
-x_75 = l_Lean_Parser_Tactic_paren___closed__2;
-x_76 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_76, 0, x_13);
-lean_ctor_set(x_76, 1, x_75);
-lean_ctor_set(x_76, 2, x_74);
-x_77 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_77, 0, x_76);
-lean_ctor_set(x_77, 1, x_3);
-return x_77;
+x_61 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_61, 0, x_13);
+lean_ctor_set(x_61, 1, x_60);
+x_62 = l_Lean_Parser_Tactic_paren___closed__2;
+x_63 = l_Lean_Syntax_node3(x_13, x_62, x_15, x_59, x_61);
+x_64 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_64, 0, x_63);
+lean_ctor_set(x_64, 1, x_3);
+return x_64;
 }
 }
 }
@@ -15327,7 +14721,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 x_2 = l_term_u2039___u203a___closed__4;
-x_3 = l_Lean_Parser_Tactic_rename___closed__5;
+x_3 = l_Lean_Parser_Tactic_config___closed__13;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -15392,16 +14786,24 @@ return x_1;
 static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__1() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__2() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
 x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
-x_4 = l_Lean_Parser_Tactic_paren___closed__1;
+x_4 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__1;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__2() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -15409,44 +14811,24 @@ x_1 = lean_mk_string_from_bytes("byTactic", 8);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
 x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
-x_4 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__2;
+x_4 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
-}
-}
-static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("by", 2);
-return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("typeAscription", 14);
+x_1 = lean_mk_string_from_bytes("by", 2);
 return x_1;
-}
-}
-static lean_object* _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
-x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
-x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
-x_4 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___aux__Init__Tactics______macroRules__term_u2039___u203a__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -15469,7 +14851,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
 x_8 = lean_unsigned_to_nat(1u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
 lean_dec(x_1);
@@ -15483,7 +14865,7 @@ lean_inc(x_12);
 x_14 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
-x_15 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4;
+x_15 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5;
 lean_inc(x_12);
 x_16 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_16, 0, x_12);
@@ -15493,80 +14875,39 @@ lean_inc(x_12);
 x_18 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_18, 0, x_12);
 lean_ctor_set(x_18, 1, x_17);
-x_19 = l_Array_mkArray1___rarg(x_18);
-x_20 = l_Lean_Parser_Tactic_assumption___closed__2;
+x_19 = l_Lean_Parser_Tactic_assumption___closed__2;
 lean_inc(x_12);
-x_21 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_21, 0, x_12);
-lean_ctor_set(x_21, 1, x_20);
-lean_ctor_set(x_21, 2, x_19);
-x_22 = l_Array_mkArray1___rarg(x_21);
-x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_20 = l_Lean_Syntax_node1(x_12, x_19, x_18);
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_12);
-x_24 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_24, 0, x_12);
-lean_ctor_set(x_24, 1, x_23);
-lean_ctor_set(x_24, 2, x_22);
-x_25 = l_Array_mkArray1___rarg(x_24);
-x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_22 = l_Lean_Syntax_node1(x_12, x_21, x_20);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_12);
-x_27 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_27, 0, x_12);
-lean_ctor_set(x_27, 1, x_26);
-lean_ctor_set(x_27, 2, x_25);
-x_28 = l_Array_mkArray1___rarg(x_27);
-x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_24 = l_Lean_Syntax_node1(x_12, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_12);
-x_30 = lean_alloc_ctor(1, 3, 0);
+x_26 = l_Lean_Syntax_node1(x_12, x_25, x_24);
+x_27 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4;
+lean_inc(x_12);
+x_28 = l_Lean_Syntax_node2(x_12, x_27, x_16, x_26);
+x_29 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__6;
+lean_inc(x_12);
+x_30 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_30, 0, x_12);
 lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = l_Array_mkArray2___rarg(x_16, x_30);
-x_32 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3;
 lean_inc(x_12);
-x_33 = lean_alloc_ctor(1, 3, 0);
+x_31 = l_Lean_Syntax_node1(x_12, x_21, x_9);
+x_32 = l_Lean_Parser_Tactic_paren___closed__9;
+lean_inc(x_12);
+x_33 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_33, 0, x_12);
 lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticHave_x27___x3a_x3d____1___closed__6;
-lean_inc(x_12);
-x_35 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_35, 0, x_12);
-lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Array_mkArray2___rarg(x_35, x_9);
-x_37 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6;
-lean_inc(x_12);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_12);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
-x_39 = l_Array_mkArray1___rarg(x_38);
-lean_inc(x_12);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_12);
-lean_ctor_set(x_40, 1, x_23);
-lean_ctor_set(x_40, 2, x_39);
-x_41 = l_Array_mkArray2___rarg(x_33, x_40);
-lean_inc(x_12);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_12);
-lean_ctor_set(x_42, 1, x_23);
-lean_ctor_set(x_42, 2, x_41);
-x_43 = l_Lean_Parser_Tactic_paren___closed__6;
-lean_inc(x_12);
-x_44 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_44, 0, x_12);
-lean_ctor_set(x_44, 1, x_43);
-x_45 = l_Array_mkArray3___rarg(x_14, x_42, x_44);
-x_46 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__1;
-x_47 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_47, 0, x_12);
-lean_ctor_set(x_47, 1, x_46);
-lean_ctor_set(x_47, 2, x_45);
-x_48 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_48, 0, x_47);
-lean_ctor_set(x_48, 1, x_3);
-return x_48;
+x_34 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__2;
+x_35 = l_Lean_Syntax_node5(x_12, x_34, x_14, x_28, x_30, x_31, x_33);
+x_36 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_36, 0, x_35);
+lean_ctor_set(x_36, 1, x_3);
+return x_36;
 }
 }
 }
@@ -15648,7 +14989,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -15659,16 +15000,12 @@ lean_inc(x_10);
 x_12 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
-x_13 = l_Array_mkArray1___rarg(x_12);
-x_14 = l_Lean_Parser_Tactic_tacticTrivial___closed__2;
-x_15 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_15, 0, x_10);
-lean_ctor_set(x_15, 1, x_14);
-lean_ctor_set(x_15, 2, x_13);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_15);
-lean_ctor_set(x_16, 1, x_3);
-return x_16;
+x_13 = l_Lean_Parser_Tactic_tacticTrivial___closed__2;
+x_14 = l_Lean_Syntax_node1(x_10, x_13, x_12);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -15676,7 +15013,7 @@ static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__ele
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInst", 10);
+x_1 = lean_mk_string_from_bytes("seq1", 4);
 return x_1;
 }
 }
@@ -15686,7 +15023,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
-x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
+x_3 = l_Lean_Parser_Tactic_withAnnotateState___closed__3;
 x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__1;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
@@ -15696,35 +15033,35 @@ static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__ele
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("{", 1);
+x_1 = lean_mk_string_from_bytes("structInst", 10);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstField", 15);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
+x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
+x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
+x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__3;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__5() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
-x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
-x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
-x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__4;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("{", 1);
+return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
+x_1 = lean_mk_string_from_bytes("structInstField", 15);
 return x_1;
 }
 }
@@ -15744,30 +15081,50 @@ static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__ele
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("arith", 5);
+x_1 = lean_mk_string_from_bytes("structInstLVal", 14);
 return x_1;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__8;
-x_2 = l_String_toSubstring_x27(x_1);
-return x_2;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
+x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
+x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
+x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__8;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__10() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("arith", 5);
+return x_1;
+}
+}
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__10;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__12() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__8;
+x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__10;
 x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -15775,33 +15132,13 @@ x_1 = lean_mk_string_from_bytes("true", 4);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__12() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11;
-x_2 = l_String_toSubstring_x27(x_1);
-return x_2;
-}
-}
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
-}
-}
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__14() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__13;
-x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13;
+x_2 = l_String_toSubstring_x27(x_1);
+return x_2;
 }
 }
 static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__15() {
@@ -15809,10 +15146,8 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__14;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
+x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -15820,15 +15155,37 @@ static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__ele
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__13;
+x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__15;
+x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__16;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__17() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__18() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__17;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19() {
 _start:
 {
 lean_object* x_1; 
@@ -15836,19 +15193,19 @@ x_1 = lean_mk_string_from_bytes("optEllipsis", 11);
 return x_1;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__18() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
 x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
 x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
-x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__17;
+x_4 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19() {
+static lean_object* _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21() {
 _start:
 {
 lean_object* x_1; 
@@ -15874,7 +15231,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 x_9 = 0;
@@ -15904,7 +15261,7 @@ lean_inc(x_10);
 x_20 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_20, 0, x_10);
 lean_ctor_set(x_20, 1, x_19);
-x_21 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__3;
+x_21 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__5;
 lean_inc(x_10);
 x_22 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_22, 0, x_10);
@@ -15916,130 +15273,86 @@ x_25 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_25, 0, x_10);
 lean_ctor_set(x_25, 1, x_23);
 lean_ctor_set(x_25, 2, x_24);
-x_26 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__10;
+x_26 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__12;
 lean_inc(x_11);
 lean_inc(x_12);
 x_27 = l_Lean_addMacroScope(x_12, x_26, x_11);
 x_28 = lean_box(0);
-x_29 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__9;
+x_29 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__11;
 lean_inc(x_10);
 x_30 = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(x_30, 0, x_10);
 lean_ctor_set(x_30, 1, x_29);
 lean_ctor_set(x_30, 2, x_27);
 lean_ctor_set(x_30, 3, x_28);
+x_31 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__9;
 lean_inc(x_25);
-x_31 = l_Array_mkArray2___rarg(x_30, x_25);
-x_32 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__7;
 lean_inc(x_10);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_10);
-lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__13;
-x_35 = l_Lean_addMacroScope(x_12, x_34, x_11);
-x_36 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__12;
-x_37 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__16;
+x_32 = l_Lean_Syntax_node2(x_10, x_31, x_30, x_25);
+x_33 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__15;
+x_34 = l_Lean_addMacroScope(x_12, x_33, x_11);
+x_35 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__14;
+x_36 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__18;
 lean_inc(x_10);
-x_38 = lean_alloc_ctor(3, 4, 0);
-lean_ctor_set(x_38, 0, x_10);
-lean_ctor_set(x_38, 1, x_36);
-lean_ctor_set(x_38, 2, x_35);
-lean_ctor_set(x_38, 3, x_37);
+x_37 = lean_alloc_ctor(3, 4, 0);
+lean_ctor_set(x_37, 0, x_10);
+lean_ctor_set(x_37, 1, x_35);
+lean_ctor_set(x_37, 2, x_34);
+lean_ctor_set(x_37, 3, x_36);
+x_38 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__7;
 lean_inc(x_20);
-x_39 = l_Array_mkArray3___rarg(x_33, x_20, x_38);
-x_40 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__5;
 lean_inc(x_10);
-x_41 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_41, 0, x_10);
-lean_ctor_set(x_41, 1, x_40);
-lean_ctor_set(x_41, 2, x_39);
-x_42 = l_Array_mkArray1___rarg(x_41);
+x_39 = l_Lean_Syntax_node3(x_10, x_38, x_32, x_20, x_37);
 lean_inc(x_10);
-x_43 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_43, 0, x_10);
-lean_ctor_set(x_43, 1, x_23);
-lean_ctor_set(x_43, 2, x_42);
+x_40 = l_Lean_Syntax_node1(x_10, x_23, x_39);
+x_41 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20;
 lean_inc(x_25);
-x_44 = l_Array_mkArray1___rarg(x_25);
-x_45 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__18;
 lean_inc(x_10);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_10);
-lean_ctor_set(x_46, 1, x_45);
-lean_ctor_set(x_46, 2, x_44);
-x_47 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19;
+x_42 = l_Lean_Syntax_node1(x_10, x_41, x_25);
+x_43 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21;
+lean_inc(x_10);
+x_44 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_44, 0, x_10);
+lean_ctor_set(x_44, 1, x_43);
+x_45 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__4;
+lean_inc_n(x_25, 2);
+lean_inc(x_10);
+x_46 = l_Lean_Syntax_node6(x_10, x_45, x_22, x_25, x_40, x_42, x_25, x_44);
+x_47 = l_Lean_Parser_Tactic_paren___closed__9;
 lean_inc(x_10);
 x_48 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_48, 0, x_10);
 lean_ctor_set(x_48, 1, x_47);
-lean_inc_n(x_25, 2);
-x_49 = l_Array_mkArray6___rarg(x_22, x_25, x_43, x_46, x_25, x_48);
-x_50 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__2;
+x_49 = l_Lean_Parser_Tactic_config___closed__2;
 lean_inc(x_10);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_10);
-lean_ctor_set(x_51, 1, x_50);
-lean_ctor_set(x_51, 2, x_49);
-x_52 = l_Lean_Parser_Tactic_paren___closed__6;
+x_50 = l_Lean_Syntax_node5(x_10, x_49, x_16, x_18, x_20, x_46, x_48);
 lean_inc(x_10);
-x_53 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_53, 0, x_10);
-lean_ctor_set(x_53, 1, x_52);
-x_54 = l_Array_mkArray5___rarg(x_16, x_18, x_20, x_51, x_53);
-x_55 = l_Lean_Parser_Tactic_config___closed__2;
-lean_inc(x_10);
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_10);
-lean_ctor_set(x_56, 1, x_55);
-lean_ctor_set(x_56, 2, x_54);
-x_57 = l_Array_mkArray1___rarg(x_56);
-lean_inc(x_10);
-x_58 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_58, 0, x_10);
-lean_ctor_set(x_58, 1, x_23);
-lean_ctor_set(x_58, 2, x_57);
+x_51 = l_Lean_Syntax_node1(x_10, x_23, x_50);
+x_52 = l_Lean_Parser_Tactic_simp___closed__2;
 lean_inc_n(x_25, 3);
-x_59 = l_Array_mkArray6___rarg(x_14, x_58, x_25, x_25, x_25, x_25);
-x_60 = l_Lean_Parser_Tactic_simp___closed__2;
 lean_inc(x_10);
-x_61 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_61, 0, x_10);
-lean_ctor_set(x_61, 1, x_60);
-lean_ctor_set(x_61, 2, x_59);
-x_62 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
+x_53 = l_Lean_Syntax_node6(x_10, x_52, x_14, x_51, x_25, x_25, x_25, x_25);
+x_54 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__2;
 lean_inc(x_10);
-x_63 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_63, 0, x_10);
-lean_ctor_set(x_63, 1, x_62);
-x_64 = l_Lean_Parser_Tactic_done___closed__1;
+x_55 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_55, 0, x_10);
+lean_ctor_set(x_55, 1, x_54);
+x_56 = l_Lean_Parser_Tactic_done___closed__1;
 lean_inc(x_10);
-x_65 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_65, 0, x_10);
-lean_ctor_set(x_65, 1, x_64);
-x_66 = l_Array_mkArray1___rarg(x_65);
-x_67 = l_Lean_Parser_Tactic_done___closed__2;
+x_57 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_57, 0, x_10);
+lean_ctor_set(x_57, 1, x_56);
+x_58 = l_Lean_Parser_Tactic_done___closed__2;
 lean_inc(x_10);
-x_68 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_68, 0, x_10);
-lean_ctor_set(x_68, 1, x_67);
-lean_ctor_set(x_68, 2, x_66);
-x_69 = l_Array_mkArray3___rarg(x_61, x_63, x_68);
+x_59 = l_Lean_Syntax_node1(x_10, x_58, x_57);
 lean_inc(x_10);
-x_70 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_70, 0, x_10);
-lean_ctor_set(x_70, 1, x_23);
-lean_ctor_set(x_70, 2, x_69);
-x_71 = l_Array_mkArray1___rarg(x_70);
-x_72 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_73 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_73, 0, x_10);
-lean_ctor_set(x_73, 1, x_72);
-lean_ctor_set(x_73, 2, x_71);
-x_74 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_74, 0, x_73);
-lean_ctor_set(x_74, 1, x_3);
-return x_74;
+x_60 = l_Lean_Syntax_node3(x_10, x_23, x_53, x_55, x_59);
+x_61 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__2;
+x_62 = l_Lean_Syntax_node1(x_10, x_61, x_60);
+x_63 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_63, 0, x_62);
+lean_ctor_set(x_63, 1, x_3);
+return x_63;
 }
 }
 }
@@ -16129,7 +15442,7 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
 x_8 = lean_ctor_get(x_2, 5);
 lean_inc(x_8);
 lean_dec(x_2);
@@ -16150,125 +15463,56 @@ lean_inc(x_10);
 x_16 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_16, 0, x_10);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Array_mkArray1___rarg(x_16);
-x_18 = l_tacticGet__elem__tactic__trivial___closed__2;
+x_17 = l_tacticGet__elem__tactic__trivial___closed__2;
 lean_inc(x_10);
-x_19 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_19, 0, x_10);
-lean_ctor_set(x_19, 1, x_18);
-lean_ctor_set(x_19, 2, x_17);
-x_20 = l_Array_mkArray1___rarg(x_19);
-x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_18 = l_Lean_Syntax_node1(x_10, x_17, x_16);
+x_19 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_10);
-x_22 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_22, 0, x_10);
-lean_ctor_set(x_22, 1, x_21);
-lean_ctor_set(x_22, 2, x_20);
-x_23 = l_Array_mkArray1___rarg(x_22);
-x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_20 = l_Lean_Syntax_node1(x_10, x_19, x_18);
+x_21 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_10);
-x_25 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_25, 0, x_10);
-lean_ctor_set(x_25, 1, x_24);
-lean_ctor_set(x_25, 2, x_23);
-x_26 = l_Array_mkArray1___rarg(x_25);
-x_27 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_22 = l_Lean_Syntax_node1(x_10, x_21, x_20);
+x_23 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_10);
-x_28 = lean_alloc_ctor(1, 3, 0);
+x_24 = l_Lean_Syntax_node1(x_10, x_23, x_22);
+x_25 = l_Lean_Parser_Tactic_first___closed__8;
+lean_inc(x_14);
+lean_inc(x_10);
+x_26 = l_Lean_Syntax_node2(x_10, x_25, x_14, x_24);
+x_27 = l_Lean_Parser_Tactic_fail___closed__1;
+lean_inc(x_10);
+x_28 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_28, 0, x_10);
 lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set(x_28, 2, x_26);
-lean_inc(x_14);
-x_29 = l_Array_mkArray2___rarg(x_14, x_28);
-x_30 = l_Lean_Parser_Tactic_first___closed__8;
+x_29 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__1___closed__1;
 lean_inc(x_10);
-x_31 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_31, 0, x_10);
-lean_ctor_set(x_31, 1, x_30);
-lean_ctor_set(x_31, 2, x_29);
-x_32 = l_Lean_Parser_Tactic_fail___closed__1;
+x_30 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_30, 0, x_10);
+lean_ctor_set(x_30, 1, x_29);
+x_31 = l_Lean_Parser_Tactic_traceMessage___closed__6;
 lean_inc(x_10);
-x_33 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_33, 0, x_10);
-lean_ctor_set(x_33, 1, x_32);
-x_34 = l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__1___closed__1;
+x_32 = l_Lean_Syntax_node1(x_10, x_31, x_30);
 lean_inc(x_10);
-x_35 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_35, 0, x_10);
-lean_ctor_set(x_35, 1, x_34);
-x_36 = l_Array_mkArray1___rarg(x_35);
-x_37 = l_Lean_Parser_Tactic_traceMessage___closed__6;
+x_33 = l_Lean_Syntax_node1(x_10, x_19, x_32);
+x_34 = l_Lean_Parser_Tactic_fail___closed__2;
 lean_inc(x_10);
-x_38 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_38, 0, x_10);
-lean_ctor_set(x_38, 1, x_37);
-lean_ctor_set(x_38, 2, x_36);
-x_39 = l_Array_mkArray1___rarg(x_38);
+x_35 = l_Lean_Syntax_node2(x_10, x_34, x_28, x_33);
 lean_inc(x_10);
-x_40 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_40, 0, x_10);
-lean_ctor_set(x_40, 1, x_21);
-lean_ctor_set(x_40, 2, x_39);
-x_41 = l_Array_mkArray2___rarg(x_33, x_40);
-x_42 = l_Lean_Parser_Tactic_fail___closed__2;
+x_36 = l_Lean_Syntax_node1(x_10, x_19, x_35);
 lean_inc(x_10);
-x_43 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_43, 0, x_10);
-lean_ctor_set(x_43, 1, x_42);
-lean_ctor_set(x_43, 2, x_41);
-x_44 = l_Array_mkArray1___rarg(x_43);
+x_37 = l_Lean_Syntax_node1(x_10, x_21, x_36);
 lean_inc(x_10);
-x_45 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_45, 0, x_10);
-lean_ctor_set(x_45, 1, x_21);
-lean_ctor_set(x_45, 2, x_44);
-x_46 = l_Array_mkArray1___rarg(x_45);
+x_38 = l_Lean_Syntax_node1(x_10, x_23, x_37);
 lean_inc(x_10);
-x_47 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_47, 0, x_10);
-lean_ctor_set(x_47, 1, x_24);
-lean_ctor_set(x_47, 2, x_46);
-x_48 = l_Array_mkArray1___rarg(x_47);
+x_39 = l_Lean_Syntax_node2(x_10, x_25, x_14, x_38);
 lean_inc(x_10);
-x_49 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_49, 0, x_10);
-lean_ctor_set(x_49, 1, x_27);
-lean_ctor_set(x_49, 2, x_48);
-x_50 = l_Array_mkArray2___rarg(x_14, x_49);
-lean_inc(x_10);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_10);
-lean_ctor_set(x_51, 1, x_30);
-lean_ctor_set(x_51, 2, x_50);
-x_52 = l_Array_mkArray2___rarg(x_31, x_51);
-lean_inc(x_10);
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_10);
-lean_ctor_set(x_53, 1, x_21);
-lean_ctor_set(x_53, 2, x_52);
-x_54 = l_Array_mkArray2___rarg(x_12, x_53);
-x_55 = l_Lean_Parser_Tactic_first___closed__2;
-lean_inc(x_10);
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_10);
-lean_ctor_set(x_56, 1, x_55);
-lean_ctor_set(x_56, 2, x_54);
-x_57 = l_Array_mkArray1___rarg(x_56);
-lean_inc(x_10);
-x_58 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_58, 0, x_10);
-lean_ctor_set(x_58, 1, x_21);
-lean_ctor_set(x_58, 2, x_57);
-x_59 = l_Array_mkArray1___rarg(x_58);
-x_60 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2;
-x_61 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_61, 0, x_10);
-lean_ctor_set(x_61, 1, x_60);
-lean_ctor_set(x_61, 2, x_59);
-x_62 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_62, 0, x_61);
-lean_ctor_set(x_62, 1, x_3);
-return x_62;
+x_40 = l_Lean_Syntax_node2(x_10, x_19, x_26, x_39);
+x_41 = l_Lean_Parser_Tactic_first___closed__2;
+x_42 = l_Lean_Syntax_node2(x_10, x_41, x_12, x_40);
+x_43 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_43, 0, x_42);
+lean_ctor_set(x_43, 1, x_3);
+return x_43;
 }
 }
 }
@@ -16321,18 +15565,6 @@ return x_2;
 static lean_object* _init_l_term_____x5b___x5d___closed__6() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_first___closed__8;
-x_2 = l_term_____x5b___x5d___closed__5;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_term_____x5b___x5d___closed__7() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__rwSeq__1___closed__1;
 x_2 = lean_alloc_ctor(5, 1, 0);
@@ -16340,13 +15572,27 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_term_____x5b___x5d___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
+x_2 = l_term_____x5b___x5d___closed__5;
+x_3 = l_term_____x5b___x5d___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
 static lean_object* _init_l_term_____x5b___x5d___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_term_____x5b___x5d___closed__6;
-x_3 = l_term_____x5b___x5d___closed__7;
+x_2 = l_term_____x5b___x5d___closed__7;
+x_3 = l_Lean_Parser_Tactic_config___closed__13;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -16360,7 +15606,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
 x_2 = l_term_____x5b___x5d___closed__8;
-x_3 = l_Lean_Parser_Tactic_rename___closed__5;
+x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__12;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -16371,25 +15617,11 @@ return x_4;
 static lean_object* _init_l_term_____x5b___x5d___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_term_____x5b___x5d___closed__9;
-x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__11;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_term_____x5b___x5d___closed__11() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_term_____x5b___x5d___closed__2;
 x_2 = lean_unsigned_to_nat(1024u);
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_term_____x5b___x5d___closed__10;
+x_4 = l_term_____x5b___x5d___closed__9;
 x_5 = lean_alloc_ctor(4, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -16402,7 +15634,7 @@ static lean_object* _init_l_term_____x5b___x5d() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_term_____x5b___x5d___closed__11;
+x_1 = l_term_____x5b___x5d___closed__10;
 return x_1;
 }
 }
@@ -16475,6 +15707,18 @@ lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
+static lean_object* _init_l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__1;
+x_2 = l_Lean_Parser_Tactic_withAnnotateState___closed__2;
+x_3 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__7;
+x_4 = l_Lean_Parser_Tactic_paren___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
 LEAN_EXPORT lean_object* l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -16495,10 +15739,10 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; 
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
-x_10 = lean_unsigned_to_nat(3u);
+x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
 lean_dec(x_1);
 x_12 = lean_ctor_get(x_2, 5);
@@ -16525,7 +15769,7 @@ lean_inc(x_14);
 x_23 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_23, 0, x_14);
 lean_ctor_set(x_23, 1, x_22);
-x_24 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4;
+x_24 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5;
 lean_inc(x_14);
 x_25 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_25, 0, x_14);
@@ -16535,81 +15779,37 @@ lean_inc(x_14);
 x_27 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_27, 0, x_14);
 lean_ctor_set(x_27, 1, x_26);
-x_28 = l_Array_mkArray1___rarg(x_27);
-x_29 = l_tacticGet__elem__tactic___closed__2;
+x_28 = l_tacticGet__elem__tactic___closed__2;
 lean_inc(x_14);
-x_30 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_30, 0, x_14);
-lean_ctor_set(x_30, 1, x_29);
-lean_ctor_set(x_30, 2, x_28);
-x_31 = l_Array_mkArray1___rarg(x_30);
-x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_29 = l_Lean_Syntax_node1(x_14, x_28, x_27);
+x_30 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_14);
-x_33 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_33, 0, x_14);
-lean_ctor_set(x_33, 1, x_32);
-lean_ctor_set(x_33, 2, x_31);
-x_34 = l_Array_mkArray1___rarg(x_33);
-x_35 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5;
+x_31 = l_Lean_Syntax_node1(x_14, x_30, x_29);
+x_32 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
 lean_inc(x_14);
-x_36 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_36, 0, x_14);
-lean_ctor_set(x_36, 1, x_35);
-lean_ctor_set(x_36, 2, x_34);
-x_37 = l_Array_mkArray1___rarg(x_36);
-x_38 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3;
+x_33 = l_Lean_Syntax_node1(x_14, x_32, x_31);
+x_34 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__1;
 lean_inc(x_14);
-x_39 = lean_alloc_ctor(1, 3, 0);
+x_35 = l_Lean_Syntax_node1(x_14, x_34, x_33);
+x_36 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4;
+lean_inc(x_14);
+x_37 = l_Lean_Syntax_node2(x_14, x_36, x_25, x_35);
+x_38 = l_Lean_Parser_Tactic_paren___closed__9;
+lean_inc(x_14);
+x_39 = lean_alloc_ctor(2, 2, 0);
 lean_ctor_set(x_39, 0, x_14);
 lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set(x_39, 2, x_37);
-x_40 = l_Array_mkArray2___rarg(x_25, x_39);
-x_41 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__3;
+x_40 = l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8;
 lean_inc(x_14);
-x_42 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_42, 0, x_14);
-lean_ctor_set(x_42, 1, x_41);
-lean_ctor_set(x_42, 2, x_40);
-x_43 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__10;
+x_41 = l_Lean_Syntax_node3(x_14, x_40, x_23, x_37, x_39);
 lean_inc(x_14);
-x_44 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_44, 0, x_14);
-lean_ctor_set(x_44, 1, x_32);
-lean_ctor_set(x_44, 2, x_43);
-x_45 = l_Array_mkArray2___rarg(x_42, x_44);
-lean_inc(x_14);
-x_46 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_46, 0, x_14);
-lean_ctor_set(x_46, 1, x_32);
-lean_ctor_set(x_46, 2, x_45);
-x_47 = l_Lean_Parser_Tactic_paren___closed__6;
-lean_inc(x_14);
-x_48 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_48, 0, x_14);
-lean_ctor_set(x_48, 1, x_47);
-x_49 = l_Array_mkArray3___rarg(x_23, x_46, x_48);
-x_50 = l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__1;
-lean_inc(x_14);
-x_51 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_51, 0, x_14);
-lean_ctor_set(x_51, 1, x_50);
-lean_ctor_set(x_51, 2, x_49);
-x_52 = l_Array_mkArray3___rarg(x_9, x_11, x_51);
-lean_inc(x_14);
-x_53 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_53, 0, x_14);
-lean_ctor_set(x_53, 1, x_32);
-lean_ctor_set(x_53, 2, x_52);
-x_54 = l_Array_mkArray2___rarg(x_21, x_53);
-x_55 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
-x_56 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_56, 0, x_14);
-lean_ctor_set(x_56, 1, x_55);
-lean_ctor_set(x_56, 2, x_54);
-x_57 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_57, 0, x_56);
-lean_ctor_set(x_57, 1, x_3);
-return x_57;
+x_42 = l_Lean_Syntax_node3(x_14, x_30, x_9, x_11, x_41);
+x_43 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
+x_44 = l_Lean_Syntax_node2(x_14, x_43, x_21, x_42);
+x_45 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_45, 0, x_44);
+lean_ctor_set(x_45, 1, x_3);
+return x_45;
 }
 }
 }
@@ -16654,7 +15854,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Tactic_withAnnotateState___closed__7;
-x_2 = l_term_____x5b___x5d___closed__9;
+x_2 = l_term_____x5b___x5d___closed__8;
 x_3 = l_term_____x5b___x5d_x27_____closed__4;
 x_4 = lean_alloc_ctor(2, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
@@ -16721,12 +15921,12 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_8 = lean_unsigned_to_nat(0u);
 x_9 = l_Lean_Syntax_getArg(x_1, x_8);
-x_10 = lean_unsigned_to_nat(3u);
+x_10 = lean_unsigned_to_nat(2u);
 x_11 = l_Lean_Syntax_getArg(x_1, x_10);
-x_12 = lean_unsigned_to_nat(5u);
+x_12 = lean_unsigned_to_nat(4u);
 x_13 = l_Lean_Syntax_getArg(x_1, x_12);
 lean_dec(x_1);
 x_14 = lean_ctor_get(x_2, 5);
@@ -16748,23 +15948,15 @@ lean_ctor_set(x_23, 0, x_16);
 lean_ctor_set(x_23, 1, x_21);
 lean_ctor_set(x_23, 2, x_20);
 lean_ctor_set(x_23, 3, x_22);
-x_24 = l_Array_mkArray3___rarg(x_9, x_11, x_13);
-x_25 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
+x_24 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticNext___x3d_x3e____1___closed__2;
 lean_inc(x_16);
-x_26 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_26, 0, x_16);
-lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set(x_26, 2, x_24);
-x_27 = l_Array_mkArray2___rarg(x_23, x_26);
-x_28 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
-x_29 = lean_alloc_ctor(1, 3, 0);
-lean_ctor_set(x_29, 0, x_16);
-lean_ctor_set(x_29, 1, x_28);
-lean_ctor_set(x_29, 2, x_27);
-x_30 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_3);
-return x_30;
+x_25 = l_Lean_Syntax_node3(x_16, x_24, x_9, x_11, x_13);
+x_26 = l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticSorry__1___closed__2;
+x_27 = l_Lean_Syntax_node2(x_16, x_26, x_23, x_25);
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_28, 1, x_3);
+return x_28;
 }
 }
 }
@@ -17291,6 +16483,12 @@ l_Lean_Parser_Tactic_paren___closed__8 = _init_l_Lean_Parser_Tactic_paren___clos
 lean_mark_persistent(l_Lean_Parser_Tactic_paren___closed__8);
 l_Lean_Parser_Tactic_paren___closed__9 = _init_l_Lean_Parser_Tactic_paren___closed__9();
 lean_mark_persistent(l_Lean_Parser_Tactic_paren___closed__9);
+l_Lean_Parser_Tactic_paren___closed__10 = _init_l_Lean_Parser_Tactic_paren___closed__10();
+lean_mark_persistent(l_Lean_Parser_Tactic_paren___closed__10);
+l_Lean_Parser_Tactic_paren___closed__11 = _init_l_Lean_Parser_Tactic_paren___closed__11();
+lean_mark_persistent(l_Lean_Parser_Tactic_paren___closed__11);
+l_Lean_Parser_Tactic_paren___closed__12 = _init_l_Lean_Parser_Tactic_paren___closed__12();
+lean_mark_persistent(l_Lean_Parser_Tactic_paren___closed__12);
 l_Lean_Parser_Tactic_paren = _init_l_Lean_Parser_Tactic_paren();
 lean_mark_persistent(l_Lean_Parser_Tactic_paren);
 l_Lean_Parser_Tactic_withReducible___closed__1 = _init_l_Lean_Parser_Tactic_withReducible___closed__1();
@@ -17433,10 +16631,6 @@ l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic_
 lean_mark_persistent(l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__2);
 l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3 = _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3();
 lean_mark_persistent(l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__3);
-l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4 = _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4();
-lean_mark_persistent(l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__4);
-l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5 = _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5();
-lean_mark_persistent(l_Lean_Parser_Tactic___aux__Init__Tactics______macroRules__Lean__Parser__Tactic__tacticTry____1___closed__5);
 l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__1 = _init_l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__1();
 lean_mark_persistent(l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__1);
 l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__2 = _init_l_Lean_Parser_Tactic_tactic___x3c_x3b_x3e_____closed__2();
@@ -17631,6 +16825,8 @@ l_Lean_Parser_Tactic_config___closed__14 = _init_l_Lean_Parser_Tactic_config___c
 lean_mark_persistent(l_Lean_Parser_Tactic_config___closed__14);
 l_Lean_Parser_Tactic_config___closed__15 = _init_l_Lean_Parser_Tactic_config___closed__15();
 lean_mark_persistent(l_Lean_Parser_Tactic_config___closed__15);
+l_Lean_Parser_Tactic_config___closed__16 = _init_l_Lean_Parser_Tactic_config___closed__16();
+lean_mark_persistent(l_Lean_Parser_Tactic_config___closed__16);
 l_Lean_Parser_Tactic_config = _init_l_Lean_Parser_Tactic_config();
 lean_mark_persistent(l_Lean_Parser_Tactic_config);
 l_Lean_Parser_Tactic_locationWildcard___closed__1 = _init_l_Lean_Parser_Tactic_locationWildcard___closed__1();
@@ -17665,6 +16861,22 @@ l_Lean_Parser_Tactic_locationHyp___closed__9 = _init_l_Lean_Parser_Tactic_locati
 lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__9);
 l_Lean_Parser_Tactic_locationHyp___closed__10 = _init_l_Lean_Parser_Tactic_locationHyp___closed__10();
 lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__10);
+l_Lean_Parser_Tactic_locationHyp___closed__11 = _init_l_Lean_Parser_Tactic_locationHyp___closed__11();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__11);
+l_Lean_Parser_Tactic_locationHyp___closed__12 = _init_l_Lean_Parser_Tactic_locationHyp___closed__12();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__12);
+l_Lean_Parser_Tactic_locationHyp___closed__13 = _init_l_Lean_Parser_Tactic_locationHyp___closed__13();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__13);
+l_Lean_Parser_Tactic_locationHyp___closed__14 = _init_l_Lean_Parser_Tactic_locationHyp___closed__14();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__14);
+l_Lean_Parser_Tactic_locationHyp___closed__15 = _init_l_Lean_Parser_Tactic_locationHyp___closed__15();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__15);
+l_Lean_Parser_Tactic_locationHyp___closed__16 = _init_l_Lean_Parser_Tactic_locationHyp___closed__16();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__16);
+l_Lean_Parser_Tactic_locationHyp___closed__17 = _init_l_Lean_Parser_Tactic_locationHyp___closed__17();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__17);
+l_Lean_Parser_Tactic_locationHyp___closed__18 = _init_l_Lean_Parser_Tactic_locationHyp___closed__18();
+lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp___closed__18);
 l_Lean_Parser_Tactic_locationHyp = _init_l_Lean_Parser_Tactic_locationHyp();
 lean_mark_persistent(l_Lean_Parser_Tactic_locationHyp);
 l_Lean_Parser_Tactic_location___closed__1 = _init_l_Lean_Parser_Tactic_location___closed__1();
@@ -17741,6 +16953,16 @@ l_Lean_Parser_Tactic_rwRule___closed__9 = _init_l_Lean_Parser_Tactic_rwRule___cl
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__9);
 l_Lean_Parser_Tactic_rwRule___closed__10 = _init_l_Lean_Parser_Tactic_rwRule___closed__10();
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__10);
+l_Lean_Parser_Tactic_rwRule___closed__11 = _init_l_Lean_Parser_Tactic_rwRule___closed__11();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__11);
+l_Lean_Parser_Tactic_rwRule___closed__12 = _init_l_Lean_Parser_Tactic_rwRule___closed__12();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__12);
+l_Lean_Parser_Tactic_rwRule___closed__13 = _init_l_Lean_Parser_Tactic_rwRule___closed__13();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__13);
+l_Lean_Parser_Tactic_rwRule___closed__14 = _init_l_Lean_Parser_Tactic_rwRule___closed__14();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__14);
+l_Lean_Parser_Tactic_rwRule___closed__15 = _init_l_Lean_Parser_Tactic_rwRule___closed__15();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRule___closed__15);
 l_Lean_Parser_Tactic_rwRule = _init_l_Lean_Parser_Tactic_rwRule();
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRule);
 l_Lean_Parser_Tactic_rwRuleSeq___closed__1 = _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__1();
@@ -17769,6 +16991,8 @@ l_Lean_Parser_Tactic_rwRuleSeq___closed__12 = _init_l_Lean_Parser_Tactic_rwRuleS
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRuleSeq___closed__12);
 l_Lean_Parser_Tactic_rwRuleSeq___closed__13 = _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__13();
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRuleSeq___closed__13);
+l_Lean_Parser_Tactic_rwRuleSeq___closed__14 = _init_l_Lean_Parser_Tactic_rwRuleSeq___closed__14();
+lean_mark_persistent(l_Lean_Parser_Tactic_rwRuleSeq___closed__14);
 l_Lean_Parser_Tactic_rwRuleSeq = _init_l_Lean_Parser_Tactic_rwRuleSeq();
 lean_mark_persistent(l_Lean_Parser_Tactic_rwRuleSeq);
 l_Lean_Parser_Tactic_rewriteSeq___closed__1 = _init_l_Lean_Parser_Tactic_rewriteSeq___closed__1();
@@ -17877,6 +17101,16 @@ l_Lean_Parser_Tactic_discharger___closed__11 = _init_l_Lean_Parser_Tactic_discha
 lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__11);
 l_Lean_Parser_Tactic_discharger___closed__12 = _init_l_Lean_Parser_Tactic_discharger___closed__12();
 lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__12);
+l_Lean_Parser_Tactic_discharger___closed__13 = _init_l_Lean_Parser_Tactic_discharger___closed__13();
+lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__13);
+l_Lean_Parser_Tactic_discharger___closed__14 = _init_l_Lean_Parser_Tactic_discharger___closed__14();
+lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__14);
+l_Lean_Parser_Tactic_discharger___closed__15 = _init_l_Lean_Parser_Tactic_discharger___closed__15();
+lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__15);
+l_Lean_Parser_Tactic_discharger___closed__16 = _init_l_Lean_Parser_Tactic_discharger___closed__16();
+lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__16);
+l_Lean_Parser_Tactic_discharger___closed__17 = _init_l_Lean_Parser_Tactic_discharger___closed__17();
+lean_mark_persistent(l_Lean_Parser_Tactic_discharger___closed__17);
 l_Lean_Parser_Tactic_discharger = _init_l_Lean_Parser_Tactic_discharger();
 lean_mark_persistent(l_Lean_Parser_Tactic_discharger);
 l_Lean_Parser_Tactic_simpPre___closed__1 = _init_l_Lean_Parser_Tactic_simpPre___closed__1();
@@ -17979,6 +17213,8 @@ l_Lean_Parser_Tactic_simp___closed__18 = _init_l_Lean_Parser_Tactic_simp___close
 lean_mark_persistent(l_Lean_Parser_Tactic_simp___closed__18);
 l_Lean_Parser_Tactic_simp___closed__19 = _init_l_Lean_Parser_Tactic_simp___closed__19();
 lean_mark_persistent(l_Lean_Parser_Tactic_simp___closed__19);
+l_Lean_Parser_Tactic_simp___closed__20 = _init_l_Lean_Parser_Tactic_simp___closed__20();
+lean_mark_persistent(l_Lean_Parser_Tactic_simp___closed__20);
 l_Lean_Parser_Tactic_simp = _init_l_Lean_Parser_Tactic_simp();
 lean_mark_persistent(l_Lean_Parser_Tactic_simp);
 l_Lean_Parser_Tactic_simpAll___closed__1 = _init_l_Lean_Parser_Tactic_simpAll___closed__1();
@@ -18007,6 +17243,8 @@ l_Lean_Parser_Tactic_simpAll___closed__12 = _init_l_Lean_Parser_Tactic_simpAll__
 lean_mark_persistent(l_Lean_Parser_Tactic_simpAll___closed__12);
 l_Lean_Parser_Tactic_simpAll___closed__13 = _init_l_Lean_Parser_Tactic_simpAll___closed__13();
 lean_mark_persistent(l_Lean_Parser_Tactic_simpAll___closed__13);
+l_Lean_Parser_Tactic_simpAll___closed__14 = _init_l_Lean_Parser_Tactic_simpAll___closed__14();
+lean_mark_persistent(l_Lean_Parser_Tactic_simpAll___closed__14);
 l_Lean_Parser_Tactic_simpAll = _init_l_Lean_Parser_Tactic_simpAll();
 lean_mark_persistent(l_Lean_Parser_Tactic_simpAll);
 l_Lean_Parser_Tactic_dsimp___closed__1 = _init_l_Lean_Parser_Tactic_dsimp___closed__1();
@@ -18803,8 +18041,6 @@ l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4 = _ini
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__4);
 l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5 = _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5();
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__5);
-l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6 = _init_l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6();
-lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_u2039___u203a__1___closed__6);
 l_tacticGet__elem__tactic__trivial___closed__1 = _init_l_tacticGet__elem__tactic__trivial___closed__1();
 lean_mark_persistent(l_tacticGet__elem__tactic__trivial___closed__1);
 l_tacticGet__elem__tactic__trivial___closed__2 = _init_l_tacticGet__elem__tactic__trivial___closed__2();
@@ -18855,6 +18091,10 @@ l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___cl
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__18);
 l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19 = _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19();
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__19);
+l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20 = _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20();
+lean_mark_persistent(l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__20);
+l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21 = _init_l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21();
+lean_mark_persistent(l___aux__Init__Tactics______macroRules__tacticGet__elem__tactic__trivial__2___closed__21);
 l_tacticGet__elem__tactic___closed__1 = _init_l_tacticGet__elem__tactic___closed__1();
 lean_mark_persistent(l_tacticGet__elem__tactic___closed__1);
 l_tacticGet__elem__tactic___closed__2 = _init_l_tacticGet__elem__tactic___closed__2();
@@ -18889,8 +18129,6 @@ l_term_____x5b___x5d___closed__9 = _init_l_term_____x5b___x5d___closed__9();
 lean_mark_persistent(l_term_____x5b___x5d___closed__9);
 l_term_____x5b___x5d___closed__10 = _init_l_term_____x5b___x5d___closed__10();
 lean_mark_persistent(l_term_____x5b___x5d___closed__10);
-l_term_____x5b___x5d___closed__11 = _init_l_term_____x5b___x5d___closed__11();
-lean_mark_persistent(l_term_____x5b___x5d___closed__11);
 l_term_____x5b___x5d = _init_l_term_____x5b___x5d();
 lean_mark_persistent(l_term_____x5b___x5d);
 l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__1 = _init_l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__1();
@@ -18907,6 +18145,8 @@ l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__6 = _ini
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__6);
 l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__7 = _init_l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__7();
 lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__7);
+l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8 = _init_l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8();
+lean_mark_persistent(l___aux__Init__Tactics______macroRules__term_____x5b___x5d__1___closed__8);
 l_term_____x5b___x5d_x27_____closed__1 = _init_l_term_____x5b___x5d_x27_____closed__1();
 lean_mark_persistent(l_term_____x5b___x5d_x27_____closed__1);
 l_term_____x5b___x5d_x27_____closed__2 = _init_l_term_____x5b___x5d_x27_____closed__2();

@@ -232,6 +232,9 @@ def FVarIdSet := RBTree FVarId (Name.quickCmp ·.name ·.name)
 
 instance : ForIn m FVarIdSet FVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
+def FVarIdSet.insert (s : FVarIdSet) (fvarId : FVarId) : FVarIdSet :=
+  RBTree.insert s fvarId
+
 /--
 A set of unique free variable identifiers implemented using hashtables.
 Hashtables are faster than red-black trees if they are used linearly.
@@ -243,6 +246,9 @@ def FVarIdHashSet := HashSet FVarId
 A mapping from free variable identifiers to values of type `α`.
 This is a persistent data structure implemented using red-black trees. -/
 def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+
+def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
+  RBMap.insert s fvarId a
 
 instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
@@ -260,9 +266,15 @@ instance : Repr MVarId where
 def MVarIdSet := RBTree MVarId (Name.quickCmp ·.name ·.name)
   deriving Inhabited, EmptyCollection
 
+def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
+  RBTree.insert s mvarId
+
 instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
 def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+
+def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
+  RBMap.insert s mvarId a
 
 instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
 
@@ -447,7 +459,7 @@ inductive Expr where
   -/
   | proj (typeName : Name) (idx : Nat) (struct : Expr)
 with
-  @[computedField, extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
+  @[computed_field, extern c inline "lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*))"]
   data : @& Expr → Data
     | .const n lvls => mkData (mixHash 5 <| mixHash (hash n) (hash lvls)) 0 0 false false (lvls.any Level.hasMVar) (lvls.any Level.hasParam)
     | .bvar idx => mkData (mixHash 7 <| hash idx) (idx+1)
@@ -1452,18 +1464,23 @@ the compiler will eliminate the double-match.
   | app fn arg => if ptrEq fn newFn && ptrEq arg newArg then e else mkApp newFn newArg
   | _          => panic! "application expected"
 
-@[implementedBy updateApp!Impl]
+@[implemented_by updateApp!Impl]
 def updateApp! (e : Expr) (newFn : Expr) (newArg : Expr) : Expr :=
   match e with
   | app _ _ => mkApp newFn newArg
   | _       => panic! "application expected"
+
+@[inline] def updateFVar! (e : Expr) (fvarIdNew : FVarId) : Expr :=
+  match e with
+  | .fvar fvarId => if fvarId == fvarIdNew then e else .fvar fvarIdNew
+  | _            => panic! "fvar expected"
 
 @[inline] private unsafe def updateConst!Impl (e : Expr) (newLevels : List Level) : Expr :=
   match e with
   | const n ls => if ptrEqList ls newLevels then e else mkConst n newLevels
   | _          => panic! "constant expected"
 
-@[implementedBy updateConst!Impl]
+@[implemented_by updateConst!Impl]
 def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
   match e with
   | const n _ => mkConst n newLevels
@@ -1474,7 +1491,7 @@ def updateConst! (e : Expr) (newLevels : List Level) : Expr :=
   | sort u => if ptrEq u u' then e else mkSort u'
   | _      => panic! "level expected"
 
-@[implementedBy updateSort!Impl]
+@[implemented_by updateSort!Impl]
 def updateSort! (e : Expr) (newLevel : Level) : Expr :=
   match e with
   | sort _ => mkSort newLevel
@@ -1485,7 +1502,7 @@ def updateSort! (e : Expr) (newLevel : Level) : Expr :=
   | mdata d a => if ptrEq a newExpr then e else mkMData d newExpr
   | _         => panic! "mdata expected"
 
-@[implementedBy updateMData!Impl]
+@[implemented_by updateMData!Impl]
 def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
   match e with
   | mdata d _ => mkMData d newExpr
@@ -1496,7 +1513,7 @@ def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
   | proj s i a => if ptrEq a newExpr then e else mkProj s i newExpr
   | _          => panic! "proj expected"
 
-@[implementedBy updateProj!Impl]
+@[implemented_by updateProj!Impl]
 def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
   match e with
   | proj s i _ => mkProj s i newExpr
@@ -1511,7 +1528,7 @@ def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
       mkForall n newBinfo newDomain newBody
   | _               => panic! "forall expected"
 
-@[implementedBy updateForall!Impl]
+@[implemented_by updateForall!Impl]
 def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
   match e with
   | forallE n _ _ _ => mkForall n newBinfo newDomain newBody
@@ -1531,7 +1548,7 @@ def updateForall! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
       mkLambda n newBinfo newDomain newBody
   | _           => panic! "lambda expected"
 
-@[implementedBy updateLambda!Impl]
+@[implemented_by updateLambda!Impl]
 def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
   match e with
   | lam n _ _ _ => mkLambda n newBinfo newDomain newBody
@@ -1551,7 +1568,7 @@ def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
       letE n newType newVal newBody nonDep
   | _              => panic! "let expression expected"
 
-@[implementedBy updateLet!Impl]
+@[implemented_by updateLet!Impl]
 def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
   match e with
   | letE n _ _ _ c => letE n newType newVal newBody c
@@ -1576,51 +1593,6 @@ partial def eta (e : Expr) : Expr :=
         e.updateLambdaE! d b'
     | _ => e.updateLambdaE! d b'
   | _ => e
-
-/--
-Instantiate level parameters
--/
-@[inline] def instantiateLevelParamsCore (s : Name → Option Level) (e : Expr) : Expr :=
-  let rec @[specialize] visit (e : Expr) : Expr :=
-    if !e.hasLevelParam then e
-    else match e with
-    | lam _ d b _     => e.updateLambdaE! (visit d) (visit b)
-    | forallE _ d b _ => e.updateForallE! (visit d) (visit b)
-    | letE _ t v b _  => e.updateLet! (visit t) (visit v) (visit b)
-    | app f a         => e.updateApp! (visit f) (visit a)
-    | proj _ _ s      => e.updateProj! (visit s)
-    | mdata _ b       => e.updateMData! (visit b)
-    | const _ us      => e.updateConst! (us.map (fun u => u.instantiateParams s))
-    | sort u          => e.updateSort! (u.instantiateParams s)
-    | e               => e
-  visit e
-
-private def getParamSubst : List Name → List Level → Name → Option Level
-  | p::ps, u::us, p' => if p == p' then some u else getParamSubst ps us p'
-  | _,     _,     _  => none
-
-/--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
-If the two lists have different length, the smallest one is used.
--/
-def instantiateLevelParams (e : Expr) (paramNames : List Name) (lvls : List Level) : Expr :=
-  instantiateLevelParamsCore (getParamSubst paramNames lvls) e
-
-private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
-  if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
-    if h : i < us.size then
-      let u := us.get ⟨i, h⟩
-      if p == p' then some u else getParamSubstArray ps us p' (i+1)
-    else none
-  else none
-
-/--
-Instantiate univeres level parameters names `paramNames` with `lvls` in `e`.
-If the two arrays have different length, the smallest one is used.
--/
-def instantiateLevelParamsArray (e : Expr) (paramNames : Array Name) (lvls : Array Level) : Expr :=
-  instantiateLevelParamsCore (fun p => getParamSubstArray paramNames lvls p 0) e
 
 /--
 Annotate `e` with the given option.

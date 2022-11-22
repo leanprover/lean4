@@ -24,7 +24,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
           *target = *source;
           lean_inc(*target);
       }
-      dec_ref(f);
+      lean_dec_ref(f);
     } else {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
@@ -103,7 +103,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); return f; } // f is an erased proof
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 1) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 1: { obj* r = FN1(f)(a1); lean_free_small_object(f); return r; }
     case 2: { obj* r = FN2(f)(fx(0), a1); lean_free_small_object(f); return r; }
@@ -162,7 +162,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); return f; } // f is an eras
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 2) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 2: { obj* r = FN2(f)(a1, a2); lean_free_small_object(f); return r; }
     case 3: { obj* r = FN3(f)(fx(0), a1, a2); lean_free_small_object(f); return r; }
@@ -224,7 +224,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); return f; } /
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 3) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 3: { obj* r = FN3(f)(a1, a2, a3); lean_free_small_object(f); return r; }
     case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); lean_free_small_object(f); return r; }
@@ -284,7 +284,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 4) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 4: { obj* r = FN4(f)(a1, a2, a3, a4); lean_free_small_object(f); return r; }
     case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); lean_free_small_object(f); return r; }
@@ -342,7 +342,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 5) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); lean_free_small_object(f); return r; }
     case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); lean_free_small_object(f); return r; }
@@ -398,7 +398,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 6) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); lean_free_small_object(f); return r; }
     case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); lean_free_small_object(f); return r; }
@@ -452,7 +452,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 7) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); lean_free_small_object(f); return r; }
     case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); lean_free_small_object(f); return r; }
@@ -504,7 +504,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 8) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); lean_free_small_object(f); return r; }
     case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); lean_free_small_object(f); return r; }
@@ -554,7 +554,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 9) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_small_object(f); return r; }
     case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); lean_free_small_object(f); return r; }
@@ -602,7 +602,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 10) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_small_object(f); return r; }
     case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); lean_free_small_object(f); return r; }
@@ -648,7 +648,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 11) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_small_object(f); return r; }
     case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); lean_free_small_object(f); return r; }
@@ -692,7 +692,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 12) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_small_object(f); return r; }
     case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); lean_free_small_object(f); return r; }
@@ -734,7 +734,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 13) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_small_object(f); return r; }
     case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); lean_free_small_object(f); return r; }
@@ -774,7 +774,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 14) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_small_object(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); lean_free_small_object(f); return r; }
@@ -812,7 +812,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 15) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_small_object(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); lean_free_small_object(f); return r; }
@@ -848,7 +848,7 @@ if (lean_is_scalar(f)) { lean_dec(a1); lean_dec(a2); lean_dec(a3); lean_dec(a4);
 unsigned arity = lean_closure_arity(f);
 unsigned fixed = lean_closure_num_fixed(f);
 if (arity == fixed + 16) {
-  if (is_exclusive(f)) {
+  if (lean_is_exclusive(f)) {
     switch (arity) {
     case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); lean_free_small_object(f); return r; }
     }

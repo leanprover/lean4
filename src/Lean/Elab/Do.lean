@@ -28,7 +28,7 @@ private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
 private def getDoSeq (doStx : Syntax) : Syntax :=
   doStx[1]
 
-@[builtinTermElab liftMethod] def elabLiftMethod : TermElab := fun stx _ =>
+@[builtin_term_elab liftMethod] def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
@@ -681,9 +681,6 @@ def getDoReassignVars (doReassign : Syntax) : TermElabM (Array Var) := do
 def mkDoSeq (doElems : Array Syntax) : Syntax :=
   mkNode `Lean.Parser.Term.doSeqIndent #[mkNullNode <| doElems.map fun doElem => mkNullNode #[doElem, mkNullNode]]
 
-def mkSingletonDoSeq (doElem : Syntax) : Syntax :=
-  mkDoSeq #[doElem]
-
 /--
   If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx with
@@ -1216,18 +1213,29 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
   unless doElems.isEmpty do
     throwError "must be last element in a `do` sequence"
 
+variable (baseId : Name) in
 private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
   | stx@(Syntax.node i k args) =>
-    if liftMethodDelimiter k then
+    if k == choiceKind then do
+      -- choice node: check that lifts are consistent
+      let alts ← stx.getArgs.mapM (expandLiftMethodAux inQuot inBinder · |>.run [])
+      let (_, lifts) := alts[0]!
+      unless alts.all (·.2 == lifts) do
+        throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
+      modify (· ++ lifts)
+      return .node i k (alts.map (·.1))
+    else if liftMethodDelimiter k then
       return stx
     else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
       let term := args[1]!
       let term ← expandLiftMethodAux inQuot inBinder term
-      let auxDoElem : Syntax ← `(doElem| let __do_lift ← $term:term)
+      -- keep name deterministic across choice branches
+      let id ← mkIdentFromRef (.num baseId (← get).length)
+      let auxDoElem : Syntax ← `(doElem| let $id:ident ← $term:term)
       modify fun s => s ++ [auxDoElem]
-      `(__do_lift)
+      return id
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
       let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
@@ -1239,7 +1247,8 @@ def expandLiftMethod (doElem : Syntax) : M (List Syntax × Syntax) := do
   if !hasLiftMethod doElem then
     return ([], doElem)
   else
-    let (doElem, doElemsNew) ← (expandLiftMethodAux false false doElem).run []
+    let baseId ← withFreshMacroScope (MonadQuotation.addMacroScope `__do_lift)
+    let (doElem, doElemsNew) ← (expandLiftMethodAux baseId false false doElem).run []
     return (doElemsNew, doElem)
 
 def checkLetArrowRHS (doElem : Syntax) : M Unit := do
@@ -1301,7 +1310,7 @@ mutual
      where
      ```
      def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doElemParser)
+     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doSeq)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
@@ -1336,17 +1345,17 @@ mutual
         else
           pure doElems.toArray
         let contSeq := mkDoSeq contSeq
-        let elseSeq := mkSingletonDoSeq optElse[1]
+        let elseSeq := optElse[1]
         let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
     else
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doElemParser
+    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq
     let pattern := doLetElse[2]
     let val     := doLetElse[4]
-    let elseSeq := mkSingletonDoSeq doLetElse[6]
+    let elseSeq := doLetElse[6]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
       pure (vars ++ doElems.toArray)
@@ -1658,7 +1667,7 @@ def run (doStx : Syntax) (m : Syntax) (returnType : Syntax) : TermElabM CodeBloc
 
 end ToCodeBlock
 
-@[builtinTermElab «do»] def elabDo : TermElab := fun stx expectedType? => do
+@[builtin_term_elab «do»] def elabDo : TermElab := fun stx expectedType? => do
   tryPostponeIfNoneOrMVar expectedType?
   let bindInfo ← extractBind expectedType?
   let m ← Term.exprToSyntax bindInfo.m
@@ -1676,16 +1685,16 @@ private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
   let stx := stx.setKind newKind
   withRef stx `(do $stx:doElem)
 
-@[builtinMacro Lean.Parser.Term.termFor]
+@[builtin_macro Lean.Parser.Term.termFor]
 def expandTermFor : Macro := toDoElem ``Parser.Term.doFor
 
-@[builtinMacro Lean.Parser.Term.termTry]
+@[builtin_macro Lean.Parser.Term.termTry]
 def expandTermTry : Macro := toDoElem ``Parser.Term.doTry
 
-@[builtinMacro Lean.Parser.Term.termUnless]
+@[builtin_macro Lean.Parser.Term.termUnless]
 def expandTermUnless : Macro := toDoElem ``Parser.Term.doUnless
 
-@[builtinMacro Lean.Parser.Term.termReturn]
+@[builtin_macro Lean.Parser.Term.termReturn]
 def expandTermReturn : Macro := toDoElem ``Parser.Term.doReturn
 
 end Lean.Elab.Term

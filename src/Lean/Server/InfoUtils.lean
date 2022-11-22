@@ -77,6 +77,7 @@ def Info.stx : Info → Syntax
   | ofTermInfo i           => i.stx
   | ofCommandInfo i        => i.stx
   | ofMacroExpansionInfo i => i.stx
+  | ofOptionInfo i         => i.stx
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
@@ -147,17 +148,26 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     -/
     if info.stx.isOfKind nullKind || info.toElabInfo?.any (·.elaborator == `Lean.Elab.Tactic.evalWithAnnotateState) then
       return results
-    unless (info matches Info.ofFieldInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
+    unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
-    let priority :=
-      if r.stop == hoverPos then
-        0  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-      else if info matches .ofTermInfo { expr := .fvar .., .. } then
-        0  -- prefer results for constants over variables (which overlap at declaration names)
-      else 1
+    let priority := (
+      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+      if r.stop == hoverPos then 0 else 1,
+      -- relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
+      -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
+      -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
+      -- surrounding the cursor
+      Int.negOfNat (r.stop - r.start).byteIdx,
+      -- prefer results for constants over variables (which overlap at declaration names)
+      if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
     [(priority, ctx, info)]) |>.getD []
-  let maxPrio? := results.map (·.1) |>.maximum?
+  -- sort results by lexicographical priority
+  let maxPrio? :=
+    let _ := @lexOrd
+    let _ := @leOfOrd.{0}
+    let _ := @maxOfLe
+    results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then
     if let .ofTermInfo ti := i then
@@ -173,11 +183,18 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
-  if let Info.ofTermInfo ti := i then
+  match i with
+  | Info.ofTermInfo ti =>
     if let some n := ti.expr.constName? then
       return ← findDocString? env n
-  if let Info.ofFieldInfo fi := i then
-    return ← findDocString? env fi.projName
+  | .ofFieldInfo fi => return ← findDocString? env fi.projName
+  | .ofOptionInfo oi =>
+    if let some doc ← findDocString? env oi.declName then
+      return doc
+    if let some decl := (← getOptionDecls).find? oi.optionName then
+      return decl.descr
+    return none
+  | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator
   return none

@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/message_definitions.h"
 
 namespace lean {
-void register_trace_class(name const & n);
+void register_trace_class(name const & n, name const & decl_name = {});
 void register_trace_class_alias(name const & n, name const & alias);
 bool is_trace_enabled();
 bool is_trace_class_enabled(name const & n);
@@ -51,7 +51,6 @@ if (lean_is_trace_enabled(CName)) {             \
     tout() << tclass(CName); CODE               \
 }}
 
-void trace_expr(environment const & env, options const & opts, expr const & e);
 std::string trace_pp_expr(expr const & e);
 
 void initialize_trace();

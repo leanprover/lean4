@@ -16,7 +16,7 @@ open Std
 def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
   let header ← mkHeader `Repr 1 indVal
   return { header with
-    binders := header.binders.push (← `(bracketedBinder| (prec : Nat)))
+    binders := header.binders.push (← `(bracketedBinderF| (prec : Nat)))
   }
 
 def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term := do

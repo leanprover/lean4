@@ -5,20 +5,30 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
+set_option linter.missingDocs true -- keep it documented
 universe u
 
 namespace Nat
 
+/--
+`Nat.fold` evaluates `f` on the numbers up to `n` exclusive, in increasing order:
+* `Nat.fold f 3 init = init |> f 0 |> f 1 |> f 2`
+-/
 @[specialize] def fold {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
   | 0,      a => a
   | succ n, a => f n (fold f n a)
 
+/-- Tail-recursive version of `Nat.fold`. -/
 @[inline] def foldTR {α : Type u} (f : Nat → α → α) (n : Nat) (init : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ m, a => loop m (f (n - succ m) a)
   loop n init
 
+/--
+`Nat.foldRev` evaluates `f` on the numbers up to `n` exclusive, in decreasing order:
+* `Nat.foldRev f 3 init = f 0 <| f 1 <| f 2 <| init`
+-/
 @[specialize] def foldRev {α : Type u} (f : Nat → α → α) : (n : Nat) → (init : α) → α
   | 0,      a => a
   | succ n, a => foldRev f n (f n a)
@@ -28,6 +38,7 @@ namespace Nat
   | 0      => false
   | succ n => any f n || f n
 
+/-- Tail-recursive version of `Nat.any`. -/
 @[inline] def anyTR (f : Nat → Bool) (n : Nat) : Bool :=
   let rec @[specialize] loop : Nat → Bool
     | 0      => false
@@ -39,22 +50,29 @@ namespace Nat
   | 0      => true
   | succ n => all f n && f n
 
+/-- Tail-recursive version of `Nat.all`. -/
 @[inline] def allTR (f : Nat → Bool) (n : Nat) : Bool :=
   let rec @[specialize] loop : Nat → Bool
     | 0      => true
     | succ m => f (n - succ m) && loop m
   loop n
 
+/--
+`Nat.repeat f n a` is `f^(n) a`; that is, it iterates `f` `n` times on `a`.
+* `Nat.repeat f 3 a = f <| f <| f <| a`
+-/
 @[specialize] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
   | succ n, a => f (repeat f n a)
 
+/-- Tail-recursive version of `Nat.repeat`. -/
 @[inline] def repeatTR {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
   let rec @[specialize] loop
     | 0,      a => a
     | succ n, a => loop n (f a)
   loop n a
 
+/-- Boolean less-than of natural numbers. -/
 def blt (a b : Nat) : Bool :=
   ble a.succ b
 
@@ -233,6 +251,11 @@ theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
   | 0        => by rw [Nat.sub_zero]
   | (succ n) => by rw [succ_sub_succ, Nat.sub_self n]
 
+theorem sub_add_eq (a b c : Nat) : a - (b + c) = a - b - c := by
+  induction c with
+  | zero => simp
+  | succ c ih => simp [Nat.add_succ, Nat.sub_succ, ih]
+
 protected theorem lt_of_lt_of_le {n m k : Nat} : n < m → m ≤ k → n < k :=
   Nat.le_trans
 
@@ -260,13 +283,13 @@ theorem le_of_succ_le {n m : Nat} (h : succ n ≤ m) : n ≤ m :=
 protected theorem le_of_lt {n m : Nat} (h : n < m) : n ≤ m :=
   le_of_succ_le h
 
-def lt.step {n m : Nat} : n < m → n < succ m := le_step
+theorem lt.step {n m : Nat} : n < m → n < succ m := le_step
 
 theorem eq_zero_or_pos : ∀ (n : Nat), n = 0 ∨ n > 0
   | 0   => Or.inl rfl
   | _+1 => Or.inr (succ_pos _)
 
-def lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
+theorem lt.base (n : Nat) : n < succ n := Nat.le_refl (succ n)
 
 theorem lt_succ_self (n : Nat) : n < succ n := lt.base n
 
@@ -473,11 +496,28 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
 
 /-! # min/max -/
 
-protected def min (n m : Nat) : Nat :=
-  if n ≤ m then n else m
+instance : Min Nat := minOfLe
 
-protected def max (n m : Nat) : Nat :=
-  if n ≤ m then m else n
+/--
+`Nat.min a b` is the minimum of `a` and `b`:
+* if `a ≤ b` then `Nat.min a b = a`
+* if `b ≤ a` then `Nat.min a b = b`
+-/
+protected abbrev min (n m : Nat) := min n m
+
+protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+
+instance : Max Nat := maxOfLe
+
+/--
+`Nat.max a b` is the maximum of `a` and `b`:
+* if `a ≤ b` then `Nat.max a b = b`
+* if `b ≤ a` then `Nat.max a b = a`
+-/
+protected abbrev max (n m : Nat) := max n m
+
+protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+
 
 /-! # Auxiliary theorems for well-founded recursion -/
 
@@ -724,12 +764,27 @@ end Nat
 
 namespace Prod
 
+/--
+`(start, stop).foldI f a` evaluates `f` on all the numbers
+from `start` (inclusive) to `stop` (exclusive) in increasing order:
+* `(5, 8).foldI f init = init |> f 5 |> f 6 |> f 7`
+-/
 @[inline] def foldI {α : Type u} (f : Nat → α → α) (i : Nat × Nat) (a : α) : α :=
   Nat.foldTR.loop f i.2 (i.2 - i.1) a
 
+/--
+`(start, stop).anyI f a` returns true if `f` is true for some natural number
+from `start` (inclusive) to `stop` (exclusive):
+* `(5, 8).anyI f = f 5 || f 6 || f 7`
+-/
 @[inline] def anyI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
   Nat.anyTR.loop f i.2 (i.2 - i.1)
 
+/--
+`(start, stop).allI f a` returns true if `f` is true for all natural numbers
+from `start` (inclusive) to `stop` (exclusive):
+* `(5, 8).anyI f = f 5 && f 6 && f 7`
+-/
 @[inline] def allI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
   Nat.allTR.loop f i.2 (i.2 - i.1)
 

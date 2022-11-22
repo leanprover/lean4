@@ -1756,11 +1756,23 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
 
 builtin_initialize
   registerTraceClass `Meta.isDefEq
-  registerTraceClass `Meta.isDefEq.foApprox
-  registerTraceClass `Meta.isDefEq.constApprox
-  registerTraceClass `Meta.isDefEq.delta (inherited := true)
+  registerTraceClass `Meta.isDefEq.stuck
+  registerTraceClass `Meta.isDefEq.stuck.mvar (inherited := true)
+  registerTraceClass `Meta.isDefEq.cache
+  registerTraceClass `Meta.isDefEq.foApprox (inherited := true)
+  registerTraceClass `Meta.isDefEq.onFailure (inherited := true)
+  registerTraceClass `Meta.isDefEq.constApprox (inherited := true)
+  registerTraceClass `Meta.isDefEq.delta
+  registerTraceClass `Meta.isDefEq.delta.unfoldLeft (inherited := true)
+  registerTraceClass `Meta.isDefEq.delta.unfoldRight (inherited := true)
+  registerTraceClass `Meta.isDefEq.delta.unfoldLeftRight (inherited := true)
   registerTraceClass `Meta.isDefEq.assign
   registerTraceClass `Meta.isDefEq.assign.checkTypes (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.outOfScopeFVar (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.beforeMkLambda (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.typeError (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
+  registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
 
 end Lean.Meta

@@ -33,9 +33,9 @@ jobs:
       NIX_BUILD_ARGS: -v --print-build-logs --fallback
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Install Nix
-        uses: cachix/install-nix-action@v15
+        uses: cachix/install-nix-action@v18
         with:
           # https://github.com/NixOS/nix/issues/6572
           install_url: https://releases.nixos.org/nix/nix-2.7.0/install
@@ -43,7 +43,7 @@ jobs:
             extra-sandbox-paths = /nix/var/cache/ccache
             substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
       - name: Set Up Nix Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: nix-store-cache
           key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
@@ -61,7 +61,7 @@ jobs:
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
       - name: Setup CCache Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /nix/var/cache/ccache
           key: ${{ matrix.name }}-nix-ccache-${{ github.sha }}
@@ -74,7 +74,7 @@ jobs:
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache
       - name: Install Cachix
-        uses: cachix/cachix-action@v10
+        uses: cachix/cachix-action@v12
         with:
           name: lean4
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'

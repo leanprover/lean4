@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Commit Message
-        uses: actions/github-script@v3
+        uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: commits } = await github.pulls.listCommits({
+            const { data: commits } = await github.rest.pulls.listCommits({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number,
@@ -22,7 +22,7 @@ jobs:
             console.log(commits[0].commit.message);
             // check first commit only (and only once) since later commits might be intended to be squashed away
             if (!/^(feat|fix|doc|style|refactor|test|chore|perf): .*[^.]($|\n\n)/.test(commits[0].commit.message)) {
-              await github.issues.createComment({
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,

@@ -22,7 +22,7 @@ jobs:
       nightly: ${{ steps.set.outputs.nightly }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         # don't schedule nightlies on forks
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
       - name: Set Nightly
@@ -127,11 +127,11 @@ jobs:
       CXX: c++
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
       - name: Install Nix
-        uses: cachix/install-nix-action@v15
+        uses: cachix/install-nix-action@v18
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
@@ -145,7 +145,7 @@ jobs:
           brew install ccache tree zstd coreutils gmp
         if: matrix.os == 'macos-latest'
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .ccache
           key: ${{ matrix.name }}-build-v3-${{ github.sha }}
@@ -191,7 +191,7 @@ jobs:
           else
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
           fi
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: matrix.release
         with:
           name: build-${{ matrix.name }}
@@ -239,7 +239,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Release
@@ -256,12 +256,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # needed for tagging
           fetch-depth: 0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Prepare Nightly Release

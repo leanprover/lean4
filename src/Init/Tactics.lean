@@ -242,7 +242,7 @@ macro "try " t:tacticSeq : tactic => `(tactic| first | $t | skip)
 `tac <;> tac'` runs `tac` on the main goal and `tac'` on each produced goal,
 concatenating all goals produced by `tac'`.
 -/
-macro:1 x:tactic tk:" <;> " y:tactic:0 : tactic => `(tactic|
+macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
   focus
     $x:tactic
     -- annotate token with state after executing `x`

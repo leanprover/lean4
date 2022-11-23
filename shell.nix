@@ -19,6 +19,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs }:
     GMP = pkgsDist.gmp.override { withStatic = true; };
     GLIBC = pkgsDist.glibc;
     GLIBC_DEV = pkgsDist.glibc.dev;
+    GCC_LIB = pkgsDist.gcc.cc.lib;
     ZLIB = pkgsDist.zlib;
   });
   nix = flake.devShell.${builtins.currentSystem};

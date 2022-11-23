@@ -25,6 +25,9 @@ cp -L llvm/bin/llvm-ar stage1/bin/
 # dependencies of the above
 $CP llvm/lib/lib{clang-cpp,LLVM}*.so* stage1/lib/
 $CP $ZLIB/lib/libz.so* stage1/lib/
+# bundle libatomic (referenced by LLVM >= 15, and required by the lean executable to run)
+$CP $GCC_LIB/lib/libatomic.so* stage1/lib/
+
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
 $CP llvm/lib/clang/*/include/{std*,__std*,limits}.h stage1/include/clang

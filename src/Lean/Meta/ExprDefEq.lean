@@ -1714,6 +1714,12 @@ private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
   | none => return .undef
 
 private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
+  /-
+  We must ensure that all assigned metavariables in the key are replaced by their current assingments.
+  Otherwise, the key is invalid after the assignment is "backtracked".
+  See issue #1870 for an example.
+  -/
+  let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
   modifyDefEqCache fun c => c.insert key result
 
 @[export lean_is_expr_def_eq]

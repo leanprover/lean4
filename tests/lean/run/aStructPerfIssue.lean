@@ -313,7 +313,7 @@ def op (𝒞 : Precategory) : Precategory :=
 Precategory.intro 𝒞.hset (λ a b => 𝒞.μ b a) 𝒞.cod 𝒞.dom ∄
 
 postfix:max "ᵒᵖ" => op
-
+set_option maxHeartbeats 400000
 def dual (𝒞 : Precategory) (η : category 𝒞) : category 𝒞ᵒᵖ :=
 { defDec      := @defDec 𝒞 η,
   bottomLeft  := @bottomRight 𝒞 η,

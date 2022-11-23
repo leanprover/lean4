@@ -152,18 +152,26 @@ If `private`, return the updated name using our internal encoding for private na
 If `protected`, register `declName` as protected in the environment.
 -/
 def applyVisibility (visibility : Visibility) (declName : Name) : m Name := do
-  match visibility with
-  | .private =>
-    let declName := mkPrivateName (← getEnv) declName
+  if isPrivateName declName then
+    /-
+    This can happen if the name was created by the user using metaprogramming.
+    In this case, we ignore the visibility information, and just treat the
+    declaration as a private one.
+    -/
     checkNotAlreadyDeclared declName
     return declName
-  | .protected =>
-    checkNotAlreadyDeclared declName
-    modifyEnv fun env => addProtected env declName
-    return declName
-  | _ =>
-    checkNotAlreadyDeclared declName
-    pure declName
+  else match visibility with
+    | .private =>
+      let declName := mkPrivateName (← getEnv) declName
+      checkNotAlreadyDeclared declName
+      return declName
+    | .protected =>
+      checkNotAlreadyDeclared declName
+      modifyEnv fun env => addProtected env declName
+      return declName
+    | _ =>
+      checkNotAlreadyDeclared declName
+      pure declName
 
 def checkIfShadowingStructureField (declName : Name) : m Unit := do
   match declName with
@@ -183,22 +191,29 @@ def mkDeclName (currNamespace : Name) (modifiers : Modifiers) (shortName : Name)
   let isRootName := (`_root_).isPrefixOf name
   if name == `_root_ then
     throwError "invalid declaration name `_root_`, `_root_` is a prefix used to refer to the 'root' namespace"
-  let declName := if isRootName then { view with name := name.replacePrefix `_root_ Name.anonymous }.review else currNamespace ++ shortName
+  let declName := if isRootName then
+    { view with name := name.replacePrefix `_root_ Name.anonymous }.review
+  else if isPrivateName shortName then
+    /- Name was created using metaprogramming. See issue #1861 -/
+    shortName
+  else
+    currNamespace ++ shortName
   if isRootName then
     let .str p s := name | throwError "invalid declaration name '{name}'"
     shortName := Name.mkSimple s
     currNamespace := p.replacePrefix `_root_ Name.anonymous
   checkIfShadowingStructureField declName
   let declName ← applyVisibility modifiers.visibility declName
-  match modifiers.visibility with
-  | Visibility.protected =>
+  if modifiers.visibility matches .protected && !isPrivateName declName then
+    /- Remark: we check whether the name is private because it may have been created using metaprogramming. See issue #1861 -/
     match currNamespace with
     | .str _ s => return (declName, Name.mkSimple s ++ shortName)
     | _ =>
       if shortName.isAtomic then
         throwError "protected declarations must be in a namespace"
       return (declName, shortName)
-  | _ => return (declName, shortName)
+  else
+    return (declName, shortName)
 
 /--
   `declId` is of the form

@@ -88,6 +88,12 @@ private def setDefName (stx : Syntax) (name : Name) : Syntax :=
 -/
 private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax)) := do
   let some name := getDefName? stx | return none
+  if isPrivateName name then
+    /-
+    This can happen when user creates a declaration name using metaprogramming.
+    See issue #1861
+    -/
+    return none
   if (`_root_).isPrefixOf name then
     ensureValidNamespace (name.replacePrefix `_root_ Name.anonymous)
     return none

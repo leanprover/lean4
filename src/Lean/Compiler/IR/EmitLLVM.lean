@@ -90,7 +90,8 @@ def getDecl (n : Name) : M llvmctx Decl := do
 
 
 def debugPrint (s: String): M llvmctx Unit :=
-  IO.eprintln $ "[debug:" ++ s ++ "]"
+  -- IO.eprintln $ "[debug:" ++ s ++ "]"
+  return ()
 
 def constIntUnsigned (n: Nat): M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
@@ -462,8 +463,6 @@ def buildLeanBoolTrue? (builder: LLVM.Builder llvmctx) (b: LLVM.Value llvmctx) (
 
 def emitFnDeclAux (mod: LLVM.Module llvmctx)
   (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint "emitFnDeclAux"
-  IO.println s!"\nvv\nemitFnDeclAux {decl}\n^^"
   -- let types : Array LLVM.LLVMType ← decl.params.mapM llvmctx (toLLVMType llvmctx)
   let ps := decl.params
   let env ← getEnv
@@ -484,23 +483,17 @@ def emitFnDeclAux (mod: LLVM.Module llvmctx)
         LLVM.setInitializer global (← LLVM.getUndef retty)
       return global
   else
-      IO.eprintln s!"creating result type ({decl.resultType})"
       let retty ← (toLLVMType decl.resultType)
-      IO.eprintln s!"...created!"
       let mut argtys := #[]
       for p in ps do
         -- if it is extern, then we must not add irrelevant args
         if !(isExternC env decl.name) || !p.ty.isIrrelevant then
-          IO.eprintln s!"adding argument of type {p.ty}"
           argtys := argtys.push (← toLLVMType p.ty)
-          IO.eprintln "...added argument!"
       -- QUESTION: why do we care if it is boxed?
       -- TODO (bollu): simplify this API, this code of `closureMaxArgs` is duplicated in multiple places.
       if argtys.size > closureMaxArgs && isBoxedName decl.name then
         argtys := #[← LLVM.pointerType (← LLVM.voidPtrType llvmctx)]
-      IO.eprintln "creating function type..."
       let fnty ← LLVM.functionType retty argtys (isVarArg := false)
-      IO.eprintln "created function type!"
       LLVM.getOrAddFunction mod cppBaseName fnty
       -- unless ps.isEmpty do
       --   emit "("
@@ -557,7 +550,6 @@ def emitFnDecls : M llvmctx Unit := do
   let usedDecls := usedDecls.toList
   for n in usedDecls do
     let decl ← getDecl n;
-    IO.println s!"processing {decl}"
     match getExternNameFor env `c decl.name with
     | some cName => emitExternDeclAux decl cName
     | none       => emitFnDecl decl (!modDecls.contains n)
@@ -697,7 +689,6 @@ def emitCtor (builder: LLVM.Builder llvmctx) (z : VarId) (c : CtorInfo) (ys : Ar
     let v ← emitAllocCtor builder c;
     let _ ← LLVM.buildStore builder v slot
     emitCtorSetArgs builder z ys -- TODO:
-    IO.eprintln "######5#######"
 
 
 -- ^^^ emitVDecl.emitCtor
@@ -1243,7 +1234,6 @@ def declareVar (x : VarId) (t : IRType) : M llvmctx Unit := do
 def declareVar (builder: LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
   let alloca ← LLVM.buildAlloca builder (← toLLVMType t) "varx"
   addVartoState x alloca
-  IO.eprintln s!"### declared {x} ###"
 /-
 partial def declareVars : FnBody → Bool → M Bool
   | e@(FnBody.vdecl x t _ b), d => do
@@ -1664,7 +1654,6 @@ def emitFnArgs (builder: LLVM.Builder llvmctx) (needsPackedArgs?: Bool)  (llvmfn
 
 -- TODO: figure out if we can always return the corresponding function?
 def emitDeclAux (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx) (d : Decl): M llvmctx Unit := do
-  IO.println "vvvv\nemitDeclAux {d}\n^^^\n"
   let env ← getEnv
   let (_, jpMap) := mkVarJPMaps d
   withReader (fun llvmctx => { llvmctx with jpMap := jpMap }) do
@@ -1745,7 +1734,6 @@ def emitFns : M llvmctx Unit := do
 def emitFns (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx) : M llvmctx Unit := do
   let env ← getEnv
   let decls := getDecls env;
-  IO.eprintln "gotten decls, going to loop..."
   decls.reverse.forM (emitDecl mod builder)
 -- ^^^ emitFns ^^^
 
@@ -2193,28 +2181,28 @@ def main : M llvmctx Unit := do
 
 def main : M llvmctx Unit := do
   emitFileHeader
-  IO.eprintln "starting emitFnDcls"
   emitFnDecls
-  IO.eprintln "starting emitFns"
   let builder ← LLVM.createBuilderInContext llvmctx
   emitFns (← getLLVMModule) builder
   emitInitFn (← getLLVMModule) builder
   emitMainFnIfNeeded (← getLLVMModule) builder
   emitFileFooter
-  IO.eprintln (← LLVM.printModuletoString (← getLLVMModule))
+  -- IO.eprintln (← LLVM.printModuletoString (← getLLVMModule))
   LLVM.printModuletoFile (← getLLVMModule) "/home/bollu/temp/lean-llvm.ll"
   return ()
 end EmitLLVM
 
 
 -- This imitates `Lean/Util/Path.lean`, implementing `Lean.getLibDir`
+-- get the path to `lean.h.bc`, which has the contents of everything
+-- that needs to be inlined during compilation.
 open System in
-def getLibLeanRtPath : IO FilePath := do
+def getLeanHBcPath : IO FilePath := do
   let mut buildDir ← getBuildDir
   -- use stage1 stdlib with stage0 executable (which should never be distributed outside of the build directory)
   if Internal.isStage0 () then
     buildDir := buildDir / ".." / "stage1"
-  return buildDir / "runtime" / "libleanrt.bc"
+  return buildDir / "runtime" / "lean.h.bc"
 
 
 def optimizeLLVMModule (mod: LLVM.Module ctx): IO Unit := do
@@ -2237,11 +2225,9 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
   let out? ← (EmitLLVM.main (llvmctx := llvmctx) initState).run emitLLVMCtx
   match out? with
   | .ok _ => do
-         let membuf ← LLVM.createMemoryBufferWithContentsOfFile (← getLibLeanRtPath).toString
+         IO.eprintln $ s!"Lean.h.hc path:  {(← getLeanHBcPath)}"
+         let membuf ← LLVM.createMemoryBufferWithContentsOfFile (← getLeanHBcPath).toString
          let modruntime ← LLVM.parseBitcode llvmctx membuf
-         -- TODO (bollu): mark everything in runtime as internal and alwaysinline
-         -- so we can then remove the
-         -- unused portions after inlining
          LLVM.linkModules (dest := emitLLVMCtx.llvmmodule) (src := modruntime)
          optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath

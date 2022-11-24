@@ -17,7 +17,7 @@ Lean's IR.
 #include "runtime/debug.h"
 #include "runtime/string_ref.h"
 
-#define LLVM_DEBUG 0
+#define LLVM_DEBUG 1
 
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
@@ -1521,6 +1521,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_parse_bitcode(
                                              &out_module, &err_str);
     if (LLVM_DEBUG) {
         fprintf(stderr, "...%s ; error?: %d \n", __PRETTY_FUNCTION__, is_error);
+        if (is_error) {
+          fprintf(stderr, "...%s ; error string: %s \n", __PRETTY_FUNCTION__, err_str);
+        }
     }
 
     lean_always_assert(!is_error && "failed to link modules");

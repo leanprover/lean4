@@ -1496,7 +1496,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
         let localDecl ← localDecl?
         guard localDecl.isAuxDecl
         matchLocalDecl? localDecl givenName
-  /- 
+  /-
   We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
   We set it to true if we found a global declaration `n` as we iterate over the `loop`.
   Without this workaround, we would not be able to elaborate example such as
@@ -1514,14 +1514,14 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let n := 0
     n.succ + (m |>.succ) + m.succ
   where
-    m := 1  
+    m := 1
   ```
   See issue #1850.
   -/
   let rec loop (n : Name) (projs : List String) (globalDeclFound : Bool) := do
     let givenNameView := { view with name := n }
     let mut globalDeclFound := globalDeclFound
-    unless globalDeclFound do 
+    unless globalDeclFound do
       let r ← resolveGlobalName givenNameView.review
       let r := r.filter fun (_, fieldList) => fieldList.isEmpty
       unless r.isEmpty do

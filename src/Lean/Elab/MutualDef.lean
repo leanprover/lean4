@@ -761,7 +761,10 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
 
 def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
   if isExample views then
-    withoutModifyingEnv go
+    withoutModifyingEnv do
+      -- save correct environment in info tree
+      withSaveInfoContext do
+        go
   else
     go
 where

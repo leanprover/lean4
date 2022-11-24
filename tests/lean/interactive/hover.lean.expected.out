@@ -540,3 +540,11 @@ null
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 256, "character": 2}}
+{"range":
+ {"start": {"line": 256, "character": 2}, "end": {"line": 256, "character": 3}},
+ "contents":
+ {"value":
+  "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "kind": "markdown"}}

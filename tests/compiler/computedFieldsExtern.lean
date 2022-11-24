@@ -2,7 +2,7 @@ inductive Exp
   | var (i : Nat)
   | app (a b : Exp)
 with
-  @[computed_field, extern c inline "(lean_ctor_get_uint64(#1, lean_ctor_num_objs(#1)*sizeof(void*)) + 40)"]
+  @[computed_field]
   hash : Exp → UInt64
     | .var i => Hashable.hash i
     | .app a b => a.hash + b.hash

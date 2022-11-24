@@ -66,19 +66,19 @@ structure MaterializeResult where
 /--
 Materializes a package entry, cloning and/or checkout it out as necessary.
 -/
-def materializePackageEntry (rootPkg : Package) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
+def materializePackageEntry (rootPkgDir packagesDir : FilePath) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
   match manifestEntry with
   | .path _name pkgDir =>
     return {
-      pkgDir := rootPkg.dir / pkgDir
+      pkgDir := rootPkgDir / pkgDir
       relPkgDir := pkgDir
       remoteUrl? := none
       gitTag? := none
       manifestEntry
     }
   | .git name url rev _inputRev? subDir? => do
-    let relGitDir := rootPkg.config.packagesDir / name
-    let gitDir := rootPkg.dir / relGitDir
+    let relGitDir := packagesDir / name
+    let gitDir := rootPkgDir / relGitDir
     let repo := GitRepo.mk gitDir
     /-
     Do not update (fetch remote) if already on revision
@@ -94,7 +94,7 @@ def materializePackageEntry (rootPkg : Package) (manifestEntry : PackageEntry) :
       updateGitRepo repo url rev name
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {
-      pkgDir := rootPkg.dir / relPkgDir
+      pkgDir := rootPkgDir / relPkgDir
       relPkgDir
       remoteUrl? := url
       gitTag? := ← repo.findTag?

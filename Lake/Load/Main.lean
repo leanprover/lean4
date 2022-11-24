@@ -49,7 +49,7 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
           for entry in (← Manifest.loadOrEmpty pkg.manifestFile) do
             unless (← getThe (NameMap MaterializeResult)).contains entry.name do
               let entry := entry.inDirectory relPkgDir
-              let result ← materializePackageEntry ws.root entry
+              let result ← materializePackageEntry ws.root.dir ws.root.config.packagesDir entry
               modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
         let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
         let deps ← deps.mapM fun dep => do
@@ -58,7 +58,7 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
           else
             let depName := dep.name.toString (escape := false)
             let entry ← updateSource relPkgDir ws.root.packagesDir depName dep.src
-            let result ← materializePackageEntry ws.root entry
+            let result ← materializePackageEntry ws.root.dir ws.root.config.packagesDir entry
             modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
             return (dep, result)
         let depPkgs ← deps.mapM fun (dep, result) => do
@@ -106,7 +106,7 @@ def Package.materializeDeps (root : Package) : LogIO Package := do
           let .some entry := manifest.find? dep.name
             | error <| s!"dependency {dep.name} of {pkg.name} not in manifest, " ++
               "use `lake update` to update"
-          let result ← materializePackageEntry root entry
+          let result ← materializePackageEntry root.dir root.config.packagesDir entry
           loadDepPackage pkg result dep
       return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
   match res with

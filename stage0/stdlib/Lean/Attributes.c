@@ -164,6 +164,7 @@ LEAN_EXPORT lean_object* l_Lean_getAttrParamOptPrio(lean_object*, lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_registerParametricAttribute___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParametricAttributeImpl_afterImport___default___rarg(lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
+LEAN_EXPORT lean_object* lean_get_num_attributes(lean_object*);
 static lean_object* l_Lean_instInhabitedAttributeImpl___closed__2;
 uint8_t l_Array_binSearchAux___at_Lean_TagDeclarationExtension_isTagged___spec__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashMapImp_contains___at_Lean_registerAttributeImplBuilder___spec__7(lean_object*, lean_object*);
@@ -209,7 +210,6 @@ static lean_object* l___auto____x40_Lean_Attributes___hyg_265____closed__6;
 LEAN_EXPORT lean_object* l_Lean_AttributeApplicationTime_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_get_num_attributes(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqAttributeApplicationTime;
 LEAN_EXPORT lean_object* l_Lean_AttributeApplicationTime_noConfusion___rarg___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_registerAttributeImplBuilder___spec__5(lean_object*, lean_object*);

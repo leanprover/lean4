@@ -38,6 +38,13 @@ structure InstanceEntry where
   val         : Expr
   priority    : Nat
   globalName? : Option Name := none
+  /-
+  We store the attribute kind to be able to implement the API `getInstanceAttrKind`.
+  TODO: add better support for retrieving the `attrKind` of any attribute.
+  The current implementation here works only for instances, but it is good enough for unblocking the
+  implementation of `to_additive`.
+  -/
+  attrKind    : AttributeKind
   deriving Inhabited
 
 instance : BEq InstanceEntry where
@@ -52,13 +59,13 @@ abbrev InstanceTree := DiscrTree InstanceEntry (simpleReduce := false)
 
 structure Instances where
   discrTree     : InstanceTree := DiscrTree.empty
-  instanceNames : PHashSet Name := {}
+  instanceNames : PHashMap Name InstanceEntry := {}
   erased        : PHashSet Name := {}
   deriving Inhabited
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n }
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e }
   | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=
@@ -85,7 +92,7 @@ def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : Meta
   let c ← mkConstWithLevelParams declName
   let keys ← mkInstanceKey c
   addGlobalInstance declName attrKind
-  instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName } attrKind
+  instanceExtension.add { keys := keys, val := c, priority := prio, globalName? := declName, attrKind } attrKind
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -108,6 +115,14 @@ def getErasedInstances : CoreM (PHashSet Name) :=
 
 def isInstance (declName : Name) : CoreM Bool :=
   return Meta.instanceExtension.getState (← getEnv) |>.instanceNames.contains declName
+
+def getInstancePriority? (declName : Name) : CoreM (Option Nat) := do
+  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  return entry.priority
+
+def getInstanceAttrKind? (declName : Name) : CoreM (Option AttributeKind) := do
+  let some entry := Meta.instanceExtension.getState (← getEnv) |>.instanceNames.find? declName | return none
+  return entry.attrKind
 
 /-! # Default instance support -/
 

@@ -19,13 +19,17 @@ Lean's IR.
 
 #define LLVM_DEBUG 1
 
+#ifdef LEAN_LLVM
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
+#endif
 
 namespace lean {
 namespace llvm {
 void initialize_llvm() {
+#ifdef LEAN_LLVM
   initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, lean_io_mk_world());
+#endif
 }
 
 void finalize_llvm() {}

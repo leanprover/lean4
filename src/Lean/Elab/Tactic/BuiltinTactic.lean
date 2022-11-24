@@ -231,18 +231,28 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro)                   => introStep none `_
   | `(tactic| intro $h:ident)          => introStep h h.getId
   | `(tactic| intro _%$tk)             => introStep tk `_
+  /- Type ascription -/
+  | `(tactic| intro ($h:ident : $type:term)) => introStep h h.getId type
   /- We use `@h` at the match-discriminant to disable the implicit lambda feature -/
   | `(tactic| intro $pat:term)         => evalTactic (← `(tactic| intro h; match @h with | $pat:term => ?_; try clear h))
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (ref : Option Syntax) (n : Name) : TacticM Unit := do
-    let fvar ← liftMetaTacticAux fun mvarId => do
-      let (fvar, mvarId) ← mvarId.intro n
-      pure (fvar, [mvarId])
+  introStep (ref : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+    let fvarId ← liftMetaTacticAux fun mvarId => do
+      let (fvarId, mvarId) ← mvarId.intro n
+      pure (fvarId, [mvarId])
+    if let some typeStx := typeStx? then
+      withMainContext do
+        let type ← Term.withSynthesize (mayPostpone := true) <| Term.elabType typeStx
+        let fvar := mkFVar fvarId
+        let fvarType ← inferType fvar
+        unless (← isDefEqGuarded type fvarType) do
+          throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
+        liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
     if let some stx := ref then
       withMainContext do
-        Term.addLocalVarInfo stx (mkFVar fvar)
+        Term.addLocalVarInfo stx (mkFVar fvarId)
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

@@ -265,6 +265,7 @@ if(LLVM)
   message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+  string(APPEND CMAKE_CXX_FLAGS " -D LEAN_LLVM")
 
   execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)

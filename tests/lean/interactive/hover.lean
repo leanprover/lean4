@@ -251,3 +251,8 @@ example : Nat → Nat
 example : Inhabited Nat := ⟨Nat.zero⟩
                          --^ textDocument/hover
                           --^ textDocument/hover
+
+example : Nat :=
+  let x := match 0 with | _ => 0
+  _
+--^ textDocument/hover

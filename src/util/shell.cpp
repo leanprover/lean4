@@ -56,10 +56,6 @@ Author: Leonardo de Moura
 #include <dlfcn.h>
 #endif
 
-#if defined(LEAN_LLVM)
-#include <llvm/Support/TargetSelect.h>
-#endif
-
 #ifdef _MSC_VER
 // extremely simple implementation of getopt.h
 enum arg_opt { no_argument, required_argument, optional_argument };
@@ -469,10 +465,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     num_threads = hardware_concurrency();
-#endif
-#if defined(LEAN_LLVM)
-    // Initialize LLVM backends for native code generation.
-    llvm::InitializeNativeTarget();
 #endif
 
     try {

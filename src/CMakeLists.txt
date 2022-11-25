@@ -324,6 +324,9 @@ if(LLVM)
     set(APPEND LEAN_EXTRA_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
     string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
+    # also add these flags into `leanc`, so that any invoation of `import Lean`, which transitively imports the LLVM
+    # bindings will correctly link against LLVM.
+    string(APPEND LEANC_EXTRA_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
 endif()
 
 # get rid of unused parts of C++ stdlib

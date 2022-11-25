@@ -456,7 +456,7 @@ partial def finishCommentBlock (nesting : Nat) : ParserFn := fun c s =>
           if nesting == 1 then s.next' input i h
           else finishCommentBlock (nesting-1) c (s.next' input i h)
         else
-          finishCommentBlock nesting c (s.next input i)
+          finishCommentBlock nesting c (s.setPos i)
     else if curr == '/' then
       if h : input.atEnd i then eoi s
       else

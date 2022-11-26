@@ -4,6 +4,7 @@
 with builtins;
 rec {
   inherit stdenv;
+  sourceByRegex = p: rs: lib.sourceByRegex p (map (r: "(/src/)?${r}") rs);
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
     buildInputs = [ gmp llvmPackages.llvm ];
@@ -15,7 +16,7 @@ rec {
       patchShebangs .
     '';
   } // args // {
-    src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
+    src = args.realSrc or (sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
     cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DLLVM=ON" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
@@ -25,7 +26,7 @@ rec {
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
     outputs = [ "out" "leanc_src" ];
-    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
+    realSrc = sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
       sed -i 's/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt

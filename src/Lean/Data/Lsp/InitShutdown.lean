@@ -67,6 +67,9 @@ structure InitializeParams where
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson
 
+def InitializeParams.editDelay (params : InitializeParams) : Nat :=
+  params.initializationOptions? |>.bind (·.editDelay?) |>.getD 200
+
 instance : FromJson InitializeParams where
   fromJson? j := do
     /- Many of these params can be null instead of not present.

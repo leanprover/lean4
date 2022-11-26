@@ -583,7 +583,7 @@ theorem ext (a b : Array α)
         have hz₁ : 0 < (a::as).length := by rw [List.length_cons]; apply Nat.zero_lt_succ
         have hz₂ : 0 < (b::bs).length := by rw [List.length_cons]; apply Nat.zero_lt_succ
         have headEq : a = b := h₂ 0 hz₁ hz₂
-        have h₁' : as.length = bs.length := by rw [List.length_cons, List.length_cons] at h₁; injection h₁
+        have h₁' : as.length = bs.length := by rw [List.length_cons, List.length_cons] at h₁; injection h₁; assumption
         have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get ⟨i, hi₁⟩ = bs.get ⟨i, hi₂⟩ := by
           intro i hi₁ hi₂
           have hi₁' : i+1 < (a::as).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption

@@ -8,7 +8,6 @@ import Init.System.IO
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
-import Lean.Elab.Import
 import Lean.Util.Paths
 
 import Lean.Data.FuzzyMatching
@@ -41,9 +40,8 @@ are forwarded to the corresponding file worker process, with the exception of th
 
 - textDocument/didOpen: Launch the file worker, create the associated watchdog state and launch a task to
                         asynchronously receive LSP packets from the worker (e.g. request responses).
-- textDocument/didChange: Update the local file state. If the header was mutated,
-                          signal a shutdown to the file worker by closing the I/O channels.
-                          Then restart the file worker. Otherwise, forward the `didChange` notification.
+- textDocument/didChange: Update the local file state so that it can be resent to restarted workers.
+                          Then forward the `didChange` notification.
 - textDocument/didClose: Signal a shutdown to the file worker and remove the associated watchdog state.
 
 Moreover, we don't implement the full protocol at this level:
@@ -70,10 +68,6 @@ open JsonRpc
 open System.Uri
 
 section Utils
-  structure OpenDocument where
-    meta      : DocumentMeta
-    headerAst : Syntax
-
   def workerCfg : Process.StdioConfig := {
     stdin  := Process.Stdio.piped
     stdout := Process.Stdio.piped
@@ -83,9 +77,8 @@ section Utils
 
   /-- Events that worker-specific tasks signal to the main thread. -/
   inductive WorkerEvent where
-    /-- A synthetic event signalling that the grouped edits should be processed. -/
-    | processGroupedEdits
     | terminated
+    | importsChanged
     | crashed (e : IO.Error)
     | ioError (e : IO.Error)
 
@@ -101,35 +94,20 @@ section Utils
     | running
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
-
-  private def parseHeaderAst (input : String) : IO Syntax := do
-    let inputCtx   := Parser.mkInputContext input "<input>"
-    let (stx, _, _) ← Parser.parseHeader inputCtx
-    return stx
 end Utils
 
 section FileWorker
-  /-- A group of edits which will be processed at a future instant. -/
-  structure GroupedEdits where
-    /-- When to process the edits. -/
-    applyTime  : Nat
-    params     : DidChangeTextDocumentParams
-    /-- Signals when `applyTime` has been reached. -/
-    signalTask : Task WorkerEvent
-    /-- We should not reorder messages when delaying edits, so we queue other messages since the last request here. -/
-    queuedMsgs : Array JsonRpc.Message
-
   structure FileWorker where
-    doc                : OpenDocument
+    doc                : DocumentMeta
     proc               : Process.Child workerCfg
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
     /-- The pending requests map contains all requests
     that have been received from the LSP client, but were not answered yet.
-    This includes the queued messages in the grouped edits. -/
+    We need them for forwaring cancellation requests to the correct worker as well as cleanly aborting
+    requests on worker crashes. -/
     pendingRequestsRef : IO.Ref PendingRequestMap
-    groupedEditsRef    : IO.Ref (Option GroupedEdits)
 
   namespace FileWorker
 
@@ -147,23 +125,6 @@ section FileWorker
     for ⟨id, _⟩ in pendingRequests do
       hError.writeLspResponseError { id := id, code := code, message := msg }
 
-  partial def runEditsSignalTask (fw : FileWorker) : IO (Task WorkerEvent) := do
-    -- check `applyTime` in a loop since it might have been postponed by a subsequent edit notification
-    let rec loopAction : IO WorkerEvent := do
-      let now ← monoMsNow
-      let some ge ← fw.groupedEditsRef.get
-        | throwServerError "Internal error: empty grouped edits reference in signal task"
-      if ge.applyTime ≤ now then
-        return WorkerEvent.processGroupedEdits
-      else
-        IO.sleep <| UInt32.ofNat <| ge.applyTime - now
-        loopAction
-
-    let t ← IO.asTask loopAction
-    return t.map fun
-      | Except.ok ev   => ev
-      | Except.error e => WorkerEvent.ioError e
-
   end FileWorker
 end FileWorker
 
@@ -179,7 +140,6 @@ section ServerM
     fileWorkersRef : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
     initParams     : InitializeParams
-    editDelay      : Nat
     workerPath     : System.FilePath
     srcSearchPath  : System.SearchPath
     references     : IO.Ref References
@@ -187,7 +147,7 @@ section ServerM
   abbrev ServerM := ReaderT ServerContext IO
 
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
-    (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.meta.uri val)
+    (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.uri val)
 
   def findFileWorker? (uri : DocumentUri) : ServerM (Option FileWorker) :=
     return (← (←read).fileWorkersRef.get).find? uri
@@ -211,13 +171,13 @@ section ServerM
 
   def handleIleanInfoUpdate (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.meta.uri then
+    if let some path := fileUriToPath? fw.doc.uri then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.updateWorkerRefs module params.version params.references
 
   def handleIleanInfoFinal (fw : FileWorker) (params : LeanIleanInfoParams) : ServerM Unit := do
     let s ← read
-    if let some path := fileUriToPath? fw.doc.meta.uri then
+    if let some path := fileUriToPath? fw.doc.uri then
       if let some module ← searchModuleNameOfFileName path s.srcSearchPath then
         s.references.modify fun refs => refs.finalizeWorkerRefs module params.version params.references
 
@@ -250,20 +210,23 @@ section ServerM
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
         let exitCode ← fw.proc.wait
-        if exitCode = 0 then
+        match exitCode with
+        | 0 =>
           -- Worker was terminated
           fw.errorPendingRequests o ErrorCode.contentModified
-            (s!"The file worker for {fw.doc.meta.uri} has been terminated. Either the header has changed,"
+            (s!"The file worker for {fw.doc.uri} has been terminated. Either the header has changed,"
             ++ " or the file was closed, or the server is shutting down.")
           -- one last message to clear the diagnostics for this file so that stale errors
           -- do not remain in the editor forever.
-          publishDiagnostics fw.doc.meta #[] o
+          publishDiagnostics fw.doc #[] o
           return WorkerEvent.terminated
-        else
+        | 2 =>
+          return .importsChanged
+        | _ =>
           -- Worker crashed
           fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
-            s!"Server process for {fw.doc.meta.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
-          publishProgressAtPos fw.doc.meta 0 o (kind := LeanFileProgressKind.fatalError)
+            s!"Server process for {fw.doc.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
+          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -274,7 +237,6 @@ section ServerM
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     publishProgressAtPos m 0 (← read).hOut
     let st ← read
-    let headerAst ← parseHeaderAst m.text.source
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
@@ -283,12 +245,11 @@ section ServerM
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine
     let fw : FileWorker := {
-      doc                := ⟨m, headerAst⟩
+      doc                := m
       proc               := workerProc
       commTask           := Task.pure WorkerEvent.terminated
       state              := WorkerState.running
       pendingRequestsRef := pendingRequestsRef
-      groupedEditsRef    := ← IO.mkRef none
     }
     let commTask ← forwardMessages fw
     let fw : FileWorker := { fw with commTask := commTask }
@@ -334,11 +295,6 @@ section ServerM
       | do
         (←read).hLog.putStrLn s!"Cannot send message to unknown document '{uri}':\n{(toJson msg).compress}"
         return
-    let pendingEdit ← fw.groupedEditsRef.modifyGet fun
-      | some ge => (true, some { ge with queuedMsgs := ge.queuedMsgs.push msg })
-      | none    => (false, none)
-    if pendingEdit then
-      return
     match fw.state with
     | WorkerState.crashed queuedMsgs =>
       let mut queuedMsgs := queuedMsgs
@@ -348,7 +304,7 @@ section ServerM
         return
       -- restart the crashed FileWorker
       eraseFileWorker uri
-      startFileWorker fw.doc.meta
+      startFileWorker fw.doc
       let newFw ← findFileWorker! uri
       let mut crashedMsgs := #[]
       -- try to discharge all queued msgs, tracking the ones that we can't discharge
@@ -427,30 +383,21 @@ section NotificationHandling
        is a CR there. -/
     startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap⟩
 
-  def handleEdits (fw : FileWorker) : ServerM Unit := do
-    let some ge ← fw.groupedEditsRef.modifyGet (·, none)
-      | throwServerError "Internal error: empty grouped edits reference"
-    let doc := ge.params.textDocument
-    let changes := ge.params.contentChanges
+  def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
+    let doc := p.textDocument
+    let changes := p.contentChanges
+    let fw ← findFileWorker! p.textDocument.uri
     let oldDoc := fw.doc
     let some newVersion ← pure doc.version?
       | throwServerError "Expected version number"
-    if newVersion <= oldDoc.meta.version then
+    if newVersion <= oldDoc.version then
       throwServerError "Got outdated version number"
     if changes.isEmpty then
       return
-    let newDocText := foldDocumentChanges changes oldDoc.meta.text
-    let newMeta : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
-    let newHeaderAst ← parseHeaderAst newDocText.source
-    if newHeaderAst != oldDoc.headerAst then
-      terminateFileWorker doc.uri
-      startFileWorker newMeta
-    else
-      let newDoc : OpenDocument := ⟨newMeta, oldDoc.headerAst⟩
-      updateFileWorkers { fw with doc := newDoc }
-      tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" ge.params) (restartCrashedWorker := true)
-      for msg in ge.queuedMsgs do
-        tryWriteMessage doc.uri msg
+    let newDocText := foldDocumentChanges changes oldDoc.text
+    let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
+    updateFileWorkers { fw with doc := newDoc }
+    tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" p) (restartCrashedWorker := true)
 
   def handleDidClose (p : DidCloseTextDocumentParams) : ServerM Unit :=
     terminateFileWorker p.textDocument.uri
@@ -548,8 +495,8 @@ section MessageHandling
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
     let handle := (fun α [FromJson α] (handler : α → ServerM Unit) => parseParams α params >>= handler)
     match method with
-    | "textDocument/didOpen"            => handle DidOpenTextDocumentParams handleDidOpen
-    /- NOTE: textDocument/didChange is handled in the main loop. -/
+    | "textDocument/didOpen"            => handle _ handleDidOpen
+    | "textDocument/didChange"          => handle DidChangeTextDocumentParams handleDidChange
     | "textDocument/didClose"           => handle DidCloseTextDocumentParams handleDidClose
     | "workspace/didChangeWatchedFiles" => handle DidChangeWatchedFilesParams handleDidChangeWatchedFiles
     | "$/cancelRequest"                 => handle CancelParams handleCancelRequest
@@ -592,8 +539,6 @@ section MainLoop
     for (_, fw) in workers do
       if let WorkerState.running := fw.state then
         workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
-        if let some ge ← fw.groupedEditsRef.get then
-          workerTasks := workerTasks.push <| ge.signalTask.map (ServerEvent.workerEvent fw)
 
     let ev ← IO.waitAny (clientTask :: workerTasks.toList)
     match ev with
@@ -610,41 +555,6 @@ section MainLoop
         mainLoop (←runClientTask)
       | Message.responseError _ _ e .. =>
         throwServerError s!"Unhandled response error: {e}"
-      | Message.notification "textDocument/didChange" (some params) =>
-        let p ← parseParams DidChangeTextDocumentParams (toJson params)
-        let fw ← findFileWorker! p.textDocument.uri
-        let now ← monoMsNow
-        /- We wait `editDelay`ms since last edit before applying the changes. -/
-        let applyTime := now + st.editDelay
-        let queuedMsgs? ← fw.groupedEditsRef.modifyGet fun
-          | some ge => (some ge.queuedMsgs, some { ge with
-            applyTime := applyTime
-            params.textDocument := p.textDocument
-            params.contentChanges := ge.params.contentChanges ++ p.contentChanges
-            -- drain now-outdated messages and respond with `contentModified` below
-            queuedMsgs := #[] })
-          | none    => (none, some {
-            applyTime := applyTime
-            params := p
-            /- This is overwritten just below. -/
-            signalTask := Task.pure WorkerEvent.processGroupedEdits
-            queuedMsgs := #[] })
-        match queuedMsgs? with
-        | some queuedMsgs =>
-          for msg in queuedMsgs do
-            match msg with
-            | JsonRpc.Message.request id _ _ =>
-              fw.erasePendingRequest id
-              (← read).hOut.writeLspResponseError {
-                id := id
-                code := ErrorCode.contentModified
-                message := "File changed."
-              }
-            | _ => pure () -- notifications do not need to be cancelled
-        | _ =>
-          let t ← fw.runEditsSignalTask
-          fw.groupedEditsRef.modify (Option.map fun ge => { ge with signalTask := t } )
-        mainLoop (←runClientTask)
       | Message.notification method (some params) =>
         handleNotification method (toJson params)
         mainLoop (←runClientTask)
@@ -652,16 +562,16 @@ section MainLoop
     | ServerEvent.clientError e => throw e
     | ServerEvent.workerEvent fw ev =>
       match ev with
-      | WorkerEvent.processGroupedEdits =>
-        handleEdits fw
-        mainLoop clientTask
       | WorkerEvent.ioError e =>
-        throwServerError s!"IO error while processing events for {fw.doc.meta.uri}: {e}"
+        throwServerError s!"IO error while processing events for {fw.doc.uri}: {e}"
       | WorkerEvent.crashed _ =>
-        handleCrash fw.doc.meta.uri #[]
+        handleCrash fw.doc.uri #[]
         mainLoop clientTask
       | WorkerEvent.terminated =>
         throwServerError "Internal server error: got termination event for worker that should have been removed"
+      | .importsChanged =>
+        startFileWorker fw.doc
+        mainLoop clientTask
 end MainLoop
 
 def mkLeanServerCapabilities : ServerCapabilities := {
@@ -776,7 +686,6 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     args           := args
     fileWorkersRef := fileWorkersRef
     initParams     := initRequest.param
-    editDelay      := initRequest.param.initializationOptions? |>.bind InitializationOptions.editDelay? |>.getD 200
     workerPath
     srcSearchPath
     references

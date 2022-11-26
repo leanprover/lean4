@@ -142,6 +142,8 @@ abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compar
 
 structure WorkerState where
   doc             : EditableDocument
+  -- The initial header syntax tree. Changing the header requires restarting the worker process.
+  initHeaderStx   : Syntax
   pendingRequests : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
@@ -186,64 +188,66 @@ section Initialization
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
-      : IO (Snapshot × SearchPath) := do
+      : IO (Syntax × Task (Except Error (Snapshot × SearchPath))) := do
+    -- parsing should not take long, do synchronously
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
-    let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
-    let lakePath ← match (← IO.getEnv "LAKE") with
-      | some path => pure <| System.FilePath.mk path
-      | none =>
-        let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-          | some path => pure <| System.FilePath.mk path / "bin" / "lake"
-          | _         => pure <| (← appDir) / "lake"
-        pure <| lakePath.withExtension System.FilePath.exeExtension
-    let (headerEnv, msgLog) ← try
-      if let some path := System.Uri.fileUriToPath? m.uri then
-        -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
-        -- NOTE: lake does not exist in stage 0 (yet?)
-        if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
-          let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
-          srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
-      Elab.processHeader headerStx opts msgLog m.mkInputContext
-    catch e =>  -- should be from `lake print-paths`
-      let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-      pure (← mkEmptyEnvironment, msgs)
-    let mut headerEnv := headerEnv
-    try
-      if let some path := System.Uri.fileUriToPath? m.uri then
-        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
-    catch _ => pure ()
-    let cmdState := Elab.Command.mkState headerEnv msgLog opts
-    let cmdState := { cmdState with infoState := {
-      enabled := true
-      trees := #[Elab.InfoTree.context ({
-        env     := headerEnv
-        fileMap := m.text
-        ngen    := { namePrefix := `_worker }
-      }) (Elab.InfoTree.node
-          (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
-          (headerStx[1].getArgs.toList.map (fun importStx =>
-            Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-              elaborator := `import
-              stx := importStx
-            }) #[].toPArray'
-          )).toPArray'
-      )].toPArray'
-    }}
-    let headerSnap := {
-      beginPos := 0
-      stx := headerStx
-      mpState := headerParserState
-      cmdState := cmdState
-      interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
-      tacticCache := (← IO.mkRef {})
-    }
-    publishDiagnostics m headerSnap.diagnostics.toArray hOut
-    return (headerSnap, srcSearchPath)
+    (headerStx, ·) <$> EIO.asTask do
+      let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
+      let lakePath ← match (← IO.getEnv "LAKE") with
+        | some path => pure <| System.FilePath.mk path
+        | none =>
+          let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
+            | some path => pure <| System.FilePath.mk path / "bin" / "lake"
+            | _         => pure <| (← appDir) / "lake"
+          pure <| lakePath.withExtension System.FilePath.exeExtension
+      let (headerEnv, msgLog) ← try
+        if let some path := System.Uri.fileUriToPath? m.uri then
+          -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
+          -- NOTE: lake does not exist in stage 0 (yet?)
+          if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
+            let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
+            srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
+        Elab.processHeader headerStx opts msgLog m.mkInputContext
+      catch e =>  -- should be from `lake print-paths`
+        let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
+        pure (← mkEmptyEnvironment, msgs)
+      let mut headerEnv := headerEnv
+      try
+        if let some path := System.Uri.fileUriToPath? m.uri then
+          headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+      catch _ => pure ()
+      let cmdState := Elab.Command.mkState headerEnv msgLog opts
+      let cmdState := { cmdState with infoState := {
+        enabled := true
+        trees := #[Elab.InfoTree.context ({
+          env     := headerEnv
+          fileMap := m.text
+          ngen    := { namePrefix := `_worker }
+        }) (Elab.InfoTree.node
+            (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
+            (headerStx[1].getArgs.toList.map (fun importStx =>
+              Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+                elaborator := `import
+                stx := importStx
+              }) #[].toPArray'
+            )).toPArray'
+        )].toPArray'
+      }}
+      let headerSnap := {
+        beginPos := 0
+        stx := headerStx
+        mpState := headerParserState
+        cmdState := cmdState
+        interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
+        tacticCache := (← IO.mkRef {})
+      }
+      publishDiagnostics m headerSnap.diagnostics.toArray hOut
+      return (headerSnap, srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let headerTask ← EIO.asTask <| compileHeader meta o opts (hasWidgets := clientHasWidgets)
+    let (headerStx, headerTask) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
     let cancelTk ← CancelToken.new
     let ctx :=
       { hIn  := i
@@ -256,9 +260,10 @@ section Initialization
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
       | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
       | Except.error e   => throw (e : ElabTaskError))
-    let doc : EditableDocument := ⟨meta, AsyncList.delayed cmdSnaps, cancelTk⟩
+    let doc : EditableDocument := { meta, cmdSnaps := AsyncList.delayed cmdSnaps, cancelTk }
     return (ctx,
     { doc             := doc
+      initHeaderStx   := headerStx
       pendingRequests := RBMap.empty
       rpcSessions     := RBMap.empty
     })
@@ -272,19 +277,22 @@ section Updates
   def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
     let oldDoc := (←get).doc
-    -- The watchdog only restarts the file worker when the semantic content of the header changes.
-    -- If e.g. a newline is deleted, it will not restart this file worker, but we still
-    -- need to reparse the header so that the offsets are correct.
+    oldDoc.cancelTk.set
+    let initHeaderStx := (← get).initHeaderStx
     let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
     let cancelTk ← CancelToken.new
     -- Wait for at least one snapshot from the old doc, we don't want to unnecessarily re-run `print-paths`
     let headSnapTask := oldDoc.cmdSnaps.waitHead?
-    let newSnaps ← EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) fun headSnap?? => do
+    let newSnaps ← if initHeaderStx != newHeaderStx then
+      EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
+        IO.sleep ctx.initParams.editDelay.toUInt32
+        cancelTk.check
+        IO.Process.exit 2
+    else EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
       let headSnap? ← MonadExcept.ofExcept headSnap??
       -- There is always at least one snapshot absent exceptions
       let headSnap := headSnap?.get!
       let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
-      oldDoc.cancelTk.set
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
       let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
@@ -306,8 +314,11 @@ section Updates
         let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
+      -- wait for a bit, giving the initial `cancelTk.check` in `nextCmdSnap` time to trigger
+      -- before kicking off any expensive elaboration (TODO: make expensive elaboration cancelable)
+      IO.sleep ctx.initParams.editDelay.toUInt32
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
-    modify fun st => { st with doc := ⟨newMeta, AsyncList.delayed newSnaps, cancelTk⟩ }
+    modify fun st => { st with doc := { meta := newMeta, cmdSnaps := AsyncList.delayed newSnaps, cancelTk } }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

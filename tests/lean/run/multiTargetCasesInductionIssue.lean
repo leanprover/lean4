@@ -15,7 +15,7 @@ def Vec.casesOn
     match n, as, h with
     | 0,   [],    _ => nil
     | n+1, a::as, h =>
-      have : as.length = n := by injection h; assumption
+      have : as.length = n := by injection h
       have ih : motive n ⟨as, this⟩ := go n as this
       cons n a ⟨as, this⟩ ih
   match as with

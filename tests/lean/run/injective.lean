@@ -6,7 +6,7 @@ structure InjectiveFunction (α : Type u) (β : Type v) where
 
 def add1 : InjectiveFunction Nat Nat where
   fn a      := a + 1
-  inj a b h := by injection h; assumption
+  inj a b h := by injection h
 
 instance : CoeFun (InjectiveFunction α β) (fun _ => α → β) where
   coe s := s.fn

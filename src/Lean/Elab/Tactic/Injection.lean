@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Tactic.Assumption
 import Lean.Meta.Tactic.Injection
 import Lean.Elab.Tactic.ElabTerm
 namespace Lean.Elab.Tactic
@@ -25,13 +26,13 @@ private def checkUnusedIds (tacticName : Name) (mvarId : MVarId) (unusedIds : Li
   liftMetaTactic fun mvarId => do
     match (← Meta.injection mvarId fvarId ids) with
     | .solved                      => checkUnusedIds `injection mvarId ids; return []
-    | .subgoal mvarId' _ unusedIds => checkUnusedIds `injection mvarId unusedIds; return [mvarId']
+    | .subgoal mvarId' _ unusedIds => checkUnusedIds `injection mvarId unusedIds; mvarId'.tryAssumption
 
 @[builtin_tactic «injections»] def evalInjections : Tactic := fun stx => do
   let ids := stx[1].getArgs.toList.map getNameOfIdent'
   liftMetaTactic fun mvarId => do
     match (← Meta.injections mvarId ids) with
     | .solved                    => checkUnusedIds `injections mvarId ids; return []
-    | .subgoal mvarId' unusedIds => checkUnusedIds `injections mvarId unusedIds; return [mvarId']
+    | .subgoal mvarId' unusedIds => checkUnusedIds `injections mvarId unusedIds; mvarId'.tryAssumption
 
 end Lean.Elab.Tactic

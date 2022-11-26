@@ -34,6 +34,11 @@ def _root_.Lean.MVarId.assumption (mvarId : MVarId) : MetaM Unit :=
   unless (← mvarId.assumptionCore) do
     throwTacticEx `assumption mvarId ""
 
+/-- Try to close goal `mvarId` using an assumption.
+Return `[]` if that succeeds, or `[mvarId]` otherwise. -/
+def _root_.Lean.MVarId.tryAssumption (mvarId : MVarId) : MetaM (List MVarId) :=
+  return if (← mvarId.assumptionCore) then [] else [mvarId]
+
 @[deprecated MVarId.assumption]
 def assumption (mvarId : MVarId) : MetaM Unit :=
   mvarId.assumption

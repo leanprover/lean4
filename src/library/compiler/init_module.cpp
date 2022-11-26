@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/compiler/ll_infer_type.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/ir_interpreter.h"
-#include "library/compiler/llvm.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -30,7 +29,6 @@ void initialize_compiler_module() {
     initialize_ll_infer_type();
     initialize_ir();
     initialize_ir_interpreter();
-    llvm::initialize_llvm();
 }
 
 void finalize_compiler_module() {
@@ -45,6 +43,5 @@ void finalize_compiler_module() {
     finalize_elim_dead_let();
     finalize_lcnf();
     finalize_compiler_util();
-    llvm::finalize_llvm();
 }
 }

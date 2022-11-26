@@ -20,24 +20,6 @@ Lean's IR.
 #define LLVM_DEBUG 0
 
 #ifdef LEAN_LLVM
-extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
-                                                      lean_object *);
-#endif
-
-namespace lean {
-namespace llvm {
-void initialize_llvm() {
-#ifdef LEAN_LLVM
-  initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, lean_io_mk_world());
-#endif
-}
-
-void finalize_llvm() {}
-}  // namespace llvm
-}  // namespace lean
-
-
-#ifdef LEAN_LLVM
 #include <llvm-c/BitReader.h>
 #include <llvm-c/BitWriter.h>
 #include <llvm-c/Core.h>
@@ -1646,9 +1628,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
     // We currently choose not to invoke LLVMInitializeAllTargetInfos() etc.
     // since our build system only enables certain backends.
     // LLVMInitializeNativeTargetInfo();
-    LLVMInitializeNativeTarget();
-    LLVMInitializeNativeAsmParser();
-    LLVMInitializeNativeAsmPrinter();
 
     if (LLVM_DEBUG) {
         fprintf(stderr, "%s ; target_machine: %p \n", __PRETTY_FUNCTION__,

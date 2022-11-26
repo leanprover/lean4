@@ -56,6 +56,10 @@ Author: Leonardo de Moura
 #include <dlfcn.h>
 #endif
 
+#ifdef LEAN_LLVM
+#include <llvm-c/Target.h>
+#endif
+
 #ifdef _MSC_VER
 // extremely simple implementation of getopt.h
 enum arg_opt { no_argument, required_argument, optional_argument };
@@ -168,6 +172,13 @@ using namespace lean; // NOLINT
 #ifndef LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
 #define LEAN_SERVER_DEFAULT_MAX_HEARTBEAT 100000
 #endif
+
+#ifdef LEAN_LLVM
+extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
+                                                      lean_object *);
+#endif
+
+
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
@@ -740,6 +751,12 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
 
         if (llvm_output && ok) {
+            initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, lean_io_mk_world());
+#ifdef LEAN_LLVM
+            LLVMInitializeNativeTarget();
+            LLVMInitializeNativeAsmParser();
+            LLVMInitializeNativeAsmPrinter();
+#endif
             time_task _("LLVM code generation", opts);
             lean::ir::emit_llvm(env, *main_module_name, *llvm_output);
         }

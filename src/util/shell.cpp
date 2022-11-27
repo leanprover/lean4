@@ -173,11 +173,8 @@ using namespace lean; // NOLINT
 #define LEAN_SERVER_DEFAULT_MAX_HEARTBEAT 100000
 #endif
 
-#ifdef LEAN_LLVM
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
-#endif
-
 extern "C" object *lean_ir_emit_llvm(object *env, object *mod_name,
                                      object *filepath, object *w);
 

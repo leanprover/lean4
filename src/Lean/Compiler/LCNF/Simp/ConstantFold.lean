@@ -245,6 +245,33 @@ def Folder.rightAnnihilator [Literal α] [BEq α] (annihilator : α) (zero : α)
   unless arg == annihilator do return none
   mkLit zero
 
+def Folder.divShift [Literal α] [BEq α] (shiftRight : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
+  unless (← getEnv).contains shiftRight do return none
+  let #[lhs, .fvar fvarId] := args | return none
+  let some rhs ← getLit fvarId | return none
+  let exponent := log2 rhs
+  unless pow2 exponent == rhs do return none
+  let shiftLit ← mkAuxLit exponent
+  return some <| .const shiftRight [] #[lhs, .fvar shiftLit]
+
+def Folder.mulRhsShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
+  unless (← getEnv).contains shiftLeft do return none
+  let #[lhs, .fvar fvarId] := args | return none
+  let some rhs ← getLit fvarId | return none
+  let exponent := log2 rhs
+  unless pow2 exponent == rhs do return none
+  let shiftLit ← mkAuxLit exponent
+  return some <| .const shiftLeft [] #[lhs, .fvar shiftLit]
+
+def Folder.mulLhsShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder := fun args => do
+  unless (← getEnv).contains shiftLeft do return none
+  let #[.fvar fvarId, rhs] := args | return none
+  let some lhs ← getLit fvarId | return none
+  let exponent := log2 lhs
+  unless pow2 exponent == lhs do return none
+  let shiftLit ← mkAuxLit exponent
+  return some <| .const shiftLeft [] #[rhs, .fvar shiftLit]
+
 /--
 Pick the first folder out of `folders` that succeeds.
 -/
@@ -276,31 +303,34 @@ def higherOrderLiteralFolders : List (Name × Folder) := [
   (``List.toArray, foldArrayLiteral)
 ]
 
+def Folder.mulShift [Literal α] [BEq α] (shiftLeft : Name) (pow2 : α → α) (log2 : α → α) : Folder :=
+  Folder.first #[Folder.mulLhsShift shiftLeft pow2 log2, Folder.mulRhsShift shiftLeft pow2 log2]
+
 /--
 All arithmetic folders.
 -/
 def arithmeticFolders : List (Name × Folder) := [
- (``Nat.succ, Folder.mkUnary Nat.succ),
- (``Nat.add,    Folder.first #[Folder.mkBinary Nat.add, Folder.leftRightNeutral 0]),
- (``UInt8.add,  Folder.first #[Folder.mkBinary UInt8.add, Folder.leftRightNeutral (0 : UInt8)]),
- (``UInt16.add,  Folder.first #[Folder.mkBinary UInt16.add, Folder.leftRightNeutral (0 : UInt16)]),
- (``UInt32.add,  Folder.first #[Folder.mkBinary UInt32.add, Folder.leftRightNeutral (0 : UInt32)]),
- (``UInt64.add,  Folder.first #[Folder.mkBinary UInt64.add, Folder.leftRightNeutral (0 : UInt64)]),
- (``Nat.sub,    Folder.first #[Folder.mkBinary Nat.sub, Folder.leftRightNeutral 0]),
- (``UInt8.sub,  Folder.first #[Folder.mkBinary UInt8.sub, Folder.leftRightNeutral (0 : UInt8)]),
- (``UInt16.sub,  Folder.first #[Folder.mkBinary UInt16.sub, Folder.leftRightNeutral (0 : UInt16)]),
- (``UInt32.sub,  Folder.first #[Folder.mkBinary UInt32.sub, Folder.leftRightNeutral (0 : UInt32)]),
- (``UInt64.sub,  Folder.first #[Folder.mkBinary UInt64.sub, Folder.leftRightNeutral (0 : UInt64)]),
- (``Nat.mul,    Folder.first #[Folder.mkBinary Nat.mul, Folder.leftRightNeutral 1, Folder.leftRightAnnihilator 0 0]),
- (``UInt8.mul,  Folder.first #[Folder.mkBinary UInt8.mul, Folder.leftRightNeutral (1 : UInt8), Folder.leftRightAnnihilator (0 : UInt8) 0]),
- (``UInt16.mul,  Folder.first #[Folder.mkBinary UInt16.mul, Folder.leftRightNeutral (1 : UInt16), Folder.leftRightAnnihilator (0 : UInt16) 0]),
- (``UInt32.mul,  Folder.first #[Folder.mkBinary UInt32.mul, Folder.leftRightNeutral (1 : UInt32), Folder.leftRightAnnihilator (0 : UInt32) 0]),
- (``UInt64.mul,  Folder.first #[Folder.mkBinary UInt64.mul, Folder.leftRightNeutral (1 : UInt64), Folder.leftRightAnnihilator (0 : UInt64) 0]),
- (``Nat.div,    Folder.first #[Folder.mkBinary Nat.div, Folder.rightNeutral 1]),
- (``UInt8.div,  Folder.first #[Folder.mkBinary UInt8.div, Folder.rightNeutral (1 : UInt8)]),
- (``UInt16.div,  Folder.first #[Folder.mkBinary UInt16.div, Folder.rightNeutral (1 : UInt16)]),
- (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32)]),
- (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64)])
+  (``Nat.succ, Folder.mkUnary Nat.succ),
+  (``Nat.add,    Folder.first #[Folder.mkBinary Nat.add, Folder.leftRightNeutral 0]),
+  (``UInt8.add,  Folder.first #[Folder.mkBinary UInt8.add, Folder.leftRightNeutral (0 : UInt8)]),
+  (``UInt16.add,  Folder.first #[Folder.mkBinary UInt16.add, Folder.leftRightNeutral (0 : UInt16)]),
+  (``UInt32.add,  Folder.first #[Folder.mkBinary UInt32.add, Folder.leftRightNeutral (0 : UInt32)]),
+  (``UInt64.add,  Folder.first #[Folder.mkBinary UInt64.add, Folder.leftRightNeutral (0 : UInt64)]),
+  (``Nat.sub,    Folder.first #[Folder.mkBinary Nat.sub, Folder.leftRightNeutral 0]),
+  (``UInt8.sub,  Folder.first #[Folder.mkBinary UInt8.sub, Folder.leftRightNeutral (0 : UInt8)]),
+  (``UInt16.sub,  Folder.first #[Folder.mkBinary UInt16.sub, Folder.leftRightNeutral (0 : UInt16)]),
+  (``UInt32.sub,  Folder.first #[Folder.mkBinary UInt32.sub, Folder.leftRightNeutral (0 : UInt32)]),
+  (``UInt64.sub,  Folder.first #[Folder.mkBinary UInt64.sub, Folder.leftRightNeutral (0 : UInt64)]),
+  (``Nat.mul,    Folder.first #[Folder.mkBinary Nat.mul, Folder.leftRightNeutral 1, Folder.leftRightAnnihilator 0 0, Folder.mulShift ``Nat.shiftLeft (Nat.pow 2) Nat.log2]),
+  (``UInt8.mul,  Folder.first #[Folder.mkBinary UInt8.mul, Folder.leftRightNeutral (1 : UInt8), Folder.leftRightAnnihilator (0 : UInt8) 0, Folder.mulShift ``UInt8.shiftLeft (UInt8.shiftLeft 1 ·) UInt8.log2]),
+  (``UInt16.mul,  Folder.first #[Folder.mkBinary UInt16.mul, Folder.leftRightNeutral (1 : UInt16), Folder.leftRightAnnihilator (0 : UInt16) 0, Folder.mulShift ``UInt16.shiftLeft (UInt16.shiftLeft 1 ·) UInt16.log2]),
+  (``UInt32.mul,  Folder.first #[Folder.mkBinary UInt32.mul, Folder.leftRightNeutral (1 : UInt32), Folder.leftRightAnnihilator (0 : UInt32) 0, Folder.mulShift ``UInt32.shiftLeft (UInt32.shiftLeft 1 ·) UInt32.log2]),
+  (``UInt64.mul,  Folder.first #[Folder.mkBinary UInt64.mul, Folder.leftRightNeutral (1 : UInt64), Folder.leftRightAnnihilator (0 : UInt64) 0, Folder.mulShift ``UInt64.shiftLeft (UInt64.shiftLeft 1 ·) UInt64.log2]),
+  (``Nat.div,    Folder.first #[Folder.mkBinary Nat.div, Folder.rightNeutral 1, Folder.divShift ``Nat.shiftRight (Nat.pow 2) Nat.log2]),
+  (``UInt8.div,  Folder.first #[Folder.mkBinary UInt8.div, Folder.rightNeutral (1 : UInt8), Folder.divShift ``UInt8.shiftRight (UInt8.shiftLeft 1 ·) UInt8.log2]),
+  (``UInt16.div,  Folder.first #[Folder.mkBinary UInt16.div, Folder.rightNeutral (1 : UInt16), Folder.divShift ``UInt16.shiftRight (UInt16.shiftLeft 1 ·) UInt16.log2]),
+  (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32), Folder.divShift ``UInt32.shiftRight (UInt32.shiftLeft 1 ·) UInt32.log2]),
+  (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2])
 ]
 
 def relationFolders : List (Name × Folder) := [

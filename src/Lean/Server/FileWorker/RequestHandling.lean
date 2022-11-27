@@ -140,8 +140,10 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
         if let some info := ci.env.getProjectionFnInfo? n then
           let mut result ←
             if let some ei := i.toElabInfo? then do
-              -- also include elaborator along with instance results
-              ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+              if ei.elaborator != `Delab && ei.elaborator != `Lean.Elab.Term.elabApp then do
+                -- also include elaborator along with instance results
+                ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
+              else pure default
             else pure default
           let instIdx := info.numParams
           let appArgs := expr.getAppArgs

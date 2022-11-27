@@ -5,3 +5,4 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
+import Init.Data.Fin.Log2

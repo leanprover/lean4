@@ -27,3 +27,11 @@ Computes `⌊max 0 (log₂ n)⌋`.
 def log2 (n : @& Nat) : Nat :=
   if n ≥ 2 then log2 (n / 2) + 1 else 0
 decreasing_by exact log2_terminates _ ‹_›
+
+theorem log2_le_self (n : Nat) : Nat.log2 n ≤ n := by
+  unfold Nat.log2; split
+  · next h =>
+    have := log2_le_self (n / 2)
+    exact Nat.lt_of_le_of_lt this (Nat.div_lt_self (Nat.le_of_lt h) (by decide))
+  · apply Nat.zero_le
+decreasing_by exact Nat.log2_terminates _ ‹_›

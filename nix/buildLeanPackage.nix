@@ -193,9 +193,11 @@ with builtins; let
   # recursion to memoize common dependencies.
   buildModAndDeps = mod: modMap: if modMap ? ${mod} || externalModMap ? ${mod} then modMap else
     let
-      deps = if modDepsMap.${mod}.errors == []
+      deps = if modDepsMap ? ${mod}
+             then if modDepsMap.${mod}.errors == []
              then map (m: m.module) modDepsMap.${mod}.imports
-             else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" modDepsMap.${mod}.errors}";
+             else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" modDepsMap.${mod}.errors}"
+             else [];
       modMap' = lib.foldr buildModAndDeps modMap deps;
     in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
   makeEmacsWrapper = name: emacs: lean: writeShellScriptBin name ''

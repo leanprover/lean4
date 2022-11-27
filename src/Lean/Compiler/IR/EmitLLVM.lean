@@ -810,6 +810,8 @@ def emitSimpleExternalCall
 
 
 
+-- TODO: if the external call is one that we cannot code generate, give up and generate
+-- fallback code.
 def emitExternCall (builder: LLVM.Builder llvmctx)
   (f : FunId)
   (ps : Array Param)
@@ -819,7 +821,7 @@ def emitExternCall (builder: LLVM.Builder llvmctx)
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall builder extFn ps ys retty name
   | some (ExternEntry.inline "llvm" _pat)     => throw (Error.unimplemented "unimplemented codegen of inline LLVM")
-  | some (ExternEntry.inline _ _pat)     => throw (Error.compileError "cannot codegen non-LLVM inline code")
+  | some (ExternEntry.inline _ pat)     => throw (Error.compileError s!"cannot codegen non-LLVM inline code '{pat}'")
   | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall builder extFn ps ys retty name
   | _ => throw (Error.compileError s!"failed to emit extern application '{f}'")
 

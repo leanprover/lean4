@@ -187,3 +187,10 @@ def toArray (m : HashSet α) : Array α :=
 
 def numBuckets (m : HashSet α) : Nat :=
   m.val.buckets.val.size
+
+/-- Insert many elements into a HashSet. -/
+def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.run do
+  let mut s := s
+  for a in as do
+    s := s.insert a
+  return s

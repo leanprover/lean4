@@ -178,7 +178,8 @@ extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
 #endif
 
-
+extern "C" object *lean_ir_emit_llvm(object *env, object *mod_name,
+                                     object *filepath, object *w);
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
@@ -751,14 +752,25 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
 
         if (llvm_output && ok) {
-            initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false, lean_io_mk_world());
+          initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
+                                               lean_io_mk_world());
 #ifdef LEAN_LLVM
-            LLVMInitializeNativeTarget();
-            LLVMInitializeNativeAsmParser();
-            LLVMInitializeNativeAsmPrinter();
+          LLVMInitializeNativeTarget();
+          LLVMInitializeNativeAsmParser();
+          LLVMInitializeNativeAsmPrinter();
 #endif
-            time_task _("LLVM code generation", opts);
-            lean::ir::emit_llvm(env, *main_module_name, *llvm_output);
+          time_task _("LLVM code generation", opts);
+          object *r = lean_ir_emit_llvm(
+              env.to_obj_arg(), (*main_module_name).to_obj_arg(),
+              lean::string_ref(*llvm_output).to_obj_arg(), lean_io_mk_world());
+          if (lean_io_result_is_ok(r)) {
+            dec_ref(r);
+          } else {
+            string_ref s(lean_io_result_get_error(r), true);
+            dec_ref(r);  // TODO: This is correct reference count handling,
+                         // correct?
+            throw exception(s.to_std_string());
+          }
         }
 
         display_cumulative_profiling_times(std::cerr);

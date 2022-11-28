@@ -35,7 +35,7 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
   | [a]   =>
     intro n h
     have : 1 = n + 1 := h
-    have : 0 = n := by injection this; assumption
+    have : 0 = n := by injection this
     subst this
     rfl
   | x₁::x₂::xs =>
@@ -46,7 +46,7 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
       injection h
     | succ n =>
       have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
-      have : xs.length = n := by rw [this] at h; injection h with h; injection h with h; assumption
+      have : xs.length = n := by rw [this] at h; injection h with h; injection h
       simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
 
 @[inline]

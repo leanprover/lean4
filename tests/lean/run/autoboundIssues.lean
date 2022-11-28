@@ -1,8 +1,8 @@
 example : n.succ = 1 → n = 0 := by
-  intros h; injection h; assumption
+  intros h; injection h
 
 example (h : n.succ = 1) : n = 0 := by
-  injection h; assumption
+  injection h
 
 opaque T : Type
 opaque T.Pred : T → T → Prop

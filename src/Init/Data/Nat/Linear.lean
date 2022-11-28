@@ -617,7 +617,7 @@ attribute [local simp] PolyCnstr.denote_combine
 theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = some k → p.denote ctx = k := by
   simp [isNum?]
   split
-  next => intro h; injection h; subst k; simp
+  next => intro h; injection h
   next k v => by_cases h : v == fixedVar <;> simp [h]; intros; simp [Var.denote, eq_of_beq h]; assumption
   next => intros; contradiction
 

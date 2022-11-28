@@ -41,13 +41,8 @@ syntax (name := elabTest) "test" : term
   Lean.Elab.Term.withMacroExpansion orig stx $ Lean.Elab.Term.elabTerm stx none
 
      --v textDocument/declaration
-set_option trace.Elab.step true in
 #check test
      --^ textDocument/definition
-
-def temp := test
-
-#print temp
 
 def Baz (α : Type) := α
 
@@ -55,6 +50,7 @@ def Baz (α : Type) := α
                           --^ textDocument/typeDefinition
 
 example : toString 1 = "1" := rfl
+        --^ textDocument/definition
 
 example : Nat :=
   let a := 1
@@ -78,19 +74,40 @@ class Foo3 [Foo2] where
 class inductive Foo4 : Nat → Type where
 | mk : Nat → Foo4 0
 
+def Foo4.foo : [Foo4 n] → Nat
+| .mk n => n
+
+class Foo5 where
+  foo : Foo2
+
+
 instance : Foo2 := .mk id 0
 instance : Foo3 := .mk 0
+instance : Foo4 0 := .mk 0
+instance [foo2 : Foo2] : Foo5 := .mk foo2
 
+-- should go-to instance
 #check Foo2.foo 2
           --^ textDocument/definition
 #check Foo2.foo
           --^ textDocument/definition
 #check Foo2.foo'
           --^ textDocument/definition
+
+-- should go-to projection
 #check @Foo2.foo
            --^ textDocument/definition
 
+-- test that the correct instance index is extracted
 #check Foo3.foo
+          --^ textDocument/definition
+
+-- non-projections should not go-to instance
+#check Foo4.foo
+
+set_option pp.all true in
+-- test that multiple instances can be extracted
+#check Foo5.foo
           --^ textDocument/definition
 
 -- duplicate definitions link to the original

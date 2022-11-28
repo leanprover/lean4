@@ -137,10 +137,11 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
       expr ← ci.runMetaM i.lctx do instantiateMVars expr
       match expr.getAppFn with
       | .const n _ =>
+        let mut results ← ci.runMetaM i.lctx <| locationLinksFromDecl i n
         if let some info := ci.env.getProjectionFnInfo? n then
           let mut result ←
             if let some ei := i.toElabInfo? then do
-              if ei.elaborator != `Delab && ei.elaborator != `Lean.Elab.Term.elabApp then do
+              if ei.elaborator != `Delab && ei.elaborator != `Lean.Elab.Term.elabApp && ei.elaborator != `Lean.Elab.Term.elabIdent then do
                 -- also include elaborator along with instance results
                 ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
               else pure default
@@ -154,8 +155,9 @@ def locationLinksOfInfo (kind : GoToKind) (ci : Elab.ContextInfo) (i : Elab.Info
             | _ => pure #[]
           if appArgs.size > instIdx then
             let instArg := appArgs.get! instIdx
-            return ← (← extractInstances instArg).foldlM (init := result) fun acc n => do
+            results := results.append <| ← (← extractInstances instArg).foldlM (init := result) fun acc n => do
               pure $ acc.append (← ci.runMetaM i.lctx <| locationLinksFromDecl i n)
+        return results
       | _ => pure ()
   | .ofFieldInfo fi =>
     if kind == type then

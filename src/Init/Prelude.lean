@@ -3985,8 +3985,10 @@ produce different identifiers.
 abbrev MacroScope := Nat
 /-- Macro scope used internally. It is not available for our frontend. -/
 def reservedMacroScope := 0
-/-- First macro scope available for our frontend -/
-def firstFrontendMacroScope := hAdd reservedMacroScope 1
+/-- Macro scope used to encode private names. -/
+def privateMacroScope := 1
+/-- First macro scope available for our frontend. -/
+def firstFrontendMacroScope := hAdd privateMacroScope 1
 
 /--
 A `MonadRef` is a monad that has a `ref : Syntax` in the read-only state.

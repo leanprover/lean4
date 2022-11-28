@@ -173,7 +173,7 @@ ENDFOREACH(T)
 # Create a lake test for each subdirectory of `lake/examples` which contains a `test.sh` file.
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*lean_packages.*")
+  if(NOT T MATCHES ".*lake-packages.*")
   if(NOT T MATCHES ".*bootstrap.*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)

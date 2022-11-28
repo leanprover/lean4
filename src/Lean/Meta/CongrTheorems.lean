@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.AppBuilder
+import Lean.Class
 
 namespace Lean.Meta
 
@@ -169,29 +170,64 @@ private def shouldUseSubsingletonInst (info : FunInfo) (kinds : Array CongrArgKi
         return true
   return false
 
+/--
+If `f` is a class constructor, return a bitmask `m` s.t. `m[i]` is true if the `i`-th parameter
+corresponds to a subobject field.
+
+We use this function to implement the special support for class constructors at `getCongrSimpKinds`.
+See issue #1808
+-/
+private def getClassSubobjectMask? (f : Expr) : MetaM (Option (Array Bool)) := do
+  let .const declName _ := f | return none
+  let .ctorInfo val ← getConstInfo declName | return none
+  unless isClass (← getEnv) val.induct do return none
+  forallTelescopeReducing val.type fun xs _ => do
+    let env ← getEnv
+    let mut mask := #[]
+    for i in [:xs.size] do
+      if i < val.numParams then
+        mask := mask.push false
+      else
+        let localDecl ← xs[i]!.fvarId!.getDecl
+        mask := mask.push (isSubobjectField? env val.induct localDecl.userName).isSome
+    return some mask
+
 /-- Compute `CongrArgKind`s for a simp congruence theorem. -/
-def getCongrSimpKinds (info : FunInfo) : Array CongrArgKind := Id.run do
-  /- The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
-     argument. However, if there are references from `i` to `j`, we cannot
-     rewrite both `i` and `j`. So we must change the `CongrArgKind` at
-     either `i` or `j`. In principle, if there is a dependency with `i`
-     appearing after `j`, then we set `j` to `fixed` (or `cast`). But there is
-     an optimization: if `i` is a subsingleton, we can fix it instead of
-     `j`, since all subsingletons are equal anyway. The fixing happens in
-      two loops: one for the special cases, and one for the general case. -/
+def getCongrSimpKinds (f : Expr) (info : FunInfo) : MetaM (Array CongrArgKind) := do
+  /-
+  The default `CongrArgKind` is `eq`, which allows `simp` to rewrite this
+  argument. However, if there are references from `i` to `j`, we cannot
+  rewrite both `i` and `j`. So we must change the `CongrArgKind` at
+  either `i` or `j`. In principle, if there is a dependency with `i`
+  appearing after `j`, then we set `j` to `fixed` (or `cast`). But there is
+  an optimization: if `i` is a subsingleton, we can fix it instead of
+  `j`, since all subsingletons are equal anyway. The fixing happens in
+  two loops: one for the special cases, and one for the general case.
+
+  This method has special support for class constructors.
+  For this kind of function, we treat subobject fields as regular parameters instead of instance implicit ones.
+  We added this feature because of issue #1808
+  -/
   let mut result := #[]
+  let mask? ← getClassSubobjectMask? f
   for i in [:info.paramInfo.size] do
     if info.resultDeps.contains i then
-      result := result.push CongrArgKind.fixed
+      result := result.push .fixed
     else if info.paramInfo[i]!.isProp then
-      result := result.push CongrArgKind.cast
+      result := result.push .cast
     else if info.paramInfo[i]!.isInstImplicit then
+      if let some mask := mask? then
+        if h : i < mask.size then
+          if mask[i] then
+            -- Parameter is a subobect field of a class constructor. See comment above.
+            result := result.push .eq
+            continue
       if shouldUseSubsingletonInst info result i then
-        result := result.push CongrArgKind.subsingletonInst
+        result := result.push .subsingletonInst
       else
-        result := result.push CongrArgKind.fixed
+        result := result.push .fixed
     else
-      result := result.push CongrArgKind.eq
+      result := result.push .eq
   return fixKindsForDependencies info result
 
 /--
@@ -290,6 +326,6 @@ For the `congr` tactic we set it to `false`.
 def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM (Option CongrTheorem) := do
   let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
-  mkCongrSimpCore? f info (getCongrSimpKinds info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
+  mkCongrSimpCore? f info (← getCongrSimpKinds f info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
 
 end Lean.Meta

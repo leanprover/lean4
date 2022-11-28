@@ -390,7 +390,7 @@ where
       -- We always use simple congruence theorems for auxiliary match applications
       return none
     let info ← getFunInfo f
-    let kinds := getCongrSimpKinds info
+    let kinds ← getCongrSimpKinds f info
     if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
       /- If all argument kinds are `fixed` or `eq`, then using
          simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/

@@ -30,7 +30,7 @@ def libFileContents :=
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
 
-def mainFileContents (libRoot : Name) :=
+def mainFileContents (libRoot : String) :=
 s!"import {libRoot}
 
 def main : IO Unit :=
@@ -42,7 +42,7 @@ s!"def main : IO Unit :=
   IO.println s!\"Hello, world!\"
 "
 
-def stdConfigFileContents (pkgName : Name) (root : Name) :=
+def stdConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -50,7 +50,7 @@ package {pkgName} \{
   -- add package configuration options here
 }
 
-lean_lib {root} \{
+lean_lib {libRoot} \{
   -- add library configuration options here
 }
 
@@ -60,7 +60,7 @@ lean_exe {pkgName} \{
 }
 "
 
-def exeConfigFileContents (pkgName : Name) (exeRoot : Name) :=
+def exeConfigFileContents (pkgName exeRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -74,7 +74,7 @@ lean_exe {exeRoot} \{
 }
 "
 
-def libConfigFileContents (pkgName : Name) (libRoot : Name) :=
+def libConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -88,7 +88,7 @@ lean_lib {libRoot} \{
 }
 "
 
-def mathConfigFileContents (pkgName : Name) (libRoot : Name) :=
+def mathConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -110,6 +110,8 @@ inductive InitTemplate
 | std | exe | lib | math
 deriving Repr, DecidableEq
 
+instance : Inhabited InitTemplate := ⟨.std⟩
+
 def InitTemplate.parse? : String → Option InitTemplate
 | "std" => some .std
 | "exe" => some .exe
@@ -117,13 +119,19 @@ def InitTemplate.parse? : String → Option InitTemplate
 | "math" => some .math
 | _ => none
 
-def InitTemplate.configFileContents (pkgName root : Name) : InitTemplate → String
+def InitTemplate.configFileContents (pkgName root : String) : InitTemplate → String
 | .std => stdConfigFileContents pkgName root
 | .lib => libConfigFileContents pkgName root
 | .exe => exeConfigFileContents pkgName root
 | .math => mathConfigFileContents pkgName root
 
-instance : Inhabited InitTemplate := ⟨.std⟩
+def escapeName! : Name → String
+| .anonymous        => "[anonymous]"
+| .str .anonymous s => escape s
+| .str n s          => escapeName! n ++ "." ++ escape s
+| _                 => unreachable!
+where
+  escape s :=  Lean.idBeginEscape.toString ++ s ++ Lean.idEndEscape.toString
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit := do
@@ -146,7 +154,9 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
   let configFile := dir / defaultConfigFile
   if (← configFile.pathExists) then
     error  "package already initialized"
-  IO.FS.writeFile configFile <| tmp.configFileContents pkgName root
+  let rootNameStr := escapeName! root
+  let contents := tmp.configFileContents (escapeName! pkgName) rootNameStr
+  IO.FS.writeFile configFile contents
 
   -- write example code if the files do not already exist
   if tmp = .exe then
@@ -159,7 +169,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
     if tmp = .std then
       let mainFile := dir / mainFileName
       unless (← mainFile.pathExists) do
-        IO.FS.writeFile mainFile <| mainFileContents root
+        IO.FS.writeFile mainFile <| mainFileContents rootNameStr
 
   -- write Lean's toolchain to file (if it has one) for `elan`
   if Lean.toolchain ≠ "" then

@@ -64,7 +64,7 @@ def hello := "world"
 
 **Main.lean**
 ```lean
-import Hello
+import «Hello»
 
 def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
@@ -78,16 +78,16 @@ Lake also creates a basic `lakefile.lean` for the package along with a `lean-too
 import Lake
 open Lake DSL
 
-package hello {
+package «hello» {
   -- add package configuration options here
 }
 
-lean_lib Hello {
+lean_lib «Hello» {
   -- add library configuration options here
 }
 
 @[default_target]
-lean_exe hello {
+lean_exe «hello» {
   root := `Main
 }
 ```

@@ -16,6 +16,12 @@ $LAKE new hello.world
 $LAKE -d hello-world build
 hello-world/build/bin/hello-world
 
+# Test issue 128
+
+$LAKE new meta
+$LAKE -d meta build
+meta/build/bin/meta
+
 # Test `init`
 
 mkdir hello_world

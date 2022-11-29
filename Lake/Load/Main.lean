@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
@@ -48,7 +48,7 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
           for entry in (← Manifest.loadOrEmpty pkg.manifestFile) do
             unless (← getThe (NameMap MaterializeResult)).contains entry.name do
               let entry := entry.inDirectory relPkgDir
-              let result ← materializePackageEntry ws.root.dir ws.root.config.packagesDir entry
+              let result ← materializePackageEntry ws.dir ws.packagesDir entry
               modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
         let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
         let deps ← deps.mapM fun dep => do
@@ -56,8 +56,8 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
             return (dep, result)
           else
             let depName := dep.name.toString (escape := false)
-            let entry ← updateSource relPkgDir ws.root.packagesDir depName dep.src
-            let result ← materializePackageEntry ws.root.dir ws.root.config.packagesDir entry
+            let entry ← updateSource relPkgDir ws.packagesDir depName dep.src
+            let result ← materializePackageEntry ws.dir ws.packagesDir entry
             modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
             return (dep, result)
         let depPkgs ← deps.mapM fun (dep, result) => do
@@ -67,10 +67,10 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
             let pkg ← loadDepPackage pkg result dep
             modifyThe (NameMap Package) (·.insert dep.name pkg)
             return pkg
-        return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
+        return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok _, results) =>
-    let mut manifest := Manifest.empty
+    let mut manifest : Manifest := {packagesDir? := ws.packagesDir}
     for (_, result) in results do
       manifest := manifest.insert result.manifestEntry
     return manifest
@@ -79,41 +79,26 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
 /--
-Resolves the package's dependencies,
-downloading and/or updating them as necessary.
+Load a `Workspace` for a Lake package by elaborating its configuration file.
+Does not resolve dependencies.
 -/
-def Package.materializeDeps (root : Package) : LogIO Package := do
-  let manifest ← Manifest.loadOrEmpty root.manifestFile
-  let res ← EStateT.run' (mkNameMap Package) do
-    buildAcyclic (·.name) root fun pkg resolve => do
-      let topLevel := pkg.name = root.name
-      let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
-      if topLevel then
-        for dep in deps do
-          let rec warnOutOfDate (what : String) := logWarning <|
-            s!"manifest out of date: {what} of dependency {dep.name} changed, " ++
-            "use `lake update` to update"
-          if let .some entry := manifest.find? dep.name then
-          match dep.src, entry with
-          | .git url rev _, .git _ url' _ rev' _ =>
-            if url ≠ url' then warnOutOfDate "git url"
-            if rev ≠ rev' then warnOutOfDate "git revision"
-          | .path .., .path .. => pure ()
-          | _, _ => warnOutOfDate "source kind (git/path)"
-      let depPkgs ← deps.mapM fun dep => do
-        fetchOrCreate dep.name do
-          let .some entry := manifest.find? dep.name
-            | error <| s!"dependency {dep.name} of {pkg.name} not in manifest, " ++
-              "use `lake update` to update"
-          let result ← materializePackageEntry root.dir root.config.packagesDir entry
-          loadDepPackage pkg result dep
-      return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
-  match res with
-  | Except.ok root =>
-    return root
-  | Except.error cycle =>
-    let cycle := cycle.map (s!"  {·}")
-    error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
+def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
+  Lean.searchPathRef.set config.env.leanSearchPath
+  let configEnv ← elabConfigFile config.rootDir config.configOpts config.leanOpts config.configFile
+  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
+  let repo := GitRepo.mk config.rootDir
+  let root := {
+    configEnv, leanOpts := config.leanOpts
+    dir := config.rootDir, config := pkgConfig
+    remoteUrl? := ← repo.getFilteredRemoteUrl?
+    gitTag? := ← repo.findTag?
+  }
+  return {
+    root, lakeEnv := config.env
+    moduleFacetConfigs := initModuleFacetConfigs
+    packageFacetConfigs := initPackageFacetConfigs
+    libraryFacetConfigs := initLibraryFacetConfigs
+  }
 
 /--
 Finalize the workspace's root and its transitive dependencies
@@ -139,37 +124,66 @@ def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
       s!"oops! dependency load cycle detected (this likely indicates a bug in Lake):\n" ++
       "\n".intercalate cycle
 
-private def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
-  Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← elabConfigFile config.rootDir config.configOpts config.leanOpts config.configFile
-  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
-  let repo := GitRepo.mk config.rootDir
-  let root := {
-    configEnv, leanOpts := config.leanOpts
-    dir := config.rootDir, config := pkgConfig
-    remoteUrl? := ← repo.getFilteredRemoteUrl?
-    gitTag? := ← repo.findTag?
-  }
-  return {
-    root, lakeEnv := config.env
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
-  }
+/--
+Resolving a workspace's dependencies using a manifest,
+downloading and/or updating them as necessary.
+-/
+def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Workspace := do
+  if !manifest.isEmpty && manifest.packagesDir? != some ws.packagesDir then
+    logWarning <|
+      "manifest out of date: package directory changed, " ++
+      "use `lake update` to update"
+  let packagesDir := manifest.packagesDir?.getD ws.packagesDir
+  let res ← EStateT.run' (mkNameMap Package) do
+    buildAcyclic (·.name) ws.root fun pkg resolve => do
+      let topLevel := pkg.name = ws.root.name
+      let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
+      if topLevel then
+        for dep in deps do
+          let warnOutOfDate (what : String) :=
+            logWarning <|
+              s!"manifest out of date: {what} of dependency {dep.name} changed, " ++
+              "use `lake update` to update"
+          if let .some entry := manifest.find? dep.name then
+          match dep.src, entry with
+          | .git url rev _, .git _ url' _ rev' _ =>
+            if url ≠ url' then warnOutOfDate "git url"
+            if rev ≠ rev' then warnOutOfDate "git revision"
+          | .path .., .path .. => pure ()
+          | _, _ => warnOutOfDate "source kind (git/path)"
+      let depPkgs ← deps.mapM fun dep => do
+        fetchOrCreate dep.name do
+          let .some entry := manifest.find? dep.name
+            | error <| s!"dependency {dep.name} of {pkg.name} not in manifest, " ++
+              "use `lake update` to update"
+          let result ← materializePackageEntry ws.dir packagesDir entry
+          loadDepPackage pkg result dep
+      return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
+  match res with
+  | Except.ok root =>
+    ({ws with root}).finalize
+  | Except.error cycle =>
+    let cycle := cycle.map (s!"  {·}")
+    error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
 /--
 Load a `Workspace` for a Lake package by
 elaborating its configuration file and resolving its dependencies.
+If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
-def loadWorkspace (config : LoadConfig) : LogIO Workspace := do
+def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace := do
   let ws ← loadWorkspaceRoot config
-  let root ← ws.root.materializeDeps
-  {ws with root}.finalize
+  let manifest ← do
+    if updateDeps then
+      let manifest ← buildUpdatedManifest ws
+      manifest.saveToFile ws.manifestFile
+      pure manifest
+    else
+      Manifest.loadOrEmpty ws.manifestFile
+  ws.materializeDeps manifest
 
-/--
-Updates the manifest for a Lake package.
--/
+/-- Updates the manifest for a Lake package. -/
 def updateManifest (config : LoadConfig) : LogIO Unit := do
   let ws ← loadWorkspaceRoot config
   let manifest ← buildUpdatedManifest ws
-  manifest.saveToFile ws.root.manifestFile
+  manifest.saveToFile ws.manifestFile

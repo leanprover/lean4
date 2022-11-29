@@ -23,6 +23,7 @@ OPTIONS:
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
+  --update, -U          update manifest before building
 
 COMMANDS:
   new <name> [<temp>]   create a Lean package in a new directory

@@ -1,12 +1,10 @@
 set -ex
 
 cd bar
-${LAKE:-../../../build/bin/lake} update
-${LAKE:-../../../build/bin/lake} build
+${LAKE:-../../../build/bin/lake} build --update
 cd ..
 
 
 cd foo
-${LAKE:-../../../build/bin/lake} update
-${LAKE:-../../../build/bin/lake} build
+${LAKE:-../../../build/bin/lake} build --update
 cd ..

@@ -34,6 +34,7 @@ structure LakeOptions where
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
   oldMode : Bool := false
+  updateDeps : Bool := false
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -131,12 +132,14 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
+| 'U' => modifyThe LakeOptions ({· with updateDeps := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"   => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose" => modifyThe LakeOptions ({· with verbosity := .verbose})
+| "--update"  => modifyThe LakeOptions ({· with updateDeps := true})
 | "--old"     => modifyThe LakeOptions ({· with oldMode := true})
 | "--dir"     => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"    => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
@@ -256,7 +259,7 @@ protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config
+  let ws ← loadWorkspace config opts.updateDeps
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
   ws.runBuild (buildSpecs specs) opts.oldMode |>.run (MonadLog.io opts.verbosity)
@@ -266,7 +269,7 @@ protected def resolveDeps : CliM PUnit := do
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
-    liftM <| discard <| (loadWorkspace config).run (MonadLog.io opts.verbosity)
+    liftM <| discard <| (loadWorkspace config opts.updateDeps).run (MonadLog.io opts.verbosity)
 
 protected def update : CliM PUnit := do
   processOptions lakeOption

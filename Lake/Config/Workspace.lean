@@ -41,9 +41,16 @@ namespace Workspace
 @[inline] def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
-/-- The workspace's `dir` joined with its `packagesDir` configuration. -/
+/--
+The workspace's remote packages directory
+(derived from its `packagesDir` configuration).
+-/
 @[inline] def packagesDir (self : Workspace) : FilePath :=
-  self.dir / self.config.packagesDir
+  self.root.packagesDir
+
+/-- The workspace's Lake manifest. -/
+@[inline] def manifestFile (self : Workspace) : FilePath :=
+  self.root.manifestFile
 
 /-- The `List` of packages to the workspace. -/
 def packageList (self : Workspace) : List Package :=

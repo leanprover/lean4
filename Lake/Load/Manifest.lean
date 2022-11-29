@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
@@ -11,49 +11,38 @@ open System Lean
 namespace Lake
 
 /-- Current version of the manifest format. -/
-def Manifest.version : Nat := 3
+def Manifest.version : Nat := 4
 
 /-- An entry for a package stored in the manifest. -/
 inductive PackageEntry
-  | path (name : String) (dir : FilePath)
-    -- `dir` is relative to the package directory
-    -- of the package containing the manifest
-  | git (name : String) (url : String) (rev : String)
-    (inputRev? : Option String) (subDir? : Option FilePath)
-  deriving FromJson, ToJson, Repr, Inhabited
+| path (name : String) (dir : FilePath)
+  -- `dir` is relative to the package directory
+  -- of the package containing the manifest
+| git (name : String) (url : String) (rev : String)
+  (inputRev? : Option String) (subDir? : Option FilePath)
+deriving FromJson, ToJson, Repr, Inhabited
 
 def PackageEntry.name : PackageEntry → String
-  | path name .. | git name .. => name
+| path name .. | git name .. => name
 
 def PackageEntry.inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
-  | path name dir => path name (pkgDir / dir)
-  | entry => entry
+| path name dir => path name (pkgDir / dir)
+| entry => entry
 
 /-- Manifest file format. -/
 structure Manifest where
-  entryMap : NameMap PackageEntry
+  packagesDir? : Option FilePath := none
+  entryMap : NameMap PackageEntry := {}
 
 namespace Manifest
 
-def empty : Manifest :=
-  ⟨{}⟩
-
-instance : EmptyCollection Manifest := ⟨Manifest.empty⟩
+def empty : Manifest := {}
 
 def isEmpty (self : Manifest) : Bool :=
   self.entryMap.isEmpty
 
-def ofMap (map : NameMap PackageEntry) : Manifest :=
-  ⟨map⟩
-
-def toMap (self : Manifest) : NameMap PackageEntry :=
-  self.entryMap
-
-def ofArray (entries : Array PackageEntry) : Manifest :=
-  ofMap (entries.foldl (fun map entry => map.insert entry.name entry) {})
-
-def toArray (self : Manifest) : Array PackageEntry :=
-  self.toMap.fold (fun a _ v => a.push v) #[]
+def entryArray (self : Manifest) : Array PackageEntry :=
+  self.entryMap.fold (fun a _ v => a.push v) #[]
 
 def contains (packageName : Name) (self : Manifest) : Bool :=
   self.entryMap.contains packageName
@@ -62,7 +51,7 @@ def find? (packageName : Name) (self : Manifest) : Option PackageEntry :=
   self.entryMap.find? packageName
 
 def insert (entry : PackageEntry) (self : Manifest) : Manifest :=
-  ⟨self.entryMap.insert entry.name entry⟩
+  {self with entryMap := self.entryMap.insert entry.name entry}
 
 instance : ForIn m Manifest PackageEntry where
   forIn self init f := self.entryMap.forIn init (f ·.2)
@@ -70,7 +59,8 @@ instance : ForIn m Manifest PackageEntry where
 protected def toJson (self : Manifest) : Json :=
   Json.mkObj [
     ("version", version),
-    ("packages", toJson self.toArray)
+    ("packagesDir", toJson self.packagesDir?),
+    ("packages", toJson self.entryArray)
   ]
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩
@@ -78,10 +68,20 @@ instance : ToJson Manifest := ⟨Manifest.toJson⟩
 protected def fromJson? (json : Json) : Except String Manifest := do
   let ver ← (← json.getObjVal? "version").getNat?
   match ver with
-  | 3 =>
-    return ofArray <| ← (fromJson? (← json.getObjVal? "packages"))
-  | v =>
-    throw s!"incompatible manifest version `{v}`"
+  | 3 | 4 =>
+    let packagesDir? ← do
+      match json.getObjVal? "packagesDir" with
+      | .ok path => fromJson? path
+      | .error _ => pure none
+    let entries : Array PackageEntry ← fromJson? (← json.getObjVal? "packages")
+    return {
+      packagesDir?,
+      entryMap := entries.foldl (fun map entry => map.insert entry.name entry) {}
+    }
+  | 1 | 2 =>
+    throw s!"incompatible manifest version `{ver}`"
+  | _ =>
+    throw s!"unknown manifest version `{ver}`"
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

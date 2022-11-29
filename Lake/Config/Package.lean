@@ -228,9 +228,12 @@ abbrev name (self : Package) : Name :=
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
-/-- The package's `packagesDir` configuration. -/
+/--
+The package's remote packages directory
+(derived from its `packagesDir` configuration).
+-/
 def packagesDir (self : Package) : FilePath :=
-  self.dir / self.config.packagesDir
+  self.dir / self.config.packagesDir.getD defaultPackagesDir
 
 /-- The package's JSON manifest of remote dependencies. -/
 def manifestFile (self : Package) : FilePath :=

@@ -107,13 +107,12 @@ def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (Re
   let rc ← readThe RequestContext
   EIO.bindTask t (f · rc)
 
-def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
+def waitFindSnapAux (notFoundX abortedX : RequestM α) (x : Snapshot → RequestM α)
     : Except ElabTaskError (Option Snapshot) → RequestM α
   /- The elaboration task that we're waiting for may be aborted if the file contents change.
-  In that case, we reply with the `fileChanged` error. Thanks to this, the server doesn't
+  In that case, we reply with the `fileChanged` error by default. Thanks to this, the server doesn't
   get bogged down in requests for an old state of the document. -/
-  | Except.error FileWorker.ElabTaskError.aborted =>
-    throwThe RequestError RequestError.fileChanged
+  | Except.error FileWorker.ElabTaskError.aborted => abortedX
   | Except.error (FileWorker.ElabTaskError.ioError e) =>
     throw (RequestError.ofIoError e)
   | Except.ok none => notFoundX
@@ -125,17 +124,19 @@ and if a matching snapshot was found executes `x` with it. If not found, the tas
 def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (notFoundX : RequestM β)
     (x : Snapshot → RequestM β)
+    (abortedX : RequestM β := throwThe RequestError .fileChanged)
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  mapTask findTask <| waitFindSnapAux notFoundX x
+  mapTask findTask <| waitFindSnapAux notFoundX abortedX x
 
 /-- See `withWaitFindSnap`. -/
 def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (notFoundX : RequestM (RequestTask β))
     (x : Snapshot → RequestM (RequestTask β))
+    (abortedX : RequestM (RequestTask β) := throwThe RequestError .fileChanged)
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  bindTask findTask <| waitFindSnapAux notFoundX x
+  bindTask findTask <| waitFindSnapAux notFoundX abortedX x
 
 /-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
 If no such snapshot exists, the request fails with an error. -/

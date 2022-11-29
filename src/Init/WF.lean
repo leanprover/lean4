@@ -208,9 +208,9 @@ variable  (ra  : α → α → Prop)
 variable  (rb  : β → β → Prop)
 
 -- Lexicographical order based on ra and rb
-inductive Lex : α × β → α × β → Prop where
-  | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Lex (a₁, b₁) (a₂, b₂)
-  | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Lex (a, b₁)  (a, b₂)
+protected inductive Lex : α × β → α × β → Prop where
+  | left  {a₁} (b₁) {a₂} (b₂) (h : ra a₁ a₂) : Prod.Lex (a₁, b₁) (a₂, b₂)
+  | right (a) {b₁ b₂} (h : rb b₁ b₂)         : Prod.Lex (a, b₁)  (a, b₂)
 
 -- TODO: generalize
 def Lex.right' {a₁ : Nat} {b₁ : β} (h₁ : a₁ ≤ a₂) (h₂ : rb b₁ b₂) : Prod.Lex Nat.lt rb (a₁, b₁) (a₂, b₂) :=
@@ -228,7 +228,7 @@ section
 variable {α : Type u} {β : Type v}
 variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Lex ra rb) (a, b) := by
+def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
   induction (aca a) generalizing b with
   | intro xa _ iha =>
     induction (acb b) with
@@ -241,22 +241,22 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
 
 -- The lexicographical order of well founded relations is well-founded
 @[reducible] def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
-  rel := Lex ha.rel hb.rel
+  rel := Prod.Lex ha.rel hb.rel
   wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
 
 instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
   lex ha hb
 
 -- relational product is a Subrelation of the Lex
-def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Lex ra rb a b := by
+def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
   cases h with
-  | intro h₁ h₂ => exact Lex.left _ _ h₁
+  | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := RProd ha.rel hb.rel
   wf  := by
-    apply Subrelation.wf (r := Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
+    apply Subrelation.wf (r := Prod.Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
     intro a b h
     exact RProdSubLex a b h
 

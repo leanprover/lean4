@@ -3461,17 +3461,17 @@ instance : BEq Name where
 /--
 Append two hierarchical names. Example:
 ```lean
-`Lean.Meta ++ `Tactic.simp
+appendCore `Lean.Meta `Tactic.simp
 ```
 return `Lean.Meta.Tactic.simp`
--/
-protected def append : Name → Name → Name
-  | n, anonymous => n
-  | n, str p s => Name.mkStr (Name.append n p) s
-  | n, num p d => Name.mkNum (Name.append n p) d
 
-instance : Append Name where
-  append := Name.append
+This function does not have special support for macro scopes.
+See `Name.append`.
+-/
+def appendCore : Name → Name → Name
+  | n, .anonymous => n
+  | n, .str p s => .str (appendCore n p) s
+  | n, .num p d => .num (appendCore n p) d
 
 end Name
 
@@ -4148,7 +4148,7 @@ def MacroScopesView.review (view : MacroScopesView) : Name :=
   match view.scopes with
   | List.nil      => view.name
   | List.cons _ _ =>
-    let base := (Name.mkStr (hAppend (hAppend (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
+    let base := (Name.mkStr (Name.appendCore (Name.appendCore (Name.mkStr view.name "_@") view.imported) view.mainModule) "_hyg")
     view.scopes.foldl Name.mkNum base
 
 private def assembleParts : List Name → Name → Name
@@ -4196,12 +4196,12 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
     | true  => Name.mkNum n scp
     | false =>
       { view with
-        imported   := view.scopes.foldl Name.mkNum (hAppend view.imported view.mainModule)
+        imported   := view.scopes.foldl Name.mkNum (Name.appendCore view.imported view.mainModule)
         mainModule := mainModule
         scopes     := List.cons scp List.nil
       }.review
   | false =>
-    Name.mkNum (Name.mkStr (hAppend (Name.mkStr n "_@") mainModule) "_hyg") scp
+    Name.mkNum (Name.mkStr (Name.appendCore (Name.mkStr n "_@") mainModule) "_hyg") scp
 
 /--
 Add a new macro scope onto the name `n`, using the monad state to supply the
@@ -4211,6 +4211,21 @@ main module and current macro scope.
   bind getMainModule     fun mainModule =>
   bind getCurrMacroScope fun scp =>
   pure (Lean.addMacroScope mainModule n scp)
+
+/--
+Append two names that may have macro scopes. The macro scopes in `b` are always erased.
+If `a` has macro scopes, then the are propagated to result of `append a b`
+-/
+def Name.append (a b : Name) : Name :=
+  let b := b.eraseMacroScopes
+  match a.hasMacroScopes with
+  | true =>
+    let view := extractMacroScopes a
+    { view with name := appendCore view.name b }.review
+  | false => appendCore a b
+
+instance : Append Name where
+  append := Name.append
 
 /-- The default maximum recursion depth. This is adjustable using the `maxRecDepth` option. -/
 def defaultMaxRecDepth := 512

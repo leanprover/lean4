@@ -66,7 +66,7 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
       let lhs := mkAppN (mkConst info.name <| info.levelParams.map mkLevelParam) xs
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
-      let name := mkPrivateName (← getEnv) declName ++ `_eq_1
+      let name := mkPrivateName (← getEnv) (declName ++ `_eq_1)
       addDecl <| Declaration.thmDecl {
         name, type, value
         levelParams := info.levelParams

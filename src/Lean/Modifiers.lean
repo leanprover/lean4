@@ -23,15 +23,17 @@ def isProtected (env : Environment) (n : Name) : Bool :=
 We use a reserved macro scope to encode private names.
 -/
 
-def privateHeader : Name := `_private
-
 def mkPrivateName (env : Environment) (n : Name) : Name :=
-  addMacroScope env.mainModule n privateMacroScope
+  if n.hasMacroScopes then
+    let view := extractMacroScopes n
+    { view with scopes := privateMacroScope :: view.scopes.erase privateMacroScope }.review
+  else
+    addMacroScope env.mainModule n privateMacroScope
 
 def isPrivateName (declName : Name) : Bool :=
   if declName.hasMacroScopes then
     let view := extractMacroScopes declName
-    view.scopes == [privateMacroScope]
+    view.scopes.contains privateMacroScope
   else
     false
 
@@ -43,8 +45,8 @@ def isPrivateNameExport (n : Name) : Bool :=
 def privateToUserName? (n : Name) : Option Name :=
   if n.hasMacroScopes then
     let view := extractMacroScopes n
-    if view.scopes == [privateMacroScope] then
-      view.name
+    if view.scopes.contains privateMacroScope then
+      { view with scopes := view.scopes.erase privateMacroScope }.review
     else
       none
   else
@@ -53,7 +55,7 @@ def privateToUserName? (n : Name) : Option Name :=
 def isPrivateNameFromImportedModule (env : Environment) (n : Name) : Bool :=
   if n.hasMacroScopes then
     let view := extractMacroScopes n
-    if view.scopes == [privateMacroScope] then
+    if view.scopes.contains privateMacroScope then
       view.imported == env.mainModule
     else
       false

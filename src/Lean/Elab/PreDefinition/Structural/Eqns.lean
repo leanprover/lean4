@@ -62,12 +62,11 @@ def mkEqns (info : EqnInfo) : MetaM (Array Name) :=
     let target ← mkEq (mkAppN (Lean.mkConst info.declName us) xs) body
     let goal ← mkFreshExprSyntheticOpaqueMVar target
     mkEqnTypes #[info.declName] goal.mvarId!
-  let baseName := mkPrivateName (← getEnv) info.declName
   let mut thmNames := #[]
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
     trace[Elab.definition.structural.eqns] "{eqnTypes[i]!}"
-    let name := baseName ++ (`_eq).appendIndexAfter (i+1)
+    let name := mkPrivateName (← getEnv) (info.declName ++ (`_eq).appendIndexAfter (i+1))
     thmNames := thmNames.push name
     let value ← mkProof info.declName type
     let (type, value) ← removeUnusedEqnHypotheses type value

@@ -186,7 +186,6 @@ private partial def mkProof (declName : Name) (info : EqnInfo) (type : Expr) : M
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   withOptions (tactic.hygienic.set · false) do
-  let baseName := mkPrivateName (← getEnv) declName
   let eqnTypes ← withNewMCtxDepth <| lambdaTelescope info.value fun xs body => do
     let us := info.levelParams.map mkLevelParam
     let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
@@ -196,7 +195,7 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
   for i in [: eqnTypes.size] do
     let type := eqnTypes[i]!
     trace[Elab.definition.wf.eqns] "{eqnTypes[i]!}"
-    let name := baseName ++ (`_eq).appendIndexAfter (i+1)
+    let name := mkPrivateName (← getEnv) (declName ++ (`_eq).appendIndexAfter (i+1))
     thmNames := thmNames.push name
     let value ← mkProof declName info type
     let (type, value) ← removeUnusedEqnHypotheses type value

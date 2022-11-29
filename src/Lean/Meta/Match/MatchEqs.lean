@@ -609,7 +609,6 @@ where
 private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := withLCtx {} {} do
   trace[Meta.Match.matchEqs] "mkEquationsFor '{matchDeclName}'"
   withConfig (fun c => { c with etaStruct := .none }) do
-  let baseName := mkPrivateName (← getEnv) matchDeclName
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
   let some matchInfo ← getMatcherInfo? matchDeclName | throwError "'{matchDeclName}' is not a matcher function"
@@ -629,7 +628,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
     for i in [:alts.size] do
       let altNumParams := matchInfo.altNumParams[i]!
       let altNonEqNumParams := altNumParams - numDiscrEqs
-      let thmName := baseName ++ ((`eq).appendIndexAfter idx)
+      let thmName := mkPrivateName (← getEnv) (matchDeclName ++ ((`eq).appendIndexAfter idx))
       eqnNames := eqnNames.push thmName
       let (notAlt, splitterAltType, splitterAltNumParam, argMask) ← forallAltTelescope (← inferType alts[i]!) altNonEqNumParams fun ys eqs rhsArgs argMask altResultType => do
         let patterns := altResultType.getAppArgs
@@ -679,7 +678,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
       let template ← deltaExpand template (· == constInfo.name)
       let template := template.headBeta
       let splitterVal ← mkLambdaFVars splitterParams (← mkSplitterProof matchDeclName template alts altsNew splitterAltNumParams altArgMasks)
-      let splitterName := baseName ++ `splitter
+      let splitterName := mkPrivateName (← getEnv) (matchDeclName ++ `splitter)
       addAndCompile <| Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams

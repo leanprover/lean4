@@ -119,6 +119,8 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let type         ← `($(mkIdent className) $indType)
       let val          ← if useAnonCtor then `(⟨$(mkIdent auxFunName)⟩) else pure <| mkIdent auxFunName
       let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
+      trace[Meta.debug] "auxFunName: {auxFunName}"
+      trace[Meta.debug] "instCmd: {instCmd}"
       instances := instances.push instCmd
   return instances
 

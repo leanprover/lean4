@@ -144,9 +144,25 @@ Defined here because they need to import configurations, whereas the definitions
 there need to be imported by configurations.
 -/
 
-/-- The direct × transitive imports of the Lean module. -/
-abbrev Module.importFacet := `lean.imports
-module_data lean.imports : Array Module × Array Module
+/-- The direct local imports of the Lean module. -/
+abbrev Module.importsFacet := `lean.imports
+module_data lean.imports : Array Module
+
+/-- The transitive local imports of the Lean module. -/
+abbrev Module.transImportsFacet := `lean.transImports
+module_data lean.transImports : Array Module
+
+/-- The transitive local imports of the Lean module. -/
+abbrev Module.precompileImportsFacet := `lean.precompileImports
+module_data lean.precompileImports : Array Module
+
+/-- Shared library for `--load-dynlib`. -/
+abbrev Module.dynlibFacet := `dynlib
+module_data dynlib : BuildJob Dynlib
+
+/-- A Lean library's Lean modules. -/
+abbrev LeanLib.modulesFacet := `modules
+library_data modules : Array Module
 
 /-- The package's complete array of transitive dependencies. -/
 abbrev Package.depsFacet := `deps
@@ -168,13 +184,15 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 
 variable (self : Module)
 
-abbrev imports  := self.facet importFacet
-abbrev leanBin  := self.facet leanBinFacet
-abbrev olean    := self.facet oleanFacet
-abbrev ilean    := self.facet ileanFacet
-abbrev c        := self.facet cFacet
-abbrev o        := self.facet oFacet
-abbrev dynlib   := self.facet dynlibFacet
+abbrev imports            := self.facet importsFacet
+abbrev transImports       := self.facet transImportsFacet
+abbrev precompileImports  := self.facet precompileImportsFacet
+abbrev leanBin            := self.facet leanBinFacet
+abbrev olean              := self.facet oleanFacet
+abbrev ilean              := self.facet ileanFacet
+abbrev c                  := self.facet cFacet
+abbrev o                  := self.facet oFacet
+abbrev dynlib             := self.facet dynlibFacet
 
 end Module
 
@@ -197,6 +215,10 @@ abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
 /-- Build info of the Lean library's Lean binaries. -/
 abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
   .libraryFacet self facet
+
+/-- Build info of the Lean library's Lean modules. -/
+abbrev LeanLib.modules (self : LeanLib) : BuildInfo :=
+  self.facet modulesFacet
 
 /-- Build info of the Lean library's Lean binaries. -/
 abbrev LeanLib.lean (self : LeanLib) : BuildInfo :=

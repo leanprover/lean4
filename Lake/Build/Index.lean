@@ -71,11 +71,18 @@ def recBuildWithIndex : (info : BuildInfo) → IndexBuildM (BuildData info.key)
   mkTargetFacetBuild ExternLib.dynlibFacet lib.recComputeDynlib
 
 /--
+Run the given recursive build using the Lake build index
+and a topological / suspending scheduler.
+-/
+def IndexBuildM.run (build : IndexBuildM α) : RecBuildM α :=
+  build <| recFetchMemoize BuildInfo.key recBuildWithIndex
+
+/--
 Recursively build the given info using the Lake build index
 and a topological / suspending scheduler.
 -/
 def buildIndexTop' (info : BuildInfo) : RecBuildM (BuildData info.key) :=
-  buildDTop BuildData BuildInfo.key info recBuildWithIndex
+  recFetchMemoize BuildInfo.key recBuildWithIndex info
 
 /--
 Recursively build the given info using the Lake build index

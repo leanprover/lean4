@@ -9,8 +9,8 @@ namespace Lake
 
 @[specialize] def logProcWith [Monad m]
 (args : IO.Process.SpawnArgs) (out : IO.Process.Output)  (log : String → m PUnit) : m Unit := do
-  let envStr := String.join <| args.env.toList.filterMap fun (k, v) =>
-    if k == "PATH" then none else some s!"{k}={v.getD ""} " -- PATH too big
+  let envStr := String.join <| args.env.toList.map fun (k, v) =>
+    if k == "PATH" then "PATH " else s!"{k}={v.getD ""} " -- PATH too big
   let cmdStr := " ".intercalate (args.cmd :: args.args.toList)
   log <| "> " ++ envStr ++
     match args.cwd with

@@ -18,11 +18,16 @@ import said configurations for `BuildInfo`.
 namespace Lake
 export System (FilePath)
 
-/--
-A dynamic/shared library for linking.
-Represented by an optional `-L` library directory × a `-l` library name.
--/
-abbrev Dynlib := Option FilePath × String
+/-- A dynamic/shared library for linking. -/
+structure Dynlib where
+  /-- Library file path. -/
+  path : FilePath
+  /-- Library name without platform-specific prefix/suffix (for `-l`). -/
+  name : String
+
+/-- Optional library directory (for `-L`). -/
+def Dynlib.dir? (self : Dynlib) : Option FilePath :=
+  self.path.parent
 
 /-! ## Module Facets -/
 
@@ -64,10 +69,6 @@ module_data c : BuildJob FilePath
 /-- The object file built from `lean.c` -/
 abbrev Module.oFacet := `o
 module_data o : BuildJob FilePath
-
-/-- Shared library for `--load-dynlib`. Returns just the library name. -/
-abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : BuildJob String
 
 /-! ## Package Facets -/
 

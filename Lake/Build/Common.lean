@@ -88,9 +88,8 @@ def buildLeanExe
   (extraDepTrace := computeHash linkArgs) fun links => do
     compileExe name exeFile links linkArgs (← getLeanc)
 
-def buildLeanSharedLibOfStatic
-(staticLibJob : BuildJob FilePath) (linkArgs : Array String := #[])
-: SchedulerM (BuildJob FilePath) :=
+def buildLeanSharedLibOfStatic (staticLibJob : BuildJob FilePath)
+(linkArgs : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
   staticLibJob.bindSync fun staticLib staticTrace => do
     let dynlib := staticLib.withExtension sharedLibExt
     let trace ← buildFileUnlessUpToDate dynlib staticTrace do
@@ -108,9 +107,9 @@ def computeDynlibOfShared
   sharedLibTarget.bindSync fun sharedLib trace => do
     if let some stem := sharedLib.fileStem then
       if Platform.isWindows then
-        return ((sharedLib.parent, stem), trace)
+        return ({path := sharedLib, name := stem}, trace)
       else if stem.startsWith "lib" then
-        return ((sharedLib.parent, stem.drop 3), trace)
+        return ({path := sharedLib, name := stem.drop 3}, trace)
       else
         error s!"shared library `{sharedLib}` does not start with `lib`; this is not supported on Unix"
     else

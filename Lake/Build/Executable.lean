@@ -11,7 +11,7 @@ namespace Lake
 
 protected def LeanExe.recBuildExe
 (self : LeanExe) : IndexBuildM (BuildJob FilePath) := do
-  let (_, imports) ← self.root.imports.fetch
+  let imports ← self.root.transImports.fetch
   let mut linkJobs := #[← self.root.o.fetch]
   for mod in imports do for facet in mod.nativeFacets do
     linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name

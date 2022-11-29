@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lake.Build.Trace
 import Lake.Config.LeanLib
+import Lake.Util.OrdHashSet
 
 namespace Lake
 open Lean System
@@ -20,8 +21,14 @@ structure Module where
   keyName : Name := name
   deriving Inhabited
 
-abbrev ModuleSet := RBTree Module (·.name.quickCmp ·.name)
-@[inline] def ModuleSet.empty : ModuleSet := RBTree.empty
+instance : Hashable Module where hash m := hash m.keyName
+instance : BEq Module where beq m n := m.keyName == n.keyName
+
+abbrev ModuleSet := HashSet Module
+@[inline] def ModuleSet.empty : ModuleSet := HashSet.empty
+
+abbrev OrdModuleSet := OrdHashSet Module
+@[inline] def OrdModuleSet.empty : OrdModuleSet := OrdHashSet.empty
 
 abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 @[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty

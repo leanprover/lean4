@@ -14,10 +14,10 @@ open Lean.Json
 open Lean.Parser.Term
 open Lean.Meta
 
-def mkJsonField (n : Name) : Bool × Term :=
-  let s  := n.toString
+def mkJsonField (n : Name) : CoreM (Bool × Term) := do
+  let .str .anonymous s := n | throwError "invalid json field name {n}"
   let s₁ := s.dropRightWhile (· == '?')
-  (s != s₁, Syntax.mkStrLit s₁)
+  return (s != s₁, Syntax.mkStrLit s₁)
 
 def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if declNames.size == 1 then
@@ -27,9 +27,10 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]!
         let fields := getStructureFieldsFlattened (← getEnv) declNames[0]! (includeSubobjectFields := false)
         let fields ← fields.mapM fun field => do
-          let (isOptField, nm) := mkJsonField field
-          if isOptField then ``(opt $nm $(mkIdent <| header.targetNames[0]! ++ field))
-          else ``([($nm, toJson $(mkIdent <| header.targetNames[0]! ++ field))])
+          let (isOptField, nm) ← mkJsonField field
+          let target := mkIdent header.targetNames[0]!
+          if isOptField then ``(opt $nm ($target).$(mkIdent field))
+          else ``([($nm, toJson ($target).$(mkIdent field))])
         let cmd ← `(private def $(mkIdent ctx.auxFunNames[0]!):ident $header.binders:bracketedBinder* : Json :=
           mkObj <| List.join [$fields,*])
         return #[cmd] ++ (← mkInstanceCmds ctx ``ToJson declNames)
@@ -111,7 +112,7 @@ def mkFromJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ``FromJson 0 ctx.typeInfos[0]!
         let fields := getStructureFieldsFlattened (← getEnv) declName (includeSubobjectFields := false)
         let getters ← fields.mapM (fun field => do
-          let getter ← `(getObjValAs? j _ $(Prod.snd <| mkJsonField field))
+          let getter ← `(getObjValAs? j _ $(Prod.snd <| ← mkJsonField field))
           let getter ← `(doElem| Except.mapError (fun s => (toString $(quote declName)) ++ "." ++ (toString $(quote field)) ++ ": " ++ s) <| $getter)
           return getter
         )

@@ -111,3 +111,18 @@ deriving ToJson, FromJson, Repr, BEq
 #eval checkToJson (EParam.mk "abcd") (json { mk : "abcd" })
 #eval checkRoundTrip (EParam.mk 13)
 #eval checkRoundTrip (EParam.mk "efgh")
+
+structure Minus where
+  «i-love-lisp» : Nat
+  deriving ToJson, FromJson, Repr, DecidableEq
+
+#eval checkRoundTrip { «i-love-lisp» := 1 : Minus }
+#eval checkToJson { «i-love-lisp» := 1 : Minus } (json { «i-love-lisp»: 1 })
+
+structure MinusAsk where
+  «branches-ignore?» : Option (Array String)
+  deriving ToJson, FromJson, Repr, DecidableEq
+
+#eval checkRoundTrip { «branches-ignore?» := #["master"] : MinusAsk }
+#eval checkToJson { «branches-ignore?» := #["master"] : MinusAsk }
+  (json { «branches-ignore» : ["master"] })

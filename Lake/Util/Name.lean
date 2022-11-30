@@ -28,9 +28,11 @@ open Lean.Name
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]
 
-@[simp] theorem isPrefixOf_append {n m : Name} : n.isPrefixOf (n ++ m) := by
+@[simp] theorem isPrefixOf_append {n m : Name} : ¬ n.hasMacroScopes → ¬ m.hasMacroScopes → n.isPrefixOf (n ++ m) := by
+  intro h1 h2
   show n.isPrefixOf (n.append m)
-  induction m <;> simp [isPrefixOf, Name.append, *]
+  simp_all [Name.append]
+  clear h2; induction m <;> simp [*, Name.appendCore, isPrefixOf]
 
 @[simp] theorem quickCmpAux_iff_eq : ∀ {n n'}, quickCmpAux n n' = .eq ↔ n = n'
 | .anonymous, n => by cases n <;> simp [quickCmpAux]

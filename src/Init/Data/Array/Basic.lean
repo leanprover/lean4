@@ -593,12 +593,12 @@ theorem ext (a b : Array α)
         have tailEq : as = bs := ih bs h₁' h₂'
         rw [headEq, tailEq]
   cases a; cases b
-  apply congrArg
+  apply congr_arg
   apply extAux
   assumption
   assumption
 
-theorem extLit {n : Nat}
+theorem ext_lit {n : Nat}
     (a b : Array α)
     (hsz₁ : a.size = n) (hsz₂ : b.size = n)
     (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
@@ -735,11 +735,11 @@ def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 theorem ext' {as bs : Array α} (h : as.data = bs.data) : as = bs := by
   cases as; cases bs; simp at h; rw [h]
 
-theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
+theorem data_toArrayAux (as : List α) (acc : Array α) : (as.toArrayAux acc).data = acc.data ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
 theorem data_toArray (as : List α) : as.toArray.data = as := by
-  simp [List.toArray, toArrayAux_eq, Array.mkEmpty]
+  simp [List.toArray, data_toArrayAux, Array.mkEmpty]
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'

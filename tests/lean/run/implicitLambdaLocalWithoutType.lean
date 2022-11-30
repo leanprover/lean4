@@ -12,15 +12,15 @@ example (x) : foo2mk x = foo2mk x := rfl  -- works
 
 universe u v w
 
-structure ApplicativeTransformation (F : Type u → Type v) [Applicative F] [LawfulApplicative F]
-  (G : Type u → Type w) [Applicative G] [LawfulApplicative G] : Type max (u + 1) v w where
+structure ApplicativeTransformation (F : Type u → Type v) [Applicative F] [IsLawfulApplicative F]
+  (G : Type u → Type w) [Applicative G] [IsLawfulApplicative G] : Type max (u + 1) v w where
   app : ∀ α : Type u, F α → G α
   preserves_pure' : ∀ {α : Type u} (x : α), app _ (pure x) = pure x
   preserves_seq' : ∀ {α β : Type u} (x : F (α → β)) (y : F α), app _ (x <*> y) = app _ x <*> app _ y
 
-variable (F : Type u → Type v) [Applicative F] [LawfulApplicative F]
+variable (F : Type u → Type v) [Applicative F] [IsLawfulApplicative F]
 
-variable (G : Type u → Type w) [Applicative G] [LawfulApplicative G]
+variable (G : Type u → Type w) [Applicative G] [IsLawfulApplicative G]
 
 instance : CoeFun (ApplicativeTransformation F G) fun _ => ∀ {α}, F α → G α :=
   ⟨ApplicativeTransformation.app⟩

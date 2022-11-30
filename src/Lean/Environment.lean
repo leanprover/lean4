@@ -654,7 +654,7 @@ private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do
-    have : i < descrs.size := h.upper
+    have : i < descrs.size := h.2
     let descr := descrs[i]
     result := result.insert descr.name i
   return result
@@ -668,7 +668,7 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do
-    have : modIdx < mods.size := h.upper
+    have : modIdx < mods.size := h.2
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx.find? extName then

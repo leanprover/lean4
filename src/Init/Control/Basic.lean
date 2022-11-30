@@ -227,7 +227,7 @@ def control {m : Type u → Type v} {n : Type u → Type w} [MonadControlT m n] 
   - `α` is treated as an output parameter by the typeclass resolution procedure.
     That is, it tries to find an instance using only `m` and `γ`.
 -/
-class ForM (m : Type u → Type v) (γ : Type w₁) (α : outParam (Type w₂)) where
+class ForM (m : Type u → Type v) (γ : Type w₁) (α : OutParam (Type w₂)) where
   forM [Monad m] : γ → (α → m PUnit) → m PUnit
 
 export ForM (forM)

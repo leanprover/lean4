@@ -71,7 +71,7 @@ example : True ∧ False := by
   ·
  --^ $/lean/plainGoal
 
-theorem left_distrib (t a b : Nat) : t * (a + b) = t * a + t * b := by
+theorem mul_add (t a b : Nat) : t * (a + b) = t * a + t * b := by
   induction b
   next => simp
   next =>

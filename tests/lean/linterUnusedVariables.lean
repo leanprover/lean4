@@ -6,12 +6,12 @@ set_option linter.all true
 def explicitlyUsedVariable (x : Nat) : Nat :=
   x
 
-theorem implicitlyUsedVariable : P ∧ Q → Q := by
+theorem implicitly_used_variable : P ∧ Q → Q := by
   intro HPQ
   have HQ : Q := by exact And.right HPQ
   assumption
 
-axiom axiomVariable (x : Prop) : True
+axiom axiom_variable (x : Prop) : True
 
 def unusedVariables (x : Nat) : Nat :=
   let y := 5
@@ -126,7 +126,7 @@ def nolintPatternVars (x : Option (Option Nat)) : Nat :=
   | _ => 0
 
 set_option linter.unusedVariables.patternVars false in
-theorem nolintPatternVarsInduction (n : Nat) : True := by
+theorem nolint_pattern_vars_induction (n : Nat) : True := by
   induction n with
   | zero => exact True.intro
   | succ m =>
@@ -207,14 +207,14 @@ opaque externConst (x : Nat) : Nat :=
   5
 
 
-macro "useArg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
-useArg usedMacroVariable a
+macro "use_arg " name:declId arg:ident : command => `(def $name ($arg : α) : α := $arg)
+use_arg usedMacroVariable a
 
-macro "doNotUseArg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
-doNotUseArg unusedMacroVariable b
+macro "do_not_use_arg " name:declId arg:ident : command => `(def $name ($arg : α) : Nat := 3)
+do_not_use_arg unusedMacroVariable b
 
-macro "ignoreArg " id:declId sig:declSig : command => `(opaque $id $sig)
-ignoreArg ignoredMacroVariable (x : UInt32) : UInt32
+macro "ignore_arg " id:declId sig:declSig : command => `(opaque $id $sig)
+ignore_arg ignoredMacroVariable (x : UInt32) : UInt32
 
 
 theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by -- *not* unused

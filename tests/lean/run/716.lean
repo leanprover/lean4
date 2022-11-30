@@ -1,20 +1,20 @@
-private def eqv (p₁ p₂ : α × α) : Prop :=
+private def Eqv (p₁ p₂ : α × α) : Prop :=
  (p₁.1 = p₂.1 ∧ p₁.2 = p₂.2) ∨ (p₁.1 = p₂.2 ∧ p₁.2 = p₂.1)
 
-infix:50 " ~ " => eqv
+infix:50 " ~ " => Eqv
 
-axiom eqv.refl {α} (p : α × α) : p ~ p
+axiom Eqv.refl {α} (p : α × α) : p ~ p
 
-axiom eqv.symm  {α} : ∀ {p₁ p₂ : α × α}, p₁ ~ p₂ → p₂ ~ p₁
+axiom Eqv.symm  {α} : ∀ {p₁ p₂ : α × α}, p₁ ~ p₂ → p₂ ~ p₁
 
-axiom eqv.trans {α} : ∀ {p₁ p₂ p₃ : α × α}, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃
+axiom Eqv.trans {α} : ∀ {p₁ p₂ p₃ : α × α}, p₁ ~ p₂ → p₂ ~ p₃ → p₁ ~ p₃
 
-private theorem is_equivalence : Equivalence (@eqv α) :=
-  { refl := eqv.refl, symm := eqv.symm, trans := eqv.trans }
+private theorem is_equivalence : Equivalence (@Eqv α) :=
+  { refl := Eqv.refl, symm := Eqv.symm, trans := Eqv.trans }
 
 instance uprodSetoid (α : Type u) : Setoid (α × α) where
-   r     := eqv
-   iseqv := is_equivalence
+   R      := Eqv
+   is_eqv := is_equivalence
 
 def UProd (α : Type u) : Type u :=
   Quotient (uprodSetoid α)

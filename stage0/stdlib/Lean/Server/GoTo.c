@@ -1349,7 +1349,7 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 
 x_25 = lean_ctor_get(x_20, 0);
 x_26 = lean_io_error_to_string(x_25);
-x_27 = lean_alloc_ctor(2, 1, 0);
+x_27 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
@@ -1368,7 +1368,7 @@ lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_20);
 x_32 = lean_io_error_to_string(x_30);
-x_33 = lean_alloc_ctor(2, 1, 0);
+x_33 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 x_34 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_34, 0, x_33);

@@ -461,7 +461,6 @@ if (x_3 == 0)
 lean_object* x_4; lean_object* x_5; 
 x_4 = lean_erase_macro_scopes(x_2);
 x_5 = l_Lean_Name_append(x_1, x_4);
-lean_dec(x_1);
 return x_5;
 }
 else
@@ -475,7 +474,6 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_ctor_get(x_6, 0);
 x_9 = lean_erase_macro_scopes(x_2);
 x_10 = l_Lean_Name_append(x_8, x_9);
-lean_dec(x_8);
 lean_ctor_set(x_6, 0, x_10);
 x_11 = l_Lean_MacroScopesView_review(x_6);
 return x_11;
@@ -494,7 +492,6 @@ lean_inc(x_12);
 lean_dec(x_6);
 x_16 = lean_erase_macro_scopes(x_2);
 x_17 = l_Lean_Name_append(x_12, x_16);
-lean_dec(x_12);
 x_18 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_13);
@@ -998,7 +995,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_MVarId_checkNotAssigned___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -7488,7 +7485,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -9209,7 +9206,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_MVarId_inferInstance___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

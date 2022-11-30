@@ -1,6 +1,6 @@
 namespace Ex1
 structure A
-class B (a : outParam A) (α : Sort u)
+class B (a : OutParam A) (α : Sort u)
 class C {a : A} (α : Sort u) [B a α]
 class D {a : A} (α : Sort u) [B a α] [c : C α]
 class E (a : A) where [c (α : Sort u) [B a α] : C α]

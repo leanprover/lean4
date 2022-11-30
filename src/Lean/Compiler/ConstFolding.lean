@@ -187,7 +187,7 @@ def foldNatSucc (_ : Bool) (a : Expr) : Option Expr := do
 def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr := do
   guard (!beforeErasure)
   let n ← getNumLit a
-  if isValidChar n.toUInt32 then
+  if n.toUInt32.IsValidChar then
     return mkUInt32Lit n
   else
     return mkUInt32Lit 0

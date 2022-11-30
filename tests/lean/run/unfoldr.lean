@@ -23,7 +23,7 @@ def tst2 (n : Nat) : List Nat :=
 #eval tst2 10
 
 -- More general (and less convenient to use) version that can take an arbitrary well-founded relation.
-def List.unfoldr' {α β : Type u} [w : WellFoundedRelation β] (f : (b : β) → Option (α × { b' : β // w.rel b' b})) (b : β) : List α :=
+def List.unfoldr' {α β : Type u} [w : WellFoundedRelation β] (f : (b : β) → Option (α × { b' : β // w.Rel b' b})) (b : β) : List α :=
   match f b with
   | none => []
   | some (a, ⟨b', h⟩) => a :: unfoldr' f b'

@@ -62,28 +62,28 @@ inductive tm : Type :=
 open tm
 
 set_option hygiene false in
-infixl:40 " ==> " => step
-inductive step : tm → tm → Prop :=
-  | ST_PlusConstConst : ∀ n1 n2,
+infixl:40 " ==> " => Step
+inductive Step : tm → tm → Prop :=
+  | plus_const_const : ∀ n1 n2,
       P (C n1) (C n2) ==> C (n1 + n2)
-  | ST_Plus1 : ∀ t1 t1' t2,
+  | plus1 : ∀ t1 t1' t2,
       t1 ==> t1' →
       P t1 t2 ==> P t1' t2
-  | ST_Plus2 : ∀ n1 t2 t2',
+  | plus2 : ∀ n1 t2 t2',
       t2 ==> t2' →
       P (C n1) t2 ==> P (C n1) t2'
 
 def deterministic {X : Type} (R : X → X → Prop) :=
   ∀ x y1 y2 : X, R x y1 → R x y2 → y1 = y2
 
-theorem step_deterministic' : deterministic step := λ x y₁ y₂ hy₁ hy₂ =>
-  @step.brecOn (λ s t st => ∀ y₂, s ==> y₂ → t = y₂) _ _ hy₁ (λ s t st hy₁ y₂ hy₂ =>
+theorem step_deterministic' : deterministic Step := λ x y₁ y₂ hy₁ hy₂ =>
+  @Step.brecOn (λ s t st => ∀ y₂, s ==> y₂ → t = y₂) _ _ hy₁ (λ s t st hy₁ y₂ hy₂ =>
     match hy₁, hy₂ with
-    | step.below.ST_PlusConstConst _ _, step.ST_PlusConstConst _ _ => rfl
-    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
-    | step.below.ST_Plus1 _ _ _ hy₁ ih, step.ST_Plus2 _ _ _ _ => by cases hy₁
-    | step.below.ST_Plus2 _ _ _ _ ih, step.ST_Plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
-    | step.below.ST_Plus2 _ _ _ hy₁ _, step.ST_PlusConstConst _ _ => by cases hy₁
+    | Step.below.plus_const_const _ _, Step.plus_const_const _ _ => rfl
+    | Step.below.plus1 _ _ _ hy₁ ih, Step.plus1 _ t₁' _ _ => by rw [←ih t₁']; assumption
+    | Step.below.plus1 _ _ _ hy₁ ih, Step.plus2 _ _ _ _ => by cases hy₁
+    | Step.below.plus2 _ _ _ _ ih, Step.plus2 _ _ t₂ _ => by rw [←ih t₂]; assumption
+    | Step.below.plus2 _ _ _ hy₁ _, Step.plus_const_const _ _ => by cases hy₁
     ) y₂ hy₂
 
 section NestedRecursion

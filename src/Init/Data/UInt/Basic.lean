@@ -36,8 +36,8 @@ def UInt8.xor (a b : UInt8) : UInt8 := ⟨Fin.xor a.val b.val⟩
 def UInt8.shiftLeft (a b : UInt8) : UInt8 := ⟨a.val <<< (modn b 8).val⟩
 @[extern "lean_uint8_shift_right"]
 def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.val >>> (modn b 8).val⟩
-def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
-def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
+def UInt8.LT (a b : UInt8) : Prop := a.val < b.val
+def UInt8.LE (a b : UInt8) : Prop := a.val ≤ b.val
 
 instance : OfNat UInt8 n   := ⟨UInt8.ofNat n⟩
 instance : Add UInt8       := ⟨UInt8.add⟩
@@ -46,8 +46,8 @@ instance : Mul UInt8       := ⟨UInt8.mul⟩
 instance : Mod UInt8       := ⟨UInt8.mod⟩
 instance : HMod UInt8 Nat UInt8 := ⟨UInt8.modn⟩
 instance : Div UInt8       := ⟨UInt8.div⟩
-instance : LT UInt8        := ⟨UInt8.lt⟩
-instance : LE UInt8        := ⟨UInt8.le⟩
+instance : LT UInt8        := ⟨UInt8.LT⟩
+instance : LE UInt8        := ⟨UInt8.LE⟩
 
 @[extern "lean_uint8_complement"]
 def UInt8.complement (a:UInt8) : UInt8 := 0-(a+1)
@@ -107,8 +107,8 @@ def UInt16.toUInt8 (a : UInt16) : UInt8 := a.toNat.toUInt8
 def UInt8.toUInt16 (a : UInt8) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint16_shift_right"]
 def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
-def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
-def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
+def UInt16.LT (a b : UInt16) : Prop := a.val < b.val
+def UInt16.LE (a b : UInt16) : Prop := a.val ≤ b.val
 
 
 instance : OfNat UInt16 n   := ⟨UInt16.ofNat n⟩
@@ -118,8 +118,8 @@ instance : Mul UInt16       := ⟨UInt16.mul⟩
 instance : Mod UInt16       := ⟨UInt16.mod⟩
 instance : HMod UInt16 Nat UInt16 := ⟨UInt16.modn⟩
 instance : Div UInt16       := ⟨UInt16.div⟩
-instance : LT UInt16        := ⟨UInt16.lt⟩
-instance : LE UInt16        := ⟨UInt16.le⟩
+instance : LT UInt16        := ⟨UInt16.LT⟩
+instance : LE UInt16        := ⟨UInt16.LE⟩
 
 @[extern "lean_uint16_complement"]
 def UInt16.complement (a:UInt16) : UInt16 := 0-(a+1)
@@ -229,8 +229,8 @@ def UInt64.xor (a b : UInt64) : UInt64 := ⟨Fin.xor a.val b.val⟩
 def UInt64.shiftLeft (a b : UInt64) : UInt64 := ⟨a.val <<< (modn b 64).val⟩
 @[extern "lean_uint64_shift_right"]
 def UInt64.shiftRight (a b : UInt64) : UInt64 := ⟨a.val >>> (modn b 64).val⟩
-def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
-def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
+def UInt64.LT (a b : UInt64) : Prop := a.val < b.val
+def UInt64.LE (a b : UInt64) : Prop := a.val ≤ b.val
 @[extern "lean_uint64_to_uint8"]
 def UInt64.toUInt8 (a : UInt64) : UInt8 := a.toNat.toUInt8
 @[extern "lean_uint64_to_uint16"]
@@ -251,8 +251,8 @@ instance : Mul UInt64       := ⟨UInt64.mul⟩
 instance : Mod UInt64       := ⟨UInt64.mod⟩
 instance : HMod UInt64 Nat UInt64 := ⟨UInt64.modn⟩
 instance : Div UInt64       := ⟨UInt64.div⟩
-instance : LT UInt64        := ⟨UInt64.lt⟩
-instance : LE UInt64        := ⟨UInt64.le⟩
+instance : LT UInt64        := ⟨UInt64.LT⟩
+instance : LE UInt64        := ⟨UInt64.LE⟩
 
 @[extern "lean_uint64_complement"]
 def UInt64.complement (a:UInt64) : UInt64 := 0-(a+1)
@@ -319,8 +319,8 @@ def UInt32.toUSize (a : UInt32) : USize := a.toNat.toUSize
 @[extern "lean_usize_to_uint32"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 
-def USize.lt (a b : USize) : Prop := a.val < b.val
-def USize.le (a b : USize) : Prop := a.val ≤ b.val
+def USize.LT (a b : USize) : Prop := a.val < b.val
+def USize.LE (a b : USize) : Prop := a.val ≤ b.val
 
 instance : OfNat USize n   := ⟨USize.ofNat n⟩
 instance : Add USize       := ⟨USize.add⟩
@@ -329,8 +329,8 @@ instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩
 instance : HMod USize Nat USize := ⟨USize.modn⟩
 instance : Div USize       := ⟨USize.div⟩
-instance : LT USize        := ⟨USize.lt⟩
-instance : LE USize        := ⟨USize.le⟩
+instance : LT USize        := ⟨USize.LT⟩
+instance : LE USize        := ⟨USize.LE⟩
 
 @[extern "lean_usize_complement"]
 def USize.complement (a:USize) : USize := 0-(a+1)

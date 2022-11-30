@@ -1,15 +1,15 @@
 universe u v
 
-theorem eqLitOfSize0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=
+theorem eq_lit_of_size0 {α : Type u} (a : Array α) (hsz : a.size = 0) : a = #[] :=
 a.toArrayLit_eq 0 hsz
 
-theorem eqLitOfSize1 {α : Type u} (a : Array α) (hsz : a.size = 1) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl)] :=
+theorem eq_lit_of_size1 {α : Type u} (a : Array α) (hsz : a.size = 1) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl)] :=
 a.toArrayLit_eq 1 hsz
 
-theorem eqLitOfSize2 {α : Type u} (a : Array α) (hsz : a.size = 2) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl), a.getLit 1 hsz (of_decide_eq_true rfl)] :=
+theorem eq_lit_of_size2 {α : Type u} (a : Array α) (hsz : a.size = 2) : a = #[a.getLit 0 hsz (of_decide_eq_true rfl), a.getLit 1 hsz (of_decide_eq_true rfl)] :=
 a.toArrayLit_eq 2 hsz
 
-theorem eqLitOfSize3 {α : Type u} (a : Array α) (hsz : a.size = 3) :
+theorem eq_lit_of_size3 {α : Type u} (a : Array α) (hsz : a.size = 3) :
   a = #[a.getLit 0 hsz (of_decide_eq_true rfl), a.getLit 1 hsz (of_decide_eq_true rfl), a.getLit 2 hsz (of_decide_eq_true rfl)] :=
 a.toArrayLit_eq 3 hsz
 

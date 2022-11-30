@@ -2,7 +2,7 @@
     Quot.liftOn (Quot.mk r a) f h = f a := rfl
 
 theorem eq_iff_true_of_subsingleton [Subsingleton α] (x y : α) : x = y ↔ True :=
-  iff_true _ ▸ Subsingleton.elim ..
+  iff_true_eq _ ▸ Subsingleton.elim ..
 
 section attribute [simp] eq_iff_true_of_subsingleton end
 

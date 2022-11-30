@@ -3867,7 +3867,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_SynthInstance_getInstances___lambda__2___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -10769,7 +10769,7 @@ lean_dec(x_12);
 x_19 = lean_ctor_get(x_2, 4);
 lean_inc(x_19);
 x_20 = l_Nat_repr(x_19);
-x_21 = lean_alloc_ctor(2, 1, 0);
+x_21 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -12138,7 +12138,7 @@ x_46 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_46, 0, x_44);
 lean_ctor_set(x_46, 1, x_45);
 x_47 = l_Nat_repr(x_11);
-x_48 = lean_alloc_ctor(2, 1, 0);
+x_48 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
 x_49 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
@@ -12152,7 +12152,7 @@ lean_ctor_set(x_52, 1, x_51);
 x_53 = lean_ctor_get(x_3, 0);
 lean_inc(x_53);
 x_54 = l_Nat_repr(x_53);
-x_55 = lean_alloc_ctor(2, 1, 0);
+x_55 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_55, 0, x_54);
 x_56 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_56, 0, x_55);
@@ -16920,7 +16920,7 @@ lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean
 x_18 = lean_ctor_get(x_1, 2);
 x_19 = lean_nat_add(x_2, x_18);
 x_20 = l_Nat_repr(x_19);
-x_21 = lean_alloc_ctor(2, 1, 0);
+x_21 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -22329,7 +22329,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

@@ -15,7 +15,7 @@ structure ClassEntry where
     Position of the class `outParams`.
     For example, for class
     ```
-    class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+    class GetElem (cont : Type u) (idx : Type v) (elem : OutParam (Type w)) (dom : OutParam (cont → idx → Prop)) where
     ```
     `outParams := #[2, 3]`
   -/
@@ -77,14 +77,14 @@ def hasOutParams (env : Environment) (declName : Name) : Bool :=
 /--
   Auxiliary function for collection the position class `outParams`, and
   checking whether they are being correctly used.
-  A regular (i.e., non `outParam`) must not depend on an `outParam`.
+  A regular (i.e., non `OutParam`) must not depend on an `OutParam`.
   Reason for this restriction:
   When performing type class resolution, we replace arguments that
-  are `outParam`s with fresh metavariables. If regular parameters could
-  depend on `outParam`s, then we would also have to replace them with
+  are `OutParam`s with fresh metavariables. If regular parameters could
+  depend on `OutParam`s, then we would also have to replace them with
   fresh metavariables. Otherwise, the resulting expression could be type
   incorrect. This transformation would be counterintuitive to users since
-  we would implicitly treat these regular parameters as `outParam`s.
+  we would implicitly treat these regular parameters as `OutParam`s.
 -/
 private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except String (Array Nat) :=
   match type with
@@ -96,7 +96,7 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
       checkOutParam (i+1) (outParamFVarIds.push fvarId) (outParams.push i) b
     /- See issue #1852 for a motivation for `!bi.isInstImplicit` -/
     else if !bi.isInstImplicit && d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
-      Except.error s!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
+      Except.error s!"invalid class, parameter #{i+1} depends on `OutParam`, but it is not an `OutParam`"
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams

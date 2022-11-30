@@ -139,8 +139,8 @@ where
         have : m₁ = m₂ := List.le_antisymm hgt hlt
         subst m₂
         by_cases heq : k₁ + k₂ == 0 <;> simp! [heq, ih]
-        · simp [← Nat.add_assoc, ← Nat.right_distrib, eq_of_beq heq]
-        · simp [Nat.right_distrib, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
+        · simp [← Nat.add_assoc, ← Nat.add_mul, eq_of_beq heq]
+        · simp [Nat.add_mul, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
 
 theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (m : Mon) (p : Poly) : (p.insertSorted k m).denote ctx = p.denote ctx + k * m.denote ctx := by
   match p with
@@ -155,7 +155,7 @@ where
    match p with
    | [] => simp!
    | (k', m') :: p =>
-     simp! [go p, Nat.left_distrib, denote_insertSorted, Mon.mul_denote, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm, Nat.add_assoc]
+     simp! [go p, Nat.mul_add, denote_insertSorted, Mon.mul_denote, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm, Nat.add_assoc]
 
 theorem Poly.mul_denote (ctx : Context) (p₁ p₂ : Poly) : (p₁.mul p₂).denote ctx = p₁.denote ctx * p₂.denote ctx := by
   simp [mul, go]; simp!
@@ -164,7 +164,7 @@ where
     match p₁ with
     | [] => simp!
     | (k, m) :: p₁ =>
-      simp! [go p₁, Nat.left_distrib, add_denote, mulMon_denote,
+      simp! [go p₁, Nat.mul_add, add_denote, mulMon_denote,
              Nat.add_assoc, Nat.add_comm, Nat.add_left_comm,
              Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm]
 
@@ -178,7 +178,7 @@ theorem Expr.toPoly_denote (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.
   | mul a b => simp! [Poly.mul_denote, *]
 
 theorem Expr.eq_of_toPoly_eq (ctx : Context) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  have h := congr_arg (Poly.denote ctx) (eq_of_beq h)
   simp [toPoly_denote] at h
   assumption
 

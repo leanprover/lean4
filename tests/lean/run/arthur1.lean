@@ -261,7 +261,7 @@ def consume (p : Program) :
   | .uno  n,    .uno  e    => some (none, .seq (.decl n (.eval e)) p)
   | .uno  _,    .cons ..   => none
 
-theorem noDupOfConsumeNoDup
+theorem noDup_of_consume_noDup
   (h : ns.noDup) (h' : consume p' ns es = some (some l, p)) :
     l.noDup = true := by
   induction ns generalizing p' es with
@@ -339,7 +339,7 @@ def State.step : State → State
   | ret v ctx (.app e es k) => match v with
     | .lam $ .mk ns h p => match h' : consume p ns es with
       | some (some l, p) =>
-        ret (.lam $ .mk l (noDupOfConsumeNoDup h h') p) ctx k
+        ret (.lam $ .mk l (noDup_of_consume_noDup h h') p) ctx k
       | some (none, p) => prog p ctx (.block ctx k)
       | none => error .runTime ctx $ wrongNParameters e ns.length es.length
     | v                 => error .type ctx $ notAFunction e v
@@ -365,18 +365,18 @@ def State.step : State → State
   | s@(error ..) => s
   | s@(done ..)  => s
 
-def Context.equiv (cₗ cᵣ : Context) : Prop :=
+def Context.Equiv (cₗ cᵣ : Context) : Prop :=
   ∀ n : String, cₗ[n] = cᵣ[n]
 
 def State.stepN : State → Nat → State
   | s, 0     => s
   | s, n + 1 => s.step.stepN n
 
-def State.reaches (s₁ s₂ : State) : Prop :=
+def State.Reaches (s₁ s₂ : State) : Prop :=
   ∃ n, s₁.stepN n = s₂
 
-notation cₗ " ≃ " cᵣ:21 => Context.equiv cₗ cᵣ
-notation s₁ " ↠ " s₂ => State.reaches s₁ s₂
+notation cₗ " ≃ " cᵣ:21 => Context.Equiv cₗ cᵣ
+notation s₁ " ↠ " s₂ => State.Reaches s₁ s₂
 
 def State.ctx : State → Context
   | ret   _ c _ => c
@@ -385,14 +385,14 @@ def State.ctx : State → Context
   | error _ c _ => c
   | done  _ c   => c
 
-theorem Context.equivSelf {c : Context} : c ≃ c :=
+theorem Context.equiv_self {c : Context} : c ≃ c :=
   fun _ => rfl
 
 /-
-theorem State.skipStep (h : s = (prog .skip c k).step) : s.ctx ≃ c := by
+theorem State.skip_step (h : s = (prog .skip c k).step) : s.ctx ≃ c := by
   have : s.ctx = c := by rw [h, step, ctx]
-  simp only [this, Context.equivSelf]
+  simp only [this, Context.equiv_self]
 -/
 
-theorem State.skipClean : (prog .skip c .exit) ↠ (done .nil c) :=
+theorem State.skip_clean : (prog .skip c .exit) ↠ (done .nil c) :=
   ⟨2 , by simp only [stepN, step]⟩

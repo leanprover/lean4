@@ -6856,7 +6856,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -6874,7 +6874,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -6931,14 +6931,14 @@ lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_obje
 x_18 = lean_ctor_get(x_8, 0);
 x_19 = 1;
 x_20 = l_Lean_Name_toString(x_18, x_19);
-x_21 = lean_alloc_ctor(2, 1, 0);
+x_21 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_21, 0, x_20);
 x_22 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__2;
-x_23 = lean_alloc_ctor(4, 2, 0);
+x_23 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_21);
 x_24 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__4;
-x_25 = lean_alloc_ctor(4, 2, 0);
+x_25 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_25, 0, x_23);
 lean_ctor_set(x_25, 1, x_24);
 lean_ctor_set(x_8, 0, x_25);
@@ -6952,14 +6952,14 @@ lean_inc(x_26);
 lean_dec(x_8);
 x_27 = 1;
 x_28 = l_Lean_Name_toString(x_26, x_27);
-x_29 = lean_alloc_ctor(2, 1, 0);
+x_29 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__2;
-x_31 = lean_alloc_ctor(4, 2, 0);
+x_31 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_29);
 x_32 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__4;
-x_33 = lean_alloc_ctor(4, 2, 0);
+x_33 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
 x_34 = lean_alloc_ctor(1, 1, 0);
@@ -6985,14 +6985,14 @@ if (lean_is_exclusive(x_8)) {
 }
 x_38 = 1;
 x_39 = l_Lean_Name_toString(x_36, x_38);
-x_40 = lean_alloc_ctor(2, 1, 0);
+x_40 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
 x_41 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__2;
-x_42 = lean_alloc_ctor(4, 2, 0);
+x_42 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_42, 0, x_41);
 lean_ctor_set(x_42, 1, x_40);
 x_43 = l_Lean_Elab_Info_fmtHover_x3f_fmtModule_x3f___closed__4;
-x_44 = lean_alloc_ctor(4, 2, 0);
+x_44 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_44, 0, x_42);
 lean_ctor_set(x_44, 1, x_43);
 if (lean_is_scalar(x_37)) {
@@ -7060,27 +7060,27 @@ LEAN_EXPORT uint8_t l_Lean_Elab_Info_fmtHover_x3f_isAtomicFormat(lean_object* x_
 _start:
 {
 switch (lean_obj_tag(x_1)) {
-case 2:
+case 3:
 {
 uint8_t x_2; 
 x_2 = 1;
 return x_2;
 }
-case 3:
+case 4:
 {
 lean_object* x_3; 
 x_3 = lean_ctor_get(x_1, 1);
 x_1 = x_3;
 goto _start;
 }
-case 5:
+case 6:
 {
 lean_object* x_5; 
 x_5 = lean_ctor_get(x_1, 0);
 x_1 = x_5;
 goto _start;
 }
-case 6:
+case 7:
 {
 lean_object* x_7; 
 x_7 = lean_ctor_get(x_1, 1);
@@ -7119,7 +7119,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -7137,7 +7137,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -7155,7 +7155,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -7173,7 +7173,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -7316,11 +7316,11 @@ if (x_24 == 0)
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 lean_dec(x_19);
 x_25 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_26 = lean_alloc_ctor(4, 2, 0);
+x_26 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_15);
 x_27 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_28 = lean_alloc_ctor(4, 2, 0);
+x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = lean_alloc_ctor(1, 1, 0);
@@ -7341,25 +7341,25 @@ else
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 x_32 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__6;
-x_33 = lean_alloc_ctor(4, 2, 0);
+x_33 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set(x_33, 1, x_19);
 x_34 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__8;
-x_35 = lean_alloc_ctor(4, 2, 0);
+x_35 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_35, 0, x_33);
 lean_ctor_set(x_35, 1, x_34);
-x_36 = lean_alloc_ctor(4, 2, 0);
+x_36 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_36, 0, x_35);
 lean_ctor_set(x_36, 1, x_15);
-x_37 = lean_alloc_ctor(4, 2, 0);
+x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_32);
 x_38 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_39 = lean_alloc_ctor(4, 2, 0);
+x_39 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_39, 0, x_38);
 lean_ctor_set(x_39, 1, x_37);
 x_40 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_41 = lean_alloc_ctor(4, 2, 0);
+x_41 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_41, 0, x_39);
 lean_ctor_set(x_41, 1, x_40);
 x_42 = lean_alloc_ctor(1, 1, 0);
@@ -7476,18 +7476,18 @@ if (x_81 == 0)
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; 
 x_82 = lean_ctor_get(x_80, 0);
 x_83 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_84 = lean_alloc_ctor(4, 2, 0);
+x_84 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_84, 0, x_83);
 lean_ctor_set(x_84, 1, x_77);
 x_85 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__8;
-x_86 = lean_alloc_ctor(4, 2, 0);
+x_86 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_86, 0, x_84);
 lean_ctor_set(x_86, 1, x_85);
-x_87 = lean_alloc_ctor(4, 2, 0);
+x_87 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_87, 0, x_86);
 lean_ctor_set(x_87, 1, x_15);
 x_88 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_89 = lean_alloc_ctor(4, 2, 0);
+x_89 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_89, 0, x_87);
 lean_ctor_set(x_89, 1, x_88);
 x_90 = lean_alloc_ctor(1, 1, 0);
@@ -7507,18 +7507,18 @@ lean_inc(x_93);
 lean_inc(x_92);
 lean_dec(x_80);
 x_94 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_95 = lean_alloc_ctor(4, 2, 0);
+x_95 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_95, 0, x_94);
 lean_ctor_set(x_95, 1, x_77);
 x_96 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__8;
-x_97 = lean_alloc_ctor(4, 2, 0);
+x_97 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_97, 0, x_95);
 lean_ctor_set(x_97, 1, x_96);
-x_98 = lean_alloc_ctor(4, 2, 0);
+x_98 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_98, 0, x_97);
 lean_ctor_set(x_98, 1, x_15);
 x_99 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_100 = lean_alloc_ctor(4, 2, 0);
+x_100 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_100, 0, x_98);
 lean_ctor_set(x_100, 1, x_99);
 x_101 = lean_alloc_ctor(1, 1, 0);
@@ -7768,21 +7768,21 @@ lean_inc(x_32);
 lean_dec(x_24);
 x_33 = 1;
 x_34 = l_Lean_Name_toString(x_32, x_33);
-x_35 = lean_alloc_ctor(2, 1, 0);
+x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_37 = lean_alloc_ctor(4, 2, 0);
+x_37 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_35);
 x_38 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__8;
-x_39 = lean_alloc_ctor(4, 2, 0);
+x_39 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
-x_40 = lean_alloc_ctor(4, 2, 0);
+x_40 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_40, 0, x_39);
 lean_ctor_set(x_40, 1, x_31);
 x_41 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_42 = lean_alloc_ctor(4, 2, 0);
+x_42 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_42, 0, x_40);
 lean_ctor_set(x_42, 1, x_41);
 x_43 = lean_alloc_ctor(1, 1, 0);
@@ -7807,21 +7807,21 @@ lean_inc(x_48);
 lean_dec(x_24);
 x_49 = 1;
 x_50 = l_Lean_Name_toString(x_48, x_49);
-x_51 = lean_alloc_ctor(2, 1, 0);
+x_51 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_51, 0, x_50);
 x_52 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__2;
-x_53 = lean_alloc_ctor(4, 2, 0);
+x_53 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_53, 0, x_52);
 lean_ctor_set(x_53, 1, x_51);
 x_54 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__8;
-x_55 = lean_alloc_ctor(4, 2, 0);
+x_55 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_55, 0, x_53);
 lean_ctor_set(x_55, 1, x_54);
-x_56 = lean_alloc_ctor(4, 2, 0);
+x_56 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_56, 0, x_55);
 lean_ctor_set(x_56, 1, x_46);
 x_57 = l_Lean_Elab_Info_fmtHover_x3f_fmtTermAndModule_x3f___lambda__1___closed__4;
-x_58 = lean_alloc_ctor(4, 2, 0);
+x_58 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_58, 0, x_56);
 lean_ctor_set(x_58, 1, x_57);
 x_59 = lean_alloc_ctor(1, 1, 0);
@@ -7927,7 +7927,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Info_fmtHover_x3f___lambda__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -8029,7 +8029,7 @@ lean_dec(x_9);
 x_15 = lean_ctor_get(x_10, 0);
 lean_inc(x_15);
 lean_dec(x_10);
-x_16 = lean_alloc_ctor(2, 1, 0);
+x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = lean_array_push(x_2, x_16);
 x_18 = lean_box(0);

@@ -5138,7 +5138,6 @@ x_28 = l___private_Lean_Elab_Notation_0__Lean_Elab_Command_antiquote(x_27, x_2);
 lean_dec(x_27);
 lean_inc(x_15);
 x_29 = l_Lean_Name_append(x_7, x_15);
-lean_dec(x_7);
 x_30 = lean_box(2);
 x_31 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_31, 0, x_30);

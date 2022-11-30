@@ -17,7 +17,7 @@ instance {ε σ : Type} {α : Type} [Inhabited ε] : Inhabited (EST ε σ α) :=
 instance (σ : Type) : Monad (ST σ) := inferInstanceAs (Monad (EST _ _))
 
 -- Auxiliary class for inferring the "state" of `EST` and `ST` monads
-class STWorld (σ : outParam Type) (m : Type → Type)
+class STWorld (σ : OutParam Type) (m : Type → Type)
 
 instance {σ m n} [MonadLift m n] [STWorld σ m] : STWorld σ n := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
@@ -56,7 +56,7 @@ namespace Prim
 
 /-- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
-  let _ : Inhabited α := Classical.inhabited_of_nonempty r.h
+  let _ : Inhabited α := Classical.inhabitedOfNonempty r.h
   pure default
 
 @[extern "lean_st_mk_ref"]

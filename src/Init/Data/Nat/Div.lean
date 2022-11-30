@@ -104,7 +104,7 @@ theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
   | Or.inr h₁ => (mod_eq a b).symm ▸ if_pos ⟨h₁, h⟩
 
-theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
+theorem mod_lt (x : Nat) {y : Nat} : 0 < y → x % y < y := by
   induction x, y using mod.inductionOn with
   | base x y h₁ =>
     intro h₂
@@ -156,7 +156,7 @@ theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
   | isTrue h =>
     simp [h]
     have ih := div_add_mod (m - n) n
-    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+    rw [Nat.mul_add, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
 decreasing_by apply div_rec_lemma; assumption
 
 end Nat

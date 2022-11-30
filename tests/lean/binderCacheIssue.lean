@@ -1,6 +1,6 @@
 universe u v w
 
-class Funtype (N : Sort u) (O : outParam (Sort v)) (T : outParam (Sort w)) :=
+class Funtype (N : Sort u) (O : OutParam (Sort v)) (T : OutParam (Sort w)) :=
   pack : O -> N
   unpack : N -> O
   apply : N -> T

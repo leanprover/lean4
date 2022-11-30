@@ -9195,7 +9195,7 @@ x_21 = lean_ctor_get(x_15, 1);
 lean_inc(x_21);
 lean_dec(x_15);
 x_22 = lean_expr_dbg_to_string(x_12);
-x_23 = lean_alloc_ctor(2, 1, 0);
+x_23 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_23, 0, x_22);
 x_24 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_24, 0, x_23);

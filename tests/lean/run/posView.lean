@@ -27,7 +27,7 @@ inductive PosView where
   Helper theorem for proving termination.
   In the future, we should be able to mark it as a forward reasoning theorem for `decreasing_tactic`,
   and it will be applied automatically for us. -/
-theorem sizeof_lt_of_view_eq (h : Pos.view p₁ = PosView.succ p₂) : sizeOf p₂ < sizeOf p₁ := by
+theorem sizeOf_lt_of_view_eq (h : Pos.view p₁ = PosView.succ p₂) : sizeOf p₂ < sizeOf p₁ := by
   match p₁, p₂ with
   | { pred := Nat.succ n }, { pred := Nat.succ m } => simp [Pos.view] at h; simp_arith [h]
   | { pred := Nat.succ n }, { pred := 0 }          => simp [Pos.view] at h; simp_arith [h]
@@ -41,5 +41,5 @@ def f (p : Pos) : Pos :=
   match h : p.view with -- It would also be nice to have a feature to force Lean to applies "views" automatically for us.
   | 1 => 1
   | .succ x =>
-    have : sizeOf x < sizeOf p := sizeof_lt_of_view_eq h -- See comment at `sizeof_lt_of_view_eq`
+    have : sizeOf x < sizeOf p := sizeOf_lt_of_view_eq h -- See comment at `sizeOf_lt_of_view_eq`
     f x + x + 1

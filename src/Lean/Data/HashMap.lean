@@ -7,7 +7,7 @@ import Lean.Data.AssocList
 namespace Lean
 
 def HashMapBucket (α : Type u) (β : Type v) :=
-  { b : Array (AssocList α β) // b.size.isPowerOfTwo }
+  { b : Array (AssocList α β) // b.size.IsPowerOfTwo }
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
   ⟨ data.val.uset i d h,
@@ -32,7 +32,7 @@ variable {α : Type u} {β : Type v}
 
 /- Remark: we use a C implementation because this function is performance critical. -/
 @[extern c inline "(size_t)(#2) & (lean_unbox(#1) - 1)"]
-private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize // u.toNat < sz } :=
+private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.IsPowerOfTwo) : { u : USize // u.toNat < sz } :=
   -- TODO: avoid `if` in the reference implementation
   let u := hash.toUSize &&& (sz.toUSize - 1)
   if h' : u.toNat < sz then

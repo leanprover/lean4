@@ -35,8 +35,8 @@ inductive WellFounded {α : Sort u} (r : α → α → Prop) : Prop where
   | intro (h : ∀ a, Acc r a) : WellFounded r
 
 class WellFoundedRelation (α : Sort u) where
-  rel : α → α → Prop
-  wf  : WellFounded rel
+  Rel : α → α → Prop
+  wf  : WellFounded Rel
 
 namespace WellFounded
 def apply {α : Sort u} {r : α → α → Prop} (wf : WellFounded r) (a : α) : Acc r a :=
@@ -46,7 +46,7 @@ section
 variable {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
 
 theorem recursion {C : α → Sort v} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a := by
-  induction (apply hwf a) with
+  induction apply hwf a with
   | intro x₁ _ ih => exact h x₁ ih
 
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
@@ -59,7 +59,8 @@ noncomputable def fixF (x : α) (a : Acc r x) : C x := by
   induction a with
   | intro x₁ _ ih => exact F x₁ ih
 
-def fixFEq (x : α) (acx : Acc r x) : fixF F x acx = F x (fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p)) := by
+theorem fixF_eq (x : α) (acx : Acc r x) :
+    fixF F x acx = F x fun (y : α) (p : r y x) => fixF F y (Acc.inv acx p) := by
   induction acx with
   | intro x r _ => exact rfl
 
@@ -74,14 +75,14 @@ noncomputable def fix (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) �
 -- Well-founded fixpoint satisfies fixpoint equation
 theorem fix_eq (hwf : WellFounded r) (F : ∀ x, (∀ y, r y x → C y) → C x) (x : α) :
     fix hwf F x = F x (fun y _ => fix hwf F y) :=
-  fixFEq F x (apply hwf x)
+  fixF_eq F x (apply hwf x)
 end WellFounded
 
 open WellFounded
 
 -- Empty relation is well-founded
 def emptyWf {α : Sort u} : WellFoundedRelation α where
-  rel := emptyRelation
+  Rel := EmptyRelation
   wf  := by
     apply WellFounded.intro
     intro a
@@ -93,6 +94,7 @@ def emptyWf {α : Sort u} : WellFoundedRelation α where
 namespace Subrelation
 variable {α : Sort u} {r q : α → α → Prop}
 
+-- note: this is deliberately a def because acc needs to compute
 def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a := by
   induction ac with
   | intro x _ ih =>
@@ -108,7 +110,8 @@ end Subrelation
 namespace InvImage
 variable {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
+-- note: this is deliberately a def because acc needs to compute
+private def acc_aux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = b → Acc (InvImage r f) x := by
   induction ac with
   | intro x acx ih =>
     intro z e
@@ -117,21 +120,24 @@ private def accAux (f : α → β) {b : β} (ac : Acc r b) : (x : α) → f x = 
     subst x
     apply ih (f y) lt y rfl
 
+-- note: this is deliberately a def because acc needs to compute
 def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
-  accAux f ac a rfl
+  acc_aux f ac a rfl
 
+-- note: this is deliberately a def because acc needs to compute
 def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
   ⟨fun a => accessible f (apply h (f a))⟩
 end InvImage
 
 @[reducible] def invImage (f : α → β) (h : WellFoundedRelation β) : WellFoundedRelation α where
-  rel := InvImage h.rel f
+  Rel := InvImage h.Rel f
   wf  := InvImage.wf f h.wf
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace TC
 variable {α : Sort u} {r : α → α → Prop}
 
+-- note: this is deliberately a def because acc needs to compute
 def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
   induction ac with
   | intro x acx ih =>
@@ -141,6 +147,7 @@ def accessible {z : α} (ac : Acc r z) : Acc (TC r) z := by
     | base a b rab => exact ih a rab
     | trans a b c rab _ _ ih₂ => apply Acc.inv (ih₂ acx ih) rab
 
+-- note: this is deliberately a def because acc needs to compute
 def wf (h : WellFounded r) : WellFounded (TC r) :=
   ⟨fun a => accessible (apply h a)⟩
 end TC
@@ -149,7 +156,7 @@ namespace Nat
 
 -- less-than is well-founded
 def lt_wfRel : WellFoundedRelation Nat where
-  rel := Nat.lt
+  Rel := Nat.lt
   wf  := by
     apply WellFounded.intro
     intro n
@@ -228,7 +235,8 @@ section
 variable {α : Type u} {β : Type v}
 variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
+-- note: this is deliberately a def because acc needs to compute
+def lex_accessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
   induction (aca a) generalizing b with
   | intro xa _ iha =>
     induction (acb b) with
@@ -241,24 +249,25 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
 
 -- The lexicographical order of well founded relations is well-founded
 @[reducible] def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
-  rel := Prod.Lex ha.rel hb.rel
-  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
+  Rel := Prod.Lex ha.Rel hb.Rel
+  wf  := ⟨fun (a, b) => lex_accessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
 
 instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
   lex ha hb
 
 -- relational product is a Subrelation of the Lex
-def RProdSubLex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
+theorem rprod_sub_lex (a : α × β) (b : α × β) (h : RProd ra rb a b) : Prod.Lex ra rb a b := by
   cases h with
   | intro h₁ h₂ => exact Prod.Lex.left _ _ h₁
 
 -- The relational product of well founded relations is well-founded
+-- note: this is deliberately a def because acc needs to compute
 def rprod (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
-  rel := RProd ha.rel hb.rel
+  Rel := RProd ha.Rel hb.Rel
   wf  := by
-    apply Subrelation.wf (r := Prod.Lex ha.rel hb.rel) (h₂ := (lex ha hb).wf)
+    apply Subrelation.wf (r := Prod.Lex ha.Rel hb.Rel) (h₂ := (lex ha hb).wf)
     intro a b h
-    exact RProdSubLex a b h
+    exact rprod_sub_lex a b h
 
 end
 
@@ -280,7 +289,8 @@ section
 variable {α : Sort u} {β : α → Sort v}
 variable {r  : α → α → Prop} {s : ∀ (a : α), β a → β a → Prop}
 
-def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
+-- note: this is deliberately a def because acc needs to compute
+def lex_accessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b : β a) : Acc (Lex r s) ⟨a, b⟩ := by
   induction aca with
   | intro xa _ iha =>
     induction (WellFounded.apply (acb xa) b) with
@@ -293,8 +303,8 @@ def lexAccessible {a} (aca : Acc r a) (acb : (a : α) → WellFounded (s a)) (b 
 
 -- The lexicographical order of well founded relations is well-founded
 @[reducible] def lex (ha : WellFoundedRelation α) (hb : (a : α) → WellFoundedRelation (β a)) : WellFoundedRelation (PSigma β) where
-  rel := Lex ha.rel (fun a => hb a |>.rel)
-  wf  := WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha.wf a) (fun a => hb a |>.wf) b
+  Rel := Lex ha.Rel (fun a => hb a |>.Rel)
+  wf  := WellFounded.intro fun ⟨a, b⟩ => lex_accessible (WellFounded.apply ha.wf a) (fun a => hb a |>.wf) b
 
 instance [ha : WellFoundedRelation α] [hb : (a : α) → WellFoundedRelation (β a)] : WellFoundedRelation (PSigma β) :=
   lex ha hb
@@ -304,11 +314,12 @@ end
 section
 variable {α : Sort u} {β : Sort v}
 
-def lexNdep (r : α → α → Prop) (s : β → β → Prop) :=
+def LexNDep (r : α → α → Prop) (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
   Lex r (fun _ => s)
 
-def lexNdepWf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (lexNdep r s) :=
-  WellFounded.intro fun ⟨a, b⟩ => lexAccessible (WellFounded.apply ha a) (fun _ => hb) b
+-- note: this is deliberately a def because acc needs to compute
+def lexNDep_wf {r  : α → α → Prop} {s : β → β → Prop} (ha : WellFounded r) (hb : WellFounded s) : WellFounded (LexNDep r s) :=
+  WellFounded.intro fun ⟨a, b⟩ => lex_accessible (WellFounded.apply ha a) (fun _ => hb) b
 end
 
 section
@@ -325,7 +336,8 @@ open WellFounded
 variable {α : Sort u} {β : Sort v}
 variable {r  : α → α → Prop} {s : β → β → Prop}
 
-def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
+-- note: this is deliberately a def because acc needs to compute
+def revLex_accessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) → Acc (RevLex r s) ⟨a, b⟩ := by
   induction acb with
   | intro xb _ ihb =>
     intro a
@@ -337,17 +349,18 @@ def revLexAccessible {b} (acb : Acc s b) (aca : (a : α) → Acc r a): (a : α) 
       | left  => apply iha; assumption
       | right => apply ihb; assumption
 
-def revLex (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
-  WellFounded.intro fun ⟨a, b⟩ => revLexAccessible (apply hb b) (WellFounded.apply ha) a
+-- note: this is deliberately a def because acc needs to compute
+def revLex_wf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
+  WellFounded.intro fun ⟨a, b⟩ => revLex_accessible (apply hb b) (WellFounded.apply ha) a
 end
 
 section
 def SkipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (fun _ => β) → @PSigma α (fun _ => β) → Prop :=
-  RevLex emptyRelation s
+  RevLex EmptyRelation s
 
 def skipLeft (α : Type u) {β : Type v} (hb : WellFoundedRelation β) : WellFoundedRelation (PSigma fun _ : α => β) where
-  rel := SkipLeft α hb.rel
-  wf  := revLex emptyWf.wf hb.wf
+  Rel := SkipLeft α hb.Rel
+  wf  := revLex_wf emptyWf.wf hb.wf
 
 def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : SkipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
   RevLex.right _ _ h

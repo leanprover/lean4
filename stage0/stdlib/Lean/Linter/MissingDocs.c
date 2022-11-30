@@ -1783,7 +1783,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_559____lambda__6___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1796,10 +1796,10 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = l_List_lengthTRAux___rarg(x_2, x_3);
 x_5 = l_Nat_repr(x_4);
-x_6 = lean_alloc_ctor(2, 1, 0);
+x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_559____lambda__6___closed__2;
-x_8 = lean_alloc_ctor(4, 2, 0);
+x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 return x_8;
@@ -2816,7 +2816,7 @@ if (x_23 == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 x_24 = lean_ctor_get(x_15, 0);
 x_25 = lean_io_error_to_string(x_24);
-x_26 = lean_alloc_ctor(2, 1, 0);
+x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 x_27 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
@@ -2836,7 +2836,7 @@ lean_inc(x_30);
 lean_inc(x_29);
 lean_dec(x_15);
 x_31 = lean_io_error_to_string(x_29);
-x_32 = lean_alloc_ctor(2, 1, 0);
+x_32 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_32, 0, x_31);
 x_33 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
@@ -8052,7 +8052,7 @@ if (x_57 == 0)
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
 x_58 = lean_ctor_get(x_20, 0);
 x_59 = lean_io_error_to_string(x_58);
-x_60 = lean_alloc_ctor(2, 1, 0);
+x_60 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_60, 0, x_59);
 x_61 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_61, 0, x_60);
@@ -8071,7 +8071,7 @@ lean_inc(x_64);
 lean_inc(x_63);
 lean_dec(x_20);
 x_65 = lean_io_error_to_string(x_63);
-x_66 = lean_alloc_ctor(2, 1, 0);
+x_66 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_66, 0, x_65);
 x_67 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_67, 0, x_66);

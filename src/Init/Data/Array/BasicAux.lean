@@ -32,7 +32,7 @@ private theorem List.of_toArrayAux_eq_toArrayAux {as bs : List α} {cs ds : Arra
     have := Array.of_push_eq_push ih₂
     simp [this]
 
-@[simp] theorem List.toArray_eq_toArray_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
+@[simp] theorem List.toArray_inj_eq (as bs : List α) : (as.toArray = bs.toArray) = (as = bs) := by
   apply propext; apply Iff.intro
   · intro h; simp [toArray] at h; have := of_toArrayAux_eq_toArrayAux h rfl; exact this.1
   · intro h; rw [h]

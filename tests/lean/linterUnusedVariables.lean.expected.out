@@ -26,7 +26,7 @@ linterUnusedVariables.lean:192:19-192:20: warning: unused variable `x` [linter.u
 linterUnusedVariables.lean:196:6-196:7: warning: unused variable `y` [linter.unusedVariables]
 linterUnusedVariables.lean:201:6-201:7: warning: unused variable `y` [linter.unusedVariables]
 linterUnusedVariables.lean:206:6-206:7: warning: unused variable `y` [linter.unusedVariables]
-linterUnusedVariables.lean:214:32-214:33: warning: unused variable `b` [linter.unusedVariables]
+linterUnusedVariables.lean:214:35-214:36: warning: unused variable `b` [linter.unusedVariables]
 linterUnusedVariables.lean:226:27-226:28: error: don't know how to synthesize placeholder
 context:
 bar : ?m

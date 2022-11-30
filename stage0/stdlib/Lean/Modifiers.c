@@ -157,7 +157,6 @@ x_5 = l_Lean_Name_append(x_4, x_3);
 x_6 = lean_unsigned_to_nat(0u);
 x_7 = l_Lean_Name_num___override(x_5, x_6);
 x_8 = l_Lean_Name_append(x_7, x_2);
-lean_dec(x_7);
 return x_8;
 }
 }

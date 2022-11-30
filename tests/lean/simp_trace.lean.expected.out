@@ -49,9 +49,9 @@ Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel]
 [Meta.Tactic.simp.rewrite] h:1000, 1 ≤ x ==> True
 [Meta.Tactic.simp.rewrite] @Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (if h : 1 ≤ x then x else 0) = if _h : 1 ≤ x then x else 0 ==> True
-Try this: simp only [and_self, iff_self]
-[Meta.Tactic.simp.rewrite] and_self:1000, b ∧ b ==> b
-[Meta.Tactic.simp.rewrite] iff_self:1000, a ∧ b ↔ a ∧ b ==> True
+Try this: simp only [and_self_eq, iff_self_eq]
+[Meta.Tactic.simp.rewrite] and_self_eq:1000, b ∧ b ==> b
+[Meta.Tactic.simp.rewrite] iff_self_eq:1000, a ∧ b ↔ a ∧ b ==> True
 Try this: simp only [my_thm]
 [Meta.Tactic.simp.rewrite] @my_thm:1000, b ∧ b ==> b
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (a ∧ b) = (a ∧ b) ==> True

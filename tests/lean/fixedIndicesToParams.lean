@@ -1,9 +1,9 @@
-inductive sublist : List α → List α → Prop
-  | slnil : sublist [] []
-  | cons l₁ l₂ a : sublist l₁ l₂ → sublist l₁ (a :: l₂)
-  | cons2 l₁ l₂ a : sublist l₁ l₂ → sublist (a :: l₁) (a :: l₂)
+inductive Sublist : List α → List α → Prop
+  | slnil : Sublist [] []
+  | cons l₁ l₂ a : Sublist l₁ l₂ → Sublist l₁ (a :: l₂)
+  | cons2 l₁ l₂ a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
 
-#print sublist
+#print Sublist
 
 inductive Foo : List α → Type _  -- Make sure we don't need to use `_` or can use `u`
   | mk₁ : Foo []

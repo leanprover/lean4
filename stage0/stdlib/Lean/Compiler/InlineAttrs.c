@@ -588,6 +588,7 @@ x_4 = l_Lean_Expr_isConst(x_3);
 if (x_4 == 0)
 {
 uint8_t x_5; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_5 = 0;
 return x_5;
@@ -617,6 +618,7 @@ else
 {
 uint8_t x_13; 
 lean_dec(x_6);
+lean_dec(x_2);
 x_13 = 1;
 return x_13;
 }
@@ -625,6 +627,7 @@ else
 {
 uint8_t x_14; 
 lean_dec(x_6);
+lean_dec(x_2);
 x_14 = 1;
 return x_14;
 }
@@ -913,7 +916,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isValidMacroInline___lambda__2(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_2);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -935,7 +937,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
-x_6 = lean_alloc_ctor(2, 1, 0);
+x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);

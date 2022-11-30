@@ -17,7 +17,7 @@ inductive HasType : Fin n → Vector Ty n → Ty → Type where
 inductive Foo : HasType k ctx ty → Prop
                         --^ $/lean/plainTermGoal
 
-def foo : HasType k ctx ty → Prop
+def Bar : HasType k ctx ty → Prop
                   --^ $/lean/plainTermGoal
   | _ => True
 

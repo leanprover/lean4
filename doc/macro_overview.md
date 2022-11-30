@@ -338,14 +338,14 @@ We can also create the syntax transformer declaration ourselves instead of using
 myExFalsoParser]` to associate our declaration with the parser:
 ```lean
 # open Lean
-syntax (name := myExfalsoParser) "myExfalso" : tactic
+syntax (name := myExfalsoParser) "my_exfalso" : tactic
 
 -- remember that `Macro` is a synonym for `Syntax -> TacticM Unit`
 @[macro myExfalsoParser] def implMyExfalso : Macro :=
 fun stx => `(tactic| apply False.elim)
 
 example (p : Prop) (h : p) (f : p -> False) : 3 = 2 := by
-  myExfalso
+  my_exfalso
   exact f h
 ```
 
@@ -353,14 +353,14 @@ In the above example, we're still using the sugar Lean provides for creating
 quotations, as it feels more intuitive and saves us some work. It is possible to
 forego the sugar altogether:
 ```lean
-syntax (name := myExfalsoParser) "myExfalso" : tactic
+syntax (name := myExfalsoParser) "my_exfalso" : tactic
 
 @[macro myExfalsoParser] def implMyExfalso : Lean.Macro :=
   fun stx => pure (Lean.mkNode `Lean.Parser.Tactic.apply
     #[Lean.mkAtomFrom stx "apply", Lean.mkCIdentFrom stx ``False.elim])
 
 example (p : Prop) (h : p) (f : p -> False) : 3 = 2 := by
-  myExfalso
+  my_exfalso
   exact f h
 ```
 

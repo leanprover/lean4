@@ -9104,7 +9104,7 @@ x_33 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
 x_34 = l_Nat_repr(x_25);
-x_35 = lean_alloc_ctor(2, 1, 0);
+x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
 x_36 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
@@ -9116,7 +9116,7 @@ x_39 = lean_alloc_ctor(10, 2, 0);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set(x_39, 1, x_38);
 x_40 = l_Nat_repr(x_15);
-x_41 = lean_alloc_ctor(2, 1, 0);
+x_41 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
 x_42 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_42, 0, x_41);
@@ -11235,7 +11235,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_ElimApp_evalAlts_go___lambda__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -14487,7 +14487,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_resolveGlobalConst___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__3___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -14779,7 +14779,7 @@ x_27 = lean_string_append(x_23, x_26);
 lean_dec(x_26);
 x_28 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__5;
 x_29 = lean_string_append(x_27, x_28);
-x_30 = lean_alloc_ctor(2, 1, 0);
+x_30 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -14856,7 +14856,7 @@ x_54 = lean_string_append(x_50, x_53);
 lean_dec(x_53);
 x_55 = l_Lean_Elab_Tactic_ElimApp_setMotiveArg___closed__5;
 x_56 = lean_string_append(x_54, x_55);
-x_57 = lean_alloc_ctor(2, 1, 0);
+x_57 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_58, 0, x_57);

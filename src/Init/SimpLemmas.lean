@@ -73,37 +73,37 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
   | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]; exact h₂ h
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]; exact h₃ h
 
-@[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
+@[simp] theorem ne_eq_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 @[simp] theorem ite_true (a b : α) : (if True then a else b) = a := rfl
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
 @[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
-@[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.1), fun h => ⟨h, h⟩⟩
-@[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
-@[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
-@[simp] theorem and_false (p : Prop) : (p ∧ False) = False := eq_false (·.2)
-@[simp] theorem false_and (p : Prop) : (False ∧ p) = False := eq_false (·.1)
-@[simp] theorem or_self (p : Prop) : (p ∨ p) = p := propext ⟨fun | .inl h | .inr h => h, .inl⟩
-@[simp] theorem or_true (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
-@[simp] theorem true_or (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
-@[simp] theorem or_false (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
-@[simp] theorem false_or (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
-@[simp] theorem iff_self (p : Prop) : (p ↔ p) = True := eq_true .rfl
-@[simp] theorem iff_true (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
-@[simp] theorem true_iff (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
-@[simp] theorem iff_false (p : Prop) : (p ↔ False) = ¬p := propext ⟨(·.1), (⟨·, False.elim⟩)⟩
-@[simp] theorem false_iff (p : Prop) : (False ↔ p) = ¬p := propext ⟨(·.2), (⟨False.elim, ·⟩)⟩
-@[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
-@[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
-@[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
+@[simp] theorem and_self_eq (p : Prop) : (p ∧ p) = p := propext ⟨(·.1), fun h => ⟨h, h⟩⟩
+@[simp] theorem and_true_eq (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
+@[simp] theorem true_and_eq (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
+@[simp] theorem and_false_eq (p : Prop) : (p ∧ False) = False := eq_false (·.2)
+@[simp] theorem false_and_eq (p : Prop) : (False ∧ p) = False := eq_false (·.1)
+@[simp] theorem or_self_eq (p : Prop) : (p ∨ p) = p := propext ⟨fun | .inl h | .inr h => h, .inl⟩
+@[simp] theorem or_true_eq (p : Prop) : (p ∨ True) = True := eq_true (.inr trivial)
+@[simp] theorem true_or_eq (p : Prop) : (True ∨ p) = True := eq_true (.inl trivial)
+@[simp] theorem or_false_eq (p : Prop) : (p ∨ False) = p := propext ⟨fun (.inl h) => h, .inl⟩
+@[simp] theorem false_or_eq (p : Prop) : (False ∨ p) = p := propext ⟨fun (.inr h) => h, .inr⟩
+@[simp] theorem iff_self_eq (p : Prop) : (p ↔ p) = True := eq_true .rfl
+@[simp] theorem iff_true_eq (p : Prop) : (p ↔ True) = p := propext ⟨(·.2 trivial), fun h => ⟨fun _ => trivial, fun _ => h⟩⟩
+@[simp] theorem true_iff_eq (p : Prop) : (True ↔ p) = p := propext ⟨(·.1 trivial), fun h => ⟨fun _ => h, fun _ => trivial⟩⟩
+@[simp] theorem iff_false_eq (p : Prop) : (p ↔ False) = ¬p := propext ⟨(·.1), (⟨·, False.elim⟩)⟩
+@[simp] theorem false_iff_eq (p : Prop) : (False ↔ p) = ¬p := propext ⟨(·.2), (⟨False.elim, ·⟩)⟩
+@[simp] theorem false_implies_eq (p : Prop) : (False → p) = True := eq_true False.elim
+@[simp] theorem implies_true_eq (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
+@[simp] theorem true_implies_eq (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
 
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl
 @[simp] theorem Bool.false_or (b : Bool) : (false || b) = b  := by cases b <;> rfl
 @[simp] theorem Bool.true_or (b : Bool) : (true || b) = true := by cases b <;> rfl
 @[simp] theorem Bool.or_self (b : Bool) : (b || b) = b       := by cases b <;> rfl
-@[simp] theorem Bool.or_eq_true (a b : Bool) : ((a || b) = true) = (a = true ∨ b = true) := by
+@[simp] theorem Bool.or_eq_true_eq (a b : Bool) : ((a || b) = true) = (a = true ∨ b = true) := by
   cases a <;> cases b <;> decide
 
 @[simp] theorem Bool.and_false (b : Bool) : (b && false) = false := by cases b <;> rfl
@@ -111,7 +111,7 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
 @[simp] theorem Bool.false_and (b : Bool) : (false && b) = false := by cases b <;> rfl
 @[simp] theorem Bool.true_and (b : Bool) : (true && b) = b       := by cases b <;> rfl
 @[simp] theorem Bool.and_self (b : Bool) : (b && b) = b          := by cases b <;> rfl
-@[simp] theorem Bool.and_eq_true (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by
+@[simp] theorem Bool.and_eq_true_eq (a b : Bool) : ((a && b) = true) = (a = true ∧ b = true) := by
   cases a <;> cases b <;> decide
 
 theorem Bool.and_assoc (a b c : Bool) : (a && b && c) = (a && (b && c)) := by
@@ -127,17 +127,17 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_eq_true' (b : Bool) : ((!b) = true) = (b = false) := by cases b <;> simp
 @[simp] theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by cases b <;> simp
 
-@[simp] theorem Bool.beq_to_eq (a b : Bool) :
+@[simp] theorem Bool.beq_to_eq_eq (a b : Bool) :
   (a == b) = (a = b) := by cases a <;> cases b <;> decide
-@[simp] theorem Bool.not_beq_to_not_eq (a b : Bool) :
+@[simp] theorem Bool.not_beq_to_not_eq_eq (a b : Bool) :
   (!(a == b)) = ¬(a = b) := by cases a <;> cases b <;> decide
 
-@[simp] theorem Bool.not_eq_true (b : Bool) : (¬(b = true)) = (b = false) := by cases b <;> decide
-@[simp] theorem Bool.not_eq_false (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
+@[simp] theorem Bool.not_eq_true_eq (b : Bool) : (¬(b = true)) = (b = false) := by cases b <;> decide
+@[simp] theorem Bool.not_eq_false_eq (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
 
-@[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
+@[simp] theorem decide_eq_true_eq_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
 @[simp] theorem decide_not [h : Decidable p] : decide (¬ p) = !decide p := by cases h <;> rfl
-@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+@[simp] theorem not_decide_eq_true_eq [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
 
 @[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 

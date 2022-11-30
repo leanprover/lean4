@@ -32,7 +32,7 @@ instance : Monad (ExceptCpsT ε m) where
   pure a   := fun _ k _ => k a
   bind x f := fun _ k₁ k₂ => x _ (fun a => f a _ k₁ k₂) k₂
 
-instance : LawfulMonad (ExceptCpsT σ m) := by
+instance : IsLawfulMonad (ExceptCpsT σ m) := by
   refine' { .. } <;> intros <;> rfl
 
 instance : MonadExceptOf ε (ExceptCpsT ε m) where
@@ -61,7 +61,7 @@ instance [Inhabited ε] : Inhabited (ExceptCpsT ε m α) where
 
 @[simp] theorem runCatch_pure [Monad m] : runCatch (pure x : ExceptCpsT α m α) = pure x := rfl
 
-@[simp] theorem runCatch_lift {α : Type u} [Monad m] [LawfulMonad m] (x : m α) : runCatch (ExceptCpsT.lift x : ExceptCpsT α m α) = x := by
+@[simp] theorem runCatch_lift {α : Type u} [Monad m] [IsLawfulMonad m] (x : m α) : runCatch (ExceptCpsT.lift x : ExceptCpsT α m α) = x := by
   simp [runCatch, lift]
 
 @[simp] theorem runCatch_throw [Monad m] : runCatch (throw a : ExceptCpsT α m α) = pure a := rfl

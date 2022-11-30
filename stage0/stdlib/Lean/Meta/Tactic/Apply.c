@@ -778,7 +778,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Nat_forM_loop___at_Lean_Meta_synthAppInstances___spec__1___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4000,6 +4000,7 @@ lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_42);
+lean_inc(x_1);
 x_44 = l_Lean_Meta_splitAndCore_go(x_1, x_42, x_3, x_4, x_5, x_6, x_7, x_11);
 if (lean_obj_tag(x_44) == 0)
 {
@@ -4075,6 +4076,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_1);
 x_61 = !lean_is_exclusive(x_44);
 if (x_61 == 0)
 {
@@ -4103,6 +4105,7 @@ lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_1);
 x_65 = !lean_is_exclusive(x_9);
 if (x_65 == 0)
 {
@@ -4130,7 +4133,6 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_Meta_splitAndCore_go(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -4211,7 +4213,6 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 x_28 = l_Lean_Meta_splitAndCore_go(x_20, x_12, x_26, x_3, x_4, x_5, x_6, x_27);
-lean_dec(x_20);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; 
@@ -4375,7 +4376,6 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 x_68 = l_Lean_Meta_splitAndCore_go(x_60, x_51, x_66, x_3, x_4, x_5, x_6, x_67);
-lean_dec(x_60);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 

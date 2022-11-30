@@ -224,7 +224,7 @@ Here `xs : ρ` is the type of the collection to iterate over, `x : α`
 is the element type which is made available inside the loop, and `m` is the monad
 for the encompassing `do` block.
 -/
-class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) where
+class ForIn (m : Type u₁ → Type u₂) (ρ : Type u) (α : OutParam (Type v)) where
   /-- `forIn x b f : m β` runs a for-loop in the monad `m` with additional state `β`.
   This traverses over the "contents" of `x`, and passes the elements `a : α` to
   `f : α → β → m (ForInStep β)`. `b : β` is the initial state, and the return value
@@ -254,7 +254,7 @@ export ForIn (forIn)
 `for h : x in xs` notation. It is the same as `for x in xs` except that `h : x ∈ xs`
 is provided as an additional argument to the body of the for-loop.
 -/
-class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)) (d : outParam $ Membership α ρ) where
+class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : OutParam (Type v)) (d : OutParam $ Membership α ρ) where
   /-- `forIn' x b f : m β` runs a for-loop in the monad `m` with additional state `β`.
   This traverses over the "contents" of `x`, and passes the elements `a : α` along
   with a proof that `a ∈ x` to `f : (a : α) → a ∈ x → β → m (ForInStep β)`.
@@ -459,7 +459,7 @@ inductive PNonScalar : Type u where
 
 @[simp] protected theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
-theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
+theorem optParam_eq (α : Sort u) (default : α) : OptParam α default = α := rfl
 
 /-! # Boolean operators -/
 
@@ -525,7 +525,7 @@ theorem not_not_intro {p : Prop} (h : p) : ¬ ¬ p :=
   fun hn : ¬ p => hn h
 
 -- proof irrelevance is built in
-theorem proofIrrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
+theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 
@@ -729,20 +729,20 @@ Synonym for `dite` (dependent if-then-else). We can construct an element `q`
 (of any sort, not just a proposition) by cases on whether `p` is true or false,
 provided `p` is decidable.
 -/
-@[macro_inline] def byCases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
+@[macro_inline] def by_cases {q : Sort u} [dec : Decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
   match dec with
   | isTrue h  => h1 h
   | isFalse h => h2 h
 
 theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
-  byCases Or.inl Or.inr
+  by_cases Or.inl Or.inr
 
 set_option linter.unusedVariables.funArgs false in
-theorem byContradiction [dec : Decidable p] (h : ¬p → False) : p :=
-  byCases id (fun np => False.elim (h np))
+theorem by_contradiction [dec : Decidable p] (h : ¬p → False) : p :=
+  by_cases id (fun np => False.elim (h np))
 
 theorem of_not_not [Decidable p] : ¬ ¬ p → p :=
-  fun hnn => byContradiction (fun hn => absurd hn hnn)
+  fun hnn => by_contradiction (fun hn => absurd hn hnn)
 
 theorem not_and_iff_or_not (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
   Iff.intro
@@ -837,7 +837,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
   Decidable.casesOn
     (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
     (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
+    (fun h' => False.elim (h' (congr_arg f h)))
     (fun _ => fun x => x)
 
 /-! # Inhabited -/
@@ -875,7 +875,7 @@ protected theorem Subsingleton.helim {α β : Sort u} [h₁ : Subsingleton α] (
   apply Subsingleton.elim
 
 instance (p : Prop) : Subsingleton p :=
-  ⟨fun a b => proofIrrel a b⟩
+  ⟨fun a b => proof_irrel a b⟩
 
 instance (p : Prop) : Subsingleton (Decidable p) :=
   Subsingleton.intro fun
@@ -886,7 +886,7 @@ instance (p : Prop) : Subsingleton (Decidable p) :=
       | isTrue t₂  => absurd t₂ f₁
       | isFalse _  => rfl
 
-theorem recSubsingleton
+theorem rec_subsingleton
      {p : Prop} [h : Decidable p]
      {h₁ : p → Sort u}
      {h₂ : ¬p → Sort u}
@@ -917,7 +917,7 @@ structure Equivalence {α : Sort u} (r : α → α → Prop) : Prop where
   trans : ∀ {x y z}, r x y → r y z → r x z
 
 /-- The empty relation is the relation on `α` which is always `False`. -/
-def emptyRelation {α : Sort u} (_ _ : α) : Prop :=
+def EmptyRelation {α : Sort u} (_ _ : α) : Prop :=
   False
 
 /--
@@ -948,7 +948,7 @@ inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop where
 /-! # Subtype -/
 
 namespace Subtype
-theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
+theorem exists_of_subtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (fun x => p x)
   | ⟨a, h⟩ => ⟨a, h⟩
 
 variable {α : Type u} {p : α → Prop}
@@ -1018,16 +1018,16 @@ instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
 
 /-- Lexicographical order for products -/
-def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
+def Prod.LexLT [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
   s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)
 
-instance Prod.lexLtDec
+instance Prod.lexLTDec
     [LT α] [LT β] [DecidableEq α] [DecidableEq β]
     [(a b : α) → Decidable (a < b)] [(a b : β) → Decidable (a < b)]
-    : (s t : α × β) → Decidable (Prod.lexLt s t) :=
+    : (s t : α × β) → Decidable (Prod.LexLT s t) :=
   fun _ _ => inferInstanceAs (Decidable (_ ∨ _))
 
-theorem Prod.lexLt_def [LT α] [LT β] (s t : α × β) : (Prod.lexLt s t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.lexLT_def [LT α] [LT β] (s t : α × β) : (Prod.LexLT s t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 
 theorem Prod.ext (p : α × β) : (p.1, p.2) = p := by
@@ -1043,7 +1043,7 @@ def Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β₁ : Type v₁} {β₂ 
 
 /-! # Dependent products -/
 
-theorem ex_of_PSigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
+theorem ex_of_psigma {α : Type u} {p : α → Prop} : (PSigma (fun x => p x)) → Exists (fun x => p x)
   | ⟨x, hx⟩ => ⟨x, hx⟩
 
 protected theorem PSigma.eta {α : Sort u} {β : α → Sort v} {a₁ a₂ : α} {b₁ : β a₁} {b₂ : β a₂}
@@ -1077,25 +1077,25 @@ This is mainly used as input to the `Quotient` type constructor.
 -/
 class Setoid (α : Sort u) where
   /-- `x ≈ y` is the distinguished equivalence relation of a setoid. -/
-  r : α → α → Prop
+  R : α → α → Prop
   /-- The relation `x ≈ y` is an equivalence relation. -/
-  iseqv : Equivalence r
+  is_eqv : Equivalence R
 
 instance {α : Sort u} [Setoid α] : HasEquiv α :=
-  ⟨Setoid.r⟩
+  ⟨Setoid.R⟩
 
 namespace Setoid
 
 variable {α : Sort u} [Setoid α]
 
 theorem refl (a : α) : a ≈ a :=
-  iseqv.refl a
+  is_eqv.refl a
 
 theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
-  iseqv.symm hab
+  is_eqv.symm hab
 
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
-  iseqv.trans hab hbc
+  is_eqv.trans hab hbc
 
 end Setoid
 
@@ -1138,7 +1138,7 @@ can never block it.
 -/
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
-theorem Eq.propIntro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
+theorem Eq.prop_intro {a b : Prop} (h₁ : a → b) (h₂ : b → a) : a = b :=
   propext <| Iff.intro h₁ h₂
 
 -- Eq for Prop is now decidable if the equivalent Iff is decidable
@@ -1205,14 +1205,14 @@ respect to the equivalence relation generated by `r`.
 -/
 axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
-protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
+protected theorem lift_beta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
     (c : (a b : α) → r a b → f a = f b)
     (a : α)
     : lift f c (Quot.mk r a) = f a :=
   rfl
 
-protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
+protected theorem ind_beta {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (p : (a : α) → motive (Quot.mk r a))
     (a : α)
     : (ind p (Quot.mk r a) : motive (Quot.mk r a)) = p a :=
@@ -1227,14 +1227,14 @@ protected abbrev liftOn {α : Sort u} {β : Sort v} {r : α → α → Prop}
   lift f c q
 
 @[elab_as_elim]
-protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
+protected theorem induction_on {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (q : Quot r)
     (h : (a : α) → motive (Quot.mk r a))
     : motive q :=
   ind h q
 
 theorem exists_rep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (fun a => (Quot.mk r a) = q) :=
-  q.inductionOn (fun a => ⟨a, rfl⟩)
+  q.induction_on (fun a => ⟨a, rfl⟩)
 
 section
 variable {α : Sort u}
@@ -1246,17 +1246,17 @@ variable {motive : Quot r → Sort v}
 protected def indep (f : (a : α) → motive (Quot.mk r a)) (a : α) : PSigma motive :=
   ⟨Quot.mk r a, f a⟩
 
-protected theorem indepCoherent
+protected theorem indep_coherent
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     : (a b : α) → r a b → Quot.indep f a = Quot.indep f b  :=
   fun a b e => PSigma.eta (sound e) (h a b e)
 
-protected theorem liftIndepPr1
+protected theorem lift_indep_pr1
     (f : (a : α) → motive (Quot.mk r a))
     (h : ∀ (a b : α) (p : r a b), Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r)
-    : (lift (Quot.indep f) (Quot.indepCoherent f h) q).1 = q := by
+    : (lift (Quot.indep f) (Quot.indep_coherent f h) q).1 = q := by
  induction q using Quot.ind
  exact rfl
 
@@ -1272,7 +1272,7 @@ protected abbrev rec
     (f : (a : α) → motive (Quot.mk r a))
     (h : (a b : α) → (p : r a b) → Eq.ndrec (f a) (sound p) = f b)
     (q : Quot r) : motive q :=
-  Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
+  Eq.ndrecOn (Quot.lift_indep_pr1 f h q) ((lift (Quot.indep f) (Quot.indep_coherent f h) q).2)
 
 @[inherit_doc Quot.rec] protected abbrev recOn
     (q : Quot r)
@@ -1318,14 +1318,14 @@ set_option linter.unusedVariables.funArgs false in
 Prefer `Quotient` over `Quot` if your relation is actually an equivalence relation.
 -/
 def Quotient {α : Sort u} (s : Setoid α) :=
-  @Quot α Setoid.r
+  @Quot α Setoid.R
 
 namespace Quotient
 
 /-- The canonical quotient map into a `Quotient`. -/
 @[inline]
 protected def mk {α : Sort u} (s : Setoid α) (a : α) : Quotient s :=
-  Quot.mk Setoid.r a
+  Quot.mk Setoid.R a
 
 /--
 The canonical quotient map into a `Quotient`.
@@ -1348,7 +1348,7 @@ then it lifts to a function on `Quotient s` such that `lift f h (mk a) = f a`.
 protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quot Setoid.r) → motive q :=
+protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quot Setoid.R) → motive q :=
   Quot.ind
 
 /--
@@ -1359,11 +1359,11 @@ protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotien
   Quot.liftOn q f c
 
 @[elab_as_elim]
-protected theorem inductionOn {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
+protected theorem induction_on {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
     (q : Quotient s)
     (h : (a : α) → motive (Quotient.mk s a))
     : motive q :=
-  Quot.inductionOn q h
+  Quot.induction_on q h
 
 theorem exists_rep {α : Sort u} {s : Setoid α} (q : Quotient s) : Exists (fun (a : α) => Quotient.mk s a = q) :=
   Quot.exists_rep q
@@ -1447,7 +1447,7 @@ protected theorem ind₂
   apply h
 
 @[elab_as_elim]
-protected theorem inductionOn₂
+protected theorem induction_on₂
     {motive : Quotient s₁ → Quotient s₂ → Prop}
     (q₁ : Quotient s₁)
     (q₂ : Quotient s₂)
@@ -1458,7 +1458,7 @@ protected theorem inductionOn₂
   apply h
 
 @[elab_as_elim]
-protected theorem inductionOn₃
+protected theorem induction_on₃
     {s₃ : Setoid φ}
     {motive : Quotient s₁ → Quotient s₂ → Quotient s₃ → Prop}
     (q₁ : Quotient s₁)
@@ -1477,7 +1477,7 @@ section Exact
 
 variable   {α : Sort u}
 
-private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
+private def Rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂
     (fun a₁ a₂ => a₁ ≈ a₂)
     (fun _ _ _ _ a₁b₁ a₂b₂ =>
@@ -1485,11 +1485,11 @@ private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
         (fun a₁a₂ => Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
         (fun b₁b₂ => Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-private theorem rel.refl {s : Setoid α} (q : Quotient s) : rel q q :=
-  q.inductionOn Setoid.refl
+private theorem Rel.refl {s : Setoid α} (q : Quotient s) : Rel q q :=
+  q.induction_on Setoid.refl
 
-private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
-  fun h => Eq.ndrecOn h (rel.refl q₁)
+private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂ → Rel q₁ q₂ :=
+  fun h => Eq.ndrecOn h (Rel.refl q₁)
 
 theorem exact {s : Setoid α} {a b : α} : Quotient.mk s a = Quotient.mk s b → a ≈ b :=
   fun h => rel_of_eq h
@@ -1555,7 +1555,7 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
       (fun (f : ∀ (x : α), β x) => f x)
       (fun _ _ h => h x)
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
-  exact congrArg extfunApp (Quot.sound h)
+  exact congr_arg extfunApp (Quot.sound h)
 
 instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
   allEq f g := funext fun a => Subsingleton.elim (f a) (g a)
@@ -1600,7 +1600,7 @@ instance : Subsingleton (Squash α) where
 /--
 `Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
 -/
-class Antisymm {α : Sort u} (r : α → α → Prop) where
+class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
   /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
   antisymm {a b : α} : r a b → r b a → a = b
 
@@ -1638,7 +1638,7 @@ We believe `Lean.reduceBool` enables most interesting applications (e.g., proof 
 opaque reduceNat (n : Nat) : Nat := n
 
 /--
-The axiom `ofReduceBool` is used to perform proofs by reflection. See `reduceBool`.
+The axiom `of_reduceBool` is used to perform proofs by reflection. See `reduceBool`.
 
 This axiom is usually not used directly, because it has some syntactic restrictions.
 Instead, the `native_decide` tactic can be used to prove any proposition whose
@@ -1650,10 +1650,10 @@ external type checkers (e.g., Trepplein) that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
-axiom ofReduceBool (a b : Bool) (h : reduceBool a = b) : a = b
+axiom of_reduceBool (a b : Bool) (h : reduceBool a = b) : a = b
 
 /--
-The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool`.
+The axiom `of_reduceNat` is used to perform proofs by reflection. See `reduceBool`.
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
@@ -1661,7 +1661,7 @@ external type checkers (e.g., Trepplein) that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
-axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
+axiom of_reduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
 /--
 `IsAssociative op` says that `op` is an associative operation,

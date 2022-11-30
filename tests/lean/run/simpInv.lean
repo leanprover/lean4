@@ -6,10 +6,10 @@ axiom f_ax (x : Nat) : f x x = x
 theorem ex1 (x : Nat) : g x x = x := by
   simp [← f_def, f_ax]
 
-opaque p (x y : Nat) : Prop
-opaque q (x y : Nat) : Prop
-axiom p_def (x y : Nat) : p x y ↔ q x y
-axiom p_ax (x : Nat) : p x x
+opaque P (x y : Nat) : Prop
+opaque Q (x y : Nat) : Prop
+axiom p_def (x y : Nat) : P x y ↔ Q x y
+axiom p_ax (x : Nat) : P x x
 
-theorem ex2 (x : Nat) : q x x := by
+theorem ex2 (x : Nat) : Q x x := by
   simp [← p_def, p_ax]

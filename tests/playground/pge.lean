@@ -10,7 +10,7 @@ def forallRange (i:Nat) (n:Nat) (f: ∀ (j:Nat), j < n → Bool) : Bool :=
   termination_by forallRange i n f => n-i
 
 -- `forallRange` correctness theorem.
-theorem forallRangeImplies'
+theorem forallRange_implies'
   (n i j : Nat)
   (f  : ∀(k:Nat), k < n → Bool)
   (eq : i+j = n)
@@ -38,10 +38,10 @@ theorem forallRangeImplies'
       apply ind (succ i) succ_i_add_j p.2 hLt
 
 -- Correctness theorem for `forallRange`
-theorem forallRangeImplies (p:forallRange i n f = true) {j:Nat} (lb:i ≤ j) (ub : j < n)
+theorem forallRange_implies (p:forallRange i n f = true) {j:Nat} (lb:i ≤ j) (ub : j < n)
   : f j ub = true :=
     have h : i+(n-i)=n := Nat.add_sub_of_le (Nat.le_trans lb (Nat.le_of_lt ub))
-    forallRangeImplies' n i (n-i) f h p j lb ub
+    forallRange_implies' n i (n-i) f h p j lb ub
 
 theorem lt_or_eq_of_succ {i j:Nat} (lt : i < Nat.succ j) : i < j ∨ i = j :=
   match lt with
@@ -220,7 +220,7 @@ instance : CoeFun (Proof g s) (fun p => Fin p.size → ProofRecord nt) :=
 
 theorem has_well_formed_record (p:Proof g s) (i:Fin p.size) :
   well_formed_record g s p.val i.val i.isLt (p i) :=
-    Nat.forallRangeImplies p.property (Nat.zero_le i.val) i.isLt
+    Nat.forallRange_implies p.property (Nat.zero_le i.val) i.isLt
 
 end Proof
 
@@ -236,7 +236,7 @@ theorem proof_get_to_getD (r:ProofRecord nt) (p:Proof g s) (i:Fin p.size)  :
   p i = p.val.getD i.val r := by
   have isLt : i.val < Array.size p.val := i.isLt
   simp [Proof.get, Array.get, Array.getD, isLt ]
-  apply congrArg
+  apply congr_arg
   apply Fin.eq_of_val_eq
   trivial
 

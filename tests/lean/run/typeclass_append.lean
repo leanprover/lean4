@@ -7,7 +7,7 @@ Performance test to ensure quadratic blowup is avoided.
 -/
 
 
-class AppendList {α : Type} (xs₁ xs₂ : List α) (out : outParam $ List α) : Type :=
+class AppendList {α : Type} (xs₁ xs₂ : List α) (out : OutParam $ List α) : Type :=
 (u : Unit := ())
 
 instance AppendBase {α : Type} (xs₂ : List α) : AppendList [] xs₂ xs₂ :=

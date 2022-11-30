@@ -21,12 +21,12 @@ abbrev P (c : Option Subst) u v := match c with
 def rel : WellFoundedRelation (Term × Term) := measure (λ (u, v) => depth u + depth v)
 
 theorem decr_left (l₁ r₁ l₂ r₂ : Term) :
-  rel.rel (l₁, l₂) (Term.Cons l₁ r₁, Term.Cons l₂ r₂) := by
+  rel.Rel (l₁, l₂) (Term.Cons l₁ r₁, Term.Cons l₂ r₂) := by
   suffices h : depth l₁ + depth l₂ < depth (Term.Cons l₁ r₁) + depth (Term.Cons l₂ r₂) from h
   admit
 
 theorem decr_right (l₁ r₁ l₂ r₂ : Term) (f : Subst) :
-  rel.rel (act f r₁, act f r₂) (Term.Cons l₁ r₁, Term.Cons l₂ r₂) := by
+  rel.Rel (act f r₁, act f r₂) (Term.Cons l₁ r₁, Term.Cons l₂ r₂) := by
   suffices h : depth (act f r₁) + depth (act f r₂) < depth (Term.Cons l₁ r₁) + depth (Term.Cons l₂ r₂) from h
   admit
 

@@ -129,7 +129,7 @@ void initialize_constants() {
     mark_persistent(g_array_sz->raw());
     g_array_data = new name{"Array", "data"};
     mark_persistent(g_array_data->raw());
-    g_auto_param = new name{"autoParam"};
+    g_auto_param = new name{"AutoParam"};
     mark_persistent(g_auto_param->raw());
     g_bit0 = new name{"bit0"};
     mark_persistent(g_bit0->raw());
@@ -153,7 +153,7 @@ void initialize_constants() {
     mark_persistent(g_cast->raw());
     g_char = new name{"Char"};
     mark_persistent(g_char->raw());
-    g_congr_arg = new name{"congrArg"};
+    g_congr_arg = new name{"congr_arg"};
     mark_persistent(g_congr_arg->raw());
     g_decidable = new name{"Decidable"};
     mark_persistent(g_decidable->raw());
@@ -261,7 +261,7 @@ void initialize_constants() {
     mark_persistent(g_ne->raw());
     g_not = new name{"Not"};
     mark_persistent(g_not->raw());
-    g_opt_param = new name{"optParam"};
+    g_opt_param = new name{"OptParam"};
     mark_persistent(g_opt_param->raw());
     g_or = new name{"Or"};
     mark_persistent(g_or->raw());

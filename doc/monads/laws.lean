@@ -140,7 +140,7 @@ which has the notation `<*>`.
 
 To prove this for all values `v` and any applicative `m` you can write this theorem:
 -/
-example [Applicative m] [LawfulApplicative m] (v : m α) :
+example [Applicative m] [IsLawfulApplicative m] (v : m α) :
   pure id <*> v = v :=
   by simp -- Goals accomplished 🎉
 /-!
@@ -188,7 +188,7 @@ def g : List (Nat → Nat) := [(· + 2)]
 
 You can prove this with the following theorem:
 -/
-example [Applicative m] [LawfulApplicative m] (u : m (α → β)) (y : α) :
+example [Applicative m] [IsLawfulApplicative m] (u : m (α → β)) (y : α) :
   u <*> pure y = pure (· y) <*> u :=
   by simp [pure_seq] -- Goals accomplished 🎉
 

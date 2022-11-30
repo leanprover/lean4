@@ -749,7 +749,6 @@ if (x_5 == 0)
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = l_Lean_Name_append(x_4, x_6);
-lean_dec(x_4);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;
@@ -1058,9 +1057,7 @@ x_18 = l_Lean_Elab_Command_elabAuxDef___lambda__1___closed__2;
 x_19 = l_Lean_Name_append(x_18, x_16);
 x_20 = l_Lean_Elab_Command_elabAuxDef___lambda__1___closed__4;
 x_21 = l_Lean_Name_append(x_19, x_20);
-lean_dec(x_19);
 x_22 = l_Lean_Name_append(x_21, x_15);
-lean_dec(x_21);
 x_23 = l_Lean_Name_components(x_22);
 x_24 = lean_box(0);
 x_25 = l_List_mapTR_loop___at_Lean_Elab_Command_elabAuxDef___spec__2(x_23, x_24);

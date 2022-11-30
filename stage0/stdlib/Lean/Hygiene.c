@@ -425,7 +425,6 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_4 = l___private_Lean_Hygiene_0__Lean_mkInaccessibleUserNameAux___closed__2;
 x_5 = l_Lean_Name_num___override(x_4, x_3);
 x_6 = l_Lean_Name_append(x_2, x_5);
-lean_dec(x_2);
 return x_6;
 }
 else

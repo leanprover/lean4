@@ -2294,7 +2294,7 @@ lean_inc(x_15);
 lean_dec(x_9);
 x_16 = lean_array_get_size(x_1);
 x_17 = l_Nat_repr(x_16);
-x_18 = lean_alloc_ctor(2, 1, 0);
+x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -9380,7 +9380,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_ElimEmptyInductive_elim___lambda__3___closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

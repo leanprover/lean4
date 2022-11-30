@@ -182,7 +182,7 @@ def Weekday.previous : Weekday -> Weekday
 #eval next (previous wednesday)
 
 -- We can prove that for any `Weekday` `d`, `next (previous d) = d`
-theorem Weekday.nextOfPrevious (d : Weekday) : next (previous d) = d :=
+theorem Weekday.next_of_previous (d : Weekday) : next (previous d) = d :=
   match d with
   | sunday    => rfl
   | monday    => rfl
@@ -192,9 +192,9 @@ theorem Weekday.nextOfPrevious (d : Weekday) : next (previous d) = d :=
   | friday    => rfl
   | saturday  => rfl
 
--- You can automate definitions such as `Weekday.nextOfPrevious`
+-- You can automate definitions such as `Weekday.next_of_previous`
 -- using metaprogramming (or "tactics").
-theorem Weekday.nextOfPrevious' (d : Weekday) : next (previous d) = d := by
+theorem Weekday.next_of_previous' (d : Weekday) : next (previous d) = d := by
   cases d       -- A proof by case distinction
   all_goals rfl  -- Each case is solved using `rfl`
 ```

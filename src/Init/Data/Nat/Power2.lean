@@ -24,26 +24,26 @@ where
 termination_by go p h => n - p
 decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
-def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
+def IsPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
-theorem one_isPowerOfTwo : isPowerOfTwo 1 :=
+theorem one_isPowerOfTwo : IsPowerOfTwo 1 :=
   ⟨0, by decide⟩
 
-theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n * 2) :=
+theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : IsPowerOfTwo n) : IsPowerOfTwo (n * 2) :=
   have ⟨k, h⟩ := h
   ⟨k+1, by simp [h, Nat.pow_succ]⟩
 
-theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
+theorem pos_of_isPowerOfTwo (h : IsPowerOfTwo n) : n > 0 := by
   have ⟨k, h⟩ := h
   rw [h]
   apply Nat.pos_pow_of_pos
   decide
 
-theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.isPowerOfTwo := by
+theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.IsPowerOfTwo := by
   apply isPowerOfTwo_go
   apply one_isPowerOfTwo
 where
-  isPowerOfTwo_go (power : Nat) (h₁ : power > 0) (h₂ : power.isPowerOfTwo) : (nextPowerOfTwo.go n power h₁).isPowerOfTwo := by
+  isPowerOfTwo_go (power : Nat) (h₁ : power > 0) (h₂ : power.IsPowerOfTwo) : (nextPowerOfTwo.go n power h₁).IsPowerOfTwo := by
     unfold nextPowerOfTwo.go
     split
     . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.mul2_isPowerOfTwo_of_isPowerOfTwo h₂)

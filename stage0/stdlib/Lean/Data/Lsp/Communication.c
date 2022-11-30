@@ -404,7 +404,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 x_9 = l_String_quote(x_1);
 lean_dec(x_1);
-x_10 = lean_alloc_ctor(2, 1, 0);
+x_10 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
 x_11 = l_Std_Format_defWidth;
 x_12 = lean_format_pretty(x_10, x_11);

@@ -1,7 +1,7 @@
 def Ctx := String → Type
 abbrev State (Γ : Ctx) := {x : String} → Γ x
 
-opaque p {Γ : Ctx} (s : State Γ) : Prop
+opaque P {Γ : Ctx} (s : State Γ) : Prop
 
-theorem ex {Γ : Ctx} (s : State Γ) (h : (a : State Γ) → @p Γ a) : @p Γ s :=
+theorem ex {Γ : Ctx} (s : State Γ) (h : (a : State Γ) → @P Γ a) : @P Γ s :=
   h ‹_›

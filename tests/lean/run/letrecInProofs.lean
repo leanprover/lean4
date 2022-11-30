@@ -4,10 +4,10 @@ inductive Tree
   | leaf : Tree
   | node : Tree → Tree → Tree
 
-abbrev notSubtree (x : Tree) (t : Tree) : Prop :=
+abbrev NotSubtree (x : Tree) (t : Tree) : Prop :=
   Tree.ibelow (motive := fun z => x ≠ z) t
 
-infix:50 "≮" => notSubtree
+infix:50 "≮" => NotSubtree
 
 theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
   let rec right (x s : Tree) (b : Tree) (h : x ≮ b) : node s x ≠ b ∧ node s x ≮ b := by

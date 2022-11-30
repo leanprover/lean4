@@ -2378,7 +2378,7 @@ static lean_object* _init_l___private_Lean_Class_0__Lean_checkOutParam___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" depends on `outParam`, but it is not an `outParam`", 51);
+x_1 = lean_mk_string_from_bytes(" depends on `OutParam`, but it is not an `OutParam`", 51);
 return x_1;
 }
 }
@@ -2811,7 +2811,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8;
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
 lean_dec(x_1);
-x_6 = lean_alloc_ctor(2, 1, 0);
+x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_7, 0, x_6);

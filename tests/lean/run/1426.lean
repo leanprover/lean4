@@ -12,6 +12,6 @@ theorem ex2 : a * 2 = 2 * a := by
     rfl
   conv at h =>
     lhs; intro x y; rw [Nat.mul_comm]
-  exact congrFun (congrFun h 2) a
+  exact congr_fun (congr_fun h 2) a
 
 #print ex2

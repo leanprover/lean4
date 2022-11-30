@@ -591,7 +591,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_float_to_string(x_1);
-x_4 = lean_alloc_ctor(2, 1, 0);
+x_4 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_4, 0, x_3);
 return x_4;
 }

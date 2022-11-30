@@ -1,5 +1,5 @@
-class HasMem (α : outParam $ Type u) (β : Type v) where
-    mem : α → β → Prop
+class HasMem (α : OutParam $ Type u) (β : Type v) where
+    Mem : α → β → Prop
 
 class PartialOrder (P : Type u) extends LE P where
   refl (s : P) : s ≤ s
@@ -8,7 +8,7 @@ class PartialOrder (P : Type u) extends LE P where
 
 theorem LE.le.trans {P : Type _} [PartialOrder P] {x y z : P} : x ≤ y → y ≤ z → x ≤ z := PartialOrder.trans _ _ _
 
-infix:50 " ∈ " => HasMem.mem
+infix:50 " ∈ " => HasMem.Mem
 
 def Set (α : Type u) := α → Prop
 

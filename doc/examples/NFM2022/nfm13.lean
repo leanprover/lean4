@@ -22,7 +22,7 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
 
 infixr:100 " <$> " => Functor.map
 
-class LawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
+class IsLawfulFunctor (f : Type u → Type v) [Functor f] : Prop where
   id_map   (x : f α) : id <$> x = x
   comp_map (g : α → β) (h : β → γ) (x : f α) :(h ∘ g) <$> x = h <$> g <$> x
 

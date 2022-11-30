@@ -7,16 +7,16 @@ class Order (α : Type u) extends LE α, LT α, Max α where
   max_def x y : max x y = if x < y then x else y
 
 namespace Vector
-  def mem (a : α) : Vector α n → Prop
+  def Mem (a : α) : Vector α n → Prop
   | nil => False
-  | cons b l => a = b ∨ mem a l
+  | cons b l => a = b ∨ Mem a l
 
   def foldr (f : α → β → β) (init : β) : Vector α n → β
   | nil     => init
   | cons a l => f a (foldr f init l)
 
   theorem foldr_max [Order β] {v: Vector α n} (f : α → β) (init : β)
-    (h: v.mem y):
+    (h: v.Mem y):
     f y ≤ v.foldr (λ x acc => max (f x) acc) init := by
     induction v <;> simp only[foldr,Order.max_def]
     · admit

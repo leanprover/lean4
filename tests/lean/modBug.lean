@@ -1,1 +1,1 @@
-theorem proofOfFalse : False := Nat.zero_ne_one (Nat.mod_zero 1)
+theorem proof_of_false : False := Nat.zero_ne_one (Nat.mod_zero 1)

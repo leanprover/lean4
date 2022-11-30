@@ -21,8 +21,8 @@ instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern "lean_string_dec_lt"]
-instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
-  List.hasDecidableLt s₁.data s₂.data
+instance decLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
+  List.hasDecidableLT s₁.data s₂.data
 
 @[extern "lean_string_length"]
 def length : (@& String) → Nat

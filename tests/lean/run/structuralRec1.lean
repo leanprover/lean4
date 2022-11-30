@@ -35,7 +35,7 @@ loop as
 
 def pmap2 {α β} (f : α → β) (as : PList α) : PList β :=
 let rec loop : PList α → PList β
- | PList.nil    => PList.nil 
+ | PList.nil    => PList.nil
  | a:::as => f a ::: loop as;
 loop as
 
@@ -58,12 +58,12 @@ match xs with
 | x:::xs =>
   let y := 2 * x;
   match xs with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | x:::xs => (y + x) ::: pfoo xs
 
 #eval foo [1, 2, 3, 4]
 
-theorem fooEq (x y : Nat) (xs : List Nat) : foo (x::y::xs) = (2*x + y) :: foo xs :=
+theorem foo_eq (x y : Nat) (xs : List Nat) : foo (x::y::xs) = (2*x + y) :: foo xs :=
 rfl
 
 def bla (x : Nat) (ys : List Nat) : List Nat :=
@@ -79,14 +79,14 @@ else
 def pbla (x : Nat) (ys : PList Nat) : PList Nat :=
 if x % 2 == 0 then
   match ys with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | y:::ys => (y + x/2) ::: pbla (x/2) ys
 else
   match ys with
-  | PList.nil    => PList.nil 
+  | PList.nil    => PList.nil
   | y:::ys => (y + x/2 + 1) ::: pbla (x/2) ys
 
-theorem blaEq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
+theorem bla_eq (y : Nat) (ys : List Nat) : bla 4 (y::ys) = (y+2) :: bla 2 ys :=
 rfl
 
 inductive PNat : Prop
@@ -121,7 +121,7 @@ def pg (xs : PList Nat) : True :=
   | y:::ys =>
     match ys with
     | PList.nil => True.intro
-    | _ => pg ys 
+    | _ => pg ys
 
 def aux : Nat → Nat → Nat
  | 0, y   => y
@@ -144,13 +144,13 @@ theorem ex (x y : Nat) : f x y = aux x y := by
 
 axiom F : Nat → Nat
 
-inductive is_nat : Nat -> Prop
-| Z : is_nat 0
-| S {n} : is_nat n → is_nat (F n)
+inductive IsNat : Nat -> Prop
+| Z : IsNat 0
+| S {n} : IsNat n → IsNat (F n)
 
-inductive is_nat_T : Nat -> Type
-| Z : is_nat_T 0
-| S {n} : is_nat_T n → is_nat_T (F n)
+inductive IsNatT : Nat -> Type
+| Z : IsNatT 0
+| S {n} : IsNatT n → IsNatT (F n)
 
 axiom P : Nat → Prop
 axiom F0 : P 0
@@ -163,29 +163,29 @@ axiom TF1 : T (F 0)
 axiom TFS {n : Nat} : T n → T (F (F n))
 
 -- set_option trace.Elab.definition.structural true in
-theorem «nested recursion» : ∀ {n}, is_nat n → P n
-| _, is_nat.Z => F0
-| _, is_nat.S is_nat.Z => F1
-| _, is_nat.S (is_nat.S h) => FS («nested recursion» h)
+theorem «nested recursion» : ∀ {n}, IsNat n → P n
+| _, IsNat.Z => F0
+| _, IsNat.S IsNat.Z => F1
+| _, IsNat.S (IsNat.S h) => FS («nested recursion» h)
 
 /-- forbidding this, because it shouldn't exist in the first place.
     We don't expect this kind of inconsistent inaccessible patterns. -/
--- theorem «nested recursion, inaccessible» : ∀ {n}, is_nat n → P n
--- | _, .(is_nat.Z) => F0
--- | _, is_nat.S .(is_nat.Z) => F1
--- | _, is_nat.S (is_nat.S h) => FS («nested recursion, inaccessible» h)
+-- theorem «nested recursion, inaccessible» : ∀ {n}, IsNat n → P n
+-- | _, .(IsNat.Z) => F0
+-- | _, IsNat.S .(IsNat.Z) => F1
+-- | _, IsNat.S (IsNat.S h) => FS («nested recursion, inaccessible» h)
 
-theorem «reordered discriminants, type» : ∀ n, is_nat_T n → Nat → T n := fun n hn m => 
+theorem «reordered discriminants, type» : ∀ n, IsNatT n → Nat → T n := fun n hn m =>
 match n, m, hn with
-| _, _, is_nat_T.Z => TF0
-| _, _, is_nat_T.S is_nat_T.Z => TF1
-| _, m, is_nat_T.S (is_nat_T.S h) => TFS («reordered discriminants, type» _ h m)
+| _, _, IsNatT.Z => TF0
+| _, _, IsNatT.S IsNatT.Z => TF1
+| _, m, IsNatT.S (IsNatT.S h) => TFS («reordered discriminants, type» _ h m)
 
-theorem «reordered discriminants» : ∀ n, is_nat n → Nat → P n := fun n hn m => 
+theorem «reordered discriminants» : ∀ n, IsNat n → Nat → P n := fun n hn m =>
 match n, m, hn with
-| _, _, is_nat.Z => F0
-| _, _, is_nat.S is_nat.Z => F1
-| _, m, is_nat.S (is_nat.S h) => FS («reordered discriminants» _ h m)
+| _, _, IsNat.Z => F0
+| _, _, IsNat.S IsNat.Z => F1
+| _, m, IsNat.S (IsNat.S h) => FS («reordered discriminants» _ h m)
 
 /-- known unsupported case for types, just here for reference. -/
 -- def «unsupported nesting» (xs : List Nat) : True :=
@@ -194,8 +194,8 @@ match n, m, hn with
 --   | y::ys =>
 --     match ys with
 --     | List.nil      => True.intro
---     | _::_::zs      => «unsupported nesting» zs 
---     | zs            => «unsupported nesting» ys 
+--     | _::_::zs      => «unsupported nesting» zs
+--     | zs            => «unsupported nesting» ys
 
 def «unsupported nesting, predicate» (xs : PList Nat) : True :=
   match xs with
@@ -203,8 +203,8 @@ def «unsupported nesting, predicate» (xs : PList Nat) : True :=
   | y:::ys =>
     match ys with
     | PList.nil      => True.intro
-    | _:::_:::zs     => «unsupported nesting, predicate» zs 
-    | zs             => «unsupported nesting, predicate» ys 
+    | _:::_:::zs     => «unsupported nesting, predicate» zs
+    | zs             => «unsupported nesting, predicate» ys
 
 
 def f1 (xs : List Nat) : Nat :=
@@ -221,4 +221,4 @@ match xs with
 | x:::xs =>
   match xs with
   | PList.nil  => True.intro
-  | _ => pf1 xs 
+  | _ => pf1 xs

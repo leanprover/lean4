@@ -303,7 +303,7 @@ In the following example, we use output parameters to define a *heterogeneous* p
 multiplication.
 ```lean
 # namespace Ex
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   hMul : α → β → γ
 
 export HMul (hMul)
@@ -326,7 +326,7 @@ multiplication for natural numbers. The second is the scalar multiplication for 
 Note that, you chain instances and generalize the second instance.
 ```lean
 # namespace Ex
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   hMul : α → β → γ
 
 export HMul (hMul)
@@ -357,7 +357,7 @@ Thus, type class synthesis only starts after these two types are known. This may
 be too restrictive.
 ```lean
 # namespace Ex
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   hMul : α → β → γ
 
 export HMul (hMul)
@@ -377,7 +377,7 @@ However, it is natural to assume that the type of `y` and `x` should be the same
 this kind of situation. We can achieve exactly that using *default instances*.
 ```lean
 # namespace Ex
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   hMul : α → β → γ
 
 export HMul (hMul)
@@ -427,7 +427,7 @@ class OfNat (α : Type u) (n : Nat) where
 instance (n : Nat) : OfNat Nat n where
   ofNat := n
 
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   hMul : α → β → γ
 
 class Mul (α : Type u) where

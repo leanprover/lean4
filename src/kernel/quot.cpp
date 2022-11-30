@@ -56,11 +56,11 @@ environment environment::add_quot() const {
     expr Sort_u     = mk_sort(u);
     expr alpha      = lctx.mk_local_decl(g, "α", Sort_u, mk_implicit_binder_info());
     expr r          = lctx.mk_local_decl(g, "r", mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
-    /* constant {u} quot {α : Sort u} (r : α → α → Prop) : Sort u */
+    /* constant {u} Quot {α : Sort u} (r : α → α → Prop) : Sort u */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot, {u_name}, lctx.mk_pi({alpha, r}, Sort_u), quot_kind::Type)));
     expr quot_r     = mk_app(mk_constant(*quot_consts::g_quot, {u}), alpha, r);
     expr a          = lctx.mk_local_decl(g, "a", alpha);
-    /* constant {u} quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : @quot.{u} α r */
+    /* constant {u} Quot.mk {α : Sort u} (r : α → α → Prop) (a : α) : @Quot.{u} α r */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot_mk, {u_name}, lctx.mk_pi({alpha, r, a}, quot_r), quot_kind::Mk)));
     /* make r implicit */
     lctx = local_ctx();
@@ -79,8 +79,8 @@ environment environment::add_quot() const {
     expr f_a_eq_f_b = mk_app(mk_constant("Eq", {v}), beta, mk_app(f, a), mk_app(f, b));
     /* (∀ a b : α, r a b → f a = f b) */
     expr sanity     = lctx.mk_pi({a, b}, mk_arrow(r_a_b, f_a_eq_f_b));
-    /* constant {u v} quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β)
-                                : (∀ a b : α, r a b → f a = f b) →  @quot.{u} α r → β */
+    /* constant {u v} Quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β)
+                                : (∀ a b : α, r a b → f a = f b) →  @Quot.{u} α r → β */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot_lift, {u_name, v_name},
                                             lctx.mk_pi({alpha, r, beta, f}, mk_arrow(sanity, mk_arrow(quot_r, beta))), quot_kind::Lift)));
     /* {β : @quot.{u} α r → Prop} */
@@ -89,8 +89,8 @@ environment environment::add_quot() const {
     expr all_quot   = lctx.mk_pi(a, mk_app(beta, quot_mk_a));
     expr q          = lctx.mk_local_decl(g, "q", quot_r);
     expr beta_q     = mk_app(beta, q);
-    /* constant {u} quot.ind {α : Sort u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
-                   : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */
+    /* constant {u} Quot.ind {α : Sort u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
+                   : (∀ a : α, β (@Quot.mk.{u} α r a)) → ∀ q : @Quot.{u} α r, β q */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot_ind, {u_name},
                                             lctx.mk_pi({alpha, r, beta}, mk_pi("mk", all_quot, lctx.mk_pi(q, beta_q))), quot_kind::Ind)));
     new_env.mark_quot_initialized();

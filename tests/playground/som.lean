@@ -235,7 +235,7 @@ theorem Expr.toPoly_denote (ctx : Context α) (e : Expr) : e.toPoly.denote ctx =
   | sub a b => simp! [Poly.add_denote, *, sub_def, Poly.neg_denote, mul_one, mul_comm]
 
 theorem Expr.eq_of_toPoly_eq (ctx : Context α) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  have h := congr_arg (Poly.denote ctx) (eq_of_beq h)
   simp [toPoly_denote] at h
   assumption
 

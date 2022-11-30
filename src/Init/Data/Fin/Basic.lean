@@ -109,7 +109,7 @@ instance : Inhabited (Fin (no_index (n+1))) where
 theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 
-theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
+theorem modn_lt : ∀ {m : Nat} (i : Fin n), 0 < m → (modn i m).val < m
   | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
 
 theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=

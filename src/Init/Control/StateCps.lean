@@ -32,7 +32,7 @@ instance : Monad (StateCpsT σ m) where
   pure a   := fun _ s k => k a s
   bind x f := fun δ s k => x δ s fun a s => f a δ s k
 
-instance : LawfulMonad (StateCpsT σ m) := by
+instance : IsLawfulMonad (StateCpsT σ m) := by
   refine' { .. } <;> intros <;> rfl
 
 @[always_inline]

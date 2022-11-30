@@ -1083,7 +1083,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_RBTree_instReprRBTree___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1096,7 +1096,7 @@ x_4 = l_Lean_RBTree_toList___rarg(x_2);
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = l_List_repr___rarg(x_1, x_4, x_5);
 x_7 = l_Lean_RBTree_instReprRBTree___rarg___closed__2;
-x_8 = lean_alloc_ctor(4, 2, 0);
+x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_7);
 lean_ctor_set(x_8, 1, x_6);
 x_9 = l_Repr_addAppParen(x_8, x_3);

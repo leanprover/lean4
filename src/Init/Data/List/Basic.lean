@@ -98,7 +98,7 @@ instance : Append (List α) := ⟨List.append⟩
 
 @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := rfl
 
-@[simp] theorem List.append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
+@[simp] theorem append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
 
 theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with
@@ -354,7 +354,7 @@ inductive Mem (a : α) : List α → Prop
   | tail (b : α) {as : List α} : Mem a as → Mem a (b::as)
 
 instance : Membership α (List α) where
-  mem := Mem
+  Mem := Mem
 
 theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
   match as with
@@ -649,39 +649,39 @@ to get a list of lists, and then concatenates them all together.
 The lexicographic order on lists.
 `[] < a::as`, and `a::as < b::bs` if `a < b` or if `a` and `b` are equivalent and `as < bs`.
 -/
-inductive lt [LT α] : List α → List α → Prop where
+protected inductive LT [LT α] : List α → List α → Prop where
   /-- `[]` is the smallest element in the order. -/
-  | nil  (b : α) (bs : List α) : lt [] (b::bs)
+  | nil  (b : α) (bs : List α) : [].LT (b::bs)
   /-- If `a < b` then `a::as < b::bs`. -/
-  | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → lt (a::as) (b::bs)
+  | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → (a::as).LT (b::bs)
   /-- If `a` and `b` are equivalent and `as < bs`, then `a::as < b::bs`. -/
-  | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → lt as bs → lt (a::as) (b::bs)
+  | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → as.LT bs → (a::as).LT (b::bs)
 
-instance [LT α] : LT (List α) := ⟨List.lt⟩
+instance [LT α] : LT (List α) := ⟨List.LT⟩
 
-instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLT [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
-  | [],    _::_  => isTrue (List.lt.nil _ _)
+  | [],    _::_  => isTrue (List.LT.nil _ _)
   | _::_, []     => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
     match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
+    | isTrue h₁  => isTrue (List.LT.head _ _ h₁)
     | isFalse h₁ =>
       match h b a with
       | isTrue h₂  => isFalse (fun h => match h with
-         | List.lt.head _ _ h₁' => absurd h₁' h₁
-         | List.lt.tail _ h₂' _ => absurd h₂ h₂')
+         | List.LT.head _ _ h₁' => absurd h₁' h₁
+         | List.LT.tail _ h₂' _ => absurd h₂ h₂')
       | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
+        match hasDecidableLT as bs with
+        | isTrue h₃  => isTrue (List.LT.tail h₁ h₂ h₃)
         | isFalse h₃ => isFalse (fun h => match h with
-           | List.lt.head _ _ h₁' => absurd h₁' h₁
-           | List.lt.tail _ _ h₃' => absurd h₃' h₃)
+           | List.LT.head _ _ h₁' => absurd h₁' h₁
+           | List.LT.tail _ _ h₃' => absurd h₃' h₃)
 
 /-- The lexicographic order on lists. -/
-@[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
+@[reducible] protected def LE [LT α] (a b : List α) : Prop := ¬ b < a
 
-instance [LT α] : LE (List α) := ⟨List.le⟩
+instance [LT α] : LE (List α) := ⟨List.LE⟩
 
 instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
   fun _ _ => inferInstanceAs (Decidable (Not _))

@@ -187,7 +187,7 @@ inductive Sum (α : Type u) (β : Type v)
 inductive Sigma (α : Type u) (β : α → Type v)
 | mk : (a : α) → β a → Sigma α β
 
-inductive false : Prop
+inductive False : Prop
 
 inductive True : Prop
 | trivial : True

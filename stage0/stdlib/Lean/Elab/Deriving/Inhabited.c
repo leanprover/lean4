@@ -7659,7 +7659,7 @@ lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_obj
 x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = l_Nat_repr(x_5);
-x_8 = lean_alloc_ctor(2, 1, 0);
+x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
@@ -7682,7 +7682,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_1);
 x_13 = l_Nat_repr(x_11);
-x_14 = lean_alloc_ctor(2, 1, 0);
+x_14 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 x_15 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_15, 0, x_14);

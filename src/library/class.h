@@ -16,10 +16,10 @@ name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);
 bool is_anonymous_inst_name(name const & n);
 
-/** \brief Return true iff e is of the form `outParam a` */
+/** \brief Return true iff e is of the form `OutParam a` */
 bool is_class_out_param(expr const & e);
 
-/** \brief Return true iff c is a type class that contains an `outParam` */
+/** \brief Return true iff c is a type class that contains an `OutParam` */
 bool has_class_out_params(environment const & env, name const & c);
 
 void initialize_class();

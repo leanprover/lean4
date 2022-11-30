@@ -86,7 +86,7 @@ theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
 @[macro_inline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   Eq.rec (motive := fun α _ => α) a h
 
-theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
+theorem congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
 /-
@@ -110,7 +110,7 @@ inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop
 @[match_pattern] def HEq.rfl {α : Sort u} {a : α} : HEq a a :=
   HEq.refl a
 
-theorem eqOfHEq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
+theorem eq_of_heq {α : Sort u} {a a' : α} (h : HEq a a') : Eq a a' :=
   have : (α β : Sort u) → (a : α) → (b : β) → HEq a b → (h : Eq α β) → Eq (cast h a) b :=
     fun α β a b h₁ =>
       HEq.rec (motive := fun {β} (b : β) (h : HEq a b) => (h₂ : Eq α β) → Eq (cast h₂ a) b)
@@ -150,10 +150,10 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
   (val : α) (property : p val)
 
 /-- Gadget for optional parameter support. -/
-@[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
+@[reducible] def OptParam (α : Sort u) (default : α) : Sort u := α
 
 /-- Gadget for marking output parameters in type classes. -/
-@[reducible] def outParam (α : Sort u) : Sort u := α
+@[reducible] def OutParam (α : Sort u) : Sort u := α
 
 /-- Auxiliary Declaration used to implement the notation (a : α) -/
 @[reducible] def typedExpr (α : Sort u) (a : α) : α := a
@@ -164,19 +164,19 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 /- Auxiliary axiom used to implement `sorry`. -/
 axiom sorryAx (α : Sort u) (synthetic := true) : α
 
-theorem eqFalseOfNeTrue : {b : Bool} → Not (Eq b true) → Eq b false
+theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
   | false, h => rfl
 
-theorem eqTrueOfNeFalse : {b : Bool} → Not (Eq b false) → Eq b true
+theorem eq_true_of_ne_false : {b : Bool} → Not (Eq b false) → Eq b true
   | true, h => rfl
   | false, h => False.elim (h rfl)
 
-theorem neFalseOfEqTrue : {b : Bool} → Eq b true → Not (Eq b false)
+theorem ne_false_of_eq_true : {b : Bool} → Eq b true → Not (Eq b false)
   | true, _  => fun h => Bool.noConfusion h
   | false, h => Bool.noConfusion h
 
-theorem neTrueOfEqFalse : {b : Bool} → Eq b false → Not (Eq b true)
+theorem ne_true_of_eq_false : {b : Bool} → Eq b false → Not (Eq b true)
   | true, h  => Bool.noConfusion h
   | false, _ => fun h => Bool.noConfusion h
 
@@ -195,10 +195,10 @@ structure PLift (α : Sort u) : Type u :=
   up :: (down : α)
 
 /- Bijection between α and PLift α -/
-theorem PLift.upDown {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
+theorem PLift.up_down {α : Sort u} : ∀ (b : PLift α), Eq (up (down b)) b
   | up a => rfl
 
-theorem PLift.downUp {α : Sort u} (a : α) : Eq (down (up a)) a :=
+theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a :=
   rfl
 
 /- Pointed types -/
@@ -213,10 +213,10 @@ structure ULift.{r, s} (α : Type s) : Type (max s r) :=
   up :: (down : α)
 
 /- Bijection between α and ULift.{v} α -/
-theorem ULift.upDown {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
+theorem ULift.up_down {α : Type u} : ∀ (b : ULift.{v} α), Eq (up (down b)) b
   | up a => rfl
 
-theorem ULift.downUp {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
+theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a :=
   rfl
 
 class inductive Decidable (p : Prop)
@@ -240,26 +240,26 @@ abbrev DecidableEq (α : Sort u) :=
 def decEq {α : Sort u} [s : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
   s a b
 
-theorem decideEqTrue : {p : Prop} → [s : Decidable p] → p → Eq (decide p) true
+theorem decide_eq_true : {p : Prop} → [s : Decidable p] → p → Eq (decide p) true
   | _, isTrue  _, _   => rfl
   | _, isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decideEqTrue' : [s : Decidable p] → p → Eq (decide p) true
+theorem decide_eq_true' : [s : Decidable p] → p → Eq (decide p) true
   | isTrue  _, _   => rfl
   | isFalse h₁, h₂ => absurd h₂ h₁
 
-theorem decideEqFalse : {p : Prop} → [s : Decidable p] → Not p → Eq (decide p) false
+theorem decide_eq_false : {p : Prop} → [s : Decidable p] → Not p → Eq (decide p) false
   | _, isTrue  h₁, h₂ => absurd h₁ h₂
   | _, isFalse h, _   => rfl
 
-theorem ofDecideEqTrue {p : Prop} [s : Decidable p] : Eq (decide p) true → p := fun h =>
+theorem of_decide_eq_true {p : Prop} [s : Decidable p] : Eq (decide p) true → p := fun h =>
   match s with
   | isTrue  h₁ => h₁
-  | isFalse h₁ => absurd h (neTrueOfEqFalse (decideEqFalse h₁))
+  | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
 
-theorem ofDecideEqFalse {p : Prop} [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
+theorem of_decide_eq_false {p : Prop} [s : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match s with
-  | isTrue  h₁ => absurd h (neFalseOfEqTrue (decideEqTrue h₁))
+  | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
 @[inline] instance : DecidableEq Bool :=

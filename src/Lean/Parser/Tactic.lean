@@ -80,7 +80,7 @@ of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
 uses `#eval` to evaluate the decidability instance.
 
 This should be used with care because it adds the entire lean compiler to the trusted
-part, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using
+part, and the axiom `of_reduceBool` will show up in `#print axioms` for theorems using
 this method or anything that transitively depends on them. Nevertheless, because it is
 compiled, this can be significantly more efficient than using `decide`, and for very
 large computations this is one way to run external programs and trust the result.

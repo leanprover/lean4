@@ -18,7 +18,7 @@ def h' (x : Nat) := succ x
 
 theorem ex (x y : Nat) (h : x = y) : x + 1 = y + 1 := by
   open Nat in show succ x = succ y
-  apply congrArg
+  apply congr_arg
   assumption
 
 

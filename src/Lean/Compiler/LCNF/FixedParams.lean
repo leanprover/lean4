@@ -116,7 +116,7 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
     -- Recursive call to the function being analyzed
     for h : i in [:main.params.size] do
       if _h : i < args.size then
-        have : i < main.params.size := h.upper
+        have : i < main.params.size := h.2
         let param := main.params[i]
         let val ← evalArg args[i]
         unless val == .val i || (val == .erased && param.type.isErased) do

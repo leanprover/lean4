@@ -4294,7 +4294,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 x_17 = l_Nat_repr(x_15);
-x_18 = lean_alloc_ctor(2, 1, 0);
+x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_18);

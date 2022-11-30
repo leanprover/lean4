@@ -11,7 +11,7 @@ import Init.WF
 This is primarily intended for internal use in `decreasing_tactic`. -/
 macro "simp_wf" : tactic =>
   `(tactic| simp [invImage, InvImage, Prod.lex, sizeOfWFRel,
-          measure, Nat.lt_wfRel, WellFoundedRelation.rel])
+          measure, Nat.lt_wfRel, WellFoundedRelation.Rel])
 
 /-- Extensible helper tactic for `decreasing_tactic`. This handles the "base case"
 reasoning after applying lexicographic order lemmas.

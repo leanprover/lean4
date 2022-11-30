@@ -275,7 +275,7 @@ private partial def normLetValueImp (s : FVarSubst) (e : LetValue) (translator :
 /--
 Interface for monads that have a free substitutions.
 -/
-class MonadFVarSubst (m : Type → Type) (translator : outParam Bool) where
+class MonadFVarSubst (m : Type → Type) (translator : OutParam Bool) where
   getSubst : m FVarSubst
 
 export MonadFVarSubst (getSubst)

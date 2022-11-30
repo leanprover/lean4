@@ -90,15 +90,15 @@ structure Context where
   -/
   explicit      : Bool
   /--
-    If the result type of an application is the `outParam` of some local instance, then special support may be needed
+    If the result type of an application is the `OutParam` of some local instance, then special support may be needed
     because type class resolution interacts poorly with coercions in this kind of situation.
     This flag enables the special support.
 
-    The idea is quite simple, if the result type is the `outParam` of some local instance, we simply
+    The idea is quite simple, if the result type is the `OutParam` of some local instance, we simply
     execute `synthesizeSyntheticMVarsUsingDefault`. We added this feature to make sure examples as follows
     are correctly elaborated.
     ```lean
-    class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+    class GetElem (Cont : Type u) (Idx : Type v) (Elem : OutParam (Type w)) where
       getElem (xs : Cont) (i : Idx) : Elem
 
     export GetElem (getElem)
@@ -153,7 +153,7 @@ structure State where
   -/
   propagateExpected    : Bool
   /--
-    If the result type may be the `outParam` of some local instance.
+    If the result type may be the `OutParam` of some local instance.
     See comment at `Context.resultIsOutParamSupport`
    -/
   resultTypeOutParam?  : Option MVarId := none
@@ -422,7 +422,7 @@ private def anyNamedArgDependsOnCurrent : M Bool := do
       for i in [1:xs.size] do
         let xDecl ← xs[i]!.fvarId!.getDecl
         if s.namedArgs.any fun arg => arg.name == xDecl.userName then
-          /- Remark: a default value at `optParam` does not count as a dependency -/
+          /- Remark: a default value at `OptParam` does not count as a dependency -/
           if (← exprDependsOn xDecl.type.cleanupAnnotations curr.fvarId!) then
             return true
       return false
@@ -445,7 +445,7 @@ private def isNextArgHole : M Bool := do
 
   For example, suppose we have the class
   ```lean
-  class Get (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+  class Get (Cont : Type u) (Idx : Type v) (Elem : OutParam (Type w)) where
     get (xs : Cont) (i : Idx) : Elem
   ```
   And the current value of `fType` is
@@ -591,7 +591,7 @@ mutual
           elabAndAddNewArg argName argNew
           main
       | false, _, some _ =>
-        throwError "invalid autoParam, argument must be a constant"
+        throwError "invalid AutoParam, argument must be a constant"
       | _, _, _ =>
         if !(← get).namedArgs.isEmpty then
           if (← anyNamedArgDependsOnCurrent) then

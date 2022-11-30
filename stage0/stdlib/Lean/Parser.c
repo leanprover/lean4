@@ -5817,7 +5817,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Parser_mkAntiquot_parenthesizer(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -6210,7 +6209,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_16 = lean_ctor_get(x_10, 0);
 x_17 = lean_io_error_to_string(x_16);
-x_18 = lean_alloc_ctor(2, 1, 0);
+x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -6229,7 +6228,7 @@ lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_10);
 x_23 = lean_io_error_to_string(x_21);
-x_24 = lean_alloc_ctor(2, 1, 0);
+x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -6336,7 +6335,7 @@ if (x_49 == 0)
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_50 = lean_ctor_get(x_34, 0);
 x_51 = lean_io_error_to_string(x_50);
-x_52 = lean_alloc_ctor(2, 1, 0);
+x_52 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_52, 0, x_51);
 x_53 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
@@ -6355,7 +6354,7 @@ lean_inc(x_56);
 lean_inc(x_55);
 lean_dec(x_34);
 x_57 = lean_io_error_to_string(x_55);
-x_58 = lean_alloc_ctor(2, 1, 0);
+x_58 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_59 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
@@ -6506,7 +6505,7 @@ if (x_91 == 0)
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
 x_92 = lean_ctor_get(x_69, 0);
 x_93 = lean_io_error_to_string(x_92);
-x_94 = lean_alloc_ctor(2, 1, 0);
+x_94 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
 x_95 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_95, 0, x_94);
@@ -6525,7 +6524,7 @@ lean_inc(x_98);
 lean_inc(x_97);
 lean_dec(x_69);
 x_99 = lean_io_error_to_string(x_97);
-x_100 = lean_alloc_ctor(2, 1, 0);
+x_100 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_100, 0, x_99);
 x_101 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_101, 0, x_100);
@@ -7098,7 +7097,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Parser_mkAntiquot_formatter(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_2);
 return x_10;
 }
 }
@@ -7502,7 +7500,7 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
 x_16 = lean_ctor_get(x_10, 0);
 x_17 = lean_io_error_to_string(x_16);
-x_18 = lean_alloc_ctor(2, 1, 0);
+x_18 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_18, 0, x_17);
 x_19 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
@@ -7521,7 +7519,7 @@ lean_inc(x_22);
 lean_inc(x_21);
 lean_dec(x_10);
 x_23 = lean_io_error_to_string(x_21);
-x_24 = lean_alloc_ctor(2, 1, 0);
+x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -7628,7 +7626,7 @@ if (x_49 == 0)
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 
 x_50 = lean_ctor_get(x_34, 0);
 x_51 = lean_io_error_to_string(x_50);
-x_52 = lean_alloc_ctor(2, 1, 0);
+x_52 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_52, 0, x_51);
 x_53 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_53, 0, x_52);
@@ -7647,7 +7645,7 @@ lean_inc(x_56);
 lean_inc(x_55);
 lean_dec(x_34);
 x_57 = lean_io_error_to_string(x_55);
-x_58 = lean_alloc_ctor(2, 1, 0);
+x_58 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_58, 0, x_57);
 x_59 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_59, 0, x_58);
@@ -7798,7 +7796,7 @@ if (x_91 == 0)
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; 
 x_92 = lean_ctor_get(x_69, 0);
 x_93 = lean_io_error_to_string(x_92);
-x_94 = lean_alloc_ctor(2, 1, 0);
+x_94 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_94, 0, x_93);
 x_95 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_95, 0, x_94);
@@ -7817,7 +7815,7 @@ lean_inc(x_98);
 lean_inc(x_97);
 lean_dec(x_69);
 x_99 = lean_io_error_to_string(x_97);
-x_100 = lean_alloc_ctor(2, 1, 0);
+x_100 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_100, 0, x_99);
 x_101 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_101, 0, x_100);

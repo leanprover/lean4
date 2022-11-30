@@ -1,6 +1,6 @@
 namespace Ex
 
-class GetElem (Cont : Type u) (Idx : Type v) (Elem : outParam (Type w)) where
+class GetElem (Cont : Type u) (Idx : Type v) (Elem : OutParam (Type w)) where
   getElem' (xs : Cont) (i : Idx) : Elem
 
 export GetElem (getElem')

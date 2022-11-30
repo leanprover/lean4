@@ -1,5 +1,5 @@
 namespace Ex1
-  class FunLike (F : Sort _) (β : outParam <| Nat → Sort _) where
+  class FunLike (F : Sort _) (β : OutParam <| Nat → Sort _) where
     coe : F → ∀ a, β a
 
   inductive Secret

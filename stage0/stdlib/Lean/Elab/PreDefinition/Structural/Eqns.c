@@ -1837,6 +1837,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_5);
 lean_inc(x_3);
+lean_inc(x_4);
 x_28 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___lambda__1(x_8, x_4, x_3, x_24, x_1, x_5, x_11, x_27, x_12, x_13, x_14, x_15, x_26);
 if (lean_obj_tag(x_28) == 0)
 {
@@ -1853,6 +1854,7 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_30 = !lean_is_exclusive(x_28);
 if (x_30 == 0)
@@ -1909,6 +1911,7 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_40 = !lean_is_exclusive(x_28);
 if (x_40 == 0)
@@ -1955,6 +1958,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_5);
 lean_inc(x_3);
+lean_inc(x_4);
 x_51 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___lambda__1(x_8, x_4, x_3, x_24, x_1, x_5, x_11, x_49, x_12, x_13, x_14, x_15, x_50);
 lean_dec(x_49);
 if (lean_obj_tag(x_51) == 0)
@@ -1972,6 +1976,7 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_53 = !lean_is_exclusive(x_51);
 if (x_53 == 0)
@@ -2028,6 +2033,7 @@ lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_63 = !lean_is_exclusive(x_51);
 if (x_63 == 0)
@@ -2061,6 +2067,7 @@ lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_78 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_78, 0, x_11);
@@ -2078,6 +2085,7 @@ lean_dec(x_12);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_5);
+lean_dec(x_4);
 lean_dec(x_3);
 x_79 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_79, 0, x_11);
@@ -2231,7 +2239,6 @@ x_29 = l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structur
 lean_inc(x_26);
 x_30 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1(x_7, x_17, x_23, x_24, x_25, x_26, x_26, x_27, x_26, x_28, x_29, x_2, x_3, x_4, x_5, x_21);
 lean_dec(x_26);
-lean_dec(x_24);
 lean_dec(x_17);
 lean_dec(x_7);
 if (lean_obj_tag(x_30) == 0)
@@ -2382,7 +2389,6 @@ x_71 = l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structur
 lean_inc(x_68);
 x_72 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1(x_7, x_59, x_65, x_66, x_67, x_68, x_68, x_69, x_68, x_70, x_71, x_2, x_3, x_57, x_5, x_63);
 lean_dec(x_68);
-lean_dec(x_66);
 lean_dec(x_59);
 lean_dec(x_7);
 if (lean_obj_tag(x_72) == 0)
@@ -2473,7 +2479,6 @@ lean_object* x_14;
 x_14 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_8);
 lean_dec(x_5);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_14;
 }
@@ -2486,7 +2491,6 @@ x_17 = l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1(x_1, x_
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_6);
-lean_dec(x_4);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_17;

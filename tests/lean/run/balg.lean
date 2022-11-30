@@ -71,11 +71,11 @@ instance : CoeSort CommGroup (Type u) where
 theorem inv_mul_cancel_left {G : Group} (a b : G) : a⁻¹ * (a * b) = b := by
   rw [← G.mul_assoc, G.mul_left_inv, G.one_mul]
 
-theorem toMonoidOneEq {G : Group} : G.toMonoid.one = 1 :=
+theorem toMonoid_one_eq {G : Group} : G.toMonoid.one = 1 :=
   rfl
 
 theorem inv_eq_of_mul_eq_one {G : Group} {a b : G} (h : a * b = 1) : a⁻¹ = b := by
-  rw [← G.mul_one a⁻¹, toMonoidOneEq, ←h, ← G.mul_assoc, G.mul_left_inv, G.one_mul]
+  rw [← G.mul_one a⁻¹, toMonoid_one_eq, ←h, ← G.mul_assoc, G.mul_left_inv, G.one_mul]
 
 theorem inv_inv {G : Group} (a : G) : (a⁻¹)⁻¹ = a :=
   inv_eq_of_mul_eq_one (G.mul_left_inv a)

@@ -10,7 +10,7 @@ def fib: Nat → Nat
 | 1 => 1
 | n + 2 => fib n + fib (n + 1)
 
-theorem fib50Eq : fib 50 = 12586269025 :=
+theorem fib50_eq : fib 50 = 12586269025 :=
   rfl
 
 inductive type : Type

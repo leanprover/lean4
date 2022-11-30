@@ -22,17 +22,17 @@ inductive A (β : Type v)
 #check A.nil (α := Nat) (β := Bool)
 
 mutual
-  inductive isEven : Nat → Prop
-  | z : isEven 0
-  | s (n : Nat) : isOdd n → isEven (n+1)
+  inductive IsEven : Nat → Prop
+  | z : IsEven 0
+  | s (n : Nat) : IsOdd n → IsEven (n+1)
 
-  inductive isOdd : Nat → Prop
-  | s (n : Nat) : isEven n → isOdd (n+1)
+  inductive IsOdd : Nat → Prop
+  | s (n : Nat) : IsEven n → IsOdd (n+1)
 end
 
-#check isEven
-#check isOdd.s
-#check @isEven.rec
+#check IsEven
+#check IsOdd.s
+#check @IsEven.rec
 
 inductive V (α : Type _) : Nat → Type _
 | nil  : V α 0

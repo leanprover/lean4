@@ -1381,39 +1381,39 @@ def etaExpandedStrict? : Expr → Option Expr
   | lam _ _ b _ => etaExpandedAux b 1
   | _           => none
 
-/-- Return `some e'` if `e` is of the form `optParam _ e'` -/
+/-- Return `some e'` if `e` is of the form `OptParam _ e'` -/
 def getOptParamDefault? (e : Expr) : Option Expr :=
-  if e.isAppOfArity ``optParam 2 then
+  if e.isAppOfArity `OptParam 2 then
     some e.appArg!
   else
     none
 
-/-- Return `some e'` if `e` is of the form `autoParam _ e'` -/
+/-- Return `some e'` if `e` is of the form `AutoParam _ e'` -/
 def getAutoParamTactic? (e : Expr) : Option Expr :=
-  if e.isAppOfArity ``autoParam 2 then
+  if e.isAppOfArity `AutoParam 2 then
     some e.appArg!
   else
     none
 
-/-- Return `true` if `e` is of the form `outParam _` -/
+/-- Return `true` if `e` is of the form `OutParam _` -/
 @[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
-  e.isAppOfArity ``outParam 1
+  e.isAppOfArity `OutParam 1
 
-/-- Return `true` if `e` is of the form `optParam _ _` -/
+/-- Return `true` if `e` is of the form `OptParam _ _` -/
 def isOptParam (e : Expr) : Bool :=
-  e.isAppOfArity ``optParam 2
+  e.isAppOfArity `OptParam 2
 
-/-- Return `true` if `e` is of the form `autoParam _ _` -/
+/-- Return `true` if `e` is of the form `AutoParam _ _` -/
 def isAutoParam (e : Expr) : Bool :=
-  e.isAppOfArity ``autoParam 2
+  e.isAppOfArity `AutoParam 2
 
 /--
-Remove `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Remove `OutParam`, `OptParam`, and `AutoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.
 Examples:
-- Given `e` of the form `outParam (optParam Nat b)`, `consumeTypeAnnotations e = b`.
-- Given `e` of the form `Nat → outParam (optParam Nat b)`, `consumeTypeAnnotations e = e`.
+- Given `e` of the form `OutParam (OptParam Nat b)`, `consumeTypeAnnotations e = b`.
+- Given `e` of the form `Nat → OutParam (OptParam Nat b)`, `consumeTypeAnnotations e = e`.
 -/
 @[export lean_expr_consume_type_annotations]
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
@@ -1425,11 +1425,11 @@ partial def consumeTypeAnnotations (e : Expr) : Expr :=
     e
 
 /--
-Remove metadata annotations and `outParam`, `optParam`, and `autoParam` applications/annotations from `e`.
+Remove metadata annotations and `OutParam`, `OptParam`, and `AutoParam` applications/annotations from `e`.
 Note that it does not remove nested annotations.
 Examples:
-- Given `e` of the form `outParam (optParam Nat b)`, `cleanupAnnotations e = b`.
-- Given `e` of the form `Nat → outParam (optParam Nat b)`, `cleanupAnnotations e = e`.
+- Given `e` of the form `OutParam (OptParam Nat b)`, `cleanupAnnotations e = b`.
+- Given `e` of the form `Nat → OutParam (OptParam Nat b)`, `cleanupAnnotations e = e`.
 -/
 partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations

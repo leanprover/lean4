@@ -25,7 +25,7 @@ def Context.tyName {α} (ctx : Context α) : Name := ctx.categoryAttr.defn.value
 /-- Replace all references of `Parser` with `tyName` -/
 def replaceParserTy {α} (ctx : Context α) (e : Expr) : Expr :=
   e.replace fun e =>
-    -- strip `optParam`
+    -- strip `OptParam`
     let e := if e.isOptParam then e.appFn!.appArg! else e
     if e.isConstOf `Lean.Parser.Parser then mkConst ctx.tyName else none
 

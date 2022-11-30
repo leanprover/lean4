@@ -393,7 +393,7 @@ where
     let kinds ← getCongrSimpKinds f info
     if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
       /- If all argument kinds are `fixed` or `eq`, then using
-         simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/
+         simple congruence theorems `congr`, `congr_arg`, and `congr_fun` produces a more compact proof -/
       return none
     match (← get).congrCache.find? f with
     | some thm? => return thm?

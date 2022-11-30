@@ -19,7 +19,7 @@ structure MkInstResult where
 
 /--
   Construct an instance for `className out₁ ... outₙ type`.
-  The method support classes with a prefix of `outParam`s (e.g. `MonadReader`). -/
+  The method support classes with a prefix of `OutParam`s (e.g. `MonadReader`). -/
 private partial def mkInst? (className : Name) (type : Expr) : MetaM (Option MkInstResult) := do
   let rec go? (instType instTypeType : Expr) (outParams : Array Expr) : MetaM (Option MkInstResult) := do
     let instTypeType ← whnfD instTypeType

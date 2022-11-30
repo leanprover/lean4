@@ -49,7 +49,7 @@ namespace Lean.Meta
         withNewLocalInstances fvars j do
           /- We used to use just `whnf`, but it produces counterintuitive behavior if
              - `type` is a metavariable `?m` such that `?m := let x := v; b`, or
-             - `type` has `MData` or annotations such as `optParam` around a `let`-expression.
+             - `type` has `MData` or annotations such as `OptParam` around a `let`-expression.
 
              `whnf` instantiates metavariables, and consumes `MData`, but it also expands the `let`.
           -/

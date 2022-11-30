@@ -267,7 +267,7 @@ def tryUnify (e₁ e₂ : Expr) : AnalyzeM Unit := do
 partial def inspectOutParams (arg mvar : Expr) : AnalyzeM Unit := do
   let argType  ← inferType arg -- HAdd α α α
   let mvarType ← inferType mvar
-  let fType ← inferType argType.getAppFn -- Type → Type → outParam Type
+  let fType ← inferType argType.getAppFn -- Type → Type → OutParam Type
   let mType ← inferType mvarType.getAppFn
   inspectAux fType mType 0 argType.getAppArgs mvarType.getAppArgs
 where

@@ -180,7 +180,7 @@ private def expandFields (structStx : Syntax) (structModifiers : Modifiers) (str
             -- The tactic should be for binders+type.
             -- It is safe to reset the binders to a "null" node since there is no value to be elaborated
             let type ← `(forall $(binders.getArgs):bracketedBinder*, $type)
-            let type ← `(autoParam $type $(mkIdentFrom tac name))
+            let type ← `($(mkIdent `AutoParam) $type $(mkIdentFrom tac name))
             pure (mkNullNode, some type.raw)
       else
         let (binders, type) := expandDeclSig fieldBinder[3]
@@ -307,7 +307,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
       throwError "unsupported dependent field in {fieldName} : {projType}"
     if let some info := getFieldInfo? (← getEnv) (← getStructureName parentType) fieldName then
       if let some autoParamExpr := info.autoParam? then
-        return (← mkAppM ``autoParam #[projType, autoParamExpr])
+        return (← mkAppM `AutoParam #[projType, autoParamExpr])
     return projType
 
 private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := do

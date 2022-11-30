@@ -114,11 +114,11 @@ private def expandBinderModifier (type : Syntax) (optBinderModifier : Syntax) : 
     let kind     := modifier.getKind
     if kind == `Lean.Parser.Term.binderDefault then
       let defaultVal := modifier[1]
-      `(optParam $type $defaultVal)
+      `($(mkIdent `OptParam) $type $defaultVal)
     else if kind == `Lean.Parser.Term.binderTactic then
       let tac := modifier[2]
       let name ← declareTacticSyntax tac
-      `(autoParam $type $(mkIdentFrom tac name))
+      `($(mkIdent `AutoParam) $type $(mkIdentFrom tac name))
     else
       throwUnsupportedSyntax
 

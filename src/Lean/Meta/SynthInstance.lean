@@ -595,10 +595,10 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
 end SynthInstance
 
 /-!
-Type class parameters can be annotated with `outParam` annotations.
+Type class parameters can be annotated with `OutParam` annotations.
 
 Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
-`a_i` is an `outParam`.
+`a_i` is an `OutParam`.
 The result is type correct because we reject type class declarations IF
 it contains a regular parameter X that depends on an `out` parameter Y.
 
@@ -703,7 +703,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
                The example in the issue #796 exposed this issue.
                ```
                 structure A
-                class B (a : outParam A) (α : Sort u)
+                class B (a : OutParam A) (α : Sort u)
                 class C {a : A} (α : Sort u) [B a α]
                 class D {a : A} (α : Sort u) [B a α] [c : C α]
                 class E (a : A) where [c (α : Sort u) [B a α] : C α]

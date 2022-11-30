@@ -368,6 +368,6 @@ private def mkNativeAuxDecl (baseName : Name) (type value : Expr) : TermElabM Na
     let auxDeclName ← mkNativeAuxDecl `_nativeDecide (Lean.mkConst `Bool) d
     let rflPrf ← mkEqRefl (toExpr true)
     let s := d.appArg! -- get instance from `d`
-    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (Lean.mkConst ``Lean.ofReduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
+    return mkApp3 (Lean.mkConst ``of_decide_eq_true) expectedType s <| mkApp3 (Lean.mkConst `Lean.of_reduceBool) (Lean.mkConst auxDeclName) (toExpr true) rflPrf
 
 end Lean.Elab.Tactic

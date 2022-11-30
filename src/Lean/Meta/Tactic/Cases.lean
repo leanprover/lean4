@@ -296,13 +296,13 @@ def _root_.Lean.MVarId.substEqs (mvarId : MVarId) : MetaM (Option MVarId) := do
     return type.isEq || type.isHEq
   ensureAtMostOne mvarIds
 
-/-- Auxiliary structure for storing `byCases` tactic result. -/
+/-- Auxiliary structure for storing `by_cases` tactic result. -/
 structure ByCasesSubgoal where
   mvarId : MVarId
   fvarId : FVarId
 
 private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
-    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'byCases' tactic failed, unexpected new hypothesis"
+    let #[Expr.fvar fvarId ..] ← pure s.fields | throwError "'by_cases' tactic failed, unexpected new hypothesis"
     return { mvarId := s.mvarId, fvarId }
 
 /--
@@ -312,7 +312,7 @@ def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h)
   let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
-    throwError "'byCases' tactic failed, unexpected number of subgoals"
+    throwError "'by_cases' tactic failed, unexpected number of subgoals"
   return ((← toByCasesSubgoal s₁), (← toByCasesSubgoal s₂))
 
 builtin_initialize registerTraceClass `Meta.Tactic.cases

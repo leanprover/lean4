@@ -1062,7 +1062,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
             ps
          ```
          When we try to elaborate `fun (p : Prod _ _) => ...` for the first time, we haven't propagated the type of `ps` yet
-         because `Array.filter` has type `{α : Type u_1} → (α → Bool) → (as : Array α) → optParam Nat 0 → optParam Nat (Array.size as) → Array α`
+         because `Array.filter` has type `{α : Type u_1} → (α → Bool) → (as : Array α) → OptParam Nat 0 → OptParam Nat (Array.size as) → Array α`
          However, the partial type annotation `(p : Prod _ _)` makes sure we succeed at the quick-check `waitExpectedTypeAndDiscrs`.
       -/
       withRef altLHS.ref do

@@ -3647,11 +3647,11 @@ x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = lean_apply_2(x_1, x_9, x_10);
 lean_inc(x_3);
-x_12 = lean_alloc_ctor(4, 2, 0);
+x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_3);
 x_13 = l_Std_Format_joinSep___at_instReprSubarray___spec__1___rarg(x_1, x_5, x_3);
-x_14 = lean_alloc_ctor(4, 2, 0);
+x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 return x_14;
@@ -3680,7 +3680,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprSubarray___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3698,7 +3698,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprSubarray___rarg___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3709,7 +3709,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_instReprSubarray___rarg___closed__4;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -3746,7 +3746,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprSubarray___rarg___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3756,7 +3756,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_term_____x5b___x3a___x5d___closed__23;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3774,7 +3774,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprSubarray___rarg___closed__11;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3785,7 +3785,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_instReprSubarray___rarg___closed__12;
 x_2 = l_instReprSubarray___rarg___closed__2;
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -3807,23 +3807,23 @@ x_8 = lean_array_to_list(lean_box(0), x_4);
 x_9 = l_instReprSubarray___rarg___closed__5;
 x_10 = l_Std_Format_joinSep___at_instReprSubarray___spec__1___rarg(x_1, x_8, x_9);
 x_11 = l_instReprSubarray___rarg___closed__9;
-x_12 = lean_alloc_ctor(4, 2, 0);
+x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_11);
 lean_ctor_set(x_12, 1, x_10);
 x_13 = l_instReprSubarray___rarg___closed__10;
-x_14 = lean_alloc_ctor(4, 2, 0);
+x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_instReprSubarray___rarg___closed__8;
-x_16 = lean_alloc_ctor(3, 2, 0);
+x_16 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
 x_17 = 1;
-x_18 = lean_alloc_ctor(5, 1, 1);
+x_18 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_17);
 x_19 = l_instReprSubarray___rarg___closed__2;
-x_20 = lean_alloc_ctor(4, 2, 0);
+x_20 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
 return x_20;

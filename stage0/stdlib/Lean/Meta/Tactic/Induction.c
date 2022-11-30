@@ -327,7 +327,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -355,7 +355,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_Tactic_Induction_0__Lean_Meta_addRecParams___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1107,7 +1107,6 @@ x_90 = lean_array_get_size(x_13);
 x_91 = lean_nat_dec_lt(x_11, x_90);
 lean_dec(x_90);
 x_92 = l_Lean_Name_append(x_17, x_18);
-lean_dec(x_17);
 lean_inc(x_21);
 x_93 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_19, x_92, x_21, x_22, x_23, x_24, x_25);
 if (x_91 == 0)
@@ -1530,7 +1529,6 @@ x_47 = lean_ctor_get(x_45, 1);
 lean_inc(x_47);
 lean_dec(x_45);
 x_48 = l_Lean_Name_append(x_16, x_23);
-lean_dec(x_16);
 lean_inc(x_18);
 x_49 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_26, x_48, x_18, x_19, x_20, x_21, x_47);
 x_50 = lean_ctor_get(x_49, 0);
@@ -3022,7 +3020,7 @@ lean_ctor_set(x_43, 1, x_42);
 x_44 = lean_unsigned_to_nat(1u);
 x_45 = lean_nat_add(x_2, x_44);
 x_46 = l_Nat_repr(x_45);
-x_47 = lean_alloc_ctor(2, 1, 0);
+x_47 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_47, 0, x_46);
 x_48 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
@@ -4172,7 +4170,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Expr_withAppAux___at_Lean_MVarId_induction___spec__7___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }

@@ -4122,6 +4122,7 @@ x_18 = 0;
 lean_inc(x_3);
 x_19 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__2___at_Lean_Compiler_LCNF_Decl_reduceArity___spec__3(x_2, x_17, x_18, x_3);
 x_20 = l_Lean_Compiler_LCNF_Decl_reduceArity___lambda__1___closed__2;
+lean_inc(x_4);
 x_21 = l_Lean_Name_append(x_4, x_20);
 x_22 = lean_unsigned_to_nat(0u);
 x_23 = lean_nat_dec_lt(x_22, x_1);

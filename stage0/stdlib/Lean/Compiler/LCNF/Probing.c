@@ -8623,7 +8623,7 @@ x_25 = l_Lean_Compiler_LCNF_Probe_toPass___elambda__1___rarg___closed__5;
 x_26 = lean_string_append(x_25, x_24);
 lean_dec(x_24);
 x_27 = lean_string_append(x_26, x_25);
-x_28 = lean_alloc_ctor(2, 1, 0);
+x_28 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
 x_29 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_29, 0, x_28);

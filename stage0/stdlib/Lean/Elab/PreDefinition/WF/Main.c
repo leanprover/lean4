@@ -6150,7 +6150,7 @@ lean_inc(x_79);
 lean_dec(x_63);
 lean_inc(x_60);
 x_80 = l_Nat_repr(x_60);
-x_81 = lean_alloc_ctor(2, 1, 0);
+x_81 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_81, 0, x_80);
 x_82 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_82, 0, x_81);

@@ -1,8 +1,8 @@
-class AddIdepotent (α : Type u) [Add α] : Prop where
+class AddIdempotent (α : Type u) [Add α] : Prop where
   add_id (x : α) : x + x = x
 
-export AddIdepotent (add_id)
+export AddIdempotent (add_id)
 
-theorem tst [Add α] [AddIdepotent α] (x : α) : id (x + x + x)  = x := by
+theorem tst [Add α] [AddIdempotent α] (x : α) : id (x + x + x)  = x := by
   rw [add_id, add_id]
   simp [id]

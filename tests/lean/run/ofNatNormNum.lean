@@ -20,12 +20,12 @@ instance [One α] : OfNat α (nat_lit 1) where
 
 -- Some example structure
 class S (α : Type u) extends Add α, Mul α, Zero α, One α where
-  add_assoc (a b c : α)    : a + b + c = a + (b + c)
-  add_zero (a : α)         : a + 0 = a
-  zero_add (a : α)         : 0 + a = a
-  mul_zero (a : α)         : a * 0 = 0
-  mul_one (a : α)          : a * 1 = a
-  left_distrib (a b c : α) : a * (b + c) = a * b + a * c
+  add_assoc (a b c : α) : a + b + c = a + (b + c)
+  add_zero (a : α)      : a + 0 = a
+  zero_add (a : α)      : 0 + a = a
+  mul_zero (a : α)      : a * 0 = 0
+  mul_one (a : α)       : a * 1 = a
+  mul_add (a b c : α)   : a * (b + c) = a * b + a * c
 
 -- Very simply default `ofNat` for `S`
 protected def S.ofNat (α : Type u) [S α] : Nat → α
@@ -46,7 +46,7 @@ theorem S.ofNat_mul [S α] (n m : Nat) : (OfNat.ofNat n : α) * OfNat.ofNat m = 
   | zero => rw [S.mul_zero, Nat.mul_zero]
   | succ m ih =>
     show OfNat.ofNat (α := α) n * OfNat.ofNat (m + 1) = OfNat.ofNat (n * m.succ)
-    rw [Nat.mul_succ, ← ofNat_add, ← ofNat_add, ← ih, left_distrib]
+    rw [Nat.mul_succ, ← ofNat_add, ← ofNat_add, ← ih, mul_add]
     simp [OfNat.ofNat, S.ofNat]
     erw [S.zero_add, S.mul_one]
 

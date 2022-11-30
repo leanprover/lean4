@@ -87,15 +87,15 @@ instance : Sub Int where
 inductive NonNeg : Int → Prop where
   | mk (n : Nat) : NonNeg (ofNat n)
 
-protected def le (a b : Int) : Prop := NonNeg (b - a)
+protected def LE (a b : Int) : Prop := NonNeg (b - a)
 
 instance : LE Int where
-  le := Int.le
+  le := Int.LE
 
-protected def lt (a b : Int) : Prop := (a + 1) ≤ b
+protected def LT (a b : Int) : Prop := (a + 1) ≤ b
 
 instance : LT Int where
-  lt := Int.lt
+  lt := Int.LT
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_eq"]

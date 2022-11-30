@@ -78,13 +78,13 @@ inductive Result (α : Type)
 inductive Result.IsOk {α : Type} : Result α → Prop
 | mk (a : α) (i : pos) (cache : ParserCache) (State : ParserState) (eps : Bool) : Result.IsOk (Result.ok a i cache State eps)
 
-theorem errorIsNotOk {α : Type} {msg : String} {i : pos} {cache : ParserCache} {stx : Syntax} {eps : Bool}
+theorem error_is_not_ok {α : Type} {msg : String} {i : pos} {cache : ParserCache} {stx : Syntax} {eps : Bool}
                         (h : Result.IsOk (@Result.error α msg i cache stx eps)) : False :=
 match h with end
 
 @[inline] def unreachableError {α β : Type} {msg : String} {i : pos} {cache : ParserCache} {stx : Syntax} {eps : Bool}
                                 (h : Result.IsOk (@Result.error α msg i cache stx eps)) : β :=
-False.elim (errorIsNotOk h)
+False.elim (error_is_not_ok h)
 
 def resultOk := {r : Result Unit // r.IsOk}
 

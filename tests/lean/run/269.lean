@@ -1,4 +1,4 @@
-theorem haveWithSubgoals {a b : α} : a = b ↔ b = a := by
+theorem have_with_subgoals {a b : α} : a = b ↔ b = a := by
     apply Iff.intro
     intro h
     have h' := h.symm
@@ -6,7 +6,7 @@ theorem haveWithSubgoals {a b : α} : a = b ↔ b = a := by
     intro h
     exact h.symm
 
-theorem haveWithSubgoals2 {a b : α} : a = b ↔ b = a := by {
+theorem have_with_subgoals2 {a b : α} : a = b ↔ b = a := by {
     apply Iff.intro;
     intro h;
     have h' := h.symm;

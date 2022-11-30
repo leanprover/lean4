@@ -16,7 +16,7 @@ def len : List α → Nat
     | ListSplit.split fst snd => len fst + len snd
 termination_by _ l => l.length
 decreasing_by
-  simp [measure, id, invImage, InvImage, Nat.lt_wfRel, WellFoundedRelation.rel, sizeOf] <;>
+  simp [measure, id, invImage, InvImage, Nat.lt_wfRel, WellFoundedRelation.Rel, sizeOf] <;>
   first
     | apply Nat.lt_add_right
     | apply Nat.lt_add_left

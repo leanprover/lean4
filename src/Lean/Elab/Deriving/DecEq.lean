@@ -13,7 +13,7 @@ open Lean.Parser.Term
 open Meta
 
 def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader `DecidableEq 2 indVal
+  mkHeader ``DecidableEq 2 indVal
 
 def mkMatch (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
   let discrs ← mkDiscrs header indVal
@@ -92,7 +92,7 @@ def mkAuxFunction (ctx : Context) : TermElabM Syntax := do
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name
-  let cmds := #[← mkAuxFunction ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
+  let cmds := #[← mkAuxFunction ctx] ++ (← mkInstanceCmds ctx ``DecidableEq #[indVal.name] (useAnonCtor := false))
   trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds
 
@@ -166,7 +166,7 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
       fun x y =>
         if h : x.toCtorIdx = y.toCtorIdx then
           -- We use `rfl` in the following proof because the first script fails for unit-like datatypes due to etaStruct.
-          isTrue (by first | have aux := $(mkIdent `congr_arg) $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
+          isTrue (by first | have aux := congr_arg $ofNatIdent h; rw [$auxThmIdent:ident, $auxThmIdent:ident] at aux; assumption | rfl)
         else
           isFalse fun h => by subst h; contradiction
   )
@@ -183,7 +183,7 @@ def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
     mkDecEq declNames[0]!
 
 builtin_initialize
-  registerDerivingHandler `DecidableEq mkDecEqInstanceHandler
+  registerDerivingHandler ``DecidableEq mkDecEqInstanceHandler
   registerTraceClass `Elab.Deriving.decEq
 
 end Lean.Elab.Deriving.DecEq

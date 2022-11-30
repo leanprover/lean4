@@ -10,4 +10,4 @@
       ?a = ?a
     with
       Ordering.eq = Ordering.lt
-[Meta.Tactic.simp.rewrite] false_implies:1000, False → False ==> True
+[Meta.Tactic.simp.rewrite] false_implies_eq:1000, False → False ==> True

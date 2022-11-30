@@ -29,51 +29,51 @@ instance [Zero α] : OfNat α (nat_lit 0) where
     ofNat := zero
 
 class MulComm (α : Type u) [Mul α] : Prop where
-    mulComm : {a b : α} → a * b = b * a
-export MulComm (mulComm)
+    mul_comm : {a b : α} → a * b = b * a
+export MulComm (mul_comm)
 
 class MulAssoc (α : Type u) [Mul α] : Prop where
-    mulAssoc : {a b c : α} → a * b * c = a * (b * c)
-export MulAssoc (mulAssoc)
+    mul_assoc : {a b c : α} → a * b * c = a * (b * c)
+export MulAssoc (mul_assoc)
 
 class OneUnit (α : Type u) [Mul α] [One α] : Prop where
-    oneMul : {a : α} → 1 * a = a
-    mulOne : {a : α} → a * 1 = a
-export OneUnit (oneMul mulOne)
+    one_mul : {a : α} → 1 * a = a
+    mul_one : {a : α} → a * 1 = a
+export OneUnit (one_mul mul_one)
 
 class AddComm (α : Type u) [Add α] : Prop where
-    addComm : {a b : α} → a + b = b + a
-export AddComm (addComm)
+    add_comm : {a b : α} → a + b = b + a
+export AddComm (add_comm)
 
 class AddAssoc (α : Type u) [Add α] : Prop where
-    addAssoc : {a b c : α} → a + b + c = a + (b + c)
-export AddAssoc (addAssoc)
+    add_assoc : {a b c : α} → a + b + c = a + (b + c)
+export AddAssoc (add_assoc)
 
 class ZeroUnit (α : Type u) [Add α] [Zero α] : Prop where
-    zeroAdd : {a : α} → 0 + a = a
-    addZero : {a : α} → a + 0 = a
-export ZeroUnit (zeroAdd addZero)
+    zero_add : {a : α} → 0 + a = a
+    add_zero : {a : α} → a + 0 = a
+export ZeroUnit (zero_add add_zero)
 
 class InvMul (α : Type u) [Mul α] [One α] [Inv α] : Prop where
-    invMul : {a : α} → a⁻¹ * a = 1
-export InvMul (invMul)
+    inv_mul : {a : α} → a⁻¹ * a = 1
+export InvMul (inv_mul)
 
 class NegAdd (α : Type u) [Add α] [Zero α] [Neg α] : Prop where
-    negAdd : {a : α} → -a + a = 0
-export NegAdd (negAdd)
+    neg_add : {a : α} → -a + a = 0
+export NegAdd (neg_add)
 
 class ZeroMul (α : Type u) [Mul α] [Zero α] : Prop where
-    zeroMul : {a : α} → 0 * a = 0
-export ZeroMul (zeroMul)
+    zero_mul : {a : α} → 0 * a = 0
+export ZeroMul (zero_mul)
 
 class Distrib (α : Type u) [Add α] [Mul α] : Prop where
-    leftDistrib : {a b c : α} → a * (b + c) = a * b + a * c
-    rightDistrib : {a b c : α} → (a + b) * c = a * c + b * c
-export Distrib (leftDistrib rightDistrib)
+    mul_add : {a b c : α} → a * (b + c) = a * b + a * c
+    add_mul : {a b c : α} → (a + b) * c = a * c + b * c
+export Distrib (mul_add add_mul)
 
 class Domain (α : Type u) [Mul α] [Zero α] : Prop where
-    eqZeroOrEqZeroOfMulEqZero : {a b : α} → a * b = 0 → a = 0 ∨ b = 0
-export Domain (eqZeroOrEqZeroOfMulEqZero)
+    eq_zero_or_eq_zero_of_mul_eq_zero : {a b : α} → a * b = 0 → a = 0 ∨ b = 0
+export Domain (eq_zero_or_eq_zero_of_mul_eq_zero)
 
 class Semigroup (α : Type u) extends Mul α, MulAssoc α
 attribute [instance] Semigroup.mk
@@ -131,44 +131,44 @@ example : Monoid β := inferInstance
 example : Semigroup β := inferInstance
 end test3
 
-theorem negZero [AddGroup α] : -(0 : α) = 0 := by
-    rw [←addZero (a := -(0 : α)), negAdd]
+theorem neg_zero [AddGroup α] : -(0 : α) = 0 := by
+    rw [←add_zero (a := -(0 : α)), neg_add]
 
-theorem subZero [AddGroup α] {a : α} : a + -(0 : α) = a := by
-    rw [←addZero (a := a), addAssoc, negZero, addZero]
+theorem sub_zero [AddGroup α] {a : α} : a + -(0 : α) = a := by
+    rw [←add_zero (a := a), add_assoc, neg_zero, add_zero]
 
-theorem negNeg [AddGroup α] {a : α} : -(-a) = a := by {
-    rw [←addZero (a := - -a)];
-    rw [←negAdd (a := a)];
-    rw [←addAssoc];
-    rw [negAdd];
-    rw [zeroAdd];
+theorem neg_neg [AddGroup α] {a : α} : -(-a) = a := by {
+    rw [←add_zero (a := - -a)];
+    rw [←neg_add (a := a)];
+    rw [←add_assoc];
+    rw [neg_add];
+    rw [zero_add];
 }
 
-theorem addNeg [AddGroup α] {a : α} : a + -a = 0 := by {
-    have h : - -a + -a = 0 := by { rw [negAdd] };
-    rw [negNeg] at h;
+theorem add_neg [AddGroup α] {a : α} : a + -a = 0 := by {
+    have h : - -a + -a = 0 := by { rw [neg_add] };
+    rw [neg_neg] at h;
     exact h
 }
 
-theorem addIdemIffZero [AddGroup α] {a : α} : a + a = a ↔ a = 0 := by
+theorem add_idem_iff_zero [AddGroup α] {a : α} : a + a = a ↔ a = 0 := by
     apply Iff.intro
     focus
         intro h
-        have h' := congrArg (λ x => x + -a) h
+        have h' := congr_arg (λ x => x + -a) h
         simp at h'
-        rw [addAssoc, addNeg, addZero] at h'
+        rw [add_assoc, add_neg, add_zero] at h'
         exact h'
     focus
         intro h
         subst a
-        rw [addZero]
+        rw [add_zero]
 
 instance [Ring α] : ZeroMul α := by {
     apply ZeroMul.mk;
     intro a;
-    have h : 0 * a + 0 * a = 0 * a := by { rw [←rightDistrib, addZero] };
-    rw [addIdemIffZero (a := 0 * a)] at h;
+    have h : 0 * a + 0 * a = 0 * a := by { rw [← add_mul, add_zero] };
+    rw [add_idem_iff_zero (a := 0 * a)] at h;
     rw [h];
 }
 
@@ -190,30 +190,30 @@ theorem Product.ext : {p q : α × β} → p.1 = q.1 → p.2 = q.2 → p = q
     | (a, b), (c, d) => by simp_all
 
 instance [Semigroup α] [Semigroup β] : Semigroup (α × β) where
-    mulAssoc := by
+    mul_assoc := by
         intros
         apply Product.ext
-        apply mulAssoc
-        apply mulAssoc
+        apply mul_assoc
+        apply mul_assoc
 
 instance [Monoid α] [Monoid β] : Monoid (α × β) where
-    oneMul := by
+    one_mul := by
         intros
         apply Product.ext
-        apply oneMul
-        apply oneMul
-    mulOne := by
+        apply one_mul
+        apply one_mul
+    mul_one := by
         intros
         apply Product.ext
-        apply mulOne
-        apply mulOne
+        apply mul_one
+        apply mul_one
 
 instance [Group α] [Group β] : Group (α × β) where
-    invMul := by
+    inv_mul := by
         intros
         apply Product.ext
-        apply invMul
-        apply invMul
+        apply inv_mul
+        apply inv_mul
 
 end prod
 

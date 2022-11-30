@@ -21,7 +21,7 @@ theorem List.sizeOf_get_lt [SizeOf α] (as : List α) (i : Fin as.length) : size
 namespace Array
 
 instance [DecidableEq α] : Membership α (Array α) where
-  mem a as := as.contains a
+  Mem a as := as.contains a
 
 theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
   cases as; rename_i as
@@ -30,7 +30,7 @@ theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as
   exact Nat.lt_trans ih (by simp_arith)
 
 theorem sizeOf_lt_of_mem [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
-  simp [Membership.mem, contains, any, Id.run, BEq.beq, anyM] at h
+  simp [Membership.Mem, contains, any, Id.run, BEq.beq, anyM] at h
   let rec aux (j : Nat) (h : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = true) : sizeOf a < sizeOf as := by
     unfold anyM.loop at h
     split at h

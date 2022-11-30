@@ -3,127 +3,127 @@ import init.core init.system.io init.data.ordering
 
 universe u v w
 
-inductive Rbcolor
+inductive RBColor
 | red | black
 
-inductive Rbnode (α : Type u) (β : α → Type v)
-| leaf  {}                                                                        : Rbnode
-| Node  (c : Rbcolor) (lchild : Rbnode) (key : α) (val : β key) (rchild : Rbnode) : Rbnode
+inductive RBNode (α : Type u) (β : α → Type v)
+| leaf  {}                                                                        : RBNode
+| node  (c : RBColor) (lchild : RBNode) (key : α) (val : β key) (rchild : RBNode) : RBNode
 
-instance Rbcolor.DecidableEq : DecidableEq Rbcolor :=
-{decEq := fun a b => Rbcolor.casesOn a
-  (Rbcolor.casesOn b (isTrue rfl) (isFalse (fun h => Rbcolor.noConfusion h)))
-  (Rbcolor.casesOn b (isFalse (fun h => Rbcolor.noConfusion h)) (isTrue rfl))}
+instance RBColor.decidableEq : DecidableEq RBColor :=
+{decEq := fun a b => RBColor.casesOn a
+  (RBColor.casesOn b (isTrue rfl) (isFalse (fun h => RBColor.noConfusion h)))
+  (RBColor.casesOn b (isFalse (fun h => RBColor.noConfusion h)) (isTrue rfl))}
 
-namespace Rbnode
+namespace RBNode
 variable {α : Type u} {β : α → Type v} {σ : Type w}
 
-open Rbcolor
+open RBColor
 
-def depth (f : Nat → Nat → Nat) : Rbnode α β → Nat
+def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 | leaf               => 0
-| Node _ l _ _ r     => (f (depth l) (depth r)) + 1
+| node _ l _ _ r     => (f (depth l) (depth r)) + 1
 
-protected def min : Rbnode α β → Option (Sigma (fun k => β k))
+protected def min : RBNode α β → Option (Sigma (fun k => β k))
 | leaf                  => none
-| Node _ leaf k v _     => some ⟨k, v⟩
-| Node _ l k v _        => min l
+| node _ leaf k v _     => some ⟨k, v⟩
+| node _ l k v _        => min l
 
-protected def max : Rbnode α β → Option (Sigma (fun k => β k))
+protected def max : RBNode α β → Option (Sigma (fun k => β k))
 | leaf                  => none
-| Node _ _ k v leaf     => some ⟨k, v⟩
-| Node _ _ k v r        => max r
+| node _ _ k v leaf     => some ⟨k, v⟩
+| node _ _ k v r        => max r
 
-@[specialize] def fold (f : ∀ (k : α), β k → σ → σ) : Rbnode α β → σ → σ
+@[specialize] def fold (f : ∀ (k : α), β k → σ → σ) : RBNode α β → σ → σ
 | leaf, b               => b
-| Node _ l k v r,     b => fold r (f k v (fold l b))
+| node _ l k v r,     b => fold r (f k v (fold l b))
 
-@[specialize] def revFold (f : ∀ (k : α), β k → σ → σ) : Rbnode α β → σ → σ
+@[specialize] def revFold (f : ∀ (k : α), β k → σ → σ) : RBNode α β → σ → σ
 | leaf, b               => b
-| Node _ l k v r,     b => revFold l (f k v (revFold r b))
+| node _ l k v r,     b => revFold l (f k v (revFold r b))
 
-@[specialize] def all (p : ∀ (k : α), β k → Bool) : Rbnode α β → Bool
+@[specialize] def all (p : ∀ (k : α), β k → Bool) : RBNode α β → Bool
 | leaf                 => true
-| Node _ l k v r       => p k v && all l && all r
+| node _ l k v r       => p k v && all l && all r
 
-@[specialize] def any (p : ∀ (k : α), β k → Bool) : Rbnode α β → Bool
+@[specialize] def any (p : ∀ (k : α), β k → Bool) : RBNode α β → Bool
 | leaf               => false
-| Node _ l k v r     => p k v || any l || any r
+| node _ l k v r     => p k v || any l || any r
 
-def isRed : Rbnode α β → Bool
-| Node red _ _ _ _   => true
+def isRed : RBNode α β → Bool
+| node red _ _ _ _   => true
 | _                  => false
 
-def rotateLeft : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
-| n@(Node hc hl hk hv (Node red xl xk xv xr)), _ =>
+def rotateLeft : ∀ (n : RBNode α β), n ≠ leaf → RBNode α β
+| n@(node hc hl hk hv (node red xl xk xv xr)), _ =>
   if !isRed hl
-  then (Node hc (Node red hl hk hv xl) xk xv xr)
+  then (node hc (node red hl hk hv xl) xk xv xr)
   else n
 | leaf, h => absurd rfl h
 | e, _    => e
 
-theorem ifNodeNodeNeLeaf {c : Prop} [Decidable c] {l1 l2 : Rbnode α β} {c1 k1 v1 r1 c2 k2 v2 r2} : (if c then Node c1 l1 k1 v1 r1 else Node c2 l2 k2 v2 r2) ≠ leaf :=
+theorem if_node_node_ne_leaf {c : Prop} [Decidable c] {l1 l2 : RBNode α β} {c1 k1 v1 r1 c2 k2 v2 r2} : (if c then node c1 l1 k1 v1 r1 else node c2 l2 k2 v2 r2) ≠ leaf :=
 fun h => if hc : c
-then have h1 : (if c then Node c1 l1 k1 v1 r1 else Node c2 l2 k2 v2 r2) = Node c1 l1 k1 v1 r1 from ifPos hc;
-     Rbnode.noConfusion (Eq.trans h1.symm h)
-else have h1 : (if c then Node c1 l1 k1 v1 r1 else Node c2 l2 k2 v2 r2) = Node c2 l2 k2 v2 r2 from ifNeg hc;
-     Rbnode.noConfusion (Eq.trans h1.symm h)
+then have h1 : (if c then node c1 l1 k1 v1 r1 else node c2 l2 k2 v2 r2) = node c1 l1 k1 v1 r1 from ifPos hc;
+     RBNode.noConfusion (Eq.trans h1.symm h)
+else have h1 : (if c then node c1 l1 k1 v1 r1 else node c2 l2 k2 v2 r2) = node c2 l2 k2 v2 r2 from ifNeg hc;
+     RBNode.noConfusion (Eq.trans h1.symm h)
 
-theorem rotateLeftNeLeaf : ∀ (n : Rbnode α β) (h : n ≠ leaf), rotateLeft n h ≠ leaf
-| Node _ hl _ _ (Node red _ _ _ _),   _, h  => ifNodeNodeNeLeaf h
+theorem rotateLeft_ne_leaf : ∀ (n : RBNode α β) (h : n ≠ leaf), rotateLeft n h ≠ leaf
+| node _ hl _ _ (node red _ _ _ _),   _, h  => if_node_node_ne_leaf h
 | leaf, h, _                                => absurd rfl h
-| Node _ _ _ _ (Node black _ _ _ _),   _, h => Rbnode.noConfusion h
+| node _ _ _ _ (node black _ _ _ _),   _, h => RBNode.noConfusion h
 
-def rotateRight : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
-| n@(Node hc (Node red xl xk xv xr) hk hv hr), _ =>
+def rotateRight : ∀ (n : RBNode α β), n ≠ leaf → RBNode α β
+| n@(node hc (node red xl xk xv xr) hk hv hr), _ =>
   if isRed xl
-  then (Node hc xl xk xv (Node red xr hk hv hr))
+  then (node hc xl xk xv (node red xr hk hv hr))
   else n
 | leaf, h => absurd rfl h
 | e, _    => e
 
-theorem rotateRightNeLeaf : ∀ (n : Rbnode α β) (h : n ≠ leaf), rotateRight n h ≠ leaf
-| Node _ (Node red _ _ _ _) _ _ _,   _, h   => ifNodeNodeNeLeaf h
+theorem rotateRight_ne_leaf : ∀ (n : RBNode α β) (h : n ≠ leaf), rotateRight n h ≠ leaf
+| node _ (node red _ _ _ _) _ _ _,   _, h   => if_node_node_ne_leaf h
 | leaf, h, _                                => absurd rfl h
-| Node _ (Node black _ _ _ _) _ _ _,   _, h => Rbnode.noConfusion h
+| node _ (node black _ _ _ _) _ _ _,   _, h => RBNode.noConfusion h
 
-def flip : Rbcolor → Rbcolor
+def flip : RBColor → RBColor
 | red   => black
 | black => red
 
-def flipColor : Rbnode α β → Rbnode α β
-| Node c l k v r   => Node (flip c) l k v r
+def flipColor : RBNode α β → RBNode α β
+| node c l k v r   => node (flip c) l k v r
 | leaf             => leaf
 
-def flipColors : ∀ (n : Rbnode α β), n ≠ leaf → Rbnode α β
-| n@(Node c l k v r), _ =>
+def flipColors : ∀ (n : RBNode α β), n ≠ leaf → RBNode α β
+| n@(node c l k v r), _ =>
   if isRed l ∧ isRed r
-  then Node (flip c) (flipColor l) k v (flipColor r)
+  then node (flip c) (flipColor l) k v (flipColor r)
   else n
 | leaf, h => absurd rfl h
 
-def fixup (n : Rbnode α β) (h : n ≠ leaf) : Rbnode α β :=
+def fixup (n : RBNode α β) (h : n ≠ leaf) : RBNode α β :=
 let n₁ := rotateLeft n h;
-let h₁ := (rotateLeftNeLeaf n h);
+let h₁ := (rotateLeft_ne_leaf n h);
 let n₂ := rotateRight n₁ h₁;
-let h₂ := (rotateRightNeLeaf n₁ h₁);
+let h₂ := (rotateRight_ne_leaf n₁ h₁);
 flipColors n₂ h₂
 
-def setBlack : Rbnode α β → Rbnode α β
-| Node red l k v r   => Node black l k v r
+def setBlack : RBNode α β → RBNode α β
+| node red l k v r   => node black l k v r
 | n                  => n
 
 section insert
 variable (lt : α → α → Prop) [DecidableRel lt]
 
-def ins (x : α) (vx : β x) : Rbnode α β → Rbnode α β
-| leaf             => Node red leaf x vx leaf
-| Node c l k v r   =>
-  if lt x k then fixup (Node c (ins l) k v r) (fun h => Rbnode.noConfusion h)
-  else if lt k x then fixup (Node c l k v (ins r)) (fun h => Rbnode.noConfusion h)
-  else Node c l x vx r
+def ins (x : α) (vx : β x) : RBNode α β → RBNode α β
+| leaf             => node red leaf x vx leaf
+| node c l k v r   =>
+  if lt x k then fixup (node c (ins l) k v r) (fun h => RBNode.noConfusion h)
+  else if lt k x then fixup (node c l k v (ins r)) (fun h => RBNode.noConfusion h)
+  else node c l x vx r
 
-def insert (t : Rbnode α β) (k : α) (v : β k) : Rbnode α β :=
+def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
 setBlack (ins lt k v t)
 
 end insert
@@ -133,25 +133,25 @@ variable (lt : α → α → Prop)
 
 variable [DecidableRel lt]
 
-def findCore : Rbnode α β → ∀ (k : α), Option (Sigma (fun k => β k))
+def findCore : RBNode α β → ∀ (k : α), Option (Sigma (fun k => β k))
 | leaf,                 x => none
-| Node _ a ky vy b,   x =>
+| node _ a ky vy b,   x =>
   (match cmpUsing lt x ky with
    | Ordering.lt => findCore a x
    | Ordering.Eq => some ⟨ky, vy⟩
    | Ordering.gt => findCore b x)
 
-def find {β : Type v} : Rbnode α (fun _ => β) → α → Option β
+def find {β : Type v} : RBNode α (fun _ => β) → α → Option β
 | leaf,                 x => none
-| Node _ a ky vy b,   x =>
+| node _ a ky vy b,   x =>
   (match cmpUsing lt x ky with
    | Ordering.lt => find a x
    | Ordering.Eq => some vy
    | Ordering.gt => find b x)
 
-def lowerBound : Rbnode α β → α → Option (Sigma β) → Option (Sigma β)
+def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
 | leaf,                 x, lb => lb
-| Node _ a ky vy b,   x, lb =>
+| node _ a ky vy b,   x, lb =>
   (match cmpUsing lt x ky with
    | Ordering.lt => lowerBound a x lb
    | Ordering.Eq => some ⟨ky, vy⟩
@@ -159,106 +159,106 @@ def lowerBound : Rbnode α β → α → Option (Sigma β) → Option (Sigma β)
 
 end membership
 
-inductive WellFormed (lt : α → α → Prop) : Rbnode α β → Prop
-| leafWff : WellFormed leaf
-| insertWff {n n' : Rbnode α β} {k : α} {v : β k} [DecidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
+inductive WellFormed (lt : α → α → Prop) : RBNode α β → Prop
+| leaf_wff : WellFormed leaf
+| insert_wff {n n' : RBNode α β} {k : α} {v : β k} [DecidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
 
-end Rbnode
+end RBNode
 
-open Rbnode
+open RBNode
 
 /- TODO(Leo): define dRbmap -/
 
-def Rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
-{t : Rbnode α (fun _ => β) // t.WellFormed lt }
+def RBMap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
+{t : RBNode α (fun _ => β) // t.WellFormed lt }
 
-@[inline] def mkRbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Rbmap α β lt :=
-⟨leaf, WellFormed.leafWff lt⟩
+@[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Prop) : RBMap α β lt :=
+⟨leaf, WellFormed.leaf_wff lt⟩
 
-namespace Rbmap
+namespace RBMap
 variable {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Prop}
 
-def depth (f : Nat → Nat → Nat) (t : Rbmap α β lt) : Nat :=
+def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
 t.val.depth f
 
-@[inline] def fold (f : α → β → σ → σ) : Rbmap α β lt → σ → σ
+@[inline] def fold (f : α → β → σ → σ) : RBMap α β lt → σ → σ
 | ⟨t, _⟩, b => t.fold f b
 
-@[inline] def revFold (f : α → β → σ → σ) : Rbmap α β lt → σ → σ
+@[inline] def revFold (f : α → β → σ → σ) : RBMap α β lt → σ → σ
 | ⟨t, _⟩, b => t.revFold f b
 
-@[inline] def empty : Rbmap α β lt → Bool
+@[inline] def empty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ => true
 | _         => false
 
-@[specialize] def toList : Rbmap α β lt → List (α × β)
+@[specialize] def toList : RBMap α β lt → List (α × β)
 | ⟨t, _⟩ => t.revFold (fun k v ps => (k, v)::ps) []
 
-@[inline] protected def min : Rbmap α β lt → Option (α × β)
+@[inline] protected def min : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ =>
   match t.min with
   | some ⟨k, v⟩ => some (k, v)
   | none        => none
 
-@[inline] protected def max : Rbmap α β lt → Option (α × β)
+@[inline] protected def max : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ =>
   match t.max with
   | some ⟨k, v⟩ => some (k, v)
   | none        => none
 
-instance [Repr α] [Repr β] : Repr (Rbmap α β lt) :=
+instance [Repr α] [Repr β] : Repr (RBMap α β lt) :=
 ⟨fun t => "rbmapOf " ++ repr t.toList⟩
 
 variable [DecidableRel lt]
 
-def insert : Rbmap α β lt → α → β → Rbmap α β lt
-| ⟨t, w⟩,   k, v => ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
+def insert : RBMap α β lt → α → β → RBMap α β lt
+| ⟨t, w⟩,   k, v => ⟨t.insert lt k v, WellFormed.insert_wff w rfl⟩
 
-@[specialize] def ofList : List (α × β) → Rbmap α β lt
-| []          => mkRbmap _ _ _
+@[specialize] def ofList : List (α × β) → RBMap α β lt
+| []          => mkRBMap _ _ _
 | ⟨k,v⟩::xs   => (ofList xs).insert k v
 
-def findCore : Rbmap α β lt → α → Option (Sigma (fun (k : α) => β))
+def findCore : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩, x => t.findCore lt x
 
-def find : Rbmap α β lt → α → Option β
+def find : RBMap α β lt → α → Option β
 | ⟨t, _⟩, x => t.find lt x
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-def lowerBound : Rbmap α β lt → α → Option (Sigma (fun (k : α) => β))
+def lowerBound : RBMap α β lt → α → Option (Sigma (fun (k : α) => β))
 | ⟨t, _⟩, x => t.lowerBound lt x none
 
-@[inline] def contains (t : Rbmap α β lt) (a : α) : Bool :=
+@[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
-l.foldl (fun r p => r.insert p.1 p.2) (mkRbmap α β lt)
+def fromList (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : RBMap α β lt :=
+l.foldl (fun r p => r.insert p.1 p.2) (mkRBMap α β lt)
 
-@[inline] def all : Rbmap α β lt → (α → β → Bool) → Bool
+@[inline] def all : RBMap α β lt → (α → β → Bool) → Bool
 | ⟨t, _⟩, p => t.all p
 
-@[inline] def any : Rbmap α β lt → (α → β → Bool) → Bool
+@[inline] def any : RBMap α β lt → (α → β → Bool) → Bool
 | ⟨t, _⟩, p => t.any p
 
-end Rbmap
+end RBMap
 
-def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
-Rbmap.fromList l lt
+def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : RBMap α β lt :=
+RBMap.fromList l lt
 
 /- Test -/
 
-@[reducible] def map : Type := Rbmap Nat Bool Less.Less
+@[reducible] def map : Type := RBMap Nat Bool Less.Less
 
 def mkMapAux : Nat → map → map
 | 0, m => m
 | n+1,   m => mkMapAux n (m.insert n (n % 10 = 0))
 
 def mkMap (n : Nat) :=
-mkMapAux n (mkRbmap Nat Bool Less.Less)
+mkMapAux n (mkRBMap Nat Bool Less.Less)
 
 def main (xs : List String) : IO UInt32 :=
 let m := mkMap xs.head.toNat;
-let v := Rbmap.fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) m 0;
+let v := RBMap.fold (fun (k : Nat) (v : Bool) (r : Nat) => if v then r + 1 else r) m 0;
 IO.println (toString v) *>
 pure 0

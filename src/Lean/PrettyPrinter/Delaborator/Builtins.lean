@@ -460,7 +460,7 @@ where
   getPPBinderTypes (e : Expr) :=
     if e.isForall then getPPPiBinderTypes else getPPFunBinderTypes
 
-private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : optParam (Array Syntax) #[] → Delab
+private partial def delabBinders (delabGroup : Array Syntax → Syntax → Delab) : OptParam (Array Syntax) #[] → Delab
   -- Accumulate names (`Syntax.ident`s with position information) of the current, unfinished
   -- binder group `(d e ...)` as determined by `shouldGroupWithNext`. We cannot do grouping
   -- inside-out, on the Syntax level, because it depends on comparing the Expr binder types.

@@ -143,8 +143,8 @@ theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs =
 theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as = cs := by
   match as, cs with
   | [], []       => rfl
-  | [], c::cs    => have aux := congrArg length h; simp_arith at aux
-  | a::as, []    => have aux := congrArg length h; simp_arith at aux
+  | [], c::cs    => have aux := congr_arg length h; simp_arith at aux
+  | a::as, []    => have aux := congr_arg length h; simp_arith at aux
   | a::as, c::cs => injection h with h₁ h₂; subst h₁; rw [append_cancel_right h₂]
 
 @[simp] theorem append_cancel_left_eq (as bs cs : List α) : (as ++ bs = as ++ cs) = (bs = cs) := by
@@ -168,15 +168,15 @@ theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as 
 theorem le_antisymm [LT α] [s : Antisymm (¬ · < · : α → α → Prop)] {as bs : List α} (h₁ : as ≤ bs) (h₂ : bs ≤ as) : as = bs :=
   match as, bs with
   | [],    []    => rfl
-  | [],    b::bs => False.elim <| h₂ (List.lt.nil ..)
-  | a::as, []    => False.elim <| h₁ (List.lt.nil ..)
+  | [],    b::bs => False.elim <| h₂ (List.LT.nil ..)
+  | a::as, []    => False.elim <| h₁ (List.LT.nil ..)
   | a::as, b::bs => by
     by_cases hab : a < b
-    · exact False.elim <| h₂ (List.lt.head _ _ hab)
+    · exact False.elim <| h₂ (List.LT.head _ _ hab)
     · by_cases hba : b < a
-      · exact False.elim <| h₁ (List.lt.head _ _ hba)
-      · have h₁ : as ≤ bs := fun h => h₁ (List.lt.tail hba hab h)
-        have h₂ : bs ≤ as := fun h => h₂ (List.lt.tail hab hba h)
+      · exact False.elim <| h₁ (List.LT.head _ _ hba)
+      · have h₁ : as ≤ bs := fun h => h₁ (List.LT.tail hba hab h)
+        have h₂ : bs ≤ as := fun h => h₂ (List.LT.tail hab hba h)
         have ih : as = bs := le_antisymm h₁ h₂
         have : a = b := s.antisymm hab hba
         simp [this, ih]

@@ -128,9 +128,9 @@ def Poly.isNonZero (p : Poly) : Bool :=
   | [] => false
   | (k, v) :: p => bif v == fixedVar then k > 0 else isNonZero p
 
-def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
+def Poly.DenoteEq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx = mp.2.denote ctx
 
-def Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
+def Poly.DenoteLE (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
 
 def Poly.combineAux (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
   match fuel with
@@ -198,11 +198,11 @@ structure ExprCnstr where
   lhs : Expr
   rhs : Expr
 
-def PolyCnstr.denote (ctx : Context) (c : PolyCnstr) : Prop :=
+def PolyCnstr.Denote (ctx : Context) (c : PolyCnstr) : Prop :=
   bif c.eq then
-    Poly.denote_eq ctx (c.lhs, c.rhs)
+    Poly.DenoteEq ctx (c.lhs, c.rhs)
   else
-    Poly.denote_le ctx (c.lhs, c.rhs)
+    Poly.DenoteLE ctx (c.lhs, c.rhs)
 
 def PolyCnstr.norm (c : PolyCnstr) : PolyCnstr :=
   let (lhs, rhs) := Poly.cancel c.lhs.sort.fuse c.rhs.sort.fuse
@@ -220,7 +220,7 @@ def PolyCnstr.isValid (c : PolyCnstr) : Bool :=
   else
     c.lhs.isZero
 
-def ExprCnstr.denote (ctx : Context) (c : ExprCnstr) : Prop :=
+def ExprCnstr.Denote (ctx : Context) (c : ExprCnstr) : Prop :=
   bif c.eq then
     c.lhs.denote ctx = c.rhs.denote ctx
   else
@@ -245,10 +245,10 @@ def Certificate.combine (hs : Certificate) : PolyCnstr :=
   | [] => { eq := true, lhs := [], rhs := [] }
   | (k, c) :: hs => combineHyps (c.toNormPoly.mul (Nat.add k 1)) hs
 
-def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
+def Certificate.Denote (ctx : Context) (c : Certificate) : Prop :=
   match c with
   | [] => False
-  | (_, c)::hs => c.denote ctx → denote ctx hs
+  | (_, c)::hs => c.Denote ctx → Denote ctx hs
 
 def monomialToExpr (k : Nat) (v : Var) : Expr :=
   bif v == fixedVar then
@@ -271,7 +271,7 @@ where
 def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
   { c with lhs := c.lhs.toExpr, rhs := c.rhs.toExpr }
 
-attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
+attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.add_mul Nat.mul_add Nat.mul_assoc Nat.mul_comm
 attribute [local simp] Poly.denote Expr.denote Poly.insertSorted Poly.sort Poly.sort.go Poly.fuse Poly.cancelAux
 attribute [local simp] Poly.mul Poly.mul.go
 
@@ -347,8 +347,8 @@ private theorem eq_of_not_blt_eq_true (h₁ : ¬ (Nat.blt x y = true)) (h₂ : �
 
 attribute [local simp] Poly.denote_mul
 
-theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
-    (h : denote_eq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_eq ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
+theorem Poly.denoteEq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
+    (h : DenoteEq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : DenoteEq ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
   | zero => assumption
   | succ fuel ih =>
@@ -356,33 +356,33 @@ theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
     split <;> simp at h <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
-    · apply ih; simp [denote_eq] at h |-; assumption
+    · apply ih; simp [DenoteEq] at h |-; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv]
-      · apply ih; simp [denote_eq] at h |-; assumption
+      · apply ih; simp [DenoteEq] at h |-; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk]
         · apply ih
-          simp [denote_eq] at h |-
+          simp [DenoteEq] at h |-
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
-          rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
+          rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
           apply Eq.symm
           apply Nat.sub_eq_of_eq_add
           simp [h]
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk]
           · apply ih
-            simp [denote_eq] at h |-
+            simp [DenoteEq] at h |-
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
-            rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
+            rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
             apply Nat.sub_eq_of_eq_add
             simp [h]
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
             apply ih
-            simp [denote_eq] at h |-
+            simp [DenoteEq] at h |-
             rw [← Nat.add_assoc, ← Nat.add_assoc] at h
             exact Nat.add_right_cancel h
 
-theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
-    (h : denote_eq ctx (cancelAux fuel m₁ m₂ r₁ r₂)) : denote_eq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂) := by
+theorem Poly.of_denoteEq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
+    (h : DenoteEq ctx (cancelAux fuel m₁ m₂ r₁ r₂)) : DenoteEq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
   | zero => assumption
   | succ fuel ih =>
@@ -390,44 +390,44 @@ theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
     split at h <;> simp <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv] at h
-    · have ih := ih (h := h); simp [denote_eq] at ih ⊢; assumption
+    · have ih := ih (h := h); simp [DenoteEq] at ih ⊢; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv] at h
-      · have ih := ih (h := h); simp [denote_eq] at ih ⊢; assumption
+      · have ih := ih (h := h); simp [DenoteEq] at ih ⊢; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk] at h
-        · have ih := ih (h := h); simp [denote_eq] at ih ⊢
+        · have ih := ih (h := h); simp [DenoteEq] at ih ⊢
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
-          rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
+          rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
           have ih := Nat.eq_add_of_sub_eq (Nat.le_trans haux (Nat.le_add_left ..)) ih.symm
           simp at ih
           rw [ih]
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk] at h
-          · have ih := ih (h := h); simp [denote_eq] at ih ⊢
+          · have ih := ih (h := h); simp [DenoteEq] at ih ⊢
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
-            rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
+            rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
             have ih := Nat.eq_add_of_sub_eq (Nat.le_trans haux (Nat.le_add_left ..)) ih
             simp at ih
             rw [ih]
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
-            have ih := ih (h := h); simp [denote_eq] at ih ⊢
+            have ih := ih (h := h); simp [DenoteEq] at ih ⊢
             rw [← Nat.add_assoc, ih, Nat.add_assoc]
 
-theorem Poly.denote_eq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_eq ctx (m₁, m₂)) : denote_eq ctx (cancel m₁ m₂) := by
-  simp; apply denote_eq_cancelAux; simp [h]
+theorem Poly.denoteEq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : DenoteEq ctx (m₁, m₂)) : DenoteEq ctx (cancel m₁ m₂) := by
+  simp; apply denoteEq_cancelAux; simp [h]
 
-theorem Poly.of_denote_eq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_eq ctx (cancel m₁ m₂)) : denote_eq ctx (m₁, m₂) := by
+theorem Poly.of_denoteEq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : DenoteEq ctx (cancel m₁ m₂)) : DenoteEq ctx (m₁, m₂) := by
   simp at h
-  have := Poly.of_denote_eq_cancelAux (h := h)
+  have := Poly.of_denoteEq_cancelAux (h := h)
   simp at this
   assumption
 
-theorem Poly.denote_eq_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_eq ctx (cancel m₁ m₂) = denote_eq ctx (m₁, m₂) :=
-  propext <| Iff.intro (fun h => of_denote_eq_cancel h) (fun h => denote_eq_cancel h)
+theorem Poly.denoteEq_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : DenoteEq ctx (cancel m₁ m₂) = DenoteEq ctx (m₁, m₂) :=
+  propext <| Iff.intro (fun h => of_denoteEq_cancel h) (fun h => denoteEq_cancel h)
 
-attribute [local simp] Poly.denote_eq_cancel_eq
+attribute [local simp] Poly.denoteEq_cancel_eq
 
-theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
-    (h : denote_le ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_le ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
+theorem Poly.denoteLE_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
+    (h : DenoteLE ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : DenoteLE ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
   | zero => assumption
   | succ fuel ih =>
@@ -435,33 +435,33 @@ theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
     split <;> simp at h <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
-    · apply ih; simp [denote_le] at h |-; assumption
+    · apply ih; simp [DenoteLE] at h |-; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv]
-      · apply ih; simp [denote_le] at h |-; assumption
+      · apply ih; simp [DenoteLE] at h |-; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk]
         · apply ih
-          simp [denote_le] at h |-
+          simp [DenoteLE] at h |-
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
-          rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
+          rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
           apply Nat.le_sub_of_add_le
           simp [h]
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk]
           · apply ih
-            simp [denote_le] at h |-
+            simp [DenoteLE] at h |-
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
-            rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
+            rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
             apply Nat.sub_le_of_le_add
             simp [h]
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
             apply ih
-            simp [denote_le] at h |-
+            simp [DenoteLE] at h |-
             rw [← Nat.add_assoc, ← Nat.add_assoc] at h
             apply Nat.le_of_add_le_add_right h
     done
 
-theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
-    (h : denote_le ctx (cancelAux fuel m₁ m₂ r₁ r₂)) : denote_le ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂) := by
+theorem Poly.of_denoteLE_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
+    (h : DenoteLE ctx (cancelAux fuel m₁ m₂ r₁ r₂)) : DenoteLE ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂) := by
   induction fuel generalizing m₁ m₂ r₁ r₂ with
   | zero => assumption
   | succ fuel ih =>
@@ -469,43 +469,43 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
     split at h <;> simp <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv] at h
-    · have ih := ih (h := h); simp [denote_le] at ih ⊢; assumption
+    · have ih := ih (h := h); simp [DenoteLE] at ih ⊢; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv] at h
-      · have ih := ih (h := h); simp [denote_le] at ih ⊢; assumption
+      · have ih := ih (h := h); simp [DenoteLE] at ih ⊢; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk] at h
-        · have ih := ih (h := h); simp [denote_le] at ih ⊢
+        · have ih := ih (h := h); simp [DenoteLE] at ih ⊢
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
-          rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
+          rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
           have := Nat.add_le_of_le_sub (Nat.le_trans haux (Nat.le_add_left ..)) ih
           simp at this
           exact this
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk] at h
-          · have ih := ih (h := h); simp [denote_le] at ih ⊢
+          · have ih := ih (h := h); simp [DenoteLE] at ih ⊢
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
-            rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
+            rw [Nat.sub_mul, ← Nat.add_assoc, ← Nat.add_sub_assoc haux] at ih
             have := Nat.le_add_of_sub_le ih
             simp at this
             exact this
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
-            have ih := ih (h := h); simp [denote_le] at ih ⊢
+            have ih := ih (h := h); simp [DenoteLE] at ih ⊢
             have := Nat.add_le_add_right ih (k₁ * Var.denote ctx v₁)
             simp at this
             exact this
 
-theorem Poly.denote_le_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_le ctx (m₁, m₂)) : denote_le ctx (cancel m₁ m₂) := by
-  simp; apply denote_le_cancelAux; simp [h]
+theorem Poly.denoteLE_cancel {ctx : Context} {m₁ m₂ : Poly} (h : DenoteLE ctx (m₁, m₂)) : DenoteLE ctx (cancel m₁ m₂) := by
+  simp; apply denoteLE_cancelAux; simp [h]
 
-theorem Poly.of_denote_le_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_le ctx (cancel m₁ m₂)) : denote_le ctx (m₁, m₂) := by
+theorem Poly.of_denoteLE_cancel {ctx : Context} {m₁ m₂ : Poly} (h : DenoteLE ctx (cancel m₁ m₂)) : DenoteLE ctx (m₁, m₂) := by
   simp at h
-  have := Poly.of_denote_le_cancelAux (h := h)
+  have := Poly.of_denoteLE_cancelAux (h := h)
   simp at this
   assumption
 
-theorem Poly.denote_le_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : denote_le ctx (cancel m₁ m₂) = denote_le ctx (m₁, m₂) :=
-  propext <| Iff.intro (fun h => of_denote_le_cancel h) (fun h => denote_le_cancel h)
+theorem Poly.denoteLE_cancel_eq (ctx : Context) (m₁ m₂ : Poly) : DenoteLE ctx (cancel m₁ m₂) = DenoteLE ctx (m₁, m₂) :=
+  propext <| Iff.intro (fun h => of_denoteLE_cancel h) (fun h => denoteLE_cancel h)
 
-attribute [local simp] Poly.denote_le_cancel_eq
+attribute [local simp] Poly.denoteLE_cancel_eq
 
 theorem Poly.denote_combineAux (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combineAux fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   induction fuel generalizing p₁ p₂ with simp [combineAux]
@@ -532,45 +532,52 @@ theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.
 
 attribute [local simp] Expr.denote_toPoly
 
-theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
+theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr)
+    (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
   simp [toNormPoly, Poly.norm] at h
-  have h := congrArg (Poly.denote ctx) h
+  have h := congr_arg (Poly.denote ctx) h
   simp at h
   assumption
 
-theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
-  have := Poly.denote_eq_cancel_eq ctx a.toNormPoly b.toNormPoly
+theorem Expr.of_cancel_eq (ctx : Context) (a b c d : Expr)
+    (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) :
+    (a.denote ctx = b.denote ctx) = (c.denote ctx = d.denote ctx) := by
+  have := Poly.denoteEq_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.norm, Poly.denote_eq] at this
+  simp [toNormPoly, Poly.norm, Poly.DenoteEq] at this
   exact this.symm
 
-theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) : (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
-  have := Poly.denote_le_cancel_eq ctx a.toNormPoly b.toNormPoly
+theorem Expr.of_cancel_le (ctx : Context) (a b c d : Expr)
+    (h : Poly.cancel a.toNormPoly b.toNormPoly = (c.toPoly, d.toPoly)) :
+    (a.denote ctx ≤ b.denote ctx) = (c.denote ctx ≤ d.denote ctx) := by
+  have := Poly.denoteLE_cancel_eq ctx a.toNormPoly b.toNormPoly
   rw [h] at this
-  simp [toNormPoly, Poly.norm,Poly.denote_le] at this
+  simp [toNormPoly, Poly.norm,Poly.DenoteLE] at this
   exact this.symm
 
-theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr) (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) : (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
+theorem Expr.of_cancel_lt (ctx : Context) (a b c d : Expr)
+    (h : Poly.cancel a.inc.toNormPoly b.toNormPoly = (c.inc.toPoly, d.toPoly)) :
+    (a.denote ctx < b.denote ctx) = (c.denote ctx < d.denote ctx) :=
   of_cancel_le ctx a.inc b c.inc d h
 
 theorem ExprCnstr.toPoly_norm_eq (c : ExprCnstr) : c.toPoly.norm = c.toNormPoly :=
   rfl
 
-theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
+theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.Denote ctx = c.Denote ctx := by
   cases c; rename_i eq lhs rhs
-  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toPoly];
+  simp [ExprCnstr.Denote, PolyCnstr.Denote, ExprCnstr.toPoly];
   by_cases h : eq = true <;> simp [h]
-  · simp [Poly.denote_eq, Expr.toPoly]
-  · simp [Poly.denote_le, Expr.toPoly]
+  · simp [Poly.DenoteEq, Expr.toPoly]
+  · simp [Poly.DenoteLE, Expr.toPoly]
 
 attribute [local simp] ExprCnstr.denote_toPoly
 
-theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPoly.denote ctx = c.denote ctx := by
+theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPoly.Denote ctx = c.Denote ctx := by
   cases c; rename_i eq lhs rhs
-  simp [ExprCnstr.denote, PolyCnstr.denote, ExprCnstr.toNormPoly]
+  simp [ExprCnstr.Denote, PolyCnstr.Denote, ExprCnstr.toNormPoly]
   by_cases h : eq = true <;> simp [h]
-  · rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq, Expr.toNormPoly, Poly.norm]
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly, Poly.norm]
+  · rw [Poly.denoteEq_cancel_eq]; simp [Poly.DenoteEq, Expr.toNormPoly, Poly.norm]
+  · rw [Poly.denoteLE_cancel_eq]; simp [Poly.DenoteLE, Expr.toNormPoly, Poly.norm]
 
 attribute [local simp] ExprCnstr.denote_toNormPoly
 
@@ -582,16 +589,16 @@ theorem Poly.mul.go_denote (ctx : Context) (k : Nat) (p : Poly) : (Poly.mul.go k
 attribute [local simp] Poly.mul.go_denote
 
 section
-attribute [-simp] Nat.right_distrib Nat.left_distrib
+attribute [-simp] Nat.add_mul Nat.mul_add
 
-theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).denote ctx = c.denote ctx := by
+theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).Denote ctx = c.Denote ctx := by
   cases c; rename_i eq lhs rhs
   have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp; apply Nat.succ_ne_zero
   have : ¬ (k == 0) → (k + 1 == 1) = false := fun h => beq_false_of_ne (this (ne_of_beq_false (Bool.of_not_eq_true h)))
   have : ¬ ((k + 1 == 0) = true)  := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)
   have : (1 == (0 : Nat)) = false := rfl
   have : (1 == (1 : Nat)) = true  := rfl
-  by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.denote, Poly.denote_le, Poly.denote_eq]
+  by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.Denote, Poly.DenoteLE, Poly.DenoteEq]
      <;> by_cases hk : k == 0 <;> (try simp [eq_of_beq hk]) <;> simp [*] <;> apply propext <;> apply Iff.intro <;> intro h
   · exact Nat.eq_of_mul_eq_mul_left (Nat.zero_lt_succ _) h
   · rw [h]
@@ -602,19 +609,20 @@ end
 
 attribute [local simp] PolyCnstr.denote_mul
 
-theorem PolyCnstr.denote_combine {ctx : Context} {c₁ c₂ : PolyCnstr} (h₁ : c₁.denote ctx) (h₂ : c₂.denote ctx) : (c₁.combine c₂).denote ctx := by
+theorem PolyCnstr.denote_combine {ctx : Context} {c₁ c₂ : PolyCnstr}
+    (h₁ : c₁.Denote ctx) (h₂ : c₂.Denote ctx) : (c₁.combine c₂).Denote ctx := by
   cases c₁; cases c₂; rename_i eq₁ lhs₁ rhs₁ eq₂ lhs₂ rhs₂
-  simp [denote] at h₁ h₂
-  simp [PolyCnstr.combine, denote]
+  simp [Denote] at h₁ h₂
+  simp [PolyCnstr.combine, Denote]
   by_cases he₁ : eq₁ = true <;> by_cases he₂ : eq₂ = true <;> simp [he₁, he₂] at h₁ h₂ |-
-  · rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq] at h₁ h₂ |-; simp [h₁, h₂]
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₁]; apply Nat.add_le_add_left h₂
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₂]; apply Nat.add_le_add_right h₁
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; apply Nat.add_le_add h₁ h₂
+  · rw [Poly.denoteEq_cancel_eq]; simp [Poly.DenoteEq] at h₁ h₂ |-; simp [h₁, h₂]
+  · rw [Poly.denoteLE_cancel_eq]; simp [Poly.DenoteEq, Poly.DenoteLE] at h₁ h₂ |-; rw [h₁]; apply Nat.add_le_add_left h₂
+  · rw [Poly.denoteLE_cancel_eq]; simp [Poly.DenoteEq, Poly.DenoteLE] at h₁ h₂ |-; rw [h₂]; apply Nat.add_le_add_right h₁
+  · rw [Poly.denoteLE_cancel_eq]; simp [Poly.DenoteEq, Poly.DenoteLE] at h₁ h₂ |-; apply Nat.add_le_add h₁ h₂
 
 attribute [local simp] PolyCnstr.denote_combine
 
-theorem Poly.isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = some k → p.denote ctx = k := by
+theorem Poly.of_isNum?_eq_some (ctx : Context) {p : Poly} {k : Nat} : p.isNum? = some k → p.denote ctx = k := by
   simp [isNum?]
   split
   next => intro h; injection h
@@ -636,10 +644,10 @@ theorem Poly.of_isNonZero (ctx : Context) {p : Poly} (h : isNonZero p = true) : 
     · have ih := of_isNonZero ctx h
       exact Nat.le_trans ih (Nat.le_add_right ..)
 
-theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.denote ctx = False := by
+theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsat → c.Denote ctx = False := by
   cases c; rename_i eq lhs rhs
   simp [isUnsat]
-  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  by_cases he : eq = true <;> simp [he, Denote, Poly.DenoteEq, Poly.DenoteLE]
   · intro
       | Or.inl ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₁]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₂); simp [this.symm]
       | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
@@ -649,28 +657,29 @@ theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsa
     simp [this]
     done
 
-theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.denote ctx = True := by
+theorem PolyCnstr.eq_true_of_isValid (ctx : Context) {c : PolyCnstr} : c.isValid → c.Denote ctx = True := by
   cases c; rename_i eq lhs rhs
   simp [isValid]
-  by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le]
+  by_cases he : eq = true <;> simp [he, Denote, Poly.DenoteEq, Poly.DenoteLE]
   · intro ⟨h₁, h₂⟩
     simp [Poly.of_isZero, h₁, h₂]
   · intro h
     simp [Poly.of_isZero, h]
 
-theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.denote ctx = False := by
+theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isUnsat) : c.Denote ctx = False := by
   have := PolyCnstr.eq_false_of_isUnsat ctx h
   simp at this
   assumption
 
-theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.denote ctx = True := by
+theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toNormPoly.isValid) : c.Denote ctx = True := by
   have := PolyCnstr.eq_true_of_isValid ctx h
   simp at this
   assumption
 
-theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certificate) (h : (combineHyps c cs).denote ctx → False) : c.denote ctx → cs.denote ctx := by
+theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certificate)
+    (h : (combineHyps c cs).Denote ctx → False) : c.Denote ctx → cs.Denote ctx := by
   match cs with
-  | [] => simp [combineHyps, denote] at *; exact h
+  | [] => simp [combineHyps, Denote] at *; exact h
   | (k, c')::cs =>
     intro h₁ h₂
     have := PolyCnstr.denote_combine (ctx := ctx) (c₂ := PolyCnstr.mul (k + 1) (ExprCnstr.toNormPoly c')) h₁
@@ -679,16 +688,16 @@ theorem Certificate.of_combineHyps (ctx : Context) (c : PolyCnstr) (cs : Certifi
     have ih := of_combineHyps ctx (PolyCnstr.combine c (PolyCnstr.mul (k + 1) (ExprCnstr.toNormPoly c'))) cs
     exact ih h this
 
-theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combine.denote ctx → False) : cs.denote ctx := by
+theorem Certificate.of_combine (ctx : Context) (cs : Certificate) (h : cs.combine.Denote ctx → False) : cs.Denote ctx := by
   match cs with
-  | [] => simp [combine, PolyCnstr.denote, Poly.denote_eq] at h
+  | [] => simp [combine, PolyCnstr.Denote, Poly.DenoteEq] at h
   | (k, c)::cs =>
-    simp [denote, combine] at *
+    simp [Denote, combine] at *
     intro h'
     apply of_combineHyps (h := h)
     simp [h']
 
-theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : cs.combine.isUnsat) : cs.denote ctx :=
+theorem Certificate.of_combine_isUnsat (ctx : Context) (cs : Certificate) (h : cs.combine.isUnsat) : cs.Denote ctx :=
   have h := PolyCnstr.eq_false_of_isUnsat ctx h
   of_combine ctx cs (fun h' => Eq.mp h h')
 
@@ -700,7 +709,8 @@ theorem denote_monomialToExpr (ctx : Context) (k : Nat) (v : Var) : (monomialToE
 
 attribute [local simp] denote_monomialToExpr
 
-theorem Poly.denote_toExpr_go (ctx : Context) (e : Expr) (p : Poly) : (toExpr.go e p).denote ctx = e.denote ctx + p.denote ctx := by
+theorem Poly.denote_toExpr_go (ctx : Context) (e : Expr) (p : Poly) :
+    (toExpr.go e p).denote ctx = e.denote ctx + p.denote ctx := by
   induction p generalizing e with
   | nil => simp [toExpr.go, Poly.denote]
   | cons kv p ih => cases kv; simp [toExpr.go, ih, Expr.denote, Poly.denote]
@@ -712,13 +722,15 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
   | [] => simp [toExpr, Expr.denote, Poly.denote]
   | (k, v) :: p => simp [toExpr, Expr.denote, Poly.denote]
 
-theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly == d.toPoly) : c.denote ctx = d.denote ctx := by
-  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
+theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr)
+    (h : c.toNormPoly == d.toPoly) : c.Denote ctx = d.Denote ctx := by
+  have h := congr_arg (PolyCnstr.Denote ctx) (eq_of_beq h)
   simp at h
   assumption
 
-theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr)
+    (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
+  have h := congr_arg (Poly.denote ctx) (eq_of_beq h)
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 

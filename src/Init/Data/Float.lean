@@ -9,16 +9,16 @@ import Init.Data.Int.Basic
 import Init.Data.ToString.Basic
 
 structure FloatSpec where
-  float : Type
-  val   : float
-  lt    : float → float → Prop
-  le    : float → float → Prop
+  Float : Type
+  val   : Float
+  lt    : Float → Float → Prop
+  le    : Float → Float → Prop
   decLt : DecidableRel lt
   decLe : DecidableRel le
 
 -- Just show FloatSpec is inhabited.
 opaque floatSpec : FloatSpec := {
-  float := Unit,
+  Float := Unit,
   val   := (),
   lt    := fun _ _ => True,
   le    := fun _ _ => True,
@@ -27,7 +27,7 @@ opaque floatSpec : FloatSpec := {
 }
 
 structure Float where
-  val : floatSpec.float
+  val : floatSpec.Float
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 

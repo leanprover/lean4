@@ -1,9 +1,9 @@
 @[reducible]
-def isLeapYear (y : Nat) : Prop :=  (y % 400 = 0) ∨ (y % 4 = 0 ∧ y % 100 ≠ 0)
+def IsLeapYear (y : Nat) : Prop :=  (y % 400 = 0) ∨ (y % 4 = 0 ∧ y % 100 ≠ 0)
 
 def daysInMonth (year : Nat) (month : Nat) : Nat :=
   match month with
-  | 2  => if isLeapYear year then 29 else 28
+  | 2  => if IsLeapYear year then 29 else 28
   | 4  => 30
   | 6  => 30
   | 9  => 30
@@ -14,7 +14,7 @@ def daysInMonth (year : Nat) (month : Nat) : Nat :=
 Stuck at:
 year : Nat
 ⊢ (match 4 with
-  | 2 => if isLeapYear year then 29 else 28
+  | 2 => if IsLeapYear year then 29 else 28
   | 4 => 30
   | 6 => 30
   | 9 => 30
@@ -29,7 +29,7 @@ example (year : Nat) : daysInMonth year 12 = 31 := by
   delta daysInMonth
   simp
 
-example (year : Nat) : daysInMonth year 2 = (if isLeapYear year then 29 else 28) := by
+example (year : Nat) : daysInMonth year 2 = (if IsLeapYear year then 29 else 28) := by
   simp [daysInMonth]
 
 def f : Char → Nat → Nat

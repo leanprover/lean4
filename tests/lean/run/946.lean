@@ -30,7 +30,7 @@ instance : Coe String DataEntry where
 
 namespace DataEntry
 
-@[simp] def isOf (e : DataEntry) (t : DataType) : Prop :=
+@[simp] def IsOf (e : DataEntry) (t : DataType) : Prop :=
   match e, t with
   | EInt _,    TInt    => True
   | EFloat _,  TFloat  => True
@@ -50,29 +50,29 @@ def Header.colNames (h : Header) : List String :=
 
 abbrev Row := List DataEntry
 
-@[simp] def rowOfTypes : Row → List DataType → Prop
+@[simp] def RowOfTypes : Row → List DataType → Prop
   | [],       []       => True
-  | eh :: et, th :: tt => eh.isOf th ∧ rowOfTypes et tt
+  | eh :: et, th :: tt => eh.IsOf th ∧ RowOfTypes et tt
   | _,        _        => False
 
-@[simp] def rowsOfTypes : List Row → List DataType → Prop
-  | row :: rows, types => rowOfTypes row types ∧ rowsOfTypes rows types
+@[simp] def RowsOfTypes : List Row → List DataType → Prop
+  | row :: rows, types => RowOfTypes row types ∧ RowsOfTypes rows types
   | [],          _     => True
 
 structure DataFrame where
   header     : Header
   rows       : List Row
-  consistent : rowsOfTypes rows header.colTypes := by simp
+  consistent : RowsOfTypes rows header.colTypes := by simp
 
 namespace DataFrame
 
 def empty (header : Header := []) : DataFrame :=
   ⟨header, [], by simp⟩
 
-theorem consistentConcatOfConsistentRow
+theorem consistent_concat_of_consistent_row
     {df : DataFrame} (row : List DataEntry)
-    (hc : rowOfTypes row df.header.colTypes) :
-      rowsOfTypes (df.rows.concat row) (Header.colTypes df.header) :=
+    (hc : RowOfTypes row df.header.colTypes) :
+      RowsOfTypes (df.rows.concat row) (Header.colTypes df.header) :=
   match df with
     | ⟨_, rows, hr⟩ => by
       induction rows with
@@ -80,8 +80,8 @@ theorem consistentConcatOfConsistentRow
         | cons _ _ hi => exact ⟨hr.1, hi hr.2 hc⟩
 
 def addRow (df : DataFrame) (row : List DataEntry)
-    (h : rowOfTypes row df.header.colTypes := by simp) : DataFrame :=
-  ⟨df.header, df.rows.concat row, consistentConcatOfConsistentRow row h⟩
+    (h : RowOfTypes row df.header.colTypes := by simp) : DataFrame :=
+  ⟨df.header, df.rows.concat row, consistent_concat_of_consistent_row row h⟩
 
 end DataFrame
 

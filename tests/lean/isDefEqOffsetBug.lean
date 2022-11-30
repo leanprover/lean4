@@ -7,21 +7,21 @@ instance [Zero α] : OfNat α (nat_lit 0) where
   ofNat := zero
 
 class AddGroup (α : Type u) extends Add α, Zero α, Neg α where
-  addAssoc : {a b c : α} → a + b + c = a + (b + c)
-  zeroAdd  : {a : α} → 0 + a = a
-  addZero  : {a : α} → a + 0 = a
-  negAdd   : {a : α} → -a + a = 0
+  add_assoc : {a b c : α} → a + b + c = a + (b + c)
+  zero_add  : {a : α} → 0 + a = a
+  add_zero  : {a : α} → a + 0 = a
+  neg_add   : {a : α} → -a + a = 0
 
 open AddGroup
 
-theorem negZero [AddGroup α] : -(0 : α) = 0 := by
-  rw [←addZero (a := -(0 : α)), negAdd]
+theorem neg_zero [AddGroup α] : -(0 : α) = 0 := by
+  rw [←add_zero (a := -(0 : α)), neg_add]
 
-theorem subZero [AddGroup α] {a : α} : a + -(0 : α) = a := by
-  rw [← addZero (a := a)]
-  rw [addAssoc]
-  rw [negZero]
-  rw [addZero]
+theorem sub_zero [AddGroup α] {a : α} : a + -(0 : α) = a := by
+  rw [← add_zero (a := a)]
+  rw [add_assoc]
+  rw [neg_zero]
+  rw [add_zero]
 
-theorem shouldFail [AddGroup α] : ((0 : α) + 0) = 0 :=
+theorem should_fail [AddGroup α] : ((0 : α) + 0) = 0 :=
   rfl -- Error

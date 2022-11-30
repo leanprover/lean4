@@ -256,7 +256,7 @@ end
 #check ∀ a b c n : Nat,
   a ≠ 0 ∧ b ≠ 0 ∧ c ≠ 0 ∧ n > 2 → a^n + b^n ≠ c^n
 
-def unbounded (f : Nat → Nat) : Prop := ∀ M, ∃ n, f n ≥ M
+def Unbounded (f : Nat → Nat) : Prop := ∀ M, ∃ n, f n ≥ M
 ```
 .. _constructors_projections_and_matching:
 
@@ -490,58 +490,58 @@ In addition, the core library defines (and trusts) the following axiomatic exten
      -- BEGIN
      universes u v
 
-     constant quot      : Π {α : Sort u}, (α → α → Prop) → Sort u
+     constant Quot      : Π {α : Sort u}, (α → α → Prop) → Sort u
 
-     constant quot.mk   : Π {α : Sort u} (r : α → α → Prop),
-                          α → quot r
+     constant Quot.mk   : Π {α : Sort u} (r : α → α → Prop),
+                          α → Quot r
 
-     axiom    quot.ind  : ∀ {α : Sort u} {r : α → α → Prop}
-                            {β : quot r → Prop},
-                          (∀ a, β (quot.mk r a)) →
-                            ∀ (q : quot r), β q
+     axiom    Quot.ind  : ∀ {α : Sort u} {r : α → α → Prop}
+                            {β : Quot r → Prop},
+                          (∀ a, β (Quot.mk r a)) →
+                            ∀ (q : Quot r), β q
 
-     constant quot.lift : Π {α : Sort u} {r : α → α → Prop}
+     constant Quot.lift : Π {α : Sort u} {r : α → α → Prop}
                             {β : Sort u} (f : α → β),
-                          (∀ a b, r a b → f a = f b) → quot r → β
+                          (∀ a b, r a b → f a = f b) → Quot r → β
 
-     axiom quot.sound   : ∀ {α : Type u} {r : α → α → Prop}
+     axiom Quot.sound   : ∀ {α : Type u} {r : α → α → Prop}
                             {a b : α},
-                          r a b → quot.mk r a = quot.mk r b
+                          r a b → Quot.mk r a = Quot.mk r b
      -- END
      end hide
 
-  ``quot r`` represents the quotient of ``α`` by the smallest equivalence relation containing ``r``. ``quot.mk`` and ``quot.lift`` satisfy the following computation rule:
+  ``Quot r`` represents the quotient of ``α`` by the smallest equivalence relation containing ``r``. ``Quot.mk`` and ``Quot.lift`` satisfy the following computation rule:
 
   .. code-block:: text
 
-     quot.lift f h (quot.mk r a) = f a
+     Quot.lift f h (Quot.mk r a) = f a
 
 - choice:
 
   .. code-block:: lean
 
-     namespace hide
+     namespace Hide
      universe u
 
      -- BEGIN
-     axiom choice {α : Sort u} : nonempty α → α
+     axiom choice {α : Sort u} : Nonempty α → α
      -- END
 
-     end hide
+     end Hide
 
-  Here ``nonempty α`` is defined as follows:
+  Here ``Nonempty α`` is defined as follows:
 
   .. code-block:: lean
 
-     namespace hide
+     namespace Hide
      universe u
 
      -- BEGIN
-     class inductive nonempty (α : Sort u) : Prop
-     | intro : α → nonempty
+     class inductive Nonempty (α : Sort u) : Prop
+     | intro : α → Nonempty
      -- END
 
-     end hide
+     end Hide
 
   It is equivalent to  ``∃ x : α, true``.
 

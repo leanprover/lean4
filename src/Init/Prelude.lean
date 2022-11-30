@@ -346,7 +346,7 @@ subterms.
 
 For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
+theorem congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
 /--
@@ -360,7 +360,7 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
   h₁ ▸ h₂ ▸ rfl
 
 /-- Congruence in the function part of an application: If `f = g` then `f a = g a`. -/
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+theorem congr_fun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
 /-!
@@ -571,17 +571,17 @@ set_option linter.unusedVariables.funArgs false in
 Gadget for optional parameter support.
 
 A binder like `(x : α := default)` in a declaration is syntax sugar for
-`x : optParam α default`, and triggers the elaborator to attempt to use
+`x : OptParam α default`, and triggers the elaborator to attempt to use
 `default` to supply the argument if it is not supplied.
 -/
-@[reducible] def optParam (α : Sort u) (default : α) : Sort u := α
+@[reducible] def OptParam (α : Sort u) (default : α) : Sort u := α
 
 /--
 Gadget for marking output parameters in type classes.
 
 For example, the `Membership` class is defined as:
 ```
-class Membership (α : outParam (Type u)) (γ : Type v)
+class Membership (α : OutParam (Type u)) (γ : Type v)
 ```
 This means that whenever a typeclass goal of the form `Membership ?α ?γ` comes
 up, lean will wait to solve it until `?γ` is known, but then it will run
@@ -592,7 +592,7 @@ This expresses that in a term like `a ∈ s`, `s` might be a `Set α` or
 `List α` or some other type with a membership operation, and in each case
 the "member" type `α` is determined by looking at the container type.
 -/
-@[reducible] def outParam (α : Sort u) : Sort u := α
+@[reducible] def OutParam (α : Sort u) : Sort u := α
 
 set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
@@ -1096,7 +1096,7 @@ The `calc` tactic uses this so that when it sees a chain with `a ≤ b` and `b <
 it knows that this should be a proof of `a < c` because there is an instance
 `Trans (·≤·) (·<·) (·<·)`.
 -/
-class Trans (r : α → β → Sort u) (s : β → γ → Sort v) (t : outParam (α → γ → Sort w)) where
+class Trans (r : α → β → Sort u) (s : β → γ → Sort v) (t : OutParam (α → γ → Sort w)) where
   /-- Compose two proofs by transitivity, generalized over the relations involved. -/
   trans : r a b → s b c → t a c
 
@@ -1112,7 +1112,7 @@ instance (r : α → β → Sort u) : Trans r Eq r where
 The notation typeclass for heterogeneous addition.
 This enables the notation `a + b : γ` where `a : α`, `b : β`.
 -/
-class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HAdd (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a + b` computes the sum of `a` and `b`.
   The meaning of this notation is type-dependent. -/
   hAdd : α → β → γ
@@ -1121,7 +1121,7 @@ class HAdd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous subtraction.
 This enables the notation `a - b : γ` where `a : α`, `b : β`.
 -/
-class HSub (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HSub (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a - b` computes the difference of `a` and `b`.
   The meaning of this notation is type-dependent.
   * For natural numbers, this operator saturates at 0: `a - b = 0` when `a ≤ b`. -/
@@ -1131,7 +1131,7 @@ class HSub (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous multiplication.
 This enables the notation `a * b : γ` where `a : α`, `b : β`.
 -/
-class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMul (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a * b` computes the product of `a` and `b`.
   The meaning of this notation is type-dependent. -/
   hMul : α → β → γ
@@ -1140,7 +1140,7 @@ class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous division.
 This enables the notation `a / b : γ` where `a : α`, `b : β`.
 -/
-class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HDiv (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a / b` computes the result of dividing `a` by `b`.
   The meaning of this notation is type-dependent.
   * For most types like `Nat`, `Int`, `Rat`, `Real`, `a / 0` is defined to be `0`.
@@ -1153,7 +1153,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous modulo / remainder.
 This enables the notation `a % b : γ` where `a : α`, `b : β`.
 -/
-class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HMod (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a % b` computes the remainder upon dividing `a` by `b`.
   The meaning of this notation is type-dependent.
   * For `Nat` and `Int`, `a % 0` is defined to be `a`. -/
@@ -1163,7 +1163,7 @@ class HMod (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous exponentiation.
 This enables the notation `a ^ b : γ` where `a : α`, `b : β`.
 -/
-class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HPow (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a ^ b` computes `a` to the power of `b`.
   The meaning of this notation is type-dependent. -/
   hPow : α → β → γ
@@ -1172,7 +1172,7 @@ class HPow (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 The notation typeclass for heterogeneous append.
 This enables the notation `a ++ b : γ` where `a : α`, `b : β`.
 -/
-class HAppend (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HAppend (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a ++ b` is the result of concatenation of `a` and `b`, usually read "append".
   The meaning of this notation is type-dependent. -/
   hAppend : α → β → γ
@@ -1182,7 +1182,7 @@ The typeclass behind the notation `a <|> b : γ` where `a : α`, `b : β`.
 Because `b` is "lazy" in this notation, it is passed as `Unit → β` to the
 implementation so it can decide when to evaluate it.
 -/
-class HOrElse (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HOrElse (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a <|> b` executes `a` and returns the result, unless it fails in which
   case it executes and returns `b`. Because `b` is not always executed, it
   is passed as a thunk so it can be forced only when needed.
@@ -1194,7 +1194,7 @@ The typeclass behind the notation `a >> b : γ` where `a : α`, `b : β`.
 Because `b` is "lazy" in this notation, it is passed as `Unit → β` to the
 implementation so it can decide when to evaluate it.
 -/
-class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HAndThen (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a >> b` executes `a`, ignores the result, and then executes `b`.
   If `a` fails then `b` is not executed. Because `b` is not always executed, it
   is passed as a thunk so it can be forced only when needed.
@@ -1202,25 +1202,25 @@ class HAndThen (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hAndThen : α → (Unit → β) → γ
 
 /-- The typeclass behind the notation `a &&& b : γ` where `a : α`, `b : β`. -/
-class HAnd (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HAnd (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a &&& b` computes the bitwise AND of `a` and `b`.
   The meaning of this notation is type-dependent. -/
   hAnd : α → β → γ
 
 /-- The typeclass behind the notation `a ^^^ b : γ` where `a : α`, `b : β`. -/
-class HXor (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HXor (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a ^^^ b` computes the bitwise XOR of `a` and `b`.
   The meaning of this notation is type-dependent. -/
   hXor : α → β → γ
 
 /-- The typeclass behind the notation `a ||| b : γ` where `a : α`, `b : β`. -/
-class HOr (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HOr (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a ||| b` computes the bitwise OR of `a` and `b`.
   The meaning of this notation is type-dependent. -/
   hOr : α → β → γ
 
 /-- The typeclass behind the notation `a <<< b : γ` where `a : α`, `b : β`. -/
-class HShiftLeft (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HShiftLeft (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a <<< b` computes `a` shifted to the left by `b` places.
   The meaning of this notation is type-dependent.
   * On `Nat`, this is equivalent to `a * 2 ^ b`.
@@ -1229,7 +1229,7 @@ class HShiftLeft (α : Type u) (β : Type v) (γ : outParam (Type w)) where
   hShiftLeft : α → β → γ
 
 /-- The typeclass behind the notation `a >>> b : γ` where `a : α`, `b : β`. -/
-class HShiftRight (α : Type u) (β : Type v) (γ : outParam (Type w)) where
+class HShiftRight (α : Type u) (β : Type v) (γ : OutParam (Type w)) where
   /-- `a >>> b` computes `a` shifted to the right by `b` places.
   The meaning of this notation is type-dependent.
   * On `Nat` and fixed width unsigned types like `UInt8`,
@@ -1401,12 +1401,12 @@ open HAppend (hAppend)
 
 /--
 The typeclass behind the notation `a ∈ s : Prop` where `a : α`, `s : γ`.
-Because `α` is an `outParam`, the "container type" `γ` determines the type
+Because `α` is an `OutParam`, the "container type" `γ` determines the type
 of the elements of the container.
 -/
-class Membership (α : outParam (Type u)) (γ : Type v) where
+class Membership (α : OutParam (Type u)) (γ : Type v) where
   /-- The membership relation `a ∈ s : Prop` where `a : α`, `s : γ`. -/
-  mem : α → γ → Prop
+  Mem : α → γ → Prop
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1947,7 +1947,7 @@ be either `2^32` or `2^64` depending on the platform's architecture.
 -/
 def USize.size : Nat := hPow 2 System.Platform.numBits
 
-theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
+theorem USize.size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
   show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
@@ -1991,7 +1991,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
+  default := USize.ofNatCore 0 (match USize.size, USize.size_eq with
     | _, Or.inl rfl => by decide
     | _, Or.inr rfl => by decide)
 
@@ -2004,24 +2004,29 @@ This function is overridden with a native implementation.
 def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
   val := {
     val  := n
-    isLt := match USize.size, usize_size_eq with
+    isLt := match USize.size, USize.size_eq with
       | _, Or.inl rfl => h
       | _, Or.inr rfl => Nat.lt_trans h (by decide)
   }
 
 /--
-A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
+Determines if the given `Nat` is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
+
+A `Nat` denotes a valid unicode scalar value if it is less than `0x110000`, and
 it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive).
 -/
-abbrev Nat.isValidChar (n : Nat) : Prop :=
+abbrev Nat.IsValidChar (n : Nat) : Prop :=
   Or (LT.lt n 0xd800) (And (LT.lt 0xdfff n) (LT.lt n 0x110000))
 
 /--
-A `UInt32` denotes a valid unicode codepoint if it is less than `0x110000`, and
-it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive).
+Determines if the given `UInt32` is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
+
+A `UInt32` denotes a valid unicode scalar value if it is less than `0x110000`, and
+it is also not a ["surrogate"](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates)
+character (the range `0xd800` to `0xdfff` inclusive).
 -/
-abbrev UInt32.isValidChar (n : UInt32) : Prop :=
-  n.toNat.isValidChar
+abbrev UInt32.IsValidChar (n : UInt32) : Prop :=
+  n.toNat.IsValidChar
 
 /-- The `Char` Type represents an unicode scalar value.
     See http://www.unicode.org/glossary/#unicode_scalar_value). -/
@@ -2029,9 +2034,9 @@ structure Char where
   /-- The underlying unicode scalar value as a `UInt32`. -/
   val   : UInt32
   /-- The value must be a legal codepoint. -/
-  valid : val.isValidChar
+  valid : val.IsValidChar
 
-private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt32.size :=
+theorem Nat.IsValidChar.isUInt32 {n : Nat} (h : n.IsValidChar) : LT.lt n UInt32.size :=
   match h with
   | Or.inl h      => Nat.lt_trans h (by decide)
   | Or.inr ⟨_, h⟩ => Nat.lt_trans h (by decide)
@@ -2041,8 +2046,8 @@ Pack a `Nat` encoding a valid codepoint into a `Char`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
-def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨{ val := n, isLt := isValidChar_UInt32 h }⟩, valid := h }
+def Char.ofNatAux (n : @& Nat) (h : n.IsValidChar) : Char :=
+  { val := ⟨{ val := n, isLt := h.isUInt32 }⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2050,7 +2055,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 -/
 @[noinline, match_pattern]
 def Char.ofNat (n : Nat) : Char :=
-  dite (n.isValidChar)
+  dite n.IsValidChar
     (fun h => Char.ofNatAux n h)
     (fun _ => { val := ⟨{ val := 0, isLt := by decide }⟩, valid := Or.inl (by decide) })
 
@@ -2262,7 +2267,7 @@ This function is overridden with a native implementation.
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq s₁ s₂) (fun h => isTrue (congr_arg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq String := String.decEq
 
@@ -2432,7 +2437,7 @@ The proof side-condition `dom xs i` is automatically dispatched by the
 `get_elem_tactic` tactic, which can be extended by adding more clauses to
 `get_elem_tactic_trivial`.
 -/
-class GetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w)) (dom : outParam (cont → idx → Prop)) where
+class GetElem (cont : Type u) (idx : Type v) (elem : OutParam (Type w)) (dom : OutParam (cont → idx → Prop)) where
   /--
   The syntax `arr[i]` gets the `i`'th element of the collection `arr`.
   If there are proof side conditions to the application, they will be automatically
@@ -2637,7 +2642,7 @@ equipped with an operator called `map` or `<$>` such that if `f : α → β` the
 category-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in
 the special case where the category is the category of types and functions
 between them, except that this class supplies only the operations and not the
-laws (see `LawfulFunctor`).
+laws (see `IsLawfulFunctor`).
 -/
 class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   /-- If `f : α → β` and `x : F α` then `f <$> x : F β`. -/
@@ -2851,8 +2856,8 @@ in case the monad supports throwing more than one type of error.
 abbrev tryCatchThe (ε : Type u) {m : Type v → Type w} [MonadExceptOf ε m] {α : Type v} (x : m α) (handle : ε → m α) : m α :=
   MonadExceptOf.tryCatch x handle
 
-/-- Similar to `MonadExceptOf`, but `ε` is an `outParam` for convenience. -/
-class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) where
+/-- Similar to `MonadExceptOf`, but `ε` is an `OutParam` for convenience. -/
+class MonadExcept (ε : OutParam (Type u)) (m : Type v → Type w) where
   /-- `throw : ε → m α` "throws an error" of type `ε` to the nearest enclosing
   catch block. -/
   throw {α : Type v} : ε → m α
@@ -2868,7 +2873,7 @@ def MonadExcept.ofExcept [Monad m] [MonadExcept ε m] : Except ε α → m α
 
 export MonadExcept (throw tryCatch ofExcept)
 
-instance (ε : outParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
+instance (ε : OutParam (Type u)) (m : Type v → Type w) [MonadExceptOf ε m] : MonadExcept ε m where
   throw    := throwThe ε
   tryCatch := tryCatchThe ε
 
@@ -2991,8 +2996,8 @@ Like `read`, but with `ρ` explicit. This is useful if a monad supports
 def readThe (ρ : Type u) {m : Type u → Type v} [MonadReaderOf ρ m] : m ρ :=
   MonadReaderOf.read
 
-/-- Similar to `MonadReaderOf`, but `ρ` is an `outParam` for convenience. -/
-class MonadReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+/-- Similar to `MonadReaderOf`, but `ρ` is an `OutParam` for convenience. -/
+class MonadReader (ρ : OutParam (Type u)) (m : Type u → Type v) where
   /-- `(← read) : ρ` reads the state out of monad `m`. -/
   read : m ρ
 
@@ -3027,8 +3032,8 @@ Like `withReader`, but with `ρ` explicit. This is useful if a monad supports
 def withTheReader (ρ : Type u) {m : Type u → Type v} [MonadWithReaderOf ρ m] {α : Type u} (f : ρ → ρ) (x : m α) : m α :=
   MonadWithReaderOf.withReader f x
 
-/-- Similar to `MonadWithReaderOf`, but `ρ` is an `outParam` for convenience. -/
-class MonadWithReader (ρ : outParam (Type u)) (m : Type u → Type v) where
+/-- Similar to `MonadWithReaderOf`, but `ρ` is an `OutParam` for convenience. -/
+class MonadWithReader (ρ : OutParam (Type u)) (m : Type u → Type v) where
   /-- `withReader (f : ρ → ρ) (x : m α) : m α`  runs the inner `x : m α` inside
   a modified context after applying the function `f : ρ → ρ`.-/
   withReader {α : Type u} : (ρ → ρ) → m α → m α
@@ -3088,8 +3093,8 @@ Like `modifyGet`, but with `σ` explicit. This is useful if a monad supports
 abbrev modifyGetThe {α : Type u} (σ : Type u) {m : Type u → Type v} [MonadStateOf σ m] (f : σ → Prod α σ) : m α :=
   MonadStateOf.modifyGet f
 
-/-- Similar to `MonadStateOf`, but `σ` is an `outParam` for convenience. -/
-class MonadState (σ : outParam (Type u)) (m : Type u → Type v) where
+/-- Similar to `MonadStateOf`, but `σ` is an `OutParam` for convenience. -/
+class MonadState (σ : OutParam (Type u)) (m : Type u → Type v) where
   /-- `(← get) : σ` gets the state out of a monad `m`. -/
   get : m σ
   /-- `set (s : σ)` replaces the state with value `s`. -/
@@ -3199,7 +3204,7 @@ Auxiliary instance for saving/restoring the "backtrackable" part of the state.
 Here `σ` is the state, and `δ` is some subpart of it, and we have a
 getter and setter for it (a "lens" in the Haskell terminology).
 -/
-class Backtrackable (δ : outParam (Type u)) (σ : Type u) where
+class Backtrackable (δ : OutParam (Type u)) (σ : Type u) where
   /-- `save s : δ` retrieves a copy of the backtracking state out of the state. -/
   save    : σ → δ
   /-- `restore (s : σ) (x : δ) : σ` applies the old backtracking state `x` to
@@ -3324,7 +3329,7 @@ def USize.toUInt64 (u : USize) : UInt64 where
     isLt :=
       let ⟨n, h⟩ := u
       show LT.lt n _ from
-      match USize.size, usize_size_eq, h with
+      match USize.size, USize.size_eq, h with
       | _, Or.inl rfl, h => Nat.lt_trans h (by decide)
       | _, Or.inr rfl, h => h
   }

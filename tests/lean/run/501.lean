@@ -18,13 +18,13 @@ def S.b : (s : S) → s.Z
 
 #check @S.b.match_1
 
-theorem zeropow : ∀ {m : Nat}, m > 0 → 0 ^ m = 0
+theorem zero_pow : ∀ {m : Nat}, m > 0 → 0 ^ m = 0
   | 0,   h => by cases h
   | _+1, _ => rfl
 
 theorem pow_nonneg : ∀ m : Nat, 0 ^ m ≥ 0
   | 0 => by decide
   | m@(_+1) => by
-    rw [zeropow]
+    rw [zero_pow]
     · decide
     · apply Nat.zero_lt_succ

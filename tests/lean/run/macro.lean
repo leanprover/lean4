@@ -1,13 +1,13 @@
 abbrev Set (α : Type) := α → Prop
 axiom setOf {α : Type} : (α → Prop) → Set α
-axiom mem {α : Type} : α → Set α → Prop
+axiom Mem {α : Type} : α → Set α → Prop
 axiom univ {α : Type} : Set α
 axiom Union {α : Type} : Set (Set α) → Set α
 
 syntax:100 (priority := high) term " ∈ " term:99 : term
 
 macro_rules
-| `($x ∈ $s) => `(mem $x $s)
+| `($x ∈ $s) => `(Mem $x $s)
 
 declare_syntax_cat index
 

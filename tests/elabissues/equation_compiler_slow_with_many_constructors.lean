@@ -7,7 +7,7 @@ recompilation of the downstream equations.
 -/
 
 inductive Op : Type
-| add, mul, inv, div, sub, fact, pow
+| add | mul | inv | div | sub | fact | pow
 
 inductive Term : Type
 | ofInt  : Int → Term

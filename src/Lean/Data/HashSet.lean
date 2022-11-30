@@ -7,7 +7,7 @@ namespace Lean
 universe u v w
 
 def HashSetBucket (α : Type u) :=
-  { b : Array (List α) // b.size.isPowerOfTwo }
+  { b : Array (List α) // b.size.IsPowerOfTwo }
 
 def HashSetBucket.update {α : Type u} (data : HashSetBucket α) (i : USize) (d : List α) (h : i.toNat < data.val.size) : HashSetBucket α :=
   ⟨ data.val.uset i d h,
@@ -28,7 +28,7 @@ variable {α : Type u}
 
 /- Remark: we use a C implementation because this function is performance critical. -/
 @[extern c inline "(size_t)(#2) & (lean_unbox(#1) - 1)"]
-private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize // u.toNat < sz } :=
+private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.IsPowerOfTwo) : { u : USize // u.toNat < sz } :=
   -- TODO: avoid `if` in the reference implementation
   let u := hash.toUSize &&& (sz.toUSize - 1)
   if h' : u.toNat < sz then

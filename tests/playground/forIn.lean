@@ -6,7 +6,7 @@ inductive Step.{u} (α : Type u)
 | done  : α → Step α
 | yield : α → Step α
 
-class Fold.{u, v, w, z} (m : Type w → Type z) [Monad m] (α : outParam (Type u)) (s : Type v) : Type (max v u z (w+1)):=
+class Fold.{u, v, w, z} (m : Type w → Type z) [Monad m] (α : OutParam (Type u)) (s : Type v) : Type (max v u z (w+1)):=
 (fold {β : Type w} (as : s) (init : β) (f : α → β → m (Step β)) : m β)
 
 export Fold (fold)
@@ -117,11 +117,11 @@ fold (range 5 10) 0 fun i s => do
 
 #eval tst3
 
-theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
+theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
 | 0,   _, h => h
 | a+1, b, h =>
   have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h
-  zeroLtOfLt this
+  zero_lt_of_lt this
 
 @[inline] instance {m} {α} [Monad m] : Fold m α (Array α) :=
 { fold := fun as init f =>
@@ -129,7 +129,7 @@ theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
       | 0, h, b   => pure b
       | i+1, h, b =>
         have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-        have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (decide! (0 < 1))
+        have as.size - 1 < as.size     from Nat.subLt (zero_lt_of_lt h') (decide! (0 < 1))
         have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this; do
         let s ← f (as.get ⟨as.size - 1 - i, this⟩) b
         (match s with

@@ -197,13 +197,13 @@ def make_move : GameState → Move → GameState
              then ⟨s, ⟨x, y+1⟩, w⟩
              else ⟨s, ⟨x,y⟩, w⟩
 
-def is_win : GameState → Prop
+def IsWin : GameState → Prop
 | ⟨⟨sx, sy⟩, ⟨x,y⟩, w⟩ => x = 0 ∨ y = 0 ∨ x + 1 = sx ∨ y + 1 = sy
 
-def can_escape (state : GameState) : Prop :=
-  ∃ (gs : List Move), is_win (List.foldl make_move state gs)
+def CanEscape (state : GameState) : Prop :=
+  ∃ (gs : List Move), IsWin (List.foldl make_move state gs)
 
-theorem can_still_escape (g : GameState) (m : Move) (hg : can_escape (make_move g m)) : can_escape g :=
+theorem can_still_escape (g : GameState) (m : Move) (hg : CanEscape (make_move g m)) : CanEscape g :=
  have ⟨pms, hpms⟩ := hg
  Exists.intro (m::pms) hpms
 
@@ -212,8 +212,8 @@ theorem step_west
   {x y : Nat}
   {w: List Coords}
   (hclear' : w.notElem ⟨x,y⟩)
-  (W : can_escape ⟨s,⟨x,y⟩,w⟩) :
-  can_escape ⟨s,⟨x+1,y⟩,w⟩ :=
+  (W : CanEscape ⟨s,⟨x,y⟩,w⟩) :
+  CanEscape ⟨s,⟨x+1,y⟩,w⟩ :=
    by have hmm : GameState.mk s ⟨x,y⟩ w = make_move ⟨s,⟨x+1, y⟩,w⟩ Move.west :=
                by have h' : x + 1 - 1 = x := rfl
                   simp [h', hclear']
@@ -226,8 +226,8 @@ theorem step_east
   {w: List Coords}
   (hclear' : w.notElem ⟨x+1,y⟩)
   (hinbounds : x + 1 ≤ s.x)
-  (E : can_escape ⟨s,⟨x+1,y⟩,w⟩) :
-  can_escape ⟨s,⟨x, y⟩,w⟩ :=
+  (E : CanEscape ⟨s,⟨x+1,y⟩,w⟩) :
+  CanEscape ⟨s,⟨x, y⟩,w⟩ :=
     by have hmm : GameState.mk s ⟨x+1,y⟩ w = make_move ⟨s, ⟨x,y⟩,w⟩ Move.east :=
          by simp [hclear', hinbounds]
        rw [hmm] at E
@@ -238,8 +238,8 @@ theorem step_north
   {x y : Nat}
   {w: List Coords}
   (hclear' : w.notElem ⟨x,y⟩)
-  (N : can_escape ⟨s,⟨x,y⟩,w⟩) :
-  can_escape ⟨s,⟨x, y+1⟩,w⟩ :=
+  (N : CanEscape ⟨s,⟨x,y⟩,w⟩) :
+  CanEscape ⟨s,⟨x, y+1⟩,w⟩ :=
     by have hmm : GameState.mk s ⟨x,y⟩ w = make_move ⟨s,⟨x, y+1⟩,w⟩ Move.north :=
          by have h' : y + 1 - 1 = y := rfl
             simp [h', hclear']
@@ -252,23 +252,23 @@ theorem step_south
   {w: List Coords}
   (hclear' : w.notElem ⟨x,y+1⟩)
   (hinbounds : y + 1 ≤ s.y)
-  (S : can_escape ⟨s,⟨x,y+1⟩,w⟩) :
-  can_escape ⟨s,⟨x, y⟩,w⟩ :=
+  (S : CanEscape ⟨s,⟨x,y+1⟩,w⟩) :
+  CanEscape ⟨s,⟨x, y⟩,w⟩ :=
     by have hmm : GameState.mk s ⟨x,y+1⟩ w = make_move ⟨s,⟨x, y⟩,w⟩ Move.south :=
             by simp [hclear', hinbounds]
        rw [hmm] at S
        exact can_still_escape ⟨s,⟨x,y⟩,w⟩ Move.south S
 
-def escape_west {sx sy : Nat} {y : Nat} {w : List Coords} : can_escape ⟨⟨sx, sy⟩,⟨0, y⟩,w⟩ :=
+theorem escape_west {sx sy : Nat} {y : Nat} {w : List Coords} : CanEscape ⟨⟨sx, sy⟩,⟨0, y⟩,w⟩ :=
     ⟨[], Or.inl rfl⟩
 
-def escape_east {sy x y : Nat} {w : List Coords} : can_escape ⟨⟨x+1, sy⟩,⟨x, y⟩,w⟩ :=
+theorem escape_east {sy x y : Nat} {w : List Coords} : CanEscape ⟨⟨x+1, sy⟩,⟨x, y⟩,w⟩ :=
   ⟨[], Or.inr $ Or.inr $ Or.inl rfl⟩
 
-def escape_north {sx sy : Nat} {x : Nat} {w : List Coords} : can_escape ⟨⟨sx, sy⟩,⟨x, 0⟩,w⟩ :=
+theorem escape_north {sx sy : Nat} {x : Nat} {w : List Coords} : CanEscape ⟨⟨sx, sy⟩,⟨x, 0⟩,w⟩ :=
   ⟨[], Or.inr $ Or.inl rfl⟩
 
-def escape_south {sx x y : Nat} {w: List Coords} : can_escape ⟨⟨sx, y+1⟩,⟨x, y⟩,w⟩ :=
+theorem escape_south {sx x y : Nat} {w: List Coords} : CanEscape ⟨⟨sx, y+1⟩,⟨x, y⟩,w⟩ :=
   ⟨[], Or.inr $ Or.inr $ Or.inr rfl⟩
 
 -- Define an "or" tactic combinator, like <|> in Lean 3.
@@ -289,7 +289,7 @@ def maze1 := ┌───┐
              │▓▓▓│
              └───┘
 
-def foo : can_escape maze1 := by
+def foo : CanEscape maze1 := by
   apply step_west
   set_option trace.Meta.debug true in
   simp

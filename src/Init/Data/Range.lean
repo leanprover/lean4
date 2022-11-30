@@ -15,7 +15,7 @@ structure Range where
   step  : Nat := 1
 
 instance : Membership Nat Range where
-  mem i r := r.start ≤ i ∧ i < r.stop
+  Mem i r := r.start ≤ i ∧ i < r.stop
 
 namespace Range
 universe u v
@@ -73,13 +73,10 @@ macro_rules
   | `([ $start : $stop : $step ]) => `({ start := $start, stop := $stop, step := $step : Range })
   | `([ : $stop : $step ]) => `({ stop := $stop, step := $step : Range })
 
-end Range
-end Std
-
-theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := by
-  simp [Membership.mem] at h
+theorem mem_upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.stop := by
+  simp [Membership.Mem] at h
   exact h.2
 
-theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := by
-  simp [Membership.mem] at h
+theorem mem_lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := by
+  simp [Membership.Mem] at h
   exact h.1

@@ -44,7 +44,7 @@ theorem Expr.denote_flat (ctx : Context α) (e : Expr) : denote ctx (flat e) = d
   | op a b ih₁ ih₂ => simp [flat, denote, denote_concat, ih₁, ih₂]
 
 theorem Expr.eq_of_flat (ctx : Context α) (a b : Expr) (h : flat a = flat b) : denote ctx a = denote ctx b := by
-  have h := congrArg (denote ctx) h
+  have h := congr_arg (denote ctx) h
   simp [denote_flat] at h
   assumption
 
@@ -127,7 +127,7 @@ where
       | _ => rfl
 
 theorem Expr.eq_of_sort_flat (ctx : Context α) (a b : Expr) (h : sort (flat a) = sort (flat b)) : denote ctx a = denote ctx b := by
-  have h := congrArg (denote ctx) h
+  have h := congr_arg (denote ctx) h
   simp [denote_flat, denote_sort] at h
   assumption
 

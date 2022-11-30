@@ -26,16 +26,16 @@ def Weekday.previous : Weekday -> Weekday
   | friday    => thursday
   | saturday  => friday
 
-theorem Weekday.nextOfPrevious (d : Weekday) : next (previous d) = d := by
+theorem Weekday.next_of_previous (d : Weekday) : next (previous d) = d := by
   cases d
   all_goals rfl
 
-theorem Weekday.nextOfPrevious' (d : Weekday) : previous (next d) = d ∧ next (previous d) = d := by
+theorem Weekday.next_of_previous' (d : Weekday) : previous (next d) = d ∧ next (previous d) = d := by
   apply And.intro
   cases d <;> rfl
   cases d <;> rfl
 
-theorem Weekday.nextOfPrevious'' (d : Weekday) : previous (next d) = d ∧ next (previous d) = d := by
+theorem Weekday.next_of_previous'' (d : Weekday) : previous (next d) = d ∧ next (previous d) = d := by
   apply And.intro <;> cases d <;> rfl
 
 open Lean.Parser.Tactic in

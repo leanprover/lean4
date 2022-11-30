@@ -24,8 +24,8 @@ def foo : InjectiveFunction Bool (Nat → Nat) where
    | false, a => a
   inj a b h := by
     cases a
-    cases b; rfl; injection (congrFun h 0)
-    cases b; injection (congrFun h 0); rfl
+    cases b; rfl; injection (congr_fun h 0)
+    cases b; injection (congr_fun h 0); rfl
 
 theorem ex1 (x : Nat) : foo true x = x + 1 :=
   rfl

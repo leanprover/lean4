@@ -13,7 +13,7 @@ theorem g_eq (x : Nat) (h : ¬ x = 0) : g x (x > 0) = x - 1 ∧ g x false = x + 
 macro_rules
 | `(tactic| decreasing_tactic) =>
  `(tactic|
-   (simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel, g_eq, *]
+   (simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.Rel, g_eq, *]
     apply Nat.pred_lt; assumption))
 
 def f (x : Nat) : Nat :=

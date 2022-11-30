@@ -1383,14 +1383,14 @@ def etaExpandedStrict? : Expr → Option Expr
 
 /-- Return `some e'` if `e` is of the form `OptParam _ e'` -/
 def getOptParamDefault? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `OptParam 2 then
+  if e.isAppOfArity ``OptParam 2 then
     some e.appArg!
   else
     none
 
 /-- Return `some e'` if `e` is of the form `AutoParam _ e'` -/
 def getAutoParamTactic? (e : Expr) : Option Expr :=
-  if e.isAppOfArity `AutoParam 2 then
+  if e.isAppOfArity ``AutoParam 2 then
     some e.appArg!
   else
     none
@@ -1398,15 +1398,15 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
 /-- Return `true` if `e` is of the form `OutParam _` -/
 @[export lean_is_out_param]
 def isOutParam (e : Expr) : Bool :=
-  e.isAppOfArity `OutParam 1
+  e.isAppOfArity ``OutParam 1
 
 /-- Return `true` if `e` is of the form `OptParam _ _` -/
 def isOptParam (e : Expr) : Bool :=
-  e.isAppOfArity `OptParam 2
+  e.isAppOfArity ``OptParam 2
 
 /-- Return `true` if `e` is of the form `AutoParam _ _` -/
 def isAutoParam (e : Expr) : Bool :=
-  e.isAppOfArity `AutoParam 2
+  e.isAppOfArity ``AutoParam 2
 
 /--
 Remove `OutParam`, `OptParam`, and `AutoParam` applications/annotations from `e`.

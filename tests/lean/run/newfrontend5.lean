@@ -53,9 +53,9 @@ set_option pp.explicit true
 
 def h (x := 10) (y := 20) : Nat := x + y
 #check h -- h 10 20 : Nat
-#check let f := @h; f -- (let f : optParam Nat 10 → optParam Nat 20 → Nat := @h; f 10 20) : Nat
+#check let f := @h; f -- (let f : OptParam Nat 10 → OptParam Nat 20 → Nat := @h; f 10 20) : Nat
 
-#check let f := fun (x : optParam Nat 10) => x + 1; f + f 1
-#check (fun (x : optParam Nat 10) => x)
+#check let f := fun (x : OptParam Nat 10) => x + 1; f + f 1
+#check (fun (x : OptParam Nat 10) => x)
 
 #check let_fun x := 10; x + 1

@@ -1,16 +1,16 @@
 opaque f : Nat → Nat
-opaque q : Nat → Prop
-opaque r : Nat → Prop
+opaque Q : Nat → Prop
+opaque R : Nat → Prop
 
 @[simp] axiom ax1 (p : Prop) : (p ∧ True) ↔ p
-@[simp] axiom ax2 (x : Nat) : q (f x)
-@[simp] axiom ax3 (x : Nat) : ¬ r (f x)
+@[simp] axiom ax2 (x : Nat) : Q (f x)
+@[simp] axiom ax3 (x : Nat) : ¬ R (f x)
 @[simp] axiom ax4 (p : Prop) : (p ∨ False) ↔ p
 
-theorem ex1 (x : Nat) (h : q x) : q x ∧ q (f x) := by
+theorem ex1 (x : Nat) (h : Q x) : Q x ∧ Q (f x) := by
   simp [h]
 
-theorem ex2 (x : Nat) : q (f x) ∨ r (f x) := by
+theorem ex2 (x : Nat) : Q (f x) ∨ R (f x) := by
   simp
 
 @[simp] axiom ax5 (x : Nat) : 0 + x = x
@@ -42,7 +42,7 @@ theorem ex6
 theorem ex7 (x : Nat) : (let y := x + 0; y + y) = x + x := by
   simp
 
-@[simp] theorem impTrue (p : Sort u) : (p → True) = True :=
+@[simp] theorem imp_true_eq (p : Sort u) : (p → True) = True :=
   propext <| Iff.intro (fun _ => trivial) (fun _ _ => trivial)
 
 theorem ex8 (y x : Nat) : y = 0 → x + y = 0 → x = 0 := by

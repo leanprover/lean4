@@ -137,7 +137,7 @@ def g (x y : Nat) : IO Unit := do
   else
     pure ()
 
-theorem fgEqual : f = g :=
+theorem fg_equal : f = g :=
   rfl -- proof by reflexivity
 ```
 Here are two ways to achieve the short-circuit semantics in the example above

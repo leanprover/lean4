@@ -15,7 +15,7 @@ which is clearly false in this example.
 @[implemented_by g]
 def f (b : Bool) := b
 
-theorem fConst (b : Bool) : f b = false :=
+theorem f_const (b : Bool) : f b = false :=
 match b with
 | true  =>
   /- The following `native_decide` is going to use `g` to evaluate `f`
@@ -24,15 +24,15 @@ match b with
   this
 | false => rfl
 
-theorem trueEqFalse : true = false :=
+theorem true_eq_false : true = false :=
 have h₁ : f true = true  := rfl;
-have h₂ : f true = false := fConst true;
+have h₂ : f true = false := f_const true;
 Eq.trans h₁.symm h₂
 
 /-
 We managed to prove `False` using the unsound annotation `implemented_by` above.
 -/
 theorem unsound : False :=
-Bool.noConfusion trueEqFalse
+Bool.noConfusion true_eq_false
 
-#print axioms unsound -- axiom 'Lean.ofReduceBool' is listed
+#print axioms unsound -- axiom 'Lean.of_reduceBool' is listed

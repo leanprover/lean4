@@ -17,15 +17,15 @@ instance One.ofOfNat1 {α} [OfNat α (nat_lit 1)] : One α where
   one := 1
 
 theorem ex1 : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNat1 := by
-  refine' congrArg _ (congrArg _ _)
+  refine' congr_arg _ (congr_arg _ _)
   rfl
 
 example : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNat1 := by
-  apply congrArg
-  apply congrArg
+  apply congr_arg
+  apply congr_arg
   apply rfl
 
 theorem ex2 : (@OfNat.ofNat Nat 0 Zero.toOfNat0) = @OfNat.ofNat Nat 1 One.toOfNat1 := by
-  apply congrArg
-  apply congrArg
+  apply congr_arg
+  apply congr_arg
   apply rfl

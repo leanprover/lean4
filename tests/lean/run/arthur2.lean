@@ -261,7 +261,7 @@ def consume (p : Program) :
   | .uno  n,    .uno  e    => some (none, .seq (.decl n (.eval e)) p)
   | .uno  _,    .cons ..   => none
 
-theorem noDupOfConsumeNoDup
+theorem noDup_of_consume_noDup
   (h : ns.noDup) (h' : consume p' ns es = some (some l, p)) :
     l.noDup = true := by
   induction ns generalizing p' es with
@@ -339,7 +339,7 @@ def State.step : State → State
   | ret v c (.app e es k) => match v with
     | .lam $ .mk ns h p => match h' : consume p ns es with
       | some (some l, p) =>
-        ret (.lam $ .mk l (noDupOfConsumeNoDup h h') p) c k
+        ret (.lam $ .mk l (noDup_of_consume_noDup h h') p) c k
       | some (none, p) => prog p c (.block c k)
       | none => error .runTime c $ wrongNParameters e ns.length es.length
     | v                 => error .type c $ notAFunction e v
@@ -380,7 +380,7 @@ def State.stepN : State → Nat → State
 
 notation s "^" "[" n "]" => State.stepN s n
 
-theorem State.retProgression :
+theorem State.ret_progression :
     ∃ n, (ret v c k^[n]).isEnd ∨ (ret v c k^[n]).isProg := by
   induction k generalizing v c with
   | app e es k hi =>

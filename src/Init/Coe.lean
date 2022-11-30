@@ -180,7 +180,7 @@ class CoeT (α : Sort u) (_ : α) (β : Sort v) where
 `f : α` appears in an application like `f x` which would not make sense since
 `f` does not have a function type. This is automatically turned into `CoeFun.coe f x`.
 -/
-class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
+class CoeFun (α : Sort u) (γ : OutParam (α → Sort v)) where
   /-- Coerces a value `f : α` to type `γ f`, which should be either be a
   function type or another `CoeFun` type, in order to resolve a mistyped
   application `f x`. -/
@@ -191,7 +191,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
 `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
 then it will be turned into `(x : CoeSort.coe a)`.
 -/
-class CoeSort (α : Sort u) (β : outParam (Sort v)) where
+class CoeSort (α : Sort u) (β : OutParam (Sort v)) where
   /-- Coerces a value of type `α` to `β`, which must be a universe. -/
   coe : α → β
 

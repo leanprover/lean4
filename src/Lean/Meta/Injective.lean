@@ -25,7 +25,7 @@ private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
 
 def elimOptParam (type : Expr) : CoreM Expr := do
   Core.transform type fun e =>
-    if e.isAppOfArity  `OptParam 2 then
+    if e.isAppOfArity  ``OptParam 2 then
       return TransformStep.visit (e.getArg! 0)
     else
       return .continue
@@ -119,7 +119,7 @@ private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst `Eq.prop_intro)
+    let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.prop_intro)
       | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
     let (h, mvarId₁) ← mvarId₁.intro1
     let (_, mvarId₂) ← mvarId₂.intro1
@@ -148,7 +148,7 @@ register_builtin_option genInjectivity : Bool := {
 }
 
 def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
-  if (← getEnv).contains `Eq.prop_intro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
+  if (← getEnv).contains ``Eq.prop_intro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
       for ctor in info.ctors do

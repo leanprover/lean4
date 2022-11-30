@@ -1,7 +1,7 @@
-def is_smooth {α β} (f : α → β) : Prop := sorry
+def Smooth {α β} (f : α → β) : Prop := sorry
 
 class IsSmooth {α β} (f : α → β) : Prop where
-  (proof : is_smooth f)
+  (proof : Smooth f)
 
 instance identity : IsSmooth fun a : α => a := sorry
 instance const (b : β) : IsSmooth fun a : α => b := sorry

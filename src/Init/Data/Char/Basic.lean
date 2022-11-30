@@ -6,20 +6,13 @@ Author: Leonardo de Moura
 prelude
 import Init.Data.UInt.Basic
 
-/-- Determines if the given integer is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).
-
-Note that values in `[0xd800, 0xdfff]` are reserved for [UTF-16 surrogate pairs](https://en.wikipedia.org/wiki/Universal_Character_Set_characters#Surrogates).
--/
-@[inline, reducible] def isValidChar (n : UInt32) : Prop :=
-  n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
-
 namespace Char
 
-protected def lt (a b : Char) : Prop := a.val < b.val
-protected def le (a b : Char) : Prop := a.val ≤ b.val
+protected def LT (a b : Char) : Prop := a.val < b.val
+protected def LE (a b : Char) : Prop := a.val ≤ b.val
 
-instance : LT Char := ⟨Char.lt⟩
-instance : LE Char := ⟨Char.le⟩
+instance : LT Char := ⟨Char.LT⟩
+instance : LE Char := ⟨Char.LE⟩
 
 instance (a b : Char) :  Decidable (a < b) :=
   UInt32.decLt _ _
@@ -27,26 +20,21 @@ instance (a b : Char) :  Decidable (a < b) :=
 instance (a b : Char) : Decidable (a ≤ b) :=
   UInt32.decLe _ _
 
-/-- Determines if the given nat is a valid [Unicode scalar value](https://www.unicode.org/glossary/#unicode_scalar_value).-/
-abbrev isValidCharNat (n : Nat) : Prop :=
-  n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
+end Char
 
-theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
-  match h with
-  | Or.inl h        =>
-    apply Nat.lt_trans h
-    decide
-  | Or.inr ⟨_,  h₂⟩ =>
-    apply Nat.lt_trans h₂
-    decide
+namespace Nat.IsValidChar
 
-theorem isValidChar_of_isValidChar_Nat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+theorem uint32_valid (n : Nat) (h : n.IsValidChar) : (UInt32.ofNat' n h.isUInt32).IsValidChar :=
   match h with
   | Or.inl h        => Or.inl h
   | Or.inr ⟨h₁, h₂⟩ => Or.inr ⟨h₁, h₂⟩
 
-theorem isValidChar_zero : isValidChar 0 :=
+protected theorem zero : IsValidChar 0 :=
   Or.inl (by decide)
+
+end Nat.IsValidChar
+
+namespace Char
 
 /-- Underlying unicode code point as a `Nat`. -/
 @[inline] def toNat (c : Char) : Nat :=

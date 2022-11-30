@@ -180,7 +180,7 @@
   "end": {"line": 102, "character": 31}},
  "contents":
  {"value":
-  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
+  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → OptParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 102, "character": 31}}

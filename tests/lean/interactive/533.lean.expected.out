@@ -26,7 +26,7 @@
     "`ForIn m ρ α` is the typeclass which supports `for x in xs` notation.\nHere `xs : ρ` is the type of the collection to iterate over, `x : α`\nis the element type which is made available inside the loop, and `m` is the monad\nfor the encompassing `do` block.\n",
     "kind": "markdown"},
    "detail":
-   "(Type u₁ → Type u₂) → Type u → outParam (Type v) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
+   "(Type u₁ → Type u₂) → Type u → OutParam (Type v) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
   {"label": "ForIn'",
    "kind": 7,
    "documentation":
@@ -34,7 +34,7 @@
     "`ForIn' m ρ α d` is a variation on the `ForIn m ρ α` typeclass which supports the\n`for h : x in xs` notation. It is the same as `for x in xs` except that `h : x ∈ xs`\nis provided as an additional argument to the body of the for-loop.\n",
     "kind": "markdown"},
    "detail":
-   "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : outParam (Type v)) → outParam (Membership α ρ) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
+   "(Type u₁ → Type u₂) →\n  (ρ : Type u) → (α : OutParam (Type v)) → OutParam (Membership α ρ) → Type (max (max (max u (u₁ + 1)) u₂) v)"},
   {"label": "ForInStep",
    "kind": 22,
    "documentation":
@@ -49,13 +49,13 @@
     "Typeclass for the polymorphic `forM` operation described in the \"do unchained\" paper.\nRemark:\n- `γ` is a \"container\" type of elements of type `α`.\n- `α` is treated as an output parameter by the typeclass resolution procedure.\n  That is, it tries to find an instance using only `m` and `γ`.\n",
     "kind": "markdown"},
    "detail":
-   "(Type u → Type v) → Type w₁ → outParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
+   "(Type u → Type v) → Type w₁ → OutParam (Type w₂) → Type (max (max (max (u + 1) v) w₁) w₂)"},
   {"label": "Function", "kind": 9, "detail": "namespace"},
   {"label": "Functor",
    "kind": 7,
    "documentation":
    {"value":
-    "In functional programming, a \"functor\" is a function on types `F : Type u → Type v`\nequipped with an operator called `map` or `<$>` such that if `f : α → β` then\n`map f : F α → F β`, so `f <$> x : F β` if `x : F α`. This corresponds to the\ncategory-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in\nthe special case where the category is the category of types and functions\nbetween them, except that this class supplies only the operations and not the\nlaws (see `LawfulFunctor`).\n",
+    "In functional programming, a \"functor\" is a function on types `F : Type u → Type v`\nequipped with an operator called `map` or `<$>` such that if `f : α → β` then\n`map f : F α → F β`, so `f <$> x : F β` if `x : F α`. This corresponds to the\ncategory-theory notion of [functor](https://en.wikipedia.org/wiki/Functor) in\nthe special case where the category is the category of types and functions\nbetween them, except that this class supplies only the operations and not the\nlaws (see `IsLawfulFunctor`).\n",
     "kind": "markdown"},
    "detail": "(Type u → Type v) → Type (max (u + 1) v)"},
   {"label": "failure",
@@ -68,15 +68,19 @@
     "The boolean value `false`, not to be confused with the proposition `False`. ",
     "kind": "markdown"},
    "detail": "Bool"},
-  {"label": "false_and",
+  {"label": "false_and_eq",
    "kind": 3,
    "detail": "∀ (p : Prop), (False ∧ p) = False"},
-  {"label": "false_iff", "kind": 3, "detail": "∀ (p : Prop), (False ↔ p) = ¬p"},
-  {"label": "false_implies",
+  {"label": "false_iff_eq",
+   "kind": 3,
+   "detail": "∀ (p : Prop), (False ↔ p) = ¬p"},
+  {"label": "false_implies_eq",
    "kind": 3,
    "detail": "∀ (p : Prop), (False → p) = True"},
   {"label": "false_of_ne", "kind": 3, "detail": "a ≠ a → False"},
-  {"label": "false_or", "kind": 3, "detail": "∀ (p : Prop), (False ∨ p) = p"},
+  {"label": "false_or_eq",
+   "kind": 3,
+   "detail": "∀ (p : Prop), (False ∨ p) = p"},
   {"label": "flip",
    "kind": 3,
    "documentation":

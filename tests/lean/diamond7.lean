@@ -57,8 +57,8 @@ class AddGroup (α : Type u) extends AddMonoid α, Neg α where
 class AddCommGroup (α : Type u) extends AddGroup α, AddCommMonoid α
 
 class Distrib (α : Type u) extends Mul α, Add α where
-  left_distrib ( a b c : α) : a * (b + c) = (a * b) + (a * c)
-  right_distrib (a b c : α) : (a + b) * c = (a * c) + (b * c)
+  mul_add ( a b c : α) : a * (b + c) = (a * b) + (a * c)
+  add_mul (a b c : α) : (a + b) * c = (a * c) + (b * c)
 
 class MulZero (α : Type u) extends Mul α, Zero α where
   zero_mul (a : α) : 0 * a = 0

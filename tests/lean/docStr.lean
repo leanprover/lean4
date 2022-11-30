@@ -69,7 +69,7 @@ def printDocStringTest : MetaM Unit := do
   printDocString `f.foo
   printDocString `g
   printDocString `g.foo
-  printDocString `optParam
+  printDocString `OptParam
   printDocString `namedPattern
   printDocString `Lean.Meta.forallTelescopeReducing
 

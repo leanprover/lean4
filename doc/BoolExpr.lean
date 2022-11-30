@@ -1,3 +1,4 @@
+import Lean.Data.AssocList
 open Std
 open Lean
 
@@ -47,11 +48,11 @@ where
     | val b => val (!b)
     | p     => not p
 
-@[simp] theorem denote_not_Eq (ctx : Context) (p : BoolExpr) : denote ctx (not p) = !denote ctx p := rfl
-@[simp] theorem denote_or_Eq (ctx : Context) (p q : BoolExpr) : denote ctx (or p q) = (denote ctx p || denote ctx q) := rfl
-@[simp] theorem denote_val_Eq (ctx : Context) (b : Bool) : denote ctx (val b) = b := rfl
+@[simp] theorem denote_not_eq (ctx : Context) (p : BoolExpr) : denote ctx (not p) = !denote ctx p := rfl
+@[simp] theorem denote_or_eq (ctx : Context) (p q : BoolExpr) : denote ctx (or p q) = (denote ctx p || denote ctx q) := rfl
+@[simp] theorem denote_val_eq (ctx : Context) (b : Bool) : denote ctx (val b) = b := rfl
 
-@[simp] theorem denote_mkNot_Eq (ctx : Context) (p : BoolExpr) : denote ctx (simplify.mkNot p) = denote ctx (not p) := by
+@[simp] theorem denote_mkNot_eq (ctx : Context) (p : BoolExpr) : denote ctx (simplify.mkNot p) = denote ctx (not p) := by
   cases p <;> rfl
 @[simp] theorem mkOr_p_true (p : BoolExpr) : simplify.mkOr p (val true) = val true := by
   cases p with
@@ -82,8 +83,8 @@ where
 @[simp] theorem simplify_not (p : BoolExpr) : simplify (not p) = simplify.mkNot (simplify p) := rfl
 @[simp] theorem simplify_or (p q : BoolExpr) : simplify (or p q) = simplify.mkOr (simplify p) (simplify q) := rfl
 
-def denote_simplify_eq (ctx : Context) (b : BoolExpr) : denote ctx (simplify b) = denote ctx b :=
-  by induction b with
+theorem denote_simplify_eq (ctx : Context) (b : BoolExpr) : denote ctx (simplify b) = denote ctx b := by
+  induction b with
   | or p q ih₁ ih₂ => simp [ih₁, ih₂]
   | not p ih       => simp [ih]
   | _              => rfl
@@ -105,7 +106,7 @@ syntax entry,* "⊢" term : term
 macro_rules
   | `( $[$xs ↦ $vs],* ⊢ $p) =>
     let xs := xs.map fun x => quote x.getId.toString
-    `(denote (List.toAssocList [$[($xs, $vs)],*]) `[BExpr| $p])
+    `(denote (List.toAssocList' [$[($xs, $vs)],*]) `[BExpr| $p])
 
 #check b ↦ true ⊢ b ∨ b
 #eval  a ↦ false, b ↦ false ⊢ b ∨ a

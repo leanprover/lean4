@@ -16,20 +16,20 @@ def dropLast {α} : List α → List α
 
 variable {α}
 
-theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
+theorem concat_eq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs h) = xs := by
   match xs, h with
   | [],  h        => contradiction
   | [x], h        => rfl
-  | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
+  | x₁::x₂::xs, h => simp [concat, last, concat_eq (x₂::xs) List.noConfusion]
 
-theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
+theorem length_cons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
   rfl
 
-theorem eqNilOfLengthZero {α} : (xs : List α) → xs.length = 0 → xs = []
+theorem eq_nil_of_length_zero {α} : (xs : List α) → xs.length = 0 → xs = []
   | [],    h => rfl
-  | x::xs, h => by rw [lengthCons] at h; contradiction
+  | x::xs, h => by rw [length_cons] at h; contradiction
 
-theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dropLast xs).length = n := by
+theorem dropLast_len {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dropLast xs).length = n := by
   match xs with
   | []    => intros; contradiction
   | [a]   =>
@@ -42,12 +42,12 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
     intro n h
     cases n with
     | zero   =>
-      simp [lengthCons] at h
+      simp [length_cons] at h
       injection h
     | succ n =>
-      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
+      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [length_cons]
       have : xs.length = n := by rw [this] at h; injection h with h; injection h
-      simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
+      simp [dropLast, length_cons, dropLast_len (x₂::xs) xs.length (length_cons ..), this]
 
 @[inline]
 def concatElim {α}
@@ -58,14 +58,14 @@ def concatElim {α}
     : motive xs :=
   let rec @[specialize] aux : (n : Nat) → (xs : List α) → xs.length = n → motive xs
     | 0, xs, h   => by
-      have aux := eqNilOfLengthZero _ h
+      have aux := eq_nil_of_length_zero _ h
       subst aux
       apply base ()
     | n+1, xs, h => by
       have notNil : xs ≠ [] := by intro h1; subst h1; injection h
-      let ih  := aux n (dropLast xs) (dropLastLen _ _ h)
+      let ih  := aux n (dropLast xs) (dropLast_len _ _ h)
       let aux := ind (dropLast xs) (last xs notNil) ih
-      rw [concatEq] at aux
+      rw [concat_eq] at aux
       exact aux
   aux xs.length xs rfl
 

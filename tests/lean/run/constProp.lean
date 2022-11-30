@@ -213,8 +213,8 @@ example : State.get [x ↦ 10, y ↦ true] "y" = true := rfl
     | _      => none
 
 
-@[simp] def evalTrue  (c : Expr) (σ : State) : Prop := c.eval σ = some (Val.bool true)
-@[simp] def evalFalse (c : Expr) (σ : State) : Prop := c.eval σ = some (Val.bool false)
+@[simp] def EvalTrue  (c : Expr) (σ : State) : Prop := c.eval σ = some (Val.bool true)
+@[simp] def EvalFalse (c : Expr) (σ : State) : Prop := c.eval σ = some (Val.bool false)
 
 section
 set_option hygiene false -- HACK: allow forward reference in notation
@@ -224,10 +224,10 @@ inductive Bigstep : State → Stmt → State → Prop where
   | skip       : (σ, .skip) ⇓ σ
   | assign     : e.eval σ = some v → (σ,  x ::= e) ⇓ σ.update x v
   | seq        : (σ₁, s₁) ⇓ σ₂ → (σ₂, s₂) ⇓ σ₃ → (σ₁, s₁ ;; s₂) ⇓ σ₃
-  | ifTrue     : evalTrue c σ₁ → (σ₁, t) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
-  | ifFalse    : evalFalse c σ₁ → (σ₁, e) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
-  | whileTrue  : evalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .while c b) ⇓ σ₃ → (σ₁, .while c b) ⇓ σ₃
-  | whileFalse : evalFalse c σ → (σ, .while c b) ⇓ σ
+  | ifTrue     : EvalTrue c σ₁ → (σ₁, t) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
+  | ifFalse    : EvalFalse c σ₁ → (σ₁, e) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
+  | whileTrue  : EvalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .while c b) ⇓ σ₃ → (σ₁, .while c b) ⇓ σ₃
+  | whileFalse : EvalFalse c σ → (σ, .while c b) ⇓ σ
 
 end
 
@@ -415,10 +415,10 @@ local notation "⊥" => []
     | (s₁', σ₁), (s₂', σ₂) => (ite (c.constProp σ) s₁' s₂', σ₁.join σ₂)
   | .while c b => (.while (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
 
-def State.le (σ₁ σ₂ : State) : Prop :=
+def State.LE (σ₁ σ₂ : State) : Prop :=
   ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v
 
-infix:50 " ≼ " => State.le
+infix:50 " ≼ " => State.LE
 
 theorem State.le_refl (σ : State) : σ ≼ σ :=
   fun _ _ h => h

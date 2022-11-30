@@ -771,7 +771,7 @@ When multiple simp theorems are applicable, the simplifier uses the one with hig
 If there are several with the same priority, it is uses the "most recent one". Example:
 ```lean
 @[simp high] theorem cond_true (a b : α) : cond true a b = a := rfl
-@[simp low+1] theorem or_true (p : Prop) : (p ∨ True) = True :=
+@[simp low+1] theorem or_true_eq (p : Prop) : (p ∨ True) = True :=
   propext <| Iff.intro (fun _ => trivial) (fun _ => Or.inr trivial)
 @[simp 100] theorem ite_self {d : Decidable c} (a : α) : ite c a a = a := by
   cases d <;> rfl

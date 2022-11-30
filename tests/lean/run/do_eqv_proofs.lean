@@ -1,4 +1,4 @@
-theorem ex1 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) :
+theorem ex1 [Monad m] [IsLawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) :
     (do let mut x ← ma
         if b then
           x ← mb x
@@ -9,7 +9,7 @@ theorem ex1 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) 
 
 attribute [simp] map_eq_pure_bind seq_eq_bind_map
 
-theorem ex2 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) (a : α) :
+theorem ex2 [Monad m] [IsLawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) (a : α) :
     (do let mut x ← ma
         if b then
           x ← mb x

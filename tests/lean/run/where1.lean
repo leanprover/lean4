@@ -15,7 +15,7 @@ where
 theorem ex : reverse [1, 2, 3] = [3, 2, 1] :=
   rfl
 
-theorem lengthReverse (as : List α) : (reverse as).length = as.length :=
+theorem length_reverse (as : List α) : (reverse as).length = as.length :=
   revLoop as []
 where
   revLoop (as bs : List α) : (reverse.loop as bs).length = as.length + bs.length := by

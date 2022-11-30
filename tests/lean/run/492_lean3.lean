@@ -1,20 +1,20 @@
-class foo (α : Type) : Type := (f : α)
-def foo.f' {α : Type} [c : foo α] : α := foo.f
+class Foo (α : Type) : Type := (f : α)
+def Foo.f' {α : Type} [c : Foo α] : α := Foo.f
 
-#print foo.f  -- def foo.f : {α : Type} → [self : foo α] → α
-#print foo.f' -- def foo.f' : {α : Type} → [c : foo α] → α
+#print Foo.f  -- def Foo.f : {α : Type} → [self : Foo α] → α
+#print Foo.f' -- def Foo.f' : {α : Type} → [c : Foo α] → α
 
-variable {α : Type} [c : foo α]
+variable {α : Type} [c : Foo α]
 #check c.f  -- ok
 #check c.f' -- ok
 
-structure bar : Prop := (f : ∀ {m : Nat}, m = 0)
-def bar.f' : bar → ∀ {m : Nat}, m = 0 := bar.f
+structure Bar : Prop := (f : ∀ {m : Nat}, m = 0)
+def Bar.f' : Bar → ∀ {m : Nat}, m = 0 := Bar.f
 
-#print bar.f  -- def bar.f  : bar → ∀ {m : ℕ}, m = 0
-#print bar.f' -- def bar.f' : bar → ∀ {m : ℕ}, m = 0
+#print Bar.f  -- def Bar.f  : Bar → ∀ {m : ℕ}, m = 0
+#print Bar.f' -- def Bar.f' : Bar → ∀ {m : ℕ}, m = 0
 
-variable (h : bar) (m : Nat)
+variable (h : Bar) (m : Nat)
 
 #check (h.f : ∀ {m : Nat}, m = 0) -- ok
 #check (h.f : m = 0)  -- ok

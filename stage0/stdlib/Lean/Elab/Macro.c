@@ -876,7 +876,6 @@ lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_16);
 x_24 = l_Lean_Name_append(x_23, x_16);
-lean_dec(x_23);
 x_25 = lean_box(2);
 x_26 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_26, 0, x_25);

@@ -2679,7 +2679,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6;
 x_3 = lean_environment_main_module(x_1);
 x_4 = l_Lean_Elab_mkFreshInstanceName___closed__2;
 x_5 = l_Lean_Name_append(x_3, x_4);
-lean_dec(x_3);
 x_6 = lean_name_append_index_after(x_5, x_2);
 return x_6;
 }

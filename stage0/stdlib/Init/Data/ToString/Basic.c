@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.ToString.Basic
-// Imports: Init.Data.String.Basic Init.Data.UInt Init.Data.Nat.Div Init.Data.Repr Init.Data.Int.Basic Init.Data.Format.Basic Init.Control.Id Init.Control.Option
+// Imports: Init.Data.String.Basic Init.Data.UInt.Basic Init.Data.Nat.Div Init.Data.Repr Init.Data.Int.Basic Init.Data.Format.Basic Init.Control.Id Init.Control.Option
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1376,7 +1376,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprExcept___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1394,7 +1394,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprExcept___rarg___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1412,7 +1412,7 @@ lean_dec(x_3);
 x_6 = lean_unsigned_to_nat(1024u);
 x_7 = lean_apply_2(x_1, x_5, x_6);
 x_8 = l_instReprExcept___rarg___closed__2;
-x_9 = lean_alloc_ctor(4, 2, 0);
+x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 x_10 = l_Repr_addAppParen(x_9, x_4);
@@ -1428,7 +1428,7 @@ lean_dec(x_3);
 x_12 = lean_unsigned_to_nat(1024u);
 x_13 = lean_apply_2(x_2, x_11, x_12);
 x_14 = l_instReprExcept___rarg___closed__4;
-x_15 = lean_alloc_ctor(4, 2, 0);
+x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = l_Repr_addAppParen(x_15, x_4);
@@ -1454,7 +1454,7 @@ return x_5;
 }
 }
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_UInt(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Nat_Div(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Repr(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Int_Basic(uint8_t builtin, lean_object*);
@@ -1469,7 +1469,7 @@ _G_initialized = true;
 res = initialize_Init_Data_String_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_UInt(builtin, lean_io_mk_world());
+res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Nat_Div(builtin, lean_io_mk_world());

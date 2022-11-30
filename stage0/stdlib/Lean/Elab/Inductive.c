@@ -12134,7 +12134,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Command_accLevelAtCtor___lambda__2___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -14764,7 +14764,7 @@ lean_ctor_set(x_36, 0, x_34);
 lean_ctor_set(x_36, 1, x_35);
 lean_inc(x_3);
 x_37 = l_Nat_repr(x_3);
-x_38 = lean_alloc_ctor(2, 1, 0);
+x_38 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
 x_39 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_39, 0, x_38);
@@ -26013,7 +26013,7 @@ lean_inc(x_25);
 lean_dec(x_18);
 lean_inc(x_3);
 x_26 = l_Nat_repr(x_3);
-x_27 = lean_alloc_ctor(2, 1, 0);
+x_27 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_27, 0, x_26);
 x_28 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_28, 0, x_27);
@@ -27001,7 +27001,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__6___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__7___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -27029,7 +27029,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_mapTR_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__5___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__6___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__7___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -29825,7 +29825,7 @@ lean_dec(x_3);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
 lean_dec(x_17);
-x_19 = lean_alloc_ctor(2, 1, 0);
+x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 x_20 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_20, 0, x_19);
@@ -30493,7 +30493,7 @@ lean_inc(x_38);
 lean_dec(x_32);
 lean_inc(x_30);
 x_39 = l_Nat_repr(x_30);
-x_40 = lean_alloc_ctor(2, 1, 0);
+x_40 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_40, 0, x_39);
 x_41 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_41, 0, x_40);
@@ -32003,7 +32003,6 @@ lean_ctor_set(x_23, 1, x_22);
 x_24 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__1___closed__9;
 x_25 = l_Lean_Name_append(x_24, x_2);
 x_26 = l_Lean_Name_append(x_25, x_3);
-lean_dec(x_25);
 x_27 = lean_mk_syntax_ident(x_26);
 x_28 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__1___closed__11;
 x_29 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
@@ -32061,7 +32060,6 @@ lean_ctor_set(x_52, 1, x_51);
 x_53 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__1___closed__9;
 x_54 = l_Lean_Name_append(x_53, x_2);
 x_55 = l_Lean_Name_append(x_54, x_3);
-lean_dec(x_54);
 x_56 = lean_mk_syntax_ident(x_55);
 x_57 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__1___closed__11;
 x_58 = l_Lean_Elab_Command_instInhabitedCtorView___closed__1;
@@ -32121,7 +32119,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__1___lambda__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -33563,6 +33561,7 @@ uint8_t x_5;
 x_5 = lean_usize_dec_lt(x_3, x_2);
 if (x_5 == 0)
 {
+lean_dec(x_1);
 return x_4;
 }
 else
@@ -33576,6 +33575,7 @@ x_10 = lean_usize_add(x_3, x_9);
 x_11 = lean_ctor_get(x_6, 2);
 lean_inc(x_11);
 lean_dec(x_6);
+lean_inc(x_1);
 x_12 = l_Lean_Name_append(x_1, x_11);
 x_13 = lean_array_uset(x_8, x_3, x_12);
 x_3 = x_10;
@@ -33632,6 +33632,7 @@ lean_dec(x_18);
 x_21 = lean_array_get_size(x_12);
 x_22 = lean_usize_of_nat(x_21);
 lean_dec(x_21);
+lean_inc(x_11);
 x_23 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__2(x_11, x_22, x_17, x_12);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_11);
@@ -34161,7 +34162,6 @@ lean_dec(x_2);
 x_6 = lean_unbox_usize(x_3);
 lean_dec(x_3);
 x_7 = l_Array_mapMUnsafe_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields___spec__2(x_1, x_5, x_6, x_4);
-lean_dec(x_1);
 return x_7;
 }
 }

@@ -3168,7 +3168,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3179,7 +3179,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__2;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -3216,7 +3216,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3234,7 +3234,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__8;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3263,19 +3263,19 @@ x_14 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__3;
 x_15 = l_Std_Format_joinSep___at_Prod_repr___spec__1(x_13, x_14);
 lean_dec(x_13);
 x_16 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__7;
-x_17 = lean_alloc_ctor(4, 2, 0);
+x_17 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
 x_18 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__9;
-x_19 = lean_alloc_ctor(4, 2, 0);
+x_19 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__6;
-x_21 = lean_alloc_ctor(3, 2, 0);
+x_21 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_19);
 x_22 = 0;
-x_23 = lean_alloc_ctor(5, 1, 1);
+x_23 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set_uint8(x_23, sizeof(void*)*1, x_22);
 return x_23;
@@ -3345,11 +3345,11 @@ lean_inc(x_2);
 lean_inc(x_1);
 x_12 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg(x_1, x_2, x_10, x_11);
 lean_inc(x_4);
-x_13 = lean_alloc_ctor(4, 2, 0);
+x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_4);
 x_14 = l_Std_Format_joinSep___at_Lean_instReprSMap___spec__4___rarg(x_1, x_2, x_6, x_4);
-x_15 = lean_alloc_ctor(4, 2, 0);
+x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 return x_15;
@@ -3378,7 +3378,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3414,7 +3414,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3432,7 +3432,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3454,19 +3454,19 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_obj
 x_6 = l_Prod_repr___at_Lean_instReprSMap___spec__3___rarg___closed__3;
 x_7 = l_Std_Format_joinSep___at_Lean_instReprSMap___spec__4___rarg(x_1, x_2, x_3, x_6);
 x_8 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__6;
-x_9 = lean_alloc_ctor(4, 2, 0);
+x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 x_10 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__8;
-x_11 = lean_alloc_ctor(4, 2, 0);
+x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg___closed__5;
-x_13 = lean_alloc_ctor(3, 2, 0);
+x_13 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = 0;
-x_15 = lean_alloc_ctor(5, 1, 1);
+x_15 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set_uint8(x_15, sizeof(void*)*1, x_14);
 return x_15;
@@ -3494,7 +3494,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_instReprSMap___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3507,7 +3507,7 @@ x_7 = l_Lean_SMap_toList___rarg(x_1, x_2, x_5);
 x_8 = lean_unsigned_to_nat(1024u);
 x_9 = l_List_repr___at_Lean_instReprSMap___spec__1___rarg(x_3, x_4, x_7, x_8);
 x_10 = l_Lean_instReprSMap___rarg___closed__2;
-x_11 = lean_alloc_ctor(4, 2, 0);
+x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Repr_addAppParen(x_11, x_6);

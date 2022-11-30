@@ -796,7 +796,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1278,7 +1278,7 @@ x_70 = lean_string_dec_eq(x_68, x_69);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-x_71 = lean_alloc_ctor(2, 1, 0);
+x_71 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_71, 0, x_68);
 x_72 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_72, 0, x_71);
@@ -2481,7 +2481,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_processDefDeriving___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_7;
 }
 }
@@ -3668,7 +3667,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_resolveGlobalConst___at_Lean_Elab_elabDeriving___spec__10___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3938,7 +3937,7 @@ x_21 = lean_string_append(x_17, x_20);
 lean_dec(x_20);
 x_22 = l_Lean_Elab_defaultHandler___closed__5;
 x_23 = lean_string_append(x_21, x_22);
-x_24 = lean_alloc_ctor(2, 1, 0);
+x_24 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_24, 0, x_23);
 x_25 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_25, 0, x_24);
@@ -4009,7 +4008,7 @@ x_48 = lean_string_append(x_44, x_47);
 lean_dec(x_47);
 x_49 = l_Lean_Elab_defaultHandler___closed__5;
 x_50 = lean_string_append(x_48, x_49);
-x_51 = lean_alloc_ctor(2, 1, 0);
+x_51 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_51, 0, x_50);
 x_52 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_52, 0, x_51);

@@ -8,7 +8,7 @@ And.casesOn
 Array
 Array.sz
 Array.data
-autoParam
+AutoParam
 bit0
 bit1
 HasOfNat.ofNat
@@ -20,7 +20,7 @@ Bool.true
 Bool.casesOn
 cast
 Char
-congrArg
+congr_arg
 Decidable
 Decidable.isTrue
 Decidable.isFalse
@@ -74,7 +74,7 @@ Nat.decEq
 Nat.sub
 ne
 Not
-optParam
+OptParam
 Or
 panic
 PUnit

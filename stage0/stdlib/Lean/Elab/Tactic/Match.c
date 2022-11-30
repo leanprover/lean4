@@ -1053,6 +1053,7 @@ lean_object* x_204; lean_object* x_205; lean_object* x_206; uint8_t x_207; lean_
 x_204 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_Tactic_Match_0__Lean_Elab_Tactic_mkAuxiliaryMatchTerm___spec__1___closed__35;
 lean_inc(x_18);
 x_205 = lean_name_append_index_after(x_204, x_18);
+lean_inc(x_1);
 x_206 = l_Lean_Name_append(x_1, x_205);
 x_207 = 0;
 lean_inc(x_5);
@@ -2017,7 +2018,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2503,7 +2504,7 @@ x_72 = lean_string_dec_eq(x_70, x_71);
 if (x_72 == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; 
-x_73 = lean_alloc_ctor(2, 1, 0);
+x_73 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_73, 0, x_70);
 x_74 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_74, 0, x_73);
@@ -2894,7 +2895,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_evalMatch___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_7;
 }
 }

@@ -2438,7 +2438,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_JsonNumber_instReprJsonNumber___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2474,7 +2474,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_JsonNumber_instReprJsonNumber___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2492,7 +2492,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_JsonNumber_instReprJsonNumber___closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2508,32 +2508,32 @@ lean_inc(x_4);
 lean_dec(x_1);
 x_5 = l_Int_repr(x_3);
 lean_dec(x_3);
-x_6 = lean_alloc_ctor(2, 1, 0);
+x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 x_7 = l_Lean_JsonNumber_instReprJsonNumber___closed__2;
-x_8 = lean_alloc_ctor(4, 2, 0);
+x_8 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
 x_9 = l_Nat_repr(x_4);
-x_10 = lean_alloc_ctor(2, 1, 0);
+x_10 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_10, 0, x_9);
-x_11 = lean_alloc_ctor(4, 2, 0);
+x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_8);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Lean_JsonNumber_instReprJsonNumber___closed__6;
-x_13 = lean_alloc_ctor(4, 2, 0);
+x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_11);
 x_14 = l_Lean_JsonNumber_instReprJsonNumber___closed__8;
-x_15 = lean_alloc_ctor(4, 2, 0);
+x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_JsonNumber_instReprJsonNumber___closed__5;
-x_17 = lean_alloc_ctor(3, 2, 0);
+x_17 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
 x_18 = 0;
-x_19 = lean_alloc_ctor(5, 1, 1);
+x_19 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set_uint8(x_19, sizeof(void*)*1, x_18);
 return x_19;

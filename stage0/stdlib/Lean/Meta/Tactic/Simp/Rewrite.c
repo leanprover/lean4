@@ -4655,7 +4655,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___closed__7;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4683,7 +4683,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_ppSimpTheorem___at___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___spec__1___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4721,7 +4721,7 @@ x_14 = lean_ctor_get(x_1, 3);
 lean_inc(x_14);
 lean_dec(x_1);
 x_15 = l_Nat_repr(x_14);
-x_16 = lean_alloc_ctor(2, 1, 0);
+x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_17, 0, x_16);
@@ -4755,7 +4755,7 @@ x_27 = lean_ctor_get(x_1, 3);
 lean_inc(x_27);
 lean_dec(x_1);
 x_28 = l_Nat_repr(x_27);
-x_29 = lean_alloc_ctor(2, 1, 0);
+x_29 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_29, 0, x_28);
 x_30 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
@@ -4822,7 +4822,7 @@ x_47 = lean_ctor_get(x_1, 3);
 lean_inc(x_47);
 lean_dec(x_1);
 x_48 = l_Nat_repr(x_47);
-x_49 = lean_alloc_ctor(2, 1, 0);
+x_49 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_49, 0, x_48);
 x_50 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_50, 0, x_49);
@@ -4856,7 +4856,7 @@ x_60 = lean_ctor_get(x_1, 3);
 lean_inc(x_60);
 lean_dec(x_1);
 x_61 = l_Nat_repr(x_60);
-x_62 = lean_alloc_ctor(2, 1, 0);
+x_62 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
 x_63 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_63, 0, x_62);

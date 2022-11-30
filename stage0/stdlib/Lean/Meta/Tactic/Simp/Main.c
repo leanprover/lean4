@@ -6072,7 +6072,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -22919,7 +22919,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__11;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -22947,7 +22947,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Meta_Simp_simp_simpArrow___lambda__4___closed__14;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -23067,7 +23067,7 @@ goto block_75;
 block_75:
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_72; 
-x_37 = lean_alloc_ctor(2, 1, 0);
+x_37 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 x_38 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -23105,7 +23105,7 @@ goto block_71;
 block_71:
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; 
-x_47 = lean_alloc_ctor(2, 1, 0);
+x_47 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_47, 0, x_46);
 x_48 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_48, 0, x_47);
@@ -25227,7 +25227,7 @@ lean_inc(x_41);
 lean_dec(x_29);
 lean_inc(x_26);
 x_42 = l_Nat_repr(x_26);
-x_43 = lean_alloc_ctor(2, 1, 0);
+x_43 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_43, 0, x_42);
 x_44 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_44, 0, x_43);
@@ -25242,7 +25242,7 @@ lean_ctor_set(x_48, 1, x_47);
 x_49 = lean_array_get_size(x_1);
 lean_inc(x_49);
 x_50 = l_Nat_repr(x_49);
-x_51 = lean_alloc_ctor(2, 1, 0);
+x_51 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_51, 0, x_50);
 x_52 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_52, 0, x_51);

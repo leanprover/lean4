@@ -4089,7 +4089,7 @@ x_9 = lean_ctor_get(x_7, 1);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Nat_repr(x_9);
-x_11 = lean_alloc_ctor(2, 1, 0);
+x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
 x_12 = l_Std_Format_defWidth;
 x_13 = lean_format_pretty(x_11, x_12);

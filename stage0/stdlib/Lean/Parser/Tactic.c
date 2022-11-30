@@ -3164,7 +3164,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_nativeDecide_docStri
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `ofReduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n", 712);
+x_1 = lean_mk_string_from_bytes("`native_decide` will attempt to prove a goal of type `p` by synthesizing an instance\nof `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this\nuses `#eval` to evaluate the decidability instance.\n\nThis should be used with care because it adds the entire lean compiler to the trusted\npart, and the axiom `of_reduceBool` will show up in `#print axioms` for theorems using\nthis method or anything that transitively depends on them. Nevertheless, because it is\ncompiled, this can be significantly more efficient than using `decide`, and for very\nlarge computations this is one way to run external programs and trust the result.\n```\nexample : (List.range 1000).length = 1000 := by native_decide\n```\n", 713);
 return x_1;
 }
 }

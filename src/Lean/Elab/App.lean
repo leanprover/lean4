@@ -1291,8 +1291,8 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => .fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
-    | field::fields, false => .fieldName field field.getId.toString none fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fIdent :: toLVals fields false
+    | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
 
 /-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
 private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
@@ -1333,7 +1333,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
-        LVal.fieldName comp (toString comp.getId) none e
+        LVal.fieldName comp comp.getId.getString! none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"

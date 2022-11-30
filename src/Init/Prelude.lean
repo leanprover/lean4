@@ -4202,12 +4202,7 @@ If `a` has macro scopes, then the are propagated to result of `append a b`
 def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
   | true, true  =>
-    /-
-    TODO: this case should be unreachable. Many interactive tests reach this code. We should fix them.
-    The following workaround erases `b`s macro scopes and keeps the one from `a`.
-    -/
-    let view := extractMacroScopes a
-    { view with name := appendCore view.name b.eraseMacroScopes }.review
+    panic "Error: invalid `Name.append`, both arguments have macro scopes, consider using `eraseMacroScopes`"
   | true, false =>
     let view := extractMacroScopes a
     { view with name := appendCore view.name b }.review

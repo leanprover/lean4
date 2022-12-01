@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Class
 import Lean.Parser.Command
 import Lean.Meta.Closure
 import Lean.Meta.SizeOf
@@ -771,7 +772,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
     addAndCompile <| Declaration.defnDecl {
       name        := declName
       levelParams := levelParams
-      type        := declType
+      type        := mkOutParamArgsImplicit declType
       value       := declVal
       hints       := ReducibilityHints.abbrev
       safety      := if view.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe

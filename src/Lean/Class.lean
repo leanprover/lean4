@@ -107,6 +107,41 @@ private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (ou
   | _ => return outParams
 
 /--
+Mark `outParam`s in `type` as implicit. Note that it also marks instance implicit arguments that depend on `outParam`s as implicit.
+
+Remark: this function consumes the `outParam` annotations.
+
+This function uses the same logic used as `checkOutParam`.
+See issue #1901
+-/
+@[export lean_mk_outparam_args_implicit]
+partial def mkOutParamArgsImplicit (type : Expr) : Expr :=
+  go type type #[]
+where
+  go (type : Expr) (typeAux : Expr) (outParamFVarIds : Array FVarId) : Expr :=
+    match typeAux with
+    | .forallE _ d b bi =>
+      let mkOutParamImplicit (dNew : Expr) :=
+        let fvarId := { name := Name.mkNum `_fvar outParamFVarIds.size }
+        let fvar      := mkFVar fvarId
+        let b         := b.instantiate1 fvar
+        let bNew      := go type.bindingBody! b (outParamFVarIds.push fvarId)
+        type.updateForall! .implicit dNew bNew
+      let keepBinderInfo (_ : Unit) :=
+        let bNew := go type.bindingBody! b outParamFVarIds
+        type.updateForallE! type.bindingDomain! bNew
+      if d.isOutParam then
+        mkOutParamImplicit type.bindingDomain!.appArg! -- consume `outParam` annotation
+      else if d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
+        if bi.isInstImplicit then
+          mkOutParamImplicit type.bindingDomain!
+        else
+          keepBinderInfo ()
+      else
+        keepBinderInfo ()
+    | _ => type
+
+/--
 Add a new type class with the given name to the environment.
 `declName` must not be the name of an existing type class,
 and it must be the name of constant in `env`.

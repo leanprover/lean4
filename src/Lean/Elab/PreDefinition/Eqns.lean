@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Eqns
 import Lean.Util.CollectFVars
+import Lean.Util.ForEachExprWhere
 import Lean.Meta.Tactic.Split
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Tactic.Refl
@@ -139,11 +140,11 @@ where
   collect (e : Expr) : FVarIdSet :=
     let go (e : Expr) (ω) : ST ω FVarIdSet := do
       let ref ← ST.mkRef {}
-      e.forEach fun e => do
-        if let some e := Match.isNamedPattern? e then
-          let arg := e.appArg!.consumeMData
-          if arg.isFVar then
-            ST.Prim.Ref.modify ref (·.insert arg.fvarId!)
+      e.forEachWhere Match.isNamedPattern fun e => do
+        let some e := Match.isNamedPattern? e | unreachable!
+        let arg := e.appArg!.consumeMData
+        if arg.isFVar then
+          ST.Prim.Ref.modify ref (·.insert arg.fvarId!)
       ST.Prim.Ref.get ref
     runST (go e)
 

@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExprWhere
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.ForEachExpr
@@ -408,10 +409,9 @@ private def mkPatternRefMap (e : Expr) : ExprMap Expr :=
 where
   go (σ) : ST σ (ExprMap Expr) := do
    let map : ST.Ref σ (ExprMap Expr) ← ST.mkRef {}
-   e.forEach fun e => do
-     match patternWithRef? e with
-     | some (_, b) => map.modify (·.insert b e)
-     | none => return ()
+   e.forEachWhere isPatternWithRef fun e => do
+     let some (_, b) := patternWithRef? e | unreachable!
+     map.modify (·.insert b e)
    map.get
 
 /--

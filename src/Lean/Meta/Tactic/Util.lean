@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.ForEachExpr
+import Lean.Util.ForEachExprWhere
 import Lean.Meta.Basic
 import Lean.Meta.AppBuilder
 import Lean.Meta.PPGoal
@@ -97,9 +97,7 @@ def _root_.Lean.MVarId.getNondepPropHyps (mvarId : MVarId) : MetaM (Array FVarId
   let removeDeps (e : Expr) (candidates : FVarIdHashSet) : MetaM FVarIdHashSet := do
     let e ← instantiateMVars e
     let visit : StateRefT FVarIdHashSet MetaM FVarIdHashSet := do
-      e.forEach fun
-        | Expr.fvar fvarId => modify fun s => s.erase fvarId
-        | _ => pure ()
+      e.forEachWhere Expr.isFVar fun e => modify fun s => s.erase e.fvarId!
       get
     visit |>.run' candidates
   mvarId.withContext do

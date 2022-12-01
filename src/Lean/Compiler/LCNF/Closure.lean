@@ -3,7 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.ForEachExpr
+import Lean.Util.ForEachExprWhere
 import Lean.Compiler.LCNF.CompilerM
 
 namespace Lean.Compiler.LCNF
@@ -141,10 +141,8 @@ mutual
 
   /-- Collect dependencies of the given expression. -/
   partial def collectType (type : Expr) : ClosureM Unit := do
-    type.forEach fun e => do
-      match e with
-      | .fvar fvarId => collectFVar fvarId
-      | _ => pure ()
+    type.forEachWhere Expr.isFVar fun e => collectFVar e.fvarId!
+
 end
 
 def run (x : ClosureM α) (inScope : FVarId → Bool) (abstract : FVarId → Bool := fun _ => true) : CompilerM (α × Array Param × Array CodeDecl) := do

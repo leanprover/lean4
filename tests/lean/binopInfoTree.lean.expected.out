@@ -20,8 +20,8 @@
                   ===>
                   binop% HAdd.hAdd✝ 1 2
                   • 1 + 2 : Nat @ ⟨5, 7⟩†-⟨5, 12⟩†
-                    • [.] `HAdd.hAdd._@.binopInfoTree._hyg.176 : none @ ⟨5, 7⟩†-⟨5, 16⟩†
-                    • [.] `HAdd.hAdd._@.binopInfoTree._hyg.178 : none @ ⟨5, 7⟩†-⟨5, 12⟩†
+                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 16⟩†
+                    • [.] HAdd.hAdd✝ : none @ ⟨5, 7⟩†-⟨5, 12⟩†
                     • 1 : Nat @ ⟨5, 7⟩-⟨5, 8⟩ @ Lean.Elab.Term.elabNumLit
                     • 2 : Nat @ ⟨5, 11⟩-⟨5, 12⟩ @ Lean.Elab.Term.elabNumLit
               • 3 : Nat @ ⟨5, 15⟩-⟨5, 16⟩ @ Lean.Elab.Term.elabNumLit
@@ -30,20 +30,20 @@ fun n m l => Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat →
       • fun n m l =>
           Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat → Int @ ⟨7, 7⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabFun
         • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] `Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
           • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
         • n (isBinder := true) : Nat @ ⟨7, 12⟩-⟨7, 13⟩
         • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] `Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
           • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
         • m (isBinder := true) : Nat @ ⟨7, 14⟩-⟨7, 15⟩
         • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩ @ Lean.Elab.Term.elabIdent
-          • [.] `Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
+          • [.] Nat : some Sort.{?_uniq} @ ⟨7, 20⟩-⟨7, 23⟩
           • Nat : Type @ ⟨7, 20⟩-⟨7, 23⟩
         • l (isBinder := true) : Nat @ ⟨7, 16⟩-⟨7, 17⟩
         • Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 28⟩-⟨7, 48⟩ @ Lean.Elab.Term.elabTypeAscription
           • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩ @ Lean.Elab.Term.elabIdent
-            • [.] `Int : some Sort.{?_uniq} @ ⟨7, 44⟩-⟨7, 47⟩
+            • [.] Int : some Sort.{?_uniq} @ ⟨7, 44⟩-⟨7, 47⟩
             • Int : Type @ ⟨7, 44⟩-⟨7, 47⟩
           • Int.ofNat n +
               (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 29⟩-⟨7, 41⟩ @ «_aux_Init_Notation___macroRules_term_+__2»
@@ -53,9 +53,9 @@ fun n m l => Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat →
               binop% HAdd.hAdd✝ n(m +' l)
               • Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
                 • Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
-                  • [.] `HAdd.hAdd._@.binopInfoTree._hyg.192 : none @ ⟨7, 29⟩†-⟨7, 41⟩†
+                  • [.] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†
                   • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩ @ Lean.Elab.Term.elabIdent
-                    • [.] `n : none @ ⟨7, 29⟩-⟨7, 30⟩
+                    • [.] n : none @ ⟨7, 29⟩-⟨7, 30⟩
                     • n : Nat @ ⟨7, 29⟩-⟨7, 30⟩
                   • Int.ofNat m + Int.ofNat l : Int @ ⟨7, 34⟩-⟨7, 40⟩ @ «_aux_binopInfoTree___macroRules_term_+'__1»
                     • Macro expansion
@@ -69,10 +69,10 @@ fun n m l => Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat →
                           ===>
                           binop% HAdd.hAdd✝ m l
                           • Int.ofNat m + Int.ofNat l : Int @ ⟨7, 34⟩†-⟨7, 40⟩†
-                            • [.] `HAdd.hAdd._@.binopInfoTree._hyg.196 : none @ ⟨7, 34⟩†-⟨7, 40⟩†
+                            • [.] HAdd.hAdd✝ : none @ ⟨7, 34⟩†-⟨7, 40⟩†
                             • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩ @ Lean.Elab.Term.elabIdent
-                              • [.] `m : none @ ⟨7, 34⟩-⟨7, 35⟩
+                              • [.] m : none @ ⟨7, 34⟩-⟨7, 35⟩
                               • m : Nat @ ⟨7, 34⟩-⟨7, 35⟩
                             • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩ @ Lean.Elab.Term.elabIdent
-                              • [.] `l : none @ ⟨7, 39⟩-⟨7, 40⟩
+                              • [.] l : none @ ⟨7, 39⟩-⟨7, 40⟩
                               • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩

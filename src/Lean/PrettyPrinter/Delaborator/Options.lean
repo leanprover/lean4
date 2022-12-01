@@ -58,6 +58,11 @@ register_builtin_option pp.letVarTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) display types of let-bound variables"
 }
+register_builtin_option pp.letShowFVarId : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display fvarId instead of binder name of let-bound variables"
+}
 register_builtin_option pp.instantiateMVars : Bool := {
   defValue := false -- TODO: default to true?
   group    := "pp"

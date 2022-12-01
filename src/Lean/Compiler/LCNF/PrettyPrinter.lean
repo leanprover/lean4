@@ -30,11 +30,14 @@ private def prefixJoin (pre : Format) (as : Array α) (f : α → M Format) : M 
     result := f!"{result}{pre}{← f a}"
   return result
 
-def ppFVar (fvarId : FVarId) : M Format :=
-  try
-    return format (← getBinderName fvarId)
-  catch _ =>
-    return format fvarId.name
+def ppFVar (fvarId : FVarId) : M Format := do
+    if pp.letShowFVarId.get (← getOptions) then
+      return format fvarId.name
+    else
+      try
+        return format (← getBinderName fvarId)
+      catch _ =>
+        return format fvarId.name
 
 def ppExpr (e : Expr) : M Format := do
   Meta.ppExpr e |>.run' { lctx := (← read) }
@@ -65,19 +68,22 @@ def ppLetValue (e : LetValue) : M Format := do
 
 def ppParam (param : Param) : M Format := do
   let borrow := if param.borrow then "@&" else ""
+  let name := if pp.letShowFVarId.get (← getOptions) then param.fvarId.name else param.binderName
   if pp.funBinderTypes.get (← getOptions) then
-    return Format.paren f!"{param.binderName} : {borrow}{← ppExpr param.type}"
+    return Format.paren f!"{name} : {borrow}{← ppExpr param.type}"
   else
-    return format s!"{borrow}{param.binderName}"
+    return format s!"{borrow}{name}"
 
 def ppParams (params : Array Param) : M Format := do
   prefixJoin " " params ppParam
 
 def ppLetDecl (letDecl : LetDecl) : M Format := do
+  let value ← ppLetValue letDecl.value
+  let name := if pp.letShowFVarId.get (← getOptions) then letDecl.fvarId.name else letDecl.binderName
   if pp.letVarTypes.get (← getOptions) then
-    return f!"let {letDecl.binderName} : {← ppExpr letDecl.type} := {← ppLetValue letDecl.value}"
+    return f!"let {name} : {← ppExpr letDecl.type} := {value}"
   else
-    return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
+    return f!"let {name} := {value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
   instantiateForall type (ps.map (mkFVar ·.fvarId))

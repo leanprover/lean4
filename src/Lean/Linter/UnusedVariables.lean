@@ -1,4 +1,5 @@
 import Lean.Elab.Command
+import Lean.Util.ForEachExprWhere
 import Lean.Linter.Util
 import Lean.Server.References
 
@@ -179,9 +180,7 @@ def unusedVariables : Linter := fun cmdStx => do
 
   let tacticFVarUses : HashSet FVarId ←
     tacticMVarAssignments.foldM (init := .empty) fun uses _ expr => do
-      let (_, s) ← StateT.run (s := uses) <| expr.forEach fun
-        | .fvar id => modify (·.insert id)
-        | _        => pure ()
+      let (_, s) ← StateT.run (s := uses) <| expr.forEachWhere Expr.isFVar fun e => modify (·.insert e.fvarId!)
       return s
 
   -- collect ignore functions

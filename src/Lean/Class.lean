@@ -89,14 +89,19 @@ def hasOutParams (env : Environment) (declName : Name) : Bool :=
 private partial def checkOutParam (i : Nat) (outParamFVarIds : Array FVarId) (outParams : Array Nat) (type : Expr) : Except String (Array Nat) :=
   match type with
   | .forallE _ d b bi =>
-    if d.isOutParam then
+    let addOutParam (_ : Unit) :=
       let fvarId := { name := Name.mkNum `_fvar outParamFVarIds.size }
       let fvar      := mkFVar fvarId
       let b         := b.instantiate1 fvar
       checkOutParam (i+1) (outParamFVarIds.push fvarId) (outParams.push i) b
-    /- See issue #1852 for a motivation for `!bi.isInstImplicit` -/
-    else if !bi.isInstImplicit && d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
-      Except.error s!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
+    if d.isOutParam then
+      addOutParam ()
+    else if d.hasAnyFVar fun fvarId => outParamFVarIds.contains fvarId then
+      if bi.isInstImplicit then
+        /- See issue #1852 for a motivation for `bi.isInstImplicit` -/
+        addOutParam ()
+      else
+        Except.error s!"invalid class, parameter #{i+1} depends on `outParam`, but it is not an `outParam`"
     else
       checkOutParam (i+1) outParamFVarIds outParams b
   | _ => return outParams

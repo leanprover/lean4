@@ -457,9 +457,13 @@ def elabLevel (stx : Syntax) : TermElabM Level :=
   liftLevelM <| Level.elabLevel stx
 
 /-- Elaborate `x` with `stx` on the macro stack -/
+def withPushMacroExpansionStack (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
+  withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+
+/-- Elaborate `x` with `stx` on the macro stack and produce macro expansion info -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : TermElabM α) : TermElabM α :=
   withMacroExpansionInfo beforeStx afterStx do
-    withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
+    withPushMacroExpansionStack beforeStx afterStx x
 
 /--
   Add the given metavariable to the list of pending synthetic metavariables.

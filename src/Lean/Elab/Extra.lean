@@ -138,16 +138,17 @@ private inductive Tree where
   | term (ref : Syntax) (infoTrees : PersistentArray InfoTree) (val : Expr)
   /--
   `ref` is the original syntax that expanded into `binop%`.
-  `macroName` is the `macro_rule` that produce the expansion. We store this information
-  here to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
   -/
-  | binop (ref : Syntax) (macroName : Name) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  | binop (ref : Syntax) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
   /--
   `ref` is the original syntax that expanded into `unop%`.
-  `macroName` is the `macro_rule` that produce the expansion. We store this information
-  here to make sure "go to definition" behaves similarly to notation defined without using `unop%` helper elaborator.
   -/
-  | unop (ref : Syntax) (macroName : Name) (f : Expr) (arg : Tree)
+  | unop (ref : Syntax) (f : Expr) (arg : Tree)
+  /--
+  Used for assembling the info tree. We store this information
+  to make sure "go to definition" behaves similarly to notation defined without using `binop%` helper elaborator.
+  -/
+  | macroExpansion (macroName : Name) (stx stx' : Syntax) (nested : Tree)
 
 
 private partial def toTree (s : Syntax) : TermElabM Tree := do
@@ -163,32 +164,30 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
 where
   go (s : Syntax) := do
     match s with
-    | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s .anonymous f lhs rhs
-    | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s .anonymous f lhs rhs
-    | `(unop% $f $arg) => processUnOp s .anonymous f arg
+    | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s f lhs rhs
+    | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s f lhs rhs
+    | `(unop% $f $arg) => processUnOp s f arg
     | `(($e)) =>
       if hasCDot e then
         processLeaf s
       else
         go e
     | _ =>
-       match (← liftMacroM <| expandMacroImpl? (← getEnv) s) with
-       | some (macroName, s?) =>
-         let s' ← liftMacroM <| liftExcept s?
-         match s' with
-         | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s macroName f lhs rhs
-         | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s macroName f lhs rhs
-         | `(unop% $f $arg) => processUnOp s .anonymous f arg
-         | _  => processLeaf s
-       | none => processLeaf s
+      withRef s do
+        match (← liftMacroM <| expandMacroImpl? (← getEnv) s) with
+        | some (macroName, s?) =>
+          let s' ← liftMacroM <| liftExcept s?
+          withPushMacroExpansionStack s s' do
+            return .macroExpansion macroName s s' (← go s')
+        | none => processLeaf s
 
-  processBinOp (ref : Syntax) (declName : Name) (f lhs rhs : Syntax) (lazy : Bool) := do
+  processBinOp (ref : Syntax) (f lhs rhs : Syntax) (lazy : Bool) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
-    return .binop (lazy := lazy) ref declName f (← go lhs) (← go rhs)
+    return .binop (lazy := lazy) ref f (← go lhs) (← go rhs)
 
-  processUnOp (ref : Syntax) (declName : Name) (f arg : Syntax) := do
+  processUnOp (ref : Syntax) (f arg : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
-    return .unop ref declName f (← go arg)
+    return .unop ref f (← go arg)
 
   processLeaf (s : Syntax) := do
     let e ← elabTerm s none
@@ -229,8 +228,9 @@ where
    go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
      unless (← get).hasUncomparable do
        match t with
-       | .binop _ _ _ _ lhs rhs => go lhs; go rhs
-       | .unop _ _ _ arg => go arg
+       | .macroExpansion _ _ _ nested => go nested
+       | .binop _ _ _ lhs rhs => go lhs; go rhs
+       | .unop _ _ arg => go arg
        | .term _ _ val =>
          let type ← instantiateMVars (← inferType val)
          unless isUnknow type do
@@ -256,15 +256,20 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   match t with
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
-  | .binop ref macroName true f lhs rhs  =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
-      mkBinOp f (← toExprCore lhs) (← mkFunUnit (← toExprCore rhs))
-  | .binop ref macroName false f lhs rhs =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
-      mkBinOp f (← toExprCore lhs) (← toExprCore rhs)
-  | .unop ref macroName f arg =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
+  | .binop ref lazy f lhs rhs =>
+    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
+      let lhs ← toExprCore lhs
+      let mut rhs ← toExprCore rhs
+      if lazy then
+        rhs ← mkFunUnit rhs
+      mkBinOp f lhs rhs
+  | .unop ref f arg =>
+    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
       mkUnOp f (← toExprCore arg)
+  | .macroExpansion macroName stx stx' nested =>
+    withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
+      withMacroExpansion stx stx' do
+        toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -343,7 +348,7 @@ mutual
   where
     go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
       match t with
-      | .binop ref macroName lazy f lhs rhs =>
+      | .binop ref lazy f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
           `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
@@ -351,14 +356,14 @@ mutual
           Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
-          return .binop ref macroName lazy f (← go lhs f true false) (← go rhs f false false)
+          return .binop ref lazy f (← go lhs f true false) (← go rhs f false false)
         else
-          let r ← withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo macroName ref) do
+          let r ← withRef ref do
             mkBinOp f (← toExpr lhs none) (← toExpr rhs none)
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
-      | .unop ref macroName f arg =>
-        return .unop ref macroName f (← go arg none false false)
+      | .unop ref f arg =>
+        return .unop ref f (← go arg none false false)
       | .term ref trees e =>
         let type ← instantiateMVars (← inferType e)
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
@@ -372,6 +377,9 @@ mutual
         else
           trace[Elab.binop] "added coercion: {e} : {type} => {maxType}"
           withRef ref <| return .term ref trees (← mkCoe maxType e)
+      | .macroExpansion macroName stx stx' nested =>
+        withRef stx <| withPushMacroExpansionStack stx stx' do
+          return .macroExpansion macroName stx stx' (← go nested f? lhs isPred)
 
   private partial def toExpr (tree : Tree) (expectedType? : Option Expr) : TermElabM Expr := do
     let r ← analyze tree expectedType?
@@ -441,7 +449,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     -/
     let lhs ← withRef stx[2] <| toTree stx[2]
     let rhs ← withRef stx[3] <| toTree stx[3]
-    let tree := .binop (lazy := false) stx .anonymous f lhs rhs
+    let tree := .binop (lazy := false) stx f lhs rhs
     let r ← analyze tree none
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then

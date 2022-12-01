@@ -105,7 +105,7 @@ class BindSync (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : 
 
 export BindSync (bindSync)
 
-class BindAsync (n : Type u → Type v) (k : outParam $ Type u → Type u) where
+class BindAsync (n : Type u → Type v) (k : Type u → Type u) where
   /-- Perform a asynchronous task after another (a)synchronous task completes successfully. -/
   bindAsync {α β : Type u} : k α → (α → n (k β)) → n (k β)
 

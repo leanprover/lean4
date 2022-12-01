@@ -201,9 +201,7 @@ def registerParametricAttribute [Inhabited α] (impl : ParametricAttributeImpl �
     statsFn         := fun s => "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
   let attrImpl : AttributeImpl := {
-    ref   := impl.ref
-    name  := impl.name
-    descr := impl.descr
+    impl.toAttributeImplCore with
     add   := fun decl stx kind => do
       unless kind == AttributeKind.global do throwError "invalid attribute '{impl.name}', must be global"
       let env ← getEnv

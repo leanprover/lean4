@@ -1,3 +1,2 @@
 906.lean:2:4-2:15: warning: declaration uses 'sorry'
-906.lean:12:2-12:28: error: tactic 'simp' failed, nested error:
-(deterministic) timeout at 'whnf', maximum number of heartbeats (200000) has been reached (use 'set_option maxHeartbeats <num>' to set the limit)
+906.lean:12:2-12:28: error: maximum recursion depth has been reached (use `set_option maxRecDepth <num>` to increase limit)

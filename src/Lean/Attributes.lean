@@ -136,7 +136,7 @@ structure TagAttribute where
   deriving Inhabited
 
 def registerTagAttribute (name : Name) (descr : String)
-    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) : IO TagAttribute := do
+    (validate : Name → AttrM Unit := fun _ => pure ()) (ref : Name := by exact decl_name%) (applicationTime := AttributeApplicationTime.afterTypeChecking) : IO TagAttribute := do
   let ext : PersistentEnvExtension Name Name NameSet ← registerPersistentEnvExtension {
     name            := ref
     mkInitial       := pure {}
@@ -148,9 +148,7 @@ def registerTagAttribute (name : Name) (descr : String)
     statsFn         := fun s => "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
   }
   let attrImpl : AttributeImpl := {
-    ref   := ref
-    name  := name
-    descr := descr
+    ref, name, descr, applicationTime
     add   := fun decl stx kind => do
       Attribute.Builtin.ensureNoArgs stx
       unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"

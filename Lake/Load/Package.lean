@@ -36,16 +36,16 @@ where
 
 /-- Construct a `NameMap` from the declarations tagged with `attr`. -/
 def mkTagMap
-(env : Environment) (attr : TagAttribute)
+(env : Environment) (attr : OrderedTagAttribute)
 [Monad m]  (f : Name → m α) : m (NameMap α) :=
-  attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+  attr.ext.getState env |>.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
 
 /-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
 def mkDTagMap
-(env : Environment) (attr : TagAttribute)
+(env : Environment) (attr : OrderedTagAttribute)
 [Monad m] (f : (n : Name) → m (β n)) : m (DNameMap β) :=
-  attr.ext.getState env |>.foldM (init := {}) fun map declName =>
+  attr.ext.getState env |>.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageConfig` from a configuration environment. -/
@@ -89,7 +89,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
       else
         error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
     | .error e => error e
-  let defaultTargets := defaultTargetAttr.ext.getState env |>.fold (·.push ·) #[]
+  let defaultTargets := defaultTargetAttr.ext.getState env
 
   -- Fill in the Package
   return {self with

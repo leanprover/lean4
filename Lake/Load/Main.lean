@@ -20,8 +20,7 @@ namespace Lake
 
 /-- Load the tagged `Dependency` definitions from a package configuration environment. -/
 def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
-  packageDepAttr.ext.getState env |>.foldM (init := #[]) fun arr name => do
-    return arr.push <| ← evalConstCheck env opts Dependency ``Dependency name
+  (packageDepAttr.ext.getState env).mapM (evalConstCheck env opts Dependency ``Dependency)
 
 def loadDepPackage (parentPkg : Package) (result : MaterializeResult)
 (dep : Dependency) : LogIO Package := do

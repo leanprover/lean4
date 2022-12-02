@@ -13,41 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-size_t l___private_Lean_Data_HashMap_0__Lean_HashMapImp_mkIdx(lean_object*, uint64_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___boxed(lean_object*);
-lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_HasConstCache_containsUnsafe_cache___spec__5___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2(lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_HasConstCache_containsUnsafe_cache___spec__1___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_HasConstCache_containsUnsafe_cache___spec__5(lean_object*, uint8_t, lean_object*);
-lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-uint64_t l_Lean_Expr_hash(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_cache___default;
-LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HasConstCache_containsUnsafe_cache___spec__4(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___rarg___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_HasConstCache_containsUnsafe_cache___spec__5___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_HasConstCache_containsUnsafe_cache___spec__3(lean_object*, lean_object*, lean_object*);
-size_t lean_ptr_addr(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2(lean_object*, lean_object*);
+size_t l___private_Lean_Data_HashMap_0__Lean_HashMapImp_mkIdx(lean_object*, uint64_t, lean_object*);
+lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_HasConstCache_containsUnsafe_cache___spec__5(lean_object*, uint8_t, lean_object*);
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1(lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l_Lean_HasConstCache_cache___default___closed__1;
+LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache(lean_object*);
+size_t lean_ptr_addr(lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_HasConstCache_containsUnsafe_cache___spec__4(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache___rarg(lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe_cache(lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
+uint64_t l_Lean_Expr_hash(lean_object*);
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_HasConstCache_containsUnsafe_cache___spec__1(lean_object*, lean_object*);
+lean_object* lean_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l_Lean_HashMapImp_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__1(lean_object*, lean_object*);
+static lean_object* l_Lean_HasConstCache_cache___default___closed__1;
+LEAN_EXPORT lean_object* l_Lean_HasConstCache_containsUnsafe___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_HasConstCache_containsUnsafe_cache___spec__1___boxed(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_HasConstCache_containsUnsafe_cache___spec__2(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_HasConstCache_containsUnsafe___spec__2___boxed(lean_object*, lean_object*);
+lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_HasConstCache_cache___default___closed__1() {
 _start:
 {

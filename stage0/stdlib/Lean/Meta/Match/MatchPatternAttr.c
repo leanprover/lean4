@@ -13,24 +13,24 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__2;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__3;
 static lean_object* l_Lean_hasMatchPatternAttribute___closed__1;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4_(lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__6;
-LEAN_EXPORT uint8_t lean_has_match_pattern_attribute(lean_object*, lean_object*);
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__1;
 uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__7;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__4;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__1;
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__3;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__5;
 LEAN_EXPORT lean_object* l_Lean_matchPatternAttr;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4_(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__2;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____closed__4;
+LEAN_EXPORT lean_object* l_Lean_hasMatchPatternAttribute___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match_MatchPatternAttr___hyg_4____lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

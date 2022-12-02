@@ -1740,7 +1740,6 @@ static inline size_t lean_usize_log2(size_t a) {
 static inline uint8_t lean_usize_dec_eq(size_t a1, size_t a2) { return a1 == a2; }
 static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; }
 static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2; }
-LEAN_SHARED size_t lean_usize_mix_hash(size_t a1, size_t a2);
 
 
 

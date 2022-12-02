@@ -1496,13 +1496,6 @@ extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
     return a1;
 }
 
-extern "C" LEAN_EXPORT usize lean_usize_mix_hash(usize a1, usize a2) {
-    if (sizeof(void*) == 8)
-        return hash(static_cast<uint64>(a1), static_cast<uint64>(a2));
-    else
-        return hash(static_cast<uint32>(a1), static_cast<uint32>(a2));
-}
-
 // =======================================
 // Float
 

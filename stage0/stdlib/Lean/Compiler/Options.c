@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6_(lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__4;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__6;
+LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6_(lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
+lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Compiler_compiler_check;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__7;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__5;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__2;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__3;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Compiler_initFn____x40_Lean_Compiler_Options___hyg_6____closed__1() {
 _start:
 {

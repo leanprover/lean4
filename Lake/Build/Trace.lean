@@ -108,8 +108,8 @@ instance : ToString Hash := ⟨Hash.toString⟩
 def ofString (str : String) :=
   mix nil <| mk <| hash str -- same as Name.mkSimple
 
-def ofByteArray (bytes : ByteArray) :=
-  bytes.foldl (init := nil) fun h b => mix h (mk <| hash b)
+def ofByteArray (bytes : ByteArray) : Hash :=
+  ⟨hash bytes⟩
 
 end Hash
 

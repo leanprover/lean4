@@ -18,7 +18,7 @@
                 (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) →
             FooAC α
 def FooAC.toFooAssoc : {α : Type} → [self : FooAC α] → FooAssoc α :=
-fun (α : Type) [self : FooAC α] =>
+fun (α : Type) (self : FooAC α) =>
   @FooAssoc.mk α (@FooComm.toFoo α (@FooAC.toFooComm α self)) (@FooAC.toMul α self) (@FooAC.add_assoc α self)
     (@FooAC.mul_assoc α self)
 @FooAC'.mk : {α : Type} →
@@ -42,7 +42,7 @@ fun (α : Type) [self : FooAC α] =>
                   (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) →
               FooAC' α
 def FooAC'.toFooAssoc' : {α : Type} → [self : FooAC' α] → FooAssoc' α :=
-fun (α : Type) [self : FooAC' α] =>
+fun (α : Type) (self : FooAC' α) =>
   @FooAssoc'.mk α
     (@FooAssoc.mk α (@FooComm.toFoo α (@FooAC'.toFooComm α self)) (@FooAC'.toMul α self) (@FooAC'.add_assoc α self)
       (@FooAC'.mul_assoc α self))

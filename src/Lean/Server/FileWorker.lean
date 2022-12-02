@@ -328,12 +328,8 @@ section NotificationHandling
     let docId := p.textDocument
     let changes := p.contentChanges
     let oldDoc := (←get).doc
-    let some newVersion ← pure docId.version?
-      | throwServerError "Expected version number"
-    if newVersion ≤ oldDoc.meta.version then
-      -- TODO(WN): This happens on restart sometimes.
-      IO.eprintln s!"Got outdated version number: {newVersion} ≤ {oldDoc.meta.version}"
-    else if ¬ changes.isEmpty then
+    let newVersion := docId.version?.getD 0
+    if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩
 

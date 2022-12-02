@@ -7,7 +7,7 @@ LAKE=${LAKE:-../../build/bin/lake}
 
 $LAKE new hello
 $LAKE -d hello build
-sleep 0.1 # for some reason, delay needed for `--old` rebuild consistency
+sleep 0.5 # for some reason, delay needed for `--old` rebuild consistency
 echo 'def hello := "old"' > hello/Hello.lean
 $LAKE -d hello build --old | tee produced.out
 echo 'def hello := "normal"' > hello/Hello.lean

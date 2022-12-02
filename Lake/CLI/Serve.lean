@@ -30,8 +30,9 @@ def printPaths (config : LoadConfig) (imports : List String := [])
 (oldMode : Bool := false) (verbosity : Verbosity := .normal) : MainM PUnit := do
   let configFile := config.rootDir / config.configFile
   if (← configFile.pathExists) then
-    if (← IO.getEnv invalidConfigEnvVar) matches some .. then
-      IO.eprintln s!"Error parsing '{configFile}'.  Please restart the lean server after fixing the Lake configuration file."
+    if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
+      IO.eprint errLog
+      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
     let ws ← MainM.runLogIO (loadWorkspace config) verbosity
     let dynlibs ← ws.runBuild (buildImportsAndDeps imports) oldMode
@@ -49,15 +50,16 @@ def printPaths (config : LoadConfig) (imports : List String := [])
 Start the Lean LSP for the `Workspace` loaded from `config`
 with the given additional `args`.
 -/
-def serve (config : LoadConfig) (args : Array String) : LogIO UInt32 := do
-  let (extraEnv, moreServerArgs) ←
-    try
-      let ws ← loadWorkspace config
+def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
+  let (extraEnv, moreServerArgs) ← do
+    let (log, ws?) ← loadWorkspace config |>.captureLog
+    IO.eprint log
+    if let some ws := ws? then
       let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     else
-      logWarning "package configuration has errors, falling back to plain `lean --server`"
-      pure (config.env.installVars.push (invalidConfigEnvVar, "1"), #[])
+      IO.eprint "warning: package configuration has errors, falling back to plain `lean --server`"
+      pure (config.env.installVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
     cmd := config.env.lean.lean.toString
     args := #["--server"] ++ moreServerArgs ++ args

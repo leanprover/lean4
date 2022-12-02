@@ -105,5 +105,8 @@ abbrev LogIO :=
 instance : MonadError LogIO := ⟨MonadLog.error⟩
 instance : MonadLift IO LogIO := ⟨MonadError.runIO⟩
 
+def LogIO.captureLog (self : LogIO α) (verbosity := Verbosity.normal) : BaseIO (String × Option α) :=
+  IO.FS.withIsolatedStreams <| self (MonadLog.eio verbosity) |>.toBaseIO
+
 abbrev LogT (m : Type → Type) :=
   MonadLogT m m

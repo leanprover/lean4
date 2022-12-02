@@ -1030,8 +1030,7 @@ instance Prod.lexLtDec
 theorem Prod.lexLt_def [LT α] [LT β] (s t : α × β) : (Prod.lexLt s t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 
-theorem Prod.ext (p : α × β) : (p.1, p.2) = p := by
-  cases p; rfl
+theorem Prod.eta (p : α × β) : (p.1, p.2) = p := rfl
 
 /--
 `Prod.map f g : α₁ × β₁ → α₂ × β₂` maps across a pair

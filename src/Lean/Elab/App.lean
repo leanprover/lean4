@@ -682,6 +682,12 @@ end ElabAppArgs
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
+    /-
+    We apply `elab_as_elim` after compilation because this kind of attribute is not applied to auxiliary declarations
+    created by the `WF` and `Structural` modules. This is an "indirect" fix for issue #1900. We should consider
+    having an explicit flag in attributes to indicate whether they should be copied to auxiliary declarations or not.
+    -/
+    (applicationTime := .afterCompilation)
     fun declName => do
       let go : MetaM Unit := do
         discard <| getElimInfo declName

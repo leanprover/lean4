@@ -13,8 +13,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object*);
 lean_object* lean_nat_log2(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_log2___boxed(lean_object* x_1) {
 _start:
 {

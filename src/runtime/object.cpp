@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/hash.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -2053,6 +2054,10 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     // `r` is exclusive, so the ranges definitely cannot overlap
     memcpy(lean_sarray_cptr(r) + dest_off, lean_sarray_cptr(src) + src_off, len);
     return r;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_byte_array_hash(b_obj_arg a) {
+    return hash_str(lean_sarray_size(a), lean_sarray_cptr(a), 11);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_copy_float_array(obj_arg a) {

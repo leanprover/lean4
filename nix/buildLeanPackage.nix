@@ -28,6 +28,8 @@ lib.makeOverridable (
   precompilePackage ? precompileModules,
   # Lean plugin dependencies. Each derivation `plugin` should contain a plugin library at path `${plugin}/${plugin.name}`.
   pluginDeps ? [],
+  # `overrideAttrs` for `buildMod`
+  overrideBuildModAttrs ? null,
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }@args:
 with builtins; let
@@ -132,14 +134,17 @@ with builtins; let
     # the only possible references to store paths in the JSON should be inside errors, so no chance of missed dependencies from this
     unsafeDiscardStringContext (readFile "${modDepsFile}/${modDepsFile.name}"));
   modDepsMap = listToAttrs (lib.zipListsWith lib.nameValuePair candidateMods modDeps.imports);
+  maybeOverride = f: x: if f != null then lib.fix (lib.extends f (_: x)) else x;
   # build module (.olean and .c) given derivations of all (immediate) dependencies
-  buildMod = mod: deps: mkBareDerivation rec {
+  # TODO: make `rec` parts override-compatible?
+  buildMod = mod: deps: mkBareDerivation (maybeOverride overrideBuildModAttrs rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
     LEAN_ABORT_ON_PANIC = "1";
     relpath = modToPath mod;
     buildInputs = [ lean ];
     leanPath = relpath + ".lean";
+    # should be either single .lean file or directory directly containing .lean file plus dependencies
     src = srcRoot + ("/" + leanPath);
     outputs = [ "out" "ilean" "c" ];
     oleanPath = relpath + ".olean";
@@ -150,10 +155,10 @@ with builtins; let
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
-      cp $src $leanPath
+      if [ -d $src ]; then cp -r $src/. $dir/; else cp $src $leanPath; fi
       lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
     '';
-  } // {
+  }) // {
     inherit deps;
     propagatedLoadDynlibs = loadDynlibsOfDeps deps;
   };

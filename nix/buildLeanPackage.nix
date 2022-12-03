@@ -49,7 +49,7 @@ with builtins; let
       set -u
       ${args.buildCommand}
     '' ];
-  });
+  }) // { overrideAttrs = f: mkBareDerivation (lib.fix (lib.extends f (_: args))); };
   runBareCommand = name: args: buildCommand: mkBareDerivation (args // { inherit name buildCommand; });
   runBareCommandLocal = name: args: buildCommand: runBareCommand name (args // {
     preferLocalBuild = true;
@@ -134,10 +134,10 @@ with builtins; let
     # the only possible references to store paths in the JSON should be inside errors, so no chance of missed dependencies from this
     unsafeDiscardStringContext (readFile "${modDepsFile}/${modDepsFile.name}"));
   modDepsMap = listToAttrs (lib.zipListsWith lib.nameValuePair candidateMods modDeps.imports);
-  maybeOverride = f: x: if f != null then lib.fix (lib.extends f (_: x)) else x;
+  maybeOverrideAttrs = f: x: if f != null then x.overrideAttrs f else x;
   # build module (.olean and .c) given derivations of all (immediate) dependencies
   # TODO: make `rec` parts override-compatible?
-  buildMod = mod: deps: mkBareDerivation (maybeOverride overrideBuildModAttrs rec {
+  buildMod = mod: deps: maybeOverrideAttrs overrideBuildModAttrs (mkBareDerivation rec {
     name = "${mod}";
     LEAN_PATH = depRoot mod deps;
     LEAN_ABORT_ON_PANIC = "1";

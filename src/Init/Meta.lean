@@ -1100,22 +1100,20 @@ instance : EmptyCollection (SepArray sep) where
 instance : EmptyCollection (TSepArray sep k) where
   emptyCollection := ⟨∅⟩
 
-/-
-We use `CoeTail` here instead of `Coe` to avoid a "loop" when computing `CoeTC`.
-The "loop" is interrupted using the maximum instance size threshold, but it is a performance bottleneck.
-The loop occurs because the predicate `isNewAnswer` is too imprecise.
--/
-instance : CoeTail (SepArray sep) (Array Syntax) where
+instance : CoeHead (SepArray sep) (Array Syntax) where
   coe := SepArray.getElems
 
-instance : Coe (TSepArray k sep) (TSyntaxArray k) where
+instance : CoeHead (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems
 
 instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
   coe a := a.map Coe.coe
 
-instance : Coe (TSyntaxArray k) (Array Syntax) where
+instance : CoeHead (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw
+
+instance : CoeHead (TSepArray k sep) (Array Syntax) where
+  coe a := (a : TSyntaxArray k)
 
 instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
   coe id := mkNode _ #[id, mkNullNode #[]]

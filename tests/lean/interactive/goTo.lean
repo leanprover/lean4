@@ -38,7 +38,7 @@ syntax (name := elabTest) "test" : term
 
 @[term_elab elabTest] def elabElabTest : Lean.Elab.Term.TermElab := fun orig _ => do
   let stx ← `(2)
-  Lean.Elab.Term.withMacroExpansion orig stx $ Lean.Elab.Term.elabTerm stx none
+  Lean.Elab.Term.elabTerm stx none
 
      --v textDocument/declaration
 #check test

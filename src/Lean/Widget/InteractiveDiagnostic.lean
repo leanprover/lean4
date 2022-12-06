@@ -22,7 +22,7 @@ structure LazyTraceChildren where
   deriving TypeName
 
 inductive MsgEmbed where
-  | expr : CodeWithInfos → MsgEmbed
+  | code : CodeWithInfos → MsgEmbed
   | goal : InteractiveGoal → MsgEmbed
   | trace (indent : Nat) (cls : Name) (msg : TaggedText MsgEmbed) (collapsed : Bool)
       (children : StrictOrLazy (Array (TaggedText MsgEmbed)) (WithRpcRef LazyTraceChildren))
@@ -43,7 +43,7 @@ def toDiagnostic (diag : InteractiveDiagnostic) : Lsp.Diagnostic :=
 where
   prettyTt (tt : TaggedText MsgEmbed) : String :=
     let tt : TaggedText MsgEmbed := tt.rewrite fun
-      | .expr tt,           _ => .text tt.stripTags
+      | .code tt,           _ => .text tt.stripTags
       | .goal g,            _ => .text (toString g.pretty)
       | .trace ..,          _ => .text "(trace)"
     tt.stripTags
@@ -57,7 +57,7 @@ private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPCo
 
 private inductive EmbedFmt
   /-- Tags denote `Info` objects. -/
-  | expr (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
+  | code (ctx : Elab.ContextInfo) (infos : RBMap Nat Elab.Info compare)
   | goal (ctx : Elab.ContextInfo) (lctx : LocalContext) (g : MVarId)
   /-- Some messages (in particular, traces) are too costly to print eagerly. Instead, we allow
   the user to expand sub-traces interactively. -/
@@ -96,15 +96,10 @@ where
 
   go : NamingContext → Option MessageDataContext → MessageData → MsgFmtM Format
   | _,    _,         ofFormat fmt             => withIgnoreTags (pure fmt)
-  | _,    _,         ofLevel u                => return format u
-  | _,    _,         ofName n                 => return format n
-  | nCtx, some ctx,  ofSyntax s               => withIgnoreTags (ppTerm (mkPPContext nCtx ctx) ⟨s⟩) -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => withIgnoreTags (pure s.formatStx)
-  | _,    none,      ofExpr e                 => return format (toString e)
-  | nCtx, some ctx,  ofExpr e                 => do
-    let ci := mkContextInfo nCtx ctx
-    let (fmt, infos) ← ci.runMetaM ctx.lctx <| PrettyPrinter.ppExprWithInfos e
-    let t ← pushEmbed <| EmbedFmt.expr ci infos
+  | _,    none,      ofPPFormat fmt           => (·.fmt) <$> fmt.pp none
+  | nCtx, some ctx,  ofPPFormat fmt           => do
+    let ⟨fmt, infos⟩ ← fmt.pp (mkPPContext nCtx ctx)
+    let t ← pushEmbed <| EmbedFmt.code (mkContextInfo nCtx ctx) infos
     return Format.tag t fmt
   | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            =>
@@ -141,8 +136,8 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
   let rec fmtToTT (fmt : Format) (indent : Nat) : IO (TaggedText MsgEmbed) :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
-        | .expr ctx infos =>
-          return .tag (.expr (tagExprInfos ctx infos tt)) default
+        | .code ctx infos =>
+          return .tag (.code (tagCodeInfos ctx infos tt)) default
         | .goal ctx lctx g =>
           ctx.runMetaM lctx do
             return .tag (.goal (← goalToInteractive g)) default

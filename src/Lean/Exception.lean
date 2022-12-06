@@ -25,6 +25,10 @@ def Exception.toMessageData : Exception → MessageData
   | .error _ msg   => msg
   | .internal id _ => id.toString
 
+def Exception.hasSyntheticSorry : Exception → Bool
+  | Exception.error _ msg => msg.hasSyntheticSorry
+  | _                     => false
+
 /--
 Return syntax object providing position information for the exception.
 Recall that internal exceptions do not have position information.

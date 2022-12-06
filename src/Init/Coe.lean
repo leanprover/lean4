@@ -240,9 +240,6 @@ instance coeOfDep {α : Sort u} {β : Sort v} (a : α) [CoeDep α a β] : CoeT �
 instance coeId {α : Sort u} (a : α) : CoeT α a α where
   coe := a
 
-instance coeSortToCoeTail [inst : CoeSort α β] : CoeTail α β where
-  coe := inst.coe
-
 /-! # Basic instances -/
 
 instance boolToProp : Coe Bool Prop where
@@ -283,11 +280,8 @@ This is used for coercing the result type under a monad.
   let a ← x
   pure (CoeT.coe a)
 
-instance [CoeFun α β] (a : α) : CoeDep α a (β a) where
-  coe := CoeFun.coe a
-
-instance [CoeFun α (fun _ => β)] : CoeTail α β  where
+instance [CoeFun α fun _ => β] : CoeHead α β  where
   coe a := CoeFun.coe a
 
-instance [CoeSort α β] : CoeTail α β where
+instance [CoeSort α β] : CoeHead α β where
   coe a := CoeSort.coe a

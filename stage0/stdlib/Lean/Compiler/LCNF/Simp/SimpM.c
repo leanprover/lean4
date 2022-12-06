@@ -2555,7 +2555,7 @@ x_35 = lean_ctor_get(x_28, 2);
 lean_inc(x_35);
 lean_dec(x_28);
 x_36 = l_Nat_repr(x_35);
-x_37 = lean_alloc_ctor(2, 1, 0);
+x_37 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_37, 0, x_36);
 x_38 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_38, 0, x_37);
@@ -2633,7 +2633,7 @@ x_60 = lean_ctor_get(x_53, 2);
 lean_inc(x_60);
 lean_dec(x_53);
 x_61 = l_Nat_repr(x_60);
-x_62 = lean_alloc_ctor(2, 1, 0);
+x_62 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_62, 0, x_61);
 x_63 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_63, 0, x_62);
@@ -3760,7 +3760,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__2___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3810,17 +3810,17 @@ lean_dec(x_18);
 x_24 = 1;
 lean_inc(x_15);
 x_25 = l_Lean_Name_toString(x_15, x_24);
-x_26 = lean_alloc_ctor(2, 1, 0);
+x_26 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_inc(x_1);
-x_27 = lean_alloc_ctor(4, 2, 0);
+x_27 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_27, 0, x_1);
 lean_ctor_set(x_27, 1, x_26);
 lean_inc(x_2);
-x_28 = lean_alloc_ctor(4, 2, 0);
+x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_2);
-x_29 = lean_alloc_ctor(4, 2, 0);
+x_29 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_29, 0, x_21);
 lean_ctor_set(x_29, 1, x_28);
 lean_ctor_set(x_14, 1, x_15);
@@ -3841,7 +3841,7 @@ if (x_33 == 0)
 lean_object* x_34; lean_object* x_35; uint8_t x_36; lean_object* x_37; 
 lean_dec(x_18);
 x_34 = l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__2___closed__2;
-x_35 = lean_alloc_ctor(4, 2, 0);
+x_35 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_35, 0, x_21);
 lean_ctor_set(x_35, 1, x_34);
 lean_ctor_set(x_14, 0, x_35);
@@ -3875,17 +3875,17 @@ lean_dec(x_18);
 x_43 = 1;
 lean_inc(x_15);
 x_44 = l_Lean_Name_toString(x_15, x_43);
-x_45 = lean_alloc_ctor(2, 1, 0);
+x_45 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_45, 0, x_44);
 lean_inc(x_1);
-x_46 = lean_alloc_ctor(4, 2, 0);
+x_46 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_46, 0, x_1);
 lean_ctor_set(x_46, 1, x_45);
 lean_inc(x_2);
-x_47 = lean_alloc_ctor(4, 2, 0);
+x_47 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_47, 0, x_46);
 lean_ctor_set(x_47, 1, x_2);
-x_48 = lean_alloc_ctor(4, 2, 0);
+x_48 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_48, 0, x_40);
 lean_ctor_set(x_48, 1, x_47);
 x_49 = lean_alloc_ctor(0, 2, 0);
@@ -3908,7 +3908,7 @@ if (x_53 == 0)
 lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; 
 lean_dec(x_18);
 x_54 = l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__2___closed__2;
-x_55 = lean_alloc_ctor(4, 2, 0);
+x_55 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_55, 0, x_40);
 lean_ctor_set(x_55, 1, x_54);
 x_56 = lean_alloc_ctor(0, 2, 0);
@@ -3961,17 +3961,17 @@ lean_dec(x_62);
 x_67 = 1;
 lean_inc(x_15);
 x_68 = l_Lean_Name_toString(x_15, x_67);
-x_69 = lean_alloc_ctor(2, 1, 0);
+x_69 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_69, 0, x_68);
 lean_inc(x_1);
-x_70 = lean_alloc_ctor(4, 2, 0);
+x_70 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_70, 0, x_1);
 lean_ctor_set(x_70, 1, x_69);
 lean_inc(x_2);
-x_71 = lean_alloc_ctor(4, 2, 0);
+x_71 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_71, 0, x_70);
 lean_ctor_set(x_71, 1, x_2);
-x_72 = lean_alloc_ctor(4, 2, 0);
+x_72 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_72, 0, x_63);
 lean_ctor_set(x_72, 1, x_71);
 if (lean_is_scalar(x_65)) {
@@ -4000,7 +4000,7 @@ if (x_78 == 0)
 lean_object* x_79; lean_object* x_80; lean_object* x_81; uint8_t x_82; lean_object* x_83; lean_object* x_84; 
 lean_dec(x_62);
 x_79 = l_List_forIn_loop___at_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___spec__2___closed__2;
-x_80 = lean_alloc_ctor(4, 2, 0);
+x_80 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_80, 0, x_63);
 lean_ctor_set(x_80, 1, x_79);
 if (lean_is_scalar(x_65)) {
@@ -4135,7 +4135,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_maxRecDepthErrorMessage;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4155,7 +4155,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_Simp_withInlining_check___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4173,7 +4173,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___rarg___closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -4226,14 +4226,14 @@ lean_dec(x_9);
 x_14 = 1;
 lean_inc(x_12);
 x_15 = l_Lean_Name_toString(x_12, x_14);
-x_16 = lean_alloc_ctor(2, 1, 0);
+x_16 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_16, 0, x_15);
 x_17 = l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___rarg___closed__3;
-x_18 = lean_alloc_ctor(4, 2, 0);
+x_18 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_16);
 x_19 = l_Lean_Compiler_LCNF_Simp_withIncRecDepth_throwMaxRecDepth___rarg___closed__5;
-x_20 = lean_alloc_ctor(4, 2, 0);
+x_20 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_20, 0, x_18);
 lean_ctor_set(x_20, 1, x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);

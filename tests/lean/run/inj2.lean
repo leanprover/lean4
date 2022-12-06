@@ -10,20 +10,18 @@ inductive Fin2 : Nat → Type
 
 theorem test1 {α β} {n} (a₁ a₂ : α) (b₁ b₂ : β) (v w : Vec2 α β n) (h : Vec2.cons a₁ b₁ v = Vec2.cons a₂ b₂ w) : a₁ = a₂ :=
 by {
-  injection h;
-  assumption
+  injection h
 }
 
 theorem test2 {α β} {n} (a₁ a₂ : α) (b₁ b₂ : β) (v w : Vec2 α β n) (h : Vec2.cons a₁ b₁ v = Vec2.cons a₂ b₂ w) : v = w :=
 by {
-  injection h with h1 h2 h3 h4;
-  assumption
+  injection h with h1 h2 h3 h4
 }
 
-theorem test3 {α β} {n} (a₁ a₂ : α) (b₁ b₂ : β) (v w : Vec2 α β n) (h : Vec2.cons a₁ b₁ v = Vec2.cons a₂ b₂ w) : v = w :=
+theorem test3 {α β} {n} (a₁ a₂ : α) (b₁ b₂ : β) (v w : Vec2 α β n) (f : Vec2 α β n → Nat) (h : Vec2.cons a₁ b₁ v = Vec2.cons a₂ b₂ w) : f v = f w :=
 by {
   injection h with _ _ _ h4;
-  exact h4
+  rw [h4]
 }
 
 theorem test4 {α} (v : Fin2 0) : α :=

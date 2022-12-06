@@ -42,9 +42,9 @@ structure InsertReplaceEdit where
 
 structure CompletionItem where
   label : String
-  detail? : Option String
-  documentation? : Option MarkupContent
-  kind? : Option CompletionItemKind
+  detail? : Option String := none
+  documentation? : Option MarkupContent := none
+  kind? : Option CompletionItemKind := none
   textEdit? : Option InsertReplaceEdit := none
   /-
   tags? : CompletionItemTag[]

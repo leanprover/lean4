@@ -795,7 +795,26 @@ mutual
       | Expr.fvar ..         => checkFVar e
       | Expr.mvar ..         => checkMVar e
       | Expr.app ..          =>
-        checkApp e
+        try
+          checkApp e
+        catch ex => match ex with
+          | .internal id =>
+            /-
+            If `ex` is an `CheckAssignmentM` internal exception and `e` is a beta-redex, we reduce `e` and try again.
+            This is useful for assignments such as `?m := (fun _ => A) a` where `a` is free variable that is not in
+            the scope of `?m`.
+            Note that, we do not try expensive reductions (e.g., `delta`). Thus, the following assignment
+            ```lean
+            ?m := Function.const 0 a
+            ```
+            still fails because we do reduce the rhs to `0`. We assume this is not an issue in practice.
+            -/
+            if (id == outOfScopeExceptionId || id == checkAssignmentExceptionId) && e.isHeadBetaTarget then
+              checkApp e.headBeta
+            else
+              throw ex
+          | _ => throw ex
+
         -- TODO: investigate whether the following feature is too expensive or not
         /-
         catchInternalIds [checkAssignmentExceptionId, outOfScopeExceptionId]

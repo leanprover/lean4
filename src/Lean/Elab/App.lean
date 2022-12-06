@@ -166,17 +166,31 @@ private def addInstMVar (mvarId : MVarId) : M Unit :=
 
 /--
   Try to synthesize metavariables are `instMVars` using type class resolution.
+  The ones that cannot be synthesized yet stay in the `instMVars` list.
+  Remark: we use this method
+    - before trying to apply coercions to function,
+    - before unifying the expected type.
+-/
+def trySynthesizeAppInstMVars : M Unit := do
+  let instMVars ← (← get).instMVars.filterM fun instMVar => do
+    unless (← instantiateMVars (← inferType (.mvar instMVar))).isMVar do try
+      if (← synthesizeInstMVarCore instMVar) then
+        return false
+      catch _ => pure ()
+    return true
+  modify ({ · with instMVars })
+
+/--
+  Try to synthesize metavariables are `instMVars` using type class resolution.
   The ones that cannot be synthesized yet are registered.
-  Remark: we use this method before trying to apply coercions to function. -/
+-/
 def synthesizeAppInstMVars : M Unit := do
-  let s ← get
-  let instMVars := s.instMVars
-  modify fun s => { s with instMVars := #[] }
-  Term.synthesizeAppInstMVars instMVars s.f
+  Term.synthesizeAppInstMVars (← get).instMVars (← get).f
+  modify ({ · with instMVars := #[] })
 
 /-- fType may become a forallE after we synthesize pending metavariables. -/
 private def synthesizePendingAndNormalizeFunType : M Unit := do
-  synthesizeAppInstMVars
+  trySynthesizeAppInstMVars
   synthesizeSyntheticMVars
   let s ← get
   let fType ← whnfForall s.fType
@@ -348,6 +362,7 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
           | some fTypeBody =>
             unless fTypeBody.hasLooseBVars do
               unless (← hasOptAutoParams fTypeBody) do
+                trySynthesizeAppInstMVars
                 trace[Elab.app.propagateExpectedType] "{expectedType} =?= {fTypeBody}"
                 if (← isDefEq expectedType fTypeBody) then
                   /- Note that we only set `propagateExpected := false` when propagation has succeeded. -/
@@ -389,6 +404,7 @@ private def finalize : M Expr := do
     else
       return e
   if let some expectedType := s.expectedType? then
+    trySynthesizeAppInstMVars
     -- Try to propagate expected type. Ignore if types are not definitionally equal, caller must handle it.
     trace[Elab.app.finalize] "expected type: {expectedType}"
     discard <| isDefEq expectedType eType

@@ -1134,7 +1134,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_evalDelta___spec__3___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1426,7 +1426,7 @@ x_27 = lean_string_append(x_23, x_26);
 lean_dec(x_26);
 x_28 = l_Lean_Elab_Tactic_deltaLocalDecl___closed__7;
 x_29 = lean_string_append(x_27, x_28);
-x_30 = lean_alloc_ctor(2, 1, 0);
+x_30 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_30, 0, x_29);
 x_31 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_31, 0, x_30);
@@ -1503,7 +1503,7 @@ x_54 = lean_string_append(x_50, x_53);
 lean_dec(x_53);
 x_55 = l_Lean_Elab_Tactic_deltaLocalDecl___closed__7;
 x_56 = lean_string_append(x_54, x_55);
-x_57 = lean_alloc_ctor(2, 1, 0);
+x_57 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_57, 0, x_56);
 x_58 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_58, 0, x_57);

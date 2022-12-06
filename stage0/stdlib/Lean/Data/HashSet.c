@@ -20,6 +20,7 @@ LEAN_EXPORT lean_object* l_Lean_HashSet_numBuckets(lean_object*, lean_object*, l
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_HashSetImp_moveEntries___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_HashSet_instForInHashSet___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSetImp_foldM___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_expand(lean_object*);
@@ -150,6 +151,7 @@ static lean_object* l_Lean_HashSet_toArray___rarg___closed__1;
 lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_foldBuckets(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSet_isEmpty___boxed(lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Id_instMonadId;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSetImp_foldBuckets___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSetImp_forBucketsM___spec__1(lean_object*, lean_object*);
@@ -184,9 +186,11 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSet_instForInHa
 LEAN_EXPORT lean_object* l_Lean_HashSetImp_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSet_forM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSet_foldM___spec__1___rarg(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSet_forM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSetImp_forM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSet_toArray___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSet_empty(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashSet_fold___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_HashSet_toList___spec__2___rarg(lean_object*, size_t, size_t, lean_object*);
@@ -3083,6 +3087,36 @@ x_4 = l_Lean_HashSet_numBuckets(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_HashSetImp_insert___rarg(x_1, x_2, x_4, x_3);
+x_6 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_6, 0, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_7 = lean_alloc_closure((void*)(l_Lean_HashSet_insertMany___rarg___lambda__1), 4, 2);
+lean_closure_set(x_7, 0, x_1);
+lean_closure_set(x_7, 1, x_2);
+x_8 = l_Id_instMonadId;
+x_9 = lean_apply_5(x_4, lean_box(0), x_8, x_6, x_5, x_7);
+return x_9;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_HashSet_insertMany(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_HashSet_insertMany___rarg), 6, 0);
+return x_2;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

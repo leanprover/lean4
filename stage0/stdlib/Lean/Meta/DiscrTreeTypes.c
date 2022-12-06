@@ -337,7 +337,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -348,7 +348,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__2;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -385,7 +385,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -396,7 +396,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__7;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -415,7 +415,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__9;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -426,7 +426,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__10;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -445,7 +445,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__12;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -456,7 +456,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__13;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -468,7 +468,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__14;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -480,7 +480,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__13;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -492,7 +492,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__16;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -511,7 +511,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__18;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -522,7 +522,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__19;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -534,7 +534,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__20;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -546,7 +546,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__19;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -558,7 +558,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__22;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -577,7 +577,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__24;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -588,7 +588,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__25;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -600,7 +600,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__26;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -612,7 +612,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
 x_2 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__25;
-x_3 = lean_alloc_ctor(3, 2, 0);
+x_3 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -624,7 +624,7 @@ _start:
 lean_object* x_1; uint8_t x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__28;
 x_2 = 0;
-x_3 = lean_alloc_ctor(5, 1, 1);
+x_3 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
@@ -643,7 +643,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__30;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -654,7 +654,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__31;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -676,28 +676,28 @@ x_5 = lean_unsigned_to_nat(1024u);
 x_6 = lean_nat_dec_le(x_5, x_2);
 x_7 = l_Lean_Name_reprPrec(x_3, x_5);
 x_8 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__3;
-x_9 = lean_alloc_ctor(4, 2, 0);
+x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 x_10 = lean_box(1);
-x_11 = lean_alloc_ctor(4, 2, 0);
+x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_9);
 lean_ctor_set(x_11, 1, x_10);
 x_12 = l_Nat_repr(x_4);
-x_13 = lean_alloc_ctor(2, 1, 0);
+x_13 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_13, 0, x_12);
-x_14 = lean_alloc_ctor(4, 2, 0);
+x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_11);
 lean_ctor_set(x_14, 1, x_13);
 if (x_6 == 0)
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
-x_16 = lean_alloc_ctor(3, 2, 0);
+x_16 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_14);
 x_17 = 0;
-x_18 = lean_alloc_ctor(5, 1, 1);
+x_18 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_17);
 x_19 = l_Repr_addAppParen(x_18, x_2);
@@ -707,11 +707,11 @@ else
 {
 lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; 
 x_20 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
-x_21 = lean_alloc_ctor(3, 2, 0);
+x_21 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_14);
 x_22 = 0;
-x_23 = lean_alloc_ctor(5, 1, 1);
+x_23 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_23, 0, x_21);
 lean_ctor_set_uint8(x_23, sizeof(void*)*1, x_22);
 x_24 = l_Repr_addAppParen(x_23, x_2);
@@ -730,28 +730,28 @@ x_27 = lean_unsigned_to_nat(1024u);
 x_28 = lean_nat_dec_le(x_27, x_2);
 x_29 = l_Lean_Name_reprPrec(x_25, x_27);
 x_30 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__8;
-x_31 = lean_alloc_ctor(4, 2, 0);
+x_31 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_29);
 x_32 = lean_box(1);
-x_33 = lean_alloc_ctor(4, 2, 0);
+x_33 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
 x_34 = l_Nat_repr(x_26);
-x_35 = lean_alloc_ctor(2, 1, 0);
+x_35 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_35, 0, x_34);
-x_36 = lean_alloc_ctor(4, 2, 0);
+x_36 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_36, 0, x_33);
 lean_ctor_set(x_36, 1, x_35);
 if (x_28 == 0)
 {
 lean_object* x_37; lean_object* x_38; uint8_t x_39; lean_object* x_40; lean_object* x_41; 
 x_37 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
-x_38 = lean_alloc_ctor(3, 2, 0);
+x_38 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_38, 0, x_37);
 lean_ctor_set(x_38, 1, x_36);
 x_39 = 0;
-x_40 = lean_alloc_ctor(5, 1, 1);
+x_40 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set_uint8(x_40, sizeof(void*)*1, x_39);
 x_41 = l_Repr_addAppParen(x_40, x_2);
@@ -761,11 +761,11 @@ else
 {
 lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; 
 x_42 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
-x_43 = lean_alloc_ctor(3, 2, 0);
+x_43 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_43, 0, x_42);
 lean_ctor_set(x_43, 1, x_36);
 x_44 = 0;
-x_45 = lean_alloc_ctor(5, 1, 1);
+x_45 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_45, 0, x_43);
 lean_ctor_set_uint8(x_45, sizeof(void*)*1, x_44);
 x_46 = l_Repr_addAppParen(x_45, x_2);
@@ -782,18 +782,18 @@ x_48 = lean_unsigned_to_nat(1024u);
 x_49 = lean_nat_dec_le(x_48, x_2);
 x_50 = l___private_Lean_Expr_0__Lean_reprLiteral____x40_Lean_Expr___hyg_137_(x_47, x_48);
 x_51 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__11;
-x_52 = lean_alloc_ctor(4, 2, 0);
+x_52 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_52, 0, x_51);
 lean_ctor_set(x_52, 1, x_50);
 if (x_49 == 0)
 {
 lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; 
 x_53 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
-x_54 = lean_alloc_ctor(3, 2, 0);
+x_54 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_54, 0, x_53);
 lean_ctor_set(x_54, 1, x_52);
 x_55 = 0;
-x_56 = lean_alloc_ctor(5, 1, 1);
+x_56 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set_uint8(x_56, sizeof(void*)*1, x_55);
 x_57 = l_Repr_addAppParen(x_56, x_2);
@@ -803,11 +803,11 @@ else
 {
 lean_object* x_58; lean_object* x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; 
 x_58 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
-x_59 = lean_alloc_ctor(3, 2, 0);
+x_59 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_59, 0, x_58);
 lean_ctor_set(x_59, 1, x_52);
 x_60 = 0;
-x_61 = lean_alloc_ctor(5, 1, 1);
+x_61 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set_uint8(x_61, sizeof(void*)*1, x_60);
 x_62 = l_Repr_addAppParen(x_61, x_2);
@@ -886,28 +886,28 @@ x_83 = lean_unsigned_to_nat(1024u);
 x_84 = lean_nat_dec_le(x_83, x_2);
 x_85 = l_Lean_Name_reprPrec(x_81, x_83);
 x_86 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__32;
-x_87 = lean_alloc_ctor(4, 2, 0);
+x_87 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_87, 0, x_86);
 lean_ctor_set(x_87, 1, x_85);
 x_88 = lean_box(1);
-x_89 = lean_alloc_ctor(4, 2, 0);
+x_89 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_89, 0, x_87);
 lean_ctor_set(x_89, 1, x_88);
 x_90 = l_Nat_repr(x_82);
-x_91 = lean_alloc_ctor(2, 1, 0);
+x_91 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_91, 0, x_90);
-x_92 = lean_alloc_ctor(4, 2, 0);
+x_92 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_92, 0, x_89);
 lean_ctor_set(x_92, 1, x_91);
 if (x_84 == 0)
 {
 lean_object* x_93; lean_object* x_94; uint8_t x_95; lean_object* x_96; lean_object* x_97; 
 x_93 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__4;
-x_94 = lean_alloc_ctor(3, 2, 0);
+x_94 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_94, 0, x_93);
 lean_ctor_set(x_94, 1, x_92);
 x_95 = 0;
-x_96 = lean_alloc_ctor(5, 1, 1);
+x_96 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_96, 0, x_94);
 lean_ctor_set_uint8(x_96, sizeof(void*)*1, x_95);
 x_97 = l_Repr_addAppParen(x_96, x_2);
@@ -917,11 +917,11 @@ else
 {
 lean_object* x_98; lean_object* x_99; uint8_t x_100; lean_object* x_101; lean_object* x_102; 
 x_98 = l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_404____rarg___closed__5;
-x_99 = lean_alloc_ctor(3, 2, 0);
+x_99 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_99, 0, x_98);
 lean_ctor_set(x_99, 1, x_92);
 x_100 = 0;
-x_101 = lean_alloc_ctor(5, 1, 1);
+x_101 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_101, 0, x_99);
 lean_ctor_set_uint8(x_101, sizeof(void*)*1, x_100);
 x_102 = l_Repr_addAppParen(x_101, x_2);

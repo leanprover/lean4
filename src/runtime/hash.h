@@ -21,11 +21,15 @@ inline unsigned hash(unsigned h1, unsigned h2) {
     return h2;
 }
 
-inline uint64 hash(uint64 h1, uint64 h2) {
-    h2 -= h1; h2 ^= (h1 << 16);
-    h1 -= h2; h2 ^= (h1 << 32);
-    h2 -= h1; h2 ^= (h1 << 20);
-    return h2;
+inline uint64 hash(uint64 h, uint64 k) {
+    uint64 m = 0xc6a4a7935bd1e995;
+    uint64 r = 47;
+    k *= m;
+    k ^= k >> r;
+    k ^= m;
+    h ^= k;
+    h *= m;
+    return h;
 }
 
 inline unsigned hash_ptr(void const * ptr) {

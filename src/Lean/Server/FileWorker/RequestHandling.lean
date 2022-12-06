@@ -34,7 +34,10 @@ def handleCompletion (p : CompletionParams)
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
   -- command starts with a keyword that (currently?) does not participate in completion.
   withWaitFindSnap doc (·.endPos + ' ' >= pos)
-    (notFoundX := pure { items := #[], isIncomplete := true }) fun snap => do
+    (notFoundX := pure { items := #[], isIncomplete := true })
+    (abortedX :=
+      -- work around https://github.com/microsoft/vscode/issues/155738
+      pure { items := #[{label := "-"}], isIncomplete := true }) fun snap => do
       if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
         return r
       return { items := #[ ], isIncomplete := true }

@@ -82,7 +82,7 @@ lean_object* l_String_splitOn(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Data_Options___hyg_103____closed__19;
 static lean_object* l_Lean_getOptionDecl___closed__1;
 uint8_t l_Lean_NameMap_contains___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1591_;
+LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_1592_;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Data_Options___hyg_103_;
 static lean_object* l_Lean_Option___aux__Lean__Data__Options______macroRules__Lean__Option__registerBuiltinOption__1___closed__39;
 static lean_object* l_Lean_Option_registerOption___closed__6;
@@ -2323,7 +2323,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Option_setIfNotSet___rarg), 4, 0);
 return x_2;
 }
 }
-static lean_object* _init_l___auto____x40_Lean_Data_Options___hyg_1591_() {
+static lean_object* _init_l___auto____x40_Lean_Data_Options___hyg_1592_() {
 _start:
 {
 lean_object* x_1; 
@@ -3908,8 +3908,8 @@ l_Lean_Option_Decl_group___default = _init_l_Lean_Option_Decl_group___default();
 lean_mark_persistent(l_Lean_Option_Decl_group___default);
 l_Lean_Option_Decl_descr___default = _init_l_Lean_Option_Decl_descr___default();
 lean_mark_persistent(l_Lean_Option_Decl_descr___default);
-l___auto____x40_Lean_Data_Options___hyg_1591_ = _init_l___auto____x40_Lean_Data_Options___hyg_1591_();
-lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_1591_);
+l___auto____x40_Lean_Data_Options___hyg_1592_ = _init_l___auto____x40_Lean_Data_Options___hyg_1592_();
+lean_mark_persistent(l___auto____x40_Lean_Data_Options___hyg_1592_);
 l_Lean_Option_registerBuiltinOption___closed__1 = _init_l_Lean_Option_registerBuiltinOption___closed__1();
 lean_mark_persistent(l_Lean_Option_registerBuiltinOption___closed__1);
 l_Lean_Option_registerBuiltinOption___closed__2 = _init_l_Lean_Option_registerBuiltinOption___closed__2();

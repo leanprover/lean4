@@ -339,13 +339,9 @@ section
 open Lean.Parser.Tactic
 syntax cdotTk := patternIgnore("·" <|> ".")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax cdotTk ppHardSpace many1Indent(tactic ";"? ppLine) : tactic
+syntax cdotTk ppSpace sepBy1IndentSemicolon(tactic) : tactic
 macro_rules
-  | `(tactic| $cdot:cdotTk $[$tacs $[;%$sc]?]*) => do
-    let tacs ← tacs.zip sc |>.mapM fun
-      | (tac, none)    => pure tac
-      | (tac, some sc) => `(tactic| ($tac; with_annotate_state $sc skip))
-    `(tactic| { with_annotate_state $cdot skip; $[$tacs]* })
+  | `(tactic| $cdot:cdotTk $tacs*) => `(tactic| {%$cdot $tacs* }%$cdot)
 end
 
 /--

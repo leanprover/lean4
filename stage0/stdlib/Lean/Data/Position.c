@@ -199,7 +199,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -210,7 +210,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
 x_2 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__2;
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -229,7 +229,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__4;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -240,7 +240,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__3;
 x_2 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__5;
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -268,7 +268,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__8;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -286,7 +286,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__10;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -331,7 +331,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__13;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -349,7 +349,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__17;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -361,65 +361,65 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = l_Nat_repr(x_3);
-x_5 = lean_alloc_ctor(2, 1, 0);
+x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__7;
-x_7 = lean_alloc_ctor(3, 2, 0);
+x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = 0;
-x_9 = lean_alloc_ctor(5, 1, 1);
+x_9 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set_uint8(x_9, sizeof(void*)*1, x_8);
 x_10 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__6;
-x_11 = lean_alloc_ctor(4, 2, 0);
+x_11 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__9;
-x_13 = lean_alloc_ctor(4, 2, 0);
+x_13 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set(x_13, 1, x_12);
 x_14 = lean_box(1);
-x_15 = lean_alloc_ctor(4, 2, 0);
+x_15 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_15, 0, x_13);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__11;
-x_17 = lean_alloc_ctor(4, 2, 0);
+x_17 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__5;
-x_19 = lean_alloc_ctor(4, 2, 0);
+x_19 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
 lean_dec(x_1);
 x_21 = l_Nat_repr(x_20);
-x_22 = lean_alloc_ctor(2, 1, 0);
+x_22 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_22, 0, x_21);
 x_23 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__12;
-x_24 = lean_alloc_ctor(3, 2, 0);
+x_24 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_22);
-x_25 = lean_alloc_ctor(5, 1, 1);
+x_25 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set_uint8(x_25, sizeof(void*)*1, x_8);
-x_26 = lean_alloc_ctor(4, 2, 0);
+x_26 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_26, 0, x_19);
 lean_ctor_set(x_26, 1, x_25);
 x_27 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__16;
-x_28 = lean_alloc_ctor(4, 2, 0);
+x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
 x_29 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__18;
-x_30 = lean_alloc_ctor(4, 2, 0);
+x_30 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = l___private_Lean_Data_Position_0__Lean_reprPosition____x40_Lean_Data_Position___hyg_174____closed__15;
-x_32 = lean_alloc_ctor(3, 2, 0);
+x_32 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
-x_33 = lean_alloc_ctor(5, 1, 1);
+x_33 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_33, 0, x_32);
 lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_8);
 return x_33;
@@ -513,7 +513,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Position_instToFormatPosition___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -531,7 +531,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Position_instToFormatPosition___closed__3;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -549,7 +549,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Position_instToFormatPosition___closed__5;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -564,24 +564,24 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = l_Nat_repr(x_2);
-x_5 = lean_alloc_ctor(2, 1, 0);
+x_5 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_5, 0, x_4);
 x_6 = l_Lean_Position_instToFormatPosition___closed__2;
-x_7 = lean_alloc_ctor(4, 2, 0);
+x_7 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = l_Lean_Position_instToFormatPosition___closed__4;
-x_9 = lean_alloc_ctor(4, 2, 0);
+x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_7);
 lean_ctor_set(x_9, 1, x_8);
 x_10 = l_Nat_repr(x_3);
-x_11 = lean_alloc_ctor(2, 1, 0);
+x_11 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
-x_12 = lean_alloc_ctor(4, 2, 0);
+x_12 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_12, 0, x_9);
 lean_ctor_set(x_12, 1, x_11);
 x_13 = l_Lean_Position_instToFormatPosition___closed__6;
-x_14 = lean_alloc_ctor(4, 2, 0);
+x_14 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 return x_14;

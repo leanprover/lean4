@@ -395,7 +395,7 @@ x_16 = lean_string_append(x_15, x_7);
 lean_dec(x_7);
 x_17 = l_Lean_instToStringRat___closed__1;
 x_18 = lean_string_append(x_16, x_17);
-x_19 = lean_alloc_ctor(2, 1, 0);
+x_19 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_19, 0, x_18);
 return x_19;
 }
@@ -421,7 +421,7 @@ x_30 = lean_string_append(x_29, x_7);
 lean_dec(x_7);
 x_31 = l_Lean_instToStringRat___closed__1;
 x_32 = lean_string_append(x_30, x_31);
-x_33 = lean_alloc_ctor(2, 1, 0);
+x_33 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_33, 0, x_32);
 return x_33;
 }
@@ -435,7 +435,7 @@ lean_inc(x_34);
 lean_dec(x_1);
 x_35 = l_Int_repr(x_34);
 lean_dec(x_34);
-x_36 = lean_alloc_ctor(2, 1, 0);
+x_36 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_36, 0, x_35);
 return x_36;
 }

@@ -18,11 +18,17 @@ target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
 endif()
 
 if(LLVM)
+  if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+      message(FATAL_ERROR "building 'lean.h.bc', need CMAKE_CXX_COMPILER_ID to match Clang to build LLVM bitcode file of Lean runtime.")
+  endif()
+  FILE(READ "${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h" LEAN_H)
+  # generate LLVM IR for `static inline` definitions in lean.h for the LLVM backend
+  string(REPLACE "static inline" "__attribute__((always_inline))" LEAN_H "${LEAN_H}")
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")
   add_custom_command(
-    OUTPUT libleanrt.bc
-    DEPENDS ${RUNTIME_OBJS} lean_inlines.c
-    # compile each runtime file with the original compile flags plus `-emit-llvm`, then `llvm-link` them together
-    COMMAND bash -ec "rm -rf runtmp || true; mkdir runtmp; for f in ${RUNTIME_OBJS_STR} lean_inlines.c; do ${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> $([[ $f = \*.cpp ]] || echo \"-x c\") \"${CMAKE_CURRENT_SOURCE_DIR}/$f\" -S -emit-llvm -o runtmp/$f.ll; done; llvm-link runtmp/*.ll -o libleanrt.bc"
+    OUTPUT lean.h.bc
+    DEPENDS ${RUNTIME_OBJS} ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c
+    COMMAND bash -ec "${CMAKE_BINARY_DIR}/leanc.sh ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c -emit-llvm -o ${CMAKE_CURRENT_BINARY_DIR}/lean.h.bc"
     VERBATIM)
-  add_custom_target(runtime_bc DEPENDS libleanrt.bc)
+  add_custom_target(runtime_bc DEPENDS lean.h.bc)
 endif()

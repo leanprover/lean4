@@ -4083,7 +4083,6 @@ x_31 = lean_ctor_get(x_30, 3);
 lean_inc(x_31);
 x_32 = l_Lean_Elab_WF_packMutual___lambda__2___closed__2;
 x_33 = l_Lean_Name_append(x_31, x_32);
-lean_dec(x_31);
 x_34 = !lean_is_exclusive(x_30);
 if (x_34 == 0)
 {

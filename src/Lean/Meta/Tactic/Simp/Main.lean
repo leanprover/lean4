@@ -277,6 +277,7 @@ partial def simp (e : Expr) : M Result := withIncRecDepth do
       -/
       if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
         return result
+  trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
   simpLoop { expr := e }
 
 where
@@ -390,7 +391,7 @@ where
       -- We always use simple congruence theorems for auxiliary match applications
       return none
     let info ← getFunInfo f
-    let kinds := getCongrSimpKinds info
+    let kinds ← getCongrSimpKinds f info
     if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
       /- If all argument kinds are `fixed` or `eq`, then using
          simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/
@@ -749,7 +750,8 @@ def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Met
   withSimpConfig ctx do
     try
       let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
-      pure (r, s.usedTheorems)
+      trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+      return (r, s.usedTheorems)
     catch ex =>
       if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
 

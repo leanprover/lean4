@@ -572,7 +572,6 @@ lean_inc(x_62);
 lean_dec(x_60);
 x_63 = l_Lean_Elab_Tactic_evalCalc___lambda__2___closed__9;
 x_64 = l_Lean_Name_append(x_61, x_63);
-lean_dec(x_61);
 lean_inc(x_6);
 lean_inc(x_59);
 x_65 = l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(x_59, x_64, x_6, x_7, x_8, x_9, x_62);

@@ -124,6 +124,8 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_false : (!false) = true := by decide
 @[simp] theorem Bool.not_beq_true (b : Bool) : (!(b == true)) = (b == false) := by cases b <;> rfl
 @[simp] theorem Bool.not_beq_false (b : Bool) : (!(b == false)) = (b == true) := by cases b <;> rfl
+@[simp] theorem Bool.not_eq_true' (b : Bool) : ((!b) = true) = (b = false) := by cases b <;> simp
+@[simp] theorem Bool.not_eq_false' (b : Bool) : ((!b) = false) = (b = true) := by cases b <;> simp
 
 @[simp] theorem Bool.beq_to_eq (a b : Bool) :
   (a == b) = (a = b) := by cases a <;> cases b <;> decide

@@ -48,16 +48,17 @@ def mkToJsonInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
         let header ← mkHeader ``ToJson 1 ctx.typeInfos[0]!
         let discrs ← mkDiscrs header indVal
         let alts ← mkAlts indVal fun ctor args userNames => do
+          let ctorStr := ctor.name.eraseMacroScopes.getString!
           match args, userNames with
-          | #[], _ => ``(toJson $(quote ctor.name.getString!))
-          | #[(x, t)], none => ``(mkObj [($(quote ctor.name.getString!), $(← mkToJson x t))])
+          | #[], _ => ``(toJson $(quote ctorStr))
+          | #[(x, t)], none => ``(mkObj [($(quote ctorStr), $(← mkToJson x t))])
           | xs, none =>
             let xs ← xs.mapM fun (x, t) => mkToJson x t
-            ``(mkObj [($(quote ctor.name.getString!), Json.arr #[$[$xs:term],*])])
+            ``(mkObj [($(quote ctorStr), Json.arr #[$[$xs:term],*])])
           | xs, some userNames =>
             let xs ← xs.mapIdxM fun idx (x, t) => do
-              `(($(quote userNames[idx]!.getString!), $(← mkToJson x t)))
-            ``(mkObj [($(quote ctor.name.getString!), mkObj [$[$xs:term],*])])
+              `(($(quote userNames[idx]!.eraseMacroScopes.getString!), $(← mkToJson x t)))
+            ``(mkObj [($(quote ctorStr), mkObj [$[$xs:term],*])])
         let auxTerm ← `(match $[$discrs],* with $alts:matchAlt*)
         let auxCmd ←
           if ctx.usePartial then
@@ -177,7 +178,7 @@ where
         else
           ``(none)
         let stx ←
-          `((Json.parseTagged json $(quote ctor.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
+          `((Json.parseTagged json $(quote ctor.eraseMacroScopes.getString!) $(quote ctorInfo.numFields) $(quote userNamesOpt)).bind
             (fun jsons => do
               $[let $identNames:ident ← $fromJsons:doExpr]*
               return $(mkIdent ctor):ident $identNames*))

@@ -2290,7 +2290,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_instReprSSet___rarg___closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2303,7 +2303,7 @@ x_6 = l_Lean_SSet_toList___rarg(x_1, x_2, x_4);
 x_7 = lean_unsigned_to_nat(1024u);
 x_8 = l_List_repr___rarg(x_3, x_6, x_7);
 x_9 = l_instReprSSet___rarg___closed__2;
-x_10 = lean_alloc_ctor(4, 2, 0);
+x_10 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_10, 0, x_8);
 lean_ctor_set(x_10, 1, x_9);
 x_11 = l_Repr_addAppParen(x_10, x_5);

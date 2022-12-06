@@ -48,7 +48,6 @@ theorem ex3 {p q r : Prop} : p ∨ q → r → (q ∧ r) ∨ (p ∧ r) :=
 by intro
  | Or.inl hp, h => { apply Or.inr; apply And.intro; assumption; assumption }
  | Or.inr hq, h => { apply Or.inl; exact ⟨hq, h⟩ }
-#eval checkWithMkMatcherInput ``ex3.match_1
 
 inductive C
 | mk₁ : Nat → C
@@ -91,7 +90,7 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _,   nil,       nil,       f => none
 | _, cons a as, cons b bs,   f => some (f a b)
-#eval checkWithMkMatcherInput ``Vec.mapHead1.match_1
+
 
 def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none

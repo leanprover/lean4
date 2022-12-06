@@ -17,7 +17,7 @@ partial def reprintCore : Syntax → Option Format
   | Syntax.missing => none
   | Syntax.atom _ val => val.trim
   | Syntax.ident _ rawVal _ _ => rawVal.toString
-  | Syntax.node _ kind args =>
+  | Syntax.node _ _ args =>
     match args.toList.filterMap reprintCore with
     | [] => none
     | [arg] => arg
@@ -29,7 +29,7 @@ def reprint (stx : Syntax) : Format :=
 def printCommands (cmds : Syntax) : CoreM Unit := do
   for cmd in getCommands cmds |>.run #[] |>.2 do
     try
-      IO.println (← ppCommand cmd).pretty
+      IO.println (← ppCommand ⟨cmd⟩).pretty
     catch e =>
       IO.println f!"/-\ncannot print: {← e.toMessageData.format}\n{reprint cmd}\n-/"
 
@@ -70,4 +70,4 @@ unsafe def main (args : List String) : IO Unit := do
   let mut first := true
   for {env, currNamespace, openDecls, ..} in moduleStx, stx in leadingUpdated do
     if first then first := false else IO.print "\n"
-    let _ ← printCommands stx |>.toIO {currNamespace, openDecls} {env}
+    let _ ← printCommands stx |>.toIO {fileName, fileMap := FileMap.ofString input, currNamespace, openDecls} {env}

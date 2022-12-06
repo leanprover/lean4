@@ -16,9 +16,9 @@ extern "C" {
 static lean_object* l_Lean_Data_AC_instBEqExpr___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_removeNeutrals(lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__2;
-LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40__match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_eval___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr_match__1_splitter____x40_Init_Data_AC___hyg_40____rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instReprExpr;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_norm___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instEvalInformationContext___lambda__1(lean_object*);
@@ -73,8 +73,8 @@ LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_sort_loop_matc
 LEAN_EXPORT lean_object* l_Lean_Data_AC_evalList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__List_reverseAux_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instEvalInformationContext(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40__match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_insert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr_match__1_splitter____x40_Init_Data_AC___hyg_40_(lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instContextInformationContext___lambda__3___boxed(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -139,7 +139,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__1;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -150,7 +150,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__2;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -187,7 +187,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__6;
-x_2 = lean_alloc_ctor(2, 1, 0);
+x_2 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
@@ -198,7 +198,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__7;
 x_2 = lean_box(1);
-x_3 = lean_alloc_ctor(4, 2, 0);
+x_3 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
 return x_3;
@@ -216,21 +216,21 @@ lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(1024u);
 x_5 = lean_nat_dec_le(x_4, x_2);
 x_6 = l_Nat_repr(x_3);
-x_7 = lean_alloc_ctor(2, 1, 0);
+x_7 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_7, 0, x_6);
 x_8 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__3;
-x_9 = lean_alloc_ctor(4, 2, 0);
+x_9 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_9, 0, x_8);
 lean_ctor_set(x_9, 1, x_7);
 if (x_5 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; 
 x_10 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__4;
-x_11 = lean_alloc_ctor(3, 2, 0);
+x_11 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_11, 0, x_10);
 lean_ctor_set(x_11, 1, x_9);
 x_12 = 0;
-x_13 = lean_alloc_ctor(5, 1, 1);
+x_13 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_13, 0, x_11);
 lean_ctor_set_uint8(x_13, sizeof(void*)*1, x_12);
 x_14 = l_Repr_addAppParen(x_13, x_2);
@@ -240,11 +240,11 @@ else
 {
 lean_object* x_15; lean_object* x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__5;
-x_16 = lean_alloc_ctor(3, 2, 0);
+x_16 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_9);
 x_17 = 0;
-x_18 = lean_alloc_ctor(5, 1, 1);
+x_18 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_18, 0, x_16);
 lean_ctor_set_uint8(x_18, sizeof(void*)*1, x_17);
 x_19 = l_Repr_addAppParen(x_18, x_2);
@@ -263,26 +263,26 @@ x_22 = lean_unsigned_to_nat(1024u);
 x_23 = lean_nat_dec_le(x_22, x_2);
 x_24 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40_(x_20, x_22);
 x_25 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__8;
-x_26 = lean_alloc_ctor(4, 2, 0);
+x_26 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_24);
 x_27 = lean_box(1);
-x_28 = lean_alloc_ctor(4, 2, 0);
+x_28 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_28, 0, x_26);
 lean_ctor_set(x_28, 1, x_27);
 x_29 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40_(x_21, x_22);
-x_30 = lean_alloc_ctor(4, 2, 0);
+x_30 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
 if (x_23 == 0)
 {
 lean_object* x_31; lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; 
 x_31 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__4;
-x_32 = lean_alloc_ctor(3, 2, 0);
+x_32 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_30);
 x_33 = 0;
-x_34 = lean_alloc_ctor(5, 1, 1);
+x_34 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_34, 0, x_32);
 lean_ctor_set_uint8(x_34, sizeof(void*)*1, x_33);
 x_35 = l_Repr_addAppParen(x_34, x_2);
@@ -292,11 +292,11 @@ else
 {
 lean_object* x_36; lean_object* x_37; uint8_t x_38; lean_object* x_39; lean_object* x_40; 
 x_36 = l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40____closed__5;
-x_37 = lean_alloc_ctor(3, 2, 0);
+x_37 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_37, 0, x_36);
 lean_ctor_set(x_37, 1, x_30);
 x_38 = 0;
-x_39 = lean_alloc_ctor(5, 1, 1);
+x_39 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_39, 0, x_37);
 lean_ctor_set_uint8(x_39, sizeof(void*)*1, x_38);
 x_40 = l_Repr_addAppParen(x_39, x_2);
@@ -1420,7 +1420,7 @@ x_2 = lean_alloc_closure((void*)(l___private_Init_Data_AC_0__Lean_Data_AC_sort_l
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40__match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr_match__1_splitter____x40_Init_Data_AC___hyg_40____rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -1447,11 +1447,11 @@ return x_8;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40__match__1_splitter(lean_object* x_1) {
+LEAN_EXPORT lean_object* l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr_match__1_splitter____x40_Init_Data_AC___hyg_40_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_40__match__1_splitter___rarg), 3, 0);
+x_2 = lean_alloc_closure((void*)(l___private_Init_Data_AC_0____private_Init_Data_AC_0__Lean_Data_AC_reprExpr_match__1_splitter____x40_Init_Data_AC___hyg_40____rarg), 3, 0);
 return x_2;
 }
 }

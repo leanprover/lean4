@@ -1974,7 +1974,7 @@ x_4 = lean_ctor_get(x_1, 2);
 x_5 = l_Lean_FileMap_toPosition(x_4, x_2);
 x_6 = lean_ctor_get(x_1, 1);
 x_7 = lean_box(0);
-x_8 = lean_alloc_ctor(2, 1, 0);
+x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_3);
 x_9 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_9, 0, x_8);

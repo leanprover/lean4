@@ -1451,9 +1451,12 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
 
 /-- Pretty-print the given expression. -/
-def ppExpr (e : Expr) : MetaM Format := do
+def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
   let ctxCore  ← readThe Core.Context
-  Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
+  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+
+/-- Pretty-print the given expression. -/
+def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e
 
 @[inline] protected def orElse (x : MetaM α) (y : Unit → MetaM α) : MetaM α := do
   let s ← saveState

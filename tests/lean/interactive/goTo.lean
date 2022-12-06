@@ -49,9 +49,6 @@ def Baz (α : Type) := α
 #check fun (b : Baz Nat) => b
                           --^ textDocument/typeDefinition
 
-example : toString 1 = "1" := rfl
-        --^ textDocument/definition
-
 example : Nat :=
   let a := 1
 --v textDocument/definition

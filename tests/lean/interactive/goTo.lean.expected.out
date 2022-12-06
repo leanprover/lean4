@@ -93,17 +93,7 @@
    "end": {"line": 38, "character": 38}},
   "targetRange":
   {"start": {"line": 38, "character": 22},
-   "end": {"line": 40, "character": 34}},
-  "originSelectionRange":
-  {"start": {"line": 43, "character": 7},
-   "end": {"line": 43, "character": 11}}},
- {"targetUri": "file:///home/gcloud/lean4/src/Init/Prelude.lean",
-  "targetSelectionRange":
-  {"start": {"line": 1045, "character": 0},
-   "end": {"line": 1045, "character": 8}},
-  "targetRange":
-  {"start": {"line": 1045, "character": 0},
-   "end": {"line": 1046, "character": 12}},
+   "end": {"line": 40, "character": 79}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]
@@ -144,24 +134,122 @@
   {"start": {"line": 59, "character": 0}, "end": {"line": 59, "character": 29}},
   "originSelectionRange":
   {"start": {"line": 60, "character": 7},
-   "end": {"line": 60, "character": 11}}},
- {"targetUri": "file:///home/gcloud/lean4/src/Init/Prelude.lean",
-  "targetSelectionRange":
-  {"start": {"line": 1045, "character": 0},
-   "end": {"line": 1045, "character": 8}},
-  "targetRange":
-  {"start": {"line": 1045, "character": 0},
-   "end": {"line": 1046, "character": 12}},
-  "originSelectionRange":
-  {"start": {"line": 60, "character": 7},
    "end": {"line": 60, "character": 11}}}]
 {"textDocument": {"uri": "file://goTo.lean"},
- "position": {"line": 64, "character": 7}}
+ "position": {"line": 86, "character": 12}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "targetRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "originSelectionRange":
+  {"start": {"line": 86, "character": 7},
+   "end": {"line": 86, "character": 17}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  "originSelectionRange":
+  {"start": {"line": 86, "character": 7},
+   "end": {"line": 86, "character": 17}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 88, "character": 12}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "targetRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "originSelectionRange":
+  {"start": {"line": 88, "character": 7},
+   "end": {"line": 88, "character": 15}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  "originSelectionRange":
+  {"start": {"line": 88, "character": 7},
+   "end": {"line": 88, "character": 15}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 90, "character": 12}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
+  "targetRange":
+  {"start": {"line": 65, "character": 2}, "end": {"line": 65, "character": 6}},
+  "originSelectionRange":
+  {"start": {"line": 90, "character": 7},
+   "end": {"line": 90, "character": 16}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  "originSelectionRange":
+  {"start": {"line": 90, "character": 7},
+   "end": {"line": 90, "character": 16}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 94, "character": 13}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "targetRange":
+  {"start": {"line": 64, "character": 2}, "end": {"line": 64, "character": 5}},
+  "originSelectionRange":
+  {"start": {"line": 94, "character": 8},
+   "end": {"line": 94, "character": 16}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 98, "character": 12}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
+  "targetRange":
+  {"start": {"line": 68, "character": 2}, "end": {"line": 68, "character": 5}},
+  "originSelectionRange":
+  {"start": {"line": 98, "character": 7},
+   "end": {"line": 98, "character": 15}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 8}},
+  "targetRange":
+  {"start": {"line": 81, "character": 0}, "end": {"line": 81, "character": 24}},
+  "originSelectionRange":
+  {"start": {"line": 98, "character": 7},
+   "end": {"line": 98, "character": 15}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 106, "character": 12}}
+[{"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
+  "targetRange":
+  {"start": {"line": 77, "character": 2}, "end": {"line": 77, "character": 5}},
+  "originSelectionRange":
+  {"start": {"line": 106, "character": 7},
+   "end": {"line": 106, "character": 15}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 8}},
+  "targetRange":
+  {"start": {"line": 83, "character": 0}, "end": {"line": 83, "character": 41}},
+  "originSelectionRange":
+  {"start": {"line": 106, "character": 7},
+   "end": {"line": 106, "character": 15}}},
+ {"targetUri": "file://goTo.lean",
+  "targetSelectionRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 8}},
+  "targetRange":
+  {"start": {"line": 80, "character": 0}, "end": {"line": 80, "character": 27}},
+  "originSelectionRange":
+  {"start": {"line": 106, "character": 7},
+   "end": {"line": 106, "character": 15}}}]
+{"textDocument": {"uri": "file://goTo.lean"},
+ "position": {"line": 110, "character": 7}}
 [{"targetUri": "file://goTo.lean",
   "targetSelectionRange":
   {"start": {"line": 9, "character": 4}, "end": {"line": 9, "character": 10}},
   "targetRange":
   {"start": {"line": 9, "character": 0}, "end": {"line": 17, "character": 1}},
   "originSelectionRange":
-  {"start": {"line": 64, "character": 4},
-   "end": {"line": 64, "character": 10}}}]
+  {"start": {"line": 110, "character": 4},
+   "end": {"line": 110, "character": 10}}}]

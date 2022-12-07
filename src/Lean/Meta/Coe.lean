@@ -10,15 +10,15 @@ import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
+builtin_initialize coeDeclAttr : TagAttribute ←
+  registerTagAttribute `coe_decl "auxiliary definition used to implement coercion (unfolded during elaboration)"
+
 /--
   Return true iff `declName` is one of the auxiliary definitions/projections
   used to implement coercions.
 -/
-def isCoeDecl (declName : Name) : Bool :=
-  declName == ``Coe.coe || declName == ``CoeTC.coe || declName == ``CoeHead.coe ||
-  declName == ``CoeTail.coe || declName == ``CoeHTCT.coe || declName == ``CoeDep.coe ||
-  declName == ``CoeT.coe || declName == ``CoeFun.coe || declName == ``CoeSort.coe ||
-  declName == ``Lean.Internal.liftCoeM || declName == ``Lean.Internal.coeM
+def isCoeDecl (env : Environment) (declName : Name) : Bool :=
+  coeDeclAttr.hasTag env declName
 
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=
@@ -27,7 +27,7 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       let f := e.getAppFn
       if f.isConst then
         let declName := f.constName!
-        if isCoeDecl declName then
+        if isCoeDecl (← getEnv) declName then
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue

@@ -1112,9 +1112,6 @@ instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k')
 instance : CoeHead (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw
 
-instance : CoeHead (TSepArray k sep) (Array Syntax) where
-  coe a := (a : TSyntaxArray k)
-
 instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where
   coe id := mkNode _ #[id, mkNullNode #[]]
 

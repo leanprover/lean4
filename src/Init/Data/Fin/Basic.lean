@@ -12,7 +12,7 @@ open Nat
 
 namespace Fin
 
-instance coeToNat {n} : Coe (Fin n) Nat :=
+instance coeToNat : CoeHead (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
 def elim0.{u} {α : Sort u} : Fin 0 → α

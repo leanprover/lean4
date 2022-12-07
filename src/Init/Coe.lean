@@ -103,6 +103,7 @@ class Coe (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] Coe.coe
 
 /--
 Auxiliary class that contains the transitive closure of `Coe`.
@@ -112,6 +113,7 @@ class CoeTC (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeTC.coe
 
 /--
 `CoeHead α β` is for coercions that can only appear at the beginning of a
@@ -122,6 +124,7 @@ class CoeHead (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeHead.coe
 
 /--
 `CoeTail α β` is for coercions that can only appear at the end of a
@@ -132,6 +135,7 @@ class CoeTail (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeTail.coe
 
 /--
 Auxiliary class that contains `CoeHead` + `CoeTC` + `CoeTail`.
@@ -143,6 +147,7 @@ class CoeHTCT (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
+attribute [coe_decl] CoeHTCT.coe
 
 /--
 `CoeDep α (x : α) β` is a typeclass for dependent coercions, that is, the type `β`
@@ -157,6 +162,7 @@ class CoeDep (α : Sort u) (_ : α) (β : Sort v) where
   the type class, so the value of type `β` may possibly depend on additional
   typeclasses on `x`. -/
   coe : β
+attribute [coe_decl] CoeDep.coe
 
 /--
 `CoeT` is the core typeclass which is invoked by Lean to resolve a type error.
@@ -172,6 +178,7 @@ class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   the type class, so the value of type `β` may possibly depend on additional
   typeclasses on `x`. -/
   coe : β
+attribute [coe_decl] CoeT.coe
 
 
 /--
@@ -185,6 +192,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   function type or another `CoeFun` type, in order to resolve a mistyped
   application `f x`. -/
   coe : (f : α) → γ f
+attribute [coe_decl] CoeFun.coe
 
 /--
 `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
@@ -194,6 +202,7 @@ then it will be turned into `(x : CoeSort.coe a)`.
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   /-- Coerces a value of type `α` to `β`, which must be a universe. -/
   coe : α → β
+attribute [coe_decl] CoeSort.coe
 
 /--
 `↑x` represents a coercion, which converts `x` of type `α` to type `β`, using
@@ -265,7 +274,7 @@ Helper definition used by the elaborator. It is not meant to be used directly by
 This is used for coercions between monads, in the case where we want to apply
 a monad lift and a coercion on the result type at the same time.
 -/
-@[inline] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u}
+@[inline, coe_decl] def Lean.Internal.liftCoeM {m : Type u → Type v} {n : Type u → Type w} {α β : Type u}
     [MonadLiftT m n] [∀ a, CoeT α a β] [Monad n] (x : m α) : n β := do
   let a ← liftM x
   pure (CoeT.coe a)
@@ -275,7 +284,7 @@ Helper definition used by the elaborator. It is not meant to be used directly by
 
 This is used for coercing the result type under a monad.
 -/
-@[inline] def Lean.Internal.coeM {m : Type u → Type v} {α β : Type u}
+@[inline, coe_decl] def Lean.Internal.coeM {m : Type u → Type v} {α β : Type u}
     [∀ a, CoeT α a β] [Monad m] (x : m α) : m β := do
   let a ← x
   pure (CoeT.coe a)

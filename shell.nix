@@ -21,6 +21,7 @@ in { pkgs ? flakePkgs.nixpkgs, pkgsDist ? pkgs }:
     GLIBC_DEV = pkgsDist.glibc.dev;
     GCC_LIB = pkgsDist.gcc.cc.lib;
     ZLIB = pkgsDist.zlib;
+    GDB = pkgsDist.gdb;
   });
   nix = flake.devShell.${builtins.currentSystem};
 }

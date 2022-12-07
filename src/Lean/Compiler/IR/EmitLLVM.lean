@@ -2189,8 +2189,6 @@ def main : M llvmctx Unit := do
   emitInitFn (← getLLVMModule) builder
   emitMainFnIfNeeded (← getLLVMModule) builder
   emitFileFooter
-  -- IO.eprintln (← LLVM.printModuletoString (← getLLVMModule))
-  LLVM.printModuletoFile (← getLLVMModule) "/home/bollu/temp/lean-llvm.ll"
   return ()
 end EmitLLVM
 

@@ -917,8 +917,16 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_print_module_to_file(size_t ctx,
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    LLVMPrintModuleToFile(lean_to_Module(mod), lean_string_cstr(file),
-                          /*errorMessage=*/NULL);
+    char *err_str = NULL;
+    const char *file_cstr = lean_string_cstr(file);
+    int is_error = LLVMPrintModuleToFile(lean_to_Module(mod), file_cstr,
+                          /*errorMessage=*/&err_str);
+    if (is_error) {
+        fprintf(stderr, "'%30s' file:%30s ERROR: %30s\n", __FUNCTION__, file_cstr, err_str);
+    }
+
+    lean_always_assert(!is_error && "failed to print module to file");
+    lean_always_assert (err_str == NULL);
     return lean_io_result_mk_ok(lean_box(0));
 #endif  // LEAN_LLVM
 }
@@ -1028,11 +1036,15 @@ lean_llvm_create_memory_buffer_with_contents_of_file(size_t ctx, lean_object *pa
 #else
     LLVMMemoryBufferRef membuf;
     char *err_str = NULL;
+    const char *path_cstr = lean_string_cstr(path);
     int is_error = LLVMCreateMemoryBufferWithContentsOfFile(
-        lean_string_cstr(path), &membuf, &err_str);
+        path_cstr, &membuf, &err_str);
 
-    lean_always_assert((is_error != 1) && "failed to link modules");
-    assert(err_str == NULL);
+    if (is_error) {
+        fprintf(stderr, "%20s file:%30s ERROR: %30s\n", __FUNCTION__, path_cstr, err_str);
+    }
+    lean_always_assert((is_error != 1) && "failed to create membuf from file");
+    lean_always_assert(err_str == NULL);
     return lean_io_result_mk_ok(lean_box_usize(MemoryBuffer_to_lean(membuf)));
 #endif  // LEAN_LLVM
 }
@@ -1050,8 +1062,11 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_parse_bitcode(
                                              lean_to_MemoryBuffer(membuf),
                                              &out_module, &err_str);
 
-    lean_always_assert(!is_error && "failed to link modules");
-    assert(err_str == NULL);
+    if (is_error) {
+        fprintf(stderr, "%20s ERROR: %30s\n", __FUNCTION__, err_str);
+    }
+    lean_always_assert(!is_error && "failed to parse bitcode");
+    lean_always_assert(err_str == NULL);
     return lean_io_result_mk_ok(lean_box_usize(Module_to_lean(out_module)));
 #endif  // LEAN_LLVM
 }
@@ -1066,6 +1081,9 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_link_modules(size_t ctx,
     int is_error = LLVMLinkModules2(lean_to_Module(dest_module),
                                     lean_to_Module(src_module));
 
+    if (is_error) {
+        fprintf(stderr, "%20s ERROR: unable to link modules\n", __FUNCTION__);
+    }
     lean_always_assert(!is_error && "failed to link modules");
     return lean_io_result_mk_ok(lean_box(0));
 #endif

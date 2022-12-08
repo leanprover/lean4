@@ -12,6 +12,7 @@ Author: Jared Roesch
 #include <system_error>
 
 #if defined(LEAN_WINDOWS)
+#include <unordered_map>
 #include <windows.h>
 #include <fcntl.h>
 #include <io.h>
@@ -24,13 +25,13 @@ Author: Jared Roesch
 #include <sys/wait.h>
 #endif
 
-#include <lean/object.h>
-#include <lean/io.h>
-#include "util/array_ref.h"
-#include "util/string_ref.h"
-#include "util/option_ref.h"
-#include "util/pair_ref.h"
-#include "util/buffer.h"
+#include "runtime/object.h"
+#include "runtime/io.h"
+#include "runtime/array_ref.h"
+#include "runtime/string_ref.h"
+#include "runtime/option_ref.h"
+#include "runtime/pair_ref.h"
+#include "runtime/buffer.h"
 
 namespace lean {
 
@@ -55,11 +56,15 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
-    WaitForSingleObject(h, INFINITE);
-    GetExitCodeProcess(h, &exit_code);
+    if (WaitForSingleObject(h, INFINITE) == WAIT_FAILED) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+    if (!GetExitCodeProcess(h, &exit_code)) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
@@ -155,19 +160,40 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     siStartInfo.hStdError = child_stderr;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    // TODO(gabriel): this is thread-unsafe
-    std::unordered_map<std::string, optional<std::string>> old_env_vars;
-    for (auto & entry : env) {
-        optional<std::string> old;
-        if (auto old_val = getenv(entry.fst().data()))
-            old = std::string(old_val);
-        old_env_vars[entry.fst().to_std_string()] = old;
+    std::unique_ptr<char[]> new_env(nullptr);
 
-        if (entry.snd()) {
-            SetEnvironmentVariable(entry.fst().data(), entry.snd().get()->data());
-        } else {
-            SetEnvironmentVariable(entry.fst().data(), nullptr);
+    if (env.size()) {
+        auto * esp = GetEnvironmentStrings();
+
+        std::unordered_map<std::string, std::string> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
+        for (auto & entry : env) {
+            new_env_vars[entry.fst().data()] = entry.snd() ? entry.snd().get()->data() : std::string{};
         }
+        static constexpr auto env_buf_size = 0x7fff; // according to MS docs 0x7fff is the max total size of env block
+        new_env = std::make_unique<char[]>(env_buf_size);
+        // First copy old evars not in new evars.
+        char *new_envp = new_env.get(), *key_begin = esp;
+        while (*key_begin) {
+            char *key_end = strchr(key_begin, '=');
+            char *entry_end = key_end + strlen(key_end);
+            if (!new_env_vars.count({key_begin, key_end})) {
+                new_envp = std::copy(key_begin, entry_end + 1, new_envp);
+            }
+            key_begin = entry_end + 1;
+        }
+        // Then copy new evars if nonempty
+        for(const auto & ev : new_env_vars) {
+          if (ev.second.empty()) continue;
+          // Check if the destination buffer has enough room.
+          if (new_envp + ev.first.length() + 1 + ev.second.length() + 1 > new_env.get() + env_buf_size - 1) break;
+          new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
+          *new_envp++ = '=';
+          new_envp = std::copy(ev.second.cbegin(), ev.second.cend(), new_envp);
+          *new_envp++ = '\0';
+        }
+        *new_envp = '\0';
+
+        FreeEnvironmentStrings(esp);
     }
 
     // Create the child process.
@@ -178,14 +204,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         NULL,                                // primary thread security attributes
         TRUE,                                // handles are inherited
         0,                                   // creation flags
-        NULL,                                // use parent's environment
+        new_env.get(),                       // new environment
         cwd ? cwd.get()->data() : NULL,      // current directory
         &siStartInfo,                        // STARTUPINFO pointer
         &piProcInfo);                        // receives PROCESS_INFORMATION
-
-    for (auto & entry : old_env_vars) {
-        SetEnvironmentVariable(entry.first.c_str(), entry.second ? entry.second->c_str() : nullptr);
-    }
 
     if (!bSuccess) {
         throw std::system_error(GetLastError(), std::system_category());
@@ -202,6 +224,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
+    return lean_io_result_mk_ok(r.steal());
+}
+
 void initialize_process() {
     g_win_handle_external_class = lean_register_external_class(win_handle_finalizer, win_handle_foreach);
 }
@@ -209,11 +238,13 @@ void finalize_process() {}
 
 #else
 
-extern "C" obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
     int status;
-    waitpid(pid, &status, 0);
+    if (waitpid(pid, &status, 0) == -1) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
     if (WIFEXITED(status)) {
         return lean_io_result_mk_ok(box_uint32(static_cast<unsigned>(WEXITSTATUS(status))));
     } else {
@@ -332,6 +363,14 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
     return lean_io_result_mk_ok(r.steal());
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild, obj_arg) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), sizeof(pid_t));
+    cnstr_set_uint32(child2.raw(), 3 * sizeof(object *), cnstr_get_uint32(child.raw(), 3 * sizeof(object *)));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
+    return lean_io_result_mk_ok(r.steal());
+}
+
 void initialize_process() {}
 void finalize_process() {}
 
@@ -339,7 +378,7 @@ void finalize_process() {}
 
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 
-extern "C" obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
+extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
     object_ref args(args_);
     object_ref stdio_cfg = cnstr_get_ref(args, 0);
     stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 0));

@@ -16,10 +16,10 @@ open Lean.Elab.Command
 
 syntax (name := resolveKind) "#resolve " ident : command
 
-@[commandElab resolveKind] def elabResolve : CommandElab :=
-fun stx => liftTermElabM none do
+@[command_elab resolveKind] def elabResolve : CommandElab :=
+fun stx => liftTermElabM do
   let cs ← resolveGlobalName $ stx.getIdAt 1;
-  Lean.Elab.logInfo $ toString cs;
+  Lean.logInfo $ toString cs;
   pure ()
 
 #resolve x.y

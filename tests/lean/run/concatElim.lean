@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def concat {α} : List α → α → List α
   | [],    a => [a]
@@ -23,11 +23,7 @@ theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs 
   | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
-  let rec aux (a : α) (xs : List α) : (n : Nat) → (a::xs).lengthAux n = xs.lengthAux n + 1 :=
-    match xs with
-    | []    => fun _ => rfl
-    | x::xs => fun n => aux a xs (n+1)
-  aux x xs 0
+  rfl
 
 theorem eqNilOfLengthZero {α} : (xs : List α) → xs.length = 0 → xs = []
   | [],    h => rfl
@@ -38,8 +34,8 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
   | []    => intros; contradiction
   | [a]   =>
     intro n h
-    have 1 = n + 1 from h
-    have 0 = n by injection this; assumption
+    have : 1 = n + 1 := h
+    have : 0 = n := by injection this
     subst this
     rfl
   | x₁::x₂::xs =>
@@ -49,8 +45,8 @@ theorem dropLastLen {α} (xs : List α) : (n : Nat) → xs.length = n+1 → (dro
       simp [lengthCons] at h
       injection h
     | succ n =>
-      have (x₁ :: x₂ :: xs).length = xs.length + 2 by simp [lengthCons]
-      have xs.length = n by rw [this] at h; injection h with h; injection h with h; assumption
+      have : (x₁ :: x₂ :: xs).length = xs.length + 2 := by simp [lengthCons]
+      have : xs.length = n := by rw [this] at h; injection h with h; injection h
       simp [dropLast, lengthCons, dropLastLen (x₂::xs) xs.length (lengthCons ..), this]
 
 @[inline]
@@ -66,7 +62,7 @@ def concatElim {α}
       subst aux
       apply base ()
     | n+1, xs, h => by
-      have notNil : xs ≠ [] by intro h1; subst h1; injection h
+      have notNil : xs ≠ [] := by intro h1; subst h1; injection h
       let ih  := aux n (dropLast xs) (dropLastLen _ _ h)
       let aux := ind (dropLast xs) (last xs notNil) ih
       rw [concatEq] at aux

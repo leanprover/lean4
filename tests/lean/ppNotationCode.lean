@@ -1,3 +1,3 @@
 set_option trace.Elab.definition.body true
 
-infix "+++" => Nat.add
+infix:45 "+++" => Nat.add

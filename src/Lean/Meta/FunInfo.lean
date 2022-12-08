@@ -9,9 +9,8 @@ import Lean.Meta.InferType
 namespace Lean.Meta
 
 @[inline] private def checkFunInfoCache (fn : Expr) (maxArgs? : Option Nat) (k : MetaM FunInfo) : MetaM FunInfo := do
-  let s ← get
   let t ← getTransparency
-  match s.cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
+  match (← get).cache.funInfo.find? ⟨t, fn, maxArgs?⟩ with
   | some finfo => pure finfo
   | none       => do
     let finfo ← k
@@ -22,18 +21,19 @@ namespace Lean.Meta
   if e.hasFVar then k deps else deps
 
 private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
-  let rec visit : Expr → Array Nat → Array Nat
-    | e@(Expr.app f a _),       deps => whenHasVar e deps (visit a ∘ visit f)
-    | e@(Expr.forallE _ d b _), deps => whenHasVar e deps (visit b ∘ visit d)
-    | e@(Expr.lam _ d b _),     deps => whenHasVar e deps (visit b ∘ visit d)
-    | e@(Expr.letE _ t v b _),  deps => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
-    | Expr.proj _ _ e _,        deps => visit e deps
-    | Expr.mdata _ e _,         deps => visit e deps
-    | e@(Expr.fvar _ _),        deps =>
+  let rec visit (e : Expr) (deps : Array Nat) : Array Nat :=
+    match e with
+    | .app f a         => whenHasVar e deps (visit a ∘ visit f)
+    | .forallE _ d b _ => whenHasVar e deps (visit b ∘ visit d)
+    | .lam _ d b _     => whenHasVar e deps (visit b ∘ visit d)
+    | .letE _ t v b _  => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
+    | .proj _ _ e      => visit e deps
+    | .mdata _ e       => visit e deps
+    | .fvar ..         =>
       match fvars.indexOf? e with
       | none   => deps
       | some i => if deps.contains i.val then deps else deps.push i.val
-    | _,                        deps => deps
+    | _ => deps
   let deps := visit e #[]
   deps.qsort (fun i j => i < j)
 
@@ -44,7 +44,8 @@ private def updateHasFwdDeps (pinfo : Array ParamInfo) (backDeps : Array Nat) : 
   else
     -- update hasFwdDeps fields
     pinfo.mapIdx fun i info =>
-      if info.hasFwdDeps then info
+      if info.hasFwdDeps then
+        info
       else if backDeps.contains i then
         { info with hasFwdDeps := true }
       else
@@ -55,25 +56,46 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
     let fnType ← inferType fn
     withTransparency TransparencyMode.default do
       forallBoundedTelescope fnType maxArgs? fun fvars type => do
-        let mut pinfo := #[]
+        let mut paramInfo := #[]
+        let mut higherOrderOutParams : FVarIdSet := {}
         for i in [:fvars.size] do
-          let fvar := fvars[i]
+          let fvar := fvars[i]!
           let decl ← getFVarLocalDecl fvar
           let backDeps := collectDeps fvars decl.type
-          pinfo := updateHasFwdDeps pinfo backDeps
-          pinfo := pinfo.push {
-            backDeps     := backDeps,
-            implicit     := decl.binderInfo == BinderInfo.implicit,
-            instImplicit := decl.binderInfo == BinderInfo.instImplicit
+          let dependsOnHigherOrderOutParam :=
+            !higherOrderOutParams.isEmpty
+            && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
+          paramInfo := updateHasFwdDeps paramInfo backDeps
+          paramInfo := paramInfo.push {
+            backDeps, dependsOnHigherOrderOutParam
+            binderInfo := decl.binderInfo
+            isProp     := (← isProp decl.type)
+            isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
+          if decl.binderInfo == .instImplicit then
+            /- Collect higher order output parameters of this class -/
+            if let some className ← isClass? decl.type then
+              if let some outParamPositions := getOutParamPositions? (← getEnv) className then
+                unless outParamPositions.isEmpty do
+                  let args := decl.type.getAppArgs
+                  for i in [:args.size] do
+                    if outParamPositions.contains i then
+                      let arg := args[i]!
+                      if let some idx := fvars.indexOf? arg then
+                        if (← whnf (← inferType arg)).isForall then
+                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
+                          higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
         let resultDeps := collectDeps fvars type
-        let pinfo      := updateHasFwdDeps pinfo resultDeps
-        pure { resultDeps := resultDeps, paramInfo := pinfo }
+        paramInfo := updateHasFwdDeps paramInfo resultDeps
+        return { resultDeps, paramInfo }
 
 def getFunInfo (fn : Expr) : MetaM FunInfo :=
   getFunInfoAux fn none
 
 def getFunInfoNArgs (fn : Expr) (nargs : Nat) : MetaM FunInfo :=
   getFunInfoAux fn (some nargs)
+
+def FunInfo.getArity (info : FunInfo) : Nat :=
+  info.paramInfo.size
 
 end Lean.Meta

@@ -9,4 +9,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 optional<name> get_implemented_by_attribute(environment const & env, name const & n);
+inline bool has_implemented_by_attribute(environment const & env, name const & n) {
+    return static_cast<bool>(get_implemented_by_attribute(env, n));
+}
 }

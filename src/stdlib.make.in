@@ -2,27 +2,56 @@ SHELL := /usr/bin/env bash -euo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=
-
-# link GMP statically if STATIC=ON
-export LEANC_GMP=${GMP_LIBRARIES}
+export LEAN_CC=${CMAKE_C_COMPILER_LAUNCHER} ${CMAKE_C_COMPILER}
+export LEAN_ABORT_ON_PANIC=1
 
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
-  LEAN="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	LEAN="${CMAKE_CROSSCOMPILING_EMULATOR} ${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	LEANC="${CMAKE_BINARY_DIR}/leanc.sh"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
 	OLEAN_OUT="${LIB}/lean"\
 	BIN_OUT="${CMAKE_BINARY_DIR}/bin"\
-	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -Dinterpreter.prefer_native=false"\
+	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -DwarningAsError=true"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
-	LEAN_CXX="${CMAKE_CXX_COMPILER_LAUNCHER} ${CMAKE_CXX_COMPILER}"\
+	LEAN_AR="${CMAKE_AR}"\
 	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
 	CMAKE_LIKE_OUTPUT=1
 
-stdlib:
+ifeq "${STAGE}" "0"
+  LEANMAKE_OPTS+=C_ONLY=1 C_OUT=../stdlib/
+endif
+
+.PHONY: Init Lean leanshared Lake lean
+
+# These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
+Init:
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
-	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS)
-	+"${LEAN_BIN}/leanmake" lib PKG=Std $(LEANMAKE_OPTS)
-	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS)
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanpkg BIN_NAME=leanpkg $(LEANMAKE_OPTS) LINK_OPTS="${CMAKE_EXE_LINKER_FLAGS}"
+	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
+
+Lean: Init
+	+"${LEAN_BIN}/leanmake" lib PKG=Lean $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
+
+# the following targets are all invoked by separate `make` calls; see src/CMakeLists.txt
+
+# we specify the precise file names here to avoid rebuilds
+${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${LIB}/lean/libInit.a ${LIB}/lean/libLean.a ${LIB}/lean/libleancpp.a ${CMAKE_BINARY_DIR}/runtime/libleanrt_initial-exec.a
+	@echo "[    ] Building $@"
+	"${CMAKE_BINARY_DIR}/leanc.sh" -shared -o $@ ${LEANSHARED_LINKER_FLAGS} ${LEANC_OPTS}
+
+leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX}
+
+Lake:
+# must put lake in its own directory because of submodule, so must adjust relative paths...
+	+"${LEAN_BIN}/leanmake" -C lake bin PKG=Lake BIN_NAME=lake${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="../${LIB}" LIB_OUT="../${LIB}/lean" OLEAN_OUT="../${LIB}/lean"
+
+${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} $(LEAN_SHELL)
+	@echo "[    ] Building $@"
+	"${CMAKE_BINARY_DIR}/leanc.sh" $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+
+lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
+
+Leanc:
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}"

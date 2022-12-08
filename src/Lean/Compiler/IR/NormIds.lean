@@ -15,21 +15,21 @@ def checkId (id : Index) : M Bool :=
     else (true, s.insert id)
 
 def checkParams (ps : Array Param) : M Bool :=
-  ps.allM $ fun p => checkId p.x.idx
+  ps.allM fun p => checkId p.x.idx
 
 partial def checkFnBody : FnBody → M Bool
-  | FnBody.vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
-  | FnBody.jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
-  | FnBody.case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
-  | b                       => if b.isTerminal then pure true else checkFnBody b.body
+  | .vdecl x _ _ b    => checkId x.idx <&&> checkFnBody b
+  | .jdecl j ys _ b   => checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+  | .case _ _ _ alts  => alts.allM fun alt => checkFnBody alt.body
+  | b                 => if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-  | Decl.fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
-  | Decl.extern (xs := xs) .. => checkParams xs
+  | .fdecl (xs := xs) (body := b) .. => checkParams xs <&&> checkFnBody b
+  | .extern (xs := xs) .. => checkParams xs
 
 end UniqueIds
 
-/- Return true if variable, parameter and join point ids are unique -/
+/-- Return true if variable, parameter and join point ids are unique -/
 def Decl.uniqueIds (d : Decl) : Bool :=
   (UniqueIds.checkDecl d).run' {}
 
@@ -53,7 +53,7 @@ def normArg : Arg → M Arg
   | other     => pure other
 
 def normArgs (as : Array Arg) : M (Array Arg) := fun m =>
-  as.map $ fun a => normArg a m
+  as.map fun a => normArg a m
 
 def normExpr : Expr → M Expr
   | Expr.ctor c ys,      m => Expr.ctor c (normArgs ys m)
@@ -69,7 +69,7 @@ def normExpr : Expr → M Expr
   | Expr.unbox x,        m => Expr.unbox (normVar x m)
   | Expr.isShared x,     m => Expr.isShared (normVar x m)
   | Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
-  | e@(Expr.lit v),      m =>  e
+  | e@(Expr.lit _),      _ =>  e
 
 abbrev N := ReaderT IndexRenaming (StateM Nat)
 
@@ -84,12 +84,12 @@ abbrev N := ReaderT IndexRenaming (StateM Nat)
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α := fun m => do
   let m ← ps.foldlM (init := m) fun m p => do
     let n ← getModify fun n => n + 1
-    pure $ m.insert p.x.idx n
+    return m.insert p.x.idx n
   let ps := ps.map fun p => { p with x := normVar p.x m }
   k ps m
 
 instance : MonadLift M N :=
-  ⟨fun x m => pure $ x m⟩
+  ⟨fun x m => return x m⟩
 
 partial def normFnBody : FnBody → N FnBody
   | FnBody.vdecl x t v b    => do let v ← normExpr v; withVar x fun x => return FnBody.vdecl x t v (← normFnBody b)
@@ -114,16 +114,16 @@ partial def normFnBody : FnBody → N FnBody
 
 def normDecl (d : Decl) : N Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun xs => return d.updateBody! (← normFnBody b)
+  | Decl.fdecl (xs := xs) (body := b) .. => withParams xs fun _ => return d.updateBody! (← normFnBody b)
   | other => pure other
 
 end NormalizeIds
 
-/- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
+/-- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
   (NormalizeIds.normDecl d {}).run' 1
 
-/- Apply a function `f : VarId → VarId` to variable occurrences.
+/-! Apply a function `f : VarId → VarId` to variable occurrences.
    The following functions assume the IR code does not have variable shadowing. -/
 namespace MapVars
 
@@ -131,10 +131,10 @@ namespace MapVars
   | Arg.var x => Arg.var (f x)
   | a         => a
 
-@[specialize] def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
+def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
   as.map (mapArg f)
 
-@[specialize] def mapExpr (f : VarId → VarId) : Expr → Expr
+def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.ctor c ys      => Expr.ctor c (mapArgs f ys)
   | Expr.reset n x      => Expr.reset n (f x)
   | Expr.reuse x c u ys => Expr.reuse (f x) c u (mapArgs f ys)
@@ -148,9 +148,9 @@ namespace MapVars
   | Expr.unbox x        => Expr.unbox (f x)
   | Expr.isShared x     => Expr.isShared (f x)
   | Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
-  | e@(Expr.lit v)      =>  e
+  | e@(Expr.lit _)      =>  e
 
-@[specialize] partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
+partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
   | FnBody.vdecl x t v b         => FnBody.vdecl x t (mapExpr f v) (mapFnBody f b)
   | FnBody.jdecl j ys v b        => FnBody.jdecl j ys (mapFnBody f v) (mapFnBody f b)
   | FnBody.set x i y b           => FnBody.set (f x) i (mapArg f y) (mapFnBody f b)
@@ -171,7 +171,7 @@ end MapVars
 @[inline] def FnBody.mapVars (f : VarId → VarId) (b : FnBody) : FnBody :=
   MapVars.mapFnBody f b
 
-/- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
+/-- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
 def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
   b.mapVars fun z => if x == z then y else z
 

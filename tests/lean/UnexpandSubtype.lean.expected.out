@@ -1,0 +1,2 @@
+{ x // x < 10 } : Type
+{ x : Nat // x < 10 } : Type

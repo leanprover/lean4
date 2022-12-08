@@ -3,8 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.Meta.Tactic.Util
 import Lean.Util.ForEachExpr
-import Lean.Elab.Term
+import Lean.Util.OccursCheck
 import Lean.Elab.Tactic.Basic
 
 namespace Lean.Elab.Term
@@ -22,8 +23,8 @@ private def resumeElabTerm (stx : Syntax) (expectedType? : Option Expr) (errToSo
   It returns `true` if it succeeded, and `false` otherwise.
   It is used to implement `synthesizeSyntheticMVars`. -/
 private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId : MVarId) (postponeOnError : Bool) : TermElabM Bool :=
-  withRef stx <| withMVarContext mvarId do
-    let s ← get
+  withRef stx <| mvarId.withContext do
+    let s ← saveState
     try
       withSavedContext savedContext do
         let mvarDecl     ← getMVarDecl mvarId
@@ -35,20 +36,20 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
           let result ← withRef stx <| ensureHasType expectedType result
           /- We must perform `occursCheck` here since `result` may contain `mvarId` when it has synthetic `sorry`s. -/
           if (← occursCheck mvarId result) then
-            assignExprMVar mvarId result
+            mvarId.assign result
             return true
           else
             return false
     catch
-     | ex@(Exception.internal id _) =>
+     | ex@(.internal id _) =>
        if id == postponeExceptionId then
-         set s
+         s.restore (restoreInfo := true)
          return false
        else
          throw ex
-     | ex@(Exception.error _ _) =>
+     | ex@(.error ..) =>
        if postponeOnError then
-         set s
+         s.restore (restoreInfo := true)
          return false
        else
          logException ex
@@ -58,103 +59,137 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
   Similar to `synthesizeInstMVarCore`, but makes sure that `instMVar` local context and instances
   are used. It also logs any error message produced. -/
 private def synthesizePendingInstMVar (instMVar : MVarId) : TermElabM Bool :=
-  withMVarContext instMVar do
+  instMVar.withContext do
     try
       synthesizeInstMVarCore instMVar
     catch
-      | ex@(Exception.error _ _) => logException ex; return true
-      | _                        => unreachable!
+      | ex@(.error ..) => logException ex; return true
+      | _              => unreachable!
 
 /--
-  Similar to `synthesizePendingInstMVar`, but generates type mismatch error message.
-  Remark: `eNew` is of the form `@coe ... mvar`, where `mvar` is the metavariable for the `CoeT ...` instance.
-  If `mvar` can be synthesized, then assign `auxMVarId := (expandCoe eNew)`.
--/
-private def synthesizePendingCoeInstMVar
-    (auxMVarId : MVarId) (errorMsgHeader? : Option String) (eNew : Expr) (expectedType : Expr) (eType : Expr) (e : Expr) (f? : Option Expr) : TermElabM Bool := do
-  let instMVarId := eNew.appArg!.mvarId!
-  withMVarContext instMVarId do
-    if (← isDefEq expectedType eType) then
-      /- This case may seem counterintuitive since we created the coercion
-         because the `isDefEq expectedType eType` test failed before.
-         However, it may succeed here because we have more information, for example, metavariables
-         occurring at `expectedType` and `eType` may have been assigned. -/
-      if (← occursCheck auxMVarId e) then
-        assignExprMVar auxMVarId e
-        return true
-      else
-        return false
-    try
-      if (← synthesizeCoeInstMVarCore instMVarId) then
-        let eNew ← expandCoe eNew
-        if (← occursCheck auxMVarId eNew) then
-          assignExprMVar auxMVarId eNew
-          return true
-      return false
-    catch
-      | Exception.error _ msg => throwTypeMismatchError errorMsgHeader? expectedType eType e f? msg
-      | _                     => unreachable!
+  Try to synthesize `mvarId` by starting using a default instance with the give privority.
+  This method succeeds only if the metavariable of fully synthesized.
 
-/--
-  Try to synthesize a value for `mvarId` using the given default instance.
-  Return `some (val, mvarDecls)` if successful, where `val` is the value assigned to `mvarId`, and `mvarDecls` is a list of new type class instances that need to be synthesized.
--/
-private def tryToSynthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
-  commitWhenSome? do
-    let candidate ← mkConstWithFreshMVarLevels defaultInstance
-    let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
-    let candidate := mkAppN candidate mvars
-    trace[Elab.resume] "trying default instance for {mkMVar mvarId} := {candidate}"
-    if (← isDefEqGuarded (mkMVar mvarId) candidate) then
-      -- Succeeded. Collect new TC problems
-      let mut result := []
-      for i in [:bis.size] do
-        if bis[i] == BinderInfo.instImplicit then
-           result := { mvarId := mvars[i].mvarId!, stx := (← getRef), kind := SyntheticMVarKind.typeClass } :: result
-      trace[Elab.resume] "worked"
-      return some (candidate, result)
-    else
-      return none
+  Remark: In the past, we would return a list of pending TC problems, but this was problematic since
+  a default instance may create subproblems that cannot be solved.
 
-private def tryToSynthesizeUsingDefaultInstances (mvarId : MVarId) (prio : Nat) : TermElabM (Option (Expr × List SyntheticMVarDecl)) :=
-  withMVarContext mvarId do
-    let mvarType := (← Meta.getMVarDecl mvarId).type
+  Remark: The new approach also has limitations because other pending metavariables are not taken into account
+  while backtraking. That is, we fail to synthesize `mvarId` because we reach subproblems that are stuck,
+  but we could "unstuck" them if we tried to solve other pending metavariables. Considering all pending metavariables
+  into a single backtracking search seems to be too expensive, and potentially generate incomprehensible error messages.
+  This is particularly true if we consider pending metavariables for "postponed" elaboration steps.
+  Here is an example that demonstrate this issue. The example considers we are using the old `binrel%` elaborator which was
+  disconnected from `binop%`.
+  ```
+  example (a : Int) (b c : Nat) : a = ↑b - ↑c := sorry
+  ```
+  We have two pending coercions for the `↑` and `HSub ?m.220 ?m.221 ?m.222`.
+  When we did not use a backtracking search here, then the homogenous default instance for `HSub`.
+  ```
+  instance [Sub α] : HSub α α α where
+  ```
+  would be applied first, and would propagate the expected type `Int` to the pending coercions which would now be unblocked.
+
+  Instead of performing a backtracking search that considers all pending metavariables, we improved the `binrel%` elaborator.
+-/
+private partial def synthesizeUsingDefaultPrio (mvarId : MVarId) (prio : Nat) : TermElabM Bool :=
+  mvarId.withContext do
+    let mvarType ← mvarId.getType
     match (← isClass? mvarType) with
-    | none => return none
+    | none => return false
     | some className =>
       match (← getDefaultInstances className) with
-      | [] => return none
+      | [] => return false
       | defaultInstances =>
         for (defaultInstance, instPrio) in defaultInstances do
           if instPrio == prio then
-            match (← tryToSynthesizeUsingDefaultInstance mvarId defaultInstance) with
-            | some result => return some result
-            | none => continue
+            if (← synthesizeUsingDefaultInstance mvarId defaultInstance) then
+              return true
+        return false
+where
+  synthesizeUsingDefault (mvarId : MVarId) : TermElabM Bool := do
+    for prio in (← getDefaultInstancesPriorities) do
+      if (← synthesizeUsingDefaultPrio mvarId prio) then
+        return true
+    return false
+
+  synthesizePendingInstMVar' (mvarId : MVarId) : TermElabM Bool :=
+    commitWhen <| mvarId.withContext do
+      try
+        synthesizeInstMVarCore mvarId
+      catch _ =>
+        return false
+
+  synthesizeUsingInstancesStep (mvarIds : List MVarId) : TermElabM (List MVarId) :=
+    mvarIds.filterM fun mvarId => do
+      if (← synthesizePendingInstMVar' mvarId) then
+        return false
+      else
+        return true
+
+  synthesizeUsingInstances (mvarIds : List MVarId) : TermElabM (List MVarId) := do
+    let mvarIds' ← synthesizeUsingInstancesStep mvarIds
+    if mvarIds'.length < mvarIds.length then
+      synthesizeUsingInstances mvarIds'
+    else
+      return mvarIds'
+
+  synthesizeUsingDefaultInstance (mvarId : MVarId) (defaultInstance : Name) : TermElabM Bool :=
+    commitWhen do
+      let candidate ← mkConstWithFreshMVarLevels defaultInstance
+      let (mvars, bis, _) ← forallMetaTelescopeReducing (← inferType candidate)
+      let candidate := mkAppN candidate mvars
+      trace[Elab.defaultInstance] "{toString (mkMVar mvarId)}, {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
+      /- The `coeAtOutParam` feature may mark output parameters of local instances as `syntheticOpaque`.
+         This kind of parameter is not assignable by default. We use `withAssignableSyntheticOpaque` to workaround this behavior
+         when processing default instances. TODO: try to avoid `withAssignableSyntheticOpaque`. -/
+      if (← withAssignableSyntheticOpaque <| isDefEqGuarded (mkMVar mvarId) candidate) then
+        -- Succeeded. Collect new TC problems
+        trace[Elab.defaultInstance] "isDefEq worked {mkMVar mvarId} : {← inferType (mkMVar mvarId)} =?= {candidate} : {← inferType candidate}"
+        let mut pending := []
+        for i in [:bis.size] do
+          if bis[i]! == BinderInfo.instImplicit then
+            pending := mvars[i]!.mvarId! :: pending
+        synthesizePending pending
+      else
+        return false
+
+  synthesizeSomeUsingDefault? (mvarIds : List MVarId) : TermElabM (Option (List MVarId)) := do
+    match mvarIds with
+    | [] => return none
+    | mvarId :: mvarIds =>
+      if (← synthesizeUsingDefault mvarId) then
+        return mvarIds
+      else if let some mvarIds' ← synthesizeSomeUsingDefault? mvarIds then
+        return mvarId :: mvarIds'
+      else
         return none
 
-/- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
-private def synthesizeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
-  let rec visit (syntheticMVars : List SyntheticMVarDecl) (syntheticMVarsNew : List SyntheticMVarDecl) : TermElabM Bool := do
-    match syntheticMVars with
+  synthesizePending (mvarIds : List MVarId) : TermElabM Bool := do
+    let mvarIds ← synthesizeUsingInstances mvarIds
+    if mvarIds.isEmpty then return true
+    let some mvarIds ← synthesizeSomeUsingDefault? mvarIds | return false
+    synthesizePending mvarIds
+
+/-- Used to implement `synthesizeUsingDefault`. This method only consider default instances with the given priority. -/
+private def synthesizeSomeUsingDefaultPrio (prio : Nat) : TermElabM Bool := do
+  let rec visit (pendingMVars : List MVarId) (pendingMVarsNew : List MVarId) : TermElabM Bool := do
+    match pendingMVars with
     | [] => return false
-    | mvarDecl :: mvarDecls =>
+    | mvarId :: pendingMVars =>
+      let some mvarDecl ← getSyntheticMVarDecl? mvarId | visit pendingMVars (mvarId :: pendingMVarsNew)
       match mvarDecl.kind with
-      | SyntheticMVarKind.typeClass =>
-        match (← withRef mvarDecl.stx <| tryToSynthesizeUsingDefaultInstances mvarDecl.mvarId prio) with
-        | none => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
-        | some (val, newMVarDecls) =>
-          for newMVarDecl in newMVarDecls do
-            -- Register that `newMVarDecl.mvarId`s are implicit arguments of the value assigned to `mvarDecl.mvarId`
-            registerMVarErrorImplicitArgInfo newMVarDecl.mvarId (← getRef) val
-          let syntheticMVarsNew := newMVarDecls ++ syntheticMVarsNew
-          let syntheticMVarsNew := mvarDecls.reverse ++ syntheticMVarsNew
-          modify fun s => { s with syntheticMVars := syntheticMVarsNew }
+      | .typeClass =>
+        if (← withRef mvarDecl.stx <| synthesizeUsingDefaultPrio mvarId prio) then
+          modify fun s => { s with pendingMVars := pendingMVars.reverse ++ pendingMVarsNew }
           return true
-      | _ => visit mvarDecls (mvarDecl :: syntheticMVarsNew)
-  /- Recall that s.syntheticMVars is essentially a stack. The first metavariable was the last one created.
+        else
+          visit pendingMVars (mvarId :: pendingMVarsNew)
+      | _ => visit pendingMVars (mvarId :: pendingMVarsNew)
+  /- Recall that s.pendingMVars is essentially a stack. The first metavariable was the last one created.
      We want to apply the default instance in reverse creation order. Otherwise,
      `toString 0` will produce a `OfNat String _` cannot be synthesized error. -/
-  visit (← get).syntheticMVars.reverse []
+  visit (← get).pendingMVars.reverse []
 
 /--
   Apply default value to any pending synthetic metavariable of kind `SyntheticMVarKind.withDefault`
@@ -163,59 +198,156 @@ private def synthesizeUsingDefault : TermElabM Bool := do
   let prioSet ← getDefaultInstancesPriorities
   /- Recall that `prioSet` is stored in descending order -/
   for prio in prioSet do
-    if (← synthesizeUsingDefaultPrio prio) then
+    if (← synthesizeSomeUsingDefaultPrio prio) then
       return true
   return false
 
-/-- Report an error for each synthetic metavariable that could not be resolved. -/
-private def reportStuckSyntheticMVars : TermElabM Unit := do
-  let syntheticMVars ← modifyGet fun s => (s.syntheticMVars, { s with syntheticMVars := [] })
-  for mvarSyntheticDecl in syntheticMVars do
-    withRef mvarSyntheticDecl.stx do
+/--
+We use this method to report typeclass (and coercion) resolution problems that are "stuck".
+That is, there is nothing else to do, and we don't have enough information to synthesize them using TC resolution.
+-/
+def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermElabM Unit := do
+  let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return ()
+  withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | SyntheticMVarKind.typeClass =>
-      withMVarContext mvarSyntheticDecl.mvarId do
-        let mvarDecl ← getMVarDecl mvarSyntheticDecl.mvarId
-        unless (← get).messages.hasErrors do
-          throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
-    | SyntheticMVarKind.coe header eNew expectedType eType e f? =>
-      let mvarId := eNew.appArg!.mvarId!
-      withMVarContext mvarId do
-        let mvarDecl ← getMVarDecl mvarId
-        throwTypeMismatchError header expectedType eType e f? (some ("failed to create type class instance for " ++ indentExpr mvarDecl.type))
+    | .typeClass =>
+      unless ignoreStuckTC do
+         mvarId.withContext do
+          let mvarDecl ← getMVarDecl mvarId
+          unless (← MonadLog.hasErrors) do
+            throwError "typeclass instance problem is stuck, it is often due to metavariables{indentExpr mvarDecl.type}"
+    | .coe header expectedType e f? =>
+      mvarId.withContext do
+        throwTypeMismatchError header expectedType (← inferType e) e f?
+          m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
     | _ => unreachable! -- TODO handle other cases.
 
+/--
+  Report an error for each synthetic metavariable that could not be resolved.
+  Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments.
+-/
+private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit := do
+  let pendingMVars ← modifyGet fun s => (s.pendingMVars, { s with pendingMVars := [] })
+  for mvarId in pendingMVars do
+    reportStuckSyntheticMVar mvarId ignoreStuckTC
+
 private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
-  let s ← get
-  match s.syntheticMVars.find? fun (mvarDecl : SyntheticMVarDecl) => !mvarDecl.stx.getPos?.isNone with
-  | some mvarDecl => return mvarDecl.stx
-  | none          => return Syntax.missing
+  for mvarId in (← get).pendingMVars do
+    if let some decl ← getSyntheticMVarDecl? mvarId then
+      if decl.stx.getPos?.isSome then
+        return decl.stx
+  return .missing
+
+/--
+  Generate an nicer error message for stuck universe constraints.
+-/
+private def throwStuckAtUniverseCnstr : TermElabM Unit := do
+  -- This code assumes `entries` is not empty. Note that `processPostponed` uses `exceptionOnFailure` to guarantee this property
+  let entries ← getPostponed
+  let mut found : HashSet (Level × Level) := {}
+  let mut uniqueEntries := #[]
+  for entry in entries do
+    let mut lhs := entry.lhs
+    let mut rhs := entry.rhs
+    if Level.normLt rhs lhs then
+      (lhs, rhs) := (rhs, lhs)
+    unless found.contains (lhs, rhs) do
+      found := found.insert (lhs, rhs)
+      uniqueEntries := uniqueEntries.push entry
+  for i in [1:uniqueEntries.size] do
+    logErrorAt uniqueEntries[i]!.ref (← mkLevelStuckErrorMessage uniqueEntries[i]!)
+  throwErrorAt uniqueEntries[0]!.ref (← mkLevelStuckErrorMessage uniqueEntries[0]!)
+
+/--
+  Try to solve postponed universe constraints, and throws an exception if there are stuck constraints.
+
+  Remark: in previous versions, each `isDefEq u v` invocation would fail if there
+  were pending universe level constraints. With this old approach, we were not able
+  to process
+  ```
+  Functor.map Prod.fst (x s)
+  ```
+  because after elaborating `Prod.fst` and trying to ensure its type
+  match the expected one, we would be stuck at the universe constraint:
+  ```
+  u =?= max u ?v
+  ```
+  Another benefit of using `withoutPostponingUniverseConstraints` is better error messages. Instead
+  of getting a mysterious type mismatch constraint, we get a list of
+  universe contraints the system is stuck at.
+-/
+private def processPostponedUniverseContraints : TermElabM Unit := do
+  unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
+    throwStuckAtUniverseCnstr
+
+/--
+  Remove `mvarId` from the `syntheticMVars` table. We use this method after
+  the metavariable has been synthesized.
+-/
+private def markAsResolved (mvarId : MVarId) : TermElabM Unit :=
+  modify fun s => { s with syntheticMVars := s.syntheticMVars.erase mvarId }
 
 mutual
 
-  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := do
+  /--
+  Try to synthesize a term `val` using the tactic code `tacticCode`, and then assign `mvarId := val`.
+  -/
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := withoutAutoBoundImplicit do
     /- Recall, `tacticCode` is the whole `by ...` expression. -/
-    let byTk := tacticCode[0]
     let code := tacticCode[1]
-    modifyThe Meta.State fun s => { s with mctx := s.mctx.instantiateMVarDeclMVars mvarId }
-    let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-       withTacticInfoContext tacticCode (evalTactic code)
-       synthesizeSyntheticMVars (mayPostpone := false)
-    unless remainingGoals.isEmpty do
-      reportUnsolvedGoals remainingGoals
+    instantiateMVarDeclMVars mvarId
+    /-
+    TODO: consider using `runPendingTacticsAt` at `mvarId` local context and target type.
+    Issue #1380 demonstrates that the goal may still contain pending metavariables.
+    It happens in the following scenario we have a term `foo A (by tac)` where `A` has been postponed
+    and contains nested `by ...` terms. The pending metavar list contains two metavariables: ?m1 (for `A`) and
+    `?m2` (for `by tac`). When `A` is resumed, it creates a new metavariable `?m3` for the nested `by ...` term in `A`.
+    `?m3` is after `?m2` in the to-do list. Then, we execute `by tac` for synthesizing `?m2`, but its type depends on
+    `?m3`. We have considered putting `?m3` at `?m2` place in the to-do list, but this is not super robust.
+    The ideal solution is to make sure a tactic "resolves" all pending metavariables nested in their local contex and target type
+    before starting tactic execution. The procedure would be a generalization of `runPendingTacticsAt`. We can try to combine
+    it with `instantiateMVarDeclMVars` to make sure we do not perform two traversals.
+    Regarding issue #1380, we addressed the issue by avoiding the elaboration postponement step. However, the same issue can happen
+    in more complicated scenarios.
+    -/
+    try
+      let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
+         withTacticInfoContext tacticCode (evalTactic code)
+         synthesizeSyntheticMVars (mayPostpone := false)
+      unless remainingGoals.isEmpty do
+        reportUnsolvedGoals remainingGoals
+    catch ex =>
+      if (← read).errToSorry then
+        for mvarId in (← getMVars (mkMVar mvarId)) do
+          mvarId.admit
+        logException ex
+      else
+        throw ex
 
   /-- Try to synthesize the given pending synthetic metavariable. -/
-  private partial def synthesizeSyntheticMVar (mvarSyntheticDecl : SyntheticMVarDecl) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool :=
+  private partial def synthesizeSyntheticMVar (mvarId : MVarId) (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
+    let some mvarSyntheticDecl ← getSyntheticMVarDecl? mvarId | return true -- The metavariable has already been synthesized
     withRef mvarSyntheticDecl.stx do
     match mvarSyntheticDecl.kind with
-    | SyntheticMVarKind.typeClass => synthesizePendingInstMVar mvarSyntheticDecl.mvarId
-    | SyntheticMVarKind.coe header? eNew expectedType eType e f? => synthesizePendingCoeInstMVar mvarSyntheticDecl.mvarId header? eNew expectedType eType e f?
+    | .typeClass => synthesizePendingInstMVar mvarId
+    | .coe _header? expectedType e _f? => mvarId.withContext do
+      if (← withDefault do isDefEq (← inferType e) expectedType) then
+        -- Types may be defeq now due to mvar assignments, type class
+        -- defaulting, etc.
+        if (← occursCheck mvarId e) then
+          mvarId.assign e
+          return true
+      if let .some coerced ← coerce? e expectedType then
+        if (← occursCheck mvarId coerced) then
+          mvarId.assign coerced
+          return true
+      return false
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
-    | SyntheticMVarKind.postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarSyntheticDecl.mvarId postponeOnError
-    | SyntheticMVarKind.tactic tacticCode savedContext =>
+    | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
+    | .tactic tacticCode savedContext =>
       withSavedContext savedContext do
         if runTactics then
-          runTactic mvarSyntheticDecl.mvarId tacticCode
+          runTactic mvarId tacticCode
           return true
         else
           return false
@@ -226,36 +358,41 @@ mutual
     let ctx ← read
     traceAtCmdPos `Elab.resuming fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
-    let syntheticMVars    := (← get).syntheticMVars
-    let numSyntheticMVars := syntheticMVars.length
-    -- We reset `syntheticMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
-    modify fun s => { s with syntheticMVars := [] }
-    -- Recall that `syntheticMVars` is a list where head is the most recent pending synthetic metavariable.
+    let pendingMVars    := (← get).pendingMVars
+    let numSyntheticMVars := pendingMVars.length
+    -- We reset `pendingMVars` because new synthetic metavariables may be created by `synthesizeSyntheticMVar`.
+    modify fun s => { s with pendingMVars := [] }
+    -- Recall that `pendingMVars` is a list where head is the most recent pending synthetic metavariable.
     -- We use `filterRevM` instead of `filterM` to make sure we process the synthetic metavariables using the order they were created.
     -- It would not be incorrect to use `filterM`.
-    let remainingSyntheticMVars ← syntheticMVars.filterRevM fun mvarDecl => do
+    let remainingPendingMVars ← pendingMVars.filterRevM fun mvarId => do
        -- We use `traceM` because we want to make sure the metavar local context is used to trace the message
-       traceM `Elab.postpone (withMVarContext mvarDecl.mvarId do addMessageContext m!"resuming {mkMVar mvarDecl.mvarId}")
-       let succeeded ← synthesizeSyntheticMVar mvarDecl postponeOnError runTactics
-       trace[Elab.postpone] if succeeded then fmt "succeeded" else fmt "not ready yet"
+       traceM `Elab.postpone (mvarId.withContext do addMessageContext m!"resuming {mkMVar mvarId}")
+       let succeeded ← synthesizeSyntheticMVar mvarId postponeOnError runTactics
+       if succeeded then markAsResolved mvarId
+       trace[Elab.postpone] if succeeded then format "succeeded" else format "not ready yet"
        pure !succeeded
-    -- Merge new synthetic metavariables with `remainingSyntheticMVars`, i.e., metavariables that still couldn't be synthesized
-    modify fun s => { s with syntheticMVars := s.syntheticMVars ++ remainingSyntheticMVars }
-    return numSyntheticMVars != remainingSyntheticMVars.length
+    -- Merge new synthetic metavariables with `remainingPendingMVars`, i.e., metavariables that still couldn't be synthesized
+    modify fun s => { s with pendingMVars := s.pendingMVars ++ remainingPendingMVars }
+    return numSyntheticMVars != remainingPendingMVars.length
 
   /--
     Try to process pending synthetic metavariables. If `mayPostpone == false`,
-    then `syntheticMVars` is `[]` after executing this method.
+    then `pendingMVars` is `[]` after executing this method.
 
     It keeps executing `synthesizeSyntheticMVarsStep` while progress is being made.
     If `mayPostpone == false`, then it applies default instances to `SyntheticMVarKind.typeClass` (if available)
     metavariables that are still unresolved, and then tries to resolve metavariables
     with `mayPostpone == false`. That is, we force them to produce error messages and/or commit to
-    a "best option". If, after that, we still haven't made progress, we report "stuck" errors. -/
-  partial def synthesizeSyntheticMVars (mayPostpone := true) : TermElabM Unit :=
-    let rec loop (u : Unit) : TermElabM Unit := do
+    a "best option". If, after that, we still haven't made progress, we report "stuck" errors.
+
+    Remark: we set `ignoreStuckTC := true` when elaborating `simp` arguments. Then,
+    pending TC problems become implicit parameters for the simp theorem.
+  -/
+  partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
+    let rec loop (_ : Unit) : TermElabM Unit := do
       withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
-        unless (← get).syntheticMVars.isEmpty do
+        unless (← get).pendingMVars.isEmpty do
           if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
             loop ()
           else if !mayPostpone then
@@ -284,14 +421,16 @@ mutual
             else if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := true) then
               loop ()
             else
-              reportStuckSyntheticMVars
+              reportStuckSyntheticMVars ignoreStuckTC
     loop ()
+    unless mayPostpone do
+     processPostponedUniverseContraints
 end
 
-def synthesizeSyntheticMVarsNoPostponing : TermElabM Unit :=
-  synthesizeSyntheticMVars (mayPostpone := false)
+def synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := false) : TermElabM Unit :=
+  synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := ignoreStuckTC)
 
-/- Keep invoking `synthesizeUsingDefault` until it returns false. -/
+/-- Keep invoking `synthesizeUsingDefault` until it returns false. -/
 private partial def synthesizeUsingDefaultLoop : TermElabM Unit := do
   if (← synthesizeUsingDefault) then
     synthesizeSyntheticMVars (mayPostpone := true)
@@ -301,28 +440,48 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
   synthesizeSyntheticMVars (mayPostpone := true)
   synthesizeUsingDefaultLoop
 
-private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Bool) : TermElabM α := do
-  let syntheticMVarsSaved := (← get).syntheticMVars
-  modify fun s => { s with syntheticMVars := [] }
+private partial def withSynthesizeImp {α} (k : TermElabM α) (mayPostpone : Bool) (synthesizeDefault : Bool) : TermElabM α := do
+  let pendingMVarsSaved := (← get).pendingMVars
+  modify fun s => { s with pendingMVars := [] }
   try
     let a ← k
     synthesizeSyntheticMVars mayPostpone
-    if mayPostpone then
+    if mayPostpone && synthesizeDefault then
       synthesizeUsingDefaultLoop
     return a
   finally
-    modify fun s => { s with syntheticMVars := s.syntheticMVars ++ syntheticMVarsSaved }
+    modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
 
 /--
   Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.
   If `mayPostpone == false`, then all of them must be synthesized.
   Remark: even if `mayPostpone == true`, the method still uses `synthesizeUsingDefault` -/
 @[inline] def withSynthesize [MonadFunctorT TermElabM m] [Monad m] (k : m α) (mayPostpone := false) : m α :=
-  monadMap (m := TermElabM) (withSynthesizeImp . mayPostpone) k
+  monadMap (m := TermElabM) (withSynthesizeImp · mayPostpone (synthesizeDefault := true)) k
+
+/-- Similar to `withSynthesize`, but sets `mayPostpone` to `true`, and do not use `synthesizeUsingDefault` -/
+@[inline] def withSynthesizeLight [MonadFunctorT TermElabM m] [Monad m] (k : m α) : m α :=
+  monadMap (m := TermElabM) (withSynthesizeImp · (mayPostpone := true) (synthesizeDefault := false)) k
 
 /-- Elaborate `stx`, and make sure all pending synthetic metavariables created while elaborating `stx` are solved. -/
 def elabTermAndSynthesize (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=
   withRef stx do
     instantiateMVars (← withSynthesize <| elabTerm stx expectedType?)
+
+/--
+Collect unassigned metavariables at `e` that have associated tactic blocks, and then execute them using `runTactic`.
+We use this method at the `match .. with` elaborator when it cannot be postponed anymore, but it is still waiting
+the result of a tactic block.
+-/
+def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
+  for mvarId in (← getMVars e) do
+    let mvarId ← getDelayedMVarRoot mvarId
+    if let some { kind := .tactic tacticCode savedContext, .. } ← getSyntheticMVarDecl? mvarId then
+      withSavedContext savedContext do
+        runTactic mvarId tacticCode
+        markAsResolved mvarId
+
+builtin_initialize
+  registerTraceClass `Elab.resume
 
 end Lean.Elab.Term

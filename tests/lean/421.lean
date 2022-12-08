@@ -7,5 +7,5 @@ inductive Conw : Con → Prop
 
 example (x : Conw Con.nil) : x = Conw.nilw := by
   cases x
-  traceState
+  trace_state
   rfl

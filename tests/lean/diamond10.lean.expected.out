@@ -1,0 +1,1 @@
+constructor Ring.mk.{u} : {R : Type u} → [toSemiring : Semiring R] → [toNeg : Neg R] → (∀ (a : R), -a + a = 0) → Ring R

@@ -1,0 +1,4 @@
+foo : ⦃u : Unit⦄ → Unit
+foo : ⦃u : Unit⦄ → Unit
+bla : Unit
+fun {u} => bla : {u : Unit} → Unit

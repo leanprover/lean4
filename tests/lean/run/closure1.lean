@@ -3,7 +3,7 @@ import Lean
 open Lean
 open Lean.Meta
 
-universes u
+universe u
 
 inductive Vec (α : Type u) : Nat → Type u
 | nil      : Vec α 0
@@ -14,6 +14,15 @@ set_option trace.Meta.debug true
 def printDef (declName : Name) : MetaM Unit := do
 let cinfo ← getConstInfo declName;
 trace[Meta.debug] cinfo.value!
+
+instance : Coe Name FVarId where
+  coe n := { name := n }
+
+instance : Coe Name MVarId where
+  coe n := { name := n }
+
+instance : Coe Name LMVarId where
+  coe n := { name := n }
 
 def tst1 : MetaM Unit := do
 let u := mkLevelParam `u

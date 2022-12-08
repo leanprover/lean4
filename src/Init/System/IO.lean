@@ -12,6 +12,9 @@ import Init.System.IOError
 import Init.System.FilePath
 import Init.System.ST
 import Init.Data.ToString.Macro
+import Init.Data.Ord
+
+open System
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations.
@@ -28,50 +31,129 @@ def IO.RealWorld : Type := Unit
 -/
 def EIO (ε : Type) : Type → Type := EStateM ε IO.RealWorld
 
-@[inline] def EIO.catchExceptions (x : EIO ε α) (h : ε → EIO Empty α) : EIO Empty α :=
-  fun s => match x s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex s => h ex s
-
 instance : Monad (EIO ε) := inferInstanceAs (Monad (EStateM ε IO.RealWorld))
 instance : MonadFinally (EIO ε) := inferInstanceAs (MonadFinally (EStateM ε IO.RealWorld))
 instance : MonadExceptOf ε (EIO ε) := inferInstanceAs (MonadExceptOf ε (EStateM ε IO.RealWorld))
-instance : OrElse (EIO ε α) := ⟨MonadExcept.orelse⟩
+instance : OrElse (EIO ε α) := ⟨MonadExcept.orElse⟩
 instance [Inhabited ε] : Inhabited (EIO ε α) := inferInstanceAs (Inhabited (EStateM ε IO.RealWorld α))
+
+/-- An `EIO` monad that cannot throw exceptions. -/
+def BaseIO := EIO Empty
+
+instance : Monad BaseIO := inferInstanceAs (Monad (EIO Empty))
+instance : MonadFinally BaseIO := inferInstanceAs (MonadFinally (EIO Empty))
+
+@[always_inline, inline]
+def BaseIO.toEIO (act : BaseIO α) : EIO ε α :=
+  fun s => match act s with
+  | EStateM.Result.ok a s => EStateM.Result.ok a s
+
+instance : MonadLift BaseIO (EIO ε) := ⟨BaseIO.toEIO⟩
+
+@[always_inline, inline]
+def EIO.toBaseIO (act : EIO ε α) : BaseIO (Except ε α) :=
+  fun s => match act s with
+  | EStateM.Result.ok a s     => EStateM.Result.ok (Except.ok a) s
+  | EStateM.Result.error ex s => EStateM.Result.ok (Except.error ex) s
+
+@[always_inline, inline]
+def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
+  fun s => match act s with
+  | EStateM.Result.ok a s     => EStateM.Result.ok a s
+  | EStateM.Result.error ex s => h ex s
 
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 
-@[inline] def EIO.toIO (f : ε → IO.Error) (x : EIO ε α) : IO α :=
-  x.adaptExcept f
+@[inline] def BaseIO.toIO (act : BaseIO α) : IO α :=
+  act
 
-@[inline] def EIO.toIO' (x : EIO ε α) : IO (Except ε α) :=
-  EIO.toIO (fun _ => unreachable!) (observing x)
+@[inline] def EIO.toIO (f : ε → IO.Error) (act : EIO ε α) : IO α :=
+  act.adaptExcept f
 
-@[inline] def IO.toEIO (f : IO.Error → ε) (x : IO α) : EIO ε α :=
-  x.adaptExcept f
+@[inline] def EIO.toIO' (act : EIO ε α) : IO (Except ε α) :=
+  act.toBaseIO
+
+@[inline] def IO.toEIO (f : IO.Error → ε) (act : IO α) : EIO ε α :=
+  act.adaptExcept f
 
 /- After we inline `EState.run'`, the closed term `((), ())` is generated, where the second `()`
    represents the "initial world". We don't want to cache this closed term. So, we disable
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
-@[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
+@[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
   match fn.run () with
-  | EStateM.Result.ok a _    => Except.ok a
-  | EStateM.Result.error e _ => Except.error e
+  | EStateM.Result.ok a _ => a
+
+@[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=
+  unsafeBaseIO fn.toBaseIO
 
 @[inline] unsafe def unsafeIO (fn : IO α) : Except IO.Error α :=
   unsafeEIO fn
 
-@[extern "lean_io_timeit"] constant timeit (msg : @& String) (fn : IO α) : IO α
-@[extern "lean_io_allocprof"] constant allocprof (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_timeit"] opaque timeit (msg : @& String) (fn : IO α) : IO α
+@[extern "lean_io_allocprof"] opaque allocprof (msg : @& String) (fn : IO α) : IO α
 
-/- Programs can execute IO actions during initialization that occurs before
+/-- Programs can execute IO actions during initialization that occurs before
    the `main` function is executed. The attribute `[init <action>]` specifies
    which IO action is executed to set the value of an opaque constant.
 
    The action `initializing` returns `true` iff it is invoked during initialization. -/
-@[extern "lean_io_initializing"] constant IO.initializing : IO Bool
+@[extern "lean_io_initializing"] opaque IO.initializing : BaseIO Bool
+
+namespace BaseIO
+
+/--
+  Run `act` in a separate `Task`.
+  This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
+  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
+  computation.
+  Unlike with pure tasks created by `Task.spawn`, tasks created by this function will be run even if the last reference
+  to the task is dropped. The `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
+  to that. -/
+@[extern "lean_io_as_task"]
+opaque asTask (act : BaseIO α) (prio := Task.Priority.default) : BaseIO (Task α) :=
+  Task.pure <$> act
+
+/-- See `BaseIO.asTask`. -/
+@[extern "lean_io_map_task"]
+opaque mapTask (f : α → BaseIO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  Task.pure <$> f t.get
+
+/-- See `BaseIO.asTask`. -/
+@[extern "lean_io_bind_task"]
+opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  f t.get
+
+def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task β) :=
+  go tasks []
+where
+  go
+    | t::ts, as =>
+      BaseIO.bindTask t (fun a => go ts (a :: as)) prio
+    | [], as => f as.reverse |>.asTask prio
+
+end BaseIO
+
+namespace EIO
+
+/-- `EIO` specialization of `BaseIO.asTask`. -/
+@[inline] def asTask (act : EIO ε α) (prio := Task.Priority.default) : BaseIO (Task (Except ε α)) :=
+  act.toBaseIO.asTask prio
+
+/-- `EIO` specialization of `BaseIO.mapTask`. -/
+@[inline] def mapTask (f : α → EIO ε β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTask (fun a => f a |>.toBaseIO) t prio
+
+/-- `EIO` specialization of `BaseIO.bindTask`. -/
+@[inline] def bindTask (t : Task α) (f : α → EIO ε (Task (Except ε β))) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e) prio
+
+/-- `EIO` specialization of `BaseIO.mapTasks`. -/
+@[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except ε β)) :=
+  BaseIO.mapTasks (fun as => f as |>.toBaseIO) tasks prio
+
+end EIO
 
 namespace IO
 
@@ -84,74 +166,97 @@ def lazyPure (fn : Unit → α) : IO α :=
   pure (fn ())
 
 /-- Monotonically increasing time since an unspecified past point in milliseconds. No relation to wall clock time. -/
-@[extern "lean_io_mono_ms_now"] constant monoMsNow : IO Nat
+@[extern "lean_io_mono_ms_now"] opaque monoMsNow : BaseIO Nat
 
-def sleep (ms : UInt32) : IO Unit :=
+/-- Monotonically increasing time since an unspecified past point in nanoseconds. No relation to wall clock time. -/
+@[extern "lean_io_mono_nanos_now"] opaque monoNanosNow : BaseIO Nat
+
+/-- Read bytes from a system entropy source. Not guaranteed to be cryptographically secure.
+If `nBytes = 0`, return immediately with an empty buffer. -/
+@[extern "lean_io_get_random_bytes"] opaque getRandomBytes (nBytes : USize) : IO ByteArray
+
+def sleep (ms : UInt32) : BaseIO Unit :=
   -- TODO: add a proper primitive for IO.sleep
   fun s => dbgSleep ms fun _ => EStateM.Result.ok () s
 
-/--
-  Run `act` in a separate `Task`. This is similar to Haskell's [`unsafeInterleaveIO`](http://hackage.haskell.org/package/base-4.14.0.0/docs/System-IO-Unsafe.html#v:unsafeInterleaveIO),
-  except that the `Task` is started eagerly as usual. Thus pure accesses to the `Task` do not influence the impure `act`
-  computation.
-  Unlike with pure tasks created by `Task.mk`, tasks created by this function will be run even if the last reference
-  to the task is dropped. `act` should manually check for cancellation via `IO.checkCanceled` if it wants to react
-  to that. -/
-@[extern "lean_io_as_task"]
-constant asTask (act : IO α) (prio := Task.Priority.default) : IO (Task (Except IO.Error α))
+/-- `IO` specialization of `EIO.asTask`. -/
+@[inline] def asTask (act : IO α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error α)) :=
+  EIO.asTask act prio
 
-/-- See `IO.asTask`. -/
-@[extern "lean_io_map_task"]
-constant mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+/-- `IO` specialization of `EIO.mapTask`. -/
+@[inline] def mapTask (f : α → IO β) (t : Task α) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTask f t prio
 
-/-- See `IO.asTask`. -/
-@[extern "lean_io_bind_task"]
-constant bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : IO (Task (Except IO.Error β))
+/-- `IO` specialization of `EIO.bindTask`. -/
+@[inline] def bindTask (t : Task α) (f : α → IO (Task (Except IO.Error β))) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.bindTask t f prio
+
+/-- `IO` specialization of `EIO.mapTasks`. -/
+@[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default) : BaseIO (Task (Except IO.Error β)) :=
+  EIO.mapTasks f tasks prio
 
 /-- Check if the task's cancellation flag has been set by calling `IO.cancel` or dropping the last reference to the task. -/
-@[extern "lean_io_check_canceled"] constant checkCanceled : IO Bool
+@[extern "lean_io_check_canceled"] opaque checkCanceled : BaseIO Bool
 
 /-- Request cooperative cancellation of the task. The task must explicitly call `IO.checkCanceled` to react to the cancellation. -/
-@[extern "lean_io_cancel"] constant cancel : @& Task α → IO Unit
+@[extern "lean_io_cancel"] opaque cancel : @& Task α → BaseIO Unit
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
-@[extern "lean_io_has_finished"] constant hasFinished : @& Task α → IO Bool
+@[extern "lean_io_has_finished"] opaque hasFinished : @& Task α → BaseIO Bool
 
 /-- Wait for the task to finish, then return its result. -/
-@[extern "lean_io_wait"] constant wait : Task α → IO α
+@[extern "lean_io_wait"] opaque wait (t : Task α) : BaseIO α :=
+  return t.get
+
+local macro "nonempty_list" : tactic =>
+  `(tactic| exact Nat.zero_lt_succ _)
 
 /-- Wait until any of the tasks in the given list has finished, then return its result. -/
-@[extern "lean_io_wait_any"] constant waitAny : @& List (Task α) → IO α
+@[extern "lean_io_wait_any"] opaque waitAny (tasks : @& List (Task α))
+    (h : tasks.length > 0 := by nonempty_list) : BaseIO α :=
+  return tasks[0].get
 
-/-- Helper method for implementing "deterministic" timeouts. It is the numbe of "small" memory allocations performed by the current execution thread. -/
-@[extern "lean_io_get_num_heartbeats"] constant getNumHeartbeats : EIO ε Nat
+/-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
+@[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 inductive FS.Mode where
   | read | write | readWrite | append
 
-constant FS.Handle : Type := Unit
+opaque FS.Handle : Type := Unit
 
 /--
   A pure-Lean abstraction of POSIX streams. We use `Stream`s for the standard streams stdin/stdout/stderr so we can
   capture output of `#eval` commands into memory. -/
 structure FS.Stream where
-  isEof   : IO Bool
   flush   : IO Unit
+  /--
+Read up to the given number of bytes from the stream.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   read    : USize → IO ByteArray
   write   : ByteArray → IO Unit
+  /--
+Read text up to (including) the next line break from the stream.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a stream, so further reads may block and return more data.
+  -/
   getLine : IO String
   putStr  : String → IO Unit
+  deriving Inhabited
 
-namespace Prim
 open FS
 
-@[extern "lean_get_stdin"] constant getStdin  : IO FS.Stream
-@[extern "lean_get_stdout"] constant getStdout : IO FS.Stream
-@[extern "lean_get_stderr"] constant getStderr : IO FS.Stream
+@[extern "lean_get_stdin"] opaque getStdin  : BaseIO FS.Stream
+@[extern "lean_get_stdout"] opaque getStdout : BaseIO FS.Stream
+@[extern "lean_get_stderr"] opaque getStderr : BaseIO FS.Stream
 
-@[extern "lean_get_set_stdin"] constant setStdin  : FS.Stream → IO FS.Stream
-@[extern "lean_get_set_stdout"] constant setStdout : FS.Stream → IO FS.Stream
-@[extern "lean_get_set_stderr"] constant setStderr : FS.Stream → IO FS.Stream
+/-- Replaces the stdin stream of the current thread and returns its previous value. -/
+@[extern "lean_get_set_stdin"] opaque setStdin  : FS.Stream → BaseIO FS.Stream
+/-- Replaces the stdout stream of the current thread and returns its previous value. -/
+@[extern "lean_get_set_stdout"] opaque setStdout : FS.Stream → BaseIO FS.Stream
+/-- Replaces the stderr stream of the current thread and returns its previous value. -/
+@[extern "lean_get_set_stderr"] opaque setStderr : FS.Stream → BaseIO FS.Stream
 
 @[specialize] partial def iterate (a : α) (f : α → IO (Sum α β)) : IO β := do
   let v ← f a
@@ -159,8 +264,11 @@ open FS
   | Sum.inl a => iterate a f
   | Sum.inr b => pure b
 
--- @[export lean_fopen_flags]
-def fopenFlags (m : FS.Mode) (b : Bool) : String :=
+namespace FS
+
+namespace Handle
+
+private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let mode :=
     match m with
     | FS.Mode.read      => "r"
@@ -170,76 +278,78 @@ def fopenFlags (m : FS.Mode) (b : Bool) : String :=
   let bin := if b then "b" else "t"
   mode ++ bin
 
-@[extern "lean_io_prim_handle_mk"] constant Handle.mk (s : @& String) (mode : @& String) : IO Handle
-@[extern "lean_io_prim_handle_is_eof"] constant Handle.isEof (h : @& Handle) : IO Bool
-@[extern "lean_io_prim_handle_flush"] constant Handle.flush (h : @& Handle) : IO Unit
-@[extern "lean_io_prim_handle_read"] constant Handle.read  (h : @& Handle) (bytes : USize) : IO ByteArray
-@[extern "lean_io_prim_handle_write"] constant Handle.write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
+@[extern "lean_io_prim_handle_mk"] opaque mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
 
-@[extern "lean_io_prim_handle_get_line"] constant Handle.getLine (h : @& Handle) : IO String
-@[extern "lean_io_prim_handle_put_str"] constant Handle.putStr (h : @& Handle) (s : @& String) : IO Unit
+def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
+  mkPrim fn (fopenFlags Mode bin)
 
-@[extern "lean_io_getenv"] constant getEnv (var : @& String) : IO (Option String)
-@[extern "lean_io_realpath"] constant realPath (fname : String) : IO String
-@[extern "lean_io_is_dir"] constant isDir (fname : @& String) : IO Bool
-@[extern "lean_io_file_exists"] constant fileExists (fname : @& String) : IO Bool
-@[extern "lean_io_remove_file"] constant removeFile (fname : @& String) : IO Unit
-@[extern "lean_io_app_dir"] constant appPath : IO String
-@[extern "lean_io_current_dir"] constant currentDir : IO String
+@[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
+/--
+Read up to the given number of bytes from the handle.
+If the returned array is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
+@[extern "lean_io_prim_handle_read"] opaque read (h : @& Handle) (bytes : USize) : IO ByteArray
+@[extern "lean_io_prim_handle_write"] opaque write (h : @& Handle) (buffer : @& ByteArray) : IO Unit
 
-end Prim
+/--
+Read text up to (including) the next line break from the handle.
+If the returned string is empty, an end-of-file marker has been reached.
+Note that EOF does not actually close a handle, so further reads may block and return more data.
+-/
+@[extern "lean_io_prim_handle_get_line"] opaque getLine (h : @& Handle) : IO String
+@[extern "lean_io_prim_handle_put_str"] opaque putStr (h : @& Handle) (s : @& String) : IO Unit
+
+end Handle
+
+@[extern "lean_io_realpath"] opaque realPath (fname : FilePath) : IO FilePath
+@[extern "lean_io_remove_file"] opaque removeFile (fname : @& FilePath) : IO Unit
+/-- Remove given directory. Fails if not empty; see also `IO.FS.removeDirAll`. -/
+@[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
+@[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
+
+end FS
+
+@[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)
+@[extern "lean_io_app_path"] opaque appPath : IO FilePath
+@[extern "lean_io_current_dir"] opaque currentDir : IO FilePath
 
 namespace FS
-variable [Monad m] [MonadLiftT IO m]
-
-def Handle.mk (s : String) (Mode : Mode) (bin : Bool := true) : m Handle :=
-  liftM (Prim.Handle.mk s (Prim.fopenFlags Mode bin))
 
 @[inline]
-def withFile (fn : String) (mode : Mode) (f : Handle → m α) : m α :=
+def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
 
-/-- returns whether the end of the file has been reached while reading a file.
-`h.isEof` returns true /after/ the first attempt at reading past the end of `h`.
-Once `h.isEof` is true, the reading `h` raises `IO.Error.eof`.
--/
-def Handle.isEof : Handle → m Bool := liftM ∘ Prim.Handle.isEof
-def Handle.flush : Handle → m Unit := liftM ∘ Prim.Handle.flush
-def Handle.read (h : Handle) (bytes : Nat) : m ByteArray := liftM (Prim.Handle.read h (USize.ofNat bytes))
-def Handle.write (h : Handle) (s : ByteArray) : m Unit := liftM (Prim.Handle.write h s)
-
-def Handle.getLine : Handle → m String := liftM ∘ Prim.Handle.getLine
-
-def Handle.putStr (h : Handle) (s : String) : m Unit :=
-  liftM <| Prim.Handle.putStr h s
-
-def Handle.putStrLn (h : Handle) (s : String) : m Unit :=
+def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
 
-partial def Handle.readBinToEnd (h : Handle) : m ByteArray := do
-  let rec loop (acc : ByteArray) : m ByteArray := do
-    if ← h.isEof then
+partial def Handle.readBinToEnd (h : Handle) : IO ByteArray := do
+  let rec loop (acc : ByteArray) : IO ByteArray := do
+    let buf ← h.read 1024
+    if buf.isEmpty then
       return acc
     else
-      let buf ← h.read 1024
       loop (acc ++ buf)
   loop ByteArray.empty
 
-partial def Handle.readToEnd (h : Handle) : m String := do
-  let rec read (s : String) := do
+partial def Handle.readToEnd (h : Handle) : IO String := do
+  let rec loop (s : String) := do
     let line ← h.getLine
-    if line.length == 0 then pure s else read (s ++ line)
-  read ""
+    if line.isEmpty then
+      return s
+    else
+      loop (s ++ line)
+  loop ""
 
-def readBinFile (fname : String) : m ByteArray := do
+def readBinFile (fname : FilePath) : IO ByteArray := do
   let h ← Handle.mk fname Mode.read true
   h.readBinToEnd
 
-def readFile (fname : String) : m String := do
+def readFile (fname : FilePath) : IO String := do
   let h ← Handle.mk fname Mode.read false
   h.readToEnd
 
-partial def lines (fname : String) : m (Array String) := do
+partial def lines (fname : FilePath) : IO (Array String) := do
   let h ← Handle.mk fname Mode.read false
   let rec read (lines : Array String) := do
     let line ← h.getLine
@@ -253,51 +363,106 @@ partial def lines (fname : String) : m (Array String) := do
       pure <| lines.push line
   read #[]
 
-def writeBinFile (fname : String) (content : ByteArray) : m Unit := do
+def writeBinFile (fname : FilePath) (content : ByteArray) : IO Unit := do
   let h ← Handle.mk fname Mode.write true
   h.write content
 
-def writeFile (fname : String) (content : String) : m Unit := do
+def writeFile (fname : FilePath) (content : String) : IO Unit := do
   let h ← Handle.mk fname Mode.write false
   h.putStr content
 
-namespace Stream
+def Stream.putStrLn (strm : FS.Stream) (s : String) : IO Unit :=
+  strm.putStr (s.push '\n')
 
-def putStrLn (strm : FS.Stream) (s : String) : m Unit :=
-  liftM (strm.putStr (s.push '\n'))
+structure DirEntry where
+  root     : FilePath
+  fileName : String
+  deriving Repr
 
-end Stream
+def DirEntry.path (entry : DirEntry) : FilePath :=
+  entry.root / entry.fileName
+
+inductive FileType where
+  | dir
+  | file
+  | symlink
+  | other
+  deriving Repr, BEq
+
+structure SystemTime where
+  sec  : Int
+  nsec : UInt32
+  deriving Repr, BEq, Ord, Inhabited
+
+instance : LT SystemTime := ltOfOrd
+instance : LE SystemTime := leOfOrd
+
+structure Metadata where
+  --permissions : ...
+  accessed : SystemTime
+  modified : SystemTime
+  byteSize : UInt64
+  type     : FileType
+  deriving Repr
 
 end FS
+end IO
 
-section
-variable [Monad m] [MonadLiftT IO m]
+namespace System.FilePath
+open IO
 
-def getStdin : m FS.Stream := liftM Prim.getStdin
-def getStdout : m FS.Stream := liftM Prim.getStdout
-def getStderr : m FS.Stream := liftM Prim.getStderr
+@[extern "lean_io_read_dir"]
+opaque readDir : @& FilePath → IO (Array IO.FS.DirEntry)
 
-/-- Replaces the stdin stream of the current thread and returns its previous value. -/
-def setStdin : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdin
+@[extern "lean_io_metadata"]
+opaque metadata : @& FilePath → IO IO.FS.Metadata
 
-/-- Replaces the stdout stream of the current thread and returns its previous value. -/
-def setStdout : FS.Stream → m FS.Stream := liftM ∘ Prim.setStdout
+def isDir (p : FilePath) : BaseIO Bool := do
+  match (← p.metadata.toBaseIO) with
+  | Except.ok m => return m.type == IO.FS.FileType.dir
+  | Except.error _ => return false
 
-/-- Replaces the stderr stream of the current thread and returns its previous value. -/
-def setStderr : FS.Stream → m FS.Stream := liftM ∘ Prim.setStderr
+def pathExists (p : FilePath) : BaseIO Bool :=
+  return (← p.metadata.toBaseIO).toBool
 
-def withStdin [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+/--
+  Return all filesystem entries of a preorder traversal of all directories satisfying `enter`, starting at `p`.
+  Symbolic links are visited as well by default. -/
+partial def walkDir (p : FilePath) (enter : FilePath → IO Bool := fun _ => pure true) : IO (Array FilePath) :=
+  Prod.snd <$> StateT.run (go p) #[]
+where
+  go p := do
+    if !(← enter p) then
+      return ()
+    for d in (← p.readDir) do
+      modify (·.push d.path)
+      let m ← d.path.metadata
+      match m.type with
+      | FS.FileType.symlink =>
+        let p' ← FS.realPath d.path
+        if (← p'.isDir) then
+          -- do not call `enter` on a non-directory symlink
+          if (← enter p) then
+            go p'
+      | FS.FileType.dir => go d.path
+      | _ => pure ()
+
+end System.FilePath
+
+namespace IO
+
+def withStdin [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdin h
   try x finally discard <| setStdin prev
 
-def withStdout [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+def withStdout [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStdout h
   try
     x
   finally
     discard <| setStdout prev
 
-def withStderr [MonadFinally m] (h : FS.Stream) (x : m α) : m α := do
+def withStderr [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (h : FS.Stream) (x : m α) : m α := do
   let prev ← setStderr h
   try x finally discard <| setStderr prev
 
@@ -310,31 +475,50 @@ def println [ToString α] (s : α) : IO Unit :=
 
 def eprint [ToString α] (s : α) : IO Unit := do
   let out ← getStderr
-  liftM <| out.putStr <| toString s
+  out.putStr <| toString s
 
 def eprintln [ToString α] (s : α) : IO Unit :=
   eprint <| toString s |>.push '\n'
+
+@[export lean_io_eprint]
+private def eprintAux (s : String) : IO Unit :=
+  eprint s
 
 @[export lean_io_eprintln]
 private def eprintlnAux (s : String) : IO Unit :=
   eprintln s
 
-def getEnv : String → m (Option String) := liftM ∘ Prim.getEnv
-def realPath : String → m String := liftM ∘ Prim.realPath
-def isDir : String → m Bool := liftM ∘ Prim.isDir
-def fileExists : String → m Bool := liftM ∘ Prim.fileExists
-def removeFile : String → m Unit := liftM ∘ Prim.removeFile
-def appPath : m String := liftM Prim.appPath
-
-def appDir : m String := do
+def appDir : IO FilePath := do
   let p ← appPath
-  let some p ← pure <| System.FilePath.parent p
-    | liftM (m := IO) <| throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
-  realPath p
+  let some p ← pure p.parent
+    | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
+  FS.realPath p
 
-def currentDir : m String := liftM Prim.currentDir
+/-- Create given path and all missing parents as directories. -/
+partial def FS.createDirAll (p : FilePath) : IO Unit := do
+  if ← p.isDir then
+    return ()
+  if let some parent := p.parent then
+    createDirAll parent
+  try
+    createDir p
+  catch
+    | e =>
+      if ← p.isDir then
+        pure ()  -- I guess someone else was faster
+      else
+        throw e
 
-end
+/--
+  Fully remove given directory by deleting all contained files and directories in an unspecified order.
+  Fails if any contained entry cannot be deleted or was newly created during execution. -/
+partial def FS.removeDirAll (p : FilePath) : IO Unit := do
+  for ent in (← p.readDir) do
+    if (← ent.path.isDir : Bool) then
+      removeDirAll ent.path
+    else
+      removeFile ent.path
+  removeDir p
 
 namespace Process
 inductive Stdio where
@@ -348,21 +532,21 @@ def Stdio.toHandleType : Stdio → Type
   | Stdio.null    => Unit
 
 structure StdioConfig where
-  /- Configuration for the process' stdin handle. -/
+  /-- Configuration for the process' stdin handle. -/
   stdin := Stdio.inherit
-  /- Configuration for the process' stdout handle. -/
+  /-- Configuration for the process' stdout handle. -/
   stdout := Stdio.inherit
-  /- Configuration for the process' stderr handle. -/
+  /-- Configuration for the process' stderr handle. -/
   stderr := Stdio.inherit
 
 structure SpawnArgs extends StdioConfig where
-  /- Command name. -/
+  /-- Command name. -/
   cmd : String
-  /- Arguments for the process -/
+  /-- Arguments for the process -/
   args : Array String := #[]
-  /- Working directory for the process. Inherit from current process if `none`. -/
-  cwd : Option String := none
-  /- Add or remove environment variables for the process. -/
+  /-- Working directory for the process. Inherit from current process if `none`. -/
+  cwd : Option FilePath := none
+  /-- Add or remove environment variables for the process. -/
   env : Array (String × Option String) := #[]
 
 -- TODO(Sebastian): constructor must be private
@@ -371,9 +555,18 @@ structure Child (cfg : StdioConfig) where
   stdout : cfg.stdout.toHandleType
   stderr : cfg.stderr.toHandleType
 
-@[extern "lean_io_process_spawn"] constant spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
+@[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
-@[extern "lean_io_process_child_wait"] constant Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+@[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+
+/--
+Extract the `stdin` field from a `Child` object, allowing them to be freed independently.
+This operation is necessary for closing the child process' stdin while still holding on to a process handle,
+e.g. for `Child.wait`. A file handle is closed when all references to it are dropped, which without this
+operation includes the `Child` object.
+-/
+@[extern "lean_io_process_child_take_stdin"] opaque Child.takeStdin {cfg : @& StdioConfig} : Child cfg →
+    IO (cfg.stdin.toHandleType × Child { cfg with stdin := Stdio.null })
 
 structure Output where
   exitCode : UInt32
@@ -393,8 +586,10 @@ def output (args : SpawnArgs) : IO Output := do
 def run (args : SpawnArgs) : IO String := do
   let out ← output args
   if out.exitCode != 0 then
-    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode;
+    throw <| IO.userError <| "process '" ++ args.cmd ++ "' exited with code " ++ toString out.exitCode
   pure out.stdout
+
+@[extern "lean_io_exit"] opaque exit : UInt8 → IO α
 
 end Process
 
@@ -420,20 +615,17 @@ def FileRight.flags (acc : FileRight) : UInt32 :=
   let o : UInt32 := acc.other.flags
   u.lor <| g.lor o
 
-@[extern "lean_chmod"] constant Prim.setAccessRights (filename : @& String) (mode : UInt32) : IO Unit
+@[extern "lean_chmod"] opaque Prim.setAccessRights (filename : @& FilePath) (mode : UInt32) : IO Unit
 
-def setAccessRights (filename : String) (mode : FileRight) : IO Unit :=
+def setAccessRights (filename : FilePath) (mode : FileRight) : IO Unit :=
   Prim.setAccessRights filename mode.flags
 
-/- References -/
+/-- References -/
 abbrev Ref (α : Type) := ST.Ref IO.RealWorld α
 
-instance : MonadLift (ST IO.RealWorld) (EIO ε) := ⟨fun x s =>
-  match x s with
-  | EStateM.Result.ok a s     => EStateM.Result.ok a s
-  | EStateM.Result.error ex _ => nomatch ex⟩
+instance : MonadLift (ST IO.RealWorld) BaseIO := ⟨id⟩
 
-def mkRef [Monad m] [MonadLiftT (ST IO.RealWorld) m] (a : α) : m (IO.Ref α) :=
+def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 
 namespace FS
@@ -441,12 +633,11 @@ namespace Stream
 
 @[export lean_stream_of_handle]
 def ofHandle (h : Handle) : Stream := {
-  isEof   := Prim.Handle.isEof h,
-  flush   := Prim.Handle.flush h,
-  read    := Prim.Handle.read h,
-  write   := Prim.Handle.write h,
-  getLine := Prim.Handle.getLine h,
-  putStr  := Prim.Handle.putStr h,
+  flush   := Handle.flush h,
+  read    := Handle.read h,
+  write   := Handle.write h,
+  getLine := Handle.getLine h,
+  putStr  := Handle.putStr h,
 }
 
 structure Buffer where
@@ -454,7 +645,6 @@ structure Buffer where
   pos  : Nat := 0
 
 def ofBuffer (r : Ref Buffer) : Stream := {
-  isEof   := do let b ← r.get; pure <| b.pos >= b.data.size,
   flush   := pure (),
   read    := fun n => r.modifyGet fun b =>
     let data := b.data.extract b.pos (b.pos + n.toNat)
@@ -475,14 +665,15 @@ def ofBuffer (r : Ref Buffer) : Stream := {
 end Stream
 
 /-- Run action with `stdin` emptied and `stdout+stderr` captured into a `String`. -/
-def withIsolatedStreams (x : IO α) : IO (String × Except IO.Error α) := do
+def withIsolatedStreams [Monad m] [MonadFinally m] [MonadLiftT BaseIO m] (x : m α)
+    (isolateStderr := true) : m (String × α) := do
   let bIn ← mkRef { : Stream.Buffer }
   let bOut ← mkRef { : Stream.Buffer }
   let r ← withStdin (Stream.ofBuffer bIn) <|
     withStdout (Stream.ofBuffer bOut) <|
-      withStderr (Stream.ofBuffer bOut) <|
-        observing x
-  let bOut ← bOut.get
+      (if isolateStderr then withStderr (Stream.ofBuffer bOut) else id) <|
+        x
+  let bOut ← liftM (m := BaseIO) bOut.get
   let out := String.fromUTF8Unchecked bOut.data
   pure (out, r)
 
@@ -496,32 +687,36 @@ namespace Lean
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class Eval (α : Type u) where
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
-  -- so that `()` output is hidden in chained instances such as for some `m Unit`.
+  -- so that `()` output is hidden in chained instances such as for some `IO Unit`.
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
-  eval : (Unit → α) → forall (hideUnit : optParam Bool true), IO Unit
+  eval : (Unit → α) → (hideUnit : Bool := true) → IO Unit
 
-instance [ToString α] : Eval α :=
-  ⟨fun a _ => IO.println (toString (a ()))⟩
+instance [ToString α] : Eval α where
+  eval a _ := IO.println (toString (a ()))
 
-instance [Repr α] : Eval α :=
-  ⟨fun a _ => IO.println (repr (a ()))⟩
+instance [Repr α] : Eval α where
+  eval a _ := IO.println (repr (a ()))
 
-instance : Eval Unit :=
-  ⟨fun u hideUnit => if hideUnit then pure () else IO.println (repr (u ()))⟩
+instance : Eval Unit where
+  eval u hideUnit := if hideUnit then pure () else IO.println (repr (u ()))
 
-instance [Eval α] : Eval (IO α) :=
-  ⟨fun x _ => do let a ← x (); Eval.eval (fun _ => a)⟩
+instance [Eval α] : Eval (IO α) where
+  eval x _ := do
+    let a ← x ()
+    Eval.eval fun _ => a
 
-@[noinline, nospecialize] def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (Eval.eval a false)
+instance [Eval α] : Eval (BaseIO α) where
+  eval x _ := do
+    let a ← x ()
+    Eval.eval fun _ => a
+
+def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
+  IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
 
 end Lean
 
 syntax "println! " (interpolatedStr(term) <|> term) : term
 
 macro_rules
-  | `(println! $msg) =>
-    if msg.getKind == Lean.interpolatedStrKind then
-      `((IO.println (s! $msg) : IO Unit))
-    else
-      `((IO.println $msg : IO Unit))
+  | `(println! $msg:interpolatedStr) => `((IO.println (s! $msg) : IO Unit))
+  | `(println! $msg:term)            => `((IO.println $msg : IO Unit))

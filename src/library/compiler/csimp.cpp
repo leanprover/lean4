@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <unordered_set>
 #include <unordered_map>
-#include <lean/flet.h>
+#include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
@@ -231,6 +231,15 @@ class csimp_fn {
         lean_assert(m_before_erasure);
         type_checker tc(m_st, m_lctx);
         return tc.whnf(tc.infer(e));
+    }
+
+    optional<expr> whnf_infer_type_guarded(expr const & e) {
+        try {
+            expr r = whnf_infer_type(e);
+            return optional<expr>(r);
+        } catch (kernel_exception &) {
+            return optional<expr>();
+        }
     }
 
     name next_name() {
@@ -1149,7 +1158,8 @@ class csimp_fn {
         // Example: `fun {a} => ReaderT.pure`
         if (!is_join_point_def && !top) {
             expr new_e = eta_reduce(e);
-            if (is_app(new_e) && !is_constructor_app(env(), new_e) && !is_proj(new_e) && !is_cases_on_app(env(), new_e) && !is_lc_unreachable_app(new_e))
+           // Remark: we should only keep result if it is not a term must be in eta-expanded form.
+            if (is_app(new_e) && !must_be_eta_expanded(env(), new_e))
                 return visit(new_e, true);
         }
         buffer<expr> binding_fvars;
@@ -1164,11 +1174,14 @@ class csimp_fn {
         /* When we simplify before erasure, we eta-expand all lambdas which are not join points. */
         buffer<expr> eta_args;
         if (m_before_erasure && !is_join_point_def) {
-            expr e_type = whnf_infer_type(e);
-            while (is_pi(e_type)) {
-                expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
-                eta_args.push_back(arg);
-                e_type = whnf(instantiate(binding_body(e_type), arg));
+            // HACK: infer_type may fail
+            if (auto e_type_opt = whnf_infer_type_guarded(e)) {
+                expr e_type = *e_type_opt;
+                while (is_pi(e_type)) {
+                    expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+                    eta_args.push_back(arg);
+                    e_type = whnf(instantiate(binding_body(e_type), arg));
+                }
             }
         }
         unsigned saved_fvars_size = m_fvars.size();
@@ -1517,27 +1530,34 @@ class csimp_fn {
                 update_expr2ctor(major, c, args, cidx, zs);
                 new_minor = visit(minor, false);
             }
-            new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
-            expr result_minor = mk_minor_lambda(zs, new_minor);
-            if (all_equal_opt) {
-                expr result_minor_body = result_minor;
-                for (unsigned i = 0; i < zs.size(); i++) {
-                    result_minor_body = binding_body(result_minor_body);
-                    if (has_loose_bvars(result_minor_body)) {
-                        /* Minor premise depends on constructor fields. */
-                        all_equal_opt = false;
-                        break;
-                    }
-                }
+            try {
+              new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
+              expr result_minor = mk_minor_lambda(zs, new_minor);
+              if (all_equal_opt) {
+                  expr result_minor_body = result_minor;
+                  for (unsigned i = 0; i < zs.size(); i++) {
+                      result_minor_body = binding_body(result_minor_body);
+                      if (has_loose_bvars(result_minor_body)) {
+                          /* Minor premise depends on constructor fields. */
+                          all_equal_opt = false;
+                          break;
+                      }
+                  }
+              }
+              if (all_equal_opt) {
+                  if (!a_minor) {
+                      a_minor = new_minor;
+                  } else if (new_minor != *a_minor) {
+                      all_equal_opt = false;
+                  }
+              }
+              args[minor_idx] = result_minor;
+            } catch (kernel_exception &) {
+                // HACK: the code above depends on `infer_type`, and it may fail.
+                // The compiler performs transformations that do not preserve typability.
+                // When we rewrite the compiler in Lean, we must write a custom `infer_type` that returns an
+                // `Any` type in this kind of situation.
             }
-            if (all_equal_opt) {
-                if (!a_minor) {
-                    a_minor = new_minor;
-                } else if (new_minor != *a_minor) {
-                    all_equal_opt = false;
-                }
-            }
-            args[minor_idx] = result_minor;
         }
         if (all_equal_opt && a_minor && !is_join_point_app(*a_minor)) {
             /*
@@ -1667,8 +1687,7 @@ class csimp_fn {
     bool is_stuck_at_cases(expr e) {
         type_checker tc(m_st, m_lctx);
         while (true) {
-            bool cheap = true;
-            expr e1 = tc.whnf_core(e, cheap);
+            expr e1 = tc.whnf_core_cheap(e);
             expr const & fn = get_app_fn(e1);
             if (!is_constant(fn)) return false;
             if (is_recursor(env(), const_name(fn))) return true;
@@ -1729,7 +1748,13 @@ class csimp_fn {
                 return none_expr();
             }
             if (!inline_if_reduce_attr && is_recursive(const_name(fn))) return none_expr();
-            if (uses_unsafe_inductive(c)) return none_expr();
+            if (!is_matcher(env(), const_name(fn))) {
+                // Hack for test `inliner_loop`. We don't generate code for auxiliary matcher applications.
+                // However, they are safe to be inline even when they use unsafe inductive types.
+                // REMARK: the to be implemented `[strong_inline]` attribute should not be used in unsafe code.
+                if (uses_unsafe_inductive(c)) return none_expr();
+            }
+            lean_trace(name({"compiler", "inline"}), tout() << const_name(fn) << "\n";);
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {
                 return beta_reduce_if_not_cases(new_fn, e, is_let_val);
@@ -1937,6 +1962,10 @@ class csimp_fn {
         case expr_kind::Proj:   return visit_proj(e, is_let_val);
         case expr_kind::App:    return visit_app(e, is_let_val);
         case expr_kind::Const:  return visit_constant(e, is_let_val);
+        /* We erase MData for now. We should revisit this decision when we rewrite the compiler in Lean, since we
+           are probably going to store debugging information in this kind of node.
+           We erase it here because `ir.cpp` does not support it, and produced `unreachable` code at issue #616 */
+        case expr_kind::MData:  return visit(mdata_expr(e), is_let_val);
         default:                return e;
         }
     }

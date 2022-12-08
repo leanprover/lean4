@@ -10,9 +10,9 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <limits>
-#include <lean/hash.h>
+#include "runtime/hash.h"
+#include "runtime/buffer.h"
 #include "util/list_fn.h"
-#include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"
 #include "kernel/expr_sets.h"
@@ -78,8 +78,13 @@ binder_info binding_info(expr const & e) { return static_cast<binder_info>(lean_
 extern "C" object * lean_lit_type(obj_arg e);
 expr lit_type(literal const & lit) { return expr(lean_lit_type(lit.to_obj_arg())); }
 
-extern "C" usize lean_expr_hash(obj_arg e);
-unsigned hash(expr const & e) { return lean_expr_hash(e.to_obj_arg()); }
+extern "C" uint64_t lean_expr_hash(obj_arg e);
+unsigned hash(expr const & e) {
+    object * o = e.raw();
+    unsigned r = static_cast<unsigned>(lean_ctor_get_uint64(o, lean_ctor_num_objs(o)*sizeof(object*)));
+    lean_assert(r == lean_expr_hash(e.to_obj_arg()));
+    return r;
+}
 
 extern "C" uint8 lean_expr_has_fvar(obj_arg e);
 bool has_fvar(expr const & e) { return lean_expr_has_fvar(e.to_obj_arg()); }
@@ -325,96 +330,9 @@ expr update_let(expr const & e, expr const & new_type, expr const & new_value, e
         return e;
 }
 
-extern "C" object * lean_expr_update_mdata(obj_arg e, obj_arg new_expr) {
-    if (mdata_expr(TO_REF(expr, e)).raw() != new_expr) {
-        object * r = lean_expr_mk_mdata(mdata_data(TO_REF(expr, e)).to_obj_arg(), new_expr);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_expr);
-        return e;
-    }
-}
+extern "C" object * lean_expr_consume_type_annotations(obj_arg e);
 
-extern "C" object * lean_expr_update_const(obj_arg e, obj_arg new_levels) {
-    if (const_levels(TO_REF(expr, e)).raw() != new_levels) {
-        object * r = lean_expr_mk_const(const_name(TO_REF(expr, e)).to_obj_arg(), new_levels);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec(new_levels);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_sort(obj_arg e, obj_arg new_level) {
-    if (sort_level(TO_REF(expr, e)).raw() != new_level) {
-        object * r = lean_expr_mk_sort(new_level);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec(new_level);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_proj(obj_arg e, obj_arg new_expr) {
-    if (proj_expr(TO_REF(expr, e)).raw() != new_expr) {
-        object * r = lean_expr_mk_proj(proj_sname(TO_REF(expr, e)).to_obj_arg(), proj_idx(TO_REF(expr, e)).to_obj_arg(), new_expr);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_expr);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_app(obj_arg e, obj_arg new_fn, obj_arg new_arg) {
-    if (app_fn(TO_REF(expr, e)).raw() != new_fn || app_arg(TO_REF(expr, e)).raw() != new_arg) {
-        object * r = lean_expr_mk_app(new_fn, new_arg);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_fn); lean_dec_ref(new_arg);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_forall(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
-    if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
-        binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
-        object * r = lean_expr_mk_forall(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_domain); lean_dec_ref(new_body);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_lambda(obj_arg e, uint8 new_binfo, obj_arg new_domain, obj_arg new_body) {
-    if (binding_domain(TO_REF(expr, e)).raw() != new_domain || binding_body(TO_REF(expr, e)).raw() != new_body ||
-        binding_info(TO_REF(expr, e)) != static_cast<binder_info>(new_binfo)) {
-        object * r = lean_expr_mk_lambda(binding_name(TO_REF(expr, e)).to_obj_arg(), new_domain, new_body, new_binfo);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_domain); lean_dec_ref(new_body);
-        return e;
-    }
-}
-
-extern "C" object * lean_expr_update_let(obj_arg e, obj_arg new_type, obj_arg new_val, obj_arg new_body) {
-    if (let_type(TO_REF(expr, e)).raw() != new_type || let_value(TO_REF(expr, e)).raw() != new_val ||
-        let_body(TO_REF(expr, e)).raw() != new_body) {
-        object * r = lean_expr_mk_let(let_name(TO_REF(expr, e)).to_obj_arg(), new_type, new_val, new_body);
-        lean_dec_ref(e);
-        return r;
-    } else {
-        lean_dec_ref(new_type); lean_dec_ref(new_val); lean_dec_ref(new_body);
-        return e;
-    }
-}
+expr consume_type_annotations(expr const & e) { return expr(lean_expr_consume_type_annotations(e.to_obj_arg())); }
 
 // =======================================
 // Loose bound variable management
@@ -460,7 +378,7 @@ bool has_loose_bvar(expr const & e, unsigned i) {
     return found;
 }
 
-extern "C" uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) {
+extern "C" LEAN_EXPORT uint8 lean_expr_has_loose_bvar(b_obj_arg e, b_obj_arg i) {
     if (!lean_is_scalar(i))
         return false;
     return has_loose_bvar(TO_REF(expr, e), lean_unbox(i));
@@ -489,7 +407,7 @@ expr lower_loose_bvars(expr const & e, unsigned d) {
     return lower_loose_bvars(e, d, d);
 }
 
-extern "C" object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+extern "C" LEAN_EXPORT object * lean_expr_lower_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
     if (!lean_is_scalar(s) || !lean_is_scalar(d) || lean_unbox(s) < lean_unbox(d)) {
         lean_inc(e);
         return e;
@@ -518,7 +436,7 @@ expr lift_loose_bvars(expr const & e, unsigned d) {
     return lift_loose_bvars(e, 0, d);
 }
 
-extern "C" object * lean_expr_lift_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
+extern "C" LEAN_EXPORT object * lean_expr_lift_loose_bvars(b_obj_arg e, b_obj_arg s, b_obj_arg d) {
     if (!lean_is_scalar(s) || !lean_is_scalar(d)) {
         lean_inc(e);
         return e;

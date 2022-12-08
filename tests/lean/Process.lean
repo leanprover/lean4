@@ -47,3 +47,13 @@ def usingIO {α} (x : IO α) : IO α := x
 #eval usingIO do
   let child ← spawn { cmd := "sh", args := #["-c", "echo nullStderr >& 2"], stderr := Stdio.null };
   child.wait
+
+#eval usingIO do
+  let lean ← IO.Process.spawn {
+    cmd := "lean",
+    args := #["--stdin"]
+    stdin := IO.Process.Stdio.piped
+  }
+  let (stdin, lean) ← lean.takeStdin
+  stdin.putStr "#exit\n"
+  lean.wait

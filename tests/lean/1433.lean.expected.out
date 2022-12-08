@@ -1,0 +1,6 @@
+1433.lean:11:49-11:52: error: type mismatch
+  rfl
+has type
+  dividend % divisor = dividend % divisor : Prop
+but is expected to have type
+  dividend % divisor = wrongRem : Prop

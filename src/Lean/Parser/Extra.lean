@@ -13,52 +13,87 @@ namespace Parser
 
 -- synthesize pretty printers for parsers declared prior to `Lean.PrettyPrinter`
 -- (because `Parser.Extension` depends on them)
-attribute [runBuiltinParserAttributeHooks]
+attribute [run_builtin_parser_attribute_hooks]
   leadingNode termParser commandParser mkAntiquot nodeWithAntiquot sepBy sepBy1
   unicodeSymbol nonReservedSymbol
+  withCache withResetCache withPosition withPositionAfterLinebreak withoutPosition withForbidden withoutForbidden setExpected
+  incQuotDepth decQuotDepth suppressInsideQuot evalInsideQuot
+  withOpen withOpenDecl
+  dbgTraceState
 
-@[runBuiltinParserAttributeHooks] def optional (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))
 
-@[runBuiltinParserAttributeHooks] def many (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks] def many (p : Parser) : Parser :=
   manyNoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
-@[runBuiltinParserAttributeHooks] def many1 (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks] def many1 (p : Parser) : Parser :=
   many1NoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
-@[runBuiltinParserAttributeHooks] def ident : Parser :=
+@[run_builtin_parser_attribute_hooks] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
 
 -- `ident` and `rawIdent` produce the same syntax tree, so we reuse the antiquotation kind name
-@[runBuiltinParserAttributeHooks] def rawIdent : Parser :=
+@[run_builtin_parser_attribute_hooks] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
-@[runBuiltinParserAttributeHooks] def numLit : Parser :=
-  withAntiquot (mkAntiquot "numLit" numLitKind) numLitNoAntiquot
+@[run_builtin_parser_attribute_hooks] def numLit : Parser :=
+  withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 
-@[runBuiltinParserAttributeHooks] def scientificLit : Parser :=
-  withAntiquot (mkAntiquot "scientificLit" scientificLitKind) scientificLitNoAntiquot
+@[run_builtin_parser_attribute_hooks] def scientificLit : Parser :=
+  withAntiquot (mkAntiquot "scientific" scientificLitKind) scientificLitNoAntiquot
 
-@[runBuiltinParserAttributeHooks] def strLit : Parser :=
-  withAntiquot (mkAntiquot "strLit" strLitKind) strLitNoAntiquot
+@[run_builtin_parser_attribute_hooks] def strLit : Parser :=
+  withAntiquot (mkAntiquot "str" strLitKind) strLitNoAntiquot
 
-@[runBuiltinParserAttributeHooks] def charLit : Parser :=
-  withAntiquot (mkAntiquot "charLit" charLitKind) charLitNoAntiquot
+@[run_builtin_parser_attribute_hooks] def charLit : Parser :=
+  withAntiquot (mkAntiquot "char" charLitKind) charLitNoAntiquot
 
-@[runBuiltinParserAttributeHooks] def nameLit : Parser :=
-  withAntiquot (mkAntiquot "nameLit" nameLitKind) nameLitNoAntiquot
+@[run_builtin_parser_attribute_hooks] def nameLit : Parser :=
+  withAntiquot (mkAntiquot "name" nameLitKind) nameLitNoAntiquot
 
-@[runBuiltinParserAttributeHooks, inline] def group (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, inline] def group (p : Parser) : Parser :=
   node groupKind p
 
-@[runBuiltinParserAttributeHooks, inline] def many1Indent (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, inline] def many1Indent (p : Parser) : Parser :=
   withPosition $ many1 (checkColGe "irrelevant" >> p)
 
-@[runBuiltinParserAttributeHooks, inline] def manyIndent (p : Parser) : Parser :=
+@[run_builtin_parser_attribute_hooks, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 
-@[runBuiltinParserAttributeHooks] abbrev notSymbol (s : String) : Parser :=
+@[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
+  withPosition $ sepBy (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
+
+@[inline] def sepBy1Indent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
+  let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
+  withPosition $ sepBy1 (checkColGe "irrelevant" >> p) sep (psep <|> checkColEq "irrelevant" >> checkLinebreakBefore >> pushNone) allowTrailingSep
+
+open PrettyPrinter Syntax.MonadTraverser Formatter in
+@[combinator_formatter sepByIndent]
+def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
+  let stx ← getCur
+  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n =>
+    i % 2 == 1 && n.matchesNull 0 && i != stx.getArgs.size - 1) |>.any id
+  visitArgs do
+    for i in (List.range stx.getArgs.size).reverse do
+      if i % 2 == 0 then p else pSep <|>
+        -- If the final separator is a newline, skip it.
+        ((if i == stx.getArgs.size - 1 then pure () else pushWhitespace "\n") *> goLeft)
+  -- If there is any newline separator, then we add an `align` at the start
+  -- so that `withPosition` will pick up the right column.
+  if hasNewlineSep then
+    pushAlign (force := true)
+
+@[combinator_formatter sepBy1Indent] def sepBy1Indent.formatter := sepByIndent.formatter
+
+attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
+
+@[run_builtin_parser_attribute_hooks] abbrev notSymbol (s : String) : Parser :=
   notFollowedBy (symbol s) s
+
+/-- No-op parser combinator that annotates subtrees to be ignored in syntax patterns. -/
+@[inline, run_builtin_parser_attribute_hooks] def patternIgnore : Parser → Parser := node `patternIgnore
 
 /-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
 @[inline] def ppHardSpace : Parser := skip
@@ -66,78 +101,108 @@ attribute [runBuiltinParserAttributeHooks]
 @[inline] def ppSpace : Parser := skip
 /-- No-op parser that advises the pretty printer to emit a hard line break. -/
 @[inline] def ppLine : Parser := skip
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.fill` node. -/
+@[inline] def ppRealFill : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.group` node. -/
+@[inline] def ppRealGroup : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
+@[inline] def ppIndent : Parser → Parser := id
 /--
   No-op parser combinator that advises the pretty printer to group and indent the given syntax.
   By default, only syntax categories are grouped. -/
-@[inline] def ppGroup : Parser → Parser := id
-/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
-@[inline] def ppIndent : Parser → Parser := id
+@[inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
 /--
   No-op parser combinator that advises the pretty printer to dedent the given syntax.
   Dedenting can in particular be used to counteract automatic indentation. -/
 @[inline] def ppDedent : Parser → Parser := id
 
+/--
+  No-op parser combinator that allows the pretty printer to omit the group and
+  indent operation in the enclosing category parser.
+  ```
+  syntax ppAllowUngrouped "by " tacticSeq : term
+  -- allows a `by` after `:=` without linebreak in between:
+  theorem foo : True := by
+    trivial
+  ```
+-/
+@[inline] def ppAllowUngrouped : Parser := skip
+
+/--
+  No-op parser combinator that advises the pretty printer to dedent the given syntax,
+  if it was grouped by the category parser.
+  Dedenting can in particular be used to counteract automatic indentation. -/
+@[inline] def ppDedentIfGrouped : Parser → Parser := id
+
+/--
+  No-op parser combinator that prints a line break.
+  The line break is soft if the combinator is followed
+  by an ungrouped parser (see ppAllowUngrouped), otherwise hard. -/
+@[inline] def ppHardLineUnlessUngrouped : Parser := skip
+
 end Parser
 
 section
-open PrettyPrinter
+open PrettyPrinter Parser
 
-@[combinatorFormatter Lean.Parser.ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.push " "
-@[combinatorFormatter Lean.Parser.ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
-@[combinatorFormatter Lean.Parser.ppLine] def ppLine.formatter : Formatter := Formatter.push "\n"
-@[combinatorFormatter Lean.Parser.ppGroup] def ppGroup.formatter (p : Formatter) : Formatter := Formatter.group $ Formatter.indent p
-@[combinatorFormatter Lean.Parser.ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
-@[combinatorFormatter Lean.Parser.ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
+@[combinator_formatter ppHardSpace] def ppHardSpace.formatter : Formatter := Formatter.pushWhitespace " "
+@[combinator_formatter ppSpace] def ppSpace.formatter : Formatter := Formatter.pushLine
+@[combinator_formatter ppLine] def ppLine.formatter : Formatter := Formatter.pushWhitespace "\n"
+@[combinator_formatter ppRealFill] def ppRealFill.formatter (p : Formatter) : Formatter := Formatter.fill p
+@[combinator_formatter ppRealGroup] def ppRealGroup.formatter (p : Formatter) : Formatter := Formatter.group p
+@[combinator_formatter ppIndent] def ppIndent.formatter (p : Formatter) : Formatter := Formatter.indent p
+@[combinator_formatter ppDedent] def ppDedent.formatter (p : Formatter) : Formatter := do
   let opts ← getOptions
   Formatter.indent p (some ((0:Int) - Std.Format.getIndent opts))
+
+@[combinator_formatter ppAllowUngrouped] def ppAllowUngrouped.formatter : Formatter := do
+  modify ({ · with mustBeGrouped := false })
+@[combinator_formatter ppDedentIfGrouped] def ppDedentIfGrouped.formatter (p : Formatter) : Formatter := do
+  Formatter.concat p
+  let indent := Std.Format.getIndent (← getOptions)
+  unless (← get).isUngrouped do
+    modify fun st => { st with stack := st.stack.modify (st.stack.size - 1) (·.nest (0 - indent)) }
+@[combinator_formatter ppHardLineUnlessUngrouped] def ppHardLineUnlessUngrouped.formatter : Formatter := do
+  if (← get).isUngrouped then
+    Formatter.pushLine
+  else
+    ppLine.formatter
+
 end
 
 namespace Parser
 
 -- now synthesize parenthesizers
-attribute [runBuiltinParserAttributeHooks]
-  ppHardSpace ppSpace ppLine ppGroup ppIndent ppDedent
+attribute [run_builtin_parser_attribute_hooks]
+  ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
+  ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-macro "register_parser_alias" aliasName:strLit declName:ident : term =>
-  `(do Parser.registerAlias $aliasName $declName
-       PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
-       PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
+syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident (colGt term)? : term
+macro_rules
+  | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
+    let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |
+      Macro.throwError "expected non-overloaded constant name"
+    let aliasName := aliasName?.getD (Syntax.mkStrLit declName.getId.toString)
+    `(do Parser.registerAlias $aliasName ``$declName $declName $(info?.getD (Unhygienic.run `({}))) (kind? := some $(kind?.getD (quote fullDeclName)))
+         PrettyPrinter.Formatter.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `formatter))
+         PrettyPrinter.Parenthesizer.registerAlias $aliasName $(mkIdentFrom declName (declName.getId ++ `parenthesizer)))
 
 builtin_initialize
-  register_parser_alias "group" group
-  register_parser_alias "ppHardSpace" ppHardSpace
-  register_parser_alias "ppSpace" ppSpace
-  register_parser_alias "ppLine" ppLine
-  register_parser_alias "ppGroup" ppGroup
-  register_parser_alias "ppIndent" ppIndent
-  register_parser_alias "ppDedent" ppDedent
+  register_parser_alias patternIgnore { autoGroupArgs := false }
+
+  register_parser_alias group { autoGroupArgs := false }
+  register_parser_alias ppHardSpace { stackSz? := some 0 }
+  register_parser_alias ppSpace { stackSz? := some 0 }
+  register_parser_alias ppLine { stackSz? := some 0 }
+  register_parser_alias ppGroup { stackSz? := none }
+  register_parser_alias ppRealGroup { stackSz? := none }
+  register_parser_alias ppRealFill { stackSz? := none }
+  register_parser_alias ppIndent { stackSz? := none }
+  register_parser_alias ppDedent { stackSz? := none }
+  register_parser_alias ppDedentIfGrouped { stackSz? := none }
+  register_parser_alias ppAllowUngrouped { stackSz? := some 0 }
+  register_parser_alias ppHardLineUnlessUngrouped { stackSz? := some 0 }
 
 end Parser
-
-open Parser
-
-open PrettyPrinter.Parenthesizer (registerAlias) in
-builtin_initialize
-  registerAlias "num" numLit.parenthesizer
-  registerAlias "scientific" scientificLit.parenthesizer
-  registerAlias "str" strLit.parenthesizer
-  registerAlias "char" charLit.parenthesizer
-  registerAlias "name" nameLit.parenthesizer
-  registerAlias "ident" ident.parenthesizer
-  registerAlias "many" many.parenthesizer
-  registerAlias "many1" many1.parenthesizer
-  registerAlias "optional" optional.parenthesizer
-
-open PrettyPrinter.Formatter (registerAlias) in
-builtin_initialize
-  registerAlias "num" numLit.formatter
-  registerAlias "scientific" scientificLit.formatter
-  registerAlias "str" strLit.formatter
-  registerAlias "char" charLit.formatter
-  registerAlias "name" nameLit.formatter
-  registerAlias "ident" ident.formatter
-  registerAlias "many" many.formatter
-  registerAlias "many1" many1.formatter
-  registerAlias "optional" optional.formatter
 
 end Lean

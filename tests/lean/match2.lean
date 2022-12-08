@@ -10,10 +10,10 @@ structure Node : Type where
 
 def h1 (x : List Node) : Bool :=
   match x with
-  | _ :: Node.mk _ _ (Op.mk 0) :: _  => true
+  | _ :: Node.mk 0 _ (Op.mk _) :: _  => true
   | _                                => false
 
-def mkNode (n : Nat) : Node := { id₁ := n, id₂ := n, o := Op.mk n }
+def mkNode (n : Nat) : Node := { id₁ := n, id₂ := n, o := Op.mk _ }
 
 #eval h1 [mkNode 1, mkNode 0, mkNode 3]
 #eval h1 [mkNode 1, mkNode 1, mkNode 3]
@@ -53,7 +53,7 @@ def h3 {b : Bool} (x : Foo b) : Bool :=
 
 def h4 (x : List Node) : Bool :=
   match x with
-  | _ :: ⟨1, 1, Op.mk 1⟩ :: _  => true
+  | _ :: ⟨1, 1, Op.mk _⟩ :: _  => true
   | _                          => false
 
 #eval h4 [mkNode 1, mkNode 0, mkNode 3]
@@ -80,11 +80,11 @@ match b, x with
 | b, x       => false
 
 def h6' {b : Bool} (x : Foo b) : Bool :=
-match (generalizing := true) b, x : (b : Bool) → Foo b → Bool with
+match (generalizing := true) (motive := (b : Bool) → Foo b → Bool) b, x  with
 | _, Foo.bar => true
 | b, x       => false
 
 def h6'' {b : Bool} (x : Foo b) : Bool :=
-match (generalizing := false) b, x : (b : Bool) → Foo b → Bool with
+match (generalizing := false) (motive := (b : Bool) → Foo b → Bool) b, x  with
 | _, Foo.bar => true
 | b, x       => false

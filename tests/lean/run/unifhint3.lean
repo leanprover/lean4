@@ -1,6 +1,6 @@
 /- Coercion pullback example from the paper "Hints in Unification" -/
 
-universes u
+universe u
 
 structure Monoid where
   α    : Type u

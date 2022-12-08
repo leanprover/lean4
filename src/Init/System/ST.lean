@@ -23,17 +23,18 @@ instance {σ m n} [MonadLift m n] [STWorld σ m] : STWorld σ n := ⟨⟩
 instance {ε σ} : STWorld σ (EST ε σ) := ⟨⟩
 
 @[noinline, nospecialize]
-def runEST {ε α : Type} (x : forall (σ : Type), EST ε σ α) : Except ε α :=
+def runEST {ε α : Type} (x : (σ : Type) → EST ε σ α) : Except ε α :=
   match x Unit () with
   | EStateM.Result.ok a _     => Except.ok a
   | EStateM.Result.error ex _ => Except.error ex
 
 @[noinline, nospecialize]
-def runST {α : Type} (x : forall (σ : Type), ST σ α) : α :=
+def runST {α : Type} (x : (σ : Type) → ST σ α) : α :=
   match x Unit () with
   | EStateM.Result.ok a _     => a
   | EStateM.Result.error ex _ => nomatch ex
 
+@[always_inline]
 instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
   match x s with
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
@@ -41,35 +42,35 @@ instance {ε σ} : MonadLift (ST σ) (EST ε σ) := ⟨fun x s =>
 
 namespace ST
 
-/- References -/
-constant RefPointed : PointedType.{0}
+/-- References -/
+opaque RefPointed : NonemptyType.{0}
 
 structure Ref (σ : Type) (α : Type) : Type where
   ref : RefPointed.type
-  h : Nonempty α
+  h   : Nonempty α
 
-instance {σ α} [Inhabited α] : Inhabited (Ref σ α) where
-  default := { ref := RefPointed.val, h := Nonempty.intro arbitrary }
+instance {σ α} [s : Nonempty α] : Nonempty (Ref σ α) :=
+  Nonempty.intro { ref := Classical.choice RefPointed.property, h := s }
 
 namespace Prim
 
-/- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
+/-- Auxiliary definition for showing that `ST σ α` is inhabited when we have a `Ref σ α` -/
 private noncomputable def inhabitedFromRef {σ α} (r : Ref σ α) : ST σ α :=
-  let inh : Inhabited α := Classical.inhabitedOfNonempty r.h
-  pure arbitrary
+  let _ : Inhabited α := Classical.inhabited_of_nonempty r.h
+  pure default
 
 @[extern "lean_st_mk_ref"]
-constant mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := RefPointed.val, h := Nonempty.intro a }
+opaque mkRef {σ α} (a : α) : ST σ (Ref σ α) := pure { ref := Classical.choice RefPointed.property, h := Nonempty.intro a }
 @[extern "lean_st_ref_get"]
-constant Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
+opaque Ref.get {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_set"]
-constant Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
+opaque Ref.set {σ α} (r : @& Ref σ α) (a : α) : ST σ Unit
 @[extern "lean_st_ref_swap"]
-constant Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
+opaque Ref.swap {σ α} (r : @& Ref σ α) (a : α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_take"]
-unsafe constant Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
+unsafe opaque Ref.take {σ α} (r : @& Ref σ α) : ST σ α := inhabitedFromRef r
 @[extern "lean_st_ref_ptr_eq"]
-constant Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
+opaque Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
 
 @[inline] unsafe def Ref.modifyUnsafe {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.take r
@@ -81,12 +82,12 @@ constant Ref.ptrEq {σ α} (r1 r2 : @& Ref σ α) : ST σ Bool
   Ref.set r a
   pure b
 
-@[implementedBy Ref.modifyUnsafe]
+@[implemented_by Ref.modifyUnsafe]
 def Ref.modify {σ α : Type} (r : Ref σ α) (f : α → α) : ST σ Unit := do
   let v ← Ref.get r
   Ref.set r (f v)
 
-@[implementedBy Ref.modifyGetUnsafe]
+@[implemented_by Ref.modifyGetUnsafe]
 def Ref.modifyGet {σ α β : Type} (r : Ref σ α) (f : α → β × α) : ST σ β := do
   let v ← Ref.get r
   let (b, a) := f v
@@ -106,6 +107,11 @@ variable {σ : Type} {m : Type → Type} [Monad m] [MonadLiftT (ST σ) m]
 @[inline] def Ref.ptrEq {α : Type} (r1 r2 : Ref σ α) : m Bool := liftM <| Prim.Ref.ptrEq r1 r2
 @[inline] def Ref.modify {α : Type} (r : Ref σ α) (f : α → α) : m Unit := liftM <| Prim.Ref.modify r f
 @[inline] def Ref.modifyGet {α : Type} {β : Type} (r : Ref σ α) (f : α → β × α) : m β := liftM <| Prim.Ref.modifyGet r f
+
+def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
+  get := r.get
+  set := r.set
+  modifyGet := r.modifyGet
 
 end
 

@@ -1,6 +1,6 @@
-import Std.Data.PersistentHashMap
+import Lean.Data.PersistentHashMap
 import Lean.Data.Format
-open Lean Std Std.PersistentHashMap
+open Lean Std Lean.PersistentHashMap
 
 abbrev Map := PersistentHashMap Nat Nat
 

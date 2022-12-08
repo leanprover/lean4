@@ -63,7 +63,7 @@ by {
   assumption
 }
 
-macro "intro3" : tactic => `(intro; intro; intro)
+macro "intro3" : tactic => `(tactic| (intro; intro; intro))
 macro "check2" x:term : command => `(#check $x #check $x)
 macro "foo" x:term "," y:term : term => `($x + $y + $x)
 
@@ -108,7 +108,7 @@ case pre => exact h3
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
-traceState
+trace_state
 focus
   refine' Eq.trans ?pre ?post
   first
@@ -120,7 +120,7 @@ focus
 
 theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 _ h3
-traceState
+trace_state
 focus
   refine' Eq.trans ?pre ?post
   first
@@ -168,7 +168,7 @@ theorem simple11 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
-  traceState;
+  trace_state;
   exact h3;
   assumption
 }
@@ -178,26 +178,26 @@ by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
-  traceState;
+  trace_state;
   try exact h3;
-  traceState;
+  trace_state;
   try exact h1;
 }
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z := by
 intros h1 h2 h3
-traceState
+trace_state
 apply @Eq.trans
 case b => exact y
-traceState
+trace_state
 repeat assumption
 
 theorem simple13b (x y z : Nat) : y = z → x = x → x = y → x = z := by {
 intros h1 h2 h3;
-traceState;
+trace_state;
 apply @Eq.trans;
 case b => exact y;
-traceState;
+trace_state;
 repeat assumption
 }
 
@@ -222,13 +222,13 @@ by {
   intros h1 h2 h3;
   try clear x; -- should fail
   clear h2;
-  traceState;
+  trace_state;
   apply Eq.trans;
   exact h3;
   exact h1
 }
 
-macro "blabla" : tactic => `(assumption)
+macro "blabla" : tactic => `(tactic| assumption)
 
 -- Tactic head symbols do not become reserved words
 def blabla := 100
@@ -305,7 +305,7 @@ def altTst3 {m σ} [Alternative m] [Monad m] : Alternative (StateT σ m) :=
 #check_failure 1 + true
 
 /-
-universes u v
+universe u v
 
 /-
   MonadFunctorT.{u ?M_1 v} (λ (β : Type u), m α) (λ (β : Type u), m' α) n n'
@@ -372,14 +372,14 @@ theorem simple20 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by intros h1 h2 h3;
    try clear x; -- should fail
    clear h2;
-   traceState;
+   trace_state;
    apply Eq.trans;
    exact h3;
    exact h1
 
 theorem simple21 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y from by { apply Eq.symm; assumption };
+  have : x = y := by { apply Eq.symm; assumption };
   Eq.trans this (by assumption)
 
 theorem simple22 (x y z : Nat) : y = z → y = x → id (x = z + 0) :=
@@ -391,12 +391,12 @@ fun h1 h2 => show x = z + 0 by
 
 theorem simple23 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have x = y by apply Eq.symm; assumption
+  have : x = y := by apply Eq.symm; assumption
   Eq.trans this (by assumption)
 
 theorem simple24 (x y z : Nat) : y = z → x = x → y = x → x = z :=
 fun h1 _ h3 =>
-  have h : x = y by apply Eq.symm; assumption
+  have h : x = y := by apply Eq.symm; assumption
   Eq.trans h (by assumption)
 
 def f1 (x : Nat) : Nat :=

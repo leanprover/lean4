@@ -13,3 +13,12 @@ import Lean.Elab.Tactic.Match
 import Lean.Elab.Tactic.Rewrite
 import Lean.Elab.Tactic.Location
 import Lean.Elab.Tactic.Simp
+import Lean.Elab.Tactic.BuiltinTactic
+import Lean.Elab.Tactic.Split
+import Lean.Elab.Tactic.Conv
+import Lean.Elab.Tactic.Delta
+import Lean.Elab.Tactic.Meta
+import Lean.Elab.Tactic.Unfold
+import Lean.Elab.Tactic.Cache
+import Lean.Elab.Tactic.Calc
+import Lean.Elab.Tactic.Congr

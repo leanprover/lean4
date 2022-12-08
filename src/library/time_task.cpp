@@ -55,16 +55,15 @@ time_task::time_task(std::string const & category, options const & opts, name de
 time_task::~time_task() {
     if (m_timeit) {
         g_current_time_task = m_parent_task;
-        auto time = m_timeit->get_elapsed();
-        report_profiling_time(m_category, time);
-        if (m_parent_task)
-            // do not report inclusive times
-            report_profiling_time(m_parent_task->m_category, -time);
+        report_profiling_time(m_category, m_timeit->get_elapsed());
+        if (m_parent_task && m_parent_task->m_timeit)
+            // report exclusive times
+            m_parent_task->m_timeit->exclude_duration(m_timeit->get_elapsed_inclusive());
     }
 }
 
 /* profileit {α : Type} (category : String) (opts : Options) (fn : Unit → α) : α */
-extern "C" obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, obj_arg fn) {
+extern "C" LEAN_EXPORT obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, obj_arg fn) {
     time_task t(string_to_std(category),
                 TO_REF(options, opts));
     return apply_1(fn, box(0));

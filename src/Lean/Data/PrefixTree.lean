@@ -3,10 +3,9 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.RBMap
+import Lean.Data.RBMap
 
 namespace Lean
-open Std
 
 /- Similar to trie, but for arbitrary keys -/
 inductive PrefixTreeNode (α : Type u) (β : Type v) where
@@ -29,7 +28,7 @@ partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k 
       let t := insertEmpty ks
       PrefixTreeNode.Node none (RBNode.singleton k t)
   let rec loop
-    | PrefixTreeNode.Node v m, [] =>
+    | PrefixTreeNode.Node _ m, [] =>
       PrefixTreeNode.Node (some val) m -- overrides old value
     | PrefixTreeNode.Node v m, k :: ks =>
       let t := match RBNode.find cmp m k with
@@ -41,8 +40,8 @@ partial def insert (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k 
 @[specialize]
 partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) : Option β :=
   let rec loop
-    | PrefixTreeNode.Node val m, [] => val
-    | PrefixTreeNode.Node val m, k :: ks =>
+    | PrefixTreeNode.Node val _, [] => val
+    | PrefixTreeNode.Node _   m, k :: ks =>
       match RBNode.find cmp m k with
       | none   => none
       | some t => loop t ks
@@ -65,8 +64,8 @@ partial def foldMatchingM [Monad m] (t : PrefixTreeNode α β) (cmp : α → α 
   find k t init
 
 inductive WellFormed (cmp : α → α → Ordering) : PrefixTreeNode α β → Prop where
-  | emptyWff    : WellFormed cmp empty
-  | insertWff  {t : PrefixTreeNode α β} {k : List α} {val : β} : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
+  | emptyWff  : WellFormed cmp empty
+  | insertWff : WellFormed cmp t → WellFormed cmp (insert t cmp k val)
 
 end PrefixTreeNode
 

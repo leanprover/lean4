@@ -2,18 +2,45 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - 'master'
     tags:
       - '*'
   pull_request:
     branches:
       - master
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 7 * * *'  # 8AM CET/11PM PT
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  Build:
-    # don't schedule nightlies on forks
+  set-nightly:
+    runs-on: ubuntu-latest
+    outputs:
+      nightly: ${{ steps.set.outputs.nightly }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        # don't schedule nightlies on forks
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+      - name: Set Nightly
+        if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
+        id: set
+        run: |
+          if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
+            git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
+            git fetch nightly --tags
+            LEAN_VERSION_STRING="nightly-$(date -u +%F)"
+            # do nothing if commit already has a different tag
+            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
+              echo "::set-output name=nightly::$LEAN_VERSION_STRING"
+            fi
+          fi
+
+  build:
+    needs: set-nightly
     if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'
     runs-on: ${{ matrix.os }}
     defaults:
@@ -22,12 +49,16 @@ jobs:
     strategy:
       matrix:
         include:
-          # portable release build: link most libraries statically and use channel with older glibc (2.27; LLVM 7)
+          # portable release build: use channel with older glibc (2.27)
           - name: Linux release
             os: ubuntu-latest
             release: true
-            CMAKE_OPTIONS: -DSTATIC=ON
-            shell: nix-shell --arg pkgs "import (fetchTarball \"channel:nixos-19.03\") {{}}" --argstr llvmPackages latest --run "bash -euxo pipefail {0}"
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
+            prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
+            binary-check: ldd -v
+            # foreign code may be linked against more recent glibc
+            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
           - name: Linux
             os: ubuntu-latest
             check-stage3: true
@@ -35,19 +66,51 @@ jobs:
           - name: Linux Debug
             os: ubuntu-latest
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+            # exclude seriously slow tests
+            CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest'
           - name: Linux fsanitize
             os: ubuntu-latest
-            # turn off custom allocator to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS=-fsanitize=address,undefined -DSMALL_ALLOCATOR=OFF
+            # turn off custom allocator & symbolic functions to make LSAN do its magic
+            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+            # exclude seriously slow/problematic tests (laketests crash)
+            CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest'
           - name: macOS
             os: macos-latest
             release: true
-            CMAKE_OPTIONS: -DSTATIC=ON
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS aarch64
+            os: macos-latest
+            release: true
+            cross: true
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
           - name: Windows
-            os: windows-latest
+            os: windows-2022
             release: true
             shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DSTATIC=ON
+            CMAKE_OPTIONS: -G "Unix Makefiles"
+            # for reasons unknown, interactivetests are flaky on Windows
+            CTEST_OPTIONS: --repeat until-pass:2
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+            prepare-llvm: ../script/prepare-llvm-mingw.sh lean-llvm*
+            binary-check: ldd
+          - name: Linux aarch64
+            os: ubuntu-latest
+            CMAKE_OPTIONS: -DCMAKE_PREFIX_PATH=$GMP -DLEAN_INSTALL_SUFFIX=-linux_aarch64
+            release: true
+            cross: true
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
+            prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -57,82 +120,95 @@ jobs:
       CCACHE_COMPRESS: true
       # current cache limit
       CCACHE_MAXSIZE: 200M
+      # squelch error message about missing nixpkgs channel
+      NIX_BUILD_SHELL: bash
+      LSAN_OPTIONS: max_leaks=10
+      # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
+      CXX: c++
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
-          # interferes with lean4-nightly authentication
-          persist-credentials: false
+          submodules: true
       - name: Install Nix
-        uses: cachix/install-nix-action@v12
-        with:
-          # used only for providing a more recent `bash` on macOS
-          nix_path: nixpkgs=channel:nixos-unstable
-        if: matrix.os != 'windows-latest'
+        uses: cachix/install-nix-action@v18
+        if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
-          install: make python mingw-w64-x86_64-cmake mingw-w64-x86_64-clang mingw-w64-x86_64-ccache git diffutils
-        if: matrix.os == 'windows-latest'
+          msystem: clang64
+          # `:p` means prefix with appropriate msystem prefix
+          pacboy: "make python cmake:p clang:p ccache:p gmp:p git zip unzip diffutils binutils tree zstd:p tar"
+        if: matrix.os == 'windows-2022'
+      - name: Install Brew Packages
+        run: |
+          brew install ccache tree zstd coreutils gmp
+        if: matrix.os == 'macos-latest'
       - name: Cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: .ccache
-          key: ${{ matrix.name }}-build-${{ github.sha }}
+          key: ${{ matrix.name }}-build-v3-${{ github.sha }}
           # fall back to (latest) previous cache
           restore-keys: |
-            ${{ matrix.name }}-build
+            ${{ matrix.name }}-build-v3
       - name: Setup
         run: |
           # open nix-shell once for initial setup
           true
-        if: matrix.os != 'windows-latest'
-      # remove problematic tests for sanitized build
-      - name: Pre build
-        run: rm tests/compiler/StackOverflow.lean tests/compiler/StackOverflowTask.lean
-        if: matrix.name == 'Linux fsanitize'
+        if: matrix.os == 'ubuntu-latest'
       - name: Build
         run: |
           mkdir build
           cd build
-          OPTIONS=
-          if [[ $GITHUB_EVENT_NAME == 'schedule' && -n '${{ matrix.release }}' && -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
-            git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
-            git fetch nightly --tags
-            LEAN_VERSION_STRING="nightly-$(date -u +%F)"
-            # do nothing if commit already has a different tag
-            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              OPTIONS=-DLEAN_SPECIAL_VERSION_DESC=$LEAN_VERSION_STRING
-              echo "LEAN_VERSION_STRING=$LEAN_VERSION_STRING" >> $GITHUB_ENV
-            fi
+          OPTIONS=()
+          if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
+            wget -q ${{ matrix.llvm-url }}
+            PREPARE="$(${{ matrix.prepare-llvm }})"
+            eval "OPTIONS+=($PREPARE)"
           fi
-          cmake .. ${{ matrix.CMAKE_OPTIONS }} $OPTIONS
+          if [[ -n '${{ matrix.release }}' && -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
+            OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.set-nightly.outputs.nightly }})
+          fi
+          # contortion to support empty OPTIONS with old macOS bash
+          cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make -j4
-      # de-Nix-ify binaries
-      - name: Patch
+          make install
+      - name: Check Binaries
+        run: ${{ matrix.binary-check }} lean-*/bin/* || true
+      - name: List Install Tree
         run: |
-          for f in lean leanpkg; do
-            patchelf --set-interpreter /lib64/ld-linux-x86-64.so.2 --remove-rpath build/stage1/bin/$f
-          done
-        if: matrix.name == 'Linux release'
-      - name: Patch
-        run: |
-          for f in lean leanpkg; do
-            for lib in $(otool -L build/stage1/bin/$f | tail -n +2 | cut -d' ' -f1); do
-              install_name_tool -change "$lib" "/usr/lib/$(basename $lib | sed 's/libc++\.1\.0/libc++.1/')" build/stage1/bin/$f
-            done
-          done
-        if: matrix.name == 'macOS'
+          # omit contents of Init/, ...
+          tree --du -h lean-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
-        run: cd build/stage1; cpack
-      - uses: actions/upload-artifact@v2
+        run: |
+          dir=$(echo lean-*)
+          mkdir pack
+          # high-compression tar.zst + zip for release, fast tar.zst otherwise
+          if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
+            ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
+            zip -rq pack/$dir.zip $dir
+          else
+            ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -o pack/$dir.tar.zst
+          fi
+      - uses: actions/upload-artifact@v3
+        if: matrix.release
         with:
           name: build-${{ matrix.name }}
-          path: build/stage1/lean-*
+          path: pack/*
+      - name: Lean stats
+        run: |
+          build/stage1/bin/lean --stats src/Lean.lean
+        if: ${{ !matrix.cross }}
       - name: Test
         run: |
           cd build/stage1
-          ctest -j4 --output-on-failure < /dev/null
+          # exclude nonreproducible test
+          ctest -j4 --output-on-failure -E leanlaketest_git ${{ matrix.CTEST_OPTIONS }} < /dev/null
+        if: ${{ !matrix.cross }}
+      - name: Check Test Binary
+        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+        if: ${{ !matrix.cross }}
       - name: Build Stage 2
         run: |
           cd build
@@ -147,7 +223,8 @@ jobs:
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench; temci exec --config speedcenter.yaml --included_blocks fast --runs 1
+          cd tests/bench
+          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
         if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
@@ -156,40 +233,58 @@ jobs:
         if: matrix.name == 'Linux'
       - name: CCache stats
         run: ccache -s
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && matrix.release }}
         with:
-          files: build/stage1/lean-*
+          files: artifacts/*/*
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-nightly:
+    needs: [set-nightly, build]
+    if: needs.set-nightly.outputs.nightly
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # needed for tagging
+          fetch-depth: 0
+          token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
       - name: Prepare Nightly Release
-        if: env.LEAN_VERSION_STRING
         run: |
-          # can't push shallow checkout
-          git fetch --unshallow
+          git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           git fetch nightly --tags
-          if git tag $LEAN_VERSION_STRING && git push nightly $LEAN_VERSION_STRING; then
-            last_tag=$(git describe HEAD^ --abbrev=0 --tags)
-            echo -e "Changes since ${last_tag}:\n\n" > diff.md
-            #git show $last_tag:doc/changes.md > old.md
-            #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
-            echo -e "*Full commit log*\n" >> diff.md
-            git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
-          else
-            # make sure every runner is building the same commit
-            [ $(git rev-parse HEAD) == $(git rev-parse $LEAN_VERSION_STRING) ] || exit 11
-            echo -n > diff.md
-          fi
+          git tag ${{ needs.set-nightly.outputs.nightly }}
+          git push nightly ${{ needs.set-nightly.outputs.nightly }}
+          last_tag=$(git describe HEAD^ --abbrev=0 --tags)
+          echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
+          git show $last_tag:RELEASES.md > old.md
+          #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
+          diff --changed-group-format='%>' --unchanged-group-format='' old.md RELEASES.md >> diff.md || true
+          echo -e "\n*Full commit log*\n" >> diff.md
+          git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        # need unreleased version for fixed `repository`
-        uses: Kha/action-gh-release@master
-        if: env.LEAN_VERSION_STRING
+        uses: softprops/action-gh-release@v1
         with:
           body_path: diff.md
           prerelease: true
-          files: build/stage1/lean-*
-          tag_name: ${{ env.LEAN_VERSION_STRING }}
+          files: artifacts/*/*
+          fail_on_unmatched_files: true
+          tag_name: ${{ needs.set-nightly.outputs.nightly }}
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}

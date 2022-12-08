@@ -10,7 +10,7 @@ partial def fact : Nat → Nat
 set_option trace.Meta.debug true
 set_option trace.Meta.check false
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
@@ -193,3 +193,29 @@ def tst10 : MetaM Unit := do
   assert! !(← getConstInfoInduct `Prod).isNested
 
 #eval tst10
+
+def tst11 : MetaM Unit := do
+  print "----- tst11 -----"
+  withLocalDeclD `x (mkConst ``True) fun x =>
+  withLocalDeclD `y (mkConst ``True) fun y => do
+    checkM (isDefEq x y)
+    pure ()
+
+#eval tst11
+
+def tst12 : MetaM Unit := do
+  print "----- tst12 -----";
+  let nat := mkConst `Nat
+  withLocalDeclD `x nat fun x =>
+  withLocalDeclD `y nat fun y => do
+  let val ← mkAppM' (mkConst `Add.add [levelZero]) #[mkNatLit 10, y];
+  check val; print val
+  let val ← mkAppM' (mkApp (mkConst ``Add.add [levelZero]) (mkConst ``Int)) #[mkApp (mkConst ``Int.ofNat) (mkNatLit 10), mkApp (mkConst ``Int.ofNat) y];
+  check val; print val
+  let val ← mkAppOptM' (mkConst `Add.add [levelZero]) #[mkConst  ``Nat, none, mkNatLit 10, y];
+  check val; print val
+  pure ()
+
+#eval tst12
+
+#check @Add.add

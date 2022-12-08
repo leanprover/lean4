@@ -1,5 +1,3 @@
-
-
 structure Var : Type := (name : String)
 instance Var.nameCoe : Coe String Var := ⟨Var.mk⟩
 
@@ -13,7 +11,7 @@ def Foo.chalk : A → List Var → Unit := fun _ _ => ()
 def Bar.chalk : B → Unit := fun _ => ()
 
 instance listCoe {α β} [Coe α β] : Coe (List α) (List β) :=
-⟨fun as => as.map fun a => coe a⟩
+⟨fun as => as.map fun (a : α) => ↑a⟩
 
 open Foo
 open Bar

@@ -1,6 +1,6 @@
 
 
-universes u v
+universe u v
 
 inductive arrow (α : Type u) (β : Type v)
 | mk : (α → β) → arrow α β

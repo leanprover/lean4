@@ -20,3 +20,12 @@ import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.Constructor
 import Lean.Meta.Tactic.Simp
 import Lean.Meta.Tactic.AuxLemma
+import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Tactic.Split
+import Lean.Meta.Tactic.Cleanup
+import Lean.Meta.Tactic.Unfold
+import Lean.Meta.Tactic.Rename
+import Lean.Meta.Tactic.LinearArith
+import Lean.Meta.Tactic.AC
+import Lean.Meta.Tactic.Refl
+import Lean.Meta.Tactic.Congr

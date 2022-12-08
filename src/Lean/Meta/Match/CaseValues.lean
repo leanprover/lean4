@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Match.Value
 
 namespace Lean.Meta
 
@@ -12,9 +13,7 @@ structure CaseValueSubgoal where
   mvarId : MVarId
   newH   : FVarId
   subst  : FVarSubst := {}
-
-instance : Inhabited CaseValueSubgoal :=
-  ⟨{ mvarId := arbitrary, newH := arbitrary }⟩
+  deriving Inhabited
 
 /--
   Split goal `... |- C x` into two subgoals
@@ -24,31 +23,31 @@ instance : Inhabited CaseValueSubgoal :=
   The type of `x` must have decidable equality.
 
   Remark: `subst` field of the second subgoal is equal to the input `subst`. -/
-def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
+private def caseValueAux (mvarId : MVarId) (fvarId : FVarId) (value : Expr) (hName : Name := `h) (subst : FVarSubst := {})
     : MetaM (CaseValueSubgoal × CaseValueSubgoal) :=
-  withMVarContext mvarId do
-    let tag ← getMVarTag mvarId
-    checkNotAssigned mvarId `caseValue
-    let target ← getMVarType mvarId
-    let xEqValue ← mkEq (mkFVar fvarId) value
+  mvarId.withContext do
+    let tag ← mvarId.getTag
+    mvarId.checkNotAssigned `caseValue
+    let target ← mvarId.getType
+    let xEqValue ← mkEq (mkFVar fvarId) (foldPatValue value)
     let xNeqValue := mkApp (mkConst `Not) xEqValue
     let thenTarget := Lean.mkForall hName BinderInfo.default xEqValue  target
     let elseTarget := Lean.mkForall hName BinderInfo.default xNeqValue target
     let thenMVar ← mkFreshExprSyntheticOpaqueMVar thenTarget tag
     let elseMVar ← mkFreshExprSyntheticOpaqueMVar elseTarget tag
     let val ← mkAppOptM `dite #[none, xEqValue, none, thenMVar, elseMVar]
-    assignExprMVar mvarId val
-    let (elseH, elseMVarId) ← intro1P elseMVar.mvarId!
+    mvarId.assign val
+    let (elseH, elseMVarId) ← elseMVar.mvarId!.intro1P
     let elseSubgoal := { mvarId := elseMVarId, newH := elseH, subst := subst : CaseValueSubgoal }
-    let (thenH, thenMVarId) ← intro1P thenMVar.mvarId!
+    let (thenH, thenMVarId) ← thenMVar.mvarId!.intro1P
     let symm   := false
     let clearH := false
     let (thenSubst, thenMVarId) ← substCore thenMVarId thenH symm subst clearH
-    withMVarContext thenMVarId do
-      trace[Meta] "subst domain: {thenSubst.domain}"
+    thenMVarId.withContext do
+      trace[Meta] "subst domain: {thenSubst.domain.map (·.name)}"
       let thenH := (thenSubst.get thenH).fvarId!
       trace[Meta] "searching for decl"
-      let decl ← getLocalDecl thenH
+      let _ ← thenH.getDecl
       trace[Meta] "found decl"
     let thenSubgoal := { mvarId := thenMVarId, newH := (thenSubst.get thenH).fvarId!, subst := thenSubst : CaseValueSubgoal }
     pure (thenSubgoal, elseSubgoal)
@@ -63,9 +62,7 @@ structure CaseValuesSubgoal where
   mvarId : MVarId
   newHs  : Array FVarId := #[]
   subst  : FVarSubst := {}
-
-instance : Inhabited CaseValuesSubgoal :=
-  ⟨{ mvarId := arbitrary }⟩
+  deriving Inhabited
 
 /--
   Split goal `... |- C x` into values.size + 1 subgoals
@@ -78,19 +75,26 @@ instance : Inhabited CaseValuesSubgoal :=
   The type of `x` must have decidable equality.
 
   Remark: the last subgoal is for the "else" catchall case, and its `subst` is `{}`.
-  Remark: the fiels `newHs` has size 1 forall but the last subgoal. -/
-def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) : MetaM (Array CaseValuesSubgoal) :=
+  Remark: the fiels `newHs` has size 1 forall but the last subgoal.
+
+  If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
+-/
+def caseValues (mvarId : MVarId) (fvarId : FVarId) (values : Array Expr) (hNamePrefix := `h) (substNewEqs := false) : MetaM (Array CaseValuesSubgoal) :=
   let rec loop : Nat → MVarId → List Expr → Array FVarId → Array CaseValuesSubgoal → MetaM (Array CaseValuesSubgoal)
-    | i, mvarId, [],    hs, subgoals => throwTacticEx `caseValues mvarId "list of values must not be empty"
+    | _, mvarId, [],    _,  _        => throwTacticEx `caseValues mvarId "list of values must not be empty"
     | i, mvarId, v::vs, hs, subgoals => do
       let (thenSubgoal, elseSubgoal) ← caseValueAux mvarId fvarId v (hNamePrefix.appendIndexAfter i) {}
       appendTagSuffix thenSubgoal.mvarId ((`case).appendIndexAfter i)
       let thenMVarId ← hs.foldlM
         (fun thenMVarId h => match thenSubgoal.subst.get h with
-          | Expr.fvar fvarId _ => tryClear thenMVarId fvarId
-          | _                  => pure thenMVarId)
+          | Expr.fvar fvarId => thenMVarId.tryClear fvarId
+          | _                => pure thenMVarId)
         thenSubgoal.mvarId
-      let subgoals := subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
+      let subgoals ← if substNewEqs then
+         let (subst, mvarId) ← substCore thenMVarId thenSubgoal.newH false thenSubgoal.subst true
+         pure <| subgoals.push { mvarId := mvarId, newHs := #[], subst := subst }
+      else
+         pure <| subgoals.push { mvarId := thenMVarId, newHs := #[thenSubgoal.newH], subst := thenSubgoal.subst }
       match vs with
       | [] => do
         appendTagSuffix elseSubgoal.mvarId ((`case).appendIndexAfter (i+1))

@@ -77,9 +77,9 @@ theorem twiceAdd2 (a : Nat) : twice (fun x => x + 2) a = a + 4 :=
   -- until they are identical.
   rfl
 
--- `(. + 2)` is syntax sugar for `(fun x => x + 2)`. The parentheses + `.` notation
+-- `(· + 2)` is syntax sugar for `(fun x => x + 2)`. The parentheses + `·` notation
 -- is useful for defining simple anonymous functions.
-#eval twice (. + 2) 10
+#eval twice (· + 2) 10
 
 -- Enumerated types are a special case of inductive types in Lean,
 -- which we will learn about later.
@@ -196,5 +196,5 @@ theorem Weekday.nextOfPrevious (d : Weekday) : next (previous d) = d :=
 -- using metaprogramming (or "tactics").
 theorem Weekday.nextOfPrevious' (d : Weekday) : next (previous d) = d := by
   cases d       -- A proof by case distinction
-  allGoals rfl  -- Each case is solved using `rfl`
+  all_goals rfl  -- Each case is solved using `rfl`
 ```

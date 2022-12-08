@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.coe init.data.option.basic init.system.io
 
-universes u v w w'
+universe u v w w'
 
 inductive color
 | Red | Black

@@ -1,16 +1,13 @@
-{ pkgs, nix, temci, mdBook, ... } @ args:
+{ pkgs, nix, ... } @ args:
 with pkgs;
 let
   nix-pinned = writeShellScriptBin "nix" ''
-    ${nix.defaultPackage.${system}}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
+    ${nix.packages.${system}.default}/bin/nix --experimental-features 'nix-command flakes' --extra-substituters https://lean4.cachix.org/ --option warn-dirty false "$@"
   '';
-  llvmPackages = llvmPackages_10;
+  # https://github.com/NixOS/nixpkgs/issues/130963
+  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_14;
   cc = (ccacheWrapper.override rec {
-    # macOS doesn't like the lld override, but I guess it already uses that anyway
-    cc = if system == "x86_64-darwin" then llvmPackages.clang else llvmPackages.clang.override {
-      # linker go brrr
-      bintools = llvmPackages.lldClang.bintools;
-    };
+    cc = llvmPackages.clang;
     extraConfig = ''
       export CCACHE_DIR=/nix/var/cache/ccache
       export CCACHE_UMASK=007
@@ -29,9 +26,10 @@ let
     # https://github.com/NixOS/nixpkgs/issues/119779
     installPhase = builtins.replaceStrings ["use_response_file_by_default=1"] ["use_response_file_by_default=0"] old.installPhase;
   });
+  stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
-    stdenv = overrideCC llvmPackages.stdenv cc;
-    inherit buildLeanPackage;
+    stdenv = overrideCC stdenv' cc;
+    inherit buildLeanPackage llvmPackages;
   });
   makeOverridableLeanPackage = f:
     let newF = origArgs: f origArgs // {
@@ -50,71 +48,37 @@ let
   lean4-mode = emacsPackages.melpaBuild {
     pname = "lean4-mode";
     version = "1";
-    src = ../lean4-mode;
+    commit = "1";
+    src = args.lean4-mode;
     packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
-      (lean4-mode :repo "leanprover/lean4" :fetcher github :files ("*.el"))
+      (lean4-mode :repo "leanprover/lean4-mode" :fetcher github)
     '';
-    fileSpecs = [ "*.el" ];
   };
   lean-emacs = emacsWithPackages [ lean4-mode ];
   # updating might be nicer by building from source from a flake input, but this is good enough for now
   vscode-lean4 = vscode-utils.extensionFromVscodeMarketplace {
       name = "lean4";
       publisher = "leanprover";
-      version = "0.0.23";
-      sha256 = "sha256-DlP3O2mMAIXV7XwcZFHpa4Vp/9cxxtu9O+gQUW8MddA=";
+      version = "0.0.63";
+      sha256 = "sha256-kjEex7L0F2P4pMdXi4NIZ1y59ywJVubqDqsoYagZNkI=";
   };
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];
   };
-  lean-mdbook = mdbook.overrideAttrs (drv: rec {
-    name = "lean-${mdbook.name}";
-    src = mdBook;
-    cargoDeps = drv.cargoDeps.overrideAttrs (_: {
-      inherit src;
-      outputHash = "sha256-j14HdGcDtWpFFn/lTlbvQFsM7JLSc+OsSOooliiP4tw=";
-    });
-    doCheck = false;
-  });
-  doc = stdenv.mkDerivation {
-    name ="lean-doc";
-    src = ../.;
-    buildInputs = [ lean-mdbook ];
-    buildCommand = ''
-      mdbook build -d $out $src/doc
-    '';
-  };
-  # We use a separate derivation instead of `checkPhase` so we can push it but not `doc` to the binary cache
-  doc-test = stdenv.mkDerivation {
-    name ="lean-doc-test";
-    src = ../.;
-    buildInputs = [ lean-mdbook lean.stage1 strace ];
-    patchPhase = ''
-      cd doc
-      patchShebangs test
-    '';
-    buildPhase = ''
-      mdbook test
-      touch $out
-    '';
-    dontInstall = true;
-  };
 in {
-  inherit cc lean4-mode buildLeanPackage llvmPackages;
+  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
-  stage0print-paths = lean.stage1.Leanpkg.print-paths;
+  stage0print-paths = lean.stage1.Lean.print-paths;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });
   HEAD-as-stage1 = (lean.stage1.Lean.overrideArgs { srcTarget = "..\?rev=$(git rev-parse HEAD)#stage0"; });
-  temci = (import temci {}).override { doCheck = false; };
   nix = nix-pinned;
   nixpkgs = pkgs;
   ciShell = writeShellScriptBin "ciShell" ''
     set -o pipefail
-    export PATH=${nix-pinned}/bin:${moreutils}/bin:$PATH
+    export PATH=${moreutils}/bin:$PATH
     # prefix lines with cumulative and individual execution time
     "$@" |& ts -i "(%.S)]" | ts -s "[%M:%S"
   '';
-  mdbook = lean-mdbook;
-  inherit doc doc-test;
+  vscode = lean-vscode;
 } // lean.stage1.Lean // lean.stage1 // lean

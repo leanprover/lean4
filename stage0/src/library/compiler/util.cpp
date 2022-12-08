@@ -14,6 +14,8 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
+#include "kernel/find_fn.h"
+#include "kernel/inductive.h"
 #include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
 #include "library/util.h"
@@ -128,6 +130,16 @@ struct unfold_macro_defs_fn : public replace_visitor {
     unfold_macro_defs_fn(environment const & env):m_env(env) {}
 
 
+    bool should_macro_inline(name const & n) {
+        if (!has_macro_inline_attribute(m_env, n)) return false;
+        auto info = m_env.get(n);
+        if (!info.has_value())
+            return false;
+        bool is_rec = static_cast<bool>(find(info.get_value(), [&](expr const & e, unsigned) { return is_const(e, n); }));
+        // We do not macro_inline recursive definitions. TODO: check that when setting the attribute.
+        return !is_rec;
+    }
+
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
@@ -140,7 +152,7 @@ struct unfold_macro_defs_fn : public replace_visitor {
         }
         if (is_constant(fn)) {
             name const & n = const_name(fn);
-            if (has_macro_inline_attribute(m_env, n)) {
+            if (should_macro_inline(n)) {
                 expr new_fn = instantiate_value_lparams(m_env.get(n), const_levels(fn));
                 std::reverse(args.begin(), args.end());
                 return visit(apply_beta(new_fn, args.size(), args.data()));
@@ -155,7 +167,7 @@ struct unfold_macro_defs_fn : public replace_visitor {
 
     virtual expr visit_constant(expr const & e) override {
         name const & n = const_name(e);
-        if (has_macro_inline_attribute(m_env, n)) {
+        if (should_macro_inline(n)) {
             return visit(instantiate_value_lparams(m_env.get(n), const_levels(e)));
         } else {
             return e;
@@ -225,7 +237,7 @@ bool is_join_point_name(name const & n) {
 }
 
 bool is_pseudo_do_join_point_name(name const & n) {
-    return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "_do_jp", 6) == 0;
+    return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "__do_jp", 6) == 0;
 }
 
 bool has_fvar(expr const & e, expr const & fvar) {
@@ -447,7 +459,7 @@ optional<unsigned> has_trivial_structure(environment const & env, name const & I
     inductive_val I_val = env.get(I_name).to_inductive_val();
     if (I_val.is_unsafe())
         return optional<unsigned>();
-    if (I_val.get_ncnstrs() != 1)
+    if (I_val.get_ncnstrs() != 1 || I_val.is_rec())
         return optional<unsigned>();
     buffer<bool> rel_fields;
     get_constructor_relevant_fields(env, head(I_val.get_cnstrs()), rel_fields);
@@ -508,32 +520,30 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
 
         /* If `e` is a trivial structure such as `Subtype`, then convert the only relevant
            field to a runtime type. */
-        if (is_app(e)) {
-            expr const & fn = get_app_fn(e);
-            if (is_constant(fn) && is_inductive(st.env(), const_name(fn))) {
-                name const & I_name = const_name(fn);
-                environment const & env = st.env();
-                if (optional<unsigned> fidx = has_trivial_structure(env, I_name)) {
-                    /* Retrieve field `fidx` type */
-                    inductive_val I_val = env.get(I_name).to_inductive_val();
-                    name K = head(I_val.get_cnstrs());
-                    unsigned nparams = I_val.get_nparams();
-                    buffer<expr> e_args;
-                    get_app_args(e, e_args);
-                    lean_assert(nparams <= e_args.size());
-                    expr k_app = mk_app(mk_constant(K, const_levels(fn)), nparams, e_args.data());
-                    expr type = tc.whnf(tc.infer(k_app));
-                    local_ctx aux_lctx = lctx;
-                    unsigned idx = 0;
-                    while (is_pi(type)) {
-                        if (idx == *fidx) {
-                            return mk_runtime_type(st, aux_lctx, binding_domain(type));
-                        }
-                        expr local = aux_lctx.mk_local_decl(st.ngen(), binding_name(type), binding_domain(type), binding_info(type));
-                        type       = instantiate(binding_body(type), local);
-                        type       = type_checker(st, aux_lctx).whnf(type);
-                        idx++;
+        expr const & fn = get_app_fn(e);
+        if (is_constant(fn) && is_inductive(st.env(), const_name(fn))) {
+            name const & I_name = const_name(fn);
+            environment const & env = st.env();
+            if (optional<unsigned> fidx = has_trivial_structure(env, I_name)) {
+                /* Retrieve field `fidx` type */
+                inductive_val I_val = env.get(I_name).to_inductive_val();
+                name K = head(I_val.get_cnstrs());
+                unsigned nparams = I_val.get_nparams();
+                buffer<expr> e_args;
+                get_app_args(e, e_args);
+                lean_assert(nparams <= e_args.size());
+                expr k_app = mk_app(mk_constant(K, const_levels(fn)), nparams, e_args.data());
+                expr type = tc.whnf(tc.infer(k_app));
+                local_ctx aux_lctx = lctx;
+                unsigned idx = 0;
+                while (is_pi(type)) {
+                    if (idx == *fidx) {
+                        return mk_runtime_type(st, aux_lctx, binding_domain(type));
                     }
+                    expr local = aux_lctx.mk_local_decl(st.ngen(), binding_name(type), binding_domain(type), binding_info(type));
+                    type       = instantiate(binding_body(type), local);
+                    type       = type_checker(st, aux_lctx).whnf(type);
+                    idx++;
                 }
             }
         }
@@ -585,8 +595,14 @@ optional<expr> mk_enf_fix_core(unsigned n) {
 }
 
 
-/* Auxiliary visitor used to detect let-decl LCNF violations.
-   In LCNF, the type `ty` in `let x : ty := v in t` must not be irrelevant. */
+/*
+Auxiliary visitor used to detect let-decl LCNF violations.
+In LCNF, the type `ty` in `let x : ty := v in t` must not be irrelevant.
+
+Remark: this validator is incorrect. When specializing polymorphic code,
+we can get an irrelevant `ty`.
+We disabled this validator since we will delete the code generator written in C++.
+*/
 class lcnf_valid_let_decls_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
@@ -749,6 +765,21 @@ expr lcnf_eta_expand(type_checker::state & st, local_ctx lctx, expr e) {
            produced type incorrect terms. */
         return e;
     }
+}
+
+bool is_quot_primitive_app(environment const & env, expr const & e) {
+  expr const & f = get_app_fn(e);
+  return is_constant(f) && is_quot_primitive(env, const_name(f));
+}
+
+bool must_be_eta_expanded(environment const & env, expr const & e) {
+  return
+    is_constructor_app(env, e) ||
+    is_proj(e) ||
+    is_matcher_app(env, e) ||
+    is_cases_on_app(env, e) ||
+    is_lc_unreachable_app(e) ||
+    is_quot_primitive_app(env, e);
 }
 
 void initialize_compiler_util() {

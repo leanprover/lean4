@@ -5,8 +5,8 @@ open Lean
 def tst : IO Unit :=
 do
 let f := mkConst `f;
-let x := mkFVar `x;
-let y := mkFVar `y;
+let x := mkFVar { name := `x };
+let y := mkFVar { name := `y };
 let t := mkApp (mkApp (mkApp f x) y) (mkApp f x);
 IO.println t;
 let p := t.abstract [x, y].toArray;

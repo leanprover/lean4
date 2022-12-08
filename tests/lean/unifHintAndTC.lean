@@ -1,37 +1,38 @@
-structure Magma.{u} where
-  α   : Type u
-  mul : α → α → α
+structure Magma where
+  carrier   : Type u
+  mul : carrier → carrier → carrier
 
-instance : CoeSort Magma.{u} (Type u) where
-  coe m := m.α
+instance : CoeSort Magma (Type u) where
+  coe m := m.carrier
 
 def mul {s : Magma} (a b : s) : s :=
   s.mul a b
 
-infixl:70 (priority := high) "*" => mul
+infixl:70 (priority := high) " * " => mul
+
+example {S : Magma} (a b c : S) : b = c → a * b = a * c := by
+  intro h; rw [h]
 
 def Nat.Magma : Magma where
-  α       := Nat
+  carrier := Nat
   mul a b := Nat.mul a b
 
-def Prod.Magma (m : Magma.{u}) (n : Magma.{v}) : Magma where
-  α  := m.α × n.α
-  mul a b := (a.1 * b.1, a.2 * b.2)
-
 unif_hint (s : Magma) where
-  s =?= Nat.Magma |- s.α =?= Nat
+  s =?= Nat.Magma |- s.carrier =?= Nat
 
-unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
-  m.α =?= β
-  n.α =?= δ
-  s =?= Prod.Magma m n
-  |-
-  s.α =?= β × δ
-
-def f1 (x : Nat) : Nat :=
+example (x : Nat) : Nat :=
   x * x
 
-#eval f1 10
+def Prod.Magma (m : Magma) (n : Magma) : Magma where
+  carrier := m.carrier × n.carrier
+  mul a b := (a.1 * b.1, a.2 * b.2)
+
+unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
+  m.carrier =?= β
+  n.carrier =?= δ
+  s =?= Prod.Magma m n
+  |-
+  s.carrier =?= β × δ
 
 def f2 (x y : Nat) : Nat × Nat :=
   (x, y) * (x, y)
@@ -44,13 +45,13 @@ def f3 (x y : Nat) : Nat × Nat × Nat :=
 #eval f3 7 24
 
 def magmaOfMul (α : Type u) [Mul α] : Magma where -- Bridge between `Mul α` and `Magma`
-  α       := α
+  carrier := α
   mul a b := Mul.mul a b
 
 unif_hint (s : Magma) (α : Type u) [Mul α] where
   s =?= magmaOfMul α
   |-
-  s.α =?= α
+  s.carrier =?= α
 
 def g (x y : Int) : Int :=
   x * y -- Note that we don't have a hint connecting Magma's carrier and Int

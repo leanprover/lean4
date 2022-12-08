@@ -1,0 +1,22 @@
+{"title": "hello world",
+ "kind": "quickfix",
+ "edit":
+ {"documentChanges":
+  [{"textDocument": {"version": 0, "uri": "file://codeaction.lean"},
+    "edits":
+    [{"range":
+      {"start": {"line": 29, "character": 4},
+       "end": {"line": 29, "character": 4}},
+      "newText": "hello!!!"}]}],
+  "changes": {},
+  "changeAnnotations": {}}}
+{"title": "a long-running action",
+ "kind": "refactor",
+ "data":
+ {"providerResultIndex": 1,
+  "providerName": "helloProvider",
+  "params":
+  {"textDocument": {"uri": "file://codeaction.lean"},
+   "range":
+   {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
+   "context": {"diagnostics": []}}}}

@@ -13,45 +13,42 @@ def β := Quotient (thing r π)
 
 variable {γ : Type _}
 
-def Quotient.mk' {s : Setoid α} (a : α) : Quotient s :=
-Quotient.mk a
-
-def Quotient.sound' {s : Setoid α} {a b : α} (h : a ≈ b) : Quotient.mk a = Quotient.mk b :=
-Quotient.sound h
+abbrev Quotient.mk'' {s : Setoid α} (a : α) : Quotient s :=
+Quotient.mk s a
 
 def δ0 : β r π → β r π :=
 Quotient.lift
   (s := thing r π)
-  (Quotient.mk' $ π ·)
-  fun x y h => Quotient.sound' (by exact rel.compat h)
+  (Quotient.mk'' $ π ·)
+  fun x y h => Quotient.sound (by exact rel.compat h)
 
 def δ1 : β r π → β r π :=
 Quotient.lift
   (s := thing r π)
-  (Quotient.mk' $ π ·)
-  fun x y h => Quotient.sound' (rel.compat h)
+  (Quotient.mk'' $ π ·)
+  fun x y h => Quotient.sound (rel.compat h)
 
 def δ2 : β r π → β r π :=
 Quotient.lift
   (s := thing r π)
-  (Quotient.mk' $ π ·)
-  (by exact fun x y h => Quotient.sound' (rel.compat h))
+  (Quotient.mk'' $ π ·)
+  (by exact fun x y h => Quotient.sound (rel.compat h))
 
 def Quotient.lift' {α β} {s : Setoid α} (f : α → β) (h : (a b : α) → a ≈ b → f a = f b) (q : Quotient s) : β :=
 Quotient.lift f h q
 
 def δ3 : β r π → β r π :=
 Quotient.lift'
-  (Quotient.mk' $ π ·)
-  fun x y h => Quotient.sound' (rel.compat h)
+  (Quotient.mk'' $ π ·)
+  fun x y h => Quotient.sound (rel.compat h)
 
 def δ4 : β r π → β r π :=
 @Quotient.lift _ _
   (thing r π)
-  (Quotient.mk' $ π ·)
-  (fun x y h => Quotient.sound' (rel.compat h))
+  (Quotient.mk'' $ π ·)
+  (fun x y h => Quotient.sound (rel.compat h))
 
 def δ5 : β r π → β r π :=
 @Quotient.lift' _ _ _
-  (Quotient.mk' $ π ·)
-  (fun x y h => Quotient.sound' (rel.compat h))
+  (Quotient.mk'' $ π ·)
+  (fun x y h => Quotient.sound (rel.compat h))

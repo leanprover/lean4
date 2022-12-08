@@ -6,6 +6,7 @@ open Lean.Elab.Term
 open Lean.Elab.Command
 open Std.Format open Std
 open Lean.PrettyPrinter
+open Lean.PrettyPrinter.Delaborator
 
 open Lean.Meta
 
@@ -13,7 +14,7 @@ def checkM (stx : TermElabM Syntax) (optionsPerPos : OptionsPerPos := {}) : Term
 let opts ← getOptions
 let stx ← stx
 let e ← elabTermAndSynthesize stx none <* throwErrorIfErrors
-let stx' ← delab Name.anonymous [] e optionsPerPos
+let stx' ← delab e optionsPerPos
 let f' ← PrettyPrinter.ppTerm stx'
 let s := f'.pretty' opts
 IO.println s
@@ -23,7 +24,7 @@ match Parser.runParserCategory env `term s "<input>" with
 | Except.ok stx'' => do
   let e' ← elabTermAndSynthesize stx'' none <* throwErrorIfErrors
   unless (← isDefEq e e') do
-    throwErrorAt stx (m!"failed to round-trip" ++ line ++ fmt e ++ line ++ fmt e')
+    throwErrorAt stx (m!"failed to round-trip" ++ line ++ format e ++ line ++ format e')
 
 -- set_option trace.PrettyPrinter.parenthesize true
 set_option format.width 20
@@ -37,6 +38,10 @@ set_option format.width 20
 -- TODO: we need support for parsing `?u` to roundtrip the terms containing universe metavariables. Just pretty printing them as `_` is bad for error and trace messages
 -- #eval checkM `(Type _)
 -- #eval checkM `(Type (_ + 2))
+
+#eval checkM `(@max Nat)
+#eval checkM `(@HEq Nat 1)
+#eval checkM `(@List.nil)
 
 #eval checkM `(Nat)
 #eval checkM `(List Nat)
@@ -53,10 +58,13 @@ section
   #eval checkM `(id Nat)
   #eval checkM `(Sum Nat Nat)
 end
-#eval checkM `(id (id Nat)) (Std.RBMap.empty.insert 4 $ KVMap.empty.insert `pp.explicit true)
+#eval checkM `(id (id Nat)) (Lean.RBMap.empty.insert (SubExpr.Pos.ofArray #[1]) $ KVMap.empty.insert `pp.explicit true)
 
 -- specify the expected type of `a` in a way that is not erased by the delaborator
 def typeAs.{u} (α : Type u) (a : α) := ()
+
+set_option pp.analyze.knowsType false in
+#eval checkM `(fun (a : Nat) => a)
 
 #eval checkM `(fun (a : Nat) => a)
 #eval checkM `(fun (a b : Nat) => a)
@@ -77,7 +85,7 @@ end
 #eval checkM `({α : Type} → [ToString α] → α)
 #eval checkM `(∀ x : Nat, x = x)
 #eval checkM `(∀ {x : Nat} [ToString Nat], x = x)
-set_option pp.binder_types false in
+set_option pp.piBinderTypes false in
 #eval checkM `(∀ x : Nat, x = x)
 
 -- TODO: hide `ofNat`
@@ -86,8 +94,7 @@ set_option pp.binder_types false in
 #eval checkM `(42)
 #eval checkM `("hi")
 
-set_option pp.structure_instance_type true in
-#eval checkM `({ type := Nat, val := 0 : PointedType })
+set_option pp.structureInstanceTypes true in
 #eval checkM `((1,2,3))
 #eval checkM `((1,2).fst)
 
@@ -95,10 +102,15 @@ set_option pp.structure_instance_type true in
 
 #eval checkM `(id (fun a => a) 0)
 
-#eval checkM `(typeAs Nat (do
-  let x ← pure 1
+#eval checkM `(typeAs (Id Nat) (do
+  let x := 1
   discard <| pure 2
   let y := 3
   return x + y))
 
 #eval checkM `(typeAs (Id Nat) (pure 1 >>= pure))
+
+#eval checkM `((0 ≤ 1) = False)
+#eval checkM `((0 = 1) = False)
+
+#eval checkM `(-(-0))

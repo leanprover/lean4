@@ -3,7 +3,7 @@ namespace Foo
 syntax "foo" term : term
 
 macro_rules
-  | `(foo $x) => x
+  | `(foo $x) => pure x
 
 set_option trace.Elab true in
 #check foo true
@@ -15,7 +15,7 @@ namespace Bla
 syntax (name := bla) "bla" term : term
 
 macro_rules
-  | `(bla $x) => x
+  | `(bla $x) => pure x
 
 set_option trace.Elab true in
 #check bla true

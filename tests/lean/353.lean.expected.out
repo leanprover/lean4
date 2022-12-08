@@ -1,4 +1,2 @@
-353.lean:13:27-13:35: error: failed to synthesize instance
-  ArrSort.{1, ?u} Bool
-353.lean:13:41-13:49: error: failed to synthesize instance
-  Arr.{1, ?u + 1} Bool (Sort ?u)
+353.lean:13:26-13:50: error: typeclass instance problem is stuck, it is often due to metavariables
+  Arr.{?u, ?u + 1} (@?m a₁ a₂) (Sort ?u)

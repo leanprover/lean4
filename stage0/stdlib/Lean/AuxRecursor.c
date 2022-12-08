@@ -13,77 +13,65 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_mkRecOnName(lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1;
-lean_object* lean_mark_aux_recursor(lean_object*, lean_object*);
-lean_object* lean_name_mk_string(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt;
-lean_object* l_Lean_noConfusionExt___elambda__2___boxed(lean_object*);
-extern lean_object* l_Array_empty___closed__1;
-lean_object* l_Lean_noConfusionExt___closed__5;
-uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__1___boxed(lean_object*);
-lean_object* l_Lean_noConfusionExt___closed__3;
-lean_object* l_Lean_auxRecExt___elambda__4(lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt;
-lean_object* l_Lean_binductionOnSuffix;
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2;
-lean_object* l_Lean_auxRecExt___closed__4;
-lean_object* l_Lean_noConfusionExt___closed__1;
-lean_object* l_Lean_auxRecExt___closed__1;
-lean_object* l_Lean_mkCasesOnName(lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__4___rarg(lean_object*);
-lean_object* l_Lean_recOnSuffix;
-lean_object* l_Lean_isNoConfusion___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___closed__2;
-lean_object* l_Lean_auxRecExt___closed__2;
-lean_object* lean_mark_no_confusion(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__3___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__1(lean_object*);
-extern lean_object* l_IO_instInhabitedError___closed__1;
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39_(lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101_(lean_object*);
-lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_casesOnSuffix___closed__1;
-lean_object* l_Lean_noConfusionExt___closed__4;
-lean_object* l_Lean_isCasesOnRecursor_match__1___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__3(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__3(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__1___boxed(lean_object*);
-lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__4___rarg(lean_object*);
-lean_object* l_Lean_brecOnSuffix___closed__1;
-lean_object* l_Lean_binductionOnSuffix___closed__1;
-lean_object* l_Lean_auxRecExt___elambda__2___boxed(lean_object*);
-lean_object* l_Lean_auxRecExt___closed__5;
-lean_object* l_Lean_auxRecExt___closed__3;
-uint8_t lean_is_no_confusion(lean_object*, lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__1(lean_object*);
-extern lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
-lean_object* l_Lean_auxRecExt___elambda__3___boxed(lean_object*, lean_object*);
-uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
-lean_object* l_Lean_auxRecExt___elambda__2(lean_object*);
-lean_object* l_Lean_noConfusionExt___elambda__4(lean_object*, lean_object*);
-lean_object* l_Lean_mkBRecOnName(lean_object*);
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1;
+static lean_object* l_Lean_casesOnSuffix___closed__1;
+LEAN_EXPORT lean_object* l_Lean_mkRecOnName(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2;
+LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_noConfusionExt;
+LEAN_EXPORT lean_object* l_Lean_recOnSuffix;
+LEAN_EXPORT lean_object* l_Lean_mkCasesOnName(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isRecOnRecursor___boxed(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_isBRecOnRecursor(lean_object*, lean_object*);
+static lean_object* l_Lean_isAuxRecursor___closed__4;
+static lean_object* l_Lean_binductionOnSuffix___closed__1;
+static lean_object* l_Lean_isAuxRecursor___closed__5;
+LEAN_EXPORT lean_object* l_Lean_mkBInductionOnName(lean_object*);
+LEAN_EXPORT lean_object* lean_mark_aux_recursor(lean_object*, lean_object*);
+static lean_object* l_Lean_brecOnSuffix___closed__1;
+static lean_object* l_Lean_isAuxRecursor___closed__1;
+LEAN_EXPORT lean_object* l_Lean_belowSuffix;
 lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
-lean_object* l_Lean_isCasesOnRecursor_match__1(lean_object*);
+static lean_object* l_Lean_recOnSuffix___closed__1;
+LEAN_EXPORT lean_object* l_Lean_casesOnSuffix;
+static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3;
 uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_isAuxRecursor___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_brecOnSuffix;
-lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object*, lean_object*);
-lean_object* l_Lean_recOnSuffix___closed__1;
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2;
-lean_object* l_Lean_noConfusionExt___elambda__2(lean_object*);
-lean_object* l_Lean_casesOnSuffix;
-lean_object* l_Lean_mkBInductionOnName(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_belowSuffix___closed__1;
+static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1;
+static lean_object* l_Lean_isAuxRecursor___closed__3;
+LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_isRecOnRecursor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isAuxRecursorWithSuffix___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_isCasesOnRecursor___closed__1;
+LEAN_EXPORT lean_object* l_Lean_mkBRecOnName(lean_object*);
+LEAN_EXPORT uint8_t lean_is_no_confusion(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_mkBelowName(lean_object*);
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2;
+static lean_object* l_Lean_markAuxRecursor___closed__1;
+static lean_object* l_Lean_isBRecOnRecursor___closed__1;
+uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isBRecOnRecursor___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_auxRecExt;
+LEAN_EXPORT lean_object* l_Lean_binductionOnSuffix;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_isRecOnRecursor___closed__1;
+static lean_object* l_Lean_isAuxRecursor___closed__2;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54_(lean_object*);
+LEAN_EXPORT lean_object* lean_mark_no_confusion(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_brecOnSuffix;
+static lean_object* l_Lean_markNoConfusion___closed__1;
+LEAN_EXPORT lean_object* l_Lean_isNoConfusion___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_casesOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("casesOn");
+x_1 = lean_mk_string_from_bytes("casesOn", 7);
 return x_1;
 }
 }
@@ -99,7 +87,7 @@ static lean_object* _init_l_Lean_recOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("recOn");
+x_1 = lean_mk_string_from_bytes("recOn", 5);
 return x_1;
 }
 }
@@ -115,7 +103,7 @@ static lean_object* _init_l_Lean_brecOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("brecOn");
+x_1 = lean_mk_string_from_bytes("brecOn", 6);
 return x_1;
 }
 }
@@ -131,7 +119,7 @@ static lean_object* _init_l_Lean_binductionOnSuffix___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string("binductionOn");
+x_1 = lean_mk_string_from_bytes("binductionOn", 12);
 return x_1;
 }
 }
@@ -143,222 +131,201 @@ x_1 = l_Lean_binductionOnSuffix___closed__1;
 return x_1;
 }
 }
-lean_object* l_Lean_mkCasesOnName(lean_object* x_1) {
+static lean_object* _init_l_Lean_belowSuffix___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("below", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_belowSuffix() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_belowSuffix___closed__1;
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_mkCasesOnName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_casesOnSuffix;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_mkRecOnName(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_mkRecOnName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_recOnSuffix;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_mkBRecOnName(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_mkBRecOnName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_brecOnSuffix;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_mkBInductionOnName(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_mkBInductionOnName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_binductionOnSuffix;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string("auxRec");
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_mkBelowName(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2;
+x_2 = l_Lean_belowSuffix;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Lean", 4);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("auxRecExt", 9);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54_(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3;
 x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_auxRecExt___elambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_empty___closed__1;
-return x_2;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__4___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_instInhabitedError___closed__1;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__4(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___rarg), 1, 0);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_auxRecExt___closed__1() {
+static lean_object* _init_l_Lean_markAuxRecursor___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__4___boxed), 2, 0);
+x_1 = l_Lean_auxRecExt;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_auxRecExt___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__3___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_auxRecExt___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__2___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_auxRecExt___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_auxRecExt___elambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_auxRecExt___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
-x_2 = lean_box(0);
-x_3 = l_Lean_auxRecExt___closed__1;
-x_4 = l_Lean_auxRecExt___closed__2;
-x_5 = l_Lean_auxRecExt___closed__3;
-x_6 = l_Lean_auxRecExt___closed__4;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_auxRecExt___elambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__2___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_auxRecExt___elambda__2(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_auxRecExt___elambda__3(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_auxRecExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_auxRecExt___elambda__4(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* lean_mark_aux_recursor(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lean_mark_aux_recursor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_auxRecExt;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_3 = l_Lean_markAuxRecursor___closed__1;
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
-uint8_t lean_is_aux_recursor(lean_object* x_1, lean_object* x_2) {
+static lean_object* _init_l_Lean_isAuxRecursor___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("Eq", 2);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isAuxRecursor___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("ndrec", 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isAuxRecursor___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_isAuxRecursor___closed__1;
+x_2 = l_Lean_isAuxRecursor___closed__2;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_isAuxRecursor___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("ndrecOn", 7);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_isAuxRecursor___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_isAuxRecursor___closed__1;
+x_2 = l_Lean_isAuxRecursor___closed__4;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t lean_is_aux_recursor(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_auxRecExt;
+x_3 = l_Lean_markAuxRecursor___closed__1;
+lean_inc(x_2);
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
+if (x_4 == 0)
+{
+lean_object* x_5; uint8_t x_6; 
+x_5 = l_Lean_isAuxRecursor___closed__3;
+x_6 = lean_name_eq(x_2, x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = l_Lean_isAuxRecursor___closed__5;
+x_8 = lean_name_eq(x_2, x_7);
 lean_dec(x_2);
-lean_dec(x_1);
-return x_4;
+return x_8;
+}
+else
+{
+uint8_t x_9; 
+lean_dec(x_2);
+x_9 = 1;
+return x_9;
 }
 }
-lean_object* l_Lean_isAuxRecursor___boxed(lean_object* x_1, lean_object* x_2) {
+else
+{
+uint8_t x_10; 
+lean_dec(x_2);
+x_10 = 1;
+return x_10;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_isAuxRecursor___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
@@ -367,262 +334,191 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* l_Lean_isCasesOnRecursor_match__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_1) == 1)
-{
-lean_object* x_4; lean_object* x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
-lean_dec(x_3);
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-x_6 = lean_ctor_get_usize(x_1, 2);
-lean_dec(x_1);
-x_7 = lean_box_usize(x_6);
-x_8 = lean_apply_3(x_2, x_4, x_5, x_7);
-return x_8;
-}
-else
-{
-lean_object* x_9; 
-lean_dec(x_2);
-x_9 = lean_apply_1(x_3, x_1);
-return x_9;
-}
-}
-}
-lean_object* l_Lean_isCasesOnRecursor_match__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_isCasesOnRecursor_match__1___rarg), 3, 0);
-return x_2;
-}
-}
-uint8_t l_Lean_isCasesOnRecursor(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 if (lean_obj_tag(x_2) == 1)
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_2, 1);
-x_4 = l_Lean_casesOnSuffix;
-x_5 = lean_string_dec_eq(x_3, x_4);
-if (x_5 == 0)
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_2, 1);
+lean_inc(x_4);
+x_5 = lean_box(0);
+x_6 = l_Lean_Name_str___override(x_5, x_4);
+x_7 = lean_name_eq(x_6, x_3);
+lean_dec(x_6);
+if (x_7 == 0)
 {
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-lean_object* x_7; uint8_t x_8; 
-x_7 = l_Lean_auxRecExt;
-x_8 = l_Lean_TagDeclarationExtension_isTagged(x_7, x_1, x_2);
+uint8_t x_8; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_8 = 0;
 return x_8;
-}
 }
 else
 {
 uint8_t x_9; 
-x_9 = 0;
+x_9 = lean_is_aux_recursor(x_1, x_2);
 return x_9;
 }
 }
-}
-lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
+else
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_isCasesOnRecursor(x_1, x_2);
+uint8_t x_10; 
 lean_dec(x_2);
 lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+x_10 = 0;
+return x_10;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1() {
+}
+LEAN_EXPORT lean_object* l_Lean_isAuxRecursorWithSuffix___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string("noConf");
-return x_1;
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Lean_isAuxRecursorWithSuffix(x_1, x_2, x_3);
+lean_dec(x_3);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
-static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2() {
+static lean_object* _init_l_Lean_isCasesOnRecursor___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1;
-x_3 = lean_name_mk_string(x_1, x_2);
+x_2 = l_Lean_casesOnSuffix;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
-lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101_(lean_object* x_1) {
+LEAN_EXPORT uint8_t l_Lean_isCasesOnRecursor(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_Lean_isCasesOnRecursor___closed__1;
+x_4 = l_Lean_isAuxRecursorWithSuffix(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_isCasesOnRecursor___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_isCasesOnRecursor(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_isRecOnRecursor___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_recOnSuffix;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_isRecOnRecursor(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_Lean_isRecOnRecursor___closed__1;
+x_4 = l_Lean_isAuxRecursorWithSuffix(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_isRecOnRecursor___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_isRecOnRecursor(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_isBRecOnRecursor___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_brecOnSuffix;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_isBRecOnRecursor(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = l_Lean_isBRecOnRecursor___closed__1;
+x_4 = l_Lean_isAuxRecursorWithSuffix(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_isBRecOnRecursor___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_isBRecOnRecursor(x_1, x_2);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("noConfusionExt", 14);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1;
+x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; 
-x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2;
+x_2 = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2;
 x_3 = l_Lean_mkTagDeclarationExtension(x_2, x_1);
 return x_3;
 }
 }
-lean_object* l_Lean_noConfusionExt___elambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__2(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Array_empty___closed__1;
-return x_2;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__4___rarg(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; 
-x_2 = l_IO_instInhabitedError___closed__1;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__4(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___rarg), 1, 0);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_noConfusionExt___closed__1() {
+static lean_object* _init_l_Lean_markNoConfusion___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__4___boxed), 2, 0);
+x_1 = l_Lean_noConfusionExt;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_noConfusionExt___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__3___boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_noConfusionExt___closed__3() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__2___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_noConfusionExt___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_noConfusionExt___elambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_noConfusionExt___closed__5() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
-x_1 = l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___closed__2;
-x_2 = lean_box(0);
-x_3 = l_Lean_noConfusionExt___closed__1;
-x_4 = l_Lean_noConfusionExt___closed__2;
-x_5 = l_Lean_noConfusionExt___closed__3;
-x_6 = l_Lean_noConfusionExt___closed__4;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_noConfusionExt___elambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__2___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_noConfusionExt___elambda__2(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__3___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_noConfusionExt___elambda__3(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* l_Lean_noConfusionExt___elambda__4___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_noConfusionExt___elambda__4(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-lean_object* lean_mark_no_confusion(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* lean_mark_no_confusion(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_noConfusionExt;
-x_4 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_3, x_1, x_2);
+x_3 = l_Lean_markNoConfusion___closed__1;
+x_4 = l_Lean_TagDeclarationExtension_tag(x_3, x_1, x_2);
 return x_4;
 }
 }
-uint8_t lean_is_no_confusion(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t lean_is_no_confusion(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_noConfusionExt;
+x_3 = l_Lean_markNoConfusion___closed__1;
 x_4 = l_Lean_TagDeclarationExtension_isTagged(x_3, x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
-lean_object* l_Lean_isNoConfusion___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_isNoConfusion___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
@@ -631,17 +527,17 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Environment(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_AuxRecursor(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_AuxRecursor(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Environment(lean_io_mk_world());
+res = initialize_Lean_Environment(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_casesOnSuffix___closed__1 = _init_l_Lean_casesOnSuffix___closed__1();
@@ -660,44 +556,50 @@ l_Lean_binductionOnSuffix___closed__1 = _init_l_Lean_binductionOnSuffix___closed
 lean_mark_persistent(l_Lean_binductionOnSuffix___closed__1);
 l_Lean_binductionOnSuffix = _init_l_Lean_binductionOnSuffix();
 lean_mark_persistent(l_Lean_binductionOnSuffix);
-l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__1);
-l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39____closed__2);
-l_Lean_auxRecExt___closed__1 = _init_l_Lean_auxRecExt___closed__1();
-lean_mark_persistent(l_Lean_auxRecExt___closed__1);
-l_Lean_auxRecExt___closed__2 = _init_l_Lean_auxRecExt___closed__2();
-lean_mark_persistent(l_Lean_auxRecExt___closed__2);
-l_Lean_auxRecExt___closed__3 = _init_l_Lean_auxRecExt___closed__3();
-lean_mark_persistent(l_Lean_auxRecExt___closed__3);
-l_Lean_auxRecExt___closed__4 = _init_l_Lean_auxRecExt___closed__4();
-lean_mark_persistent(l_Lean_auxRecExt___closed__4);
-l_Lean_auxRecExt___closed__5 = _init_l_Lean_auxRecExt___closed__5();
-lean_mark_persistent(l_Lean_auxRecExt___closed__5);
-res = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_39_(lean_io_mk_world());
+l_Lean_belowSuffix___closed__1 = _init_l_Lean_belowSuffix___closed__1();
+lean_mark_persistent(l_Lean_belowSuffix___closed__1);
+l_Lean_belowSuffix = _init_l_Lean_belowSuffix();
+lean_mark_persistent(l_Lean_belowSuffix);
+l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__1);
+l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__2);
+l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54____closed__3);
+if (builtin) {res = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_54_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_auxRecExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_auxRecExt);
 lean_dec_ref(res);
-l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__1);
-l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2();
-lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101____closed__2);
-l_Lean_noConfusionExt___closed__1 = _init_l_Lean_noConfusionExt___closed__1();
-lean_mark_persistent(l_Lean_noConfusionExt___closed__1);
-l_Lean_noConfusionExt___closed__2 = _init_l_Lean_noConfusionExt___closed__2();
-lean_mark_persistent(l_Lean_noConfusionExt___closed__2);
-l_Lean_noConfusionExt___closed__3 = _init_l_Lean_noConfusionExt___closed__3();
-lean_mark_persistent(l_Lean_noConfusionExt___closed__3);
-l_Lean_noConfusionExt___closed__4 = _init_l_Lean_noConfusionExt___closed__4();
-lean_mark_persistent(l_Lean_noConfusionExt___closed__4);
-l_Lean_noConfusionExt___closed__5 = _init_l_Lean_noConfusionExt___closed__5();
-lean_mark_persistent(l_Lean_noConfusionExt___closed__5);
-res = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_101_(lean_io_mk_world());
+}l_Lean_markAuxRecursor___closed__1 = _init_l_Lean_markAuxRecursor___closed__1();
+lean_mark_persistent(l_Lean_markAuxRecursor___closed__1);
+l_Lean_isAuxRecursor___closed__1 = _init_l_Lean_isAuxRecursor___closed__1();
+lean_mark_persistent(l_Lean_isAuxRecursor___closed__1);
+l_Lean_isAuxRecursor___closed__2 = _init_l_Lean_isAuxRecursor___closed__2();
+lean_mark_persistent(l_Lean_isAuxRecursor___closed__2);
+l_Lean_isAuxRecursor___closed__3 = _init_l_Lean_isAuxRecursor___closed__3();
+lean_mark_persistent(l_Lean_isAuxRecursor___closed__3);
+l_Lean_isAuxRecursor___closed__4 = _init_l_Lean_isAuxRecursor___closed__4();
+lean_mark_persistent(l_Lean_isAuxRecursor___closed__4);
+l_Lean_isAuxRecursor___closed__5 = _init_l_Lean_isAuxRecursor___closed__5();
+lean_mark_persistent(l_Lean_isAuxRecursor___closed__5);
+l_Lean_isCasesOnRecursor___closed__1 = _init_l_Lean_isCasesOnRecursor___closed__1();
+lean_mark_persistent(l_Lean_isCasesOnRecursor___closed__1);
+l_Lean_isRecOnRecursor___closed__1 = _init_l_Lean_isRecOnRecursor___closed__1();
+lean_mark_persistent(l_Lean_isRecOnRecursor___closed__1);
+l_Lean_isBRecOnRecursor___closed__1 = _init_l_Lean_isBRecOnRecursor___closed__1();
+lean_mark_persistent(l_Lean_isBRecOnRecursor___closed__1);
+l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__1);
+l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2 = _init_l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2();
+lean_mark_persistent(l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192____closed__2);
+if (builtin) {res = l_Lean_initFn____x40_Lean_AuxRecursor___hyg_192_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_noConfusionExt = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_noConfusionExt);
 lean_dec_ref(res);
+}l_Lean_markNoConfusion___closed__1 = _init_l_Lean_markNoConfusion___closed__1();
+lean_mark_persistent(l_Lean_markNoConfusion___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

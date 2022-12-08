@@ -1,5 +1,5 @@
 
-universes u
+universe u
 
 namespace Ex1
 
@@ -37,3 +37,5 @@ def c2 : C (Nat × Nat) := { z := (1, 1) }
 #check { c2 with x.fst := 2 }
 
 #check { c2 with x.1 := 3 }
+
+#check show C _ from { c2.toB with .. }

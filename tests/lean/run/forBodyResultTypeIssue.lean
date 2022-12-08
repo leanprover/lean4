@@ -14,7 +14,7 @@ rfl
 theorem ex2 : (f [1, 0, 3] |>.run' 0) = Except.error "contains zero" :=
 rfl
 
-universes u
+universe u
 
 abbrev N := ExceptT (ULift.{u} String) Id
 

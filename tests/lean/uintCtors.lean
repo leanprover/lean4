@@ -18,7 +18,7 @@ def UInt64.ofNatCore' (n : Nat) (h : n < UInt64.size) : UInt64 := {
 #eval (3 : UInt32).val
 #eval toString $ { val := { val := 3, isLt := (by decide) } : UInt64 }
 #eval (3 : UInt64).val
-#eval toString $ { val := { val := 3, isLt := (match USize.size, usizeSzEq with | _, Or.inl rfl => (by decide) | _, Or.inr rfl => (by decide)) } : USize }
+#eval toString $ { val := { val := 3, isLt := (match USize.size, usize_size_eq with | _, Or.inl rfl => (by decide) | _, Or.inr rfl => (by decide)) } : USize }
 #eval (3 : USize).val
 
 
@@ -30,5 +30,5 @@ def UInt64.ofNatCore' (n : Nat) (h : n < UInt64.size) : UInt64 := {
 #eval (4 : UInt32).val
 #eval toString $ { val := { val := 4, isLt := (by decide) } : UInt64 }
 #eval (4 : UInt64).val
-#eval toString $ { val := { val := 4, isLt := (match USize.size, usizeSzEq with | _, Or.inl rfl => (by decide) | _, Or.inr rfl => (by decide)) } : USize }
+#eval toString $ { val := { val := 4, isLt := (match USize.size, usize_size_eq with | _, Or.inl rfl => (by decide) | _, Or.inr rfl => (by decide)) } : USize }
 #eval (4 : USize).val

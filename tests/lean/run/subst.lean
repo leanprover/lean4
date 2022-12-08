@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def f1 (n m : Nat) (x : Fin n) (h : n = m) : Fin m :=
 h ▸ x
@@ -52,7 +52,7 @@ theorem ex12 {α : Type u} {n : Nat}
 Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ hi₂ => h i (hsz₁ ▸ hi₁)
 
 def toArrayLit {α : Type u} (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
-List.toArray $ Array.toListLitAux a n hsz n (hsz ▸ Nat.leRefl _) []
+List.toArray $ Array.toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []
 
 partial def isEqvAux {α} (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (i : Nat) : Bool :=
   if h : i < a.size then

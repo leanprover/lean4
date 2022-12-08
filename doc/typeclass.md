@@ -76,7 +76,7 @@ you can declare an (anonymous) instance stating that if `a` has addition, then `
 has addition:
 ```lean
 instance [Add a] : Add (Array a) where
-  add x y := Array.zipWith x y (. + .)
+  add x y := Array.zipWith x y (· + ·)
 
 #eval Add.add #[1, 2] #[3, 4]
 -- #[4, 6]
@@ -157,31 +157,6 @@ export Inhabited (default)
 -- true
 # end Ex
 ```
-Sometimes we want to think of the default element of a type as being an *arbitrary* element, whose specific value should not play a role in our proofs.
-For that purpose, we can write ``arbitrary`` instead of ``default``. We define ``arbitrary`` as an *opaque* constant.
-Opaque constants are never unfolded by the type checker.
-```lean
-# namespace Ex
-# export Inhabited (default)
-theorem defNatEq0 : (default : Nat) = 0 :=
-  rfl
-
-constant arbitrary [Inhabited a] : a :=
-  Inhabited.default
-
--- theorem arbitraryNatEq0 : (arbitrary : Nat) = 0 :=
---   rfl
-/-
-error: type mismatch
-  rfl
-has type
-  arbitrary = arbitrary
-but is expected to have type
-  arbitrary = 0
--/
-# end Ex
-```
-The theorem `defNatEq0` type checks because the type checker can unfold `(default : Nat)` and reduce it to `0`. This is not the case in the theorem `arbitraryNatEq0` because `arbitrary` is an opaque constant.
 
 ## Chaining Instances
 
@@ -194,7 +169,7 @@ This causes class inference to chain through instances recursively, backtracking
 For example, the following definition shows that if two types ``a`` and ``b`` are inhabited, then so is their product:
 ```lean
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
-  default := (arbitrary, arbitrary)
+  default := (default, default)
 ```
 With this added to the earlier instance declarations, type class instance can infer, for example, a default element of ``Nat × Bool``:
 ```lean
@@ -205,19 +180,19 @@ With this added to the earlier instance declarations, type class instance can in
 #  default := true
 # instance : Inhabited Nat where
 #  default := 0
-# constant arbitrary [Inhabited a] : a :=
+# opaque default [Inhabited a] : a :=
 #  Inhabited.default
 instance [Inhabited a] [Inhabited b] : Inhabited (a × b) where
-  default := (arbitrary, arbitrary)
+  default := (default, default)
 
-#eval (arbitrary : Nat × Bool)
+#eval (default : Nat × Bool)
 -- (0, true)
 # end Ex
 ```
 Similarly, we can inhabit type function with suitable constant functions:
 ```lean
 instance [Inhabited b] : Inhabited (a -> b) where
-  default := fun _ => arbitrary
+  default := fun _ => default
 ```
 As an exercise, try defining default instances for other types, such as `List` and `Sum` types.
 
@@ -229,7 +204,7 @@ and is useful for triggering the type class resolution procedure when the expect
 def foo : Inhabited (Nat × Nat) :=
   inferInstance
 
-theorem ex : foo.default = (arbitrary, arbitrary) :=
+theorem ex : foo.default = (default, default) :=
   rfl
 ```
 You can use the command `#print` to inspect how simple `inferInstance` is.
@@ -298,13 +273,28 @@ def getUnit [Monoid α] : α :=
   1
 ```
 
+Because many users were forgetting the `nat_lit` when defining `OfNat` instances, Lean also accepts `OfNat` instance
+declarations not using `nat_lit`. Thus, the following is also accepted.
+```lean
+class Monoid (α : Type u) where
+  unit : α
+  op   : α → α → α
+
+instance [s : Monoid α] : OfNat α 1 where
+  ofNat := s.unit
+
+def getUnit [Monoid α] : α :=
+  1
+```
+
 ## Output parameters
 
 By default, Lean only tries to synthesize an instance `Inhabited T` when the term `T` is known and does not
 contain missing parts. The following command produces the error
 "failed to create type class instance for `Inhabited (Nat × ?m.1499)`" because the type has a missing part (i.e., the `_`).
 ```lean
-#check_failure (inferInstance : Inhabited (Nat × _))
+# -- FIXME: should fail
+#check (inferInstance : Inhabited (Nat × _))
 ```
 You can view the parameter of the type class `Inhabited` as an *input* value for the type class synthesizer.
 When a type class has multiple parameters, you can mark some of them as output parameters.
@@ -377,8 +367,9 @@ instance : HMul Int Int Int where
 
 def xs : List Int := [1, 2, 3]
 
+# -- TODO: fix error message
 -- Error "failed to create type class instance for HMul Int ?m.1767 (?m.1797 x)"
-#check_failure fun y => xs.map (fun x => hMul x y)
+-- #check fun y => xs.map (fun x => hMul x y)
 # end Ex
 ```
 The instance `HMul` is not synthesized by Lean because the type of `y` has not been provided.
@@ -391,7 +382,7 @@ class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 
 export HMul (hMul)
 
-@[defaultInstance]
+@[default_instance]
 instance : HMul Int Int Int where
   hMul := Int.mul
 
@@ -400,11 +391,11 @@ def xs : List Int := [1, 2, 3]
 #check fun y => xs.map (fun x => hMul x y)  -- Int -> List Int
 # end Ex
 ```
-By tagging the instance above with the attribute `defaultInstance`, we are instructing Lean
+By tagging the instance above with the attribute `default_instance`, we are instructing Lean
 to use this instance on pending type class synthesis problems.
 The actual Lean implementation defines homogeneous and heterogeneous classes for arithmetical operators.
 Moreover, `a+b`, `a*b`, `a-b`, `a/b`, and `a%b` are notations for the heterogeneous versions.
-The instance `OfNat Nat n` is the default instance for the `OfNat` class. This is why the numeral
+The instance `OfNat Nat n` is the default instance (with priority `100`) for the `OfNat` class. This is why the numeral
 `2` has type `Nat` when the expected type is not known. You can define default instances with higher
 priority to override the builtin ones.
 ```lean
@@ -413,7 +404,7 @@ structure Rational where
   den : Nat
   inv : den ≠ 0
 
-@[defaultInstance 1]
+@[default_instance 200]
 instance : OfNat Rational n where
   ofNat := { num := n, den := 1, inv := by decide }
 
@@ -432,7 +423,7 @@ Now, we reveal how the notation `a*b` is defined in Lean.
 class OfNat (α : Type u) (n : Nat) where
   ofNat : α
 
-@[defaultInstance]
+@[default_instance]
 instance (n : Nat) : OfNat Nat n where
   ofNat := n
 
@@ -442,7 +433,7 @@ class HMul (α : Type u) (β : Type v) (γ : outParam (Type w)) where
 class Mul (α : Type u) where
   mul : α → α → α
 
-@[defaultInstance 10]
+@[default_instance 10]
 instance [Mul α] : HMul α α α where
   hMul a b := Mul.mul a b
 

@@ -1,0 +1,8 @@
+magical.lean:2:21-2:56: error: invalid projection, the expression
+  Exists.intro 1 (Nat.le_refl 1)
+is a proposition and has type
+  ∃ x, x ≥ 1
+but the projected value is not, it has type
+  Nat
+magical.lean:5:8-5:18: error: (kernel) invalid projection
+  h.2

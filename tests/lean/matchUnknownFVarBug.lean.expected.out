@@ -1,9 +1,10 @@
 matchUnknownFVarBug.lean:2:2-2:7: error: missing cases:
-(some (Nat.succ _)), Eq.refl, (some _), Eq.refl
-none, Eq.refl, none, Eq.refl
+(some (Nat.succ _)), (some _)
+(some (Nat.succ _)), none
+none, (some _)
+none, none
 matchUnknownFVarBug.lean:3:18-3:19: error: unsolved goals
-n? : Option Nat
+n? x✝ : Option Nat
 h : n? = some 0
-x✝ : Option Nat
-h' : some 0 = x✝
+h' : n? = x✝
 ⊢ False

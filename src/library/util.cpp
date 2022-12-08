@@ -6,7 +6,8 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <string>
-#include "util/option_ref.h"
+#include <lean/version.h>
+#include "runtime/option_ref.h"
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -19,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/replace_visitor.h"
 #include "library/num.h"
-#include <lean/version.h>
 #include "githash.h" // NOLINT
 
 namespace lean {
@@ -191,10 +191,16 @@ bool is_recursive_datatype(environment const & env, name const & n) {
     return info.is_inductive() && info.to_inductive_val().is_rec();
 }
 
-level get_datatype_level(expr const & ind_type) {
-    expr it = ind_type;
-    while (is_pi(it))
-        it = binding_body(it);
+static name * g_util_fresh = nullptr;
+
+level get_datatype_level(environment const & env, expr const & ind_type) {
+    local_ctx lctx;
+    name_generator ngen(*g_util_fresh);
+    expr it = type_checker(env, lctx).whnf(ind_type);
+    while (is_pi(it)) {
+        expr local = lctx.mk_local_decl(ngen, binding_name(it), binding_domain(it), binding_info(it));
+        it = type_checker(env, lctx).whnf(instantiate(binding_body(it), local));
+    }
     if (is_sort(it)) {
         return sort_level(it);
     } else {
@@ -216,7 +222,7 @@ bool is_inductive_predicate(environment const & env, name const & n) {
     constant_info info = env.get(n);
     if (!info.is_inductive())
         return false;
-    return is_zero(get_datatype_level(env.get(n).get_type()));
+    return is_zero(get_datatype_level(env, env.get(n).get_type()));
 }
 
 bool can_elim_to_type(environment const & env, name const & n) {
@@ -230,15 +236,6 @@ void get_constructor_names(environment const & env, name const & n, buffer<name>
     constant_info info = env.get(n);
     if (!info.is_inductive()) return;
     to_buffer(info.to_inductive_val().get_cnstrs(), result);
-}
-
-optional<name> is_constructor_app(environment const & env, expr const & e) {
-    expr const & fn = get_app_fn(e);
-    if (is_constant(fn)) {
-        if (is_constructor(env, const_name(fn)))
-            return optional<name>(const_name(fn));
-    }
-    return optional<name>();
 }
 
 optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
@@ -256,8 +253,6 @@ optional<name> is_constructor_app_ext(environment const & env, expr const & e) {
         it = &binding_body(*it);
     return is_constructor_app_ext(env, *it);
 }
-
-static name * g_util_fresh = nullptr;
 
 void get_constructor_relevant_fields(environment const & env, name const & n, buffer<bool> & result) {
     constant_info info  = env.get(n);
@@ -878,7 +873,7 @@ void initialize_library_util() {
     if (std::strlen(LEAN_SPECIAL_VERSION_DESC) > 0) {
         out << "-" << LEAN_SPECIAL_VERSION_DESC;
     }
-    if (std::strcmp(LEAN_GITHASH, "GITDIR-NOTFOUND") == 0) {
+    if (std::strlen(LEAN_GITHASH) == 0) {
         if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
             out << ", package " << LEAN_PACKAGE_VERSION;
         }

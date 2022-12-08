@@ -232,21 +232,21 @@ unsafe def Expr.dagSizeUnsafe (e : Expr) : IO Nat := do
   let (_, s) ← visit e |>.run ({}, 0)
   return s.2
 where
-  visit (e : Expr) : StateRefT (Std.HashSet USize × Nat) IO Unit := do
+  visit (e : Expr) : StateRefT (HashSet USize × Nat) IO Unit := do
     let addr := ptrAddrUnsafe e
     unless (← get).1.contains addr do
       modify fun (s, c) => (s.insert addr, c+1)
       match e with
-      | Expr.proj _ _ s _    => visit s
+      | Expr.proj _ _ s      => visit s
       | Expr.forallE _ d b _ => visit d; visit b
       | Expr.lam _ d b _     => visit d; visit b
       | Expr.letE _ t v b _  => visit t; visit v; visit b
-      | Expr.app f a _       => visit f; visit a
-      | Expr.mdata _ b _     => visit b
+      | Expr.app f a         => visit f; visit a
+      | Expr.mdata _ b       => visit b
       | _ => return ()
 
-@[implementedBy Expr.dagSizeUnsafe]
-constant Expr.dagSize (e : Expr) : IO Nat
+@[implemented_by Expr.dagSizeUnsafe]
+opaque Expr.dagSize (e : Expr) : IO Nat
 
 def getDeclTypeValueDagSize (declName : Name) : CoreM Nat := do
   let info ← getConstInfo declName

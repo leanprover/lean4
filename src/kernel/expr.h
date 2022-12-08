@@ -11,16 +11,14 @@ Author: Leonardo de Moura
 #include <utility>
 #include <tuple>
 #include <string>
-#include <lean/optional.h>
-#include <lean/thread.h>
-#include <lean/serializer.h>
-#include <lean/hash.h>
+#include "runtime/optional.h"
+#include "runtime/thread.h"
+#include "runtime/hash.h"
+#include "runtime/buffer.h"
 #include "util/name.h"
 #include "util/nat.h"
-#include "util/buffer.h"
 #include "util/kvmap.h"
 #include "util/list_fn.h"
-#include "util/format.h"
 #include "kernel/level.h"
 #include "kernel/expr_eq_fn.h"
 
@@ -63,13 +61,8 @@ public:
     bool is_zero() const { return kind() == literal_kind::Nat && get_nat().is_zero(); }
     friend bool operator==(literal const & a, literal const & b);
     friend bool operator<(literal const & a, literal const & b);
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static literal deserialize(deserializer & d) { return literal(d.read_object(), true); }
 };
 inline bool operator!=(literal const & a, literal const & b) { return !(a == b); }
-inline serializer & operator<<(serializer & s, literal const & l) { l.serialize(s); return s; }
-inline literal read_literal(deserializer & d) { return literal::deserialize(d); }
-inline deserializer & operator>>(deserializer & d, literal & l) { l = read_literal(d); return d; }
 
 /* =======================================
    Expressions
@@ -117,18 +110,10 @@ public:
     expr & operator=(expr && other) { object_ref::operator=(other); return *this; }
 
     friend bool is_eqp(expr const & e1, expr const & e2) { return e1.raw() == e2.raw(); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static expr deserialize(deserializer & d) { return expr(d.read_object(), true); }
 };
 
 typedef list_ref<expr> exprs;
 typedef pair<expr, expr> expr_pair;
-
-inline serializer & operator<<(serializer & s, expr const & e) { e.serialize(s); return s; }
-inline serializer & operator<<(serializer & s, exprs const & es) { es.serialize(s); return s; }
-inline expr read_expr(deserializer & d) { return expr::deserialize(d); }
-inline exprs read_exprs(deserializer & d) { return read_list_ref<expr>(d); }
-inline deserializer & operator>>(deserializer & d, expr & e) { e = read_expr(d); return d; }
 
 inline optional<expr> none_expr() { return optional<expr>(); }
 inline optional<expr> some_expr(expr const & e) { return optional<expr>(e); }
@@ -159,6 +144,7 @@ struct expr_pair_eq {
 static expr_kind expr_kind_core(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
 inline bool is_bvar(expr const & e)        { return e.kind() == expr_kind::BVar; }
 inline bool is_fvar_core(object * o)       { return expr_kind_core(o) == expr_kind::FVar; }
+inline bool is_mvar_core(object * o)       { return expr_kind_core(o) == expr_kind::MVar; }
 inline bool is_fvar(expr const & e)        { return e.kind() == expr_kind::FVar; }
 inline bool is_const(expr const & e)       { return e.kind() == expr_kind::Const; }
 inline bool is_mvar(expr const & e)        { return e.kind() == expr_kind::MVar; }
@@ -231,6 +217,7 @@ inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e)
 inline name const &    fvar_name_core(object * o)            { lean_assert(is_fvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline level const &   sort_level(expr const & e)            { lean_assert(is_sort(e)); return static_cast<level const &>(cnstr_get_ref(e, 0)); }
+inline name const &    mvar_name_core(object * o)            { lean_assert(is_mvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
 inline name const &    mvar_name(expr const & e)             { lean_assert(is_mvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline name const &    const_name(expr const & e)            { lean_assert(is_const(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline levels const &  const_levels(expr const & e)          { lean_assert(is_const(e)); return static_cast<levels const &>(cnstr_get_ref(e, 1)); }
@@ -286,6 +273,7 @@ unsigned get_app_num_args(expr const & e);
 /** \brief Return true iff \c e is a metavariable or an application of a metavariable */
 inline bool is_mvar_app(expr const & e) { return is_mvar(get_app_fn(e)); }
 
+expr consume_type_annotations(expr const & e);
 
 // =======================================
 // Loose bound variable management

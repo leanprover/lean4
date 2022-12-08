@@ -1,0 +1,4 @@
+g : ?m → ?m
+f : ⦃α : Type⦄ → α → α
+g 1 : Nat
+f 1 : Nat

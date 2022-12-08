@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server
-// Imports: Init Lean.Server.Utils Lean.Server.AsyncList Lean.Server.Snapshots Lean.Server.FileSource Lean.Server.Watchdog Lean.Server.FileWorker Lean.Server.Completion
+// Imports: Init Lean.Server.Watchdog Lean.Server.FileWorker Lean.Server.Rpc Lean.Server.CodeActions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,41 +13,29 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init(lean_object*);
-lean_object* initialize_Lean_Server_Utils(lean_object*);
-lean_object* initialize_Lean_Server_AsyncList(lean_object*);
-lean_object* initialize_Lean_Server_Snapshots(lean_object*);
-lean_object* initialize_Lean_Server_FileSource(lean_object*);
-lean_object* initialize_Lean_Server_Watchdog(lean_object*);
-lean_object* initialize_Lean_Server_FileWorker(lean_object*);
-lean_object* initialize_Lean_Server_Completion(lean_object*);
+lean_object* initialize_Init(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Watchdog(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_FileWorker(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Rpc(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_CodeActions(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
-lean_object* initialize_Lean_Server(lean_object* w) {
+LEAN_EXPORT lean_object* initialize_Lean_Server(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(lean_io_mk_world());
+res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Utils(lean_io_mk_world());
+res = initialize_Lean_Server_Watchdog(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_AsyncList(lean_io_mk_world());
+res = initialize_Lean_Server_FileWorker(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_Snapshots(lean_io_mk_world());
+res = initialize_Lean_Server_Rpc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Server_FileSource(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Watchdog(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_FileWorker(lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Server_Completion(lean_io_mk_world());
+res = initialize_Lean_Server_CodeActions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

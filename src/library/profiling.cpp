@@ -12,7 +12,7 @@ Author: Gabriel Ebner
 #endif
 
 #ifndef LEAN_DEFAULT_PROFILER_THRESHOLD
-#define LEAN_DEFAULT_PROFILER_THRESHOLD 0
+#define LEAN_DEFAULT_PROFILER_THRESHOLD 100
 #endif
 
 namespace lean {

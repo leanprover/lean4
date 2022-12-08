@@ -1,6 +1,6 @@
-345.lean:1:12-1:13: error: typeclass instance problem is stuck, it is often due to metavariables
+345.lean:1:12-1:13: error: failed to synthesize instance
   OfNat (Sort ?u) 1
-345.lean:4:8-4:9: error: typeclass instance problem is stuck, it is often due to metavariables
+345.lean:4:8-4:9: error: failed to synthesize instance
   OfNat (Sort ?u) 1
-345.lean:6:19-6:20: error: typeclass instance problem is stuck, it is often due to metavariables
+345.lean:6:19-6:20: error: failed to synthesize instance
   OfNat (Sort ?u) 1

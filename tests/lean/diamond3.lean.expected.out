@@ -1,0 +1,2 @@
+@[reducible] def D.toC : D → C :=
+fun self => { toA := self.toB.toA, w := self.w }

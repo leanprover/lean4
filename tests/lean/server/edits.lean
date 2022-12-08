@@ -1,8 +1,7 @@
 import Lean.Data.Lsp
 open IO Lean Lsp
 
-#exit
-#eval (do
+def main : IO Unit := do
   Ipc.runWith (←IO.appPath) #["--server"] do
     let hIn ← Ipc.stdin
     hIn.write (←FS.readBinFile "init_vscode_1_47_2.log")
@@ -24,16 +23,12 @@ open IO Lean Lsp
       let diag := diags.getLast!
       FS.writeFile "edits_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
 
-      if let some (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
-        (Json.parse $ ←FS.readFile "edits_diag.json").toOption >>= fromJson?
+      if let Except.ok (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
+        (Json.parse $ ←FS.readFile "edits_diag.json") >>= fromJson?
       then
         assert! (diag == refDiag)
       else
         throw $ userError "Failed parsing test file."
 
-      Ipc.writeRequest ⟨3, "shutdown", Json.null⟩
-      let shutResp ← Ipc.readResponseAs 3 Json
-      assert! shutResp.result.isNull
-      Ipc.writeNotification ⟨"exit", Json.null⟩
+      Ipc.shutdown 3
       discard $ Ipc.waitForExit
-: IO Unit)

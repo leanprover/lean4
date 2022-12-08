@@ -10,13 +10,13 @@ Author: Leonardo de Moura
 #include <functional>
 #include <algorithm>
 #include <utility>
-#include <lean/optional.h>
-#include <lean/serializer.h>
-#include "util/buffer.h"
+#include "runtime/optional.h"
+#include "runtime/string_ref.h"
+#include "runtime/list_ref.h"
+#include "runtime/buffer.h"
 #include "util/pair.h"
 #include "util/nat.h"
-#include "util/string_ref.h"
-#include "util/list_ref.h"
+
 
 namespace lean {
 constexpr char const * lean_name_separator = ".";
@@ -40,19 +40,19 @@ inline bool is_id_rest(char const * begin, char const * end) {
                       reinterpret_cast<unsigned char const *>(end));
 }
 
+extern "C" uint64_t lean_name_hash_exported(lean_obj_arg n);
+
+inline uint64_t lean_name_hash_exported_b(b_lean_obj_arg n) {
+    lean_inc(n);
+    return lean_name_hash_exported(n);
+}
+
 enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 /** \brief Hierarchical names. */
 class name : public object_ref {
 public:
     /* Low level primitives */
-    static bool eq_core(b_obj_arg n1, b_obj_arg n2);
-    static bool eq(b_obj_arg n1, b_obj_arg n2) {
-        if (n1 == n2)
-            return true;
-        if (is_scalar(n1) != is_scalar(n2) || name::hash(n1) != name::hash(n2))
-            return false;
-        return eq_core(n1, n2);
-    }
+    static bool eq(b_obj_arg n1, b_obj_arg n2) { return lean_name_eq(n1, n2); }
     static name_kind kind(object * o) { return static_cast<name_kind>(obj_tag(o)); }
     static bool is_anonymous(object * o) { return is_scalar(o); }
     static object * get_prefix(object * o) { return cnstr_get(o, 0); }
@@ -61,7 +61,6 @@ public:
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
-    friend name read_name(deserializer & d);
     explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
@@ -99,8 +98,11 @@ public:
     static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
-    static usize hash(b_obj_arg n);
-    unsigned hash() const { return hash(raw()); }
+    static uint64_t hash(b_obj_arg n) {
+       lean_assert(lean_name_hash(n) == lean_name_hash_exported_b(n));
+       return lean_name_hash(n);
+    }
+    uint64_t hash() const { return hash(raw()); }
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);
     friend bool operator==(name const & a, name const & b) { return name::eq(a.raw(), b.raw()); }
@@ -197,7 +199,6 @@ public:
             return cmp(a, b);
         }
     }
-    void serialize(serializer & s) const { s.write_object(raw()); }
 };
 
 name string_to_name(std::string const & str);
@@ -238,16 +239,10 @@ struct name_pair_quick_cmp {
 
 typedef std::function<bool(name const &)> name_predicate; // NOLINT
 
-inline serializer & operator<<(serializer & s, name const & n) { n.serialize(s); return s; }
-inline name read_name(deserializer & d) { return name(d.read_object(), true); }
-inline deserializer & operator>>(deserializer & d, name & n) { n = read_name(d); return d; }
-
 /** \brief Return true if it is a lean internal name, i.e., the name starts with a `_` */
 bool is_internal_name(name const & n);
 
 typedef list_ref<name> names;
-inline serializer & operator<<(serializer & s, names const & ns) { ns.serialize(s); return s; }
-inline names read_names(deserializer & d) { return read_list_ref<name>(d); }
 
 void initialize_name();
 void finalize_name();

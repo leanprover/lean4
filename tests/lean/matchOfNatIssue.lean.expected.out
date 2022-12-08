@@ -1,0 +1,3 @@
+x : Int
+h : x = 2
+⊢ Int.ofNat (2 / 1) = x

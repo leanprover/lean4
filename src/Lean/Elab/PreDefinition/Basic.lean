@@ -3,19 +3,19 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.SCC
+import Lean.Compiler.NoncomputableAttr
+import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
-import Lean.Elab.Term
+import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
-import Lean.Elab.PreDefinition.MkInhabitant
 
 namespace Lean.Elab
 open Meta
 open Term
 
-/-
-A (potentially recursive) definition.
-The elaborator converts it into Kernel definitions using many different strategies.
+/--
+  A (potentially recursive) definition.
+  The elaborator converts it into Kernel definitions using many different strategies.
 -/
 structure PreDefinition where
   ref         : Syntax
@@ -31,12 +31,9 @@ def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Arra
   preDefs.mapM fun preDef => do
     pure { preDef with type := (← instantiateMVars preDef.type), value := (← instantiateMVars preDef.value) }
 
-private def levelMVarToParamPreDeclsAux (preDefs : Array PreDefinition) : StateRefT Nat TermElabM (Array PreDefinition) :=
-  preDefs.mapM fun preDef => do
-    pure { preDef with type := (← levelMVarToParam' preDef.type), value := (← levelMVarToParam' preDef.value) }
-
 def levelMVarToParamPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=
-  (levelMVarToParamPreDeclsAux preDefs).run' 1
+  preDefs.mapM fun preDef => do
+    pure { preDef with type := (← levelMVarToParam preDef.type), value := (← levelMVarToParam preDef.value) }
 
 private def getLevelParamsPreDecls (preDefs : Array PreDefinition) (scopeLevelNames allUserLevelNames : List Name) : TermElabM (List Name) := do
   let mut s : CollectLevelParams.State := {}
@@ -53,9 +50,9 @@ def fixLevelParams (preDefs : Array PreDefinition) (scopeLevelNames allUserLevel
   let us := levelParams.map mkLevelParam
   let fixExpr (e : Expr) : Expr :=
     e.replace fun c => match c with
-      | Expr.const declName _ _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
+      | Expr.const declName _ => if preDefs.any fun preDef => preDef.declName == declName then some $ Lean.mkConst declName us else none
       | _ => none
-  pure $ preDefs.map fun preDef =>
+  return preDefs.map fun preDef =>
     { preDef with
       type        := fixExpr preDef.type,
       value       := fixExpr preDef.value,
@@ -72,7 +69,7 @@ def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
     let value ← Meta.abstractNestedProofs preDef.declName preDef.value
     pure { preDef with value := value }
 
-/- Auxiliary method for (temporarily) adding pre definition as an axiom -/
+/-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
   withRef preDef.ref do
     addDecl <| Declaration.axiomDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, isUnsafe := preDef.modifiers.isUnsafe }
@@ -80,65 +77,116 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
-private def addNonRecAux (preDef : PreDefinition) (compile : Bool) : TermElabM Unit :=
+private def compileDecl (decl : Declaration) : TermElabM Bool := do
+  try
+    Lean.compileDecl decl
+  catch ex =>
+    if (← read).isNoncomputableSection then
+      return false
+    else
+      throw ex
+  return true
+
+private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List Name) (applyAttrAfterCompilation := true) : TermElabM Unit :=
   withRef preDef.ref do
     let preDef ← abstractNestedProofs preDef
-    let env ← getEnv
-    let decl :=
+    let decl ←
       match preDef.kind with
       | DefKind.«theorem» =>
-        Declaration.thmDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value }
+        pure <| Declaration.thmDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value, all
+        }
       | DefKind.«opaque»  =>
-        Declaration.opaqueDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                                 isUnsafe := preDef.modifiers.isUnsafe }
+        pure <| Declaration.opaqueDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          isUnsafe := preDef.modifiers.isUnsafe, all
+        }
       | DefKind.«abbrev»  =>
-        Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                               hints := ReducibilityHints.«abbrev»,
-                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+        pure <| Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.«abbrev»
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
       | _ => -- definitions and examples
-        Declaration.defnDecl { name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value,
-                               hints := ReducibilityHints.regular (getMaxHeight env preDef.value + 1),
-                               safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe }
+        pure <| Declaration.defnDecl {
+          name := preDef.declName, levelParams := preDef.levelParams, type := preDef.type, value := preDef.value
+          hints := ReducibilityHints.regular (getMaxHeight (← getEnv) preDef.value + 1)
+          safety := if preDef.modifiers.isUnsafe then DefinitionSafety.unsafe else DefinitionSafety.safe,
+          all }
     addDecl decl
+    withSaveInfoContext do  -- save new env
+      addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
+    if preDef.modifiers.isNoncomputable then
+      modifyEnv fun env => addNoncomputable env preDef.declName
     if compile && shouldGenCodeFor preDef then
-      compileDecl decl
-    applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+      unless (← compileDecl decl) do
+        return ()
+    if applyAttrAfterCompilation then
+      applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-def addAndCompileNonRec (preDef : PreDefinition) : TermElabM Unit := do
-  addNonRecAux preDef true
+def addAndCompileNonRec (preDef : PreDefinition) (all : List Name := [preDef.declName]) : TermElabM Unit := do
+  addNonRecAux preDef (compile := true) (all := all)
 
-def addNonRec (preDef : PreDefinition) : TermElabM Unit := do
-  addNonRecAux preDef false
+def addNonRec (preDef : PreDefinition) (applyAttrAfterCompilation := true) (all : List Name := [preDef.declName]) : TermElabM Unit := do
+  addNonRecAux preDef (compile := false) (applyAttrAfterCompilation := applyAttrAfterCompilation) (all := all)
 
-def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit :=
-  withRef preDefs[0].ref do
-    let decl := Declaration.mutualDefnDecl $ preDefs.toList.map fun preDef => {
+/--
+  Eliminate recursive application annotations containing syntax. These annotations are used by the well-founded recursion module
+  to produce better error messages. -/
+def eraseRecAppSyntaxExpr (e : Expr) : CoreM Expr :=
+  Core.transform e (post := fun e => pure <| TransformStep.done <| if (getRecAppSyntax? e).isSome then e.mdataExpr! else e)
+
+def eraseRecAppSyntax (preDef : PreDefinition) : CoreM PreDefinition :=
+  return { preDef with value := (← eraseRecAppSyntaxExpr preDef.value) }
+
+def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSafety.unsafe) : TermElabM Unit := do
+  let preDefs ← preDefs.mapM fun d => eraseRecAppSyntax d
+  withRef preDefs[0]!.ref do
+    let all  := preDefs.toList.map (·.declName)
+    let decl := Declaration.mutualDefnDecl <| ← preDefs.toList.mapM fun preDef => return {
         name        := preDef.declName
         levelParams := preDef.levelParams
         type        := preDef.type
         value       := preDef.value
-        safety      := safety
         hints       := ReducibilityHints.opaque
+        safety, all
       }
     addDecl decl
+    withSaveInfoContext do  -- save new env
+      for preDef in preDefs do
+        addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-    compileDecl decl
+    unless (← compileDecl decl) do
+      return ()
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
-    pure ()
+    return ()
 
 def addAndCompilePartialRec (preDefs : Array PreDefinition) : TermElabM Unit := do
   if preDefs.all shouldGenCodeFor then
-    addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
-      { preDef with
-        declName  := Compiler.mkUnsafeRecName preDef.declName,
-        value     := preDef.value.replace fun e => match e with
-          | Expr.const declName us _ =>
-            if preDefs.any fun preDef => preDef.declName == declName then
-              some $ mkConst (Compiler.mkUnsafeRecName declName) us
-            else
-              none
-          | _ => none,
-        modifiers := {} }
+    withEnableInfoTree false do
+      addAndCompileUnsafe (safety := DefinitionSafety.partial) <| preDefs.map fun preDef =>
+        { preDef with
+          declName  := Compiler.mkUnsafeRecName preDef.declName
+          value     := preDef.value.replace fun e => match e with
+            | Expr.const declName us =>
+              if preDefs.any fun preDef => preDef.declName == declName then
+                some <| mkConst (Compiler.mkUnsafeRecName declName) us
+              else
+                none
+            | _ => none
+          modifiers := {} }
+
+private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
+  (e.find? fun e => e.isConstOf recFnName).isSome
+
+def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
+  if containsRecFn recFnName e then
+    Meta.forEachExpr e fun e => do
+      if e.isAppOf recFnName then
+        throwError "unexpected occurrence of recursive application{indentExpr e}"
+    pure e
+  else
+    pure e
 
 end Lean.Elab

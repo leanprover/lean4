@@ -7,7 +7,7 @@ prelude
 import Init.Data.Format.Basic
 import Init.Data.Int.Basic
 import Init.Data.Nat.Div
-import Init.Data.UInt
+import Init.Data.UInt.Basic
 import Init.Control.Id
 open Sum Subtype Nat
 
@@ -27,7 +27,7 @@ abbrev reprStr [Repr α] (a : α) : String :=
 abbrev reprArg [Repr α] (a : α) : Format :=
   reprPrec a max_prec
 
-/- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
+/-- Auxiliary class for marking types that should be considered atomic by `Repr` methods.
    We use it at `Repr (List α)` to decide whether `bracketFill` should be used or not. -/
 class ReprAtom (α : Type u)
 
@@ -62,17 +62,21 @@ instance [Repr α] : Repr (ULift.{v} α) where
     Repr.addAppParen ("ULift.up " ++ reprArg v.1) prec
 
 instance : Repr Unit where
-  reprPrec v _ := "()"
+  reprPrec _ _ := "()"
+
+protected def Option.repr [Repr α] : Option α → Nat → Format
+  | none,    _   => "none"
+  | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
 
 instance [Repr α] : Repr (Option α) where
-  reprPrec
-    | none,    _   => "none"
-    | some a, prec => Repr.addAppParen ("some " ++ reprArg a) prec
+  reprPrec := Option.repr
+
+protected def Sum.repr [Repr α] [Repr β] : Sum α β → Nat → Format
+  | Sum.inl a, prec => Repr.addAppParen ("Sum.inl " ++ reprArg a) prec
+  | Sum.inr b, prec => Repr.addAppParen ("Sum.inr " ++ reprArg b) prec
 
 instance [Repr α] [Repr β] : Repr (Sum α β) where
-  reprPrec
-    | Sum.inl a, prec => Repr.addAppParen ("Sum.inl " ++ reprArg a) prec
-    | Sum.inr b, prec => Repr.addAppParen ("Sum.inr " ++ reprArg b) prec
+  reprPrec := Sum.repr
 
 class ReprTuple (α : Type u) where
   reprTuple : α → List Format → List Format
@@ -85,10 +89,13 @@ instance [Repr α] : ReprTuple α where
 instance [Repr α] [ReprTuple β] : ReprTuple (α × β) where
   reprTuple | (a, b), xs => reprTuple b (repr a :: xs)
 
-instance [Repr α] [ReprTuple β] : Repr (α × β) where
-  reprPrec | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
+protected def Prod.repr [Repr α] [ReprTuple β] : α × β → Nat → Format
+  | (a, b), _ => Format.bracket "(" (Format.joinSep (reprTuple b [repr a]).reverse ("," ++ Format.line)) ")"
 
-instance {β : α → Type v} [Repr α] [s : (x : α) → Repr (β x)] : Repr (Sigma β) where
+instance [Repr α] [ReprTuple β] : Repr (α × β) where
+  reprPrec := Prod.repr
+
+instance {β : α → Type v} [Repr α] [(x : α) → Repr (β x)] : Repr (Sigma β) where
   reprPrec | ⟨a, b⟩, _ => Format.bracket "⟨" (repr a ++ ", " ++ repr b) "⟩"
 
 instance {p : α → Prop} [Repr α] : Repr (Subtype p) where
@@ -116,7 +123,7 @@ def digitChar (n : Nat) : Char :=
   '*'
 
 def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
-  | 0,      n, ds => ds
+  | 0,      _, ds => ds
   | fuel+1, n, ds =>
     let d  := digitChar <| n % base;
     let n' := n / base;
@@ -160,7 +167,7 @@ end Nat
 instance : Repr Nat where
   reprPrec n _ := Nat.repr n
 
-def Int.repr : Int → String
+protected def Int.repr : Int → String
     | ofNat m   => Nat.repr m
     | negSucc m => "-" ++ Nat.repr (succ m)
 
@@ -170,19 +177,19 @@ instance : Repr Int where
 def hexDigitRepr (n : Nat) : String :=
   String.singleton <| Nat.digitChar n
 
-def charToHex (c : Char) : String :=
-  let n  := Char.toNat c;
-  let d2 := n / 16;
-  let d1 := n % 16;
-  hexDigitRepr d2 ++ hexDigitRepr d1
-
 def Char.quoteCore (c : Char) : String :=
   if       c = '\n' then "\\n"
   else if  c = '\t' then "\\t"
   else if  c = '\\' then "\\\\"
   else if  c = '\"' then "\\\""
-  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
+  else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ smallCharToHex c
   else String.singleton c
+where
+  smallCharToHex (c : Char) : String :=
+    let n  := Char.toNat c;
+    let d2 := n / 16;
+    let d1 := n % 16;
+    hexDigitRepr d2 ++ hexDigitRepr d1
 
 def Char.quote (c : Char) : String :=
   "'" ++ Char.quoteCore c ++ "'"
@@ -199,6 +206,9 @@ def String.quote (s : String) : String :=
 
 instance : Repr String where
   reprPrec s _ := s.quote
+
+instance : Repr String.Pos where
+  reprPrec p _ := "{ byteIdx := " ++ repr p.byteIdx ++ " }"
 
 instance : Repr Substring where
   reprPrec s _ := Format.text <| String.quote s.toString ++ ".toSubstring"
@@ -224,15 +234,23 @@ instance : Repr UInt64 where
 instance : Repr USize where
   reprPrec n _ := repr n.toNat
 
+protected def List.repr [Repr α] (a : List α) (n : Nat) : Format :=
+  let _ : ToFormat α := ⟨repr⟩
+  match a, n with
+  | [], _ => "[]"
+  | as, _ => Format.bracket "[" (Format.joinSep as ("," ++ Format.line)) "]"
+
 instance [Repr α] : Repr (List α) where
-  reprPrec
-    | [], _ => "[]"
-    | as, _ => Format.bracket "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+  reprPrec := List.repr
+
+protected def List.repr' [Repr α] [ReprAtom α] (a : List α) (n : Nat) : Format :=
+  let _ : ToFormat α := ⟨repr⟩
+  match a, n with
+  | [], _ => "[]"
+  | as, _ => Format.bracketFill "[" (Format.joinSep as ("," ++ Format.line)) "]"
 
 instance [Repr α] [ReprAtom α] : Repr (List α) where
-  reprPrec
-    | [], _ => "[]"
-    | as, _ => Format.bracketFill "[" (@Format.joinSep _ ⟨repr⟩ as ("," ++ Format.line)) "]"
+  reprPrec := List.repr'
 
 instance : ReprAtom Bool   := ⟨⟩
 instance : ReprAtom Nat    := ⟨⟩

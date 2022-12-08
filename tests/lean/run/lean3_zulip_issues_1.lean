@@ -29,18 +29,18 @@ def f : wrap → Nat
   | _ => 1
 
 example (a : Nat) : True := by
-  have ∀ n, n ≥ 0 → a ≤ a from fun _ _ => Nat.leRefl ..
+  have : ∀ n, n ≥ 0 → a ≤ a := fun _ _ => Nat.le_refl ..
   exact True.intro
 
 example (ᾰ : Nat) : True := by
-  have ∀ n, n ≥ 0 → ᾰ ≤ ᾰ from fun _ _ => Nat.leRefl ..
+  have : ∀ n, n ≥ 0 → ᾰ ≤ ᾰ := fun _ _ => Nat.le_refl ..
   exact True.intro
 
 inductive Vec.{u} (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (Nat.succ n) -- TODO: investigate why +1 doesn't work here
 
-constant Vars : Type
+opaque Vars : Type
 
 structure Lang :=
   (funcs : Nat → Type)

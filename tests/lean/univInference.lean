@@ -1,5 +1,5 @@
 
-universes w₁ w₂ w₃
+universe w₁ w₂ w₃
 
 namespace Struct
 structure S1.{r, s} (α : Type s) : Type (max s r) :=

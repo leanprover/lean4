@@ -1,4 +1,4 @@
-universes u v w
+universe u v w
 
 class Funtype (N : Sort u) (O : outParam (Sort v)) (T : outParam (Sort w)) :=
   pack : O -> N

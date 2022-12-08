@@ -7,7 +7,7 @@ prelude
 import Init.Data.Array.Subarray
 import Init.Data.Range
 
-/-
+/-!
 Remark: we considered using the following alternative design
 ```
 structure Stream (α : Type u) where
@@ -22,7 +22,7 @@ The key problem is that the type `Stream α` "lives" in a universe higher than `
 This is a problem because we want to use `Stream`s in monadic code.
 -/
 
-/-
+/--
   Streams are used to implement parallel `for` statements.
   Example:
   ```
@@ -49,7 +49,7 @@ class Stream (stream : Type u) (value : outParam (Type v)) : Type (max u v) wher
   next? : stream → Option (value × stream)
 
 protected partial def Stream.forIn [Stream ρ α] [Monad m] (s : ρ) (b : β) (f : α → β → m (ForInStep β)) : m β := do
-  let inst : Inhabited (m β) := ⟨pure b⟩
+  let _ : Inhabited (m β) := ⟨pure b⟩
   let rec visit (s : ρ) (b : β) : m β := do
     match Stream.next? s with
     | some (a, s) => match (← f a b) with
@@ -93,8 +93,8 @@ instance : Stream (List α) α where
 instance : Stream (Subarray α) α where
   next? s :=
     if h : s.start < s.stop then
-      have s.start + 1 ≤ s.stop from Nat.succLeOfLt h
-      some (s.as.get ⟨s.start, Nat.ltOfLtOfLe h s.h₂⟩, { s with start := s.start + 1, h₁ := this })
+      have : s.start + 1 ≤ s.stop := Nat.succ_le_of_lt h
+      some (s.as.get ⟨s.start, Nat.lt_of_lt_of_le h s.h₂⟩, { s with start := s.start + 1, h₁ := this })
     else
       none
 

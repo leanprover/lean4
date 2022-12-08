@@ -21,10 +21,10 @@ inductive TextDocumentSyncKind where
 
 instance : FromJson TextDocumentSyncKind := ⟨fun j =>
   match j.getNat? with
-  | some 0 => TextDocumentSyncKind.none
-  | some 1 => TextDocumentSyncKind.full
-  | some 2 => TextDocumentSyncKind.incremental
-  | _      => none⟩
+  | Except.ok 0 => return TextDocumentSyncKind.none
+  | Except.ok 1 => return TextDocumentSyncKind.full
+  | Except.ok 2 => return TextDocumentSyncKind.incremental
+  | _      => throw "unknown TextDocumentSyncKind"⟩
 
 instance : ToJson TextDocumentSyncKind := ⟨fun
   | TextDocumentSyncKind.none        => 0
@@ -47,7 +47,7 @@ inductive TextDocumentContentChangeEvent where
 
 instance : FromJson TextDocumentContentChangeEvent where
   fromJson? j :=
-    (OptionM.run do
+    (do
       let range ← j.getObjValAs? Range "range"
       let text ← j.getObjValAs? String "text"
       return TextDocumentContentChangeEvent.rangeChange range text)
@@ -78,7 +78,7 @@ structure DidCloseTextDocumentParams where
 
 -- TODO: TextDocumentSyncClientCapabilities
 
-/- NOTE: This is defined twice in the spec. The latter version has more fields. -/
+/-- NOTE: This is defined twice in the spec. The latter version has more fields. -/
 structure TextDocumentSyncOptions where
   openClose : Bool
   change : TextDocumentSyncKind

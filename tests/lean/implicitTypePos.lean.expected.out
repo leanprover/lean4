@@ -1,0 +1,5 @@
+implicitTypePos.lean:1:8-1:9: error: failed to infer binder type
+implicitTypePos.lean:1:6-1:7: error: failed to infer binder type
+implicitTypePos.lean:3:9-3:10: error: failed to infer binder type
+implicitTypePos.lean:5:9-5:10: error: failed to infer binder type
+implicitTypePos.lean:7:10-7:11: error: failed to infer binder type

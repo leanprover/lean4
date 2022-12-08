@@ -1,5 +1,3 @@
-
-
 def f : Char → Nat
 | 'a' => 0
 | 'b' => 1
@@ -38,3 +36,10 @@ def r : String × String → Nat
 
 theorem ex4 : (r ("hello", "world"), r ("world", "hello"), r ("a", "b")) = (0, 1, 2) :=
 rfl
+
+example (a b : String) (h : a.length > 10) : r (a, b) = 2 := by
+  simp [r]
+  split
+  next h => injection h with h; subst h; contradiction
+  next h => injection h with h; subst h; contradiction
+  next => decide

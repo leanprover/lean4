@@ -1,7 +1,34 @@
-set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp mpq.cpp utf8.cpp
+set(RUNTIME_OBJS debug.cpp thread.cpp mpz.cpp utf8.cpp
 object.cpp apply.cpp exception.cpp interrupt.cpp memory.cpp
-serializer.cpp stackinfo.cpp compact.cpp init_module.cpp io.cpp hash.cpp
+stackinfo.cpp compact.cpp init_module.cpp load_dynlib.cpp io.cpp hash.cpp
 platform.cpp alloc.cpp allocprof.cpp sharecommon.cpp stack_overflow.cpp
-process.cpp)
-add_library(runtime OBJECT ${RUNTIME_OBJS})
-add_library(leanruntime ${RUNTIME_OBJS})
+process.cpp object_ref.cpp mpn.cpp mutex.cpp)
+add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
+set_target_properties(leanrt_initial-exec PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+# The above library, like all other C++ code, is built using `-ftls-model=initial-exec`, which is necessary for linking it into `leanshared`,
+# but introduces a measurable overhead while accessing the thread-local variable `g_heap` when allocating and deallocating. Therefore we compile
+# the runtime again with the more restrictive `local-exec` and use it when linking Lean code statically, i.e. not against `leanshared`.
+add_library(leanrt STATIC ${RUNTIME_OBJS})
+set_target_properties(leanrt PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+if (NOT MSVC)
+target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
+endif()
+
+if(LLVM)
+  if (NOT (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
+      message(FATAL_ERROR "building 'lean.h.bc', need CMAKE_CXX_COMPILER_ID to match Clang to build LLVM bitcode file of Lean runtime.")
+  endif()
+  FILE(READ "${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h" LEAN_H)
+  # generate LLVM IR for `static inline` definitions in lean.h for the LLVM backend
+  string(REPLACE "static inline" "__attribute__((always_inline))" LEAN_H "${LEAN_H}")
+  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")
+  add_custom_command(
+    OUTPUT lean.h.bc
+    DEPENDS ${RUNTIME_OBJS} ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c
+    COMMAND bash -ec "${CMAKE_BINARY_DIR}/leanc.sh ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c -emit-llvm -o ${CMAKE_CURRENT_BINARY_DIR}/lean.h.bc"
+    VERBATIM)
+  add_custom_target(runtime_bc DEPENDS lean.h.bc)
+endif()

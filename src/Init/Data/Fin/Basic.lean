@@ -16,20 +16,23 @@ instance coeToNat {n} : Coe (Fin n) Nat :=
   ⟨fun v => v.val⟩
 
 def elim0.{u} {α : Sort u} : Fin 0 → α
-  | ⟨_, h⟩ => absurd h (notLtZero _)
+  | ⟨_, h⟩ => absurd h (not_lt_zero _)
+
+def succ : Fin n → Fin n.succ
+  | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
 
-protected def ofNat {n : Nat} (a : Nat) : Fin (succ n) :=
-  ⟨a % succ n, Nat.mod_lt _ (Nat.zeroLtSucc _)⟩
+protected def ofNat {n : Nat} (a : Nat) : Fin n.succ :=
+  ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
 protected def ofNat' {n : Nat} (a : Nat) (h : n > 0) : Fin n :=
   ⟨a % n, Nat.mod_lt _ h⟩
 
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h
-  | a+1, h =>
-    have n > 0 from Nat.ltTrans (Nat.zeroLtSucc _) h;
+  | _+1, h =>
+    have : n > 0 := Nat.lt_trans (Nat.zero_lt_succ _) h;
     Nat.mod_lt _ this
 
 protected def add : Fin n → Fin n → Fin n
@@ -41,7 +44,7 @@ protected def mul : Fin n → Fin n → Fin n
 protected def sub : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
 
-/-
+/-!
 Remark: mod/div/modn/land/lor can be defined without using (% n), but
 we are trying to minimize the number of Nat theorems
 needed to boostrap Lean.
@@ -53,7 +56,7 @@ protected def mod : Fin n → Fin n → Fin n
 protected def div : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a / b) % n, mlt h⟩
 
-protected def modn : Fin n → Nat → Fin n
+def modn : Fin n → Nat → Fin n
   | ⟨a, h⟩, m => ⟨(a % m) % n, mlt h⟩
 
 def land : Fin n → Fin n → Fin n
@@ -97,18 +100,25 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance : HMod (Fin n) Nat (Fin n) where
-  hMod := Fin.modn
-
 instance : OfNat (Fin (no_index (n+1))) i where
   ofNat := Fin.ofNat i
 
-theorem vneOfNe {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
-  fun h' => absurd (eqOfVeq h') h
+instance : Inhabited (Fin (no_index (n+1))) where
+  default := 0
 
-theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (i % m).val < m
-  | m, ⟨a, h⟩, hp =>  Nat.ltOfLeOfLt (mod_le _ _) (mod_lt _ hp)
+theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
+  fun h' => absurd (eq_of_val_eq h') h
+
+theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
+  | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
+
+theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
+  Nat.lt_of_lt_of_le i.isLt h
 
 end Fin
 
-open Fin
+instance [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
+  getElem xs i h := getElem xs i.1 h
+
+macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| apply Fin.val_lt_of_le; get_elem_tactic_trivial; done)

@@ -1,4 +1,4 @@
-389.lean:7:7-7:17: error: application type mismatch
+389.lean:7:14-7:17: error: application type mismatch
   getFoo bar
 argument
   bar

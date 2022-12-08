@@ -1,7 +1,7 @@
 namespace List
 
 @[simp] theorem filter_nil {p : α → Bool} : filter p [] = [] := by
-  simp [filter, filterAux, reverse, reverseAux]
+  simp!
 
 theorem cons_eq_append (a : α) (as : List α) : a :: as = [a] ++ as := rfl
 

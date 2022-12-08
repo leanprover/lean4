@@ -16,11 +16,14 @@ structure RewriteResult where
   eqProof  : Expr
   mvarIds  : List MVarId -- new goals
 
-def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
-    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (mode := TransparencyMode.reducible) : MetaM RewriteResult :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `rewrite
-    let heqType ← inferType heq
+/--
+Rewrite goal `mvarId`
+-/
+def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
+    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `rewrite
+    let heqType ← instantiateMVars (← inferType heq)
     let (newMVars, binderInfos, heqType) ← forallMetaTelescopeReducing heqType
     let heq := mkAppN heq newMVars
     let cont (heq heqType : Expr) : MetaM RewriteResult := do
@@ -31,7 +34,7 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           if lhs.getAppFn.isMVar then
             throwTacticEx `rewrite mvarId m!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
           let e ← instantiateMVars e
-          let eAbst ← withTransparency mode <| kabstract e lhs occs
+          let eAbst ← withConfig (fun oldConfig => { config, oldConfig with }) <| kabstract e lhs occs
           unless eAbst.hasLooseBVars do
             throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
           -- construct rewrite proof
@@ -45,7 +48,7 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eqRefl ← mkEqRefl e
           let eqPrf ← mkEqNDRec motive eqRefl heq
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
-          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM (not <$> isExprMVarAssigned ·)
+          let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed eqPrf
           let otherMVarIds := otherMVarIds.filter (!newMVarIds.contains ·)
           let newMVarIds := newMVarIds ++ otherMVarIds
@@ -63,5 +66,10 @@ def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
       cont heq heqType
     | none =>
       cont heq heqType
+
+@[deprecated MVarId.rewrite]
+def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
+    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
+  mvarId.rewrite e heq symm occs config
 
 end Lean.Meta

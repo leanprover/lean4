@@ -1,0 +1,5 @@
+LE'.refl : ∀ (n : Nat), LE' n n
+inductive LE' : Nat → Nat → Prop
+number of parameters: 1
+constructors:
+LE'.refl : ∀ (n : Nat), LE' n n

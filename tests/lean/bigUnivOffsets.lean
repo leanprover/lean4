@@ -1,5 +1,5 @@
 #check Type 100000000
 
-universes u
+universe u
 
 #check Type (u + 10000000)

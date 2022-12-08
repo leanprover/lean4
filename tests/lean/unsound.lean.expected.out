@@ -1,0 +1,8 @@
+unsound.lean:1:32-1:35: error: invalid projection, the expression
+  h
+is a proposition and has type
+  ∃ x, True
+but the projected value is not, it has type
+  Nat
+unsound.lean:3:28-3:31: error: unknown identifier 'foo'
+unsound.lean:3:47-3:50: error: unknown identifier 'foo'

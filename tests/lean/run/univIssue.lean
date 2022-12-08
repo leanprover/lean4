@@ -1,4 +1,4 @@
-universes u v
+universe u v
 
 @[inline] def ex1 {σ : Type u} {m : Type u → Type v} [Functor m] {α : Type u} (x : StateT σ m α) (s : σ) : m α :=
   Functor.map Prod.fst (x s)

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
@@ -64,7 +64,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
         ref_type   = instantiate_lparam(rec_info.get_type(), param_id(lvl), mk_level_zero());
     } else if (is_reflexive) {
         blvls = lps;
-        rlvl  = get_datatype_level(ind_info.get_type());
+        rlvl  = get_datatype_level(env, ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);
@@ -205,7 +205,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     } else if (is_reflexive) {
         blps    = lps;
         blvls   = cons(lvl, lvls);
-        rlvl    = get_datatype_level(ind_info.get_type());
+        rlvl    = get_datatype_level(env, ind_info.get_type());
         // if rlvl is of the form (max 1 l), then rlvl <- l
         if (is_max(rlvl) && is_one(max_lhs(rlvl)))
             rlvl = max_rhs(rlvl);
@@ -358,19 +358,19 @@ environment mk_binduction_on(environment const & env, name const & n) {
     return mk_brec_on(env, n, true);
 }
 
-extern "C" object * lean_mk_below(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_below(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_below(environment(env), name(n, true)); });
 }
 
-extern "C" object * lean_mk_ibelow(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_ibelow(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_ibelow(environment(env), name(n, true)); });
 }
 
-extern "C" object * lean_mk_brec_on(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_brec_on(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_brec_on(environment(env), name(n, true)); });
 }
 
-extern "C" object * lean_mk_binduction_on(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_binduction_on(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_binduction_on(environment(env), name(n, true)); });
 }
 }

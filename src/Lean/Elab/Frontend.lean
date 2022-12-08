@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Elab.Import
 import Lean.Elab.Command
 import Lean.Util.Profile
+import Lean.Server.References
 
 namespace Lean.Elab.Frontend
 
@@ -26,18 +27,19 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
 @[inline] def runCommandElabM (x : Command.CommandElabM α) : FrontendM α := do
   let ctx ← read
   let s ← get
-  let cmdCtx : Command.Context := { cmdPos := s.cmdPos, fileName := ctx.inputCtx.fileName, fileMap := ctx.inputCtx.fileMap }
-  match ← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState with
+  let cmdCtx : Command.Context := {
+    cmdPos       := s.cmdPos
+    fileName     := ctx.inputCtx.fileName
+    fileMap      := ctx.inputCtx.fileMap
+    tacticCache? := none
+  }
+  match (← liftM <| EIO.toIO' <| (x cmdCtx).run s.commandState) with
   | Except.error e      => throw <| IO.Error.userError s!"unexpected internal error: {← e.toMessageData.toString}"
   | Except.ok (a, sNew) => setCommandState sNew; return a
 
 def elabCommandAtFrontend (stx : Syntax) : FrontendM Unit := do
   runCommandElabM do
-    let infoTreeEnabled := (← getInfoState).enabled
-    if checkTraceOption (← getOptions) `Elab.info then
-      enableInfoTree
-    Command.elabCommand stx
-    enableInfoTree infoTreeEnabled
+    Command.elabCommandTopLevel stx
 
 def updateCmdPos : FrontendM Unit := do
   modify fun s => { s with cmdPos := s.parserState.pos }
@@ -55,17 +57,16 @@ def processCommand : FrontendM Bool := do
   let pstate ← getParserState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  let pos := ictx.fileMap.toPosition pstate.pos
   match profileit "parsing" scope.opts fun _ => Parser.parseCommand ictx pmctx pstate cmdState.messages with
   | (cmd, ps, messages) =>
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
     setMessages messages
-    if Parser.isEOI cmd || Parser.isExitCommand cmd then
+    if Parser.isEOI cmd then
       pure true -- Done
     else
       profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
-      pure false
+      pure (Parser.isTerminalCommand cmd)
 
 partial def processCommands : FrontendM Unit := do
   let done ← processCommand
@@ -94,14 +95,34 @@ def getPrintMessageEndPos (opts : Options) : Bool :=
   opts.getBool `printMessageEndPos false
 
 @[export lean_run_frontend]
-def runFrontend (input : String) (opts : Options) (fileName : String) (mainModuleName : Name) : IO (Environment × Bool) := do
+def runFrontend
+    (input : String)
+    (opts : Options)
+    (fileName : String)
+    (mainModuleName : Name)
+    (trustLevel : UInt32 := 0)
+    (ileanFileName? : Option String := none)
+    : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts messages inputCtx
+  let (env, messages) ← processHeader header opts messages inputCtx trustLevel
   let env := env.setMainModule mainModuleName
-  let s ← IO.processCommands inputCtx parserState (Command.mkState env messages opts)
+  let mut commandState := Command.mkState env messages opts
+
+  if ileanFileName?.isSome then
+    -- Collect InfoTrees so we can later extract and export their info to the ilean file
+    commandState := { commandState with infoState.enabled := true }
+
+  let s ← IO.processCommands inputCtx parserState commandState
   for msg in s.commandState.messages.toList do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
+
+  if let some ileanFileName := ileanFileName? then
+    let trees := s.commandState.infoState.trees.toArray
+    let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
+    let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
+    IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
+
   pure (s.commandState.env, !s.commandState.messages.hasErrors)
 
 end Lean.Elab

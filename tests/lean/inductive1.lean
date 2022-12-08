@@ -1,4 +1,4 @@
-
+--
 
 -- Test1
 inductive T1 : Nat -- Error, resultant type is not a sort
@@ -14,7 +14,7 @@ inductive T2 : Type -- Error resulting universe mismatch
 end
 
 -- Test3
-universes u v
+universe u v
 mutual
 
 inductive T1 (x : Nat) : Type u
@@ -79,7 +79,7 @@ end Boo
 
 partial inductive T1 : Type -- invalid use of partial
 noncomputable inductive T1 : Type -- invalid use of noncomputable
-@[inline] inductive T1 : Type -- invalid use of attributes
+@[inline] inductive T1' : Type -- declaration is not a definition
 
 private inductive T1 : Type
 | private mk : T1 -- invalid private constructor in private inductive type
@@ -111,7 +111,7 @@ inductive T1 : Nat → Type
 -- Test13
 
 inductive A (α : Type u) (β : Type v)
-| nil {}
+| nil
 | protected cons : α → β → A α β → A α β
 
 open A

@@ -1,0 +1,18 @@
+361.lean:3:0: error: expected '{' or tactic
+361.lean:1:60-1:62: error: unsolved goals
+p q r : Prop
+h1 : p ∨ q
+h2 : p → q
+⊢ q
+361.lean:6:0: error: unexpected end of input; expected '{'
+361.lean:5:11-5:13: error: unsolved goals
+p q r : Prop
+h2 : p → q
+h✝ : p
+⊢ q
+361.lean:3:60-5:13: error: unsolved goals
+case inr
+p q r : Prop
+h2 : p → q
+h✝ : q
+⊢ q

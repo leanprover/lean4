@@ -5,10 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include <lean/flet.h>
+#include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
+#include "kernel/inductive.h"
 #include "library/class.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"
@@ -97,8 +98,6 @@ public:
     spec_info & operator=(spec_info && other) { object_ref::operator=(other); return *this; }
     names const & get_mutual_decls() const { return static_cast<names const &>(cnstr_get_ref(*this, 0)); }
     spec_arg_kinds const & get_arg_kinds() const { return static_cast<spec_arg_kinds const &>(cnstr_get_ref(*this, 1)); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static spec_info deserialize(deserializer & d) { return spec_info(d.read_object(), true); }
 };
 
 extern "C" object* lean_add_specialization_info(object* env, object* fn, object* info);
@@ -163,6 +162,15 @@ static void update_info_buffer(environment const & env, expr e, name_set const &
     }
 }
 
+bool is_class(environment const & env, expr type) {
+    // This is a temporary hack. We do not unfold `type` here, but we should. We will fix it when we reimplement the compiler in Lean.
+    while (is_pi(type)) {
+        type = binding_body(type);
+    }
+    type = get_app_fn(type);
+    return is_constant(type) && is_class(env, const_name(type));
+}
+
 environment update_spec_info(environment const & env, comp_decls const & ds) {
     name_set S;
     spec_info_buffer d_infos;
@@ -180,8 +188,17 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
             expr type = instantiate_rev(binding_domain(code), fvars.size(), fvars.data());
             expr fvar = lctx.mk_local_decl(ngen, binding_name(code), type);
             fvars.push_back(fvar);
-            if (is_inst_implicit(binding_info(code))) {
-                info.second.push_back(spec_arg_kind::FixedInst);
+            if (is_inst_implicit(binding_info(code)) || (is_implicit(binding_info(code)) && is_class(env, type))) {
+                expr const & fn = get_app_fn(type);
+                if (is_const(fn) && has_nospecialize_attribute(env, const_name(fn))) {
+                    info.second.push_back(spec_arg_kind::Fixed);
+                } else {
+                    type_checker tc(env, lctx);
+                    if (tc.is_prop(type))
+                        info.second.push_back(spec_arg_kind::FixedNeutral);
+                    else
+                        info.second.push_back(spec_arg_kind::FixedInst);
+                }
             } else {
                 type_checker tc(env, lctx);
                 type = tc.whnf(type);
@@ -496,10 +513,10 @@ class specialize_fn {
                 /* We specialize this kind of argument if they are constructor applications or literals.
                    Remark: it is not feasible to invoke whnf since it may consume a lot of time. */
                 break; // We have disabled this kind of argument
-                w = find(args[i]);
-                if (is_constructor_app(env(), w) || is_lit(w))
-                    return true;
-                break;
+                // w = find(args[i]);
+                // if (is_constructor_app(env(), w) || is_lit(w))
+                //     return true;
+                // break;
             case spec_arg_kind::Other:
                 break;
             }
@@ -533,8 +550,30 @@ class specialize_fn {
                        a let-variable. */
                     if (!v) m_ctx.m_params.push_back(x);
                 }
-                collect(decl.get_type(), false);
-                if (v) collect(*v, false);
+                /* HACK to avoid work duplication.
+                   See work duplication comment in the `in_binder == false` branch. The example is similar.
+                   Suppose we have
+                   ```
+                    @[noinline] def concat (as : List α) (a : α) : List α :=
+                      a :: as
+                    def f (n : Nat) (xs : List Nat) : List (List Nat) :=
+                      let ys := List.range n
+                      let f  := concat ys
+                      List.map f xs
+                   ```
+                   When visiting `f`'s value, we should set `in_binder == true`, otherwise
+                   we are going to copy `ys`. Note that, `in_binder` we would be set to true
+                   if `f`s value was in eta-expanded form.
+
+                   Remark: This is **not** a perfect solution because we are not using WHNF. We can't
+                   use it without refactoring the code and updating the local context.
+                   We can also avoid the WHNF if we ensure the code is in eta expanded form
+
+                   TODO: implement the real fix when we re-implement the code in Lean.
+                 */
+                if (is_pi(decl.get_type())) in_binder = true;
+                collect(decl.get_type(), in_binder);
+                if (v) collect(*v, in_binder);
             } else {
                 if (m_visited_in_binder.contains(x_name))
                     return;
@@ -558,9 +597,10 @@ class specialize_fn {
                        abstracted. Reason: avoid work duplication.
                        Example: suppose we are trying to specialize the following map-application.
                        ```
-                       def f2 (n : nat) (xs : list nat) : list (list nat) :=
-                       let ys := list.repeat 0 n in
-                       xs.map (λ x, x :: ys)
+                       def f (n : Nat) (xs : List Nat) : List (List Nat) :=
+                         let ys := List.range n
+                         lef f  := fun x => x :: ys
+                         List.map f xs
                        ```
                        We don't want to copy `list.repeat 0 n` inside of the specialized code.
 
@@ -634,6 +674,13 @@ class specialize_fn {
         lean_assert(is_constant(fn));
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
+        lean_trace(name({"compiler", "spec_candidate"}),
+                   tout() << "kinds for " << const_name(fn) << ":";
+                   for (auto kind : kinds) {
+                       tout() << " " << to_str(kind);
+                   }
+                   tout() << "\n";
+            );
         bool has_attr   = has_specialize_attribute(const_name(fn));
         dep_collector collect(m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
@@ -879,7 +926,17 @@ class specialize_fn {
         buffer<expr> new_let_decls;
         name y("_y");
         for (unsigned i = 0; i < fvars.size(); i++) {
-            expr type     = tc.infer(fvar_vals[i]);
+            expr type;
+            try {
+                type = tc.infer(fvar_vals[i]);
+            } catch (exception &) {
+                /* We may fail to infer the type of fvar_vals, since it may be recursive
+                   This is a workaround. When we re-implement the compiler in Lean,
+                   we should write code to infer type that tolerates undefined constants,
+                   *AnyType*, etc.
+                   We just do not specialize when we cannot infer the type. */
+                return optional<comp_decl>();
+            }
             if (is_irrelevant_type(m_st, m_lctx, type)) {
                 /* In LCNF, the type `ty` at `let x : ty := v in t` must not be irrelevant. */
                 code = replace_fvar(code, fvars[i], fvar_vals[i]);
@@ -891,6 +948,10 @@ class specialize_fn {
         code = m_lctx.mk_lambda(new_let_decls, code);
         code = abstract_spec_ctx(ctx, code);
         lean_trace(name("compiler", "spec_info"), tout() << "specialized code " << n << "\n" << trace_pp_expr(code) << "\n";);
+        if (has_fvar(code)) {
+            /* This is yet another temporary hack. It addresses an assertion violation triggered by test 1293.lean for issue #1293 */
+            return optional<comp_decl>();
+        }
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and
@@ -980,9 +1041,23 @@ class specialize_fn {
         lean_unreachable();
     }
 
+    static unsigned num_parts(name fn) {
+        unsigned n = 0;
+        while (!fn.is_atomic()) {
+            n++;
+            fn = fn.get_prefix();
+        }
+        return n;
+    }
+
     optional<expr> specialize(expr const & fn, buffer<expr> const & args, spec_ctx & ctx) {
         if (!is_specialize_candidate(fn, args))
             return none_expr();
+        if (num_parts(const_name(fn)) > 32) {
+            // This is a big hack to fix a nontermination exposed by issue #1293.
+            // We need to move the code to Lean ASAP.
+            return none_expr();
+        }
         // lean_trace(name("compiler", "specialize"), tout() << "specialize: " << fn << "\n";);
         bool has_attr = has_specialize_attribute(const_name(fn));
         specialize_init_deps(fn, args, ctx);
@@ -1027,13 +1102,18 @@ class specialize_fn {
 
         optional<name> new_fn_name;
         expr key;
-        /* When `m_params.size > 1`, it is not safe to reuse cached specialization.
+        /* When `m_params.size > 0`, it is not safe to reuse cached specialization, because we don't know at reuse time
+           whether `m_params` will be compatible or not. See issue #1292 for problematic example.
+           The two `filterMap` occurrences produce the same key using `get_closed`, but the first one has `m_params.size == 1`
+           and the second `m_params.size == 0`. The first one is reusing the `none` outside the lambda. It is a sily reuse,
+           but the bug could happen with a more complex term.
+
            See test `tests/lean/run/specbug.lean`.
-           This is a bit hackish, but should not produce increase the generated code size too much.
+           This is a bit hackish, but should not increase the generated code size too much.
            On Dec 20 2020, before this fix, 5246 specializations were reused, but only 11 had `m_params.size > 1`.
            This file will be deleted. So, it is not worth designing a better caching scheme.
            TODO: when we reimplement this module in Lean, we should have a better caching heuristic. */
-        if (gcache_enabled && ctx.m_params.size() <= 1) {
+        if (gcache_enabled && ctx.m_params.size() == 0) {
             key = mk_app(fn, gcache_key_args);
             if (optional<name> it = get_cached_specialization(env(), key)) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "]: " << *it << "\n";
@@ -1043,7 +1123,7 @@ class specialize_fn {
                                tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
                                i++;
                            }
-                           tout() << trace_pp_expr(key) << "\n";);
+                           tout() << ">> key: " << trace_pp_expr(key) << "\n";);
                 // std::cerr << *it << " " << ctx.m_vars.size() << " " << ctx.m_params.size() << "\n";
                 new_fn_name = *it;
             }
@@ -1071,7 +1151,9 @@ class specialize_fn {
                 }
                 m_st.env() = update_spec_info(env(), new_decls);
             }
-            if (gcache_enabled) {
+
+            /* It is only safe to cache when `m_params.size == 0`. See comment above. */
+            if (gcache_enabled && ctx.m_params.size() == 0) {
                 lean_trace(name({"compiler", "specialize"}), tout() << "get_cached_specialization [" << ctx.m_params.size() << "] UPDATE " << *new_fn_name << "\n";
                            unsigned i = 0;
                            type_checker tc(m_st, m_lctx);
@@ -1079,7 +1161,7 @@ class specialize_fn {
                                tout() << ">> [" << i << "]: " << trace_pp_expr(tc.infer(x)) << "\n";
                                i++;
                            }
-                           tout()  << trace_pp_expr(key) << "\n";);
+                           tout()  << ">> key: " << trace_pp_expr(key) << "\n";);
                 m_st.env() = cache_specialization(env(), key, *new_fn_name);
             }
         }

@@ -23,6 +23,8 @@ syntax (name := mySingleton) "[" term "]" : term
 macro_rules (kind := mySingleton)
 | `([$a]) => `(2 * $a)
 
+-- TODO: "ambiguous, possible interpretations" error messages print with
+-- a lot of detail since most mvars have not been resolved yet
 #check [1] -- ambiguous it can be `mySingleton` or the singleton list
 
 

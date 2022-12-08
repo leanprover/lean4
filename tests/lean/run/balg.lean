@@ -56,7 +56,7 @@ abbrev inv {G : Group} (a : G) : G :=
 
 postfix:max "⁻¹" => inv
 
-instance (G : Group) : OfNat (coeSort G.toMagma) (nat_lit 1) where
+instance (G : Group) : OfNat (CoeSort.coe G.toMagma) (nat_lit 1) where
   ofNat := G.one
 
 instance (G : Group) : OfNat (G.toMagma.α) (nat_lit 1) where
@@ -81,7 +81,7 @@ theorem inv_inv {G : Group} (a : G) : (a⁻¹)⁻¹ = a :=
   inv_eq_of_mul_eq_one (G.mul_left_inv a)
 
 theorem mul_right_inv {G : Group} (a : G) : a * a⁻¹ = 1 := by
-  have a⁻¹⁻¹ * a⁻¹ = 1 by rw [G.mul_left_inv]; rfl
+  have : a⁻¹⁻¹ * a⁻¹ = 1 := by rw [G.mul_left_inv]; rfl
   rw [inv_inv] at this
   assumption
 

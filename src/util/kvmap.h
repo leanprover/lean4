@@ -6,11 +6,11 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <string>
-#include "util/pair_ref.h"
+#include "runtime/pair_ref.h"
 #include "util/name.h"
 
 namespace lean {
-enum class data_value_kind { String, Bool, Name, Nat /*, Int*/ };
+enum class data_value_kind { String, Bool, Name, Nat, /* Int, Syntax */ };
 /*
 inductive DataValue
 | ofString (v : String)
@@ -18,6 +18,7 @@ inductive DataValue
 | ofName   (v : Name)
 | ofNat    (v : Nat)
 | ofInt    (v : Int)
+| ofSyntax (v : Syntax)
 */
 class data_value : public object_ref {
     data_value(b_obj_arg o, bool b):object_ref(o, b) {}
@@ -33,9 +34,6 @@ public:
     data_value & operator=(data_value const & other) { object_ref::operator=(other); return *this; }
     data_value & operator=(data_value && other) { object_ref::operator=(other); return *this; }
 
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static data_value deserialize(deserializer & d) { return data_value(d.read_object(), true); }
-
     data_value_kind kind() const { return static_cast<data_value_kind>(cnstr_tag(raw())); }
     string_ref const & get_string() const { lean_assert(kind() == data_value_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
     nat const & get_nat() const { lean_assert(kind() == data_value_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
@@ -49,9 +47,6 @@ public:
 bool operator==(data_value const & a, data_value const & b);
 inline bool operator!=(data_value const & a, data_value const & b) { return !(a == b); }
 bool operator<(data_value const & a, data_value const & b);
-
-inline serializer & operator<<(serializer & s, data_value const & v) { v.serialize(s); return s; }
-inline data_value read_data_value(deserializer & d) { return data_value::deserialize(d); }
 
 typedef pair_ref<name, data_value> kvmap_entry;
 typedef list_ref<kvmap_entry> kvmap;

@@ -1,5 +1,5 @@
-/-! Parse and reformat file -/
 import Lean.PrettyPrinter
+/-! Parse and reformat file -/
 
 open Lean
 open Lean.Elab
@@ -13,12 +13,12 @@ let (debug, f) : Bool × String := match args with
   | _         => panic! "usage: file [-d]"
 let env ← mkEmptyEnvironment
 let stx ← Lean.Parser.testParseFile env args.head!
-let (f, _) ← (tryFinally (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug } { env := env }
+let (f, _) ← (tryFinally (PrettyPrinter.ppModule stx) printTraces).toIO { options := Options.empty.setBool `trace.PrettyPrinter.format debug, fileName := "", fileMap := default } { env := env }
 IO.print f
 let stx' ← Lean.Parser.testParseModule env args.head! (toString f)
 if stx' != stx then
-  let stx := stx.getArg 1
-  let stx' := stx'.getArg 1
+  let stx := stx.raw.getArg 1
+  let stx' := stx'.raw.getArg 1
   stx.getArgs.size.forM fun i => do
     if stx.getArg i != stx'.getArg i then
       throw $ IO.userError s!"reparsing failed:\n{stx.getArg i}\n{stx'.getArg i}"

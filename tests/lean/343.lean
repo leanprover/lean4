@@ -8,15 +8,15 @@ structure FunctorIsh (C D : CatIsh) where
   onObj : C.Obj → D.Obj
   onHom : ∀ {s d : C.Obj}, (s ~> d) → (onObj s ~> onObj d)
 
-def Catish : CatIsh :=
+abbrev Catish : CatIsh :=
   {
     Obj := CatIsh
     Hom := FunctorIsh
   }
 
-universes m o
+universe m o
 unif_hint (mvar : CatIsh) where
-  Catish.{m,o} =?= mvar |- mvar.Obj =?= CatIsh.{m,o}
+  Catish.{m, o} =?= mvar |- mvar.Obj =?= CatIsh.{o, m}
 
 structure CtxSyntaxLayerParamsObj where
   Ct : CatIsh

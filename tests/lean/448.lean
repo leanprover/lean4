@@ -6,7 +6,7 @@ structure M (α : Type) where
 instance : Monad M where
   pure x   := { σ := pure x }
   bind x f := { σ := do (f (← x.σ)).σ }
-  map f x  := { σ := do f (← x.σ) }
+  map f x  := { σ := return f (← x.σ) }
 
 instance : MonadLiftT IO M where
   monadLift {α : Type} (act : IO α) : M α :=

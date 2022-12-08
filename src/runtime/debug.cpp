@@ -17,7 +17,8 @@ Author: Leonardo de Moura
 // Support for pid
 #include<unistd.h>
 #endif
-#include <lean/debug.h>
+#include <lean/lean.h>
+#include "runtime/debug.h"
 
 namespace lean {
 static volatile bool           g_has_violations     = false;
@@ -133,4 +134,9 @@ void invoke_debugger() {
 #endif
 }
 // LCOV_EXCL_STOP
+
+extern "C" LEAN_EXPORT void lean_notify_assert(const char * fileName, int line, const char * condition) {
+    notify_assertion_violation(fileName, line, condition);
+    invoke_debugger();
+}
 }

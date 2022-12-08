@@ -1,1 +1,2 @@
 exitAfterParseError.lean:5:0: error: expected ':=', 'where' or '|'
+exitAfterParseError.lean:5:0-5:5: warning: using 'exit' to interrupt Lean

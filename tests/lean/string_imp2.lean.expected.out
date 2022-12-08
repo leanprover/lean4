@@ -8,7 +8,7 @@
 "αβγ"
 "αβγ"
 "αβγ"
-2
+{ byteIdx := 2 }
 ['α', 'β']
 "αβa"
 "α α-"
@@ -40,3 +40,8 @@ false
 "αβγδ".toSubstring
 "abcd".toSubstring
 "abcd".toSubstring
+["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
+["abc".toSubstring, "αβγ".toSubstring, "123".toSubstring, "".toSubstring]
+'α'
+'β'
+{ byteIdx := 4 }

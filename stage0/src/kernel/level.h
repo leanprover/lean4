@@ -8,11 +8,10 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <algorithm>
 #include <utility>
-#include <lean/optional.h>
+#include "runtime/optional.h"
+#include "runtime/list_ref.h"
 #include "util/name.h"
-#include "util/list_ref.h"
 #include "util/options.h"
-#include "util/format.h"
 
 namespace lean {
 class environment;
@@ -45,15 +44,15 @@ public:
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
     level(level && other):object_ref(other) {}
-    level_kind kind() const { return static_cast<level_kind>(lean_ptr_tag(raw())); }
+    level_kind kind() const {
+      return lean_is_scalar(raw()) ? level_kind::Zero : static_cast<level_kind>(lean_ptr_tag(raw()));
+    }
     unsigned hash() const;
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }
     level & operator=(level && other) { object_ref::operator=(other); return *this; }
 
     friend bool is_eqp(level const & l1, level const & l2) { return l1.raw() == l2.raw(); }
-    void serialize(serializer & s) const { s.write_object(raw()); }
-    static level deserialize(deserializer & d) { return level(d.read_object(), true); }
 
     bool is_zero() const { return kind() == level_kind::Zero; }
     bool is_succ() const { return kind() == level_kind::Succ; }
@@ -82,12 +81,6 @@ inline bool operator!=(level const & l1, level const & l2) { return !operator==(
 
 struct level_hash { unsigned operator()(level const & n) const { return n.hash(); } };
 struct level_eq { bool operator()(level const & n1, level const & n2) const { return n1 == n2; } };
-
-inline serializer & operator<<(serializer & s, level const & l) { l.serialize(s); return s; }
-inline serializer & operator<<(serializer & s, levels const & ls) { ls.serialize(s); return s; }
-inline level read_level(deserializer & d) { return level::deserialize(d); }
-inline levels read_levels(deserializer & d) { return read_list_ref<level>(d); }
-inline deserializer & operator>>(deserializer & d, level & l) { l = read_level(d); return d; }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }
@@ -202,15 +195,6 @@ std::ostream & operator<<(std::ostream & out, level const & l);
     in \c l, l[A] != zero. */
 bool is_not_zero(level const & l);
 
-/** \brief Pretty print the given level expression, unicode characters are used if \c unicode is \c true. */
-format pp(level l, bool unicode, unsigned indent);
-/** \brief Pretty print the given level expression using the given configuration options. */
-format pp(level const & l, options const & opts = options());
-
-/** \brief Pretty print lhs <= rhs, unicode characters are used if \c unicode is \c true. */
-format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent);
-/** \brief Pretty print lhs <= rhs using the given configuration options. */
-format pp(level const & lhs, level const & rhs, options const & opts = options());
 /** \brief Convert a list of universe level parameter names into a list of levels. */
 levels lparams_to_levels(names const & ps);
 

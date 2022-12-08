@@ -1,0 +1,7 @@
+metaEvalInstMessage.lean:5:0-5:12: error: expression
+  double
+has type
+  Nat → Nat
+but instance
+  Lean.MetaEval (Nat → Nat)
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class

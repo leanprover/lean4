@@ -12,8 +12,6 @@ macroStack.lean:11:9-11:15: error: invalid use of `(<- ...)`, must be nested ins
 macroStack.lean:17:0-17:6: error: failed to synthesize instance
   HAdd Nat String ?m
 with resulting expansion
-  HAdd.hAdd✝ (x + x✝) x✝¹
-while expanding
   binop% HAdd.hAdd✝ (x + x✝)x✝¹
 while expanding
   (x + x✝) + x✝¹

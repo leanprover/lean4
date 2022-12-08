@@ -1,10 +1,10 @@
 def f [Add α] (a : α) : α :=
   a + a
-
+set_option relaxedAutoImplicit false
 def BV (n : Nat) := { a : Array Bool // a.size = n }
 
 def allZero (bv : BV n) : Prop :=
-  ∀ i, i < n → bv.val[i] = false
+  ∀ i, i < n → bv.val[i]! = false
 
 def foo (b : BV n) (h : allZero b) : BV n :=
   b
@@ -26,11 +26,11 @@ def g1 {α : Type u} (a : α) : α :=
 
 #check g1
 
-set_option autoBoundImplicitLocal false in
+set_option autoImplicit false in
 def g2 {α : Type u /- Error -/} (a : α) : α :=
   a
 
-def g3 {α : Type β /- Error greek letters are not valid auto names for universes -/} (a : α) : α :=
+def g3 {α : Type β /- Error greek letters are not valid auto names for universe -/} (a : α) : α :=
   a
 
 def g4 {α : Type v} (a : α) : α :=

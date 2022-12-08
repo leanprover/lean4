@@ -1,4 +1,4 @@
-243.lean:2:3-2:14: error: application type mismatch
+243.lean:2:10-2:14: error: application type mismatch
   { fst := Bool, snd := true }
 argument
   true
@@ -6,10 +6,10 @@ has type
   _root_.Bool : Type
 but is expected to have type
   Bool : Type
-243.lean:13:3-13:8: error: application type mismatch
-  { fst := A, snd := A.a }
+243.lean:13:7-13:8: error: application type mismatch
+  { fst := A, snd := a }
 argument
-  A.a
+  a
 has type
   Foo.A : Type
 but is expected to have type

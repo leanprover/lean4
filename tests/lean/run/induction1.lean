@@ -55,7 +55,7 @@ theorem tst11 {p q r : Prop } (h₁ : Iff2 r p q) (h₂ : p) : q := by
   | intro h _ => exact h h₂
 
 theorem tst12 {p q : Prop } (h₁ : p ∨ q) (h₂ : p ↔ q) (h₃ : p) : q := by
-  failIfSuccess induction h₁ using Iff.casesOn
+  fail_if_success induction h₁ using Iff.casesOn
   induction h₂ using Iff.casesOn with
   | intro h _ =>
     exact h h₃
@@ -88,7 +88,7 @@ def getHeads {α β} {n} (xs : Vec α (n+1)) (ys : Vec β (n+1)) : α × β := b
   cases ys
   apply Prod.mk
   repeat
-    traceState
+    trace_state
     assumption
   done
 

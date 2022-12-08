@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Gabriel Ebner, Marc Huisinga
 -/
-import Std.Data.RBTree
+import Lean.Data.RBTree
 namespace Lean
 
 -- mantissa * 10^-exponent
@@ -20,6 +20,7 @@ protected def fromInt (n : Int) : JsonNumber := ⟨n, 0⟩
 
 instance : Coe Nat JsonNumber := ⟨JsonNumber.fromNat⟩
 instance : Coe Int JsonNumber := ⟨JsonNumber.fromInt⟩
+instance : OfNat JsonNumber n := ⟨JsonNumber.fromNat n⟩
 
 private partial def countDigits (n : Nat) : Nat :=
   let rec loop (n digits : Nat) : Nat :=
@@ -31,7 +32,7 @@ private partial def countDigits (n : Nat) : Nat :=
 
 -- convert mantissa * 10^-exponent to 0.mantissa * 10^exponent
 protected def normalize : JsonNumber → Int × Nat × Int
-  | ⟨m, e⟩ => do
+  | ⟨m, e⟩ => Id.run do
     if m = 0 then (0, 0, 0)
     else
       let sign : Int := if m > 0 then 1 else -1
@@ -78,10 +79,10 @@ instance : LT JsonNumber :=
 
 instance (a b : JsonNumber) : Decidable (a < b) :=
   inferInstanceAs (Decidable (lt a b = true))
-  
+
 instance : Ord JsonNumber where
-  compare x y := 
-    if x < y then Ordering.lt 
+  compare x y :=
+    if x < y then Ordering.lt
     else if x > y then Ordering.gt
     else Ordering.eq
 
@@ -99,12 +100,15 @@ protected def toString : JsonNumber → String
     let exp := if exp < 0 then exp else 0
     let e' := (10 : Int) ^ (e - exp.natAbs)
     let left := (m / e').repr
-    let right := e' + m % e'
-      |>.repr.toSubstring.drop 1
-      |>.dropRightWhile (fun c => c = '0')
-      |>.toString
-    let exp := if exp = 0 then "" else "e" ++ exp.repr
-    s!"{sign}{left}.{right}{exp}"
+    if m % e' = 0 && exp = 0 then
+      s!"{sign}{left}"
+    else
+      let right := e' + m % e'
+        |>.repr.toSubstring.drop 1
+        |>.dropRightWhile (fun c => c = '0')
+        |>.toString
+      let exp := if exp = 0 then "" else "e" ++ exp.repr
+      s!"{sign}{left}.{right}{exp}"
 
 -- shift a JsonNumber by a specified amount of places to the left
 protected def shiftl : JsonNumber → Nat → JsonNumber
@@ -122,11 +126,45 @@ instance : ToString JsonNumber := ⟨JsonNumber.toString⟩
 instance : Repr JsonNumber where
   reprPrec | ⟨m, e⟩, _ => Std.Format.bracket "⟨" (repr m ++ "," ++ repr e) "⟩"
 
+instance : OfScientific JsonNumber where
+  ofScientific mantissa exponentSign decimalExponent :=
+    if exponentSign then
+      {mantissa := mantissa, exponent := decimalExponent}
+    else
+      {mantissa := (mantissa * 10 ^ decimalExponent : Nat), exponent := 0}
+
+instance : Neg JsonNumber where
+  neg jn := ⟨- jn.mantissa, jn.exponent⟩
+
+instance : Inhabited JsonNumber := ⟨0⟩
+
+def toFloat : JsonNumber → Float
+  | ⟨m, e⟩ => (if m >= 0 then 1.0 else -1.0) * OfScientific.ofScientific m.natAbs true e
+
+/-- Creates a json number from a positive float, panicking if it isn't.
+[todo]EdAyers: Currently goes via a string representation, when more float primitives are available
+should switch to using those. -/
+private def fromPositiveFloat! (x : Float) : JsonNumber :=
+  match Lean.Syntax.decodeScientificLitVal? (toString x) with
+  | none => panic! s!"Failed to parse {toString x}"
+  | some (m, sign, e) => OfScientific.ofScientific m sign e
+
+/-- Attempts to convert a float to a JsonNumber, if the number isn't finite returns
+the appropriate string from "NaN", "Infinity", "-Infinity". -/
+def fromFloat? (x : Float): Sum String JsonNumber :=
+  if x.isNaN then Sum.inl "NaN"
+  else if x.isInf then
+    Sum.inl <| if x > 0 then "Infinity" else "-Infinity"
+  else if x == 0.0 then
+    Sum.inr 0 -- special case to avoid -0.0
+  else if x < 0.0 then
+    Sum.inr <| Neg.neg <| fromPositiveFloat! <| Neg.neg <| x
+  else
+    Sum.inr <| fromPositiveFloat! <| x
+
 end JsonNumber
 
 def strLt (a b : String) := Decidable.decide (a < b)
-
-open Std (RBNode RBNode.leaf)
 
 inductive Json where
   | null
@@ -142,9 +180,30 @@ inductive Json where
 
 namespace Json
 
+private partial def beq' : Json → Json → Bool
+  | null,   null   => true
+  | bool a, bool b => a == b
+  | num a,  num b  => a == b
+  | str a,  str b  => a == b
+  | arr a,  arr b  =>
+    let _ : BEq Json := ⟨beq'⟩
+    a == b
+  | obj a,  obj b =>
+    let _ : BEq Json := ⟨beq'⟩
+    let szA := a.fold (init := 0) (fun a _ _ => a + 1)
+    let szB := b.fold (init := 0) (fun a _ _ => a + 1)
+    szA == szB && a.all fun field fa =>
+      match b.find compare field with
+      | none    => false
+      | some fb => fa == fb
+  | _,      _      => false
+
+instance : BEq Json where
+  beq := beq'
+
 -- HACK(Marc): temporary ugliness until we can use RBMap for JSON objects
 def mkObj (o : List (String × Json)) : Json :=
-  obj $ do
+  obj <| Id.run do
     let mut kvPairs := RBNode.leaf
     for ⟨k, v⟩ in o do
       kvPairs := kvPairs.insert compare k v
@@ -154,53 +213,69 @@ instance : Coe Nat Json := ⟨fun n => Json.num n⟩
 instance : Coe Int Json := ⟨fun n => Json.num n⟩
 instance : Coe String Json := ⟨Json.str⟩
 instance : Coe Bool Json := ⟨Json.bool⟩
+instance : OfNat Json n := ⟨Json.num n⟩
 
 def isNull : Json -> Bool
   | null => true
   | _    => false
 
-def getObj? : Json → Option (RBNode String (fun _ => Json))
-  | obj kvs => kvs
-  | _       => none
+def getObj? : Json → Except String (RBNode String (fun _ => Json))
+  | obj kvs => return kvs
+  | _       => throw "object expected"
 
-def getArr? : Json → Option (Array Json)
-  | arr a => a
-  | _     => none
+def getArr? : Json → Except String (Array Json)
+  | arr a => return a
+  | _     => throw "array expected"
 
-def getStr? : Json → Option String
-  | str s => some s
-  | _     => none
+def getStr? : Json → Except String String
+  | str s => return s
+  | _     => throw "String expected"
 
-def getNat? : Json → Option Nat
-  | (n : Nat) => some n
-  | _         => none
+def getNat? : Json → Except String Nat
+  | (n : Nat) => return n
+  | _         => throw "Natural number expected"
 
-def getInt? : Json → Option Int
-  | (i : Int) => some i
-  | _         => none
+def getInt? : Json → Except String Int
+  | (i : Int) => return i
+  | _         => throw "Integer expected"
 
-def getBool? : Json → Option Bool
-  | (b : Bool) => some b
-  | _          => none
+def getBool? : Json → Except String Bool
+  | (b : Bool) => return b
+  | _          => throw "Bool expected"
 
-def getNum? : Json → Option JsonNumber
-  | num n => n
-  | _     => none
+def getNum? : Json → Except String JsonNumber
+  | num n => return n
+  | _     => throw "number expected"
 
-def getObjVal? : Json → String → Option Json
-  | obj kvs, k => kvs.find compare k
-  | _      , _ => none
+def getObjVal? : Json → String → Except String Json
+  | obj kvs, k =>
+    match kvs.find compare k with
+    | some v => return v
+    | none => throw s!"property not found: {k}"
+  | _      , _ => throw "object expected"
 
-def getArrVal? : Json → Nat → Option Json
-  | arr a, i => a.get? i
-  | _    , _ => none
+def getArrVal? : Json → Nat → Except String Json
+  | arr a, i =>
+    match a.get? i with
+    | some v => return v
+    | none => throw s!"index out of bounds: {i}"
+  | _    , _ => throw "array expected"
 
 def getObjValD (j : Json) (k : String) : Json :=
-  (j.getObjVal? k).getD null
+  (j.getObjVal? k).toOption.getD null
 
 def setObjVal! : Json → String → Json → Json
   | obj kvs, k, v => obj <| kvs.insert compare k v
-  | j      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+  | _      , _, _ => panic! "Json.setObjVal!: not an object: {j}"
+
+open Lean.RBNode in
+/-- Assuming both inputs `o₁, o₂` are json objects, will compute `{...o₁, ...o₂}`.
+If `o₁` is not a json object, `o₂` will be returned.
+-/
+def mergeObj : Json → Json → Json
+  | obj kvs₁, obj kvs₂ =>
+    obj <| fold (insert compare) kvs₁ kvs₂
+  | _, j₂ => j₂
 
 inductive Structured where
   | arr (elems : Array Json)

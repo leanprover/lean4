@@ -1,6 +1,9 @@
-add_library(util OBJECT object_ref.cpp name.cpp name_set.cpp
+configure_file(ffi.cpp "${CMAKE_BINARY_DIR}/util/ffi.cpp" @ONLY)
+
+add_library(util OBJECT name.cpp name_set.cpp
   escaped.cpp bit_tricks.cpp ascii.cpp
-  path.cpp lbool.cpp init_module.cpp list_fn.cpp file_lock.cpp
+  path.cpp lbool.cpp init_module.cpp list_fn.cpp
   timeit.cpp timer.cpp
   name_generator.cpp kvmap.cpp map_foreach.cpp
-  options.cpp format.cpp option_declarations.cpp)
+  options.cpp option_declarations.cpp shell.cpp
+  "${CMAKE_BINARY_DIR}/util/ffi.cpp")

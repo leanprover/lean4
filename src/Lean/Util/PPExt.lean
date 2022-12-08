@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Lean.Environment
-import Lean.Syntax
 import Lean.MetavarContext
 import Lean.Data.OpenDecl
+import Lean.Elab.InfoTree.Types
 
 namespace Lean
 register_builtin_option pp.raw : Bool := {
@@ -38,38 +38,44 @@ structure PPContext where
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []
 
-structure PPFns where
-  ppExpr : PPContext → Expr → IO Format
-  ppTerm : PPContext → Syntax → IO Format
-  ppGoal : PPContext → MVarId → IO Format
+abbrev PrettyPrinter.InfoPerPos := RBMap Nat Elab.Info compare
+structure FormatWithInfos where
+  fmt : Format
+  infos : PrettyPrinter.InfoPerPos
+instance : Coe Format FormatWithInfos where
+  coe fmt := { fmt, infos := ∅ }
 
-instance : Inhabited PPFns := ⟨⟨arbitrary, arbitrary, arbitrary⟩⟩
+structure PPFns where
+  ppExprWithInfos : PPContext → Expr → IO FormatWithInfos
+  ppTerm : PPContext → Term → IO Format
+  ppGoal : PPContext → MVarId → IO Format
+  deriving Inhabited
 
 builtin_initialize ppFnsRef : IO.Ref PPFns ←
   IO.mkRef {
-    ppExpr := fun ctx e      => return format (toString e),
-    ppTerm := fun ctx stx    => return stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
-    ppGoal := fun ctx mvarId => return "goal"
+    ppExprWithInfos := fun _ e => return format (toString e)
+    ppTerm := fun ctx stx => return stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts)
+    ppGoal := fun _ _ => return "goal"
   }
 
 builtin_initialize ppExt : EnvExtension PPFns ←
   registerEnvExtension ppFnsRef.get
 
-def ppExpr (ctx : PPContext) (e : Expr) : IO Format := do
-  let e := ctx.mctx.instantiateMVars e |>.1
+def ppExprWithInfos (ctx : PPContext) (e : Expr) : IO FormatWithInfos := do
+  let e := instantiateMVarsCore ctx.mctx e |>.1
   if pp.raw.get ctx.opts then
     return format (toString e)
   else
     try
-      ppExt.getState ctx.env |>.ppExpr ctx e
+      ppExt.getState ctx.env |>.ppExprWithInfos ctx e
     catch ex =>
       if pp.rawOnError.get ctx.opts then
         pure f!"[Error pretty printing expression: {ex}. Falling back to raw printer.]{Format.line}{e}"
       else
         pure f!"failed to pretty print expression (use 'set_option pp.rawOnError true' for raw representation)"
 
-def ppTerm (ctx : PPContext) (stx : Syntax) : IO Format :=
-  let fmtRaw := fun () => stx.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
+def ppTerm (ctx : PPContext) (stx : Term) : IO Format :=
+  let fmtRaw := fun () => stx.raw.formatStx (some <| pp.raw.maxDepth.get ctx.opts) (pp.raw.showInfo.get ctx.opts)
   if pp.raw.get ctx.opts then
     return fmtRaw ()
   else

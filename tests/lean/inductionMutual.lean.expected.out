@@ -1,0 +1,1 @@
+inductionMutual.lean:11:2-11:14: error: 'induction' tactic does not support mutually inductive types, the eliminator 'A.rec' has multiple motives

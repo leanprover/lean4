@@ -20,7 +20,7 @@ theorem tst4 : fact 10 = 3628800 :=
 rfl
 
 theorem tst5 : 100000000001 < 300000000000 :=
-ofDecideEqTrue rfl
+of_decide_eq_true rfl
 
 theorem tst6 : "hello".length = 5 :=
 rfl

@@ -1,0 +1,4 @@
+longestParsePrio.lean:4:0: error: unexpected end of input; expected ']'
+longestParsePrio.lean:2:19-3:26: error: unsolved goals
+this : True
+⊢ False

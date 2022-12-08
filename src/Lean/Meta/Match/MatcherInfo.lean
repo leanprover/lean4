@@ -8,6 +8,11 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 namespace Match
 
+structure DiscrInfo where
+  /-- `some h` if the discriminant is annotated with `h:` -/
+  hName? : Option Name := none
+  deriving Inhabited
+
 /--
 A "matcher" auxiliary declaration has the following structure:
 - `numParams` parameters
@@ -18,10 +23,14 @@ A "matcher" auxiliary declaration has the following structure:
    `pos` is the position of the universe level parameter that specifies the elimination universe.
    It is `none` if the matcher only eliminates into `Prop`. -/
 structure MatcherInfo where
-  numParams : Nat
-  numDiscrs : Nat
+  numParams    : Nat
+  numDiscrs    : Nat
   altNumParams : Array Nat
-  uElimPos? : Option Nat
+  uElimPos?    : Option Nat
+  /--
+    `discrInfos[i] = { hName? := some h }` if the i-th discriminant was annotated with `h :`.
+  -/
+  discrInfos   : Array DiscrInfo
 
 def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
   info.altNumParams.size
@@ -29,8 +38,31 @@ def MatcherInfo.numAlts (info : MatcherInfo) : Nat :=
 def MatcherInfo.arity (info : MatcherInfo) : Nat :=
   info.numParams + 1 + info.numDiscrs + info.numAlts
 
+def MatcherInfo.getFirstDiscrPos (info : MatcherInfo) : Nat :=
+  info.numParams + 1
+
+def MatcherInfo.getDiscrRange (info : MatcherInfo) : Std.Range :=
+  { start := info.getFirstDiscrPos, stop := info.getFirstDiscrPos + info.numDiscrs }
+
+def MatcherInfo.getFirstAltPos (info : MatcherInfo) : Nat :=
+  info.numParams + 1 + info.numDiscrs
+
+def MatcherInfo.getAltRange (info : MatcherInfo) : Std.Range :=
+  { start := info.getFirstAltPos, stop := info.getFirstAltPos + info.numAlts }
+
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams
+
+def getNumEqsFromDiscrInfos (infos : Array DiscrInfo) : Nat := Id.run do
+  let mut r := 0
+  for info in infos do
+    if info.hName?.isSome then
+      r := r + 1
+  return r
+
+def MatcherInfo.getNumDiscrEqs (info : MatcherInfo) : Nat :=
+  getNumEqsFromDiscrInfos info.discrInfos
+
 namespace Extension
 
 structure Entry where
@@ -47,7 +79,6 @@ def State.switch (s : State) : State :=  { s with map := s.map.switch }
 
 builtin_initialize extension : SimplePersistentEnvExtension Entry State ←
   registerSimplePersistentEnvExtension {
-    name          := `matcher
     addEntryFn    := State.addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries State.addEntry {} es).switch
   }
@@ -67,11 +98,34 @@ end Match
 
 export Match (MatcherInfo)
 
-def getMatcherInfo? (declName : Name) : MetaM (Option MatcherInfo) :=
-  return Match.Extension.getMatcherInfo? (← getEnv) declName
+def getMatcherInfoCore? (env : Environment) (declName : Name) : Option MatcherInfo :=
+  Match.Extension.getMatcherInfo? env declName
 
-def isMatcher (declName : Name) : MetaM Bool :=
-  return (← getMatcherInfo? declName).isSome
+def getMatcherInfo? [Monad m] [MonadEnv m] (declName : Name) : m (Option MatcherInfo) :=
+  return getMatcherInfoCore? (← getEnv) declName
+
+@[export lean_is_matcher]
+def isMatcherCore (env : Environment) (declName : Name) : Bool :=
+  getMatcherInfoCore? env declName |>.isSome
+
+def isMatcher [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
+  return isMatcherCore (← getEnv) declName
+
+def isMatcherAppCore? (env : Environment) (e : Expr) : Option MatcherInfo :=
+  let fn := e.getAppFn
+  if fn.isConst then
+    if let some matcherInfo := getMatcherInfoCore? env fn.constName! then
+      if e.getAppNumArgs ≥ matcherInfo.arity then some matcherInfo else none
+    else
+      none
+  else
+    none
+
+def isMatcherAppCore (env : Environment) (e : Expr) : Bool :=
+  isMatcherAppCore? env e |>.isSome
+
+def isMatcherApp [Monad m] [MonadEnv m] (e : Expr) : m Bool :=
+  return isMatcherAppCore (← getEnv) e
 
 structure MatcherApp where
   matcherName   : Name
@@ -84,25 +138,27 @@ structure MatcherApp where
   alts          : Array Expr
   remaining     : Array Expr
 
-def matchMatcherApp? (e : Expr) : MetaM (Option MatcherApp) :=
+def matchMatcherApp? [Monad m] [MonadEnv m] (e : Expr) : m (Option MatcherApp) := do
   match e.getAppFn with
-  | Expr.const declName declLevels _ => do
-    let some info ← getMatcherInfo? declName | pure none
-    let args := e.getAppArgs
-    if args.size < info.arity then
-      return none
-    else
-      return some {
-        matcherName   := declName
-        matcherLevels := declLevels.toArray
-        uElimPos?     := info.uElimPos?
-        params        := args.extract 0 info.numParams
-        motive        := args[info.getMotivePos]
-        discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
-        altNumParams  := info.altNumParams
-        alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
-        remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
-      }
+  | Expr.const declName declLevels =>
+    match (← getMatcherInfo? declName) with
+    | none => return none
+    | some info =>
+      let args := e.getAppArgs
+      if args.size < info.arity then
+        return none
+      else
+        return some {
+          matcherName   := declName
+          matcherLevels := declLevels.toArray
+          uElimPos?     := info.uElimPos?
+          params        := args.extract 0 info.numParams
+          motive        := args[info.getMotivePos]!
+          discrs        := args[info.numParams + 1 : info.numParams + 1 + info.numDiscrs]
+          altNumParams  := info.altNumParams
+          alts          := args[info.numParams + 1 + info.numDiscrs : info.numParams + 1 + info.numDiscrs + info.numAlts]
+          remaining     := args[info.numParams + 1 + info.numDiscrs + info.numAlts : args.size]
+        }
   | _ => return none
 
 def MatcherApp.toExpr (matcherApp : MatcherApp) : Expr :=

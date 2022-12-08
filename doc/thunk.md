@@ -54,7 +54,7 @@ def g (c : Bool) (x : Nat) : Nat :=
 ```
 In the following example, we use the macro `dbg_trace` to demonstrate
 that the Lean runtime caches the value computed by a `Thunk`.
-We remark that the macro `dbg_trace` should be use for debugging purposes
+We remark that the macro `dbg_trace` should be used for debugging purposes
 only.
 ```lean
 def add1 (x : Nat) : Nat :=

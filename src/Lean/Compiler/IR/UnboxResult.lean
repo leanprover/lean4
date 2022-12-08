@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Basic
 namespace Lean.IR.UnboxResult
 
 builtin_initialize unboxAttr : TagAttribute ←
-  registerTagAttribute `unbox "compiler tries to unbox result values if their types are tagged with `[unbox]`" $ fun declName => do
+  registerTagAttribute `unbox "compiler tries to unbox result values if their types are tagged with `[unbox]`" fun declName => do
     let cinfo ← getConstInfo declName;
     match cinfo with
     | ConstantInfo.inductInfo v =>

@@ -1,1 +1,0 @@
-mutualWithNamespaceMacro.lean:9:0-11:23: error: conflicting namespaces in mutual declaration, using namespace 'Boo', but used 'Foo' in previous declaration

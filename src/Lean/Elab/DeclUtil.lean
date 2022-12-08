@@ -3,7 +3,8 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Meta.ExprDefEq
+import Lean.Meta.Basic
+import Lean.Meta.Check
 
 namespace Lean.Meta
 
@@ -18,9 +19,9 @@ def forallTelescopeCompatibleAux {α} (k : Array Expr → Expr → Expr → Meta
         throwError "parameter name mismatch '{n₁}', expected '{n₂}'"
       unless (← isDefEq d₁ d₂) do
         throwError "parameter '{n₁}' {← mkHasTypeButIsExpectedMsg d₁ d₂}"
-      unless c₁.binderInfo == c₂.binderInfo do
+      unless c₁ == c₂ do
         throwError "binder annotation mismatch at parameter '{n₁}'"
-      withLocalDecl n₁ c₁.binderInfo d₁ fun x =>
+      withLocalDecl n₁ c₁ d₁ fun x =>
         let type₁ := b₁.instantiate1 x
         let type₂ := b₂.instantiate1 x
         forallTelescopeCompatibleAux k i type₁ type₂ (xs.push x)
@@ -28,7 +29,7 @@ def forallTelescopeCompatibleAux {α} (k : Array Expr → Expr → Expr → Meta
 
 /-- Given two forall-expressions `type₁` and `type₂`, ensure the first `numParams` parameters are compatible, and
     then execute `k` with the parameters and remaining types. -/
-@[inline] def forallTelescopeCompatible {α m} [Monad m] [MonadControlT MetaM m] (type₁ type₂ : Expr) (numParams : Nat) (k : Array Expr → Expr → Expr → m α) : m α :=
+def forallTelescopeCompatible {α m} [Monad m] [MonadControlT MetaM m] (type₁ type₂ : Expr) (numParams : Nat) (k : Array Expr → Expr → Expr → m α) : m α :=
   controlAt MetaM fun runInBase =>
     forallTelescopeCompatibleAux (fun xs type₁ type₂ => runInBase $ k xs type₁ type₂) numParams type₁ type₂ #[]
 
@@ -57,8 +58,8 @@ def mkFreshInstanceName (env : Environment) (nextIdx : Nat) : Name :=
 
 def isFreshInstanceName (name : Name) : Bool :=
   match name with
-  | Name.str _ s _ => "_instance".isPrefixOf s
-  | _              => false
+  | .str _ s => "_instance".isPrefixOf s
+  | _        => false
 
 /--
   Sort the given list of `usedParams` using the following order:
@@ -72,7 +73,7 @@ def isFreshInstanceName (name : Name) : Bool :=
 
   Remark: `explicitParams` are in reverse declaration order. That is, the head is the last declared parameter. -/
 def sortDeclLevelParams (scopeParams : List Name) (allUserParams : List Name) (usedParams : Array Name) : Except String (List Name) :=
-  match allUserParams.find? $ fun u => !usedParams.contains u && !scopeParams.elem u with
+  match allUserParams.find? fun u => !usedParams.contains u && !scopeParams.elem u with
   | some u => throw s!"unused universe parameter '{u}'"
   | none   =>
     let result := allUserParams.foldl (fun result levelName => if usedParams.elem levelName then levelName :: result else result) []

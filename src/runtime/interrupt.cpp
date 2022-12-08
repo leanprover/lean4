@@ -5,10 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <limits>
-#include <lean/thread.h>
-#include <lean/interrupt.h>
-#include <lean/exception.h>
-#include <lean/memory.h>
+#include "runtime/thread.h"
+#include "runtime/interrupt.h"
+#include "runtime/exception.h"
+#include "runtime/memory.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);

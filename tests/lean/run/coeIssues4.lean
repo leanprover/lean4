@@ -11,6 +11,8 @@ inductive Expr
 | app : Expr → Expr → Expr
 
 instance : Coe Nat Expr := ⟨Expr.val⟩
+instance : OfNat Expr n where
+  ofNat := Expr.val n
 
 def foo : Expr → Expr := fun e => e
 

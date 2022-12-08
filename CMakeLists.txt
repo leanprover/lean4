@@ -2,26 +2,53 @@ cmake_minimum_required(VERSION 3.11)
 # store all variables passed on the command line into CL_ARGS so we can pass them to the stage builds
 # https://stackoverflow.com/a/48555098/161659
 # MUST be done before call to 'project'
+# Use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 by default since it is assumed to be "good", but still pass through CMake platform arguments (compiler, toolchain file, ..).
+# Use `STAGE0_` prefix to pass variables to stage0 explicitly.
 get_cmake_property(vars CACHE_VARIABLES)
 foreach(var ${vars})
   get_property(currentHelpString CACHE "${var}" PROPERTY HELPSTRING)
-  if("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
+  if("${var}" MATCHES "STAGE0_(.*)")
+    list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
+  elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
+    if("${var}" STREQUAL "USE_GMP")
+      # must forward options that generate incompatible .olean format
+      list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
+    endif()
+  elseif(("${var}" MATCHES "CMAKE_.*") AND NOT ("${var}" MATCHES "CMAKE_BUILD_TYPE") AND NOT ("${var}" MATCHES "CMAKE_HOME_DIRECTORY"))
+    list(APPEND PLATFORM_ARGS "-D${var}=${${var}}")
   endif()
 endforeach()
 
 include(ExternalProject)
 project(LEAN CXX C)
 
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+  # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
+  set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)
+  set(EMSCRIPTEN_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1 -O3")
+  ExternalProject_Add(
+    gmp
+    URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2
+    URL_HASH SHA256=eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c
+    BUILD_IN_SOURCE 1
+    CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${EMSCRIPTEN_FLAGS}" --host=wasm32-unknown-emscripten --disable-assembly --prefix=${GMP_INSTALL_PREFIX}
+    BUILD_COMMAND emmake make -j4
+    INSTALL_COMMAND emmake make install
+  )
+  set(EXTRA_DEPENDS "gmp")
+  list(APPEND CL_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
+  list(APPEND PLATFORM_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
+endif()
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src
   BINARY_DIR stage0
-  # always use standard release build (discarding LEAN_CXX_EXTRA_FLAGS etc.) for stage0 since it is assumed to be "good"
   # do not rebuild stage0 when git hash changes; it's not from this commit anyway
-  CMAKE_ARGS -DSTAGE=0 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} -DCMAKE_BUILD_TYPE=Release -DUSE_GITHASH=OFF
+  CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install
+  DEPENDS ${EXTRA_DEPENDS}
 )
 ExternalProject_add(stage1
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
@@ -36,8 +63,7 @@ ExternalProject_add(stage2
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage2
-  # reuse libleancpp.a, which doesn't change
-  CMAKE_ARGS -DSTAGE=2 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 -DLEANCPP="${CMAKE_BINARY_DIR}/stage1/lib/lean/libleancpp.a" ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=2 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage1 ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage1
@@ -47,7 +73,7 @@ ExternalProject_add(stage3
   SOURCE_DIR "${LEAN_SOURCE_DIR}"
   SOURCE_SUBDIR src
   BINARY_DIR stage3
-  CMAKE_ARGS -DSTAGE=3 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage2 -DLEANCPP="${CMAKE_BINARY_DIR}/stage1/lib/lean/libleancpp.a" ${CL_ARGS}
+  CMAKE_ARGS -DSTAGE=3 -DPREV_STAGE=${CMAKE_BINARY_DIR}/stage2 ${CL_ARGS}
   BUILD_ALWAYS ON
   INSTALL_COMMAND ""
   DEPENDS stage2

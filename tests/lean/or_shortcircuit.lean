@@ -12,7 +12,7 @@
 
 @[noinline] def f (x : Nat) := x + 1
 
-def tst (x : Nat) : Nat := do
+def tst (x : Nat) : Nat := Id.run <| do
   let x := if !c1 x || (!c2 x && c3 x) then f x else f (x+2)
   match x with
   | 0   => f (x+1)

@@ -15,8 +15,6 @@ structure AbstractMVarsResult where
 
 namespace AbstractMVars
 
-open Std (HashMap)
-
 structure State where
   ngen         : NameGenerator
   lctx         : LocalContext
@@ -24,10 +22,15 @@ structure State where
   nextParamIdx : Nat := 0
   paramNames   : Array Name := #[]
   fvars        : Array Expr  := #[]
-  lmap         : HashMap Name Level := {}
-  emap         : HashMap Name Expr  := {}
+  lmap         : HashMap LMVarId Level := {}
+  emap         : HashMap MVarId Expr  := {}
 
 abbrev M := StateM State
+
+@[always_inline]
+instance : MonadMCtx M where
+  getMCtx := return (← get).mctx
+  modifyMCtx f := modify fun s => { s with mctx := f s.mctx }
 
 def mkFreshId : M Name := do
   let s ← get
@@ -35,17 +38,20 @@ def mkFreshId : M Name := do
   modify fun s => { s with ngen := s.ngen.next }
   pure fresh
 
+def mkFreshFVarId : M FVarId :=
+  return { name := (← mkFreshId) }
+
 private partial def abstractLevelMVars (u : Level) : M Level := do
   if !u.hasMVar then
     return u
   else
     match u with
-    | Level.zero _        => return u
-    | Level.param _ _     => return u
-    | Level.succ v _      => return u.updateSucc! (← abstractLevelMVars v)
-    | Level.max v w _     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.imax v w _    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
-    | Level.mvar mvarId _ =>
+    | Level.zero        => return u
+    | Level.param _     => return u
+    | Level.succ v      => return u.updateSucc! (← abstractLevelMVars v)
+    | Level.max v w     => return u.updateMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.imax v w    => return u.updateIMax! (← abstractLevelMVars v) (← abstractLevelMVars w)
+    | Level.mvar mvarId =>
       let s ← get
       let depth := s.mctx.getLevelDepth mvarId;
       if depth != s.mctx.depth then
@@ -64,36 +70,34 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     return e
   else
     match e with
-    | e@(Expr.lit _ _)         => return e
-    | e@(Expr.bvar _ _)        => return e
-    | e@(Expr.fvar _ _)        => return e
-    | e@(Expr.sort u _)        => return e.updateSort! (← abstractLevelMVars u)
-    | e@(Expr.const _ us _)    => return e.updateConst! (← us.mapM abstractLevelMVars)
-    | e@(Expr.proj _ _ s _)    => return e.updateProj! (← abstractExprMVars s)
-    | e@(Expr.app f a _)       => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
-    | e@(Expr.mdata _ b _)     => return e.updateMData! (← abstractExprMVars b)
+    | e@(Expr.lit _)           => return e
+    | e@(Expr.bvar _)          => return e
+    | e@(Expr.fvar _)          => return e
+    | e@(Expr.sort u)          => return e.updateSort! (← abstractLevelMVars u)
+    | e@(Expr.const _ us)      => return e.updateConst! (← us.mapM abstractLevelMVars)
+    | e@(Expr.proj _ _ s)      => return e.updateProj! (← abstractExprMVars s)
+    | e@(Expr.app f a)         => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
+    | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
     | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
     | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
-    | e@(Expr.mvar mvarId _)   =>
-      let s ← get
-      let decl := s.mctx.getDecl mvarId
-      if decl.depth != s.mctx.depth then
+    | e@(Expr.mvar mvarId)     =>
+      let decl := (← getMCtx).getDecl mvarId
+      if decl.depth != (← getMCtx).depth then
         return e
       else
-        let (eNew, mctxNew) ← s.mctx.instantiateMVars e
+        let eNew ← instantiateMVars e
         if e != eNew then
-          modify fun s => { s with mctx := mctxNew }
           abstractExprMVars eNew
         else
-          match s.emap.find? mvarId with
+          match (← get).emap.find? mvarId with
           | some e =>
             return e
           | none   =>
             let type   ← abstractExprMVars decl.type
-            let fvarId ← mkFreshId
+            let fvarId ← mkFreshFVarId
             let fvar := mkFVar fvarId;
-            let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter s.fvars.size else decl.userName
+            let userName := if decl.userName.isAnonymous then (`x).appendIndexAfter (← get).fvars.size else decl.userName
             modify fun s => {
               s with
               emap  := s.emap.insert mvarId fvar,

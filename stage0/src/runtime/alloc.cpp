@@ -5,10 +5,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include <lean/thread.h>
-#include <lean/debug.h>
-#include <lean/alloc.h>
 #include <lean/lean.h>
+#include "runtime/thread.h"
+#include "runtime/debug.h"
+#include "runtime/alloc.h"
+
+#ifdef LEAN_RUNTIME_STATS
+#define LEAN_RUNTIME_STAT_CODE(c) c
+#else
+#define LEAN_RUNTIME_STAT_CODE(c)
+#endif
+
+#if defined(__GNUC__) || defined(__clang__)
+#define LEAN_NOINLINE __attribute__((noinline))
+#else
+#define LEAN_NOINLINE
+#endif
 
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
@@ -95,8 +107,6 @@ struct segment {
     bool is_full() const {
         return m_next_page_mem + LEAN_PAGE_SIZE > m_data + LEAN_SEGMENT_SIZE;
     }
-
-    void move_to_heap(heap *);
 };
 
 struct heap {
@@ -205,22 +215,6 @@ void page::push_free_obj(void * o) {
     }
 }
 
-void segment::move_to_heap(heap * h) {
-    /* "Move" pages in `s` to this heap */
-    page * it  = reinterpret_cast<page*>(get_first_page_mem());
-    page * end = reinterpret_cast<page*>(m_next_page_mem);
-    for (; it != end; ++it) {
-        page & p    = *it;
-        p.set_heap(h);
-        unsigned slot_idx = p.get_slot_idx();
-        if (p.in_page_free_list()) {
-            page_list_insert(h->m_page_free_list[slot_idx], &p);
-        } else {
-            page_list_insert(h->m_curr_page[slot_idx], &p);
-        }
-    }
-}
-
 void heap::import_objs() {
     void * to_import = nullptr;
     {   // TODO(Leo): avoid mutex using compare and swap
@@ -248,32 +242,18 @@ void heap::export_objs() {
     while (o != nullptr) {
         void * n   = get_next_obj(o);
         heap * h   = get_page_of(o)->get_heap();
-        /*
-          We may have `h == this`.
-
-          Recall that each heap `h` has a list of dead objects `m_to_export_list` from other heaps.
-          It contains objects deleted by the thread that "owns" `h`.
-          Now, suppose we have two heaps `h1` and `h2`, and thread `t1` that owns `h1` deletes an object `o` from `h2`.
-          The object `o` is now in the list `h1.m_to_export_list`.
-          Then, thread `t2` that owns h2 finishes, and `h2` goes to the orphan list.
-          Then, `h1` allocates a new segment, and a segment from `h2` containing `o` is reused.
-          Then, `h1` tries to export dead objects to other threads using this function and finds `o` s.t. which is now
-          `get_page_of(o)->get_heap() == h1`.
-        */
-        if (h != this) {
-            bool found = false;
-            for (export_entry & e : to_export) {
-                if (e.m_heap == h) {
-                    set_next_obj(o, e.m_head);
-                    e.m_head = o;
-                    found = true;
-                    break;
-                }
+        bool found = false;
+        for (export_entry & e : to_export) {
+            if (e.m_heap == h) {
+                set_next_obj(o, e.m_head);
+                e.m_head = o;
+                found = true;
+                break;
             }
-            if (!found) {
-                set_next_obj(o, nullptr);
-                to_export.push_back(export_entry{h, o, o});
-            }
+        }
+        if (!found) {
+            set_next_obj(o, nullptr);
+            to_export.push_back(export_entry{h, o, o});
         }
         o = n;
     }
@@ -287,35 +267,10 @@ void heap::export_objs() {
 }
 
 void heap::alloc_segment() {
-    while (true) {
-        if (heap * h = g_heap_manager->pop_orphan()) {
-            lean_assert(h->m_curr_segment);
-            /* import pending objects, before moving `h`'s segment to *this* heap. */
-            h->import_objs();
-            segment * s = h->m_curr_segment;
-            h->m_curr_segment = s->m_next;
-            s->move_to_heap(this);
-            if (h->m_curr_segment != nullptr) {
-                g_heap_manager->push_orphan(h);
-            } else {
-                delete h;
-            }
-            s->m_next      = m_curr_segment;
-            m_curr_segment = s;
-            if (!s->is_full()) {
-                /* Found segment that is not full */
-                break;
-            }
-            /* If `s` is full, we must "keep looking" because `alloc_page` assumes that `m_curr_segment`
-               contains at least one free page. */
-        } else {
-            LEAN_RUNTIME_STAT_CODE(g_num_segments++);
-            segment * s = new segment();
-            s->m_next   = m_curr_segment;
-            m_curr_segment = s;
-            break;
-        }
-    }
+    LEAN_RUNTIME_STAT_CODE(g_num_segments++);
+    segment * s = new segment();
+    s->m_next   = m_curr_segment;
+    m_curr_segment = s;
 }
 
 static page * alloc_page(heap * h, unsigned obj_size) {
@@ -370,21 +325,27 @@ static void finalize_heap(void * _h) {
     g_heap_manager->push_orphan(h);
 }
 
+LEAN_NOINLINE
 static void init_heap(bool main) {
     lean_assert(g_heap == nullptr);
-    g_heap = new heap();
-    g_curr_pages = g_heap->m_curr_page;
-    for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
-        g_heap->m_curr_page[i] = nullptr;
-        g_heap->m_page_free_list[i] = nullptr;
-    }
-    g_heap->alloc_segment();
-    unsigned obj_size = LEAN_OBJECT_SIZE_DELTA;
-    for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
-        if (g_heap->m_curr_page[i] == nullptr) {
-            alloc_page(g_heap, obj_size);
+    if (heap * h = g_heap_manager->pop_orphan()) {
+        /* reuse orphan heap */
+        g_heap = h;
+    } else {
+        g_heap = new heap();
+        g_curr_pages = g_heap->m_curr_page;
+        for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
+            g_heap->m_curr_page[i] = nullptr;
+            g_heap->m_page_free_list[i] = nullptr;
         }
-        obj_size += LEAN_OBJECT_SIZE_DELTA;
+        g_heap->alloc_segment();
+        unsigned obj_size = LEAN_OBJECT_SIZE_DELTA;
+        for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
+            if (g_heap->m_curr_page[i] == nullptr) {
+                alloc_page(g_heap, obj_size);
+            }
+            obj_size += LEAN_OBJECT_SIZE_DELTA;
+        }
     }
     if (!main)
         register_thread_finalizer(finalize_heap, g_heap);
@@ -396,24 +357,33 @@ void init_thread_heap() {
     init_heap(false);
 }
 
-extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
+LEAN_NOINLINE
+void * lean_alloc_small_cold(unsigned sz, unsigned slot_idx, page * p) {
+    if (g_heap->m_page_free_list[slot_idx] == nullptr) {
+        g_heap->import_objs();
+        lean_assert(g_heap->m_curr_page[slot_idx] == p);
+        /* g_heap->import_objs() may add objects to p->m_header.m_free_list */
+        if (p->m_header.m_free_list == nullptr)
+            p = alloc_page(g_heap, sz);
+    } else {
+        p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
+        p->m_header.m_in_page_free_list = false;
+        page_list_insert(g_heap->m_curr_page[slot_idx], p);
+    }
+    void * r = p->m_header.m_free_list;
+    lean_assert(r);
+    p->m_header.m_free_list = get_next_obj(r);
+    p->m_header.m_num_free--;
+    lean_assert(get_page_of(r) == p);
+    return r;
+}
+
+extern "C" LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     page * p = g_heap->m_curr_page[slot_idx];
     g_heap->m_heartbeat++;
     void * r = p->m_header.m_free_list;
     if (LEAN_UNLIKELY(r == nullptr)) {
-        if (g_heap->m_page_free_list[slot_idx] == nullptr) {
-            g_heap->import_objs();
-            lean_assert(g_heap->m_curr_page[slot_idx] == p);
-            /* g_heap->import_objs() may add objects to p->m_header.m_free_list */
-            if (p->m_header.m_free_list == nullptr)
-                p = alloc_page(g_heap, sz);
-        } else {
-            p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
-            p->m_header.m_in_page_free_list = false;
-            page_list_insert(g_heap->m_curr_page[slot_idx], p);
-        }
-        r = p->m_header.m_free_list;
-        lean_assert(r);
+        return lean_alloc_small_cold(sz, slot_idx, p);
     }
     p->m_header.m_free_list = get_next_obj(r);
     p->m_header.m_num_free--;
@@ -422,7 +392,7 @@ extern "C" void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
 }
 
 /* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
-extern "C" void lean_inc_heartbeat() {
+extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
     if (g_heap)
         g_heap->m_heartbeat++;
 }
@@ -448,6 +418,17 @@ void * alloc(size_t sz) {
     return lean_alloc_small(sz, slot_idx);
 }
 
+LEAN_NOINLINE
+static void dealloc_small_core_cold(void * o) {
+    set_next_obj(o, g_heap->m_to_export_list);
+    g_heap->m_to_export_list = o;
+    g_heap->m_to_export_list_size++;
+    if (g_heap->m_to_export_list_size > LEAN_MAX_TO_EXPORT_OBJS) {
+        LEAN_RUNTIME_STAT_CODE(g_num_exports++);
+        g_heap->export_objs();
+    }
+}
+
 static inline void dealloc_small_core(void * o) {
     LEAN_RUNTIME_STAT_CODE(g_num_small_dealloc++);
     if (LEAN_UNLIKELY(g_heap == nullptr)) {
@@ -458,13 +439,7 @@ static inline void dealloc_small_core(void * o) {
     if (LEAN_LIKELY(p->get_heap() == g_heap)) {
         p->push_free_obj(o);
     } else {
-        set_next_obj(o, g_heap->m_to_export_list);
-        g_heap->m_to_export_list = o;
-        g_heap->m_to_export_list_size++;
-        if (g_heap->m_to_export_list_size > LEAN_MAX_TO_EXPORT_OBJS) {
-            LEAN_RUNTIME_STAT_CODE(g_num_exports++);
-            g_heap->export_objs();
-        }
+        dealloc_small_core_cold(o);
     }
 }
 
@@ -477,11 +452,11 @@ void dealloc(void * o, size_t sz) {
     dealloc_small_core(o);
 }
 
-extern "C" void lean_free_small(void * o) {
+extern "C" LEAN_EXPORT void lean_free_small(void * o) {
     dealloc_small_core(o);
 }
 
-extern "C" unsigned lean_small_mem_size(void * o) {
+extern "C" LEAN_EXPORT unsigned lean_small_mem_size(void * o) {
     page * p = get_page_of(o);
     return p->m_header.m_obj_size;
 }

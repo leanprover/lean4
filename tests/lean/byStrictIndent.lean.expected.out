@@ -1,0 +1,24 @@
+theorem byTopLevelNoIndent : ∀ (n : Nat), n > 1 → n > 1 :=
+fun n h => h
+byStrictIndent.lean:12:2: error: expected '{' or strict indentation
+byStrictIndent.lean:11:25-11:27: error: unsolved goals
+n : Nat
+h : n > 0
+⊢ n > 1
+byStrictIndent.lean:10:62-11:27: error: unsolved goals
+n : Nat
+h : n > 0
+helper : n > 1
+⊢ n > 1
+byStrictIndent.lean:16:54-18:9: error: unsolved goals
+n : Nat
+h : n > 0
+helper : n > 1
+⊢ n > 1
+byStrictIndent.lean:19:3: error: expected command
+byStrictIndent.lean:22:54-24:9: error: unsolved goals
+n : Nat
+h : n > 0
+helper : n > 1
+⊢ n > 1
+byStrictIndent.lean:25:6: error: expected command

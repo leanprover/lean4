@@ -60,7 +60,7 @@ func qsortAux(_ a: inout Array<Elem>, _ low: Int, _ high: Int) {
 }
 
 func qsort(_ a: inout Array<Elem>) {
-  qsortAux(&a, 0, a.count - 1)
+    qsortAux(&a, 0, a.count - 1)
 }
 
 

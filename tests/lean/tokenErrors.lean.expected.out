@@ -2,7 +2,4 @@ tokenErrors.lean:1:10: error: missing end of character literal
 tokenErrors.lean:2:9: error: invalid escape sequence
 tokenErrors.lean:3:7: error: unterminated string literal
 tokenErrors.lean:4:11: error: unterminated identifier escape
-tokenErrors.lean:6:0: error: unterminated comment
-tokenErrors.lean:7:0: error: unterminated comment
-tokenErrors.lean:7:1: error: unterminated comment
-tokenErrors.lean:7:0-7:1: error: unexpected command
+tokenErrors.lean:8:0: error: unterminated comment

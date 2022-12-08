@@ -25,7 +25,7 @@ syntax (name := finSet) "{" term,* "}" : term
 
 macro_rules (kind := finSet)
   | `({ $as,* }) => do
-     as.getElems.foldlM (init := ← `(Set.empty)) fun s a => `(Set.insert $s $a)
+    as.getElems.foldlM (β := Lean.TSyntax _) (init := ← `(Set.empty)) fun s a => `(Set.insert $s $a)
 
 #check { 1, 2, 3 }
 

@@ -1,0 +1,4 @@
+Nat.zero : Nat
+`Nat.succ : Lean.Name
+586.lean:13:0-13:3: error: unknown identifier 'zero✝'
+586.lean:13:0-13:3: error: unknown constant 'succ✝'

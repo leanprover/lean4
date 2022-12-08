@@ -9,63 +9,97 @@ import Lean.Meta.Tactic.Simp.Main
 
 namespace Lean.Meta
 
+open Simp (UsedSimps)
+
 namespace SimpAll
 
 structure Entry where
   fvarId   : FVarId -- original fvarId
   userName : Name
-  id       : Name   -- id of the lemma at `SimpLemmas`
+  id       : Origin -- id of the theorem at `SimpTheorems`
   type     : Expr
   proof    : Expr
   deriving Inhabited
 
 structure State where
-  modified : Bool := false
-  mvarId   : MVarId
-  entries  : Array Entry := #[]
-  ctx      : Simp.Context
+  modified  : Bool := false
+  mvarId    : MVarId
+  entries   : Array Entry := #[]
+  ctx       : Simp.Context
+  usedSimps : UsedSimps := {}
 
 abbrev M := StateRefT State MetaM
 
 private def initEntries : M Unit := do
-  let hs ← getNondepPropHyps (← get).mvarId
-  let erased := (← get).ctx.simpLemmas.erased
+  let hs ←  (← get).mvarId.withContext do getPropHyps
+  let hsNonDeps ← (← get).mvarId.getNondepPropHyps
+  let mut simpThms := (← get).ctx.simpTheorems
   for h in hs do
-    let localDecl ← getLocalDecl h
-    unless erased.contains localDecl.userName do
-      let fvarId := localDecl.fvarId
+    unless simpThms.isErased (.fvar h) do
+      let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
-      let id     ← mkFreshUserName `h
-      let simpLemmas ← (← get).ctx.simpLemmas.add #[] proof (name? := id)
-      let entry : Entry := { fvarId := fvarId, userName := localDecl.userName, id := id, type := (← instantiateMVars localDecl.type), proof := proof }
-      modify fun s => { s with entries := s.entries.push entry, ctx.simpLemmas := simpLemmas }
+      simpThms ← simpThms.addTheorem (.fvar h) proof
+      modify fun s => { s with ctx.simpTheorems := simpThms }
+      if hsNonDeps.contains h then
+        -- We only simplify nondependent hypotheses
+        let entry : Entry := { fvarId := h, userName := localDecl.userName, id := .fvar h, type := (← instantiateMVars localDecl.type), proof := proof }
+        modify fun s => { s with entries := s.entries.push entry }
 
-private abbrev getSimpLemmas : M SimpLemmas :=
-  return (← get).ctx.simpLemmas
+private abbrev getSimpTheorems : M SimpTheoremsArray :=
+  return (← get).ctx.simpTheorems
 
 private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
   -- simplify entries
   for i in [:(← get).entries.size] do
-    let entry := (← get).entries[i]
+    let entry := (← get).entries[i]!
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
-    let simpLemmasWithoutEntry ← (← getSimpLemmas).eraseCore entry.id
-    let ctx := { ctx with simpLemmas := simpLemmasWithoutEntry }
-    match (← simpStep (← get).mvarId entry.proof entry.type ctx) with
+    let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
+    let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
+    let (r, usedSimps) ← simpStep (← get).mvarId entry.proof entry.type ctx (usedSimps := (← get).usedSimps)
+    modify fun s => { s with usedSimps }
+    match r with
     | none => return true -- closed the goal
     | some (proofNew, typeNew) =>
       unless typeNew == entry.type do
-        let id ← mkFreshUserName `h
-        let simpLemmasNew ← (← getSimpLemmas).add #[] proofNew (name? := id)
+        /- We must erase the `id` for the simplified theorem. Otherwise,
+           the previous versions can be used to self-simplify the new version. For example, suppose we have
+           ```
+            x : Nat
+            h : x ≠ 0
+            ⊢ Unit
+           ```
+           In the first round, `h : x ≠ 0` is simplified to `h : ¬ x = 0`.
+
+           It is also important for avoiding identical hypotheses to simplify each other to `True`.
+           Example
+           ```
+           ...
+           h₁ : p a
+           h₂ : p a
+           ⊢ q a
+           ```
+           `h₁` is first simplified to `True`. If we don't remove `h₁` from the set of simp theorems, it will
+           be used to simplify `h₂` to `True` and information is lost.
+
+           We must use `mkExpectedTypeHint` because `inferType proofNew` may not be equal to `typeNew` when
+           we have theorems marked with `rfl`.
+        -/
+        trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
+        let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
+        let idNew ← mkFreshId
+        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)
         modify fun s => { s with
-          modified       := true
-          ctx.simpLemmas := simpLemmasNew
-          entries[i]     := { entry with type := typeNew, proof := proofNew, id := id }
+          modified         := true
+          ctx.simpTheorems := simpThmsNew
+          entries[i]       := { entry with type := typeNew, proof := proofNew, id := .other idNew }
         }
   -- simplify target
   let mvarId := (← get).mvarId
-  match (← simpTarget mvarId (← get).ctx) with
+  let (r, usedSimps) ← simpTarget mvarId (← get).ctx (usedSimps := (← get).usedSimps)
+  modify fun s => { s with usedSimps }
+  match r with
   | none => return true
   | some mvarIdNew =>
     unless mvarId == mvarIdNew do
@@ -85,13 +119,16 @@ def main : M (Option MVarId) := do
   else
     let mvarId := (← get).mvarId
     let entries := (← get).entries
-    let (_, mvarId) ← assertHypotheses mvarId (entries.map fun e => { userName := e.userName, type := e.type, value := e.proof })
-    tryClearMany mvarId (entries.map fun e => e.fvarId)
+    let (_, mvarId) ← mvarId.assertHypotheses <| entries.filterMap fun e =>
+      -- Do not assert `True` hypotheses
+      if e.type.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
+    mvarId.tryClearMany (entries.map fun e => e.fvarId)
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) : MetaM (Option MVarId) := do
-  withMVarContext mvarId do
-    SimpAll.main.run' { mvarId := mvarId, ctx := ctx }
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+  mvarId.withContext do
+    let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps }
+    return (r, s.usedSimps)
 
 end Lean.Meta

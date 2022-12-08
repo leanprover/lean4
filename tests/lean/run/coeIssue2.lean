@@ -1,5 +1,3 @@
-
-
 structure A :=
 (a : Nat)
 
@@ -24,8 +22,8 @@ let a2 := f y z;
 forceB x a1 -- works
 
 def f2 (x : _) (y : _) (z : _) :=
-let a1 := f x (coe y);
-let a2 := f (coe y) z;
+let a1 := f x ↑y;
+let a2 := f ↑y z;
 forceB x (forceC z (forceA y (a1, a2))) -- works because we manually added the coercions above
 
 #exit

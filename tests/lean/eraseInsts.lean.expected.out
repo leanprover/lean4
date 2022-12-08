@@ -1,0 +1,2 @@
+eraseInsts.lean:12:22-12:27: error: failed to synthesize instance
+  HAdd Foo Foo ?m

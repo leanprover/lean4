@@ -17,7 +17,8 @@ Port of the corresponding Rust code (see links below).
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <lean/stack_overflow.h>
+#include <lean/lean.h>
+#include "runtime/stack_overflow.h"
 
 namespace lean {
 // stack guard of the main thread
@@ -40,6 +41,10 @@ stack_guard::stack_guard() {
     ULONG sz = 0x5000;
     SetThreadStackGuarantee(&sz);
 }
+
+stack_guard::~stack_guard() {}
+#elif defined(LEAN_EMSCRIPTEN)
+stack_guard::stack_guard() {}
 
 stack_guard::~stack_guard() {}
 #else
@@ -66,9 +71,10 @@ bool is_within_stack_guard(void * addr) {
     return stackaddr - guardsize <= addr && addr < stackaddr;
 }
 
-extern "C" void segv_handler(int signum, siginfo_t * info, void *) {
+extern "C" LEAN_EXPORT void segv_handler(int signum, siginfo_t * info, void *) {
     if (is_within_stack_guard(info->si_addr)) {
-        fprintf(stderr, "\nStack overflow detected. Aborting.\n");
+        char const msg[] = "\nStack overflow detected. Aborting.\n";
+        write(STDERR_FILENO, msg, sizeof(msg) - 1);
         abort();
     } else {
         // reset signal handler and return; see comments in Rust code
@@ -99,7 +105,7 @@ void initialize_stack_overflow() {
     g_stack_guard = new stack_guard();
 #ifdef LEAN_WINDOWS
     AddVectoredExceptionHandler(0, stack_overflow_handler);
-#else
+#elif !defined(LEAN_EMSCRIPTEN)
     struct sigaction action;
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;

@@ -1,0 +1,7 @@
+evalInstMessage.lean:3:0-3:12: error: expression
+  double
+has type
+  Nat → Nat
+but instance
+  Lean.Eval (Nat → Nat)
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.Eval` class

@@ -1,25 +1,51 @@
 # Quickstart
 
 These instructions will walk you through setting up Lean using the "basic" setup and VS Code as the editor.
-See [Setup](./setup.md) for other ways and more details on setting up Lean.
+See [Setup](./setup.md) for other ways, supported platforms, and more details on setting up Lean.
 
-1. Install the latest Lean 4 nightly through [`elan`](https://github.com/leanprover/elan): in any bash-compatible shell, run
-    ```sh
-    $ curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- --default-toolchain leanprover/lean4:nightly
-    ```
-    See the `elan` link above for other installation options and details.
-    Note that using Lean with multi-file projects on Windows currently comes with some [additional limitations](./setup.md#leanpkg).
+See quick [walkthrough demo video](https://www.youtube.com/watch?v=yZo6k48L0VY).
+
 1. Install [VS Code](https://code.visualstudio.com/).
-1. Open VS Code and install the `lean4` extension.  
-![installing the vscode-lean4 extension](images/code-ext.png)
-1. Create a new file with the extension `.lean` and add the following code:
-    ```lean
-    import Leanpkg
-    
-    #eval Leanpkg.leanVersionString
+
+1. Launch VS Code and install the `lean4` extension.
+
+    ![installing the vscode-lean4 extension](images/code-ext.png)
+
+1. Create a new file using "File > New Text File" (`Ctrl+N`). Click the `Select a language` prompt, type in `lean4`, and hit ENTER.  You should see the following popup:
+    ![elan](images/install_elan.png)
+
+    Click the "Install Lean using Elan" button. You should see some progress output like this:
+
     ```
-    You should get a syntax-highlighted file with a "Lean Infoview" on the right that tells you the installed Lean version when placing your cursor on the last line.  
+    info: syncing channel updates for 'nightly'
+    info: latest update on nightly, lean version nightly-2021-12-05
+    info: downloading component 'lean'
+    ```
+
+1. While it is installing, you can paste the following Lean program into the new file:
+
+    ```lean
+    #eval Lean.versionString
+    ```
+
+    When the installation has finished, the Lean Language Server should start automatically and you should get syntax-highlighting and a "Lean Infoview" popping up on the right.  You will see the output of the `#eval` statement when
+    you place your cursor at the end of the statement.
+
     ![successful setup](images/code-success.png)
-1. You are set up! Try opening a Lean package with a `leanpkg.toml`. You can create your own packages using `leanpkg init` on the command line.
-   Packages **have** to be opened using "File > Open Folder..." for imports to work.
-   Saved changes are visibly in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`) in them.
+
+You are set up!
+
+## Create a Lean Project
+
+You can now create a Lean project in a new folder. Run `lake init foo` from "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
+On Linux/macOS, you first have to follow the instructions printed by the Lean installation or log out and in again for the Lean executables to be available in you terminal.
+
+Note: Packages **have** to be opened using "File > Open Folder..." for imports to work.
+Saved changes are visible in other files after running "Lean 4: Refresh File Dependencies" (`Ctrl+Shift+X`).
+
+## Troubleshooting
+
+**The InfoView says "Waiting for Lean server to start..." forever.**
+
+Check that the VS Code Terminal is not showing some installation errors from `elan`.
+If that doesn't work, try also running the VS Code command `Developer: Reload Window`.

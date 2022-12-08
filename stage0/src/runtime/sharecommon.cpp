@@ -5,12 +5,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <vector>
-#include <lean/object.h>
-#include <lean/hash.h>
+#include <cstring>
+#include "runtime/object.h"
+#include "runtime/hash.h"
 
 namespace lean {
 
-extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
+extern "C" LEAN_EXPORT uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     lean_assert(!lean_is_scalar(o1));
     lean_assert(!lean_is_scalar(o2));
     size_t sz1 = lean_object_byte_size(o1);
@@ -25,43 +26,15 @@ extern "C" uint8 lean_sharecommon_eq(b_obj_arg o1, b_obj_arg o2) {
     return memcmp(reinterpret_cast<char*>(o1) + header_sz, reinterpret_cast<char*>(o2) + header_sz, sz1 - header_sz) == 0;
 }
 
-extern "C" usize lean_sharecommon_hash(b_obj_arg o) {
+extern "C" LEAN_EXPORT uint64_t lean_sharecommon_hash(b_obj_arg o) {
     lean_assert(!lean_is_scalar(o));
     size_t sz = lean_object_byte_size(o);
     size_t header_sz = sizeof(lean_object);
     // hash relevant parts of the header
     unsigned init = hash(lean_ptr_tag(o), lean_ptr_other(o));
     // hash body
-    return hash_str(sz - header_sz, reinterpret_cast<char const *>(o) + header_sz, init);
+    return hash_str(sz - header_sz, reinterpret_cast<unsigned char const *>(o) + header_sz, init);
 }
-
-// unsafe def mkObjectMap : Unit → ObjectMap
-extern "C" obj_res lean_mk_object_map(obj_arg);
-// unsafe def ObjectMap.find? (m : ObjectMap) (k : Object) : Option Object
-extern "C" obj_res lean_object_map_find(obj_arg m, obj_arg k);
-// unsafe def ObjectMap.insert (m : ObjectMap) (k v : Object) : ObjectMap
-extern "C" obj_res lean_object_map_insert(obj_arg m, obj_arg k, obj_arg v);
-
-// unsafe def mkObjectSet : Unit → ObjectSet
-extern "C" obj_res lean_mk_object_set(obj_arg);
-// unsafe def ObjectSet.find? (s : ObjectSet) (o : Object) : Option Object
-extern "C" obj_res lean_object_set_find(obj_arg s, obj_arg o);
-// unsafe def ObjectSet.insert (s : ObjectSet) (o : Object) : ObjectSet
-extern "C" obj_res lean_object_set_insert(obj_arg s, obj_arg o);
-
-// unsafe def mkObjectPersistentMap : Unit → ObjectPersistentMap
-extern "C" obj_res lean_mk_object_pmap(obj_arg);
-// unsafe def ObjectPersistentMap.find? (m : ObjectPersistentMap) (k : Object) : Option Object
-extern "C" obj_res lean_object_pmap_find(obj_arg m, obj_arg k);
-// unsafe def ObjectPersistentMap.insert (m : ObjectPersistentMap) (k v : Object) : ObjectPersistentMap
-extern "C" obj_res lean_object_pmap_insert(obj_arg m, obj_arg k, obj_arg v);
-
-// unsafe def mkObjectPersistentSet : Unit → ObjectPersistentSet
-extern "C" obj_res lean_mk_object_pset(obj_arg);
-// unsafe def ObjectPersistentSet.find? (s : ObjectPersistentSet) (o : Object) : Option Object
-extern "C" obj_res lean_object_pset_find(obj_arg s, obj_arg o);
-// unsafe def ObjectPersistentSet.insert (s : ObjectPersistentSet) (o : Object) : ObjectPersistentSet
-extern "C" obj_res lean_object_pset_insert(obj_arg s, obj_arg o);
 
 static obj_res mk_pair(obj_arg a, obj_arg b) {
     object * r = alloc_cnstr(0, 2, 0);
@@ -71,27 +44,27 @@ static obj_res mk_pair(obj_arg a, obj_arg b) {
     return r;
 }
 
-extern "C" obj_res lean_sharecommon_mk_state(obj_arg) {
-    return mk_pair(lean_mk_object_map(lean_box(0)), lean_mk_object_set(lean_box(0)));
-}
-
-extern "C" obj_res lean_sharecommon_mk_pstate(obj_arg) {
-    return mk_pair(lean_mk_object_pmap(lean_box(0)), lean_mk_object_pset(lean_box(0)));
-}
-
-class sharecommon_state_core {
+class sharecommon_state {
 protected:
+    object * m_map_find;
+    object * m_map_insert;
+    object * m_set_find;
+    object * m_set_insert;
     object * m_map;
     object * m_set;
 public:
-    sharecommon_state_core(obj_arg s) {
+    sharecommon_state(b_obj_arg tc, obj_arg s) {
+        m_map_find   = lean_ctor_get(tc, 1);
+        m_map_insert = lean_ctor_get(tc, 2);
+        m_set_find   = lean_ctor_get(tc, 3);
+        m_set_insert = lean_ctor_get(tc, 4);
         m_map = lean_ctor_get(s, 0); lean_inc(m_map);
         m_set = lean_ctor_get(s, 1); lean_inc(m_set);
-        // std::cout << "sharecommon_state_core " << m_map << " " << m_set << std::endl;
+        // std::cout << "sharecommon_state " << m_map << " " << m_set << std::endl;
         lean_dec(s);
     }
 
-    ~sharecommon_state_core() {
+    ~sharecommon_state() {
         lean_dec(m_map);
         lean_dec(m_set);
     }
@@ -102,57 +75,30 @@ public:
         m_set = lean_box(0);
         return r;
     }
-};
-
-class sharecommon_state : public sharecommon_state_core {
-public:
-    sharecommon_state(obj_arg s):sharecommon_state_core(s) {}
 
     obj_res map_find(b_obj_arg k) {
-        lean_inc(m_map); lean_inc(k);
-        return lean_object_map_find(m_map, k);
+        lean_inc(m_map_find); lean_inc(m_map); lean_inc(k);
+        return lean_apply_2(m_map_find, m_map, k);
     }
 
     void map_insert(obj_arg k, obj_arg v) {
-        m_map = lean_object_map_insert(m_map, k, v);
+        lean_inc(m_map_insert);
+        m_map = lean_apply_3(m_map_insert, m_map, k, v);
     }
 
     obj_res set_find(b_obj_arg o) {
-        lean_inc(m_set); lean_inc(o);
-        return lean_object_set_find(m_set, o);
+        lean_inc(m_set_find); lean_inc(m_set); lean_inc(o);
+        return lean_apply_2(m_set_find, m_set, o);
     }
 
     void set_insert(obj_arg o) {
-        m_set = lean_object_set_insert(m_set, o);
+        lean_inc(m_set_insert);
+        m_set = lean_apply_2(m_set_insert, m_set, o);
     }
 };
 
-class sharecommon_pstate : public sharecommon_state_core {
-public:
-    sharecommon_pstate(obj_arg s):sharecommon_state_core(s) {}
-
-    obj_res map_find(b_obj_arg k) {
-        lean_inc(m_map); lean_inc(k);
-        return lean_object_pmap_find(m_map, k);
-    }
-
-    void map_insert(obj_arg k, obj_arg v) {
-        m_map = lean_object_pmap_insert(m_map, k, v);
-    }
-
-    obj_res set_find(b_obj_arg o) {
-        lean_inc(m_set); lean_inc(o);
-        return lean_object_pset_find(m_set, o);
-    }
-
-    void set_insert(obj_arg o) {
-        m_set = lean_object_pset_insert(m_set, o);
-    }
-};
-
-template<typename state>
 class sharecommon_fn {
-    state                     m_state;
+    sharecommon_state         m_state;
     std::vector<lean_object*> m_children;
     std::vector<lean_object*> m_todo;
 
@@ -284,8 +230,7 @@ class sharecommon_fn {
     }
 
 public:
-    sharecommon_fn(obj_arg s):m_state(s) {
-    }
+    sharecommon_fn(b_obj_arg tc, obj_arg s):m_state(tc, s) {}
 
     obj_res operator()(obj_arg a) {
         if (push_child(a)) {
@@ -319,13 +264,8 @@ public:
     }
 };
 
-// def State.shareCommon {α} (s : State) (a : α) : α × State
-extern "C" obj_res lean_state_sharecommon(obj_arg s, obj_arg a) {
-    return sharecommon_fn<sharecommon_state>(s)(a);
-}
-
-// def PersistentState.shareCommon {α} (s : PersistentState) (a : α) : α × PersistentState
-extern "C" obj_res lean_persistent_state_sharecommon(obj_arg s, obj_arg a) {
-    return sharecommon_fn<sharecommon_pstate>(s)(a);
+// def State.shareCommon {α} {σ : @& StateFactory} (s : State σ) (a : α) : α × State σ
+extern "C" LEAN_EXPORT obj_res lean_state_sharecommon(b_obj_arg tc, obj_arg s, obj_arg a) {
+    return sharecommon_fn(tc, s)(a);
 }
 };

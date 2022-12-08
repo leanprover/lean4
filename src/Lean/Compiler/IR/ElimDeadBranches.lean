@@ -15,7 +15,24 @@ inductive Value where
   | top -- any value
   | ctor (i : CtorInfo) (vs : Array Value)
   | choice (vs : List Value)
-  deriving Inhabited
+  deriving Inhabited, Repr
+
+protected partial def Value.toFormat : Value → Format
+  | Value.bot => "⊥"
+  | Value.top => "⊤"
+  | Value.ctor info vs =>
+    if vs.isEmpty then
+      format info.name
+    else
+      Format.paren <| format info.name ++ Std.Format.join (vs.toList.map fun v => " " ++ Value.toFormat v)
+  | Value.choice vs =>
+    Format.paren <| Std.Format.joinSep (vs.map Value.toFormat) " | "
+
+instance : ToFormat Value where
+  format := Value.toFormat
+
+instance : ToString Value where
+  toString v := toString (format v)
 
 namespace Value
 
@@ -33,78 +50,108 @@ instance : BEq Value := ⟨Value.beq⟩
 
 partial def addChoice (merge : Value → Value → Value) : List Value → Value → List Value
   | [], v => [v]
-  | v₁@(ctor i₁ vs₁) :: cs, v₂@(ctor i₂ vs₂) =>
+  | v₁@(ctor i₁ _) :: cs, v₂@(ctor i₂ _) =>
     if i₁ == i₂ then merge v₁ v₂ :: cs
     else v₁ :: addChoice merge cs v₂
   | _, _ => panic! "invalid addChoice"
 
-partial def merge : Value → Value → Value
+partial def merge (v₁ v₂ : Value) : Value :=
+  match v₁, v₂ with
   | bot, v => v
   | v, bot => v
   | top, _ => top
   | _, top => top
   | v₁@(ctor i₁ vs₁), v₂@(ctor i₂ vs₂) =>
-    if i₁ == i₂ then ctor i₁ $ vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i] vs₂[i])
+    if i₁ == i₂ then ctor i₁ <| vs₁.size.fold (init := #[]) fun i r => r.push (merge vs₁[i]! vs₂[i]!)
     else choice [v₁, v₂]
-  | choice vs₁, choice vs₂ => choice $ vs₁.foldl (addChoice merge) vs₂
-  | choice vs, v => choice $ addChoice merge vs v
-  | v, choice vs => choice $ addChoice merge vs v
+  | choice vs₁, choice vs₂ => choice <| vs₁.foldl (addChoice merge) vs₂
+  | choice vs, v => choice <| addChoice merge vs v
+  | v, choice vs => choice <| addChoice merge vs v
 
 protected partial def format : Value → Format
   | top => "top"
   | bot => "bot"
-  | choice vs => fmt "@" ++ @List.format _ ⟨Value.format⟩ vs
-  | ctor i vs => fmt "#" ++ if vs.isEmpty then fmt i.name else Format.paren (fmt i.name ++ @formatArray _ ⟨Value.format⟩ vs)
+  | choice vs => format "@" ++ @List.format _ ⟨Value.format⟩ vs
+  | ctor i vs => format "#" ++ if vs.isEmpty then format i.name else Format.paren (format i.name ++ @formatArray _ ⟨Value.format⟩ vs)
 
 instance : ToFormat Value := ⟨Value.format⟩
 instance : ToString Value := ⟨Format.pretty ∘ Value.format⟩
 
-/- Make sure constructors of recursive inductive datatypes can only occur once in each path.
-   We use this function this function to implement a simple widening operation for our abstract
-   interpreter. -/
-partial def truncate (env : Environment) : Value → NameSet → Value
-  | ctor i vs, found =>
-    let I := i.name.getPrefix
-    if found.contains I then
-      top
-    else
-      let cont (found' : NameSet) : Value :=
-        ctor i (vs.map fun v => truncate env v found')
-      match env.find? I with
-      | some (ConstantInfo.inductInfo d) =>
-        if d.isRec then cont (found.insert I)
-        else cont found
-      | _ => cont found
-  | choice vs, found =>
-    let newVs := vs.map fun v => truncate env v found
-    if newVs.elem top then top
-    else choice newVs
-  | v, _ => v
+/--
+  In `truncate`, we approximate a value as `top` if depth > `truncateMaxDepth`.
+  TODO: add option to control this parameter.
+-/
+def truncateMaxDepth := 8
 
-/- Widening operator that guarantees termination in our abstract interpreter. -/
+/--
+  Make sure constructors of recursive inductive datatypes can only occur once in each path.
+  Values at depth > truncateMaxDepth are also approximated at `top`.
+  We use this function this function to implement a simple widening operation for our abstract
+  interpreter.
+  Recall the widening functions is used to ensure termination in abstract interpreters.
+-/
+partial def truncate (env : Environment) (v : Value) (s : NameSet) : Value :=
+  go v s truncateMaxDepth
+where
+  go (v : Value) (s : NameSet) (depth : Nat) : Value :=
+    match depth with
+    | 0 => top
+    | depth+1 =>
+      match v, s with
+      | ctor i vs, found =>
+        let I := i.name.getPrefix
+        if found.contains I then
+          top
+        else
+          let cont (found' : NameSet) : Value :=
+            ctor i (vs.map fun v => go v found' depth)
+          match env.find? I with
+          | some (ConstantInfo.inductInfo d) =>
+            if d.isRec then cont (found.insert I)
+            else cont found
+          | _ => cont found
+      | choice vs, found =>
+        let newVs := vs.map fun v => go v found depth
+        if newVs.elem top then top
+        else choice newVs
+      | v, _ => v
+
+/-- Widening operator that guarantees termination in our abstract interpreter. -/
 def widening (env : Environment) (v₁ v₂ : Value) : Value :=
   truncate env (merge v₁ v₂) {}
 
 end Value
 
-abbrev FunctionSummaries := SMap FunId Value
+abbrev FunctionSummaries := PHashMap FunId Value
+
+private abbrev declLt (a b : FunId × Value) :=
+  Name.quickLt a.1 b.1
+
+private abbrev sortEntries (entries : Array (FunId × Value)) : Array (FunId × Value) :=
+  entries.qsort declLt
+
+private abbrev findAtSorted? (entries : Array (FunId × Value)) (fid : FunId) : Option Value :=
+  if let some (_, value) := entries.binSearch (fid, default) declLt then
+    some value
+  else
+    none
 
 builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId × Value) FunctionSummaries ←
   registerSimplePersistentEnvExtension {
-    name       := `unreachBranchesFunSummary,
-    addImportedFn := fun as =>
-      let cache : FunctionSummaries := mkStateFromImportedEntries (fun s (p : FunId × Value) => s.insert p.1 p.2) {} as
-      cache.switch,
+    addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
+    toArrayFn := fun s => sortEntries s.toArray
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=
-  functionSummariesExt.addEntry env (fid, v)
+  functionSummariesExt.addEntry (env.addExtraName fid) (fid, v)
 
 def getFunctionSummary? (env : Environment) (fid : FunId) : Option Value :=
-  (functionSummariesExt.getState env).find? fid
+  match env.getModuleIdxFor? fid with
+  | some modIdx => findAtSorted? (functionSummariesExt.getModuleEntries env modIdx) fid
+  | none        => functionSummariesExt.getState env |>.find? fid
 
-abbrev Assignment := Std.HashMap VarId Value
+abbrev Assignment := HashMap VarId Value
 
 structure InterpContext where
   currFnIdx : Nat := 0
@@ -114,7 +161,7 @@ structure InterpContext where
 
 structure InterpState where
   assignments : Array Assignment
-  funVals     : Std.PArray Value -- we take snapshots during fixpoint computations
+  funVals     : PArray Value -- we take snapshots during fixpoint computations
 
 abbrev M := ReaderT InterpContext (StateM InterpState)
 
@@ -123,8 +170,8 @@ open Value
 def findVarValue (x : VarId) : M Value := do
   let ctx ← read
   let s ← get
-  let assignment := s.assignments[ctx.currFnIdx]
-  pure $ assignment.findD x bot
+  let assignment := s.assignments[ctx.currFnIdx]!
+  return assignment.findD x bot
 
 def findArgValue (arg : Arg) : M Value :=
   match arg with
@@ -151,21 +198,21 @@ partial def projValue : Value → Nat → Value
 def interpExpr : Expr → M Value
   | Expr.ctor i ys => return ctor i (← ys.mapM fun y => findArgValue y)
   | Expr.proj i x  => return projValue (← findVarValue x) i
-  | Expr.fap fid ys => do
+  | Expr.fap fid _  => do
     let ctx ← read
     match getFunctionSummary? ctx.env fid with
     | some v => pure v
     | none   => do
       let s ← get
       match ctx.decls.findIdx? (fun decl => decl.name == fid) with
-      | some idx => pure s.funVals[idx]
+      | some idx => pure s.funVals[idx]!
       | none     => pure top
   | _ => pure top
 
 partial def containsCtor : Value → CtorInfo → Bool
   | top,       _ => true
   | ctor i _,  j => i == j
-  | choice vs, j => vs.any $ fun v => containsCtor v j
+  | choice vs, j => vs.any fun v => containsCtor v j
   | _,         _ => false
 
 def updateCurrFnSummary (v : Value) : M Unit := do
@@ -178,8 +225,8 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
   let ctx ← read
   let currFnIdx := ctx.currFnIdx
   ys.size.foldM (init := false) fun i r => do
-    let y := ys[i]
-    let x := xs[i]
+    let y := ys[i]!
+    let x := xs[i]!
     let yVal ← findVarValue y.x
     let xVal ← findArgValue x
     let newVal := merge yVal xVal
@@ -190,9 +237,7 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
       pure true
 
 private partial def resetNestedJPParams : FnBody → M Unit
-  | FnBody.jdecl _ ys b k => do
-    let ctx ← read
-    let currFnIdx := ctx.currFnIdx
+  | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
     /- Remark we don't need to reset the parameters of joint-points
       nested in `b` since they will be reset if this JP is used. -/
@@ -219,7 +264,6 @@ partial def interpFnBody : FnBody → M Unit
       | Alt.default b => interpFnBody b
   | FnBody.ret x => do
     let v ← findArgValue x
-    -- dbgTrace ("ret " ++ toString v) $ fun _ =>
     updateCurrFnSummary v
   | FnBody.jmp j xs => do
     let ctx ← read
@@ -238,17 +282,17 @@ def inferStep : M Bool := do
   let ctx ← read
   modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx modified => do
-    match ctx.decls[idx] with
-    | Decl.fdecl (xs := ys) (body := b) .. => do
+    match ctx.decls[idx]! with
+    | .fdecl (xs := ys) (body := b) .. => do
       let s ← get
-      let currVals := s.funVals[idx]
+      let currVals := s.funVals[idx]!
       withReader (fun ctx => { ctx with currFnIdx := idx }) do
         ys.forM fun y => updateVarAssignment y.x top
         interpFnBody b
         let s ← get
-        let newVals := s.funVals[idx]
+        let newVals := s.funVals[idx]!
         pure (modified || currVals != newVals)
-    | Decl.extern _ _ _ _ => pure modified
+    | .extern .. => pure modified
 
 partial def inferMain : M Unit := do
   let modified ← inferStep
@@ -261,7 +305,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
     let v := assignment.findD x bot
     let alts := alts.map fun alt =>
       match alt with
-      | Alt.ctor i b  => Alt.ctor i $ if containsCtor v i then elimDeadAux assignment b else FnBody.unreachable
+      | Alt.ctor i b  => Alt.ctor i <| if containsCtor v i then elimDeadAux assignment b else FnBody.unreachable
       | Alt.default b => Alt.default (elimDeadAux assignment b)
     FnBody.case tid x xType alts
   | e =>
@@ -273,7 +317,7 @@ partial def elimDeadAux (assignment : Assignment) : FnBody → FnBody
 
 partial def elimDead (assignment : Assignment) (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! <| elimDeadAux assignment b
+  | .fdecl (body := b) .. => d.updateBody! <| elimDeadAux assignment b
   | other => other
 
 end UnreachableBranches
@@ -284,7 +328,7 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let s ← get
   let env := s.env
   let assignments : Array Assignment := decls.map fun _ => {}
-  let funVals := Std.mkPArray decls.size Value.bot
+  let funVals := mkPArray decls.size Value.bot
   let ctx : InterpContext := { decls := decls, env := env }
   let s : InterpState := { assignments := assignments, funVals := funVals }
   let (_, s) := (inferMain ctx).run s
@@ -292,8 +336,8 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let assignments := s.assignments
   modify fun s =>
     let env := decls.size.fold (init := s.env) fun i env =>
-      addFunctionSummary env decls[i].name funVals[i]
+      addFunctionSummary env decls[i]!.name funVals[i]!
     { s with env := env }
-  pure $ decls.mapIdx fun i decl => elimDead assignments[i] decl
+  return decls.mapIdx fun i decl => elimDead assignments[i]! decl
 
 end Lean.IR

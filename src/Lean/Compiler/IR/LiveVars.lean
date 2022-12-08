@@ -8,7 +8,7 @@ import Lean.Compiler.IR.FreeVars
 
 namespace Lean.IR
 
-/- Remark: in the paper "Counting Immutable Beans" the concepts of
+/-! Remark: in the paper "Counting Immutable Beans" the concepts of
    free and live variables coincide because the paper does *not* consider
    join points. For example, consider the function body `B`
    ```
@@ -20,13 +20,13 @@ namespace Lean.IR
    block_1 (x : obj) : obj :=
    let z := ctor_0 x y;
    ret z
-   ``
+   ```
    The variable `y` is live in the function body `B` since it occurs in
    `block_1` which is "invoked" by `B`.
 -/
 
 namespace IsLive
-/-
+/--
   We use `State Context` instead of `ReaderT Context Id` because we remove
   non local joint points from `Context` whenever we visit them instead of
   maintaining a set of visited non local join points.
@@ -43,8 +43,8 @@ abbrev visitArgs (w : Index) (as : Array Arg) : M Bool := pure (HasIndex.visitAr
 abbrev visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
-  | FnBody.vdecl x _ v b    => visitExpr w v <||> visitFnBody w b
-  | FnBody.jdecl j ys v b   => visitFnBody w v <||> visitFnBody w b
+  | FnBody.vdecl _ _ v b    => visitExpr w v <||> visitFnBody w b
+  | FnBody.jdecl _ _  v b   => visitFnBody w v <||> visitFnBody w b
   | FnBody.set x _ y b      => visitVar w x <||> visitArg w y <||> visitFnBody w b
   | FnBody.uset x _ y b     => visitVar w x <||> visitVar w y <||> visitFnBody w b
   | FnBody.sset x _ _ y _ b => visitVar w x <||> visitVar w y <||> visitFnBody w b
@@ -69,7 +69,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 
 end IsLive
 
-/- Return true if `x` is live in the function body `b` in the context `ctx`.
+/-- Return true if `x` is live in the function body `b` in the context `ctx`.
 
    Remark: the context only needs to contain all (free) join point declarations.
 
@@ -79,13 +79,13 @@ def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
   (IsLive.visitFnBody x.idx b).run' ctx
 
 abbrev LiveVarSet   := VarIdSet
-abbrev JPLiveVarMap := Std.RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
+abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (fun j₁ j₂ => compare j₁.idx j₂.idx)
 
 instance : Inhabited LiveVarSet where
   default := {}
 
 def mkLiveVarSet (x : VarId) : LiveVarSet :=
-  Std.RBTree.empty.insert x
+  RBTree.empty.insert x
 
 namespace LiveVars
 
@@ -96,9 +96,9 @@ abbrev Collector := LiveVarSet → LiveVarSet
 
 private def collectArg : Arg → Collector
   | Arg.var x  => collectVar x
-  | irrelevant => skip
+  | _          => skip
 
-@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
+private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector := fun s =>
   as.foldl (fun s a => f a s) s
 
 private def collectArgs (as : Array Arg) : Collector :=
@@ -130,7 +130,7 @@ def collectExpr : Expr → Collector
   | Expr.ap x ys        => collectVar x ∘ collectArgs ys
   | Expr.box _ x        => collectVar x
   | Expr.unbox x        => collectVar x
-  | Expr.lit v          => skip
+  | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
   | Expr.isTaggedPtr x  => collectVar x
 
@@ -148,9 +148,9 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   | FnBody.dec x _ _ _ b,    m => collectVar x ∘ collectFnBody b m
   | FnBody.del x b,          m => collectVar x ∘ collectFnBody b m
   | FnBody.mdata _ b,        m => collectFnBody b m
-  | FnBody.ret x,            m => collectArg x
+  | FnBody.ret x,            _ => collectArg x
   | FnBody.case _ x _ alts,  m => collectVar x ∘ collectArray alts (fun alt => collectFnBody alt.body m)
-  | FnBody.unreachable,      m => skip
+  | FnBody.unreachable,      _ => skip
   | FnBody.jmp j xs,         m => collectJP m j ∘ collectArgs xs
 
 def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=

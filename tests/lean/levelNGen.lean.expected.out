@@ -1,0 +1,5 @@
+@test1 : {α : Sort u_2} → α → Sort u_1
+levelNGen.lean:3:4-3:9: warning: declaration uses 'sorry'
+@test2 : {α : Sort u_2} → α → Sort u_1
+levelNGen.lean:5:33-5:38: warning: declaration uses 'sorry'
+@test3 : {α : Sort u_2} → α → Sort u_1

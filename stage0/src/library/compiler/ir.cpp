@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include "util/array_ref.h"
+#include "runtime/array_ref.h"
 #include "util/nat.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
@@ -40,6 +40,7 @@ extern "C" object * lean_ir_mk_jmp(object * j, object * ys);
 extern "C" object * lean_ir_mk_alt(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
 extern "C" object * lean_ir_mk_decl(object * f, object * xs, object * ty, object * b);
 extern "C" object * lean_ir_mk_extern_decl(object * f, object * xs, object * ty, object * ext_entry);
+extern "C" object * lean_ir_mk_dummy_extern_decl(object * f, object * xs, object * ty);
 extern "C" object * lean_ir_decl_to_string(object * d);
 extern "C" object * lean_ir_compile(object * env, object * opts, object * decls);
 extern "C" object * lean_ir_log_to_string(object * log);
@@ -91,6 +92,9 @@ decl mk_decl(fun_id const & f, buffer<param> const & xs, type ty, fn_body const 
 }
 decl mk_extern_decl(fun_id const & f, buffer<param> const & xs, type ty, extern_attr_data_value const & v) {
     return decl(lean_ir_mk_extern_decl(f.to_obj_arg(), to_array(xs), box_type(ty), v.to_obj_arg()));
+}
+decl mk_dummy_extern_decl(fun_id const & f, buffer<param> const & xs, type ty) {
+    return decl(lean_ir_mk_dummy_extern_decl(f.to_obj_arg(), to_array(xs), box_type(ty)));
 }
 std::string decl_to_string(decl const & d) {
     string_ref r(lean_ir_decl_to_string(d.to_obj_arg()));
@@ -492,8 +496,12 @@ public:
             type = binding_body(type);
         }
         ir::type result_type = to_ir_type(type);
-        extern_attr_data_value attr = *get_extern_attr_data(env(), fn);
-        return ir::mk_extern_decl(fn, xs, result_type, attr);
+        if (optional<extern_attr_data_value> attr = get_extern_attr_data(env(), fn)) {
+            return ir::mk_extern_decl(fn, xs, result_type, *attr);
+        } else {
+            // Hack: `fn` is marked with `implemented_by` or `init`
+            return ir::mk_dummy_extern_decl(fn, xs, result_type);
+        }
     }
 };
 
@@ -510,7 +518,7 @@ environment compile(environment const & env, options const & opts, comp_decls co
     buffer<decl> ir_decls;
     for (comp_decl const & decl : decls) {
         lean_trace(name({"compiler", "lambda_pure"}),
-                   tout() << ">> " << decl.fst() << "\n" << decl.snd() << "\n";);
+                   tout() << ">> " << decl.fst() << " := " << trace_pp_expr(decl.snd()) << "\n";);
         ir_decls.push_back(to_ir_decl(env, decl));
     }
     object * r   = lean_ir_compile(env.to_obj_arg(), opts.to_obj_arg(), to_array(ir_decls));
@@ -557,7 +565,7 @@ environment add_extern(environment const & env, name const & fn) {
     return add_boxed_version(new_env, d);
 }
 
-extern "C" object* lean_add_extern(object * env, object * fn) {
+extern "C" LEAN_EXPORT object* lean_add_extern(object * env, object * fn) {
     try {
         environment new_env = add_extern(environment(env), name(fn));
         return mk_except_ok(new_env);
@@ -616,7 +624,7 @@ object_ref to_object_ref(cnstr_info const & info) {
     return mk_cnstr(0, nat(info.m_cidx), list_ref<object_ref>(fields), nat(info.m_num_objs), nat(info.m_num_usizes), nat(info.m_scalar_sz));
 }
 
-extern "C" object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
+extern "C" LEAN_EXPORT object * lean_ir_get_ctor_layout(object * env0, object * ctor_name0) {
     environment const & env = TO_REF(environment, env0);
     name const & ctor_name  = TO_REF(name, ctor_name0);
     type_checker::state st(env);

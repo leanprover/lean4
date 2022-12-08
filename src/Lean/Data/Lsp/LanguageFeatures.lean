@@ -18,12 +18,35 @@ structure CompletionOptions where
   resolveProvider      : Bool := false
   deriving FromJson, ToJson
 
+inductive CompletionItemKind where
+  | text | method | function | constructor | field
+  | variable | class | interface | module | property
+  | unit | value | enum | keyword | snippet
+  | color | file | reference | folder | enumMember
+  | constant | struct | event | operator | typeParameter
+  deriving Inhabited, DecidableEq, Repr
+
+instance : ToJson CompletionItemKind where
+  toJson a := toJson (a.toCtorIdx + 1)
+
+instance : FromJson CompletionItemKind where
+  fromJson? v := do
+    let i : Nat ← fromJson? v
+    return CompletionItemKind.ofNat (i-1)
+
+structure InsertReplaceEdit where
+  newText : String
+  insert : Range
+  replace : Range
+  deriving FromJson, ToJson
+
 structure CompletionItem where
   label : String
-  detail? : Option String
-  documentation? : Option MarkupContent
+  detail? : Option String := none
+  documentation? : Option MarkupContent := none
+  kind? : Option CompletionItemKind := none
+  textEdit? : Option InsertReplaceEdit := none
   /-
-  kind? : CompletionItemKind
   tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
@@ -32,7 +55,6 @@ structure CompletionItem where
   insertText? : string
   insertTextFormat? : InsertTextFormat
   insertTextMode? : InsertTextMode
-  textEdit? : TextEdit | InsertReplaceEdit
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
   command? : Command
@@ -67,6 +89,18 @@ structure DefinitionParams extends TextDocumentPositionParams
 structure TypeDefinitionParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+structure ReferenceContext where
+  includeDeclaration : Bool
+  deriving FromJson, ToJson
+
+structure ReferenceParams extends TextDocumentPositionParams where
+  context : ReferenceContext
+  deriving FromJson, ToJson
+
+structure WorkspaceSymbolParams where
+  query : String
+  deriving FromJson, ToJson
+
 structure DocumentHighlightParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
@@ -95,9 +129,9 @@ structure DocumentSymbolParams where
 inductive SymbolKind where
   | file
   | module
-  | «namespace»
+  | namespace
   | package
-  | «class»
+  | class
   | method
   | property
   | field
@@ -105,8 +139,8 @@ inductive SymbolKind where
   | enum
   | interface
   | function
-  | «variable»
-  | «constant»
+  | variable
+  | constant
   | string
   | number
   | boolean
@@ -166,7 +200,7 @@ partial instance : ToJson DocumentSymbol where
   toJson :=
     let rec go
       | DocumentSymbol.mk sym =>
-        have ToJson DocumentSymbol from ⟨go⟩
+        have : ToJson DocumentSymbol := ⟨go⟩
         toJson sym
     go
 
@@ -176,14 +210,32 @@ structure DocumentSymbolResult where
 instance : ToJson DocumentSymbolResult where
   toJson dsr := toJson dsr.syms
 
+inductive SymbolTag where
+  | deprecated
+
+instance : ToJson SymbolTag where
+ toJson
+   | SymbolTag.deprecated => 1
+
+structure SymbolInformation where
+  name : String
+  kind : SymbolKind
+  tags : Array SymbolTag := #[]
+  location : Location
+  containerName? : Option String := none
+  deriving ToJson
+
 inductive SemanticTokenType where
+  -- Used by Lean
   | keyword
-  | «variable»
+  | variable
   | property
-  /-
-  | «namespace»
+  | function
+  /- Other types included by default in the LSP specification.
+  Not used by the Lean core, but useful to users extending the Lean server. -/
+  | namespace
   | type
-  | «class»
+  | class
   | enum
   | interface
   | struct
@@ -191,27 +243,37 @@ inductive SemanticTokenType where
   | parameter
   | enumMember
   | event
-  | function
   | method
-  | «macro»
+  | macro
   | modifier
   | comment
   | string
   | number
   | regexp
   | operator
-  -/
+  | decorator
+  deriving ToJson, FromJson
 
+-- must be in the same order as the constructors
 def SemanticTokenType.names : Array String :=
-  #["keyword", "variable", "property"]
+  #["keyword", "variable", "property", "function", "namespace", "type", "class",
+    "enum", "interface", "struct", "typeParameter", "parameter", "enumMember",
+    "event", "method", "macro", "modifier", "comment", "string", "number",
+    "regexp", "operator", "decorator"]
 
--- must be the correct index in `names`
-def SemanticTokenType.toNat : SemanticTokenType → Nat
-  | keyword    => 0
-  | «variable» => 1
-  | property   => 2
+def SemanticTokenType.toNat (type : SemanticTokenType) : Nat :=
+  type.toCtorIdx
 
-/-
+-- sanity check
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
+
+/--
+The semantic token modifiers included by default in the LSP specification.
+Not used by the Lean core, but implementing them here allows them to be
+utilized by users extending the Lean server.
+-/
 inductive SemanticTokenModifier where
   | declaration
   | definition
@@ -223,7 +285,20 @@ inductive SemanticTokenModifier where
   | modification
   | documentation
   | defaultLibrary
--/
+  deriving ToJson, FromJson
+
+-- must be in the same order as the constructors
+def SemanticTokenModifier.names : Array String :=
+  #["declaration", "definition", "readonly", "static", "deprecated", "abstract",
+    "async", "modification", "documentation", "defaultLibrary"]
+
+def SemanticTokenModifier.toNat (modifier : SemanticTokenModifier) : Nat :=
+  modifier.toCtorIdx
+
+-- sanity check
+example {v : SemanticTokenModifier} : open SemanticTokenModifier in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 structure SemanticTokensLegend where
   tokenTypes : Array String
@@ -248,9 +323,30 @@ structure SemanticTokensRangeParams where
   deriving FromJson, ToJson
 
 structure SemanticTokens where
-  -- resultId?: string;
+  resultId? : Option String := none
   data : Array Nat
   deriving FromJson, ToJson
+
+structure FoldingRangeParams where
+  textDocument : TextDocumentIdentifier
+  deriving FromJson, ToJson
+
+inductive FoldingRangeKind where
+  | comment
+  | imports
+  | region
+
+instance : ToJson FoldingRangeKind where
+  toJson
+    | FoldingRangeKind.comment => "comment"
+    | FoldingRangeKind.imports => "imports"
+    | FoldingRangeKind.region => "region"
+
+structure FoldingRange where
+  startLine : Nat
+  endLine : Nat
+  kind? : Option FoldingRangeKind := none
+  deriving ToJson
 
 end Lsp
 end Lean

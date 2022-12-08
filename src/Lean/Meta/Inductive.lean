@@ -3,13 +3,13 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Meta.ExprDefEq
+import Lean.Meta.Basic
 
-/- Helper methods for inductive datatypes -/
+/-! # Helper methods for inductive datatypes -/
 
 namespace Lean.Meta
 
-/- Return true if the types of the given constructors are compatible. -/
+/-- Return true if the types of the given constructors are compatible. -/
 def compatibleCtors (ctorName₁ ctorName₂ : Name) : MetaM Bool := do
   let ctorInfo₁ ← getConstInfoCtor ctorName₁
   let ctorInfo₂ ← getConstInfoCtor ctorName₂

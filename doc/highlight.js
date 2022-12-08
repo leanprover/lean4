@@ -1111,9 +1111,9 @@ hljs.registerLanguage("lean", function(hljs) {
       'axiom constant ' +
       'partial unsafe private protected ' +
       'if then else ' +
-      'universe universes variable variables ' +
-      'import open export theory prelude renaming hiding exposing ' +
-      'calc  match with do by let extends ' +
+      'universe variable ' +
+      'import open export prelude renaming hiding ' +
+      'calc match with do by let extends ' +
       'for in unless try catch finally mutual mut return continue break where rec ' +
       'syntax macro_rules macro deriving ' +
       'fun ' +
@@ -1123,7 +1123,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'Type Prop|10 Sort rw|10 rewrite rwa erw subst substs ' +
       'simp dsimp simpa simp_intros finish using generalizing ' +
       'unfold unfold1 dunfold unfold_projs unfold_coes ' +
-      'delta cc ac_reflexivity ac_refl ' +
+      'delta cc ac_rfl ' +
       'existsi|10 cases rcases intro intros introv by_cases ' +
       'refl rfl funext case focus propext exact exacts ' +
       'refine apply eapply fapply apply_with apply_instance ' +
@@ -1143,7 +1143,7 @@ hljs.registerLanguage("lean", function(hljs) {
       'sorry admit',
   };
 
-  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\'0-9]*/;
+  var LEAN_IDENT_RE = /[A-Za-z_][\\w\u207F-\u209C\u1D62-\u1D6A\u2079\'0-9?]*/;
 
   var DASH_COMMENT = hljs.COMMENT('--', '$');
   var MULTI_LINE_COMMENT = hljs.COMMENT('/-[^-]', '-/');
@@ -1167,7 +1167,7 @@ hljs.registerLanguage("lean", function(hljs) {
 
   var LEAN_DEFINITION =	{
     className: 'theorem',
-    beginKeywords: 'def theorem lemma class instance structure',
+    begin: '\\b(def|theorem|lemma|class|structure|(?<!deriving\\s+)instance)\\b',
     end: ':= | where',
     excludeEnd: true,
     contains: [

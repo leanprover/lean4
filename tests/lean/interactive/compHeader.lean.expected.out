@@ -1,0 +1,6 @@
+{"textDocument": {"uri": "file://compHeader.lean"},
+ "position": {"line": 2, "character": 22}}
+{"items":
+ [{"label": "veryLongNam", "kind": 6, "detail": "Sort u_1"},
+  {"label": "veryLongNameForCompletion", "kind": 21, "detail": "Type"}],
+ "isIncomplete": true}

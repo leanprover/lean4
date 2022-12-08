@@ -45,6 +45,7 @@ public:
 /** \brief Low tech timer. */
 class xtimeit {
     second_duration m_threshold;
+    second_duration m_excluded {0};
     std::chrono::steady_clock::time_point m_start;
     std::function<void(second_duration)> m_fn; // NOLINT
 public:
@@ -62,9 +63,17 @@ public:
         }
     }
 
-    second_duration get_elapsed() const {
+    second_duration get_elapsed_inclusive() const {
         auto end = std::chrono::steady_clock::now();
         return second_duration(end - m_start);
+    }
+
+    second_duration get_elapsed() const {
+        return get_elapsed_inclusive() - m_excluded;
+    }
+
+    void exclude_duration(second_duration d) {
+        m_excluded += d;
     }
 };
 

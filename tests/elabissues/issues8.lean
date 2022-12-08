@@ -7,6 +7,7 @@ The following example works, but it adds a coercion at `forceInt i`.
 The elaborated term is
 ```
 fun (n i : Nat) => if n == i then forceNat n else forceInt (coe i)
+```
 -/
 fun n i => if n == i then forceNat n else forceInt i -- works
 

@@ -5,14 +5,14 @@ def f : (xs : List Nat) → Nat → xs ≠ [] → Nat
 
 set_option pp.inaccessibleNames true in
 def f' : (xs : List Nat) → Nat → xs ≠ [] → Nat
-  | [], _, _ => _
+  | [], _, _ => _ -- TODO: figure out why hyp `Ne (α := List Nat) x✝² []` needs α
   | [a,b], _, _ => _
   | _, _, _ =>  _
 
 theorem ex1 : p ∨ q → q ∨ p := by
   intro h
   cases h
-  traceState
+  trace_state
   apply Or.inr
   assumption
   apply Or.inl

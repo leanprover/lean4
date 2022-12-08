@@ -176,11 +176,11 @@ theorem ex (x : Nat) {y : Nat} (h : y > 0) : x % y < y := by
     rw [Nat.mod_eq_sub_mod h₁.2]
     exact ih h
   | base x y h₁ =>
-     have ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot ..) h₁
+     have : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.not_and_iff_or_not ..) h₁
      match this with
      | Or.inl h₁ => exact absurd h h₁
      | Or.inr h₁ =>
-       have hgt : y > x from Nat.gtOfNotLe h₁
+       have hgt : y > x := Nat.gt_of_not_le h₁
        rw [← Nat.mod_eq_of_lt hgt] at hgt
        assumption
 ```
@@ -193,6 +193,50 @@ TODO
 
 TODO
 
+## Split
+
+The `split` tactic can be used to split the cases of an if-then-else or
+match into new subgoals, which can then be discharged individually.
+
+```lean
+def addMoreIfOdd (n : Nat) := if n % 2 = 0 then n + 1 else n + 2
+
+/- Examine each branch of the conditional to show that the result
+   is always positive -/
+example (n : Nat) : 0 < addMoreIfOdd n := by
+  simp only [addMoreIfOdd]
+  split
+  next => exact Nat.zero_lt_succ _
+  next => exact Nat.zero_lt_succ _
+```
+
+```lean
+def binToChar (n : Nat) : Option Char :=
+  match n with
+  | 0 => some '0'
+  | 1 => some '1'
+  | _ => none
+
+example (n : Nat) : (binToChar n).isSome -> n = 0 ∨ n = 1 := by
+  simp only [binToChar]
+  split
+  next => exact fun _ => Or.inl rfl
+  next => exact fun _ => Or.inr rfl
+  next => intro h; cases h
+
+/- Hypotheses about previous cases can be accessesd by assigning them a
+   name, like `ne_zero` below. Information about the matched term can also
+   be preserved using the `generalizing` tactic: -/
+example (n : Nat) : (n = 0) -> (binToChar n = some '0') := by
+  simp only [binToChar]
+  split
+  case h_1 => intro _; rfl
+  case h_2 => intro h; cases h
+  /- Here, we can introduce `n ≠ 0` and `n ≠ 1` this case assumes
+     neither of the previous cases matched. -/
+  case h_3 ne_zero _  => intro eq_zero; exact absurd eq_zero ne_zero
+```
+
 ## Dependent pattern matching
 
 The `match-with` expression implements dependent pattern matching. You can use it to create concise proofs.
@@ -202,7 +246,7 @@ inductive Mem : α → List α → Prop where
   | head (a : α) (as : List α)   : Mem a (a::as)
   | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
 
-infix:50 "∈" => Mem
+infix:50 (priority := high) "∈" => Mem
 
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t :=
   match a, as, h with
@@ -219,7 +263,7 @@ Here is a similar proof using the tactic DSL.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
   match a, as, h with
   | _, _, Mem.head a bs     => exists []; exists bs; rfl
@@ -237,7 +281,7 @@ Here is a similar proof that uses the `induction` tactic instead of recursion.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 theorem mem_split {a : α} {as : List α} (h : a ∈ as) : ∃ s t, as = s ++ a :: t := by
   induction as with
   | nil          => cases h
@@ -258,7 +302,7 @@ discriminant. Later, we show how to create more complex automation using macros.
 # inductive Mem : α → List α → Prop where
 #  | head (a : α) (as : List α)   : Mem a (a::as)
 #  | tail (a b : α) (bs : List α) : Mem a bs → Mem a (b::bs)
-# infix:50 "∈" => Mem
+# infix:50 (priority := high) "∈" => Mem
 macro "obtain " p:term " from " d:term : tactic =>
   `(tactic| match $d:term with | $p:term => ?_)
 
@@ -313,13 +357,13 @@ You can use `let rec` to write local recursive functions. We lifted it to the ta
 and you can use it to create proofs by induction.
 
 ```lean
-theorem length_replicate {α} (n : Nat) (a : α) : (List.replicate n a).length = n := by
+theorem length_replicateTR {α} (n : Nat) (a : α) : (List.replicateTR n a).length = n := by
   let rec aux (n : Nat) (as : List α)
-      : (List.replicate.loop a n as).length = n + as.length := by
+      : (List.replicateTR.loop a n as).length = n + as.length := by
     match n with
     | 0   => rw [Nat.zero_add]; rfl
     | n+1 =>
-      show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
+      show List.length (List.replicateTR.loop a n (a::as)) = Nat.succ n + as.length
       rw [aux n, List.length_cons, Nat.add_succ, Nat.succ_add]
   exact aux n []
 ```
@@ -328,14 +372,14 @@ You can also introduce auxiliary recursive declarations using `where` clause aft
 Lean converts them into a `let rec`.
 
 ```lean
-theorem length_replicate {α} (n : Nat) (a : α) : (List.replicate n a).length = n :=
+theorem length_replicateTR {α} (n : Nat) (a : α) : (List.replicateTR n a).length = n :=
   loop n []
 where
-  loop n as : (List.replicate.loop a n as).length = n + as.length := by
+  loop n as : (List.replicateTR.loop a n as).length = n + as.length := by
     match n with
     | 0   => rw [Nat.zero_add]; rfl
     | n+1 =>
-      show List.length (List.replicate.loop a n (a::as)) = Nat.succ n + as.length
+      show List.length (List.replicateTR.loop a n (a::as)) = Nat.succ n + as.length
       rw [loop n, List.length_cons, Nat.add_succ, Nat.succ_add]
 ```
 

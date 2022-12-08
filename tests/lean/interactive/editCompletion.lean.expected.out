@@ -6,4 +6,5 @@
     "end": {"line": 3, "character": 22}}}]}
 {"textDocument": {"uri": "file://editCompletion.lean"},
  "position": {"line": 3, "character": 22}}
-{"items": [{"label": "foo", "detail": "Foo → Nat"}], "isIncomplete": true}
+{"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
+ "isIncomplete": true}

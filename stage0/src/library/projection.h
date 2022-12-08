@@ -53,11 +53,4 @@ optional<projection_info> get_projection_info(environment const & env, name cons
 inline bool is_projection(environment const & env, name const & n) {
     return static_cast<bool>(get_projection_info(env, n));
 }
-
-/** \brief Return true iff the type named \c S can be viewed as
-    a structure in the given environment.
-
-    If not, generate an error message using \c pos.
-*/
-bool is_structure_like(environment const & env, name const & S);
 }

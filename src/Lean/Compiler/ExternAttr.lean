@@ -17,7 +17,7 @@ inductive ExternEntry where
   | standard (backend : Name) (fn : String)
   | foreign  (backend : Name) (fn : String)
 
-/-
+/--
 - `@[extern]`
    encoding: ```.entries = [adhoc `all]```
 - `@[extern "level_hash"]`
@@ -37,7 +37,7 @@ structure ExternAttrData where
   deriving Inhabited
 
 -- def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
--- @[builtinAttrParser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
+-- @[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
 private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   let arity?  := if stx[1].isNone then none else some <| stx[1][0].isNatLit?.getD 0
   let entriesStx := stx[2].getArgs
@@ -56,7 +56,7 @@ private def syntaxToExternAttrData (stx : Syntax) : AttrM ExternAttrData := do
   return { arity? := arity?, entries := entries.toList }
 
 @[extern "lean_add_extern"]
-constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
+opaque addExtern (env : Environment) (n : Name) : ExceptT String Id Environment
 
 builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
   registerParametricAttribute {
@@ -66,15 +66,15 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
     afterSet := fun declName _ => do
       let mut env ← getEnv
       if env.isProjectionFn declName || env.isConstructor declName then do
-        env ← ofExcept $ addExtern env declName
+        env ← ofExcept <| addExtern env declName
         setEnv env
       else
         pure ()
   }
 
 @[export lean_get_extern_attr_data]
-def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
-  externAttr.getParam env n
+def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
+  externAttr.getParam? env n
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
   | 0,   it, r => (it, r)
@@ -87,7 +87,7 @@ private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator ×
       else (it, r)
 
 def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
-  | 0,   it, r => r
+  | 0,   _,  r => r
   | i+1, it, r =>
     if ¬ it.hasNext then r
     else let c := it.curr
@@ -121,40 +121,42 @@ def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry
   getExternEntryForAux backend d.entries
 
 def isExtern (env : Environment) (fn : Name) : Bool :=
-  getExternAttrData env fn |>.isSome
+  getExternAttrData? env fn |>.isSome
 
-/- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
+/-- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
-  match getExternAttrData env fn with
+  match getExternAttrData? env fn with
   | some { entries := [ ExternEntry.standard `all _ ], .. } => true
   | _ => false
 
-def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := OptionM.run do
-  let data ← getExternAttrData env fn
-  let entry ← getExternEntryFor data backend
+def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do
+  let data? ← getExternAttrData? env fn
+  let entry ← getExternEntryFor data? backend
   match entry with
   | ExternEntry.standard _ n => pure n
   | ExternEntry.foreign _ n  => pure n
   | _ => failure
 
-def getExternConstArity (declName : Name) : CoreM (Option Nat) := do
+private def getExternConstArity (declName : Name) : CoreM Nat := do
+  let fromSignature : Unit → CoreM Nat := fun _ => do
+    let cinfo ← getConstInfo declName
+    let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
+    return arity
   let env ← getEnv
-  match getExternAttrData env declName with
-  | none      => pure none
+  match getExternAttrData? env declName with
+  | none      => fromSignature ()
   | some data => match data.arity? with
-    | some arity => pure arity
-    | none       =>
-      let cinfo ← getConstInfo declName
-      let (arity, _) ← (Meta.forallTelescopeReducing cinfo.type fun xs _ => pure xs.size : MetaM Nat).run
-      pure (some arity)
+    | some arity => return arity
+    | none       => fromSignature ()
 
 @[export lean_get_extern_const_arity]
 def getExternConstArityExport (env : Environment) (declName : Name) : IO (Option Nat) := do
   try
-    let (arity?, _) ← (getExternConstArity declName).toIO {} { env := env }
-    pure arity?
-  catch _ =>
-    pure none
+    let (arity, _) ← (getExternConstArity declName).toIO { fileName := "<compiler>", fileMap := default } { env := env }
+    return some arity
+  catch
+   | IO.Error.userError _   => return none
+   | _  => return none
 
 end Lean

@@ -19,17 +19,17 @@ def beq : Key → Key → Bool
 
 instance : BEq Key := ⟨beq⟩
 
-def getHash : Key → USize
+def getHash : Key → UInt64
   | (f, x) => mixHash (hash f) (hash x)
 instance : Hashable Key := ⟨getHash⟩
 end OwnedSet
 
 open OwnedSet (Key) in
-abbrev OwnedSet := Std.HashMap Key Unit
-def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := Std.HashMap.insert s k ()
-def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := Std.HashMap.contains s k
+abbrev OwnedSet := HashMap Key Unit
+def OwnedSet.insert (s : OwnedSet) (k : OwnedSet.Key) : OwnedSet := HashMap.insert s k ()
+def OwnedSet.contains (s : OwnedSet) (k : OwnedSet.Key) : Bool   := HashMap.contains s k
 
-/- We perform borrow inference in a block of mutually recursive functions.
+/-! We perform borrow inference in a block of mutually recursive functions.
    Join points are viewed as local functions, and are identified using
    their local id + the name of the surrounding function.
    We keep a mapping from function and joint points to parameters (`Array Param`).
@@ -40,7 +40,7 @@ inductive Key where
   | jp   (name : FunId) (jpid : JoinPointId)
   deriving BEq
 
-def getHash : Key → USize
+def getHash : Key → UInt64
   | Key.decl n  => hash n
   | Key.jp n id => mixHash (hash n) (hash id)
 
@@ -48,7 +48,7 @@ instance : Hashable Key := ⟨getHash⟩
 end ParamMap
 
 open ParamMap (Key)
-abbrev ParamMap := Std.HashMap Key (Array Param)
+abbrev ParamMap := HashMap Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
   let fmts := map.fold (fun fmt k ps =>
@@ -63,11 +63,11 @@ instance : ToFormat ParamMap := ⟨ParamMap.fmt⟩
 instance : ToString ParamMap := ⟨fun m => Format.pretty (format m)⟩
 
 namespace InitParamMap
-/- Mark parameters that take a reference as borrow -/
+/-- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
-  ps.map $ fun p => { p with borrow := p.ty.isObj }
+  ps.map fun p => { p with borrow := p.ty.isObj }
 
-/- We do perform borrow inference for constants marked as `export`.
+/-- We do perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
    These wrappers use smart pointers such as `object_ref`.
    When writing a new wrapper we need to know whether an argument is a borrow
@@ -85,12 +85,12 @@ partial def visitFnBody (fnid : FunId) : FnBody → StateM ParamMap Unit
   | FnBody.case _ _ _ alts => alts.forM fun alt => visitFnBody fnid alt.body
   | e => do
     unless e.isTerminal do
-      let (instr, b) := e.split
+      let (_, b) := e.split
       visitFnBody fnid b
 
 def visitDecls (env : Environment) (decls : Array Decl) : StateM ParamMap Unit :=
   decls.forM fun decl => match decl with
-    | Decl.fdecl (f := f) (xs := xs) (body := b) .. => do
+    | .fdecl (f := f) (xs := xs) (body := b) .. => do
       let exported := isExport env f
       modify fun m => m.insert (ParamMap.Key.decl f) (initBorrowIfNotExported exported xs)
       visitFnBody f b
@@ -100,19 +100,19 @@ end InitParamMap
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 (InitParamMap.visitDecls env decls *> get).run' {}
 
-/- Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
+/-! Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
    recursive functions. -/
 namespace ApplyParamMap
 
 partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
-  | FnBody.jdecl j xs v b =>
+  | FnBody.jdecl j _  v b =>
     let v := visitFnBody fn paramMap v
     let b := visitFnBody fn paramMap b
     match paramMap.find? (ParamMap.Key.jp fn j) with
     | some ys => FnBody.jdecl j ys v b
     | none    => unreachable!
   | FnBody.case tid x xType alts =>
-    FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody (visitFnBody fn paramMap)
+    FnBody.case tid x xType <| alts.map fun alt => alt.modifyBody (visitFnBody fn paramMap)
   | e =>
     if e.isTerminal then e
     else
@@ -122,7 +122,7 @@ partial def visitFnBody (fn : FunId) (paramMap : ParamMap) : FnBody → FnBody
 
 def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
   decls.map fun decl => match decl with
-    | Decl.fdecl f xs ty b info =>
+    | Decl.fdecl f _  ty b info =>
       let b := visitFnBody f paramMap b
       match paramMap.find? (ParamMap.Key.decl f) with
       | some xs => Decl.fdecl f xs ty b info
@@ -132,16 +132,16 @@ def visitDecls (decls : Array Decl) (paramMap : ParamMap) : Array Decl :=
 end ApplyParamMap
 
 def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
-  -- dbgTrace ("applyParamMap " ++ toString map) $ fun _ =>
   ApplyParamMap.visitDecls decls map
 
 structure BorrowInfCtx where
   env      : Environment
-  currFn   : FunId    := arbitrary -- Function being analyzed.
+  decls    : Array Decl  -- block of mutually recursive functions
+  currFn   : FunId    := default -- Function being analyzed.
   paramSet : IndexSet := {} -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState where
-  /- Set of variables that must be `owned`. -/
+  /-- Set of variables that must be `owned`. -/
   owned    : OwnedSet := {}
   modified : Bool     := false
   paramMap : ParamMap
@@ -156,7 +156,6 @@ def markModified : M Unit :=
   modify fun s => { s with modified := true }
 
 def ownVar (x : VarId) : M Unit := do
-  -- dbgTrace ("ownVar " ++ toString x) $ fun _ =>
   let currFn ← getCurrFn
   modify fun s =>
     if s.owned.contains (currFn, x.idx) then s
@@ -173,11 +172,10 @@ def ownArgs (xs : Array Arg) : M Unit :=
 def isOwned (x : VarId) : M Bool := do
   let currFn ← getCurrFn
   let s      ← get
-  pure $ s.owned.contains (currFn, x.idx)
+  return s.owned.contains (currFn, x.idx)
 
-/- Updates `map[k]` using the current set of `owned` variables. -/
+/-- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : ParamMap.Key) : M Unit := do
-  let currFn ← getCurrFn
   let s ← get
   match s.paramMap.find? k with
   | some ps => do
@@ -204,27 +202,27 @@ def getParamInfo (k : ParamMap.Key) : M (Array Param) := do
       | none      => unreachable!
     | _ => unreachable!
 
-/- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
+/-- For each ps[i], if ps[i] is owned, then mark xs[i] as owned. -/
 def ownArgsUsingParams (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i => do
-    let x := xs[i]
-    let p := ps[i]
+    let x := xs[i]!
+    let p := ps[i]!
     unless p.borrow do ownArg x
 
-/- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
+/-- For each xs[i], if xs[i] is owned, then mark ps[i] as owned.
    We use this action to preserve tail calls. That is, if we have
    a tail call `f xs`, if the i-th parameter is borrowed, but `xs[i]` is owned
    we would have to insert a `dec xs[i]` after `f xs` and consequently
    "break" the tail call. -/
 def ownParamsUsingArgs (xs : Array Arg) (ps : Array Param) : M Unit :=
   xs.size.forM fun i => do
-    let x := xs[i]
-    let p := ps[i]
+    let x := xs[i]!
+    let p := ps[i]!
     match x with
     | Arg.var x => if (← isOwned x) then ownVar p.x
     | _         => pure ()
 
-/- Mark `xs[i]` as owned if it is one of the parameters `ps`.
+/-- Mark `xs[i]` as owned if it is one of the parameters `ps`.
    We use this action to mark function parameters that are being "packed" inside constructors.
    This is a heuristic, and is not related with the effectiveness of the reset/reuse optimization.
    It is useful for code such as
@@ -253,14 +251,13 @@ def collectExpr (z : VarId) : Expr → M Unit
     ownVar z *> ownArgsUsingParams xs ps
   | Expr.ap x ys        => ownVar z *> ownVar x *> ownArgs ys
   | Expr.pap _ xs       => ownVar z *> ownArgs xs
-  | other               => pure ()
+  | _                   => pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit := do
   let ctx ← read
   match v, b with
   | (Expr.fap g ys), (FnBody.ret (Arg.var z)) =>
-    if ctx.currFn == g && x == z then
-      -- dbgTrace ("preserveTailCall " ++ toString b) $ fun _ => do
+    if ctx.decls.any (·.name == g) && x == z then
       let ps ← getParamInfo (ParamMap.Key.decl g)
       ownParamsUsingArgs ys ps
   | _, _ => pure ()
@@ -284,14 +281,14 @@ partial def collectFnBody : FnBody → M Unit
   | e                      => do unless e.isTerminal do collectFnBody e.body
 
 partial def collectDecl : Decl → M Unit
-  | Decl.fdecl (f := f) (xs := ys) (body := b) .. =>
+  | .fdecl (f := f) (xs := ys) (body := b) .. =>
     withReader (fun ctx => let ctx := updateParamSet ctx ys; { ctx with currFn := f }) do
       collectFnBody b
       updateParamMap (ParamMap.Key.decl f)
   | _ => pure ()
 
-/- Keep executing `x` until it reaches a fixpoint -/
-@[inline] partial def whileModifing (x : M Unit) : M Unit := do
+/-- Keep executing `x` until it reaches a fixpoint -/
+partial def whileModifing (x : M Unit) : M Unit := do
   modify fun s => { s with modified := false }
   x
   let s ← get
@@ -300,13 +297,13 @@ partial def collectDecl : Decl → M Unit
   else
     pure ()
 
-def collectDecls (decls : Array Decl) : M ParamMap := do
-  whileModifing (decls.forM collectDecl)
+def collectDecls : M ParamMap := do
+  whileModifing ((← read).decls.forM collectDecl)
   let s ← get
   pure s.paramMap
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-  collectDecls decls { env := env } |>.run' { paramMap := mkInitParamMap env decls }
+  collectDecls { env, decls } |>.run' { paramMap := mkInitParamMap env decls }
 
 end Borrow
 

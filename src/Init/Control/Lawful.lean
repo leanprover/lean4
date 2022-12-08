@@ -32,9 +32,9 @@ class LawfulApplicative (f : Type u → Type v) [Applicative f] extends LawfulFu
   map_pure    (g : α → β) (x : α)     : g <$> (pure x : f α) = pure (g x)
   seq_pure    {α β : Type u} (g : f (α → β)) (x : α) : g <*> pure x = (fun h => h x) <$> g
   seq_assoc   {α β γ : Type u} (x : f α) (g : f (α → β)) (h : f (β → γ)) : h <*> (g <*> x) = ((@comp α β γ) <$> h) <*> g <*> x
-  comp_map g h x := by
+  comp_map g h x := (by
     repeat rw [← pure_seq]
-    simp [seq_assoc, map_pure, seq_pure]
+    simp [seq_assoc, map_pure, seq_pure])
 
 export LawfulApplicative (seqLeft_eq seqRight_eq pure_seq map_pure seq_pure seq_assoc)
 
@@ -44,25 +44,19 @@ attribute [simp] map_pure seq_pure
   simp [pure_seq]
 
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
-  bind_pure_comp (f : α → β) (x : m α) : x >>= pure ∘ f = f <$> x
+  bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
   bind_map       {α β : Type u} (f : m (α → β)) (x : m α) : f >>= (. <$> x) = f <*> x
   pure_bind      (x : α) (f : α → m β) : pure x >>= f = f x
   bind_assoc     (x : m α) (f : α → m β) (g : β → m γ) : x >>= f >>= g = x >>= fun x => f x >>= g
-  map_pure g x    := by rw [← bind_pure_comp, pure_bind]
-  seq_pure g x    := by rw [← bind_map]; simp [map_pure, bind_pure_comp]
-  seq_assoc x g h := by
-    -- TODO: support for applying `symm` at `simp` arguments
-    let bind_pure_comp_symm {α β : Type u} (f : α → β) (x : m α) : f <$> x = x >>= pure ∘ f := by
-      rw [bind_pure_comp]
-    let bind_map_symm {α β : Type u} (f : m (α → (β : Type u))) (x : m α) : f <*> x = f >>= (. <$> x) := by
-      rw [bind_map]
-    simp[bind_pure_comp_symm, bind_map_symm, bind_assoc, pure_bind]
+  map_pure g x    := (by rw [← bind_pure_comp, pure_bind])
+  seq_pure g x    := (by rw [← bind_map]; simp [map_pure, bind_pure_comp])
+  seq_assoc x g h := (by simp [← bind_pure_comp, ← bind_map, bind_assoc, pure_bind])
 
 export LawfulMonad (bind_pure_comp bind_map pure_bind bind_assoc)
 attribute [simp] pure_bind bind_assoc
 
 @[simp] theorem bind_pure [Monad m] [LawfulMonad m] (x : m α) : x >>= pure = x := by
-  show x >>= pure ∘ id = x
+  show x >>= (fun a => pure (id a)) = x
   rw [bind_pure_comp, id_map]
 
 theorem map_eq_pure_bind [Monad m] [LawfulMonad m] (f : α → β) (x : m α) : f <$> x = x >>= fun a => pure (f a) := by
@@ -75,11 +69,7 @@ theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a
   simp [funext h]
 
 @[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
-  have (x >>= fun _ => pure ⟨⟩) = (x >>= pure) by
-    apply bind_congr; intro u
-    cases u; simp
-  rw [bind_pure] at this
-  assumption
+  rw [bind_pure]
 
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
   simp [funext h]
@@ -88,12 +78,13 @@ theorem seq_eq_bind {α β : Type u} [Monad m] [LawfulMonad m] (mf : m (α → �
   rw [bind_map]
 
 theorem seqRight_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x *> y = x >>= fun _ => y := by
-  rw [seqRight_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
+  rw [seqRight_eq]
+  simp [map_eq_pure_bind, seq_eq_bind_map, const]
 
 theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y = x >>= fun a => y >>= fun _ => pure a := by
   rw [seqLeft_eq]; simp [map_eq_pure_bind, seq_eq_bind_map]
 
-/- Id -/
+/-! # Id -/
 
 namespace Id
 
@@ -106,7 +97,7 @@ instance : LawfulMonad Id := by
 
 end Id
 
-/- ExceptT -/
+/-! # ExceptT -/
 
 namespace ExceptT
 
@@ -114,9 +105,9 @@ theorem ext [Monad m] {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
   simp [run] at h
   assumption
 
-@[simp] theorem run_pure [Monad m] : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
+@[simp] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl
 
-@[simp] theorem run_lift [Monad m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
+@[simp] theorem run_lift  [Monad.{u, v} m] (x : m α) : run (ExceptT.lift x : ExceptT ε m α) = (Except.ok <$> x : m (Except ε α)) := rfl
 
 @[simp] theorem run_throw [Monad m] : run (throw e : ExceptT ε m β) = pure (Except.error e) := rfl
 
@@ -182,11 +173,11 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 end ExceptT
 
-/- ReaderT -/
+/-! # ReaderT -/
 
 namespace ReaderT
 
-theorem ext [Monad m] {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ctx) : x = y := by
+theorem ext {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ctx) : x = y := by
   simp [run] at h
   exact funext h
 
@@ -195,45 +186,56 @@ theorem ext [Monad m] {x y : ReaderT ρ m α} (h : ∀ ctx, x.run ctx = y.run ct
 @[simp] theorem run_bind [Monad m] (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) (ctx : ρ)
     : (x >>= f).run ctx = x.run ctx >>= λ a => (f a).run ctx := rfl
 
+@[simp] theorem run_mapConst [Monad m] (a : α) (x : ReaderT ρ m β) (ctx : ρ)
+    : (Functor.mapConst a x).run ctx = Functor.mapConst a (x.run ctx) := rfl
+
 @[simp] theorem run_map [Monad m] (f : α → β) (x : ReaderT ρ m α) (ctx : ρ)
     : (f <$> x).run ctx = f <$> x.run ctx := rfl
 
 @[simp] theorem run_monadLift [MonadLiftT n m] (x : n α) (ctx : ρ)
     : (monadLift x : ReaderT ρ m α).run ctx = (monadLift x : m α) := rfl
 
-@[simp] theorem run_monadMap [Monad m] [MonadFunctor n m] (f : {β : Type u} → n β → n β) (x : ReaderT ρ m α) (ctx : ρ)
+@[simp] theorem run_monadMap [MonadFunctor n m] (f : {β : Type u} → n β → n β) (x : ReaderT ρ m α) (ctx : ρ)
     : (monadMap @f x : ReaderT ρ m α).run ctx = monadMap @f (x.run ctx) := rfl
 
 @[simp] theorem run_read [Monad m] (ctx : ρ) : (ReaderT.read : ReaderT ρ m ρ).run ctx = pure ctx := rfl
 
-@[simp] theorem run_seq {α β : Type u} [Monad m] [LawfulMonad m] (f : ReaderT ρ m (α → β)) (x : ReaderT ρ m α) (ctx : ρ) : (f <*> x).run ctx = (f.run ctx <*> x.run ctx) := by
-  rw [seq_eq_bind (m := m)]; rfl
+@[simp] theorem run_seq {α β : Type u} [Monad m] (f : ReaderT ρ m (α → β)) (x : ReaderT ρ m α) (ctx : ρ)
+    : (f <*> x).run ctx = (f.run ctx <*> x.run ctx) := rfl
 
-@[simp] theorem run_seqRight [Monad m] [LawfulMonad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ) : (x *> y).run ctx = (x.run ctx *> y.run ctx) := by
-  rw [seqRight_eq_bind (m := m)]; rfl
+@[simp] theorem run_seqRight [Monad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ)
+    : (x *> y).run ctx = (x.run ctx *> y.run ctx) := rfl
 
-@[simp] theorem run_seqLeft [Monad m] [LawfulMonad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ) : (x <* y).run ctx = (x.run ctx <* y.run ctx) := by
-  rw [seqLeft_eq_bind (m := m)]; rfl
+@[simp] theorem run_seqLeft [Monad m] (x : ReaderT ρ m α) (y : ReaderT ρ m β) (ctx : ρ)
+    : (x <* y).run ctx = (x.run ctx <* y.run ctx) := rfl
+
+instance [Monad m] [LawfulFunctor m] : LawfulFunctor (ReaderT ρ m) where
+  id_map    := by intros; apply ext; simp
+  map_const := by intros; funext a b; apply ext; intros; simp [map_const]
+  comp_map  := by intros; apply ext; intros; simp [comp_map]
+
+instance [Monad m] [LawfulApplicative m] : LawfulApplicative (ReaderT ρ m) where
+  seqLeft_eq  := by intros; apply ext; intros; simp [seqLeft_eq]
+  seqRight_eq := by intros; apply ext; intros; simp [seqRight_eq]
+  pure_seq    := by intros; apply ext; intros; simp [pure_seq]
+  map_pure    := by intros; apply ext; intros; simp [map_pure]
+  seq_pure    := by intros; apply ext; intros; simp [seq_pure]
+  seq_assoc   := by intros; apply ext; intros; simp [seq_assoc]
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
-  id_map         := by intros; apply ext; intros; simp
-  map_const      := by intros; rfl
-  seqLeft_eq     := by intros; apply ext; intros; simp; apply LawfulApplicative.seqLeft_eq
-  seqRight_eq    := by intros; apply ext; intros; simp; apply LawfulApplicative.seqRight_eq
-  pure_seq       := by intros; apply ext; intros; simp; apply LawfulApplicative.pure_seq
-  bind_pure_comp := by intros; apply ext; intros; simp; apply LawfulMonad.bind_pure_comp
-  bind_map       := by intros; rfl
+  bind_pure_comp := by intros; apply ext; intros; simp [LawfulMonad.bind_pure_comp]
+  bind_map       := by intros; apply ext; intros; simp [bind_map]
   pure_bind      := by intros; apply ext; intros; simp
   bind_assoc     := by intros; apply ext; intros; simp
 
 end ReaderT
 
-/- StateRefT -/
+/-! # StateRefT -/
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulMonad (ReaderT (ST.Ref ω σ) m))
 
-/- StateT -/
+/-! # StateT -/
 
 namespace StateT
 
@@ -248,13 +250,9 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_bind [Monad m] (x : StateT σ m α) (f : α → StateT σ m β) (s : σ)
     : (x >>= f).run s = x.run s >>= λ p => (f p.1).run p.2 := by
   simp [bind, StateT.bind, run]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_map {α β σ : Type u} [Monad m] [LawfulMonad m] (f : α → β) (x : StateT σ m α) (s : σ) : (f <$> x).run s = (fun (p : α × σ) => (f p.1, p.2)) <$> x.run s := by
   simp [Functor.map, StateT.map, run, map_eq_pure_bind]
-  apply bind_congr
-  intro p; cases p; rfl
 
 @[simp] theorem run_get [Monad m] (s : σ)    : (get : StateT σ m σ).run s = pure (s, s) := rfl
 
@@ -263,7 +261,7 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 @[simp] theorem run_modify [Monad m] (f : σ → σ) (s : σ) : (modify f : StateT σ m PUnit).run s = pure (⟨⟩, f s) := rfl
 
 @[simp] theorem run_modifyGet [Monad m] (f : σ → α × σ) (s : σ) : (modifyGet f : StateT σ m α).run s = pure ((f s).1, (f s).2) := by
-  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]; cases f s <;> rfl
+  simp [modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, run]
 
 @[simp] theorem run_lift {α σ : Type u} [Monad m] (x : m α) (s : σ) : (StateT.lift x : StateT σ m α).run s = x >>= fun a => pure (a, s) := rfl
 
@@ -289,16 +287,16 @@ theorem ext {x y : StateT σ m α} (h : ∀ s, x.run s = y.run s) : x = y :=
 
 theorem seqRight_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x *> y = const α id <$> x <*> y := by
   apply ext; intro s
-  simp [map_eq_pure_bind]
+  simp [map_eq_pure_bind, const]
   apply bind_congr; intro p; cases p
-  simp [Prod.ext]
+  simp [Prod.eta]
 
 theorem seqLeft_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x <* y = const β <$> x <*> y := by
   apply ext; intro s
   simp [map_eq_pure_bind]
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
-  id_map         := by intros; apply ext; intros; simp[Prod.ext]
+  id_map         := by intros; apply ext; intros; simp[Prod.eta]
   map_const      := by intros; rfl
   seqLeft_eq     := seqLeft_eq
   seqRight_eq    := seqRight_eq

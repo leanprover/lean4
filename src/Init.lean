@@ -6,15 +6,20 @@ Authors: Leonardo de Moura
 prelude
 import Init.Prelude
 import Init.Notation
+import Init.Tactics
 import Init.Core
 import Init.Control
 import Init.Data.Basic
 import Init.WF
+import Init.WFTactics
 import Init.Data
 import Init.System
 import Init.Util
-import Init.Fix
+import Init.Dynamic
+import Init.ShareCommon
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas
 import Init.Hints
+import Init.Conv
+import Init.SizeOfLemmas

@@ -3,7 +3,7 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
-universes u v w
+universe u v w
 
 abbrev M := ExceptT String MetaM
 

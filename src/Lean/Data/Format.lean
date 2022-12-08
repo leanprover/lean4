@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 import Lean.Data.Options
-universes u v
+universe u v
 
 namespace Std
 namespace Format
@@ -39,9 +39,10 @@ namespace Lean
 open Std
 
 export Std
-  (Format ToFormat fmt Format.nest Format.nil Format.joinSep Format.line
-   Format.sbracket Format.bracket Format.group Format.pretty Format.fill Format.paren Format.join)
-export Std.ToFormat (format)
+  (Format ToFormat Format.nest Format.nil Format.joinSep Format.line
+   Format.sbracket Format.bracket Format.group Format.tag Format.pretty
+   Format.fill Format.paren Format.join Format.align)
+export ToFormat (format)
 
 instance : ToFormat Name where
   format n := n.toString
@@ -53,6 +54,7 @@ instance : ToFormat DataValue where
     | DataValue.ofName v   => "`" ++ format v
     | DataValue.ofNat v    => format v
     | DataValue.ofInt v    => format v
+    | DataValue.ofSyntax v => format v
 
 instance : ToFormat (Name × DataValue) where
   format

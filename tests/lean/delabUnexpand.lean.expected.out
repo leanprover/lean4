@@ -1,0 +1,9 @@
+3 ♬ 4 : Foo
+foo
+  (foo
+    (foo
+      (foo
+        (foo
+          (foo
+            (foo
+              (foo (foo (foo (foo (foo (foo (foo (foo (foo (foo (foo (foo (foo (foo id)))))))))))))))))))) : Nat → Nat

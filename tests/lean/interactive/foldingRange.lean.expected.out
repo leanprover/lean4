@@ -1,0 +1,14 @@
+{"textDocument": {"uri": "file://foldingRange.lean"},
+ "position": {"line": 0, "character": 2}}
+[{"startLine": 1, "kind": "imports", "endLine": 4},
+ {"startLine": 8, "kind": "imports", "endLine": 9},
+ {"startLine": 13, "kind": "comment", "endLine": 15},
+ {"startLine": 17, "kind": "comment", "endLine": 19},
+ {"startLine": 21, "kind": "region", "endLine": 22},
+ {"startLine": 24, "kind": "region", "endLine": 30},
+ {"startLine": 32, "kind": "region", "endLine": 37},
+ {"startLine": 33, "kind": "region", "endLine": 34},
+ {"startLine": 35, "kind": "region", "endLine": 36},
+ {"startLine": 11, "kind": "region", "endLine": 39},
+ {"startLine": 6, "kind": "region", "endLine": 40},
+ {"startLine": 42, "kind": "region", "endLine": 46}]

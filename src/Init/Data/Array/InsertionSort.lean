@@ -18,11 +18,11 @@ where
       else
         a
   @[specialize] swapLoop (a : Array α) (j : Nat) (h : j < a.size) : Array α :=
-    match he:j with
+    match (generalizing := false) he:j with -- using `generalizing` because we don't want to refine the type of `h`
     | 0    => a
     | j'+1 =>
-      have h' : j' < a.size by subst j; exact Nat.ltTrans (Nat.ltSuccSelf _) h
-      if lt (a.get ⟨j, h⟩) (a.get ⟨j', h'⟩) then
-        swapLoop (a.swap ⟨j, h⟩ ⟨j', h'⟩) j' (by rw [size_swap]; assumption done)
+      have h' : j' < a.size := by subst j; exact Nat.lt_trans (Nat.lt_succ_self _) h
+      if lt a[j] a[j'] then
+        swapLoop (a.swap ⟨j, h⟩ ⟨j', h'⟩) j' (by rw [size_swap]; assumption; done)
       else
         a

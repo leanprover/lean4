@@ -16,35 +16,38 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
     let alts := alts.pop;
     alts.push (Alt.default last.body)
 
-private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := do
+private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do
   let aBody := (alts.get! i).body
   let mut n := 1
   for j in [i+1:alts.size] do
-    if alts[j].body == aBody then
+    if alts[j]!.body == aBody then
       n := n+1
   return n
 
-private def maxOccs (alts : Array Alt) : Alt × Nat := do
-  let mut maxAlt := alts[0]
+private def maxOccs (alts : Array Alt) : Alt × Nat := Id.run do
+  let mut maxAlt := alts[0]!
   let mut max    := getOccsOf alts 0
   for i in [1:alts.size] do
     let curr := getOccsOf alts i
     if curr > max then
-       maxAlt := alts[i]
+       maxAlt := alts[i]!
        max    := curr
   return (maxAlt, max)
 
 private def addDefault (alts : Array Alt) : Array Alt :=
   if alts.size <= 1 || alts.any Alt.isDefault then alts
   else
-    let (max, noccs) := maxOccs alts;
+    let (max, noccs) := maxOccs alts
     if noccs == 1 then alts
     else
-      let alts := alts.filter $ (fun alt => alt.body != max.body);
+      let alts := alts.filter fun alt => alt.body != max.body
       alts.push (Alt.default max.body)
 
+private def filterUnreachable (alts : Array Alt) : Array Alt :=
+  alts.filter fun alt => alt.body != FnBody.unreachable
+
 private def mkSimpCase (tid : Name) (x : VarId) (xType : IRType) (alts : Array Alt) : FnBody :=
-  let alts := alts.filter (fun alt => alt.body != FnBody.unreachable);
+  let alts := filterUnreachable alts
   let alts := addDefault alts;
   if alts.size == 0 then
     FnBody.unreachable
@@ -58,9 +61,9 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   let bs         := modifyJPs bs simpCase;
   match term with
   | FnBody.case tid x xType alts =>
-    let alts := alts.map $ fun alt => alt.modifyBody simpCase;
+    let alts := alts.map fun alt => alt.modifyBody simpCase;
     reshape bs (mkSimpCase tid x xType alts)
-  | other => reshape bs term
+  | _     => reshape bs term
 
 /-- Simplify `case`
   - Remove unreachable branches.
@@ -68,7 +71,7 @@ partial def FnBody.simpCase (b : FnBody) : FnBody :=
   - Merge most common branches using `Alt.default`. -/
 def Decl.simpCase (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.simpCase
+  | .fdecl (body := b) .. => d.updateBody! b.simpCase
   | other => other
 
 end Lean.IR

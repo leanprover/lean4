@@ -17,7 +17,7 @@ structure FloatSpec where
   decLe : DecidableRel le
 
 -- Just show FloatSpec is inhabited.
-constant floatSpec : FloatSpec := {
+opaque floatSpec : FloatSpec := {
   float := Unit,
   val   := (),
   lt    := fun _ _ => True,
@@ -31,56 +31,70 @@ structure Float where
 
 instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
 
-@[extern "lean_float_of_nat"] constant Float.ofNat : (@& Nat) → Float
-@[extern c inline "#1 + #2"]  constant Float.add : Float → Float → Float
-@[extern c inline "#1 - #2"]  constant Float.sub : Float → Float → Float
-@[extern c inline "#1 * #2"]  constant Float.mul : Float → Float → Float
-@[extern c inline "#1 / #2"]  constant Float.div : Float → Float → Float
-@[extern c inline "(- #1)"]   constant Float.neg : Float → Float
-
-def Float.ofInt : Int → Float
-  | Int.ofNat n => Float.ofNat n
-  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
+@[extern "lean_float_add"] opaque Float.add : Float → Float → Float
+@[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
+@[extern "lean_float_mul"] opaque Float.mul : Float → Float → Float
+@[extern "lean_float_div"] opaque Float.div : Float → Float → Float
+@[extern "lean_float_negate"] opaque Float.neg : Float → Float
 
 set_option bootstrap.genMatcherCode false
-def Float.lt  : Float → Float → Prop := fun a b =>
+def Float.lt : Float → Float → Prop := fun a b =>
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.lt a b
 
-def Float.le  : Float → Float → Prop := fun a b =>
+def Float.le : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
 
-instance : OfNat Float n   := ⟨Float.ofNat n⟩
-instance : Add Float       := ⟨Float.add⟩
-instance : Sub Float       := ⟨Float.sub⟩
-instance : Mul Float       := ⟨Float.mul⟩
-instance : Div Float       := ⟨Float.div⟩
-instance : Neg Float       := ⟨Float.neg⟩
-instance : LT Float        := ⟨Float.lt⟩
-instance : LE Float        := ⟨Float.le⟩
+instance : Add Float := ⟨Float.add⟩
+instance : Sub Float := ⟨Float.sub⟩
+instance : Mul Float := ⟨Float.mul⟩
+instance : Div Float := ⟨Float.div⟩
+instance : Neg Float := ⟨Float.neg⟩
+instance : LT Float  := ⟨Float.lt⟩
+instance : LE Float  := ⟨Float.le⟩
 
-@[extern c inline "#1 == #2"] constant Float.beq (a b : Float) : Bool
+/-- Note: this is not reflexive since `NaN != NaN`.-/
+@[extern "lean_float_beq"] opaque Float.beq (a b : Float) : Bool
 
 instance : BEq Float := ⟨Float.beq⟩
 
-@[extern c inline "#1 < #2"]   constant Float.decLt (a b : Float) : Decidable (a < b) :=
+@[extern "lean_float_decLt"] opaque Float.decLt (a b : Float) : Decidable (a < b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLt a b
 
-@[extern c inline "#1 <= #2"] constant Float.decLe (a b : Float) : Decidable (a ≤ b) :=
+@[extern "lean_float_decLe"] opaque Float.decLe (a b : Float) : Decidable (a ≤ b) :=
   match a, b with
   | ⟨a⟩, ⟨b⟩ => floatSpec.decLe a b
 
 instance floatDecLt (a b : Float) : Decidable (a < b) := Float.decLt a b
 instance floatDecLe (a b : Float) : Decidable (a ≤ b) := Float.decLe a b
 
-@[extern "lean_float_to_string"] constant Float.toString : Float → String
+@[extern "lean_float_to_string"] opaque Float.toString : Float → String
 
-@[extern c inline "(uint8_t)#1"] constant Float.toUInt8 : Float → UInt8
-@[extern c inline "(uint16_t)#1"] constant Float.toUInt16 : Float → UInt16
-@[extern c inline "(uint32_t)#1"] constant Float.toUInt32 : Float → UInt32
-@[extern c inline "(uint64_t)#1"] constant Float.toUInt64 : Float → UInt64
-@[extern c inline "(size_t)#1"] constant Float.toUSize : Float → USize
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt8, returns 0. -/
+@[extern "lean_float_to_uint8"] opaque Float.toUInt8 : Float → UInt8
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt16, returns 0. -/
+@[extern "lean_float_to_uint16"] opaque Float.toUInt16 : Float → UInt16
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt32, returns 0. -/
+@[extern "lean_float_to_uint32"] opaque Float.toUInt32 : Float → UInt32
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for UInt64, returns 0. -/
+@[extern "lean_float_to_uint64"] opaque Float.toUInt64 : Float → UInt64
+/-- If the given float is positive, truncates the value to the nearest positive integer.
+If negative or larger than the maximum value for USize, returns 0. -/
+@[extern "lean_float_to_usize"] opaque Float.toUSize : Float → USize
+
+@[extern "lean_float_isnan"] opaque Float.isNaN : Float → Bool
+@[extern "lean_float_isfinite"] opaque Float.isFinite : Float → Bool
+@[extern "lean_float_isinf"] opaque Float.isInf : Float → Bool
+/-- Splits the given float `x` into a significand/exponent pair `(s, i)`
+such that `x = s * 2^i` where `s ∈ (-1;-0.5] ∪ [0.5; 1)`.
+Returns an undefined value if `x` is not finite.
+-/
+@[extern "lean_float_frexp"] opaque Float.frExp : Float → Float × Int
 
 instance : ToString Float where
   toString := Float.toString
@@ -90,31 +104,42 @@ instance : Repr Float where
 
 instance : ReprAtom Float  := ⟨⟩
 
-abbrev Nat.toFloat (n : Nat) : Float :=
-  Float.ofNat n
+@[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
 
-@[extern "sin"] constant Float.sin : Float → Float
-@[extern "cos"] constant Float.cos : Float → Float
-@[extern "tan"] constant Float.tan : Float → Float
-@[extern "asin"] constant Float.asin : Float → Float
-@[extern "acos"] constant Float.acos : Float → Float
-@[extern "atan"] constant Float.atan : Float → Float
-@[extern "atan2"] constant Float.atan2 : Float → Float → Float
-@[extern "sinh"] constant Float.sinh : Float → Float
-@[extern "cosh"] constant Float.cosh : Float → Float
-@[extern "tanh"] constant Float.tanh : Float → Float
-@[extern "asinh"] constant Float.asinh : Float → Float
-@[extern "acosh"] constant Float.acosh : Float → Float
-@[extern "atanh"] constant Float.atanh : Float → Float
-@[extern "exp"] constant Float.exp : Float → Float
-@[extern "exp2"] constant Float.exp2 : Float → Float
-@[extern "log"] constant Float.log : Float → Float
-@[extern "log2"] constant Float.log2 : Float → Float
-@[extern "log10"] constant Float.log10 : Float → Float
-@[extern "pow"] constant Float.pow : Float → Float → Float
-@[extern "sqrt"] constant Float.sqrt : Float → Float
-@[extern "cbrt"] constant Float.cbrt : Float → Float
+@[extern "sin"] opaque Float.sin : Float → Float
+@[extern "cos"] opaque Float.cos : Float → Float
+@[extern "tan"] opaque Float.tan : Float → Float
+@[extern "asin"] opaque Float.asin : Float → Float
+@[extern "acos"] opaque Float.acos : Float → Float
+@[extern "atan"] opaque Float.atan : Float → Float
+@[extern "atan2"] opaque Float.atan2 : Float → Float → Float
+@[extern "sinh"] opaque Float.sinh : Float → Float
+@[extern "cosh"] opaque Float.cosh : Float → Float
+@[extern "tanh"] opaque Float.tanh : Float → Float
+@[extern "asinh"] opaque Float.asinh : Float → Float
+@[extern "acosh"] opaque Float.acosh : Float → Float
+@[extern "atanh"] opaque Float.atanh : Float → Float
+@[extern "exp"] opaque Float.exp : Float → Float
+@[extern "exp2"] opaque Float.exp2 : Float → Float
+@[extern "log"] opaque Float.log : Float → Float
+@[extern "log2"] opaque Float.log2 : Float → Float
+@[extern "log10"] opaque Float.log10 : Float → Float
+@[extern "pow"] opaque Float.pow : Float → Float → Float
+@[extern "sqrt"] opaque Float.sqrt : Float → Float
+@[extern "cbrt"] opaque Float.cbrt : Float → Float
+@[extern "ceil"] opaque Float.ceil : Float → Float
+@[extern "floor"] opaque Float.floor : Float → Float
+@[extern "round"] opaque Float.round : Float → Float
+@[extern "fabs"] opaque Float.abs : Float → Float
 
-instance : Pow Float := ⟨Float.pow⟩
+instance : Pow Float Float := ⟨Float.pow⟩
 
-@[extern "lean_float_of_scientific"] constant Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float
+instance : Min Float := minOfLe
+
+instance : Max Float := maxOfLe
+
+/--
+Efficiently computes `x * 2^i`.
+-/
+@[extern "lean_float_scaleb"]
+opaque Float.scaleB (x : Float) (i : @& Int) : Float

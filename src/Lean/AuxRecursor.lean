@@ -11,13 +11,15 @@ def casesOnSuffix       := "casesOn"
 def recOnSuffix         := "recOn"
 def brecOnSuffix        := "brecOn"
 def binductionOnSuffix  := "binductionOn"
+def belowSuffix         := "below"
 
 def mkCasesOnName (indDeclName : Name) : Name := Name.mkStr indDeclName casesOnSuffix
 def mkRecOnName (indDeclName : Name) : Name   := Name.mkStr indDeclName recOnSuffix
 def mkBRecOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName brecOnSuffix
 def mkBInductionOnName (indDeclName : Name) : Name  := Name.mkStr indDeclName binductionOnSuffix
+def mkBelowName (indDeclName : Name) : Name := Name.mkStr indDeclName belowSuffix
 
-builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension `auxRec
+builtin_initialize auxRecExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_mark_aux_recursor]
 def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
@@ -26,13 +28,26 @@ def markAuxRecursor (env : Environment) (declName : Name) : Environment :=
 @[export lean_is_aux_recursor]
 def isAuxRecursor (env : Environment) (declName : Name) : Bool :=
   auxRecExt.isTagged env declName
+  -- TODO: use `markAuxRecursor` when they are defined
+  -- An attribute is not a good solution since we don't want users to control what is tagged as an auxiliary recursor.
+  || declName == ``Eq.ndrec
+  || declName == ``Eq.ndrecOn
 
-def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
-  match declName with 
-  | Name.str _ s _ => s == casesOnSuffix && isAuxRecursor env declName
+def isAuxRecursorWithSuffix (env : Environment) (declName : Name) (suffix : Name) : Bool :=
+  match declName with
+  | .str _ s => s == suffix && isAuxRecursor env declName
   | _ => false
 
-builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension `noConf
+def isCasesOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName casesOnSuffix
+
+def isRecOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName recOnSuffix
+
+def isBRecOnRecursor (env : Environment) (declName : Name) : Bool :=
+  isAuxRecursorWithSuffix env declName brecOnSuffix
+
+builtin_initialize noConfusionExt : TagDeclarationExtension ← mkTagDeclarationExtension
 
 @[export lean_mark_no_confusion]
 def markNoConfusion (env : Environment) (n : Name) : Environment :=

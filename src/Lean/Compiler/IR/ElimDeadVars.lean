@@ -33,7 +33,7 @@ partial def FnBody.elimDead (b : FnBody) : FnBody :=
   let bs         := modifyJPs bs elimDead
   let term       := match term with
     | FnBody.case tid x xType alts =>
-      let alts := alts.map $ fun alt => alt.modifyBody elimDead
+      let alts := alts.map fun alt => alt.modifyBody elimDead
       FnBody.case tid x xType alts
     | other => other
   reshapeWithoutDead bs term
@@ -41,7 +41,7 @@ partial def FnBody.elimDead (b : FnBody) : FnBody :=
 /-- Eliminate dead let-declarations and join points -/
 def Decl.elimDead (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) .. => d.updateBody! b.elimDead
+  | .fdecl (body := b) .. => d.updateBody! b.elimDead
   | other => other
 
 end Lean.IR

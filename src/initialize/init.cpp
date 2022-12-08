@@ -4,9 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/stackinfo.h>
-#include <lean/thread.h>
-#include <lean/init_module.h>
+#include "runtime/stackinfo.h"
+#include "runtime/thread.h"
+#include "runtime/init_module.h"
 #include "util/init_module.h"
 #include "util/io.h"
 #include "kernel/init_module.h"
@@ -20,7 +20,10 @@ namespace lean {
 extern "C" object* initialize_Init(object* w);
 extern "C" object* initialize_Lean(object* w);
 
-extern "C" void lean_initialize() {
+/* Initializes the Lean runtime. Before executing any code which uses the Lean package,
+you must first call this function, and then `lean::io_mark_end_initialization`. Inbetween
+these two calls, you may also have to run additional initializers for your own modules. */
+extern "C" LEAN_EXPORT void lean_initialize() {
     save_stack_info();
     initialize_util_module();
     consume_io_result(initialize_Init(io_mk_world()));
@@ -31,10 +34,6 @@ extern "C" void lean_initialize() {
     initialize_library_module();
     initialize_compiler_module();
     initialize_constructions_module();
-}
-
-void initialize() {
-    lean_initialize();
 }
 
 void finalize() {
@@ -50,8 +49,10 @@ void finalize() {
 }
 
 initializer::initializer() {
-    initialize();
-    lean::io_mark_end_initialization();
+    lean_initialize();
+    /* Remark: We used to call `lean::io_mark_end_initialization` here, however this prevented
+    plugins from setting up global state such as environment extensions in their initializers.
+    See also `lean_initialize`. */
 }
 
 initializer::~initializer() {

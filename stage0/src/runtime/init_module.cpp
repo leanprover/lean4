@@ -4,23 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/alloc.h>
-#include <lean/debug.h>
-#include <lean/serializer.h>
-#include <lean/thread.h>
-#include <lean/object.h>
-#include <lean/io.h>
-#include <lean/stack_overflow.h>
-#include <lean/process.h>
+#include "runtime/alloc.h"
+#include "runtime/debug.h"
+#include "runtime/thread.h"
+#include "runtime/object.h"
+#include "runtime/io.h"
+#include "runtime/stack_overflow.h"
+#include "runtime/process.h"
+#include "runtime/mutex.h"
 
 namespace lean {
-extern "C" void lean_initialize_runtime_module() {
+extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
     initialize_alloc();
     initialize_debug();
     initialize_object();
     initialize_io();
-    initialize_serializer();
     initialize_thread();
+    initialize_mutex();
     initialize_process();
     initialize_stack_overflow();
 }
@@ -30,8 +30,8 @@ void initialize_runtime_module() {
 void finalize_runtime_module() {
     finalize_stack_overflow();
     finalize_process();
+    finalize_mutex();
     finalize_thread();
-    finalize_serializer();
     finalize_io();
     finalize_object();
     finalize_debug();

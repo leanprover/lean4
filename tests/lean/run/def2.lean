@@ -5,7 +5,7 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 | cons : α → {n : Nat} → Vec α n → Vec α (n+1)
 
 open Vec
-universes u
+universe u
 
 variable {α : Type u}
 variable (f : α → α → α)

@@ -1,0 +1,2 @@
+invalidPatternIssue.lean:13:0-13:20: error: invalid patterns, `x` is an explicit pattern variable, but it only occurs in positions that are inaccessible to pattern matching
+  { pred := Nat.succ .(x.1) }

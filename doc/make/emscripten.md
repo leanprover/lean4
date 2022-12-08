@@ -1,5 +1,4 @@
-Compiling lean.js via Emscripten
---------------------------------
+# Compiling lean.js via Emscripten
 
 First install Emscripten via your distribution's package manager or [download and install it](https://kripken.github.io/emscripten-site/docs/getting_started/downloads.html) yourself. Then build asm.js and WebAssembly binaries using
 

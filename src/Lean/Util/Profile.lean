@@ -3,7 +3,7 @@ Copyright (c) 2019 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
-import Lean.Data.Position
+import Lean.Data.Options
 
 namespace Lean
 
@@ -16,7 +16,7 @@ unsafe def profileitIOUnsafe {ε α : Type} (category : String) (opts : Options)
   | Except.ok a    => pure a
   | Except.error e => throw e
 
-@[implementedBy profileitIOUnsafe]
+@[implemented_by profileitIOUnsafe]
 def profileitIO {ε α : Type} (category : String) (opts : Options) (act : EIO ε α) : EIO ε α := act
 
 -- impossible to infer `ε`

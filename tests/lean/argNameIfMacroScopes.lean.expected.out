@@ -1,0 +1,4 @@
+argNameIfMacroScopes.lean:5:4-5:5: error: don't know how to synthesize placeholder
+context:
+x : Nat
+⊢ Nat

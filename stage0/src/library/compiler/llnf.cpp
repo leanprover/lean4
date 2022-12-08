@@ -8,13 +8,14 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
-#include <lean/flet.h>
-#include <lean/sstream.h>
+#include "runtime/flet.h"
+#include "runtime/sstream.h"
 #include "util/name_hash_set.h"
 #include "util/name_hash_map.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"
@@ -657,7 +658,7 @@ class to_lambda_pure_fn {
         cnstr_info k_info      = get_cnstr_info(const_name(k));
         unsigned nparams       = k_val.get_nparams();
         unsigned cidx          = k_info.m_cidx;
-        name const & I         = const_name(k).get_prefix();
+        name const & I         = k_val.get_induct();
         if (optional<unsigned> r = ::lean::is_enum_type(env(), I)) {
             /* We use a literal for enumeration types. */
             expr x = mk_let_decl(*to_uint_type(*r), mk_lit(literal(nat(cidx))));

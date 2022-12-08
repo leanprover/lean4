@@ -5,7 +5,7 @@ However, functions such as `compose` are still quite verbose to define. Note tha
 polymorphic `compose` is even more verbose than the one previously defined.
 
 ```lean
-universes u v w
+universe u v w
 def compose {α : Type u} {β : Type v} {γ : Type w}
             (g : β → γ) (f : α → β) (x : α) : γ :=
   g (f x)
@@ -36,10 +36,12 @@ Note that, Lean inferred a more general type using `Sort` instead of `Type`.
 
 Although we love this feature and use it extensively when implementing Lean,
 we realize some users may feel uncomfortable with it. Thus, you can disable it using
-the command `set_option autoBoundImplicitLocal false`.
+the command `set_option autoImplicit false`.
 ```lean
-set_option autoBoundImplicitLocal false
+set_option autoImplicit false
 /- The following definition produces `unknown identifier` errors -/
 -- def compose (g : β → γ) (f : α → β) (x : α) : γ :=
 --   g (f x)
 ```
+The Lean language server provides [semantic highlighting](./semantic_highlighting.md) information to editors, and it provides
+visual feedback whether an identifier has been interpreted as an auto bound implicit argument.

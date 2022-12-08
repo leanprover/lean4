@@ -12,10 +12,10 @@ partial def replace (f? : Level → Option Level) (u : Level) : Level :=
   match f? u with
   | some v => v
   | none   => match u with
-    | max v₁ v₂  _ => mkLevelMax' (replace f? v₁) (replace f? v₂)
-    | imax v₁ v₂ _ => mkLevelIMax' (replace f? v₁) (replace f? v₂)
-    | succ v _     => mkLevelSucc (replace f? v)
-    | _            => u
+    | max v₁ v₂  => mkLevelMax' (replace f? v₁) (replace f? v₂)
+    | imax v₁ v₂ => mkLevelIMax' (replace f? v₁) (replace f? v₂)
+    | succ v     => mkLevelSucc (replace f? v)
+    | _          => u
 
 end Level
 
@@ -23,7 +23,7 @@ namespace Expr
 
 namespace ReplaceLevelImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   keys    : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
@@ -31,11 +31,11 @@ structure State where
 
 abbrev ReplaceM := StateM State
 
-@[inline] unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
+unsafe def cache (i : USize) (key : Expr) (result : Expr) : ReplaceM Expr := do
   modify fun s => { keys := s.keys.uset i key lcProof, results := s.results.uset i result lcProof };
   pure result
 
-@[specialize] unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr) : ReplaceM Expr := do
+unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr) : ReplaceM Expr := do
   let rec visit (e : Expr) := do
     let c ← get
     let h := ptrAddrUnsafe e
@@ -45,34 +45,34 @@ abbrev ReplaceM := StateM State
     else match e with
         | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
         | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b _       => cache i e <| e.updateMData! (← visit b)
+        | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
         | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a _         => cache i e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b _      => cache i e <| e.updateProj! (← visit b)
-        | Expr.sort u _          => cache i e <| e.updateSort! (u.replace f?)
-        | Expr.const n us _      => cache i e <| e.updateConst! (us.map (Level.replace f?))
+        | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
+        | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
+        | Expr.sort u            => cache i e <| e.updateSort! (u.replace f?)
+        | Expr.const _ us        => cache i e <| e.updateConst! (us.map (Level.replace f?))
         | e                      => pure e
   visit e
 
 unsafe def initCache : State :=
   { keys    := mkArray cacheSize.toNat (cast lcProof ()), -- `()` is not a valid `Expr`
-    results := mkArray cacheSize.toNat arbitrary }
+    results := mkArray cacheSize.toNat default }
 
-@[inline] unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
+unsafe def replaceUnsafe (f? : Level → Option Level) (e : Expr) : Expr :=
   (replaceUnsafeM f? cacheSize e).run' initCache
 
 end ReplaceLevelImpl
 
-@[implementedBy ReplaceLevelImpl.replaceUnsafe]
+@[implemented_by ReplaceLevelImpl.replaceUnsafe]
 partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
   | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
   | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
-  | e@(Expr.mdata _ b _)       => let b := replaceLevel f? b; e.updateMData! b
+  | e@(Expr.mdata _ b)         => let b := replaceLevel f? b; e.updateMData! b
   | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
-  | e@(Expr.app f a _)         => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
-  | e@(Expr.proj _ _ b _)      => let b := replaceLevel f? b; e.updateProj! b
-  | e@(Expr.sort u _)          => e.updateSort! (u.replace f?)
-  | e@(Expr.const n us _)      => e.updateConst! (us.map (Level.replace f?))
+  | e@(Expr.app f a)           => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
+  | e@(Expr.proj _ _ b)        => let b := replaceLevel f? b; e.updateProj! b
+  | e@(Expr.sort u)            => e.updateSort! (u.replace f?)
+  | e@(Expr.const _ us)        => e.updateConst! (us.map (Level.replace f?))
   | e                          => e
 
 end Expr

@@ -3,9 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Util.Trace
-import Lean.Parser.Syntax
-import Lean.Parser.Extension
+import Lean.Parser.Command
 import Lean.KeyedDeclsAttribute
 import Lean.Elab.Exception
 
@@ -17,7 +15,7 @@ def Syntax.prettyPrint (stx : Syntax) : Format :=
   | none     => format stx
 
 def MacroScopesView.format (view : MacroScopesView) (mainModule : Name) : Format :=
-  fmt $
+  Std.format <|
     if view.scopes.isEmpty then
       view.name
     else if view.mainModule == mainModule then
@@ -34,20 +32,13 @@ def expandOptNamedPrio (stx : Syntax) : MacroM Nat :=
     | `(Parser.Command.namedPrio| (priority := $prio)) => evalPrio prio
     | _ => Macro.throwUnsupported
 
-def expandOptNamedName (stx : Syntax) : MacroM (Option Name) := do
-  if stx.isNone then
-    return none
-  else match stx[0] with
-    | `(Parser.Command.namedName| (name := $name)) => return name.getId
-    | _ => Macro.throwUnsupported
-
 structure MacroStackElem where
   before : Syntax
   after : Syntax
 
 abbrev MacroStack := List MacroStackElem
 
-/- If `ref` does not have position information, then try to use macroStack -/
+/-- If `ref` does not have position information, then try to use macroStack -/
 def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
   match ref.getPos? with
   | some _ => ref
@@ -73,23 +64,22 @@ def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroS
         msgData ++ Format.line ++ "while expanding" ++ indentD elem.before)
       msgData
 
-def checkSyntaxNodeKind (k : Name) : AttrM Name := do
+def checkSyntaxNodeKind [Monad m] [MonadEnv m] [MonadError m] (k : Name) : m Name := do
   if Parser.isValidSyntaxNodeKind (← getEnv) k then pure k
   else throwError "failed"
 
-def checkSyntaxNodeKindAtNamespacesAux (k : Name) : Name → AttrM Name
-  | n@(Name.str p _ _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespacesAux k p
+def checkSyntaxNodeKindAtNamespaces [Monad m] [MonadEnv m] [MonadError m] (k : Name) : Name → m Name
+  | n@(.str p _) => checkSyntaxNodeKind (n ++ k) <|> checkSyntaxNodeKindAtNamespaces k p
+  | .anonymous   => checkSyntaxNodeKind k
   | _ => throwError "failed"
 
-def checkSyntaxNodeKindAtNamespaces (k : Name) : AttrM Name := do
+def checkSyntaxNodeKindAtCurrentNamespaces (k : Name) : AttrM Name := do
   let ctx ← read
-  checkSyntaxNodeKindAtNamespacesAux k ctx.currNamespace
+  checkSyntaxNodeKindAtNamespaces k ctx.currNamespace
 
 def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : AttrM SyntaxNodeKind := do
   let k ← Attribute.Builtin.getId stx
-  checkSyntaxNodeKind k
-  <|>
-  checkSyntaxNodeKindAtNamespaces k
+  checkSyntaxNodeKindAtCurrentNamespaces k
   <|>
   checkSyntaxNodeKind (defaultParserNamespace ++ k)
   <|>
@@ -98,71 +88,77 @@ def syntaxNodeKindOfAttrParam (defaultParserNamespace : Name) (stx : Syntax) : A
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts `Lean.Syntax constName
 
-@[implementedBy evalSyntaxConstantUnsafe]
-constant evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
+@[implemented_by evalSyntaxConstantUnsafe]
+opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
 
-unsafe def mkElabAttribute (γ) (attrDeclName attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
-    : IO (KeyedDeclsAttribute γ) :=
+unsafe def mkElabAttribute (γ) (attrBuiltinName attrName : Name) (parserNamespace : Name) (typeName : Name) (kind : String)
+    (attrDeclName : Name := by exact decl_name%) : IO (KeyedDeclsAttribute γ) :=
   KeyedDeclsAttribute.init {
     builtinName   := attrBuiltinName
     name          := attrName
     descr         := kind ++ " elaborator"
     valueTypeName := typeName
-    evalKey       := fun _ stx => syntaxNodeKindOfAttrParam parserNamespace stx
+    evalKey       := fun _ stx => do
+      let kind ← syntaxNodeKindOfAttrParam parserNamespace stx
+      /- Recall that a `SyntaxNodeKind` is often the name of the parser, but this is not always true, and we must check it. -/
+      if (← getEnv).contains kind && (← getInfoState).enabled then
+        addConstInfo stx[1] kind none
+      return kind
+    onAdded       := fun builtin declName => do
+      if builtin then
+        if let some doc ← findDocString? (← getEnv) declName (includeBuiltin := false) then
+          declareBuiltin (declName ++ `docString) (mkAppN (mkConst ``addBuiltinDocString) #[toExpr declName, toExpr doc])
+        if let some declRanges ← findDeclarationRanges? declName then
+          declareBuiltin (declName ++ `declRange) (mkAppN (mkConst ``addBuiltinDeclarationRanges) #[toExpr declName, toExpr declRanges])
   } attrDeclName
 
-unsafe def mkMacroAttributeUnsafe : IO (KeyedDeclsAttribute Macro) :=
-  mkElabAttribute Macro `Lean.Elab.macroAttribute `builtinMacro `macro Name.anonymous `Lean.Macro "macro"
+unsafe def mkMacroAttributeUnsafe (ref : Name) : IO (KeyedDeclsAttribute Macro) :=
+  mkElabAttribute Macro `builtin_macro `macro Name.anonymous `Lean.Macro "macro" ref
 
-@[implementedBy mkMacroAttributeUnsafe]
-constant mkMacroAttribute : IO (KeyedDeclsAttribute Macro)
+@[implemented_by mkMacroAttributeUnsafe]
+opaque mkMacroAttribute (ref : Name) : IO (KeyedDeclsAttribute Macro)
 
-builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute
+builtin_initialize macroAttribute : KeyedDeclsAttribute Macro ← mkMacroAttribute decl_name%
 
-private def expandMacroFns (stx : Syntax) : List Macro → MacroM Syntax
-  | []    => throw Macro.Exception.unsupportedSyntax
-  | m::ms => do
+/--
+Try to expand macro at syntax tree root and return macro declaration name and new syntax if successful.
+Return none if all macros threw `Macro.Exception.unsupportedSyntax`.
+-/
+def expandMacroImpl? (env : Environment) : Syntax → MacroM (Option (Name × Except Macro.Exception Syntax)) := fun stx => do
+  for e in macroAttribute.getEntries env stx.getKind do
     try
-      m stx
+      let stx' ← withFreshMacroScope (e.value stx)
+      return (e.declName, Except.ok stx')
     catch
-      | Macro.Exception.unsupportedSyntax => expandMacroFns stx ms
-      | ex                                => throw ex
-
-def getMacros (env : Environment) : Macro := fun stx =>
-  let k := stx.getKind
-  let table := (macroAttribute.ext.getState env).table
-  match table.find? k with
-  | some macroFns => expandMacroFns stx macroFns
-  | none          => throw Macro.Exception.unsupportedSyntax
+      | Macro.Exception.unsupportedSyntax => pure ()
+      | ex                                => return (e.declName, Except.error ex)
+  return none
 
 class MonadMacroAdapter (m : Type → Type) where
   getCurrMacroScope                  : m MacroScope
   getNextMacroScope                  : m MacroScope
   setNextMacroScope                  : MacroScope → m Unit
 
+@[always_inline]
 instance (m n) [MonadLift m n] [MonadMacroAdapter m] : MonadMacroAdapter n := {
-  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _),
-  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _),
+  getCurrMacroScope := liftM (MonadMacroAdapter.getCurrMacroScope : m _)
+  getNextMacroScope := liftM (MonadMacroAdapter.getNextMacroScope : m _)
   setNextMacroScope := fun s => liftM (MonadMacroAdapter.setNextMacroScope s : m _)
 }
 
-private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syntax) := do
-  try
-    let newStx ← getMacros env stx
-    pure (some newStx)
-  catch
-    | Macro.Exception.unsupportedSyntax => pure none
-    | ex                                => throw ex
-
-@[inline] def liftMacroM {α} {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : MacroM α) : m α := do
+def liftMacroM [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m] [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : MacroM α) : m α := do
   let env  ← getEnv
   let currNamespace ← getCurrNamespace
   let openDecls ← getOpenDecls
   let methods := Macro.mkMethods {
-    expandMacro?     := expandMacro? env
+    -- TODO: record recursive expansions in info tree?
+    expandMacro?     := fun stx => do
+      match (← expandMacroImpl? env stx) with
+      | some (_, stx?) => liftExcept stx?
+      | none           => return none
     hasDecl          := fun declName => return env.contains declName
     getCurrNamespace := return currNamespace
-    resolveNamespace? := fun n => return ResolveName.resolveNamespace? env currNamespace openDecls n
+    resolveNamespace := fun n => return ResolveName.resolveNamespace env currNamespace openDecls n
     resolveGlobalName := fun n => return ResolveName.resolveGlobalName env currNamespace openDecls n
   }
   match x { methods        := methods
@@ -173,30 +169,62 @@ private def expandMacro? (env : Environment) (stx : Syntax) : MacroM (Option Syn
             maxRecDepth    := ← MonadRecDepth.getMaxRecDepth
           } { macroScope := (← MonadMacroAdapter.getNextMacroScope) } with
   | EStateM.Result.error Macro.Exception.unsupportedSyntax _ => throwUnsupportedSyntax
-  | EStateM.Result.error (Macro.Exception.error ref msg) _   => throwErrorAt ref msg
-  | EStateM.Result.ok a  s                                   =>
+  | EStateM.Result.error (Macro.Exception.error ref msg) _   =>
+    if msg == maxRecDepthErrorMessage then
+      -- Make sure we can detect exception using `Exception.isMaxRecDepth`
+      throwMaxRecDepthAt ref
+    else
+      throwErrorAt ref msg
+  | EStateM.Result.ok a s =>
     MonadMacroAdapter.setNextMacroScope s.macroScope
     s.traceMsgs.reverse.forM fun (clsName, msg) => trace clsName fun _ => msg
-    pure a
+    return a
 
-@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (x : Macro) (stx : Syntax) : m Syntax :=
+@[inline] def adaptMacro {m : Type → Type} [Monad m] [MonadMacroAdapter m] [MonadEnv m] [MonadRecDepth m] [MonadError m]  [MonadResolveName m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] (x : Macro) (stx : Syntax) : m Syntax :=
   liftMacroM (x stx)
 
 partial def mkUnusedBaseName (baseName : Name) : MacroM Name := do
   let currNamespace ← Macro.getCurrNamespace
   if ← Macro.hasDecl (currNamespace ++ baseName) then
     let rec loop (idx : Nat) := do
-       let name := baseName.appendIndexAfter idx
-       if ← Macro.hasDecl (currNamespace ++ name) then
-         loop (idx+1)
-       else
-         name
+      let name := baseName.appendIndexAfter idx
+      if ← Macro.hasDecl (currNamespace ++ name) then
+        loop (idx+1)
+      else
+        return name
     loop 1
   else
     return baseName
 
+def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m] (ex : Exception) : m Unit := do
+  match ex with
+  | Exception.error ref msg => logErrorAt ref msg
+  | Exception.internal id _ =>
+    unless isAbortExceptionId id do
+      let name ← id.getName
+      logError m!"internal exception: {name}"
+
+def withLogging [Monad m] [MonadLog m] [MonadExcept Exception m] [AddMessageContext m] [MonadOptions m] [MonadLiftT IO m]
+    (x : m Unit) : m Unit := do
+  try x catch ex => logException ex
+
+def nestedExceptionToMessageData [Monad m] [MonadLog m] (ex : Exception) : m MessageData := do
+  let pos ← getRefPos
+  match ex.getRef.getPos? with
+  | none       => return ex.toMessageData
+  | some exPos =>
+    if pos == exPos then
+      return ex.toMessageData
+    else
+      let exPosition := (← getFileMap).toPosition exPos
+      return m!"{exPosition.line}:{exPosition.column} {ex.toMessageData}"
+
+def throwErrorWithNestedErrors [MonadError m] [Monad m] [MonadLog m] (msg : MessageData) (exs : Array Exception) : m α := do
+  throwError "{msg}, errors {toMessageList (← exs.mapM fun | ex => nestedExceptionToMessageData ex)}"
+
 builtin_initialize
   registerTraceClass `Elab
   registerTraceClass `Elab.step
+  registerTraceClass `Elab.step.result (inherited := true)
 
 end Lean.Elab

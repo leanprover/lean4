@@ -1,5 +1,5 @@
 theorem byCases_Bool_bind [Monad m] (x : m Bool) (f g : Bool → m β) (isTrue : f true = g true) (isFalse : f false = g false) : (x >>= f) = (x >>= g) := by
-  have f = g by
+  have : f = g := by
     funext b; cases b <;> assumption
   rw [this]
 

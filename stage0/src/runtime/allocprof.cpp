@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/allocprof.h>
+#include "runtime/allocprof.h"
 namespace lean {
 allocprof::allocprof(std::ostream & out, char const * msg):
     m_out(out), m_msg(msg) {

@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg stroke-linecap="round" font-size="12" font-family="Segoe UI" width="485.7233333333333" height="336.96000000000004" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs />
+  <g transform="translate(942,529)">
+    <g id="Applicative-&gt;Functor">
+      <path d="M -807.881999182059,-412 L -847.12242702921,-475.387638592472" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -851.859658804052,-483.04 L -849.997117457574,-472.431939869483 C -848.256110200696,-474.68582647768 -845.988743857725,-476.089450707263 -843.19501842866,-476.642812558231 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Applicative-&gt;Pure">
+      <path d="M -796.388009621993,-412 L -779.775946795781,-474.343439288465" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -777.458657044673,-483.04 L -783.898561528809,-474.407061321009 C -781.064326160453,-474.686741473815 -778.487567431109,-474.000137103116 -776.168285340778,-472.347248208913 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Applicative-&gt;Seq">
+      <path d="M -785.682854982818,-412 L -714.799014210374,-476.959367842732" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -708.163811683849,-483.04 L -718.238762116551,-479.232720948158 C -715.699848604043,-477.942360809625 -713.898179816704,-475.97637487584 -712.833755754535,-473.334763146803 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Applicative-&gt;SeqLeft">
+      <path d="M -774.344312027491,-412 L -642.789872940275,-478.957606209781" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -634.769021305842,-483.04 L -645.495475917531,-482.068829848393 C -643.394672020307,-480.145880525993 -642.185073860242,-477.769331893569 -641.866681437336,-474.93918395112 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Applicative-&gt;SeqRight">
+      <path d="M -762.225406557428,-411.616331588423 L -552.255039618581,-481.91850535998" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -543.720702607113,-484.775967831244 L -554.473282607084,-485.394048201604 C -552.678367392102,-483.182851583901 -551.831711845061,-480.654159136059 -551.93331596596,-477.807970858076 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Except-&gt;Monad">
+      <path d="M -620.787981188119,-238 L -711.95378637201,-307.579654923495" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -719.108129922992,-313.04 L -713.585679344792,-303.793241670113 C -712.762726383344,-306.519752175201 -711.144846360676,-308.639557671788 -708.732039276787,-310.152658159875 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="List-&gt;Functor">
+      <path d="M -892.034814302334,-412 L -868.075682352572,-474.634018472681" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -864.86017701711,-483.04 L -872.168952513098,-475.129134007629 C -869.321012949211,-475.110389633491 -866.830351755932,-474.157647311872 -864.696968933259,-472.270907042774 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Monad-&gt;Applicative">
+      <path d="M -747.447014155251,-339 L -782.595654197137,-379.260216894652" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -788.514652511416,-386.04 L -784.951224653483,-375.876241743267 C -783.60006650904,-378.383328255499 -781.591241885233,-380.137105533804 -778.924750782062,-381.137573578181 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Monad-&gt;Bind">
+      <path d="M -725.919943874952,-339 L -693.754264838054,-379.952252619104" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -688.195056125048,-387.030048779297 L -697.517641877363,-381.63659025153 C -694.802827232157,-380.775839095105 -692.705702443952,-379.128666143103 -691.226267512747,-376.695071395525 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Option-&gt;Monad">
+      <path d="M -856.761951485149,-238 L -761.177064707358,-307.735551794831" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -753.906381848185,-313.04 L -764.342450894008,-310.377583265001 C -761.962908885902,-308.81268999619 -760.391220528815,-306.658413593472 -759.627385822747,-303.914754056846 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="ReaderM-&gt;Monad">
+      <path d="M -776.319514851485,-238 L -745.783102116211,-304.853562563497" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -742.043818481848,-313.04 L -749.836994714031,-305.60586224138 C -746.99590766236,-305.407530509328 -744.570296570063,-304.299594617665 -742.560161437139,-302.28205456639 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="StateM-&gt;Monad">
+      <path d="M -695.681478217822,-238 L -726.395530552052,-304.861622913356" fill="none" stroke="#A0A0A0" stroke-width="1" />
+      <path d="M -730.152410671067,-313.04 L -729.612933688448,-302.283189850833 C -727.607141972296,-304.305048080909 -725.183919131808,-305.418197745802 -722.343265166986,-305.622638845513 z" fill="#A0A0A0" stroke="#A0A0A0" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="Applicative">
+      <rect x="-839" y="-412" rx="3" ry="3" width="78.3066666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-829" y="-394.05" fill="#3D3D3D">Applicative</text>
+    </g>
+    <g id="Bind">
+      <rect x="-703" y="-412.990048779297" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-690" y="-395.040048779297" fill="#3D3D3D">Bind</text>
+    </g>
+    <g id="Except">
+      <rect x="-631" y="-238" rx="3" ry="3" width="54.5166666666667" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-621" y="-220.05" fill="#3D3D3D">Except</text>
+    </g>
+    <g id="Functor">
+      <rect x="-890.021657986111" y="-509" rx="3" ry="3" width="60.2533333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-880.021657986111" y="-491.05" fill="#3D3D3D">Functor</text>
+    </g>
+    <g id="List">
+      <rect x="-922" y="-412" rx="3" ry="3" width="50" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-906" y="-394.05" fill="#3D3D3D">List</text>
+    </g>
+    <g id="Monad">
+      <rect x="-765" y="-339" rx="3" ry="3" width="57.77" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-755" y="-321.05" fill="#3D3D3D">Monad</text>
+    </g>
+    <g id="Option">
+      <rect x="-903" y="-238" rx="3" ry="3" width="56.8933333333333" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-893" y="-220.05" fill="#3D3D3D">Option</text>
+    </g>
+    <g id="Pure">
+      <rect x="-799" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-786" y="-491.05" fill="#3D3D3D">Pure</text>
+    </g>
+    <g id="ReaderM">
+      <rect x="-816" y="-238" rx="3" ry="3" width="67.5033333333333" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-806" y="-220.05" fill="#3D3D3D">ReaderM</text>
+    </g>
+    <g id="Seq">
+      <rect x="-719" y="-509" rx="3" ry="3" width="50" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-704" y="-491.05" fill="#3D3D3D">Seq</text>
+    </g>
+    <g id="SeqLeft">
+      <rect x="-639" y="-509" rx="3" ry="3" width="59.4666666666667" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-629" y="-491.05" fill="#3D3D3D">SeqLeft</text>
+    </g>
+    <g id="SeqRight">
+      <rect x="-544" y="-509" rx="3" ry="3" width="67.7233333333333" height="25.96" fill="#FFFFFF" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-534" y="-491.05" fill="#3D3D3D">SeqRight</text>
+    </g>
+    <g id="StateM">
+      <rect x="-718.358888888889" y="-238" rx="3" ry="3" width="57.28" height="25.96" fill="#91E7ED" stroke="#A5A6A9" stroke-width="1" />
+      <text x="-708.358888888889" y="-220.05" fill="#3D3D3D">StateM</text>
+    </g>
+  </g>
+</svg>

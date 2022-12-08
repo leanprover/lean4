@@ -207,11 +207,8 @@ struct print_expr_fn {
             out() << ".{";
             bool first = true;
             for (auto l : ls) {
-                if (first) first = false; else out() << " ";
-                if (is_max(l) || is_imax(l))
-                    out() << "(" << l << ")";
-                else
-                    out() << l;
+                if (first) first = false; else out() << ", ";
+                out() << l;
             }
             out() << "}";
         }
@@ -303,7 +300,7 @@ void init_default_print_fn() {
         });
 }
 
-extern "C" object * lean_expr_dbg_to_string(b_obj_arg e) {
+extern "C" LEAN_EXPORT object * lean_expr_dbg_to_string(b_obj_arg e) {
     std::ostringstream out;
     out << expr(e, true);
     return mk_string(out.str());

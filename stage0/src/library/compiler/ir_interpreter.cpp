@@ -30,30 +30,25 @@ functions, which have a (relatively) homogeneous ABI that we can use without run
 #include <vector>
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#undef ERROR // thanks, wingdi.h
+#include <psapi.h>
 #else
 #include <dlfcn.h>
 #endif
-#include <lean/flet.h>
-#include <lean/apply.h>
-#include <lean/interrupt.h>
-#include <lean/io.h>
+#include "runtime/flet.h"
+#include "runtime/apply.h"
+#include "runtime/interrupt.h"
+#include "runtime/io.h"
+#include "runtime/option_ref.h"
+#include "runtime/array_ref.h"
 #include "library/time_task.h"
 #include "library/trace.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/init_attribute.h"
-#include "util/option_ref.h"
-#include "util/array_ref.h"
 #include "util/nat.h"
 #include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
-#if LEAN_IS_STAGE0 == 1
-// We already set `-Dinterpreter.prefer_native=false` in stdlib.make, but also set it here as a default when we use stage 0 in the editor
-#define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE false
-#else
 #define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
-#endif
 #endif
 
 namespace lean {
@@ -190,6 +185,8 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
     return option_ref<decl>(lean_ir_find_env_decl(env.to_obj_arg(), n.to_obj_arg()));
 }
 
+extern "C" double lean_float_of_nat(lean_obj_arg a);
+
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
 static string_ref * g_boxed_mangled_suffix = nullptr;
@@ -205,8 +202,8 @@ string_ref name_mangle(name const & n, string_ref const & pre) {
 }
 
 extern "C" object * lean_ir_format_fn_body_head(object * b);
-format format_fn_body_head(fn_body const & b) {
-    return format(lean_ir_format_fn_body_head(b.to_obj_arg()));
+std::string format_fn_body_head(fn_body const & b) {
+    return string_to_std(lean_ir_format_fn_body_head(b.to_obj_arg()));
 }
 
 static bool type_is_scalar(type t) {
@@ -257,6 +254,7 @@ object * box_t(value v, type t) {
         case type::Irrelevant:
             return v.m_obj;
     }
+    lean_unreachable();
 }
 
 value unbox_t(object * o, type t) {
@@ -267,12 +265,16 @@ value unbox_t(object * o, type t) {
         case type::UInt32: return unbox_uint32(o);
         case type::UInt64: return unbox_uint64(o);
         case type::USize: return unbox_size_t(o);
-        default: lean_unreachable();
+        case type::Irrelevant:
+        case type::Object:
+        case type::TObject:
+            break;
     }
+    lean_unreachable();
 }
 
 /** \pre Very simple debug output of arbitrary values, should be extended. */
-void print_value(std::ostream & ios, value const & v, type t) {
+void print_value(tout & ios, value const & v, type t) {
     if (t == type::Float) {
         ios << v.m_float;
     } else if (type_is_scalar(t)) {
@@ -289,9 +291,29 @@ void print_value(std::ostream & ios, value const & v, type t) {
     }
 }
 
+void print_value(tout const & ios, value const & v, type t) {
+  return print_value(const_cast<tout &>(ios), v, t);
+}
+
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
-    return reinterpret_cast<void *>(GetProcAddress(GetModuleHandle(nullptr), sym));
+    std::vector<HMODULE> hmods(128);
+    DWORD bytes_needed;
+    lean_always_assert(EnumProcessModules(GetCurrentProcess(), &hmods[0], hmods.size() * sizeof(HMODULE), &bytes_needed));
+    unsigned num_mods = bytes_needed / sizeof(HMODULE);
+    if (num_mods > hmods.size()) {
+        hmods.resize(num_mods);
+        lean_always_assert(EnumProcessModules(GetCurrentProcess(), &hmods[0], hmods.size() * sizeof(HMODULE), &bytes_needed));
+    } else {
+        hmods.resize(num_mods);
+    }
+    for (HMODULE hmod : hmods) {
+        void * addr = reinterpret_cast<void *>(GetProcAddress(hmod, sym));
+        if (addr) {
+            return addr;
+        }
+    }
+    return nullptr;
 #else
     return dlsym(RTLD_DEFAULT, sym);
 #endif
@@ -352,12 +374,12 @@ class interpreter {
 
 public:
     template<class T>
-    static inline T with_interpreter(environment const & env, options const & opts, std::function<T(interpreter &)> const & f) {
+    static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
             // We changed threads or the closure was stored and called in a different context.
-            time_task t("interpretation", opts);
+            time_task t("interpretation", opts, fn);
             scope_trace_env scope_trace(env, opts);
             // the caches contain data from the Environment, so we cannot reuse them when changing it
             interpreter interp(env, opts);
@@ -453,8 +475,13 @@ private:
                     case type::UInt16: return cnstr_get_uint16(o, offset);
                     case type::UInt32: return cnstr_get_uint32(o, offset);
                     case type::UInt64: return cnstr_get_uint64(o, offset);
-                    default: throw exception("invalid instruction");
+                    case type::USize:
+                    case type::Irrelevant:
+                    case type::Object:
+                    case type::TObject:
+                        break;
                 }
+                throw exception("invalid instruction");
             }
             case expr_kind::FAp: { // satured ("full") application of top-level function
                 if (expr_fap_args(e).size()) {
@@ -500,6 +527,7 @@ private:
                         nat const & n = lit_val_num(expr_lit_val(e));
                         switch (t) {
                             case type::Float:
+                                lean_inc(n.raw());
                                 return value::from_float(lean_float_of_nat(n.raw()));
                             case type::UInt8:
                             case type::UInt16:
@@ -512,20 +540,21 @@ private:
                             case type::Object:
                             case type::TObject:
                                 return n.to_obj_arg();
-                            default:
-                                throw exception("invalid instruction");
+                            case type::Irrelevant:
+                                break;
                         }
+                        throw exception("invalid instruction");
                     }
                     case lit_val_kind::Str:
                         return lit_val_str(expr_lit_val(e)).to_obj_arg();
                 }
+                break;
             case expr_kind::IsShared:
                 return !is_exclusive(var(expr_is_shared_obj(e)).m_obj);
             case expr_kind::IsTaggedPtr:
                 return !is_scalar(var(expr_is_tagged_ptr_obj(e)).m_obj);
-            default:
-                throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
         }
+        throw exception(sstream() << "unexpected instruction kind " << static_cast<unsigned>(expr_tag(e)));
     }
 
     void check_system() {
@@ -628,7 +657,11 @@ private:
                         case type::UInt16: cnstr_set_uint16(o, offset, v.m_num); break;
                         case type::UInt32: cnstr_set_uint32(o, offset, v.m_num); break;
                         case type::UInt64: cnstr_set_uint64(o, offset, v.m_num); break;
-                        default: throw exception(sstream() << "invalid instruction");
+                        case type::USize:
+                        case type::Irrelevant:
+                        case type::Object:
+                        case type::TObject:
+                            throw exception(sstream() << "invalid instruction");
                     }
                     b = fn_body_sset_cont(b);
                     break;
@@ -766,12 +799,10 @@ private:
             return *o;
         }
 
-        if (get_regular_init_fn_name_for(m_env, fn)) {
-            // We don't know whether `[init]` decls can be re-executed, so let's not.
-            throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
-        }
         symbol_cache_entry e = lookup_symbol(fn);
         if (e.m_addr) {
+            // we can assume that all native code has been initialized (see e.g. `evalConst`)
+
             // constants do not have boxed wrappers, but we'll survive
             switch (t) {
                 case type::Float: return value::from_float(*static_cast<double *>(e.m_addr));
@@ -785,16 +816,21 @@ private:
                 case type::Irrelevant:
                     return *static_cast<object **>(e.m_addr);
             }
-        } else {
-            push_frame(e.m_decl, m_arg_stack.size());
-            value r = eval_body(decl_fun_body(e.m_decl));
-            pop_frame(r, decl_type(e.m_decl));
-            if (!type_is_scalar(t)) {
-                inc(r.m_obj);
-            }
-            m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
-            return r;
         }
+
+        // no native code, so might be part of the current module
+        if (get_regular_init_fn_name_for(m_env, fn)) {
+            // We don't know whether `[init]` decls can be re-executed, so let's not.
+            throw exception(sstream() << "cannot evaluate `[init]` declaration '" << fn << "' in the same module");
+        }
+        push_frame(e.m_decl, m_arg_stack.size());
+        value r = eval_body(decl_fun_body(e.m_decl));
+        pop_frame(r, decl_type(e.m_decl));
+        if (!type_is_scalar(t)) {
+            inc(r.m_obj);
+        }
+        m_constant_cache.insert(fn, constant_cache_entry { type_is_scalar(t), r });
+        return r;
     }
 
     value call(name const & fn, array_ref<arg> const & args) {
@@ -827,7 +863,10 @@ private:
             }
         } else {
             if (decl_tag(e.m_decl) == decl_kind::Extern) {
-                throw exception(sstream() << "could not find native implementation of external declaration '" << fn << "'");
+                string_ref mangled = name_mangle(fn, *g_mangle_prefix);
+                string_ref boxed_mangled(string_append(mangled.to_obj_arg(), g_boxed_mangled_suffix->raw()));
+                throw exception(sstream() << "could not find native implementation of external declaration '" << fn
+                                          << "' (symbols '" << boxed_mangled.data() << "' or '" << mangled.data() << "')");
             }
             // evaluate args in old stack frame
             for (const auto & arg : args) {
@@ -857,7 +896,7 @@ private:
     static object * stub_m_aux(object ** args) {
         environment env(args[0]);
         options opts(args[1]);
-        return with_interpreter<object *>(env, opts, [&](interpreter & interp) {
+        return with_interpreter<object *>(env, opts, decl_fun_id(TO_REF(decl, args[2])), [&](interpreter & interp) {
             return interp.stub_m(args);
         });
     }
@@ -950,7 +989,7 @@ public:
         decl d = get_decl("main");
         array_ref<param> const & params = decl_params(d);
         buffer<object *> args;
-        if (params.size() == 2) { // List String -> IO UInt32
+        if (params.size() == 2) { // List String -> IO _
             lean_object * in = lean_box(0);
             int i = argc;
             while (i > 0) {
@@ -961,16 +1000,22 @@ public:
                 in = n;
             }
             args.push_back(in);
-        } else { // IO UInt32
+        } else { // IO _
             lean_assert(params.size() == 1);
         }
         object * w = io_mk_world();
         args.push_back(w);
         w = call_boxed("main", args.size(), &args[0]);
         if (io_result_is_ok(w)) {
-            // NOTE: in an awesome hack, `IO Unit` works just as well because `pure 0` and `pure ()` use the same
-            // representation
-            int ret = unbox(io_result_get_value(w));
+            int ret = 0;
+            lean::expr ret_ty = m_env.get("main").get_type();
+            if (is_arrow(ret_ty)) {
+                ret_ty = binding_body(ret_ty);
+            }
+            // `IO UInt32` or `IO (P)Unit`
+            if (is_const(app_arg(ret_ty), get_uint32_name())) {
+                ret = unbox_uint32(io_result_get_value(w));
+            }
             dec_ref(w);
             return ret;
         } else {
@@ -1011,16 +1056,17 @@ optional<name> get_sorry_dep(environment const & env, name const & n) {
 }
 
 object * run_boxed(environment const & env, options const & opts, name const & fn, unsigned n, object **args) {
-    if (get_sorry_dep(env, fn)) {
-        throw exception("cannot evaluate code because it uses 'sorry' and/or contains errors");
+    if (optional<name> decl_with_sorry = get_sorry_dep(env, fn)) {
+        throw exception(sstream() << "cannot evaluate code because '" << *decl_with_sorry
+            << "' uses 'sorry' and/or contains errors");
     }
-    return interpreter::with_interpreter<object *>(env, opts, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
+    return interpreter::with_interpreter<object *>(env, opts, fn, [&](interpreter & interp) { return interp.call_boxed(fn, n, args); });
 }
 uint32 run_main(environment const & env, options const & opts, int argv, char * argc[]) {
-    return interpreter::with_interpreter<uint32>(env, opts, [&](interpreter & interp) { return interp.run_main(argv, argc); });
+    return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(argv, argc); });
 }
 
-extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
+extern "C" LEAN_EXPORT object * lean_eval_const(object * env, object * opts, object * c) {
     try {
         return mk_cnstr(1, run_boxed(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, c), 0, 0)).steal();
     } catch (exception & ex) {
@@ -1028,8 +1074,28 @@ extern "C" object * lean_eval_const(object * env, object * opts, object * c) {
     }
 }
 
-extern "C" object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
-    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), [&](interpreter & interp) {
+/* mkModuleInitializationFunctionName (moduleName : Name) : String */
+extern "C" obj_res lean_mk_module_initialization_function_name(obj_arg);
+
+extern "C" LEAN_EXPORT object * lean_run_mod_init(object * mod, object *) {
+    string_ref mangled = string_ref(lean_mk_module_initialization_function_name(mod));
+    if (void * init = lookup_symbol_in_cur_exe(mangled.data())) {
+        auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
+        uint8_t builtin = 0;
+        object * r = init_fn(builtin, io_mk_world());
+        if (io_result_is_ok(r)) {
+            dec_ref(r);
+            return lean_io_result_mk_ok(box(true));
+        } else {
+            return r;
+        }
+    } else {
+        return lean_io_result_mk_ok(box(false));
+    }
+}
+
+extern "C" LEAN_EXPORT object * lean_run_init(object * env, object * opts, object * decl, object * init_decl, object *) {
+    return interpreter::with_interpreter<object *>(TO_REF(environment, env), TO_REF(options, opts), TO_REF(name, decl), [&](interpreter & interp) {
         return interp.run_init(TO_REF(name, decl), TO_REF(name, init_decl));
     });
 }

@@ -1,5 +1,5 @@
 
-universes u
+universe u
 
 def len {α : Type u} : List α → List α → Nat
 | [],    bs => bs.length

@@ -12,10 +12,11 @@ Author: Leonardo de Moura
 #endif
 #include <utility>
 #include <algorithm>
-#include <lean/optional.h>
-#include <lean/debug.h>
+#include "runtime/optional.h"
+#include "runtime/debug.h"
+#include "runtime/buffer.h"
 #include "util/rc.h"
-#include "util/buffer.h"
+
 
 namespace lean {
 /**

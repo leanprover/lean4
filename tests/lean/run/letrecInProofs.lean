@@ -16,12 +16,12 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       apply And.intro _ trivial
       intro h; injection h
     | node l r, h =>
-      have ihl : x ≮ l → node s x ≠ l ∧ node s x ≮ l from right x s l
-      have ihr : x ≮ r → node s x ≠ r ∧ node s x ≮ r from right x s r
-      have hl : x ≠ l ∧ x ≮ l from h.1
-      have hr : x ≠ r ∧ x ≮ r from h.2.1
-      have ihl : node s x ≠ l ∧ node s x ≮ l from ihl hl.2
-      have ihr : node s x ≠ r ∧ node s x ≮ r from ihr hr.2
+      have ihl : x ≮ l → node s x ≠ l ∧ node s x ≮ l := right x s l
+      have ihr : x ≮ r → node s x ≠ r ∧ node s x ≮ r := right x s r
+      have hl : x ≠ l ∧ x ≮ l := h.1
+      have hr : x ≠ r ∧ x ≮ r := h.2.1
+      have ihl : node s x ≠ l ∧ node s x ≮ l := ihl hl.2
+      have ihr : node s x ≠ r ∧ node s x ≮ r := ihr hr.2
       apply And.intro
       focus
         intro h
@@ -39,12 +39,12 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
       apply And.intro _ trivial
       intro h; injection h
     | node l r, h =>
-      have ihl : x ≮ l → node x t ≠ l ∧ node x t ≮ l from left x t l
-      have ihr : x ≮ r → node x t ≠ r ∧ node x t ≮ r from left x t r
-      have hl : x ≠ l ∧ x ≮ l from h.1
-      have hr : x ≠ r ∧ x ≮ r from h.2.1
-      have ihl : node x t ≠ l ∧ node x t ≮ l from ihl hl.2
-      have ihr : node x t ≠ r ∧ node x t ≮ r from ihr hr.2
+      have ihl : x ≮ l → node x t ≠ l ∧ node x t ≮ l := left x t l
+      have ihr : x ≮ r → node x t ≠ r ∧ node x t ≮ r := left x t r
+      have hl : x ≠ l ∧ x ≮ l := h.1
+      have hr : x ≠ r ∧ x ≮ r := h.2.1
+      have ihl : node x t ≠ l ∧ node x t ≮ l := ihl hl.2
+      have ihr : node x t ≠ r ∧ node x t ≮ r := ihr hr.2
       apply And.intro
       focus
         intro h
@@ -59,8 +59,8 @@ theorem Tree.acyclic (x t : Tree) : x = t → x ≮ t := by
   let rec aux : (x : Tree) → x ≮ x
     | leaf     => trivial
     | node l r => by
-        have ih₁ : l ≮ l from aux l
-        have ih₂ : r ≮ r from aux r
+        have ih₁ : l ≮ l := aux l
+        have ih₂ : r ≮ r := aux r
         show (node l r ≠ l ∧ node l r ≮ l) ∧ (node l r ≠ r ∧ node l r ≮ r) ∧ True
         apply And.intro
         focus

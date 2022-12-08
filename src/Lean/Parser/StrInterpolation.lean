@@ -12,7 +12,7 @@ def isQuotableCharForStrInterpolant (c : Char) : Bool :=
 partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   let input     := c.input
   let stackSize := s.stackSize
-  let rec parse (startPos : Nat) (c : ParserContext) (s : ParserState) : ParserState :=
+  let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
     let i     := s.pos
     if input.atEnd i then
       let s := s.pushSyntax Syntax.missing
@@ -54,7 +54,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
       parse startPos c s
 
 @[inline] def interpolatedStrNoAntiquot (p : Parser) : Parser := {
-  fn   := interpolatedStrFn p.fn,
+  fn   := interpolatedStrFn (withoutPosition p).fn,
   info := mkAtomicInfo "interpolatedStr"
 }
 

@@ -1,6 +1,6 @@
 /- ANCHOR: doc -/
 open Lean in
-macro "begin " ts:tactic,*,? "end"%i : term => do
+macro "begin " ts:tactic,*,? i:"end" : term => do
   -- preserve position of the last token, which is used
   -- as the error position in case of an unfinished proof
   `(by { $[$ts:tactic]* }%$i)

@@ -1,0 +1,8 @@
+Lean.Name.mkStr (Lean.Name.mkNum `foo 2) "bla"
+`foo.bla
+Lean.Name.anonymous
+Lean.Name.mkNum Lean.Name.anonymous 11
+Lean.Name.mkNum `foo.bla 5
+`abc
+`«--->»
+`«2»

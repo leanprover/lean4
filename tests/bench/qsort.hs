@@ -74,9 +74,6 @@ main = do
   forM_ [0..n-1] $ \_ ->
     forM_ [0..n-1] $ \i -> do
       let xs = mkRandomArray (toEnum i) i
-      let xs' = runSTArray (do
-          mxs <- thaw xs
-          qsort mxs
-          pure mxs)
+      let xs' = runSTArray (do mxs <- thaw xs; qsort mxs; pure mxs)
       --print xs'
       checkSortedAux xs' 0

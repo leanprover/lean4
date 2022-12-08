@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/flet.h>
+#include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive.h"
 #include "library/trace.h"
 #include "library/suffixes.h"
 #include "library/compiler/util.h"

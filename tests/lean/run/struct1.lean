@@ -21,7 +21,7 @@ mk2 :: (w : Nat := 10)
 #check @C
 #check @C.mk2
 #check { x := 10, y := 20, z := 30, w := 40 : C Nat Nat Nat Nat }
-#check C.recOn
+#check @C.recOn
 #check C.w
 #check fun (c : C Nat Nat Nat Nat) => c.x
 

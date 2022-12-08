@@ -1,3 +1,3 @@
 #0
-fun (a : Prop) => a
+fun a => a
 id (@id Nat (id Nat.zero))

@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
-#include <lean/flet.h>
-#include <lean/sstream.h>
+#include "runtime/flet.h"
+#include "runtime/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive.h"
@@ -362,7 +362,9 @@ public:
                 minor = args[3];
             else
                 minor = args[4];
-            return visit(mk_app(minor, pr_a, pr_b), root);
+            expr new_e = mk_app(minor, pr_a, pr_b);
+            new_e      = mk_app(new_e, args.size() - 5, args.data() + 5);
+            return visit(new_e, root);
         }
     }
 

@@ -1,10 +1,10 @@
 inductive Foo (β : Type u) : Sort v → Type (max u v)
   | mk {α : Sort v} (b : β) (a : α) : Foo β α
-
+  | mk₂ : Foo β PUnit
 inductive Bla (α : Type u) : Type (u+1) where
   | mk₁ (x : Foo (Bla α) Nat)
   | mk₂ (n m : Nat) (x : Foo (Bla α) (n = m))
-
+#exit
 #print Bla.rec
 
 #print Bla._sizeOf_1

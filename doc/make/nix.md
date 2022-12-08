@@ -1,6 +1,8 @@
+# Building with Nix
+
 While [Nix](https://nixos.org/nix/) can be used to quickly open a shell with all dependencies for the [standard setup](index.md) installed, the user-facing [Nix Setup](../setup.md#nix-setup) can also be used to work *on* Lean.
 
-# Setup
+## Setup
 
 Follow the setup in the link above; to open the Lean shell inside a Lean checkout, you can also use
 ```bash
@@ -8,7 +10,7 @@ Follow the setup in the link above; to open the Lean shell inside a Lean checkou
 $ nix-shell -A nix
 ```
 
-On top of the local and remote Nix cache, it helps to we do still rely on CCache as well to make C/C++ build steps incremental, which are atomic steps from Nix's point of view.
+On top of the local and remote Nix cache, we do still rely on CCache as well to make C/C++ build steps incremental, which are atomic steps from Nix's point of view.
 To enable CCache, add the following line to the config file mentioned in the setup:
 ```bash
 extra-sandbox-paths = /nix/var/cache/ccache
@@ -20,7 +22,7 @@ sudo mkdir -m0770 -p /nix/var/cache/ccache
 nix shell .#nixpkgs.coreutils -c sudo chown --reference=/nix/store /nix/var/cache/ccache
 ```
 
-# Basic Build Commands
+## Basic Build Commands
 
 From the Lean root directory inside the Lean shell:
 ```bash
@@ -33,10 +35,10 @@ The `stage1.` part in each command is optional:
 ```bash
 nix build .#test  # run tests for stage 1
 nix build .  # build stage 1
-nix build  # dito
+nix build  # ditto
 ```
 
-# Build Process Description
+## Build Process Description
 
 The Nix build process conceptually works the same as described in [Lean Build Pipeline](index.md#lean-build-pipeline).
 However, there are two important differences in practice apart from the standard Nix properties (hermeneutic, reproducible builds stored in a global hash-indexed store etc.):
@@ -45,17 +47,20 @@ This is actually a general property of Nix flakes, and has the benefit of making
 * Only files reachable from `src/Lean.lean` are compiled.
 This is because modules are discovered not from a directory listing anymore but by recursively compiling all dependencies of that top module.
 
-# Editor Integration
+## Editor Integration
 
 As in the standard Nix setup.
 After adding `src/` as an LSP workspace, it should automatically fall back to using stage 0 in there.
 
-Note that the UX of `emacs/vscode-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
+Note that the UX of `{emacs,vscode}-dev` is quite different from the Make-based setup regarding the compilation of dependencies:
 there is no mutable directory incrementally filled by the build that we could point the editor at for .olean files.
 Instead, `emacs-dev` will gather the individual dependency outputs from the Nix store when checking a file -- and build them on the fly when necessary.
 However, it will only ever load changes saved to disk, not ones opened in other buffers.
 
-# Other Fun Stuff to Do with Nix
+The absence of a mutable output directory also means that the Lean server will not automatically pick up `.ilean` metadata from newly compiled files.
+Instead, you can run `nix run .#link-ilean` to symlink the `.ilean` tree of the stdlib state at that point in time to `src/build/lib`, where the server should automatically find them.
+
+## Other Fun Stuff to Do with Nix
 
 Open Emacs with Lean set up from an arbitrary commit (without even cloning Lean beforehand... if your Nix is new enough):
 ```bash
@@ -84,13 +89,13 @@ nix run .#HEAD-as-stage0.emacs-dev&
 ```
 To run `nix build` on the second stage outside of the second editor, use
 ```bash
-nix build .#stage0-from-input
+nix build .#stage0-from-input --override-input lean-stage0 .\?rev=$(git rev-parse HEAD)
 ```
 This setup will inadvertently change your `flake.lock` file, which you can revert when you are done.
 
 ...more surely to come...
 
-# Debugging
+## Debugging
 
 Since Nix copies all source files before compilation, you will need to map debug symbols back to the original path using `set substitute-path` in GDB.
 For example, for a build on Linux with the Nix sandbox activated:

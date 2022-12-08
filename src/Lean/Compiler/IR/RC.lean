@@ -8,7 +8,7 @@ import Lean.Compiler.IR.CompilerM
 import Lean.Compiler.IR.LiveVars
 
 namespace Lean.IR.ExplicitRC
-/- Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
+/-! Insert explicit RC instructions. So, it assumes the input code does not contain `inc` nor `dec` instructions.
    This transformation is applied before lower level optimizations
    that introduce the instructions `release` and `set`
 -/
@@ -19,7 +19,7 @@ structure VarInfo where
   consume    : Bool := false -- true if the variable RC must be "consumed"
   deriving Inhabited
 
-abbrev VarMap := Std.RBMap VarId VarInfo (fun x y => compare x.idx y.idx)
+abbrev VarMap := RBMap VarId VarInfo (fun x y => compare x.idx y.idx)
 
 structure Context where
   env            : Environment
@@ -74,41 +74,38 @@ private def addDecForAlt (ctx : Context) (caseLiveVars altLiveVars : LiveVarSet)
   caseLiveVars.fold (init := b) fun b x =>
     if !altLiveVars.contains x && mustConsume ctx x then addDec ctx x b else b
 
-/- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
+/-- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
-  let x := xs[i]
-  i.all fun j => xs[j] != x
+  let x := xs[i]!
+  i.all fun j => xs[j]! != x
 
-/- Return true if `x` also occurs in `ys` in a position that is not consumed.
+/-- Return true if `x` also occurs in `ys` in a position that is not consumed.
    That is, it is also passed as a borrow reference. -/
-@[specialize]
 private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
   ys.size.any fun i =>
-    let y := ys[i]
+    let y := ys[i]!
     match y with
     | Arg.irrelevant => false
     | Arg.var y      => x == y && !consumeParamPred i
 
 private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
-  isBorrowParamAux x ys fun i => not ps[i].borrow
+  isBorrowParamAux x ys fun i => not ps[i]!.borrow
 
-/-
+/--
 Return `n`, the number of times `x` is consumed.
 - `ys` is a sequence of instruction parameters where we search for `x`.
 - `consumeParamPred i = true` if parameter `i` is consumed.
 -/
-@[specialize]
 private def getNumConsumptions (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Nat :=
   ys.size.fold (init := 0) fun i n =>
-    let y := ys[i]
+    let y := ys[i]!
     match y with
     | Arg.irrelevant => n
     | Arg.var y      => if x == y && consumeParamPred i then n+1 else n
 
-@[specialize]
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
   xs.size.fold (init := b) fun i b =>
-    let x := xs[i]
+    let x := xs[i]!
     match x with
     | Arg.irrelevant => b
     | Arg.var x =>
@@ -122,18 +119,15 @@ private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred :
              isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
           then numConsuptions
           else numConsuptions - 1
-        -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
-        --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
-        --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ fun _ =>
         addInc ctx x b numIncs
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-  addIncBeforeAux ctx xs (fun i => not ps[i].borrow) b liveVarsAfter
+  addIncBeforeAux ctx xs (fun i => not ps[i]!.borrow) b liveVarsAfter
 
-/- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
+/-- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
 private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
 xs.size.fold (init := b) fun i b =>
-  match xs[i] with
+  match xs[i]! with
   | Arg.irrelevant => b
   | Arg.var x      =>
     /- We must add a `dec` if `x` must be consumed, it is alive after the application,
@@ -145,30 +139,30 @@ xs.size.fold (init := b) fun i b =>
     else b
 
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
-  addIncBeforeAux ctx xs (fun i => true) b liveVarsAfter
+  addIncBeforeAux ctx xs (fun _ => true) b liveVarsAfter
 
-/- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
+/-- Add `dec` instructions for parameters that are references, are not alive in `b`, and are not borrow.
    That is, we must make sure these parameters are consumed. -/
 private def addDecForDeadParams (ctx : Context) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
   ps.foldl (init := b) fun b p =>
     if !p.borrow && p.ty.isObj && !bLiveVars.contains p.x then addDec ctx p.x b else b
 
 private def isPersistent : Expr → Bool
-  | Expr.fap c xs => xs.isEmpty -- all global constants are persistent objects
+  | Expr.fap _ xs => xs.isEmpty -- all global constants are persistent objects
   | _             => false
 
-/- We do not need to consume the projection of a variable that is not consumed -/
+/-- We do not need to consume the projection of a variable that is not consumed -/
 private def consumeExpr (m : VarMap) : Expr → Bool
-  | Expr.proj i x   => match m.find? x with
+  | Expr.proj _ x   => match m.find? x with
     | some info => info.consume
     | none      => true
-  | other => true
+  | _     => true
 
-/- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
+/-- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
    We do not need RC operations for this kind of value. -/
 private def isScalarBoxedInTaggedPtr (v : Expr) : Bool :=
   match v with
-  | Expr.ctor c ys          => c.size == 0 && c.ssize == 0 && c.usize == 0
+  | Expr.ctor c _           => c.size == 0 && c.ssize == 0 && c.usize == 0
   | Expr.lit (LitVal.num n) => n ≤ maxSmallNat
   | _ => false
 
@@ -195,7 +189,6 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
     | (Expr.uproj _ x)       => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | (Expr.sproj _ _ x)     => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
     | (Expr.fap f ys)        =>
-      -- dbgTrace ("processVDecl " ++ toString v) $ fun _ =>
       let ps := (getDecl ctx f).params
       let b  := addDecAfterFullApp ctx ys ps b bLiveVars
       let b  := FnBody.vdecl z t v b
@@ -205,7 +198,7 @@ private def processVDecl (ctx : Context) (z : VarId) (t : IRType) (v : Expr) (b 
       let ysx := ys.push (Arg.var x) -- TODO: avoid temporary array allocation
       addIncBeforeConsumeAll ctx ysx (FnBody.vdecl z t v b) bLiveVars
     | (Expr.unbox x)         => FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
-    | other                  => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
+    | _                      => FnBody.vdecl z t v b  -- Expr.reset, Expr.box, Expr.lit are handled here
   let liveVars := updateLiveVars v bLiveVars
   let liveVars := liveVars.erase z
   (b, liveVars)
@@ -245,7 +238,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     (FnBody.mdata m b, s)
   | b@(FnBody.case tid x xType alts), ctx =>
     let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap
-    let alts         := alts.map $ fun alt => match alt with
+    let alts         := alts.map fun alt => match alt with
       | Alt.ctor c b  =>
         let ctx              := updateRefUsingCtorInfo ctx x c
         let (b, altLiveVars) := visitFnBody b ctx
@@ -269,11 +262,11 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
     let bLiveVars := collectLiveVars b ctx.jpLiveVarMap
     (b, bLiveVars)
   | FnBody.unreachable, _ => (FnBody.unreachable, {})
-  | other, ctx => (other, {}) -- unreachable if well-formed
+  | other, _ => (other, {}) -- unreachable if well-formed
 
 partial def visitDecl (env : Environment) (decls : Array Decl) (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (xs := xs) (body := b) .. =>
+  | .fdecl (xs := xs) (body := b) .. =>
     let ctx : Context  := { env := env, decls := decls }
     let ctx := updateVarInfoWithParams ctx xs
     let (b, bLiveVars) := visitFnBody b ctx
@@ -285,6 +278,6 @@ end ExplicitRC
 
 def explicitRC (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
-  pure $ decls.map (ExplicitRC.visitDecl env decls)
+  return decls.map (ExplicitRC.visitDecl env decls)
 
 end Lean.IR

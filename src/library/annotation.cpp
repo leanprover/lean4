@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "util/name_hash_map.h"
 #include "library/annotation.h"
 

@@ -8,13 +8,13 @@ def showChars : Nat → String → String.Pos → IO Unit
 def main : IO UInt32 :=
 let s₁             := "hello α_world_β";
 let b : String.Pos := 0;
-let e              := s₁.bsize;
+let e              := s₁.endPos;
 IO.println (s₁.extract b e) *>
-IO.println (s₁.extract (b+2) e) *>
-IO.println (s₁.extract (b+2) (e-1)) *>
-IO.println (s₁.extract (b+2) (e-2)) *>
-IO.println (s₁.extract (b+7) e) *>
-IO.println (s₁.extract (b+8) e) *>
+IO.println (s₁.extract (b+ "  ") e) *>
+IO.println (s₁.extract (b+ "  ") (e-⟨1⟩)) *>
+IO.println (s₁.extract (b+⟨2⟩) (e-⟨2⟩)) *>
+IO.println (s₁.extract (b+⟨7⟩) e) *>
+IO.println (s₁.extract (b+⟨8⟩) e) *>
 IO.println (toString e) *>
 IO.println (repr "   aaa   ".trim) *>
 showChars s₁.length s₁ 0  *>
@@ -25,4 +25,5 @@ IO.println ("".isPrefixOf "") *>
 IO.println ("ab".isPrefixOf "cb") *>
 IO.println ("ab".isPrefixOf "a") *>
 IO.println ("αb".isPrefixOf "αbc") *>
+IO.println ("\x00a").length *>
 pure 0

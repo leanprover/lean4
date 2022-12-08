@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <string>
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive.h"
@@ -31,16 +31,5 @@ environment save_projection_info(environment const & env, name const & p, name c
 
 optional<projection_info> get_projection_info(environment const & env, name const & p) {
     return to_optional<projection_info>(lean_get_projection_info(env.to_obj_arg(), p.to_obj_arg()));
-}
-
-/** \brief Return true iff the type named \c S can be viewed as
-    a structure in the given environment.
-
-    If not, generate an error message using \c pos. */
-bool is_structure_like(environment const & env, name const & S) {
-    constant_info S_info = env.get(S);
-    if (!S_info.is_inductive()) return false;
-    inductive_val S_val = S_info.to_inductive_val();
-    return length(S_val.get_cnstrs()) == 1 && S_val.get_nindices() == 0;
 }
 }

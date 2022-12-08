@@ -6,29 +6,31 @@ Authors: Leonardo de Moura
 import Lean.ScopedEnvExtension
 import Lean.Util.Recognizers
 import Lean.Meta.DiscrTree
-import Lean.Meta.LevelDefEq
 import Lean.Meta.SynthInstance
 
 namespace Lean.Meta
 
+abbrev UnificationHintKey := DiscrTree.Key (simpleReduce := true)
+
 structure UnificationHintEntry where
-  keys        : Array DiscrTree.Key
+  keys        : Array UnificationHintKey
   val         : Name
   deriving Inhabited
 
+abbrev UnificationHintTree := DiscrTree Name (simpleReduce := true)
+
 structure UnificationHints where
-  discrTree       : DiscrTree Name := DiscrTree.empty
+  discrTree : UnificationHintTree := DiscrTree.empty
   deriving Inhabited
 
 instance : ToFormat UnificationHints where
-  format h := fmt h.discrTree
+  format h := format h.discrTree
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {
-    name     := `unifHints
     addEntry := UnificationHints.add
     initial  := {}
   }
@@ -59,7 +61,7 @@ where
       let p ← decodeConstraint e
       return { pattern := p, constraints := cs.toList }
 
-private partial def validateHint (declName : Name) (hint : UnificationHint) : MetaM Unit := do
+private partial def validateHint (hint : UnificationHint) : MetaM Unit := do
   hint.constraints.forM fun c => do
     unless (← isDefEq c.lhs c.rhs) do
       throwError "invalid unification hint, failed to unify constraint left-hand-side{indentExpr c.lhs}\nwith right-hand-side{indentExpr c.rhs}"
@@ -77,13 +79,12 @@ def addUnificationHint (declName : Name) (kind : AttributeKind) : MetaM Unit :=
       | Except.error msg => throwError msg
       | Except.ok hint =>
         let keys ← DiscrTree.mkPath hint.pattern.lhs
-        validateHint declName hint
+        validateHint hint
         unificationHintExtension.add { keys := keys, val := declName } kind
-        trace[Meta.debug] "addUnificationHint: {unificationHintExtension.getState (← getEnv)}"
 
 builtin_initialize
   registerBuiltinAttribute {
-    name  := `unificationHint
+    name  := `unification_hint
     descr := "unification hint"
     add   := fun declName stx kind => do
       Attribute.Builtin.ensureNoArgs stx
@@ -107,11 +108,12 @@ where
     withReducible <| Meta.isExprDefEqAux p e
 
   tryCandidate candidate : MetaM Bool :=
-    traceCtx `Meta.isDefEq.hint <| checkpointDefEq do
-      trace[Meta.isDefEq.hint] "trying hint {candidate} at {t} =?= {s}"
+    withTraceNode `Meta.isDefEq.hint
+      (return m!"{exceptBoolEmoji ·} hint {candidate} at {t} =?= {s}") do
+    checkpointDefEq do
       let cinfo ← getConstInfo candidate
       let us ← cinfo.levelParams.mapM fun _ => mkFreshLevelMVar
-      let val := cinfo.instantiateValueLevelParams us
+      let val ← instantiateValueLevelParams cinfo us
       let (xs, bis, body) ← lambdaMetaTelescope val
       let hint? ← withConfig (fun cfg => { cfg with unificationHints := false }) do
         match decodeUnificationHint body with

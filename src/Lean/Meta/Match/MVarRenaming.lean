@@ -7,9 +7,9 @@ import Lean.Util.ReplaceExpr
 
 namespace Lean.Meta
 
-/- A mapping from MVarId to MVarId -/
+/-- A mapping from MVarId to MVarId -/
 structure MVarRenaming where
-  map : NameMap MVarId := {}
+  map : MVarIdMap MVarId := {}
 
 def MVarRenaming.isEmpty (s : MVarRenaming) : Bool :=
   s.map.isEmpty
@@ -26,8 +26,8 @@ def MVarRenaming.insert (s : MVarRenaming) (mvarId mvarId' : MVarId) : MVarRenam
 def MVarRenaming.apply (s : MVarRenaming) (e : Expr) : Expr :=
   if !e.hasMVar then e
   else if s.map.isEmpty then e
-  else e.replace $ fun e => match e with
-    | Expr.mvar mvarId _ => match s.map.find? mvarId with
+  else e.replace fun e => match e with
+    | Expr.mvar mvarId => match s.map.find? mvarId with
       | none           => e
       | some newMVarId => mkMVar newMVarId
     | _ => none

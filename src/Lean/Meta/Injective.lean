@@ -3,8 +3,10 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Tactic.Subst
 import Lean.Meta.Tactic.Simp.Types
@@ -12,7 +14,7 @@ import Lean.Meta.Tactic.Assumption
 
 namespace Lean.Meta
 
-private def mkAnd? (args : Array Expr) : Option Expr := do
+private def mkAnd? (args : Array Expr) : Option Expr := Id.run do
   if args.isEmpty then
     return none
   else
@@ -21,9 +23,17 @@ private def mkAnd? (args : Array Expr) : Option Expr := do
       result := mkApp2 (mkConst ``And) arg result
     return result
 
+def elimOptParam (type : Expr) : CoreM Expr := do
+  Core.transform type fun e =>
+    if e.isAppOfArity  ``optParam 2 then
+      return TransformStep.visit (e.getArg! 0)
+    else
+      return .continue
+
 private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useEq : Bool) : MetaM (Option Expr) := do
   let us := ctorVal.levelParams.map mkLevelParam
-  forallBoundedTelescope ctorVal.type ctorVal.numParams fun params type =>
+  let type ← elimOptParam ctorVal.type
+  forallBoundedTelescope type ctorVal.numParams fun params type =>
   forallTelescope type fun args1 resultType => do
     let jp (args2 args2New : Array Expr) : MetaM (Option Expr) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
@@ -33,16 +43,12 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
       for arg1 in args1, arg2 in args2 do
         let arg1Type ← inferType arg1
         if !(← isProp arg1Type) && arg1 != arg2 then
-          if (← isDefEq arg1Type (← inferType arg2)) then
-            eqs := eqs.push (← mkEq arg1 arg2)
-          else
-            eqs := eqs.push (← mkHEq arg1 arg2)
-      if let some andEqs ← mkAnd? eqs then
-        let result ←
-          if useEq then
-            mkEq eq andEqs
-          else
-            mkArrow eq andEqs
+          eqs := eqs.push (← mkEqHEq arg1 arg2)
+      if let some andEqs := mkAnd? eqs then
+        let result ← if useEq then
+          mkEq eq andEqs
+        else
+          mkArrow eq andEqs
         mkForallFVars params (← mkForallFVars args1 (← mkForallFVars args2New result))
       else
         return none
@@ -79,8 +85,8 @@ private def solveEqOfCtorEq (ctorName : Name) (mvarId : MVarId) (h : FVarId) : M
   match (← injection mvarId h) with
   | InjectionResult.solved => unreachable!
   | InjectionResult.subgoal mvarId .. =>
-    (← splitAnd mvarId).forM fun mvarId =>
-      unless (← assumptionCore mvarId) do
+    (←  mvarId.splitAnd).forM fun mvarId =>
+      unless (← mvarId.assumptionCore) do
         throwInjectiveTheoremFailure ctorName mvarId
 
 private def mkInjectiveTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr :=
@@ -96,8 +102,9 @@ private def mkInjectiveTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
   let some type ← mkInjectiveTheoremType? ctorVal
     | return ()
   let value ← mkInjectiveTheoremValue ctorVal.name type
+  let name := mkInjectiveTheoremNameFor ctorVal.name
   addDecl <| Declaration.thmDecl {
-    name        := mkInjectiveTheoremNameFor ctorVal.name
+    name
     levelParams := ctorVal.levelParams
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)
@@ -112,14 +119,14 @@ private def mkInjectiveEqTheoremType? (ctorVal : ConstructorVal) : MetaM (Option
 private def mkInjectiveEqTheoremValue (ctorName : Name) (targetType : Expr) : MetaM Expr := do
   forallTelescopeReducing targetType fun xs type => do
     let mvar ← mkFreshExprSyntheticOpaqueMVar type
-    let [mvarId₁, mvarId₂] ← apply mvar.mvarId! (mkConst ``Eq.propIntro)
+    let [mvarId₁, mvarId₂] ← mvar.mvarId!.apply (mkConst ``Eq.propIntro)
       | throwError "unexpected number of subgoals when proving injective theorem for constructor '{ctorName}'"
-    let (h, mvarId₁) ← intro1 mvarId₁
-    let (_, mvarId₂) ← intro1 mvarId₂
+    let (h, mvarId₁) ← mvarId₁.intro1
+    let (_, mvarId₂) ← mvarId₂.intro1
     solveEqOfCtorEq ctorName mvarId₁ h
-    let mvarId₂ ← casesAnd mvarId₂
-    let mvarId₂ ← substEqs mvarId₂
-    applyRefl mvarId₂ (injTheoremFailureHeader ctorName)
+    let mvarId₂ ← mvarId₂.casesAnd
+    if let some mvarId₂ ← mvarId₂.substEqs then
+      try mvarId₂.refl catch _ => throwError (injTheoremFailureHeader ctorName)
     mkLambdaFVars xs mvar
 
 private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
@@ -133,7 +140,7 @@ private def mkInjectiveEqTheorem (ctorVal : ConstructorVal) : MetaM Unit := do
     type        := (← instantiateMVars type)
     value       := (← instantiateMVars value)
   }
-  addSimpLemma name (post := true) AttributeKind.global (prio := eval_prio default)
+  addSimpTheorem (ext := simpExtension) name (post := true) (inv := false) AttributeKind.global (prio := eval_prio default)
 
 register_builtin_option genInjectivity : Bool := {
   defValue := true

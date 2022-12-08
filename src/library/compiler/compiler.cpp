@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/specialize.h"
 #include "library/compiler/eager_lambda_lifting.h"
+#include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
@@ -32,10 +33,8 @@ Author: Leonardo de Moura
 #include "library/compiler/ir.h"
 
 namespace lean {
-static name * g_codegen = nullptr;
 static name * g_extract_closed = nullptr;
 
-bool is_codegen_enabled(options const & opts) { return opts.get_bool(*g_codegen, true); }
 bool is_extract_closed_enabled(options const & opts) { return opts.get_bool(*g_extract_closed, true); }
 
 static name get_real_name(name const & n) {
@@ -136,7 +135,7 @@ bool is_uint32_or_unit(expr const & type) {
         is_constant(type, get_punit_name());
 }
 
-/* Return true iff type is `List String -> IO UInt32` or `IO UInt32` */
+/* Return true iff type is `(List String ->) IO (UInt32 | (P)Unit)` */
 bool is_main_fn_type(expr const & type) {
     if (is_arrow(type)) {
         expr d = binding_domain(type);
@@ -159,10 +158,17 @@ bool is_main_fn_type(expr const & type) {
 
 #define trace_compiler(k, ds) lean_trace(k, trace_comp_decls(ds););
 
-environment compile(environment const & env, options const & opts, names cs) {
-    if (!is_codegen_enabled(opts))
-        return env;
+extern "C" object* lean_csimp_replace_constants(object* env, object* n);
 
+expr csimp_replace_constants(environment const & env, expr const & e) {
+    return expr(lean_csimp_replace_constants(env.to_obj_arg(), e.to_obj_arg()));
+}
+
+bool is_matcher(environment const & env, comp_decls const & ds) {
+    return length(ds) == 1 && is_matcher(env, head(ds).fst());
+}
+
+environment compile(environment const & env, options const & opts, names cs) {
     /* Do not generate code for irrelevant decls */
     cs = filter(cs, [&](name const & c) { return !is_irrelevant_type(env, env.get(c).get_type());});
     if (empty(cs)) return env;
@@ -175,7 +181,9 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     if (length(cs) == 1) {
         name c = get_real_name(head(cs));
-        if (is_extern_constant(env, c)) {
+        if (has_implemented_by_attribute(env, c))
+            return env;
+        if (is_extern_or_init_constant(env, c)) {
             /* Generate boxed version for extern/native constant if needed. */
             return ir::add_extern(env, c);
         }
@@ -187,7 +195,7 @@ environment compile(environment const & env, options const & opts, names cs) {
         if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
     }
 
-    time_task t("compilation", opts);
+    time_task t("compilation", opts, head(cs));
     scope_trace_env scope_trace(env, opts);
 
     comp_decls ds = to_comp_decls(env, cs);
@@ -206,6 +214,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     // trace(ds);
     ds = apply(cce, env, ds);
     trace_compiler(name({"compiler", "cce"}), ds);
+    ds = apply(csimp_replace_constants, env, ds);
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     // trace(ds);
@@ -215,8 +224,19 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
     new_env = cache_stage1(new_env, ds);
+    if (is_matcher(new_env, ds)) {
+        /* Auxiliary matcher applications are marked as inlined, and are always fully applied
+           (if users don't use them manually). So, we skip code generation for them.
+           By caching stage1, we make sure we have all information we need to inline them.
+
+           TODO: we should have a "[strong_inline]" annotation that will inline a definition even
+           when it is partially applied. Then, we can mark all `match` auxiliary functions as `[strong_inline]` */
+        return new_env;
+    }
     std::tie(new_env, ds) = specialize(new_env, ds, cfg);
-    lean_assert(lcnf_check_let_decls(new_env, ds));
+    // The following check is incorrect. It was exposed by issue #1812.
+    // We will not fix the check since we will delete the compiler.
+    // lean_assert(lcnf_check_let_decls(new_env, ds));
     trace_compiler(name({"compiler", "specialize"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
@@ -253,26 +273,19 @@ environment compile(environment const & env, options const & opts, names cs) {
     return compile_ir(new_env, opts, ds);
 }
 
-extern "C" object* lean_get_decl_names_for_code_gen(object *);
-names get_decl_names_for_code_gen(declaration const & decl) {
-    return names(lean_get_decl_names_for_code_gen(decl.to_obj_arg()));
-}
-
-extern "C" object * lean_compile_decl(object * env, object * opts, object * decl) {
+extern "C" LEAN_EXPORT object * lean_compile_decls(object * env, object * opts, object * decls) {
     return catch_kernel_exceptions<environment>([&]() {
-            return compile(environment(env), options(opts, true), get_decl_names_for_code_gen(declaration(decl, true)));
+            return compile(environment(env), options(opts, true), names(decls, true));
         });
 }
 
 void initialize_compiler() {
-    g_codegen        = new name("codegen");
-    mark_persistent(g_codegen->raw());
     g_extract_closed = new name{"compiler", "extract_closed"};
     mark_persistent(g_extract_closed->raw());
-    register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");
     register_bool_option(*g_extract_closed, true, "(compiler) enable/disable closed term caching");
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "eta_expand"});
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "cce"});
@@ -311,7 +324,6 @@ void initialize_compiler() {
 }
 
 void finalize_compiler() {
-    delete g_codegen;
     delete g_extract_closed;
 }
 }

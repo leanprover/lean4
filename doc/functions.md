@@ -46,6 +46,25 @@ partial def g (x : Nat) (p : Nat -> Bool) : Nat :=
 In the previous example, `g x p` only terminates if there is a `y >= x` such that `p y` returns `true`.
 Of course, `g 0 (fun x => false)` never terminates.
 
+However, the use of `partial` is restricted to functions whose return type is not empty so the soundness
+of the system is not compromised.
+
+```lean,ignore
+partial def loop? : α := -- failed to compile partial definition 'loop?', failed to
+  loop?                  -- show that type is inhabited and non empty
+
+partial def loop [Inhabited α] : α := -- compiles
+  loop
+
+example : True := -- accepted
+  loop
+
+example : False :=
+  loop -- failed to synthesize instance Inhabited False
+```
+
+If we were able to partially define `loop?`, we could prove `False` with it.
+
 # Lambda expressions
 
 A lambda expression is an unnamed function.
@@ -70,28 +89,25 @@ def twice (f : Nat -> Nat) (x : Nat) : Nat :=
 
 # Syntax sugar for simple lambda expressions
 
-Simple functions can be defined using parentheses and `.` (or `·`) as a placeholder.
+Simple functions can be defined using parentheses and `·` as a placeholder.
 ```lean
-#check (. + 1)
--- fun a => a + 1
 #check (· + 1)
 -- fun a => a + 1
-#check (2 - .)
+#check (2 - ·)
 -- fun a => 2 - a
-#eval [1, 2, 3, 4, 5].foldl (. * .) 1
+#eval [1, 2, 3, 4, 5].foldl (· * ·) 1
 -- 120
 
 def h (x y z : Nat) :=
   x + y + z
 
-#check (h . 1 .)
+#check (h · 1 ·)
 -- fun a b => h a 1 b
 
 #eval [(1, 2), (3, 4), (5, 6)].map (·.1)
 -- [1, 3, 5]
 ```
-In the previous example, the term `(·.1)` is syntax sugar for `fun x => x.1`. Note that, the ASCII version `(..1)`
-is not supported because `..` is a reserved symbol.
+In the previous example, the term `(·.1)` is syntax sugar for `fun x => x.1`.
 
 # Pipelining
 
@@ -111,14 +127,14 @@ In contrast, the backward pipeline `<|` operator takes an argument and a functio
 These operators are useful for minimizing the number of parentheses.
 ```lean
 def add1Times3FilterEven (xs : List Nat) :=
-  List.filter (. % 2 == 0) (List.map (. * 3) (List.map (. + 1) xs))
+  List.filter (· % 2 == 0) (List.map (· * 3) (List.map (· + 1) xs))
 
 #eval add1Times3FilterEven [1, 2, 3, 4]
 -- [6, 12]
 
 -- Define the same function using pipes
 def add1Times3FilterEven' (xs : List Nat) :=
-  xs |> List.map (. + 1) |> List.map (. * 3) |> List.filter (. % 2 == 0)
+  xs |> List.map (· + 1) |> List.map (· * 3) |> List.filter (· % 2 == 0)
 
 #eval add1Times3FilterEven' [1, 2, 3, 4]
 -- [6, 12]
@@ -127,7 +143,7 @@ Lean also supports the operator `|>.` which combines forward pipeline `|>` opera
 ```lean
 -- Define the same function using pipes
 def add1Times3FilterEven'' (xs : List Nat) :=
-  xs.map (. + 1) |>.map (. * 3) |>.filter (. % 2 == 0)
+  xs.map (· + 1) |>.map (· * 3) |>.filter (· % 2 == 0)
 
 #eval add1Times3FilterEven'' [1, 2, 3, 4]
 -- [6, 12]

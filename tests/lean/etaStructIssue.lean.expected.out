@@ -1,0 +1,6 @@
+etaStructIssue.lean:20:2-20:5: error: type mismatch
+  rfl
+has type
+  mkNat e x₁ = mkNat e x₁ : Prop
+but is expected to have type
+  mkNat e x₁ = mkNat (E.mk e) x₂ : Prop

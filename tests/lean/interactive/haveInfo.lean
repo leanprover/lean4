@@ -1,26 +1,26 @@
 example : False := by
-  have True by
+  have : True := by
     skip
   --^ $/lean/plainGoal
     skip
   admit
 
 example : False := by
-  have True by
-          --^ $/lean/plainGoal
+  have : True := by
+               --^ $/lean/plainGoal
     skip
     skip
   admit
 
 example : False := by
-  have True by
-           --^ $/lean/plainGoal
+  have : True := by
+               --^ $/lean/plainGoal
     skip
     skip
   admit
 
 example : False := by
-  have True by
+  have : True := by
     skip
 --^ $/lean/plainGoal
     skip

@@ -11,11 +11,11 @@ namespace Nat
 private def gcdF (x : Nat) : (∀ x₁, x₁ < x → Nat → Nat) → Nat → Nat :=
   match x with
   | 0      => fun _ y => y
-  | succ x => fun f y => f (y % succ x) (mod_lt _ (zeroLtSucc  _)) (succ x)
+  | succ x => fun f y => f (y % succ x) (mod_lt _ (zero_lt_succ  _)) (succ x)
 
 @[extern "lean_nat_gcd"]
 def gcd (a b : @& Nat) : Nat :=
-  WellFounded.fix ltWf gcdF a b
+  WellFounded.fix (measure id).wf gcdF a b
 
 @[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
   rfl

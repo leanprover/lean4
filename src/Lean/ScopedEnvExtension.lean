@@ -12,15 +12,15 @@ namespace Lean
 namespace ScopedEnvExtension
 
 inductive Entry (α : Type) where
-  | global   : α → Entry α
-  | «scoped» : Name → α → Entry α
+  | global : α → Entry α
+  | scoped : Name → α → Entry α
 
 structure State (σ : Type) where
   state        : σ
   activeScopes : NameSet := {}
 
 structure ScopedEntries (β : Type) where
-  map : SMap Name (Std.PArray β) := {}
+  map : SMap Name (PArray β) := {}
   deriving Inhabited
 
 structure StateStack (α : Type) (β : Type) (σ : Type) where
@@ -30,7 +30,7 @@ structure StateStack (α : Type) (β : Type) (σ : Type) where
   deriving Inhabited
 
 structure Descr (α : Type) (β : Type) (σ : Type) where
-  name           : Name
+  name           : Name := by exact decl_name%
   mkInitial      : IO σ
   ofOLeanEntry   : σ → α → ImportM β
   toOLeanEntry   : β → α
@@ -39,10 +39,10 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
-    name         := arbitrary
-    mkInitial    := arbitrary
-    ofOLeanEntry := arbitrary
-    toOLeanEntry := arbitrary
+    name         := default
+    mkInitial    := default
+    ofOLeanEntry := default
+    toOLeanEntry := default
     addEntry     := fun s _ => s
   }
 
@@ -51,7 +51,7 @@ def mkInitial (descr : Descr α β σ) : IO (StateStack α β σ) :=
 
 def ScopedEntries.insert (scopedEntries : ScopedEntries β) (ns : Name) (b : β) : ScopedEntries β :=
   match scopedEntries.map.find? ns with
-  | none    => { map := scopedEntries.map.insert ns <| ({} : Std.PArray β).push b }
+  | none    => { map := scopedEntries.map.insert ns <| ({} : PArray β).push b }
   | some bs => { map := scopedEntries.map.insert ns <| bs.push b }
 
 def addImportedFn (descr : Descr α β σ) (as : Array (Array (Entry α))) : ImportM (StateStack α β σ) := do
@@ -116,8 +116,8 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
   scopedEnvExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
   return ext
 
-@[implementedBy registerScopedEnvExtensionUnsafe]
-constant registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
+@[implemented_by registerScopedEnvExtensionUnsafe]
+opaque registerScopedEnvExtension (descr : Descr α β σ) : IO (ScopedEnvExtension α β σ)
 
 def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
@@ -128,7 +128,7 @@ def ScopedEnvExtension.pushScope (ext : ScopedEnvExtension α β σ) (env : Envi
 def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Environment) : Environment :=
   let s := ext.ext.getState env
   match s.stateStack with
-  | state₁ :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
+  | _      :: state₂ :: stack => ext.ext.setState env { s with stateStack := state₂ :: stack }
   | _ => env
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
@@ -168,7 +168,7 @@ def ScopedEnvExtension.activateScoped (ext : ScopedEnvExtension α β σ) (env :
         match s.scopedEntries.map.find? namespaceName with
         | none =>
           { top with activeScopes := activeScopes }
-        | some bs => do
+        | some bs => Id.run do
           let mut state := top.state
           for b in bs do
             state := ext.descr.addEntry state b
@@ -197,7 +197,7 @@ def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (name
 abbrev SimpleScopedEnvExtension (α : Type) (σ : Type) := ScopedEnvExtension α α σ
 
 structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
-  name           : Name
+  name           : Name := by exact decl_name%
   addEntry       : σ → α → σ
   initial        : σ
   finalizeImport : σ → σ := id
@@ -208,7 +208,7 @@ def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α 
     mkInitial      := return descr.initial
     addEntry       := descr.addEntry
     toOLeanEntry   := id
-    ofOLeanEntry   := fun s a => return a
+    ofOLeanEntry   := fun _ a => return a
     finalizeImport := descr.finalizeImport
   }
 

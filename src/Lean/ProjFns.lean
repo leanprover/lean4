@@ -7,28 +7,33 @@ import Lean.Environment
 
 namespace Lean
 
-/- Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
-   for each field. This structure caches information about these auxiliary definitions. -/
+/--
+Given a structure `S`, Lean automatically creates an auxiliary definition (projection function)
+for each field. This structure caches information about these auxiliary definitions.
+-/
 structure ProjectionFunctionInfo where
-  ctorName : Name  -- Constructor associated with the auxiliary projection function.
-  nparams : Nat    -- Number of parameters in the structure
-  i : Nat          -- The field index associated with the auxiliary projection function.
-  fromClass : Bool -- `true` if the structure is a class
+  /-- Constructor associated with the auxiliary projection function. -/
+  ctorName : Name
+  /-- Number of parameters in the structure -/
+  numParams : Nat
+  /-- The field index associated with the auxiliary projection function. -/
+  i : Nat
+  /-- `true` if the structure is a class. -/
+  fromClass : Bool
+  deriving Inhabited
 
 @[export lean_mk_projection_info]
-def mkProjectionInfoEx (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
-  {ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass }
+def mkProjectionInfoEx (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : ProjectionFunctionInfo :=
+  { ctorName, numParams, i, fromClass }
 @[export lean_projection_info_from_class]
-  def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool := info.fromClass
+def ProjectionFunctionInfo.fromClassEx (info : ProjectionFunctionInfo) : Bool :=
+  info.fromClass
 
-instance : Inhabited ProjectionFunctionInfo :=
-  ⟨{ ctorName := arbitrary, nparams := arbitrary, i := 0, fromClass := false }⟩
-
-builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension `projinfo
+builtin_initialize projectionFnInfoExt : MapDeclarationExtension ProjectionFunctionInfo ← mkMapDeclarationExtension
 
 @[export lean_add_projection_info]
-def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
-  projectionFnInfoExt.insert env projName { ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass }
+def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (numParams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
+  projectionFnInfoExt.insert env projName { ctorName, numParams, i, fromClass }
 
 namespace Environment
 

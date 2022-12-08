@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <memory>
 #include <string>
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
 

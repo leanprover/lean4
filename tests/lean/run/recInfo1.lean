@@ -3,7 +3,7 @@ import Lean.Meta
 open Lean
 open Lean.Meta
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def showRecInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM Unit := do

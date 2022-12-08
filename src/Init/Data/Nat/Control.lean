@@ -8,7 +8,7 @@ import Init.Control.Basic
 import Init.Data.Nat.Basic
 
 namespace Nat
-universes u v
+universe u v
 
 @[inline] def forM {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
   let rec @[specialize] loop

@@ -1,1 +1,1 @@
-sorryWarning.lean:2:2-2:7: warning: declaration uses 'sorry'
+sorryWarning.lean:1:4-1:5: warning: declaration uses 'sorry'

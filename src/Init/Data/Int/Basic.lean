@@ -11,7 +11,7 @@ import Init.Data.Nat.Div
 import Init.Data.List.Basic
 open Nat
 
-/- the Type, coercions, and notation -/
+/-! # the Type, coercions, and notation -/
 
 inductive Int : Type where
   | ofNat   : Nat → Int
@@ -21,6 +21,9 @@ attribute [extern "lean_nat_to_int"] Int.ofNat
 attribute [extern "lean_int_neg_succ_of_nat"] Int.negSucc
 
 instance : Coe Nat Int := ⟨Int.ofNat⟩
+
+instance : OfNat Int n where
+  ofNat := Int.ofNat n
 
 namespace Int
 instance : Inhabited Int := ⟨ofNat 0⟩
@@ -59,14 +62,14 @@ protected def mul (m n : @& Int) : Int :=
   | negSucc m, ofNat n   => negOfNat (succ m * n)
   | negSucc m, negSucc n => ofNat (succ m * succ n)
 
-/-
+/--
   The `Neg Int` default instance must have priority higher than `low` since
   the default instance `OfNat Nat n` has `low` priority.
   ```
   #check -42
   ```
 -/
-@[defaultInstance mid]
+@[default_instance mid]
 instance : Neg Int where
   neg := Int.neg
 instance : Add Int where
@@ -104,8 +107,8 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
   | negSucc a, negSucc b => match decEq a b with
     | isTrue h  => isTrue  <| h ▸ rfl
     | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | ofNat a, negSucc b => isFalse <| fun h => Int.noConfusion h
-  | negSucc a, ofNat b => isFalse <| fun h => Int.noConfusion h
+  | ofNat _, negSucc _ => isFalse <| fun h => Int.noConfusion h
+  | negSucc _, ofNat _ => isFalse <| fun h => Int.noConfusion h
 
 instance : DecidableEq Int := Int.decEq
 
@@ -114,7 +117,7 @@ set_option bootstrap.genMatcherCode false in
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m   => isTrue <| NonNeg.mk m
-  | negSucc m => isFalse <| fun h => nomatch h
+  | negSucc _ => isFalse <| fun h => nomatch h
 
 @[extern "lean_int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
@@ -130,9 +133,6 @@ def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m   => m
   | negSucc m => m.succ
-
-instance : OfNat Int n where
-  ofNat := Int.ofNat n
 
 @[extern "lean_int_div"]
 def div : (@& Int) → (@& Int) → Int
@@ -156,15 +156,21 @@ instance : Mod Int where
 
 def toNat : Int → Nat
   | ofNat n   => n
-  | negSucc n => 0
+  | negSucc _ => 0
 
-def natMod (m n : Int) : Nat := (m % n).toNat
-
-protected def Int.pow (m : Int) : Nat → Int
+protected def pow (m : Int) : Nat → Int
   | 0      => 1
   | succ n => Int.pow m n * m
 
 instance : HPow Int Nat Int where
   hPow := Int.pow
+
+instance : LawfulBEq Int where
+  eq_of_beq h := by simp [BEq.beq] at h; assumption
+  rfl := by simp [BEq.beq]
+
+instance : Min Int := minOfLe
+
+instance : Max Int := maxOfLe
 
 end Int

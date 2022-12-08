@@ -1,0 +1,17 @@
+[Compiler.saveMono] size: 12
+    def f b a.1 : EStateM.Result IO.Error PUnit PUnit :=
+      jp _jp.2 a _y.3 : EStateM.Result IO.Error PUnit PUnit :=
+        let _x.4 := print a _y.3;
+        cases _x.4 : EStateM.Result IO.Error PUnit PUnit
+        | EStateM.Result.ok a.5 a.6 =>
+          let _x.7 := print a a.6;
+          return _x.7
+        | EStateM.Result.error a.8 a.9 =>
+          return _x.4;
+      cases b : EStateM.Result IO.Error PUnit PUnit
+      | Bool.false =>
+        let _x.10 := 1;
+        goto _jp.2 _x.10 a.1
+      | Bool.true =>
+        let _x.11 := 0;
+        goto _jp.2 _x.11 a.1

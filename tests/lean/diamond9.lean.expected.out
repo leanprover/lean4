@@ -1,0 +1,2 @@
+constructor Ring.mk.{u} : {R : Type u} → [toZero : Zero R] → (gsmul : Int → R → R) → (∀ (a : R), gsmul 0 a = 0) → Ring R
+Ring.mk (fun x n => Int.toNat x * n) (_ : ∀ (a : Nat), 0 * a = 0) : Ring Nat

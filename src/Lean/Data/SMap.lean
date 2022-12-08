@@ -3,15 +3,13 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
-import Std.Data.PersistentHashMap
-universes u v w w'
+import Lean.Data.HashMap
+import Lean.Data.PersistentHashMap
+universe u v w w'
 
 namespace Lean
 
-open Std (HashMap PHashMap)
-
-/- Staged map for implementing the Environment. The idea is to store
+/-- Staged map for implementing the Environment. The idea is to store
    imported entries into a hashtable and local entries into a persistent hashtable.
 
    Hypotheses:
@@ -38,13 +36,20 @@ variable {α : Type u} {β : Type v} [BEq α] [Hashable α]
 instance : Inhabited (SMap α β) := ⟨{}⟩
 def empty : SMap α β := {}
 
+@[inline] def fromHashMap (m : HashMap α β) (stage₁ := true) : SMap α β :=
+  { map₁ := m, stage₁ := stage₁ }
+
 @[specialize] def insert : SMap α β → α → β → SMap α β
+  | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
+  | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
+
+@[specialize] def insert' : SMap α β → α → β → SMap α β
   | ⟨true, m₁, m₂⟩, k, v  => ⟨true, m₁.insert k v, m₂⟩
   | ⟨false, m₁, m₂⟩, k, v => ⟨false, m₁, m₂.insert k v⟩
 
 @[specialize] def find? : SMap α β → α → Option β
   | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orElse (m₁.find? k)
+  | ⟨false, m₁, m₂⟩, k => (m₂.find? k).orElse fun _ => m₁.find? k
 
 @[inline] def findD (m : SMap α β) (a : α) (b₀ : β) : β :=
   (m.find? a).getD b₀
@@ -58,17 +63,17 @@ def empty : SMap α β := {}
   | ⟨true, m₁, _⟩, k   => m₁.contains k
   | ⟨false, m₁, m₂⟩, k => m₁.contains k || m₂.contains k
 
-/- Similar to `find?`, but searches for result in the hashmap first.
+/-- Similar to `find?`, but searches for result in the hashmap first.
    So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
 @[specialize] def find?' : SMap α β → α → Option β
   | ⟨true, m₁, _⟩, k   => m₁.find? k
-  | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orElse (m₂.find? k)
+  | ⟨false, m₁, m₂⟩, k => (m₁.find? k).orElse fun _ => m₂.find? k
 
 def forM [Monad m] (s : SMap α β) (f : α → β → m PUnit) : m PUnit := do
   s.map₁.forM f
   s.map₂.forM f
 
-/- Move from stage 1 into stage 2. -/
+/-- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=
   if m.stage₁ then { m with stage₁ := false } else m
 

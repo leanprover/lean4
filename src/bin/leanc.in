@@ -1,33 +1,13 @@
 #!/usr/bin/env bash
-# Lean compiler
-#
-# A simple wrapper around a C++ compiler. Defaults to the compiler Lean was built with,
-# which can be overridden with the environment variable `LEAN_CXX`. All parameters are passed
-# as-is to the wrapped compiler. Note that we use a C++ compiler purely for linking against
-# the C++ standard library Lean depends on, all input files are treated as C code.
-#
-# Interesting options:
-# * `-U LEAN_MULTI_THREAD` can be used to optimize programs not making use of multi-threading
-# * `-print-cflags`: print C compiler flags necessary for building against the Lean runtime and abort
-# * `-print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and abort
-# * Set the `LEANC_GMP` environment variable to a path to `libgmp.a` (or `-l:libgmp.a` on Linux) to link GMP statically.
-#   Beware of the licensing consequences since GMP is LGPL.
-
-set -e
-bindir=$(dirname $0)
-
-cflags=("-I$bindir/../include")
-ldflags=("-L$bindir/../lib/lean" "${LEANC_GMP:--lgmp}" @LEANC_EXTRA_FLAGS@)
-ldflags_ext=(@LEANC_STATIC_LINKER_FLAGS@)
+# used only for building Lean itself
+root=$(dirname $0)
+ldflags=(@LEANC_INTERNAL_LINKER_FLAGS@ "-L$root/lib/lean" @LEAN_EXTRA_LINKER_FLAGS@)
 for arg in "$@"; do
-    # passed -shared ~> switch to shared linker flags
-    [[ $arg == "-shared" ]] && ldflags_ext=(@LEANC_SHARED_LINKER_FLAGS@)
-    [[ $arg == "-c" ]] && ldflags=() && ldflags_ext=()
-    [[ $arg == "-print-cflags" ]] && echo "${cflags[@]} ${cflags_ext[@]}" && exit
-    [[ $arg == "-print-ldflags" ]] && echo "${ldflags_ext[@]} ${ldflags[@]}" && exit
+    # ccache doesn't like linker flags being passed here
+    [[ "$arg" = "-c" ]] && ldflags=()
+    [[ "$arg" = "-v" ]] && v=1
 done
-
-[ -n "$LEAN_CXX" ] || LEAN_CXX=c++
-
-# Note the `-x c` for treating all input as C code
-$LEAN_CXX -D LEAN_MULTI_THREAD "${cflags[@]}" -x c "$@" -x none "${ldflags_ext[@]}" "${ldflags[@]}" -Wno-unused-command-line-argument
+cmd=(${LEAN_CC:-@CMAKE_C_COMPILER@} "-I$root/include" @LEANC_EXTRA_FLAGS@ @LEANC_INTERNAL_FLAGS@ "$@" "${ldflags[@]}" -Wno-unused-command-line-argument)
+cmd=$(printf '%q ' "${cmd[@]}" | sed "s!ROOT!$root!g")
+[[ $v == 1 ]] && echo $cmd
+eval $cmd

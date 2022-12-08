@@ -3,15 +3,14 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
+import Lean.Data.HashMap
 namespace Lean.SCC
-/-
+/-!
   Very simple implementation of Tarjan's SCC algorithm.
   Performance is not a goal here since we use this module to
   compiler mutually recursive definitions, where each function
   (and nested let-rec) in the mutual block is a vertex.
   So, the graphs are small. -/
-open Std
 
 section
 variable (α : Type) [BEq α] [Hashable α]
@@ -24,7 +23,7 @@ structure Data where
 structure State where
   stack     : List α := []
   nextIndex : Nat := 0
-  data      : Std.HashMap α Data := {}
+  data      : HashMap α Data := {}
   sccs      : List (List α) := []
 
 abbrev M := StateM (State α)
@@ -79,7 +78,7 @@ private def addSCC (a : α) : M α Unit := do
         modify fun s => { s with stack := bs, sccs := newSCC :: s.sccs }
   add (← get).stack []
 
-@[specialize] private partial def sccAux (successorsOf : α → List α) (a : α) : M α Unit := do
+private partial def sccAux (successorsOf : α → List α) (a : α) : M α Unit := do
   push a
   (successorsOf a).forM fun b => do
     let bData ← getDataOf b;
@@ -98,7 +97,7 @@ private def addSCC (a : α) : M α Unit := do
   if aData.lowlink? == aData.index? then
     addSCC a
 
-@[specialize] def scc (vertices : List α) (successorsOf : α → List α) : List (List α) :=
+def scc (vertices : List α) (successorsOf : α → List α) : List (List α) :=
   let main : M α Unit := vertices.forM fun a => do
     let aData ← getDataOf a
     if aData.index?.isNone then sccAux successorsOf a

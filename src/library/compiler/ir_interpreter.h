@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 */
 #pragma once
 #include "kernel/environment.h"
-#include <lean/object.h>
+#include "runtime/object.h"
 
 namespace lean {
 namespace ir {

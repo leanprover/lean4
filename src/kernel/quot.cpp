@@ -92,7 +92,7 @@ environment environment::add_quot() const {
     /* constant {u} quot.ind {α : Sort u} {r : α → α → Prop} {β : @quot.{u} α r → Prop}
                    : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot_ind, {u_name},
-                                            lctx.mk_pi({alpha, r, beta}, mk_arrow(all_quot, lctx.mk_pi(q, beta_q))), quot_kind::Ind)));
+                                            lctx.mk_pi({alpha, r, beta}, mk_pi("mk", all_quot, lctx.mk_pi(q, beta_q))), quot_kind::Ind)));
     new_env.mark_quot_initialized();
     return new_env;
 }

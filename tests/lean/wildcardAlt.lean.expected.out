@@ -1,0 +1,2 @@
+wildcardAlt.lean:10:2-10:16: error: invalid occurrence of wildcard alternative, it must be the last alternative
+wildcardAlt.lean:15:2-15:16: error: invalid occurrence of wildcard alternative, it must be the last alternative

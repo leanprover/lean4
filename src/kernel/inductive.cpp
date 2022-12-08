@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/sstream.h>
-#include <lean/utf8.h>
+#include "runtime/sstream.h"
+#include "runtime/utf8.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/type_checker.h"
@@ -21,6 +21,41 @@ static name * g_ind_fresh = nullptr;
 /**\ brief Return recursor name for the given inductive datatype name */
 name mk_rec_name(name const & I) {
     return I + name("rec");
+}
+
+/** \brief Return true if the given declaration is a structure */
+bool is_structure_like(environment const & env, name const & decl_name) {
+    constant_info I = env.get(decl_name);
+    if (!I.is_inductive()) return false;
+    inductive_val I_val = I.to_inductive_val();
+    return I_val.get_ncnstrs() == 1 && I_val.get_nindices() == 0 && !I_val.is_rec();
+}
+
+bool is_inductive(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_inductive();
+    return false;
+}
+
+bool is_constructor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_constructor();
+    return false;
+}
+
+bool is_recursor(environment const & env, name const & n) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_recursor();
+    return false;
+}
+
+optional<name> is_constructor_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn)) {
+        if (is_constructor(env, const_name(fn)))
+            return optional<name>(const_name(fn));
+    }
+    return optional<name>();
 }
 
 /** Return the names of all inductive datatypes */
@@ -58,6 +93,21 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
     if (!cnstr_name) return none_expr();
     args.shrink(num_params);
     return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
+}
+
+expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e) {
+    buffer<expr> args;
+    expr const & I = get_app_args(e_type, args);
+    if (!is_constant(I)) return e;
+    auto ctor_name = get_first_cnstr(env, const_name(I));
+    if (!ctor_name) return e;
+    constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
+    args.shrink(ctor_val.get_nparams());
+    expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
+    for (unsigned i = 0; i < ctor_val.get_nfields(); i++) {
+        result = mk_app(result, mk_proj(const_name(I), nat(i), e));
+    }
+    return result;
 }
 
 optional<recursor_rule> get_rec_rule_for(recursor_val const & rec_val, expr const & major) {
@@ -125,12 +175,12 @@ public:
     }
 
     expr mk_local_decl(name const & n, expr const & t, binder_info const & bi = binder_info()) {
-        return m_lctx.mk_local_decl(m_ngen, n, t, bi);
+        return m_lctx.mk_local_decl(m_ngen, n, consume_type_annotations(t), bi);
     }
 
     expr mk_local_decl_for(expr const & t) {
         lean_assert(is_pi(t));
-        return m_lctx.mk_local_decl(m_ngen, binding_name(t), binding_domain(t), binding_info(t));
+        return m_lctx.mk_local_decl(m_ngen, binding_name(t), consume_type_annotations(binding_domain(t)), binding_info(t));
     }
 
     expr whnf(expr const & t) { return tc().whnf(t); }
@@ -168,6 +218,7 @@ public:
             tc().check(type, m_lparams);
             m_nindices.push_back(0);
             unsigned i = 0;
+            type = whnf(type);
             while (is_pi(type)) {
                 if (i < m_nparams) {
                     if (first) {
@@ -181,9 +232,11 @@ public:
                     }
                     i++;
                 } else {
-                    type = binding_body(type);
+                    expr local = mk_local_decl_for(type);
+                    type = instantiate(binding_body(type), local);
                     m_nindices.back()++;
                 }
+                type = whnf(type);
             }
             if (i != m_nparams)
                 throw kernel_exception(m_env, "number of parameters mismatch in inductive datatype declaration");
@@ -527,6 +580,7 @@ public:
             rec_info info;
             expr t      = ind_type.get_type();
             unsigned i  = 0;
+            t = whnf(t);
             while (is_pi(t)) {
                 if (i < m_nparams) {
                     t = instantiate(binding_body(t), m_params[i]);
@@ -536,6 +590,7 @@ public:
                     t = instantiate(binding_body(t), idx);
                 }
                 i++;
+                t = whnf(t);
             }
             info.m_major = mk_local_decl("t", mk_app(mk_app(m_ind_cnsts[d_idx], m_params), info.m_indices));
             expr C_ty = mk_sort(m_elim_level);

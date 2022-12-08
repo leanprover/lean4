@@ -26,48 +26,60 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | some _ => false
   | none   => true
 
+@[inline] def isEqSome [BEq α] : Option α → α → Bool
+  | some a, b => a == b
+  | none,   _ => false
+
 @[inline] protected def bind : Option α → (α → Option β) → Option β
-  | none,   b => none
+  | none,   _ => none
   | some a, b => b a
 
-@[inline] protected def map (f : α → β) (o : Option α) : Option β :=
-  Option.bind o (some ∘ f)
+@[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
+  if let some a := o then
+    return some (← f a)
+  else
+    return none
 
-theorem mapId : (Option.map id : Option α → Option α) = id :=
-  funext (fun o => match o with | none => rfl | some x => rfl)
+theorem map_id : (Option.map id : Option α → Option α) = id :=
+  funext (fun o => match o with | none => rfl | some _ => rfl)
 
-instance : Functor Option where
-  map := Option.map
-
-@[inline] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
-@[inline] protected def all (p : α → Bool) : Option α → Bool
+@[always_inline, inline] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
-@[inline] protected def any (p : α → Bool) : Option α → Bool
+@[always_inline, inline] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
-@[macroInline] protected def orElse : Option α → Option α → Option α
+@[always_inline, macro_inline] protected def orElse : Option α → (Unit → Option α) → Option α
   | some a, _ => some a
-  | none,   b => b
+  | none,   b => b ()
 
 instance : OrElse (Option α) where
   orElse := Option.orElse
 
 @[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
-  | none, some x     => True
+  | none, some _     => True
   | some x,   some y => r x y
   | _, _             => False
 
 instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
-  | none,   some y => isTrue  trivial
+  | none,   some _ => isTrue  trivial
   | some x, some y => s x y
-  | some x, none   => isFalse notFalse
-  | none,   none   => isFalse notFalse
+  | some _, none   => isFalse not_false
+  | none,   none   => isFalse not_false
+
+/-- Take a pair of options and if they are both `some`, apply the given fn to produce an output.
+Otherwise act like `orElse`. -/
+def merge (fn : α → α → α) : Option α → Option α → Option α
+  | none  , none   => none
+  | some x, none   => some x
+  | none  , some y => some y
+  | some x, some y => some <| fn x y
 
 end Option
 
@@ -76,3 +88,30 @@ deriving instance BEq for Option
 
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)
+
+@[always_inline]
+instance : Functor Option where
+  map := Option.map
+
+@[always_inline]
+instance : Monad Option where
+  pure := Option.some
+  bind := Option.bind
+
+@[always_inline]
+instance : Alternative Option where
+  failure := Option.none
+  orElse  := Option.orElse
+
+def liftOption [Alternative m] : Option α → m α
+  | some a => pure a
+  | none   => failure
+
+@[always_inline, inline] protected def Option.tryCatch (x : Option α) (handle : Unit → Option α) : Option α :=
+  match x with
+  | some _ => x
+  | none => handle ()
+
+instance : MonadExceptOf Unit Option where
+  throw    := fun _ => Option.none
+  tryCatch := Option.tryCatch

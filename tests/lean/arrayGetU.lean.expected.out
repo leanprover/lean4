@@ -1,0 +1,14 @@
+i j : Nat
+a : Array Nat
+v : Nat
+h₁ : i < Array.size a
+h₂ : j < Array.size a
+h₃ : i = j
+⊢ f a i v h₁ = f a j v h₂
+i j : Nat
+a : Array Nat
+v : Nat
+h₁ : 0 + i < Array.size a
+h₂ : j < Array.size a
+h₃ : i = j
+⊢ f a i v (Nat.zero_add i ▸ h₁) = f a j v h₂

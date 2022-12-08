@@ -1,0 +1,64 @@
+if c.1 then do
+  t.1
+else e.1
+if c.1 then do
+  t.1;
+  t.1
+else e.1
+if c.1 then do
+  t.1
+else do
+  e.1
+if let x.1 := c.1 then do
+  t.1
+else do
+  e.1
+if c.1 then do
+  t.1
+else
+  if c.1 then do
+    t.1
+  else do
+    e.1
+do
+  if c.1 then 
+    t.1
+  else
+    e.1
+do
+  if c.1 then 
+    t.1
+  else if c.1 then
+    t.1
+  else
+    e.1
+def foo.1 := by 
+  · skip; skip
+  · skip; skip
+    skip
+    (skip; skip)
+    ( skip; skip
+      try skip; skip
+      try 
+        skip
+        skip
+      skip)
+by
+  try 
+    skip
+    skip
+by
+   try 
+      skip
+      skip
+by try  skip
+        skip
+by  try skip
+        skip
+    skip
+{ foo.1 := bar.1
+  bar.1 := foo.1 + bar.1 }
+let x.1 :=
+  { foo.1 := bar.1
+    bar.1 := foo.1 + bar.1 }
+x.1

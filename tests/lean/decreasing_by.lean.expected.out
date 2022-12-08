@@ -1,0 +1,4 @@
+decreasing_by.lean:8:0-8:24: error: invalid 'decreasing_by' in mutually inductive datatype declaration
+decreasing_by.lean:13:1-13:25: error: invalid 'decreasing_by' in 'mutual' block, it must be used after the 'end' keyword
+decreasing_by.lean:21:2-21:3: error: function 'h' not found in current declaration
+decreasing_by.lean:39:2-39:17: error: invalid termination hint element, 'Test.g' and 'Test.f' are in the same clique

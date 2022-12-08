@@ -6,33 +6,32 @@ Authors: Leonardo de Moura
 import Lean.Environment
 import Lean.Exception
 import Lean.Declaration
-import Lean.Util.FindExpr
+import Lean.Log
 import Lean.AuxRecursor
+import Lean.Compiler.Old
 
 namespace Lean
 
 def setEnv [MonadEnv m] (env : Environment) : m Unit :=
   modifyEnv fun _ => env
 
+def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m α) : m α := do
+  let saved ← getEnv
+  try
+    setEnv env
+    x
+  finally
+    setEnv saved
+
 def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
   match (← getEnv).find? declName with
   | some (ConstantInfo.inductInfo ..) => return true
   | _ => return false
 
-def isInductivePredicate [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo { type := type, ..}) => return visit type
-  | _ => return false
-where
-  visit : Expr → Bool
-    | Expr.sort u ..       => u == levelZero
-    | Expr.forallE _ _ b _ => visit b
-    | _                    => false
-
 def isRecCore (env : Environment) (declName : Name) : Bool :=
   match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => return true
-  | _ => return false
+  | some (ConstantInfo.recInfo ..) => true
+  | _ => false
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
@@ -41,9 +40,18 @@ def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   let env ← getEnv
   try x finally setEnv env
 
+/-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
+@[inline] def withoutModifyingEnv' [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m (α × Environment) := do
+  let env ← getEnv
+  try
+    let a ← x
+    return (a, ← getEnv)
+  finally
+    setEnv env
+
 @[inline] def matchConst [Monad m] [MonadEnv m] (e : Expr) (failK : Unit → m α) (k : ConstantInfo → List Level → m α) : m α := do
   match e with
-  | Expr.const constName us _ => do
+  | Expr.const constName us => do
     match (← getEnv).find? constName with
     | some cinfo => k cinfo us
     | none       => failK ()
@@ -87,7 +95,12 @@ def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Co
 
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
   let info ← getConstInfo constName
-  mkConst constName (info.levelParams.map mkLevelParam)
+  return mkConst constName (info.levelParams.map mkLevelParam)
+
+def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
+  match (← getConstInfo constName) with
+  | ConstantInfo.defnInfo v => pure v
+  | _                       => throwError "'{mkConst constName}' is not a definition"
 
 def getConstInfoInduct [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m InductiveVal := do
   match (← getConstInfo constName) with
@@ -106,44 +119,13 @@ def getConstInfoRec [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m
 
 @[inline] def matchConstStruct [Monad m] [MonadEnv m] [MonadError m] (e : Expr) (failK : Unit → m α) (k : InductiveVal → List Level → ConstructorVal → m α) : m α :=
   matchConstInduct e failK fun ival us => do
-    if ival.isRec then failK ()
+    if ival.isRec || ival.numIndices != 0 then failK ()
     else match ival.ctors with
       | [ctor] =>
         match (← getConstInfo ctor) with
         | ConstantInfo.ctorInfo cval => k ival us cval
         | _ => failK ()
       | _ => failK ()
-
-def addDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
-  match (← getEnv).addDecl decl with
-  | Except.ok    env => setEnv env
-  | Except.error ex  => throwKernelException ex
-
-private def supportedRecursors :=
-  #[``Empty.rec, ``False.rec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]
-
-private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Declaration) : m Unit := do
-  let env ← getEnv
-  decl.forExprM fun e =>
-    let unsupportedRecursor? := e.find? fun
-      | Expr.const declName .. =>
-        ((isAuxRecursor env declName && !isCasesOnRecursor env declName) || isRecCore env declName)
-        && !supportedRecursors.contains declName
-      | _ => false
-    match unsupportedRecursor? with
-    | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
-    | _ => pure ()
-
-def compileDecl [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
-  match (← getEnv).compileDecl (← getOptions) decl with
-  | Except.ok env   => setEnv env
-  | Except.error ex =>
-    checkUnsupported decl -- Generate nicer error message for unsupported recursors
-    throwKernelException ex
-
-def addAndCompile [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (decl : Declaration) : m Unit := do
-  addDecl decl;
-  compileDecl decl
 
 unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) : m α := do
   ofExcept <| (← getEnv).evalConst α (← getOptions) constName
@@ -155,6 +137,18 @@ def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (O
   discard <| getConstInfo declName -- ensure declaration exists
   match (← getEnv).getModuleIdxFor? declName with
   | none        => return none
-  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx])
+  | some modIdx => return some ((← getEnv).allImportedModuleNames[modIdx.toNat]!)
+
+def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool := do
+  if let ConstantInfo.inductInfo info ← getConstInfo declName then
+    if !info.type.isProp && info.all.length == 1 && info.numIndices == 0 && info.numParams == 0
+       && !info.ctors.isEmpty && !info.isRec && !info.isNested && !info.isUnsafe then
+      info.ctors.allM fun ctorName => do
+        let ConstantInfo.ctorInfo info ← getConstInfo ctorName | return false
+        return info.numFields == 0
+    else
+      return false
+  else
+    return false
 
 end Lean

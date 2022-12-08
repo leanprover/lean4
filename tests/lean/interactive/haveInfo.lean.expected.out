@@ -2,10 +2,10 @@
  "position": {"line": 2, "character": 4}}
 {"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file://haveInfo.lean"},
- "position": {"line": 8, "character": 12}}
+ "position": {"line": 8, "character": 17}}
 {"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file://haveInfo.lean"},
- "position": {"line": 15, "character": 13}}
+ "position": {"line": 15, "character": 17}}
 {"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
 {"textDocument": {"uri": "file://haveInfo.lean"},
  "position": {"line": 23, "character": 2}}

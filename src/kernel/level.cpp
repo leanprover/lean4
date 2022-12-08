@@ -8,17 +8,17 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <vector>
 #include <unordered_set>
-#include <lean/debug.h>
-#include <lean/interrupt.h>
-#include <lean/hash.h>
-#include "util/buffer.h"
+#include "runtime/debug.h"
+#include "runtime/interrupt.h"
+#include "runtime/hash.h"
+#include "runtime/buffer.h"
 #include "util/list.h"
 #include "kernel/level.h"
 #include "kernel/environment.h"
 
 namespace lean {
 
-extern "C" usize lean_level_hash(obj_arg l);
+extern "C" unsigned lean_level_hash(obj_arg l);
 extern "C" unsigned lean_level_depth(obj_arg l);
 extern "C" uint8 lean_level_has_mvar(obj_arg l);
 extern "C" uint8 lean_level_has_param(obj_arg l);
@@ -29,8 +29,6 @@ extern "C" object * lean_level_mk_mvar(obj_arg);
 extern "C" object * lean_level_mk_param(obj_arg);
 extern "C" object * lean_level_mk_max(obj_arg, obj_arg);
 extern "C" object * lean_level_mk_imax(obj_arg, obj_arg);
-extern "C" object * lean_level_mk_max_simp(obj_arg, obj_arg);
-extern "C" object * lean_level_mk_imax_simp(obj_arg, obj_arg);
 
 level mk_succ(level const & l) { return level(lean_level_mk_succ(l.to_obj_arg())); }
 level mk_max_core(level const & l1, level const & l2) { return level(lean_level_mk_max(l1.to_obj_arg(), l2.to_obj_arg())); }
@@ -141,11 +139,11 @@ bool operator==(level const & l1, level const & l2) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-extern "C" uint8 lean_level_eqv(object * l1, object * l2) {
+extern "C" LEAN_EXPORT uint8 lean_level_eqv(object * l1, object * l2) {
     return is_equivalent(TO_REF(level, l1), TO_REF(level, l2));
 }
 
-extern "C" uint8 lean_level_eq(object * l1, object * l2) {
+extern "C" LEAN_EXPORT uint8 lean_level_eq(object * l1, object * l2) {
     return TO_REF(level, l1) == TO_REF(level, l2);
 }
 
@@ -291,36 +289,6 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs) 
         return mk_imax(new_lhs, new_rhs);
 }
 
-extern "C" object * lean_level_update_succ(obj_arg l, obj_arg new_arg) {
-    if (succ_of(TO_REF(level, l)).raw() == new_arg) {
-        lean_dec(new_arg);
-        return l;
-    } else {
-        lean_dec_ref(l);
-        return lean_level_mk_succ(new_arg);
-    }
-}
-
-extern "C" object * lean_level_update_max(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
-    if (max_lhs(TO_REF(level, l)).raw() == new_lhs && max_rhs(TO_REF(level, l)).raw() == new_rhs) {
-        lean_dec(new_lhs); lean_dec(new_rhs);
-        return l;
-    } else {
-        lean_dec_ref(l);
-        return lean_level_mk_max_simp(new_lhs, new_rhs);
-    }
-}
-
-extern "C" object * lean_level_update_imax(obj_arg l, obj_arg new_lhs, obj_arg new_rhs) {
-    if (imax_lhs(TO_REF(level, l)).raw() == new_lhs && imax_rhs(TO_REF(level, l)).raw() == new_rhs) {
-        lean_dec(new_lhs); lean_dec(new_rhs);
-        return l;
-    } else {
-        lean_dec_ref(l);
-        return lean_level_mk_imax_simp(new_lhs, new_rhs);
-    }
-}
-
 level instantiate(level const & l, names const & ps, levels const & ls) {
     lean_assert(length(ps) == length(ls));
     return replace(l, [=](level const & l) {
@@ -393,60 +361,6 @@ static void print(std::ostream & out, level l) {
 std::ostream & operator<<(std::ostream & out, level const & l) {
     print(out, l);
     return out;
-}
-
-format pp(level l, bool unicode, unsigned indent);
-
-static format pp_child(level const & l, bool unicode, unsigned indent) {
-    if (is_explicit(l) || is_param(l) || is_mvar(l)) {
-        return pp(l, unicode, indent);
-    } else {
-        return paren(pp(l, unicode, indent));
-    }
-}
-
-format pp(level l, bool unicode, unsigned indent) {
-    if (is_explicit(l)) {
-        return format(get_depth(l));
-    } else {
-        switch (kind(l)) {
-        case level_kind::Zero:
-            lean_unreachable(); // LCOV_EXCL_LINE
-        case level_kind::Param:
-            return format(param_id(l));
-        case level_kind::MVar:
-            return format("?") + format(mvar_id(l));
-        case level_kind::Succ: {
-            auto p    = to_offset(l);
-            auto fmt1 = pp_child(p.first, unicode, indent);
-            return fmt1 + format("+") + format(p.second);
-        }
-        case level_kind::Max: case level_kind::IMax: {
-            format r = format(is_max(l) ? "max" : "imax");
-            r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            // max and imax are right associative
-            while (kind(level_rhs(l)) == kind(l)) {
-                l = level_rhs(l);
-                r += nest(indent, compose(line(), pp_child(level_lhs(l), unicode, indent)));
-            }
-            r += nest(indent, compose(line(), pp_child(level_rhs(l), unicode, indent)));
-            return group(r);
-        }}
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-}
-
-format pp(level const & l, options const & opts) {
-    return pp(l, get_pp_unicode(opts), get_pp_indent(opts));
-}
-
-format pp(level const & lhs, level const & rhs, bool unicode, unsigned indent) {
-    format leq = unicode ? format("≤") : format("<=");
-    return group(pp(lhs, unicode, indent) + space() + leq + line() + pp(rhs, unicode, indent));
-}
-
-format pp(level const & lhs, level const & rhs, options const & opts) {
-    return pp(lhs, rhs, get_pp_unicode(opts), get_pp_indent(opts));
 }
 
 // A total order on level expressions that has the following properties
@@ -524,7 +438,7 @@ level normalize(level const & l) {
     case level_kind::IMax: {
         auto l1 = normalize(imax_lhs(r));
         auto l2 = normalize(imax_rhs(r));
-        return mk_imax(l1, l2);
+        return mk_succ(mk_imax(l1, l2), p.second);
     }
     case level_kind::Max: {
         buffer<level> todo;

@@ -1,0 +1,20 @@
+[Compiler.result] size: 5
+    def g._redArg (n : Nat) (a : ◾) (f : ◾ → ◾) : ◾ :=
+      cases n : ◾
+      | Nat.zero =>
+        return a
+      | Nat.succ (n.1 : Nat) =>
+        let _x.2 := g._redArg n.1 a f;
+        let _x.3 := f _x.2;
+        return _x.3
+[Compiler.result] size: 1
+    def g (α : ◾) (n : Nat) (a : ◾) (b : ◾) (f : ◾ → ◾) : ◾ :=
+      let _x.1 := g._redArg n a f;
+      return _x.1
+[Compiler.result] size: 4
+    def h (n : Nat) (a : Nat) : Nat :=
+      let _x.1 := double;
+      let _x.2 := g._redArg n a _x.1;
+      let _x.3 := g._redArg a n _x.1;
+      let _x.4 := Nat.add _x.2 _x.3;
+      return _x.4

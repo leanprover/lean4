@@ -21,6 +21,10 @@ structure ClientInfo where
   version? : Option String := none
   deriving ToJson, FromJson
 
+/--
+A TraceValue represents the level of verbosity with which the server systematically reports its execution trace using `$/logTrace` notifications.
+[reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#traceValue)
+-/
 inductive Trace where
   | off
   | messages
@@ -28,10 +32,10 @@ inductive Trace where
 
 instance : FromJson Trace := ⟨fun j =>
   match j.getStr? with
-  | some "off"      => Trace.off
-  | some "messages" => Trace.messages
-  | some "verbose"  => Trace.verbose
-  | _               => none⟩
+  | Except.ok "off"      => return Trace.off
+  | Except.ok "messages" => return Trace.messages
+  | Except.ok "verbose"  => return Trace.verbose
+  | _               => throw "uknown trace"⟩
 
 instance Trace.hasToJson : ToJson Trace :=
 ⟨fun
@@ -44,6 +48,10 @@ structure InitializationOptions where
   /-- Time (in milliseconds) which must pass since latest edit until elaboration begins. Lower
   values may make editors feel faster at the cost of higher CPU usage. Defaults to 200ms. -/
   editDelay? : Option Nat
+  /-- Whether the client supports interactive widgets. When true, in order to improve performance
+  the server may cease including information which can be retrieved interactively in some standard
+  LSP messages. Defaults to false. -/
+  hasWidgets? : Option Bool
   deriving ToJson, FromJson
 
 structure InitializeParams where
@@ -54,13 +62,16 @@ structure InitializeParams where
   rootUri? : Option String := none
   initializationOptions? : Option InitializationOptions := none
   capabilities : ClientCapabilities
-  /- If omitted, we default to off. -/
+  /-- If omitted, we default to off. -/
   trace : Trace := Trace.off
   workspaceFolders? : Option (Array WorkspaceFolder) := none
   deriving ToJson
 
+def InitializeParams.editDelay (params : InitializeParams) : Nat :=
+  params.initializationOptions? |>.bind (·.editDelay?) |>.getD 200
+
 instance : FromJson InitializeParams where
-  fromJson? j := OptionM.run do
+  fromJson? j := do
     /- Many of these params can be null instead of not present.
     For ease of implementation, we're liberal:
     missing params, wrong json types and null all map to none,
@@ -73,15 +84,22 @@ instance : FromJson InitializeParams where
     let rootUri? := j.getObjValAs? String "rootUri"
     let initializationOptions? := j.getObjValAs? InitializationOptions "initializationOptions"
     let capabilities ← j.getObjValAs? ClientCapabilities "capabilities"
-    let trace := (j.getObjValAs? Trace "trace").getD Trace.off
+    let trace := (j.getObjValAs? Trace "trace").toOption.getD Trace.off
     let workspaceFolders? := j.getObjValAs? (Array WorkspaceFolder) "workspaceFolders"
-    return ⟨processId?, clientInfo?, rootUri?, initializationOptions?, capabilities, trace, workspaceFolders?⟩
+    return ⟨
+      processId?.toOption,
+      clientInfo?.toOption,
+      rootUri?.toOption,
+      initializationOptions?.toOption,
+      capabilities,
+      trace,
+      workspaceFolders?.toOption⟩
 
 inductive InitializedParams where
   | mk
 
 instance : FromJson InitializedParams :=
-  ⟨fun _ => InitializedParams.mk⟩
+  ⟨fun _ => pure InitializedParams.mk⟩
 
 instance : ToJson InitializedParams :=
   ⟨fun _ => Json.null⟩

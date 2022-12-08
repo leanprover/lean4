@@ -8,9 +8,9 @@ import Init.Control.Basic
 import Init.Data.List.Basic
 
 namespace List
-universes u v w u₁ u₂
+universe u v w u₁ u₂
 
-/-
+/-!
 Remark: we can define `mapM`, `mapM₂` and `forM` using `Applicative` instead of `Monad`.
 Example:
 ```
@@ -40,10 +40,12 @@ Finally, we rarely use `mapM` with something that is not a `Monad`.
 Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 -/
 
-@[specialize]
-def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-  | []    => pure []
-  | a::as => return (← f a) :: (← mapM f as)
+@[inline]
+def mapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) (as : List α) : m (List β) :=
+  let rec @[specialize] loop
+    | [],      bs => pure bs.reverse
+    | a :: as, bs => do loop as ((← f a)::bs)
+  loop as []
 
 @[specialize]
 def mapA {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
@@ -90,17 +92,14 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
 
 @[specialize]
 protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
-  | f, s, []      => pure s
+  | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a
     List.foldlM f s' as
 
-@[specialize]
-def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : α → s → m s) → (init : s) → List α → m s
-  | f, s, []      => pure s
-  | f, s, a :: as => do
-    let s' ← foldrM f s as
-    f a s'
+@[inline]
+def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α → s → m s) (init : s) (l : List α) : m s :=
+  l.reverse.foldlM (fun s a => f a s) init
 
 @[specialize]
 def firstM {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
@@ -158,6 +157,33 @@ instance : ForIn m (List α) α where
     : forIn (a::as) b f = f a b >>= fun | ForInStep.done b => pure b | ForInStep.yield b => forIn as b f :=
   rfl
 
+@[inline] protected def forIn' {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : (a : α) → a ∈ as → β → m (ForInStep β)) : m β :=
+  let rec @[specialize] loop : (as' : List α) → (b : β) → Exists (fun bs => bs ++ as' = as) → m β
+    | [], b, _    => pure b
+    | a::as', b, h => do
+      have : a ∈ as := by
+        have ⟨bs, h⟩ := h
+        subst h
+        exact mem_append_of_mem_right _ (Mem.head ..)
+      match (← f a this b) with
+      | ForInStep.done b  => pure b
+      | ForInStep.yield b =>
+        have : Exists (fun bs => bs ++ as' = as) := have ⟨bs, h⟩ := h; ⟨bs ++ [a], by rw [← h, append_cons bs a as']⟩
+        loop as' b this
+  loop as init ⟨[], rfl⟩
+
+instance : ForIn' m (List α) α inferInstance where
+  forIn' := List.forIn'
+
+@[simp] theorem forIn'_eq_forIn {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : List α) (init : β) (f : α → β → m (ForInStep β)) : forIn' as init (fun a _ b => f a b) = forIn as init f := by
+  simp [forIn', forIn, List.forIn, List.forIn']
+  have : ∀ cs h, List.forIn'.loop cs (fun a _ b => f a b) as init h = List.forIn.loop f as init := by
+    intro cs h
+    induction as generalizing cs init with
+    | nil => intros; rfl
+    | cons a as ih => intros; simp [List.forIn.loop, List.forIn'.loop, ih]
+  apply this
+
 instance : ForM m (List α) α where
   forM := List.forM
 
@@ -165,5 +191,8 @@ instance : ForM m (List α) α where
   rfl
 @[simp] theorem forM_cons [Monad m] (f : α → m PUnit) (a : α) (as : List α) : forM (a::as) f = f a >>= fun _ => forM as f :=
   rfl
+
+instance : Functor List where
+  map := List.map
 
 end List

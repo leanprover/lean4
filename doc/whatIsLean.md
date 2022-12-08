@@ -32,10 +32,11 @@ Lean has numerous features, including:
 - First-class functions
 - Powerful data types
 - Pattern matching
-- Type classes
-- Extensible syntax
+- [Type classes](./typeclass.md)
+- [Monads](./monads/intro.md)
+- [Extensible syntax](./syntax.md)
 - Hygienic macros
-- Dependent types
-- Metaprogramming framework
+- [Dependent types](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html)
+- [Metaprogramming](./metaprogramming.md)
 - Multithreading
 - Verification: you can prove properties of your functions using Lean itself

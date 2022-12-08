@@ -1,4 +1,4 @@
-
+--
 
 structure A (α : Type) :=
 (x : α)
@@ -11,17 +11,17 @@ structure S : Nat := -- error expected Type
 
 structure S extends Nat → Nat := -- error expected structure
 (x : Nat)
-
-structure S extends A Nat, A Bool := -- error field toA already declared
+set_option structureDiamondWarning true in
+structure S' extends A Nat, A Bool := -- error field toA already declared
 (x : Nat)
 
 structure S extends A Nat, B Bool := -- error field `x` from `B` has already been declared
 (x : Nat)
 
-structure S := -- error '_' is not allowed
+structure S1 :=
 (_x : Nat)
 
-structure S := -- error '_' is not allowed
+structure S2 :=
 (x _y : Nat)
 
 structure S :=

@@ -1,5 +1,5 @@
 theorem tst1 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p :=
-by match (generalizing := false) h:xs with
+by match (generalizing := false) h : xs with
    | []    => exact h₂ h
    | z::zs => apply h₁ z zs; assumption
 
@@ -22,7 +22,7 @@ by {
 }
 
 theorem tst4 {α : Type} {p : Prop} (xs : List α) (h₁ : (a : α) → (as : List α) → xs = a :: as → p) (h₂ : xs = [] → p) : p := by
-match (generalizing := false) h:xs with
+match (generalizing := false) h : xs with
 | []    => _
 | z::zs => _
 case match_2 => exact h₁ z zs h
@@ -91,3 +91,7 @@ theorem tst8'' {α} [Inhabited α] (xs : List α) (h : xs ≠ []) : xs = popBack
 match xs, last xs with
 | _, ListLast.empty         => absurd rfl h
 | _, ListLast.nonEmpty ys y => sorry
+
+example (xs : List α) : xs = xs := by
+  match xs with
+  | [] | [x] | x::x'::xs => rfl

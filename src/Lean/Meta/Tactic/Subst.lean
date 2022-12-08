@@ -15,77 +15,73 @@ import Lean.Meta.Tactic.FVarSubst
 namespace Lean.Meta
 
 def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) (tryToSkip := false) : MetaM (FVarSubst × MVarId) :=
-  withMVarContext mvarId do
-    let tag ← getMVarTag mvarId
-    checkNotAssigned mvarId `subst
+  mvarId.withContext do
+    let tag ← mvarId.getTag
+    mvarId.checkNotAssigned `subst
     let hFVarIdOriginal := hFVarId
-    let hLocalDecl ← getLocalDecl hFVarId
+    let hLocalDecl ← hFVarId.getDecl
     match (← matchEq? hLocalDecl.type) with
     | none => throwTacticEx `subst mvarId "argument must be an equality proof"
-    | some (α, lhs, rhs) => do
+    | some (_, lhs, rhs) => do
       let a ← instantiateMVars <| if symm then rhs else lhs
       let b ← instantiateMVars <| if symm then lhs else rhs
       match a with
-      | Expr.fvar aFVarId _ => do
+      | Expr.fvar aFVarId => do
         let aFVarIdOriginal := aFVarId
-        trace[Meta.Tactic.subst] "substituting {a} (id: {aFVarId}) with {b}"
-        let mctx ← getMCtx
-        if mctx.exprDependsOn b aFVarId then
+        trace[Meta.Tactic.subst] "substituting {a} (id: {aFVarId.name}) with {b}"
+        if (← exprDependsOn b aFVarId) then
           throwTacticEx `subst mvarId m!"'{a}' occurs at{indentExpr b}"
-        let aLocalDecl ← getLocalDecl aFVarId
-        let (vars, mvarId) ← revert mvarId #[aFVarId, hFVarId] true
+        let (vars, mvarId) ← mvarId.revert #[aFVarId, hFVarId] true
         trace[Meta.Tactic.subst] "after revert {MessageData.ofGoal mvarId}"
-        let (twoVars, mvarId) ← introNP mvarId 2
+        let (twoVars, mvarId) ← mvarId.introNP 2
         trace[Meta.Tactic.subst] "after intro2 {MessageData.ofGoal mvarId}"
-        trace[Meta.Tactic.subst] "reverted variables {vars}"
-        let aFVarId := twoVars[0]
+        trace[Meta.Tactic.subst] "reverted variables {vars.map (·.name)}"
+        let aFVarId := twoVars[0]!
         let a       := mkFVar aFVarId
-        let hFVarId := twoVars[1]
+        let hFVarId := twoVars[1]!
         let h       := mkFVar hFVarId
         /- Set skip to true if there is no local variable nor the target depend on the equality -/
-        let skip ←
-          if !tryToSkip || vars.size != 2 then
-            pure false
-          else
-            let mvarType ← getMVarType mvarId
-            let mctx ← getMCtx
-            pure (!mctx.exprDependsOn mvarType aFVarId && !mctx.exprDependsOn mvarType hFVarId)
+        let skip ← if !tryToSkip || vars.size != 2 then
+          pure false
+        else
+          let mvarType ← mvarId.getType
+          if (← exprDependsOn mvarType aFVarId) then pure false
+          else if (← exprDependsOn mvarType hFVarId) then pure false
+          else pure true
         if skip then
           if clearH then
-            let mvarId ← clear mvarId hFVarId
-            let mvarId ← clear mvarId aFVarId
+            let mvarId ← mvarId.clear hFVarId
+            let mvarId ← mvarId.clear aFVarId
             pure ({}, mvarId)
           else
             pure ({}, mvarId)
         else
-          withMVarContext mvarId do
-            let mvarDecl   ← getMVarDecl mvarId
+          mvarId.withContext do
+            let mvarDecl   ← mvarId.getDecl
             let type   := mvarDecl.type
-            let hLocalDecl ← getLocalDecl hFVarId
+            let hLocalDecl ← hFVarId.getDecl
             match (← matchEq? hLocalDecl.type) with
             | none => unreachable!
-            | some (α, lhs, rhs) => do
+            | some (_, lhs, rhs) => do
               let b        ← instantiateMVars <| if symm then lhs else rhs
-              let mctx     ← getMCtx
-              let depElim := mctx.exprDependsOn mvarDecl.type hFVarId
+              let depElim  ← exprDependsOn mvarDecl.type hFVarId
               let cont (motive : Expr) (newType : Expr) : MetaM (FVarSubst × MVarId) := do
                 let major ← if symm then pure h else mkEqSymm h
                 let newMVar ← mkFreshExprSyntheticOpaqueMVar newType tag
                 let minor := newMVar
                 let newVal  ← if depElim then mkEqRec motive minor major else mkEqNDRec motive minor major
-                assignExprMVar mvarId newVal
+                mvarId.assign newVal
                 let mvarId := newMVar.mvarId!
-                let mvarId ←
-                  if clearH then
-                    let mvarId ← clear mvarId hFVarId
-                    clear mvarId aFVarId
-                  else
-                    pure mvarId
-                let (newFVars, mvarId) ← introNP mvarId (vars.size - 2)
+                let mvarId ← if clearH then
+                  let mvarId ← mvarId.clear hFVarId
+                  mvarId.clear aFVarId
+                else
+                  pure mvarId
+                let (newFVars, mvarId) ← mvarId.introNP (vars.size - 2)
                 trace[Meta.Tactic.subst] "after intro rest {vars.size - 2} {MessageData.ofGoal mvarId}"
                 let fvarSubst ← newFVars.size.foldM (init := fvarSubst) fun i (fvarSubst : FVarSubst) =>
-                    let var     := vars[i+2]
-                    let newFVar := newFVars[i]
+                    let var     := vars[i+2]!
+                    let newFVar := newFVars[i]!
                     pure $ fvarSubst.insert var (mkFVar newFVar)
                 let fvarSubst := fvarSubst.insert aFVarIdOriginal (if clearH then b else mkFVar aFVarId)
                 let fvarSubst := fvarSubst.insert hFVarIdOriginal (mkFVar hFVarId)
@@ -119,51 +115,114 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
         throwTacticEx `subst mvarId
           m!"invalid equality proof, it is not of the form {eqMsg}{indentExpr hLocalDecl.type}\nafter WHNF, variable expected, but obtained{indentExpr a}"
 
-def subst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId :=
-  withMVarContext mvarId do
-    let hLocalDecl ← getLocalDecl hFVarId
-    match (← matchEq? hLocalDecl.type) with
-    | some (α, lhs, rhs) =>
-      let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
-        let mvarId ← assert mvarId hLocalDecl.userName newType (mkFVar hFVarId)
-        let (hFVarId', mvarId) ← intro1P mvarId
-        let mvarId ← clear mvarId hFVarId
-        return (← substCore mvarId hFVarId' (symm := symm) (tryToSkip := true)).2
-      let rhs' ← whnf rhs
-      if rhs'.isFVar then
-        if rhs != rhs' then
-          substReduced (← mkEq lhs rhs') true
+/--
+  Given `h : HEq α a α b` in the given goal, produce a new goal where `h : Eq α a b`.
+  If `h` is not of the give form, then just return `(h, mvarId)`
+-/
+def heqToEq (mvarId : MVarId) (fvarId : FVarId) (tryToClear : Bool := true) : MetaM (FVarId × MVarId) :=
+  mvarId.withContext do
+   let decl ← fvarId.getDecl
+   let type ← whnf decl.type
+   match type.heq? with
+   | none              => pure (fvarId, mvarId)
+   | some (α, a, β, b) =>
+     if (← isDefEq α β) then
+       let pr ← mkEqOfHEq (mkFVar fvarId)
+       let eq ← mkEq a b
+       let mut mvarId ← mvarId.assert decl.userName eq pr
+       if tryToClear then
+         mvarId ← mvarId.tryClear fvarId
+       let (fvarId, mvarId') ← mvarId.intro1P
+       return (fvarId, mvarId')
+     else
+       return (fvarId, mvarId)
+
+partial def subst (mvarId : MVarId) (h : FVarId) : MetaM MVarId :=
+  mvarId.withContext do
+    let type ← h.getType
+    match (← matchEq? type) with
+    | some _ => substEq mvarId h
+    | none => match (← matchHEq? type) with
+      | some _ =>
+        let (h', mvarId') ← heqToEq mvarId h
+        if mvarId == mvarId' then
+          findEq mvarId h
         else
-          return (← substCore mvarId hFVarId (symm := true) (tryToSkip := true)).2
+          subst mvarId' h'
+      | none => findEq mvarId h
+where
+  /-- Give `h : Eq α a b`, try to apply `substCore` -/
+  substEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
+    let localDecl ← h.getDecl
+    let some (_, lhs, rhs) ← matchEq? localDecl.type | unreachable!
+    let substReduced (newType : Expr) (symm : Bool) : MetaM MVarId := do
+      let mvarId ← mvarId.assert localDecl.userName newType (mkFVar h)
+      let (hFVarId', mvarId) ← mvarId.intro1P
+      let mvarId ← mvarId.clear h
+      return (← substCore mvarId hFVarId' (symm := symm) (tryToSkip := true)).2
+    let rhs' ← whnf rhs
+    if rhs'.isFVar then
+      if rhs != rhs' then
+        substReduced (← mkEq lhs rhs') true
+      else
+        return (← substCore mvarId h (symm := true) (tryToSkip := true)).2
+    else do
+      let lhs' ← whnf lhs
+      if lhs'.isFVar then
+        if lhs != lhs' then
+          substReduced (← mkEq lhs' rhs) false
+        else
+          return (← substCore mvarId h (symm := false) (tryToSkip := true)).2
       else do
-        let lhs' ← whnf lhs
-        if lhs'.isFVar then
-          if lhs != lhs' then
-            substReduced (← mkEq lhs' rhs) false
-          else
-            return (← substCore mvarId hFVarId (symm := false) (tryToSkip := true)).2
-        else do
-          throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
-    | none =>
-      if hLocalDecl.isLet then
-        throwTacticEx `subst mvarId m!"variable '{mkFVar hFVarId}' is a let-declaration"
-      let mctx ← getMCtx
-      let lctx ← getLCtx
-      let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do
-         if localDecl.isAuxDecl then
-           return none
-         else
-           match (← matchEq? localDecl.type) with
-           | some (α, lhs, rhs) =>
-             if rhs.isFVar && rhs.fvarId! == hFVarId && !mctx.exprDependsOn lhs hFVarId then
+        throwTacticEx `subst mvarId m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr localDecl.type}"
+
+  /-- Try to find an equation of the form `heq : h = rhs` or `heq : lhs = h` -/
+  findEq (mvarId : MVarId) (h : FVarId) : MetaM MVarId := mvarId.withContext do
+    let localDecl ← h.getDecl
+    if localDecl.isLet then
+      throwTacticEx `subst mvarId m!"variable '{mkFVar h}' is a let-declaration"
+    let lctx ← getLCtx
+    let some (fvarId, symm) ← lctx.findDeclM? fun localDecl => do
+       if localDecl.isImplementationDetail then
+         return none
+       else
+         match (← matchEq? localDecl.type) with
+         | some (_, lhs, rhs) =>
+           let lhs ← instantiateMVars lhs
+           let rhs ← instantiateMVars rhs
+           if rhs.isFVar && rhs.fvarId! == h then
+             if !(← exprDependsOn lhs h) then
                return some (localDecl.fvarId, true)
-             else if lhs.isFVar && lhs.fvarId! == hFVarId && !mctx.exprDependsOn rhs hFVarId then
+           if lhs.isFVar && lhs.fvarId! == h then
+             if !(← exprDependsOn rhs h) then
                return some (localDecl.fvarId, false)
-             else
-               return none
-           | _ => return none
-        | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar hFVarId}'"
-      return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2
+           return none
+         | _ => return none
+      | throwTacticEx `subst mvarId m!"did not find equation for eliminating '{mkFVar h}'"
+    return (← substCore mvarId fvarId (symm := symm) (tryToSkip := true)).2
+
+def subst? (mvarId : MVarId) (hFVarId : FVarId) : MetaM (Option MVarId) :=
+  observing? (subst mvarId hFVarId)
+
+def substCore? (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : FVarSubst := {}) (clearH := true) (tryToSkip := false) : MetaM (Option (FVarSubst × MVarId)) :=
+  observing? (substCore mvarId hFVarId symm fvarSubst clearH tryToSkip)
+
+def trySubst (mvarId : MVarId) (hFVarId : FVarId) : MetaM MVarId := do
+  match (← subst? mvarId hFVarId) with
+  | some mvarId => return mvarId
+  | none => return mvarId
+
+def substSomeVar? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
+  for localDecl in (← getLCtx) do
+    if let some mvarId ← subst? mvarId localDecl.fvarId then
+       return some mvarId
+  return none
+
+partial def substVars (mvarId : MVarId) : MetaM MVarId := do
+  if let some mvarId ← substSomeVar? mvarId then
+    substVars mvarId
+  else
+    return mvarId
 
 builtin_initialize registerTraceClass `Meta.Tactic.subst
 

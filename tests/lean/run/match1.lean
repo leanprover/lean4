@@ -6,16 +6,18 @@ def checkWithMkMatcherInput (matcher : Lean.Name) : Lean.MetaM Unit :=
   let origMatcher ← Lean.getConstInfo matcher
   if not <| input.matcherName == matcher then
     throwError "matcher name not reconstructed correctly: {matcher} ≟ {input.matcherName}"
-  
-  let lCtx ← Lean.getLCtx
-  let fvars ← Lean.collectFVars {} res.matcher
-  let closure ← Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
 
-  let origTy := origMatcher.value! 
-  let newTy ← closure
+  let lCtx ← Lean.getLCtx
+  let fvars := Lean.collectFVars {} res.matcher
+  let closure := Lean.Meta.Closure.mkLambda (fvars.fvarSet.toList.toArray.map lCtx.get!) res.matcher
+
+  let origTy := origMatcher.value!
+  let newTy := closure
   if not <| ←Lean.Meta.isDefEq origTy newTy then
     throwError "matcher {matcher} does not round-trip correctly:\n{origTy} ≟ {newTy}"
-  
+
+set_option smartUnfolding false
+
 def f (xs : List Nat) : List Bool :=
 xs.map fun
   | 0 => true
@@ -46,7 +48,6 @@ theorem ex3 {p q r : Prop} : p ∨ q → r → (q ∧ r) ∨ (p ∧ r) :=
 by intro
  | Or.inl hp, h => { apply Or.inr; apply And.intro; assumption; assumption }
  | Or.inr hq, h => { apply Or.inl; exact ⟨hq, h⟩ }
-#eval checkWithMkMatcherInput ``ex3.match_1
 
 inductive C
 | mk₁ : Nat → C
@@ -74,9 +75,9 @@ theorem ex5 : head2 [1, 2] = some 1 :=
 rfl
 
 def head3 {α : Type} (xs : List α) : Option α :=
-let rec aux : {α : Type} → List α → Option α
-  | _, a::as => some a
-  | _, _     => none;
+let rec aux {α : Type} : List α → Option α
+  | a::_ => some a
+  | _    => none;
 aux xs
 
 theorem ex6 : head3 [1, 2] = some 1 :=
@@ -89,12 +90,13 @@ inductive Vec.{u} (α : Type u) : Nat → Type u
 def Vec.mapHead1 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _,   nil,       nil,       f => none
 | _, cons a as, cons b bs,   f => some (f a b)
-#eval checkWithMkMatcherInput ``Vec.mapHead1.match_1
+
 
 def Vec.mapHead2 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
 | _, @cons _ n a as, cons b bs,   f => some (f a b)
-#eval checkWithMkMatcherInput ``Vec.mapHead2.match_1
+set_option pp.match false in
+#print Vec.mapHead2 -- reused Vec.mapHead1.match_1
 
 def Vec.mapHead3 {α β δ} : {n : Nat} → Vec α n → Vec β n → (α → β → δ) → Option δ
 | _, nil,            nil,         f => none
@@ -154,13 +156,13 @@ theorem fooEq (b : Bla) : foo b = b.optional? :=
 rfl
 
 def Bla.isNat2? (b : Bla) : Option { x : Nat // optional? b = some x } :=
-match h:foo b with
+match h : foo b with
 | some y => some ⟨y, Eq.trans (fooEq b).symm h⟩
 | none   => none
 #eval checkWithMkMatcherInput ``Bla.isNat2?.match_1
 
 def foo2 (x : Nat) : Nat :=
-match x, rfl : (y : Nat) → x = y → Nat with
+match (motive := (y : Nat) → x = y → Nat) x, rfl with
 | 0,   h => 0
 | x+1, h => 1
 #eval checkWithMkMatcherInput ``foo2.match_1

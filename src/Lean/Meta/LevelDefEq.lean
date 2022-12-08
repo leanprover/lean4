@@ -4,81 +4,33 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Util.CollectMVars
-import Lean.Util.ReplaceExpr
 import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.DecLevel
 
 namespace Lean.Meta
-
-private partial def decAux? : Level → MetaM (Option Level)
-  | Level.zero _        => return none
-  | Level.param _ _     => return none
-  | Level.mvar mvarId _ => do
-    let mctx ← getMCtx
-    match mctx.getLevelAssignment? mvarId with
-    | some u => decAux? u
-    | none   =>
-      if (← isReadOnlyLevelMVar mvarId) then
-        return none
-      else
-        let u ← mkFreshLevelMVar
-        assignLevelMVar mvarId (mkLevelSucc u)
-        return u
-  | Level.succ u _  => return u
-  | u =>
-    let process (u v : Level) : MetaM (Option Level) := do
-      match (← decAux? u) with
-      | none   => return none
-      | some u => do
-        match (← decAux? v) with
-        | none   => return none
-        | some v => return mkLevelMax' u v
-    match u with
-    | Level.max u v _  => process u v
-    /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
-    | Level.imax u v _ => process u v
-    | _                => unreachable!
-
-def decLevel? (u : Level) : MetaM (Option Level) := do
-  let mctx ← getMCtx
-  match (← decAux? u) with
-  | some v => return some v
-  | none   => do
-    modify fun s => { s with mctx := mctx }
-    return none
-
-def decLevel (u : Level) : MetaM Level := do
-  match (← decLevel? u) with
-  | some u => return u
-  | none   => throwError "invalid universe level, {u} is not greater than 0"
-
-/- This method is useful for inferring universe level parameters for function that take arguments such as `{α : Type u}`.
-   Recall that `Type u` is `Sort (u+1)` in Lean. Thus, given `α`, we must infer its universe level,
-   and then decrement 1 to obtain `u`. -/
-def getDecLevel (type : Expr) : MetaM Level := do
-  decLevel (← getLevel type)
 
 /--
   Return true iff `lvl` occurs in `max u_1 ... u_n` and `lvl != u_i` for all `i in [1, n]`.
   That is, `lvl` is a proper level subterm of some `u_i`. -/
 private def strictOccursMax (lvl : Level) : Level → Bool
-  | Level.max u v _ => visit u || visit v
+  | Level.max u v => visit u || visit v
   | _               => false
 where
   visit : Level → Bool
-    | Level.max u v _ => visit u || visit v
+    | Level.max u v => visit u || visit v
     | u               => u != lvl && lvl.occurs u
 
 /-- `mkMaxArgsDiff mvarId (max u_1 ... (mvar mvarId) ... u_n) v` => `max v u_1 ... u_n` -/
-private def mkMaxArgsDiff (mvarId : MVarId) : Level → Level → Level
-  | Level.max u v _,     acc => mkMaxArgsDiff mvarId v <| mkMaxArgsDiff mvarId u acc
-  | l@(Level.mvar id _), acc => if id != mvarId then mkLevelMax' acc l else acc
+private def mkMaxArgsDiff (mvarId : LMVarId) : Level → Level → Level
+  | Level.max u v,     acc => mkMaxArgsDiff mvarId v <| mkMaxArgsDiff mvarId u acc
+  | l@(Level.mvar id), acc => if id != mvarId then mkLevelMax' acc l else acc
   | l,                   acc => mkLevelMax' acc l
 
 /--
   Solve `?m =?= max ?m v` by creating a fresh metavariable `?n`
   and assigning `?m := max ?n v` -/
-private def solveSelfMax (mvarId : MVarId) (v : Level) : MetaM Unit := do
+private def solveSelfMax (mvarId : LMVarId) (v : Level) : MetaM Unit := do
   assert! v.isMax
   let n ← mkFreshLevelMVar
   assignLevelMVar mvarId <| mkMaxArgsDiff mvarId v n
@@ -89,13 +41,23 @@ private def postponeIsLevelDefEq (lhs : Level) (rhs : Level) : MetaM Unit := do
   trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
   modifyPostponed fun postponed => postponed.push { lhs := lhs, rhs := rhs, ref := ref, ctx? := ctx.defEqCtx? }
 
+private def isMVarWithGreaterDepth (v : Level) (mvarId : LMVarId) : MetaM Bool :=
+  match v with
+  | Level.mvar mvarId' => return (← mvarId'.getLevel) > (← mvarId.getLevel)
+  | _ => return false
+
 mutual
 
   private partial def solve (u v : Level) : MetaM LBool := do
     match u, v with
-    | Level.mvar mvarId _, _ =>
-      if (← isReadOnlyLevelMVar mvarId) then
+    | Level.mvar mvarId, _ =>
+      if (← mvarId.isReadOnly) then
         return LBool.undef
+      else if (← getConfig).ignoreLevelMVarDepth && (← isMVarWithGreaterDepth v mvarId) then
+        -- If both `u` and `v` are both metavariables, but depth of v is greater, then we assign `v := u`.
+        -- This can only happen when `ignoreLevelDepth` is set to true.
+        assignLevelMVar v.mvarId! u
+        return LBool.true
       else if !u.occurs v then
         assignLevelMVar u.mvarId! v
         return LBool.true
@@ -104,12 +66,13 @@ mutual
         return LBool.true
       else
         return LBool.undef
-    | Level.zero _, Level.max v₁ v₂ _ =>
+    | _, Level.mvar .. => return LBool.undef -- Let `solve v u` to handle this case
+    | Level.zero, Level.max v₁ v₂ =>
       Bool.toLBool <$> (isLevelDefEqAux levelZero v₁ <&&> isLevelDefEqAux levelZero v₂)
-    | Level.zero _, Level.imax _ v₂ _ =>
+    | Level.zero, Level.imax _ v₂ =>
       Bool.toLBool <$> isLevelDefEqAux levelZero v₂
-    | Level.zero _, Level.succ .. => return LBool.false
-    | Level.succ u _, v =>
+    | Level.zero, Level.succ .. => return LBool.false
+    | Level.succ u, v =>
       if v.isParam then
         return LBool.false
       else if u.isMVar && u.occurs v then
@@ -120,13 +83,14 @@ mutual
         | none   => return LBool.undef
     | _, _ => return LBool.undef
 
-  partial def isLevelDefEqAux : Level → Level → MetaM Bool
-    | Level.succ lhs _, Level.succ rhs _ => isLevelDefEqAux lhs rhs
-    | lhs, rhs => do
+  @[export lean_is_level_def_eq]
+  partial def isLevelDefEqAuxImpl : Level → Level → MetaM Bool
+    | Level.succ lhs, Level.succ rhs => isLevelDefEqAux lhs rhs
+    | lhs, rhs =>
+      withTraceNode `Meta.isLevelDefEq (return m!"{exceptBoolEmoji ·} {lhs} =?= {rhs}") do
       if lhs.getLevelOffset == rhs.getLevelOffset then
         return lhs.getOffset == rhs.getOffset
       else
-        trace[Meta.isLevelDefEq.step] "{lhs} =?= {rhs}"
         let lhs' ← instantiateLevelMVars lhs
         let lhs' := lhs'.normalize
         let rhs' ← instantiateLevelMVars rhs
@@ -141,151 +105,20 @@ mutual
             let r ← solve rhs lhs;
             if r != LBool.undef then
               return r == LBool.true
-            else do
-              let mctx ← getMCtx
-              if !mctx.hasAssignableLevelMVar lhs && !mctx.hasAssignableLevelMVar rhs then
-                let ctx ← read
-                if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
-                  trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
-                  Meta.throwIsDefEqStuck
-                else
-                  return false
+            else if !(← hasAssignableLevelMVar lhs <||> hasAssignableLevelMVar rhs) then
+              let ctx ← read
+              if ctx.config.isDefEqStuckEx && (lhs.isMVar || rhs.isMVar) then do
+                trace[Meta.isLevelDefEq.stuck] "{lhs} =?= {rhs}"
+                Meta.throwIsDefEqStuck
               else
-                postponeIsLevelDefEq lhs rhs
-                return true
-end
-
-def isListLevelDefEqAux : List Level → List Level → MetaM Bool
-  | [],    []    => return true
-  | u::us, v::vs => isLevelDefEqAux u v <&&> isListLevelDefEqAux us vs
-  | _,     _     => return false
-
-private def getNumPostponed : MetaM Nat := do
-  return (← getPostponed).size
-
-open Std (PersistentArray)
-
-def getResetPostponed : MetaM (PersistentArray PostponedEntry) := do
-  let ps ← getPostponed
-  setPostponed {}
-  return ps
-
-/-- Annotate any constant and sort in `e` that satisfies `p` with `pp.universes true` -/
-private def exposeRelevantUniverses (e : Expr) (p : Level → Bool) : Expr :=
-  e.replace fun
-    | Expr.const _ us _ => if us.any p then some (e.setPPUniverses true) else none
-    | Expr.sort u _     => if p u then some (e.setPPUniverses true) else none
-    | _                 => none
-
-private def mkLeveErrorMessageCore (header : String) (entry : PostponedEntry) : MetaM MessageData := do
-  match entry.ctx? with
-  | none =>
-    return m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}"
-  | some ctx =>
-    withLCtx ctx.lctx ctx.localInstances do
-      let s   := entry.lhs.collectMVars entry.rhs.collectMVars
-      /- `p u` is true if it contains a universe metavariable in `s` -/
-      let p (u : Level) := u.any fun | Level.mvar m _ => s.contains m | _ => false
-      let lhs := exposeRelevantUniverses (← instantiateMVars ctx.lhs) p
-      let rhs := exposeRelevantUniverses (← instantiateMVars ctx.rhs) p
-      try
-        addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD m!"{lhs} : {← inferType lhs}"}\nwith{indentD m!"{rhs} : {← inferType rhs}"}"
-      catch _ =>
-        addMessageContext m!"{header}{indentD m!"{entry.lhs} =?= {entry.rhs}"}\nwhile trying to unify{indentD lhs}\nwith{indentD rhs}"
-
-def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "stuck at solving universe constraint" entry
-
-def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
-  mkLeveErrorMessageCore "failed to solve universe constraint" entry
-
-private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool :=
-  traceCtx `Meta.isLevelDefEq.postponed.step do
-    let ps ← getResetPostponed
-    for p in ps do
-      unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
-        if exceptionOnFailure then
-          throwError (← mkLevelErrorMessage p)
-        else
-          return false
-    return true
-
-partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure := false) : MetaM Bool := do
-  if (← getNumPostponed) == 0 then
-    return true
-  else
-    traceCtx `Meta.isLevelDefEq.postponed do
-      let rec loop : MetaM Bool := do
-        let numPostponed ← getNumPostponed
-        if numPostponed == 0 then
-          return true
-        else
-          trace[Meta.isLevelDefEq.postponed] "processing #{numPostponed} postponed is-def-eq level constraints"
-          if !(← processPostponedStep exceptionOnFailure) then
-            return false
-          else
-            let numPostponed' ← getNumPostponed
-            if numPostponed' == 0 then
-              return true
-            else if numPostponed' < numPostponed then
-              loop
+                return false
             else
-              trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
-              return mayPostpone
-      loop
-
-/--
-  `checkpointDefEq x` executes `x` and process all postponed universe level constraints produced by `x`.
-  We keep the modifications only if `processPostponed` return true and `x` returned `true`.
-
-  Remark: postponed universe level constraints must be solved before returning. Otherwise,
-  we don't know whether `x` really succeeded. -/
-@[specialize] def checkpointDefEq (x : MetaM Bool) (mayPostpone : Bool := true) : MetaM Bool := do
-  let s ← saveState
-  let postponed ← getResetPostponed
-  try
-    if (← x) then
-      if (← processPostponed mayPostpone) then
-        let newPostponed ← getPostponed
-        setPostponed (postponed ++ newPostponed)
-        return true
-      else
-        s.restore
-        return false
-    else
-      s.restore
-      return false
-  catch ex =>
-    s.restore
-    throw ex
-
-def isLevelDefEq (u v : Level) : MetaM Bool :=
-  traceCtx `Meta.isLevelDefEq do
-    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isLevelDefEqAux u v
-    trace[Meta.isLevelDefEq] "{u} =?= {v} ... {if b then "success" else "failure"}"
-    return b
-
-def isExprDefEq (t s : Expr) : MetaM Bool :=
-  traceCtx `Meta.isDefEq <| withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
-    let b ← checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
-    trace[Meta.isDefEq] "{t} =?= {s} ... {if b then "success" else "failure"}"
-    return b
-
-abbrev isDefEq (t s : Expr) : MetaM Bool :=
-  isExprDefEq t s
-
-def isExprDefEqGuarded (a b : Expr) : MetaM Bool := do
-  try isExprDefEq a b catch _ => return false
-
-abbrev isDefEqGuarded (t s : Expr) : MetaM Bool :=
-  isExprDefEqGuarded t s
-
-def isDefEqNoConstantApprox (t s : Expr) : MetaM Bool :=
-  approxDefEq <| isDefEq t s
+              postponeIsLevelDefEq lhs rhs
+              return true
+end
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq
-  registerTraceClass `Meta.isLevelDefEq.step
-  registerTraceClass `Meta.isLevelDefEq.postponed
+  registerTraceClass `Meta.isLevelDefEq.stuck (inherited := true)
 
 end Lean.Meta

@@ -37,8 +37,8 @@ def Expr.reassoc : Expr → Expr
 theorem eval_reassoc (e : Expr) : e.reassoc.eval = e.eval := by
   induction e with simp [Expr.reassoc]
   | plus e₁ e₂ ih₁ ih₂ =>
-    generalize h : (Expr.reassoc e₂) = e₂'
+    generalize h : Expr.reassoc e₂ = e₂'
     cases e₂' <;> rw [h] at ih₂ <;> simp [Expr.eval] at * <;> rw [← ih₂, ih₁]; rw [Nat.add_assoc]
   | mul e₁ e₂ ih₁ ih₂ =>
-    generalize h : (Expr.reassoc e₂) = e₂'
+    generalize h : Expr.reassoc e₂ = e₂'
     cases e₂' <;> rw [h] at ih₂ <;> simp [Expr.eval] at * <;> rw [← ih₂, ih₁]; rw [Nat.mul_assoc]

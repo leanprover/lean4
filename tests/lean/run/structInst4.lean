@@ -1,4 +1,4 @@
-universes u
+universe u
 
 def a : Array ((Nat × Nat) × Bool) := #[]
 def b : Array Nat := #[]
@@ -15,7 +15,7 @@ structure Foo :=
 
 def foo : Foo := {}
 
-#check foo.x[1].1.2
+#check foo.x[1]!.1.2
 
 #check { foo with x[1].2 := true }
 #check { foo with x[1].fst.snd := 1 }

@@ -38,30 +38,30 @@ register_builtin_option quotPrecheck.allowSectionVars : Bool := {
 
 unsafe def mkPrecheckAttribute : IO (KeyedDeclsAttribute Precheck) :=
   KeyedDeclsAttribute.init {
-    builtinName := `builtinQuotPrecheck,
-    name := `quotPrecheck,
+    builtinName := `builtin_quot_precheck,
+    name := `quot_precheck,
     descr    := "Register a double backtick syntax quotation pre-check.
 
-[quotPrecheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
+[quot_precheck k] registers a declaration of type `Lean.Elab.Term.Quotation.Precheck` for the `SyntaxNodeKind` `k`.
 It should implement eager name analysis on the passed syntax by throwing an exception on unbound identifiers,
 and calling `precheck` recursively on nested terms, potentially with an extended local context (`withNewLocal`).
 Macros without registered precheck hook are unfolded, and identifier-less syntax is ultimately assumed to be well-formed.",
     valueTypeName := ``Precheck
   } `Lean.Elab.Term.Quotation.precheckAttribute
-@[builtinInit mkPrecheckAttribute] constant precheckAttribute : KeyedDeclsAttribute Precheck
+@[builtin_init mkPrecheckAttribute] opaque precheckAttribute : KeyedDeclsAttribute Precheck
 
 partial def precheck : Precheck := fun stx => do
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
-    if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; true) (fun _ => false) then
+    if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return
   if stx.isAnyAntiquot then
     return
   if !hasQuotedIdent stx then
     return  -- we only precheck identifiers, so there is nothing to check here
-  if let some stx' ← liftMacroM <| Macro.expandMacro? stx then
+  if let some stx' ← liftMacroM <| expandMacro? stx then
     precheck stx'
     return
-  throwErrorAt stx "no macro or `[quotPrecheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
+  throwErrorAt stx "no macro or `[quot_precheck]` instance for syntax kind '{stx.getKind}' found{indentD stx}
 This means we cannot eagerly check your notation/quotation for unbound identifiers; you can use `set_option quotPrecheck false` to disable this check."
 where
   hasQuotedIdent
@@ -80,9 +80,9 @@ def runPrecheck (stx : Syntax) : TermElabM Unit := do
 private def isSectionVariable (e : Expr) : TermElabM Bool := do
   return (← read).sectionFVars.any fun _ v => e == v
 
-@[builtinQuotPrecheck ident] def precheckIdent : Precheck := fun stx =>
+@[builtin_quot_precheck ident] def precheckIdent : Precheck := fun stx =>
   match stx with
-  | Syntax.ident info rawVal val preresolved => do
+  | Syntax.ident _    _      val preresolved => do
     if !preresolved.isEmpty then
       return
     /- The precheck currently ignores field notation.
@@ -92,45 +92,48 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
        notation "x++" => x.foo
        ```
     -/
-    if let _::_ ← resolveGlobalName val then
+    if let _::_ ← resolveGlobalNameWithInfos stx val then
       return
     if (← read).quotLCtx.contains val then
       return
     let rs ← try resolveName stx val [] [] catch _ => pure []
     for (e, _) in rs do
       match e with
-      | Expr.fvar fvarId .. =>
+      | Expr.fvar _      .. =>
         if quotPrecheck.allowSectionVars.get (← getOptions) && (← isSectionVariable e) then
           return
       | _ => pure ()
     throwError "unknown identifier '{val}' at quotation precheck; you can use `set_option quotPrecheck false` to disable this check."
   | _ => throwUnsupportedSyntax
 
-@[builtinQuotPrecheck Lean.Parser.Term.app] def precheckApp : Precheck
+@[builtin_quot_precheck Lean.Parser.Term.app] def precheckApp : Precheck
   | `($f $args*) => do
     precheck f
-    for arg in args do
+    for arg in args.raw do
       match arg with
-      | `(argument| ($n := $e)) => precheck e
-      | `(argument| $e:term)    => precheck e
+      | `(argument| ($_ := $e)) => precheck e
       | `(argument| ..)         => pure ()
-      | _ => throwUnsupportedSyntax
+      | `(argument| $e:term)    => precheck e
   | _ => throwUnsupportedSyntax
 
-@[builtinQuotPrecheck Lean.Parser.Term.paren] def precheckParen : Precheck
-  | `(())           => pure ()
+@[builtin_quot_precheck Lean.Parser.Term.typeAscription] def precheckTypeAscription : Precheck
   | `(($e : $type)) => do
     precheck e
     precheck type
-  | `(($e))         => precheck e
-  | `(($e, $es,*))  => do
-    precheck e
-    es.getElems.forM precheck
+  | `(($e :)) => precheck e
   | _ => throwUnsupportedSyntax
 
-@[builtinTermElab precheckedQuot] def elabPrecheckedQuot : TermElab := fun stx expectedType? => do
+@[builtin_quot_precheck choice] def precheckChoice : Precheck := fun stx => do
+  let checks ← stx.getArgs.mapM (_root_.observing ∘ precheck)
+  let fails := checks.zip stx.getArgs |>.filterMap fun
+    | (.error e, stx) => some m!"{stx}\n{e.toMessageData}"
+    | _               => none
+  unless fails.isEmpty do
+    throwErrorAt stx "ambiguous notation with at least one interpretation that failed quotation precheck, possible interpretations {indentD (MessageData.joinSep fails.toList m!"\n\n")}"
+
+@[builtin_term_elab precheckedQuot] def elabPrecheckedQuot : TermElab := fun stx expectedType? => do
   let singleQuot := stx[1]
   runPrecheck singleQuot.getQuotContent
-  adaptExpander (fun _ => singleQuot) stx expectedType?
+  adaptExpander (fun _ => pure singleQuot) stx expectedType?
 
 end Lean.Elab.Term.Quotation

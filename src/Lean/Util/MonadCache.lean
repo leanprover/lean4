@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Std.Data.HashMap
+import Lean.Data.HashMap
 
 namespace Lean
 /-- Interface for caching results.  -/
@@ -13,7 +13,8 @@ class MonadCache (α β : Type) (m : Type → Type) where
 
 /-- If entry `a := b` is already in the cache, then return `b`.
     Otherwise, execute `b ← f ()`, store `a := b` in the cache and return `b`. -/
-@[inline] def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
+@[always_inline, inline]
+def checkCache {α β : Type} {m : Type → Type} [MonadCache α β m] [Monad m] (a : α) (f : Unit → m β) : m β := do
   match (← MonadCache.findCached? a) with
   | some b => pure b
   | none   => do
@@ -22,14 +23,13 @@ class MonadCache (α β : Type) (m : Type → Type) where
     pure b
 
 instance {α β ρ : Type} {m : Type → Type} [MonadCache α β m] : MonadCache α β (ReaderT ρ m) where
-  findCached? a r := MonadCache.findCached? a
-  cache a b r := MonadCache.cache a b
+  findCached? a _ := MonadCache.findCached? a
+  cache a b _ := MonadCache.cache a b
 
+@[always_inline]
 instance {α β ε : Type} {m : Type → Type} [MonadCache α β m] [Monad m] : MonadCache α β (ExceptT ε m) where
   findCached? a := ExceptT.lift $ MonadCache.findCached? a
   cache a b := ExceptT.lift $ MonadCache.cache a b
-
-open Std (HashMap)
 
 /-- Adapter for implementing `MonadCache` interface using `HashMap`s.
     We just have to specify how to extract/modify the `HashMap`. -/
@@ -39,11 +39,13 @@ class MonadHashMapCacheAdapter (α β : Type) (m : Type → Type) [BEq α] [Hash
 
 namespace MonadHashMapCacheAdapter
 
-@[inline] def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
+@[always_inline, inline]
+def findCached? {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] (a : α) : m (Option β) := do
   let c ← getCache
   pure (c.find? a)
 
-@[inline] def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
+@[always_inline, inline]
+def cache {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [MonadHashMapCacheAdapter α β m] (a : α) (b : β) : m Unit :=
   modifyCache fun s => s.insert a b
 
 instance {α β : Type} {m : Type → Type} [BEq α] [Hashable α] [Monad m] [MonadHashMapCacheAdapter α β m] : MonadCache α β m where
@@ -63,7 +65,7 @@ instance  : MonadHashMapCacheAdapter α β (MonadCacheT α β m) where
   modifyCache f := (modify f : StateRefT' ..)
 
 @[inline] def run {σ} (x : MonadCacheT α β m σ) : m σ :=
-  x.run' Std.mkHashMap
+  x.run' mkHashMap
 
 instance : Monad (MonadCacheT α β m) := inferInstanceAs (Monad (StateRefT' _ _ _))
 instance : MonadLift m (MonadCacheT α β m) := inferInstanceAs (MonadLift m (StateRefT' _ _ _))
@@ -71,6 +73,7 @@ instance (ε) [MonadExceptOf ε m] : MonadExceptOf ε (MonadCacheT α β m) := i
 instance : MonadControl m (MonadCacheT α β m) := inferInstanceAs (MonadControl m (StateRefT' _ _ _))
 instance [MonadFinally m] : MonadFinally (MonadCacheT α β m) := inferInstanceAs (MonadFinally (StateRefT' _ _ _))
 instance [MonadRef m] : MonadRef (MonadCacheT α β m) := inferInstanceAs (MonadRef (StateRefT' _ _ _))
+instance [Alternative m] : Alternative (MonadCacheT α β m) := inferInstanceAs (Alternative (StateRefT' _ _ _))
 
 end MonadCacheT
 
@@ -85,8 +88,8 @@ instance  : MonadHashMapCacheAdapter α β (MonadStateCacheT α β m) where
   getCache := (get : StateT ..)
   modifyCache f := (modify f : StateT ..)
 
-@[inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
-  x.run' Std.mkHashMap
+@[always_inline, inline] def run {σ} (x : MonadStateCacheT α β m σ) : m σ :=
+  x.run' mkHashMap
 
 instance : Monad (MonadStateCacheT α β m) := inferInstanceAs (Monad (StateT _ _))
 instance : MonadLift m (MonadStateCacheT α β m) := inferInstanceAs (MonadLift m (StateT _ _))

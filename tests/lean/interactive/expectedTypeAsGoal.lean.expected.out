@@ -1,0 +1,5 @@
+{"textDocument": {"uri": "file://expectedTypeAsGoal.lean"},
+ "position": {"line": 3, "character": 5}}
+{"range":
+ {"start": {"line": 3, "character": 4}, "end": {"line": 3, "character": 23}},
+ "goal": "x : Nat := 10\n⊢ IO Unit"}

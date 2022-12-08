@@ -1,4 +1,4 @@
-universes u v w
+universe u v w
 
 set_option pp.universes true
 #check Type (max u v w)

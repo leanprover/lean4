@@ -6,7 +6,7 @@ import Lean
 open Lean
 
 def test (e : Expr) : MetaM Unit := do
-  IO.println (← PrettyPrinter.ppExpr Name.anonymous [] e)
+  IO.println (← PrettyPrinter.ppExpr e)
 
 -- loose bound variable
 #eval test (mkBVar 0)
@@ -16,11 +16,11 @@ def test (e : Expr) : MetaM Unit := do
 
 -- pp annotations
 #eval test $
-  mkAppN (mkConst `id [levelZero]) #[
+  mkAppN (mkConst `id [levelOne]) #[
     mkConst `Nat,
-    mkMData (KVMap.empty.set `pp.explicit true) $ mkAppN (mkConst `id [levelZero]) #[
+    mkMData (KVMap.empty.set `pp.explicit true) $ mkAppN (mkConst `id [levelOne]) #[
       mkConst `Nat,
-      mkAppN (mkConst `id [levelZero]) #[
+      mkAppN (mkConst `id [levelOne]) #[
         mkConst `Nat,
         mkConst `Nat.zero
   ]]]

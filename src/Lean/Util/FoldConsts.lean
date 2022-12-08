@@ -10,7 +10,7 @@ namespace Lean
 namespace Expr
 namespace FoldConstsImpl
 
-abbrev cacheSize : USize := 8192
+abbrev cacheSize : USize := 8192 - 1
 
 structure State where
   visitedTerms  : Array Expr  -- Remark: cache based on pointer address. Our "unsafe" implementation relies on the fact that `()` is not a valid Expr
@@ -18,7 +18,6 @@ structure State where
 
 abbrev FoldM := StateM State
 
-@[inline]
 unsafe def visited (e : Expr) (size : USize) : FoldM Bool := do
   let s ← get
   let h := ptrAddrUnsafe e
@@ -26,10 +25,9 @@ unsafe def visited (e : Expr) (size : USize) : FoldM Bool := do
   let k := s.visitedTerms.uget i lcProof
   if ptrAddrUnsafe k == h then pure true
   else do
-    modify $ fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof }
+    modify fun s => { s with visitedTerms := s.visitedTerms.uset i e lcProof }
     pure false
 
-@[specialize]
 unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (acc : α) : FoldM α :=
   let rec visit (e : Expr) (acc : α) : FoldM α := do
     if (← visited e size) then
@@ -38,11 +36,11 @@ unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (
       match e with
       | Expr.forallE _ d b _   => visit b (← visit d acc)
       | Expr.lam _ d b _       => visit b (← visit d acc)
-      | Expr.mdata _ b _       => visit b acc
+      | Expr.mdata _ b         => visit b acc
       | Expr.letE _ t v b _    => visit b (← visit v (← visit t acc))
-      | Expr.app f a _         => visit a (← visit f acc)
-      | Expr.proj _ _ b _      => visit b acc
-      | Expr.const c _ _       =>
+      | Expr.app f a           => visit a (← visit f acc)
+      | Expr.proj _ _ b        => visit b acc
+      | Expr.const c _         =>
         let s ← get
         if s.visitedConsts.contains c then
           pure acc
@@ -62,8 +60,8 @@ unsafe def initCache : State :=
 end FoldConstsImpl
 
 /-- Apply `f` to every constant occurring in `e` once. -/
-@[implementedBy FoldConstsImpl.foldUnsafe]
-constant foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
+@[implemented_by FoldConstsImpl.foldUnsafe]
+opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : α := init
 
 def getUsedConstants (e : Expr) : Array Name :=
   e.foldConsts #[] fun c cs => cs.push c
@@ -71,7 +69,7 @@ def getUsedConstants (e : Expr) : Array Name :=
 end Expr
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
-  e.foldConsts 0 $ fun constName max =>
+  e.foldConsts 0 fun constName max =>
     match env.find? constName with
     | ConstantInfo.defnInfo val =>
       match val.hints with

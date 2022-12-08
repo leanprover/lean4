@@ -12,7 +12,7 @@ import Lean.Compiler.IR.FreeVars
 import Lean.Compiler.IR.ElimDeadVars
 
 namespace Lean.IR.ExplicitBoxing
-/-
+/-!
 Add explicit boxing and unboxing instructions.
 Recall that the Lean to λ_pure compiler produces code without these instructions.
 
@@ -27,14 +27,11 @@ Assumptions:
   Reason: `resetreuse.lean` ignores `box` and `unbox` instructions.
 -/
 
-open Std (AssocList)
-
 def mkBoxedName (n : Name) : Name :=
   Name.mkStr n "_boxed"
 
-def isBoxedName : Name → Bool
-  | Name.str _ "_boxed" _ => true
-  | _                     => false
+def isBoxedName (name : Name) : Bool :=
+  name matches .str _ "_boxed"
 
 abbrev N := StateM Nat
 
@@ -50,22 +47,21 @@ def mkBoxedVersionAux (decl : Decl) : N Decl := do
   let ps := decl.params
   let qs ← ps.mapM fun _ => do let x ← N.mkFresh; pure { x := x, ty := IRType.object, borrow := false : Param }
   let (newVDecls, xs) ← qs.size.foldM (init := (#[], #[])) fun i (newVDecls, xs) => do
-    let p := ps[i]
-    let q := qs[i]
+    let p := ps[i]!
+    let q := qs[i]!
     if !p.ty.isScalar then
       pure (newVDecls, xs.push (Arg.var q.x))
     else
       let x ← N.mkFresh
-      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) arbitrary), xs.push (Arg.var x))
+      pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) default), xs.push (Arg.var x))
   let r ← N.mkFresh
-  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) arbitrary)
-  let body ←
-    if !decl.resultType.isScalar then
-      pure <| reshape newVDecls (FnBody.ret (Arg.var r))
-    else
-      let newR ← N.mkFresh
-      let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) arbitrary)
-      pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
+  let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) default)
+  let body ← if !decl.resultType.isScalar then
+    pure <| reshape newVDecls (FnBody.ret (Arg.var r))
+  else
+    let newR ← N.mkFresh
+    let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) default)
+    pure <| reshape newVDecls (FnBody.ret (Arg.var newR))
   return Decl.fdecl (mkBoxedName decl.name) qs IRType.object body decl.getInfo
 
 def mkBoxedVersion (decl : Decl) : Decl :=
@@ -76,7 +72,7 @@ def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
     if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls
   decls ++ boxedDecls
 
-/- Infer scrutinee type using `case` alternatives.
+/-- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=
   let isScalar :=
@@ -97,7 +93,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
   (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure BoxingContext where
-  f : FunId := arbitrary
+  f : FunId := default
   localCtx : LocalContext := {}
   resultType : IRType := IRType.irrelevant
   decls : Array Decl
@@ -105,7 +101,7 @@ structure BoxingContext where
 
 structure BoxingState where
   nextIdx : Index
-  /- We create auxiliary declarations when boxing constant and literals.
+  /-- We create auxiliary declarations when boxing constant and literals.
      The idea is to avoid code such as
      ```
      let x1 := Uint64.inhabited;
@@ -117,7 +113,7 @@ structure BoxingState where
      processing the same IR declaration.
   -/
   auxDecls : Array Decl := #[]
-  auxDeclCache : AssocList FnBody Expr := Std.AssocList.empty
+  auxDeclCache : AssocList FnBody Expr := AssocList.empty
   nextAuxId : Nat := 1
 
 abbrev M := ReaderT BoxingContext (StateT BoxingState Id)
@@ -146,7 +142,7 @@ def getDecl (fid : FunId) : M Decl := do
   let ctx ← read
   match findEnvDecl' ctx.env fid ctx.decls with
   | some decl => pure decl
-  | none      => pure arbitrary -- unreachable if well-formed
+  | none      => pure default -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addParams xs }) k
@@ -157,25 +153,25 @@ def getDecl (fid : FunId) : M Decl := do
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
   withReader (fun ctx => { ctx with localCtx := ctx.localCtx.addJP j xs v }) k
 
-/- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
+/-- If `x` declaration is of the form `x := Expr.lit _` or `x := Expr.fap c #[]`,
    and `x`'s type is not cheap to box (e.g., it is `UInt64), then return its value. -/
 private def isExpensiveConstantValueBoxing (x : VarId) (xType : IRType) : M (Option Expr) :=
   if !xType.isScalar then
-    pure none -- We assume unboxing is always cheap
+    return none -- We assume unboxing is always cheap
   else match xType with
-    | IRType.uint8  => pure none
-    | IRType.uint16 => pure none
+    | IRType.uint8  => return none
+    | IRType.uint16 => return none
     | _ => do
       let localCtx ← getLocalContext
       match localCtx.getValue x with
       | some val =>
         match val with
-        | Expr.lit _ => pure $ some val
-        | Expr.fap _ args => pure $ if args.size == 0 then some val else none
-        | _ => pure none
-      | _ => pure none
+        | Expr.lit _ => return some val
+        | Expr.fap _ args => return if args.size == 0 then some val else none
+        | _ => return none
+      | _ => return none
 
-/- Auxiliary function used by castVarIfNeeded.
+/-- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
    If `xType` is scalar, then we need to "box" it. Otherwise, we need to "unbox" it. -/
 def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
@@ -222,7 +218,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   | Arg.var x => castVarIfNeeded x expected (fun x => k (Arg.var x))
   | _         => k x
 
-@[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
+def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) := do
   let mut xs' := #[]
   let mut bs  := #[]
   let mut i   := 0
@@ -245,7 +241,7 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
   return (xs', bs)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody := do
-  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i].ty
+  let (ys, bs) ← castArgsIfNeededAux xs fun i => ps[i]!.ty
   let b ← k ys
   pure (reshape bs b)
 
@@ -257,27 +253,27 @@ def mkCast (x : VarId) (xType : IRType) (expectedType : IRType) : M Expr := do
 def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody := do
   if ty.isScalar then
     let y ← M.mkFresh
-    pure $ FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
+    return FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
   else
-    pure $ FnBody.vdecl x ty e b
+    return FnBody.vdecl x ty e b
 
 def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody := do
   if eqvTypes ty eType then
-    pure $ FnBody.vdecl x ty e b
+    return FnBody.vdecl x ty e b
   else
     let y ← M.mkFresh
     let v ← mkCast y eType ty
-    pure $ FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
+    return FnBody.vdecl y eType e (FnBody.vdecl x ty v b)
 
 def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
   match e with
   | Expr.ctor c ys =>
     if c.isScalar && ty.isScalar then
-      pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
+      return FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
     else
-      boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
+      boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.ctor c ys) b
   | Expr.reuse w c u ys =>
-    boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
+    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.reuse w c u ys) b
   | Expr.fap f ys => do
     let decl ← getDecl f
     castArgsIfNeeded ys decl.params fun ys =>
@@ -286,12 +282,12 @@ def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody 
     let env ← getEnv
     let decl ← getDecl f
     let f := if requiresBoxedVersion env decl then mkBoxedName f else f
-    boxArgsIfNeeded ys fun ys => pure $ FnBody.vdecl x ty (Expr.pap f ys) b
+    boxArgsIfNeeded ys fun ys => return FnBody.vdecl x ty (Expr.pap f ys) b
   | Expr.ap f ys =>
     boxArgsIfNeeded ys fun ys =>
     unboxResultIfNeeded x ty (Expr.ap f ys) b
-  | other =>
-    pure $ FnBody.vdecl x ty e b
+  | _     =>
+    return FnBody.vdecl x ty e b
 
 partial def visitFnBody : FnBody → M FnBody
   | FnBody.vdecl x t v b     => do
@@ -300,28 +296,28 @@ partial def visitFnBody : FnBody → M FnBody
   | FnBody.jdecl j xs v b    => do
     let v ← withParams xs (visitFnBody v)
     let b ← withJDecl j xs v (visitFnBody b)
-    pure $ FnBody.jdecl j xs v b
+    return FnBody.jdecl j xs v b
   | FnBody.uset x i y b      => do
     let b ← visitFnBody b
     castVarIfNeeded y IRType.usize fun y =>
-      pure $ FnBody.uset x i y b
+      return FnBody.uset x i y b
   | FnBody.sset x i o y ty b => do
     let b ← visitFnBody b
     castVarIfNeeded y ty fun y =>
-      pure $ FnBody.sset x i o y ty b
+      return FnBody.sset x i o y ty b
   | FnBody.mdata d b         =>
     FnBody.mdata d <$> visitFnBody b
   | FnBody.case tid x _ alts   => do
     let expected := getScrutineeType alts
     let alts ← alts.mapM fun alt => alt.mmodifyBody visitFnBody
     castVarIfNeeded x expected fun x => do
-      pure $ FnBody.case tid x expected alts
+      return FnBody.case tid x expected alts
   | FnBody.ret x             => do
     let expected ← getResultType
-    castArgIfNeeded x expected (fun x => pure $ FnBody.ret x)
+    castArgIfNeeded x expected (fun x => return FnBody.ret x)
   | FnBody.jmp j ys          => do
     let ps ← getJPParams j
-    castArgsIfNeeded ys ps fun ys => pure $ FnBody.jmp j ys
+    castArgsIfNeeded ys ps fun ys => return FnBody.jmp j ys
   | other                    =>
     pure other
 
@@ -329,7 +325,7 @@ def run (env : Environment) (decls : Array Decl) : Array Decl :=
   let ctx : BoxingContext := { decls := decls, env := env }
   let decls := decls.foldl (init := #[]) fun newDecls decl =>
     match decl with
-    | Decl.fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
+    | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
       let nextIdx  := decl.maxIndex + 1
       let (b, s)   := (withParams xs (visitFnBody b) { ctx with f := f, resultType := t }).run { nextIdx := nextIdx }
       let newDecls := newDecls ++ s.auxDecls
@@ -343,6 +339,6 @@ end ExplicitBoxing
 
 def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) := do
   let env ← getEnv
-  pure $ ExplicitBoxing.run env decls
+  return ExplicitBoxing.run env decls
 
 end Lean.IR

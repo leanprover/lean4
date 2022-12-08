@@ -1,0 +1,6 @@
+@Foo1.mk : {α : Type} → Bar (α → α) → (β : Type) → (α → β) → Foo1 α
+@Foo2.mk : {α : Type} → Bar (α → α) → (β : Type) → (α → β) → α → α → Foo2 α
+@[reducible] def Foo2.toBar : {α : Type} → Foo2 α → Bar (α → α) :=
+fun α self => self.1
+@[reducible] def Foo2.toBoo2 : {α : Type} → Foo2 α → Boo2 α :=
+fun α self => { toBoo1 := { toBaz := { a := self.toBar.a, β := self.β, b := self.b }, x1 := self.x1 }, x2 := self.x2 }

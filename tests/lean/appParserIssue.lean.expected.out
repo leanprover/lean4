@@ -1,5 +1,5 @@
-f 1 fun (x : Nat) => x : Nat
-f 1 fun (x : Nat) => x : Nat
-f 1 fun (x : Nat) => x : Nat
-f 1 fun (x : Nat) => x : Nat
-f 1 fun (x : Nat) => x : Nat
+f 1 fun x => x : Nat
+f 1 fun x => x : Nat
+f 1 fun x => x : Nat
+f 1 fun x => x : Nat
+f 1 fun x => x : Nat

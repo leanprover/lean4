@@ -1,0 +1,4 @@
+termination_by.lean:8:0-8:23: error: invalid 'termination_by' in mutually inductive datatype declaration
+termination_by.lean:13:1-13:24: error: invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword
+termination_by.lean:21:2-21:3: error: function 'h' not found in current declaration
+termination_by.lean:39:2-39:14: error: invalid termination hint element, 'Test.g' and 'Test.f' are in the same clique

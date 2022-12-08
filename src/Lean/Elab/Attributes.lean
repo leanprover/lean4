@@ -3,9 +3,6 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Parser.Attr
-import Lean.Attributes
-import Lean.MonadEnv
 import Lean.Elab.Util
 namespace Lean.Elab
 
@@ -13,6 +10,7 @@ structure Attribute where
   kind  : AttributeKind := AttributeKind.global
   name  : Name
   stx   : Syntax := Syntax.missing
+  deriving Inhabited
 
 instance : ToFormat Attribute where
   format attr :=
@@ -22,10 +20,7 @@ instance : ToFormat Attribute where
      | AttributeKind.scoped => "scoped "
    Format.bracket "@[" f!"{kindStr}{attr.name}{toString attr.stx}" "]"
 
-instance : Inhabited Attribute where
-  default := { name := arbitrary }
-
-/-
+/--
   ```
   attrKind := leading_parser optional («scoped» <|> «local»)
   ```
@@ -41,34 +36,35 @@ def toAttributeKind (attrKindStx : Syntax) : MacroM AttributeKind := do
     return AttributeKind.local
 
 def mkAttrKindGlobal : Syntax :=
-  Syntax.node ``Lean.Parser.Term.attrKind #[mkNullNode]
+  mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
-def elabAttr {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstance : Syntax) : m Attribute := do
+def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadInfoTree m] [MonadLiftT IO m] (attrInstance : Syntax) : m Attribute := do
   /- attrInstance     := ppGroup $ leading_parser attrKind >> attrParser -/
   let attrKind ← liftMacroM <| toAttributeKind attrInstance[0]
-  let attr := attrInstance[1]  
+  let attr := attrInstance[1]
   let attr ← liftMacroM <| expandMacros attr
-  let attrName ←
-    if attr.getKind == ``Parser.Attr.simple then
-      pure attr[0].getId.eraseMacroScopes
-    else
-      match attr.getKind with
-      | Name.str _ s _ => pure <| Name.mkSimple s
-      | _ => throwErrorAt attr  "unknown attribute"
-  unless isAttribute (← getEnv) attrName do
-    throwError "unknown attribute [{attrName}]"
+  let attrName ← if attr.getKind == ``Parser.Attr.simple then
+    pure attr[0].getId.eraseMacroScopes
+  else match attr.getKind with
+    | .str _ s => pure <| Name.mkSimple s
+    | _ => throwErrorAt attr  "unknown attribute"
+  let .ok _impl := getAttributeImpl (← getEnv) attrName
+    | throwError "unknown attribute [{attrName}]"
   /- The `AttrM` does not have sufficient information for expanding macros in `args`.
      So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/
-  pure { kind := attrKind, name := attrName, stx := attr }
+  return { kind := attrKind, name := attrName, stx := attr }
 
-def elabAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (attrInstances : Array Syntax) : m (Array Attribute) := do
+def elabAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m] (attrInstances : Array Syntax) : m (Array Attribute) := do
   let mut attrs := #[]
   for attr in attrInstances do
-    attrs := attrs.push (← elabAttr attr)
+    try
+      attrs := attrs.push (← withRef attr do elabAttr attr)
+    catch ex =>
+      logException ex
   return attrs
 
 -- leading_parser "@[" >> sepBy1 attrInstance ", " >> "]"
-def elabDeclAttrs {m} [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] (stx : Syntax) : m (Array Attribute) :=
+def elabDeclAttrs [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLog m] [MonadInfoTree m] [MonadLiftT IO m] (stx : Syntax) : m (Array Attribute) :=
   elabAttrs stx[1].getSepArgs
 
 end Lean.Elab

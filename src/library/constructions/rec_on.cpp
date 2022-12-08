@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/sstream.h>
+#include "runtime/sstream.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
@@ -62,7 +62,7 @@ environment mk_rec_on(environment const & env, name const & n) {
     return add_protected(new_env, rec_on_name);
 }
 
-extern "C" object * lean_mk_rec_on(object * env, object * n) {
+extern "C" LEAN_EXPORT object * lean_mk_rec_on(object * env, object * n) {
     return catch_kernel_exceptions<environment>([&]() { return mk_rec_on(environment(env), name(n, true)); });
 }
 }

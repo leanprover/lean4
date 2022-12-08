@@ -8,25 +8,43 @@ import Lean.Meta.Tactic.Replace
 
 namespace Lean.Meta
 
-/- Low-level delta expansion. It is used to implement equation lemmas and elimination principles for recursive definitions. -/
+def delta? (e : Expr) (p : Name → Bool := fun _ => true) : CoreM (Option Expr) :=
+  matchConst e.getAppFn (fun _ => return none) fun fInfo fLvls => do
+    if p fInfo.name && fInfo.hasValue && fInfo.levelParams.length == fLvls.length then
+      let f ← instantiateValueLevelParams fInfo fLvls
+      return some (f.betaRev e.getAppRevArgs (useZeta := true))
+    else
+      return none
+
+/-- Low-level delta expansion. It is used to implement equation lemmas and elimination principles for recursive definitions. -/
 def deltaExpand (e : Expr) (p : Name → Bool) : CoreM Expr :=
-  Core.transform e fun e =>
-    matchConst e.getAppFn (fun _ => return TransformStep.visit e) fun fInfo fLvls => do
-      if p fInfo.name && fInfo.hasValue && fInfo.levelParams.length == fLvls.length then
-        let f := fInfo.instantiateValueLevelParams fLvls
-        return TransformStep.visit (f.betaRev e.getAppRevArgs)
-      else
-        return TransformStep.visit e
+  Core.transform e fun e => do
+    match (← delta? e p) with
+    | some e' => return .visit e'
+    | none    => return .continue
 
+/--
+Delta expand declarations that satisfy `p` at `mvarId` type.
+-/
+def _root_.Lean.MVarId.deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `delta
+    mvarId.change (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
+
+@[deprecated MVarId.deltaTarget]
 def deltaTarget (mvarId : MVarId) (p : Name → Bool) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `delta
-    change mvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
+  mvarId.deltaTarget p
 
+/--
+Delta expand declarations that satisfy `p` at `fvarId` type.
+-/
+def _root_.Lean.MVarId.deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `delta
+    mvarId.changeLocalDecl fvarId (← deltaExpand (← mvarId.getType) p) (checkDefEq := false)
+
+@[deprecated MVarId.deltaLocalDecl]
 def deltaLocalDecl (mvarId : MVarId) (fvarId : FVarId) (p : Name → Bool) : MetaM MVarId :=
-  withMVarContext mvarId do
-    checkNotAssigned mvarId `delta
-    let localDecl ← getLocalDecl fvarId
-    changeLocalDecl mvarId fvarId (← deltaExpand (← getMVarType mvarId) p) (checkDefEq := false)
+  mvarId.deltaLocalDecl fvarId p
 
 end Lean.Meta

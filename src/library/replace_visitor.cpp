@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <tuple>
-#include <lean/interrupt.h>
+#include "runtime/interrupt.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "library/replace_visitor.h"

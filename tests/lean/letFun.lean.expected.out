@@ -1,0 +1,10 @@
+let_fun f := fun x => x * 2;
+let_fun x := 1;
+let_fun y := x + 1;
+f (y + x) : Nat
+a b : Nat
+h1 : a = 0
+h2 : b = 0
+⊢ (let_fun x := 1;
+    x + x) >
+    b

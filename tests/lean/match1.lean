@@ -65,7 +65,7 @@ fun { x := x, ..} => { y := x }
 theorem ex2 : f1 { x := 10 } = { y := 10 } :=
 rfl
 
-universes u
+universe u
 
 inductive Vec (α : Type u) : Nat → Type u
 | nil : Vec α 0

@@ -1,0 +1,14 @@
+failTac.lean:2:2-2:6: error: tactic 'fail' failed
+a b : Nat
+⊢ False
+failTac.lean:5:2-5:18: error: giving up
+a b : Nat
+⊢ False
+failTac.lean:14:2-14:21: error: failing here
+case left
+a b : Nat
+⊢ True
+
+case right
+a b : Nat
+⊢ False

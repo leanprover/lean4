@@ -8,11 +8,11 @@ import Lean.Compiler.IR.LiveVars
 import Lean.Compiler.IR.Format
 
 namespace Lean.IR.ResetReuse
-/- Remark: the insertResetReuse transformation is applied before we have
+/-! Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and perfomed lower level optimizations
    that introduce the instructions `release` and `set`. -/
 
-/- Remark: the functions `S`, `D` and `R` defined here implement the
+/-! Remark: the functions `S`, `D` and `R` defined here implement the
   corresponding functions in the paper "Counting Immutable Beans"
 
   Here are the main differences:
@@ -43,14 +43,14 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
     let v' := S w c v
     if v == v' then FnBody.jdecl j ys v (S w c b)
     else FnBody.jdecl j ys v' b
-  | FnBody.case tid x xType alts    => FnBody.case tid x xType $ alts.map $ fun alt => alt.modifyBody (S w c)
+  | FnBody.case tid x xType alts    => FnBody.case tid x xType <| alts.map fun alt => alt.modifyBody (S w c)
   | b =>
     if b.isTerminal then b
     else let
       (instr, b) := b.split
       instr.setBody (S w c b)
 
-/- We use `Context` to track join points in scope. -/
+/-- We use `Context` to track join points in scope. -/
 abbrev M := ReaderT LocalContext (StateT Index Id)
 
 private def mkFresh : M VarId := do
@@ -77,7 +77,7 @@ private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
   | (FnBody.vdecl _ _ (Expr.ctor _ ys) _) => argsContainsVar ys x
   | _ => false
 
-/- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
+/-- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
    and `flag == true` if `x` is live in `b`.
 
    Note that, in the function `D` defined in the paper, for each `let x := e; F`,
@@ -150,7 +150,7 @@ open ResetReuse
 
 def Decl.insertResetReuse (d : Decl) : Decl :=
   match d with
-  | Decl.fdecl (body := b) ..=>
+  | .fdecl (body := b) ..=>
     let nextIndex := d.maxIndex + 1
     let bNew      := (R b {}).run' nextIndex
     d.updateBody! bNew

@@ -7,7 +7,7 @@ import Lean.Data.KVMap
 import Lean.Data.Name
 import Lean.Data.Format
 import Lean.Compiler.ExternAttr
-/-
+/-!
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
 
@@ -17,15 +17,15 @@ above are implemented in Lean.
 -/
 namespace Lean.IR
 
-/- Function identifier -/
+/-- Function identifier -/
 abbrev FunId := Name
 abbrev Index := Nat
-/- Variable identifier -/
+/-- Variable identifier -/
 structure VarId where
   idx : Index
   deriving Inhabited
 
-/- Join point identifier -/
+/-- Join point identifier -/
 structure JoinPointId where
   idx : Index
   deriving Inhabited
@@ -45,7 +45,7 @@ instance : Hashable JoinPointId := ⟨fun a => hash a.idx⟩
 abbrev MData := KVMap
 abbrev MData.empty : MData := {}
 
-/- Low Level IR types. Most are self explanatory.
+/-- Low Level IR types. Most are self explanatory.
 
    - `usize` represents the C++ `size_t` Type. We have it here
       because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
@@ -130,7 +130,7 @@ def isUnion : IRType → Bool
 
 end IRType
 
-/- Arguments to applications, constructors, etc.
+/-- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
    `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
@@ -159,7 +159,7 @@ def LitVal.beq : LitVal → LitVal → Bool
 
 instance : BEq LitVal := ⟨LitVal.beq⟩
 
-/- Constructor information.
+/-- Constructor information.
 
    - `name` is the Name of the Constructor in Lean.
    - `cidx` is the Constructor index (aka tag).
@@ -176,6 +176,7 @@ structure CtorInfo where
   size : Nat
   usize : Nat
   ssize : Nat
+  deriving Repr
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
   | ⟨n₁, cidx₁, size₁, usize₁, ssize₁⟩, ⟨n₂, cidx₂, size₂, usize₂, ssize₂⟩ =>
@@ -190,35 +191,35 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
   !info.isRef
 
 inductive Expr where
-  /- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
-     This instruction is also used to creat `struct` and `union` return values.
-     For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
+  /-- We use `ctor` mainly for constructing Lean object/tobject values `lean_ctor_object` in the runtime.
+  This instruction is also used to creat `struct` and `union` return values.
+  For `union`, only `i.cidx` is relevant. For `struct`, `i` is irrelevant. -/
   | ctor (i : CtorInfo) (ys : Array Arg)
   | reset (n : Nat) (x : VarId)
-  /- `reuse x in ctor_i ys` instruction in the paper. -/
+  /-- `reuse x in ctor_i ys` instruction in the paper. -/
   | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
-  /- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
-     We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
-  | proj (i : Nat) (x : VarId)
-  /- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
+  /-- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`.
+  We also use `proj` for extracting fields from `struct` return values, and casting `union` return values. -/
+  |  proj (i : Nat) (x : VarId)
+  /-- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
   | uproj (i : Nat) (x : VarId)
-  /- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
+  /-- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
   | sproj (n : Nat) (offset : Nat) (x : VarId)
-  /- Full application. -/
+  /-- Full application. -/
   | fap (c : FunId) (ys : Array Arg)
-  /- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
+  /-- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
   | pap (c : FunId) (ys : Array Arg)
-  /- Application. `x` must be a `pap` value. -/
+  /-- Application. `x` must be a `pap` value. -/
   | ap  (x : VarId) (ys : Array Arg)
-  /- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
-     For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
+  /-- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
+  For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
   | box (ty : IRType) (x : VarId)
-  /- Given `x : [t]object`, obtain the scalar value. -/
+  /-- Given `x : [t]object`, obtain the scalar value. -/
   | unbox (x : VarId)
   | lit (v : LitVal)
-  /- Return `1 : uint8` Iff `RC(x) > 1` -/
+  /-- Return `1 : uint8` Iff `RC(x) > 1` -/
   | isShared (x : VarId)
-  /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
+  /-- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
   | isTaggedPtr (x : VarId)
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
@@ -246,30 +247,30 @@ inductive AltCore (FnBody : Type) : Type where
   | default (b : FnBody) : AltCore FnBody
 
 inductive FnBody where
-  /- `let x : ty := e; b` -/
+  /-- `let x : ty := e; b` -/
   | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
-  /- Join point Declaration `block_j (xs) := e; b` -/
+  /-- Join point Declaration `block_j (xs) := e; b` -/
   | jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
-  /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
-     This operation is not part of λPure is only used during optimization. -/
+  /-- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
+  This operation is not part of λPure is only used during optimization. -/
   | set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
   | setTag (x : VarId) (cidx : Nat) (b : FnBody)
-  /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
+  /-- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
   | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
-  /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
-     `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
+  /-- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
+  `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
   | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
-  /- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
-     If `persistent == true` then `x` is statically known to be a persistent object. -/
+  /-- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+  If `persistent == true` then `x` is statically known to be a persistent object. -/
   | inc (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
-  /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
-     If `persistent == true` then `x` is statically known to be a persistent object. -/
+  /-- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not.
+  If `persistent == true` then `x` is statically known to be a persistent object. -/
   | dec (x : VarId) (n : Nat) (c : Bool) (persistent : Bool) (b : FnBody)
   | del (x : VarId) (b : FnBody)
   | mdata (d : MData) (b : FnBody)
   | case (tid : Name) (x : VarId) (xType : IRType) (cs : Array (AltCore FnBody))
   | ret (x : Arg)
-  /- Jump to join point `j` -/
+  /-- Jump to join point `j` -/
   | jmp (j : JoinPointId) (ys : Array Arg)
   | unreachable
 
@@ -289,10 +290,10 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean_ir_mk_unreachable] def mkUnreachable : Unit → FnBody := fun _ => FnBody.unreachable
 
 abbrev Alt := AltCore FnBody
-@[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
-@[matchPattern] abbrev Alt.default := @AltCore.default FnBody
+@[match_pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
+@[match_pattern] abbrev Alt.default := @AltCore.default FnBody
 
-instance : Inhabited Alt := ⟨Alt.default arbitrary⟩
+instance : Inhabited Alt := ⟨Alt.default default⟩
 
 def FnBody.isTerminal : FnBody → Bool
   | FnBody.case _ _ _ _  => true
@@ -325,12 +326,12 @@ def FnBody.setBody : FnBody → FnBody → FnBody
   | FnBody.dec x n c p _,    b => FnBody.dec x n c p b
   | FnBody.del x _,          b => FnBody.del x b
   | FnBody.mdata d _,        b => FnBody.mdata d b
-  | other,                   b => other
+  | other,                   _ => other
 
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
   b.setBody FnBody.nil
 
-/- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
+/-- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
    and c.body == FnBody.nil -/
 @[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
   let b' := b.body
@@ -372,7 +373,7 @@ partial def reshapeAux (a : Array FnBody) (i : Nat) (b : FnBody) : FnBody :=
   if i == 0 then b
   else
     let i         := i - 1
-    let (curr, a) := a.swapAt! i arbitrary
+    let (curr, a) := a.swapAt! i default
     let b         := curr.setBody b
     reshapeAux a i b
 
@@ -386,8 +387,8 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
   bs.mapM fun b => match b with
-    | FnBody.jdecl j xs v k => do let v ← f v; pure $ FnBody.jdecl j xs v k
-    | other                 => pure other
+    | FnBody.jdecl j xs v k => return FnBody.jdecl j xs (← f v) k
+    | other                 => return other
 
 @[export lean_ir_mk_alt] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt :=
   Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
@@ -405,28 +406,28 @@ inductive Decl where
 namespace Decl
 
 def name : Decl → FunId
-  | Decl.fdecl f ..  => f
-  | Decl.extern f .. => f
+  | .fdecl f ..  => f
+  | .extern f .. => f
 
 def params : Decl → Array Param
-  | Decl.fdecl (xs := xs) ..  => xs
-  | Decl.extern (xs := xs) .. => xs
+  | .fdecl (xs := xs) ..  => xs
+  | .extern (xs := xs) .. => xs
 
 def resultType : Decl → IRType
-  | Decl.fdecl (type := t) ..  => t
-  | Decl.extern (type := t) .. => t
+  | .fdecl (type := t) ..  => t
+  | .extern (type := t) .. => t
 
 def isExtern : Decl → Bool
-  | Decl.extern .. => true
+  | .extern .. => true
   | _ => false
 
 def getInfo : Decl → DeclInfo
-  | Decl.fdecl (info := info) .. => info
+  | .fdecl (info := info) .. => info
   | _ => {}
 
 def updateBody! (d : Decl) (bNew : FnBody) : Decl :=
   match d with
-  | Decl.fdecl f xs t b info => Decl.fdecl f xs t bNew info
+  | Decl.fdecl f xs t _ info => Decl.fdecl f xs t bNew info
   | _ => panic! "expected definition"
 
 end Decl
@@ -437,7 +438,9 @@ end Decl
 @[export lean_ir_mk_extern_decl] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
   Decl.extern f xs ty e
 
-open Std (RBTree RBTree.empty RBMap)
+-- Hack: we use this declaration as a stub for declarations annotated with `implemented_by` or `init`
+@[export lean_ir_mk_dummy_extern_decl] def mkDummyExternDecl (f : FunId) (xs : Array Param) (ty : IRType) : Decl :=
+  Decl.fdecl f xs ty FnBody.unreachable {}
 
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index compare
@@ -468,30 +471,30 @@ def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContex
 def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.joinPoint _ _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
   match ctx.find? j.idx with
   | some (LocalContextEntry.joinPoint _ b) => some b
-  | other => none
+  | _     => none
 
 def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
   match ctx.find? j.idx with
   | some (LocalContextEntry.joinPoint ys _) => some ys
-  | other => none
+  | _     => none
 
 def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.param _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
   match ctx.find? idx with
   | some (LocalContextEntry.localVar _ _) => true
-  | other => false
+  | _     => false
 
 def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
-  Std.RBMap.contains ctx idx
+  RBMap.contains ctx idx
 
 def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
   ctx.erase j.idx
@@ -500,12 +503,12 @@ def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
   match ctx.find? x.idx with
   | some (LocalContextEntry.param t) => some t
   | some (LocalContextEntry.localVar t _) => some t
-  | other => none
+  | _     => none
 
 def LocalContext.getValue (ctx : LocalContext) (x : VarId) : Option Expr :=
   match ctx.find? x.idx with
   | some (LocalContextEntry.localVar _ v) => some v
-  | other => none
+  | _     => none
 
 abbrev IndexRenaming := RBMap Index Index compare
 
@@ -561,13 +564,13 @@ def addParamRename (ρ : IndexRenaming) (p₁ p₂ : Param) : Option IndexRenami
   else
     none
 
-def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming := OptionM.run do
+def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming := do
   if ps₁.size != ps₂.size then
     failure
   else
     let mut ρ := ρ
     for i in [:ps₁.size] do
-      ρ ← addParamRename ρ ps₁[i] ps₂[i]
+      ρ ← addParamRename ρ ps₁[i]! ps₂[i]!
     pure ρ
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
@@ -604,8 +607,8 @@ instance : Inhabited VarIdSet := ⟨{}⟩
 
 def mkIf (x : VarId) (t e : FnBody) : FnBody :=
   FnBody.case `Bool x IRType.uint8 #[
-    Alt.ctor {name := `Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
-    Alt.ctor {name := `Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
+    Alt.ctor {name := ``Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
+    Alt.ctor {name := ``Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
   ]
 
 end Lean.IR

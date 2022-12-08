@@ -1,0 +1,1 @@
+@D.toC_1 : {α : Type} → [self : D α] → C α

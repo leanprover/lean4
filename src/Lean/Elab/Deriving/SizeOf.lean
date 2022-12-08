@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 import Lean.Meta.SizeOf
 import Lean.Elab.Deriving.Basic
 
-/-
+/-!
 Remark: `SizeOf` instances are automatically generated. We add support for `deriving instance` for `SizeOf`
 just to be able to use them to define instances for types defined at `Prelude.lean`
 -/
@@ -17,12 +17,12 @@ open Command
 
 def mkSizeOfHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) && declNames.size > 0 then
-    liftTermElabM none <| Meta.mkSizeOfInstances declNames[0]
+    liftTermElabM <| Meta.mkSizeOfInstances declNames[0]!
     return true
   else
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `SizeOf mkSizeOfHandler
+  registerDerivingHandler `SizeOf mkSizeOfHandler
 
 end Lean.Elab.Deriving.SizeOf

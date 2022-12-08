@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/pair_ref.h"
-#include "util/list_ref.h"
+#include "runtime/pair_ref.h"
+#include "runtime/list_ref.h"
 #include "util/name_hash_set.h"
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
@@ -93,7 +93,7 @@ expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr con
 inline name mk_join_point_name(name const & n) { return name(n, "_join"); }
 bool is_join_point_name(name const & n);
 /* Pseudo "do" joinpoints are used to implement a temporary HACK. See `visit_let` method at `lcnf.cpp` */
-inline name mk_pseudo_do_join_point_name(name const & n) { return name(n, "_do_jp"); }
+inline name mk_pseudo_do_join_point_name(name const & n) { return name(n, "__do_jp"); }
 bool is_pseudo_do_join_point_name(name const & n);
 
 /* Create an auxiliary names for a declaration that saves the result of the compilation
@@ -197,6 +197,23 @@ optional<unsigned> is_builtin_scalar(expr const & type);
 optional<unsigned> is_enum_type(environment const & env, expr const & type);
 
 // =======================================
+
+extern "C" uint8 lean_is_matcher(object* env, object* n);
+
+inline bool is_matcher(environment const & env, name const & n) {
+    return lean_is_matcher(env.to_obj_arg(), n.to_obj_arg());
+}
+
+inline bool is_matcher_app(environment const & env, expr const & e) {
+  expr const & f = get_app_fn(e);
+  return is_constant(f) && is_matcher(env, const_name(f));
+}
+
+/*
+  Return true if the given expression must be in eta-expanded form during compilation.
+  Example: constructors, `casesOn` applications must always be in eta-expanded form.
+*/
+bool must_be_eta_expanded(environment const & env, expr const & e);
 
 void initialize_compiler_util();
 void finalize_compiler_util();

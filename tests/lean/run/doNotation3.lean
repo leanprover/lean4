@@ -1,19 +1,19 @@
-theorem zeroLtOfLt : {a b : Nat} → a < b → 0 < b
+theorem zero_lt_of_lt : {a b : Nat} → a < b → 0 < b
 | 0,   _, h => h
 | a+1, b, h =>
-  have a < b from Nat.ltTrans (Nat.ltSuccSelf _) h
-  zeroLtOfLt this
+  have : a < b := Nat.lt_trans (Nat.lt_succ_self _) h
+  zero_lt_of_lt this
 
 def fold {m α β} [Monad m] (as : Array α) (b : β) (f : α → β → m β) : m β := do
 let rec loop : (i : Nat) → i ≤ as.size → β → m β
-  | 0,   h, b => b
+  | 0,   h, b => pure b
   | i+1, h, b => do
-    have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (by decide)
-    have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
+    have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+    have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
+    have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
     let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
-    loop i (Nat.leOfLt h') b
-loop as.size (Nat.leRefl _) b
+    loop i (Nat.le_of_lt h') b
+loop as.size (Nat.le_refl _) b
 
 #eval Id.run $ fold #[1, 2, 3, 4] 0 (pure $ · + ·)
 
@@ -25,12 +25,12 @@ let rec loop (i : Nat) (h : i ≤ as.size) (b : β) : m β := do
   match i, h with
   | 0,   h => return b
   | i+1, h =>
-    have h' : i < as.size          from Nat.ltOfLtOfLe (Nat.ltSuccSelf i) h
-    have as.size - 1 < as.size     from Nat.subLt (zeroLtOfLt h') (by decide)
-    have as.size - 1 - i < as.size from Nat.ltOfLeOfLt (Nat.subLe (as.size - 1) i) this
+    have h' : i < as.size          := Nat.lt_of_lt_of_le (Nat.lt_succ_self i) h
+    have : as.size - 1 < as.size     := Nat.sub_lt (zero_lt_of_lt h') (by decide)
+    have : as.size - 1 - i < as.size := Nat.lt_of_le_of_lt (Nat.sub_le (as.size - 1) i) this
     let b ← f (as.get ⟨as.size - 1 - i, this⟩) b
-    loop i (Nat.leOfLt h') b
-loop as.size (Nat.leRefl _) b
+    loop i (Nat.le_of_lt h') b
+loop as.size (Nat.le_refl _) b
 
 def f (x : Nat) (ref : IO.Ref Nat) : IO Nat := do
 let mut x := x
@@ -57,9 +57,9 @@ return ()
 
 #eval gTest
 
-macro "ret!" x:term : doElem => `(return $x)
+macro "ret!" x:term : doElem => `(doElem| return $x)
 
-def f1 (x : Nat) : Nat := do
+def f1 (x : Nat) : Nat := Id.run <| do
   let mut x := x
   if x == 0 then
     ret! 100
@@ -75,7 +75,7 @@ syntax "inc!" ident : doElem
 macro_rules
 | `(doElem| inc! $x) => `(doElem| $x:ident := $x + 1)
 
-def f2 (x : Nat) : Nat := do
+def f2 (x : Nat) : Nat := Id.run <| do
   let mut x := x
   inc! x
   ret! x

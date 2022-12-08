@@ -9,7 +9,7 @@ namespace Lean.Meta
 
 structure AuxLemmas where
   idx    : Nat := 1
-  lemmas : Std.PHashMap Expr (Name × List Name) := {}
+  lemmas : PHashMap Expr (Name × List Name) := {}
   deriving Inhabited
 
 builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtension (pure {})
@@ -25,14 +25,12 @@ builtin_initialize auxLemmasExt : EnvExtension AuxLemmas ← registerEnvExtensio
 -/
 def mkAuxLemma (levelParams : List Name) (type : Expr) (value : Expr) : MetaM Name := do
   let env ← getEnv
-  let s ← auxLemmasExt.getState env
+  let s := auxLemmasExt.getState env
   let mkNewAuxLemma := do
     let auxName := Name.mkNum (env.mainModule ++ `_auxLemma) s.idx
     addDecl <| Declaration.thmDecl {
-      name        := auxName
-      levelParams := levelParams
-      type        := type
-      value       := value
+      name := auxName
+      levelParams, type, value
     }
     modifyEnv fun env => auxLemmasExt.modifyState env fun ⟨idx, lemmas⟩ => ⟨idx + 1, lemmas.insert type (auxName, levelParams)⟩
     return auxName

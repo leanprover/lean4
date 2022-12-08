@@ -1,15 +1,15 @@
 open Function Bool
 
 
-constant f : Nat → Bool := arbitrary
-constant g : Nat → Nat := arbitrary
+opaque f : Nat → Bool := default
+opaque g : Nat → Nat := default
 
 #check f ∘ g ∘ g
 
 #check (id : Nat → Nat)
 
-constant h : Nat → Bool → Nat := arbitrary
+opaque h : Nat → Bool → Nat := default
 
 
-constant f1 : Nat → Nat → Bool := arbitrary
-constant f2 : Bool → Nat := arbitrary
+opaque f1 : Nat → Nat → Bool := default
+opaque f2 : Bool → Nat := default

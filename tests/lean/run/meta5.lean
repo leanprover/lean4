@@ -16,7 +16,7 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
   trace[Meta.debug] r;
   let mctx ← getMCtx;
   mctx.decls.forM fun mvarId mvarDecl => do
-    trace[Meta.debug] m!"?{mvarId} : {mvarDecl.type}"
+    trace[Meta.debug] m!"?{mvarId.name} : {mvarDecl.type}"
 }
 
 set_option trace.Meta.debug true

@@ -19,36 +19,44 @@ import Lean.Compiler.IR.ExpandResetReuse
 import Lean.Compiler.IR.UnboxResult
 import Lean.Compiler.IR.ElimDeadBranches
 import Lean.Compiler.IR.EmitC
+import Lean.Compiler.IR.EmitLLVM
 import Lean.Compiler.IR.CtorLayout
 import Lean.Compiler.IR.Sorry
 
 namespace Lean.IR
 
+register_builtin_option compiler.reuse : Bool := {
+  defValue := true
+  descr    := "heuristically insert reset/reuse instruction pairs"
+}
+
 private def compileAux (decls : Array Decl) : CompilerM Unit := do
   logDecls `init decls
   checkDecls decls
-  let decls ← elimDeadBranches decls
+  let mut decls ← elimDeadBranches decls
   logDecls `elim_dead_branches decls
-  let decls := decls.map Decl.pushProj
+  decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  let decls := decls.map Decl.insertResetReuse
-  logDecls `reset_reuse decls
-  let decls := decls.map Decl.elimDead
+  if compiler.reuse.get (← read) then
+    decls := decls.map Decl.insertResetReuse
+    logDecls `reset_reuse decls
+  decls := decls.map Decl.elimDead
   logDecls `elim_dead decls
-  let decls := decls.map Decl.simpCase
+  decls := decls.map Decl.simpCase
   logDecls `simp_case decls
-  let decls := decls.map Decl.normalizeIds
-  let decls ← inferBorrow decls
+  decls := decls.map Decl.normalizeIds
+  decls ← inferBorrow decls
   logDecls `borrow decls
-  let decls ← explicitBoxing decls
+  decls ← explicitBoxing decls
   logDecls `boxing decls
-  let decls ← explicitRC decls
+  decls ← explicitRC decls
   logDecls `rc decls
-  let decls := decls.map Decl.expandResetReuse
-  logDecls `expand_reset_reuse decls
-  let decls := decls.map Decl.pushProj
+  if compiler.reuse.get (← read) then
+    decls := decls.map Decl.expandResetReuse
+    logDecls `expand_reset_reuse decls
+  decls := decls.map Decl.pushProj
   logDecls `push_proj decls
-  let decls ← updateSorryDep decls
+  decls ← updateSorryDep decls
   logDecls `result decls
   checkDecls decls
   addDecls decls
@@ -67,7 +75,7 @@ def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
     let decl := ExplicitBoxing.mkBoxedVersion decl
     let decls : Array Decl := #[decl]
     let decls ← explicitRC decls
-    decls.forM fun decl => modifyEnv $ fun env => addDeclAux env decl
+    decls.forM fun decl => modifyEnv fun env => addDeclAux env decl
     pure ()
 
 -- Remark: we are ignoring the `Log` here. This should be fine.
@@ -75,6 +83,6 @@ def addBoxedVersionAux (decl : Decl) : CompilerM Unit := do
 def addBoxedVersion (env : Environment) (decl : Decl) : Except String Environment :=
   match (addBoxedVersionAux decl Options.empty).run { env := env } with
   | EStateM.Result.ok     _  s => Except.ok s.env
-  | EStateM.Result.error msg s => Except.error msg
+  | EStateM.Result.error msg _ => Except.error msg
 
 end Lean.IR

@@ -3,20 +3,20 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExprWhere
 import Lean.Elab.Deriving.Basic
 
 namespace Lean.Elab
-open Command
-open Meta
+open Command Meta Parser Term
 
-private abbrev IndexSet := Std.RBTree Nat compare
-private abbrev LocalInst2Index := NameMap Nat
+private abbrev IndexSet := RBTree Nat compare
+private abbrev LocalInst2Index := FVarIdMap Nat
 
 private def implicitBinderF := Parser.Term.implicitBinder
 private def instBinderF     := Parser.Term.instBinder
 
 private def mkInhabitedInstanceUsing (inductiveTypeName : Name) (ctorName : Name) (addHypotheses : Bool) : CommandElabM Bool := do
-  match (← liftTermElabM none mkInstanceCmd?) with
+  match (← liftTermElabM mkInstanceCmd?) with
   | some cmd =>
     elabCommand cmd
     return true
@@ -24,7 +24,7 @@ private def mkInhabitedInstanceUsing (inductiveTypeName : Name) (ctorName : Name
     return false
 where
   addLocalInstancesForParamsAux {α} (k : LocalInst2Index → TermElabM α) : List Expr → Nat → LocalInst2Index → TermElabM α
-    | [], i, map    => k map
+    | [], _, map    => k map
     | x::xs, i, map =>
       try
         let instType ← mkAppM `Inhabited #[x]
@@ -48,15 +48,14 @@ where
       usedInstIdxs
     else
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
-        e.forEach fun
-          | Expr.fvar fvarId _ =>
-            match localInst2Index.find? fvarId with
-            | some idx => modify (·.insert idx)
-            | none => pure ()
-          | _ => pure ()
+        e.forEachWhere Expr.isFVar fun e =>
+          let fvarId := e.fvarId!
+          match localInst2Index.find? fvarId with
+          | some idx => modify (·.insert idx)
+          | none => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
 
-  /- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
+  /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ assumingParamIdxs`. -/
   mkInstanceCmdWith (assumingParamIdxs : IndexSet) : TermElabM Syntax := do
     let indVal ← getConstInfoInduct inductiveTypeName
@@ -66,19 +65,19 @@ where
     for i in [:indVal.numParams + indVal.numIndices] do
       let arg := mkIdent (← mkFreshUserName `a)
       indArgs := indArgs.push arg
-      let binder ← `(implicitBinderF| { $arg:ident })
+      let binder ← `(bracketedBinderF| { $arg:ident })
       binders := binders.push binder
       if assumingParamIdxs.contains i then
-        let binder ← `(instBinderF| [ Inhabited $arg:ident ])
+        let binder ← `(bracketedBinderF| [Inhabited $arg:ident ])
         binders := binders.push binder
     let type ← `(Inhabited (@$(mkIdent inductiveTypeName):ident $indArgs:ident*))
     let mut ctorArgs := #[]
-    for i in [:ctorVal.numParams] do
+    for _ in [:ctorVal.numParams] do
       ctorArgs := ctorArgs.push (← `(_))
-    for i in [:ctorVal.numFields] do
-      ctorArgs := ctorArgs.push (← `(arbitrary))
-    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs:ident*⟩)
-    `(instance $binders:explicitBinder* : $type := $val)
+    for _ in [:ctorVal.numFields] do
+      ctorArgs := ctorArgs.push (← ``(Inhabited.default))
+    let val ← `(⟨@$(mkIdent ctorName):ident $ctorArgs*⟩)
+    `(instance $binders:bracketedBinder* : $type := $val)
 
   mkInstanceCmd? : TermElabM (Option Syntax) := do
     let ctorVal ← getConstInfoCtor ctorName
@@ -87,12 +86,12 @@ where
         let mut usedInstIdxs := {}
         let mut ok := true
         for i in [ctorVal.numParams:xs.size] do
-          let x := xs[i]
+          let x := xs[i]!
           let instType ← mkAppM `Inhabited #[(← inferType x)]
           trace[Elab.Deriving.inhabited] "checking {instType} for '{ctorName}'"
           match (← trySynthInstance instType) with
           | LOption.some e =>
-            usedInstIdxs ← collectUsedLocalsInsts usedInstIdxs localInst2Index e
+            usedInstIdxs := collectUsedLocalsInsts usedInstIdxs localInst2Index e
           | _ =>
             trace[Elab.Deriving.inhabited] "failed to generate instance using '{ctorName}' {if addHypotheses then "(assuming parameters are inhabited)" else ""} because of field with type{indentExpr (← inferType x)}"
             ok := false
@@ -123,7 +122,7 @@ def mkInhabitedInstanceHandler (declNames : Array Name) : CommandElabM Bool := d
     return false
 
 builtin_initialize
-  registerBuiltinDerivingHandler `Inhabited mkInhabitedInstanceHandler
+  registerDerivingHandler `Inhabited mkInhabitedInstanceHandler
   registerTraceClass `Elab.Deriving.inhabited
 
 end Lean.Elab

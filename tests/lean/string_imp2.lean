@@ -1,4 +1,3 @@
-
 def f (s : String) : String :=
 s ++ " " ++ s
 
@@ -54,3 +53,12 @@ def ss : Substring := "0123abcdαβγδ".toSubstring
 #eval ss.drop 4 |>.takeRight 4
 #eval ss.drop 4 |>.take 4
 #eval ss.dropRight 4 |>.takeRight 4
+
+def ssDots : Substring := "____abc.αβγ.123.____".toSubstring.extract ⟨4⟩ ⟨19⟩
+#eval ssDots.splitOn "."
+def ssHyphs : Substring := "____abc--αβγ--123--____".toSubstring.extract ⟨4⟩ ⟨22⟩
+#eval ssHyphs.splitOn "--"
+
+#eval "αβγ".get' 0 (by decide)
+#eval "αβγ".get' ⟨2⟩ (by decide)
+#eval "αβγ".next' ⟨2⟩ (by decide)

@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/sstream.h>
-#include <lean/flet.h>
+#include "runtime/sstream.h"
+#include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/replace_fn.h"
+#include "kernel/inductive.h"
 #include "library/compiler/util.h"
 #include "library/compiler/extern_attribute.h"
 
@@ -61,6 +62,10 @@ class ll_infer_type_fn {
     expr infer_cases(expr const & e) {
         buffer<expr> args;
         get_app_args(e, args);
+        if (args.size() == 1) {
+            // This can happen for empty types. That is, the only argument is the major premise.
+            return mk_enf_object_type();
+        }
         lean_assert(args.size() >= 2);
         bool first = true;
         expr r     = *g_bot;
@@ -199,7 +204,7 @@ class ll_infer_type_fn {
                 }
                 return *g_bot;
             }
-            throw exception(sstream() << "compiler failed to infer low level type, unknown declaration '" << const_name(e) << "'");
+            throw exception(sstream() << "failed to compile definition, consider marking it as 'noncomputable' because it depends on '" << const_name(e) << "', and it does not have executable code");
         }
     }
 

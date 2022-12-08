@@ -12,6 +12,6 @@ namespace Std
 syntax:max "f!" interpolatedStr(term) : term
 
 macro_rules
-  | `(f! $interpStr) => do interpStr.expandInterpolatedStr (← `(Format)) (← `(fmt))
+  | `(f! $interpStr) => do interpStr.expandInterpolatedStr (← `(Format)) (← `(Std.format))
 
 end Std

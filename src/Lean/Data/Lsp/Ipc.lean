@@ -28,10 +28,10 @@ abbrev IpcM := ReaderT (Process.Child ipcStdioConfig) IO
 variable [ToJson α]
 
 def stdin : IpcM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdin
+  return FS.Stream.ofHandle (←read).stdin
 
 def stdout : IpcM FS.Stream := do
-  FS.Stream.ofHandle (←read).stdout
+  return FS.Stream.ofHandle (←read).stdout
 
 def writeRequest (r : Request α) : IpcM Unit := do
   (←stdin).writeLspRequest r
@@ -39,8 +39,28 @@ def writeRequest (r : Request α) : IpcM Unit := do
 def writeNotification (n : Notification α) : IpcM Unit := do
   (←stdin).writeLspNotification n
 
+def shutdown (requestNo : Nat) : IpcM Unit := do
+  let hIn ← stdout
+  let hOut ← stdin
+  hOut.writeLspRequest ⟨requestNo, "shutdown", Json.null⟩
+  repeat
+    let shutMsg ← hIn.readLspMessage
+    match shutMsg with
+    | Message.response id result =>
+      assert! result.isNull
+      if id != requestNo then
+        throw <| IO.userError s!"Expected id {requestNo}, got id {id}"
+
+      hOut.writeLspNotification ⟨"exit", Json.null⟩
+      break
+    | _ =>  -- ignore other messages in between.
+      pure ()
+
 def readMessage : IpcM JsonRpc.Message := do
   (←stdout).readLspMessage
+
+def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
+  (←stdout).readLspRequestAs expectedMethod α
 
 def readResponseAs (expectedID : RequestID) (α) [FromJson α] : IpcM (Response α) := do
   (←stdout).readLspResponseAs expectedID α
@@ -54,25 +74,25 @@ partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target :
 : IpcM (List (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParams.mk target version⟩
   let rec loop : IpcM (List (Notification PublishDiagnosticsParams)) := do
-    match ←readMessage with
+    match (←readMessage) with
     | Message.response id _ =>
-      if id == waitForDiagnosticsId then []
+      if id == waitForDiagnosticsId then return []
       else loop
-    | Message.responseError id code msg _ =>
+    | Message.responseError id _    msg _ =>
       if id == waitForDiagnosticsId then
         throw $ userError s!"Waiting for diagnostics failed: {msg}"
       else loop
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | some diagnosticParam => ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
-      | none                 => throw $ userError "Cannot decode publishDiagnostics parameters"
+      | Except.ok diagnosticParam => return ⟨"textDocument/publishDiagnostics", diagnosticParam⟩ :: (←loop)
+      | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
     | _ => loop
   loop
 
-def runWith (cmd : String) (args : Array String := #[]) (test : IpcM α) : IO α := do
+def runWith (lean : System.FilePath) (args : Array String := #[]) (test : IpcM α) : IO α := do
   let proc ← Process.spawn {
     toStdioConfig := ipcStdioConfig
-    cmd := cmd
+    cmd := lean.toString
     args := args }
   ReaderT.run test proc
 

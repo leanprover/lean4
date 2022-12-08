@@ -3,14 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 
-Message Type used by the Lean frontend
+Message type used by the Lean frontend
 -/
 import Lean.Data.Position
 import Lean.Data.OpenDecl
-import Lean.Syntax
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt
+import Lean.Util.Sorry
 
 namespace Lean
 
@@ -25,109 +25,136 @@ inductive MessageSeverity where
   deriving Inhabited, BEq
 
 structure MessageDataContext where
-  env : Environment
+  env  : Environment
   mctx : MetavarContext
   lctx : LocalContext
   opts : Options
 
+/-- A naming context is the information needed to shorten names in pretty printing.
+
+It gives the current namespace and the list of open declarations.
+-/
 structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
-/- Structure message data. We use it for reporting errors, trace messages, etc. -/
+/-- Lazily formatted text to be used in `MessageData`. -/
+structure PPFormat where
+  /-- Pretty-prints text using surrounding context, if any. -/
+  pp : Option PPContext → IO FormatWithInfos
+  /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
+  hasSyntheticSorry : MetavarContext → Bool := fun _ => false
+
+/-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
+  /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
   | ofFormat          : Format → MessageData
-  | ofSyntax          : Syntax → MessageData
-  | ofExpr            : Expr → MessageData
-  | ofLevel           : Level → MessageData
-  | ofName            : Name  → MessageData
+  /-- Lazily formatted text. -/
+  | ofPPFormat        : PPFormat → MessageData
   | ofGoal            : MVarId → MessageData
-  /- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
+  /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
   | withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
-  /- Lifted `Format.nest` -/
-  | nest              : Nat → MessageData → MessageData
-  /- Lifted `Format.group` -/
-  | group             : MessageData → MessageData
-  /- Lifted `Format.compose` -/
-  | compose           : MessageData → MessageData → MessageData
-  /- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
-     Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
+  /-- Lifted `Format.nest` -/
+  |  nest              : Nat → MessageData → MessageData
+  /-- Lifted `Format.group` -/
+  |  group             : MessageData → MessageData
+  /-- Lifted `Format.compose` -/
+  |  compose           : MessageData → MessageData → MessageData
+  /-- Tagged sections. `Name` should be viewed as a "kind", and is used by `MessageData` inspector functions.
+    Example: an inspector that tries to find "definitional equality failures" may look for the tag "DefEqFailure". -/
   | tagged            : Name → MessageData → MessageData
-  | node              : Array MessageData → MessageData
+  | trace (cls : Name) (msg : MessageData) (children : Array MessageData)
+    (collapsed : Bool := false)
   deriving Inhabited
 
 namespace MessageData
 
-/- Instantiate metavariables occurring in nexted `ofExpr` constructors.
-   It uses the surrounding `MetavarContext` at `withContext` constructors.
--/
-partial def instantiateMVars (msg : MessageData) : MessageData :=
-  visit msg {}
-where
-  visit (msg : MessageData) (mctx : MetavarContext) : MessageData :=
-    match msg with
-    | ofExpr e                  => ofExpr <| mctx.instantiateMVars e |>.1
-    | withContext ctx msg       => withContext ctx  <| visit msg ctx.mctx
-    | withNamingContext ctx msg => withNamingContext ctx <| visit msg mctx
-    | nest n msg                => nest n <| visit msg mctx
-    | group msg                 => group <| visit msg mctx
-    | compose msg₁ msg₂         => compose (visit msg₁ mctx) <| visit msg₂ mctx
-    | tagged n msg              => tagged n <| visit msg mctx
-    | node msgs                 => node <| msgs.map (visit . mctx)
-    | _                         => msg
+/-- Determines whether the message contains any content. -/
+def isEmpty : MessageData → Bool
+  | ofFormat f => f.isEmpty
+  | withContext _ m => m.isEmpty
+  | withNamingContext _ m => m.isEmpty
+  | nest _ m => m.isEmpty
+  | group m => m.isEmpty
+  | compose m₁ m₂ => m₁.isEmpty && m₂.isEmpty
+  | tagged _ m => m.isEmpty
+  | _ => false
 
-variable (tag : Name) in
+variable (p : Name → Bool) in
+/-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
 partial def hasTag : MessageData → Bool
   | withContext _ msg       => hasTag msg
   | withNamingContext _ msg => hasTag msg
   | nest _ msg              => hasTag msg
   | group msg               => hasTag msg
   | compose msg₁ msg₂       => hasTag msg₁ || hasTag msg₂
-  | tagged n msg            => tag == n || hasTag msg
-  | node msgs               => msgs.any hasTag
+  | tagged n msg            => p n || hasTag msg
+  | trace cls msg msgs _    => p cls || hasTag msg || msgs.any hasTag
   | _                       => false
 
+/-- An empty message. -/
 def nil : MessageData :=
   ofFormat Format.nil
-
-def isNil : MessageData → Bool
-  | ofFormat Format.nil => true
-  | _                   => false
-
-def isNest : MessageData → Bool
-  | nest _ _ => true
-  | _        => false
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
   env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
+def ofSyntax (stx : Syntax) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term
+      | none     => return stx.formatStx
+  }
+
+def ofExpr (e : Expr) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppExprWithInfos ctx e
+      | none     => return format (toString e)
+    hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
+  }
+
+def ofLevel (l : Level) : MessageData := ofFormat (format l)
+def ofName (n : Name) : MessageData := ofFormat (format n)
+
+partial def hasSyntheticSorry (msg : MessageData) : Bool :=
+  visit none msg
+where
+  visit (mctx? : Option MetavarContext) : MessageData → Bool
+  | ofPPFormat f            => f.hasSyntheticSorry (mctx?.getD {})
+  | withContext ctx msg     => visit ctx.mctx msg
+  | withNamingContext _ msg => visit mctx? msg
+  | nest _ msg              => visit mctx? msg
+  | group msg               => visit mctx? msg
+  | compose msg₁ msg₂       => visit mctx? msg₁ || visit mctx? msg₂
+  | tagged _ msg            => visit mctx? msg
+  | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
+  | _                       => false
+
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
-  | _,    _,         ofFormat fmt             => pure fmt
-  | _,    _,         ofLevel u                => pure $ fmt u
-  | _,    _,         ofName n                 => pure $ fmt n
-  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) s  -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => pure $ s.formatStx
-  | _,    none,      ofExpr e                 => pure $ format (toString e)
-  | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
-  | _,    none,      ofGoal mvarId            => pure $ "goal " ++ format (mkMVar mvarId)
+  | _,    _,         ofFormat fmt             => return fmt
+  | nCtx, ctx?,      ofPPFormat f             => (·.fmt) <$> f.pp (ctx?.map (mkPPContext nCtx))
+  | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
   | _,    ctx,       withNamingContext nCtx d => formatAux nCtx ctx d
   | nCtx, ctx,       tagged _ d               => formatAux nCtx ctx d
   | nCtx, ctx,       nest n d                 => Format.nest n <$> formatAux nCtx ctx d
-  | nCtx, ctx,       compose d₁ d₂            => do let d₁ ← formatAux nCtx ctx d₁; let d₂ ← formatAux nCtx ctx d₂; pure $ d₁ ++ d₂
+  | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
-  | nCtx, ctx,       node ds                  => Format.nest 2 <$> ds.foldlM (fun r d => do let d ← formatAux nCtx ctx d; pure $ r ++ Format.line ++ d) Format.nil
+  | nCtx, ctx,       trace cls header children _ => do
+    let msg := f!"[{cls}] {(← formatAux nCtx ctx header).nest 2}"
+    let children ← children.mapM (formatAux nCtx ctx)
+    return .nest 2 (.joinSep (msg::children.toList) "\n")
 
 protected def format (msgData : MessageData) : IO Format :=
   formatAux { currNamespace := Name.anonymous, openDecls := [] } none msgData
 
 protected def toString (msgData : MessageData) : IO String := do
-  let fmt ← msgData.format
-  pure $ toString fmt
+  return toString (← msgData.format)
 
 instance : Append MessageData := ⟨compose⟩
 
@@ -137,6 +164,7 @@ instance : Coe Level MessageData  := ⟨ofLevel⟩
 instance : Coe Expr MessageData   := ⟨ofExpr⟩
 instance : Coe Name MessageData   := ⟨ofName⟩
 instance : Coe Syntax MessageData := ⟨ofSyntax⟩
+instance : Coe MVarId MessageData := ⟨ofGoal⟩
 instance : Coe (Option Expr) MessageData := ⟨fun o => match o with | none => "none" | some e => ofExpr e⟩
 
 partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageData) : MessageData :=
@@ -149,30 +177,41 @@ partial def arrayExpr.toMessageData (es : Array Expr) (i : Nat) (acc : MessageDa
 
 instance : Coe (Array Expr) MessageData := ⟨fun es => arrayExpr.toMessageData es 0 "#["⟩
 
-def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length $ l ++ f ++ r)
+/-- Wrap the given message in `l` and `r`. See also `Format.bracket`.  -/
+def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (nest l.length <| l ++ f ++ r)
+/-- Wrap the given message in parentheses `()`. -/
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
+/-- Wrap the given message in square brackets `[]`. -/
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
+/-- Append the given list of messages with the given separarator. -/
 def joinSep : List MessageData → MessageData → MessageData
-  | [],    sep => Format.nil
-  | [a],   sep => a
+  | [],    _   => Format.nil
+  | [a],   _   => a
   | a::as, sep => a ++ sep ++ joinSep as sep
-def ofList: List MessageData → MessageData
+
+/-- Write the given list of messages as a list, separating each item with `,\n` and surrounding with square brackets. -/
+def ofList : List MessageData → MessageData
   | [] => "[]"
-  | xs => sbracket $ joinSep xs (ofFormat "," ++ Format.line)
+  | xs => sbracket <| joinSep xs (ofFormat "," ++ Format.line)
+
+/-- See `MessageData.ofList`. -/
 def ofArray (msgs : Array MessageData) : MessageData :=
   ofList msgs.toList
 
 instance : Coe (List MessageData) MessageData := ⟨ofList⟩
-instance : Coe (List Expr) MessageData := ⟨fun es => ofList $ es.map ofExpr⟩
+instance : Coe (List Expr) MessageData := ⟨fun es => ofList <| es.map ofExpr⟩
 
 end MessageData
 
+/-- A `Message` is a richly formatted piece of information emitted by Lean.
+They are rendered by client editors in the infoview and in diagnostic windows. -/
 structure Message where
   fileName : String
   pos      : Position
   endPos   : Option Position := none
   severity : MessageSeverity := MessageSeverity.error
   caption  : String          := ""
+  /-- The content of the message. -/
   data     : MessageData
   deriving Inhabited
 
@@ -193,8 +232,9 @@ protected def toString (msg : Message) (includeEndPos := false) : IO String := d
 
 end Message
 
+/-- A persistent array of messages. -/
 structure MessageLog where
-  msgs : Std.PersistentArray Message := {}
+  msgs : PersistentArray Message := {}
   deriving Inhabited
 
 namespace MessageLog
@@ -251,14 +291,14 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let opts ← getOptions
-  pure $ MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
+  return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let mctx ← getMCtx
   let lctx ← getLCtx
   let opts ← getOptions
-  pure $ MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
+  return MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
 
 class ToMessageData (α : Type) where
   toMessageData : α → MessageData
@@ -267,20 +307,23 @@ export ToMessageData (toMessageData)
 
 def stringToMessageData (str : String) : MessageData :=
   let lines := str.split (· == '\n')
-  let lines := lines.map (MessageData.ofFormat ∘ fmt)
+  let lines := lines.map (MessageData.ofFormat ∘ format)
   MessageData.joinSep lines (MessageData.ofFormat Format.line)
 
-instance {α} [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ fmt⟩
+instance [ToFormat α] : ToMessageData α := ⟨MessageData.ofFormat ∘ format⟩
 instance : ToMessageData Expr          := ⟨MessageData.ofExpr⟩
 instance : ToMessageData Level         := ⟨MessageData.ofLevel⟩
 instance : ToMessageData Name          := ⟨MessageData.ofName⟩
 instance : ToMessageData String        := ⟨stringToMessageData⟩
 instance : ToMessageData Syntax        := ⟨MessageData.ofSyntax⟩
+instance : ToMessageData (TSyntax k)   := ⟨(MessageData.ofSyntax ·)⟩
 instance : ToMessageData Format        := ⟨MessageData.ofFormat⟩
+instance : ToMessageData MVarId        := ⟨MessageData.ofGoal⟩
 instance : ToMessageData MessageData   := ⟨id⟩
-instance {α} [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList $ as.map toMessageData⟩
-instance {α} [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
-instance {α} [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
+instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageData.ofList <| as.map toMessageData⟩
+instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
+instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
+instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
 syntax:max "m!" interpolatedStr(term) : term
@@ -288,6 +331,8 @@ syntax:max "m!" interpolatedStr(term) : term
 macro_rules
   | `(m! $interpStr) => do interpStr.expandInterpolatedStr (← `(MessageData)) (← `(toMessageData))
 
+def toMessageList (msgs : Array MessageData) : MessageData :=
+  indentD (MessageData.joinSep msgs.toList m!"\n\n")
 
 namespace KernelException
 
@@ -299,6 +344,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | unknownConstant env constName       => mkCtx env {} opts m!"(kernel) unknown constant '{constName}'"
   | alreadyDeclared env constName       => mkCtx env {} opts m!"(kernel) constant has already been declared '{constName}'"
   | declTypeMismatch env decl givenType =>
+    mkCtx env {} opts <|
     let process (n : Name) (expectedType : Expr) : MessageData :=
       m!"(kernel) declaration type mismatch, '{n}' has type{indentExpr givenType}\nbut it is expected to have type{indentExpr expectedType}";
     match decl with

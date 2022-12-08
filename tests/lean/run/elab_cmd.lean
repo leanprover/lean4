@@ -20,7 +20,7 @@ elab "#check2" b:term : command => do
 #check2 10
 
 elab "try" t:tactic : tactic => do
-  let t' ← `(tactic| first | $t | skip);
+  let t' ← `(tactic| first | $t:tactic | skip);
   Lean.Elab.Tactic.evalTactic t'
 
 theorem tst (x y z : Nat) : y = z → x = x → x = y → x = z :=
@@ -28,8 +28,8 @@ by {
   intro h1; intro h2; intro h3;
   apply @Eq.trans;
   try exact h1; -- `exact h1` fails
-  traceState;
+  trace_state;
   try exact h3;
-  traceState;
+  trace_state;
   try exact h1;
 }

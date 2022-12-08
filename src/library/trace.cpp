@@ -20,8 +20,8 @@ MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
 LEAN_THREAD_PTR(environment,           g_env);
 LEAN_THREAD_PTR(options,               g_opts);
 
-void register_trace_class(name const & n) {
-    register_option(name("trace") + n, data_value_kind::Bool, "false",
+void register_trace_class(name const & n, name const & decl_name) {
+    register_option(name("trace") + n, decl_name, data_value_kind::Bool, "false",
                     "(trace) enable/disable tracing for the given module and submodules");
     g_trace_classes->insert(n);
 }
@@ -122,8 +122,16 @@ scope_trace_env::~scope_trace_env() {
     get_disabled_trace_classes().resize(m_disable_sz);
 }
 
-std::ostream & tout() {
-    return std::cerr;
+extern "C" obj_res lean_io_eprint(obj_arg s, obj_arg w);
+static void io_eprint(obj_arg s) {
+    object * r = lean_io_eprint(s, lean_io_mk_world());
+    if (!lean_io_result_is_ok(r))
+        lean_io_result_show_error(r);
+    lean_dec(r);
+}
+
+tout::~tout() {
+    io_eprint(mk_string(m_out.str()));
 }
 
 std::ostream & operator<<(std::ostream & ios, tclass const & c) {
@@ -161,16 +169,18 @@ def pretty (f : Format) (w : Nat := defWidth) : String :=
 */
 extern "C" object * lean_format_pretty(object * f, object * w);
 
-std::string pp_expr(environment const & env, options const & opts, expr const & e) {
-    local_ctx lctx;
-    object_ref fmt = get_io_result<object_ref>(lean_pp_expr(env.to_obj_arg(), lean_mk_metavar_ctx(lean_box(0)), lctx.to_obj_arg(), opts.to_obj_arg(),
+std::string pp_expr(environment const & env, options const & opts, local_ctx const & lctx, expr const & e) {
+    options o = opts;
+    // o = o.update(name{"pp", "proofs"}, true); --
+    object_ref fmt = get_io_result<object_ref>(lean_pp_expr(env.to_obj_arg(), lean_mk_metavar_ctx(lean_box(0)), lctx.to_obj_arg(), o.to_obj_arg(),
                                                             e.to_obj_arg(), io_mk_world()));
     string_ref str(lean_format_pretty(fmt.to_obj_arg(), lean_unsigned_to_nat(80)));
     return str.to_std_string();
 }
 
-void trace_expr(environment const & env, options const & opts, expr const & e) {
-    tout() << pp_expr(env, opts, e);
+std::string pp_expr(environment const & env, options const & opts, expr const & e) {
+    local_ctx lctx;
+    return pp_expr(env, opts, lctx, e);
 }
 
 std::string trace_pp_expr(expr const & e) {

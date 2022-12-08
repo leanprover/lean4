@@ -1,0 +1,4 @@
+550.lean:3:2-3:6: error: unsolved goals
+x : Nat
+h : ∀ (x : Nat), x + 1 = Nat.succ x
+⊢ Nat.succ (x + 1) = 1 + (x + 1)

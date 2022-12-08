@@ -7,8 +7,8 @@ Author: Leonardo de Moura
 #include <utility>
 #include <vector>
 #include <limits>
-#include <lean/sstream.h>
-#include <lean/thread.h>
+#include "runtime/sstream.h"
+#include "runtime/thread.h"
 #include "util/map_foreach.h"
 #include "util/io.h"
 #include "kernel/environment.h"
@@ -245,7 +245,7 @@ environment environment::add(declaration const & d, bool check) const {
     lean_unreachable();
 }
 
-extern "C" object * lean_add_decl(object * env, object * decl) {
+extern "C" LEAN_EXPORT object * lean_add_decl(object * env, object * decl) {
     return catch_kernel_exceptions<environment>([&]() {
             return environment(env).add(declaration(decl, true));
         });

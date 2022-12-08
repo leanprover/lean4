@@ -59,24 +59,6 @@ bool has_eq_decls(environment const & env);
 bool has_heq_decls(environment const & env);
 bool has_and_decls(environment const & env);
 
-inline bool is_inductive(environment const & env, name const & n) {
-    if (optional<constant_info> info = env.find(n))
-        return info->is_inductive();
-    return false;
-}
-
-inline bool is_constructor(environment const & env, name const & n) {
-    if (optional<constant_info> info = env.find(n))
-        return info->is_constructor();
-    return false;
-}
-
-inline bool is_recursor(environment const & env, name const & n) {
-    if (optional<constant_info> info = env.find(n))
-        return info->is_recursor();
-    return false;
-}
-
 /** \brief Return true iff \c n is the name of a recursive datatype in \c env.
     That is, it must be an inductive datatype AND contain a recursive constructor.
 
@@ -97,10 +79,6 @@ bool can_elim_to_type(environment const & env, name const & n);
 /** \brief Store in `result` the constructors of the given inductive datatype.
     \remark this procedure does nothing if `n` is not an inductive datatype. */
 void get_constructor_names(environment const & env, name const & n, buffer<name> & result);
-
-/** \brief If \c e is a constructor application, then return the name of the constructor.
-    Otherwise, return none. */
-optional<name> is_constructor_app(environment const & env, expr const & e);
 
 /** \brief If \c e is a constructor application, or a definition that wraps a
     constructor application, then return the name of the constructor.
@@ -126,7 +104,7 @@ name get_constructor_inductive_type(environment const & env, name const & ctor_n
 
 /** \brief Return the universe where inductive datatype resides
     \pre \c ind_type is of the form <tt>Pi (a_1 : A_1) (a_2 : A_2[a_1]) ..., Type.{lvl}</tt> */
-level get_datatype_level(expr const & ind_type);
+level get_datatype_level(environment const & env, expr const & ind_type);
 
 /** \brief "Consume" Pi-type `type`. This procedure creates free variables based on the domain of `type` using `lctx`,
     and store them in telescope and updates  . If `binfo` is provided, then the free variables are annotated with

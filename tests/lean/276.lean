@@ -1,8 +1,4 @@
-universes u v
-
--- `Type u` version can be defined without this option, but I get the same error
-set_option bootstrap.inductiveCheckResultingUniverse false in
-inductive PEmpty : Sort u
+universe u v
 
 -- `#check` works
 set_option pp.all true in

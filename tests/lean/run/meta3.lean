@@ -9,7 +9,7 @@ let opt := opt.setBool `trace.Meta true;
 -- let opt := opt.setBool `trace.Meta.check false;
 opt
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def check (x : MetaM Bool) : MetaM Unit :=
@@ -24,7 +24,7 @@ do let v? ← getExprMVarAssignment? m.mvarId!;
 unsafe def run (mods : List Name) (x : MetaM Unit) (opts : Options := dbgOpt) : IO Unit :=
 withImportModules (mods.map $ fun m => {module := m}) {} 0 fun env => do
    let x : MetaM Unit := do { x; printTraces };
-   discard $ x.toIO { options := opts } { env := env };
+   discard $ x.toIO { options := opts, fileName := "", fileMap := default } { env := env };
    pure ()
 
 def nat  := mkConst `Nat
@@ -32,7 +32,7 @@ def succ := mkConst `Nat.succ
 def add  := mkAppN (mkConst `Add.add [levelZero]) #[nat, mkConst `Nat.add]
 
 def tst1 : MetaM Unit :=
-do let d : DiscrTree Nat := {};
+do let d : DiscrTree Nat true := {};
    let mvar ← mkFreshExprMVar nat;
    let d ← d.insert (mkAppN add #[mvar, mkNatLit 10]) 1;
    let d ← d.insert (mkAppN add #[mkNatLit 0, mkNatLit 10]) 2;

@@ -9,7 +9,7 @@ def szn.{u} {α : Type u} (n : Nat) : InfTree α → InfTree α → Nat
 | node c, leaf b => 0
 | node c, node d => szn n (c n) (d n)
 
-universes u
+universe u
 
 theorem ex1 {α : Type u} (n : Nat) (c : Nat → InfTree α) (d : Nat → InfTree α) : szn n (node c) (node d) = szn n (c n) (d n) :=
 rfl
@@ -37,8 +37,8 @@ theorem L.appendNil {α} : (as : L α) → append as nil = as
 | nil       => rfl
 | cons a as =>
   show cons a (fun _ => append (as ()) nil) = cons a as from
-  have ih : append (as ()) nil = as () from appendNil $ as ()
-  have thunkAux : (fun _ => as ()) = as from funext fun x => by
+  have ih : append (as ()) nil = as () := appendNil $ as ()
+  have thunkAux : (fun _ => as ()) = as := funext fun x => by
     cases x
     exact rfl
   by rw [ih, thunkAux]

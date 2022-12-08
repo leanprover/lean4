@@ -9,6 +9,7 @@ import Lean.Meta.WHNF
 import Lean.Meta.InferType
 import Lean.Meta.FunInfo
 import Lean.Meta.ExprDefEq
+import Lean.Meta.DecLevel
 import Lean.Meta.DiscrTree
 import Lean.Meta.Reduce
 import Lean.Meta.Instances
@@ -31,7 +32,14 @@ import Lean.Meta.Inductive
 import Lean.Meta.SizeOf
 import Lean.Meta.IndPredBelow
 import Lean.Meta.Coe
-import Lean.Meta.SortLocalDecls
 import Lean.Meta.CollectFVars
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.Injective
+import Lean.Meta.Structure
+import Lean.Meta.Constructions
+import Lean.Meta.CongrTheorems
+import Lean.Meta.Eqns
+import Lean.Meta.CasesOn
+import Lean.Meta.ExprLens
+import Lean.Meta.ExprTraverse
+import Lean.Meta.Eval

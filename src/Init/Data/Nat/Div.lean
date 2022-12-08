@@ -5,33 +5,27 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.WF
+import Init.WFTactics
 import Init.Data.Nat.Basic
 namespace Nat
 
-private def div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
-  fun ⟨ypos, ylex⟩ => subLt (Nat.ltOfLtOfLe ypos ylex) ypos
-
-private def div.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y + 1 else zero
+theorem div_rec_lemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
+  fun ⟨ypos, ylex⟩ => sub_lt (Nat.lt_of_lt_of_le ypos ylex) ypos
 
 @[extern "lean_nat_div"]
-protected def div (a b : @& Nat) : Nat :=
-  WellFounded.fix ltWf div.F a b
+protected def div (x y : @& Nat) : Nat :=
+  if 0 < y ∧ y ≤ x then
+    Nat.div (x - y) y + 1
+  else
+    0
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Div Nat := ⟨Nat.div⟩
 
-private theorem div_eq_aux (x y : Nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-  congrFun (WellFounded.fixEq ltWf div.F x) y
-
-theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-  difEqIf (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ div_eq_aux x y
-
-private theorem div.induction.F.{u}
-        (C : Nat → Nat → Sort u)
-        (ind  : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
-        (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
-        (x : Nat) (f : ∀ (x₁ : Nat), x₁ < x → ∀ (y : Nat), C x₁ y) (y : Nat) : C x y :=
-  if h : 0 < y ∧ y ≤ x then ind x y h (f (x - y) (div_rec_lemma h) y) else base x y h
+theorem div_eq (x y : Nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 := by
+  show Nat.div x y = _
+  rw [Nat.div]
+  rfl
 
 theorem div.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -39,22 +33,51 @@ theorem div.inductionOn.{u}
       (ind  : ∀ x y, 0 < y ∧ y ≤ x → motive (x - y) y → motive x y)
       (base : ∀ x y, ¬(0 < y ∧ y ≤ x) → motive x y)
       : motive x y :=
-  WellFounded.fix Nat.ltWf (div.induction.F motive ind base) x y
+  if h : 0 < y ∧ y ≤ x then
+    ind x y h (inductionOn (x - y) y ind base)
+  else
+    base x y h
+decreasing_by apply div_rec_lemma; assumption
 
-private def mod.F (x : Nat) (f : ∀ x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
-  if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y else x
+theorem div_le_self (n k : Nat) : n / k ≤ n := by
+  induction n using Nat.strongInductionOn with
+  | ind n ih =>
+    rw [div_eq]
+    -- Note: manual split to avoid Classical.em which is not yet defined
+    cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
+    | isFalse h => simp [h]
+    | isTrue h =>
+      suffices (n - k) / k + 1 ≤ n by simp [h, this]
+      have ⟨hK, hKN⟩ := h
+      have hSub : n - k < n := sub_lt (Nat.lt_of_lt_of_le hK hKN) hK
+      have : (n - k) / k ≤ n - k := ih (n - k) hSub
+      exact succ_le_of_lt (Nat.lt_of_le_of_lt this hSub)
+
+theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
+  rw [div_eq]
+  cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
+  | isFalse h => simp [hLtN, h]
+  | isTrue h =>
+    suffices (n - k) / k + 1 < n by simp [h, this]
+    have ⟨_, hKN⟩ := h
+    have : (n - k) / k ≤ n - k := div_le_self (n - k) k
+    have := Nat.add_le_of_le_sub hKN this
+    exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
 @[extern "lean_nat_mod"]
-protected def mod (a b : @& Nat) : Nat :=
-  WellFounded.fix ltWf mod.F a b
+protected def mod (x y : @& Nat) : Nat :=
+  if 0 < y ∧ y ≤ x then
+    Nat.mod (x - y) y
+  else
+    x
+decreasing_by apply div_rec_lemma; assumption
 
 instance : Mod Nat := ⟨Nat.mod⟩
 
-private theorem mod_eq_aux (x y : Nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
-  congrFun (WellFounded.fixEq ltWf mod.F x) y
-
-theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
-  difEqIf (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ mod_eq_aux x y
+theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
+  show Nat.mod x y = _
+  rw [Nat.mod]
+  rfl
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -65,32 +88,32 @@ theorem mod.inductionOn.{u}
   div.inductionOn x y ind base
 
 @[simp] theorem mod_zero (a : Nat) : a % 0 = a :=
-  have (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a from
-    have h : ¬ (0 < 0 ∧ 0 ≤ a) from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _)
-    ifNeg h
+  have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
+    have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.lt_irrefl _)
+    if_neg h
   (mod_eq a 0).symm ▸ this
 
 theorem mod_eq_of_lt {a b : Nat} (h : a < b) : a % b = a :=
-  have (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a from
-    have h' : ¬(0 < b ∧ b ≤ a) from fun ⟨_, h₁⟩ => absurd h₁ (Nat.notLeOfGt h)
-    ifNeg h'
+  have : (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a :=
+    have h' : ¬(0 < b ∧ b ≤ a) := fun ⟨_, h₁⟩ => absurd h₁ (Nat.not_le_of_gt h)
+    if_neg h'
   (mod_eq a b).symm ▸ this
 
 theorem mod_eq_sub_mod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
-  match eqZeroOrPos b with
+  match eq_zero_or_pos b with
   | Or.inl h₁ => h₁.symm ▸ (Nat.sub_zero a).symm ▸ rfl
-  | Or.inr h₁ => (mod_eq a b).symm ▸ ifPos ⟨h₁, h⟩
+  | Or.inr h₁ => (mod_eq a b).symm ▸ if_pos ⟨h₁, h⟩
 
 theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
   induction x, y using mod.inductionOn with
   | base x y h₁ =>
     intro h₂
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x from Iff.mp (Decidable.notAndIffOrNot _ _) h₁
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x := Iff.mp (Decidable.not_and_iff_or_not _ _) h₁
     match h₁ with
     | Or.inl h₁ => exact absurd h₂ h₁
     | Or.inr h₁ =>
-      have hgt : y > x from gtOfNotLe h₁
-      have heq : x % y = x from mod_eq_of_lt hgt
+      have hgt : y > x := gt_of_not_le h₁
+      have heq : x % y = x := mod_eq_of_lt hgt
       rw [← heq] at hgt
       exact hgt
   | ind x y h h₂ =>
@@ -100,29 +123,40 @@ theorem mod_lt (x : Nat) {y : Nat} : y > 0 → x % y < y := by
     exact h₂ h₃
 
 theorem mod_le (x y : Nat) : x % y ≤ x := by
-  match Nat.ltOrGe x y with
-  | Or.inl h₁ => rw [mod_eq_of_lt h₁]; apply Nat.leRefl
-  | Or.inr h₁ => match eqZeroOrPos y with
-    | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.leRefl
-    | Or.inr h₂ => exact Nat.leTrans (Nat.leOfLt (mod_lt _ h₂)) h₁
+  match Nat.lt_or_ge x y with
+  | Or.inl h₁ => rw [mod_eq_of_lt h₁]; apply Nat.le_refl
+  | Or.inr h₁ => match eq_zero_or_pos y with
+    | Or.inl h₂ => rw [h₂, Nat.mod_zero x]; apply Nat.le_refl
+    | Or.inr h₂ => exact Nat.le_trans (Nat.le_of_lt (mod_lt _ h₂)) h₁
 
 @[simp] theorem zero_mod (b : Nat) : 0 % b = 0 := by
   rw [mod_eq]
-  have ¬ (0 < b ∧ b ≤ 0) by
+  have : ¬ (0 < b ∧ b = 0) := by
     intro ⟨h₁, h₂⟩
-    exact absurd (Nat.ltOfLtOfLe h₁ h₂) (Nat.ltIrrefl 0)
+    simp_all
   simp [this]
 
 @[simp] theorem mod_self (n : Nat) : n % n = 0 := by
-  rw [mod_eq_sub_mod (Nat.leRefl _), Nat.sub_self, zero_mod]
+  rw [mod_eq_sub_mod (Nat.le_refl _), Nat.sub_self, zero_mod]
 
 theorem mod_one (x : Nat) : x % 1 = 0 := by
-  have h : x % 1 < 1 from mod_lt x (by decide)
-  have (y : Nat) → y < 1 → y = 0 by
+  have h : x % 1 < 1 := mod_lt x (by decide)
+  have : (y : Nat) → y < 1 → y = 0 := by
     intro y
     cases y with
-    | zero   => intro h; rfl
-    | succ y => intro h; apply absurd (Nat.lt_of_succ_lt_succ h) (Nat.notLtZero y)
+    | zero   => intro _; rfl
+    | succ y => intro h; apply absurd (Nat.lt_of_succ_lt_succ h) (Nat.not_lt_zero y)
   exact this _ h
+
+theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
+  rw [div_eq, mod_eq]
+  have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
+  cases h with
+  | isFalse h => simp [h]
+  | isTrue h =>
+    simp [h]
+    have ih := div_add_mod (m - n) n
+    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+decreasing_by apply div_rec_lemma; assumption
 
 end Nat

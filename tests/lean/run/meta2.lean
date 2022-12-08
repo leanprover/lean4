@@ -7,7 +7,7 @@ open Lean.Meta
 -- set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.debug true
 
-def print (msg : MessageData) : MetaM Unit :=
+def print (msg : MessageData) : MetaM Unit := do
 trace[Meta.debug] msg
 
 def checkM (x : MetaM Bool) : MetaM Unit :=
@@ -52,7 +52,7 @@ do print "----- tst3 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
    lambdaTelescope t fun xs _ => do
-     let x := xs[0];
+     let x := xs[0]!
      checkM $ isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
      pure ();
    let v ← getAssignment mvar;
@@ -65,7 +65,7 @@ def tst4 : MetaM Unit :=
 do print "----- tst4 -----";
    let t   := mkLambda `x BinderInfo.default nat $ mkBVar 0;
    lambdaTelescope t fun xs _ => do
-     let x := xs[0];
+     let x := xs[0]!
      let mvar ← mkFreshExprMVar (mkForall `x BinderInfo.default nat nat);
      -- the following `isExprDefEq` fails because `x` is also in the context of `mvar`
      checkM $ not <$> isExprDefEq (mkApp mvar x) (mkAppN add #[x, mkAppN add #[mkNatLit 10, x]]);
@@ -120,7 +120,7 @@ do print "----- tst6 -----";
      let s := mkAppN add #[x, mkNatLit 6];
      checkM $ isExprDefEq t s;
      let v ← getAssignment m;
-     checkM $ pure $ v == mkAppN add #[x, mkNatLit 2];
+     checkM $ pure $ v == (← mkAdd x (mkNatLit 2))
      print v;
      let m ← mkFreshExprMVar nat;
      let t := mkAppN add #[m, mkNatLit 4];
@@ -369,7 +369,7 @@ pure ()
 #eval tst26
 
 section
-set_option trace.Meta.isDefEq.step true
+set_option trace.Meta.isDefEq true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
@@ -572,7 +572,7 @@ checkM $ getAssignment m2 >>= fun v => pure $ v == nat;
 pure ()
 
 set_option pp.all true
-set_option trace.Meta.isDefEq.step true
+set_option trace.Meta.isDefEq true
 set_option trace.Meta.isDefEq.delta true
 set_option trace.Meta.isDefEq.assign true
 
@@ -623,7 +623,7 @@ do
 
 #eval tst40
 
-universes u
+universe u
 structure A (α : Type u) :=
 (x y : α)
 
@@ -658,7 +658,7 @@ check w;
 print w;
 pure ()
 
-set_option trace.Meta.isDefEq.step false
+set_option trace.Meta.isDefEq false
 set_option trace.Meta.isDefEq.delta false
 set_option trace.Meta.isDefEq.assign false
 #eval tst41
@@ -667,10 +667,10 @@ set_option pp.all false
 
 def tst42 : MetaM Unit := do
 print "----- tst42 -----";
-let t ← mkListLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkListLit nat [mkRawNatLit 1, mkRawNatLit 2];
 print t;
 check t;
-let t ← mkArrayLit nat [mkNatLit 1, mkNatLit 2];
+let t ← mkArrayLit nat [mkRawNatLit 1, mkRawNatLit 2];
 print t;
 check t;
 (match t.arrayLit? with

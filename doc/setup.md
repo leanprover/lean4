@@ -1,3 +1,29 @@
+# Supported Platforms
+
+### Tier 1
+
+Platforms built & tested by our CI, available as nightly & stable releases via elan (see above)
+
+* x86-64 Linux with glibc 2.27+
+* x86-64 macOS 10.15+
+* x86-64 Windows 10+
+
+### Tier 2
+
+Platforms cross-compiled but not tested by our CI, available as nightly & stable releases
+
+Releases may be silently broken due to the lack of automated testing.
+Issue reports and fixes are welcome.
+
+* aarch64 Linux with glibc 2.27+
+* aarch64 (M1) macOS
+
+<!--
+### Tier 3
+
+Platforms that are known to work from manual testing, but do not come with CI or official releases
+-->
+
 # Setting Up Lean
 
 There are currently two ways to set up a Lean 4 development environment:
@@ -21,25 +47,29 @@ $ elan default leanprover/lean4:nightly
 $ elan override set leanprover/lean4:stable
 ```
 
-### `leanpkg`
+### `lake`
 
-Lean 4 comes with a basic package manager, `leanpkg`.
-Use `leanpkg init Foo` to initialize a Lean package `Foo` in the current directory, and `leanpkg build` to typecheck and build it as well as all its dependencies; call `leanpkg help` to learn about further commands.
-The general directory structure of a package `Foo` is
+Lean 4 comes with a package manager named `lake`.
+Use `lake init foo` to initialize a Lean package `foo` in the current directory, and `lake build` to typecheck and build it as well as all its dependencies. Use `lake help` to learn about further commands.
+The general directory structure of a package `foo` is
 ```sh
-leanpkg.toml  # package configuration
-Foo.lean  # main file, import via `import Foo`
+lakefile.lean  # package configuration
+lean-toolchain # specifies the lean version to use
+Foo.lean       # main file, import via `import Foo`
 Foo/
-  A.lean  # further files, import via e.g. `import Foo.A`
-  A/...   # further nesting
-build/  # `leanpkg` output directory
+  A.lean       # further files, import via e.g. `import Foo.A`
+  A/...        # further nesting
+build/         # `lake` build output directory
 ```
-Note however that `leanpkg` currently depends on `make` (and `sh`) for recursive compilation.
-It has been tested on Windows by installing these tools using [MSYS2](https://www.msys2.org/), but [MinGW](http://www.mingw.org/) or WSL should work, too.
+
+After running `lake build` you will see a binary named `./build/bin/foo` and when you run it you should see the output:
+```
+Hello, world!
+```
 
 ### Editing
 
-Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4/tree/master/lean4-mode/README.md), [VS Code](https://github.com/mhuisi/vscode-lean4), and possibly other editors.
+Lean implements the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) that can be used for interactive development in [Emacs](https://github.com/leanprover/lean4-mode), [VS Code](https://github.com/leanprover-community/vscode-lean4), and possibly other editors.
 
 Changes must be saved to be visible in other files, which must then be invalidated using an editor command (see links above).
 
@@ -75,11 +105,9 @@ Note: Your system Nix might print warnings about not knowing some of the setting
 From a Lean shell, run
 ```bash
 $ nix flake new mypkg -t github:leanprover/lean4
-$ cd mypkg && git init && git add flake.nix
 ```
 to create a new Lean package in directory `mypkg` using the latest commit of Lean 4.
-Note that Nix Flakes will not recognize your `flake.nix` file unless it is visible to Git.
-Such packages follow the same directory layout as described in the basic setup above, except for a `leanpkg.toml` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
+Such packages follow the same directory layout as described in the basic setup above, except for a `lakefile.lean` replaced by a `flake.nix` file set up so you can run Nix commands on it, for example:
 ```bash
 $ nix build  # build package and all dependencies
 $ nix build .#executable  # compile `main` definition into executable (after you've added one)
@@ -88,6 +116,7 @@ $ nix run .#emacs-dev MyPackage.lean  # arguments can be passed as well, e.g. th
 $ nix run .#vscode-dev MyPackage.lean  # ditto, using VS Code
 ```
 Note that if you rename `MyPackage.lean`, you also have to adjust the `name` attribute in `flake.nix` accordingly.
+Also note that if you turn the package into a Git repository, only tracked files will be visible to Nix.
 
 As in the basic setup, changes need to be saved to be visible in other files, which have then to be invalidated via an editor command.
 
@@ -96,7 +125,7 @@ If you don't want to or cannot start the pinned editor from Nix, e.g. because yo
 $ nix build .#lean-dev -o result-lean-dev
 ```
 The resulting `./result-lean-dev/bin/lean` script essentially runs `nix run .#lean` in the current project's root directory when you open a Lean file or use the "refresh dependencies" command such that the correct Lean version for that project is executed.
-This includes selecting the correct stage of Lean (which it will compile on the fly, though without progress output) if you are [working on Lean itself](../make/nix.md#editor-integration).
+This includes selecting the correct stage of Lean (which it will compile on the fly, though without progress output) if you are [working on Lean itself](./make/nix.md#editor-integration).
 
 Package dependencies can be added as further input flakes and passed to the `deps` list of `buildLeanPackage`. Example: <https://github.com/Kha/testpkg2/blob/master/flake.nix#L5>
 
@@ -113,5 +142,5 @@ nix-collect-garbage
 ```
 This will remove everything not reachable from "GC roots" such as the `./result` symlink created by `nix build`.
 
-Note that the package information in `flake.nix` is currently completely independent from `leanpkg.toml` used in the basic setup.
+Note that the package information in `flake.nix` is currently completely independent from `lakefile.lean` used in the basic setup.
 Unifying the two formats is TBD.

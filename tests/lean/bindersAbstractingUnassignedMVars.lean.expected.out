@@ -1,0 +1,4 @@
+∀ (y x : Nat), x + (x + y) = x
+∀ (y x : Nat), x + (x + y) = x
+∀ {y x : Nat}, x = y → x + (x + y) = x
+fun (y x : Nat) (h : x = y) (z : Nat) => z + (x + y)

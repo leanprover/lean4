@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include <lean/flet.h>
+#include "runtime/flet.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/type_checker.h"
+#include "kernel/inductive.h"
 #include "library/compiler/util.h"
+#include "library/compiler/implemented_by_attribute.h"
 
 namespace lean {
 class erase_irrelevant_fn {
@@ -68,7 +70,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_constant(expr const & e) {
-        lean_assert(!is_enf_neutral(e));
+        lean_always_assert(!is_enf_neutral(e));
         name const & c = const_name(e);
         if (c == get_lc_unreachable_name()) {
             return mk_enf_unreachable();
@@ -76,6 +78,13 @@ class erase_irrelevant_fn {
             return mk_enf_neutral();
         } else if (is_irrelevant(e)) {
             return mk_enf_neutral();
+        } else if (optional<name> n = get_implemented_by_attribute(env(), c)) {
+            if (has_inline_attribute(env(), *n)) {
+                // csimp ignores @[inline] after erasure, so inline it now
+                if (optional<expr> e3 = unfold_term(env(), mk_const(mk_cstage1_name(*n), const_levels(e))))
+                    return visit(*e3);
+            }
+            return visit(mk_const(*n, const_levels(e)));
         } else {
             return mk_constant(const_name(e));
         }
@@ -111,9 +120,9 @@ class erase_irrelevant_fn {
             e = binding_body(e);
         }
         unsigned saved_let_fvars_size = m_let_fvars.size();
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         e = instantiate_rev(e, bfvars.size(), bfvars.data());
-        if (is_irrelevant(e))
+        if (is_irrelevant(e) && !is_minor)
             return mk_enf_neutral();
         expr r = visit(e);
         r      = mk_let(saved_let_fvars_size, r);
@@ -151,7 +160,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_string_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 3);
+        lean_always_assert(args.size() == 3);
         expr major     = visit(args[1]);
         expr x         = mk_simple_decl(mk_app(mk_constant(get_string_data_name()), major), mk_list_char());
         expr minor     = args[2];
@@ -160,7 +169,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_nat_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[1]);
         expr zero        = mk_lit(literal(nat(0)));
         expr one         = mk_lit(literal(nat(1)));
@@ -178,7 +187,7 @@ class erase_irrelevant_fn {
     }
 
     expr elim_int_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[1]);
         expr zero        = mk_lit(literal(nat(0)));
         expr int_type    = mk_constant(get_int_name());
@@ -201,24 +210,54 @@ class erase_irrelevant_fn {
     }
 
     expr elim_array_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 4);
+        lean_always_assert(args.size() == 4);
         expr major       = visit(args[2]);
         expr minor       = visit_minor(args[3]);
-        lean_assert(is_lambda(minor));
+        lean_always_assert(is_lambda(minor));
         return
             ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_array_data_name()), mk_enf_neutral(), major),
                            binding_body(minor));
     }
 
+    expr elim_float_array_cases(buffer<expr> & args) {
+        lean_always_assert(args.size() == 3);
+        expr major       = visit(args[1]);
+        expr minor       = visit_minor(args[2]);
+        lean_always_assert(is_lambda(minor));
+        return
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_float_array_data_name()), major),
+                           binding_body(minor));
+    }
+
+    expr elim_byte_array_cases(buffer<expr> & args) {
+        lean_always_assert(args.size() == 3);
+        expr major       = visit(args[1]);
+        expr minor       = visit_minor(args[2]);
+        lean_always_assert(is_lambda(minor));
+        return
+            ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_constant(get_byte_array_data_name()), major),
+                           binding_body(minor));
+    }
+
+    expr elim_uint_cases(name const & uint_name, buffer<expr> & args) {
+        lean_always_assert(args.size() == 3);
+        expr major = visit(args[1]);
+        expr minor = visit_minor(args[2]);
+        lean_always_assert(is_lambda(minor));
+        return
+          ::lean::mk_let(next_name(), mk_enf_object_type(), mk_app(mk_const(name(uint_name, "toNat")), major),
+                         binding_body(minor));
+    }
+
     expr decidable_to_bool_cases(buffer<expr> const & args) {
-        lean_assert(args.size() == 5);
+        lean_always_assert(args.size() == 5);
         expr const & major  = args[2];
         expr minor1 = args[3];
         expr minor2 = args[4];
         minor1 = visit_minor(minor1);
         minor2 = visit_minor(minor2);
-        lean_assert(is_lambda(minor1));
-        lean_assert(is_lambda(minor2));
+        lean_always_assert(is_lambda(minor1));
+        lean_always_assert(is_lambda(minor2));
         minor1 = instantiate(binding_body(minor1), mk_enf_neutral());
         minor2 = instantiate(binding_body(minor2), mk_enf_neutral());
         return mk_app(mk_constant(get_bool_cases_on_name()), major, minor1, minor2);
@@ -235,6 +274,12 @@ class erase_irrelevant_fn {
             return elim_int_cases(args);
         } else if (I_name == get_array_name()) {
             return elim_array_cases(args);
+        } else if (I_name == get_float_array_name()) {
+            return elim_float_array_cases(args);
+        } else if (I_name == get_byte_array_name()) {
+            return elim_byte_array_cases(args);
+        } else if (I_name == get_uint8_name() || I_name == get_uint16_name() || I_name == get_uint32_name() || I_name == get_uint64_name() || I_name == get_usize_name()) {
+          return elim_uint_cases(I_name, args);
         } else if (I_name == get_decidable_name()) {
             return decidable_to_bool_cases(args);
         } else {
@@ -242,15 +287,15 @@ class erase_irrelevant_fn {
             std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
             if (optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix())) {
                 /* Eliminate `cases_on` of trivial structure */
-                lean_assert(minors_end == minors_begin + 1);
+                lean_always_assert(minors_end == minors_begin + 1);
                 expr major = args[minors_begin - 1];
-                lean_assert(is_atom(major));
+                lean_always_assert(is_atom(major));
                 expr minor = args[minors_begin];
                 unsigned i = 0;
                 buffer<expr> fields;
                 while (is_lambda(minor)) {
                     expr v = mk_proj(I_name, i, major);
-                    expr t = infer_type(v);
+                    expr t = instantiate_rev(binding_domain(minor), fields.size(), fields.data());
                     name n = next_name();
                     expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
                     fields.push_back(fvar);
@@ -295,7 +340,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_quot_lift(buffer<expr> & args) {
-        lean_assert(args.size() >= 6);
+        lean_always_assert(args.size() >= 6);
         expr f = args[3];
         buffer<expr> new_args;
         for (unsigned i = 5; i < args.size(); i++)
@@ -304,7 +349,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_quot_mk(buffer<expr> const & args) {
-        lean_assert(args.size() == 3);
+        lean_always_assert(args.size() == 3);
         return visit(args[2]);
     }
 
@@ -313,7 +358,7 @@ class erase_irrelevant_fn {
         name const & I_name     = c_val.get_induct();
         if (optional<unsigned> fidx = has_trivial_structure(I_name)) {
             unsigned nparams      = c_val.get_nparams();
-            lean_assert(nparams + *fidx < args.size());
+            lean_always_assert(nparams + *fidx < args.size());
             return visit(args[nparams + *fidx]);
         } else {
             return visit_app_default(fn, args);
@@ -323,12 +368,26 @@ class erase_irrelevant_fn {
     expr visit_app(expr const & e) {
         buffer<expr> args;
         expr f = get_app_args(e, args);
-        if (is_constant(f)) {
+        while (is_constant(f)) {
             name const & fn = const_name(f);
             if (fn == get_lc_proof_name()) {
                 return mk_enf_neutral();
             } else if (fn == get_lc_unreachable_name()) {
                 return mk_enf_unreachable();
+            } else if (optional<name> n = get_implemented_by_attribute(env(), fn)) {
+                if (is_cases_on_recursor(env(), fn) || has_inline_attribute(env(), *n)) {
+                    // casesOn has a different representation in the LCNF than applications,
+                    // so we can't just replace the constant by the implemented_by override.
+                    // Additionally, csimp ignores inline annotation after erase so inline now.
+                    expr e2 = mk_app(mk_const(mk_cstage1_name(*n), const_levels(f)), to_list(args));
+                    if (optional<expr> e3 = unfold_app(env(), e2)) {
+                        return visit(*e3);
+                    } else {
+                        throw exception(sstream() << "code generation failed, unsupported implemented_by for '" << fn << "'");
+                    }
+                } else {
+                    f = mk_const(*n, const_levels(f));
+                }
             } else if (fn == get_decidable_is_true_name()) {
                 return mk_constant(get_bool_true_name());
             } else if (fn == get_decidable_is_false_name()) {
@@ -345,6 +404,8 @@ class erase_irrelevant_fn {
                 /* Decidable.decide is the "identify" function since Decidable and Bool have
                    the same runtime representation. */
                 return args[1];
+            } else {
+                break;
             }
         }
         return visit_app_default(f, args);
@@ -362,8 +423,8 @@ class erase_irrelevant_fn {
     }
 
     expr mk_let(unsigned saved_fvars_size, expr r) {
-        lean_assert(saved_fvars_size <= m_let_fvars.size());
-        lean_assert(m_let_fvars.size() == m_let_entries.size());
+        lean_always_assert(saved_fvars_size <= m_let_fvars.size());
+        lean_always_assert(m_let_fvars.size() == m_let_entries.size());
         if (saved_fvars_size == m_let_fvars.size())
             return r;
         r      = abstract(r, m_let_fvars.size() - saved_fvars_size, m_let_fvars.data() + saved_fvars_size);
@@ -379,7 +440,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit_let(expr e) {
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         buffer<expr> curr_fvars;
         while (is_let(e)) {
             expr t     = instantiate_rev(let_type(e), curr_fvars.size(), curr_fvars.data());
@@ -392,12 +453,12 @@ class erase_irrelevant_fn {
             expr fvar  = m_lctx.mk_local_decl(ngen(), n, t, v);
             curr_fvars.push_back(fvar);
             expr new_t = mk_runtime_type(t);
-            expr new_v = visit(v);
+            expr new_v = is_enf_neutral(new_t) ? mk_enf_neutral() : visit(v);
             m_let_fvars.push_back(fvar);
             m_let_entries.emplace_back(n, new_t, new_v);
             e = let_body(e);
         }
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         return visit(instantiate_rev(e, curr_fvars.size(), curr_fvars.data()));
     }
 
@@ -406,7 +467,7 @@ class erase_irrelevant_fn {
     }
 
     expr visit(expr const & e) {
-        lean_assert(m_let_entries.size() == m_let_fvars.size());
+        lean_always_assert(m_let_entries.size() == m_let_fvars.size());
         switch (e.kind()) {
         case expr_kind::BVar:  case expr_kind::MVar:
             lean_unreachable();

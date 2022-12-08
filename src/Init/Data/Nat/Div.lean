@@ -64,7 +64,7 @@ theorem mod.inductionOn.{u}
       : motive x y :=
   div.inductionOn x y ind base
 
-theorem mod_zero (a : Nat) : a % 0 = a :=
+@[simp] theorem mod_zero (a : Nat) : a % 0 = a :=
   have (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a from
     have h : ¬ (0 < 0 ∧ 0 ≤ a) from fun ⟨h₁, _⟩ => absurd h₁ (Nat.ltIrrefl _)
     ifNeg h

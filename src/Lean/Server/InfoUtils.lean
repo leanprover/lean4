@@ -299,7 +299,8 @@ partial def InfoTree.goalsAt? (text : FileMap) (t : InfoTree) (hoverPos : String
               ctxInfo := ctx
               tacticInfo := ti
               useAfter := hoverPos > pos && !cs.any (hasNestedTactic pos tailPos)
-              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column
+              -- consider every position unindented after an empty `by` to support "hanging" `by` uses
+              indented := (text.toPosition pos).column > (text.toPosition hoverPos).column && !isEmptyBy ti.stx
               -- use goals just before cursor as fall-back only
               -- thus for `(by foo)`, placing the cursor after `foo` shows its state as long
               -- as there is no state on `)`
@@ -322,6 +323,10 @@ where
     | InfoTree.node (Info.ofMacroExpansionInfo _) cs =>
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
+  isEmptyBy (stx : Syntax) : Bool :=
+    -- there are multiple `by` kinds with the same structure
+    stx.getNumArgs == 2 && stx[0].isToken "by" && stx[1].getNumArgs == 1 && stx[1][0].isMissing
+
 
 partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info) :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.

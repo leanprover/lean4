@@ -203,7 +203,7 @@ jobs:
       - name: Valgrind
         if: matrix.release
         run: |
-          apt install -y libc6-dbg valgrind # install valgrind and libc debug symbols
+          sudo apt install -y libc6-dbg valgrind # install valgrind and libc debug symbols
           export PATH=`pwd`/build/stage1/bin/:$PATH
           export LD_LIBRARY_PATH=`pwd`/build/stage1/lib/:$LD_LIBRARY_PATH
           cd tests/compiler

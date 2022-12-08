@@ -126,9 +126,10 @@ as seen in the goal view. We will use it to implement our custom `#check` displa
 ⚠️ WARNING: Like the other widget APIs, the infoview JS API is **unstable** and subject to breaking changes.
 
 The code below demonstrates useful parts of the API. To make RPC method calls, we use the `RpcContext`.
-The `useAsync` helper packs the results of a call into a `status` enum, the returned `val`ue in case
-the call was successful, and otherwise an `err`or. Based on the `status` we either display
-an `InteractiveCode`, or `mapRpcError` the error in order to turn it into a readable message.
+The `useAsync` helper packs the results of a call into an `AsyncState` structure which indicates
+whether the call has resolved successfully, has returned an error, or is still in-flight. Based
+on this we either display an `InteractiveCode` with the type, `mapRpcError` the error in order
+to turn it into a readable message, or show a `Loading..` message, respectively.
 -/
 
 @[widget]
@@ -137,21 +138,21 @@ def checkWidget : UserWidgetDefinition where
   javascript := "
 import * as React from 'react';
 const e = React.createElement;
-import { RpcContext, InteractiveCode } from '@leanprover/infoview';
+import { RpcContext, InteractiveCode, useAsync, mapRpcError } from '@leanprover/infoview';
 
 export default function(props) {
   const rs = React.useContext(RpcContext)
   const [name, setName] = React.useState('getType')
-  const [value, setValue] = React.useState(undefined)
 
-  function run() {
-    rs.call('getType', { name, pos: props.pos }).then(setValue)
-  }
+  const st = useAsync(() =>
+    rs.call('getType', { name, pos: props.pos }), [name, rs, props.pos])
 
-  React.useEffect(() => run(), [name])
-  const type = value &&  e(InteractiveCode, {fmt: value})
+  const type = st.state === 'resolved' ? st.value && e(InteractiveCode, {fmt: st.value})
+    : st.state === 'rejected' ? e('p', null, mapRpcError(st.error).message)
+    : e('p', null, 'Loading..')
   const onChange = (event) => { setName(event.target.value) }
-  return e('div', null, e('input', { value: name, onChange }), ' : ', type)
+  return e('div', null,
+    e('input', { value: name, onChange }), ' : ', type)
 }
 "
 
@@ -189,10 +190,8 @@ To do this, use the `React.useContext(EditorContext)` React context.
 This will return an `EditorConnection` whose `api` field contains a number of methods to
 interact with the text editor.
 
-You can see the full API for this [here](https://github.com/leanprover/vscode-lean4/blob/1edd92230c7630627f18dbe76cd139903a4cbcee/lean4-infoview-api/src/infoviewApi.ts#L52)
-
+You can see the full API for this [here](https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview-api/src/infoviewApi.ts#L52)
 -/
-
 
 @[widget]
 def insertTextWidget : UserWidgetDefinition where

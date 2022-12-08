@@ -50,7 +50,7 @@ rec {
       mkdir -p $out
       mv lib/ $out/
       mv shell/CMakeFiles/shell.dir/lean.cpp.o $out/lib
-      mv runtime/libleanrt_initial-exec.a runtime/lean.h.bc $out/lib
+      mv runtime/libleanrt_initial-exec.a $out/lib
     '';
   };
   # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log

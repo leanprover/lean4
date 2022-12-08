@@ -1694,15 +1694,22 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
 /--
   Helper function for "embedding" an `Expr` in `Syntax`.
   It creates a named hole `?m` and immediately assigns `e` to it.
+  Allows a type to be given as an optional second argument.
   Examples:
   ```lean
   let e := mkConst ``Nat.zero
   `(Nat.succ $(← exprToSyntax e))
+
+  let e := mkConst ``Nat.zero
+  let t := mkConst ``Nat
+  `(Nat.succ $(← exprToSyntax e t))
   ```
 -/
-def exprToSyntax (e : Expr) : TermElabM Term := withFreshMacroScope do
+def exprToSyntax (e : Expr) (type : Option Expr := none) : TermElabM Term := withFreshMacroScope do
   let result ← `(?m)
-  let eType ← inferType e
+  let eType ← match type with
+    | some t => pure t
+    | none   => inferType e
   let mvar ← elabTerm result eType
   mvar.mvarId!.assign e
   return result

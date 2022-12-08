@@ -167,6 +167,7 @@ jobs:
         run: |
           mkdir build
           cd build
+          ulimit -c unlimited # coredumps
           OPTIONS=()
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
@@ -219,11 +220,13 @@ jobs:
       - name: Build Stage 2
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make -j4 stage2
         if: matrix.build-stage2 || matrix.check-stage3
       - name: Check Stage 3
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make -j4 check-stage3
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
@@ -236,6 +239,7 @@ jobs:
       - name: Check rebootstrap
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make update-stage0 && make -j4
         if: matrix.name == 'Linux'
       - name: CCache stats
@@ -254,8 +258,12 @@ jobs:
           name: coredumps-${{ matrix.name }}
           path: |
             ./coredumps
+            ./build/stage0/bin/lean
+            ./build/stage0/lib/lean/libleanshared.so
             ./build/stage1/bin/lean
             ./build/stage1/lib/lean/libleanshared.so
+            ./build/stage2/bin/lean
+            ./build/stage2/lib/lean/libleanshared.so
 
   release:
     if: startsWith(github.ref, 'refs/tags/')

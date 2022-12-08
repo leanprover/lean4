@@ -1089,6 +1089,11 @@ def getFieldValue? (struct : Struct) (fieldName : Name) : Option Expr :=
     else
       none
 
+/--
+  A helper function that applies lambdas whose parameters are field names to the corresponding
+  field values until it finds a non-lambda, using propagated parameters instead of field names if
+  necessary along the way. Returns `none` if it finds a lambda that's not of this form.
+-/
 partial def mkDefaultValueAux? (struct : Struct) : Expr → TermElabM (Option Expr)
   | .lam n d b c => withRef struct.ref do
     if c.isExplicit then
@@ -1257,10 +1262,7 @@ partial def propagateLoop (hierarchyDepth : Nat) (d : Nat) (struct : Struct) : M
   The default synthesis loop.
 
   We call our workhorse function `propagateLoop` with appropriate initial values, which implements
-  the loop itself (unless there is a variadic hole that specifies defaults are not to be used).
-
-  Then, if there is a variadic hole, we assign the remaining metavariables that couldn't be
-  synthesized into default values to (named) field holes.
+  the loop itself.
 -/
 def propagate (struct : Struct) : TermElabM Unit :=
   let hierarchyDepth := getHierarchyDepth struct

@@ -786,7 +786,7 @@ private def tokenFnAux : ParserFn := fun c s =>
   let curr  := input.get i
   if curr == '\"' then
     strLitFnAux i c (s.next input i)
-  else if curr == '\'' then
+  else if curr == '\'' && getNext input i != '\'' then
     charLitFnAux i c (s.next input i)
   else if curr.isDigit then
     numberFnAux c s

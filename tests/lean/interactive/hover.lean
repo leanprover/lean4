@@ -256,3 +256,6 @@ example : Nat :=
   let x := match 0 with | _ => 0
   _
 --^ textDocument/hover
+
+def auto (o : Nat := by exact 1) : Nat := o
+  --^ textDocument/hover

@@ -71,7 +71,7 @@ def handleHover (p : HoverParams)
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
             if let some hoverFmt ← i.fmtHover? ci then
-              return mkHover (toString hoverFmt) range
+              return mkHover (toString hoverFmt.fmt) range
 
       if let some (doc, range) := stxDoc? then
         return mkHover doc range

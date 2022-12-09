@@ -59,6 +59,14 @@ def ppCommand (stx : Syntax.Command) : CoreM Format := ppCategory `command stx
 def ppModule (stx : TSyntax ``Parser.Module.module) : CoreM Format := do
   parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
+open Delaborator in
+/-- Pretty-prints a declaration `c` as `c.{<levels>} <params> : <type>`. -/
+def ppSignature (c : Name) : MetaM FormatWithInfos := do
+  let decl ← getConstInfo c
+  let e := .const c (decl.levelParams.map mkLevelParam)
+  let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
+  return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
+
 private partial def noContext : MessageData → MessageData
   | MessageData.withContext _   msg => noContext msg
   | MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)

@@ -3,5 +3,5 @@
 root="$(realpath $(dirname $0))"
 cd ${1:-$PWD}
 for f in $(find . -name '*.expected.out'); do
-    cp ${f/expected/produced} "$root/$f"
+    cp ${f/.expected/.produced} "$root/$f"
 done

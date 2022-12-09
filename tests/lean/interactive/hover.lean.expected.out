@@ -120,7 +120,7 @@
  {"start": {"line": 73, "character": 38}, "end": {"line": 73, "character": 45}},
  "contents":
  {"value":
-  "```lean\nNat.add : Nat → Nat → Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n\n***\n*import Init.Prelude*",
+  "```lean\nNat.add (a✝a✝¹ : Nat) : Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 77, "character": 10}}
@@ -180,7 +180,7 @@
   "end": {"line": 102, "character": 31}},
  "contents":
  {"value":
-  "```lean\nLean.ParserDescr.sepBy1 : Lean.ParserDescr → String → Lean.ParserDescr → optParam Bool false → Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
+  "```lean\nLean.ParserDescr.sepBy1 (p : Lean.ParserDescr) (sep : String) (psep : Lean.ParserDescr)\n  (allowTrailingSep : Bool := false) : Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 102, "character": 31}}
@@ -212,7 +212,7 @@
   "end": {"line": 119, "character": 10}},
  "contents":
  {"value":
-  "```lean\nid.{0} : ∀ {α : Prop}, α → α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n\n***\n*import Init.Prelude*",
+  "```lean\nid.{u} {α : Sort u} (a : α) : α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 119, "character": 10}}
@@ -260,13 +260,13 @@
  {"start": {"line": 147, "character": 17},
   "end": {"line": 147, "character": 19}},
  "contents":
- {"value": "```lean\nBar.Foo.mk : ℕ → Foo\n```", "kind": "markdown"}}
+ {"value": "```lean\nBar.Foo.mk (hi : ℕ) : Foo\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 150, "character": 2}}
 {"range":
  {"start": {"line": 150, "character": 2}, "end": {"line": 150, "character": 4}},
  "contents":
- {"value": "```lean\nBar.Foo.hi : Foo → ℕ\n```", "kind": "markdown"}}
+ {"value": "```lean\nBar.Foo.hi (self : Foo) : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 153, "character": 10}}
 {"range":
@@ -446,7 +446,7 @@ null
  {"start": {"line": 228, "character": 4}, "end": {"line": 228, "character": 8}},
  "contents":
  {"value":
-  "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 228, "character": 9}}
@@ -511,7 +511,7 @@ null
  {"start": {"line": 247, "character": 4}, "end": {"line": 247, "character": 9}},
  "contents":
  {"value":
-  "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 247, "character": 17}}
@@ -520,7 +520,7 @@ null
   "end": {"line": 247, "character": 20}},
  "contents":
  {"value":
-  "```lean\nNat.succ : ℕ → ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
+  "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 250, "character": 27}}
@@ -529,7 +529,7 @@ null
   "end": {"line": 250, "character": 37}},
  "contents":
  {"value":
-  "```lean\nInhabited.mk.{1} : {α : Type} → α → Inhabited α\n```\n***\n*import Init.Prelude*",
+  "```lean\nInhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α\n```\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 250, "character": 28}}
@@ -547,4 +547,11 @@ null
  "contents":
  {"value":
   "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 259, "character": 4}}
+{"range":
+ {"start": {"line": 259, "character": 4}, "end": {"line": 259, "character": 8}},
+ "contents":
+ {"value": "```lean\nBar.auto (o : ℕ := by exact 1) : ℕ\n```",
   "kind": "markdown"}}

@@ -45,7 +45,7 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
-    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" "runtime_bc" ];
+    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/

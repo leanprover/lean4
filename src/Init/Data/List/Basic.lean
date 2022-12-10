@@ -434,17 +434,17 @@ where
 such that adjacent elements are related by `R`.
 
 * `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
-* `groupBy (·<·) [1, 2, 5, 4, 5, 4, 1] = [[1, 2, 5], [4, 5], [4], [1]]`
+* `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
 -/
 @[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
   | []    => []
-  | a::as => loop as [[a]]
+  | a::as => loop as a [] []
 where
-  @[specialize] loop : List α → List (List α) → List (List α)
-  | a::as, (ag::g)::gs => match R ag a with
-    | true  => loop as ((a::ag::g)::gs)
-    | false => loop as ([a]::(ag::g).reverse::gs)
-  | _, gs => gs.reverse
+  @[specialize] loop : List α → α → List α → List (List α) → List (List α)
+  | a::as, ag, g, gs => match R ag a with
+    | true  => loop as a (ag::g) gs
+    | false => loop as a [] ((ag::g).reverse::gs)
+  | [], ag, g, gs => ((ag::g).reverse::gs).reverse
 
 /--
 `O(|l|)`. `lookup a l` treats `l : List (α × β)` like an association list,

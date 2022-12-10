@@ -589,6 +589,7 @@ string_ref emit_c(environment const & env, name const & mod_name) {
     }
 }
 
+
 /*
 inductive CtorFieldInfo
 | irrelevant

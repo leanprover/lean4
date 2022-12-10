@@ -29,6 +29,10 @@ def IntPredicate.EQ : IntPredicate := { val := 32 }
 def IntPredicate.NE : IntPredicate := { val := IntPredicate.EQ.val + 1 }
 def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
+structure Context where
+  private mk :: ptr : USize
+instance : Nonempty Context := ⟨{ ptr := default }⟩
+
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
 instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
@@ -36,10 +40,6 @@ instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
 structure Builder (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Builder ctx) := ⟨{ ptr := default }⟩
-
-structure Context where
-  private mk :: ptr : USize
-instance : Nonempty Context := ⟨{ ptr := default }⟩
 
 structure LLVMType (ctx : Context) where
   private mk :: ptr : USize
@@ -72,6 +72,9 @@ instance : Nonempty (TargetMachine ctx) := ⟨{ ptr := default }⟩
 structure Value (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
+
+@[extern "lean_llvm_initialize"]
+opaque llvmInitialize : BaseIO (Unit)
 
 @[extern "lean_llvm_create_context"]
 opaque createContext : BaseIO (Context)
@@ -112,6 +115,9 @@ opaque voidType (ctx : Context) : BaseIO (LLVMType ctx)
 @[extern "lean_llvm_int_type_in_context"]
 opaque intTypeInContext (ctx : Context) (width : UInt64) : BaseIO (LLVMType ctx)
 
+@[extern "lean_llvm_opaque_pointer_type_in_context"]
+opaque opaquePointerTypeInContext (ctx : Context) (addrspace: UInt64 := 0): BaseIO (LLVMType ctx)
+
 @[extern "lean_llvm_float_type_in_context"]
 opaque floatTypeInContext (ctx : Context) : BaseIO (LLVMType ctx)
 
@@ -146,8 +152,8 @@ opaque appendBasicBlockInContext (ctx : Context) (fn :  Value ctx) (name :  @&St
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder : Builder ctx) (bb :  BasicBlock ctx) : BaseIO Unit
 
-@[extern "lean_llvm_build_call"]
-opaque buildCall (builder : Builder ctx) (fn : Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_call2"]
+opaque buildCall2 (builder : Builder ctx) (ty: LLVMType ctx) (fn : Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_set_tail_call"]
 opaque setTailCall (fn : Value ctx) (istail : Bool) : BaseIO Unit
@@ -161,8 +167,8 @@ opaque buildBr (builder : Builder ctx) (bb : BasicBlock ctx) : BaseIO (Value ctx
 @[extern "lean_llvm_build_alloca"]
 opaque buildAlloca (builder : Builder ctx) (ty : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_load"]
-opaque buildLoad (builder : Builder ctx) (val : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_load2"]
+opaque buildLoad2 (builder : Builder ctx) (ty: LLVMType ctx) (val : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_store"]
 opaque buildStore (builder : Builder ctx) (val : Value ctx) (store_loc_ptr : Value ctx) : BaseIO Unit
@@ -173,11 +179,11 @@ opaque buildRet (builder : Builder ctx) (val : Value ctx) : BaseIO (Value ctx)
 @[extern "lean_llvm_build_unreachable"]
 opaque buildUnreachable (builder : Builder ctx) : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_gep"]
-opaque buildGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_gep2"]
+opaque buildGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_inbounds_gep"]
-opaque buildInBoundsGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_inbounds_gep2"]
+opaque buildInBoundsGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_pointer_cast"]
 opaque buildPointerCast (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
@@ -347,4 +353,5 @@ def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 
 def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
+
 end LLVM

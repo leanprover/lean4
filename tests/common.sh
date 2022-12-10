@@ -20,9 +20,37 @@ f="$1"
 shift
 [ $# -eq 0 ] || fail "Usage: test_single.sh [-i] test-file.lean"
 
-function compile_lean {
+function lean_has_llvm_support {
+    lean --features | grep -q "LLVM"
+}
+
+function compile_lean_c_backend {
     lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
+}
+
+function compile_lean_llvm_backend {
+    set -o xtrace
+    rm "*.ll" || true # remove debugging files.
+    rm "*.bc" || true # remove bitcode files
+    rm "*.o" || true # remove object files
+    # print the original C program well-formatted, and LLVM sources for handy debugging.
+    if [[ -v DEBUG_LLVM ]]; then
+      lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
+      clang-format -i "$f.c"
+      clang $(leanc --print-cflags) -S -emit-llvm "$f.c" -o "$f.c.ll" # generate ll.
+      sed -i "s/optnone//g" "$f.c.ll" # remove optnone to actually allow some optimisation.
+      opt -S -O2 "$f.c.ll" -o "$f.c.o2.ll" # optimise it a little to be much more readable.
+    fi
+
+    lean --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
+    if [[ -v DEBUG_LLVM ]]; then
+      echo "using lean: $(which lean); leanc: $(which leanc)"
+      opt -S "$f.linked.bc" -o "$f.linked.bc.ll" # generate easy to read ll from bitcode
+      opt -S -O2 "$f.linked.bc" -o "$f.linked.bc.o2.ll" # generate easy to read ll from bitcode
+    fi
+    leanc -o "$f.out" "$@" "$f.linked.bc.o" || fail "Failed to link object file '$f.linked.bc.o'"
+    set +o xtrace
 }
 
 function exec_capture {
@@ -46,7 +74,7 @@ function exec_check {
 function diff_produced {
     if test -f "$f.expected.out"; then
         if $DIFF -au --strip-trailing-cr -I "executing external script" "$f.expected.out" "$f.produced.out"; then
-            exit 0
+            :
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             if [ $INTERACTIVE == "yes" ]; then

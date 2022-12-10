@@ -11,7 +11,6 @@ inductive LazyList (α : Type u) where
   | cons (hd : α) (tl : LazyList α)   : LazyList α
   | delayed (t : Thunk $ LazyList α)  : LazyList α
 
-@[extern c inline "#2"]
 def List.toLazy {α : Type u} : List α → LazyList α
   | []     => LazyList.nil
   | h::t   => LazyList.cons h (toLazy t)

@@ -514,12 +514,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_call2(
     lean::array_ref<lean_object *> arr(args, true);
     LLVMValueRef *arrArgVals = array_ref_to_ArrayLLVMValue(arr);
 
-    printf("fn: %10s..ty: %20s\n", LLVMPrintValueToString(lean_to_Value(fnval)),
-        LLVMPrintTypeToString(lean_to_Type(fnty)));
-    for(int i = 0; i < arr.size(); ++i) {
-        printf("..arg[%d] = %20s ", i, LLVMPrintValueToString((arrArgVals[i])));
-    }
-    printf("\n");
     LLVMValueRef out = LLVMBuildCall2(
         lean_to_Builder(builder), lean_to_Type(fnty), lean_to_Value(fnval),
         arrArgVals, arr.size(), lean_string_cstr(name));
@@ -670,9 +664,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_gep2(size_t ctx, size_t buil
     LLVMValueRef *indices_carr = array_ref_to_ArrayLLVMValue(indices_array_ref);
     lean::string_ref name_ref(name, true);
 
-    printf("name: %10s | ty: %30s | value: %30s", name_ref.data(),
-		    LLVMPrintTypeToString(lean_to_Type(ty)),
-		    LLVMPrintValueToString(lean_to_Value(pointer)));
     LLVMValueRef out =
         LLVMBuildGEP2(lean_to_Builder(builder), lean_to_Type(ty), lean_to_Value(pointer),
                      indices_carr, indices_array_ref.size(), name_ref.data());

@@ -25,6 +25,7 @@ if(LLVM)
   # generate LLVM IR for `static inline` definitions in lean.h for the LLVM backend
   string(REPLACE "static inline" "__attribute__((always_inline))" LEAN_H "${LEAN_H}")
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")
+  message("Generating LLVM bitcode file for Lean runtime at '${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc'")
   add_custom_command(
     OUTPUT ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc
     DEPENDS ${RUNTIME_OBJS} ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c

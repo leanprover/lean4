@@ -135,14 +135,15 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info × (PersistentArray InfoTree)) := Id.run do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option (ContextInfo × Info × (PersistentArray InfoTree)) := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx info c results => do
     let mut results := results.bind (·.getD [])
     if omitAppFns then
       if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
         results := results.filter (·.2.2.1.stx != info.stx[0])
+    if omitIdentApps then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
-      else if info.stx.isIdent then
+      if info.stx.isIdent then
         if let .ofTermInfo ti := info then
           if ti.expr matches .app _ _ then
             results := results.filter (·.2.2.1.stx != info.stx)

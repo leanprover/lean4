@@ -29,10 +29,6 @@ def IntPredicate.EQ : IntPredicate := { val := 32 }
 def IntPredicate.NE : IntPredicate := { val := IntPredicate.EQ.val + 1 }
 def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
-structure Context where
-  private mk :: ptr : USize
-instance : Nonempty Context := ⟨{ ptr := default }⟩
-
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
 instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
@@ -40,6 +36,10 @@ instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
 structure Builder (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Builder ctx) := ⟨{ ptr := default }⟩
+
+structure Context where
+  private mk :: ptr : USize
+instance : Nonempty Context := ⟨{ ptr := default }⟩
 
 structure LLVMType (ctx : Context) where
   private mk :: ptr : USize

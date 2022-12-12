@@ -16,7 +16,7 @@ at universe level
   max (u+1) (v+1)
 it must be smaller than or equal to the inductive datatype universe level
   u+1
-@Member.head : {α : Type u_1} → {a : α} → {as : List α} → Member a (a :: as)
+Ex1.Member.head.{u} {α : Type u} {a : α} {as : List α} : Member a (a :: as)
 ctorUnivTooBig.lean:35:2-35:27: error: invalid universe level in constructor 'Ex3.Member.head', parameter 'as' has type
   List α
 at universe level

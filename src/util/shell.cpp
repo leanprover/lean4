@@ -756,8 +756,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             dec_ref(r);
           } else {
             string_ref s(lean_io_result_get_error(r), true);
-            dec_ref(r);  // TODO: This is correct reference count handling,
-                         // correct?
+            dec_ref(r);
             throw exception(s.to_std_string());
           }
         }

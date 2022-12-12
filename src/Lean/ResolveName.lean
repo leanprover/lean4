@@ -313,7 +313,7 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
   if n₀.hasMacroScopes then return n₀
   if fullNames then
     match (← resolveGlobalName n₀) with
-      | [(potentialMatch, _)] => if potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
+      | [(potentialMatch, _)] => if (privateToUserName? potentialMatch).getD potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
       | _ => return n₀ -- if can't resolve, return the original
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
   initialNames := initialNames.push (rootNamespace ++ n₀)

@@ -353,5 +353,4 @@ def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 
 def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
-
 end LLVM

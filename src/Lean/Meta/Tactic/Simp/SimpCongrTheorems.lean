@@ -54,10 +54,8 @@ def mkSimpCongrTheorem (declName : Name) (prio : Nat) : MetaM SimpCongrTheorem :
   let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType c)
   match type.eqOrIff? with
   | none => throwError "invalid 'congr' theorem, equality expected{indentExpr type}"
-  | some (lhs, rhs) =>
-    lhs.withApp fun lhsFn lhsArgs => rhs.withApp fun rhsFn rhsArgs => do
-      unless lhsFn.isConst && rhsFn.isConst && lhsFn.constName! == rhsFn.constName! && lhsArgs.size == rhsArgs.size do
-        throwError "invalid 'congr' theorem, equality left/right-hand sides must be applications of the same function{indentExpr type}"
+  | some (lhs, _) =>
+    lhs.withApp fun lhsFn lhsArgs => do
       let mut foundMVars : MVarIdSet := {}
       for lhsArg in lhsArgs do
         for mvarId in (lhsArg.collectMVars {}).result do

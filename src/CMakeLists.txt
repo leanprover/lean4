@@ -268,7 +268,6 @@ if(LLVM)
     message(FATAL_ERROR "Unable to find llvm-config version 15. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
   endif()
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
-  # string(APPEND LEAN_EXTRA_CXX_FLAGS " -DLEAN_EXTRA_CXX_FLAGS -D LEAN_LLVM")
   string(APPEND CMAKE_CXX_FLAGS " -DCMAKE_CXX_FLAGS -D LEAN_LLVM")
 
   execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -325,9 +324,7 @@ if(LLVM)
     #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
     string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
-    # string(APPEND LEAN_EXTRA_CXX_FLAGS  " -DLEAN_EXTRA_CXX_FLAGS -I${LLVM_CONFIG_INCLUDEDIR}")
     string(APPEND CMAKE_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
-    # string(APPEND LEANC_EXTRA_FLAGS " -I${LLVM_CONFIG_INCLUDEDIR}")
     string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
 endif()

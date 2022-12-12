@@ -429,8 +429,6 @@ void check_optarg(char const * option_name) {
     }
 }
 
-extern "C" void initialize_llvm_backend();
-
 extern "C" object * lean_enable_initializer_execution(object * w);
 
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
@@ -749,8 +747,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         if (llvm_output && ok) {
           initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
                                                lean_io_mk_world());
-
-	  //initialize_llvm_backend();
 
           time_task _("LLVM code generation", opts);
           object *r = lean_ir_emit_llvm(

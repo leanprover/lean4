@@ -27,9 +27,9 @@ if(LLVM)
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")
   message("Generating LLVM bitcode file for Lean runtime at '${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc'")
   add_custom_command(
-    OUTPUT ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc
+    OUTPUT ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc
     DEPENDS ${RUNTIME_OBJS} ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c
-    COMMAND bash -ec "${CMAKE_BINARY_DIR}/leanc.sh ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c -emit-llvm -o ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc"
+    COMMAND bash -ec "${CMAKE_BINARY_DIR}/leanc.sh ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c -emit-llvm -o ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc"
     VERBATIM)
-  add_custom_target(runtime_bc DEPENDS ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc)
+  add_custom_target(runtime_bc DEPENDS ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc)
 endif()

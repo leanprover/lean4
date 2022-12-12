@@ -1,7 +1,7 @@
 Bla.foo == "world" : Bool
 private.lean:14:12-14:15: error: private declaration 'Bla.foo' has already been declared
 foo == 0 : Bool
-_root_.Bla.foo : String
+Bla.foo : String
 Boo.Bla.boo == "world" : Bool
 Boo.Bla.boo ++ "world" : String
 Boo.Bla.boo == "world" : Bool

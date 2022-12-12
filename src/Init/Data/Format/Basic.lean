@@ -326,16 +326,16 @@ instance : ToFormat String where
 def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _   => nil
   | [a],   _   => format a
-  | a::as, sep => format a ++ sep ++ joinSep as sep
+  | a::as, sep => as.foldl (· ++ sep ++ format ·) (format a)
 
 /-- Format each item in `items` and prepend prefix `pre`. -/
 def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
   | []    => nil
-  | a::as => pre ++ format a ++ prefixJoin pre as
+  | a::as => as.foldl (· ++ pre ++ format ·) (pre ++ format a)
 
 /-- Format each item in `items` and append `suffix`. -/
 def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _      => nil
-  | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
+  | a::as, suffix => as.foldl (· ++ format · ++ suffix) (format a ++ suffix)
 
 end Std

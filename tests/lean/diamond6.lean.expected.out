@@ -1,46 +1,44 @@
-@FooAC.mk : {α : Type} →
-  [toFooComm : FooComm α] →
-    [toMul : Mul.{0} α] →
-      (∀ (a b c : α),
-          @Eq.{1} α
-            (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm)))
-              (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a b) c)
-            (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a
-              (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) b c))) →
-        (∀ (a b c : α),
-            @Eq.{1} α
-              (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul)
-                (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b) c)
-              (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a
-                (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b c))) →
-          (∀ (a b : α),
-              @Eq.{1} α (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b)
-                (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) →
-            FooAC α
+FooAC.mk {α : Type} [toFooComm : FooComm α] [toMul : Mul.{0} α]
+  (add_assoc :
+    ∀ (a b c : α),
+      @Eq.{1} α
+        (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm)))
+          (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a b) c)
+        (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a
+          (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) b c)))
+  (mul_assoc :
+    ∀ (a b c : α),
+      @Eq.{1} α
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b) c)
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b c)))
+  (mul_comm :
+    ∀ (a b : α),
+      @Eq.{1} α (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b)
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) :
+  FooAC α
 def FooAC.toFooAssoc : {α : Type} → [self : FooAC α] → FooAssoc α :=
 fun (α : Type) (self : FooAC α) =>
   @FooAssoc.mk α (@FooComm.toFoo α (@FooAC.toFooComm α self)) (@FooAC.toMul α self) (@FooAC.add_assoc α self)
     (@FooAC.mul_assoc α self)
-@FooAC'.mk : {α : Type} →
-  [toFooComm : FooComm α] →
-    [toMul : Mul.{0} α] →
-      (∀ (a b c : α),
-          @Eq.{1} α
-            (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm)))
-              (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a b) c)
-            (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a
-              (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) b c))) →
-        (∀ (a b c : α),
-            @Eq.{1} α
-              (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul)
-                (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b) c)
-              (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a
-                (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b c))) →
-          α →
-            (∀ (a b : α),
-                @Eq.{1} α (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b)
-                  (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) →
-              FooAC' α
+FooAC'.mk {α : Type} [toFooComm : FooComm α] [toMul : Mul.{0} α]
+  (add_assoc :
+    ∀ (a b c : α),
+      @Eq.{1} α
+        (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm)))
+          (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a b) c)
+        (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) a
+          (@HAdd.hAdd.{0, 0, 0} α α α (@instHAdd.{0} α (@Foo.toAdd α (@FooComm.toFoo α toFooComm))) b c)))
+  (mul_assoc :
+    ∀ (a b c : α),
+      @Eq.{1} α
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b) c)
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b c)))
+  (one : α)
+  (mul_comm :
+    ∀ (a b : α),
+      @Eq.{1} α (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) a b)
+        (@HMul.hMul.{0, 0, 0} α α α (@instHMul.{0} α toMul) b a)) :
+  FooAC' α
 def FooAC'.toFooAssoc' : {α : Type} → [self : FooAC' α] → FooAssoc' α :=
 fun (α : Type) (self : FooAC' α) =>
   @FooAssoc'.mk α

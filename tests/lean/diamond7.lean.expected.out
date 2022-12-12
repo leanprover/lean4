@@ -1,33 +1,28 @@
-@CommMonoid.mk.{u_1} : {α : Type u_1} →
-  [toMonoid : Monoid.{u_1} α] →
-    (∀ (a b : α),
-        @Eq.{u_1 + 1} α
-          (@HMul.hMul.{u_1, u_1, u_1} α α α
-            (@instHMul.{u_1} α (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α toMonoid))) a b)
-          (@HMul.hMul.{u_1, u_1, u_1} α α α
-            (@instHMul.{u_1} α (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α toMonoid))) b a)) →
-      CommMonoid.{u_1} α
+CommMonoid.mk.{u} {α : Type u} [toMonoid : Monoid.{u} α]
+  (mul_comm :
+    ∀ (a b : α),
+      @Eq.{u + 1} α
+        (@HMul.hMul.{u, u, u} α α α (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α toMonoid))) a b)
+        (@HMul.hMul.{u, u, u} α α α (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α toMonoid))) b
+          a)) :
+  CommMonoid.{u} α
 def CommMonoid.toCommSemigroup.{u} : {α : Type u} → [self : CommMonoid.{u} α] → CommSemigroup.{u} α :=
 fun (α : Type u) (self : CommMonoid.{u} α) =>
   @CommSemigroup.mk.{u} α (@Monoid.toSemigroup.{u} α (@CommMonoid.toMonoid.{u} α self))
     (@CommMonoid.mul_comm.{u} α self)
-@CommGroup.mk.{u_1} : {α : Type u_1} →
-  [toGroup : Group.{u_1} α] →
-    (∀ (a b : α),
-        @Eq.{u_1 + 1} α
-          (@HMul.hMul.{u_1, u_1, u_1} α α α
-            (@instHMul.{u_1} α
-              (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α (@Group.toMonoid.{u_1} α toGroup))))
-            a b)
-          (@HMul.hMul.{u_1, u_1, u_1} α α α
-            (@instHMul.{u_1} α
-              (@Semigroup.toMul.{u_1} α (@Monoid.toSemigroup.{u_1} α (@Group.toMonoid.{u_1} α toGroup))))
-            b a)) →
-      CommGroup.{u_1} α
+CommGroup.mk.{u} {α : Type u} [toGroup : Group.{u} α]
+  (mul_comm :
+    ∀ (a b : α),
+      @Eq.{u + 1} α
+        (@HMul.hMul.{u, u, u} α α α
+          (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α (@Group.toMonoid.{u} α toGroup)))) a b)
+        (@HMul.hMul.{u, u, u} α α α
+          (@instHMul.{u} α (@Semigroup.toMul.{u} α (@Monoid.toSemigroup.{u} α (@Group.toMonoid.{u} α toGroup)))) b a)) :
+  CommGroup.{u} α
 def CommGroup.toCommMonoid.{u} : {α : Type u} → [self : CommGroup.{u} α] → CommMonoid.{u} α :=
 fun (α : Type u) (self : CommGroup.{u} α) =>
   @CommMonoid.mk.{u} α (@Group.toMonoid.{u} α (@CommGroup.toGroup.{u} α self)) (@CommGroup.mul_comm.{u} α self)
-@Field.mk : {α : Type u_1} → [toDivisionRing : DivisionRing α] → (∀ (a b : α), a * b = b * a) → Field α
+Field.mk.{u} {α : Type u} [toDivisionRing : DivisionRing α] (mul_comm : ∀ (a b : α), a * b = b * a) : Field α
 def Field.toDivisionRing.{u} : {α : Type u} → [self : Field.{u} α] → DivisionRing.{u} α :=
 fun (α : Type u) [self : Field.{u} α] => self.1
 def Field.toCommRing.{u} : {α : Type u} → [self : Field.{u} α] → CommRing.{u} α :=

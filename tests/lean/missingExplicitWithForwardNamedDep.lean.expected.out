@@ -1,4 +1,4 @@
-Foo.val : (α β : Type) → [self : Foo α β] → Nat
+Foo.val (α β : Type) [self : Foo α β] : Nat
 10
 valOf2 Bool Bool : Nat
 fun x y => f x y 10 : Nat → Nat → Nat

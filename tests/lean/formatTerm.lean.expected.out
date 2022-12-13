@@ -32,23 +32,22 @@ do
     t✝
   else
     e✝
-def foo✝ := by 
+def foo✝ := by
   · skip; skip
   · skip; skip
     skip
     (skip; skip)
     ( skip; skip
       try skip; skip
-      try 
+      try
         skip
         skip
       skip)
 by
-  try 
+  try
     skip
     skip
-by
-   try 
+by try
       skip
       skip
 by try  skip

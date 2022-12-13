@@ -15,7 +15,8 @@
         let scp ← Lean.getCurrMacroScope
         let mainModule ← Lean.getMainModule
         pure
-            { raw :=
+            {
+                raw :=
                   Lean.Syntax.node2 info `Lean.Parser.Term.app
                     (Lean.Syntax.ident info (String.toSubstring' "Nat.add") (Lean.addMacroScope mainModule `Nat.add scp)
                       [Lean.Syntax.Preresolved.decl `Nat.add [], Lean.Syntax.Preresolved.namespace `Nat.add])
@@ -63,7 +64,8 @@
                   let _ ← Lean.getCurrMacroScope
                   let _ ← Lean.getMainModule
                   pure
-                      { raw :=
+                      {
+                          raw :=
                             Lean.Syntax.node2 info `Lean.Parser.Term.app
                               (Lean.Syntax.node3 info `term_+++_ lhs.raw (Lean.Syntax.atom info "+++") rhs.raw)
                               (Lean.Syntax.node info `null (Array.append #[] (Lean.TSyntaxArray.raw moreArgs))) }.raw

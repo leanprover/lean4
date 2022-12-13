@@ -337,9 +337,9 @@ macro_rules
 
 section
 open Lean.Parser.Tactic
-syntax cdotTk := patternIgnore("·" <|> ".")
+syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax cdotTk ppSpace sepBy1IndentSemicolon(tactic) : tactic
+syntax cdotTk sepBy1IndentSemicolon(tactic) : tactic
 macro_rules
   | `(tactic| $cdot:cdotTk $tacs*) => `(tactic| {%$cdot $tacs* }%$cdot)
 end

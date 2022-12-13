@@ -1,4 +1,4 @@
-def Set α := α → Prop
+def Set (α : Type u) := α → Prop
 
 class HasMem (α : outParam $ Type u) (β : Type v) where
     mem : α → β → Prop

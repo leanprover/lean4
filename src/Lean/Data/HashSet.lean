@@ -52,10 +52,10 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
 @[inline] def fold {δ : Type w} (f : δ → α → δ) (d : δ) (m : HashSetImp α) : δ :=
   foldBuckets m.buckets d f
 
-@[inline] def forBucketsM {m : Type w → Type w} [Monad m] (data : HashSetBucket α) (f : α → m PUnit) : m PUnit :=
+@[inline] def forBucketsM {m : Type v → Type w} [Monad m] (data : HashSetBucket α) (f : α → m PUnit) : m PUnit :=
   data.val.forM fun as => as.forM f
 
-@[inline] def forM {m : Type w → Type w} [Monad m] (f : α → m PUnit) (h : HashSetImp α) : m PUnit :=
+@[inline] def forM {m : Type v → Type w} [Monad m] (f : α → m PUnit) (h : HashSetImp α) : m PUnit :=
   forBucketsM h.buckets f
 
 def find? [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Option α :=
@@ -162,7 +162,7 @@ variable {α : Type u} {_ : BEq α} {_ : Hashable α}
   match m with
   | ⟨ m, _ ⟩ => m.fold f init
 
-@[inline] def forM {m : Type w → Type w} [Monad m] (h : HashSet α) (f : α → m PUnit) : m PUnit :=
+@[inline] def forM {m : Type v → Type w} [Monad m] (h : HashSet α) (f : α → m PUnit) : m PUnit :=
   match h with
   | ⟨h, _⟩ => h.forM f
 
@@ -189,7 +189,7 @@ def numBuckets (m : HashSet α) : Nat :=
   m.val.buckets.val.size
 
 /-- Insert many elements into a HashSet. -/
-def insertMany [ForIn Id ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.run do
+def insertMany [ForIn Id.{u} ρ α] (s : HashSet α) (as : ρ) : HashSet α := Id.run do
   let mut s := s
   for a in as do
     s := s.insert a

@@ -5,8 +5,7 @@ class C {a : A} (α : Sort u) [B a α]
 class D {a : A} (α : Sort u) [B a α] [c : C α]
 class E (a : A) where [c (α : Sort u) [B a α] : C α]
 instance c {a : A} [e : E a] (α : Sort u) [B a α] : C α := e.c α
-
-def d {a : A} [E a] (α : Sort u) [B a α] : D α := ⟨⟩
+def d {a : A} [E.{u} a] (α : Sort u) [B a α] : D α := ⟨⟩
 end Ex1
 
 namespace Ex2

@@ -5,5 +5,5 @@ argument
 has type
   Bar Nat : Type
 but is expected to have type
-  Foo ?m : Sort (max 1 ?u)
+  Foo ?m : Type
 getFoo bar.toFoo : Nat

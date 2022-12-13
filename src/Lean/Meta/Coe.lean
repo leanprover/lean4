@@ -161,7 +161,13 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
-      let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
+      let .forallE _ (.sort um₁) (.sort um₂) _ ← whnf (← inferType m) | return none
+      let .forallE _ (.sort un₁) (.sort un₂) _ ← whnf (← inferType n) | return none
+      let u ← decLevel um₁
+      let .true ← isLevelDefEq u (← decLevel un₁) | return none
+      let v ← decLevel um₂
+      let w ← decLevel un₂
+      let monadLiftType := mkAppN (.const ``MonadLiftT [u, v, w]) #[m, n]
       let .some monadLiftVal ← trySynthInstance monadLiftType | return none
       let u_1 ← getDecLevel α
       let u_2 ← getDecLevel eType
@@ -193,10 +199,16 @@ or `.undef` if we need more metavariable assignments. -/
 def coerce? (expr expectedType : Expr) : MetaM (LOption Expr) := do
   if let some lifted ← coerceMonadLift? expr expectedType then
     return .some lifted
-  if (← whnfR expectedType).isForall then
+  match (← whnfR expectedType) with
+  | .forallE .. =>
     if let some fn ← coerceToFunction? expr then
       if ← isDefEq (← inferType fn) expectedType then
         return .some fn
+  | .sort .. =>
+    if let some ty ← coerceToSort? expr then
+      if ← isDefEq (← inferType ty) expectedType then
+        return .some ty
+  | _ => pure ()
   coerceSimple? expr expectedType
 
 end Lean.Meta

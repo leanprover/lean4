@@ -11,6 +11,7 @@ import Lean.Meta.AbstractMVars
 import Lean.Meta.WHNF
 import Lean.Meta.Check
 import Lean.Util.Profile
+import Lean.Util.CollectLevelParams
 
 namespace Lean.Meta
 
@@ -594,35 +595,10 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
 
 end SynthInstance
 
-/-!
-Type class parameters can be annotated with `outParam` annotations.
-
-Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
-`a_i` is an `outParam`.
-The result is type correct because we reject type class declarations IF
-it contains a regular parameter X that depends on an `out` parameter Y.
-
-Then, we execute type class resolution as usual.
-If it succeeds, and metavariables ?m_i have been assigned, we try to unify
-the original type `C a_1 ... a_n` witht the normalized one.
--/
-
 private def preprocess (type : Expr) : MetaM Expr :=
   forallTelescopeReducing type fun xs type => do
     let type ← whnf type
     mkForallFVars xs type
-
-private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := do
-  let mut r := #[]
-  let mut modified := false
-  for u in us do
-    let u ← instantiateLevelMVars u
-    if u.hasMVar then
-      r := r.push (← mkFreshLevelMVar)
-      modified := true
-    else
-      r := r.push u
-  return (r.toList, modified)
 
 private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
   if h : i < args.size then
@@ -630,10 +606,6 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
     match type with
     | .forallE _ d b _ => do
       let arg := args.get ⟨i, h⟩
-      /-
-      We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
-      If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
-      -/
       let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
       let args := args.set ⟨i, h⟩ arg
       preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
@@ -642,21 +614,52 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (
   else
     return args
 
+private partial def stripOutParams (type : Expr) (i : Nat) (outParamsPos : Array Nat) : Expr :=
+  match type with
+  | .forallE _ d b _ =>
+    if outParamsPos.contains i then
+      stripOutParams b (i + 1) outParamsPos
+    else
+      type.updateForallE! d (stripOutParams b (i + 1) outParamsPos)
+  | _ => .sort .zero
+
+private def univParamsToGeneralize (declName : Name) (outParamsPos : Array Nat) : MetaM (Array Nat) := do
+  let c@(.const _ us) ← mkConstWithLevelParams declName | unreachable!
+  let univParamsOutsideOfOutParams :=
+    collectLevelParams {} (stripOutParams (← inferType c) 0 outParamsPos) |>.params
+  let mut res := #[]
+  for u in us, i in [:us.length] do
+    if let .param u := u then
+      unless univParamsOutsideOfOutParams.contains u do
+        res := res.push i
+  return res
+
+/--
+Replace type class parameters annotated with `outParam` annotations by metavariables.
+
+Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
+`a_i` is an `outParam`.
+The result is type correct because we reject type class declarations IF
+it contains a regular parameter X that depends on an `out` parameter Y.
+
+We also replace all universe parameters that do not occur in non-out-params by
+fresh level metavariables (i.e., if they only occur in out-params, the universe
+level of the class, or not at all).
+
+Then, we execute type class resolution as usual.
+If it succeeds, and metavariables ?m_i have been assigned, we try to unify
+the original type `C a_1 ... a_n` witht the normalized one.
+-/
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
-    match typeBody.getAppFn with
-    | c@(Expr.const declName _) =>
-      let env ← getEnv
-      if let some outParamsPos := getOutParamPositions? env declName then
-        unless outParamsPos.isEmpty do
-          let args := typeBody.getAppArgs
-          let cType ← inferType c
-          trace[Meta.debug] "{declName} : {outParamsPos}"
-          let args ← preprocessArgs cType 0 args outParamsPos
-          return (← mkForallFVars xs (mkAppN c args))
-      return type
-    | _ =>
-      return type
+    let .const declName us := typeBody.getAppFn | return type
+    let outParamsPos := (getOutParamPositions? (← getEnv) declName).getD #[]
+    let univToGeneralize ← univParamsToGeneralize declName outParamsPos
+    if outParamsPos.isEmpty && univToGeneralize.isEmpty then return type
+    let c := .const declName (← us.toArray.mapIdxM fun i u =>
+      if univToGeneralize.contains i then mkFreshLevelMVar else pure u).toList
+    let args ← preprocessArgs (← inferType c) 0 typeBody.getAppArgs outParamsPos
+    mkForallFVars xs (mkAppN c args)
 
 /-!
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.

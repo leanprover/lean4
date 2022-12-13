@@ -1,17 +1,17 @@
 def INT32_MIN : Int := -0x80000000
 
-#reduce INT32_MIN / -1
-#eval INT32_MIN / -1
-#eval INT32_MIN / -2
-#eval INT32_MIN / 1
-#reduce INT32_MIN % -1
-#eval INT32_MIN % -1
+#reduce INT32_MIN.tdiv (-1)
+#eval INT32_MIN.tdiv (-1)
+#eval INT32_MIN.tdiv (-2)
+#eval INT32_MIN.tdiv 1
+#reduce INT32_MIN.tmod (-1)
+#eval INT32_MIN.tmod (-1)
 
-#reduce (Int.mod (-2 : Int) 0)
-#eval (Int.mod (-2 : Int) 0)
+#reduce (Int.tmod (-2 : Int) 0)
+#eval (Int.tmod (-2 : Int) 0)
 
-#reduce -(Int.mod (-2 : Int) 0)
-#eval -(Int.mod (-2 : Int) 0)
+#reduce -(Int.tmod (-2 : Int) 0)
+#eval -(Int.tmod (-2 : Int) 0)
 
 @[noinline] def oneU8 : UInt8 := 1
 
@@ -21,8 +21,8 @@ def INT32_MIN : Int := -0x80000000
 #reduce (UInt8.modn oneU8 0).val.val
 #eval (UInt8.modn oneU8 0)
 
-@[noinline] def int_div x y := Int.div x y
-@[noinline] def int_mod x y := Int.mod x y
+@[noinline] def int_div x y := Int.tdiv x y
+@[noinline] def int_mod x y := Int.tmod x y
 @[noinline] def uint8_mod x y := UInt8.mod x y
 @[noinline] def uint8_modn x y := UInt8.modn x y
 

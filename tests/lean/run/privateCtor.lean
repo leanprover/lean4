@@ -5,4 +5,4 @@ structure Foo where
 
 def Foo.normalize (a : Foo) : Foo :=
   let n := Nat.gcd a.num.natAbs a.den
-  if n == 1 then a else { num := a.num / n, den := a.den / n }
+  if n == 1 then a else { num := a.num.tdiv n, den := a.den / n }

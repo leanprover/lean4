@@ -11,9 +11,9 @@ open Lean
 namespace Int
 
   def roundedDiv (a b : Int) : Int := Id.run <| do
-    let mut div := a / b
+    let mut div := a.tdiv b
     let sgn := if a ≥ 0 ∧ b ≥ 0 ∨ a < 0 ∧ b < 0 then 1 else -1
-    let rest := (a % b).natAbs
+    let rest := (a.tmod b).natAbs
     if 2*rest ≥ b.natAbs then
       div := div + sgn
     return div
@@ -115,11 +115,11 @@ namespace Equation
 
   def preprocess? (e : Equation) : Option Equation := Id.run <| do
     let gcd : Int := gcd e.coeffs
-    if e.const % gcd ≠ 0 then
+    if e.const.tmod gcd ≠ 0 then
       return none
     return some { e with
-      coeffs := e.coeffs.fastMapVals fun _ coeff => coeff / gcd
-      const  := e.const / gcd }
+      coeffs := e.coeffs.fastMapVals fun _ coeff => coeff.tdiv gcd
+      const  := e.const.tdiv gcd }
 
   def subst (fromEq toEq : Equation) (varIdx : Nat) : Equation := Id.run <| do
     -- varIdx ≡ k
@@ -162,7 +162,7 @@ namespace Equation
     let (i, c) := e.coeffs.getAny?.get!
     return { e with
       coeffs := e.coeffs.insert i 1
-      const := e.const / c }
+      const := e.const.tdiv c }
 
   def invert (e : Equation) : Equation :=
     { e with

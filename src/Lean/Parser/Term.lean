@@ -191,7 +191,7 @@ The structure type can be specified if not inferable:
 `{ x := 1, y := 2 : Point }`.
 -/
 @[builtin_term_parser] def structInst := leading_parser
-  "{" >> withoutPosition (ppHardSpace >> optional (atomic (sepBy1 termParser ", " >> " with "))
+  "{ " >> withoutPosition (optional (atomic (sepBy1 termParser ", " >> " with "))
     >> sepByIndent (structInstFieldAbbrev <|> structInstField) ", " (allowTrailingSep := true)
     >> optEllipsis
     >> optional (" : " >> termParser)) >> " }"

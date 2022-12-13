@@ -75,8 +75,11 @@ def emitJp (jp: JoinPointId): M llvmctx (LLVM.BasicBlock llvmctx) := do
   | .none => throw (Error.compileError s!"unable to find join point {jp}")
 
 def getLLVMModule : M llvmctx (LLVM.Module llvmctx) := Context.llvmmodule <$> read
+
 def getEnv : M llvmctx Environment := Context.env <$> read
+
 def getModName : M llvmctx  Name := Context.modName <$> read
+
 def getDecl (n : Name) : M llvmctx Decl := do
   let env ← getEnv
   match findEnvDecl env n with
@@ -116,32 +119,20 @@ instance : ToString RefcountKind where
   | .inc => "inc"
   | .dec => "dec"
 
-inductive RefcountDelta where
-| one | n
-
-deriving instance BEq for RefcountDelta
-
-instance : ToString RefcountDelta where
-  toString
-  | .one => "1"
-  | .n => "n"
-
-def getOrCreateLeanRefcountFn (kind: RefcountKind) (checkRef?: Bool) (size: RefcountDelta): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidType llvmctx) s!"lean_{kind}{if checkRef? then "" else "_ref"}{if size == .one then "" else "_n"}"
-      (if size == .one then #[← LLVM.voidPtrType llvmctx] else #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx])
-
 def callLeanRefcountFn (builder: LLVM.Builder llvmctx)
-  (kind: RefcountKind) (ref?: Bool) (arg: LLVM.Value llvmctx)
+  (kind: RefcountKind) (checkRef?: Bool) (arg: LLVM.Value llvmctx)
   (delta: Option (LLVM.Value llvmctx) := Option.none): M llvmctx Unit := do
+  let fnName :=  s!"lean_{kind}{if checkRef? then "" else "_ref"}{if delta.isNone then "" else "_n"}" 
+  let retty ← LLVM.voidType llvmctx
+  let argtys := if delta.isNone then #[← LLVM.voidPtrType llvmctx] else #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let fnty ← LLVM.functionType retty argtys 
   match delta with
   | .none => do
     -- since refcount δ is 1, we only supply the pointer.
-    let fnty ← LLVM.functionType (← LLVM.voidType llvmctx) #[← LLVM.voidPtrType llvmctx]
-    let _ ← LLVM.buildCall2 builder fnty (← getOrCreateLeanRefcountFn kind ref? RefcountDelta.one) #[arg] ""
+    let _ ← LLVM.buildCall2 builder fnty fn #[arg] ""
   | .some n => do
-    let fnty ← LLVM.functionType (← LLVM.voidType llvmctx) #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
-    let _ ← LLVM.buildCall2 builder fnty (← getOrCreateLeanRefcountFn kind ref? RefcountDelta.n) #[arg, n] ""
+    let _ ← LLVM.buildCall2 builder fnty fn #[arg, n] ""
 
 -- `decRef1`
 -- Do NOT attempt to merge this code with callLeanRefcountFn, because of the uber confusing
@@ -177,11 +168,7 @@ def callLeanMkString
    (builder: LLVM.Builder llvmctx) (strPtr: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let retty ← LLVM.voidPtrType llvmctx
   let argtys :=  #[← LLVM.voidPtrType llvmctx]
-  let fn ←  getOrCreateFunctionPrototype
-                                         (← getLLVMModule)
-                                         retty
-                                         "lean_mk_string"
-                                         argtys
+  let fn ←  getOrCreateFunctionPrototype (← getLLVMModule) retty "lean_mk_string" argtys
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[strPtr] name
 
@@ -407,11 +394,9 @@ def buildIfThen_ (builder: LLVM.Builder llvmctx) (name: String) (brval: LLVM.Val
   -- then
   LLVM.positionBuilderAtEnd builder thenbb
   let fwd? ← thencodegen builder
-  -- LLVM.positionBuilderAtEnd builder thenbb
   match fwd? with
   | .yes => let _ ← LLVM.buildBr builder mergebb
   | .no => pure ()
-
   -- else
   LLVM.positionBuilderAtEnd builder elsebb
   let _ ← LLVM.buildBr builder mergebb
@@ -422,7 +407,6 @@ def buildIfThenElse_ (builder: LLVM.Builder llvmctx)  (name: String) (brval: LLV
   (thencodegen: LLVM.Builder llvmctx → M llvmctx ShouldForwardControlFlow)
   (elsecodegen: LLVM.Builder llvmctx → M llvmctx ShouldForwardControlFlow): M llvmctx Unit := do
   let fn ← LLVM.getBasicBlockParent (← LLVM.getInsertBlock builder)
-  -- LLVM.positionBuilderAtEnd builder insertpt
   let thenbb ← LLVM.appendBasicBlockInContext llvmctx fn (name ++ "Then")
   let elsebb ← LLVM.appendBasicBlockInContext llvmctx fn (name ++ "Else")
   let mergebb ← LLVM.appendBasicBlockInContext llvmctx fn (name ++ "Merge")
@@ -523,6 +507,7 @@ def emitArgVal (builder: LLVM.Builder llvmctx) (x: Arg) (name: String := ""): M 
   let (xty, xslot) ← emitArgSlot_ builder x
   let xval ← LLVM.buildLoad2 builder xty xslot name
   return (xty, xval)
+
 def emitAllocCtor (builder: LLVM.Builder llvmctx) (c : CtorInfo) : M llvmctx (LLVM.Value llvmctx) := do
   -- TODO(bollu): find the correct size, don't assume 'void*' size is 8
   let hackSizeofVoidPtr := 8
@@ -548,19 +533,19 @@ def emitCtor (builder: LLVM.Builder llvmctx) (z : VarId) (c : CtorInfo) (ys : Ar
     let _ ← LLVM.buildStore builder v slot
     emitCtorSetArgs builder z ys
 
-def emitInc (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef : Bool) : M llvmctx Unit := do
+def emitInc (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef? : Bool) : M llvmctx Unit := do
   let xv ← emitLhsVal builder x
   if n != 1
   then do
      let nv ← LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
-     callLeanRefcountFn builder (kind := RefcountKind.inc) (ref? := checkRef) (delta := nv) xv
-  else callLeanRefcountFn builder (kind := RefcountKind.inc) (ref? := checkRef) xv
+     callLeanRefcountFn builder (kind := RefcountKind.inc) (checkRef? := checkRef?) (delta := nv) xv
+  else callLeanRefcountFn builder (kind := RefcountKind.inc) (checkRef? := checkRef?) xv
 
-def emitDec (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef : Bool) : M llvmctx Unit := do
+def emitDec (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef? : Bool) : M llvmctx Unit := do
   let xv ← emitLhsVal builder x
   if n != 1
   then throw (Error.compileError "expected n = 1 for emitDec")
-  else callLeanRefcountFn builder (kind := RefcountKind.dec) (ref? := checkRef) xv
+  else callLeanRefcountFn builder (kind := RefcountKind.dec) (checkRef? := checkRef?) xv
 
 def emitNumLit (builder: LLVM.Builder llvmctx) (t : IRType) (v : Nat) : M llvmctx (LLVM.Value llvmctx) := do
   if t.isObj then
@@ -629,7 +614,7 @@ def getFunIdTy (f: FunId): M llvmctx (LLVM.LLVMType llvmctx) := do
   let argtys ← decl.params.mapM (fun p => do toLLVMType p.ty)
   LLVM.functionType retty argtys
 
-/--
+/-
 Create a function declaration and return a pointer to the function.
 If the function actually takes arguments, then we must have a function pointer in scope.
 If the function takes no arguments, then it is a top-level closed term, and its value will
@@ -1310,21 +1295,21 @@ def getOrCreateLeanInitialize (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value 
 def getOrCreateLeanInitializeRuntimeModule (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
   getOrCreateFunctionPrototype mod (← LLVM.voidType llvmctx) "lean_initialize_runtime_module"  #[]
 
-def getOrCreateLeanSetPanicMessages (_mod: LLVM.Module llvmctx): M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
+def callLeanSetPanicMessages (builder : LLVM.Builder llvmctx) (enable?: LLVM.Value llvmctx) : M llvmctx Unit := do
   let fnName :=  "lean_set_panic_messages"
   let retty ← LLVM.voidType llvmctx
   let argtys := #[ ← LLVM.i1Type llvmctx ]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  return (fnty, fn)
+  let _ ← LLVM.buildCall2 builder fnty fn #[enable?] ""
 
-def getOrCreateLeanIOMarkEndInitializationFn (_mod: LLVM.Module llvmctx): M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
+def callLeanIOMarkEndInitialization (builder: LLVM.Builder llvmctx) : M llvmctx Unit := do
   let fnName :=  "lean_io_mark_end_initialization"
   let retty ← LLVM.voidType llvmctx
   let argtys := #[]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  return (fnty, fn)
+  let _ ← LLVM.buildCall2 builder fnty fn #[] ""
 
 def callLeanIOResultIsOk (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_is_ok"
@@ -1334,7 +1319,6 @@ def callLeanIOResultIsOk (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmct
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[arg] name
 
--- lean_init_task_manager
 def callLeanInitTaskManager (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   let fnName :=  "lean_init_task_manager"
   let retty ← LLVM.voidType llvmctx
@@ -1396,19 +1380,18 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
-  let (setPanicMessagesFnTy, setPanicMesagesFn) ← getOrCreateLeanSetPanicMessages mod
+  -- let (setPanicMessagesFnTy, setPanicMesagesFn) ← getOrCreateLeanSetPanicMessages mod
   -- TODO(bollu): remove reuse of the same function type across two locations
   let modInitFnRetty ← LLVM.voidPtrType llvmctx
   let modInitFnTy ← LLVM.functionType modInitFnRetty #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
   let modInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) modInitFnTy
-  let _ ← LLVM.buildCall2 builder setPanicMessagesFnTy setPanicMesagesFn #[(← LLVM.constFalse llvmctx )] ""
+  callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
   let resv ← LLVM.buildCall2 builder modInitFnTy modInitFn #[(← LLVM.constInt8 llvmctx 1 ), world] (modName.toString ++ "_init_out")
   let _ ← LLVM.buildStore builder resv res
 
-  let _ ← LLVM.buildCall2 builder setPanicMessagesFnTy setPanicMesagesFn #[(← LLVM.constTrue llvmctx )] ""
-  let (leanIOMarkEndInitializationFnTy, leanIOMarkEndInitializationFn) ← getOrCreateLeanIOMarkEndInitializationFn mod
-  let _ ← LLVM.buildCall2 builder leanIOMarkEndInitializationFnTy leanIOMarkEndInitializationFn #[] ""
+  callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)
+  callLeanIOMarkEndInitialization builder
 
   let resv ← LLVM.buildLoad2 builder resty res "resv"
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
@@ -1495,6 +1478,7 @@ def hasMainFn : M llvmctx Bool := do
   let env ← getEnv
   let decls := getDecls env
   return decls.any (fun d => d.name == `main)
+
 def emitMainFnIfNeeded (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   if (← hasMainFn) then emitMainFn mod builder
 
@@ -1504,7 +1488,6 @@ def main : M llvmctx Unit := do
   emitFns (← getLLVMModule) builder
   emitInitFn (← getLLVMModule) builder
   emitMainFnIfNeeded (← getLLVMModule) builder
-  return ()
 end EmitLLVM
 
 
@@ -1540,11 +1523,11 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
          let target ← LLVM.getTargetFromTriple tripleStr
          let cpu := "generic"
          let features := ""
-         let targetmachine ← LLVM.createTargetMachine target tripleStr cpu features
+         let targetMachine ← LLVM.createTargetMachine target tripleStr cpu features
          let codegenType := LLVM.CodegenFileType.ObjectFile
-         LLVM.targetMachineEmitToFile targetmachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
+         LLVM.targetMachineEmitToFile targetMachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
          LLVM.disposeModule emitLLVMCtx.llvmmodule
-         LLVM.disposeTargetMachine targetmachine
+         LLVM.disposeTargetMachine targetMachine
 
   | .error err => IO.eprintln ("ERROR: " ++ toString err); return ()
 end Lean.IR

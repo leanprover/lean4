@@ -1407,7 +1407,7 @@ static inline lean_obj_res lean_int_mul(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline lean_obj_res lean_int_tdiv(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         if (sizeof(void*) == 8) {
             /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */
@@ -1431,7 +1431,7 @@ static inline lean_obj_res lean_int_div(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     }
 }
 
-static inline lean_obj_res lean_int_mod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+static inline lean_obj_res lean_int_tmod(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (LEAN_LIKELY(lean_is_scalar(a1) && lean_is_scalar(a2))) {
         if (sizeof(void*) == 8) {
             /* 64-bit version, we use 64-bit numbers to avoid overflow when v1 == LEAN_MIN_SMALL_INT. */

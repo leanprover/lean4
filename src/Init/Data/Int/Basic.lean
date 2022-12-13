@@ -134,15 +134,42 @@ def natAbs (m : @& Int) : Nat :=
   | ofNat m   => m
   | negSucc m => m.succ
 
-@[extern "lean_int_div"]
-def div : (@& Int) → (@& Int) → Int
+/--
+There are three plausible definitions of the division and modulus operation
+on `Int`.
+
+* `Int.ediv`, `Int.emod`: E-rounding (euclidean division): satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
+* `Int.fdiv`, `Int.fmod`: F-rounding (flooring division): satisfies `fdiv x y = floor (x / y)`
+* `Int.tdiv`, `Int.tmod`: T-rounding (truncating division): satisfies `tdiv x y = round_to_zero (x / y)`
+
+In each case, the pair of functions unconditionally satisfies `x % y + (x / y) * y = x`,
+which is used to fix the value of one function based on the other.
+All versions also satisfy `x / 0 = 0` and `x % 0 = x`.
+
+Lean 3 used `Int.ediv` and `Int.emod` for the typeclass instances.
+Lean 4 is now using `Int.tdiv` and `Int.tmod`,
+for compatibility with C conventions.
+See https://blog.vero.site/post/modulo for the history of these conventions.
+
+Mathlib4 intends to continue using `Int.ediv` and `Int.emod`,
+and to enable that without being prescriptive,
+we do not provide instances `Div Int` or `Mod Int` here,
+preferring to directly call the functions in the few places they are needed
+in Lean 4.
+-/
+@[extern "lean_int_tdiv"]
+def tdiv : (@& Int) → (@& Int) → Int
   | ofNat m,   ofNat n   => ofNat (m / n)
   | ofNat m,   negSucc n => -ofNat (m / succ n)
   | negSucc m, ofNat n   => -ofNat (succ m / n)
   | negSucc m, negSucc n => ofNat (succ m / succ n)
 
-@[extern "lean_int_mod"]
-def mod : (@& Int) → (@& Int) → Int
+/--
+Integer modulus, with truncating division.
+See the doc-string for `Int.tdiv` for a detailed explanation.
+-/
+@[extern "lean_int_tmod"]
+def tmod : (@& Int) → (@& Int) → Int
   | ofNat m,   ofNat n   => ofNat (m % n)
   | ofNat m,   negSucc n => ofNat (m % succ n)
   | negSucc m, ofNat n   => -ofNat (succ m % n)

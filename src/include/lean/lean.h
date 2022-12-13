@@ -110,7 +110,7 @@ In 32-bit machines, the field `m_rc` is sufficient.
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
 */
 typedef struct {
-    int      m_rc;
+    int32_t  m_rc;
     unsigned m_cs_sz:16;
     unsigned m_other:8;
     unsigned m_tag:8;

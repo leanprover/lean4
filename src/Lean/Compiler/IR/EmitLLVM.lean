@@ -1354,6 +1354,14 @@ def callLeanMainFn (builder : LLVM.Builder llvmctx)
               | .none => #[world]
   LLVM.buildCall2 builder fnty fn args name
 
+def callModInitFn (builder : LLVM.Builder llvmctx) (modName : Name) (input world: LLVM.Value llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
+  let fnName := mkModuleInitializationFunctionName modName
+  let retty ← LLVM.voidPtrType llvmctx
+  let argtys := #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  LLVM.buildCall2 builder fnty fn #[input, world] (modName.toString ++ "_init_out")
+
 def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   let d ← getDecl `main
   let xs ← match d with
@@ -1383,12 +1391,9 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
         See issue #534. We can remove this workaround after we implement issue #467. -/
   -- let (setPanicMessagesFnTy, setPanicMesagesFn) ← getOrCreateLeanSetPanicMessages mod
   -- TODO(bollu): remove reuse of the same function type across two locations
-  let modInitFnRetty ← LLVM.voidPtrType llvmctx
-  let modInitFnTy ← LLVM.functionType modInitFnRetty #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
-  let modInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) modInitFnTy
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
-  let resv ← LLVM.buildCall2 builder modInitFnTy modInitFn #[(← LLVM.constInt8 llvmctx 1 ), world] (modName.toString ++ "_init_out")
+  let resv ← callModInitFn builder modName (← LLVM.constInt8 llvmctx 1) world
   let _ ← LLVM.buildStore builder resv res
 
   callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)

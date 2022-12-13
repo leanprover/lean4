@@ -138,11 +138,15 @@ def natAbs (m : @& Int) : Nat :=
 There are three plausible definitions of the division and modulus operation
 on `Int`.
 
-* `Int.ediv`, `Int.emod`: E-rounding (euclidean division): satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
-* `Int.fdiv`, `Int.fmod`: F-rounding (flooring division): satisfies `fdiv x y = floor (x / y)`
-* `Int.tdiv`, `Int.tmod`: T-rounding (truncating division): satisfies `tdiv x y = round_to_zero (x / y)`
+* `Int.ediv`, `Int.emod`: E-rounding (euclidean division):
+  satisfies `0 ≤ emod x y < natAbs y` for `y ≠ 0`
+* `Int.fdiv`, `Int.fmod`: F-rounding (flooring division):
+  satisfies `fdiv x y = floor (x / y)`
+* `Int.tdiv`, `Int.tmod`: T-rounding (truncating division):
+  satisfies `tdiv x y = round_to_zero (x / y)`
 
-In each case, the pair of functions unconditionally satisfies `x % y + (x / y) * y = x`,
+In each case, the pair of functions unconditionally satisfies
+`x % y + (x / y) * y = x`, as long as `y ≠ 0`,
 which is used to fix the value of one function based on the other.
 All versions also satisfy `x / 0 = 0` and `x % 0 = x`.
 

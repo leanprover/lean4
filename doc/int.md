@@ -11,9 +11,11 @@ Recall that nonnegative numerals are considered to be a `Nat` if there are no ty
 #check (1:Int) -- Int
 ```
 
-The operator `/` for `Int` implements integer division.
+The function `Int.tdiv` implements integer division.
+(As there are several rounding conventions for integer division,
+Lean 4 itself does not provide a default instance for the `/` notation.)
 ```lean
-#eval -10 / 4 -- -2
+#eval Int.tdiv (-10) 4 -- -2
 ```
 
 Similar to `Nat`, the internal representation of `Int` is optimized. Small integers are

@@ -1332,6 +1332,18 @@ def callLeanIOResultShowError (builder: LLVM.Builder llvmctx) (v: LLVM.Value llv
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn #[v] name
 
+def callLeanMainFn (builder : LLVM.Builder llvmctx) 
+  (argv?: Option (LLVM.Value llvmctx)) (world: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
+  let retty ← LLVM.voidType llvmctx
+  let voidptr ← LLVM.voidPtrType llvmctx
+  let argtys := if argv?.isSome then #[ voidptr, voidptr ] else #[ voidptr ]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty leanMainFn argtys
+  let fnty ← LLVM.functionType retty argtys
+  let args := match argv? with 
+              | .some argv => #[argv, world]
+              | .none => #[world]
+  LLVM.buildCall2 builder fnty fn args name
+
 def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   let d ← getDecl `main
   let xs ← match d with
@@ -1405,20 +1417,14 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
             let inv ← LLVM.buildLoad2 builder inty inslot "inv"
             let _ ← callLeanCtorSet builder nv (← constIntUnsigned 1) inv
             LLVM.buildStore builder nv inslot)
-        let leanMainFnRetty ← LLVM.voidPtrType llvmctx
-        let leanMainFnTy ← LLVM.functionType leanMainFnRetty #[(← LLVM.voidPtrType llvmctx), (← LLVM.voidPtrType llvmctx)]
-        let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
         let world ← callLeanIOMkWorld builder
         let inv ← LLVM.buildLoad2 builder inty inslot "inv"
-        let resv ← LLVM.buildCall2 builder leanMainFnTy leanMainFn #[inv, world] "resv"
+        let resv ← callLeanMainFn builder (argv? := .some inv) (world := world) "resv"
         let _ ← LLVM.buildStore builder resv res
         pure ShouldForwardControlFlow.yes
       else
-          let leanMainFnRetty ← LLVM.voidPtrType llvmctx
-          let leanMainFnTy ← LLVM.functionType leanMainFnRetty #[(← LLVM.voidPtrType llvmctx)]
-          let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
           let world ← callLeanIOMkWorld builder
-          let resv ← LLVM.buildCall2 builder leanMainFnTy leanMainFn #[world] "resv"
+          let resv ← callLeanMainFn builder (argv? := .none) (world := world) "resv"
           let _ ← LLVM.buildStore builder resv res
           pure ShouldForwardControlFlow.yes
   )

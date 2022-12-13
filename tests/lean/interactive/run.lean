@@ -167,6 +167,14 @@ partial def main (args : List String) : IO Unit := do
             let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
             IO.eprintln (toJson resp.result)
             requestNo := requestNo + 1
+        | "wssymbols" =>
+          requestNo := requestNo + 1
+          let params : WorkspaceSymbolParams := { query := params }
+          Ipc.writeRequest ⟨requestNo, "workspace/symbol", params⟩
+          let r ← Ipc.readResponseAs requestNo (Array Json)
+          for x in r.result do
+            IO.eprintln x
+          requestNo := requestNo + 1
         | _ =>
           let Except.ok params ← pure <| Json.parse params
             | throw <| IO.userError s!"failed to parse {params}"

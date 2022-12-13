@@ -202,7 +202,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       if (pattern.get ⟨patternIdx⟩) == (word.get ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
         score := score + 1
       /- Matched end of word with end of pattern -/
-      if (wordIdx == (word.length - 1)) && (patternIdx == (pattern.length - 1)) then
+      if wordIdx == word.length - 1 && patternIdx == pattern.length - 1 then
         score := score + 2
       /- Matched beginning of the word. -/
       if (wordIdx == 0) then

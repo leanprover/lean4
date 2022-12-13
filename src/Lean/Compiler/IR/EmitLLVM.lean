@@ -1270,11 +1270,21 @@ def emitInitFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   let out ← callLeanIOResultMKOk builder box0 "retval"
   let _ ← LLVM.buildRet builder out
 
-def getOrCreateLeanInitialize (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype mod (← LLVM.voidType llvmctx) "lean_initialize"  #[]
+def callLeanInitialize (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
+  let fnName :=  "lean_initialize"
+  let retty ← LLVM.voidType llvmctx
+  let argtys := #[]
+  let fnty ← LLVM.functionType retty argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let _ ← LLVM.buildCall2 builder fnty fn #[] ""
 
-def getOrCreateLeanInitializeRuntimeModule (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype mod (← LLVM.voidType llvmctx) "lean_initialize_runtime_module"  #[]
+def callLeanInitializeRuntimeModule (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
+  let fnName :=  "lean_initialize_runtime_module"
+  let retty ← LLVM.voidType llvmctx
+  let argtys := #[]
+  let fnty ← LLVM.functionType retty argtys
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let _ ← LLVM.buildCall2 builder fnty fn #[] ""
 
 def callLeanSetPanicMessages (builder : LLVM.Builder llvmctx) (enable?: LLVM.Value llvmctx) : M llvmctx Unit := do
   let fnName :=  "lean_set_panic_messages"
@@ -1367,9 +1377,7 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   let inslot ← LLVM.buildAlloca builder (← LLVM.pointerType inty) "in"
   let resty ← LLVM.voidPtrType llvmctx
   let res ← LLVM.buildAlloca builder (← LLVM.pointerType resty) "res"
-  let initfn ← if usesLeanAPI then getOrCreateLeanInitialize mod else getOrCreateLeanInitializeRuntimeModule mod
-  let initFnTy ← LLVM.functionType (← LLVM.voidType llvmctx) #[]
-  let _ ← LLVM.buildCall2 builder initFnTy initfn #[] ""
+  if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
   let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/

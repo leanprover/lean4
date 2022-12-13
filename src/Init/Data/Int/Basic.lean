@@ -146,7 +146,7 @@ on `Int`.
   satisfies `tdiv x y = round_to_zero (x / y)`
 
 In each case, the pair of functions unconditionally satisfies
-`x % y + (x / y) * y = x`, as long as `y ≠ 0`,
+`x % y + (x / y) * y = x`
 which is used to fix the value of one function based on the other.
 All versions also satisfy `x / 0 = 0` and `x % 0 = x`.
 

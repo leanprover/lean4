@@ -146,6 +146,9 @@ if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
   set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
 endif ()
 
+# We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
+string(APPEND LEANC_EXTRA_FLAGS " -fstack-clash-protection")
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)

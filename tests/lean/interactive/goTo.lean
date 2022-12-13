@@ -84,7 +84,8 @@ instance : Foo4 0 := .mk 0
 instance [foo2 : Foo2] : Foo5 := .mk foo2
 
 -- should go-to instance
-#check Foo2.foo 2
+              --v textDocument/definition
+#check Foo2.foo  2
           --^ textDocument/definition
 #check Foo2.foo
           --^ textDocument/definition

@@ -19,14 +19,12 @@ import Lean.Compiler.IR.LLVMBindings
 
 open Lean.IR.ExplicitBoxing (isBoxedName)
 
-
 namespace Lean.IR
 
 def leanMainFn := "_lean_main"
 
-
 namespace LLVM
--- TODO: instantiate target triple and find out what size_t is.
+-- TODO(bollu): instantiate target triple and find out what size_t is.
 def size_tType (llvmctx: LLVM.Context): IO (LLVM.LLVMType llvmctx) :=
   LLVM.i64Type llvmctx
 end LLVM
@@ -40,7 +38,6 @@ structure Context (llvmctx: LLVM.Context) where
   mainFn     : FunId := default
   mainParams : Array Param := #[]
   llvmmodule : LLVM.Module llvmctx
-
 
 structure State (llvmctx: LLVM.Context) where
   var2val: HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
@@ -59,13 +56,11 @@ instance : ToString Error where
    | .unimplemented s => s!"unimplemented '{s}'"
    | .compileError s => s!"compile error '{s}'"
 
-
 abbrev M (llvmctx: LLVM.Context) :=
   StateT (State llvmctx) (ReaderT (Context llvmctx) (ExceptT Error IO))
 
 instance : Inhabited (M llvmctx α) where
   default := throw (Error.compileError "inhabitant")
-
 
 def addVartoState (x: VarId) (v: LLVM.Value llvmctx) (ty: LLVM.LLVMType llvmctx): M llvmctx Unit := do
   modify (fun s => { s with var2val := s.var2val.insert x (ty, v) }) -- add new variable
@@ -88,18 +83,11 @@ def getDecl (n : Name) : M llvmctx Decl := do
   | some d => pure d
   | none   => IO.eprintln "getDecl failed!"; throw (Error.unknownDeclaration n)
 
-
-def debugPrint (s: String): M llvmctx Unit :=
-  -- IO.eprintln $ "[debug:" ++ s ++ "]"
-  return ()
-
 def constIntUnsigned (n: Nat): M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
 
--- vv emitMainFnIfIneeded vv
 def getOrCreateFunctionPrototype (mod: LLVM.Module llvmctx)
   (retty: LLVM.LLVMType llvmctx) (name: String) (args: Array (LLVM.LLVMType llvmctx)): M llvmctx  (LLVM.Value llvmctx) := do
-  -- void lean_initialize();
   LLVM.getOrAddFunction mod name $
      (← LLVM.functionType retty args (isVarArg := false))
 
@@ -111,7 +99,6 @@ def callLeanBox (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmctx) (name:
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn  #[arg] name
 
--- `void lean_mark_persistent (void *)`
 def callLeanMarkPersistentFn (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmctx): M llvmctx  Unit := do
   let fnName :=  "lean_mark_persistent"
   let retty ← LLVM.voidType llvmctx
@@ -156,8 +143,6 @@ def callLeanRefcountFn (builder: LLVM.Builder llvmctx)
     let fnty ← LLVM.functionType (← LLVM.voidType llvmctx) #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
     let _ ← LLVM.buildCall2 builder fnty (← getOrCreateLeanRefcountFn kind ref? RefcountDelta.n) #[arg, n] ""
 
-
-
 -- `decRef1`
 -- Do NOT attempt to merge this code with callLeanRefcountFn, because of the uber confusing
 -- semantics of 'ref?'. If 'ref?' is true, it calls the version that is lean_dec
@@ -168,8 +153,6 @@ def callLeanDecRef (builder: LLVM.Builder llvmctx) (res: LLVM.Value llvmctx): M 
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[res] ""
-
-
 
 def callLeanUnsignedToNatFn (builder: LLVM.Builder llvmctx) (n: Nat) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let mod ← getLLVMModule
@@ -212,12 +195,6 @@ def callLeanCStrToNatFn (builder: LLVM.Builder llvmctx) (n: Nat) (name: String):
   let s ← LLVM.buildPointerCast builder s (← LLVM.i8PtrType llvmctx)
   LLVM.buildCall2 builder fnty fn #[s] name
 
-
-
--- `lean_object* lean_io_mk_world()`
-def getOrCreateLeanIOMkWorldFn (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype mod (← LLVM.voidPtrType llvmctx) "lean_io_mk_world"  #[]
-
 def callLeanIOMkWorld (builder: LLVM.Builder llvmctx): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_mk_world"
   let retty ← LLVM.voidPtrType llvmctx
@@ -226,11 +203,6 @@ def callLeanIOMkWorld (builder: LLVM.Builder llvmctx): M llvmctx (LLVM.Value llv
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[] "mk_io_out"
 
-
--- `bool lean_io_result_is_err(lean_object *o);`
-def getOrCreateLeanIOResultIsErrorFn (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype mod (← LLVM.i1Type llvmctx) "lean_io_result_is_error"  #[(← LLVM.voidPtrType llvmctx)]
-
 def callLeanIOResultIsError (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_is_error"
   let retty ← LLVM.i1Type llvmctx
@@ -238,13 +210,6 @@ def callLeanIOResultIsError (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llv
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[arg] name
-
--- `lean_alloc_ctor (unsigned tag, unsigned num_obj, unsigned scalar_sz)`
-def getOrCreateLeanAllocCtorFn: M llvmctx (LLVM.Value llvmctx) := do
-  -- let unsigned ← LLVM.size_tType llvmctx
-  let i32 ← LLVM.i32Type llvmctx
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidPtrType llvmctx) "lean_alloc_ctor"  #[i32, i32, i32]
 
 def callLeanAllocCtor (builder: LLVM.Builder llvmctx) (tag num_objs scalar_sz: Nat) (name: String := ""): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_alloc_ctor"
@@ -271,12 +236,6 @@ def callLeanCtorSet (builder: LLVM.Builder llvmctx) (o i v: LLVM.Value llvmctx) 
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn  #[o, i, v] name
 
-
--- `lean_obj_res io_result_mk_ok(lean_obj_arg a)`
-def getOrCreateLeanIOResultMkOkFn: M llvmctx (LLVM.Value llvmctx) := do
-  let voidptr ← LLVM.voidPtrType llvmctx
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    voidptr "lean_io_result_mk_ok"  #[voidptr]
 
 def callLeanIOResultMKOk (builder: LLVM.Builder llvmctx) (v: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_mk_ok"
@@ -316,11 +275,6 @@ def callLeanObjTag (builder: LLVM.Builder llvmctx) (closure: LLVM.Value llvmctx)
   let fnty ← LLVM.functionType retty argtys
   let out ← LLVM.buildCall2 builder fnty fn  #[closure] retName
   LLVM.buildSextOrTrunc builder out (← LLVM.i64Type llvmctx)
-
--- `lean_io_result_get_value**
-def getOrCreateLeanIOResultGetValueFn: M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidPtrType llvmctx) "lean_io_result_get_value"  #[← LLVM.voidPtrType llvmctx]
 
 def callLeanIOResultGetValue (builder: LLVM.Builder llvmctx) (v: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_get_value"
@@ -367,13 +321,11 @@ def toLLVMType (t: IRType): M llvmctx (LLVM.LLVMType llvmctx) := do
   | IRType.struct _ _ => panic! "not implemented yet"
   | IRType.union _ _  => panic! "not implemented yet"
 
-
 def throwInvalidExportName {α : Type} (n : Name) : M llvmctx α := do
   IO.eprintln "invalid export Name!"; throw (Error.invalidExportName n)
 
 def toCName (n : Name) : M llvmctx String := do
   let env ← getEnv;
-  -- TODO: we should support simple export names only
   match getExportNameFor? env n with
   | some (.str .anonymous s) => pure s
   | some _                   => throwInvalidExportName n
@@ -381,7 +333,6 @@ def toCName (n : Name) : M llvmctx String := do
 
 def toCInitName (n : Name) : M llvmctx String := do
   let env ← getEnv;
-  -- TODO: we should support simple export names only
   match getExportNameFor? env n with
   | some (.str .anonymous s) => return "_init_" ++ s
   | some _                   => throwInvalidExportName n
@@ -390,9 +341,8 @@ def toCInitName (n : Name) : M llvmctx String := do
 
 -- ## LLVM UTILS ##
 
--- indicates whether the API for building the blocks for then/else should
+-- Indicates whether the API for building the blocks for then/else should
 -- forward the control flow to the merge block.
--- TODO: infer this automatically from the state of the basic block.
 inductive ShouldForwardControlFlow where
 | yes | no
 
@@ -409,7 +359,6 @@ def builderAppendBasicBlock (builder: LLVM.Builder llvmctx) (name: String): M ll
 def buildWhile_ (builder: LLVM.Builder llvmctx) (name: String)
   (condcodegen: LLVM.Builder llvmctx → M llvmctx (LLVM.Value llvmctx))
   (bodycodegen: LLVM.Builder llvmctx → M llvmctx Unit): M llvmctx Unit := do
-  debugPrint "buildWhile_"
   let fn ← builderGetInsertionFn builder
 
   let nameHeader := name ++ "header"
@@ -493,15 +442,13 @@ def buildIfThenElse_ (builder: LLVM.Builder llvmctx)  (name: String) (brval: LLV
   -- merge
   LLVM.positionBuilderAtEnd builder mergebb
 
--- recall that lean uses `i8` for booleans, not `i1`, so we need to compare with `true`.
+-- Recall that lean uses `i8` for booleans, not `i1`, so we need to compare with `true`.
 def buildLeanBoolTrue? (builder: LLVM.Builder llvmctx) (b: LLVM.Value llvmctx) (name: String := ""): M llvmctx (LLVM.Value llvmctx) := do
 
    LLVM.buildICmp builder LLVM.IntPredicate.NE b (← LLVM.constInt8 llvmctx 0) name
 
--- ## `emitFnDecls`
 def emitFnDeclAux (mod: LLVM.Module llvmctx)
   (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M llvmctx (LLVM.Value llvmctx) := do
-  -- let types : Array LLVM.LLVMType ← decl.params.mapM llvmctx (toLLVMType llvmctx)
   let ps := decl.params
   let env ← getEnv
   -- bollu: if we have a declaration with no parameters, then we emit it as a global pointer.
@@ -548,9 +495,6 @@ def emitFnDecls : M llvmctx Unit := do
     | none       => emitFnDecl decl (!modDecls.contains n)
   return ()
 
-
-def emitFileHeader : M llvmctx Unit := return () -- this is purely C++ ceremony
-
 def emitLhsSlot_ (x: VarId): M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let state ← get
   match state.var2val.find? x with
@@ -576,12 +520,10 @@ def emitArgSlot_ (builder: LLVM.Builder llvmctx) (x : Arg) : M llvmctx (LLVM.LLV
     return (slotty, slot)
 
 def emitArgVal (builder: LLVM.Builder llvmctx) (x: Arg) (name: String := ""): M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
-  debugPrint "emitArgVal"
   let (xty, xslot) ← emitArgSlot_ builder x
   let xval ← LLVM.buildLoad2 builder xty xslot name
   return (xty, xval)
 def emitAllocCtor (builder: LLVM.Builder llvmctx) (c : CtorInfo) : M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint s!"emitAllocCtor {c.name}     cidx {c.cidx}     size {c.size}"
   -- TODO(bollu): find the correct size, don't assume 'void*' size is 8
   let hackSizeofVoidPtr := 8
   let scalarSize := hackSizeofVoidPtr * c.usize + c.ssize; -- HACK: do find the correct size.
@@ -597,7 +539,6 @@ def emitCtorSetArgs (builder: LLVM.Builder llvmctx) (z : VarId) (ys : Array Arg)
     pure ()
 
 def emitCtor (builder: LLVM.Builder llvmctx) (z : VarId) (c : CtorInfo) (ys : Array Arg) : M llvmctx Unit := do
-  debugPrint "emitCtor"
   let (_llvmty, slot) ← emitLhsSlot_ z;
   if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
     let v ← callLeanBox builder (← constIntUnsigned c.cidx) "lean_box_outv"
@@ -605,7 +546,7 @@ def emitCtor (builder: LLVM.Builder llvmctx) (z : VarId) (c : CtorInfo) (ys : Ar
   else do
     let v ← emitAllocCtor builder c;
     let _ ← LLVM.buildStore builder v slot
-    emitCtorSetArgs builder z ys 
+    emitCtorSetArgs builder z ys
 
 def emitInc (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef : Bool) : M llvmctx Unit := do
   let xv ← emitLhsVal builder x
@@ -622,7 +563,6 @@ def emitDec (builder: LLVM.Builder llvmctx) (x : VarId) (n : Nat) (checkRef : Bo
   else callLeanRefcountFn builder (kind := RefcountKind.dec) (ref? := checkRef) xv
 
 def emitNumLit (builder: LLVM.Builder llvmctx) (t : IRType) (v : Nat) : M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint "emitNumLit"
   if t.isObj then
     if v < UInt32.size then
       callLeanUnsignedToNatFn builder v ""
@@ -697,7 +637,6 @@ be stored in a global pointer. So, we load from the global pointer. The type of 
 This returns a *function pointer.*
 -/
 def getOrAddFunIdValue (builder: LLVM.Builder llvmctx) (f: FunId): M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint s!"getOrAddFnIdValue {f}"
   let decl ← getDecl f
   let fcname ← toCName f
   let retty ← toLLVMType decl.resultType
@@ -711,7 +650,6 @@ def getOrAddFunIdValue (builder: LLVM.Builder llvmctx) (f: FunId): M llvmctx (LL
     LLVM.getOrAddFunction (← getLLVMModule) fcname fnty
 
 def emitPartialApp (builder: LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys : Array Arg) : M llvmctx Unit := do
-  debugPrint "emitPartialApp"
   let decl ← getDecl f
   let fv ← getOrAddFunIdValue builder f
   let arity := decl.params.size;
@@ -756,7 +694,6 @@ def emitApp (builder: LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array 
     emitLhsSlotStore builder z zv
 
 def emitFullApp (builder: LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys : Array Arg) : M llvmctx Unit := do
-  debugPrint s!"emitFullApp z:{z} f:{f} ys:?"
   let (__zty, zslot) ← emitLhsSlot_ z
   let decl ← getDecl f
   match decl with
@@ -779,7 +716,6 @@ def emitFullApp (builder: LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys : Ar
 
 -- Note that this returns a *slot*, just like `emitLhsSlot_`.
 def emitLit (builder: LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : LitVal) : M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint "emitLit"
   let llvmty ← toLLVMType t
   let zslot ← LLVM.buildAlloca builder llvmty ""
   addVartoState z zslot llvmty
@@ -812,7 +748,6 @@ def callLeanCtorGet (builder: LLVM.Builder llvmctx) (x i: LLVM.Value llvmctx) (r
 
 
 def emitProj (builder: LLVM.Builder llvmctx) (z : VarId) (i : Nat) (x : VarId) : M llvmctx Unit := do
-  debugPrint "emitProj"
   let xval ← emitLhsVal builder x
   let zval ← callLeanCtorGet builder xval (← constIntUnsigned i) ""
   emitLhsSlotStore builder z zval
@@ -828,7 +763,6 @@ def callLeanCtorGetUsize (builder: LLVM.Builder llvmctx) (x i: LLVM.Value llvmct
 
 
 def emitUProj (builder: LLVM.Builder llvmctx) (z : VarId) (i : Nat) (x : VarId) : M llvmctx Unit := do
-  debugPrint "emitUProj"
   let xval ← emitLhsVal builder x
   let zval ← callLeanCtorGetUsize builder xval (← constIntUnsigned i) ""
   emitLhsSlotStore builder z zval
@@ -840,8 +774,6 @@ def emitUProj (builder: LLVM.Builder llvmctx) (z : VarId) (i : Nat) (x : VarId) 
 --       let out ← LLVM.buildPtrToInt builder gepVoidPtrAt1 (← LLVM.size_tType llvmctx)  "gep_size_void*" -- sizeof(void*)
 -- TODO(bollu): surely it is possible to do this better?
 def emitOffset (builder: LLVM.Builder llvmctx) (n : Nat) (offset : Nat) : M llvmctx (LLVM.Value llvmctx) := do
-  debugPrint "emitOffset"
-
    let basety ← LLVM.pointerType (← LLVM.i8Type llvmctx)
    let _basev ← LLVM.constPointerNull basety
    -- TODO(bollu): replace 8 with sizeof(void*)
@@ -851,7 +783,6 @@ def emitOffset (builder: LLVM.Builder llvmctx) (n : Nat) (offset : Nat) : M llvm
 
 
 def emitSProj (builder: LLVM.Builder llvmctx) (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M llvmctx Unit := do
-  debugPrint "emitSProj"
   let (fnName, retty) ←
     match t with
     | IRType.float  => pure ("lean_ctor_get_float", ← LLVM.doubleTypeInContext llvmctx)
@@ -872,7 +803,7 @@ def emitSProj (builder: LLVM.Builder llvmctx) (z : VarId) (t : IRType) (n offset
 -- `bool lean_is_exclusive(lean_obj_arg o)`
 def callLeanIsExclusive (builder: LLVM.Builder llvmctx) (closure: LLVM.Value llvmctx) (retName: String := ""): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_is_exclusive"
-  let retty ← LLVM.i1Type llvmctx 
+  let retty ← LLVM.i1Type llvmctx
   let argtys := #[ ← LLVM.voidPtrType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
@@ -883,14 +814,13 @@ def callLeanIsExclusive (builder: LLVM.Builder llvmctx) (closure: LLVM.Value llv
 def callLeanIsScalar (builder: LLVM.Builder llvmctx) (closure: LLVM.Value llvmctx) (retName: String := ""): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_is_scalar"
   -- TODO (bollu): Lean uses i8 instead of i1 for booleans because C things?
-  let retty ← LLVM.i8Type llvmctx 
+  let retty ← LLVM.i8Type llvmctx
   let argtys := #[ ← LLVM.voidPtrType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn  #[closure] retName
 
 def emitIsShared (builder: LLVM.Builder llvmctx) (z : VarId) (x : VarId) : M llvmctx Unit := do
-    debugPrint "emitIsShared"
     let xv ← emitLhsVal builder x
     let exclusive? ← callLeanIsExclusive builder xv
     let exclusive? ← LLVM.buildSextOrTrunc builder exclusive? (← LLVM.i1Type llvmctx)
@@ -911,7 +841,7 @@ def emitBox (builder: LLVM.Builder llvmctx) (z : VarId) (x : VarId) (xType: IRTy
          -- sign extend smaller values into i64
          let xv ← LLVM.buildSext builder xv (← LLVM.size_tType llvmctx)
          pure ("lean_box", ← LLVM.size_tType llvmctx, xv)
-  let retty ← LLVM.voidPtrType llvmctx 
+  let retty ← LLVM.voidPtrType llvmctx
   let argtys := #[argTy]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
@@ -991,7 +921,6 @@ def emitReuse (builder: LLVM.Builder llvmctx)
   emitCtorSetArgs builder z ys
 
 def emitVDecl (builder: LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Expr) : M llvmctx Unit := do
-  debugPrint "emitVDecl"
   match v with
   | Expr.ctor c ys      => emitCtor builder z c ys -- throw (Error.unimplemented "emitCtor z c ys")
   | Expr.reset n x      => emitReset builder z n x
@@ -1014,7 +943,6 @@ def declareVar (builder: LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvm
   addVartoState x alloca llvmty
 
 partial def declareVars (builder: LLVM.Builder llvmctx) (f: FnBody): M llvmctx Unit := do
-  debugPrint "declareVars"
   match f with
   | FnBody.vdecl x t _ b => do
       declareVar builder x t; declareVars builder b
@@ -1047,7 +975,6 @@ def emitSet (builder: LLVM.Builder llvmctx) (x : VarId) (i : Nat) (y : Arg) : M 
 
 
 def emitTailCall (builder: LLVM.Builder llvmctx) (f: FunId) (v : Expr) : M llvmctx Unit := do
-  debugPrint "emitTailCall"
    match v with
   | Expr.fap _ ys => do
     let llvmctx ← read
@@ -1141,7 +1068,7 @@ partial def emitCase (builder: LLVM.Builder llvmctx) (x : VarId) (xType : IRType
 
 -- Contract: emitJP keeps builder context untouched.
 partial def emitJDecl (builder: LLVM.Builder llvmctx) (jp: JoinPointId) (_ps: Array Param) (b: FnBody): M llvmctx Unit := do
-  let oldBB ← LLVM.getInsertBlock builder 
+  let oldBB ← LLVM.getInsertBlock builder
   let jpbb ← builderAppendBasicBlock builder s!"jp_{jp.idx}"
   addJpTostate jp jpbb
   LLVM.positionBuilderAtEnd builder jpbb
@@ -1155,7 +1082,6 @@ partial def emitJDecl (builder: LLVM.Builder llvmctx) (jp: JoinPointId) (_ps: Ar
   LLVM.positionBuilderAtEnd builder oldBB -- reset state
 
 partial def emitBlock (builder: LLVM.Builder llvmctx) (b : FnBody) : M llvmctx Unit := do
-  debugPrint "emitBlock"
   match b with
   | FnBody.jdecl j xs  v b      =>
        emitJDecl builder j xs v
@@ -1179,27 +1105,27 @@ partial def emitBlock (builder: LLVM.Builder llvmctx) (b : FnBody) : M llvmctx U
 
   | FnBody.set x i y b         =>
      emitSet builder x i y; emitBlock builder b
-  | FnBody.uset _x _i _y _b    => 
-       -- TODO(bollu): implement `uset`. 
+  | FnBody.uset _x _i _y _b    =>
+       -- TODO(bollu): implement `uset`.
        --  NOTE(bollu): It is disturbing that we pass the Lean CI without this.
        throw (Error.unimplemented "uset")
   | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
-  | FnBody.mdata _ _b          =>  
-       -- TODO(bollu): implement `mdata`. 
+  | FnBody.mdata _ _b          =>
+       -- TODO(bollu): implement `mdata`.
        --  NOTE(bollu): It is disturbing that we pass the Lean CI without this.
        throw (Error.unimplemented "metadata")
   | FnBody.ret x               => do
       let (_xty, xv) ← emitArgVal builder x "ret_val"
       let _ ← LLVM.buildRet builder xv
-  | FnBody.case _ x xType alts => 
+  | FnBody.case _ x xType alts =>
      emitCase builder x xType alts
   | FnBody.jmp j xs            =>
      emitJmp builder j xs
   | FnBody.unreachable         => throw (Error.unimplemented "unreachable")
 partial def emitFnBody  (builder: LLVM.Builder llvmctx)  (b : FnBody): M llvmctx Unit := do
-  declareVars builder b 
-  emitBlock builder b   
-  
+  declareVars builder b
+  emitBlock builder b
+
 end
 
 def emitFnArgs (builder: LLVM.Builder llvmctx)
@@ -1378,9 +1304,6 @@ def emitInitFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   let out ← callLeanIOResultMKOk builder box0 "retval"
   let _ ← LLVM.buildRet builder out
 
-
-
-
 def getOrCreateLeanInitialize (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
   getOrCreateFunctionPrototype mod (← LLVM.voidType llvmctx) "lean_initialize"  #[]
 
@@ -1395,8 +1318,6 @@ def getOrCreateLeanSetPanicMessages (_mod: LLVM.Module llvmctx): M llvmctx (LLVM
   let fnty ← LLVM.functionType retty argtys
   return (fnty, fn)
 
-
-
 def getOrCreateLeanIOMarkEndInitializationFn (_mod: LLVM.Module llvmctx): M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_mark_end_initialization"
   let retty ← LLVM.voidType llvmctx
@@ -1404,10 +1325,6 @@ def getOrCreateLeanIOMarkEndInitializationFn (_mod: LLVM.Module llvmctx): M llvm
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   return (fnty, fn)
-
--- bool lean_io_result_is_ok (void *) --
-def getOrCreateLeanIOResultIsOkFn (mod: LLVM.Module llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype mod (← LLVM.i1Type llvmctx) "lean_io_result_is_ok"  #[(← LLVM.voidPtrType llvmctx)]
 
 def callLeanIOResultIsOk (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_is_ok"
@@ -1417,12 +1334,7 @@ def callLeanIOResultIsOk (builder: LLVM.Builder llvmctx) (arg: LLVM.Value llvmct
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[arg] name
 
-
 -- lean_init_task_manager
-def getOrCreateLeanInitTaskManagerFn: M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidType llvmctx) "lean_init_task_manager"  #[]
-
 def callLeanInitTaskManager (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   let fnName :=  "lean_init_task_manager"
   let retty ← LLVM.voidType llvmctx
@@ -1430,11 +1342,6 @@ def callLeanInitTaskManager (builder: LLVM.Builder llvmctx): M llvmctx Unit := d
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
    let _ ← LLVM.buildCall2 builder fnty fn #[] ""
-
-def getOrCreateLeanFinalizeTaskManager: M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidType llvmctx) "lean_finalize_task_manager"  #[]
-
 
 def callLeanFinalizeTaskManager (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   let fnName :=  "lean_finalize_task_manager"
@@ -1444,11 +1351,6 @@ def callLeanFinalizeTaskManager (builder: LLVM.Builder llvmctx): M llvmctx Unit 
   let fnty ← LLVM.functionType retty argtys
    let _ ← LLVM.buildCall2 builder fnty fn #[] ""
 
-def getOrCreateCallLeanUnboxUint32Fn: M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.i32Type llvmctx) "lean_unbox_uint32"  #[← LLVM.voidPtrType llvmctx]
-
-
 def callLeanUnboxUint32 (builder: LLVM.Builder llvmctx) (v: LLVM.Value llvmctx) (name: String): M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_unbox_uint32"
   let retty ← LLVM.i32Type llvmctx
@@ -1456,13 +1358,6 @@ def callLeanUnboxUint32 (builder: LLVM.Builder llvmctx) (v: LLVM.Value llvmctx) 
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn  #[v] name
-
-
-
--- `lean_io_result_show_error**
-def getOrCreateLeanIOResultShowErrorFn: M llvmctx (LLVM.Value llvmctx) := do
-  getOrCreateFunctionPrototype (← getLLVMModule)
-    (← LLVM.voidType llvmctx) "lean_io_result_show_error"  #[← LLVM.voidPtrType llvmctx]
 
 def callLeanIOResultShowError (builder: LLVM.Builder llvmctx) (v: LLVM.Value llvmctx) (name: String): M llvmctx Unit := do
   let fnName :=  "lean_io_result_show_error"
@@ -1477,7 +1372,6 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   let xs ← match d with
    | .fdecl (xs := xs) .. => pure xs
    | _ =>  throw (Error.compileError "function declaration expected")
-  debugPrint s!"emitMainFn xs.size {xs.size}"
 
   unless xs.size == 2 || xs.size == 1 do throw (Error.compileError "invalid main function, incorrect arity when generating code")
   let env ← getEnv
@@ -1556,9 +1450,6 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
         let _ ← LLVM.buildStore builder resv res
         pure ShouldForwardControlFlow.yes
       else
-          /-
-          emitLn ("res = " ++ leanMainFn ++ "(lean_io_mk_world());")
-          -/
           let leanMainFnRetty ← LLVM.voidPtrType llvmctx
           let leanMainFnTy ← LLVM.functionType leanMainFnRetty #[(← LLVM.voidPtrType llvmctx)]
           let leanMainFn ← LLVM.getOrAddFunction mod leanMainFn leanMainFnTy
@@ -1600,35 +1491,25 @@ def emitMainFn (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llv
   -- at the merge
   let _ ← LLVM.buildUnreachable builder
 
-
-
-
 def hasMainFn : M llvmctx Bool := do
   let env ← getEnv
   let decls := getDecls env
   return decls.any (fun d => d.name == `main)
-
-
 def emitMainFnIfNeeded (mod: LLVM.Module llvmctx) (builder: LLVM.Builder llvmctx): M llvmctx Unit := do
   if (← hasMainFn) then emitMainFn mod builder
 
-def emitFileFooter : M llvmctx Unit := pure ()
-
 def main : M llvmctx Unit := do
-  emitFileHeader
   emitFnDecls
   let builder ← LLVM.createBuilderInContext llvmctx
   emitFns (← getLLVMModule) builder
   emitInitFn (← getLLVMModule) builder
   emitMainFnIfNeeded (← getLLVMModule) builder
-  emitFileFooter
   return ()
 end EmitLLVM
 
 
 def getLeanHBcPath : IO System.FilePath := do
   return (← getLibDir (← getBuildDir)) / "lean.h.bc"
-
 
 def optimizeLLVMModule (mod: LLVM.Module ctx): IO Unit := do
   let pm  ← LLVM.createPassManager
@@ -1639,12 +1520,11 @@ def optimizeLLVMModule (mod: LLVM.Module ctx): IO Unit := do
   LLVM.disposePassManager pm
   LLVM.disposePassManagerBuilder pmb
 
-
 @[export lean_ir_emit_llvm]
 def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit := do
   LLVM.llvmInitialize
   let llvmctx ← LLVM.createContext
-  let module ← LLVM.createModule llvmctx modName.toString 
+  let module ← LLVM.createModule llvmctx modName.toString
   let emitLLVMCtx : EmitLLVM.Context llvmctx := {env := env, modName := modName, llvmmodule := module}
   let initState := { var2val := default, jp2bb := default : EmitLLVM.State llvmctx}
   let out? ← (EmitLLVM.main (llvmctx := llvmctx) initState).run emitLLVMCtx
@@ -1666,5 +1546,5 @@ def emitLLVM (env : Environment) (modName : Name) (filepath: String): IO Unit :=
          LLVM.disposeModule emitLLVMCtx.llvmmodule
          LLVM.disposeTargetMachine targetmachine
 
-  | .error err => IO.eprintln ("ERROR: " ++ toString err); return () 
+  | .error err => IO.eprintln ("ERROR: " ++ toString err); return ()
 end Lean.IR

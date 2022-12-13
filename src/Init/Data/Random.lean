@@ -44,14 +44,14 @@ def stdNext : StdGen → Nat × StdGen
   | ⟨s1, s2⟩ =>
     let s1   : Int := s1
     let s2   : Int := s2
-    let k    : Int := s1 / 53668
+    let k    : Int := s1.div 53668
     let s1'  : Int := 40014 * ((s1 : Int) - k * 53668) - k * 12211
     let s1'' : Int := if s1' < 0 then s1' + 2147483563 else s1'
-    let k'   : Int := s2 / 52774
+    let k'   : Int := s2.div 52774
     let s2'  : Int := 40692 * ((s2 : Int) - k' * 52774) - k' * 3791
     let s2'' : Int := if s2' < 0 then s2' + 2147483399 else s2'
     let z    : Int := s1'' - s2''
-    let z'   : Int := if z < 1 then z + 2147483562 else z % 2147483562
+    let z'   : Int := if z < 1 then z + 2147483562 else z.mod 2147483562
     (z'.toNat, ⟨s1''.toNat, s2''.toNat⟩)
 
 def stdSplit : StdGen → StdGen × StdGen

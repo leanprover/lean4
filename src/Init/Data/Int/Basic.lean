@@ -148,12 +148,6 @@ def mod : (@& Int) → (@& Int) → Int
   | negSucc m, ofNat n   => -ofNat (succ m % n)
   | negSucc m, negSucc n => -ofNat (succ m % succ n)
 
-instance : Div Int where
-  div := Int.div
-
-instance : Mod Int where
-  mod := Int.mod
-
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0

@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object*);
-static lean_object* l_Lean_markBorrowed___closed__2;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_is_marked_borrowed(lean_object*);
 static lean_object* l_Lean_markBorrowed___closed__1;
+LEAN_EXPORT uint8_t lean_is_marked_borrowed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_markBorrowed(lean_object*);
+lean_object* l_Lean_mkAnnotation(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isMarkedBorrowed___boxed(lean_object*);
 lean_object* l_Lean_annotation_x3f(lean_object*, lean_object*);
+static lean_object* l_Lean_markBorrowed___closed__2;
 static lean_object* _init_l_Lean_markBorrowed___closed__1() {
 _start:
 {

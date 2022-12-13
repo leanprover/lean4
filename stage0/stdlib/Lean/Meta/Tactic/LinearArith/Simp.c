@@ -13,27 +13,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget___boxed(lean_object*);
+uint8_t l_Lean_Meta_Linear_isLinearCnstr(lean_object*);
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__2;
+lean_object* l_Lean_stringToMessageData(lean_object*);
+lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__7;
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__3;
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__8;
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__4;
+lean_object* l_Lean_MessageData_ofExpr(lean_object*);
+uint8_t l_Lean_Meta_Linear_isLinearTerm(lean_object*);
 lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__3;
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__5;
-lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__1;
-uint8_t l_Lean_Meta_Linear_isLinearCnstr(lean_object*);
-lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__2;
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__8;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__4;
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__7;
-uint8_t l_Lean_Meta_Linear_isLinearTerm(lean_object*);
-static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Linear_simp_x3f___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Meta_Linear_simp_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_Tactic_LinearArith_Simp_0__Lean_Meta_Linear_parentIsTarget(lean_object* x_1) {
 _start:
 {
@@ -206,14 +207,13 @@ x_19 = lean_ctor_get(x_14, 1);
 lean_inc(x_19);
 lean_dec(x_14);
 lean_inc(x_1);
-x_20 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_20, 0, x_1);
+x_20 = l_Lean_MessageData_ofExpr(x_1);
 x_21 = l_Lean_Meta_Linear_simp_x3f___closed__6;
-x_22 = lean_alloc_ctor(10, 2, 0);
+x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_20);
 x_23 = l_Lean_Meta_Linear_simp_x3f___closed__8;
-x_24 = lean_alloc_ctor(10, 2, 0);
+x_24 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_24, 0, x_22);
 lean_ctor_set(x_24, 1, x_23);
 x_25 = l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(x_13, x_24, x_3, x_4, x_5, x_6, x_19);

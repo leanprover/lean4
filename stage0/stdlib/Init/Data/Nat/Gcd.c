@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_gcd___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF(lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Gcd_0__Nat_gcdF(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

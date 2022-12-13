@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_hash___boxed(lean_object*);
 static lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Meta_TransparencyMode_lt(uint8_t, uint8_t);
-LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_lt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_TransparencyMode_instHashableTransparencyMode;
 LEAN_EXPORT uint64_t l_Lean_Meta_TransparencyMode_hash(uint8_t x_1) {
 _start:

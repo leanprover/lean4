@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_instInhabitedLazyInitExtension___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instInhabitedLazyInitExtension(lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_registerLazyInitExtension___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedLazyInitExtension___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLazyInitExtension(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_registerLazyInitExtension___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_instInhabitedLazyInitExtension___rarg___closed__2;
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_instInhabitedExt___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_registerLazyInitExtension(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get(lean_object*, lean_object*);
 static lean_object* l_Lean_registerLazyInitExtension___rarg___closed__1;
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_instInhabitedLazyInitExtension___rarg___closed__2;
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_registerLazyInitExtension(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_instInhabitedLazyInitExtension___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get(lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LazyInitExtension_get___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedLazyInitExtension___rarg___closed__1() {
 _start:
 {

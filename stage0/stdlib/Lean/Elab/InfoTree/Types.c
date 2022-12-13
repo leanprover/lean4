@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Init Lean.Message Lean.Data.Json Lean.Data.Lsp.CodeActions
+// Imports: Init Lean.Data.Position Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,74 +13,74 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__1;
-static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedFieldInfo;
-static lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1;
-static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Elab_InfoState_enabled___default;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__2;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__10;
-static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
-static size_t l_Lean_Elab_instInhabitedTermInfo___closed__3;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__6;
-static lean_object* l_Lean_Elab_instInhabitedFieldInfo___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_assignment___default;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_openDecls___default;
-uint32_t lean_uint32_of_nat(lean_object*);
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTacticInfo;
-LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedInfo___closed__1;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__7;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfo;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__9;
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__3;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__4;
-static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_currNamespace___default;
-LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_trees___default;
-LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedElabInfo___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoTree;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoState;
-LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_mctx___default;
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCommandInfo;
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTermInfo;
-lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_options___default;
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__1;
-static uint32_t l_Lean_Elab_instInhabitedContextInfo___closed__4;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__11;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__2;
-extern lean_object* l_Lean_NameSet_empty;
-LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_InfoState_trees___default___closed__3;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__7;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__3;
-static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__6;
-static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedContextInfo;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedElabInfo;
+LEAN_EXPORT uint8_t l_Lean_Elab_InfoState_enabled___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__5;
-static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__8;
+LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*);
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__11;
+lean_object* l_Lean_Expr_bvar___override(lean_object*);
+static lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_assignment___default;
+LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__2;
-static lean_object* l_Lean_Elab_InfoState_trees___default___closed__1;
-LEAN_EXPORT uint8_t l_Lean_Elab_TermInfo_isBinder___default;
-LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTermInfo;
+LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_openDecls___default;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__2;
+LEAN_EXPORT uint8_t l_Lean_Elab_TermInfo_isBinder___default;
+static lean_object* l_Lean_Elab_instInhabitedFieldInfo___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoTree;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__6;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__2;
+static lean_object* l_Lean_Elab_InfoState_trees___default___closed__3;
+static lean_object* l_Lean_Elab_instInhabitedInfoTree___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_InfoState_trees___default___closed__1;
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__6;
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfoState;
+LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_options___default;
+static lean_object* l_Lean_Elab_instInhabitedTacticInfo___closed__1;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__8;
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__4;
+static size_t l_Lean_Elab_instInhabitedTermInfo___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedFieldInfo;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__4;
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedContextInfo;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedTacticInfo;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__5;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__10;
+extern lean_object* l_Lean_NameSet_empty;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedCommandInfo;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__7;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__7;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__9;
+LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_mctx___default;
+uint32_t lean_uint32_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedInfo;
+static lean_object* l_Lean_Elab_instInhabitedInfoState___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_instInhabitedElabInfo___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState___rarg___lambda__1(lean_object*, lean_object*);
+lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__1;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Elab_ContextInfo_currNamespace___default;
+static uint32_t l_Lean_Elab_instInhabitedContextInfo___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_trees___default;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__3;
+static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__5;
+static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
+static lean_object* l_Lean_Elab_instInhabitedContextInfo___closed__1;
+static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo;
 static lean_object* _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1() {
 _start:
 {
@@ -766,9 +766,11 @@ return x_3;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Message(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp_CodeActions(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -777,13 +779,19 @@ _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Message(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_MetavarContext(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Environment(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_CodeActions(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_ContextInfo_mctx___default___closed__1 = _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1();

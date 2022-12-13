@@ -13,23 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeNameData(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl(lean_object*);
+LEAN_EXPORT lean_object* l_TypeName_mk___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeNameData(lean_object*);
+static lean_object* l___private_Init_Dynamic_0__DynamicPointed___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___rarg(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl___rarg(lean_object*, lean_object*);
+uint8_t lean_name_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl(lean_object*);
+LEAN_EXPORT lean_object* l_TypeName_mk(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl(lean_object*);
 LEAN_EXPORT lean_object* l_TypeName_mk___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__DynamicPointed;
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_TypeName_mk(lean_object*);
-static lean_object* l___private_Init_Dynamic_0__DynamicPointed___closed__1;
-uint8_t lean_name_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeName_typeNameImpl___rarg(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_typeNameImpl(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_mkImpl___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_TypeName_mk___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Dynamic_0__TypeNameData(lean_object* x_1) {
 _start:
 {

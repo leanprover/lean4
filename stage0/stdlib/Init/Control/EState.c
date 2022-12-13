@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_EStateM_orElse_x27___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_EStateM_instMonadFinallyEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instReprResult___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_EStateM_instReprResult___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l_EStateM_instReprResult___rarg___closed__4;
-LEAN_EXPORT lean_object* l_EStateM_instReprResult(lean_object*, lean_object*, lean_object*);
-static lean_object* l_EStateM_instToStringResult___rarg___closed__2;
-static lean_object* l_EStateM_instReprResult___rarg___closed__3;
-static lean_object* l_EStateM_instReprResult___rarg___closed__2;
-LEAN_EXPORT lean_object* l_EStateM_orElse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_EStateM_instReprResult___rarg___closed__1;
-LEAN_EXPORT lean_object* l_EStateM_fromStateM___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_orElse_x27___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_fromStateM(lean_object*, lean_object*, lean_object*);
+static lean_object* l_EStateM_instReprResult___rarg___closed__1;
 LEAN_EXPORT lean_object* l_EStateM_orElse_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_instReprResult(lean_object*, lean_object*, lean_object*);
 static lean_object* l_EStateM_instToStringResult___rarg___closed__1;
-LEAN_EXPORT lean_object* l_EStateM_instMonadFinallyEStateM___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_EStateM_instToStringResult(lean_object*, lean_object*, lean_object*);
+static lean_object* l_EStateM_instToStringResult___rarg___closed__2;
 LEAN_EXPORT lean_object* l_EStateM_instToStringResult___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_instToStringResult(lean_object*, lean_object*, lean_object*);
+static lean_object* l_EStateM_instReprResult___rarg___closed__3;
+LEAN_EXPORT lean_object* l_EStateM_instMonadFinallyEStateM___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_instMonadFinallyEStateM(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_fromStateM___rarg(lean_object*, lean_object*);
+lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_orElse_x27(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_EStateM_instReprResult___rarg___closed__2;
+lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_EStateM_instReprResult___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_EStateM_instToStringResult___rarg___closed__1() {
 _start:
 {

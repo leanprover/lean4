@@ -13,27 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_getLinterValue___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__7;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__5;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__6;
-LEAN_EXPORT uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_linter_all;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__9;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__2;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__4;
-LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__8;
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__3;
-static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__1;
-lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*, uint8_t);
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_linter_all;
+LEAN_EXPORT uint8_t l_Lean_Linter_getLinterValue(lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__2;
+LEAN_EXPORT lean_object* l_Lean_Linter_getLinterValue___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__4;
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__8;
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__7;
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__6;
+LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6_(lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__1;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*, uint8_t);
+lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__3;
+lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____closed__9;
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_6____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

@@ -13,37 +13,37 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1(lean_object*, uint8_t);
-static lean_object* l_Lean_LBool_toString___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg___lambda__1(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
-LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_23____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
-static lean_object* l_Lean_LBool_toString___closed__2;
-LEAN_EXPORT uint8_t l_Bool_toLBool(uint8_t);
-LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg___lambda__1___boxed(lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_23_(uint8_t, uint8_t);
-static lean_object* l_Lean_instBEqLBool___closed__1;
-LEAN_EXPORT lean_object* l_Lean_LBool_instToStringLBool;
+LEAN_EXPORT uint8_t l_Bool_toLBool(uint8_t);
 LEAN_EXPORT lean_object* l_Bool_toLBool___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
+static lean_object* l_Lean_LBool_toString___closed__3;
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_LBool_toString(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
 LEAN_EXPORT lean_object* l_toLBoolM___rarg(lean_object*, lean_object*);
-static lean_object* l_Lean_LBool_noConfusion___rarg___closed__1;
-static lean_object* l_Lean_LBool_toString___closed__3;
-static lean_object* l_Lean_LBool_instToStringLBool___closed__1;
+LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx___boxed(lean_object*);
+static lean_object* l_Lean_instBEqLBool___closed__1;
 LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_toLBoolM(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_23_(uint8_t, uint8_t);
+static lean_object* l_Lean_LBool_noConfusion___rarg___closed__1;
+static lean_object* l_Lean_LBool_instToStringLBool___closed__1;
+LEAN_EXPORT uint8_t l_Lean_LBool_and(uint8_t, uint8_t);
+LEAN_EXPORT uint8_t l_Lean_instInhabitedLBool;
+LEAN_EXPORT uint8_t l_Lean_LBool_neg(uint8_t);
+LEAN_EXPORT lean_object* l_Lean_LBool_toString(uint8_t);
+LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_LBool_toString___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_Data_LBool_0__Lean_beqLBool____x40_Lean_Data_LBool___hyg_23____boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_and___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LBool_neg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_LBool_noConfusion(lean_object*);
+static lean_object* l_Lean_LBool_toString___closed__1;
+LEAN_EXPORT lean_object* l_Lean_LBool_instToStringLBool;
+LEAN_EXPORT lean_object* l_toLBoolM___rarg___lambda__1(lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_instBEqLBool;
 LEAN_EXPORT lean_object* l_Lean_LBool_toCtorIdx(uint8_t x_1) {
 _start:
 {

@@ -13,41 +13,41 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_processHeader___closed__1;
-lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_isNone(lean_object*);
-lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_object*);
-static lean_object* l_Lean_Elab_parseImports___closed__1;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
 LEAN_EXPORT lean_object* l_IO_println___at_Lean_Elab_printImports___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports___boxed(lean_object*);
-lean_object* l_Lean_findOLean(lean_object*, lean_object*);
-lean_object* lean_io_error_to_string(lean_object*);
-lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_ofString(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
-lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_headerToImports___closed__1;
-static lean_object* l_Lean_Elab_headerToImports___closed__3;
-lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_Lean_Syntax_getId(lean_object*);
-lean_object* lean_array_to_list(lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_headerToImports___closed__2;
+lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_headerToImports___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_processHeader___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getId(lean_object*);
+lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_print_imports(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getArgs(lean_object*);
+lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
+static lean_object* l_Lean_Elab_headerToImports___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_headerToImports(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_processHeader(lean_object*, lean_object*, lean_object*, lean_object*, uint32_t, lean_object*);
+static lean_object* l_Lean_Elab_headerToImports___closed__2;
+lean_object* lean_string_push(lean_object*, uint32_t);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
+lean_object* l_Lean_Parser_mkInputContext(lean_object*, lean_object*);
+lean_object* l_Lean_FileMap_ofString(lean_object*);
+lean_object* lean_array_to_list(lean_object*, lean_object*);
+lean_object* l_IO_print___at_IO_println___spec__1(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_headerToImports___closed__1;
+lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_headerToImports___closed__4;
+static lean_object* l_Lean_Elab_processHeader___closed__1;
+static lean_object* l_Lean_Elab_parseImports___closed__1;
+lean_object* l_Lean_findOLean(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_parseImports(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Syntax_isNone(lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Elab_printImports___spec__2(lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_error_to_string(lean_object*);
+lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
+lean_object* lean_mk_empty_environment(uint32_t, lean_object*);
+lean_object* lean_import_modules(lean_object*, lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_headerToImports___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {

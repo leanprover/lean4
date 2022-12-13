@@ -13,32 +13,32 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Array_append___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*);
-lean_object* l_List_redLength___rarg(lean_object*);
-LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object*);
-lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_dList___default(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_instInhabitedQueue(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
-static lean_object* l_Std_Queue_instEmptyCollectionQueue___closed__1;
-lean_object* l_Array_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_toArray___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object*);
-static lean_object* l_Std_Queue_empty___closed__1;
-LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
-uint8_t l_List_isEmpty___rarg(lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Queue_isEmpty(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
+static lean_object* l_Std_Queue_empty___closed__1;
+LEAN_EXPORT lean_object* l_Std_Queue_empty(lean_object*);
+lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
+lean_object* l_Array_reverse___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll___rarg(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Queue_isEmpty___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_dList___default(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object*);
+uint8_t l_List_isEmpty___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_isEmpty(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_enqueue(lean_object*);
+lean_object* l_Array_append___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_toArray___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_toArray(lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_instInhabitedQueue(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_enqueueAll(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_instEmptyCollectionQueue(lean_object*);
+lean_object* l_List_redLength___rarg(lean_object*);
+static lean_object* l_Std_Queue_instEmptyCollectionQueue___closed__1;
+LEAN_EXPORT lean_object* l_Std_Queue_isEmpty___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Queue_dequeue_x3f(lean_object*);
+lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Queue_eList___default(lean_object* x_1) {
 _start:
 {

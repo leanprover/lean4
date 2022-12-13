@@ -13,26 +13,26 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__7;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__12;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__13;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__14;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4_(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__15;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__8;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__3;
+lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__1;
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__11;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__10;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__13;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__9;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__15;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__3;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__8;
-lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__5;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__4;
+static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__9;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4_(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__6;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__12;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__4;
-static lean_object* l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__1;
-lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Meta_Match___hyg_4____closed__1() {
 _start:
 {

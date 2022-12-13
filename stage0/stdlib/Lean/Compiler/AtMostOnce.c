@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visit___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_at_most_once(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_atMostOnce_visitFVar___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visitFVar___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_atMostOnce___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_skip(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visit(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visit___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_instAndThenVisitor(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visitFVar(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_skip___boxed(lean_object*);
-LEAN_EXPORT uint8_t lean_at_most_once(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_visit(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_atMostOnce_seq(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

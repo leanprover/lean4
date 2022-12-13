@@ -13,28 +13,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1___closed__1;
-LEAN_EXPORT lean_object* l_IO_withStderr___at_Lean_runMetaEval___spec__4(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_withStdout___at_Lean_runMetaEval___spec__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___lambda__1(lean_object*, lean_object*);
-lean_object* lean_get_set_stdout(lean_object*, lean_object*);
-lean_object* lean_string_from_utf8_unchecked(lean_object*);
-lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
-LEAN_EXPORT lean_object* l_IO_withStdin___at_Lean_runMetaEval___spec__3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_runMetaEval___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_runMetaEval(lean_object*);
-lean_object* lean_get_set_stdin(lean_object*, lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
+LEAN_EXPORT lean_object* l_IO_withStdin___at_Lean_runMetaEval___spec__3(lean_object*, lean_object*, lean_object*);
+lean_object* lean_get_set_stdout(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_ByteArray_empty;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_runMetaEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instMetaEval(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1(lean_object*, uint8_t, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 lean_object* lean_get_set_stderr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_runMetaEval___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___lambda__1(lean_object*, lean_object*);
+static lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1___closed__1;
+lean_object* lean_get_set_stdin(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMetaEval(lean_object*);
+LEAN_EXPORT lean_object* l_IO_withStdout___at_Lean_runMetaEval___spec__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lean_runMetaEval___spec__1(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_IO_withStderr___at_Lean_runMetaEval___spec__4(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___lambda__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_runMetaEval___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMetaEval___rarg___lambda__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {

@@ -13,27 +13,27 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__12;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
-LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
-lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(lean_object*);
-lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
-lean_object* l_Nat_repr(lean_object*);
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__10;
-static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
-static lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_format(lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__2;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__4;
+LEAN_EXPORT lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo;
+static lean_object* l_Lean_IR_CtorFieldInfo_instToFormatCtorFieldInfo___closed__1;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__3;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__11;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__9;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__14;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__12;
+lean_object* l___private_Lean_Compiler_IR_Format_0__Lean_IR_formatIRType(lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__1;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__10;
+lean_object* lean_ir_get_ctor_layout(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__7;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__13;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__8;
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__6;
+LEAN_EXPORT lean_object* l_Lean_IR_getCtorLayout___boxed(lean_object*, lean_object*);
+lean_object* l_Nat_repr(lean_object*);
+static lean_object* l_Lean_IR_CtorFieldInfo_format___closed__5;
 static lean_object* _init_l_Lean_IR_CtorFieldInfo_format___closed__1() {
 _start:
 {

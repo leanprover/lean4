@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_max_small_nat(lean_object*);
-static lean_object* l_Lean_maxSmallNat___closed__1;
+static lean_object* l_Lean_closureMaxArgs___closed__1;
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgs;
 LEAN_EXPORT lean_object* l_Lean_maxSmallNat;
-static lean_object* l_Lean_closureMaxArgs___closed__1;
 lean_object* lean_closure_max_args(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
+lean_object* lean_max_small_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_maxSmallNatFn___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object*);
+static lean_object* l_Lean_maxSmallNat___closed__1;
 LEAN_EXPORT lean_object* l_Lean_closureMaxArgsFn___boxed(lean_object* x_1) {
 _start:
 {

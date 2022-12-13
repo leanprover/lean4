@@ -13,24 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_getAppFn(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_getStructureName___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_getStructureName___closed__6;
-uint8_t l_Lean_isStructure(lean_object*, lean_object*);
-lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l_Lean_Meta_getStructureName___closed__2;
 static lean_object* l_Lean_Meta_getStructureName___closed__3;
-static lean_object* l_Lean_Meta_getStructureName___closed__1;
+lean_object* l_Lean_stringToMessageData(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_getStructureName___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getStructureName___closed__5;
+static lean_object* l_Lean_Meta_getStructureName___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_getStructureName___closed__1;
+static lean_object* l_Lean_Meta_getStructureName___closed__6;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
+uint8_t l_Lean_isStructure(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofName(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_getStructureName___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_getStructureName___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -158,14 +159,13 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_free_object(x_9);
-x_15 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_15, 0, x_8);
+x_15 = l_Lean_MessageData_ofName(x_8);
 x_16 = l_Lean_Meta_getStructureName___closed__4;
-x_17 = lean_alloc_ctor(10, 2, 0);
+x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_15);
 x_18 = l_Lean_Meta_getStructureName___closed__6;
-x_19 = lean_alloc_ctor(10, 2, 0);
+x_19 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_19, x_2, x_3, x_4, x_5, x_12);
@@ -210,14 +210,13 @@ x_28 = l_Lean_isStructure(x_27, x_8);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_29 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_29, 0, x_8);
+x_29 = l_Lean_MessageData_ofName(x_8);
 x_30 = l_Lean_Meta_getStructureName___closed__4;
-x_31 = lean_alloc_ctor(10, 2, 0);
+x_31 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_31, 0, x_30);
 lean_ctor_set(x_31, 1, x_29);
 x_32 = l_Lean_Meta_getStructureName___closed__6;
-x_33 = lean_alloc_ctor(10, 2, 0);
+x_33 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
 x_34 = l_Lean_throwError___at___private_Lean_Meta_InferType_0__Lean_Meta_inferProjType___spec__1(x_33, x_2, x_3, x_4, x_5, x_26);

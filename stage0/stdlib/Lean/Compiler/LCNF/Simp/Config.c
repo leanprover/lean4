@@ -13,12 +13,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default;
-LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default;
-static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlineDefs___default;
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_inlinePartial___default;
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig;
+LEAN_EXPORT uint8_t l_Lean_Compiler_LCNF_Simp_Config_implementedBy___default;
+static lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig___closed__1;
 static uint8_t _init_l_Lean_Compiler_LCNF_Simp_Config_etaPoly___default() {
 _start:
 {

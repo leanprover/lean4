@@ -14,37 +14,37 @@
 extern "C" {
 #endif
 lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT lean_object* lean_mk_module_initialization_function_name(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(lean_object*);
-uint8_t l_Char_isAlpha(uint32_t);
-static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__3;
-lean_object* lean_nat_mod(lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* lean_string_push(lean_object*, uint32_t);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_mangle(lean_object*);
-uint32_t l_Nat_digitChar(lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
-lean_object* lean_string_length(lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__2(lean_object*, lean_object*);
-static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__2;
-static lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
-static lean_object* l_String_mangle___closed__1;
-static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux(lean_object*, lean_object*, lean_object*);
-uint32_t l_String_Iterator_curr(lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_String_Iterator_next(lean_object*);
+uint8_t l_Char_isAlpha(uint32_t);
+LEAN_EXPORT lean_object* lean_mk_module_initialization_function_name(lean_object*);
+lean_object* lean_string_push(lean_object*, uint32_t);
+static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__2;
+uint32_t l_String_Iterator_curr(lean_object*);
+static lean_object* l_Lean_mkModuleInitializationFunctionName___closed__1;
+uint32_t l_Nat_digitChar(lean_object*);
+lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__1;
+LEAN_EXPORT lean_object* l_List_foldl___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__2(lean_object*, lean_object*);
+static lean_object* l_String_mangle___closed__1;
+static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__3;
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 uint8_t l_Char_isDigit(uint32_t);
 lean_object* l_Nat_toDigits(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__1(lean_object*, lean_object*);
+lean_object* lean_string_length(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux(lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* lean_nat_mod(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Compiler_NameMangling_0__Lean_Name_mangleAux___closed__1;
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux___closed__4;
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_NameMangling_0__String_mangleAux(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_name_mangle(lean_object*, lean_object*);
+lean_object* l_Nat_repr(lean_object*);
+LEAN_EXPORT lean_object* l_String_mangle(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_repeatTR_loop___at___private_Lean_Compiler_NameMangling_0__String_mangleAux___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {

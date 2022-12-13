@@ -13,22 +13,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3;
-LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2;
-static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_compatibleCtors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4;
 lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkConstWithFreshMVarLevels___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__3;
+LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescope(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_stringToMessageData(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_compatibleCtors(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofExpr(lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__1;
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4;
+static lean_object* l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -152,14 +153,13 @@ lean_inc(x_15);
 lean_dec(x_7);
 x_16 = lean_box(0);
 x_17 = l_Lean_Expr_const___override(x_1, x_16);
-x_18 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_18, 0, x_17);
+x_18 = l_Lean_MessageData_ofExpr(x_17);
 x_19 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__2;
-x_20 = lean_alloc_ctor(10, 2, 0);
+x_20 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_18);
 x_21 = l_Lean_getConstInfoCtor___at_Lean_Meta_compatibleCtors___spec__1___closed__4;
-x_22 = lean_alloc_ctor(10, 2, 0);
+x_22 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_22, 0, x_20);
 lean_ctor_set(x_22, 1, x_21);
 x_23 = l_Lean_throwError___at_Lean_Meta_compatibleCtors___spec__2(x_22, x_2, x_3, x_4, x_5, x_15);

@@ -13,36 +13,36 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* lean_is_unsafe_rec_name(lean_object*);
-lean_object* lean_add_decl(lean_object*, lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(lean_object*);
-static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
-LEAN_EXPORT lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Environment_compileDecls___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
-lean_object* lean_compile_decls(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 static lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Environment_addAndCompile___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*, lean_object*);
-uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
+lean_object* lean_environment_find(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_compileDecl(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_compileDecl___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
+lean_object* lean_compile_decls(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_compileDecls___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* lean_add_decl(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* lean_is_unsafe_rec_name(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__1;
-lean_object* lean_string_append(lean_object*, lean_object*);
-lean_object* l_Nat_repr(lean_object*);
+static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
+uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_unsafe_rec_name(lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
-static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Environment_addAndCompile(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
-static lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Environment_compileDecl___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Environment_compileDecl(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Environment_addAndCompile___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
+static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
+lean_object* l_Nat_repr(lean_object*);
 static lean_object* _init_l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1() {
 _start:
 {

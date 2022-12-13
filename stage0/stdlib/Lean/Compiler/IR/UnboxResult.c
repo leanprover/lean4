@@ -13,44 +13,45 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__4;
-lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___closed__1;
-lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4_(lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__3;
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__7;
-lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__4;
-LEAN_EXPORT uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__3;
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__6;
-lean_object* lean_environment_find(lean_object*, lean_object*);
-lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__1;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
-static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__1;
-LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__3;
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__9;
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__2;
-static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__4;
-lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_unboxAttr;
-static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__4;
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__1;
+LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_environment_find(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__3;
+lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__4;
+static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__3;
+uint8_t l_Lean_TagAttribute_hasTag(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__3;
 static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__5;
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__1;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__6;
+lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
+lean_object* l_Lean_MessageData_ofExpr(lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___closed__1;
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_unboxAttr;
+static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__1;
+lean_object* l_Lean_throwError___at_Lean_AttributeImpl_erase___default___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_hasUnboxAttr___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__7;
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___closed__2;
+static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__9;
+lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__8;
+LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__4;
+LEAN_EXPORT uint8_t l_Lean_IR_UnboxResult_hasUnboxAttr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -145,14 +146,13 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 lean_free_object(x_5);
 x_11 = lean_box(0);
 x_12 = l_Lean_Expr_const___override(x_1, x_11);
-x_13 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_13, 0, x_12);
+x_13 = l_Lean_MessageData_ofExpr(x_12);
 x_14 = l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__2;
-x_15 = lean_alloc_ctor(10, 2, 0);
+x_15 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_15, 0, x_14);
 lean_ctor_set(x_15, 1, x_13);
 x_16 = l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__4;
-x_17 = lean_alloc_ctor(10, 2, 0);
+x_17 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_17, 0, x_15);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2(x_17, x_2, x_3, x_8);
@@ -187,14 +187,13 @@ if (lean_obj_tag(x_23) == 0)
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_24 = lean_box(0);
 x_25 = l_Lean_Expr_const___override(x_1, x_24);
-x_26 = lean_alloc_ctor(2, 1, 0);
-lean_ctor_set(x_26, 0, x_25);
+x_26 = l_Lean_MessageData_ofExpr(x_25);
 x_27 = l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__2;
-x_28 = lean_alloc_ctor(10, 2, 0);
+x_28 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_28, 0, x_27);
 lean_ctor_set(x_28, 1, x_26);
 x_29 = l_Lean_getConstInfo___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__1___closed__4;
-x_30 = lean_alloc_ctor(10, 2, 0);
+x_30 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_30, 0, x_28);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2(x_30, x_2, x_3, x_21);
@@ -421,13 +420,14 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_2 = l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__2;
 x_3 = l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__8;
 x_4 = l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__9;
 x_5 = l_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____closed__7;
-x_6 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_5, x_1);
-return x_6;
+x_6 = 0;
+x_7 = l_Lean_registerTagAttribute(x_2, x_3, x_4, x_5, x_6, x_1);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_IR_UnboxResult_initFn____x40_Lean_Compiler_IR_UnboxResult___hyg_4____spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

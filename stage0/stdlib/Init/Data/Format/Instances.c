@@ -13,57 +13,58 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_instToFormat___rarg___closed__1;
-static lean_object* l_Option_format___rarg___closed__1;
-LEAN_EXPORT lean_object* l_instToFormatList___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instToFormatProd(lean_object*, lean_object*);
-static lean_object* l_instToFormatProd___rarg___closed__3;
-static lean_object* l_Option_format___rarg___closed__2;
-static lean_object* l_List_format___rarg___closed__5;
-static lean_object* l_instToFormatProd___rarg___closed__5;
-static lean_object* l_List_format___rarg___closed__10;
-LEAN_EXPORT lean_object* l_instToFormatList(lean_object*);
-static lean_object* l_instToFormatProd___rarg___closed__4;
-static lean_object* l_List_format___rarg___closed__4;
-static lean_object* l_List_format___rarg___closed__1;
-LEAN_EXPORT lean_object* l_instToFormat___rarg___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Option_format(lean_object*);
-LEAN_EXPORT lean_object* l_instToFormat___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instToFormatPos(lean_object*);
-static lean_object* l_List_format___rarg___closed__3;
-LEAN_EXPORT lean_object* l_instToFormatOption(lean_object*);
-static lean_object* l_instToFormatProd___rarg___closed__1;
-static lean_object* l_Option_format___rarg___closed__4;
-LEAN_EXPORT lean_object* l_Option_format___rarg(lean_object*, lean_object*);
-lean_object* l_Std_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_List_format___rarg___closed__6;
-lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1(lean_object*, lean_object*);
-static lean_object* l_instToFormatArray___rarg___closed__1;
-static lean_object* l_String_toFormat___closed__1;
 static lean_object* l_Option_format___rarg___closed__3;
-LEAN_EXPORT lean_object* l_instToFormatOption___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_List_format___rarg(lean_object*, lean_object*);
-lean_object* l_String_splitOn(lean_object*, lean_object*);
-static lean_object* l_List_format___rarg___closed__8;
-LEAN_EXPORT lean_object* l_instToFormatProd___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToFormat___rarg___lambda__1(lean_object*);
+static lean_object* l_Option_format___rarg___closed__4;
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1(lean_object*, lean_object*);
+static lean_object* l_instToFormatProd___rarg___closed__6;
+static lean_object* l_List_format___rarg___closed__5;
+static lean_object* l_List_format___rarg___closed__1;
+static lean_object* l_instToFormatProd___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Option_format___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toFormat(lean_object*);
-lean_object* l_Nat_repr(lean_object*);
-lean_object* lean_string_length(lean_object*);
-LEAN_EXPORT lean_object* l_instToFormatArray___rarg(lean_object*, lean_object*);
-static lean_object* l_instToFormatArray___rarg___closed__2;
-lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_List_format___rarg___closed__7;
+LEAN_EXPORT lean_object* l_List_format___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatList(lean_object*);
+static lean_object* l_instToFormat___rarg___closed__1;
 LEAN_EXPORT lean_object* l_List_format(lean_object*);
 static lean_object* l_List_format___rarg___closed__9;
-static lean_object* l_List_format___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*);
-LEAN_EXPORT lean_object* l_instToFormat(lean_object*);
-static lean_object* l_instToFormatProd___rarg___closed__6;
+LEAN_EXPORT lean_object* l_instToFormat___rarg(lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatList___rarg(lean_object*);
 static lean_object* l_instToFormatProd___rarg___closed__2;
-static lean_object* l_List_format___rarg___closed__7;
-static lean_object* l_List_format___rarg___closed__11;
 lean_object* lean_array_to_list(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatArray___rarg(lean_object*, lean_object*);
+static lean_object* l_List_format___rarg___closed__2;
+LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_format(lean_object*);
+static lean_object* l_Option_format___rarg___closed__2;
+lean_object* l_Std_Format_joinSep___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatProd___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_List_format___rarg___closed__3;
+LEAN_EXPORT lean_object* l_instToFormatOption___rarg(lean_object*);
+static lean_object* l_List_format___rarg___closed__6;
+static lean_object* l_List_format___rarg___closed__8;
+lean_object* lean_string_length(lean_object*);
+static lean_object* l_List_format___rarg___closed__4;
+static lean_object* l_instToFormatProd___rarg___closed__1;
+static lean_object* l_instToFormatArray___rarg___closed__1;
+static lean_object* l_Option_format___rarg___closed__1;
+lean_object* l_Function_comp___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_String_toFormat___closed__1;
+LEAN_EXPORT lean_object* l_instToFormatArray(lean_object*);
+static lean_object* l_instToFormatProd___rarg___closed__5;
+static lean_object* l_List_format___rarg___closed__11;
+LEAN_EXPORT lean_object* l_instToFormat(lean_object*);
+static lean_object* l_instToFormatProd___rarg___closed__4;
+LEAN_EXPORT lean_object* l_instToFormatOption(lean_object*);
+LEAN_EXPORT lean_object* l_instToFormatProd(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_List_format___rarg___closed__10;
+lean_object* l_Nat_repr(lean_object*);
+lean_object* l_String_splitOn(lean_object*, lean_object*);
+static lean_object* l_instToFormatArray___rarg___closed__2;
 LEAN_EXPORT lean_object* l_instToFormat___rarg___lambda__1(lean_object* x_1) {
 _start:
 {
@@ -490,6 +491,35 @@ x_3 = lean_alloc_closure((void*)(l_instToFormatProd___rarg), 3, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_3, 0);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_1);
+x_6 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_1);
+lean_inc(x_4);
+x_7 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_7, 0, x_4);
+x_8 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_8, 0, x_6);
+lean_ctor_set(x_8, 1, x_7);
+x_2 = x_8;
+x_3 = x_5;
+goto _start;
+}
+}
+}
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -504,32 +534,29 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
+lean_dec(x_1);
 x_6 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_6, 0, x_5);
 return x_6;
 }
 else
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_7 = lean_ctor_get(x_1, 0);
 lean_inc(x_7);
+lean_dec(x_1);
 x_8 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_8, 0, x_7);
-lean_inc(x_2);
-x_9 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_9, 0, x_8);
-lean_ctor_set(x_9, 1, x_2);
-x_10 = l_Std_Format_joinSep___at_String_toFormat___spec__1(x_4, x_2);
-x_11 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_10);
-return x_11;
+x_9 = l_List_foldl___at_String_toFormat___spec__2(x_2, x_8, x_4);
+lean_dec(x_4);
+return x_9;
 }
 }
 }
@@ -550,17 +577,16 @@ x_2 = l_String_toFormat___closed__1;
 x_3 = l_String_splitOn(x_1, x_2);
 x_4 = lean_box(1);
 x_5 = l_Std_Format_joinSep___at_String_toFormat___spec__1(x_3, x_4);
-lean_dec(x_3);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_String_toFormat___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at_String_toFormat___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Format_joinSep___at_String_toFormat___spec__1(x_1, x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* x_4; 
+x_4 = l_List_foldl___at_String_toFormat___spec__2(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_instToFormatPos(lean_object* x_1) {

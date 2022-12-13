@@ -13,39 +13,39 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
-LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
-LEAN_EXPORT uint32_t l_Char_instInhabitedChar;
-LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
-LEAN_EXPORT lean_object* l_Char_instLTChar;
-LEAN_EXPORT lean_object* l_Char_instLEChar;
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
-LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_toLower(uint32_t);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-lean_object* l_Char_ofNat(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_instDecidableLtCharInstLTChar___boxed(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
-LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
-LEAN_EXPORT uint8_t l_Char_instDecidableLeCharInstLEChar(uint32_t, uint32_t);
-LEAN_EXPORT uint8_t l_Char_instDecidableLtCharInstLTChar(uint32_t, uint32_t);
-uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_isDigit___boxed(lean_object*);
+lean_object* lean_uint32_to_nat(uint32_t);
+LEAN_EXPORT uint32_t l_Char_instInhabitedChar;
+LEAN_EXPORT lean_object* l_Char_isLower___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Char_isAlpha(uint32_t);
+LEAN_EXPORT lean_object* l_Char_instDecidableLtCharInstLTChar___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_isAlpha___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_toNat(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toLower(uint32_t);
+LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
+LEAN_EXPORT uint8_t l_Char_isWhitespace(uint32_t);
+LEAN_EXPORT lean_object* l_Char_toUpper(uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_toNat___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_isWhitespace___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Char_instLEChar;
+LEAN_EXPORT lean_object* l_Char_toLower___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Char_toUpper___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Char_isDigit(uint32_t);
-LEAN_EXPORT lean_object* l_Char_toUpper(uint32_t);
-LEAN_EXPORT uint8_t l_Char_isAlphanum(uint32_t);
+LEAN_EXPORT lean_object* l_Char_instLTChar;
+LEAN_EXPORT uint8_t l_Char_instDecidableLtCharInstLTChar(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_isUpper(uint32_t);
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Char_instDecidableLeCharInstLEChar___boxed(lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_isUpper___boxed(lean_object*);
+uint8_t lean_uint32_dec_lt(uint32_t, uint32_t);
+LEAN_EXPORT uint8_t l_Char_instDecidableLeCharInstLEChar(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_Char_isAlphanum___boxed(lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Char_isLower(uint32_t);
+lean_object* l_Char_ofNat(lean_object*);
 static lean_object* _init_l_Char_instLTChar() {
 _start:
 {

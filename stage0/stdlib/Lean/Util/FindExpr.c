@@ -13,42 +13,42 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT size_t l_Lean_Expr_FindImpl_cacheSize;
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___lambda__1(lean_object*);
-static lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp(lean_object*, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_occurs___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* lean_mk_array(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_visited(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion(lean_object*);
-lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Expr_occurs___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_visited___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f(lean_object*, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findUnsafe_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_occurs___boxed(lean_object*, lean_object*);
-size_t lean_ptr_addr(lean_object*);
-static lean_object* l_Lean_Expr_FindImpl_initCache___closed__1;
-uint8_t lean_expr_eqv(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_initCache;
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
-size_t lean_usize_mod(size_t, size_t);
-LEAN_EXPORT uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_initCache;
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f(lean_object*, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_occurs___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_visited___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_toCtorIdx___boxed(lean_object*);
+lean_object* lean_mk_array(lean_object*, lean_object*);
+uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_FindImpl_initCache___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___closed__1;
+size_t lean_ptr_addr(lean_object*);
+uint8_t lean_expr_eqv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___lambda__1___boxed(lean_object*);
+LEAN_EXPORT size_t l_Lean_Expr_FindImpl_cacheSize;
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_visited(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findUnsafe_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion(lean_object*);
+size_t lean_usize_mod(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindImpl_findUnsafe_x3f(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visit(lean_object*, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f(lean_object*, size_t, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Expr_occurs(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_occurs___lambda__1___boxed(lean_object*, lean_object*);
+lean_object* lean_array_uget(lean_object*, size_t);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindExtImpl_findM_x3f_visitApp(lean_object*, size_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_FindStep_noConfusion___rarg___lambda__1(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Expr_occurs___lambda__1(lean_object*, lean_object*);
+lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static size_t _init_l_Lean_Expr_FindImpl_cacheSize() {
 _start:
 {

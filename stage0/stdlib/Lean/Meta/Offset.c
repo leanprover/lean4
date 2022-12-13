@@ -13,86 +13,86 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_getAppFn(lean_object*);
-uint8_t lean_string_dec_eq(lean_object*, lean_object*);
-lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__19;
-static lean_object* l_Lean_Meta_evalNat_visit___closed__5;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_evalNat_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__10;
-static lean_object* l_Lean_Meta_evalNat___closed__2;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__11;
-static lean_object* l_Lean_Meta_evalNat___closed__1;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__5;
-lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_evalNat_visit___closed__3;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-uint8_t l_Bool_toLBool(uint8_t);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__12;
-static lean_object* l_Lean_Meta_evalNat_visit___closed__1;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__6;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__14;
-LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isDefEqOffset___closed__1;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__1;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__20;
-lean_object* l_Lean_Meta_isExprDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* lean_nat_add(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__15;
-uint8_t l_Lean_Expr_hasMVar(lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__1;
 lean_object* l_Lean_mkNatLit(lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__4;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_mkOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_nat_mul(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__3;
-LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__16;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__9;
-lean_object* lean_st_ref_take(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars(lean_object*);
-lean_object* lean_is_expr_def_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__8;
-static lean_object* l_Lean_Meta_isDefEqOffset___closed__2;
-uint8_t l_Lean_Expr_isMVar(lean_object*);
-static lean_object* l_Lean_Meta_evalNat_visit___closed__6;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__17;
-LEAN_EXPORT lean_object* l_Lean_Meta_evalNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_evalNat_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__2;
-lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_name_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__13;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldProjInst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Meta_isNatProjInst(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_evalNat_visit___closed__4;
-static lean_object* l_Lean_Meta_isNatProjInst___closed__21;
-lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_isNatProjInst___closed__7;
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_isNatProjInst___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_evalNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Bool_toLBool(uint8_t);
+static lean_object* l_Lean_Meta_evalNat_visit___closed__1;
 static lean_object* l_Lean_Meta_isNatProjInst___closed__18;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_isNatProjInst___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_evalNat___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars(lean_object*);
+static lean_object* l_Lean_Meta_evalNat_visit___closed__5;
+static lean_object* l_Lean_Meta_isDefEqOffset___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_evalNat___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_evalNat_visit___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Meta_evalNat(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_dec_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkAdd(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__6;
+uint8_t l_Lean_Expr_hasMVar(lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__12;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__3;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__5;
+lean_object* l_Lean_Meta_unfoldProjInst_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_st_ref_take(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_mkOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+lean_object* lean_is_expr_def_eq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isDefEqOffset___closed__1;
+static lean_object* l_Lean_Meta_evalNat_visit___closed__3;
+uint8_t l_Lean_Expr_isMVar(lean_object*);
+lean_object* l_Lean_Meta_isExprDefEqAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__4;
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__8;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__19;
+uint8_t lean_name_eq(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_evalNat_visit___closed__4;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__9;
+LEAN_EXPORT uint8_t l_Lean_Meta_isNatProjInst(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__20;
+LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withNewMCtxDepth___at___private_Lean_Meta_WHNF_0__Lean_Meta_toCtorWhenK___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__7;
+lean_object* l_Lean_Meta_getConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__15;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__13;
+LEAN_EXPORT lean_object* l_Lean_Meta_evalNat_visit(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__16;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__21;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_isNatZero___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__17;
+LEAN_EXPORT lean_object* l_Lean_Meta_evalNat_visit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
+lean_object* lean_nat_mul(lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_evalNat___closed__2;
+static lean_object* l_Lean_Meta_isNatProjInst___closed__14;
+lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__10;
+LEAN_EXPORT lean_object* l_Lean_Meta_isDefEqOffset(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_evalNat_visit___closed__2;
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Offset_0__Lean_Meta_getOffsetAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_isNatProjInst___closed__11;
 LEAN_EXPORT lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Offset_0__Lean_Meta_withInstantiatedMVars___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -110,105 +110,97 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; 
-x_10 = lean_st_ref_get(x_5, x_6);
-x_11 = lean_ctor_get(x_10, 1);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
+x_10 = lean_st_ref_get(x_3, x_6);
+x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
+x_12 = lean_ctor_get(x_10, 1);
+lean_inc(x_12);
 lean_dec(x_10);
-x_12 = lean_st_ref_get(x_3, x_11);
-x_13 = lean_ctor_get(x_12, 0);
+x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
-x_14 = lean_ctor_get(x_12, 1);
-lean_inc(x_14);
-lean_dec(x_12);
-x_15 = lean_ctor_get(x_13, 0);
+lean_dec(x_11);
+x_14 = l_Lean_instantiateMVarsCore(x_13, x_1);
+x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
-lean_dec(x_13);
-x_16 = l_Lean_instantiateMVarsCore(x_15, x_1);
-x_17 = lean_ctor_get(x_16, 0);
-lean_inc(x_17);
-x_18 = lean_ctor_get(x_16, 1);
+x_16 = lean_ctor_get(x_14, 1);
+lean_inc(x_16);
+lean_dec(x_14);
+x_17 = lean_st_ref_take(x_3, x_12);
+x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
-lean_dec(x_16);
-x_19 = lean_st_ref_get(x_5, x_14);
-x_20 = lean_ctor_get(x_19, 1);
-lean_inc(x_20);
-lean_dec(x_19);
-x_21 = lean_st_ref_take(x_3, x_20);
-x_22 = lean_ctor_get(x_21, 0);
-lean_inc(x_22);
-x_23 = lean_ctor_get(x_21, 1);
-lean_inc(x_23);
+x_19 = lean_ctor_get(x_17, 1);
+lean_inc(x_19);
+lean_dec(x_17);
+x_20 = !lean_is_exclusive(x_18);
+if (x_20 == 0)
+{
+lean_object* x_21; lean_object* x_22; uint8_t x_23; 
+x_21 = lean_ctor_get(x_18, 0);
 lean_dec(x_21);
-x_24 = !lean_is_exclusive(x_22);
-if (x_24 == 0)
+lean_ctor_set(x_18, 0, x_16);
+x_22 = lean_st_ref_set(x_3, x_18, x_19);
+x_23 = !lean_is_exclusive(x_22);
+if (x_23 == 0)
 {
-lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_25 = lean_ctor_get(x_22, 0);
-lean_dec(x_25);
-lean_ctor_set(x_22, 0, x_18);
-x_26 = lean_st_ref_set(x_3, x_22, x_23);
-x_27 = !lean_is_exclusive(x_26);
-if (x_27 == 0)
-{
-lean_object* x_28; lean_object* x_29; 
-x_28 = lean_ctor_get(x_26, 0);
-lean_dec(x_28);
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_17);
-lean_ctor_set(x_26, 0, x_29);
-return x_26;
+lean_object* x_24; lean_object* x_25; 
+x_24 = lean_ctor_get(x_22, 0);
+lean_dec(x_24);
+x_25 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_25, 0, x_15);
+lean_ctor_set(x_22, 0, x_25);
+return x_22;
 }
 else
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; 
-x_30 = lean_ctor_get(x_26, 1);
-lean_inc(x_30);
-lean_dec(x_26);
-x_31 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_31, 0, x_17);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_31);
-lean_ctor_set(x_32, 1, x_30);
-return x_32;
-}
-}
-else
-{
-lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_33 = lean_ctor_get(x_22, 1);
-x_34 = lean_ctor_get(x_22, 2);
-x_35 = lean_ctor_get(x_22, 3);
-lean_inc(x_35);
-lean_inc(x_34);
-lean_inc(x_33);
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
+x_26 = lean_ctor_get(x_22, 1);
+lean_inc(x_26);
 lean_dec(x_22);
-x_36 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_36, 0, x_18);
-lean_ctor_set(x_36, 1, x_33);
-lean_ctor_set(x_36, 2, x_34);
-lean_ctor_set(x_36, 3, x_35);
-x_37 = lean_st_ref_set(x_3, x_36, x_23);
-x_38 = lean_ctor_get(x_37, 1);
-lean_inc(x_38);
-if (lean_is_exclusive(x_37)) {
- lean_ctor_release(x_37, 0);
- lean_ctor_release(x_37, 1);
- x_39 = x_37;
-} else {
- lean_dec_ref(x_37);
- x_39 = lean_box(0);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_15);
+x_28 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_28, 0, x_27);
+lean_ctor_set(x_28, 1, x_26);
+return x_28;
 }
-x_40 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_40, 0, x_17);
-if (lean_is_scalar(x_39)) {
- x_41 = lean_alloc_ctor(0, 2, 0);
-} else {
- x_41 = x_39;
 }
-lean_ctor_set(x_41, 0, x_40);
-lean_ctor_set(x_41, 1, x_38);
-return x_41;
+else
+{
+lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_29 = lean_ctor_get(x_18, 1);
+x_30 = lean_ctor_get(x_18, 2);
+x_31 = lean_ctor_get(x_18, 3);
+lean_inc(x_31);
+lean_inc(x_30);
+lean_inc(x_29);
+lean_dec(x_18);
+x_32 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_32, 0, x_16);
+lean_ctor_set(x_32, 1, x_29);
+lean_ctor_set(x_32, 2, x_30);
+lean_ctor_set(x_32, 3, x_31);
+x_33 = lean_st_ref_set(x_3, x_32, x_19);
+x_34 = lean_ctor_get(x_33, 1);
+lean_inc(x_34);
+if (lean_is_exclusive(x_33)) {
+ lean_ctor_release(x_33, 0);
+ lean_ctor_release(x_33, 1);
+ x_35 = x_33;
+} else {
+ lean_dec_ref(x_33);
+ x_35 = lean_box(0);
+}
+x_36 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_36, 0, x_15);
+if (lean_is_scalar(x_35)) {
+ x_37 = lean_alloc_ctor(0, 2, 0);
+} else {
+ x_37 = x_35;
+}
+lean_ctor_set(x_37, 0, x_36);
+lean_ctor_set(x_37, 1, x_34);
+return x_37;
 }
 }
 }

@@ -13,34 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Elab_Info_contains(lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_logLint___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_logLint___rarg___closed__2;
-static lean_object* l_Lean_Linter_logLint___rarg___closed__5;
-static lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Linter_logLint___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Linter_logLint___rarg___closed__1;
 static lean_object* l_Lean_Linter_logLint___rarg___closed__3;
-static lean_object* l_Lean_Linter_logLint___rarg___closed__6;
-LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3(lean_object*);
-lean_object* l_Lean_stringToMessageData(lean_object*);
 static lean_object* l_Lean_Linter_logLint___rarg___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg___lambda__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go(lean_object*);
+lean_object* l_Lean_Elab_InfoTree_visitM_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_stringToMessageData(lean_object*);
+static lean_object* l_Lean_Linter_logLint___rarg___closed__5;
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__2(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f___rarg___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLint(lean_object*);
+static lean_object* l_Lean_Linter_logLint___rarg___closed__2;
+static lean_object* l_Lean_Linter_logLint___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_InfoTree_visitM___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__3(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+lean_object* l_List_reverse___rarg(lean_object*);
+static lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Linter_logLint___rarg___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Linter_logLint___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MessageData_ofName(lean_object*);
+uint8_t l_Lean_Elab_Info_contains(lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Linter_logLint___rarg___closed__1() {
 _start:
 {
@@ -97,26 +97,26 @@ _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; 
 x_8 = lean_ctor_get(x_5, 0);
+lean_inc(x_8);
+lean_dec(x_5);
 x_9 = l_Lean_Linter_logLint___rarg___closed__2;
-x_10 = lean_alloc_ctor(10, 2, 0);
+x_10 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_10, 0, x_9);
 lean_ctor_set(x_10, 1, x_7);
 x_11 = l_Lean_Linter_logLint___rarg___closed__4;
-x_12 = lean_alloc_ctor(10, 2, 0);
+x_12 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_12, 0, x_10);
 lean_ctor_set(x_12, 1, x_11);
 lean_inc(x_8);
-x_13 = lean_alloc_ctor(4, 1, 0);
-lean_ctor_set(x_13, 0, x_8);
-x_14 = lean_alloc_ctor(10, 2, 0);
+x_13 = l_Lean_MessageData_ofName(x_8);
+x_14 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_14, 0, x_12);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_Linter_logLint___rarg___closed__6;
-x_16 = lean_alloc_ctor(10, 2, 0);
+x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-lean_inc(x_8);
-x_17 = lean_alloc_ctor(11, 2, 0);
+x_17 = lean_alloc_ctor(8, 2, 0);
 lean_ctor_set(x_17, 0, x_8);
 lean_ctor_set(x_17, 1, x_16);
 x_18 = 1;
@@ -128,17 +128,8 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLint(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Linter_logLint___rarg___boxed), 7, 0);
+x_2 = lean_alloc_closure((void*)(l_Lean_Linter_logLint___rarg), 7, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Linter_logLint___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_Linter_logLint___rarg(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_5);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_List_filterMap___at_Lean_Linter_collectMacroExpansions_x3f_go___spec__1(lean_object* x_1) {

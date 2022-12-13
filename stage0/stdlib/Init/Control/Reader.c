@@ -13,31 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_failure___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_failure(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_orElse(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_failure___rarg___boxed(lean_object*, lean_object*);
 lean_object* l_ReaderT_instApplicativeReaderT___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_tryFinally___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__3(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_tryFinally(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg(lean_object*, lean_object*);
 static lean_object* l_instMonadControlReaderT___closed__2;
-static lean_object* l_instMonadControlReaderT___closed__3;
-LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_instMonadControlReaderT___closed__1;
+LEAN_EXPORT lean_object* l_ReaderT_orElse(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_instAlternativeReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadControlReaderT(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__2(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_tryFinally(lean_object*, lean_object*);
+static lean_object* l_instMonadControlReaderT___closed__1;
+static lean_object* l_instMonadControlReaderT___closed__3;
+LEAN_EXPORT lean_object* l_ReaderT_failure___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ReaderT_failure(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instMonadControlReaderT___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_orElse___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

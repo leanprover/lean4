@@ -13,28 +13,28 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_PSigma_skipLeft___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instWellFoundedRelation(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_sizeOfWFRel(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelationProd(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_invImage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelationProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_lt__wfRel;
 LEAN_EXPORT lean_object* l_Prod_rprod___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelationPSigma___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelationProd(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_skipLeft___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_invImage(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_invImage___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_PSigma_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_lt__wfRel;
 LEAN_EXPORT lean_object* l_measure(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_sizeOfWFRel(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_rprod(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelationPSigma(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_lex(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_instWellFoundedRelationProd___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_emptyWf(lean_object*);
 LEAN_EXPORT lean_object* l_PSigma_skipLeft(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_sizeOfWFRel___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_PSigma_instWellFoundedRelationPSigma___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_measure___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_PSigma_lex___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instWellFoundedRelation___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_lex(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Prod_rprod(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instWellFoundedRelation(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_emptyWf(lean_object* x_1) {
 _start:
 {

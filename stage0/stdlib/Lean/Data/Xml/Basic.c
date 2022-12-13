@@ -13,40 +13,40 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
-static lean_object* l_Lean_Xml_instToStringElement___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement;
+uint8_t lean_usize_dec_eq(size_t, size_t);
+LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
+static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
+static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
+LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes(lean_object*);
+static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1(size_t, size_t, lean_object*);
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__2;
+static lean_object* l_Lean_Xml_instToStringContent___closed__1;
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Xml_instInhabitedContent;
+static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Xml_instInhabitedContent___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Xml_instToStringAttributes(lean_object*);
-static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__3;
-static lean_object* l_Lean_Xml_instToStringContent___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
+size_t lean_usize_add(size_t, size_t);
+static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__3;
+lean_object* lean_array_uget(lean_object*, size_t);
+lean_object* lean_string_append(lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+static lean_object* l_Lean_Xml_instToStringElement___closed__1;
 uint8_t lean_usize_dec_lt(size_t, size_t);
+LEAN_EXPORT lean_object* l_Lean_Xml_instToStringElement;
 static lean_object* l_Lean_Xml_instToStringAttributes___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
-uint8_t lean_usize_dec_eq(size_t, size_t);
-static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Xml_instToStringContent;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__2;
-static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__3;
-lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString(lean_object*);
-size_t lean_usize_of_nat(lean_object*);
-size_t lean_usize_add(size_t, size_t);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___boxed(lean_object*, lean_object*);
-lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1;
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Xml_instInhabitedContent;
-static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_cToString___closed__1;
-static lean_object* l___private_Lean_Data_Xml_Basic_0__Lean_Xml_eToString___closed__2;
 static lean_object* _init_l_Lean_RBNode_fold___at_Lean_Xml_instToStringAttributes___spec__1___closed__1() {
 _start:
 {

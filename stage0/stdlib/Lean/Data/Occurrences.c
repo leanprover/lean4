@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT uint8_t l_List_elem___at_Lean_Occurrences_contains___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32____spec__1___boxed(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instInhabitedOccurrences;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_instBEqOccurrences___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Occurrences_contains___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instInhabitedOccurrences;
+LEAN_EXPORT lean_object* l_List_elem___at_Lean_Occurrences_contains___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Occurrences_isAll(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_instBEqOccurrences;
 LEAN_EXPORT lean_object* l_Lean_Occurrences_isAll___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_List_elem___at_Lean_Occurrences_contains___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Occurrences_contains___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32____spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32_(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_List_beq___at___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32____spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_instBEqOccurrences;
-LEAN_EXPORT uint8_t l_Lean_Occurrences_isAll(lean_object*);
-LEAN_EXPORT lean_object* l_List_elem___at_Lean_Occurrences_contains___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_instInhabitedOccurrences() {
 _start:
 {

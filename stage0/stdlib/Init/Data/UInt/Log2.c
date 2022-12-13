@@ -13,16 +13,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t lean_uint8_log2(uint8_t);
-uint64_t lean_uint64_log2(uint64_t);
-LEAN_EXPORT lean_object* l_UInt16_log2___boxed(lean_object*);
-size_t lean_usize_log2(size_t);
-LEAN_EXPORT lean_object* l_UInt64_log2___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_UInt32_log2___boxed(lean_object*);
-uint32_t lean_uint32_log2(uint32_t);
-LEAN_EXPORT lean_object* l_USize_log2___boxed(lean_object*);
-uint16_t lean_uint16_log2(uint16_t);
 LEAN_EXPORT lean_object* l_UInt8_log2___boxed(lean_object*);
+uint16_t lean_uint16_log2(uint16_t);
+uint32_t lean_uint32_log2(uint32_t);
+LEAN_EXPORT lean_object* l_UInt16_log2___boxed(lean_object*);
+uint8_t lean_uint8_log2(uint8_t);
+LEAN_EXPORT lean_object* l_USize_log2___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_UInt32_log2___boxed(lean_object*);
+uint64_t lean_uint64_log2(uint64_t);
+LEAN_EXPORT lean_object* l_UInt64_log2___boxed(lean_object*);
+size_t lean_usize_log2(size_t);
 LEAN_EXPORT lean_object* l_UInt8_log2___boxed(lean_object* x_1) {
 _start:
 {

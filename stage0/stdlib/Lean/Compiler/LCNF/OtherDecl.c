@@ -13,25 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__3;
-lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__2;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_Lean_Compiler_LCNF_getPhase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__3;
 lean_object* l_instInhabitedReaderT___rarg___boxed(lean_object*, lean_object*);
-static lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__1;
-static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__1;
 lean_object* l_ReaderT_instMonadReaderT___rarg(lean_object*);
-extern lean_object* l_Lean_instInhabitedExpr;
-extern lean_object* l_Lean_Core_instMonadCoreM;
 static lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__2;
-lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_getPhase(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__1;
+lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
+extern lean_object* l_Lean_instInhabitedExpr;
 static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__4;
+lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__3;
+LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__3;
+lean_object* lean_panic_fn(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_getOtherDeclType___closed__2;
+lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_getOtherDeclType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+extern lean_object* l_Lean_Core_instMonadCoreM;
+static lean_object* l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__1;
 static lean_object* _init_l_panic___at_Lean_Compiler_LCNF_getOtherDeclType___spec__1___closed__1() {
 _start:
 {

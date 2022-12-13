@@ -13,44 +13,44 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__8;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__11;
-static lean_object* l_termS_x21_____closed__9;
-static lean_object* l_termS_x21_____closed__14;
-static lean_object* l_termS_x21_____closed__5;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_termS_x21_____closed__8;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__5;
-lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__4;
-LEAN_EXPORT lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1(lean_object*, lean_object*, lean_object*);
-static lean_object* l_termS_x21_____closed__13;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__10;
-static lean_object* l_termS_x21_____closed__4;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__1;
 static lean_object* l_termS_x21_____closed__6;
-uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__6;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__12;
-lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__9;
 static lean_object* l_termS_x21_____closed__1;
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__3;
+static lean_object* l_termS_x21_____closed__13;
+static lean_object* l_termS_x21_____closed__4;
+lean_object* l_Lean_TSyntax_expandInterpolatedStr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__7;
-lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
-static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__2;
+uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__11;
 static lean_object* l_termS_x21_____closed__3;
-static lean_object* l_termS_x21_____closed__12;
-LEAN_EXPORT lean_object* l_termS_x21__;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_termS_x21_____closed__10;
-lean_object* l_String_toSubstring_x27(lean_object*);
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__3;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__5;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__2;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__4;
+lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l_termS_x21_____closed__11;
-static lean_object* l_termS_x21_____closed__2;
 static lean_object* l_termS_x21_____closed__7;
+static lean_object* l_termS_x21_____closed__9;
+lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__8;
+LEAN_EXPORT lean_object* l_termS_x21__;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__10;
+static lean_object* l_termS_x21_____closed__5;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__12;
+LEAN_EXPORT lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__1;
+static lean_object* l_termS_x21_____closed__8;
+static lean_object* l_termS_x21_____closed__12;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__6;
+static lean_object* l_termS_x21_____closed__14;
+static lean_object* l_termS_x21_____closed__2;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__9;
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__14;
+lean_object* l_String_toSubstring_x27(lean_object*);
+static lean_object* l___aux__Init__Data__ToString__Macro______macroRules__termS_x21____1___closed__13;
 static lean_object* _init_l_termS_x21_____closed__1() {
 _start:
 {

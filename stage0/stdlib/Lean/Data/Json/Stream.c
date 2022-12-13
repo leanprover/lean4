@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
-lean_object* lean_string_from_utf8_unchecked(lean_object*);
-LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_readJson(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_FS_Stream_writeJson(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_parse(lean_object*);
 LEAN_EXPORT lean_object* l_IO_ofExcept___at_IO_FS_Stream_readJson___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:

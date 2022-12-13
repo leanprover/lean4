@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instSizeOfNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForAllUnit___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_default_sizeOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfNat(lean_object*);
-LEAN_EXPORT lean_object* l_default_sizeOf(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instSizeOfNat___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instSizeOf(lean_object*);
 LEAN_EXPORT lean_object* l_instSizeOfForAllUnit(lean_object*);
+LEAN_EXPORT lean_object* l_instSizeOf(lean_object*);
 static lean_object* l_instSizeOf___closed__1;
 LEAN_EXPORT lean_object* l_default_sizeOf(lean_object* x_1, lean_object* x_2) {
 _start:

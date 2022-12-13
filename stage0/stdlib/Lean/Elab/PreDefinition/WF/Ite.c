@@ -13,43 +13,43 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Expr_getAppFn(lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
+lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_mkAppN(lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
-lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_sort___override(lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___closed__2;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkNot(lean_object*);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__5;
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__1;
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__6;
 static lean_object* l_Lean_Meta_iteToDIte___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__4;
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__2;
-static lean_object* l_Lean_Meta_iteToDIte___closed__2;
-extern lean_object* l_Lean_levelZero;
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__7;
-lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-lean_object* l_Lean_Expr_sort___override(lean_object*);
-lean_object* lean_array_get_size(lean_object*);
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__3;
-uint8_t l_Lean_Expr_isAppOfArity(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__6;
-lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_iteToDIte___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__1;
+extern lean_object* l_Lean_levelZero;
 extern lean_object* l_Lean_instInhabitedExpr;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_mkNot(lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__3;
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__7;
+lean_object* l_Lean_Expr_constLevels_x21(lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__5;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+lean_object* l_Lean_Expr_getAppFn(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_iteToDIte___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_iteToDIte___lambda__1___closed__4;
+lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_size(lean_object*);
+lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* _init_l_Lean_Meta_iteToDIte___lambda__1___closed__1() {
 _start:
 {

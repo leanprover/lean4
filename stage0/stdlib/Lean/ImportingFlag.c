@@ -13,21 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_io_initializing(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_initializing(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_withImporting___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* lean_enable_initializer_execution(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_35_(lean_object*);
-lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInitializerExecutionEnabled(lean_object*);
-static lean_object* l_Lean_enableInitializersExecution___closed__1;
-lean_object* lean_st_ref_get(lean_object*, lean_object*);
-static lean_object* l_Lean_initializing___closed__1;
-lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withImporting(lean_object*);
+static lean_object* l_Lean_enableInitializersExecution___closed__1;
+static lean_object* l_Lean_initializing___closed__1;
+LEAN_EXPORT lean_object* l_Lean_initializing(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_runInitializersRef;
+LEAN_EXPORT lean_object* lean_enable_initializer_execution(lean_object*);
+lean_object* lean_st_ref_get(lean_object*, lean_object*);
+lean_object* lean_st_mk_ref(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_ImportingFlag_0__Lean_importingRef;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_4_(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_withImporting___rarg(lean_object*, lean_object*);
+lean_object* lean_io_initializing(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_35_(lean_object*);
+lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ImportingFlag___hyg_4_(lean_object* x_1) {
 _start:
 {

@@ -13,21 +13,21 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__2;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__4;
+extern lean_object* l_Lean_defaultMaxRecDepth;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__6;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_maxRecDepth;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__1;
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__3;
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__6;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6_(lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__4;
-lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_Lean_defaultMaxRecDepth;
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__7;
+lean_object* lean_register_option(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__2;
+static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__1;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____closed__5;
 LEAN_EXPORT lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_RecDepth___hyg_6____spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

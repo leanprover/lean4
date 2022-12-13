@@ -13,10 +13,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_run__bind_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_bindCont_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_run__bind_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_bindCont_match__1_splitter(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_run__bind_match__1_splitter(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Control_Lawful_0__ExceptT_bindCont_match__1_splitter___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

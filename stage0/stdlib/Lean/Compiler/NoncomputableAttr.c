@@ -13,19 +13,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4_(lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__3;
-LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object*, lean_object*);
-lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 static lean_object* l_Lean_addNoncomputable___closed__1;
-uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__2;
-LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_noncomputableExt;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__1;
-lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_noncomputableExt;
+uint8_t l_Lean_TagDeclarationExtension_isTagged(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_isNoncomputable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_addNoncomputable(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_isNoncomputable___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4_(lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__2;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+lean_object* l_Lean_TagDeclarationExtension_tag(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__3;
+lean_object* l_Lean_mkTagDeclarationExtension(lean_object*, lean_object*);
 static lean_object* _init_l_Lean_initFn____x40_Lean_Compiler_NoncomputableAttr___hyg_4____closed__1() {
 _start:
 {

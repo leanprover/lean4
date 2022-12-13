@@ -13,18 +13,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
-static uint8_t l_System_Platform_isOSX___closed__1;
-uint8_t lean_system_platform_emscripten(lean_object*);
-LEAN_EXPORT uint8_t l_System_Platform_isWindows;
-LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
-uint8_t lean_system_platform_osx(lean_object*);
+LEAN_EXPORT uint8_t l_System_Platform_isOSX;
 uint8_t lean_system_platform_windows(lean_object*);
+LEAN_EXPORT lean_object* l_System_Platform_getIsEmscripten___boxed(lean_object*);
 static uint8_t l_System_Platform_isEmscripten___closed__1;
+uint8_t lean_system_platform_emscripten(lean_object*);
 LEAN_EXPORT uint8_t l_System_Platform_isEmscripten;
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object*);
+uint8_t lean_system_platform_osx(lean_object*);
 static uint8_t l_System_Platform_isWindows___closed__1;
-LEAN_EXPORT uint8_t l_System_Platform_isOSX;
+static uint8_t l_System_Platform_isOSX___closed__1;
+LEAN_EXPORT uint8_t l_System_Platform_isWindows;
+LEAN_EXPORT lean_object* l_System_Platform_getIsOSX___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_Platform_getIsWindows___boxed(lean_object* x_1) {
 _start:
 {

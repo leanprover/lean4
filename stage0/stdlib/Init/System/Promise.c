@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_PromiseImpl(lean_object*);
-LEAN_EXPORT lean_object* l_IO_Promise_new___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Promise_resultImpl___rarg(lean_object*);
-lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Promise_resultImpl(lean_object*);
-LEAN_EXPORT lean_object* l_IO_Promise_resolve___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_System_Promise_0__IO_PromiseImpl___closed__1;
 lean_object* lean_io_promise_new(lean_object*);
+static lean_object* l___private_Init_System_Promise_0__IO_PromiseImpl___closed__1;
+LEAN_EXPORT lean_object* l_IO_Promise_resolve___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_IO_Promise_new___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Promise_resultImpl___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Promise_resultImpl(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_PromiseImpl(lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_System_Promise_0__IO_Promise_resultImpl___rarg(lean_object*);
 static lean_object* _init_l___private_Init_System_Promise_0__IO_PromiseImpl___closed__1() {
 _start:
 {

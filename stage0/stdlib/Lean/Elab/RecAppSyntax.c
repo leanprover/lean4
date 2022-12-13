@@ -13,17 +13,17 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2;
+LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
+lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRecAppWithSyntax(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
 lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 extern lean_object* l_Lean_KVMap_empty;
-lean_object* l_Lean_KVMap_insertCore(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__2;
 LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_getRecAppSyntax_x3f(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey;
 static lean_object* _init_l___private_Lean_Elab_RecAppSyntax_0__Lean_recAppKey___closed__1() {
 _start:
 {

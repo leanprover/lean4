@@ -13,33 +13,33 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__3(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Id_instMonadId___closed__4;
-LEAN_EXPORT lean_object* l_Id_instOfNatId___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_run(lean_object*);
+static lean_object* l_Id_instMonadId___closed__3;
+static lean_object* l_Id_instMonadId___closed__2;
+static lean_object* l_Id_instMonadId___closed__1;
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Id_instMonadId___closed__9;
+static lean_object* l_Id_instMonadId___closed__4;
 LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Id_instMonadId___closed__5;
-LEAN_EXPORT lean_object* l_Id_instMonadId;
-static lean_object* l_Id_instMonadId___closed__3;
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_run___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Id_instMonadId___closed__8;
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__3___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_hasBind;
-LEAN_EXPORT lean_object* l_Id_instOfNatId(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Id_instOfNatId___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Id_instMonadId___closed__2;
+LEAN_EXPORT lean_object* l_Id_instOfNatId___boxed(lean_object*, lean_object*);
 static lean_object* l_Id_instMonadId___closed__6;
-LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_run(lean_object*);
 LEAN_EXPORT lean_object* l_Id_instOfNatId___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Id_run___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Id_instOfNatId(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_run___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__3___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__3(lean_object*, lean_object*);
+static lean_object* l_Id_instMonadId___closed__5;
+LEAN_EXPORT lean_object* l_Id_hasBind;
 static lean_object* l_Id_instMonadId___closed__7;
-static lean_object* l_Id_instMonadId___closed__1;
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Id_run___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Id_instMonadId;
+LEAN_EXPORT lean_object* l_Id_instOfNatId___rarg(lean_object*);
+static lean_object* l_Id_instMonadId___closed__8;
 LEAN_EXPORT lean_object* l_Id_instMonadId___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

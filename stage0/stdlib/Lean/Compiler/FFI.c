@@ -13,31 +13,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_System_FilePath_join(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getLinkerFlags(lean_object*, uint8_t);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__3;
-static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__2;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getLinkerFlags(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getLinkerFlags___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getCFlags(lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getLeancExtraFlags___boxed(lean_object*);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__7;
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__8;
-static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__4;
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getBuiltinLinkerFlags___boxed(lean_object*);
-lean_object* l_String_splitOn(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__6;
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__2;
-static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__3;
-lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__5;
+lean_object* l_System_FilePath_join(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__4;
-lean_object* lean_get_leanc_extra_flags(lean_object*);
-lean_object* lean_get_linker_flags(uint8_t);
-static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__1;
+static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__2;
 lean_object* l_String_trim(lean_object*);
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__5;
+static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__3;
+lean_object* lean_get_linker_flags(uint8_t);
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__8;
+lean_object* lean_get_leanc_extra_flags(lean_object*);
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__1;
+static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__1;
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getLeancExtraFlags___boxed(lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getBuiltinLinkerFlags___boxed(lean_object*);
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__7;
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__2;
+lean_object* l_List_foldl___at_Array_appendList___spec__1___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_FFI_getCFlags(lean_object*);
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__6;
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__4;
+static lean_object* l_Lean_Compiler_FFI_getCFlags___closed__3;
+static lean_object* l_Lean_Compiler_FFI_getLinkerFlags___closed__4;
+lean_object* l_String_splitOn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_FFI_0__Lean_Compiler_FFI_getLeancExtraFlags___boxed(lean_object* x_1) {
 _start:
 {

@@ -15,14 +15,14 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_mainLevel(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_findLevelMVar_x3f(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Expr_hasLevelMVar(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visit(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Level_hasMVar(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_main(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldr___at_Lean_FindLevelMVar_main___spec__1___at_Lean_FindLevelMVar_main___spec__2(lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Expr_hasLevelMVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FindLevelMVar_visitLevel(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {

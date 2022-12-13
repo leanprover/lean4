@@ -66,7 +66,9 @@ extern "C" LEAN_EXPORT object * lean_save_module_data(b_obj_arg fname, b_obj_arg
         size_t base_addr = name(mod, true).hash();
         // x86-64 user space is currently limited to the lower 47 bits
         // https://en.wikipedia.org/wiki/X86-64#Virtual_address_space_details
-        base_addr = base_addr & ((1LL<<47) - 1);
+        // On Linux at least, the stack grows down from ~0x7fff... followed by shared libraries, so reserve
+        // a bit of space for them (0x7fff...-0x7f00... = 1TB)
+        base_addr = base_addr % 0x7f0000000000;
         // `mmap` addresses must be page-aligned. The default (non-huge) page size on x86-64 is 4KB.
         // `MapViewOfFileEx` addresses must be aligned to the "memory allocation granularity", which is 64KB.
         base_addr = base_addr & ~((1LL<<16) - 1);

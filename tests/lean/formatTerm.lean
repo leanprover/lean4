@@ -52,3 +52,10 @@ set_option format.indent 4 in
 #eval fmt `(let x := { foo := bar
                        bar := foo + bar }
             x)
+
+#eval fmt `(command|
+def foo : a b c d e f g a b c d e f g h where
+  h := 42
+  i := 42
+  j := 42
+  k := 42)

@@ -90,7 +90,7 @@ def declValEqns      := leading_parser
 def whereStructField := leading_parser
   Term.letDecl
 def whereStructInst  := leading_parser
-  " where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
+  ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
   optional Term.whereDecls
 /-
   Remark: we should not use `Term.whereDecls` at `declVal`

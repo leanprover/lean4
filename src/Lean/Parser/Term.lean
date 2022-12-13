@@ -495,7 +495,7 @@ def «letrec» := leading_parser:leadPrec
 
 @[run_builtin_parser_attribute_hooks]
 def whereDecls := leading_parser
-  " where" >> sepBy1Indent (ppGroup letRecDecl) "; " (allowTrailingSep := true)
+  "where" >> sepBy1Indent (ppGroup letRecDecl) "; " (allowTrailingSep := true)
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser

@@ -682,7 +682,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     | none        =>
       withTraceNode `Meta.synthInstance
         (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
-      let result? ← withNewMCtxDepth do
+      let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
       let resultHasUnivMVars := if let some result := result? then !result.paramNames.isEmpty else false
@@ -698,7 +698,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           if (← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
-               Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,
+               Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
                but these assignments are discarded by `withNewMCtxDepth`.
 
                TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether

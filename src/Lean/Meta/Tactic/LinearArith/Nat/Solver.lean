@@ -10,6 +10,8 @@ namespace Lean.Meta.Linear.Nat
 
 namespace Collect
 
+inductive LinearArith
+
 structure Cnstr where
   cnstr : LinearArith
   proof : Expr

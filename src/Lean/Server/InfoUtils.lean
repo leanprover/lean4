@@ -134,6 +134,26 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
+def Reverse (α : Type u) := α
+instance [Ord α] : Ord (Reverse α) where
+  compare a b := compare (α := α) b a
+instance [DecidableEq α] : DecidableEq (Reverse α) := ‹_›
+
+structure HoverPriority where
+  -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
+  atRangeEnd : Reverse Bool
+  -- relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
+  -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
+  -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
+  -- surrounding the cursor
+  rangeSize : Reverse Nat
+  -- prefer results for constants over variables (which overlap at declaration names)
+  isFVar : Reverse Bool
+  deriving Ord, DecidableEq
+
+instance : LE HoverPriority := leOfOrd
+instance : Max HoverPriority := maxOfLe
+
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) : Option (ContextInfo × Info) := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx info _ results => do
@@ -151,23 +171,14 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     unless (info matches .ofFieldInfo _ | .ofOptionInfo _ || info.toElabInfo?.isSome) && info.contains hoverPos includeStop do
       return results
     let r := info.range?.get!
-    let priority := (
-      -- prefer results directly *after* the hover position (only matters for `includeStop = true`; see #767)
-      if r.stop == hoverPos then 0 else 1,
-      -- relying on the info tree structure is _not_ sufficient for choosing the smallest surrounding node:
-      -- `⟨x⟩` expands to an application of a canonical syntax with the span of the anonymous constructor to `x`,
-      -- i.e. there are two info tree siblings whose spans are not disjoint and we should choose the smaller node
-      -- surrounding the cursor
-      Int.negOfNat (r.stop - r.start).byteIdx,
-      -- prefer results for constants over variables (which overlap at declaration names)
-      if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
+    let priority : HoverPriority := {
+      atRangeEnd := r.stop == hoverPos
+      rangeSize := (r.stop - r.start).byteIdx
+      isFVar := info matches .ofTermInfo { expr := .fvar .., .. }
+    }
     [(priority, ctx, info)]) |>.getD []
   -- sort results by lexicographical priority
-  let maxPrio? :=
-    let _ := @lexOrd
-    let _ := @leOfOrd.{0}
-    let _ := @maxOfLe
-    results.map (·.1) |>.maximum?
+  let maxPrio? := results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
   if let some (_, i) := res? then
     if let .ofTermInfo ti := i then

@@ -1136,10 +1136,16 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     -- parser succeded with incorrect number of nodes
     invalidLongestMatchParser s
 
+private structure LongestMatchScore where
+  byteIdx : Nat
+  noErrorMsg : Bool
+  prio : Nat
+  deriving Ord
+
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
-  let score (s : ParserState) (prio : Nat) :=
-    (s.pos.byteIdx, if s.errorMsg.isSome then (0 : Nat) else 1, prio)
+  let score (s : ParserState) (prio : Nat) : LongestMatchScore :=
+    ⟨s.pos.byteIdx, s.errorMsg.isNone, prio⟩
   let previousScore := score s prevPrio
   let prevErrorMsg  := s.errorMsg
   let prevStopPos   := s.pos
@@ -1147,7 +1153,7 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
   let prevLhsPrec   := s.lhsPrec
   let s             := s.restore prevSize startPos
   let s             := runLongestMatchParser left? startLhsPrec p c s
-  match (let _ := @lexOrd; compare previousScore (score s prio)) with
+  match compare previousScore (score s prio) with
   | .lt => (s.keepNewError startSize, prio)
   | .gt => (s.keepPrevError prevSize prevStopPos prevErrorMsg prevLhsPrec, prevPrio)
   | .eq =>

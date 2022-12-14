@@ -173,6 +173,6 @@ termination_by _ => a.size
 decreasing_by assumption
 
 attribute [simp] Array.heapSort.loop
-#check @Array.heapSort.loop._eq_1
+#check Array.heapSort.loop._eq_1
 
 attribute [simp] BinaryHeap.heapifyDown

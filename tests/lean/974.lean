@@ -10,9 +10,9 @@ def Formula.count_quantifiers : {n:Nat} → Formula n → Nat
 
 attribute [simp] Formula.count_quantifiers
 
-#check @Formula.count_quantifiers._eq_1
-#check @Formula.count_quantifiers._eq_2
-#check @Formula.count_quantifiers._eq_3
+#check Formula.count_quantifiers._eq_1
+#check Formula.count_quantifiers._eq_2
+#check Formula.count_quantifiers._eq_3
 
 @[simp] def Formula.count_quantifiers2 : Formula n → Nat
 | imp f₁ f₂ => f₁.count_quantifiers2 + f₂.count_quantifiers2

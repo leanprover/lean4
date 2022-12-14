@@ -17,7 +17,7 @@ class Monoid (α : Type u) extends Semigroup α, One α where
 class CommMonoid (α : Type u) extends Monoid α, CommSemigroup α
 
 set_option pp.all true
-#check @CommMonoid.mk
+#check CommMonoid.mk
 #print CommMonoid.toCommSemigroup
 
 class Inv (α : Type u) where
@@ -30,7 +30,7 @@ class Group (α : Type u) extends Monoid α, Inv α where
 
 class CommGroup (α : Type u) extends Group α, CommMonoid α
 
-#check @CommGroup.mk
+#check CommGroup.mk
 #print CommGroup.toCommMonoid
 
 class AddSemigroup (α : Type u) extends Add α where
@@ -87,6 +87,6 @@ class DivisionRing (α : Type u) extends Ring α, Inv α, ZeroNeOne α where
 class Field (α : Type u) extends DivisionRing α, CommRing α
 
 set_option pp.all false in
-#check @Field.mk
+#check Field.mk
 #print Field.toDivisionRing
 #print Field.toCommRing

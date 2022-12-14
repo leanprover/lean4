@@ -3,7 +3,7 @@ structure A :=
   x : Nat
   a' : x = 1 := by trivial
 
-#check @A.a'
+#check A.a'
 
 example (z : A) : z.x = 1 := by
   have := z.a'
@@ -15,7 +15,7 @@ example (z : A) : z.x = 1 := by
   trace_state
   exact this
 
-#check @A.rec
+#check A.rec
 
 example (z : A) : z.x = 1 := by
   have ⟨x, a'⟩ := z

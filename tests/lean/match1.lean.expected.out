@@ -46,6 +46,6 @@ fun x =>
   | #[] => 0
   | #[3, 4, 5] => 3
   | x => 4 : Array Nat → Nat
-g.match_1 : (motive : List ?m → Sort u_2) →
-  (x : List ?m) → ((a : ?m) → motive [a]) → ((x : List ?m) → motive x) → motive x
+g.match_1.{u_1, u_2} {α : Type u_1} (motive : List α → Sort u_2) (x✝ : List α) (h_1 : (a : α) → motive [a])
+  (h_2 : (x : List α) → motive x) : motive x✝
 fun e => nomatch e : Empty → False

@@ -50,7 +50,7 @@ structure FooGeneric (α : Type) where
   b? : Option α
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableFooGeneric
+#check instRpcEncodableFooGeneric
 #eval test (FooGeneric Nat) default
 #eval test (FooGeneric Nat) { a := 3, b? := some 42 }
 
@@ -58,7 +58,7 @@ inductive BazInductive
   | baz (arr : Array Bar)
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableBazInductive
+#check instRpcEncodableBazInductive
 #eval test BazInductive ⟨#[default, default]⟩
 
 inductive FooInductive (α : Type) where
@@ -66,7 +66,7 @@ inductive FooInductive (α : Type) where
   | b : (n : Nat) → (a : α) → (m : Nat) → FooInductive α
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableFooInductive
+#check instRpcEncodableFooInductive
 #eval test (FooInductive BazInductive) (.a default default)
 #eval test (FooInductive BazInductive) (.b 42 default default)
 
@@ -80,20 +80,20 @@ inductive FooParam (n : Nat) where
   | a : Nat → FooParam n
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableFooParam
+#check instRpcEncodableFooParam
 #eval test (FooParam 10) (.a 42)
 
 inductive Unused (α : Type) | a
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableUnused
+#check instRpcEncodableUnused
 structure NoRpcEncodable
 #eval test (Unused NoRpcEncodable) default
 
 structure UnusedStruct (α : Type)
   deriving RpcEncodable, Inhabited
 
-#check @instRpcEncodableUnusedStruct
+#check instRpcEncodableUnusedStruct
 #eval test (UnusedStruct NoRpcEncodable) default
 
 deriving instance Repr, RpcEncodable for Empty

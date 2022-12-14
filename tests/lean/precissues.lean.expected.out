@@ -3,9 +3,9 @@ id fun x => x : ?m → ?m
 f 1 fun x => x : Nat
 0 : Nat
 f 1 fun x => x : Nat
-id : ?m → ?m
+id.{u} {α : Sort u} (a : α) : α
 precissues.lean:15:10: error: expected command
-id : ?m → ?m
+id.{u} {α : Sort u} (a : α) : α
 precissues.lean:17:10: error: expected command
 1 : Nat
 id
@@ -26,5 +26,5 @@ p ∧ ¬q : Prop
 ¬p = q : Prop
 id ¬p : Prop
 Nat → ∀ (a : Nat), a = a : Prop
-id : ?m → ?m
+id.{u} {α : Sort u} (a : α) : α
 precissues.lean:41:10: error: expected command

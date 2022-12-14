@@ -87,7 +87,7 @@ instance [Nonempty α] : Nonempty (Mutex α) :=
   let ⟨mutex⟩ := inferInstanceAs (Nonempty _)
   ⟨{ref, mutex}⟩
 
-instance : CoeHead (Mutex α) BaseMutex where coe := Mutex.mutex
+instance : CoeOut (Mutex α) BaseMutex where coe := Mutex.mutex
 
 /-- Creates a new mutex. -/
 def Mutex.new (a : α) : BaseIO (Mutex α) :=

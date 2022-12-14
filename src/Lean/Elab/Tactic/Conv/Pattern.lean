@@ -125,7 +125,8 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
         pure (.occs #[] 0 ids.toList)
       | _ => throwUnsupportedSyntax
     let state ← IO.mkRef occs
-    let (result, _) ← Simp.main lhs (← getContext) (methods := { pre := pre patternA state })
+    let ctx := { ← getContext with config.memoize := occs matches .all _ }
+    let (result, _) ← Simp.main lhs ctx (methods := { pre := pre patternA state })
     let subgoals ← match ← state.get with
     | .all #[] | .occs _ 0 _ =>
       throwError "'pattern' conv tactic failed, pattern was not found{indentExpr patternA.expr}"

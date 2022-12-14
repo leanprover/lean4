@@ -33,7 +33,7 @@ occurrence of the pattern.
 syntax occsIndexed := num+
 
 /-- An occurrence specification, either `*` or a list of numbers. The default is `[1]`. -/
-syntax occs := atomic(" (" &"occs") " := " (occsWildcard <|> occsIndexed) ")"
+syntax occs := atomic("(" &"occs") " := " (occsWildcard <|> occsIndexed) ") "
 
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with

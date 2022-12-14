@@ -120,7 +120,30 @@ instance [Coe α β] : CoeTC α β where coe a := Coe.coe a
 instance : CoeTC α α where coe a := a
 
 /--
-`CoeHead α β` is for coercions that are applied from left-to-right.
+`CoeOut α β` is for coercions that are applied from left-to-right.
+-/
+class CoeOut (α : Sort u) (β : Sort v) where
+  /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
+  or by double type ascription `((x : α) : β)`. -/
+  coe : α → β
+attribute [coe_decl] CoeOut.coe
+
+/--
+Auxiliary class implementing `CoeOut* Coe*`.
+Users should generally not implement this directly.
+-/
+class CoeOTC (α : Sort u) (β : Sort v) where
+  /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
+  or by double type ascription `((x : α) : β)`. -/
+  coe : α → β
+attribute [coe_decl] CoeOTC.coe
+
+instance [CoeOut α β] [CoeOTC β γ] : CoeOTC α γ where coe a := CoeOTC.coe (CoeOut.coe a : β)
+instance [CoeTC α β] : CoeOTC α β where coe a := CoeTC.coe a
+
+/--
+`CoeHead α β` is for coercions that are applied from left-to-right at most once
+at beginning of the coercion chain.
 -/
 class CoeHead (α : Sort u) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
@@ -129,7 +152,7 @@ class CoeHead (α : Sort u) (β : Sort v) where
 attribute [coe_decl] CoeHead.coe
 
 /--
-Auxiliary class implementing `CoeHead* Coe*`.
+Auxiliary class implementing `CoeHead CoeOut* Coe*`.
 Users should generally not implement this directly.
 -/
 class CoeHTC (α : Sort u) (β : Sort v) where
@@ -138,8 +161,8 @@ class CoeHTC (α : Sort u) (β : Sort v) where
   coe : α → β
 attribute [coe_decl] CoeHTC.coe
 
-instance [CoeHead α β] [CoeHTC β γ] : CoeHTC α γ where coe a := CoeHTC.coe (CoeHead.coe a : β)
-instance [CoeTC α β] : CoeHTC α β where coe a := CoeTC.coe a
+instance [CoeHead α β] [CoeOTC β γ] : CoeHTC α γ where coe a := CoeOTC.coe (CoeHead.coe a : β)
+instance [CoeOTC α β] : CoeHTC α β where coe a := CoeOTC.coe a
 
 /--
 `CoeTail α β` is for coercions that can only appear at the end of a
@@ -210,7 +233,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   coe : (f : α) → γ f
 attribute [coe_decl] CoeFun.coe
 
-instance [CoeFun α fun _ => β] : CoeHead α β where coe a := CoeFun.coe a
+instance [CoeFun α fun _ => β] : CoeOut α β where coe a := CoeFun.coe a
 
 /--
 `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
@@ -222,7 +245,7 @@ class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   coe : α → β
 attribute [coe_decl] CoeSort.coe
 
-instance [CoeSort α β] : CoeHead α β where coe a := CoeSort.coe a
+instance [CoeSort α β] : CoeOut α β where coe a := CoeSort.coe a
 
 /--
 `↑x` represents a coercion, which converts `x` of type `α` to type `β`, using
@@ -247,7 +270,7 @@ instance decPropToBool (p : Prop) [Decidable p] : CoeDep Prop p Bool where
 instance optionCoe {α : Type u} : Coe α (Option α) where
   coe := some
 
-instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeHead (Subtype p) α where
+instance subtypeCoe {α : Sort u} {p : α → Prop} : CoeOut (Subtype p) α where
   coe v := v.val
 
 /-! # Coe bridge -/

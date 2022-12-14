@@ -1100,16 +1100,16 @@ instance : EmptyCollection (SepArray sep) where
 instance : EmptyCollection (TSepArray sep k) where
   emptyCollection := ⟨∅⟩
 
-instance : CoeHead (SepArray sep) (Array Syntax) where
+instance : CoeOut (SepArray sep) (Array Syntax) where
   coe := SepArray.getElems
 
-instance : CoeHead (TSepArray k sep) (TSyntaxArray k) where
+instance : CoeOut (TSepArray k sep) (TSyntaxArray k) where
   coe := TSepArray.getElems
 
 instance [Coe (TSyntax k) (TSyntax k')] : Coe (TSyntaxArray k) (TSyntaxArray k') where
   coe a := a.map Coe.coe
 
-instance : CoeHead (TSyntaxArray k) (Array Syntax) where
+instance : CoeOut (TSyntaxArray k) (Array Syntax) where
   coe a := a.raw
 
 instance : Coe Ident (TSyntax `Lean.Parser.Command.declId) where

@@ -98,7 +98,7 @@ syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Parser.Syntax
 
-instance : CoeHead (TSyntax ks) Syntax where
+instance : CoeOut (TSyntax ks) Syntax where
   coe stx := stx.raw
 
 instance : Coe SyntaxNodeKind SyntaxNodeKinds where

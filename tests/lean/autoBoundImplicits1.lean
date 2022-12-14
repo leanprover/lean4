@@ -30,7 +30,7 @@ variable (xs : Vec α n) -- works
 
 def f := xs
 
-#check @f
+#check f
 
 #check f mkVec
 

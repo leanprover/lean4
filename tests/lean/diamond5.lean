@@ -14,4 +14,4 @@ def D.toC (x : Nat) := x
 
 class D (α : Type) extends B α, C α
 
-#check @D.toC_1
+#check D.toC_1

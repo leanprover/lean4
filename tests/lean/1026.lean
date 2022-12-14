@@ -10,4 +10,4 @@ theorem ex : foo 0 = 0 := by
   unfold foo
   sorry
 
-#check @foo._unfold
+#check foo._unfold

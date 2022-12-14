@@ -235,22 +235,23 @@ open Meta
 
 def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
+    -- show signature for `#check id`/`#check @id`
+    if let `($_:ident) := term then
+      try
+        for c in (← resolveGlobalConstWithInfos term) do
+          addCompletionInfo <| .id term c (danglingDot := false) {} none
+          logInfoAt tk <| .ofPPFormat { pp := fun
+            | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
+            | none     => return f!"{c}"  -- should never happen
+          }
+          return
+      catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
     let e ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
     if e.isSyntheticSorry then
       return
-    -- show signature for `#check id`/`#check @id`
-    match term with
-    | `($_:ident) | `(@$_:ident) =>
-      if let .const c _ := e then
-        logInfoAt tk <| .ofPPFormat { pp := fun
-          | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
-          | none     => return f!"{c}"  -- should never happen
-        }
-        return
-    | _ => pure ()
     logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 

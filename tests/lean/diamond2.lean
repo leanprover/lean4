@@ -11,7 +11,7 @@ set_option structureDiamondWarning false
 
 structure Foo1 (α : Type) extends Bar (α → α), Baz α
 
-#check @Foo1.mk
+#check Foo1.mk
 
 def f1 (x : Nat) : Foo1 Nat :=
   { a := id
@@ -26,7 +26,7 @@ structure Boo2 (α : Type) extends Boo1 α where
 
 structure Foo2 (α : Type) extends Bar (α → α), Boo2 α
 
-#check @Foo2.mk
+#check Foo2.mk
 
 def f2 (v : Nat) : Foo2 Nat :=
   { a  := id

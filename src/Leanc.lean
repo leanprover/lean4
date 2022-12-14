@@ -12,7 +12,7 @@ as-is to the wrapped compiler.
 
 Interesting options:
 * `--print-cflags`: print C compiler flags necessary for building against the Lean runtime and exit
-* `--print-ldlags`: print C compiler flags necessary for statically linking against the Lean library and exit"
+* `--print-ldflags`: print C compiler flags necessary for statically linking against the Lean library and exit"
     return 1
 
   let root ← match (← IO.getEnv "LEAN_SYSROOT") with

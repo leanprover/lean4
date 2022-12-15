@@ -47,7 +47,7 @@ inductive Error where
 | unknownDeclaration : Name → Error
 | invalidExportName : Name → Error
 | unimplemented : String → Error
-| compileError: String → Error -- TODO: these gotta be changed into real errors
+| compileError: String → Error -- TODO: change this into an exhaustive Inductive enumeration.
 
 instance : ToString Error where
   toString e := match e with
@@ -213,7 +213,7 @@ def callLeanAllocCtor (builder : LLVM.Builder llvmctx) (tag num_objs scalar_sz :
 
 -- `void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v)`
 -- TODO(bollu) : remove name from this, since it returns void.
-def callLeanCtorSet (builder : LLVM.Builder llvmctx) (o i v : LLVM.Value llvmctx) (name : String := "") : M llvmctx (LLVM.Value llvmctx) := do
+def callLeanCtorSet (builder : LLVM.Builder llvmctx) (o i v : LLVM.Value llvmctx) : M llvmctx Unit := 
   let fnName :=  "lean_ctor_set"
   let retty ← LLVM.voidType llvmctx
   let voidptr ← LLVM.voidPtrType llvmctx
@@ -221,7 +221,7 @@ def callLeanCtorSet (builder : LLVM.Builder llvmctx) (o i v : LLVM.Value llvmctx
   let argtys :=  #[voidptr, unsigned, voidptr]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  LLVM.buildCall2 builder fnty fn  #[o, i, v] name
+  _ <- LLVM.buildCall2 builder fnty fn  #[o, i, v] name
 
 def callLeanIOResultMKOk (builder : LLVM.Builder llvmctx) (v : LLVM.Value llvmctx) (name : String) : M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_io_result_mk_ok"
@@ -1141,7 +1141,6 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
         let _ ← LLVM.buildStore builder arg alloca
         addVartoState params[i]!.x alloca llvmty
 
--- TODO: figure out if we can always return the corresponding function?
 def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv
   let (_, jpMap) := mkVarJPMaps d
@@ -1211,7 +1210,6 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
       let restBB ← builderAppendBasicBlock builder s!"post_{d.name}_init"
       let checkBuiltin? := getBuiltinInitFnNameFor? env d.name |>.isSome
       if checkBuiltin? then
-         -- TODO (bollu) : what does this condition mean?
         let builtinParam ← LLVM.getParam parentFn 0 -- TODO(bollu) : what does this argument mean?
         let cond ← buildLeanBoolTrue? builder builtinParam "is_builtin_true"
         let _ ← LLVM.buildCondBr builder cond initBB restBB
@@ -1285,7 +1283,6 @@ def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let _ ← LLVM.buildRet builder res
         pure ShouldForwardControlFlow.no)
     callLeanDecRef builder res
-    -- TODO: call lean_dec_ref. It's fine to not decrement refcounts.
   let decls := getDecls env
   decls.reverse.forM (emitDeclInit builder initFn)
   let box0 ← callLeanBox builder (← LLVM.constIntUnsigned llvmctx 0) "box0"
@@ -1419,7 +1416,6 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
   -- let (setPanicMessagesFnTy, setPanicMesagesFn) ← getOrCreateLeanSetPanicMessages mod
-  -- TODO(bollu) : remove reuse of the same function type across two locations
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
   let resv ← callModInitFn builder modName (← LLVM.constInt8 llvmctx 1) world
@@ -1455,9 +1451,9 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
             let argv_i_next_slot ← LLVM.buildGEP2 builder (← LLVM.voidPtrType llvmctx) argvval #[iv_next] "argv.i.next.slot"
             let argv_i_next_val ← LLVM.buildLoad2 builder (← LLVM.voidPtrType llvmctx) argv_i_next_slot "argv.i.next.val"
             let argv_i_next_val_str ← callLeanMkString builder argv_i_next_val "arg.i.next.val.str"
-            let _ ← callLeanCtorSet builder nv (← constIntUnsigned 0) argv_i_next_val_str
+            callLeanCtorSet builder nv (← constIntUnsigned 0) argv_i_next_val_str
             let inv ← LLVM.buildLoad2 builder inty inslot "inv"
-            let _ ← callLeanCtorSet builder nv (← constIntUnsigned 1) inv
+            callLeanCtorSet builder nv (← constIntUnsigned 1) inv
             LLVM.buildStore builder nv inslot)
         let world ← callLeanIOMkWorld builder
         let inv ← LLVM.buildLoad2 builder inty inslot "inv"
@@ -1476,7 +1472,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   -- either `UInt32` or `(P)Unit`
   let retTy := retTy.appArg!
   -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
-  let _ ← callLeanFinalizeTaskManager builder
+  callLeanFinalizeTaskManager builder
   let resv ← LLVM.buildLoad2 builder resty res "resv"
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
   buildIfThenElse_ builder "res.is.ok" res_is_ok

@@ -268,8 +268,6 @@ def callLeanIOResultGetValue (builder : LLVM.Builder llvmctx) (v : LLVM.Value ll
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[v] name
 
--- TODO(bollu): what does this actually release?
--- ** void lean_ctor_release (lean_obj_arg o, int i)`
 def callLeanCtorRelease (builder : LLVM.Builder llvmctx)
   (closure i : LLVM.Value llvmctx) (retName : String := "") : M llvmctx Unit := do
   let fnName :=  "lean_ctor_release"
@@ -356,13 +354,11 @@ def buildWhile_ (builder : LLVM.Builder llvmctx) (name : String)
   -- header → {body, merge}
   LLVM.positionBuilderAtEnd builder headerbb
   let cond ← condcodegen builder
-  -- LLVM.positionBuilderAtEnd builder headerbb
   let _ ← LLVM.buildCondBr builder cond bodybb mergebb
 
   -- body → header
   LLVM.positionBuilderAtEnd builder bodybb
   bodycodegen builder
-  -- LLVM.positionBuilderAtEnd builder bodybb
   let _ ← LLVM.buildBr builder headerbb
 
   -- merge
@@ -370,11 +366,9 @@ def buildWhile_ (builder : LLVM.Builder llvmctx) (name : String)
 
 -- build an if, and position the builder at the merge basic block after execution.
 -- The '_' denotes that we return Unit on each branch.
--- TODO: get current function from the builder.
 def buildIfThen_ (builder : LLVM.Builder llvmctx) (name : String) (brval : LLVM.Value llvmctx)
   (thencodegen : LLVM.Builder llvmctx → M llvmctx ShouldForwardControlFlow) : M llvmctx Unit := do
   let fn ← builderGetInsertionFn builder
-  -- LLVM.positionBuilderAtEnd builder
 
   let nameThen := name ++ "Then"
   let nameElse := name ++ "Else"

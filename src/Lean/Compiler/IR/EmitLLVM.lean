@@ -272,7 +272,6 @@ def callLeanCtorRelease (builder : LLVM.Builder llvmctx)
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[closure, i] retName
 
--- ** void lean_ctor_set_tag (lean_obj_arg o, int new_tag)`
 def callLeanCtorSetTag (builder : LLVM.Builder llvmctx)
   (closure i : LLVM.Value llvmctx) (retName : String := "") : M llvmctx Unit := do
   let fnName :=  "lean_ctor_set_tag"
@@ -619,7 +618,6 @@ def getOrAddFunIdValue (builder : LLVM.Builder llvmctx) (f : FunId) : M llvmctx 
   let fcname ← toCName f
   let retty ← toLLVMType decl.resultType
   if decl.params.isEmpty then
-     -- TODO: add these into var2val?
      let gslot ← LLVM.getOrAddGlobal (← getLLVMModule) fcname retty
      LLVM.buildLoad2 builder retty gslot
   else
@@ -649,11 +647,10 @@ def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array
       let (yty, yv) ← emitArgVal builder ys[i]!
       let aslot ← LLVM.buildInBoundsGEP2 builder yty aargs #[← constIntUnsigned 0, ← constIntUnsigned i] s!"param_{i}_slot"
       LLVM.buildStore builder yv aslot
-    -- lean_apply_m --
     let fnName :=  s!"lean_apply_m"
     let retty ← LLVM.voidPtrType llvmctx
     let args := #[← emitLhsVal builder f, ← constIntUnsigned ys.size, aargs]
-    -- '1 + ...', '1' for the fn and 'args' for the arguments
+    -- '1 + ...'; '1' for the fn and 'args' for the arguments
     let argtys := #[← LLVM.voidPtrType llvmctx]
     let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
     let fnty ← LLVM.functionType retty argtys
@@ -664,7 +661,7 @@ def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array
     let fnName :=  s!"lean_apply_{ys.size}"
     let retty ← LLVM.voidPtrType llvmctx
     let args : Array (LLVM.Value llvmctx) := #[← emitLhsVal builder f] ++ (← ys.mapM (fun y => Prod.snd <$> (emitArgVal builder y)))
-    -- '1 + ...', '1' for the fn and 'args' for the arguments
+    -- '1 + ...'; '1' for the fn and 'args' for the arguments
     let argtys := (List.replicate (1 + ys.size) (← LLVM.voidPtrType llvmctx)).toArray
     let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
     let fnty ← LLVM.functionType retty argtys
@@ -677,7 +674,6 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
   let decl ← getDecl f
   match decl with
   | Decl.extern _ ps retty extData =>
-     -- throw (Error.compileError "emitFullApp.Decl.extern")
      let zv ← emitExternCall builder f ps extData ys retty
      LLVM.buildStore builder zv zslot
   | _ =>
@@ -700,7 +696,7 @@ def emitLit (builder : LLVM.Builder llvmctx)
   let zslot ← LLVM.buildAlloca builder llvmty
   addVartoState z zslot llvmty
   let zv ← match v with
-            | LitVal.num v => emitNumLit builder t v -- emitNumLit t v; emitLn ";"
+            | LitVal.num v => emitNumLit builder t v
             | LitVal.str v =>
                  let zero ← LLVM.constIntUnsigned llvmctx 0
                  let str_global ← LLVM.buildGlobalString builder v
@@ -922,8 +918,6 @@ def emitTag (builder : LLVM.Builder llvmctx) (x : VarId) (xType : IRType) : M ll
     let xval ← emitLhsVal builder x
     callLeanObjTag builder xval
   else if xType.isScalar then do
-    -- TODO (bollu) : is it correct to assume that emitLit will do the right thing
-    -- if it's not an object?
     emitLhsVal builder x
   else
     throw (Error.compileError "don't know how to `emitTag` in general")
@@ -1134,12 +1128,12 @@ def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d 
           argtys := argtys.push (← toLLVMType x.ty)
       let fnty ← LLVM.functionType retty argtys (isVarArg := false)
       let llvmfn ← LLVM.getOrAddFunction mod name fnty
-      withReader (fun llvmctx => { llvmctx with mainFn := f, mainParams := xs }) (do
+      withReader (fun llvmctx => { llvmctx with mainFn := f, mainParams := xs }) do
         set { var2val := default, jp2bb := default : EmitLLVM.State llvmctx } -- flush variable map
         let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn "entry"
         LLVM.positionBuilderAtEnd builder bb
         emitFnArgs builder needsPackedArgs? llvmfn xs
-        emitFnBody builder b);
+        emitFnBody builder b
       pure ()
     | _ => pure ()
 
@@ -1214,8 +1208,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
          callLeanMarkPersistentFn builder dval
       let _ ← LLVM.buildBr builder restBB
       LLVM.positionBuilderAtEnd builder restBB
-
-    | _ => do
+    | none => do 
       let llvmty ← toLLVMType d.resultType
       let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
@@ -1443,7 +1436,8 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let retTy := env.find? `main |>.get! |>.type |>.getForallBody
   -- either `UInt32` or `(P)Unit`
   let retTy := retTy.appArg!
-  -- finalize at least the task manager to avoid leak sanitizer false positives from tasks outliving the main thread
+  -- finalize at least the task manager to avoid leak sanitizer false positives
+  -- from tasks outliving the main thread
   callLeanFinalizeTaskManager builder
   let resv ← LLVM.buildLoad2 builder resty res "resv"
   let res_is_ok ← callLeanIOResultIsOk builder resv "res_is_ok"
@@ -1523,6 +1517,5 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit 
          LLVM.targetMachineEmitToFile targetMachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
          LLVM.disposeModule emitLLVMCtx.llvmmodule
          LLVM.disposeTargetMachine targetMachine
-
   | .error err => IO.eprintln ("ERROR: " ++ toString err); return ()
 end Lean.IR

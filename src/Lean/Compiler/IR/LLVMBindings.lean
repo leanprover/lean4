@@ -204,10 +204,10 @@ opaque buildSwitch (builder : Builder ctx) (val : Value ctx) (elseBB : BasicBloc
 opaque buildPtrToInt (builder : Builder ctx) (ptr : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_mul"]
-opaque buildMul (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildMul (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_add"]
-opaque buildAdd (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildAdd (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sub"]
 opaque buildSub (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)

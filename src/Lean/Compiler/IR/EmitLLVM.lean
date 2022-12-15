@@ -508,7 +508,7 @@ def emitAllocCtor (builder : LLVM.Builder llvmctx)
   (c : CtorInfo) : M llvmctx (LLVM.Value llvmctx) := do
   -- TODO(bollu) : find the correct size, don't assume 'void*' size is 8
   let hackSizeofVoidPtr := 8
-  let scalarSize := hackSizeofVoidPtr * c.usize + c.ssize; -- HACK: do find the correct size.
+  let scalarSize := hackSizeofVoidPtr * c.usize + c.ssize; 
   callLeanAllocCtor builder c.cidx c.size scalarSize "lean_alloc_ctor_out"
 
 def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
@@ -1177,18 +1177,21 @@ def emitFns (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llv
   let decls := getDecls env;
   decls.reverse.forM (emitDecl mod builder)
 
+def callDeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
+  (initFnName : String)
+  (world : LLVM.Value llvmctx): M llvmctx (LLVM.Value llvmctx) := do
+  let retty ← toLLVMType d.resultType
+  let argtys := #[← LLVM.voidPtrType llvmctx]
+  let fn ← getOrCreateFunctionPrototype  (← getLLVMModule) retty initFnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  LLVM.buildCall2 builder fnty fn #[world]
+
 def emitDeclInit (builder : LLVM.Builder llvmctx)
   (parentFn : LLVM.Value llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv
-  let n := d.name
-  if isIOUnitInitFn env n then do
+  if isIOUnitInitFn env d.name then do
     let world ← callLeanIOMkWorld builder
-    let initRetTy := (← toLLVMType d.resultType)
-    let initArgTys := #[← LLVM.voidPtrType llvmctx]
-    let initf ← getOrCreateFunctionPrototype (← getLLVMModule) initRetTy (← toCName n)
-                initArgTys
-    let initFnTy ← LLVM.functionType initRetTy initArgTys
-    let resv ← LLVM.buildCall2 builder initFnTy initf #[world]
+    let resv ← callDeclInitFn builder d (← toCName d.name) world 
     let err? ← callLeanIOResultIsError builder resv "is_error"
     buildIfThen_ builder s!"init_{d.name}_isError" err?
       (fun builder => do
@@ -1199,7 +1202,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
     match getInitFnNameFor? env d.name with
     | some initFn =>
       let llvmty ← toLLVMType d.resultType
-      let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName n) llvmty
+      let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
       let initBB ← builderAppendBasicBlock builder s!"do_{d.name}_init"
       let restBB ← builderAppendBasicBlock builder s!"post_{d.name}_init"
@@ -1211,14 +1214,8 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
        else
         let _ ← LLVM.buildBr builder initBB
       LLVM.positionBuilderAtEnd builder initBB
-      let dInitFnRetty ← toLLVMType d.resultType
-      let dInitFnArgTys := #[← LLVM.voidPtrType llvmctx]
-      let dInitFn ← getOrCreateFunctionPrototype (← getLLVMModule) dInitFnRetty (← toCName initFn)
-        dInitFnArgTys
-      let dInitFnTy ← LLVM.functionType dInitFnRetty dInitFnArgTys
       let world ← callLeanIOMkWorld builder
-      let resv ← LLVM.buildCall2 builder dInitFnTy dInitFn #[world]
-      -- TODO(bollu) : eliminate code duplication
+      let resv ← callDeclInitFn builder d (← toCName initFn) world
       let err? ← callLeanIOResultIsError builder resv s!"{d.name}_is_error"
       buildIfThen_ builder s!"init_{d.name}_isError" err?
         (fun builder => do
@@ -1233,17 +1230,26 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
 
     | _ => do
       let llvmty ← toLLVMType d.resultType
-      let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName n) llvmty
+      let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
       -- TODO (bollu) : this should probably be getOrCreateNamedFunction
-      let dInitFn ← match (← LLVM.getNamedFunction (← getLLVMModule) (←  toCInitName n)) with
+      let dInitFn ← match (← LLVM.getNamedFunction (← getLLVMModule) (←  toCInitName d.name)) with
                     | .some dInitFn => pure dInitFn
-                    | .none => throw (Error.compileError s!"unable to find function {← toCInitName n}")
+                    | .none => throw (Error.compileError s!"unable to find function {← toCInitName d.name}")
       let dInitFnTy ← LLVM.functionType llvmty #[]
       let dval ← LLVM.buildCall2 builder dInitFnTy dInitFn #[]
       LLVM.buildStore builder dval dslot
       if d.resultType.isObj then
          callLeanMarkPersistentFn builder dval
+
+def callModInitFn (builder : LLVM.Builder llvmctx)
+  (modName : Name) (input world: LLVM.Value llvmctx) (retName : String): M llvmctx (LLVM.Value llvmctx) := do
+  let fnName := mkModuleInitializationFunctionName modName
+  let retty ← LLVM.voidPtrType llvmctx
+  let argtys := #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  LLVM.buildCall2 builder fnty fn #[input, world] retName
 
 def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let env ← getEnv
@@ -1266,12 +1272,10 @@ def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   LLVM.buildStore builder (← LLVM.constTrue llvmctx) ginit?slot
 
   env.imports.forM fun import_ => do
-    let importFnRetty ← LLVM.voidPtrType llvmctx
-    let importFnTy ← LLVM.functionType importFnRetty  #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
-    let importInitFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName import_.module) importFnTy
     let builtin ← LLVM.getParam initFn 0
     let world ← callLeanIOMkWorld builder
-    let res ← LLVM.buildCall2 builder importFnTy importInitFn #[builtin, world] ("res_" ++ import_.module.mangle)
+    let modName := mkModuleInitializationFunctionName import_.module  
+    let res ← callModInitFn builder modName builtin world ("res_" ++ import_.module.mangle)
     let err? ← callLeanIOResultIsError builder res ("res_is_error_"  ++ import_.module.mangle)
     buildIfThen_ builder ("IsError" ++ import_.module.mangle) err?
       (fun builder => do
@@ -1374,15 +1378,6 @@ def callLeanMainFn (builder : LLVM.Builder llvmctx)
               | .none => #[world]
   LLVM.buildCall2 builder fnty fn args name
 
-def callModInitFn (builder : LLVM.Builder llvmctx)
-  (modName : Name) (input world: LLVM.Value llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
-  let fnName := mkModuleInitializationFunctionName modName
-  let retty ← LLVM.voidPtrType llvmctx
-  let argtys := #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)]
-  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
-  let fnty ← LLVM.functionType retty argtys
-  LLVM.buildCall2 builder fnty fn #[input, world] (modName.toString ++ "_init_out")
-
 def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let d ← getDecl `main
   let xs ← match d with
@@ -1410,10 +1405,9 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
-  -- let (setPanicMessagesFnTy, setPanicMesagesFn) ← getOrCreateLeanSetPanicMessages mod
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
-  let resv ← callModInitFn builder modName (← LLVM.constInt8 llvmctx 1) world
+  let resv ← callModInitFn builder modName (← LLVM.constInt8 llvmctx 1) world (modName.toString ++ "_init_out")
   let _ ← LLVM.buildStore builder resv res
 
   callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)

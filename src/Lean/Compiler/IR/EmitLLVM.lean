@@ -1177,7 +1177,7 @@ def emitFns (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llv
   let decls := getDecls env;
   decls.reverse.forM (emitDecl mod builder)
 
-def callDeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
+def callIODeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
   (initFnName : String)
   (world : LLVM.Value llvmctx): M llvmctx (LLVM.Value llvmctx) := do
   let retty ← toLLVMType d.resultType
@@ -1186,12 +1186,20 @@ def callDeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl)
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[world]
 
+def callPureDeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
+  (initFnName : String) : M llvmctx (LLVM.Value llvmctx) := do
+  let retty ← toLLVMType d.resultType
+  let argtys := #[]
+  let fn ← getOrCreateFunctionPrototype  (← getLLVMModule) retty initFnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  LLVM.buildCall2 builder fnty fn #[]
+
 def emitDeclInit (builder : LLVM.Builder llvmctx)
   (parentFn : LLVM.Value llvmctx) (d : Decl) : M llvmctx Unit := do
   let env ← getEnv
   if isIOUnitInitFn env d.name then do
     let world ← callLeanIOMkWorld builder
-    let resv ← callDeclInitFn builder d (← toCName d.name) world 
+    let resv ← callIODeclInitFn builder d (← toCName d.name) world 
     let err? ← callLeanIOResultIsError builder resv "is_error"
     buildIfThen_ builder s!"init_{d.name}_isError" err?
       (fun builder => do
@@ -1215,7 +1223,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
         let _ ← LLVM.buildBr builder initBB
       LLVM.positionBuilderAtEnd builder initBB
       let world ← callLeanIOMkWorld builder
-      let resv ← callDeclInitFn builder d (← toCName initFn) world
+      let resv ← callIODeclInitFn builder d (← toCName initFn) world
       let err? ← callLeanIOResultIsError builder resv s!"{d.name}_is_error"
       buildIfThen_ builder s!"init_{d.name}_isError" err?
         (fun builder => do
@@ -1233,11 +1241,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
       let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
       -- TODO (bollu) : this should probably be getOrCreateNamedFunction
-      let dInitFn ← match (← LLVM.getNamedFunction (← getLLVMModule) (←  toCInitName d.name)) with
-                    | .some dInitFn => pure dInitFn
-                    | .none => throw (Error.compileError s!"unable to find function {← toCInitName d.name}")
-      let dInitFnTy ← LLVM.functionType llvmty #[]
-      let dval ← LLVM.buildCall2 builder dInitFnTy dInitFn #[]
+      let dval ← callPureDeclInitFn builder d (← toCInitName d.name)
       LLVM.buildStore builder dval dslot
       if d.resultType.isObj then
          callLeanMarkPersistentFn builder dval

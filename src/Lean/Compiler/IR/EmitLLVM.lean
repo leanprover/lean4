@@ -1333,7 +1333,7 @@ def callLeanMainFn (builder : LLVM.Builder llvmctx)
   (argv? : Option (LLVM.Value llvmctx))
   (world : LLVM.Value llvmctx)
   (name : String) : M llvmctx (LLVM.Value llvmctx) := do
-  let retty ← LLVM.voidType llvmctx
+  let retty ← LLVM.voidPtrType llvmctx
   let voidptr ← LLVM.voidPtrType llvmctx
   let argtys := if argv?.isSome then #[ voidptr, voidptr ] else #[ voidptr ]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty leanMainFn argtys

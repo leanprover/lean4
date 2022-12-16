@@ -268,7 +268,7 @@ if(LLVM)
     message(FATAL_ERROR "Unable to find llvm-config version 15. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
   endif()
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
-  string(APPEND CMAKE_CXX_FLAGS " -DCMAKE_CXX_FLAGS -D LEAN_LLVM")
+  string(APPEND CMAKE_CXX_FLAGS " -D LEAN_LLVM")
 
   execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)

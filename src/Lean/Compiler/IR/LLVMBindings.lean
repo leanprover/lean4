@@ -116,7 +116,7 @@ opaque voidType (ctx : Context) : BaseIO (LLVMType ctx)
 opaque intTypeInContext (ctx : Context) (width : UInt64) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_opaque_pointer_type_in_context"]
-opaque opaquePointerTypeInContext (ctx : Context) (addrspace: UInt64 := 0): BaseIO (LLVMType ctx)
+opaque opaquePointerTypeInContext (ctx : Context) (addrspace: UInt64 := 0) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_float_type_in_context"]
 opaque floatTypeInContext (ctx : Context) : BaseIO (LLVMType ctx)

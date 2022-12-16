@@ -73,7 +73,7 @@ def getDecl (n : Name) : M llvmctx Decl := do
   let env ← getEnv
   match findEnvDecl env n with
   | some d => pure d
-  | none   => IO.eprintln "getDecl failed!"; throw s!"unknown declaration {n}"
+  | none   => throw s!"unknown declaration {n}"
 
 def constIntUnsigned (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
@@ -1506,5 +1506,5 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit 
          LLVM.targetMachineEmitToFile targetMachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
          LLVM.disposeModule emitLLVMCtx.llvmmodule
          LLVM.disposeTargetMachine targetMachine
-  | .error err => IO.eprintln ("ERROR: " ++ toString err); return ()
+  | .error err => throw (IO.Error.userError err)
 end Lean.IR

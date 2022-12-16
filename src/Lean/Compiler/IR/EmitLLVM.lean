@@ -43,24 +43,13 @@ structure State (llvmctx : LLVM.Context) where
   var2val : HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
   jp2bb   : HashMap JoinPointId (LLVM.BasicBlock llvmctx)
 
-inductive Error where
-| unknownDeclaration : Name → Error
-| invalidExportName : Name → Error
-| unimplemented : String → Error
-| compileError : String → Error -- TODO: change this into an exhaustive Inductive enumeration.
-
-instance : ToString Error where
-  toString e := match e with
-   | .unknownDeclaration n => s!"unknown declaration '{n}'"
-   | .invalidExportName n => s!"invalid export name '{n}'"
-   | .unimplemented s => s!"unimplemented '{s}'"
-   | .compileError s => s!"compile error '{s}'"
+abbrev Error := String
 
 abbrev M (llvmctx : LLVM.Context) :=
   StateT (State llvmctx) (ReaderT (Context llvmctx) (ExceptT Error IO))
 
 instance : Inhabited (M llvmctx α) where
-  default := throw (Error.compileError "inhabitant")
+  default := throw "Error: inhabitant"
 
 def addVartoState (x : VarId) (v : LLVM.Value llvmctx) (ty : LLVM.LLVMType llvmctx) : M llvmctx Unit := do
   modify (fun s => { s with var2val := s.var2val.insert x (ty, v) }) -- add new variable
@@ -72,7 +61,7 @@ def emitJp (jp : JoinPointId) : M llvmctx (LLVM.BasicBlock llvmctx) := do
   let state ← get
   match state.jp2bb.find? jp with
   | .some bb => return bb
-  | .none => throw (Error.compileError s!"unable to find join point {jp}")
+  | .none => throw s!"unable to find join point {jp}"
 
 def getLLVMModule : M llvmctx (LLVM.Module llvmctx) := Context.llvmmodule <$> read
 
@@ -84,7 +73,7 @@ def getDecl (n : Name) : M llvmctx Decl := do
   let env ← getEnv
   match findEnvDecl env n with
   | some d => pure d
-  | none   => IO.eprintln "getDecl failed!"; throw (Error.unknownDeclaration n)
+  | none   => IO.eprintln "getDecl failed!"; throw s!"unknown declaration {n}"
 
 def constIntUnsigned (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
@@ -112,7 +101,7 @@ def callLeanMarkPersistentFn (builder : LLVM.Builder llvmctx) (arg : LLVM.Value 
 
 -- `lean_{inc, dec}_{ref?}_{1,n}`
 inductive RefcountKind where
-| inc | dec
+  | inc | dec
 
 instance : ToString RefcountKind where
   toString
@@ -297,7 +286,7 @@ def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   | IRType.union _ _  => panic! "not implemented yet"
 
 def throwInvalidExportName {α : Type} (n : Name) : M llvmctx α := do
-  IO.eprintln "invalid export Name!"; throw (Error.invalidExportName n)
+  throw s!"invalid export name {n.toString}"
 
 def toCName (n : Name) : M llvmctx String := do
   let env ← getEnv;
@@ -465,7 +454,7 @@ def emitLhsSlot_ (x : VarId) : M llvmctx (LLVM.LLVMType llvmctx × LLVM.Value ll
   let state ← get
   match state.var2val.find? x with
   | .some v => return v
-  | .none => throw (Error.compileError s!"unable to find variable {x}")
+  | .none => throw s!"unable to find variable {x}"
 
 def emitLhsVal (builder : LLVM.Builder llvmctx)
   (x : VarId) (name : String := "") : M llvmctx (LLVM.Value llvmctx) := do
@@ -535,7 +524,7 @@ def emitDec (builder : LLVM.Builder llvmctx)
   (x : VarId) (n : Nat) (checkRef? : Bool) : M llvmctx Unit := do
   let xv ← emitLhsVal builder x
   if n != 1
-  then throw (Error.compileError "expected n = 1 for emitDec")
+  then throw "expected n = 1 for emitDec"
   else callLeanRefcountFn builder (kind := RefcountKind.dec) (checkRef? := checkRef?) xv
 
 def emitNumLit (builder : LLVM.Builder llvmctx)
@@ -595,10 +584,10 @@ def emitExternCall (builder : LLVM.Builder llvmctx)
   (name : String := "") : M llvmctx (LLVM.Value llvmctx) :=
   match getExternEntryFor extData `c with
   | some (ExternEntry.standard _ extFn) => emitSimpleExternalCall builder extFn ps ys retty name
-  | some (ExternEntry.inline "llvm" _pat)     => throw (Error.unimplemented "unimplemented codegen of inline LLVM")
-  | some (ExternEntry.inline _ pat)     => throw (Error.compileError s!"cannot codegen non-LLVM inline code '{pat}'")
+  | some (ExternEntry.inline "llvm" _pat) => throw "Unimplemented codegen of inline LLVM"
+  | some (ExternEntry.inline _ pat) => throw s!"Cannot codegen non-LLVM inline code '{pat}'."
   | some (ExternEntry.foreign _ extFn)  => emitSimpleExternalCall builder extFn ps ys retty name
-  | _ => throw (Error.compileError s!"failed to emit extern application '{f}'")
+  | _ => throw s!"Failed to emit extern application '{f}'."
 
 def getFunIdTy (f : FunId) : M llvmctx (LLVM.LLVMType llvmctx) := do
   let decl ← getDecl f
@@ -754,7 +743,7 @@ def emitSProj (builder : LLVM.Builder llvmctx)
     | IRType.uint16 => pure ("lean_ctor_get_uint16", ←  LLVM.i16Type llvmctx)
     | IRType.uint32 => pure ("lean_ctor_get_uint32", ← LLVM.i32Type llvmctx)
     | IRType.uint64 => pure ("lean_ctor_get_uint64", ← LLVM.i64Type llvmctx)
-    | _             => throw (Error.compileError "invalid instruction")
+    | _             => throw s!"Invalid type for lean_ctor_get: '{t}'"
   let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let xval ← emitLhsVal builder x
@@ -886,7 +875,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.reset n x      => emitReset builder z n x
   | Expr.reuse x c u ys => emitReuse builder z x c u ys
   | Expr.proj i x       => emitProj builder z i x
-  | Expr.uproj _i _x      => throw (Error.unimplemented "emitUProj z i x")
+  | Expr.uproj _i _x    => throw "unimplemented: emitUProj z i x" -- TODO(bollu): implement 'emitUProj'
   | Expr.sproj n o x    => emitSProj builder z t n o x
   | Expr.fap c ys       => emitFullApp builder z c ys
   | Expr.pap c ys       => emitPartialApp builder z c ys
@@ -894,7 +883,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.box t x        => emitBox builder z x t
   | Expr.unbox x        => emitUnbox builder z t x
   | Expr.isShared x     => emitIsShared builder z x
-  | Expr.isTaggedPtr _x  => throw (Error.unimplemented "emitIsTaggedPtr z x")
+  | Expr.isTaggedPtr _x => throw "unimplemented: emitIsTaggedPtr z x" -- TODO(bollu): implement emitIsTaggedPtr
   | Expr.lit v          => let _ ← emitLit builder z t v
 
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do
@@ -920,7 +909,7 @@ def emitTag (builder : LLVM.Builder llvmctx) (x : VarId) (xType : IRType) : M ll
   else if xType.isScalar then do
     emitLhsVal builder x
   else
-    throw (Error.compileError "don't know how to `emitTag` in general")
+    throw "Do not know how to `emitTag` in general."
 
 def emitSet (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) (y : Arg) : M llvmctx Unit := do
   let fnName :=  "lean_ctor_set"
@@ -935,21 +924,21 @@ def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llv
   | Expr.fap _ ys => do
     let llvmctx ← read
     let ps := llvmctx.mainParams
-    unless ps.size == ys.size do throw (Error.compileError "invalid tail call")
+    unless ps.size == ys.size do throw s!"Invalid tail call. f:'{f}' v:'{v}'"
     let args ← ys.mapM (fun y => Prod.snd <$> emitArgVal builder y)
     let fn ← builderGetInsertionFn builder
     let call ← LLVM.buildCall2 builder (← getFunIdTy f) fn args
     -- TODO (bollu) : add 'musttail' attribute using the C API.
     LLVM.setTailCall call true -- mark as tail call
     let _ ← LLVM.buildRet builder call
-  | _ => throw (Error.compileError "bug at emitTailCall")
+  | _ => throw s!"EmitTailCall expects function application, found '{v}'"
 
 def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg) : M llvmctx Unit := do
  let llvmctx ← read;
   let ps ← match llvmctx.jpMap.find? jp with
   | some ps => pure ps
-  | none    => throw (Error.compileError "unknown join point")
-  unless xs.size == ps.size do throw (Error.compileError "invalid goto")
+  | none    => throw s!"Unknown join point {jp}"
+  unless xs.size == ps.size do throw s!"Invalid goto, mismatched sizes between arguments, formal parameters."
   for (p, x)  in ps.zip xs do
     let (_xty, xv) ← emitArgVal builder x
     emitLhsSlotStore builder p.x xv
@@ -963,7 +952,7 @@ def emitSSet (builder : LLVM.Builder llvmctx) (x : VarId) (n : Nat) (offset : Na
   | IRType.uint16 => pure ("lean_ctor_set_uint16", ← LLVM.i16Type llvmctx)
   | IRType.uint32 => pure ("lean_ctor_set_uint32", ← LLVM.i32Type llvmctx)
   | IRType.uint64 => pure ("lean_ctor_set_uint64", ← LLVM.i64Type llvmctx)
-  | _             => throw (Error.compileError "invalid instruction");
+  | _             => throw s!"invalid type for 'lean_ctor_set': '{t}'"
   let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx, setty]
   let retty  ← LLVM.voidType llvmctx
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
@@ -1065,12 +1054,12 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.uset _x _i _y _b    =>
        -- TODO(bollu) : implement `uset`.
        --  NOTE(bollu) : It is disturbing that we pass the Lean CI without this.
-       throw (Error.unimplemented "uset")
+       throw "Unimplemented uset."
   | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
   | FnBody.mdata _ _b          =>
        -- TODO(bollu) : implement `mdata`.
        --  NOTE(bollu) : It is disturbing that we pass the Lean CI without this.
-       throw (Error.unimplemented "metadata")
+       throw "Unimplemented metadata."
   | FnBody.ret x               => do
       let (_xty, xv) ← emitArgVal builder x "ret_val"
       let _ ← LLVM.buildRet builder xv
@@ -1078,7 +1067,7 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
      emitCase builder x xType alts
   | FnBody.jmp j xs            =>
      emitJmp builder j xs
-  | FnBody.unreachable         => throw (Error.unimplemented "unreachable")
+  | FnBody.unreachable         => throw "Unimplemented unreachable" -- TODO(bollu): implement 'unreachable'
 partial def emitFnBody  (builder : LLVM.Builder llvmctx)  (b : FnBody) : M llvmctx Unit := do
   declareVars builder b
   emitBlock builder b
@@ -1096,7 +1085,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           let llvmty ← toLLVMType param.ty
           -- pv := *(argsi) = *(args + i)
           let pv ← LLVM.buildLoad2 builder llvmty argsi
-          -- slot for arg[i] which is always void* ? how did this ever fucking work?
+          -- slot for arg[i] which is always void* ? 
           let alloca ← LLVM.buildAlloca builder llvmty s!"arg_{i}"
           LLVM.buildStore builder pv alloca
           addVartoState params[i]!.x alloca llvmty
@@ -1143,7 +1132,7 @@ def emitDecl (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : D
     emitDeclAux mod builder d
     return ()
   catch err =>
-    throw (Error.unimplemented s!"emitDecl:\ncompiling:\n{d}\nerr:\n{err}\na")
+    throw (s!"emitDecl:\ncompiling:\n{d}\nerr:\n{err}\n")
 
 def emitFns (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let env ← getEnv
@@ -1358,9 +1347,9 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let d ← getDecl `main
   let xs ← match d with
    | .fdecl (xs := xs) .. => pure xs
-   | _ =>  throw (Error.compileError "function declaration expected")
+   | _ =>  throw "Function declaration expected for 'main'"
 
-  unless xs.size == 2 || xs.size == 1 do throw (Error.compileError "invalid main function, incorrect arity when generating code")
+  unless xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have '2' or '1' arguments, found '{xs.size}' arguments"
   let env ← getEnv
   let usesLeanAPI := usesModuleFrom env `Lean
   let mainTy ← LLVM.functionType (← LLVM.i64Type llvmctx)

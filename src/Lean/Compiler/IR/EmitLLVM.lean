@@ -665,7 +665,7 @@ def emitFullApp (builder : LLVM.Builder llvmctx)
   | Decl.extern _ ps retty extData =>
      let zv ← emitExternCall builder f ps extData ys retty
      LLVM.buildStore builder zv zslot
-  | _ =>
+  | Decl.fdecl .. =>
     if ys.size > 0 then
         let fv ← getOrAddFunIdValue builder f
         let ys ←  ys.mapM (fun y => do

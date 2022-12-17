@@ -302,7 +302,7 @@ def toCInitName (n : Name) : M llvmctx String := do
   | some _                   => throwInvalidExportName n
   | none                     => pure ("_init_" ++ n.mangle)
 
-/-
+/--
 ## LLVM Control flow Utilities
 -/
 
@@ -595,7 +595,7 @@ def getFunIdTy (f : FunId) : M llvmctx (LLVM.LLVMType llvmctx) := do
   let argtys ← decl.params.mapM (fun p => do toLLVMType p.ty)
   LLVM.functionType retty argtys
 
-/-
+/--
 Create a function declaration and return a pointer to the function.
 If the function actually takes arguments, then we must have a function pointer in scope.
 If the function takes no arguments, then it is a top-level closed term, and its value will

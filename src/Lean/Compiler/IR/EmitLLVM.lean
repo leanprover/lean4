@@ -167,7 +167,6 @@ def callLeanCStrToNatFn (builder : LLVM.Builder llvmctx) (n : Nat) (name : Strin
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   let s ← LLVM.buildGlobalString builder (value := toString n)
-  let s ← LLVM.buildPointerCast builder s (← LLVM.i8PtrType llvmctx)
   LLVM.buildCall2 builder fnty fn #[s] name
 
 def callLeanIOMkWorld (builder : LLVM.Builder llvmctx) : M llvmctx (LLVM.Value llvmctx) := do
@@ -619,8 +618,7 @@ def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys 
   let fv ← getOrAddFunIdValue builder f
   let arity := decl.params.size;
   let (_zty, zslot) ← emitLhsSlot_ z
-  let fv_voidptr ← LLVM.buildPointerCast builder fv (← LLVM.voidPtrType llvmctx)
-  let zval ← callLeanAllocClosureFn builder fv_voidptr
+  let zval ← callLeanAllocClosureFn builder fv
                                     (← constIntUnsigned arity)
                                     (← constIntUnsigned ys.size)
   LLVM.buildStore builder zval zslot

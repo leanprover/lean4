@@ -185,9 +185,6 @@ opaque buildGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (
 @[extern "lean_llvm_build_inbounds_gep2"]
 opaque buildInBoundsGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_pointer_cast"]
-opaque buildPointerCast (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
-
 @[extern "lean_llvm_build_sext"]
 opaque buildSext (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 

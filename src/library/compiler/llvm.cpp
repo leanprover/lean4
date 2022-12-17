@@ -672,21 +672,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_build_gep2(size_t ctx, size_t buil
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *lean_llvm_build_pointer_cast(size_t ctx,
-    size_t builder, size_t val, size_t destty, lean_object *name,
-    lean_object * /* w */) {
-#ifndef LEAN_LLVM
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
-                  "the LLVM backend function."));
-#else
-    LLVMValueRef out =
-        LLVMBuildPointerCast(lean_to_Builder(builder), lean_to_Value(val),
-                             lean_to_Type(destty), lean_string_cstr(name));
-    return lean_io_result_mk_ok(lean_box_usize(Value_to_lean(out)));
-#endif  // LEAN_LLVM
-}
-
 extern "C" LEAN_EXPORT lean_object *lean_llvm_build_sext(size_t ctx,
     size_t builder, size_t val, size_t destty, lean_object *name,
     lean_object * /* w */) {

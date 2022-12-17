@@ -46,7 +46,7 @@ structure State (llvmctx : LLVM.Context) where
 abbrev Error := String
 
 abbrev M (llvmctx : LLVM.Context) :=
-  StateT (State llvmctx) (ReaderT (Context llvmctx) (ExceptT Error IO))
+  StateRefT (State llvmctx) (ReaderT (Context llvmctx) (ExceptT Error IO))
 
 instance : Inhabited (M llvmctx α) where
   default := throw "Error: inhabitant"
@@ -1487,7 +1487,7 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit 
   let module ← LLVM.createModule llvmctx modName.toString
   let emitLLVMCtx : EmitLLVM.Context llvmctx := {env := env, modName := modName, llvmmodule := module}
   let initState := { var2val := default, jp2bb := default : EmitLLVM.State llvmctx}
-  let out? ← (EmitLLVM.main (llvmctx := llvmctx) initState).run emitLLVMCtx
+  let out? ← ((EmitLLVM.main (llvmctx := llvmctx)).run initState).run emitLLVMCtx
   match out? with
   | .ok _ => do
          let membuf ← LLVM.createMemoryBufferWithContentsOfFile (← getLeanHBcPath).toString

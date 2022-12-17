@@ -1239,8 +1239,7 @@ def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   env.imports.forM fun import_ => do
     let builtin ← LLVM.getParam initFn 0
     let world ← callLeanIOMkWorld builder
-    let modName := mkModuleInitializationFunctionName import_.module  
-    let res ← callModInitFn builder modName builtin world ("res_" ++ import_.module.mangle)
+    let res ← callModInitFn builder import_.module builtin world ("res_" ++ import_.module.mangle)
     let err? ← callLeanIOResultIsError builder res ("res_is_error_"  ++ import_.module.mangle)
     buildIfThen_ builder ("IsError" ++ import_.module.mangle) err?
       (fun builder => do
@@ -1367,12 +1366,11 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   let resty ← LLVM.voidPtrType llvmctx
   let res ← LLVM.buildAlloca builder (← LLVM.pointerType resty) "res"
   if usesLeanAPI then callLeanInitialize builder else callLeanInitializeRuntimeModule builder
-  let modName ← getModName
     /- We disable panic messages because they do not mesh well with extracted closed terms.
         See issue #534. We can remove this workaround after we implement issue #467. -/
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
-  let resv ← callModInitFn builder modName (← LLVM.constInt8 llvmctx 1) world (modName.toString ++ "_init_out")
+  let resv ← callModInitFn builder (← getModName) (← LLVM.constInt8 llvmctx 1) world ((← getModName).toString ++ "_init_out")
   let _ ← LLVM.buildStore builder resv res
 
   callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)

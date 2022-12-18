@@ -686,19 +686,20 @@ namespace Lean
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class Eval (α : Type u) where
+  -- `#eval ()` should print `()`, but `#eval (foo : IO Unit)` should *not* print `()`.
   -- We default `hideUnit` to `true`, but set it to `false` in the direct call from `#eval`
   -- so that `()` output is hidden in chained instances such as for some `IO Unit`.
   -- We take `Unit → α` instead of `α` because ‵α` may contain effectful debugging primitives (e.g., `dbg_trace`)
-  eval : (Unit → α) → (hideUnit : Bool := true) → IO Unit
+  eval : (Unit → α) → (hideUnit : Bool := true) → IO (Option Std.Format)
 
 instance [ToString α] : Eval α where
-  eval a _ := IO.println (toString (a ()))
+  eval a _ := return some (toString (a ()))
 
 instance [Repr α] : Eval α where
-  eval a _ := IO.println (repr (a ()))
+  eval a _ := return some (repr (a ()))
 
 instance : Eval Unit where
-  eval u hideUnit := if hideUnit then pure () else IO.println (repr (u ()))
+  eval _ hideUnit := return if hideUnit then none else some "()"
 
 instance [Eval α] : Eval (IO α) where
   eval x _ := do
@@ -710,8 +711,25 @@ instance [Eval α] : Eval (BaseIO α) where
     let a ← x ()
     Eval.eval fun _ => a
 
-def runEval [Eval α] (a : Unit → α) : IO (String × Except IO.Error Unit) :=
-  IO.FS.withIsolatedStreams (Eval.eval a false |>.toBaseIO)
+namespace EvalInstances
+
+/--
+Only for internal use by the `#eval` elaborator,
+which replaces the instance by the pretty-printed type.
+Contains the type parameter as a pretty-printed expression.
+-/
+class TypeInfo (α : Type u) where
+  ppType : String
+
+instance typeInfo : TypeInfo α where ppType := default
+
+scoped instance (priority := low - 10) [TypeInfo α] : Repr α where
+  reprPrec _ _ := s!"<missing Repr instance for {TypeInfo.ppType α}>"
+
+scoped instance (priority := low - 10) [ToString α] : Repr α where
+  reprPrec a _ := toString a
+
+end EvalInstances
 
 end Lean
 

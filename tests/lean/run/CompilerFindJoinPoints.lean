@@ -1,6 +1,7 @@
 import Lean.Compiler.Main
 import Lean.Compiler.LCNF.Testing
 import Lean.Elab.Do
+import Lean.Eval
 open Lean
 open Lean.Compiler.LCNF
 

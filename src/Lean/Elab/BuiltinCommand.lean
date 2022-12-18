@@ -11,6 +11,8 @@ import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
 import Lean.PrettyPrinter
+import Lean.Meta.Eval
+import Lean.Eval
 
 namespace Lean.Elab.Command
 
@@ -296,58 +298,48 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     failIfSucceeds <| elabCheckCore (ignoreStuckTC := false) (← `(#check $term))
   | _ => throwUnsupportedSyntax
 
-private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr := do
+private def withOpenNamespace (ns : Name) (k : MetaM α) : MetaM α :=
+  try
+    pushScope
+    activateScoped ns
+    withTheReader Core.Context (fun ctx => { ctx with openDecls := .simple ns [] :: ctx.openDecls }) do
+      k
+  finally
+    popScope
+
+private def mkEvalInstCore (evalClassName : Name) (e : Expr) : MetaM Expr :=
+  withOpenNamespace `Lean.EvalInstances do
   let α    ← inferType e
   let u    ← getDecLevel α
-  let inst := mkApp (Lean.mkConst evalClassName [u]) α
-  try
-    synthInstance inst
-  catch _ =>
-    -- Put `α` in WHNF and try again
-    try
-      let α ← whnf α
-      synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-    catch _ =>
-      -- Fully reduce `α` and try again
-      try
-        let α ← reduce (skipTypes := false) α
-        synthInstance (mkApp (Lean.mkConst evalClassName [u]) α)
-      catch _ =>
-        throwError "expression{indentExpr e}\nhas type{indentExpr α}\nbut instance{indentExpr inst}\nfailed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `{evalClassName}` class"
+  let cls := mkApp (Lean.mkConst evalClassName [u]) α
+  let .some inst ← trySynthInstance cls | do
+    if ← MonadLog.hasErrors then throwAbortCommand
+    else throwError "failed to synthesize instance {cls}"
+  -- Replace the `EvalInstances.typeInfo` instance by the pretty-printed type.
+  -- This allows the fallback instance for Repr to print the type using TypeInfo.ppType.
+  let inst ← Meta.transform inst fun e => do
+    if let .app (.const ``EvalInstances.typeInfo [v]) α := e then
+      let ppE := (← ppExpr α).pretty
+      return .done (.app (.app (.const ``EvalInstances.TypeInfo.mk [v]) α) (toExpr ppE))
+    else
+      return .continue
+  return inst
 
-private def mkRunMetaEval (e : Expr) : MetaM Expr :=
-  withLocalDeclD `env (mkConst ``Lean.Environment) fun env =>
-  withLocalDeclD `opts (mkConst ``Lean.Options) fun opts => do
-    let α ← inferType e
-    let u ← getDecLevel α
-    let instVal ← mkEvalInstCore ``Lean.MetaEval e
-    let e := mkAppN (mkConst ``Lean.runMetaEval [u]) #[α, instVal, env, opts, e]
-    instantiateMVars (← mkLambdaFVars #[env, opts] e)
+private def mkRunMetaEval (e : Expr) : MetaM Expr := do
+  let α ← inferType e
+  let u ← getDecLevel α
+  let instVal ← mkEvalInstCore ``MetaEval e
+  instantiateMVars (mkAppN (mkConst ``MetaEval.eval [u]) #[α, instVal, e, mkConst ``true])
 
 private def mkRunEval (e : Expr) : MetaM Expr := do
   let α ← inferType e
   let u ← getDecLevel α
-  let instVal ← mkEvalInstCore ``Lean.Eval e
-  instantiateMVars (mkAppN (mkConst ``Lean.runEval [u]) #[α, instVal, mkSimpleThunk e])
+  let instVal ← mkEvalInstCore ``Eval e
+  instantiateMVars (mkAppN (mkConst ``Eval.eval [u]) #[α, instVal, mkSimpleThunk e, mkConst ``true])
 
 unsafe def elabEvalUnsafe : CommandElab
   | `(#eval%$tk $term) => do
     let declName := `_eval
-    let addAndCompile (value : Expr) : TermElabM Unit := do
-      let value ← Term.levelMVarToParam (← instantiateMVars value)
-      let type ← inferType value
-      let us := collectLevelParams {} value |>.params
-      let value ← instantiateMVars value
-      let decl := Declaration.defnDecl {
-        name        := declName
-        levelParams := us.toList
-        type        := type
-        value       := value
-        hints       := ReducibilityHints.opaque
-        safety      := DefinitionSafety.unsafe
-      }
-      Term.ensureNoUnassignedMVars decl
-      addAndCompile decl
     -- Elaborate `term`
     let elabEvalTerm : TermElabM Expr := do
       let e ← Term.elabTerm term none
@@ -358,45 +350,28 @@ unsafe def elabEvalUnsafe : CommandElab
       else
         return e
     -- Evaluate using term using `MetaEval` class.
-    let elabMetaEval : CommandElabM Unit := do
-      -- act? is `some act` if elaborated `term` has type `CommandElabM α`
-      let act? ← runTermElabM fun _ => Term.withDeclName declName do
-        let e ← elabEvalTerm
-        let eType ← instantiateMVars (← inferType e)
-        if eType.isAppOfArity ``CommandElabM 1 then
-          let mut stx ← Term.exprToSyntax e
-          unless (← isDefEq eType.appArg! (mkConst ``Unit)) do
-            stx ← `($stx >>= fun v => IO.println (repr v))
-          let act ← Lean.Elab.Term.evalTerm (CommandElabM Unit) (mkApp (mkConst ``CommandElabM) (mkConst ``Unit)) stx
-          pure <| some act
-        else
-          let e ← mkRunMetaEval e
-          let env ← getEnv
-          let opts ← getOptions
-          let act ← try addAndCompile e; evalConst (Environment → Options → IO (String × Except IO.Error Environment)) declName finally setEnv env
-          let (out, res) ← act env opts -- we execute `act` using the environment
-          logInfoAt tk out
-          match res with
-          | Except.error e => throwError e.toString
-          | Except.ok env  => do setEnv env; pure none
-      let some act := act? | return ()
+    let elabMetaEval : CommandElabM (Option MessageData) := do
+      let act ← runTermElabM fun _ => Term.withDeclName declName do
+        let e ← mkRunMetaEval (← elabEvalTerm)
+        let cmdElabOptMsgData := (.app (.const ``CommandElabM []) (.app (.const ``Option [.zero]) (.const ``MessageData [])))
+        evalExpr (CommandElabM (Option MessageData)) cmdElabOptMsgData e .unsafe
       act
     -- Evaluate using term using `Eval` class.
-    let elabEval : CommandElabM Unit := runTermElabM fun _ => Term.withDeclName declName do
-      -- fall back to non-meta eval if MetaEval hasn't been defined yet
-      -- modify e to `runEval e`
-      let e ← mkRunEval (← elabEvalTerm)
-      let env ← getEnv
-      let act ← try addAndCompile e; evalConst (IO (String × Except IO.Error Unit)) declName finally setEnv env
-      let (out, res) ← liftM (m := IO) act
+    let elabEval : CommandElabM (Option Format) := do
+      let act ← runTermElabM fun _ => Term.withDeclName declName do
+        let e ← mkRunEval (← elabEvalTerm)
+        let ioOptMsgData := (.app (.const ``IO []) (.app (.const ``Option [.zero]) (.const ``Format [])))
+        evalExpr (IO (Option Format)) ioOptMsgData e .unsafe
+      act
+    let (out, res) ← IO.FS.withIsolatedStreams do observing do
+      if (← getEnv).contains ``Lean.MetaEval then do
+        elabMetaEval
+      else
+        return ← elabEval
+    if !out.isEmpty then
       logInfoAt tk out
-      match res with
-      | Except.error e => throwError e.toString
-      | Except.ok _    => pure ()
-    if (← getEnv).contains ``Lean.MetaEval then do
-      elabMetaEval
-    else
-      elabEval
+    if let some res ← MonadExcept.ofExcept res then
+      logInfoAt tk res
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab «eval», implemented_by elabEvalUnsafe]

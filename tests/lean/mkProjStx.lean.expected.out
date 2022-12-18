@@ -1,6 +1,3 @@
 A.x (B.toA (C.toB c))
-
 B.y (C.toB c)
-
 C.z c
-

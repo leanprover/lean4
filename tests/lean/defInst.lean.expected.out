@@ -1,4 +1,4 @@
-[4, 5, 6]
+<missing Repr instance for Foo>
 defInst.lean:8:26-8:32: error: failed to synthesize instance
   BEq Foo
 fun x y => sorryAx (?m x y) true : (x y : Foo) → ?m x y

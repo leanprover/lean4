@@ -1,5 +1,4 @@
 a : Nat
-
 prvCtor.lean:21:7-21:8: error: unknown identifier 'a'
 prvCtor.lean:23:25-23:27: error: overloaded, errors 
   failed to synthesize instance

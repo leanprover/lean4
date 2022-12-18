@@ -1,4 +1,4 @@
-import Lean.Parser
+import Lean
 /-! Reprint file after removing all parentheses and then passing it through the parenthesizer -/
 
 open Lean

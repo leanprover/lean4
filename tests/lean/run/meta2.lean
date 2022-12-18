@@ -1,4 +1,4 @@
-import Lean.Meta
+import Lean
 open Lean
 open Lean.Meta
 
@@ -137,6 +137,7 @@ do print "----- tst6 -----";
 
 def tst7 : MetaM Unit :=
 do print "----- tst7 -----";
+   Meta.withConfig ({ · with foApprox := false }) do
    withLocalDeclD `x type $ fun x => do
      let m1 ← mkFreshExprMVar (← mkArrow type type);
      let m2 ← mkFreshExprMVar type;

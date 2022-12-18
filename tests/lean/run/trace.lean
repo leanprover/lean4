@@ -1,4 +1,4 @@
-import Lean.CoreM
+import Lean
 
 open Lean
 

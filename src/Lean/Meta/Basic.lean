@@ -268,7 +268,6 @@ structure State where
 structure SavedState where
   core        : Core.State
   meta        : State
-  deriving Inhabited
 
 /--
   Contextual information for the `MetaM` monad.

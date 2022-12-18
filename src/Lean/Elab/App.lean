@@ -1428,12 +1428,14 @@ private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM �
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]
-  if candidates.size == 1 then
-    applyResult candidates[0]!
+  if h : candidates.size = 1 then
+    have : 0 < candidates.size := by rw [h]; decide
+    applyResult candidates[0]
   else
     let successes ← getSuccesses candidates
-    if successes.size == 1 then
-      applyResult successes[0]!
+    if h : successes.size = 1 then
+      have : 0 < successes.size := by rw [h]; decide
+      applyResult successes[0]
     else if successes.size > 1 then
       let msgs : Array MessageData ← successes.mapM fun success => do
         match success with

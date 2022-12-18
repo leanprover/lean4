@@ -21,7 +21,6 @@ structure Reference where
   ci : ContextInfo
   info : Info
   isBinder : Bool
-  deriving Inhabited
 
 structure RefInfo where
   definition : Option Reference

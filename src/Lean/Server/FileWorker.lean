@@ -90,7 +90,7 @@ section Elab
       : AsyncElabM (Option Snapshot) := do
     cancelTk.check
     let s ← get
-    let lastSnap := s.snaps.back
+    let .some lastSnap := s.snaps.back? | panic! "empty snapshots"
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
@@ -123,7 +123,7 @@ section Elab
   def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     let ctx ← read
-    let headerSnap := snaps[0]!
+    let some headerSnap := snaps[0]? | panic! "empty snapshots"
     if headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors
@@ -289,17 +289,16 @@ section Updates
         cancelTk.check
         IO.Process.exit 2
     else EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
-      let headSnap? ← MonadExcept.ofExcept headSnap??
       -- There is always at least one snapshot absent exceptions
-      let headSnap := headSnap?.get!
+      let some headSnap ← MonadExcept.ofExcept headSnap?? | panic! "empty snapshots"
       let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
       let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps := cmdSnaps.takeWhile (fun s => s.endPos < changePos)
-      if validSnaps.length ≤ 1 then
+      let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
+      if h : validSnaps.length ≤ 1 then
         validSnaps := [newHeaderSnap]
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -307,10 +306,12 @@ section Updates
            We check for this here. We do not currently handle crazy grammars in which an appended
            token can merge two or more previous commands into one. To do so would require reparsing
            the entire file. -/
-        let mut lastSnap := validSnaps.getLast!
-        let preLastSnap := if validSnaps.length ≥ 2
-          then validSnaps.get! (validSnaps.length - 2)
-          else newHeaderSnap
+        have : validSnaps.length ≥ 2 := Nat.gt_of_not_le h
+        let mut lastSnap := validSnaps.getLast (by subst ·; simp at h)
+        let preLastSnap :=
+          have : 0 < validSnaps.length := Nat.lt_of_lt_of_le (by decide) this
+          have : validSnaps.length - 2 < validSnaps.length := Nat.sub_lt this (by decide)
+          validSnaps[validSnaps.length - 2]
         let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast

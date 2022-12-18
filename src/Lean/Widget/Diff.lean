@@ -238,8 +238,7 @@ def diffInteractiveGoal (useAfter : Bool) (g₀ : MVarId) (i₁ : InteractiveGoa
   let lctx₀ := md₀.lctx |>.sanitizeNames.run' {options := (← getOptions)}
   let hs₁ ← diffHypotheses useAfter lctx₀ i₁.hyps
   let i₁ := {i₁ with hyps := hs₁}
-  let some g₁ := i₁.mvarId?
-    | throwError "Expected InteractiveGoal to have an mvarId"
+  let g₁ := i₁.mvarId
   let t₀ ← instantiateMVars <|← inferType (Expr.mvar g₀)
   let some md₁ := (← getMCtx).findDecl? g₁
     | throwError "Unknown goal {g₁}"
@@ -265,8 +264,7 @@ def diffInteractiveGoals (useAfter : Bool) (info : Elab.TacticInfo) (igs₁ : In
        | some xs => xs.contains after
        | none => false
     let goals ← igs₁.goals.mapM (fun ig₁ => do
-      let some g₁ := ig₁.mvarId?
-        | throwError "error: goal not found"
+      let g₁ := ig₁.mvarId
       withGoalCtx (g₁ : MVarId) (fun _lctx₁ _md₁ => do
         -- if the goal is present on the previous version then continue
         if goals₀.any (fun g₀ => g₀ == g₁) then

@@ -14,13 +14,17 @@ This is the input to the RPC call `Lean.Widget.InteractiveDiagnostics.infoToInte
 The purpose of `InfoWithCtx` is to carry over information about delaborated
 `Info` nodes in a `CodeWithInfos`, and the associated pretty-printing
 functionality is purpose-specific to showing the contents of infoview popups.
--/
+
+NOTE: This type is for internal use in the infoview. It should not be used in user widgets. -/
 structure InfoWithCtx where
   ctx  : Elab.ContextInfo
   info : Elab.Info
   deriving TypeName
 
 deriving instance TypeName for MessageData
+deriving instance TypeName for LocalContext
+deriving instance TypeName for Elab.ContextInfo
+deriving instance TypeName for Elab.TermInfo
 
 instance : ToJson FVarId := ⟨fun f => toJson f.name⟩
 instance : ToJson MVarId := ⟨fun f => toJson f.name⟩

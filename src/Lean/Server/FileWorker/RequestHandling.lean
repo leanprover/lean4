@@ -222,7 +222,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
         let goal ← ci.runMetaM lctx' do
           Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
         let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-        return some { goal with range }
+        return some { goal with range, term := ⟨ti⟩ }
       else
         return none
 
@@ -230,7 +230,7 @@ def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
   return t.map <| Except.map <| Option.map fun goal =>
-    { goal := toString goal.toInteractiveGoal.pretty
+    { goal := toString goal.pretty
       range := goal.range
     }
 

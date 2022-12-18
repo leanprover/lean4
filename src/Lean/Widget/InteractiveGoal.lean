@@ -49,7 +49,7 @@ structure InteractiveGoalCore where
 structure InteractiveGoal extends InteractiveGoalCore where
   /-- The name `foo` in `case foo`, if any. -/
   userName? : Option String
-  /-- The symbol to display before the target type. Usually `⊢` but `conv` goals use `∣`
+  /-- The symbol to display before the target type. Usually `⊢ ` but `conv` goals use `∣ `
   and it could be extended. -/
   goalPrefix : String
   /-- Identifies the goal (ie with the unique name of the MVar that it is a goal for.) -/
@@ -100,7 +100,7 @@ def InteractiveGoal.pretty (g : InteractiveGoal) : Format :=
   g.toInteractiveGoalCore.pretty g.userName? g.goalPrefix
 
 def InteractiveTermGoal.pretty (g : InteractiveTermGoal) : Format :=
-  g.toInteractiveGoalCore.pretty none ""
+  g.toInteractiveGoalCore.pretty none "⊢ "
 
 structure InteractiveGoals where
   goals : Array InteractiveGoal

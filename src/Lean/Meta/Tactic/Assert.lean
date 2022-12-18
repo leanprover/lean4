@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Tactic.FVarSubst
 import Lean.Meta.Tactic.Intro
+import Lean.Meta.Tactic.Revert
 
 namespace Lean.Meta
 
@@ -72,27 +73,15 @@ structure AssertAfterResult where
   It assumes `val` has type `type`, and that `type` is well-formed after `fvarId`.
   Note that `val` does not need to be well-formed after `fvarId`. That is, it may contain variables that are defined after `fvarId`. -/
 def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
-  mvarId.withContext do
-    mvarId.checkNotAssigned `assertAfter
-    let tag        ← mvarId.getTag
-    let target     ← mvarId.getType
-    let localDecl  ← fvarId.getDecl
-    let lctx       ← getLCtx
-    let localInsts ← getLocalInstances
-    let fvarIds := lctx.foldl (init := #[]) (start := localDecl.index+1) fun fvarIds decl => fvarIds.push decl.fvarId
-    let xs   := fvarIds.map mkFVar
-    let targetNew ← mkForallFVars xs target (usedLetOnly := false)
-    let targetNew := Lean.mkForall userName BinderInfo.default type targetNew
-    let lctxNew := fvarIds.foldl (init := lctx) fun lctxNew fvarId => lctxNew.erase fvarId
-    let localInstsNew := localInsts.filter fun inst => !fvarIds.contains inst.fvar.fvarId!
-    let mvarNew ← mkFreshExprMVarAt lctxNew localInstsNew targetNew MetavarKind.syntheticOpaque tag
-    let args := (fvarIds.filter fun fvarId => !(lctx.get! fvarId).isLet).map mkFVar
-    let args := #[val] ++ args
-    mvarId.assign (mkAppN mvarNew args)
-    let (fvarIdNew, mvarIdNew) ← mvarNew.mvarId!.intro1P
-    let (fvarIdsNew, mvarIdNew) ← mvarIdNew.introNP fvarIds.size
-    let subst := fvarIds.size.fold (init := {}) fun i subst => subst.insert fvarIds[i]! (mkFVar fvarIdsNew[i]!)
-    return { fvarId := fvarIdNew, mvarId := mvarIdNew, subst := subst }
+  mvarId.checkNotAssigned `assertAfter
+  let (fvarIds, mvarId) ← mvarId.revertAfter fvarId
+  let mvarId ← mvarId.assert userName type val
+  let (fvarIdNew, mvarId) ← mvarId.intro1P
+  let (fvarIdsNew, mvarId) ← mvarId.introNP fvarIds.size
+  let mut subst := {}
+  for f in fvarIds, fNew in fvarIdsNew do
+    subst := subst.insert f (mkFVar fNew)
+  return { fvarId := fvarIdNew, mvarId, subst }
 
 @[deprecated MVarId.assertAfter]
 def assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do

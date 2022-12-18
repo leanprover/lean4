@@ -11,8 +11,6 @@ open System
 
 namespace Lake
 
-deriving instance Inhabited for BuildContext
-
 def mkBuildContext (ws : Workspace) (oldMode : Bool) : IO BuildContext := do
   let lean := ws.lakeEnv.lean
   let leanTrace :=

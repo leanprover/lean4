@@ -205,7 +205,10 @@ structure Package where
   defaultTargets : Array Name := #[]
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
-  deriving Inhabited
+
+instance : Nonempty Package :=
+  have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
+  by refine' ⟨{..}⟩ <;> exact default
 
 hydrate_opaque_type OpaquePackage Package
 

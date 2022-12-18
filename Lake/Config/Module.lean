@@ -19,7 +19,6 @@ structure Module where
   Used to create private modules (e.g., executable roots).
   -/
   keyName : Name := name
-  deriving Inhabited
 
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName

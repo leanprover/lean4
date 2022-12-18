@@ -14,7 +14,6 @@ structure LeanLib where
   pkg : Package
    /-- The library's user-defined configuration. -/
   config : LeanLibConfig
-  deriving Inhabited
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=

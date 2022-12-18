@@ -14,7 +14,6 @@ structure LeanExe where
   pkg : Package
    /-- The executable's user-defined configuration. -/
   config : LeanExeConfig
-  deriving Inhabited
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=

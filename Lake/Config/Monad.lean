@@ -20,8 +20,6 @@ abbrev MonadWorkspace (m : Type → Type u) :=
 abbrev MonadLake (m : Type → Type u) :=
   MonadReaderOf Context m
 
-deriving instance Inhabited for Context
-
 /-- Make a `Lake.Context` from a `Workspace`. -/
 def mkLakeContext (ws : Workspace) : Context where
   opaqueWs := ws

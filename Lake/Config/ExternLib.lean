@@ -15,7 +15,6 @@ structure ExternLib where
   name : Name
   /-- The library's user-defined configuration. -/
   config : ExternLibConfig pkg.name name
-  deriving Inhabited
 
 /-- The external libraries of the package (as an Array). -/
 @[inline] def Package.externLibs (self : Package) : Array ExternLib :=

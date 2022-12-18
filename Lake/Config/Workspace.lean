@@ -27,7 +27,10 @@ structure Workspace : Type where
   packageFacetConfigs : DNameMap PackageFacetConfig
   /-- Name-configuration map of library facets defined in the workspace. -/
   libraryFacetConfigs : DNameMap LibraryFacetConfig
-  deriving Inhabited
+
+instance : Nonempty Workspace :=
+  have : Inhabited Package := Classical.inhabited_of_nonempty inferInstance
+  by refine' ⟨{..}⟩ <;> exact default
 
 hydrate_opaque_type OpaqueWorkspace Workspace
 

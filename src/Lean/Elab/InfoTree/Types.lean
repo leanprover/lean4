@@ -23,7 +23,6 @@ structure ContextInfo where
   currNamespace : Name           := Name.anonymous
   openDecls     : List OpenDecl  := []
   ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
-  deriving Inhabited
 
 /-- Base structure for `TermInfo`, `CommandInfo` and `TacticInfo`. -/
 structure ElabInfo where

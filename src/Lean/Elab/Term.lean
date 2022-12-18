@@ -131,7 +131,6 @@ structure Snapshot where
   term   : Term.State
   tactic : Tactic.State
   stx    : Syntax
-  deriving Inhabited
 
 /--
   Key for the cache used to implement the `save` tactic.
@@ -242,7 +241,6 @@ instance : Inhabited (TermElabM α) where
 structure SavedState where
   meta   : Meta.SavedState
   «elab» : State
-  deriving Inhabited
 
 protected def saveState : TermElabM SavedState :=
   return { meta := (← Meta.saveState), «elab» := (← get) }
@@ -261,9 +259,6 @@ instance : MonadBacktrack SavedState TermElabM where
   restoreState b := b.restore
 
 abbrev TermElabResult (α : Type) := EStateM.Result Exception SavedState α
-
-instance [Inhabited α] : Inhabited (TermElabResult α) where
-  default := EStateM.Result.ok default default
 
 /--
   Execute `x`, save resulting expression and new state.

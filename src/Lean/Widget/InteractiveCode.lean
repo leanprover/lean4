@@ -36,7 +36,7 @@ structure SubexprInfo where
   -- kind : Lsp.SymbolKind
   /-- Ask the renderer to highlight this node in the given color. -/
   diffStatus? : Option DiffTag := none
-  deriving Inhabited, RpcEncodable
+  deriving RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
 abbrev CodeWithInfos := TaggedText SubexprInfo

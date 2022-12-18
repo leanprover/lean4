@@ -46,7 +46,6 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
-  deriving Inhabited
 
 /-- Context for the CoreM monad. -/
 structure Context where

@@ -18,7 +18,7 @@ functionality is purpose-specific to showing the contents of infoview popups.
 structure InfoWithCtx where
   ctx  : Elab.ContextInfo
   info : Elab.Info
-  deriving Inhabited, TypeName
+  deriving TypeName
 
 deriving instance TypeName for MessageData
 

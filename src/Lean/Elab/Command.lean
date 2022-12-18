@@ -32,7 +32,6 @@ structure State where
   ngen           : NameGenerator := {}
   infoState      : InfoState := {}
   traceState     : TraceState := {}
-  deriving Inhabited
 
 structure Context where
   fileName       : String

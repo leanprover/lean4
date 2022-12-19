@@ -745,20 +745,12 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         }
 
         if (llvm_output && ok) {
-          initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
-                                               lean_io_mk_world());
-
-          time_task _("LLVM code generation", opts);
-          object *r = lean_ir_emit_llvm(
-              env.to_obj_arg(), (*main_module_name).to_obj_arg(),
-              lean::string_ref(*llvm_output).to_obj_arg(), lean_io_mk_world());
-          if (lean_io_result_is_ok(r)) {
-            dec_ref(r);
-          } else {
-            string_ref s(lean_io_result_get_error(r), true);
-            dec_ref(r);
-            throw exception(s.to_std_string());
-          }
+            initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
+                    lean_io_mk_world());
+            time_task _("LLVM code generation", opts);
+            lean::consume_io_result(lean_ir_emit_llvm(
+                        env.to_obj_arg(), (*main_module_name).to_obj_arg(),
+                        lean::string_ref(*llvm_output).to_obj_arg(), lean_io_mk_world()));
         }
 
         display_cumulative_profiling_times(std::cerr);

@@ -79,9 +79,8 @@ def constIntUnsigned (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntUnsigned llvmctx (UInt64.ofNat n)
 
 def getOrCreateFunctionPrototype (mod : LLVM.Module llvmctx)
-  (retty : LLVM.LLVMType llvmctx) (name : String) (args : Array (LLVM.LLVMType llvmctx)) : M llvmctx  (LLVM.Value llvmctx) := do
-  LLVM.getOrAddFunction mod name $
-     (← LLVM.functionType retty args (isVarArg := false))
+    (retty : LLVM.LLVMType llvmctx) (name : String) (args : Array (LLVM.LLVMType llvmctx)) : M llvmctx  (LLVM.Value llvmctx) := do
+  LLVM.getOrAddFunction mod name $ ← LLVM.functionType retty args (isVarArg := false)
 
 def callLeanBox (builder : LLVM.Builder llvmctx) (arg : LLVM.Value llvmctx) (name : String := "") : M llvmctx (LLVM.Value llvmctx) := do
   let fnName :=  "lean_box"
@@ -105,8 +104,8 @@ inductive RefcountKind where
 
 instance : ToString RefcountKind where
   toString
-  | .inc => "inc"
-  | .dec => "dec"
+    | .inc => "inc"
+    | .dec => "dec"
 
 def callLeanRefcountFn (builder : LLVM.Builder llvmctx)
   (kind : RefcountKind) (checkRef? : Bool) (arg : LLVM.Value llvmctx)
@@ -288,15 +287,13 @@ def throwInvalidExportName {α : Type} (n : Name) : M llvmctx α := do
   throw s!"invalid export name {n.toString}"
 
 def toCName (n : Name) : M llvmctx String := do
-  let env ← getEnv;
-  match getExportNameFor? env n with
+  match getExportNameFor? (← getEnv) n with
   | some (.str .anonymous s) => pure s
   | some _                   => throwInvalidExportName n
   | none                     => if n == `main then pure leanMainFn else pure n.mangle
 
 def toCInitName (n : Name) : M llvmctx String := do
-  let env ← getEnv;
-  match getExportNameFor? env n with
+  match getExportNameFor? (← getEnv) n with
   | some (.str .anonymous s) => return "_init_" ++ s
   | some _                   => throwInvalidExportName n
   | none                     => pure ("_init_" ++ n.mangle)
@@ -892,8 +889,8 @@ def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llv
 partial def declareVars (builder : LLVM.Builder llvmctx) (f : FnBody) : M llvmctx Unit := do
   match f with
   | FnBody.vdecl x t _ b => do
-      declareVar builder x t; declareVars builder b
-
+      declareVar builder x t
+      declareVars builder b
   | FnBody.jdecl _ xs _ b => do
       for param in xs do declareVar builder param.x param.ty
       declareVars builder b
@@ -1173,7 +1170,9 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
       let restBB ← builderAppendBasicBlock builder s!"post_{d.name}_init"
       let checkBuiltin? := getBuiltinInitFnNameFor? env d.name |>.isSome
       if checkBuiltin? then
-        let builtinParam ← LLVM.getParam parentFn 0 -- TODO(bollu) : what does this argument mean?
+        -- `builtin` is set to true if the initializer is part of the executable,
+        -- and not loaded dynamically.
+        let builtinParam ← LLVM.getParam parentFn 0 
         let cond ← buildLeanBoolTrue? builder builtinParam "is_builtin_true"
         let _ ← LLVM.buildCondBr builder cond initBB restBB
        else
@@ -1196,7 +1195,6 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
       let llvmty ← toLLVMType d.resultType
       let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
-      -- TODO (bollu) : this should probably be getOrCreateNamedFunction
       let dval ← callPureDeclInitFn builder d (← toCInitName d.name)
       LLVM.buildStore builder dval dslot
       if d.resultType.isObj then

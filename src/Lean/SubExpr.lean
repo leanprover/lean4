@@ -180,6 +180,31 @@ def bindingDomain! : SubExpr → SubExpr
   | ⟨.lam _ t _ _, p⟩ => ⟨t, p.pushBindingDomain⟩
   | _ => panic! "subexpr is not a binder"
 
+instance : ToJson FVarId := ⟨fun f => toJson f.name⟩
+instance : ToJson MVarId := ⟨fun f => toJson f.name⟩
+instance : FromJson FVarId := ⟨fun j => FVarId.mk <$> fromJson? j⟩
+instance : FromJson MVarId := ⟨fun j => MVarId.mk <$> fromJson? j⟩
+
+/-- A location within a goal. -/
+inductive GoalLocation where
+  /-- One of the hypotheses. -/
+  | hyp : FVarId → GoalLocation
+  /-- A subexpression of the type of one of the hypotheses. -/
+  | hypType : FVarId → SubExpr.Pos → GoalLocation
+  /-- A subexpression of the value of one of the let-bound hypotheses. -/
+  | hypValue : FVarId → SubExpr.Pos → GoalLocation
+  /-- A subexpression of the goal type. -/
+  | target : SubExpr.Pos → GoalLocation
+  deriving FromJson, ToJson
+
+/-- A location within a goal state. It identifies a specific goal together with a `GoalLocation`
+within it. -/
+structure GoalsLocation where
+  /-- Which goal the location is in. -/
+  mvarId : MVarId
+  loc    : GoalLocation
+  deriving FromJson, ToJson
+
 end SubExpr
 
 open SubExpr in

@@ -26,9 +26,4 @@ deriving instance TypeName for LocalContext
 deriving instance TypeName for Elab.ContextInfo
 deriving instance TypeName for Elab.TermInfo
 
-instance : ToJson FVarId := ⟨fun f => toJson f.name⟩
-instance : ToJson MVarId := ⟨fun f => toJson f.name⟩
-instance : FromJson FVarId := ⟨fun j => FVarId.mk <$> fromJson? j⟩
-instance : FromJson MVarId := ⟨fun j => MVarId.mk <$> fromJson? j⟩
-
 end Lean.Widget

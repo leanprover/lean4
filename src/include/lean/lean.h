@@ -1922,6 +1922,11 @@ static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
 static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
 static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
 
+/* Efficient C implementations of defns used by the compiler */
+static inline size_t lean_data_hashmap_mk_idx(lean_object* sz, uint64_t hash) {
+    return (size_t)(hash & (lean_unbox(sz) - 1));
+}
+
 #ifdef __cplusplus
 }
 #endif

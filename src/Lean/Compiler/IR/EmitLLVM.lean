@@ -443,7 +443,7 @@ def emitFnDecls : M llvmctx Unit := do
   let usedDecls : NameSet := decls.foldl (fun s d => collectUsedDecls env d (s.insert d.name)) {}
   let usedDecls := usedDecls.toList
   for n in usedDecls do
-    let decl ← getDecl n;
+    let decl ← getDecl n
     match getExternNameFor env `c decl.name with
     | some cName => emitExternDeclAux decl cName
     | none       => emitFnDecl decl (!modDecls.contains n)
@@ -486,7 +486,7 @@ def emitAllocCtor (builder : LLVM.Builder llvmctx)
   (c : CtorInfo) : M llvmctx (LLVM.Value llvmctx) := do
   -- TODO(bollu) : find the correct size, don't assume 'void*' size is 8
   let hackSizeofVoidPtr := 8
-  let scalarSize := hackSizeofVoidPtr * c.usize + c.ssize; 
+  let scalarSize := hackSizeofVoidPtr * c.usize + c.ssize
   callLeanAllocCtor builder c.cidx c.size scalarSize "lean_alloc_ctor_out"
 
 def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
@@ -501,12 +501,12 @@ def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
 
 def emitCtor (builder : LLVM.Builder llvmctx)
   (z : VarId) (c : CtorInfo) (ys : Array Arg) : M llvmctx Unit := do
-  let (_llvmty, slot) ← emitLhsSlot_ z;
+  let (_llvmty, slot) ← emitLhsSlot_ z
   if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
     let v ← callLeanBox builder (← constIntUnsigned c.cidx) "lean_box_outv"
     let _ ← LLVM.buildStore builder v slot
   else do
-    let v ← emitAllocCtor builder c;
+    let v ← emitAllocCtor builder c
     let _ ← LLVM.buildStore builder v slot
     emitCtorSetArgs builder z ys
 
@@ -616,7 +616,7 @@ def getOrAddFunIdValue (builder : LLVM.Builder llvmctx) (f : FunId) : M llvmctx 
 def emitPartialApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : FunId) (ys : Array Arg) : M llvmctx Unit := do
   let decl ← getDecl f
   let fv ← getOrAddFunIdValue builder f
-  let arity := decl.params.size;
+  let arity := decl.params.size
   let (_zty, zslot) ← emitLhsSlot_ z
   let zval ← callLeanAllocClosureFn builder fv
                                     (← constIntUnsigned arity)
@@ -637,7 +637,7 @@ def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array
     let fnName :=  s!"lean_apply_m"
     let retty ← LLVM.voidPtrType llvmctx
     let args := #[← emitLhsVal builder f, ← constIntUnsigned ys.size, aargs]
-    -- '1 + ...'; '1' for the fn and 'args' for the arguments
+    -- '1 + ...'. '1' for the fn and 'args' for the arguments
     let argtys := #[← LLVM.voidPtrType llvmctx]
     let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
     let fnty ← LLVM.functionType retty argtys
@@ -648,7 +648,7 @@ def emitApp (builder : LLVM.Builder llvmctx) (z : VarId) (f : VarId) (ys : Array
     let fnName :=  s!"lean_apply_{ys.size}"
     let retty ← LLVM.voidPtrType llvmctx
     let args : Array (LLVM.Value llvmctx) := #[← emitLhsVal builder f] ++ (← ys.mapM (fun y => Prod.snd <$> (emitArgVal builder y)))
-    -- '1 + ...'; '1' for the fn and 'args' for the arguments
+    -- '1 + ...'. '1' for the fn and 'args' for the arguments
     let argtys := (List.replicate (1 + ys.size) (← LLVM.voidPtrType llvmctx)).toArray
     let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
     let fnty ← LLVM.functionType retty argtys
@@ -932,7 +932,7 @@ def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llv
   | _ => throw s!"EmitTailCall expects function application, found '{v}'"
 
 def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg) : M llvmctx Unit := do
- let llvmctx ← read;
+ let llvmctx ← read
   let ps ← match llvmctx.jpMap.find? jp with
   | some ps => pure ps
   | none    => throw s!"Unknown join point {jp}"
@@ -979,8 +979,8 @@ def emitSetTag (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) : M llvmct
 def ensureHasDefault' (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else
-    let last := alts.back;
-    let alts := alts.pop;
+    let last := alts.back
+    let alts := alts.pop
     alts.push (Alt.default last.body)
 
 mutual
@@ -992,7 +992,7 @@ partial def emitCase (builder : LLVM.Builder llvmctx)
     --       in 64-bit space.
     let tag ← emitTag builder x xType
     let tag ← LLVM.buildZext builder tag (← LLVM.i64Type llvmctx)
-    let alts := ensureHasDefault' alts;
+    let alts := ensureHasDefault' alts
     let defaultBB ← builderAppendBasicBlock builder s!"case_{xType}_default"
     let numCasesHint := alts.size
     let switch ← LLVM.buildSwitch builder tag defaultBB (UInt64.ofNat numCasesHint)
@@ -1044,11 +1044,8 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
     unless p do emitDec builder x n c
     emitBlock builder b
   | FnBody.del x b             =>  emitDel builder x; emitBlock builder b
-
   | FnBody.setTag x i b        =>  emitSetTag builder x i; emitBlock builder b
-
-  | FnBody.set x i y b         =>
-     emitSet builder x i y; emitBlock builder b
+  | FnBody.set x i y b         => emitSet builder x i y; emitBlock builder b
   | FnBody.uset _x _i _y _b    =>
        -- TODO(bollu) : implement `uset`.
        --  NOTE(bollu) : It is disturbing that we pass the Lean CI without this.
@@ -1103,7 +1100,7 @@ def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d 
   unless hasInitAttr env d.name do
     match d with
     | .fdecl (f := f) (xs := xs) (type := t) (body := b) .. =>
-      let baseName ← toCName f;
+      let baseName ← toCName f
       let name := if xs.size > 0 then baseName else "_init_" ++ baseName
       let retty ← toLLVMType t
       let mut argtys := #[]
@@ -1125,7 +1122,7 @@ def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d 
     | _ => pure ()
 
 def emitDecl (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : Decl) : M llvmctx Unit := do
-  let d := d.normalizeIds; -- ensure we don't have gaps in the variable indices
+  let d := d.normalizeIds -- ensure we don't have gaps in the variable indices
   try
     emitDeclAux mod builder d
     return ()
@@ -1134,7 +1131,7 @@ def emitDecl (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d : D
 
 def emitFns (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
   let env ← getEnv
-  let decls := getDecls env;
+  let decls := getDecls env
   decls.reverse.forM (emitDecl mod builder)
 
 def callIODeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 

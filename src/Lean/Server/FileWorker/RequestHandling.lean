@@ -382,6 +382,7 @@ def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
     |>.insert "sorry" .leanSorryLike
     |>.insert "admit" .leanSorryLike
     |>.insert "stop" .leanSorryLike
+    |>.insert "#exit" .leanSorryLike
 
 partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do

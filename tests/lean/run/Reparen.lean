@@ -51,3 +51,4 @@ open Lean
 syntax:80 term " ^~ " term:80 : term
 syntax:70 term " *~ " term:71 : term
 #eval check $ Unhygienic.run `(((1 + 2) *~ 3) ^~ 4)
+#eval check $ Unhygienic.run `(opaque foo (a := (by exact 1)) : True)

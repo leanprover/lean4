@@ -216,6 +216,17 @@ def binderTactic  := leading_parser
   atomic (symbol " := " >> " by ") >> Tactic.tacticSeq
 def binderDefault := leading_parser
   " := " >> termParser
+
+open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
+@[combinator_parenthesizer Lean.Parser.Term.binderDefault] def binderDefault.parenthesizer : Parenthesizer := do
+  let prec := match (← getCur) with
+    -- must parenthesize to distinguish from `binderTactic`
+    | `(binderDefault| := by $_) => maxPrec
+    | _                          => 0
+  visitArgs do
+    term.parenthesizer prec
+    visitToken
+
 def explicitBinder (requireType := false) := ppGroup $ leading_parser
   "(" >> withoutPosition (many1 binderIdent >> binderType requireType >> optional (binderTactic <|> binderDefault)) >> ")"
 /--

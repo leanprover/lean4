@@ -106,6 +106,7 @@ rec {
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
       stdlib = [ Init Lean ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
+      depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
@@ -138,6 +139,14 @@ rec {
           ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';
       });
+      cacheRoots = symlinkJoin {
+        name = "cacheRoots";
+        paths = [
+          stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
+          # .o files are not a runtime dependency on macOS because of lack of thin archives
+          Lean.oTree
+        ];
+      };
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

@@ -76,8 +76,6 @@ with builtins; let
         cp -drsu --no-preserve=mode $i/. $out
       done
     '';
-    preferLocalBuild = true;
-    allowSubstitutes = false;
   };
   srcRoot = src;
 
@@ -241,6 +239,7 @@ in rec {
       lib.optionalAttrs precompilePackage { propagatedLoadDynlibs = [sharedLib]; })
     mods';
   modRoot   = depRoot name (attrValues mods);
+  depRoots  = linkFarmFromDrvs "depRoots" (map (m: m.LEAN_PATH) (attrValues mods));
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };

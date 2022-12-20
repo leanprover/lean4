@@ -131,6 +131,7 @@ with builtins; let
   modDeps = fromJSON (
     # the only possible references to store paths in the JSON should be inside errors, so no chance of missed dependencies from this
     unsafeDiscardStringContext (readFile "${modDepsFile}/${modDepsFile.name}"));
+  # map from module name to list of imports
   modDepsMap = listToAttrs (lib.zipListsWith lib.nameValuePair candidateMods modDeps.imports);
   maybeOverrideAttrs = f: x: if f != null then x.overrideAttrs f else x;
   # build module (.olean and .c) given derivations of all (immediate) dependencies
@@ -185,19 +186,13 @@ with builtins; let
       propagatedLoadDynlibs = [sharedLib];
     };
   externalModMap = lib.foldr (dep: depMap: depMap // dep.mods) {} allExternalDeps;
-  # Recursively build `mod` and its dependencies. `modMap` maps module names to
-  # `{ deps, drv }` pairs of a derivation and its transitive dependencies (as a nested
-  # mapping from module names to derivations). It is passed linearly through the
-  # recursion to memoize common dependencies.
-  buildModAndDeps = mod: modMap: if modMap ? ${mod} || externalModMap ? ${mod} then modMap else
+  # map from module name to derivation
+  modCandidates = mapAttrs (mod: header:
     let
-      deps = if modDepsMap ? ${mod}
-             then if modDepsMap.${mod}.errors == []
-             then map (m: m.module) modDepsMap.${mod}.imports
-             else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" modDepsMap.${mod}.errors}"
-             else [];
-      modMap' = lib.foldr buildModAndDeps modMap deps;
-    in modMap' // { ${mod} = mkMod mod (map (dep: if modMap' ? ${dep} then modMap'.${dep} else externalModMap.${dep}) deps); };
+      deps = if header.errors == []
+             then map (m: m.module) header.imports
+             else abort "errors while parsing imports of ${mod}:\n${lib.concatStringsSep "\n" header.errors}";
+    in mkMod mod (map (dep: if modDepsMap ? ${dep} then modCandidates.${dep} else externalModMap.${dep}) deps)) modDepsMap;
   makeEmacsWrapper = name: emacs: lean: writeShellScriptBin name ''
     ${emacs} --eval "(progn (setq lean4-rootdir \"${lean}\"))" "$@"
   '';
@@ -218,7 +213,11 @@ with builtins; let
     else if g.glob == "submodules" then submodules g.mod
     else if g.glob == "andSubmodules" then [g.mod] ++ submodules g.mod
     else throw "unknown glob kind '${g}'";
-  mods' = lib.foldr buildModAndDeps {} (concatMap expandGlob roots);
+  # subset of `modCandidates` that is transitively reachable from `roots`
+  mods' = listToAttrs (map (e: { name = e.key; value = modCandidates.${e.key}; }) (genericClosure {
+    startSet = map (m: { key = m; }) (concatMap expandGlob roots);
+    operator = e: if modDepsMap ? ${e.key} then map (m: { key = m.module; }) (filter (m: modCandidates ? ${m.module}) modDepsMap.${e.key}.imports) else [];
+  }));
   allLinkFlags = lib.foldr (shared: acc: acc ++ [ "-L${shared}" "-l${shared.linkName or shared.name}" ]) linkFlags allNativeSharedLibs;
 
   objects   = mapAttrs (_: m: m.obj) mods';

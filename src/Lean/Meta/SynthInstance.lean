@@ -322,8 +322,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
-  let mvar ← instantiateMVars mvar
-  if !(← hasAssignableMVar mvar) then
+  if ← mvar.mvarId!.isAssigned then
     /- The metavariable `mvar` may have been assigned when solving typing constraints.
        This may happen when a local instance type depends on other local instances.
        For example, in Mathlib, we have
@@ -341,6 +340,9 @@ def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × Li
           failed to be elaborated using it.
        2) Generate an error/warning message when instances such as `Submodule.setLike` are declared,
           and instruct user to use `{}` binder annotation for `_inst_1` `_inst_2`.
+
+       It is important to check here whether `mvar` is *assigned*, it might
+       still contain metavariables (such as universe mvars etc.).
      -/
     return some ((← getMCtx), [])
   let mvarType   ← inferType mvar

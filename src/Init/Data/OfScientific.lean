@@ -23,7 +23,7 @@ def Float.ofBinaryScientific (m : Nat) (e : Int) : Float :=
   let e := e + s
   m.toFloat.scaleB e
 
-protected opaque Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
+protected def Float.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float :=
   if s then
     let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
     let m := (m <<< (3 * e + s)) / 5^e

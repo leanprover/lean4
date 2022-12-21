@@ -163,6 +163,11 @@ attribute [coe_decl] CoeOTC.coe
 
 instance [CoeOut α β] [CoeOTC β γ] : CoeOTC α γ where coe a := CoeOTC.coe (CoeOut.coe a : β)
 instance [CoeTC α β] : CoeOTC α β where coe a := CoeTC.coe a
+instance : CoeOTC α α where coe a := a
+
+-- Note: ^^ We add reflexivity instances for CoeOTC/etc. so that we avoid going
+-- through a user-defined CoeTC/etc. instance.  (Instances like
+-- `CoeTC F (A →+ B)` apply even when the two sides are defeq.)
 
 /--
 `CoeHead α β` is for coercions that are applied from left-to-right at most once
@@ -186,6 +191,7 @@ attribute [coe_decl] CoeHTC.coe
 
 instance [CoeHead α β] [CoeOTC β γ] : CoeHTC α γ where coe a := CoeOTC.coe (CoeHead.coe a : β)
 instance [CoeOTC α β] : CoeHTC α β where coe a := CoeOTC.coe a
+instance : CoeHTC α α where coe a := a
 
 /--
 `CoeTail α β` is for coercions that can only appear at the end of a
@@ -210,6 +216,7 @@ attribute [coe_decl] CoeHTCT.coe
 
 instance [CoeTail β γ] [CoeHTC α β] : CoeHTCT α γ where coe a := CoeTail.coe (CoeHTC.coe a : β)
 instance [CoeHTC α β] : CoeHTCT α β where coe a := CoeHTC.coe a
+instance : CoeHTCT α α where coe a := a
 
 /--
 `CoeDep α (x : α) β` is a typeclass for dependent coercions, that is, the type `β`
@@ -242,6 +249,7 @@ attribute [coe_decl] CoeT.coe
 
 instance [CoeHTCT α β] : CoeT α a β where coe := CoeHTCT.coe a
 instance [CoeDep α a β] : CoeT α a β where coe := CoeDep.coe a
+instance : CoeT α a α where coe := a
 
 /--
 `CoeFun α (γ : α → Sort v)` is a coercion to a function. `γ a` should be a

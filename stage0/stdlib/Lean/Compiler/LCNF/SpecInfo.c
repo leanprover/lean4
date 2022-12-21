@@ -4012,15 +4012,16 @@ x_1 = lean_unsigned_to_nat(0u);
 x_2 = l_Lean_addTrace___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__13___closed__1;
 x_3 = l_Lean_addTrace___at_Lean_Compiler_LCNF_saveSpecParamInfo___spec__13___closed__2;
 x_4 = l_Lean_Compiler_LCNF_SpecState_specInfo___default___closed__3;
-x_5 = lean_alloc_ctor(0, 8, 0);
+x_5 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_1);
-lean_ctor_set(x_5, 2, x_2);
-lean_ctor_set(x_5, 3, x_3);
-lean_ctor_set(x_5, 4, x_4);
-lean_ctor_set(x_5, 5, x_2);
-lean_ctor_set(x_5, 6, x_3);
+lean_ctor_set(x_5, 2, x_1);
+lean_ctor_set(x_5, 3, x_2);
+lean_ctor_set(x_5, 4, x_3);
+lean_ctor_set(x_5, 5, x_4);
+lean_ctor_set(x_5, 6, x_2);
 lean_ctor_set(x_5, 7, x_3);
+lean_ctor_set(x_5, 8, x_3);
 return x_5;
 }
 }

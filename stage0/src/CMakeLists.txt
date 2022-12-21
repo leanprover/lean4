@@ -336,8 +336,7 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lm")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -lm")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lm")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

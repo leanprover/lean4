@@ -1,7 +1,7 @@
 import Lean
 open Lean PrettyPrinter
 
-def fmt (stx : CoreM Syntax) : CoreM Format := stx >>= formatTerm
+def fmt (stx : CoreM Syntax) : CoreM Format := do PrettyPrinter.ppTerm ⟨← stx⟩
 
 #eval fmt `(if c then do t else e)
 #eval fmt `(if c then do t; t else e)

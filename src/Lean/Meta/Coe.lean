@@ -32,18 +32,10 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
             return .visit e.headBeta
       return .continue
 
-register_builtin_option maxCoeSize : Nat := {
-  defValue := 16
-  descr    := "maximum number of instances used to construct an automatic coercion"
-}
-
 register_builtin_option autoLift : Bool := {
   defValue := true
   descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
 }
-
-def trySynthInstanceForCoe (cls : Expr) : MetaM (LOption Expr) := do
-  trySynthInstance cls (some (maxCoeSize.get (← getOptions)))
 
 /-- Coerces `expr` to `expectedType` using `CoeT`. -/
 def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
@@ -51,7 +43,7 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
   let u ← getLevel eType
   let v ← getLevel expectedType
   let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, expr, expectedType]
-  match ← trySynthInstanceForCoe coeTInstType with
+  match ← trySynthInstance coeTInstType with
   | .some inst =>
     let result ← expandCoe (mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, expr, expectedType, inst])
     unless ← isDefEq (← inferType result) expectedType do

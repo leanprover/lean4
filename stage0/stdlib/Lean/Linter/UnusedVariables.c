@@ -10423,7 +10423,7 @@ lean_dec(x_2);
 x_5 = lean_ctor_get(x_4, 3);
 lean_inc(x_5);
 lean_dec(x_4);
-x_6 = lean_ctor_get(x_5, 6);
+x_6 = lean_ctor_get(x_5, 7);
 lean_inc(x_6);
 lean_dec(x_5);
 x_7 = l_Array_foldrMUnsafe_fold___at_Lean_Linter_unusedVariables___spec__41___lambda__2___closed__1;

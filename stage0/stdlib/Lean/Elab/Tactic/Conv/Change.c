@@ -152,7 +152,7 @@ lean_dec(x_14);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
-x_18 = lean_ctor_get(x_17, 1);
+x_18 = lean_ctor_get(x_17, 2);
 lean_inc(x_18);
 lean_dec(x_17);
 lean_inc(x_9);

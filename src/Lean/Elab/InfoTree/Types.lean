@@ -109,10 +109,13 @@ structure UserWidgetInfo where
   deriving Inhabited
 
 /--
-Specifies that the given free variables should be considered semantically identical in the current local context.
+Specifies that the given free variables should be considered semantically identical.
+The free variable `baseId` might not be in the current local context
+because it has been cleared.
 Used for e.g. connecting variables before and after `match` generalization.
 -/
 structure FVarAliasInfo where
+  userName : Name
   id     : FVarId
   baseId : FVarId
 

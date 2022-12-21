@@ -1,5 +1,5 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 rec {
@@ -53,11 +53,7 @@ rec {
       mv runtime/libleanrt_initial-exec.a runtime/lean.h.bc $out/lib
     '';
   };
-  # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
-  wrapStage = stage: runCommand "lean" {} ''
-    ln -s ${stage} $out
-  '';
-  stage0 = wrapStage (args.stage0 or (buildCMake {
+  stage0 = args.stage0 or (buildCMake {
     name = "lean-stage0";
     realSrc = ../stage0/src;
     debug = stage0debug;
@@ -76,7 +72,8 @@ rec {
       done
       otool -L $out/bin/lean
     '';
-  }));
+    meta.mainProgram = "lean";
+  });
   stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
@@ -128,7 +125,7 @@ rec {
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
-      lean-all = wrapStage(stdenv.mkDerivation {
+      lean-all = stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
@@ -138,15 +135,13 @@ rec {
           # NOTE: `lndir` will not override existing `bin/leanc`
           ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';
-      });
-      cacheRoots = symlinkJoin {
-        name = "cacheRoots";
-        paths = [
-          stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
-          # .o files are not a runtime dependency on macOS because of lack of thin archives
-          Lean.oTree
-        ];
+        meta.mainProgram = "lean";
       };
+      cacheRoots = linkFarmFromDrvs "cacheRoots" [
+        stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
+        # .o files are not a runtime dependency on macOS because of lack of thin archives
+        Lean.oTree
+      ];
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

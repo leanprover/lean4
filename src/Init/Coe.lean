@@ -34,6 +34,7 @@ which is not a type error anymore.
 
 You can also use the `↑` operator to explicitly indicate a coercion. Using `↑x`
 instead of `x` in the example will result in the same output.
+
 Because there are many polymorphic functions in Lean, it is often ambiguous where
 the coercion can go. For example:
 ```
@@ -47,10 +48,44 @@ between these possibilities, but generally Lean will elaborate working from the
 and assign the `+` to be the one for `Int`, and then need to insert coercions
 for the subterms `↑x : Int` and `↑y : Int`, resulting in the `↑x + ↑y` version.
 
+Note that unlike most operators like `+`, `↑` is always eagerly unfolded at
+parse time into its definition. So if we look at the definition of `f` from
+before, we see no trace of the `CoeT.coe` function:
+```
+def f (x : Nat) : Int := x
+#print f
+-- def f : Nat → Int :=
+-- fun (x : Nat) => Int.ofNat x
+```
+
 ## Important typeclasses
+
+Lean resolves a coercion by either inserting a `CoeDep` instance
+or chaining `CoeHead? CoeOut* Coe* CoeTail?` instances.
+(That is, zero or one `CoeHead` instances, an arbitrary number of `CoeOut`
+instances, etc.)
+
+The `CoeHead? CoeOut*` instances are chained from the "left" side.
+So if Lean looks for a coercion from `Nat` to `Int`, it starts by trying coerce
+`Nat` using `CoeHead` by looking for a `CoeHead Nat ?α` instance, and then
+continuing with `CoeOut`.  Similarly `Coe* CoeTail?` are chained from the "right".
+
+These classes should be implemented for coercions:
 
 * `Coe α β` is the most basic class, and the usual one you will want to use
   when implementing a coercion for your own types.
+  The variables in the type `α` must be a subset of the variables in `β`
+  (or out-params of type class parameters),
+  because `Coe` is chained right-to-left.
+
+* `CoeOut α β` is like `Coe α β` but chained left-to-right.
+  Use this if the variables in the type `α` are a superset of the variables in `β`.
+
+* `CoeTail α β` is like `Coe α β`, but only applied once.
+  Use this for coercions that would cause loops, like `[Ring R] → CoeTail Nat R`.
+
+* `CoeHead α β` is similar to `CoeOut α β`, but only applied once.
+  Use this for coercions that would cause loops, like `[SetLike S α] → CoeHead S (Set α)`.
 
 * `CoeDep α (x : α) β` allows `β` to depend not only on `α` but on the value
   `x : α` itself. This is useful when the coercion function is dependent.
@@ -63,32 +98,20 @@ for the subterms `↑x : Int` and `↑y : Int`, resulting in the `↑x + ↑y` v
 * `CoeFun α (γ : α → Sort v)` is a coercion to a function. `γ a` should be a
   (coercion-to-)function type, and this is triggered whenever an element
   `f : α` appears in an application like `f x` which would not make sense since
-  `f` does not have a function type. This is automatically turned into `CoeFun.coe f x`.
+  `f` does not have a function type.
+  `CoeFun` instances apply to `CoeOut` as well.
 
 * `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
-  then it will be turned into `(x : CoeSort.coe a)`.
+  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`.
+  `CoeSort` instances apply to `CoeOut` as well.
 
-* `CoeHead` is like `Coe`, but while `Coe` can be transitively chained in the
-  `CoeT` class, `CoeHead` can only appear once and only at the start of such a
-  chain. This is useful when the transitive instances are not well behaved.
+On top of these instances this file defines several auxiliary type classes:
+  * `CoeTC := Coe*`
+  * `CoeOTC := CoeOut* Coe*`
+  * `CoeHTC := CoeHead? CoeOut* Coe*`
+  * `CoeHTCT := CoeHead? CoeOut* Coe* CoeTail?`
+  * `CoeDep := CoeHead? CoeOut* Coe* CoeTail? | CoeDep`
 
-* `CoeTail` is similar: it can only appear at the end of a chain of coercions.
-
-* `CoeT α (x : α) β` itself is the combination of all the aforementioned classes
-  (except `CoeSort` and `CoeFun` which have different triggers). You can
-  implement `CoeT` if you do not want this coercion to be transitively composed
-  with any other coercions.
-
-Note that unlike most operators like `+`, `↑` is always eagerly unfolded at
-parse time into its definition. So if we look at the definition of `f` from
-before, we see no trace of the `CoeT.coe` function:
-```
-def f (x : Nat) : Int := x
-#print f
--- def f : Nat → Int :=
--- fun (x : Nat) => Int.ofNat x
-```
 -/
 
 universe u v w w'
@@ -208,7 +231,7 @@ attribute [coe_decl] CoeDep.coe
 It can also be triggered explicitly with the notation `↑x` or by double type
 ascription `((x : α) : β)`.
 
-A `CoeT` chain has the grammar `CoeHead* Coe* CoeTail? | CoeDep`.
+A `CoeT` chain has the grammar `CoeHead? CoeOut* Coe* CoeTail? | CoeDep`.
 -/
 class CoeT (α : Sort u) (_ : α) (β : Sort v) where
   /-- The resulting value of type `β`. The input `x : α` is a parameter to

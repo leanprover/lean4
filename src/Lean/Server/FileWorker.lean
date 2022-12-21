@@ -120,7 +120,7 @@ section Elab
     return some snap
 
   /-- Elaborates all commands after the last snap (at least the header snap is assumed to exist), emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken)
+  def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken) (startAfterMs : UInt32)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     let ctx ← read
     let headerSnap := snaps[0]!
@@ -134,7 +134,9 @@ section Elab
       -- This will overwrite existing ilean info for the file since this has a
       -- higher version number.
       publishIleanInfoUpdate m ctx.hOut snaps
-      return AsyncList.ofList snaps.toList ++ (← AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
+      return AsyncList.ofList snaps.toList ++ AsyncList.delayed (← EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
+        IO.sleep startAfterMs
+        AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -258,7 +260,7 @@ section Initialization
         clientHasWidgets
       }
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
-      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
+      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx (startAfterMs := 0)
       | Except.error e   => throw (e : ElabTaskError))
     let doc : EditableDocument := { meta, cmdSnaps := AsyncList.delayed cmdSnaps, cancelTk }
     return (ctx,
@@ -281,7 +283,6 @@ section Updates
     let initHeaderStx := (← get).initHeaderStx
     let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
     let cancelTk ← CancelToken.new
-    -- Wait for at least one snapshot from the old doc, we don't want to unnecessarily re-run `print-paths`
     let headSnapTask := oldDoc.cmdSnaps.waitHead?
     let newSnaps ← if initHeaderStx != newHeaderStx then
       EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
@@ -316,8 +317,8 @@ section Updates
           validSnaps := validSnaps.dropLast
       -- wait for a bit, giving the initial `cancelTk.check` in `nextCmdSnap` time to trigger
       -- before kicking off any expensive elaboration (TODO: make expensive elaboration cancelable)
-      IO.sleep ctx.initParams.editDelay.toUInt32
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
+        (startAfterMs := ctx.initParams.editDelay.toUInt32)
     modify fun st => { st with doc := { meta := newMeta, cmdSnaps := AsyncList.delayed newSnaps, cancelTk } }
 end Updates
 

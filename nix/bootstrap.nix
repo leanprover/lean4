@@ -118,7 +118,7 @@ rec {
       '';
       mods = Init.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.override { withSharedStdlib = true; }}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin

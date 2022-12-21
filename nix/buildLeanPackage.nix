@@ -246,7 +246,7 @@ in rec {
   sharedLib = mkSharedLib "lib${libName}" ''
     ${if stdenv.isDarwin then "-Wl,-force_load,${staticLib}/lib${libName}.a" else "-Wl,--whole-archive ${staticLib}/lib${libName}.a -Wl,--no-whole-archive"} \
     ${lib.concatStringsSep " " (map (d: "${d.sharedLib}/*") deps)}'';
-  executable = lib.makeOverridable ({ withSharedStdlib ? false }: let
+  executable = lib.makeOverridable ({ withSharedStdlib ? true }: let
       objPaths = map (drv: "${drv}/${drv.oPath}") (attrValues objects) ++ lib.optional withSharedStdlib "${lean-final.leanshared}/*";
     in runCommand executableName { buildInputs = [ stdenv.cc leanc ]; } ''
       mkdir -p $out/bin

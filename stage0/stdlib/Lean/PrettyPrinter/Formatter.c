@@ -2121,7 +2121,7 @@ _start:
 lean_object* x_7; lean_object* x_8; 
 x_7 = lean_alloc_ctor(2, 0, 1);
 lean_ctor_set_uint8(x_7, 0, x_1);
-x_8 = l___private_Lean_PrettyPrinter_Formatter_0__Lean_PrettyPrinter_Formatter_push(x_7, x_2, x_3, x_4, x_5, x_6);
+x_8 = l_Lean_PrettyPrinter_Formatter_pushWhitespace(x_7, x_2, x_3, x_4, x_5, x_6);
 return x_8;
 }
 }
@@ -7484,7 +7484,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__5;
 x_2 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__6;
-x_3 = lean_unsigned_to_nat(388u);
+x_3 = lean_unsigned_to_nat(387u);
 x_4 = lean_unsigned_to_nat(42u);
 x_5 = l_Lean_PrettyPrinter_Formatter_symbolNoAntiquot_formatter___closed__7;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

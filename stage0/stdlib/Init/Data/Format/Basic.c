@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___a
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_SpaceResult_space___default;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_instMonadPrettyFormatStateMState;
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_Format_join___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___rarg___lambda__1___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -140,6 +139,7 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_be___r
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_FlattenBehavior_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Format_paren___closed__2;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Std_Format_paren___closed__3;
 static lean_object* l_Std_Format_instMonadPrettyFormatStateMState___closed__3;
@@ -681,7 +681,7 @@ if (x_2 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = lean_nat_to_int(x_4);
-x_9 = lean_int_dec_le(x_8, x_3);
+x_9 = lean_int_dec_lt(x_8, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -722,7 +722,7 @@ else
 {
 lean_object* x_17; uint8_t x_18; 
 x_17 = lean_nat_to_int(x_4);
-x_18 = lean_int_dec_le(x_17, x_3);
+x_18 = lean_int_dec_lt(x_17, x_3);
 if (x_18 == 0)
 {
 lean_object* x_19; 
@@ -1533,7 +1533,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_nat_to_int(x_10);
 x_12 = lean_ctor_get(x_1, 1);
 lean_inc(x_12);
-x_13 = lean_int_dec_le(x_11, x_12);
+x_13 = lean_int_dec_lt(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -6177,7 +6177,7 @@ x_21 = lean_nat_to_int(x_20);
 x_22 = lean_ctor_get(x_16, 1);
 lean_inc(x_22);
 lean_dec(x_16);
-x_23 = lean_int_dec_le(x_21, x_22);
+x_23 = lean_int_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; uint8_t x_25; 
@@ -7039,7 +7039,7 @@ x_411 = lean_nat_to_int(x_410);
 x_412 = lean_ctor_get(x_406, 1);
 lean_inc(x_412);
 lean_dec(x_406);
-x_413 = lean_int_dec_le(x_411, x_412);
+x_413 = lean_int_dec_lt(x_411, x_412);
 if (x_413 == 0)
 {
 lean_object* x_414; lean_object* x_415; lean_object* x_416; uint32_t x_417; lean_object* x_418; lean_object* x_419; lean_object* x_420; lean_object* x_421; lean_object* x_422; lean_object* x_423; 

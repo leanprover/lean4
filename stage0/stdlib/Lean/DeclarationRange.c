@@ -108,7 +108,7 @@ static lean_object* l_Lean_findDeclarationRanges_x3f___rarg___lambda__3___closed
 static lean_object* l_Lean_instToExprDeclarationRange___lambda__1___closed__10;
 static lean_object* l_Lean_instToExprDeclarationRange___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_findDeclarationRanges_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_DeclarationRange_0__Lean_reprDeclarationRanges____x40_Lean_DeclarationRange___hyg_494____closed__8;
 static lean_object* l_Lean_instToExprDeclarationRange___closed__3;
@@ -1229,11 +1229,10 @@ return x_3;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DeclarationRange___hyg_642_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_instInhabitedDeclarationRanges;
-x_3 = l_Lean_initFn____x40_Lean_DeclarationRange___hyg_642____closed__2;
-x_4 = l_Lean_mkMapDeclarationExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_initFn____x40_Lean_DeclarationRange___hyg_642____closed__2;
+x_3 = l_Lean_mkMapDeclarationExtension___rarg(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_addBuiltinDeclarationRanges___closed__1() {

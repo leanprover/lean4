@@ -98,7 +98,7 @@ structure EnvironmentHeader where
   moduleNames  : Array Name   := #[]
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
-  deriving Inhabited
+  deriving Nonempty
 
 /--
 An environment stores declarations provided by the user. The kernel
@@ -143,9 +143,7 @@ structure Environment where
   extraConstNames : NameSet
   /-- The header contains additional information that is not updated often. -/
   header       : EnvironmentHeader := {}
-
-instance : Nonempty Environment :=
-  ⟨by refine' {..} <;> exact default⟩
+  deriving Nonempty
 
 namespace Environment
 

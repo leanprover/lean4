@@ -241,6 +241,7 @@ instance : Inhabited (TermElabM α) where
 structure SavedState where
   meta   : Meta.SavedState
   «elab» : State
+  deriving Nonempty
 
 protected def saveState : TermElabM SavedState :=
   return { meta := (← Meta.saveState), «elab» := (← get) }

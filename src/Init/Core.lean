@@ -365,13 +365,10 @@ structure Task (α : Type u) : Type u where
   /-- If `task : Task α` then `task.get : α` blocks the current thread until the
   value is available, and then returns the result of the task. -/
   get : α
-  deriving Inhabited
+  deriving Inhabited, Nonempty
 
 attribute [extern "lean_task_pure"] Task.pure
 attribute [extern "lean_task_get_own"] Task.get
-
-instance : [Nonempty α] → Nonempty (Task α)
-  | ⟨x⟩ => ⟨.pure x⟩
 
 namespace Task
 /-- Task priority. Tasks with higher priority will always be scheduled before ones with lower priority. -/

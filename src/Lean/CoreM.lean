@@ -46,6 +46,7 @@ structure State where
   messages        : MessageLog     := {}
   /-- Info tree. We have the info tree here because we want to update it while adding attributes. -/
   infoState       : Elab.InfoState := {}
+  deriving Nonempty
 
 /-- Context for the CoreM monad. -/
 structure Context where
@@ -62,6 +63,7 @@ structure Context where
   initHeartbeats : Nat := 0
   maxHeartbeats  : Nat := getMaxHeartbeats options
   currMacroScope : MacroScope := firstFrontendMacroScope
+  deriving Nonempty
 
 /-- CoreM is a monad for manipulating the Lean environment.
 It is the base monad for `MetaM`.

@@ -520,9 +520,14 @@ def delabLam : Delab :=
         | BinderInfo.instImplicit,   _     =>
           if usedDownstream then `(funBinder| [$curNames.back : $stxT])  -- here `curNames.size == 1`
           else  `(funBinder| [$stxT])
-      match stxBody with
-      | `(fun $binderGroups* => $stxBody) => `(fun $group $binderGroups* => $stxBody)
-      | _                                 => `(fun $group => $stxBody)
+      let (binders, stxBody) :=
+        match stxBody with
+        | `(fun $binderGroups* => $stxBody) => (#[group] ++ binderGroups, stxBody)
+        | _                                 => (#[group], stxBody)
+      if ← getPPOption getPPUnicodeFun then
+        `(fun $binders* ↦ $stxBody)
+      else
+        `(fun $binders* => $stxBody)
 
 /--
 Similar to `delabBinders`, but tracking whether `forallE` is dependent or not.

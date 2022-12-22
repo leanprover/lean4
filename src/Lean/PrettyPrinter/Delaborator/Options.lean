@@ -18,6 +18,11 @@ register_builtin_option pp.notation : Bool := {
   group    := "pp"
   descr    := "(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)"
 }
+register_builtin_option pp.unicode.fun : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) disable/enable unicode ↦ notation for functions"
+}
 register_builtin_option pp.match : Bool := {
   defValue := true
   group    := "pp"
@@ -181,6 +186,7 @@ def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
+def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
 def getPPStructureProjections (o : Options) : Bool := o.get pp.structureProjections.name (!getPPAll o)
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)

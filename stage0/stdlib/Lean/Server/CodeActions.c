@@ -238,7 +238,6 @@ static lean_object* l_Lean_Server_CodeAction_getFileSource_x21___closed__1;
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l___private_Lean_Server_CodeActions_0__Lean_Server_fromJsonCodeActionResolveData____x40_Lean_Server_CodeActions___hyg_134____closed__13;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_591____closed__2;
-extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_array_uget(lean_object*, size_t);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_591____lambda__1___closed__5;
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
@@ -278,7 +277,7 @@ lean_object* l_Nat_repr(lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_481____closed__3;
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_481____closed__4;
-lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_591____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Server_LazyCodeAction_lazy_x3f___default() {
 _start:
@@ -1089,7 +1088,7 @@ return x_11;
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_481____lambda__3(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_2 = l_List_redLength___rarg(x_1);
 x_3 = lean_mk_empty_array_with_capacity(x_2);
 lean_dec(x_2);
@@ -1098,11 +1097,10 @@ x_5 = lean_array_get_size(x_4);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_5, x_6);
 lean_dec(x_5);
-x_8 = l_Lean_instInhabitedName;
-x_9 = lean_unsigned_to_nat(0u);
-x_10 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_8, x_4, x_9, x_7);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Array_qsort_sort___at_Lean_mkTagDeclarationExtension___spec__1(x_4, x_8, x_7);
 lean_dec(x_7);
-return x_10;
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_CodeActions___hyg_481____closed__1() {

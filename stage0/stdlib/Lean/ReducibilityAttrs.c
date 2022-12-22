@@ -83,7 +83,7 @@ static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityS
 LEAN_EXPORT lean_object* l_Lean_ReducibilityStatus_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_23____boxed(lean_object*, lean_object*);
-lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnumAttributes___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_reprReducibilityStatus____x40_Lean_ReducibilityAttrs___hyg_23____closed__7;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167_(lean_object*);
@@ -720,15 +720,13 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167_(lean_object* x_1) {
 _start:
 {
-uint8_t x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_2 = l_Lean_instInhabitedReducibilityStatus;
-x_3 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__15;
-x_4 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__19;
-x_5 = 0;
-x_6 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__18;
-x_7 = lean_box(x_2);
-x_8 = l_Lean_registerEnumAttributes___rarg(x_7, x_3, x_4, x_5, x_6, x_1);
-return x_8;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__15;
+x_3 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__19;
+x_4 = 0;
+x_5 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____closed__18;
+x_6 = l_Lean_registerEnumAttributes___rarg(x_2, x_3, x_4, x_5, x_1);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_167____lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

@@ -142,7 +142,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_InfoCacheKey_instHashableInfoCacheKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866_(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ExternEntry_backend(lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__4;
 extern lean_object* l_Lean_firstFrontendMacroScope;
@@ -1135,11 +1135,10 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_instInhabitedExternAttrData;
-x_3 = l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866____closed__11;
-x_4 = l_Lean_registerParametricAttribute___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866____closed__11;
+x_3 = l_Lean_registerParametricAttribute___rarg(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866____lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

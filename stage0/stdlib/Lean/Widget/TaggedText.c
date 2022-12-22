@@ -60,7 +60,6 @@ static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_fromJsonTa
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_rewriteM___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instToJsonTaggedText(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_rewriteM___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t lean_int_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_TaggedText_rewriteM___spec__1___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_rewrite(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -190,6 +189,7 @@ LEAN_EXPORT lean_object* l_panic___at_Lean_Widget_TaggedText_prettyTagged___spec
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at___private_Lean_Widget_TaggedText_0__Lean_Widget_beqTaggedText____x40_Lean_Widget_TaggedText___hyg_79____spec__1(lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_248____rarg___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Widget_TaggedText_instMonadPrettyFormatStateMTaggedState;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* l_Except_orElseLazy___rarg(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_reprTaggedText____x40_Lean_Widget_TaggedText___hyg_248____rarg___closed__20;
@@ -7527,7 +7527,7 @@ lean_inc(x_20);
 x_21 = lean_nat_to_int(x_20);
 x_22 = lean_ctor_get(x_16, 1);
 lean_inc(x_22);
-x_23 = lean_int_dec_le(x_21, x_22);
+x_23 = lean_int_dec_lt(x_21, x_22);
 if (x_23 == 0)
 {
 lean_object* x_24; uint8_t x_25; 
@@ -8588,7 +8588,7 @@ lean_inc(x_556);
 x_557 = lean_nat_to_int(x_556);
 x_558 = lean_ctor_get(x_552, 1);
 lean_inc(x_558);
-x_559 = lean_int_dec_le(x_557, x_558);
+x_559 = lean_int_dec_lt(x_557, x_558);
 if (x_559 == 0)
 {
 lean_object* x_560; lean_object* x_561; lean_object* x_562; lean_object* x_563; uint32_t x_564; lean_object* x_565; lean_object* x_566; lean_object* x_567; lean_object* x_568; lean_object* x_569; lean_object* x_570; lean_object* x_571; lean_object* x_572; lean_object* x_573; lean_object* x_574; 

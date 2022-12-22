@@ -118,7 +118,7 @@ static lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Structural_mkEqns___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1715____closed__1;
-lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_mkMapDeclarationExtension___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1715____closed__7;
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_Eqns_0__Lean_Elab_Structural_mkProof_go___lambda__1___closed__12;
@@ -2535,11 +2535,10 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1439_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
-x_3 = l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1439____closed__4;
-x_4 = l_Lean_mkMapDeclarationExtension___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_Elab_Structural_initFn____x40_Lean_Elab_PreDefinition_Structural_Eqns___hyg_1439____closed__4;
+x_3 = l_Lean_mkMapDeclarationExtension___rarg(x_2, x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Elab_Structural_registerEqnsInfo___closed__1() {

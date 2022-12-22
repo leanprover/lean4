@@ -61,7 +61,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Lean_isExport___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116____lambda__2___closed__2;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116____closed__8;
 extern lean_object* l_Lean_instInhabitedName;
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -530,11 +530,10 @@ return x_5;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = l_Lean_instInhabitedName;
-x_3 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116____closed__11;
-x_4 = l_Lean_registerParametricAttribute___rarg(x_2, x_3, x_1);
-return x_4;
+lean_object* x_2; lean_object* x_3; 
+x_2 = l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116____closed__11;
+x_3 = l_Lean_registerParametricAttribute___rarg(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExportAttr___hyg_116____lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {

@@ -574,7 +574,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalContradiction___closed__
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalCase___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Tactic_evalIntros___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalUnknown___closed__3;
-lean_object* l_Lean_MVarId_revert(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_revert(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalIntros___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalIntros___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSubst_declRange___closed__1;
@@ -19424,7 +19424,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_24 = l_Lean_MVarId_revert(x_18, x_21, x_23, x_6, x_7, x_8, x_9, x_22);
+x_24 = l_Lean_MVarId_revert(x_18, x_21, x_23, x_23, x_6, x_7, x_8, x_9, x_22);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 

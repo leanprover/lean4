@@ -186,7 +186,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_registerInitAttrUnsa
 static lean_object* l___auto____x40_Lean_Compiler_InitAttr___hyg_1049____closed__9;
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__12;
-lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerParametricAttribute___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_declareBuiltin___closed__7;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_registerInitAttrUnsafe___spec__9(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -2818,7 +2818,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_registerInitAttrUnsafe(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
 x_5 = l_Lean_registerInitAttrUnsafe___closed__1;
 x_6 = 0;
 x_7 = lean_alloc_ctor(0, 3, 1);
@@ -2836,9 +2836,8 @@ lean_ctor_set(x_12, 0, x_7);
 lean_ctor_set(x_12, 1, x_10);
 lean_ctor_set(x_12, 2, x_11);
 lean_ctor_set(x_12, 3, x_9);
-x_13 = l_Lean_instInhabitedName;
-x_14 = l_Lean_registerParametricAttribute___rarg(x_13, x_12, x_4);
-return x_14;
+x_13 = l_Lean_registerParametricAttribute___rarg(x_12, x_4);
+return x_13;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_registerInitAttrUnsafe___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {

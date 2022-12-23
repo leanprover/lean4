@@ -131,16 +131,16 @@ where
   | ctx,       group d                  => Format.group <$> go nCtx ctx d
   | ctx,       .trace cls header children collapsed => do
     let header := (← go nCtx ctx header).nest 4
-    let nodes :=
+    let nodes ←
       if collapsed && !children.isEmpty then
         let children := children.map fun child =>
           MessageData.withNamingContext nCtx <|
             match ctx with
             | some ctx => MessageData.withContext ctx child
             | none     => child
-        .lazy children
+        pure (.lazy children)
       else
-        .strict (← children.mapM (go nCtx ctx))
+        pure (.strict (← children.mapM (go nCtx ctx)))
     let e := .trace cls header collapsed nodes
     return .tag (← pushEmbed e) ".\n"
 

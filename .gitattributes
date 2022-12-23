@@ -1,3 +1,4 @@
 *.expected.out -text
 RELEASES.md merge=union
 stage0/** binary linguist-generated
+stage0/** filter=lfs diff=lfs merge=lfs -text

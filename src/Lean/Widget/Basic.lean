@@ -6,21 +6,6 @@ namespace Lean.Widget
 
 open Elab Server
 
-/-- Elaborator information with elaborator context.
-
-This is used to tag different parts of expressions in `ppExprTagged`.
-This is the input to the RPC call `Lean.Widget.InteractiveDiagnostics.infoToInteractive`.
-
-The purpose of `InfoWithCtx` is to carry over information about delaborated
-`Info` nodes in a `CodeWithInfos`, and the associated pretty-printing
-functionality is purpose-specific to showing the contents of infoview popups.
--/
-structure InfoWithCtx where
-  ctx  : Elab.ContextInfo
-  info : Elab.Info
-  children : PersistentArray InfoTree
-  deriving Inhabited, TypeName
-
 deriving instance TypeName for MessageData
 
 instance : ToJson FVarId := ⟨fun f => toJson f.name⟩

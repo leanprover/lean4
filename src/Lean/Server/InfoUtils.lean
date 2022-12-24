@@ -8,6 +8,21 @@ import Lean.PrettyPrinter
 
 namespace Lean.Elab
 
+/-- Elaborator information with elaborator context.
+
+This is used to tag different parts of expressions in `ppExprTagged`.
+This is the input to the RPC call `Lean.Widget.InteractiveDiagnostics.infoToInteractive`.
+
+The purpose of `InfoWithCtx` is to carry over information about delaborated
+`Info` nodes in a `CodeWithInfos`, and the associated pretty-printing
+functionality is purpose-specific to showing the contents of infoview popups.
+-/
+structure InfoWithCtx where
+  ctx  : Elab.ContextInfo
+  info : Elab.Info
+  children : PersistentArray InfoTree
+  deriving Inhabited, TypeName
+
 /-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
 partial def InfoTree.visitM [Monad m]
     (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
@@ -138,15 +153,13 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
 partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option (ContextInfo × Info × (PersistentArray InfoTree)) := Id.run do
   let results := t.visitM (m := Id) (postNode := fun ctx info c results => do
     let mut results := results.bind (·.getD [])
-    if omitAppFns then
-      if info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
+    if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
         results := results.filter (·.2.2.1.stx != info.stx[0])
-    if omitIdentApps then
+    if omitIdentApps && info.stx.isIdent then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
-      if info.stx.isIdent then
-        if let .ofTermInfo ti := info then
-          if ti.expr matches .app _ _ then
-            results := results.filter (·.2.2.1.stx != info.stx)
+      if let .ofTermInfo ti := info then
+        if ti.expr.isApp then
+          results := results.filter (·.2.2.1.stx != info.stx)
     unless results.isEmpty do
       return results  -- prefer innermost results
     /-

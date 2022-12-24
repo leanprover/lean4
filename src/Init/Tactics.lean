@@ -633,8 +633,8 @@ one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothes
 `¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
 renamed used the `cases` or `next` tactics.
 
-- `simp` will split the goal (target).
-- `simp at h` will split the hypothesis `h`.
+- `split` will split the goal (target).
+- `split at h` will split the hypothesis `h`.
 -/
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 

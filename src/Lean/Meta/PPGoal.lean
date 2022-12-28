@@ -32,7 +32,7 @@ register_builtin_option pp.showLetValues : Bool := {
 }
 
 private def addLine (fmt : Format) : Format :=
-  if fmt.isNil then fmt else fmt ++ Format.line
+  if fmt.isNil then fmt else fmt ++ "\n"
 
 def getGoalPrefix (mvarDecl : MetavarDecl) : String :=
   if isLHSGoal? mvarDecl.type |>.isSome then
@@ -98,6 +98,6 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
       let fmt := fmt ++ getGoalPrefix mvarDecl ++ Format.nest indent typeFmt
       match mvarDecl.userName with
       | Name.anonymous => return fmt
-      | name           => return "case " ++ format name.eraseMacroScopes ++ Format.line ++ fmt
+      | name           => return "case " ++ format name.eraseMacroScopes ++ "\n" ++ fmt
 
 end Lean.Meta

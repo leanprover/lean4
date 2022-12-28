@@ -150,18 +150,33 @@ private def addTraceNode (oldTraces : PersistentArray TraceElem)
   let msg ← addMessageContext msg
   addTraceNodeCore oldTraces cls ref msg collapsed
 
-def withTraceNode [MonadExcept ε m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
+def withSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float) := do
+  let start ← IO.monoNanosNow
+  let a ← act
+  let stop ← IO.monoNanosNow
+  return (a, (stop - start).toFloat / 1000000000)
+
+def withOptProfile [Monad m] [MonadLiftT BaseIO m] [MonadOptions m] (act : m α) : m (α × Option Float) := do
+  if (← getBoolOption `profiler) then
+    (fun (a, s) => (a, some s)) <$> withSeconds act
+  else
+    (·, none) <$> act
+
+def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
     (collapsed := true) : m α := do
   if !(← isTracingEnabledFor cls) then
     k
   else
     let ref ← getRef
     let oldTraces ← getResetTraces
-    let res ← observing k
-    addTraceNode oldTraces cls ref (← msg res) collapsed
+    let (res, secs?) ← withOptProfile <| observing k
+    let mut m ← msg res
+    if let some secs := secs? then
+      m := m!"[{secs}s] {m}"
+    addTraceNode oldTraces cls ref m collapsed
     MonadExcept.ofExcept res
 
-def withTraceNode' [MonadExcept Exception m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
+def withTraceNode' [MonadExcept Exception m] [MonadLiftT BaseIO m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
   let msg := fun
     | .ok (_, msg) => return msg
     | .error err => return err.toMessageData
@@ -226,15 +241,18 @@ the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
 
 TODO: find better name for this function.
 -/
-def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
+def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
   if !(← isTracingEnabledFor cls) then
     k
   else
     let ref ← getRef
     let oldTraces ← getResetTraces
     let msg ← withRef ref do addMessageContext (← msg)
-    let res ← observing k
-    addTraceNodeCore oldTraces cls ref m!"{ExceptToEmoji.toEmoji res} {msg}" collapsed
+    let (res, secs?) ← withOptProfile <| observing k
+    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
+    if let some secs := secs? then
+      msg := m!"[{secs}s] {msg}"
+    addTraceNodeCore oldTraces cls ref msg collapsed
     MonadExcept.ofExcept res
 
 end Lean

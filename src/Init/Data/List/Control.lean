@@ -102,7 +102,7 @@ def foldrM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} (f : α 
   l.reverse.foldlM (fun s a => f a s) init
 
 @[specialize]
-def firstM {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
+def firstM {m : Type u → Type v} [Alternative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m β
   | []    => failure
   | a::as => f a <|> firstM f as
 

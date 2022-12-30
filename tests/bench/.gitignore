@@ -1,5 +1,7 @@
 *.out
 *.lean.c
+*.lean.linked.bc
+*.lean.linked.bc.o
 *.cmi
 *.cmx
 *.o

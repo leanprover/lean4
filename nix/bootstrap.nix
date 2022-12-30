@@ -17,7 +17,7 @@ rec {
     '';
   } // args // {
     src = args.realSrc or (sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DLLVM=ON" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
       sed -i 's!lake/Lake.lean!!' CMakeLists.txt
@@ -45,12 +45,12 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
-    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" "runtime_bc" ];
+    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/
       mv shell/CMakeFiles/shell.dir/lean.cpp.o $out/lib
-      mv runtime/libleanrt_initial-exec.a runtime/lean.h.bc $out/lib
+      mv runtime/libleanrt_initial-exec.a $out/lib
     '';
   };
   stage0 = args.stage0 or (buildCMake {

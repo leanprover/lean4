@@ -24,6 +24,8 @@ class Alternative (f : Type u → Type v) extends Applicative f : Type (max (u+1
   failure : {α : Type u} → f α
   orElse  : {α : Type u} → f α → (Unit → f α) → f α
 
+class MonadAlternative (m : Type u → Type v) extends Monad m, Alternative m
+
 instance (f : Type u → Type v) (α : Type u) [Alternative f] : OrElse (f α) := ⟨Alternative.orElse⟩
 
 variable {f : Type u → Type v} [Alternative f] {α : Type u}

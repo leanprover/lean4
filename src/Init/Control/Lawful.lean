@@ -6,7 +6,6 @@ Authors: Sebastian Ullrich, Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Control.Except
-import Init.Control.Option
 import Init.Control.StateRef
 
 open Function
@@ -45,13 +44,16 @@ attribute [simp] map_pure seq_pure
   simp [pure_seq]
 
 class LawfulAlternative (f : Type _ → Type _) [Alternative f] : Prop where
+  map_failure (g : α → β) : g <$> (failure : f α) = failure
+  map_orElse (g : α → b) (x y : f α) : g <$> (x <|> y) = (g <$> x <|> g <$> y)
   failure_orElse (x : f α) : (failure <|> x) = x
   orElse_failure (x : f α) : (x <|> failure) = x
   orElse_assoc (x y z : f α) : (x <|> (y <|> z)) = ((x <|> y) <|> z)
+  pure_orElse (x : α) (y : f α) : (pure x <|> y) = pure x
 
-export LawfulAlternative (failure_orElse orElse_failure orElse_assoc)
+export LawfulAlternative (map_failure map_orElse failure_orElse orElse_failure orElse_assoc pure_orElse)
 
-attribute [simp] failure_orElse orElse_failure
+attribute [simp] map_failure failure_orElse orElse_failure pure_orElse
 
 class LawfulMonad (m : Type u → Type v) [Monad m] extends LawfulApplicative m : Prop where
   bind_pure_comp (f : α → β) (x : m α) : x >>= (fun a => pure (f a)) = f <$> x
@@ -236,10 +238,13 @@ instance [Monad m] [LawfulApplicative m] : LawfulApplicative (ReaderT ρ m) wher
   seq_pure    := by intros; apply ext; intros; simp [seq_pure]
   seq_assoc   := by intros; apply ext; intros; simp [seq_assoc]
 
-instance [Monad m] [Alternative m] [LawfulAlternative m] : LawfulAlternative (ReaderT ρ m) where
+instance [MonadAlternative m] [LawfulAlternative m] : LawfulAlternative (ReaderT ρ m) where
+  map_failure    := by intros; apply ext; intros; simp
+  map_orElse     := by intros; apply ext; intros; simp [map_orElse]
   failure_orElse := by intros; apply ext; intros; simp
   orElse_failure := by intros; apply ext; intros; simp
   orElse_assoc   := by intros; apply ext; intros; simp [orElse_assoc]
+  pure_orElse    := by intros; apply ext; intros; simp
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
   bind_pure_comp := by intros; apply ext; intros; simp [LawfulMonad.bind_pure_comp]
@@ -254,7 +259,7 @@ end ReaderT
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulMonad (ReaderT (ST.Ref ω σ) m))
 
-instance [Monad m] [Alternative m] [LawfulAlternative m] : LawfulAlternative (StateRefT' ω σ m) :=
+instance [MonadAlternative m] [LawfulAlternative m] : LawfulAlternative (StateRefT' ω σ m) :=
   inferInstanceAs (LawfulAlternative (ReaderT (ST.Ref ω σ) m))
 
 /-! # StateT -/
@@ -323,10 +328,13 @@ theorem seqLeft_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ
   apply ext; intro s
   simp [map_eq_pure_bind]
 
-instance [Monad m] [Alternative m] [LawfulAlternative m] : LawfulAlternative (StateT σ m) where
+instance [MonadAlternative m] [LawfulMonad m] [LawfulAlternative m] : LawfulAlternative (StateT σ m) where
+  map_failure    := by intros; apply ext; intros; simp
+  map_orElse     := by intros; apply ext; intros; simp [map_orElse]
   failure_orElse := by intros; apply ext; intros; simp
   orElse_failure := by intros; apply ext; intros; simp
   orElse_assoc   := by intros; apply ext; intros; simp [orElse_assoc]
+  pure_orElse    := by intros; apply ext; intros; simp
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
   id_map         := by intros; apply ext; intros; simp [Prod.eta]

@@ -32,7 +32,7 @@ Now that you have an intuition for how abstract structures work, you'll examine 
 that functors and applicative functors don't help you solve. Then you'll learn the specifics of how
 to actually use monads with some examples using the `Option` monad and the all important `IO` monad.
 
-## [Reader Monads](readers.lean.md)
+## [Reader Monad](readers.lean.md)
 Now that you understand the details of what makes a monadic structure work, in this section, you'll
 learn about one of the most useful built in monads `ReaderM`, which gives your programs a
 global read-only context.

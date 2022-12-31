@@ -93,12 +93,17 @@
         name = "${pkg.name}-mds";
         paths = map renderLeanMod (lib.attrValues pkg.mods);
       };
-      examples = (buildLeanPackage {
+      examples = buildLeanPackage {
         name = "examples";
         src = ./.;
         roots = [ { mod = "examples"; glob = "submodules"; } ];
-      });
-      inked = renderPackage examples;
+      };
+      monads = buildLeanPackage {
+        name = "monads";
+        src = ./.;
+        roots = [ { mod = "monads"; glob = "submodules"; } ];
+      };
+      inked = renderPackage examples // renderPackage monads;
       doc = book;
     };
     defaultPackage = self.packages.${system}.doc;

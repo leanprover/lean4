@@ -68,6 +68,10 @@ instance [Alternative m] : Alternative (StateT σ m) where
   failure := StateT.failure
   orElse  := StateT.orElse
 
+instance [MonadAlternative m] : MonadAlternative (StateT σ m) where
+  failure := StateT.failure
+  orElse  := StateT.orElse
+
 @[always_inline, inline]
 protected def get : StateT σ m σ :=
   fun s => pure (s, s)

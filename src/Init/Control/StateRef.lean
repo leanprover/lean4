@@ -35,7 +35,8 @@ protected def lift (x : m α) : StateRefT' ω σ m α :=
 instance [Monad m] : Monad (StateRefT' ω σ m) := inferInstanceAs (Monad (ReaderT _ _))
 instance : MonadLift m (StateRefT' ω σ m) := ⟨StateRefT'.lift⟩
 instance (σ m) [Monad m] : MonadFunctor m (StateRefT' ω σ m) := inferInstanceAs (MonadFunctor m (ReaderT _ _))
-instance [Alternative m] [Monad m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
+instance [Monad m] [Alternative m] : Alternative (StateRefT' ω σ m) := inferInstanceAs (Alternative (ReaderT _ _))
+instance [MonadAlternative m] : MonadAlternative (StateRefT' ω σ m) := inferInstanceAs (MonadAlternative (ReaderT _ _))
 
 @[inline]
 protected def get [Monad m] [MonadLiftT (ST ω) m] : StateRefT' ω σ m σ :=

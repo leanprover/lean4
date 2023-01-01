@@ -48,7 +48,8 @@ instance : Monad (OptionT m) where
 @[always_inline, inline] protected def fail : OptionT m α := OptionT.mk do
   pure none
 
-instance : Alternative (OptionT m) where
+@[always_inline]
+instance : MonadAlternative (OptionT m) where
   failure := OptionT.fail
   orElse  := OptionT.orElse
 

@@ -20,7 +20,11 @@ protected def orElse [Alternative m] (x₁ : ReaderT ρ m α) (x₂ : Unit → R
 protected def failure [Alternative m] : ReaderT ρ m α :=
   fun _ => failure
 
-instance [Alternative m] [Monad m] : Alternative (ReaderT ρ m) where
+instance [MonadAlternative m] : MonadAlternative (ReaderT ρ m) where
+  failure := ReaderT.failure
+  orElse  := ReaderT.orElse
+
+instance [Monad m] [Alternative m] : Alternative (ReaderT ρ m) where
   failure := ReaderT.failure
   orElse  := ReaderT.orElse
 

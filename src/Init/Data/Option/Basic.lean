@@ -99,7 +99,7 @@ instance : Monad Option where
   bind := Option.bind
 
 @[always_inline]
-instance : Alternative Option where
+instance : MonadAlternative Option where
   failure := Option.none
   orElse  := Option.orElse
 

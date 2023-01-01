@@ -109,6 +109,106 @@ instance : LawfulMonad Id := by
 
 end Id
 
+/-! # Option -/
+
+namespace Option
+
+instance : LawfulMonad Option where
+  id_map x           := by cases x <;> rfl
+  map_const          := by intros; rfl
+  seqLeft_eq x y     := by cases x <;> cases y <;> rfl
+  seqRight_eq x y    := by cases x <;> cases y <;> rfl
+  pure_seq           := by intros; rfl
+  bind_pure_comp _ x := by cases x <;> rfl
+  bind_map           := by intros; rfl
+  pure_bind          := by intros; rfl
+  bind_assoc x       := by intros; cases x <;> rfl
+
+instance : LawfulAlternative Option where
+  map_failure        := by intros; rfl
+  map_orElse _ x _   := by cases x <;> rfl
+  failure_orElse     := by intros; rfl
+  orElse_failure x   := by cases x <;> rfl
+  orElse_assoc x _ _ := by cases x <;> rfl
+  pure_orElse        := by intros; rfl
+
+end Option
+
+/-! # OptionT -/
+
+namespace OptionT
+variable [Monad m] [LawfulMonad m]
+
+theorem ext {x y : OptionT m α} : x.run = y.run → x = y := id
+
+@[simp] theorem run_pure (x : α) : (pure x : OptionT m α).run = pure (some x) := rfl
+
+@[simp] theorem run_lift (x : m α) : (OptionT.lift x).run = (some <$> x) := by
+  rw [map_eq_pure_bind]; rfl
+
+@[simp] theorem run_faiure : (failure : OptionT m α).run = pure none := rfl
+
+theorem run_bind (f : α → OptionT m β) (x : OptionT m α) : (x >>= f).run = x.run >>= fun | some x => f x | none => pure none := rfl
+
+@[simp] theorem run_bind_pure (f : α → OptionT m β) (x : α) : (pure x >>= f).run = (f x).run := by
+  simp [run_bind, map_eq_pure_bind]
+  rfl
+
+@[simp] theorem run_bind_lift (f : α → OptionT m β) (x : m α) : (OptionT.lift x >>= f).run = x >>= fun x => (f x).run := by
+  simp [run_bind, map_eq_pure_bind]
+  apply bind_congr
+  intros; rfl
+
+@[simp] theorem run_bind_failure (f : α → OptionT m β) : (failure >>= f).run = pure none := by
+  simp [run_bind]
+
+@[simp] theorem run_map (f : α → β) (x : OptionT m α) : (f <$> x).run = (f <$> .) <$> x.run := by
+  simp [Functor.map, map_eq_pure_bind]
+  apply bind_congr
+  intro x
+  cases x <;> rfl
+
+protected theorem map_eq_pure_bind (f : α → β) (x : OptionT m α) : f <$> x = x >>= fun x => pure (f x) := rfl
+
+protected theorem bind_pure_comp (x : OptionT m α) (f : α → OptionT m β) : (x >>= fun x => pure (f x)) = f <$> x := rfl
+
+protected theorem pure_eq (x : α) : (pure x : OptionT m α) = pure (some x) := rfl
+
+protected theorem seq_eq (f : OptionT m (α → β)) (x : OptionT m α) : f <*> x = f >>= fun f => f <$> x := rfl
+
+protected theorem seqLeft_eq (x : OptionT m α) (y : OptionT m β) : x <* y = (Function.const β <$> x) <*> y :=
+  show (x >>= fun x => y >>= fun _ => pure x) = (Function.const β <$> x) >>= fun f => f <$> y by
+  rw [OptionT.map_eq_pure_bind]
+  apply ext
+  simp [run_bind]
+  apply bind_congr
+  intro
+  | none => simp
+  | some x => simp [OptionT.pure_eq]; rfl
+
+protected theorem seqRight_eq (x : OptionT m α) (y : OptionT m β) : x *> y = Function.const α id <$> x <*> y :=
+  show (x >>= fun _ => y) = (Function.const α id <$> x) >>= fun f => f <$> y by
+  rw [OptionT.map_eq_pure_bind]
+  apply ext
+  simp [run_bind]
+  apply bind_congr
+  intro
+  | none => simp
+  | some x => apply ext; simp [OptionT.pure_eq]; done
+
+instance : LawfulMonad (OptionT m) where
+  id_map         := by intros; apply ext; simp
+  map_const      := by intros; rfl
+  seqLeft_eq     := OptionT.seqLeft_eq
+  seqRight_eq    := OptionT.seqRight_eq
+  pure_seq       := by intros; apply ext; simp [OptionT.seq_eq]
+  bind_pure_comp := by intros; rfl
+  bind_map       := by intros; rfl
+  pure_bind      := by intros; apply ext; simp [run_bind]; rfl
+  bind_assoc     := by intros; apply ext; simp [run_bind]; apply bind_congr; intros x; cases x <;> simp [run_bind]; rfl
+
+end OptionT
+
 /-! # ExceptT -/
 
 namespace ExceptT

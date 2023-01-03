@@ -1732,24 +1732,19 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   -- TODO: investigate whether this is the place for putting this check
   if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then return true
   if (← isDefEqProj t s) then return true
-  let t' ← whnfCore t
-  let s' ← whnfCore s
-  if t != t' || s != s' then
-    Meta.isExprDefEqAux t' s'
+  whenUndefDo (isDefEqNative t s) do
+  whenUndefDo (isDefEqNat t s) do
+  whenUndefDo (isDefEqOffset t s) do
+  whenUndefDo (isDefEqDelta t s) do
+  if t.isConst && s.isConst then
+    if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
+  else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
+    return true
   else
-    whenUndefDo (isDefEqNative t s) do
-    whenUndefDo (isDefEqNat t s) do
-    whenUndefDo (isDefEqOffset t s) do
-    whenUndefDo (isDefEqDelta t s) do
-    if t.isConst && s.isConst then
-      if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
-    else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then
-      return true
-    else
-      whenUndefDo (isDefEqProjInst t s) do
-      whenUndefDo (isDefEqStringLit t s) do
-      if (← isDefEqUnitLike t s) then return true else
-      isDefEqOnFailure t s
+    whenUndefDo (isDefEqProjInst t s) do
+    whenUndefDo (isDefEqStringLit t s) do
+    if (← isDefEqUnitLike t s) then return true else
+    isDefEqOnFailure t s
 
 private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
   if Expr.quickLt t s then (t, s) else (s, t)
@@ -1774,9 +1769,16 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
   checkMaxHeartbeats "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
-  -- We perform `whnfCore` again with `deltaAtProj := true` at `isExprDefEqExpensive` after `isDefEqProj`
-  let t' ← whnfCore t (deltaAtProj := false)
-  let s' ← whnfCore s (deltaAtProj := false)
+  /-
+    We also reduce projections here to prevent expensive defeq checks when unifying TC operations.
+    When unifying e.g. `@Neg.neg α (@Field.toNeg α inst1) =?= @Neg.neg α (@Field.toNeg α inst2)`,
+    we only want to unify negation (and not all other field operations as well).
+    Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
+    We used to *not* reduce projections here, to support unifying `(?a).1 =?= (x, y).1`.
+    NOTE: this still seems to work because we don't eagerly unfold projection definitions to primitive projections.
+  -/
+  let t' ← whnfCore t
+  let s' ← whnfCore s
   if t != t' || s != s' then
     isExprDefEqAuxImpl t' s'
   else

@@ -490,7 +490,6 @@ expand let-expressions, expand assigned meta-variables.
 
 The parameter `deltaAtProj` controls how to reduce projections `s.i`. If `deltaAtProj == true`,
 then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `whnfCore`.
-We only set this flag to `false` when implementing `isDefEq`.
 
 If `simpleReduceOnly`, then `iota` and projection reduction are not performed.
 Note that the value of `deltaAtProj` is irrelevant if `simpleReduceOnly = true`.

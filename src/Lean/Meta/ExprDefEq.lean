@@ -1641,7 +1641,7 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     tryUnificationHints t s <||> tryUnificationHints s t
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | Expr.proj _ i t, Expr.proj _ j s => pure (i == j) <&&> Meta.isExprDefEqAux t s
+  | Expr.proj m i t, Expr.proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
   | Expr.proj structName 0 s, v => isDefEqSingleton structName s v
   | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
   | _, _ => pure false

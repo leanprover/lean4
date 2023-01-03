@@ -10,12 +10,23 @@ namespace Lean.Elab
 
 /-- Elaborator information with elaborator context.
 
-This is used to tag different parts of expressions in `ppExprTagged`.
-This is the input to the RPC call `Lean.Widget.InteractiveDiagnostics.infoToInteractive`.
+It can be thought of as a "thunked" elaboration computation that allows us
+to retroactively extract type information, symbol locations, etc.
+through arbitrary invocations of `runMetaM` (where the necessary context and state
+can be reconstructed from `ctx` and `info.lctx`).
 
-The purpose of `InfoWithCtx` is to carry over information about delaborated
+W.r.t. widgets, this is used to tag different parts of expressions in `ppExprTagged`.
+This is the input to the RPC call `Lean.Widget.InteractiveDiagnostics.infoToInteractive`.
+It carries over information about delaborated
 `Info` nodes in a `CodeWithInfos`, and the associated pretty-printing
 functionality is purpose-specific to showing the contents of infoview popups.
+
+For use in standard LSP go-to-definition (see `Lean.Server.FileWorker.locationLinksOfInfo`),
+all the elaborator information we need for similar tasks is already fully recoverable via
+the `InfoTree` structure (see `Lean.Elab.InfoTree.visitM`).
+There we use this as a convienience wrapper for queried nodes (e.g. the return value of
+`Lean.Elab.InfoTree.hoverableInfoAt?`). It also includes the children info nodes
+as additional context (this is unused in the RPC case, as delaboration has no notion of child nodes).
 -/
 structure InfoWithCtx where
   ctx  : Elab.ContextInfo
@@ -150,16 +161,16 @@ def InfoTree.smallestInfo? (p : Info → Bool) (t : InfoTree) : Option (ContextI
   infos.toArray.getMax? (fun a b => a.1 > b.1) |>.map fun (_, ci, i) => (ci, i)
 
 /-- Find an info node, if any, which should be shown on hover/cursor at position `hoverPos`. -/
-partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option (ContextInfo × Info × (PersistentArray InfoTree)) := Id.run do
-  let results := t.visitM (m := Id) (postNode := fun ctx info c results => do
+partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (includeStop := false) (omitAppFns := false) (omitIdentApps := false) : Option InfoWithCtx := Id.run do
+  let results := t.visitM (m := Id) (postNode := fun ctx info children results => do
     let mut results := results.bind (·.getD [])
     if omitAppFns && info.stx.isOfKind ``Parser.Term.app && info.stx[0].isIdent then
-        results := results.filter (·.2.2.1.stx != info.stx[0])
+        results := results.filter (·.2.info.stx != info.stx[0])
     if omitIdentApps && info.stx.isIdent then
       -- if an identifier stands for an application (e.g. in the case of a typeclass projection), prefer the application
       if let .ofTermInfo ti := info then
         if ti.expr.isApp then
-          results := results.filter (·.2.2.1.stx != info.stx)
+          results := results.filter (·.2.info.stx != info.stx)
     unless results.isEmpty do
       return results  -- prefer innermost results
     /-
@@ -181,7 +192,7 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
       Int.negOfNat (r.stop - r.start).byteIdx,
       -- prefer results for constants over variables (which overlap at declaration names)
       if info matches .ofTermInfo { expr := .fvar .., .. } then 0 else 1)
-    [(priority, ctx, info, c)]) |>.getD []
+    [(priority, {ctx, info, children})]) |>.getD []
   -- sort results by lexicographical priority
   let maxPrio? :=
     let _ := @lexOrd
@@ -189,8 +200,8 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
     let _ := @maxOfLe
     results.map (·.1) |>.maximum?
   let res? := results.find? (·.1 == maxPrio?) |>.map (·.2)
-  if let some (_, i, _) := res? then
-    if let .ofTermInfo ti := i then
+  if let some i := res? then
+    if let .ofTermInfo ti := i.info then
       if ti.expr.isSyntheticSorry then
         return none
   return res?
@@ -343,7 +354,7 @@ where
       cs.any (hasNestedTactic pos tailPos)
     | _ => false
 
-partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option (ContextInfo × Info × (PersistentArray InfoTree)) :=
+partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option InfoWithCtx :=
   -- In the case `f a b`, where `f` is an identifier, the term goal at `f` should be the goal for the full application `f a b`.
   hoverableInfoAt? t hoverPos (includeStop := true) (omitAppFns := true)
 

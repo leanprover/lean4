@@ -66,11 +66,11 @@ def handleHover (p : HoverParams)
         | none => pure none
 
       -- now try info tree
-      if let some (ci, i, _) := snap.infoTree.hoverableInfoAt? hoverPos then
-        if let some range := i.range? then
+      if let some ictx := snap.infoTree.hoverableInfoAt? hoverPos then
+        if let some range := ictx.info.range? then
           -- prefer info tree if at least as specific as parser docstring
           if stxDoc?.all fun (_, stxRange) => stxRange.includes range then
-            if let some hoverFmt ← i.fmtHover? ci then
+            if let some hoverFmt ← ictx.info.fmtHover? ictx.ctx then
               return mkHover (toString hoverFmt) range
 
       if let some (doc, range) := stxDoc? then
@@ -197,8 +197,8 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
-      if let some (ctx, info, children) := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
-        locationLinksOfInfo kind { ctx, info, children } snap.infoTree
+      if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
+        locationLinksOfInfo kind infoWithCtx snap.infoTree
       else return #[]
 
 open RequestM in
@@ -254,7 +254,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let hoverPos := text.lspPosToUtf8Pos p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
-      if let some (ci, i@(Elab.Info.ofTermInfo ti), _) := snap.infoTree.termGoalAt? hoverPos then
+      if let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := snap.infoTree.termGoalAt? hoverPos then
         let ty ← ci.runMetaM i.lctx do
           instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
         -- for binders, hide the last hypothesis (the binder itself)

@@ -7,3 +7,7 @@ open Lean Meta
   return ()
 
 def foo := 42
+
+local infix:50 " ≺ " => LE.le
+
+#check 1 ≺ 2

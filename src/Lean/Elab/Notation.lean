@@ -113,11 +113,6 @@ def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Ma
       | `($lhs $$moreArgs*) => withRef f `($pat $$moreArgs*)
       | _                   => throw ())
 
-private def isLocalAttrKind (attrKind : Syntax) : Bool :=
-  match attrKind with
-  | `(Parser.Term.attrKind| local) => true
-  | _ => false
-
 private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     (doc? : Option (TSyntax ``docComment))
     (attrs? : Option (TSepArray ``attrInstance ","))
@@ -132,6 +127,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     match name? with
     | some name => pure name.getId
     | none => mkNameFromParserSyntax `term (mkNullNode syntaxParts)
+  let name ← addMacroScopeIfLocal name attrKind
   -- build macro rules
   let vars := items.filter fun item => item.raw.getKind == ``identPrec
   let vars := vars.map fun var => var.raw[0]

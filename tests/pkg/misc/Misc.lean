@@ -1,4 +1,5 @@
 import Misc.Foo
+import Misc.Boo
 import Lean
 
 open Lean Meta

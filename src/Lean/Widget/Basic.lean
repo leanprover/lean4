@@ -1,11 +1,13 @@
 import Lean.Elab.InfoTree
 import Lean.Message
 import Lean.Server.Rpc.Basic
+import Lean.Server.InfoUtils
 
 namespace Lean.Widget
 
 open Elab Server
 
+deriving instance TypeName for InfoWithCtx
 deriving instance TypeName for MessageData
 
 instance : ToJson FVarId := ⟨fun f => toJson f.name⟩

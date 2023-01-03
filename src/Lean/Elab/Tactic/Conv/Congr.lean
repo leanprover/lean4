@@ -50,7 +50,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
       | .eq    =>
         if addImplicitArgs || argInfo.isExplicit then
           let tag ← if nameSubgoals then
-            pure (origTag ++ (← whnf (← inferType proof)).bindingName!)
+            pure (appendTag origTag (← whnf (← inferType proof)).bindingName!)
           else pure origTag
           let (rhs, mvarNew) ← mkConvGoalFor arg tag
           proof := mkApp3 proof arg rhs mvarNew

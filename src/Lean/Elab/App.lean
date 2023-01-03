@@ -682,6 +682,12 @@ end ElabAppArgs
 builtin_initialize elabAsElim : TagAttribute ←
   registerTagAttribute `elab_as_elim
     "instructs elaborator that the arguments of the function application should be elaborated as were an eliminator"
+    /-
+    We apply `elab_as_elim` after compilation because this kind of attribute is not applied to auxiliary declarations
+    created by the `WF` and `Structural` modules. This is an "indirect" fix for issue #1900. We should consider
+    having an explicit flag in attributes to indicate whether they should be copied to auxiliary declarations or not.
+    -/
+    (applicationTime := .afterCompilation)
     fun declName => do
       let go : MetaM Unit := do
         discard <| getElimInfo declName
@@ -1291,8 +1297,8 @@ where
 
   toLVals : List Syntax → (first : Bool) → List LVal
     | [],            _     => []
-    | field::fields, true  => .fieldName field field.getId.toString (toName (field::fields)) fIdent :: toLVals fields false
-    | field::fields, false => .fieldName field field.getId.toString none fIdent :: toLVals fields false
+    | field::fields, true  => .fieldName field field.getId.getString! (toName (field::fields)) fIdent :: toLVals fields false
+    | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
 
 /-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
 private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
@@ -1333,7 +1339,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     let elabFieldName (e field : Syntax) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
-        LVal.fieldName comp (toString comp.getId) none e
+        LVal.fieldName comp comp.getId.getString! none e
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     let elabFieldIdx (e idxStx : Syntax) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
@@ -1422,12 +1428,14 @@ private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM �
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
   let candidates ← elabAppFn f [] namedArgs args expectedType? (explicit := false) (ellipsis := ellipsis) (overloaded := false) #[]
-  if candidates.size == 1 then
-    applyResult candidates[0]!
+  if h : candidates.size = 1 then
+    have : 0 < candidates.size := by rw [h]; decide
+    applyResult candidates[0]
   else
     let successes ← getSuccesses candidates
-    if successes.size == 1 then
-      applyResult successes[0]!
+    if h : successes.size = 1 then
+      have : 0 < successes.size := by rw [h]; decide
+      applyResult successes[0]
     else if successes.size > 1 then
       let msgs : Array MessageData ← successes.mapM fun success => do
         match success with

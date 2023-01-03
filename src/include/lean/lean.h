@@ -856,6 +856,7 @@ static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray
 LEAN_SHARED lean_obj_res lean_byte_array_mk(lean_obj_arg a);
 LEAN_SHARED lean_obj_res lean_byte_array_data(lean_obj_arg a);
 LEAN_SHARED lean_obj_res lean_copy_byte_array(lean_obj_arg a);
+LEAN_SHARED uint64_t lean_byte_array_hash(b_lean_obj_arg a);
 
 static inline lean_obj_res lean_mk_empty_byte_array(b_lean_obj_arg capacity) {
     if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();
@@ -1740,7 +1741,6 @@ static inline size_t lean_usize_log2(size_t a) {
 static inline uint8_t lean_usize_dec_eq(size_t a1, size_t a2) { return a1 == a2; }
 static inline uint8_t lean_usize_dec_lt(size_t a1, size_t a2) { return a1 < a2; }
 static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2; }
-LEAN_SHARED size_t lean_usize_mix_hash(size_t a1, size_t a2);
 
 
 
@@ -1921,6 +1921,11 @@ static inline uint8_t lean_float_beq(double a, double b) { return a == b; }
 static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
 static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
 static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
+
+/* Efficient C implementations of defns used by the compiler */
+static inline size_t lean_data_hashmap_mk_idx(lean_object* sz, uint64_t hash) {
+    return (size_t)(hash & (lean_unbox(sz) - 1));
+}
 
 #ifdef __cplusplus
 }

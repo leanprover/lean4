@@ -16,18 +16,18 @@ has type
   ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
   ExceptT String (StateT Nat Id) String : Type
-doErrorMsg.lean:24:2-24:4: error: type mismatch
-  f1
-has type
-  ExceptT String (StateT Nat Id) Nat : Type
-but is expected to have type
-  ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:23:10-23:12: error: type mismatch
   f2
 has type
   Nat → ExceptT String (StateT Nat Id) Nat : Type
 but is expected to have type
   ExceptT String (StateT Nat Id) ?m : Type
+doErrorMsg.lean:24:2-24:4: error: type mismatch
+  f1
+has type
+  ExceptT String (StateT Nat Id) Nat : Type
+but is expected to have type
+  ExceptT String (StateT Nat Id) String : Type
 doErrorMsg.lean:28:13-28:18: error: application type mismatch
   Prod.mk false
 argument

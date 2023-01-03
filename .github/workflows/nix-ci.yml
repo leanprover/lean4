@@ -81,14 +81,13 @@ jobs:
           skipPush: true  # we push specific outputs only
       - name: Build
         run: |
-          # .o files are not a runtime dependency on macOS because of lack of thin archives
-          nix build $NIX_BUILD_ARGS .#stage0 .#stage1.lean-all .#Lean.oTree .#iTree .#modDepsFiles -o push-build
+          nix build $NIX_BUILD_ARGS .#cacheRoots -o push-build
       - name: Test
         run: |
           nix build $NIX_BUILD_ARGS .#test -o push-test
       - name: Build manual
         run: |
-          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test} -o push-doc
+          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix

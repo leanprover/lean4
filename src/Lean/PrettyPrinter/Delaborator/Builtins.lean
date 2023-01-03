@@ -763,4 +763,52 @@ def delabNameMkStr : Delab := whenPPOption getPPNotation do
 @[builtin_delab app.Lean.Name.num]
 def delabNameMkNum : Delab := delabNameMkStr
 
+open Parser Command Term in
+@[run_builtin_parser_attribute_hooks]
+-- use `termParser` instead of `declId` so we can reuse `delabConst`
+def declSigWithId := leading_parser termParser maxPrec >> declSig
+
+private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
+  env.evalConstCheck Syntax opts ``Syntax constName
+
+@[implemented_by evalSyntaxConstantUnsafe]
+private opaque evalSyntaxConstant (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax := throw ""
+
+/-- Pretty-prints a constant `c` as `c.{<levels>} <params> : <type>`. -/
+partial def delabConstWithSignature : Delab := do
+  let e ← getExpr
+  -- use virtual expression node of arity 2 to separate name and type info
+  let idStx ← descend e 0 <|
+    withOptions (pp.universes.set · true |> (pp.fullNames.set · true)) <|
+      delabConst
+  descend (← inferType e) 1 <|
+    delabParams idStx #[] #[]
+where
+  -- follows `delabBinders`, but does not uniquify binder names and accumulates all binder groups
+  delabParams (idStx : Ident) (groups : TSyntaxArray ``bracketedBinder) (curIds : Array Ident) := do
+    if let .forallE n d _ i ← getExpr then
+      let stxN ← annotateCurPos (mkIdent n)
+      let curIds := curIds.push ⟨stxN⟩
+      if ← shouldGroupWithNext then
+        withBindingBody n <| delabParams idStx groups curIds
+      else
+        let delabTy := withOptions (pp.piBinderTypes.set · true) delab
+        let group ← withBindingDomain do
+          match i with
+          | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
+          | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
+          | .instImplicit   => `(bracketedBinderF|[$curIds.back : $(← delabTy)])
+          | _ =>
+            if d.isOptParam then
+              `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
+            else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+              let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
+              `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
+            else
+              `(bracketedBinderF|($curIds* : $(← delabTy)))
+        withBindingBody n <| delabParams idStx (groups.push group) #[]
+    else
+      let type ← delab
+      `(declSigWithId| $idStx:ident $groups* : $type)
+
 end Lean.PrettyPrinter.Delaborator

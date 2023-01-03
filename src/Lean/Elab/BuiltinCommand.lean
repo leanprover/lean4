@@ -10,6 +10,7 @@ import Lean.Elab.Eval
 import Lean.Elab.Command
 import Lean.Elab.Open
 import Lean.Elab.SetOption
+import Lean.PrettyPrinter
 
 namespace Lean.Elab.Command
 
@@ -234,12 +235,24 @@ open Meta
 
 def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
   | `(#check%$tk $term) => withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_check do
+    -- show signature for `#check id`/`#check @id`
+    if let `($_:ident) := term then
+      try
+        for c in (← resolveGlobalConstWithInfos term) do
+          addCompletionInfo <| .id term c (danglingDot := false) {} none
+          logInfoAt tk <| .ofPPFormat { pp := fun
+            | some ctx => ctx.runMetaM <| PrettyPrinter.ppSignature c
+            | none     => return f!"{c}"  -- should never happen
+          }
+          return
+      catch _ => pure ()  -- identifier might not be a constant but constant + projection
     let e ← Term.elabTerm term none
     Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := ignoreStuckTC)
     let e ← Term.levelMVarToParam (← instantiateMVars e)
     let type ← inferType e
-    unless e.isSyntheticSorry do
-      logInfoAt tk m!"{e} : {type}"
+    if e.isSyntheticSorry then
+      return
+    logInfoAt tk m!"{e} : {type}"
   | _ => throwUnsupportedSyntax
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)

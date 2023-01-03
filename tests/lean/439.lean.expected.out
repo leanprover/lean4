@@ -17,3 +17,4 @@ has type
   P : Sort u
 but is expected to have type
   Bar.fn ?m : Sort ?u
+Fn.imp fn' (sorryAx (Bar.fn ?m) true) : Bar.fn ?m

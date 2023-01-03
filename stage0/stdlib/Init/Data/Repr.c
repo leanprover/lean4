@@ -13,250 +13,255 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_List_reverse___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_List_repr___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprIdType___rarg(lean_object*);
-lean_object* lean_string_push(lean_object*, uint32_t);
-LEAN_EXPORT lean_object* l_instReprUInt32(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprIterator(lean_object*, lean_object*);
-static lean_object* l_instReprPUnit___closed__2;
-LEAN_EXPORT lean_object* l_instReprOption___rarg(lean_object*);
-lean_object* lean_nat_div(lean_object*, lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__2;
-LEAN_EXPORT lean_object* l_Char_quote___boxed(lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__13;
-LEAN_EXPORT lean_object* l_hexDigitRepr___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instReprULift(lean_object*);
-static lean_object* l_hexDigitRepr___closed__1;
-static lean_object* l_Option_repr___rarg___closed__3;
-static lean_object* l_Char_quote___closed__1;
-LEAN_EXPORT lean_object* l_instReprFin___rarg___boxed(lean_object*, lean_object*);
-static lean_object* l_List_repr___rarg___closed__1;
-LEAN_EXPORT lean_object* l_List_repr___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_toDigits___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__14;
-LEAN_EXPORT lean_object* l_Int_repr___boxed(lean_object*);
-extern lean_object* l_Std_Format_defWidth;
-LEAN_EXPORT lean_object* l_instReprProd(lean_object*, lean_object*);
-static lean_object* l_Int_repr___closed__1;
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__5;
-LEAN_EXPORT lean_object* l_Char_repr(uint32_t);
-static lean_object* l_Int_repr___closed__2;
-static lean_object* l_instReprDecidable___rarg___closed__3;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_repr(lean_object*);
-LEAN_EXPORT lean_object* l_instReprChar(uint32_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprSigma___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprPUnit___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__1;
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__1;
-LEAN_EXPORT lean_object* l_instReprUSize(size_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprNat(lean_object*, lean_object*);
-static lean_object* l_instReprBool___closed__1;
-static lean_object* l_String_quote___closed__2;
-LEAN_EXPORT lean_object* l_instReprUnit(lean_object*, lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__7;
-static lean_object* l_instReprPUnit___closed__1;
-LEAN_EXPORT lean_object* l_instReprAtomUInt32;
-LEAN_EXPORT lean_object* l_instReprBool___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_repr_x27(lean_object*);
-lean_object* lean_string_append(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_toSuperDigitsAux(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprUInt64(uint64_t, lean_object*);
-lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__4;
-LEAN_EXPORT lean_object* l_instReprFin(lean_object*);
-static lean_object* l_String_quote___closed__1;
-static lean_object* l_List_repr___rarg___closed__3;
-LEAN_EXPORT lean_object* l_String_quote___boxed(lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311_(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__9;
 LEAN_EXPORT lean_object* l_Prod_repr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprSourceInfo;
-lean_object* lean_string_utf8_byte_size(lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__8;
-static lean_object* l_instReprDecidable___rarg___closed__4;
-static lean_object* l_List_repr___rarg___closed__7;
-LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____boxed(lean_object*, lean_object*);
-static lean_object* l_instReprBool___closed__2;
-LEAN_EXPORT lean_object* l_String_quote___lambda__1___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprId___rarg___boxed(lean_object*);
-static lean_object* l_Prod_repr___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instReprAtomNat;
-static lean_object* l_String_quote___closed__3;
-lean_object* lean_nat_add(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprAtomUInt16;
-static lean_object* l_instReprBool___closed__4;
-static lean_object* l_Char_quoteCore___closed__1;
-LEAN_EXPORT lean_object* l_Char_quoteCore___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_reprStr___rarg(lean_object*, lean_object*);
-static lean_object* l_instReprPos___closed__4;
-static lean_object* l_Repr_addAppParen___closed__5;
-LEAN_EXPORT lean_object* l_Nat_digitChar___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_repr___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_repr(lean_object*);
-static lean_object* l_Char_quoteCore___closed__2;
-static lean_object* l_instReprPos___closed__2;
-static lean_object* l_instReprPos___closed__1;
-LEAN_EXPORT lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprSubstring___closed__1;
-LEAN_EXPORT lean_object* l_instReprDecidable(lean_object*);
-LEAN_EXPORT lean_object* l_instReprFin___boxed(lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_reprArg___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprPos___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprTuple(lean_object*);
-LEAN_EXPORT lean_object* l_instReprSubstring___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprString(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_repr(lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__2;
-static lean_object* l_Sum_repr___rarg___closed__4;
-lean_object* lean_nat_sub(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprTuple___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprUInt16(uint16_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprList__1(lean_object*);
-static lean_object* l_instReprIterator___closed__1;
-LEAN_EXPORT lean_object* l_instReprIterator___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprInt(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_repr___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprAtomUSize;
-LEAN_EXPORT lean_object* l_instReprList___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Sum_repr(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprList(lean_object*);
-LEAN_EXPORT lean_object* l_instReprUInt8(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object*);
-static lean_object* l_instReprBool___closed__3;
-LEAN_EXPORT lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprUInt64___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__8;
-LEAN_EXPORT lean_object* l_instReprAtomBool;
-LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex(uint32_t);
-static lean_object* l_Prod_repr___rarg___closed__3;
-LEAN_EXPORT lean_object* l_Nat_repr(lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__5;
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__12;
-LEAN_EXPORT lean_object* l_instReprId(lean_object*);
-static lean_object* l_Char_quoteCore___closed__4;
+lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
-static lean_object* l_List_repr___rarg___closed__2;
-static lean_object* l_Sum_repr___rarg___closed__1;
-LEAN_EXPORT lean_object* l_instReprUInt16___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprSubtype___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__3;
-static lean_object* l_List_repr___rarg___closed__6;
-static lean_object* l_Sum_repr___rarg___closed__2;
-static lean_object* l_instReprIterator___closed__4;
-LEAN_EXPORT lean_object* l_Nat_toSuperscriptString(lean_object*);
-LEAN_EXPORT uint32_t l_Nat_digitChar(lean_object*);
-LEAN_EXPORT lean_object* l_instReprPos(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprAtomString;
-static lean_object* l_List_repr___rarg___closed__8;
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311_(lean_object*, lean_object*);
+static lean_object* l_instReprPUnit___closed__2;
+LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprPos___boxed(lean_object*, lean_object*);
+static lean_object* l_List_repr___rarg___closed__1;
 static lean_object* l_instReprUnit___closed__2;
-LEAN_EXPORT lean_object* l_instReprAtomUInt8;
-LEAN_EXPORT uint32_t l_Nat_superDigitChar(lean_object*);
-static lean_object* l_instReprIterator___closed__2;
-LEAN_EXPORT lean_object* l_instReprUSize___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_toDigitsCore(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_quote___lambda__1(lean_object*, uint32_t);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__11;
-LEAN_EXPORT lean_object* l_Nat_superDigitChar___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_toSuperDigits(lean_object*);
+LEAN_EXPORT lean_object* l_instReprTuple___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__1;
+LEAN_EXPORT lean_object* l_Nat_toDigitsCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___rarg___closed__4;
-static lean_object* l_instReprPos___closed__3;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1(lean_object*);
-static lean_object* l_Sum_repr___rarg___closed__3;
-LEAN_EXPORT lean_object* l_List_repr_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprSubstring(lean_object*, lean_object*);
-static lean_object* l_Char_quoteCore___closed__3;
-LEAN_EXPORT lean_object* l_instReprULift___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-static lean_object* l_Repr_addAppParen___closed__6;
-LEAN_EXPORT lean_object* l_instReprString___boxed(lean_object*, lean_object*);
-uint8_t l_String_isEmpty(lean_object*);
+static lean_object* l_Char_quoteCore___closed__2;
+static lean_object* l_Sum_repr___rarg___closed__2;
+LEAN_EXPORT lean_object* l_instReprSigma___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_uint32_to_nat(uint32_t);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__12;
 LEAN_EXPORT lean_object* l_instReprUInt8___boxed(lean_object*, lean_object*);
-static lean_object* l_instReprUnit___closed__1;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Repr_addAppParen___closed__3;
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_quote(lean_object*);
-LEAN_EXPORT lean_object* l_instReprDecidable___rarg(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprTupleProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_hexDigitRepr(lean_object*);
-LEAN_EXPORT lean_object* l_instReprUnit___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__7;
-LEAN_EXPORT lean_object* l_Sum_repr___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Option_repr___rarg(lean_object*, lean_object*, lean_object*);
-uint8_t lean_int_dec_lt(lean_object*, lean_object*);
-lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprAtomInt;
-LEAN_EXPORT lean_object* l_instReprAtomUInt64;
-LEAN_EXPORT lean_object* l_instReprAtomChar;
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__10;
-LEAN_EXPORT lean_object* l_instReprUInt32___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprIdType(lean_object*);
+LEAN_EXPORT lean_object* l_reprStr(lean_object*);
+static lean_object* l_instReprPos___closed__1;
+static lean_object* l_instReprDecidable___rarg___closed__1;
+static lean_object* l_instReprSigma___rarg___closed__1;
+static lean_object* l_Char_quoteCore___closed__1;
+LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instReprPUnit(lean_object*, lean_object*);
-lean_object* lean_nat_abs(lean_object*);
-LEAN_EXPORT lean_object* l_instReprBool(uint8_t, lean_object*);
-LEAN_EXPORT lean_object* l_instReprSubtype(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_toDigits(lean_object*, lean_object*);
-static lean_object* l_instReprIterator___closed__3;
-static lean_object* l_instReprDecidable___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instReprIdType___rarg___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_instReprULift___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_repr_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Char_repr___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Char_quote(uint32_t);
-LEAN_EXPORT lean_object* l_instReprTupleProd(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr___spec__1(lean_object*);
-static lean_object* l_instReprULift___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instReprSigma(lean_object*, lean_object*);
-lean_object* lean_uint64_to_nat(uint64_t);
-static lean_object* l_instReprULift___rarg___closed__1;
+LEAN_EXPORT lean_object* l_instReprId___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprList__1(lean_object*);
+static lean_object* l_instReprSigma___rarg___closed__6;
+LEAN_EXPORT lean_object* l_instReprULift___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprSubtype___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Int_repr___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_quote(lean_object*);
+LEAN_EXPORT lean_object* l_hexDigitRepr(lean_object*);
+LEAN_EXPORT lean_object* l_Nat_toSuperscriptString(lean_object*);
+static lean_object* l_instReprPos___closed__2;
+static lean_object* l_Sum_repr___rarg___closed__3;
+LEAN_EXPORT lean_object* l_instReprULift(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_Prod_repr___spec__2(lean_object*, lean_object*, lean_object*);
+static lean_object* l_instReprPos___closed__3;
+static lean_object* l_instReprBool___closed__2;
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__11;
+LEAN_EXPORT lean_object* l_List_repr_x27___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprSum(lean_object*, lean_object*);
+static lean_object* l_instReprPUnit___closed__1;
 static lean_object* l_instReprSigma___rarg___closed__4;
+static lean_object* l_Option_repr___rarg___closed__4;
+LEAN_EXPORT lean_object* l_Nat_toSuperDigits(lean_object*);
+LEAN_EXPORT lean_object* l_instReprNat___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Option_repr(lean_object*);
+static lean_object* l_Option_repr___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Option_repr___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_List_repr___rarg___closed__8;
+LEAN_EXPORT lean_object* l_String_quote___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt8(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_instReprPos(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprChar(uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_instReprUSize___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr_x27___spec__2(lean_object*);
+LEAN_EXPORT lean_object* l_instReprList(lean_object*);
+static lean_object* l_Sum_repr___rarg___closed__4;
+lean_object* lean_string_utf8_byte_size(lean_object*);
+LEAN_EXPORT lean_object* l_Sum_repr___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__13;
+lean_object* lean_string_push(lean_object*, uint32_t);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__7;
+LEAN_EXPORT lean_object* l_instReprSigma(lean_object*, lean_object*);
+static lean_object* l_instReprULift___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Nat_toDigits___boxed(lean_object*, lean_object*);
+static lean_object* l_instReprIterator___closed__1;
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__6;
+static lean_object* l_Repr_addAppParen___closed__2;
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_instReprPos___closed__4;
+uint8_t l_String_isEmpty(lean_object*);
+lean_object* l_String_foldlAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Repr_addAppParen___closed__3;
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__8;
+LEAN_EXPORT lean_object* l_List_repr___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_repr(lean_object*);
+static lean_object* l_List_repr___rarg___closed__2;
+LEAN_EXPORT lean_object* l_instReprDecidable___rarg___boxed(lean_object*, lean_object*);
+static lean_object* l_Sum_repr___rarg___closed__1;
+LEAN_EXPORT lean_object* l_instReprSubstring(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Sum_repr___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint32_t l_Nat_digitChar(lean_object*);
+LEAN_EXPORT lean_object* l_instReprDecidable(lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+static lean_object* l_List_repr___rarg___closed__7;
+static lean_object* l_instReprSubstring___closed__1;
+lean_object* lean_nat_div(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_quoteCore___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprFin___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomUInt16;
+static lean_object* l_Repr_addAppParen___closed__1;
+static lean_object* l_instReprSigma___rarg___closed__7;
+LEAN_EXPORT lean_object* l_instReprUnit(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt64(uint64_t, lean_object*);
+LEAN_EXPORT lean_object* l_String_quote___lambda__1(lean_object*, uint32_t);
+lean_object* lean_string_mk(lean_object*);
+static lean_object* l_String_quote___closed__1;
+LEAN_EXPORT lean_object* l_Nat_toDigitsCore(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_uint64_to_nat(uint64_t);
+LEAN_EXPORT lean_object* l_instReprTupleProd(lean_object*, lean_object*);
+static lean_object* l_Prod_repr___rarg___closed__3;
+LEAN_EXPORT lean_object* l_Sum_repr(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprId(lean_object*);
+LEAN_EXPORT lean_object* l_reprArg___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprBool(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_digitChar___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_Prod_repr___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__9;
+static lean_object* l_Repr_addAppParen___closed__4;
+static lean_object* l_instReprIterator___closed__3;
+LEAN_EXPORT uint32_t l_Nat_superDigitChar(lean_object*);
+LEAN_EXPORT lean_object* l_instReprString___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_quoteCore_smallCharToHex(uint32_t);
+LEAN_EXPORT lean_object* l_List_repr___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr___spec__2(lean_object*);
+static lean_object* l_instReprBool___closed__3;
+static lean_object* l_instReprBool___closed__4;
+LEAN_EXPORT lean_object* l_Char_quote(uint32_t);
+LEAN_EXPORT lean_object* l_instReprAtomUSize;
+LEAN_EXPORT lean_object* l_Int_repr(lean_object*);
+LEAN_EXPORT lean_object* l_instReprSubstring___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Prod_repr___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Repr_addAppParen___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprInt___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprUSize(size_t, lean_object*);
+static lean_object* l_instReprBool___closed__1;
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_instReprTuple(lean_object*);
+LEAN_EXPORT lean_object* l_String_quote___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__5;
+static lean_object* l_List_repr___rarg___closed__5;
+static lean_object* l_instReprDecidable___rarg___closed__4;
+LEAN_EXPORT lean_object* l_List_repr_x27___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprULift___rarg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Char_quoteCore___closed__5;
+static lean_object* l_Int_repr___closed__1;
+LEAN_EXPORT lean_object* l_List_repr_x27(lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt64___boxed(lean_object*, lean_object*);
+extern lean_object* l_Std_Format_defWidth;
+LEAN_EXPORT lean_object* l_instReprBool___boxed(lean_object*, lean_object*);
+static lean_object* l_instReprSigma___rarg___closed__8;
+lean_object* lean_usize_to_nat(size_t);
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_repr(uint32_t);
+LEAN_EXPORT lean_object* l_instReprIterator___boxed(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___rarg___closed__1;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_hexDigitRepr___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprIdType___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instReprSubtype(lean_object*, lean_object*);
+static lean_object* l_Repr_addAppParen___closed__5;
+LEAN_EXPORT lean_object* l_instReprIdType(lean_object*);
+static lean_object* l_Repr_addAppParen___closed__6;
+LEAN_EXPORT lean_object* l_Nat_toDigits(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_quote___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_instReprFin___boxed(lean_object*);
+lean_object* lean_nat_abs(lean_object*);
+static lean_object* l_instReprSigma___rarg___closed__2;
+LEAN_EXPORT lean_object* l_reprStr___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomUInt32;
+static lean_object* l_Prod_repr___rarg___closed__2;
+static lean_object* l_instReprULift___rarg___closed__2;
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Prod_repr___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprDecidable___rarg___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Repr_addAppParen___boxed(lean_object*, lean_object*);
-static lean_object* l_Repr_addAppParen___closed__1;
-LEAN_EXPORT lean_object* l_reprStr(lean_object*);
-static lean_object* l_List_repr___rarg___closed__5;
-LEAN_EXPORT lean_object* l_instReprSum(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Nat_superDigitChar___boxed(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprSigma___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Char_quoteCore___closed__3;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
-static lean_object* l_instReprDecidable___rarg___closed__1;
-static lean_object* l_Char_quoteCore___closed__5;
-static lean_object* l_Option_repr___rarg___closed__2;
-LEAN_EXPORT lean_object* l_instReprFin___rarg(lean_object*, lean_object*);
-lean_object* lean_uint16_to_nat(uint16_t);
-LEAN_EXPORT lean_object* l_repr(lean_object*);
-lean_object* lean_usize_to_nat(size_t);
-static lean_object* l_Repr_addAppParen___closed__4;
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1___boxed(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__3;
-static lean_object* l_Option_repr___rarg___closed__4;
-LEAN_EXPORT lean_object* l_Char_quoteCore(uint32_t);
-LEAN_EXPORT lean_object* l_instReprOption(lean_object*);
-static lean_object* l_instReprSigma___rarg___closed__6;
-LEAN_EXPORT lean_object* l_instReprChar___boxed(lean_object*, lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
-LEAN_EXPORT lean_object* l_instReprList__1___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instReprId___rarg(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomBool;
+uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
+LEAN_EXPORT lean_object* l_instReprProd(lean_object*, lean_object*);
+static lean_object* l_Int_repr___closed__2;
+LEAN_EXPORT lean_object* l_repr___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprIterator(lean_object*, lean_object*);
+static lean_object* l_instReprUnit___closed__1;
+static lean_object* l_hexDigitRepr___closed__1;
+LEAN_EXPORT lean_object* l_instReprSourceInfo;
+LEAN_EXPORT lean_object* l_instReprPUnit___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprInt(lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__2;
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object*, lean_object*);
+static lean_object* l_instReprSigma___rarg___closed__3;
+LEAN_EXPORT lean_object* l_instReprAtomChar;
+LEAN_EXPORT lean_object* l_instReprUnit___boxed(lean_object*, lean_object*);
 static lean_object* l_Option_repr___rarg___closed__1;
-lean_object* lean_string_mk(lean_object*);
-LEAN_EXPORT lean_object* l_instReprSigma___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_uint8_to_nat(uint8_t);
-LEAN_EXPORT lean_object* l_instReprProd___rarg(lean_object*, lean_object*);
-static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__6;
-LEAN_EXPORT lean_object* l_Prod_repr___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__14;
+LEAN_EXPORT lean_object* l_Nat_toSuperDigitsAux(lean_object*, lean_object*);
+static lean_object* l_List_repr___rarg___closed__3;
+lean_object* lean_uint16_to_nat(uint16_t);
+LEAN_EXPORT lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomNat;
+uint8_t lean_int_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomUInt8;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr___spec__1(lean_object*);
+static lean_object* l_instReprDecidable___rarg___closed__3;
+LEAN_EXPORT lean_object* l_instReprOption(lean_object*);
+static lean_object* l_Option_repr___rarg___closed__2;
+static lean_object* l_Char_quote___closed__1;
 LEAN_EXPORT lean_object* l_instReprSum___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___rarg___boxed(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Repr_addAppParen___closed__2;
-LEAN_EXPORT lean_object* l_reprArg(lean_object*);
-LEAN_EXPORT lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
+static lean_object* l_instReprIterator___closed__2;
+LEAN_EXPORT lean_object* l_instReprUInt32(uint32_t, lean_object*);
+LEAN_EXPORT lean_object* l_instReprDecidable___rarg(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt32___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_List_reverse___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instReprChar___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprFin___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprFin(lean_object*);
+LEAN_EXPORT lean_object* l_instReprProd___rarg(lean_object*, lean_object*);
+lean_object* lean_uint8_to_nat(uint8_t);
+static lean_object* l_String_quote___closed__2;
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__4;
+LEAN_EXPORT lean_object* l_instReprList__1___rarg(lean_object*, lean_object*);
 static lean_object* l_instReprSourceInfo___closed__1;
-LEAN_EXPORT lean_object* l_instReprNat___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_reprArg(lean_object*);
+LEAN_EXPORT lean_object* l_Char_repr___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr_x27___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprList___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instReprOption___rarg(lean_object*);
+static lean_object* l_instReprSigma___rarg___closed__5;
+LEAN_EXPORT lean_object* l_instReprId___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomUInt64;
+uint8_t lean_nat_dec_le(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprAtomInt;
+lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Char_quoteCore(uint32_t);
+LEAN_EXPORT lean_object* l_instReprNat(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprString(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt16(uint16_t, lean_object*);
+LEAN_EXPORT lean_object* l_repr(lean_object*);
+LEAN_EXPORT lean_object* l_instReprUInt16___boxed(lean_object*, lean_object*);
+static lean_object* l_String_quote___closed__3;
+static lean_object* l_instReprDecidable___rarg___closed__2;
+static lean_object* l_List_repr___rarg___closed__6;
+LEAN_EXPORT lean_object* l_instReprIdType___rarg___boxed(lean_object*);
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__10;
+static lean_object* l_instReprIterator___closed__4;
+LEAN_EXPORT lean_object* l_Nat_repr(lean_object*);
+LEAN_EXPORT lean_object* l_instReprTupleProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Char_quoteCore___closed__4;
+static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2311____closed__3;
+LEAN_EXPORT lean_object* l_instReprAtomString;
 LEAN_EXPORT lean_object* l_repr___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -964,6 +969,33 @@ x_3 = lean_alloc_closure((void*)(l_instReprTupleProd___rarg), 4, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at_Prod_repr___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_4 = lean_ctor_get(x_3, 0);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_1);
+x_6 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_1);
+lean_inc(x_4);
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_6);
+lean_ctor_set(x_7, 1, x_4);
+x_2 = x_7;
+x_3 = x_5;
+goto _start;
+}
+}
+}
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -978,28 +1010,25 @@ else
 {
 lean_object* x_4; 
 x_4 = lean_ctor_get(x_1, 1);
+lean_inc(x_4);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; 
 lean_dec(x_2);
 x_5 = lean_ctor_get(x_1, 0);
 lean_inc(x_5);
+lean_dec(x_1);
 return x_5;
 }
 else
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_object* x_6; lean_object* x_7; 
 x_6 = lean_ctor_get(x_1, 0);
-lean_inc(x_2);
 lean_inc(x_6);
-x_7 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_7, 0, x_6);
-lean_ctor_set(x_7, 1, x_2);
-x_8 = l_Std_Format_joinSep___at_Prod_repr___spec__1(x_4, x_2);
-x_9 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_9, 0, x_7);
-lean_ctor_set(x_9, 1, x_8);
-return x_9;
+lean_dec(x_1);
+x_7 = l_List_foldl___at_Prod_repr___spec__2(x_2, x_6, x_4);
+lean_dec(x_4);
+return x_7;
 }
 }
 }
@@ -1053,7 +1082,6 @@ x_11 = lean_apply_2(x_2, x_6, x_10);
 x_12 = l_List_reverse___rarg(x_11);
 x_13 = l_Prod_repr___rarg___closed__3;
 x_14 = l_Std_Format_joinSep___at_Prod_repr___spec__1(x_12, x_13);
-lean_dec(x_12);
 x_15 = l_Repr_addAppParen___closed__4;
 x_16 = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -1081,13 +1109,13 @@ x_3 = lean_alloc_closure((void*)(l_Prod_repr___rarg___boxed), 4, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_List_foldl___at_Prod_repr___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_Std_Format_joinSep___at_Prod_repr___spec__1(x_1, x_2);
-lean_dec(x_1);
-return x_3;
+lean_object* x_4; 
+x_4 = l_List_foldl___at_Prod_repr___spec__2(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Prod_repr___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2535,6 +2563,47 @@ lean_dec(x_2);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_dec(x_4);
+lean_inc(x_2);
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 1, x_2);
+x_8 = lean_unsigned_to_nat(0u);
+lean_inc(x_1);
+x_9 = lean_apply_2(x_1, x_5, x_8);
+x_10 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_10, 0, x_7);
+lean_ctor_set(x_10, 1, x_9);
+x_3 = x_10;
+x_4 = x_6;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr___spec__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldl___at_List_repr___spec__2___rarg), 4, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2564,22 +2633,15 @@ return x_8;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_2, 0);
 lean_inc(x_9);
 lean_dec(x_2);
 x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = lean_apply_2(x_1, x_9, x_10);
-lean_inc(x_3);
-x_12 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_3);
-x_13 = l_Std_Format_joinSep___at_List_repr___spec__1___rarg(x_1, x_5, x_3);
-x_14 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
+x_12 = l_List_foldl___at_List_repr___spec__2___rarg(x_1, x_3, x_11, x_5);
+return x_12;
 }
 }
 }
@@ -2733,6 +2795,47 @@ x_2 = lean_alloc_closure((void*)(l_instReprList___rarg), 1, 0);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr_x27___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+else
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = lean_ctor_get(x_4, 0);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 1);
+lean_inc(x_6);
+lean_dec(x_4);
+lean_inc(x_2);
+x_7 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_7, 0, x_3);
+lean_ctor_set(x_7, 1, x_2);
+x_8 = lean_unsigned_to_nat(0u);
+lean_inc(x_1);
+x_9 = lean_apply_2(x_1, x_5, x_8);
+x_10 = lean_alloc_ctor(5, 2, 0);
+lean_ctor_set(x_10, 0, x_7);
+lean_ctor_set(x_10, 1, x_9);
+x_3 = x_10;
+x_4 = x_6;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_List_foldl___at_List_repr_x27___spec__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_List_foldl___at_List_repr_x27___spec__2___rarg), 4, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_List_repr_x27___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2762,22 +2865,15 @@ return x_8;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 x_9 = lean_ctor_get(x_2, 0);
 lean_inc(x_9);
 lean_dec(x_2);
 x_10 = lean_unsigned_to_nat(0u);
 lean_inc(x_1);
 x_11 = lean_apply_2(x_1, x_9, x_10);
-lean_inc(x_3);
-x_12 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_3);
-x_13 = l_Std_Format_joinSep___at_List_repr_x27___spec__1___rarg(x_1, x_5, x_3);
-x_14 = lean_alloc_ctor(5, 2, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_13);
-return x_14;
+x_12 = l_List_foldl___at_List_repr_x27___spec__2___rarg(x_1, x_3, x_11, x_5);
+return x_12;
 }
 }
 }

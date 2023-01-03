@@ -13,34 +13,34 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__9;
-lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__17;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__4;
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__11;
-LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_compile(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__12;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__10;
-lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
-lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__16;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__7;
-static lean_object* l_Lean_Compiler_compile___closed__1;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__8;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__14;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__1;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__11;
 lean_object* l_Lean_Compiler_LCNF_compile(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__5;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__18;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__15;
-static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__3;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__9;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__6;
-LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__4;
+lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__16;
+lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
+lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__2;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Compiler_compile(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64_(lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__18;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__3;
+lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__12;
+LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__8;
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__13;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__17;
+static lean_object* l_Lean_Compiler_compile___closed__1;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__1;
+static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_Main___hyg_64____closed__14;
+lean_object* l_Lean_profileitM___at_Lean_Compiler_LCNF_main___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_compile___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {

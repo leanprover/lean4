@@ -8,8 +8,8 @@ def f (a : α) := a + a
 variable {α}
 def g (b : α) := b
 #check g 5
-#check @f
-#check @g
+#check f
+#check g
 end Ex1
 
 namespace Ex2
@@ -20,8 +20,8 @@ def f (a : α) := a
 def g (b : β) := b
 #check f Nat 5
 #check g 5
-#check @f
-#check @g
+#check f
+#check g
 variable (α)
 end Ex2
 
@@ -31,10 +31,10 @@ variable {α : Type}
 variable (f : α → α)
 variable (α)
 def g (a : α) := f a
-#check @g
+#check g
 variable {f}
 def h (a : α) := f a
-#check @h
+#check h
 end Ex3
 
 namespace Ex4

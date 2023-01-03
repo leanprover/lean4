@@ -10,15 +10,15 @@ import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
+builtin_initialize coeDeclAttr : TagAttribute ←
+  registerTagAttribute `coe_decl "auxiliary definition used to implement coercion (unfolded during elaboration)"
+
 /--
   Return true iff `declName` is one of the auxiliary definitions/projections
   used to implement coercions.
 -/
-def isCoeDecl (declName : Name) : Bool :=
-  declName == ``Coe.coe || declName == ``CoeTC.coe || declName == ``CoeHead.coe ||
-  declName == ``CoeTail.coe || declName == ``CoeHTCT.coe || declName == ``CoeDep.coe ||
-  declName == ``CoeT.coe || declName == ``CoeFun.coe || declName == ``CoeSort.coe ||
-  declName == ``Lean.Internal.liftCoeM || declName == ``Lean.Internal.coeM
+def isCoeDecl (env : Environment) (declName : Name) : Bool :=
+  coeDeclAttr.hasTag env declName
 
 /-- Expand coercions occurring in `e` -/
 partial def expandCoe (e : Expr) : MetaM Expr :=
@@ -27,23 +27,15 @@ partial def expandCoe (e : Expr) : MetaM Expr :=
       let f := e.getAppFn
       if f.isConst then
         let declName := f.constName!
-        if isCoeDecl declName then
+        if isCoeDecl (← getEnv) declName then
           if let some e ← unfoldDefinition? e then
             return .visit e.headBeta
       return .continue
-
-register_builtin_option maxCoeSize : Nat := {
-  defValue := 16
-  descr    := "maximum number of instances used to construct an automatic coercion"
-}
 
 register_builtin_option autoLift : Bool := {
   defValue := true
   descr    := "insert monadic lifts (i.e., `liftM` and coercions) when needed"
 }
-
-def trySynthInstanceForCoe (cls : Expr) : MetaM (LOption Expr) := do
-  trySynthInstance cls (some (maxCoeSize.get (← getOptions)))
 
 /-- Coerces `expr` to `expectedType` using `CoeT`. -/
 def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
@@ -51,7 +43,7 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
   let u ← getLevel eType
   let v ← getLevel expectedType
   let coeTInstType := mkAppN (mkConst ``CoeT [u, v]) #[eType, expr, expectedType]
-  match ← trySynthInstanceForCoe coeTInstType with
+  match ← trySynthInstance coeTInstType with
   | .some inst =>
     let result ← expandCoe (mkAppN (mkConst ``CoeT.coe [u, v]) #[eType, expr, expectedType, inst])
     unless ← isDefEq (← inferType result) expectedType do
@@ -161,7 +153,15 @@ def coerceMonadLift? (e expectedType : Expr) : MetaM (Option Expr) := do
   else if autoLift.get (← getOptions) then
     try
       -- Construct lift from `m` to `n`
-      let monadLiftType ← mkAppM ``MonadLiftT #[m, n]
+      -- Note: we cannot use mkAppM here because mkAppM does not assign universe metavariables,
+      -- but we need to make sure that the domains of `m` and `n` have the same level.
+      let .forallE _ (.sort um₁) (.sort um₂) _ ← whnf (← inferType m) | return none
+      let .forallE _ (.sort un₁) (.sort un₂) _ ← whnf (← inferType n) | return none
+      let u ← decLevel um₁
+      let .true ← isLevelDefEq u (← decLevel un₁) | return none
+      let v ← decLevel um₂
+      let w ← decLevel un₂
+      let monadLiftType := mkAppN (.const ``MonadLiftT [u, v, w]) #[m, n]
       let .some monadLiftVal ← trySynthInstance monadLiftType | return none
       let u_1 ← getDecLevel α
       let u_2 ← getDecLevel eType

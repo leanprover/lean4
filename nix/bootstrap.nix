@@ -1,9 +1,10 @@
 { debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages,
+  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 rec {
   inherit stdenv;
+  sourceByRegex = p: rs: lib.sourceByRegex p (map (r: "(/src/)?${r}") rs);
   buildCMake = args: stdenv.mkDerivation ({
     nativeBuildInputs = [ cmake ];
     buildInputs = [ gmp llvmPackages.llvm ];
@@ -15,8 +16,8 @@ rec {
       patchShebangs .
     '';
   } // args // {
-    src = args.realSrc or (lib.sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
-    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DLLVM=ON" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
+    src = args.realSrc or (sourceByRegex args.src [ "[a-z].*" "CMakeLists\.txt" ]);
+    cmakeFlags = (args.cmakeFlags or [ "-DSTAGE=1" "-DPREV_STAGE=./faux-prev-stage" "-DUSE_GITHASH=OFF" ]) ++ (args.extraCMakeFlags or extraCMakeFlags) ++ lib.optional (args.debug or debug) [ "-DCMAKE_BUILD_TYPE=Debug" ];
     preConfigure = args.preConfigure or "" + ''
       # ignore absence of submodule
       sed -i 's!lake/Lake.lean!!' CMakeLists.txt
@@ -25,7 +26,7 @@ rec {
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
     outputs = [ "out" "leanc_src" ];
-    realSrc = lib.sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
+    realSrc = sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
       sed -i 's/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
@@ -44,19 +45,15 @@ rec {
   leancpp = buildCMake {
     name = "leancpp";
     src = ../src;
-    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" "runtime_bc" ];
+    buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" ];
     installPhase = ''
       mkdir -p $out
       mv lib/ $out/
       mv shell/CMakeFiles/shell.dir/lean.cpp.o $out/lib
-      mv runtime/libleanrt_initial-exec.a runtime/lean.h.bc $out/lib
+      mv runtime/libleanrt_initial-exec.a $out/lib
     '';
   };
-  # rename derivation so `nix run` uses the right executable name but we still see the stage in the build log
-  wrapStage = stage: runCommand "lean" {} ''
-    ln -s ${stage} $out
-  '';
-  stage0 = wrapStage (args.stage0 or (buildCMake {
+  stage0 = args.stage0 or (buildCMake {
     name = "lean-stage0";
     realSrc = ../stage0/src;
     debug = stage0debug;
@@ -75,7 +72,8 @@ rec {
       done
       otool -L $out/bin/lean
     '';
-  }));
+    meta.mainProgram = "lean";
+  });
   stage = { stage, prevStage, self }:
     let
       desc = "stage${toString stage}";
@@ -105,6 +103,7 @@ rec {
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
       stdlib = [ Init Lean ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
+      depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
@@ -119,14 +118,14 @@ rec {
       '';
       mods = Init.mods // Lean.mods;
       leanc = writeShellScriptBin "leanc" ''
-        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable.override { withSharedStdlib = true; }}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
+        LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
       lean = runCommand "lean" { buildInputs = lib.optional stdenv.isDarwin darwin.cctools; } ''
         mkdir -p $out/bin
         ${leanc}/bin/leanc ${leancpp}/lib/lean.cpp.o ${leanshared}/* -o $out/bin/lean
       '';
       # derivation following the directory layout of the "basic" setup, mostly useful for running tests
-      lean-all = wrapStage(stdenv.mkDerivation {
+      lean-all = stdenv.mkDerivation {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
@@ -136,7 +135,13 @@ rec {
           # NOTE: `lndir` will not override existing `bin/leanc`
           ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';
-      });
+        meta.mainProgram = "lean";
+      };
+      cacheRoots = linkFarmFromDrvs "cacheRoots" [
+        stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
+        # .o files are not a runtime dependency on macOS because of lack of thin archives
+        Lean.oTree
+      ];
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];

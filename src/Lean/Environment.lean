@@ -24,7 +24,7 @@ def ModuleIdx := Nat
 
 abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
-instance : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
+instance : Inhabited ModuleIdx where default := (0 : Nat)
 
 abbrev ConstMap := SMap Name ConstantInfo
 
@@ -98,7 +98,7 @@ structure EnvironmentHeader where
   moduleNames  : Array Name   := #[]
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]
-  deriving Inhabited
+  deriving Nonempty
 
 /--
 An environment stores declarations provided by the user. The kernel
@@ -143,7 +143,7 @@ structure Environment where
   extraConstNames : NameSet
   /-- The header contains additional information that is not updated often. -/
   header       : EnvironmentHeader := {}
-  deriving Inhabited
+  deriving Nonempty
 
 namespace Environment
 
@@ -299,6 +299,7 @@ unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environme
   if h : ext.idx < env.extensions.size then
     { env with extensions := env.extensions.set ⟨ext.idx, h⟩ (unsafeCast s) }
   else
+    have : Inhabited Environment := ⟨env⟩
     panic! invalidExtMsg
 
 @[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (env : Environment) (f : σ → σ) : Environment :=
@@ -309,6 +310,7 @@ unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environme
         let s : σ := f s
         unsafeCast s }
   else
+    have : Inhabited Environment := ⟨env⟩
     panic! invalidExtMsg
 
 unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (env : Environment) : σ :=
@@ -555,6 +557,7 @@ instance : Inhabited TagDeclarationExtension :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension Name NameSet))
 
 def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Environment :=
+  have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`
   ext.addEntry env declName
 
@@ -584,6 +587,7 @@ instance : Inhabited (MapDeclarationExtension α) :=
   inferInstanceAs (Inhabited (SimplePersistentEnvExtension ..))
 
 def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) (val : α) : Environment :=
+  have : Inhabited Environment := ⟨env⟩
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
   ext.addEntry env (declName, val)
 

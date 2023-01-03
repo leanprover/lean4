@@ -1,8 +1,8 @@
 protected.lean:10:7-10:8: error: unknown identifier 'x'
 Foo.x : Nat
-Foo.y : Nat
+Bla.Foo.y : Nat
 protected.lean:22:7-22:8: error: unknown identifier 'y'
-z : Nat
+Bla.Foo.z : Nat
 protected.lean:25:14-25:15: error: protected declarations must be in a namespace
 protected.lean:28:14-28:15: error: unknown identifier 'f'
 8

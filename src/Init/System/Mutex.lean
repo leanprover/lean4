@@ -81,13 +81,9 @@ instead of atomic pointer operations and busy-waiting.
 structure Mutex (α : Type) where private mk ::
   private ref : IO.Ref α
   mutex : BaseMutex
+  deriving Nonempty
 
-instance [Nonempty α] : Nonempty (Mutex α) :=
-  let ⟨ref⟩ := inferInstanceAs (Nonempty _)
-  let ⟨mutex⟩ := inferInstanceAs (Nonempty _)
-  ⟨{ref, mutex}⟩
-
-instance : Coe (Mutex α) BaseMutex where coe := Mutex.mutex
+instance : CoeOut (Mutex α) BaseMutex where coe := Mutex.mutex
 
 /-- Creates a new mutex. -/
 def Mutex.new (a : α) : BaseIO (Mutex α) :=

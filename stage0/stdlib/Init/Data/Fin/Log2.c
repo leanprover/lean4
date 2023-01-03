@@ -13,9 +13,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_nat_log2(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2(lean_object*);
+lean_object* lean_nat_log2(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_log2___rarg(lean_object* x_1) {

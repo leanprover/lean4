@@ -203,7 +203,7 @@ where
       else
         return .none
 
-@[inline] def simpOnlyBuiltins : List Name := [``eq_self]
+@[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self]
 
 structure MkSimpContextResult where
   ctx              : Simp.Context

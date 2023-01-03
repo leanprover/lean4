@@ -308,6 +308,8 @@ For more information on specifics see the comment in the file that `MetavarConte
 structure MetavarContext where
   /-- Depth is used to control whether an mvar can be assigned in unification. -/
   depth          : Nat := 0
+  /-- At what depth level mvars can be assigned. -/
+  levelAssignDepth : Nat := 0
   /-- Counter for setting the field `index` at `MetavarDecl` -/
   mvarCounter    : Nat := 0
   lDepth         : PersistentHashMap LMVarId Nat := {}
@@ -384,7 +386,7 @@ def isMVarDelayedAssigned [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Bool := 
 def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
   let mctx ← getMCtx
   match mctx.lDepth.find? mvarId with
-  | some d => return d == mctx.depth
+  | some d => return d >= mctx.levelAssignDepth
   | _      => panic! "unknown universe metavariable"
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
@@ -838,8 +840,11 @@ def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
   | none          => false
   | some mvarDecl => mvarDecl.userName.isAnonymous
 
-def incDepth (mctx : MetavarContext) : MetavarContext :=
-  { mctx with depth := mctx.depth + 1 }
+def incDepth (mctx : MetavarContext) (allowLevelAssignments := false) : MetavarContext :=
+  let depth := mctx.depth + 1
+  let levelAssignDepth :=
+    if allowLevelAssignments then mctx.levelAssignDepth else depth
+  { mctx with depth, levelAssignDepth }
 
 instance : MonadMCtx (StateRefT MetavarContext (ST ω)) where
   getMCtx    := get

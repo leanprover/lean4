@@ -1698,11 +1698,14 @@ are annotated with `Syntax` objects. This function returns `some (stx, p')` if
 -/
 def patternWithRef? (p : Expr) : Option (Syntax × Expr) :=
   match p with
-  | Expr.mdata d _ =>
+  | .mdata d _ =>
     match d.find patternRefAnnotationKey with
     | some (DataValue.ofSyntax stx) => some (stx, p.mdataExpr!)
     | _ => none
-  | _                => none
+  | _ => none
+
+def isPatternWithRef (p : Expr) : Bool :=
+  patternWithRef? p |>.isSome
 
 /--
 Annotate the pattern `p` with `stx`. This is an auxiliary annotation

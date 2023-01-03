@@ -262,7 +262,7 @@ inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return lean_string_ne(s1, s2
 inline bool string_lt(b_obj_arg s1, b_obj_arg s2) { return lean_string_lt(s1, s2); }
 inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
 inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2); }
-inline usize string_hash(b_obj_arg s) { return lean_string_hash(s); }
+inline uint64 string_hash(b_obj_arg s) { return lean_string_hash(s); }
 
 // =======================================
 // Thunks
@@ -445,7 +445,6 @@ inline usize usize_modn(usize a1, b_obj_arg a2) { return lean_usize_modn(a1, a2)
 inline usize usize_dec_eq(usize a1, usize a2) { return lean_usize_dec_eq(a1, a2); }
 inline usize usize_dec_lt(usize a1, usize a2) { return lean_usize_dec_lt(a1, a2); }
 inline usize usize_dec_le(usize a1, usize a2) { return lean_usize_dec_le(a1, a2); }
-inline usize usize_mix_hash(usize a1, usize a2) { return lean_usize_mix_hash(a1, a2); }
 
 // =======================================
 // debugging helper functions

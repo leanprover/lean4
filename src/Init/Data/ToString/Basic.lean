@@ -45,14 +45,10 @@ instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
   | Decidable.isTrue _  => "true"
   | Decidable.isFalse _ => "false"⟩
 
-protected def List.toStringAux {α : Type u} [ToString α] : Bool → List α → String
-  | _,     []    => ""
-  | true,  x::xs => toString x ++ List.toStringAux false xs
-  | false, x::xs => ", " ++ toString x ++ List.toStringAux false xs
-
-protected def List.toString {α : Type u} [ToString α] : List α → String
-  | []    => "[]"
-  | x::xs => "[" ++ List.toStringAux true (x::xs) ++ "]"
+protected def List.toString [ToString α] : List α → String
+  | [] => "[]"
+  | [x] => "[" ++ toString x ++ "]"
+  | x::xs => xs.foldl (· ++ ", " ++ toString ·) ("[" ++ toString x) |>.push ']'
 
 instance {α : Type u} [ToString α] : ToString (List α) :=
   ⟨List.toString⟩

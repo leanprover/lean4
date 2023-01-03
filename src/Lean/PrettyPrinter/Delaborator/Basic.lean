@@ -35,7 +35,6 @@ open Lean.Meta Lean.SubExpr SubExpr
 open Lean.Elab (Info TermInfo Info.ofTermInfo)
 
 structure Context where
-  defaultOptions : Options
   optionsPerPos  : OptionsPerPos
   currNamespace  : Name
   openDecls      : List OpenDecl
@@ -141,7 +140,7 @@ def getExprKind : DelabM Name := do
 
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read
-  let mut opts := ctx.defaultOptions
+  let mut opts ← getOptions
   if let some opts' := ctx.optionsPerPos.find? (← getPos) then
     for (k, v) in opts' do
       opts := opts.insert k v
@@ -285,25 +284,27 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
   trace[PrettyPrinter.delab.input] "{Std.format e}"
   let mut opts ← getOptions
   -- default `pp.proofs` to `true` if `e` is a proof
-  if pp.proofs.get? opts == none then
+  if pp.proofs.get? opts == none &&
+      -- necessary for `delabConstWithSignature`, and harmless otherwise
+      !e.isConst then
     try if ← Meta.isProof e then opts := pp.proofs.set opts true
     catch _ => pure ()
-  let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
-  let optionsPerPos ←
-    if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
-      withTheReader Core.Context (fun ctx => { ctx with options := opts }) do topDownAnalyze e
-    else pure optionsPerPos
-  let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
-    (delab
-      { defaultOptions := opts
-        optionsPerPos := optionsPerPos
-        currNamespace := (← getCurrNamespace)
-        openDecls := (← getOpenDecls)
-        subExpr := SubExpr.mkRoot e
-        inPattern := opts.getInPattern }
-      |>.run { : Delaborator.State })
-    (fun _ => unreachable!)
-  return (stx, infos)
+  withOptions (fun _ => opts) do
+    let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
+    let optionsPerPos ←
+      if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
+        topDownAnalyze e
+      else pure optionsPerPos
+    let (stx, {infos := infos, ..}) ← catchInternalId Delaborator.delabFailureId
+        (delab
+          { optionsPerPos := optionsPerPos
+            currNamespace := (← getCurrNamespace)
+            openDecls := (← getOpenDecls)
+            subExpr := SubExpr.mkRoot e
+            inPattern := opts.getInPattern }
+          |>.run { : Delaborator.State })
+        (fun _ => unreachable!)
+    return (stx, infos)
 
 /-- "Delaborate" the given term into surface-level syntax using the default and given subterm-specific options. -/
 def delab (e : Expr) (optionsPerPos : OptionsPerPos := {}) : MetaM Term := do

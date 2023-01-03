@@ -90,7 +90,7 @@ section Elab
       : AsyncElabM (Option Snapshot) := do
     cancelTk.check
     let s ← get
-    let lastSnap := s.snaps.back
+    let .some lastSnap := s.snaps.back? | panic! "empty snapshots"
     if lastSnap.isAtEnd then
       publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
       publishProgressDone m ctx.hOut
@@ -120,10 +120,10 @@ section Elab
     return some snap
 
   /-- Elaborates all commands after the last snap (at least the header snap is assumed to exist), emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken)
+  def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken) (startAfterMs : UInt32)
       : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
     let ctx ← read
-    let headerSnap := snaps[0]!
+    let some headerSnap := snaps[0]? | panic! "empty snapshots"
     if headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors
@@ -134,7 +134,9 @@ section Elab
       -- This will overwrite existing ilean info for the file since this has a
       -- higher version number.
       publishIleanInfoUpdate m ctx.hOut snaps
-      return AsyncList.ofList snaps.toList ++ (← AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
+      return AsyncList.ofList snaps.toList ++ AsyncList.delayed (← EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
+        IO.sleep startAfterMs
+        AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -258,7 +260,7 @@ section Initialization
         clientHasWidgets
       }
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
-      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx
+      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx (startAfterMs := 0)
       | Except.error e   => throw (e : ElabTaskError))
     let doc : EditableDocument := { meta, cmdSnaps := AsyncList.delayed cmdSnaps, cancelTk }
     return (ctx,
@@ -281,7 +283,6 @@ section Updates
     let initHeaderStx := (← get).initHeaderStx
     let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
     let cancelTk ← CancelToken.new
-    -- Wait for at least one snapshot from the old doc, we don't want to unnecessarily re-run `print-paths`
     let headSnapTask := oldDoc.cmdSnaps.waitHead?
     let newSnaps ← if initHeaderStx != newHeaderStx then
       EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
@@ -289,17 +290,16 @@ section Updates
         cancelTk.check
         IO.Process.exit 2
     else EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
-      let headSnap? ← MonadExcept.ofExcept headSnap??
       -- There is always at least one snapshot absent exceptions
-      let headSnap := headSnap?.get!
+      let some headSnap ← MonadExcept.ofExcept headSnap?? | panic! "empty snapshots"
       let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
       let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps := cmdSnaps.takeWhile (fun s => s.endPos < changePos)
-      if validSnaps.length ≤ 1 then
+      let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
+      if h : validSnaps.length ≤ 1 then
         validSnaps := [newHeaderSnap]
       else
         /- When at least one valid non-header snap exists, it may happen that a change does not fall
@@ -307,17 +307,19 @@ section Updates
            We check for this here. We do not currently handle crazy grammars in which an appended
            token can merge two or more previous commands into one. To do so would require reparsing
            the entire file. -/
-        let mut lastSnap := validSnaps.getLast!
-        let preLastSnap := if validSnaps.length ≥ 2
-          then validSnaps.get! (validSnaps.length - 2)
-          else newHeaderSnap
+        have : validSnaps.length ≥ 2 := Nat.gt_of_not_le h
+        let mut lastSnap := validSnaps.getLast (by subst ·; simp at h)
+        let preLastSnap :=
+          have : 0 < validSnaps.length := Nat.lt_of_lt_of_le (by decide) this
+          have : validSnaps.length - 2 < validSnaps.length := Nat.sub_lt this (by decide)
+          validSnaps[validSnaps.length - 2]
         let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
         if newLastStx != lastSnap.stx then
           validSnaps := validSnaps.dropLast
       -- wait for a bit, giving the initial `cancelTk.check` in `nextCmdSnap` time to trigger
       -- before kicking off any expensive elaboration (TODO: make expensive elaboration cancelable)
-      IO.sleep ctx.initParams.editDelay.toUInt32
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
+        (startAfterMs := ctx.initParams.editDelay.toUInt32)
     modify fun st => { st with doc := { meta := newMeta, cmdSnaps := AsyncList.delayed newSnaps, cancelTk } }
 end Updates
 
@@ -328,12 +330,8 @@ section NotificationHandling
     let docId := p.textDocument
     let changes := p.contentChanges
     let oldDoc := (←get).doc
-    let some newVersion ← pure docId.version?
-      | throwServerError "Expected version number"
-    if newVersion ≤ oldDoc.meta.version then
-      -- TODO(WN): This happens on restart sometimes.
-      IO.eprintln s!"Got outdated version number: {newVersion} ≤ {oldDoc.meta.version}"
-    else if ¬ changes.isEmpty then
+    let newVersion := docId.version?.getD 0
+    if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩
 

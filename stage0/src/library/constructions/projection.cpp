@@ -30,6 +30,9 @@ static bool is_prop(expr type) {
     return is_sort(type) && is_zero(sort_level(type));
 }
 
+extern "C" object * lean_mk_outparam_args_implicit(object * n);
+expr mk_outparam_args_implicit(expr const & type) { return expr(lean_mk_outparam_args_implicit(type.to_obj_arg())); }
+
 environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
     local_ctx lctx;
     name_generator ngen = mk_constructions_name_generator();
@@ -45,33 +48,38 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         throw exception(sstream() << "projection generation, '" << n << "' does not have a single constructor");
     constant_info cnstr_info     = env.get(head(ind_val.get_cnstrs()));
     expr cnstr_type              = cnstr_info.get_type();
+    expr cnstr_type_norm         = mk_outparam_args_implicit(cnstr_type);
+    // The binder inference is quite messy since it is using `mk_outparam_args_implicit` and `infer_implicit_params`.
+    // TODO: cleanup
     bool is_predicate            = is_prop(ind_info.get_type());
     names lvl_params             = ind_info.get_lparams();
     levels lvls                  = lparams_to_levels(lvl_params);
     buffer<expr> params; // datatype parameters
+    expr cnstr_type_orig = cnstr_type; // we use the original type before `mk_outparam_args_implicit` to get the original binder info
     for (unsigned i = 0; i < nparams; i++) {
-        if (!is_pi(cnstr_type))
+        if (!is_pi(cnstr_type_norm))
             throw_ill_formed(n);
-        auto bi = binding_info(cnstr_type);
-        auto type = binding_domain(cnstr_type);
-        if (!is_inst_implicit(bi))
-            // We reset implicit binders in favor of having them inferred by `infer_implicit_params` later
+        lean_assert(is_pi(cnstr_type_orig));
+        auto bi = binding_info(cnstr_type_norm);
+        auto bi_orig = binding_info(cnstr_type_orig);
+        auto type = binding_domain(cnstr_type_norm);
+        auto type_orig = binding_domain(cnstr_type_orig);
+        if (!is_inst_implicit(bi_orig) && !is_class_out_param(type_orig)) {
+            // We reset implicit binders in favor of having them inferred by `infer_implicit_params` later IF
+            // 1. The original binder before `mk_outparam_args_implicit` is not an instance implicit.
+            // 2. It is not originally an outparam. Outparams must be implicit.
             bi = mk_binder_info();
-        if (is_class_out_param(type)) {
-            // hide `out_param`
-            type = app_arg(type);
-            // out_params should always be implicit since they can be inferred from the later `c` argument
-            bi = mk_implicit_binder_info();
         }
-        expr param = lctx.mk_local_decl(ngen, binding_name(cnstr_type), type, bi);
-        cnstr_type = instantiate(binding_body(cnstr_type), param);
+        expr param = lctx.mk_local_decl(ngen, binding_name(cnstr_type_norm), type, bi);
+        cnstr_type_norm = instantiate(binding_body(cnstr_type_norm), param);
+        cnstr_type_orig = binding_body(cnstr_type_orig);
         params.push_back(param);
     }
     expr C_A                     = mk_app(mk_constant(n, lvls), params);
     binder_info c_bi             = inst_implicit ? mk_inst_implicit_binder_info() : mk_binder_info();
     expr c                       = lctx.mk_local_decl(ngen, name("self"), C_A, c_bi);
     buffer<expr> cnstr_type_args; // arguments that are not parameters
-    expr it = cnstr_type;
+    expr it = cnstr_type_norm;
     while (is_pi(it)) {
         expr local = lctx.mk_local_decl(ngen, binding_name(it), binding_domain(it), binding_info(it));
         cnstr_type_args.push_back(local);
@@ -80,10 +88,10 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
     unsigned i = 0;
     environment new_env = env;
     for (name const & proj_name : proj_names) {
-        if (!is_pi(cnstr_type))
+        if (!is_pi(cnstr_type_norm))
             throw exception(sstream() << "generating projection '" << proj_name << "', '"
                             << n << "' does not have sufficient data");
-        expr result_type   = consume_type_annotations(binding_domain(cnstr_type));
+        expr result_type   = consume_type_annotations(binding_domain(cnstr_type_norm));
         if (is_predicate && !type_checker(new_env, lctx).is_prop(result_type)) {
             throw exception(sstream() << "failed to generate projection '" << proj_name << "' for '" << n << "', "
                             << "type is an inductive predicate, but field is not a proposition");
@@ -102,7 +110,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
             new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);
         new_env = save_projection_info(new_env, proj_name, cnstr_info.get_name(), nparams, i, inst_implicit);
         expr proj         = mk_app(mk_app(mk_constant(proj_name, lvls), params), c);
-        cnstr_type        = instantiate(binding_body(cnstr_type), proj);
+        cnstr_type_norm   = instantiate(binding_body(cnstr_type_norm), proj);
         i++;
     }
     return new_env;

@@ -127,7 +127,7 @@ structure Request (α : Type u) where
   param  : α
   deriving Inhabited, BEq
 
-instance [ToJson α] : Coe (Request α) Message :=
+instance [ToJson α] : CoeOut (Request α) Message :=
   ⟨fun r => Message.request r.id r.method (toStructured? r.param).toOption⟩
 
 /-- Generic version of `Message.notification`.
@@ -142,7 +142,7 @@ structure Notification (α : Type u) where
   param  : α
   deriving Inhabited, BEq
 
-instance [ToJson α] : Coe (Notification α) Message :=
+instance [ToJson α] : CoeOut (Notification α) Message :=
   ⟨fun r => Message.notification r.method (toStructured? r.param).toOption⟩
 
 /-- Generic version of `Message.response`.
@@ -161,7 +161,7 @@ structure Response (α : Type u) where
   result : α
   deriving Inhabited, BEq
 
-instance [ToJson α] : Coe (Response α) Message :=
+instance [ToJson α] : CoeOut (Response α) Message :=
   ⟨fun r => Message.response r.id (toJson r.result)⟩
 
 /-- Generic version of `Message.responseError`.
@@ -180,7 +180,7 @@ structure ResponseError (α : Type u) where
   data?   : Option α := none
   deriving Inhabited, BEq
 
-instance [ToJson α] : Coe (ResponseError α) Message :=
+instance [ToJson α] : CoeOut (ResponseError α) Message :=
   ⟨fun r => Message.responseError r.id r.code r.message (r.data?.map toJson)⟩
 
 instance : Coe String RequestID := ⟨RequestID.str⟩

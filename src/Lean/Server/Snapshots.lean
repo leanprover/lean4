@@ -39,16 +39,6 @@ structure Snapshot where
   interactiveDiags : PersistentArray Widget.InteractiveDiagnostic
   tacticCache : IO.Ref Tactic.Cache
 
-instance : Inhabited Snapshot where
-  default := {
-    beginPos         := default
-    stx              := default
-    mpState          := default
-    cmdState         := default
-    interactiveDiags := default
-    tacticCache      := dummyTacticCache
-  }
-
 namespace Snapshot
 
 def endPos (s : Snapshot) : String.Pos :=

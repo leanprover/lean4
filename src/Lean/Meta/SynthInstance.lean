@@ -102,7 +102,7 @@ partial def normLevel (u : Level) : M Level := do
     | Level.max v w     => return u.updateMax! (← normLevel v) (← normLevel w)
     | Level.imax v w    => return u.updateIMax! (← normLevel v) (← normLevel w)
     | Level.mvar mvarId =>
-      if !(← isLevelMVarAssignable mvarId) then
+      if (← getMCtx).getLevelDepth mvarId != (← getMCtx).depth then
         return u
       else
         let s ← get
@@ -322,8 +322,7 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
-  let mvar ← instantiateMVars mvar
-  if !(← hasAssignableMVar mvar) then
+  if ← mvar.mvarId!.isAssigned then
     /- The metavariable `mvar` may have been assigned when solving typing constraints.
        This may happen when a local instance type depends on other local instances.
        For example, in Mathlib, we have
@@ -341,6 +340,9 @@ def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × Li
           failed to be elaborated using it.
        2) Generate an error/warning message when instances such as `Submodule.setLike` are declared,
           and instruct user to use `{}` binder annotation for `_inst_1` `_inst_2`.
+
+       It is important to check here whether `mvar` is *assigned*, it might
+       still contain metavariables (such as universe mvars etc.).
      -/
     return some ((← getMCtx), [])
   let mvarType   ← inferType mvar
@@ -624,15 +626,19 @@ private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := d
       r := r.push u
   return (r.toList, modified)
 
-private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) : MetaM (Array Expr) := do
+private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
   if h : i < args.size then
     let type ← whnf type
     match type with
-    | Expr.forallE _ d b _ => do
+    | .forallE _ d b _ => do
       let arg := args.get ⟨i, h⟩
-      let arg ← if d.isOutParam then mkFreshExprMVar d else pure arg
+      /-
+      We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
+      If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
+      -/
+      let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
       let args := args.set ⟨i, h⟩ arg
-      preprocessArgs (b.instantiate1 arg) (i+1) args
+      preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
     | _ =>
       throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
   else
@@ -641,15 +647,16 @@ private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) :
 private def preprocessOutParam (type : Expr) : MetaM Expr :=
   forallTelescope type fun xs typeBody => do
     match typeBody.getAppFn with
-    | c@(Expr.const constName _) =>
+    | c@(Expr.const declName _) =>
       let env ← getEnv
-      if !hasOutParams env constName then
-        return type
-      else
-        let args := typeBody.getAppArgs
-        let cType ← inferType c
-        let args ← preprocessArgs cType 0 args
-        mkForallFVars xs (mkAppN c args)
+      if let some outParamsPos := getOutParamPositions? env declName then
+        unless outParamsPos.isEmpty do
+          let args := typeBody.getAppArgs
+          let cType ← inferType c
+          trace[Meta.debug] "{declName} : {outParamsPos}"
+          let args ← preprocessArgs cType 0 args outParamsPos
+          return (← mkForallFVars xs (mkAppN c args))
+      return type
     | _ =>
       return type
 
@@ -677,7 +684,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     | none        =>
       withTraceNode `Meta.synthInstance
         (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
-      let result? ← withNewMCtxDepth do
+      let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
       let resultHasUnivMVars := if let some result := result? then !result.paramNames.isEmpty else false
@@ -693,7 +700,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           if (← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
-               Recall that we use `ignoreLevelMVarDepth := true` which allows universe metavariables in the current depth to be assigned,
+               Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
                but these assignments are discarded by `withNewMCtxDepth`.
 
                TODO: If this `check` is a performance bottleneck, we can improve performance by tracking whether

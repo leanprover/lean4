@@ -3,13 +3,14 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich, Leonardo de Moura
 
-Message Type used by the Lean frontend
+Message type used by the Lean frontend
 -/
 import Lean.Data.Position
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Util.PPExt
+import Lean.Util.Sorry
 
 namespace Lean
 
@@ -37,16 +38,22 @@ structure NamingContext where
   currNamespace : Name
   openDecls : List OpenDecl
 
+/-- Lazily formatted text to be used in `MessageData`. -/
+structure PPFormat where
+  /-- Pretty-prints text using surrounding context, if any. -/
+  pp : Option PPContext → IO FormatWithInfos
+  /-- Searches for synthetic sorries in original input. Used to filter out certain messages. -/
+  hasSyntheticSorry : MetavarContext → Bool := fun _ => false
+
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
+  /-- Eagerly formatted text. We inspect this in various hacks, so it is not immediately subsumed by `ofPPFormat`. -/
   | ofFormat          : Format → MessageData
-  | ofSyntax          : Syntax → MessageData
-  | ofExpr            : Expr → MessageData
-  | ofLevel           : Level → MessageData
-  | ofName            : Name  → MessageData
+  /-- Lazily formatted text. -/
+  | ofPPFormat        : PPFormat → MessageData
   | ofGoal            : MVarId → MessageData
   /-- `withContext ctx d` specifies the pretty printing context `(env, mctx, lctx, opts)` for the nested expressions in `d`. -/
-  |  withContext       : MessageDataContext → MessageData → MessageData
+  | withContext       : MessageDataContext → MessageData → MessageData
   | withNamingContext : NamingContext → MessageData → MessageData
   /-- Lifted `Format.nest` -/
   |  nest              : Nat → MessageData → MessageData
@@ -74,24 +81,6 @@ def isEmpty : MessageData → Bool
   | tagged _ m => m.isEmpty
   | _ => false
 
-/-- Instantiate metavariables occurring in nexted `ofExpr` constructors.
-   It uses the surrounding `MetavarContext` at `withContext` constructors.
--/
-partial def instantiateMVars (msg : MessageData) : MessageData :=
-  visit msg {}
-where
-  visit (msg : MessageData) (mctx : MetavarContext) : MessageData :=
-    match msg with
-    | ofExpr e                  => ofExpr <| instantiateMVarsCore mctx e |>.1
-    | withContext ctx msg       => withContext ctx  <| visit msg ctx.mctx
-    | withNamingContext ctx msg => withNamingContext ctx <| visit msg mctx
-    | nest n msg                => nest n <| visit msg mctx
-    | group msg                 => group <| visit msg mctx
-    | compose msg₁ msg₂         => compose (visit msg₁ mctx) <| visit msg₂ mctx
-    | tagged n msg              => tagged n <| visit msg mctx
-    | trace cls msg msgs c      => trace cls (visit msg mctx) (msgs.map (visit · mctx)) c
-    | _                         => msg
-
 variable (p : Name → Bool) in
 /-- Returns true when the message contains a `MessageData.tagged tag ..` constructor where `p tag` is true. -/
 partial def hasTag : MessageData → Bool
@@ -108,29 +97,46 @@ partial def hasTag : MessageData → Bool
 def nil : MessageData :=
   ofFormat Format.nil
 
-/-- Whether the given message equals `MessageData.nil`. See also `MessageData.isEmpty`. -/
-def isNil : MessageData → Bool
-  | ofFormat Format.nil => true
-  | _                   => false
-
-/-- Whether the message is a `MessageData.nest` constructor. -/
-def isNest : MessageData → Bool
-  | nest _ _ => true
-  | _        => false
-
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
   env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
+def ofSyntax (stx : Syntax) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term
+      | none     => return stx.formatStx
+  }
+
+def ofExpr (e : Expr) : MessageData :=
+  .ofPPFormat {
+    pp := fun
+      | some ctx => ppExprWithInfos ctx e
+      | none     => return format (toString e)
+    hasSyntheticSorry := (instantiateMVarsCore · e |>.1.hasSyntheticSorry)
+  }
+
+def ofLevel (l : Level) : MessageData := ofFormat (format l)
+def ofName (n : Name) : MessageData := ofFormat (format n)
+
+partial def hasSyntheticSorry (msg : MessageData) : Bool :=
+  visit none msg
+where
+  visit (mctx? : Option MetavarContext) : MessageData → Bool
+  | ofPPFormat f            => f.hasSyntheticSorry (mctx?.getD {})
+  | withContext ctx msg     => visit ctx.mctx msg
+  | withNamingContext _ msg => visit mctx? msg
+  | nest _ msg              => visit mctx? msg
+  | group msg               => visit mctx? msg
+  | compose msg₁ msg₂       => visit mctx? msg₁ || visit mctx? msg₂
+  | tagged _ msg            => visit mctx? msg
+  | trace _ msg msgs _      => visit mctx? msg || msgs.any (visit mctx?)
+  | _                       => false
+
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → IO Format
   | _,    _,         ofFormat fmt             => return fmt
-  | _,    _,         ofLevel u                => return format u
-  | _,    _,         ofName n                 => return format n
-  | nCtx, some ctx,  ofSyntax s               => ppTerm (mkPPContext nCtx ctx) ⟨s⟩  -- HACK: might not be a term
-  | _,    none,      ofSyntax s               => return s.formatStx
-  | _,    none,      ofExpr e                 => return format (toString e)
-  | nCtx, some ctx,  ofExpr e                 => ppExpr (mkPPContext nCtx ctx) e
+  | nCtx, ctx?,      ofPPFormat f             => (·.fmt) <$> f.pp (ctx?.map (mkPPContext nCtx))
   | _,    none,      ofGoal mvarId            => return "goal " ++ format (mkMVar mvarId)
   | nCtx, some ctx,  ofGoal mvarId            => ppGoal (mkPPContext nCtx ctx) mvarId
   | nCtx, _,         withContext ctx d        => formatAux nCtx ctx d
@@ -184,7 +190,7 @@ def joinSep : List MessageData → MessageData → MessageData
   | a::as, sep => a ++ sep ++ joinSep as sep
 
 /-- Write the given list of messages as a list, separating each item with `,\n` and surrounding with square brackets. -/
-def ofList: List MessageData → MessageData
+def ofList : List MessageData → MessageData
   | [] => "[]"
   | xs => sbracket <| joinSep xs (ofFormat "," ++ Format.line)
 

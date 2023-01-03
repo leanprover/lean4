@@ -242,3 +242,10 @@ example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 5) _ 
 example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 2 5) _ + _
 example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 1 5) _ + _
 example : ((x + y) + z : Nat) = x + (y + z) := by conv => pattern (occs := 1 2 5) _ + _
+
+macro "bla" : term => `(?a)
+example : 1 = 1 := by conv => apply bla; congr
+
+example (h : a = a') (H : a + a' = 0) : a + a = 0 := by
+  conv in (occs := 2) a => rw [h]
+  apply H

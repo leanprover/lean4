@@ -157,10 +157,17 @@ jobs:
           # open nix-shell once for initial setup
           true
         if: matrix.os == 'ubuntu-latest'
+      - name: Set up core dumps
+        run: |
+          mkdir -p $PWD/coredumps
+          # store in current directory, for easy uploading together with binary
+          echo $PWD/coredumps/%e.%p.%t | sudo tee /proc/sys/kernel/core_pattern
+        if: matrix.os == 'ubuntu-latest'
       - name: Build
         run: |
           mkdir build
           cd build
+          ulimit -c unlimited # coredumps
           OPTIONS=()
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
@@ -203,6 +210,7 @@ jobs:
       - name: Test
         run: |
           cd build/stage1
+          ulimit -c unlimited # coredumps
           # exclude nonreproducible test
           ctest -j4 --output-on-failure -E leanlaketest_git ${{ matrix.CTEST_OPTIONS }} < /dev/null
         if: ${{ !matrix.cross }}
@@ -212,11 +220,13 @@ jobs:
       - name: Build Stage 2
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make -j4 stage2
         if: matrix.build-stage2 || matrix.check-stage3
       - name: Check Stage 3
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make -j4 check-stage3
         if: matrix.check-stage3
       - name: Test Speedcenter Benchmarks
@@ -229,10 +239,31 @@ jobs:
       - name: Check rebootstrap
         run: |
           cd build
+          ulimit -c unlimited # coredumps
           make update-stage0 && make -j4
         if: matrix.name == 'Linux'
       - name: CCache stats
         run: ccache -s
+      - name: Show stacktrace for coredumps
+        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+        run: |
+          for c in coredumps/*; do
+            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
+            echo bt | $GDB/bin/gdb -q $progbin $c || true
+          done
+      - name: Upload coredumps
+        uses: actions/upload-artifact@v3
+        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+        with:
+          name: coredumps-${{ matrix.name }}
+          path: |
+            ./coredumps
+            ./build/stage0/bin/lean
+            ./build/stage0/lib/lean/libleanshared.so
+            ./build/stage1/bin/lean
+            ./build/stage1/lib/lean/libleanshared.so
+            ./build/stage2/bin/lean
+            ./build/stage2/lib/lean/libleanshared.so
 
   release:
     if: startsWith(github.ref, 'refs/tags/')

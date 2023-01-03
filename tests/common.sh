@@ -20,9 +20,23 @@ f="$1"
 shift
 [ $# -eq 0 ] || fail "Usage: test_single.sh [-i] test-file.lean"
 
-function compile_lean {
+function lean_has_llvm_support {
+    lean --features | grep -q "LLVM"
+}
+
+function compile_lean_c_backend {
     lean --c="$f.c" "$f" || fail "Failed to compile $f into C file"
     leanc -O3 -DNDEBUG -o "$f.out" "$@" "$f.c" || fail "Failed to compile C file $f.c"
+}
+
+function compile_lean_llvm_backend {
+    set -o xtrace
+    rm "*.ll" || true # remove debugging files.
+    rm "*.bc" || true # remove bitcode files
+    rm "*.o" || true # remove object files
+    lean --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
+    leanc -o "$f.out" "$@" "$f.linked.bc.o" || fail "Failed to link object file '$f.linked.bc.o'"
+    set +o xtrace
 }
 
 function exec_capture {
@@ -46,7 +60,7 @@ function exec_check {
 function diff_produced {
     if test -f "$f.expected.out"; then
         if $DIFF -au --strip-trailing-cr -I "executing external script" "$f.expected.out" "$f.produced.out"; then
-            exit 0
+            :
         else
             echo "ERROR: file $f.produced.out does not match $f.expected.out"
             if [ $INTERACTIVE == "yes" ]; then

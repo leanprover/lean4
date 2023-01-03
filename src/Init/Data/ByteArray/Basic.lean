@@ -67,6 +67,12 @@ def set : (a : ByteArray) → (@& Fin a.size) → UInt8 → ByteArray
 def uset : (a : ByteArray) → (i : USize) → UInt8 → i.toNat < a.size → ByteArray
   | ⟨bs⟩, i, v, h => ⟨bs.uset i v h⟩
 
+@[extern "lean_byte_array_hash"]
+protected opaque hash (a : @& ByteArray) : UInt64
+
+instance : Hashable ByteArray where
+  hash := ByteArray.hash
+
 def isEmpty (s : ByteArray) : Bool :=
   s.size == 0
 

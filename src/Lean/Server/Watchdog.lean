@@ -388,10 +388,7 @@ section NotificationHandling
     let changes := p.contentChanges
     let fw ← findFileWorker! p.textDocument.uri
     let oldDoc := fw.doc
-    let some newVersion ← pure doc.version?
-      | throwServerError "Expected version number"
-    if newVersion <= oldDoc.version then
-      throwServerError "Got outdated version number"
+    let newVersion := doc.version?.getD 0
     if changes.isEmpty then
       return
     let newDocText := foldDocumentChanges changes oldDoc.text

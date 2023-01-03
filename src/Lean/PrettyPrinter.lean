@@ -38,12 +38,12 @@ def ppExpr (e : Expr) : MetaM Format := do
 /-- Return a `fmt` representing pretty-printed `e` together with a map from tags in `fmt`
 to `Elab.Info` nodes produced by the delaborator at various subexpressions of `e`. -/
 def ppExprWithInfos (e : Expr) (optsPerPos : Delaborator.OptionsPerPos := {}) (delab := Delaborator.delab)
-    : MetaM (Format × RBMap Nat Elab.Info compare) := do
+    : MetaM FormatWithInfos := do
   let lctx := (← getLCtx).sanitizeNames.run' { options := (← getOptions) }
   Meta.withLCtx lctx #[] do
     let (stx, infos) ← delabCore e optsPerPos delab
     let fmt ← ppTerm stx
-    return (fmt, infos)
+    return ⟨fmt, infos⟩
 
 def ppConst (e : Expr) : MetaM Format := do
   ppUsing e fun e => return (← delabCore e (delab := Delaborator.delabConst)).1
@@ -59,6 +59,14 @@ def ppCommand (stx : Syntax.Command) : CoreM Format := ppCategory `command stx
 def ppModule (stx : TSyntax ``Parser.Module.module) : CoreM Format := do
   parenthesize Lean.Parser.Module.module.parenthesizer stx >>= format Lean.Parser.Module.module.formatter
 
+open Delaborator in
+/-- Pretty-prints a declaration `c` as `c.{<levels>} <params> : <type>`. -/
+def ppSignature (c : Name) : MetaM FormatWithInfos := do
+  let decl ← getConstInfo c
+  let e := .const c (decl.levelParams.map mkLevelParam)
+  let (stx, infos) ← delabCore e (delab := delabConstWithSignature)
+  return ⟨← ppTerm ⟨stx⟩, infos⟩  -- HACK: not a term
+
 private partial def noContext : MessageData → MessageData
   | MessageData.withContext _   msg => noContext msg
   | MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)
@@ -71,15 +79,15 @@ private partial def noContext : MessageData → MessageData
   | msg => msg
 
 -- strip context (including environments with registered pretty printers) to prevent infinite recursion when pretty printing pretty printer error
-private def withoutContext {m} [MonadExcept Exception m] (x : m Format) : m Format :=
+private def withoutContext {m} [MonadExcept Exception m] (x : m α) : m α :=
   tryCatch x fun
     | Exception.error ref msg => throw <| Exception.error ref (noContext msg)
     | ex                      => throw ex
 
 builtin_initialize
   ppFnsRef.set {
-    ppExpr := fun ctx e      => ctx.runMetaM <| withoutContext <| ppExpr e,
-    ppTerm := fun ctx stx    => ctx.runCoreM <| withoutContext <| ppTerm stx,
+    ppExprWithInfos := fun ctx e => ctx.runMetaM <| withoutContext <| ppExprWithInfos e,
+    ppTerm := fun ctx stx => ctx.runCoreM <| withoutContext <| ppTerm stx,
     ppGoal := fun ctx mvarId => ctx.runMetaM <| withoutContext <| Meta.ppGoal mvarId
   }
 

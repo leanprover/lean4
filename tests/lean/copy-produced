@@ -3,5 +3,5 @@
 root="${1:-$PWD}"
 cd $root
 for f in $(find . -name '*.expected.out'); do
-    cp ${f/expected/produced} "$root/$f"
+    cp ${f/.expected/.produced} "$root/$f"
 done

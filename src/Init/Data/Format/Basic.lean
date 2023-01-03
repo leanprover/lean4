@@ -42,7 +42,7 @@ inductive Format where
   if the current group does not fit within the allotted column width. -/
   | line                : Format
   /-- `align` tells the formatter to pad with spaces to the current indent,
-  or else add a newline if we are already past the indent. For example:
+  or else add a newline if we are already at or past the indent. For example:
   ```
   nest 2 <| "." ++ align ++ "a" ++ line ++ "b"
   ```
@@ -122,7 +122,7 @@ private def spaceUptoLine : Format → Bool → Int → Nat → SpaceResult
   | line,         flatten, _, _ => if flatten then { space := 1 } else { foundLine := true }
   | align force,  flatten, m, w =>
     if flatten && !force then {}
-    else if w ≤ m then
+    else if w < m then
       { space := (m - w).toNat }
     else
       { foundLine := true }
@@ -236,7 +236,7 @@ private partial def be (w : Nat) [Monad m] [MonadPrettyFormat m] : List WorkGrou
         be w (gs' is)
       else
         let k ← currColumn
-        if k ≤ i.indent then
+        if k < i.indent then
           pushOutput ("".pushn ' ' (i.indent - k).toNat)
           endTags i.activeTags
           be w (gs' is)
@@ -326,16 +326,16 @@ instance : ToFormat String where
 def Format.joinSep {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _   => nil
   | [a],   _   => format a
-  | a::as, sep => format a ++ sep ++ joinSep as sep
+  | a::as, sep => as.foldl (· ++ sep ++ format ·) (format a)
 
 /-- Format each item in `items` and prepend prefix `pre`. -/
 def Format.prefixJoin {α : Type u} [ToFormat α] (pre : Format) : List α → Format
   | []    => nil
-  | a::as => pre ++ format a ++ prefixJoin pre as
+  | a::as => as.foldl (· ++ pre ++ format ·) (pre ++ format a)
 
 /-- Format each item in `items` and append `suffix`. -/
 def Format.joinSuffix {α : Type u} [ToFormat α] : List α → Format → Format
   | [],    _      => nil
-  | a::as, suffix => format a ++ suffix ++ joinSuffix as suffix
+  | a::as, suffix => as.foldl (· ++ format · ++ suffix) (format a ++ suffix)
 
 end Std

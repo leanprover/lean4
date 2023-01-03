@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Class
 import Lean.Parser.Command
 import Lean.Meta.Closure
 import Lean.Meta.SizeOf
@@ -739,6 +740,18 @@ private def addDefaults (lctx : LocalContext) (defaultAuxDecls : Array (Name × 
       discard <| mkAuxDefinition declName type value (zeta := true)
       setReducibleAttribute declName
 
+/--
+Given `type` of the form `forall ... (source : A), B`, return `forall ... [source : A], B`.
+-/
+private def setSourceInstImplicit (type : Expr) : Expr :=
+  match type with
+  | .forallE _ d b _ =>
+    if b.isForall then
+      type.updateForallE! d (setSourceInstImplicit b)
+    else
+      type.updateForall! .instImplicit d b
+  | _ => unreachable!
+
 private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (parentType : Expr) : MetaM Unit := do
   let env ← getEnv
   let structName := view.declName
@@ -746,9 +759,12 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let structType := mkAppN (Lean.mkConst structName (levelParams.map mkLevelParam)) params
   let Expr.const parentStructName _ ← pure parentType.getAppFn | unreachable!
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
-  withLocalDecl `self binfo structType fun source => do
-    let declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-    let declType := declType.inferImplicit params.size true
+  withLocalDeclD `self structType fun source => do
+    let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
+    declType := mkOutParamArgsImplicit declType
+    if view.isClass && isClass env parentStructName then
+      declType := setSourceInstImplicit declType
+    declType := declType.inferImplicit params.size true
     let rec copyFields (parentType : Expr) : MetaM Expr := do
       let Expr.const parentStructName us ← pure parentType.getAppFn | unreachable!
       let parentCtor := getStructureCtor env parentStructName

@@ -1,54 +1,53 @@
-if c.1 then do
-  t.1
-else e.1
-if c.1 then do
-  t.1;
-  t.1
-else e.1
-if c.1 then do
-  t.1
+if c✝ then do
+  t✝
+else e✝
+if c✝ then do
+  t✝;
+  t✝
+else e✝
+if c✝ then do
+  t✝
 else do
-  e.1
-if let x.1 := c.1 then do
-  t.1
+  e✝
+if let x✝ := c✝ then do
+  t✝
 else do
-  e.1
-if c.1 then do
-  t.1
+  e✝
+if c✝ then do
+  t✝
 else
-  if c.1 then do
-    t.1
+  if c✝ then do
+    t✝
   else do
-    e.1
+    e✝
 do
-  if c.1 then 
-    t.1
+  if c✝ then 
+    t✝
   else
-    e.1
+    e✝
 do
-  if c.1 then 
-    t.1
-  else if c.1 then
-    t.1
+  if c✝ then 
+    t✝
+  else if c✝ then
+    t✝
   else
-    e.1
-def foo.1 := by 
+    e✝
+def foo✝ := by
   · skip; skip
   · skip; skip
     skip
     (skip; skip)
     ( skip; skip
       try skip; skip
-      try 
+      try
         skip
         skip
       skip)
 by
-  try 
+  try
     skip
     skip
-by
-   try 
+by try
       skip
       skip
 by try  skip
@@ -56,9 +55,15 @@ by try  skip
 by  try skip
         skip
     skip
-{ foo.1 := bar.1
-  bar.1 := foo.1 + bar.1 }
-let x.1 :=
-  { foo.1 := bar.1
-    bar.1 := foo.1 + bar.1 }
-x.1
+{ foo✝ := bar✝
+  bar✝ := foo✝ + bar✝ }
+let x✝ :=
+  { foo✝ := bar✝
+    bar✝ := foo✝ + bar✝ }
+x✝
+def foo✝ : a✝ b✝ c✝ d✝ e✝ f✝ g✝ a✝ b✝ c✝ d✝ e✝ f✝ g✝ h✝
+    where
+  h✝ := 42
+  i✝ := 42
+  j✝ := 42
+  k✝ := 42

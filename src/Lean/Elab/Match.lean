@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExprWhere
 import Lean.Meta.Match.Match
 import Lean.Meta.GeneralizeVars
 import Lean.Meta.ForEachExpr
@@ -408,10 +409,9 @@ private def mkPatternRefMap (e : Expr) : ExprMap Expr :=
 where
   go (σ) : ST σ (ExprMap Expr) := do
    let map : ST.Ref σ (ExprMap Expr) ← ST.mkRef {}
-   e.forEach fun e => do
-     match patternWithRef? e with
-     | some (_, b) => map.modify (·.insert b e)
-     | none => return ()
+   e.forEachWhere isPatternWithRef fun e => do
+     let some (_, b) := patternWithRef? e | unreachable!
+     map.modify (·.insert b e)
    map.get
 
 /--
@@ -785,7 +785,7 @@ private def elabMatchAltView (discrs : Array Discr) (alt : MatchAltView) (matchT
             -- connect match-generalized pattern fvars, which are a suffix of `latLHS.fvarDecls`,
             -- to their original fvars (independently of whether they were cleared successfully) in the info tree
             for (fvar, baseId) in altLHS.fvarDecls.toArray.reverse.zip toClear.reverse do
-              pushInfoLeaf <| .ofFVarAliasInfo { id := fvar.fvarId, baseId }
+              pushInfoLeaf <| .ofFVarAliasInfo { id := fvar.fvarId, baseId, userName := fvar.userName }
             let matchType ← instantiateMVars matchType
             -- If `matchType` is of the form `@m ...`, we create a new metavariable with the current scope.
             -- This improves the effectiveness of the `isDefEq` default approximations

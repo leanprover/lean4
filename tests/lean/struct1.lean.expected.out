@@ -28,4 +28,4 @@ struct1.lean:44:0-44:13: error: invalid 'private' constructor in a 'private' str
 struct1.lean:47:0-47:15: error: invalid 'protected' constructor in a 'private' structure
 struct1.lean:50:0-50:19: error: invalid 'protected' field in a 'private' structure
 S : Type
-S.mk2 : Nat → S
+S.mk2 (x : Nat) : S

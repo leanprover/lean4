@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Pretty-print signatures in hover and `#check <ident>`](https://github.com/leanprover/lean4/pull/1943).
+
 * [Update Lake to latest prerelease](https://github.com/leanprover/lean4/pull/1879).
 
 * [Introduce parser memoization to avoid exponentional behavior](https://github.com/leanprover/lean4/pull/1799).

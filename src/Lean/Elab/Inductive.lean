@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExprWhere
 import Lean.Util.ReplaceLevel
 import Lean.Util.ReplaceExpr
 import Lean.Util.CollectLevelParams
@@ -679,15 +680,15 @@ private def computeFixedIndexBitMask (numParams : Nat) (indType : InductiveType)
               maskRef.modify fun mask => mask.set! i false
           for x in xs[numParams:] do
             let xType ← inferType x
-            xType.forEach fun e => do
-              if indFVars.any (fun indFVar => e.getAppFn == indFVar) && e.getAppNumArgs > numParams then
-                let eArgs := e.getAppArgs
-                for i in [numParams:eArgs.size] do
-                  if i >= typeArgs.size then
+            let cond (e : Expr) := indFVars.any (fun indFVar => e.getAppFn == indFVar) && e.getAppNumArgs > numParams
+            xType.forEachWhere cond fun e => do
+              let eArgs := e.getAppArgs
+              for i in [numParams:eArgs.size] do
+                if i >= typeArgs.size then
+                  maskRef.modify (resetMaskAt · i)
+                else
+                  unless eArgs[i]! == typeArgs[i]! do
                     maskRef.modify (resetMaskAt · i)
-                  else
-                    unless eArgs[i]! == typeArgs[i]! do
-                      maskRef.modify (resetMaskAt · i)
         go ctors
     go indType.ctors
 

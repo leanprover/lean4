@@ -289,14 +289,14 @@ theorem seqRight_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT �
   apply ext; intro s
   simp [map_eq_pure_bind, const]
   apply bind_congr; intro p; cases p
-  simp [Prod.ext]
+  simp [Prod.eta]
 
 theorem seqLeft_eq [Monad m] [LawfulMonad m] (x : StateT σ m α) (y : StateT σ m β) : x <* y = const β <$> x <*> y := by
   apply ext; intro s
   simp [map_eq_pure_bind]
 
 instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
-  id_map         := by intros; apply ext; intros; simp[Prod.ext]
+  id_map         := by intros; apply ext; intros; simp[Prod.eta]
   map_const      := by intros; rfl
   seqLeft_eq     := seqLeft_eq
   seqRight_eq    := seqRight_eq

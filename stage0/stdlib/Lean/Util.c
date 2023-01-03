@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Util
-// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.FindLevelMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.ShareCommon Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ForEachExpr Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.SCC Lean.Util.OccursCheck Lean.Util.Paths Lean.Util.HasConstCache
+// Imports: Init Lean.Util.CollectFVars Lean.Util.CollectLevelParams Lean.Util.CollectMVars Lean.Util.FindMVar Lean.Util.FindLevelMVar Lean.Util.MonadCache Lean.Util.PPExt Lean.Util.Path Lean.Util.Profile Lean.Util.RecDepth Lean.Util.ShareCommon Lean.Util.Sorry Lean.Util.Trace Lean.Util.FindExpr Lean.Util.ReplaceExpr Lean.Util.ForEachExpr Lean.Util.ForEachExprWhere Lean.Util.ReplaceLevel Lean.Util.FoldConsts Lean.Util.SCC Lean.Util.OccursCheck Lean.Util.Paths Lean.Util.HasConstCache
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,6 +30,7 @@ lean_object* initialize_Lean_Util_Trace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FindExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ReplaceExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ForEachExpr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Util_ForEachExprWhere(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_ReplaceLevel(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_FoldConsts(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_SCC(uint8_t builtin, lean_object*);
@@ -90,6 +91,9 @@ res = initialize_Lean_Util_ReplaceExpr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_ForEachExpr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Util_ForEachExprWhere(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Util_ReplaceLevel(builtin, lean_io_mk_world());

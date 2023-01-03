@@ -97,13 +97,6 @@ structure Config where
       the type of `t` with the goal target type. We claim this is not a hack and is defensible behavior because
       this last unification step is not really part of the term elaboration. -/
   assignSyntheticOpaque : Bool := false
-  /-- When `ignoreLevelDepth` is `false`, only universe level metavariables with `depth == metavariable` context depth
-      can be assigned.
-      We used to have `ignoreLevelDepth == false` always, but this setting produced counterintuitive behavior in a few
-      cases. Recall that universe levels are often ignored by users, they may not even be aware they exist.
-      We set `ignoreLevelMVarDepth := false` during `simp`. See comment at `withSimpConfig` and issue #1829.
-  -/
-  ignoreLevelMVarDepth  : Bool := true
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
   /-- Eta for structures configuration mode. -/
@@ -268,7 +261,7 @@ structure State where
 structure SavedState where
   core        : Core.State
   meta        : State
-  deriving Inhabited
+  deriving Nonempty
 
 /--
   Contextual information for the `MetaM` monad.
@@ -613,11 +606,8 @@ def getLevelMVarDepth (mvarId : LMVarId) : MetaM Nat :=
 Return true if the given universe metavariable is "read-only".
 That is, its `depth` is different from the current metavariable context depth.
 -/
-def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool := do
-  if (← getConfig).ignoreLevelMVarDepth then
-    return false
-  else
-    return (← mvarId.getLevel) != (← getMCtx).depth
+def _root_.Lean.LMVarId.isReadOnly (mvarId : LMVarId) : MetaM Bool :=
+  return (← mvarId.getLevel) < (← getMCtx).levelAssignDepth
 
 @[deprecated LMVarId.isReadOnly]
 def isReadOnlyLevelMVar (mvarId : LMVarId) : MetaM Bool := do
@@ -1313,9 +1303,9 @@ private def withExistingLocalDeclsImp (decls : List LocalDecl) (k : MetaM α) : 
 def withExistingLocalDecls (decls : List LocalDecl) : n α → n α :=
   mapMetaM <| withExistingLocalDeclsImp decls
 
-private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
+private def withNewMCtxDepthImp (allowLevelAssignments : Bool) (x : MetaM α) : MetaM α := do
   let saved ← get
-  modify fun s => { s with mctx := s.mctx.incDepth, postponed := {} }
+  modify fun s => { s with mctx := s.mctx.incDepth allowLevelAssignments, postponed := {} }
   try
     x
   finally
@@ -1324,11 +1314,12 @@ private def withNewMCtxDepthImp (x : MetaM α) : MetaM α := do
 /--
   `withNewMCtxDepth k` executes `k` with a higher metavariable context depth,
   where metavariables created outside the `withNewMCtxDepth` (with a lower depth) cannot be assigned.
-  Note that this does not affect level metavariables (by default).
-  See the docstring of `isDefEq` for more information.
+  If `allowLevelAssignments` is set to true, then the level metavariable depth
+  is not increased, and level metavariables from the outer scope can be
+  assigned.  (This is used by TC synthesis.)
 -/
-def withNewMCtxDepth : n α → n α :=
-  mapMetaM withNewMCtxDepthImp
+def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
+  mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
 
 private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
   let localInstsCurr ← getLocalInstances
@@ -1451,9 +1442,12 @@ def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
 
 /-- Pretty-print the given expression. -/
-def ppExpr (e : Expr) : MetaM Format := do
+def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
   let ctxCore  ← readThe Core.Context
-  Lean.ppExpr { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls  } e
+  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+
+/-- Pretty-print the given expression. -/
+def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e
 
 @[inline] protected def orElse (x : MetaM α) (y : Unit → MetaM α) : MetaM α := do
   let s ← saveState
@@ -1662,10 +1656,6 @@ def isExprDefEq (t s : Expr) : MetaM Bool :=
   The combinator `withNewMCtxDepth x` will bump the depth while executing `x`.
   So, `withNewMCtxDepth (isDefEq a b)` is `isDefEq` without any mvar assignment happening
   whereas `isDefEq a b` will assign any metavariables of the current depth in `a` and `b` to unify them.
-
-  By default, level metavariables can be assigned at any depth.
-  That is, `withNewMCtxDepth (isDefEq a b)` will still assign level mvars in `a` and `b`.
-  Setting the option `ignoreLevelMVarDepth := false` will disable this behavior.
 
   For matching (where only mvars in `b` should be assigned), we create the term inside the `withNewMCtxDepth`.
   For an example, see [Lean.Meta.Simp.tryTheoremWithExtraArgs?](https://github.com/leanprover/lean4/blob/master/src/Lean/Meta/Tactic/Simp/Rewrite.lean#L100-L106)

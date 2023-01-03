@@ -142,5 +142,17 @@ null
  "position": {"line": 101, "character": 2}}
 {"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file://plainGoal.lean"},
- "position": {"line": 105, "character": 2}}
+ "position": {"line": 106, "character": 4}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 108, "character": 2}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 113, "character": 4}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 115, "character": 2}}
+null
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 120, "character": 2}}
 {"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}

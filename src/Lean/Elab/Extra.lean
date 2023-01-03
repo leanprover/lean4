@@ -196,11 +196,9 @@ where
 
 -- Auxiliary function used at `analyze`
 private def hasCoe (fromType toType : Expr) : TermElabM Bool := do
-  if (← getEnv).contains ``CoeHTCT then
-    let u ← getLevel fromType
-    let v ← getLevel toType
-    let coeInstType := mkAppN (Lean.mkConst ``CoeHTCT [u, v]) #[fromType, toType]
-    match ← trySynthInstance coeInstType (some (maxCoeSize.get (← getOptions))) with
+  if (← getEnv).contains ``CoeT then
+    withLocalDeclD `x fromType fun x => do
+    match ← coerceSimple? x toType with
     | .some _ => return true
     | .none   => return false
     | .undef  => return false -- TODO: should we do something smarter here?

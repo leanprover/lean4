@@ -3,6 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Util.ForEachExprWhere
 import Lean.Elab.Deriving.Basic
 
 namespace Lean.Elab
@@ -47,12 +48,11 @@ where
       usedInstIdxs
     else
       let visit {ω} : StateRefT IndexSet (ST ω) Unit :=
-        e.forEach fun
-          | Expr.fvar fvarId =>
-            match localInst2Index.find? fvarId with
-            | some idx => modify (·.insert idx)
-            | none => pure ()
-          | _ => pure ()
+        e.forEachWhere Expr.isFVar fun e =>
+          let fvarId := e.fvarId!
+          match localInst2Index.find? fvarId with
+          | some idx => modify (·.insert idx)
+          | none => pure ()
       runST (fun _ => visit |>.run usedInstIdxs) |>.2
 
   /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters

@@ -74,9 +74,7 @@ structure KeyedDeclsAttribute (γ : Type) where
   tableRef : IO.Ref (KeyedDeclsAttribute.Table γ)
   -- instances from current module
   ext : KeyedDeclsAttribute.Extension γ
-
-instance : Nonempty (KeyedDeclsAttribute γ) :=
-  Nonempty.intro { defn := default, tableRef := Classical.ofNonempty, ext := default }
+  deriving Nonempty
 
 namespace KeyedDeclsAttribute
 

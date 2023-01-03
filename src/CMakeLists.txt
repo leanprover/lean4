@@ -146,6 +146,9 @@ if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
   set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
 endif ()
 
+# We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
+string(APPEND LEANC_EXTRA_FLAGS " -fstack-clash-protection")
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)
@@ -261,10 +264,14 @@ if(LLVM)
   endif()
   # check that we have 'llvm-config' version.
   message(STATUS "Executing 'llvm-config --version' at '${LLVM_CONFIG}' to check configuration.")
-  execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY)
-  message(STATUS "Found 'llvm-config' as ${LLVM_CONFIG}")
+  execute_process(COMMAND ${LLVM_CONFIG} --version COMMAND_ERROR_IS_FATAL ANY OUTPUT_VARIABLE LLVM_CONFIG_VERSION ECHO_OUTPUT_VARIABLE OUTPUT_STRIP_TRAILING_WHITESPACE)
+  string(REGEX MATCH "^[0-9]*" LLVM_CONFIG_MAJOR_VERSION ${LLVM_CONFIG_VERSION})
+  message(STATUS "Found 'llvm-config' at '${LLVM_CONFIG}' with version '${LLVM_CONFIG_VERSION}', major version '${LLVM_CONFIG_MAJOR_VERSION}'")
+  if (NOT LLVM_CONFIG_MAJOR_VERSION STREQUAL "15")
+    message(FATAL_ERROR "Unable to find llvm-config version 15. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
+  endif()
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_LLVM")
+  string(APPEND CMAKE_CXX_FLAGS " -D LEAN_LLVM")
 
   execute_process(COMMAND ${LLVM_CONFIG}  --ldflags OUTPUT_VARIABLE LLVM_CONFIG_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
   execute_process(COMMAND ${LLVM_CONFIG}  --libs OUTPUT_VARIABLE LLVM_CONFIG_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -320,7 +327,7 @@ if(LLVM)
     #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
     string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
-    set(APPEND LEAN_EXTRA_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
+    string(APPEND CMAKE_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
     string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
 endif()
@@ -333,8 +340,7 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  string(APPEND LEANC_STATIC_LINKER_FLAGS " -lm")
-  string(APPEND LEANSHARED_LINKER_FLAGS " -lm")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lm")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -459,6 +465,11 @@ if(${STAGE} GREATER 1)
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleanrt.a" "${CMAKE_BINARY_DIR}/lib/lean/libleanrt.a"
     COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/libleancpp.a" "${CMAKE_BINARY_DIR}/lib/lean/libleancpp.a")
   add_dependencies(leancpp copy-leancpp)
+  if(LLVM)
+      add_custom_target(copy-lean-h-bc
+        COMMAND cmake -E copy_if_different "${PREV_STAGE}/lib/lean/lean.h.bc" "${CMAKE_BINARY_DIR}/lib/lean/lean.h.bc")
+      add_dependencies(leancpp copy-lean-h-bc)
+  endif()
 else()
   add_subdirectory(runtime)
 

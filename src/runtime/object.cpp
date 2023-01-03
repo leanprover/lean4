@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/buffer.h"
 #include "runtime/io.h"
+#include "runtime/hash.h"
 
 #ifdef __GLIBC__
 #include <execinfo.h>
@@ -1496,13 +1497,6 @@ extern "C" LEAN_EXPORT usize lean_usize_big_modn(usize a1, b_lean_obj_arg) {
     return a1;
 }
 
-extern "C" LEAN_EXPORT usize lean_usize_mix_hash(usize a1, usize a2) {
-    if (sizeof(void*) == 8)
-        return hash(static_cast<uint64>(a1), static_cast<uint64>(a2));
-    else
-        return hash(static_cast<uint32>(a1), static_cast<uint32>(a2));
-}
-
 // =======================================
 // Float
 
@@ -2060,6 +2054,10 @@ extern "C" LEAN_EXPORT obj_res lean_byte_array_push(obj_arg a, uint8 b) {
     // `r` is exclusive, so the ranges definitely cannot overlap
     memcpy(lean_sarray_cptr(r) + dest_off, lean_sarray_cptr(src) + src_off, len);
     return r;
+}
+
+extern "C" LEAN_EXPORT uint64_t lean_byte_array_hash(b_obj_arg a) {
+    return hash_str(lean_sarray_size(a), lean_sarray_cptr(a), 11);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_copy_float_array(obj_arg a) {

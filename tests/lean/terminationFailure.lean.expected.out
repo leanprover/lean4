@@ -5,8 +5,8 @@ with errors
 structural recursion does not handle mutually recursive functions
 
 failed to prove termination, use `termination_by` to specify a well-founded relation
-f : Nat → Nat
-f.g : Nat → Nat
+f (x : Nat) : Nat
+f.g (a✝ : Nat) : Nat
 1
 2
 terminationFailure.lean:20:4-20:5: error: fail to show termination for
@@ -19,5 +19,5 @@ argument #1 was not used for structural recursion
 structural recursion cannot be used
 
 failed to prove termination, use `termination_by` to specify a well-founded relation
-h : Nat → Foo
+h (x : Nat) : Foo
 Foo.a

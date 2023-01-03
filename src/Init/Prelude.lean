@@ -2967,9 +2967,10 @@ end
 end ReaderT
 
 /--
-An implementation of [`MonadReader`]. It does not contain `local` because this
-function cannot be lifted using `monadLift`. Instead, the `MonadReaderAdapter`
-class provides the more general `adaptReader` function.
+An implementation of Haskell's [`MonadReader`] (sans functional dependency; see also `MonadReader`
+in this module). It does not contain `local` because this
+function cannot be lifted using `monadLift`. `local` is instead provided by
+the `MonadWithReader` class as `withReader`.
 
 Note: This class can be seen as a simplification of the more "principled" definition
 ```

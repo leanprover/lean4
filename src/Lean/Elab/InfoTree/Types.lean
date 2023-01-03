@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Message
+import Lean.Data.Position
+import Lean.Data.OpenDecl
+import Lean.MetavarContext
+import Lean.Environment
 import Lean.Data.Json
-import Lean.Data.Lsp.CodeActions
 
 namespace Lean.Elab
 
@@ -21,7 +23,6 @@ structure ContextInfo where
   currNamespace : Name           := Name.anonymous
   openDecls     : List OpenDecl  := []
   ngen          : NameGenerator -- We must save the name generator to implement `ContextInfo.runMetaM` and making we not create `MVarId`s used in `mctx`.
-  deriving Inhabited
 
 /-- Base structure for `TermInfo`, `CommandInfo` and `TacticInfo`. -/
 structure ElabInfo where
@@ -107,10 +108,13 @@ structure UserWidgetInfo where
   deriving Inhabited
 
 /--
-Specifies that the given free variables should be considered semantically identical in the current local context.
+Specifies that the given free variables should be considered semantically identical.
+The free variable `baseId` might not be in the current local context
+because it has been cleared.
 Used for e.g. connecting variables before and after `match` generalization.
 -/
 structure FVarAliasInfo where
+  userName : Name
   id     : FVarId
   baseId : FVarId
 

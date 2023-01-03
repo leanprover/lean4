@@ -37,7 +37,7 @@ structure SubexprInfo where
   -- kind : Lsp.SymbolKind
   /-- Ask the renderer to highlight this node in the given color. -/
   diffStatus? : Option DiffTag := none
-  deriving Inhabited, RpcEncodable
+  deriving RpcEncodable
 
 /-- Pretty-printed syntax (usually but not necessarily an `Expr`) with embedded `Info`s. -/
 abbrev CodeWithInfos := TaggedText SubexprInfo
@@ -56,8 +56,8 @@ def CodeWithInfos.pretty (tt : CodeWithInfos) :=
 def SubexprInfo.withDiffTag (tag : DiffTag) (c : SubexprInfo) : SubexprInfo :=
   {c with diffStatus? := some tag }
 
-/-- Tags a pretty-printed `Expr` with infos from the delaborator. -/
-partial def tagExprInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
+/-- Tags pretty-printed code with infos from the delaborator. -/
+partial def tagCodeInfos (ctx : Elab.ContextInfo) (infos : SubExpr.PosMap Elab.Info) (tt : TaggedText (Nat × Nat))
     : CodeWithInfos :=
   go tt
 where
@@ -80,7 +80,7 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
         delabAppImplicit <|> delabAppExplicit
     else
       delab
-  let (fmt, infos) ← PrettyPrinter.ppExprWithInfos e (delab := delab)
+  let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)
   let tt := TaggedText.prettyTagged fmt
   let ctx := {
     env           := (← getEnv)
@@ -91,6 +91,6 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     fileMap       := default
     ngen          := (← getNGen)
   }
-  return tagExprInfos ctx infos tt
+  return tagCodeInfos ctx infos tt
 
 end Lean.Widget

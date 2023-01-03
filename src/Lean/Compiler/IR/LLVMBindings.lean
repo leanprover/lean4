@@ -73,6 +73,9 @@ structure Value (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
 
+@[extern "lean_llvm_initialize"]
+opaque llvmInitialize : BaseIO (Unit)
+
 @[extern "lean_llvm_create_context"]
 opaque createContext : BaseIO (Context)
 
@@ -112,6 +115,9 @@ opaque voidType (ctx : Context) : BaseIO (LLVMType ctx)
 @[extern "lean_llvm_int_type_in_context"]
 opaque intTypeInContext (ctx : Context) (width : UInt64) : BaseIO (LLVMType ctx)
 
+@[extern "lean_llvm_opaque_pointer_type_in_context"]
+opaque opaquePointerTypeInContext (ctx : Context) (addrspace: UInt64 := 0) : BaseIO (LLVMType ctx)
+
 @[extern "lean_llvm_float_type_in_context"]
 opaque floatTypeInContext (ctx : Context) : BaseIO (LLVMType ctx)
 
@@ -146,8 +152,8 @@ opaque appendBasicBlockInContext (ctx : Context) (fn :  Value ctx) (name :  @&St
 @[extern "lean_llvm_position_builder_at_end"]
 opaque positionBuilderAtEnd (builder : Builder ctx) (bb :  BasicBlock ctx) : BaseIO Unit
 
-@[extern "lean_llvm_build_call"]
-opaque buildCall (builder : Builder ctx) (fn : Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_call2"]
+opaque buildCall2 (builder : Builder ctx) (ty: LLVMType ctx) (fn : Value ctx) (args : @&Array (Value ctx)) (name :  @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_set_tail_call"]
 opaque setTailCall (fn : Value ctx) (istail : Bool) : BaseIO Unit
@@ -161,8 +167,8 @@ opaque buildBr (builder : Builder ctx) (bb : BasicBlock ctx) : BaseIO (Value ctx
 @[extern "lean_llvm_build_alloca"]
 opaque buildAlloca (builder : Builder ctx) (ty : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_load"]
-opaque buildLoad (builder : Builder ctx) (val : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_load2"]
+opaque buildLoad2 (builder : Builder ctx) (ty: LLVMType ctx) (val : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_store"]
 opaque buildStore (builder : Builder ctx) (val : Value ctx) (store_loc_ptr : Value ctx) : BaseIO Unit
@@ -173,14 +179,11 @@ opaque buildRet (builder : Builder ctx) (val : Value ctx) : BaseIO (Value ctx)
 @[extern "lean_llvm_build_unreachable"]
 opaque buildUnreachable (builder : Builder ctx) : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_gep"]
-opaque buildGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_gep2"]
+opaque buildGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
-@[extern "lean_llvm_build_inbounds_gep"]
-opaque buildInBoundsGEP (builder : Builder ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
-
-@[extern "lean_llvm_build_pointer_cast"]
-opaque buildPointerCast (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
+@[extern "lean_llvm_build_inbounds_gep2"]
+opaque buildInBoundsGEP2 (builder : Builder ctx) (ty: LLVMType ctx) (base : Value ctx) (ixs : @&Array (Value ctx)) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sext"]
 opaque buildSext (builder : Builder ctx) (val : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
@@ -198,10 +201,10 @@ opaque buildSwitch (builder : Builder ctx) (val : Value ctx) (elseBB : BasicBloc
 opaque buildPtrToInt (builder : Builder ctx) (ptr : Value ctx) (destTy : LLVMType ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_mul"]
-opaque buildMul (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildMul (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_add"]
-opaque buildAdd (builder : Builder ctx) (x y : Value ctx) (name : @&String) : BaseIO (Value ctx)
+opaque buildAdd (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)
 
 @[extern "lean_llvm_build_sub"]
 opaque buildSub (builder : Builder ctx) (x y : Value ctx) (name : @&String := "") : BaseIO (Value ctx)

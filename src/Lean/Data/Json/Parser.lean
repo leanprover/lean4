@@ -17,9 +17,9 @@ def hexChar : Parsec Nat := do
   if '0' ≤ c ∧ c ≤ '9' then
     pure $ c.val.toNat - '0'.val.toNat
   else if 'a' ≤ c ∧ c ≤ 'f' then
-    pure $ c.val.toNat - 'a'.val.toNat
+    pure $ c.val.toNat - 'a'.val.toNat + 10
   else if 'A' ≤ c ∧ c ≤ 'F' then
-    pure $ c.val.toNat - 'A'.val.toNat
+    pure $ c.val.toNat - 'A'.val.toNat + 10
   else
     fail "invalid hex character"
 

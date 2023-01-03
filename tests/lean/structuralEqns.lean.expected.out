@@ -1,5 +1,5 @@
 (some _private.structuralEqns.0.foo._unfold)
-foo._unfold : ∀ (xs ys zs : List Nat),
+foo._unfold (xs ys zs : List Nat) :
   foo xs ys zs =
     match (xs, ys) with
     | (xs', ys') =>

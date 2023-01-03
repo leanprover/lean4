@@ -8,9 +8,9 @@ import Init.Data.Array.Basic
 
 namespace Array
 -- TODO: remove the [Inhabited α] parameters as soon as we have the tactic framework for automating proof generation and using Array.fget
--- TODO: remove `partial` using well-founded recursion
 
-@[inline] def qpartition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × Array α :=
+def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × Array α :=
+  if h : as.size = 0 then (0, as) else have : Inhabited α := ⟨as[0]'(by revert h; cases as.size <;> simp [Nat.zero_lt_succ])⟩ -- TODO: remove
   let mid := (lo + hi) / 2
   let as  := if lt (as.get! mid) (as.get! lo) then as.swap! lo mid else as
   let as  := if lt (as.get! hi)  (as.get! lo) then as.swap! lo hi  else as
@@ -29,7 +29,7 @@ namespace Array
   loop as lo lo
 termination_by _ => hi - j
 
-@[inline] partial def qsort {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
+@[inline] partial def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat) :=
     if low < high then
       let p := qpartition as lt low high;

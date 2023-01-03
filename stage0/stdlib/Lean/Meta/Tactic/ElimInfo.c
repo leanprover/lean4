@@ -320,7 +320,7 @@ static lean_object* l_Lean_Meta_ElimInfo_targetsPos___default___closed__1;
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_2218____spec__10___closed__7;
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_mkCustomEliminator___spec__7(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_usize_to_nat(size_t);
-size_t l___private_Lean_Data_HashMap_0__Lean_HashMapImp_mkIdx(lean_object*, uint64_t, lean_object*);
+size_t lean_data_hashmap_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addCustomEliminator___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimAltInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_31____closed__19;
 LEAN_EXPORT lean_object* l_Lean_Meta_customEliminatorExt;
@@ -8093,7 +8093,7 @@ lean_inc(x_5);
 x_8 = lean_apply_1(x_1, x_5);
 x_9 = lean_unbox_uint64(x_8);
 lean_dec(x_8);
-x_10 = (size_t)(x_9) & (lean_unbox(x_7) - 1);
+x_10 = lean_data_hashmap_mk_idx(x_7, x_9);
 x_11 = lean_array_uget(x_2, x_10);
 lean_ctor_set(x_3, 2, x_11);
 x_12 = lean_array_uset(x_2, x_10, x_3);
@@ -8117,7 +8117,7 @@ lean_inc(x_14);
 x_18 = lean_apply_1(x_1, x_14);
 x_19 = lean_unbox_uint64(x_18);
 lean_dec(x_18);
-x_20 = (size_t)(x_19) & (lean_unbox(x_17) - 1);
+x_20 = lean_data_hashmap_mk_idx(x_17, x_19);
 x_21 = lean_array_uget(x_2, x_20);
 x_22 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_22, 0, x_14);
@@ -8156,7 +8156,7 @@ if (x_10 == 0)
 {
 size_t x_11; lean_object* x_12; lean_object* x_13; 
 lean_dec(x_8);
-x_11 = (size_t)(x_7) & (lean_unbox(x_6) - 1);
+x_11 = lean_data_hashmap_mk_idx(x_6, x_7);
 x_12 = lean_array_uget(x_1, x_11);
 lean_ctor_set(x_2, 2, x_12);
 x_13 = lean_array_uset(x_1, x_11, x_2);
@@ -8172,7 +8172,7 @@ if (x_15 == 0)
 {
 size_t x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_8);
-x_16 = (size_t)(x_7) & (lean_unbox(x_6) - 1);
+x_16 = lean_data_hashmap_mk_idx(x_6, x_7);
 x_17 = lean_array_uget(x_1, x_16);
 lean_ctor_set(x_2, 2, x_17);
 x_18 = lean_array_uset(x_1, x_16, x_2);
@@ -8187,7 +8187,7 @@ x_20 = 0;
 x_21 = lean_usize_of_nat(x_8);
 lean_dec(x_8);
 x_22 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_addCustomEliminatorEntry___spec__5(x_4, x_20, x_21, x_7);
-x_23 = (size_t)(x_22) & (lean_unbox(x_6) - 1);
+x_23 = lean_data_hashmap_mk_idx(x_6, x_22);
 x_24 = lean_array_uget(x_1, x_23);
 lean_ctor_set(x_2, 2, x_24);
 x_25 = lean_array_uset(x_1, x_23, x_2);
@@ -8216,7 +8216,7 @@ if (x_34 == 0)
 {
 size_t x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_32);
-x_35 = (size_t)(x_31) & (lean_unbox(x_30) - 1);
+x_35 = lean_data_hashmap_mk_idx(x_30, x_31);
 x_36 = lean_array_uget(x_1, x_35);
 x_37 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_37, 0, x_27);
@@ -8235,7 +8235,7 @@ if (x_40 == 0)
 {
 size_t x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
 lean_dec(x_32);
-x_41 = (size_t)(x_31) & (lean_unbox(x_30) - 1);
+x_41 = lean_data_hashmap_mk_idx(x_30, x_31);
 x_42 = lean_array_uget(x_1, x_41);
 x_43 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_43, 0, x_27);
@@ -8253,7 +8253,7 @@ x_46 = 0;
 x_47 = lean_usize_of_nat(x_32);
 lean_dec(x_32);
 x_48 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_addCustomEliminatorEntry___spec__5(x_27, x_46, x_47, x_31);
-x_49 = (size_t)(x_48) & (lean_unbox(x_30) - 1);
+x_49 = lean_data_hashmap_mk_idx(x_30, x_48);
 x_50 = lean_array_uget(x_1, x_49);
 x_51 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_51, 0, x_27);
@@ -8522,7 +8522,7 @@ block_23:
 {
 size_t x_9; lean_object* x_10; uint8_t x_11; 
 lean_inc(x_7);
-x_9 = (size_t)(x_8) & (lean_unbox(x_7) - 1);
+x_9 = lean_data_hashmap_mk_idx(x_7, x_8);
 x_10 = lean_array_uget(x_5, x_9);
 x_11 = l_Lean_AssocList_contains___at_Lean_Meta_addCustomEliminatorEntry___spec__10(x_2, x_10);
 if (x_11 == 0)
@@ -13740,7 +13740,7 @@ if (x_8 == 0)
 {
 size_t x_9; lean_object* x_10; lean_object* x_11; 
 lean_dec(x_6);
-x_9 = (size_t)(x_5) & (lean_unbox(x_4) - 1);
+x_9 = lean_data_hashmap_mk_idx(x_4, x_5);
 x_10 = lean_array_uget(x_3, x_9);
 lean_dec(x_3);
 x_11 = l_Lean_AssocList_find_x3f___at_Lean_Meta_getCustomEliminator_x3f___spec__9(x_2, x_10);
@@ -13756,7 +13756,7 @@ if (x_12 == 0)
 {
 size_t x_13; lean_object* x_14; lean_object* x_15; 
 lean_dec(x_6);
-x_13 = (size_t)(x_5) & (lean_unbox(x_4) - 1);
+x_13 = lean_data_hashmap_mk_idx(x_4, x_5);
 x_14 = lean_array_uget(x_3, x_13);
 lean_dec(x_3);
 x_15 = l_Lean_AssocList_find_x3f___at_Lean_Meta_getCustomEliminator_x3f___spec__9(x_2, x_14);
@@ -13771,7 +13771,7 @@ x_16 = 0;
 x_17 = lean_usize_of_nat(x_6);
 lean_dec(x_6);
 x_18 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_addCustomEliminatorEntry___spec__5(x_2, x_16, x_17, x_5);
-x_19 = (size_t)(x_18) & (lean_unbox(x_4) - 1);
+x_19 = lean_data_hashmap_mk_idx(x_4, x_18);
 x_20 = lean_array_uget(x_3, x_19);
 lean_dec(x_3);
 x_21 = l_Lean_AssocList_find_x3f___at_Lean_Meta_getCustomEliminator_x3f___spec__9(x_2, x_20);

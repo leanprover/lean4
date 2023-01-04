@@ -546,7 +546,8 @@ private partial def compileStxMatch (discrs : List Term) (alts : List Alt) : Ter
    pure Syntax.missing
   | discr::discrs, alt::alts    => do
     let info ← getHeadInfo alt
-    let alts ← (alt::alts).mapM fun alt => return ((← getHeadInfo alt).onMatch info.check, alt)
+    let alts := (info.onMatch info.check, alt) :: (← alts.mapM fun alt =>
+      return ((← getHeadInfo alt).onMatch info.check, alt))
     let mut yesAlts           := #[]
     let mut undecidedAlts     := #[]
     let mut nonExhaustiveAlts := #[]

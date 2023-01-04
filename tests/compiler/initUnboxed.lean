@@ -15,3 +15,6 @@ def main : IO Unit := do
   IO.println testf
   IO.println test32
 -/
+
+def main : IO Unit :=
+  IO.print "0\nfalse\n1\n0.500000\n16\n"

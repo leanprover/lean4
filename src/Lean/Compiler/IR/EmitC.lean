@@ -452,14 +452,6 @@ def emitBoxFn (xType : IRType) : M Unit :=
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
   emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
 
-def getUnboxOpName (t : IRType) : String :=
-  match t with
-  | IRType.usize  => "lean_unbox_usize"
-  | IRType.uint32 => "lean_unbox_uint32"
-  | IRType.uint64 => "lean_unbox_uint64"
-  | IRType.float  => "lean_unbox_float"
-  | _             => "lean_unbox"
-
 def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
   emitLhs z
   emit (getUnboxOpName t)

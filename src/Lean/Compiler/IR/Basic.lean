@@ -611,4 +611,12 @@ def mkIf (x : VarId) (t e : FnBody) : FnBody :=
     Alt.ctor {name := ``Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
   ]
 
+def getUnboxOpName (t : IRType) : String :=
+  match t with
+  | IRType.usize  => "lean_unbox_usize"
+  | IRType.uint32 => "lean_unbox_uint32"
+  | IRType.uint64 => "lean_unbox_uint64"
+  | IRType.float  => "lean_unbox_float"
+  | _             => "lean_unbox"
+
 end Lean.IR

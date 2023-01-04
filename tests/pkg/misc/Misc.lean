@@ -10,3 +10,6 @@ open Lean Meta
   IO.println <| (← getEnv).getModuleIdxFor? ``foo
   IO.println <| (← getEnv).getModuleIdxFor? `auxDecl1
   IO.println "worked"
+
+set_option pp.all true
+#check f 10 10

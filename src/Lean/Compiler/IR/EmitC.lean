@@ -452,14 +452,17 @@ def emitBoxFn (xType : IRType) : M Unit :=
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
   emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
 
-def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
-  emitLhs z;
+def getUnboxOpName (t : IRType) : String :=
   match t with
-  | IRType.usize  => emit "lean_unbox_usize"
-  | IRType.uint32 => emit "lean_unbox_uint32"
-  | IRType.uint64 => emit "lean_unbox_uint64"
-  | IRType.float  => emit "lean_unbox_float"
-  | _             => emit "lean_unbox";
+  | IRType.usize  => "lean_unbox_usize"
+  | IRType.uint32 => "lean_unbox_uint32"
+  | IRType.uint64 => "lean_unbox_uint64"
+  | IRType.float  => "lean_unbox_float"
+  | _             => "lean_unbox"
+
+def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
+  emitLhs z
+  emit (getUnboxOpName t)
   emit "("; emit x; emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit := do
@@ -706,8 +709,12 @@ def emitDeclInit (d : Decl) : M Unit := do
         emit "if (builtin) {"
       emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
       emitLn "if (lean_io_result_is_error(res)) return res;"
-      emitCName n; emitLn " = lean_io_result_get_value(res);"
-      emitMarkPersistent d n
+      emitCName n
+      if d.resultType.isScalar then
+        emitLn (" = " ++ getUnboxOpName d.resultType ++ "(lean_io_result_get_value(res));")
+      else
+        emitLn " = lean_io_result_get_value(res);"
+        emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "}"

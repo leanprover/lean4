@@ -375,8 +375,7 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
     | none      => pure precDefault
   let name ← match name? with
     | some name => pure name.getId
-    | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
-  let name ← addMacroScopeIfLocal name attrKind
+    | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
   trace[Meta.debug] "name: {name}"
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk

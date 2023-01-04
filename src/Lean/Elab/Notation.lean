@@ -126,8 +126,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
   let name ←
     match name? with
     | some name => pure name.getId
-    | none => mkNameFromParserSyntax `term (mkNullNode syntaxParts)
-  let name ← addMacroScopeIfLocal name attrKind
+    | none => addMacroScopeIfLocal (← mkNameFromParserSyntax `term (mkNullNode syntaxParts)) attrKind
   -- build macro rules
   let vars := items.filter fun item => item.raw.getKind == ``identPrec
   let vars := vars.map fun var => var.raw[0]

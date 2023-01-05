@@ -28,7 +28,12 @@ theorem gcd_succ (x y : Nat) : gcd (succ x) y = gcd (y % succ x) (succ x) :=
   rfl
 
 @[simp] theorem gcd_zero_right (n : Nat) : gcd n 0 = n := by
-  cases n <;> simp [gcd_succ]
+  cases n with
+  | zero => simp [gcd_succ]
+  | succ n =>
+    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
+    rw [gcd_succ]
+    exact gcd_zero_left _
 
 @[simp] theorem gcd_self (n : Nat) : gcd n n = n := by
   cases n <;> simp [gcd_succ]

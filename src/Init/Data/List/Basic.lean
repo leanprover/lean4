@@ -814,9 +814,9 @@ def maximum? [Max α] : List α → Option α
 
 /--
 Returns the smallest element of the list, if it is not empty.
-* `[].maximum? = none`
-* `[4].maximum? = some 4`
-* `[1, 4, 2, 10, 6].maximum? = some 1`
+* `[].minimum? = none`
+* `[4].minimum? = some 4`
+* `[1, 4, 2, 10, 6].minimum? = some 1`
 -/
 def minimum? [Min α] : List α → Option α
   | []    => none

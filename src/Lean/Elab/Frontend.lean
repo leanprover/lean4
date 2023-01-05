@@ -62,11 +62,8 @@ def processCommand : FrontendM Bool := do
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
     setMessages messages
-    if Parser.isEOI cmd then
-      pure true -- Done
-    else
-      profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
-      pure (Parser.isTerminalCommand cmd)
+    profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
+    pure (Parser.isTerminalCommand cmd)
 
 partial def processCommands : FrontendM Unit := do
   let done ← processCommand

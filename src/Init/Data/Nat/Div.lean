@@ -64,20 +64,71 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
+-- protected def mod (x y : @& Nat) : Nat :=
+--   if 0 < y ∧ y ≤ x then
+--     Nat.mod (x - y) y
+--   else
+--     x
+-- decreasing_by apply div_rec_lemma; assumption
+
+#check Nat.add
+
+protected def modCore (y : Nat) : Nat → Nat → Nat
+  | Nat.zero, x => x
+  | Nat.succ fuel, x => if 0 < y ∧ y ≤ x then Nat.modCore y fuel (x - y) else x
+
 @[extern "lean_nat_mod"]
 protected def mod (x y : @& Nat) : Nat :=
-  if 0 < y ∧ y ≤ x then
-    Nat.mod (x - y) y
-  else
-    x
-decreasing_by apply div_rec_lemma; assumption
+Nat.modCore y x x
 
 instance : Mod Nat := ⟨Nat.mod⟩
 
+private theorem mod_core_congr {x y f1 f2} (h1 : x ≤ f1) (h2 : x ≤ f2) :
+    Nat.modCore y f1 x = Nat.modCore y f2 x :=
+  by
+    induction f1 generalizing x f2 with
+    | zero =>
+      cases h1
+      clear h2
+      induction f2 with
+      | zero => rfl
+      | succ f2 ih =>
+        rw [Nat.modCore, Nat.modCore, Nat.zero_sub, ←ih, Nat.modCore, ite_self]
+    | succ f1 ih =>
+      rw [Nat.modCore]
+      induction f2 generalizing f1 with
+      | zero =>
+        cases h2
+        rw [Nat.modCore, Nat.zero_sub, ih (Nat.zero_le _) (Nat.zero_le _), Nat.modCore,
+          ite_self]
+      | succ f2 ih2 =>
+        rw [Nat.modCore]
+        refine' ite_congr rfl (fun h => _) (fun _ => rfl)
+        cases x with
+        | zero => cases Nat.lt_of_lt_of_le h.1 h.2
+        | succ x => cases y with
+          | zero => cases h.1
+          | succ y =>
+            simp only [succ_sub_succ]
+            exact ih
+              (Nat.le_trans (Nat.sub_le _ _) (le_of_succ_le_succ h1))
+              (Nat.le_trans (Nat.sub_le _ _) (le_of_succ_le_succ h2))
+
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
-  show Nat.mod x y = _
-  rw [Nat.mod]
-  rfl
+  show Nat.modCore y x x = if 0 < y ∧ y ≤ x then Nat.modCore y (x - y) (x - y) else x
+  cases x with
+  | zero =>
+    cases y with
+    | zero => rfl
+    | succ y =>
+      rw [Nat.zero_sub, Nat.modCore, ite_self]
+  | succ x =>
+    cases y with
+    | zero => rfl
+    | succ y =>
+      refine' ite_congr rfl (fun _ => mod_core_congr _ (Nat.le_refl _)) (fun _ => rfl)
+      rw [Nat.succ_sub_succ]
+      exact Nat.sub_le _ _
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}

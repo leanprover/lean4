@@ -64,15 +64,6 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     have := Nat.add_le_of_le_sub hKN this
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
--- protected def mod (x y : @& Nat) : Nat :=
---   if 0 < y ∧ y ≤ x then
---     Nat.mod (x - y) y
---   else
---     x
--- decreasing_by apply div_rec_lemma; assumption
-
-#check Nat.add
-
 protected def modCore (y : Nat) : Nat → Nat → Nat
   | Nat.zero, x => x
   | Nat.succ fuel, x => if 0 < y ∧ y ≤ x then Nat.modCore y fuel (x - y) else x

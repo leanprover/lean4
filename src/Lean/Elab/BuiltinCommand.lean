@@ -438,4 +438,7 @@ opaque elabEval : CommandElab
 @[builtin_command_elab Parser.Command.import] def elabImport : CommandElab := fun _ =>
   throwError "invalid 'import' command, it must be used in the beginning of the file"
 
+@[builtin_command_elab Parser.Command.eoi] def elabEoi : CommandElab := fun _ =>
+  return
+
 end Lean.Elab.Command

@@ -273,6 +273,12 @@ def initializeKeyword := leading_parser
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
 
+/-- No-op parser used as syntax kind for attaching remaining whitespace to at the end of the input. -/
+@[run_builtin_parser_attribute_hooks] def eoi : Parser := leading_parser ""
+
+builtin_initialize
+  registerBuiltinNodeKind ``eoi
+
 @[run_builtin_parser_attribute_hooks] abbrev declModifiersF := declModifiers false
 @[run_builtin_parser_attribute_hooks] abbrev declModifiersT := declModifiers true
 

@@ -57,11 +57,11 @@ def Key.ctorIdx : Key s → Nat
   | .proj ..  => 6
 
 def Key.lt : Key s → Key s → Bool
-  | .lit v₁,      .lit v₂      => v₁ < v₂
-  | .fvar n₁ a₁,  .fvar n₂ a₂  => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
-  | .const n₁ a₁, .const n₂ a₂ => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
-  | .proj s₁ i₁,  .proj s₂ i₂  => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂)
-  | k₁,           k₂           => k₁.ctorIdx < k₂.ctorIdx
+  | .lit v₁,        .lit v₂        => v₁ < v₂
+  | .fvar n₁ a₁,    .fvar n₂ a₂    => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
+  | .const n₁ a₁,   .const n₂ a₂   => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
+  | .proj s₁ i₁ a₁, .proj s₂ i₂ a₂ => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂) || (s₁ == s₂ && i₁ == i₂ && a₁ < a₂)
+  | k₁,             k₂             => k₁.ctorIdx < k₂.ctorIdx
 
 instance : LT (Key s) := ⟨fun a b => Key.lt a b⟩
 instance (a b : Key s) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
@@ -72,18 +72,18 @@ def Key.format : Key s → Format
   | .lit (Literal.natVal v) => Std.format v
   | .lit (Literal.strVal v) => repr v
   | .const k _              => Std.format k
-  | .proj s i               => Std.format s ++ "." ++ Std.format i
+  | .proj s i _             => Std.format s ++ "." ++ Std.format i
   | .fvar k _               => Std.format k.name
   | .arrow                  => "→"
 
 instance : ToFormat (Key s) := ⟨Key.format⟩
 
 def Key.arity : (Key s) → Nat
-  | .const _ a => a
-  | .fvar _ a  => a
-  | .arrow     => 2
-  | .proj ..   => 1
-  | _          => 0
+  | .const _ a  => a
+  | .fvar _ a   => a
+  | .arrow      => 2
+  | .proj _ _ a => 1 + a
+  | _           => 0
 
 instance : Inhabited (Trie α s) := ⟨.node #[] #[]⟩
 
@@ -280,7 +280,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
   else
     let e ← reduceDT e root (simpleReduce := s)
     let fn := e.getAppFn
-    let push (k : Key s) (nargs : Nat) : MetaM (Key s × Array Expr) := do
+    let push (k : Key s) (nargs : Nat) (todo : Array Expr): MetaM (Key s × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
@@ -291,7 +291,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
         if (← shouldAddAsStar c e) then
           return (.star, todo)
       let nargs := e.getAppNumArgs
-      push (.const c nargs) nargs
+      push (.const c nargs) nargs todo
     | .proj s i a =>
       /-
       If `s` is a class, then `a` is an instance. Thus, we annotate `a` with `no_index` since we do not
@@ -300,10 +300,11 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
       TODO: add better support for projections that are functions
       -/
       let a := if isClass (← getEnv) s then mkNoindexAnnotation a else a
-      return (.proj s i, todo.push a)
+      let nargs := e.getAppNumArgs
+      push (.proj s i nargs) nargs (todo.push a)
     | .fvar fvarId   =>
       let nargs := e.getAppNumArgs
-      push (.fvar fvarId nargs) nargs
+      push (.fvar fvarId nargs) nargs todo
     | .mvar mvarId   =>
       if mvarId == tmpMVarId then
         -- We use `tmp to mark implicit arguments and proofs
@@ -441,7 +442,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array 
       else
         return (.star, #[])
   | .proj s i a .. =>
-    return (.proj s i, #[a])
+    let nargs := e.getAppNumArgs
+    return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
   | .forallE _ d b _ =>
     if b.hasLooseBVars then
       return (.other, #[])
@@ -541,9 +543,10 @@ where
       else
         mayMatchPrefix k
     match k with
-    | .const f (n+1) => cont (.const f n)
-    | .fvar f (n+1)  => cont (.fvar f n)
-    | _              => return false
+    | .const f (n+1)  => cont (.const f n)
+    | .fvar f (n+1)   => cont (.fvar f n)
+    | .proj s i (n+1) => cont (.proj s i n)
+    | _               => return false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
     let result := result ++ (← getMatch d e).map (., numExtra)

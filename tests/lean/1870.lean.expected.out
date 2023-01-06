@@ -1,17 +1,16 @@
-1870.lean:21:2-21:5: error: tactic 'rfl' failed, equality lhs
-  Zero.ofOfNat0
-is not definitionally equal to rhs
-  { zero := 1 }
-⊢ Zero.ofOfNat0 = { zero := 1 }
-1870.lean:26:2-26:11: error: tactic 'apply' failed, failed to unify
-  ?a = ?a
+1870.lean:20:2-20:35: error: type mismatch
+  congrArg (@OfNat.ofNat Nat 0) (congrArg (@Zero.toOfNat0 Nat) ?m)
+has type
+  OfNat.ofNat 0 = OfNat.ofNat 0 : Prop
+but is expected to have type
+  OfNat.ofNat 0 = OfNat.ofNat 1 : Prop
+1870.lean:24:2-24:16: error: tactic 'apply' failed, failed to unify
+  ?f ?a₁ = ?f ?a₂
 with
-  Zero.ofOfNat0 = { zero := 1 }
-case h.h
-⊢ Zero.ofOfNat0 = { zero := 1 }
-1870.lean:31:2-31:11: error: tactic 'apply' failed, failed to unify
-  ?a = ?a
+  OfNat.ofNat 0 = OfNat.ofNat 1
+⊢ OfNat.ofNat 0 = OfNat.ofNat 1
+1870.lean:29:2-29:16: error: tactic 'apply' failed, failed to unify
+  ?f ?a₁ = ?f ?a₂
 with
-  Zero.ofOfNat0 = { zero := 1 }
-case h.h
-⊢ Zero.ofOfNat0 = { zero := 1 }
+  OfNat.ofNat 0 = OfNat.ofNat 1
+⊢ OfNat.ofNat 0 = OfNat.ofNat 1

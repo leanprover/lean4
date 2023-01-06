@@ -1640,6 +1640,24 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve contraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
+    if isClass (← getEnv) structName then
+      /-
+      We disable this feature is `structName` is a class. See issue #2011.
+      The example at issue #2011, the following weird
+      instance was being generated for `Zero (f x)`
+      ```
+      (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
+      ```
+      where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
+      Note that this instance is definitinally equal to the expected nicer
+      instance `inst✝¹ x✝`.
+      However, the nasty instance trigger nasty unification higher order
+      constraints later.
+
+      We say this behavior is defensible because it is more reliable to use TC resolution to
+      assign `?m`.
+      -/
+      return false
     let ctorVal := getStructureCtor (← getEnv) structName
     if ctorVal.numFields != 1 then
       return false -- It is not a structure with a single field.

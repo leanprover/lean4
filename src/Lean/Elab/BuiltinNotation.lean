@@ -64,9 +64,43 @@ open Meta
 
 @[builtin_macro Lean.Parser.Term.show] def expandShow : Macro := fun stx =>
   match stx with
-  | `(show $type from $val)  => let thisId := mkIdentFrom stx `this; `(let_fun $thisId : $type := $val; $thisId)
   | `(show $type by%$b $tac) => `(show $type from by%$b $tac)
   | _                        => Macro.throwUnsupported
+
+@[builtin_term_elab Lean.Parser.Term.show] def elabShow : TermElab := fun stx expectedType? => do
+  match stx with
+  | `(show $type from $val)  =>
+    /-
+    We first elaborate the type and try to unify it with the expected type if available.
+    Note that, we should not throw an error if the types do not unify. Recall that we have coercions and
+    the following is supported in Lean 3 and 4.
+    ```
+    example : Int :=
+      show Nat from 0
+    ```
+    -/
+    let type ← withSynthesize (mayPostpone := true) do
+      let type ← elabType type
+      if let some expectedType := expectedType? then
+        -- Recall that a similiar approach is used when elaborating applications
+        discard <| isDefEq expectedType type
+      return type
+    /-
+    Recall that we do not use the same approach used to elaborate type ascriptions.
+    For the `($val : $type)` notation, we just elaborate `val` using `type` and
+    ensure it has type `type`. This approach only ensure the type resulting expression
+    is definitionally equal to `type`. For the `show` notation we use `let_fun` to ensure the type
+    of the resulting expression is *structurally equal* `type`. Structural equality is important,
+    for example, if the resulting expression is a `simp`/`rw` parameter. Here is an example:
+    ```
+    example (x : Nat) : (x + 0) + y = x + y := by
+      rw [show x + 0 = x from rfl]
+    ```
+    -/
+    let thisId := mkIdentFrom stx `this
+    let valNew ← `(let_fun $thisId : $(← exprToSyntax type) := $val; $thisId)
+    elabTerm valNew expectedType?
+  | _ => throwUnsupportedSyntax
 
 @[builtin_macro Lean.Parser.Term.have] def expandHave : Macro := fun stx =>
   match stx with

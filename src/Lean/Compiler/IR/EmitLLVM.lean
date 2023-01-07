@@ -812,8 +812,10 @@ def IRType.isIntegerType (t : IRType) : Bool :=
   | .usize => true
   | _ => false
 
-def emitUnbox (builder : LLVM.Builder llvmctx)
-    (z : VarId) (t : IRType) (x : VarId) (retName : String := "") : M llvmctx Unit := do
+def callUnboxForType (builder : LLVM.Builder llvmctx)
+    (t : IRType)
+    (v : LLVM.Value llvmctx)
+    (retName : String := "") : M llvmctx (LLVM.Value llvmctx) := do
   let (fnName, retty) ←
      match t with
      | IRType.usize  => pure ("lean_unbox_usize", ← toLLVMType t)
@@ -824,7 +826,13 @@ def emitUnbox (builder : LLVM.Builder llvmctx)
   let argtys := #[← LLVM.voidPtrType llvmctx ]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
-  let zval ← LLVM.buildCall2 builder fnty fn #[← emitLhsVal builder x] retName
+  LLVM.buildCall2 builder fnty fn #[v] retName
+
+
+
+def emitUnbox (builder : LLVM.Builder llvmctx)
+    (z : VarId) (t : IRType) (x : VarId) (retName : String := "") : M llvmctx Unit := do
+  let zval ← callUnboxForType builder t (← emitLhsVal builder x) retName
   -- NOTE(bollu) : note that lean_unbox only returns an i64, but we may need to truncate to
   -- smaller widths. see `phashmap` for an example of this occurring at calls to `lean_unbox`
   let zval ←
@@ -1141,18 +1149,18 @@ def emitFns (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M llv
   let decls := getDecls env
   decls.reverse.forM (emitDecl mod builder)
 
-def callIODeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
+def callIODeclInitFn (builder : LLVM.Builder llvmctx) 
     (initFnName : String)
     (world : LLVM.Value llvmctx): M llvmctx (LLVM.Value llvmctx) := do
-  let retty ← toLLVMType d.resultType
+  let retty ← LLVM.voidPtrType llvmctx
   let argtys := #[← LLVM.voidPtrType llvmctx]
   let fn ← getOrCreateFunctionPrototype  (← getLLVMModule) retty initFnName argtys
   let fnty ← LLVM.functionType retty argtys
   LLVM.buildCall2 builder fnty fn #[world]
 
-def callPureDeclInitFn (builder : LLVM.Builder llvmctx) (d : Decl) 
-    (initFnName : String) : M llvmctx (LLVM.Value llvmctx) := do
-  let retty ← toLLVMType d.resultType
+def callPureDeclInitFn (builder : LLVM.Builder llvmctx)
+    (initFnName : String)
+    (retty : LLVM.LLVMType llvmctx): M llvmctx (LLVM.Value llvmctx) := do
   let argtys := #[]
   let fn ← getOrCreateFunctionPrototype  (← getLLVMModule) retty initFnName argtys
   let fnty ← LLVM.functionType retty argtys
@@ -1163,7 +1171,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
   let env ← getEnv
   if isIOUnitInitFn env d.name then do
     let world ← callLeanIOMkWorld builder
-    let resv ← callIODeclInitFn builder d (← toCName d.name) world 
+    let resv ← callIODeclInitFn builder (← toCName d.name) world 
     let err? ← callLeanIOResultIsError builder resv "is_error"
     buildIfThen_ builder s!"init_{d.name}_isError" err?
       (fun builder => do
@@ -1189,15 +1197,19 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
         let _ ← LLVM.buildBr builder initBB
       LLVM.positionBuilderAtEnd builder initBB
       let world ← callLeanIOMkWorld builder
-      let resv ← callIODeclInitFn builder d (← toCName initFn) world
+      let resv ← callIODeclInitFn builder (← toCName initFn) world
       let err? ← callLeanIOResultIsError builder resv s!"{d.name}_is_error"
       buildIfThen_ builder s!"init_{d.name}_isError" err?
         (fun builder => do
           let _ ← LLVM.buildRet builder resv
           pure ShouldForwardControlFlow.no)
-      let dval ← callLeanIOResultGetValue builder resv s!"{d.name}_res"
-      LLVM.buildStore builder dval dslot
-      if d.resultType.isObj then
+      if d.resultType.isScalar then
+        let dval ← callLeanIOResultGetValue builder resv s!"{d.name}_res"
+        let dval ← callUnboxForType builder d.resultType dval
+        LLVM.buildStore builder dval dslot
+      else
+         let dval ← callLeanIOResultGetValue builder resv s!"{d.name}_res"
+         LLVM.buildStore builder dval dslot
          callLeanMarkPersistentFn builder dval
       let _ ← LLVM.buildBr builder restBB
       LLVM.positionBuilderAtEnd builder restBB
@@ -1205,7 +1217,7 @@ def emitDeclInit (builder : LLVM.Builder llvmctx)
       let llvmty ← toLLVMType d.resultType
       let dslot ←  LLVM.getOrAddGlobal (← getLLVMModule) (← toCName d.name) llvmty
       LLVM.setInitializer dslot (← LLVM.getUndef llvmty)
-      let dval ← callPureDeclInitFn builder d (← toCInitName d.name)
+      let dval ← callPureDeclInitFn builder (← toCInitName d.name) (← toLLVMType d.resultType)
       LLVM.buildStore builder dval dslot
       if d.resultType.isObj then
          callLeanMarkPersistentFn builder dval

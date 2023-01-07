@@ -36,7 +36,7 @@ with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToAbsPath = mod: "${src}/${modToPath mod}";
-  modToLean = mod: "${modToAbsPath mod}.lean";
+  modToLean = mod: src + "/${modToPath mod}.lean";
   bareStdenv = ./bareStdenv;
   mkBareDerivation = args: derivation (args // {
     name = lib.strings.sanitizeDerivationName args.name;

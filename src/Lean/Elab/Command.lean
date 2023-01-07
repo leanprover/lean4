@@ -289,7 +289,9 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
             withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
               throwError "elaboration function for '{k}' has not been implemented"
           | elabFns => elabCommandUsing s stx elabFns
-    | _ => throwError "unexpected command"
+    | _ =>
+      withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <|
+        throwError "unexpected command"
 
 builtin_initialize registerTraceClass `Elab.input
 

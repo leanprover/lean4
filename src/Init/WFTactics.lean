@@ -37,6 +37,7 @@ macro "decreasing_with " ts:tacticSeq : tactic =>
     repeat (first | apply Prod.Lex.right | apply Prod.Lex.left)
     repeat (first | apply PSigma.Lex.right | apply PSigma.Lex.left)
     first
+    | done
     | $ts
     | fail "failed to prove termination, possible solutions:
   - Use `have`-expressions to prove the remaining goals

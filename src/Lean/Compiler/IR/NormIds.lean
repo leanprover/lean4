@@ -68,7 +68,6 @@ def normExpr : Expr → M Expr
   | Expr.box t x,        m => Expr.box t (normVar x m)
   | Expr.unbox x,        m => Expr.unbox (normVar x m)
   | Expr.isShared x,     m => Expr.isShared (normVar x m)
-  | Expr.isTaggedPtr x,  m => Expr.isTaggedPtr (normVar x m)
   | e@(Expr.lit _),      _ =>  e
 
 abbrev N := ReaderT IndexRenaming (StateM Nat)
@@ -147,7 +146,6 @@ def mapExpr (f : VarId → VarId) : Expr → Expr
   | Expr.box t x        => Expr.box t (f x)
   | Expr.unbox x        => Expr.unbox (f x)
   | Expr.isShared x     => Expr.isShared (f x)
-  | Expr.isTaggedPtr x  => Expr.isTaggedPtr (f x)
   | e@(Expr.lit _)      =>  e
 
 partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody

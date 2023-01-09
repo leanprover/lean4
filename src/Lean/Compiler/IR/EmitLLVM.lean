@@ -1079,10 +1079,7 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.set x i y b         => emitSet builder x i y; emitBlock builder b
   | FnBody.uset x i y b        => emitUSet builder x i y; emitBlock builder b
   | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
-  | FnBody.mdata _ _b          =>
-       -- TODO(bollu) : implement `mdata`.
-       --  NOTE(bollu) : It is disturbing that we pass the Lean CI without this.
-       throw "Unimplemented metadata."
+  | FnBody.mdata _ b           => emitBlock builder b
   | FnBody.ret x               => do
       let (_xty, xv) ← emitArgVal builder x "ret_val"
       let _ ← LLVM.buildRet builder xv

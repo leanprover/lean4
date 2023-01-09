@@ -896,7 +896,6 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.box t x        => emitBox builder z x t
   | Expr.unbox x        => emitUnbox builder z t x
   | Expr.isShared x     => emitIsShared builder z x
-  | Expr.isTaggedPtr _x => throw "unimplemented: emitIsTaggedPtr z x" -- TODO(bollu): implement emitIsTaggedPtr
   | Expr.lit v          => let _ ← emitLit builder z t v
 
 def declareVar (builder : LLVM.Builder llvmctx) (x : VarId) (t : IRType) : M llvmctx Unit := do

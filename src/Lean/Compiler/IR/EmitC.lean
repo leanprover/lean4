@@ -460,9 +460,6 @@ def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
 def emitIsShared (z : VarId) (x : VarId) : M Unit := do
   emitLhs z; emit "!lean_is_exclusive("; emit x; emitLn ");"
 
-def emitIsTaggedPtr (z : VarId) (x : VarId) : M Unit := do
-  emitLhs z; emit "!lean_is_scalar("; emit x; emitLn ");"
-
 def toHexDigit (c : Nat) : String :=
   String.singleton c.digitChar
 
@@ -511,7 +508,6 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.box t x        => emitBox z x t
   | Expr.unbox x        => emitUnbox z t x
   | Expr.isShared x     => emitIsShared z x
-  | Expr.isTaggedPtr x  => emitIsTaggedPtr z x
   | Expr.lit v          => emitLit z t v
 
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do

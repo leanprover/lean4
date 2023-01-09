@@ -888,7 +888,7 @@ def emitVDecl (builder : LLVM.Builder llvmctx) (z : VarId) (t : IRType) (v : Exp
   | Expr.reset n x      => emitReset builder z n x
   | Expr.reuse x c u ys => emitReuse builder z x c u ys
   | Expr.proj i x       => emitProj builder z i x
-  | Expr.uproj _i _x    => throw "unimplemented: emitUProj z i x" -- TODO(bollu): implement 'emitUProj'
+  | Expr.uproj i x      => emitUProj builder z i x
   | Expr.sproj n o x    => emitSProj builder z t n o x
   | Expr.fap c ys       => emitFullApp builder z c ys
   | Expr.pap c ys       => emitPartialApp builder z c ys
@@ -931,6 +931,14 @@ def emitSet (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) (y : Arg) : M
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
   let _ ← LLVM.buildCall2 builder fnty fn  #[← emitLhsVal builder x, ← constIntUnsigned i, (← emitArgVal builder y).2]
+
+def emitUSet (builder : LLVM.Builder llvmctx) (x : VarId) (i : Nat) (y : VarId) : M llvmctx Unit := do
+  let fnName :=  "lean_ctor_set_usize"
+  let retty ← LLVM.voidType llvmctx
+  let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx, ← LLVM.size_tType llvmctx]
+  let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
+  let fnty ← LLVM.functionType retty argtys
+  let _ ← LLVM.buildCall2 builder fnty fn  #[← emitLhsVal builder x, ← constIntUnsigned i, (← emitLhsVal builder y)]
 
 def emitTailCall (builder : LLVM.Builder llvmctx) (f : FunId) (v : Expr) : M llvmctx Unit := do
    match v with
@@ -1061,10 +1069,7 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
   | FnBody.del x b             =>  emitDel builder x; emitBlock builder b
   | FnBody.setTag x i b        =>  emitSetTag builder x i; emitBlock builder b
   | FnBody.set x i y b         => emitSet builder x i y; emitBlock builder b
-  | FnBody.uset _x _i _y _b    =>
-       -- TODO(bollu) : implement `uset`.
-       --  NOTE(bollu) : It is disturbing that we pass the Lean CI without this.
-       throw "Unimplemented uset."
+  | FnBody.uset x i y b        => emitUSet builder x i y; emitBlock builder b
   | FnBody.sset x i o y t b    => emitSSet builder x i o y t; emitBlock builder b
   | FnBody.mdata _ _b          =>
        -- TODO(bollu) : implement `mdata`.

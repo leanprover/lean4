@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Include timings in trace messages when `profiler` is true](https://github.com/leanprover/lean4/pull/1995).
+
 * [Pretty-print signatures in hover and `#check <ident>`](https://github.com/leanprover/lean4/pull/1943).
 
 * [Update Lake to latest prerelease](https://github.com/leanprover/lean4/pull/1879).

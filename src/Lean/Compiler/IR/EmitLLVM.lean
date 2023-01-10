@@ -1509,9 +1509,16 @@ def optimizeLLVMModule (mod : LLVM.Module ctx) : IO Unit := do
   LLVM.disposePassManager pm
   LLVM.disposePassManagerBuilder pmb
 
+/--
+`emitLLVM` is the entrypoint for the lean shell to code generate LLVM.
+TODO(bollu): tripleStr? has type `String` instead of `Option String`
+             because there didn't seem to be a convenient way to convert a
+             `lean::optional<string>` to the correct `object_ref` which represents
+             an `Option String`. Clean this up before comitting.
+-/
 @[export lean_ir_emit_llvm]
-def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit := do
-  LLVM.llvmInitialize
+def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String): IO Unit := do
+  LLVM.llvmInitializeTargetInfo
   let llvmctx ← LLVM.createContext
   let module ← LLVM.createModule llvmctx modName.toString
   let emitLLVMCtx : EmitLLVM.Context llvmctx := {env := env, modName := modName, llvmmodule := module}
@@ -1524,7 +1531,7 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit 
          LLVM.linkModules (dest := emitLLVMCtx.llvmmodule) (src := modruntime)
          optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
-         let tripleStr ← LLVM.getDefaultTargetTriple
+         let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple) 
          let target ← LLVM.getTargetFromTriple tripleStr
          let cpu := "generic"
          let features := ""

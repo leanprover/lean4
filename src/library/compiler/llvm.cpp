@@ -29,12 +29,14 @@ Lean's IR.
 #include "llvm-c/Transforms/PassManagerBuilder.h"
 #endif
 
-extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize() {
+extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info() {
 
 #ifdef LEAN_LLVM
-    LLVMInitializeNativeTarget();
-    LLVMInitializeNativeAsmParser();
-    LLVMInitializeNativeAsmPrinter();
+    LLVMInitializeAllTargetInfos();
+    LLVMInitializeAllTargets();
+    LLVMInitializeAllTargetMCs();
+    LLVMInitializeAllAsmParsers();
+    LLVMInitializeAllAsmPrinters();
 #endif
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -1117,6 +1119,13 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_target_from_triple(size_t ctx,
     char *errmsg = NULL;
     int is_error =
         LLVMGetTargetFromTriple(lean_string_cstr(triple), &t, &errmsg);
+    if (is_error) {
+        fprintf(stderr, "Unable to find target '%s'. Registered targets:\n", lean_string_cstr(triple));
+        for(LLVMTargetRef t = LLVMGetFirstTarget();  t != NULL; t = LLVMGetNextTarget(t)) {
+            fprintf(stderr, "    %-10s - %s\n", LLVMGetTargetName(t), LLVMGetTargetDescription(t));
+        }
+    }
+
     lean_always_assert(!is_error && "failed to get target from triple");
     return lean_io_result_mk_ok(lean_box_usize(Target_to_lean(t)));
 #endif  // LEAN_LLVM
@@ -1155,7 +1164,6 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_emit_to_file(size_t
     int is_error = LLVMTargetMachineEmitToFile(
         lean_to_TargetMachine(target_machine), lean_to_Module(module),
         filepath_c_str, LLVMCodeGenFileType(codegenType), &err_msg);
-
 
     return lean_io_result_mk_ok(lean_box(0));
 #endif  // LEAN_LLVM

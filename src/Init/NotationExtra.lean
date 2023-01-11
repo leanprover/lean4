@@ -296,10 +296,10 @@ Patterns can be used like in the `intro` tactic. Example, given a goal
 ```
 `funext (a, b)` applies `funext` once and performs pattern matching on the newly introduced pair.
 -/
-syntax "funext " (colGt term:max)* : tactic
+syntax "funext" (ppSpace colGt term:max)* : tactic
 
 macro_rules
-  | `(tactic|funext) => `(tactic| apply funext; intro; funext <|> skip)
+  | `(tactic|funext) => `(tactic| apply funext; intro; try funext)
   | `(tactic|funext $x) => `(tactic| apply funext; intro $x:term)
   | `(tactic|funext $x $xs*) => `(tactic| apply funext; intro $x:term; funext $xs*)
 

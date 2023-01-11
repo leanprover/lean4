@@ -1048,6 +1048,14 @@ partial def emitJDecl (builder : LLVM.Builder llvmctx)
   emitBlock builder b
   LLVM.positionBuilderAtEnd builder oldBB -- reset state
 
+partial def emitUnreachable (builder : LLVM.Builder llvmctx) : M llvmctx Unit := do
+  let retty ← LLVM.voidType llvmctx
+  let argtys := #[]
+  let fn ← getOrCreateFunctionPrototype  (← getLLVMModule) retty "lean_internal_panic_unreachable" argtys
+  let fnty ← LLVM.functionType retty argtys
+  let _ ← LLVM.buildCall2 builder fnty fn #[]
+  let _ ← LLVM.buildUnreachable builder
+
 partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx Unit := do
   match b with
   | FnBody.jdecl j xs  v b      =>
@@ -1082,7 +1090,8 @@ partial def emitBlock (builder : LLVM.Builder llvmctx) (b : FnBody) : M llvmctx 
      emitCase builder x xType alts
   | FnBody.jmp j xs            =>
      emitJmp builder j xs
-  | FnBody.unreachable         => throw "Unimplemented unreachable" -- TODO(bollu): implement 'unreachable'
+  | FnBody.unreachable         => emitUnreachable builder
+
 partial def emitFnBody  (builder : LLVM.Builder llvmctx)  (b : FnBody) : M llvmctx Unit := do
   declareVars builder b
   emitBlock builder b

@@ -21,4 +21,4 @@ target ffi.o (pkg : Package) : FilePath := do
 extern_lib libleanffi (pkg : Package) := do
   let name := nameToStaticLib "leanffi"
   let ffiO ← fetch <| pkg.target ``ffi.o
-  buildStaticLib (pkg.buildDir / "c" / name) #[ffiO]
+  buildStaticLib (pkg.libDir / name) #[ffiO]

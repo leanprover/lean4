@@ -43,7 +43,7 @@ echo -n " -DLLVM=ON -DLLVM_CONFIG=$PWD/llvm-host/bin/llvm-config" # manually poi
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}' -DLEAN_EXTRA_MAKE_OPTS='${EXTRA_FLAGS:-}'"
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/

@@ -36,7 +36,10 @@ with builtins; let
   # "Init.Core" ~> "Init/Core"
   modToPath = mod: replaceStrings ["."] ["/"] mod;
   modToAbsPath = mod: "${src}/${modToPath mod}";
-  modToLean = mod: src + "/${modToPath mod}.lean";
+  # sanitize file name before copying to store, except when already in store
+  copyToStoreSafe = base: suffix: if lib.isDerivation base then base + suffix else
+    builtins.path { name = lib.strings.sanitizeDerivationName (baseNameOf suffix); path = base + suffix; };
+  modToLean = mod: copyToStoreSafe src "/${modToPath mod}.lean";
   bareStdenv = ./bareStdenv;
   mkBareDerivation = args: derivation (args // {
     name = lib.strings.sanitizeDerivationName args.name;
@@ -110,13 +113,13 @@ with builtins; let
       # we can't know the required files without parsing dependencies (which is what we want this
       # function for), so we approximate to the entire package.
       let root = (head (split "\\." g));
-      in lib.optional (pathExists (modToLean root)) root ++ lib.optionals (pathExists (modToAbsPath root)) (submodules root)
+      in lib.optional (pathExists (src + "/${modToPath root}.lean")) root ++ lib.optionals (pathExists (modToAbsPath root)) (submodules root)
     else if g.glob == "one" then expandGlobAllApprox g.mod
     else if g.glob == "submodules" then submodules g.mod
     else if g.glob == "andSubmodules" then [g.mod] ++ submodules g.mod
     else throw "unknown glob kind '${g}'";
   # list of modules that could potentially be involved in the build
-  candidateMods = filter (m: pathExists (modToLean m)) (lib.unique (concatMap expandGlobAllApprox roots));
+  candidateMods = lib.unique (concatMap expandGlobAllApprox roots);
   candidateFiles = map modToLean candidateMods;
   modDepsFile = args.modDepsFile or mkBareDerivation {
     name = "${name}-deps.json";
@@ -143,7 +146,7 @@ with builtins; let
     buildInputs = [ lean ];
     leanPath = relpath + ".lean";
     # should be either single .lean file or directory directly containing .lean file plus dependencies
-    src = srcRoot + ("/" + leanPath);
+    src = copyToStoreSafe srcRoot ("/" + leanPath);
     outputs = [ "out" "ilean" "c" ];
     oleanPath = relpath + ".olean";
     ileanPath = relpath + ".ilean";

@@ -66,7 +66,7 @@ structure MaterializeResult where
 /--
 Materializes a package entry, cloning and/or checkout it out as necessary.
 -/
-def materializePackageEntry (wsDir packagesDir : FilePath) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
+def materializePackageEntry (wsDir relPkgsDir : FilePath) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
   match manifestEntry with
   | .path _name pkgDir =>
     return {
@@ -77,7 +77,7 @@ def materializePackageEntry (wsDir packagesDir : FilePath) (manifestEntry : Pack
       manifestEntry
     }
   | .git name url rev _inputRev? subDir? => do
-    let relGitDir := packagesDir / name
+    let relGitDir := relPkgsDir / name
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
     /-
@@ -96,7 +96,7 @@ def materializePackageEntry (wsDir packagesDir : FilePath) (manifestEntry : Pack
     return {
       pkgDir := wsDir / relPkgDir
       relPkgDir
-      remoteUrl? := url
+      remoteUrl? := Git.filterUrl? url
       gitTag? := ← repo.findTag?
       manifestEntry
     }

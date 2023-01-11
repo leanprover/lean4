@@ -48,7 +48,7 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
           for entry in (← Manifest.loadOrEmpty pkg.manifestFile) do
             unless (← getThe (NameMap MaterializeResult)).contains entry.name do
               let entry := entry.inDirectory relPkgDir
-              let result ← materializePackageEntry ws.dir ws.packagesDir entry
+              let result ← materializePackageEntry ws.dir ws.relPkgsDir entry
               modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
         let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
         let deps ← deps.mapM fun dep => do
@@ -56,8 +56,8 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
             return (dep, result)
           else
             let depName := dep.name.toString (escape := false)
-            let entry ← updateSource relPkgDir ws.packagesDir depName dep.src
-            let result ← materializePackageEntry ws.dir ws.packagesDir entry
+            let entry ← updateSource relPkgDir ws.relPkgsDir depName dep.src
+            let result ← materializePackageEntry ws.dir ws.relPkgsDir entry
             modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
             return (dep, result)
         let depPkgs ← deps.mapM fun (dep, result) => do
@@ -70,7 +70,7 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
         return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok _, results) =>
-    let mut manifest : Manifest := {packagesDir? := ws.packagesDir}
+    let mut manifest : Manifest := {packagesDir? := ws.relPkgsDir}
     for (_, result) in results do
       manifest := manifest.insert result.manifestEntry
     return manifest
@@ -129,11 +129,11 @@ Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
 def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Workspace := do
-  if !manifest.isEmpty && manifest.packagesDir? != some ws.packagesDir then
+  if !manifest.isEmpty && manifest.packagesDir? != some ws.relPkgsDir then
     logWarning <|
       "manifest out of date: package directory changed, " ++
       "use `lake update` to update"
-  let packagesDir := manifest.packagesDir?.getD ws.packagesDir
+  let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
   let res ← EStateT.run' (mkNameMap Package) do
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let topLevel := pkg.name = ws.root.name
@@ -156,7 +156,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Wor
           let .some entry := manifest.find? dep.name
             | error <| s!"dependency {dep.name} of {pkg.name} not in manifest, " ++
               "use `lake update` to update"
-          let result ← materializePackageEntry ws.dir packagesDir entry
+          let result ← materializePackageEntry ws.dir relPkgsDir entry
           loadDepPackage pkg result dep
       return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
   match res with

@@ -1,5 +1,6 @@
 CXX ?= c++
 CPPFLAGS = -O3
+# TODO: use Lake instead
 include lean.mk
 
 CPP_SRCS = myfuns.cpp

@@ -131,7 +131,7 @@ def Module.recBuildLeanCore (mod : Module)
   let modJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
+  let (externJobs, _libDirs) ← recBuildExternDynlibs pkgs
   let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
@@ -143,13 +143,15 @@ def Module.recBuildLeanCore (mod : Module)
     modDynlibsJob.bindAsync fun modDynlibs modTrace => do
     externDynlibsJob.bindSync fun externDynlibs externTrace => do
       let depTrace := importTrace.mix <| modTrace.mix externTrace
-      let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
-      -- NOTE: Lean wants the external library symbols before module symbols
-      -- NOTE: Unix requires the full file name of the dynlib (Windows doesn't care)
-      let dynlibs :=
-        externDynlibs.map (.mk <| nameToSharedLib ·.name) ++
-        modDynlibs.map (.mk <| nameToSharedLib ·.name)
-      let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace leanOnly
+      /-
+      Requirements:
+      * Lean wants the external library symbols before module symbols.
+      * Unix requires the file extension of the dynlib.
+      * For some reason, building from the Lean server requires full paths.
+        Everything else loads fine with just the augmented library path.
+      -/
+      let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
+      let trace ← mod.buildUnlessUpToDate ∅ dynlibs depTrace leanOnly
       return ((), trace)
 
 /-- Possible artifacts of the `lean` command. -/

@@ -30,7 +30,7 @@ the build jobs of their precompiled modules and the build jobs of said modules'
 external libraries.
 -/
 def recBuildImports (imports : Array Module)
-: IndexBuildM (Array (BuildJob Unit) × Array (BuildJob Dynlib) × Array (BuildJob FilePath)) := do
+: IndexBuildM (Array (BuildJob Unit) × Array (BuildJob Dynlib) × Array (BuildJob Dynlib)) := do
   let mut modJobs := #[]
   let mut precompileImports := OrdModuleSet.empty
   for mod in imports do
@@ -40,7 +40,7 @@ def recBuildImports (imports : Array Module)
       precompileImports := precompileImports.appendArray (← mod.precompileImports.fetch)
     modJobs := modJobs.push <| ← mod.leanBin.fetch
   let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
-  let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.shared.fetch))
+  let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.dynlib.fetch))
   let precompileJobs ← precompileImports.toArray.mapM (·.dynlib.fetch)
   return (modJobs, precompileJobs, externJobs)
 
@@ -64,7 +64,7 @@ def buildImportsAndDeps (imports : List String) : BuildM (Array FilePath) := do
     let (modJobs, precompileJobs, externLibJobs) ←
       recBuildImports mods |>.run.run
     modJobs.forM (·.await)
-    let dynlibs ← precompileJobs.mapM (·.await <&> (·.path))
-    let externLibs ← externLibJobs.mapM (·.await)
+    let modLibs ← precompileJobs.mapM (·.await <&> (·.path))
+    let externLibs ← externLibJobs.mapM (·.await <&> (·.path))
     -- NOTE: Lean wants the external library symbols before module symbols
-    return externLibs ++ dynlibs
+    return externLibs ++ modLibs

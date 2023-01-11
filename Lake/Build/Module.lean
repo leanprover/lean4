@@ -131,7 +131,7 @@ def Module.recBuildLeanCore (mod : Module)
   let modJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-  let (externJobs, _libDirs) ← recBuildExternDynlibs pkgs
+  let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
   let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
@@ -149,9 +149,11 @@ def Module.recBuildLeanCore (mod : Module)
       * Unix requires the file extension of the dynlib.
       * For some reason, building from the Lean server requires full paths.
         Everything else loads fine with just the augmented library path.
+      * Linux still needs the augmented path to resolve nested dependencies in dynlibs.
       -/
+      let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
       let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
-      let trace ← mod.buildUnlessUpToDate ∅ dynlibs depTrace leanOnly
+      let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace leanOnly
       return ((), trace)
 
 /-- Possible artifacts of the `lean` command. -/

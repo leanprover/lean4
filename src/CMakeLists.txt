@@ -143,7 +143,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
-  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
+  string(APPEND LEAN_EXTRA_MAKE_OPTS " -s40000")
 endif ()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
@@ -312,7 +312,12 @@ endif()
 string(APPEND LEANC_STATIC_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 string(APPEND LEANSHARED_LINKER_FLAGS " ${LEAN_CXX_STDLIB}")
 
-if(LLVM)
+if (LLVM)
+  string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
+  string(APPEND CMAKE_CXX_FLAGS " -I${LLVM_CONFIG_INCLUDEDIR}")
+endif()
+
+if(LLVM AND ${STAGE} GREATER 0)
     # Here, we perform a replacement of `llvm-host` with `llvm`. This is necessary for our cross-compile
     #   builds in `script/prepare-llvm-*.sh`.
     # - Recall that the host's copy of LLVM binaries and libraries is at
@@ -326,9 +331,7 @@ if(LLVM)
     #   compiler options, and change the output of the host to point to the target.
     # - In particular, `host/bin/llvm-config` produces flags like `-Lllvm-host/lib/libLLVM`, while
     #   we need the path to be `-Lllvm/lib/libLLVM`. Thus, we perform this replacement here.
-    string(APPEND LEANSHARED_LINKER_FLAGS " -L${LLVM_CONFIG_LIBDIR} ${LLVM_CONFIG_LDFLAGS} ${LLVM_CONFIG_LIBS} ${LLVM_CONFIG_SYSTEM_LIBS}")
     string(REPLACE "llvm-host" "llvm" LEANSHARED_LINKER_FLAGS ${LEANSHARED_LINKER_FLAGS})
-    string(APPEND CMAKE_CXX_FLAGS  " -I${LLVM_CONFIG_INCLUDEDIR}")
     string(REPLACE "llvm-host" "llvm" LEAN_EXTRA_CXX_FLAGS ${LEAN_EXTRA_CXX_FLAGS})
     message(VERBOSE "leanshared linker flags: '${LEANSHARED_LINKER_FLAGS}' | lean extra cxx flags '${LEAN_EXTR_CXX_FLAGS}'")
 endif()
@@ -508,6 +511,12 @@ else()
   endif()
 endif()
 
+# Build the compiler using the bootstraped C sources for stage0, and use
+# the LLVM build for stage1 and further.
+if (LLVM AND ${STAGE} GREATER 0)
+  set(EXTRA_LEANMAKE_OPTS "LLVM=1")
+endif()
+
 # Escape for `make`. Yes, twice.
 string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE "${CMAKE_EXE_LINKER_FLAGS}")
 string(REPLACE "$" "$$" CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE "${CMAKE_EXE_LINKER_FLAGS_MAKE}")
@@ -519,6 +528,12 @@ add_custom_target(make_stdlib ALL
   # We use `lean` from the previous stage, but `leanc`, headers, etc. from the current stage
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Init Lean
   VERBATIM)
+
+# if we have LLVM enabled, then build `lean.h.bc` which has the LLVM bitcode
+# of Lean runtime to be built.
+if (LLVM AND ${STAGE} EQUAL 1)
+   add_dependencies(make_stdlib runtime_bc)
+endif()
 
 # We declare these as separate custom targets so they use separate `make` invocations, which makes `make` recompute which dependencies
 # (e.g. `libLean.a`) are now newer than the target file

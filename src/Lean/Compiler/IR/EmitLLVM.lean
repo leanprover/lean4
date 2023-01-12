@@ -1511,10 +1511,6 @@ def optimizeLLVMModule (mod : LLVM.Module ctx) : IO Unit := do
 
 /--
 `emitLLVM` is the entrypoint for the lean shell to code generate LLVM.
-TODO(bollu): tripleStr? has type `String` instead of `Option String`
-             because there didn't seem to be a convenient way to convert a
-             `lean::optional<string>` to the correct `object_ref` which represents
-             an `Option String`. Clean this up before comitting.
 -/
 @[export lean_ir_emit_llvm]
 def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String): IO Unit := do

@@ -1,6 +1,6 @@
 { lean, lean-leanDeps ? lean, lean-final ? lean, leanc,
   stdenv, lib, coreutils, gnused, writeShellScriptBin, bash, lean-emacs, lean-vscode, nix, substituteAll, symlinkJoin, linkFarmFromDrvs,
-  runCommand, gmp, darwin, mkShell, ... }:
+  runCommand, darwin, mkShell, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
 { name, src, fullSrc ? src, srcPrefix ? "",
@@ -60,8 +60,7 @@ with builtins; let
     libName = "${name}${stdenv.hostPlatform.extensions.sharedLibrary}";
   } ''
     mkdir -p $out
-    ${leanc}/bin/leanc -fPIC -shared ${lib.optionalString stdenv.isLinux "-Bsymbolic"} ${lib.optionalString stdenv.isDarwin "-Wl,-undefined,dynamic_lookup"} -L ${gmp}/lib \
-      ${args} -o $out/$libName
+    ${leanc}/bin/leanc -shared ${args} -o $out/$libName
   '';
   depRoot = name: deps: mkBareDerivation {
     name = "${name}-depRoot";

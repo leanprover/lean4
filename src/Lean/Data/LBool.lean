@@ -19,7 +19,7 @@ def neg : LBool → LBool
   | false => true
   | undef => undef
 
-def and : LBool → LBool → LBool
+@[macro_inline] def and : LBool → LBool → LBool
   | true,  b  => b
   | a,     _  => a
 

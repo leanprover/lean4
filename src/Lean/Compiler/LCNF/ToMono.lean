@@ -45,11 +45,7 @@ partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
   match e with
   | .erased | .value .. => return e
   | .const declName _ args =>
-    if declName == ``Decidable.isTrue then
-      return .const ``Bool.true [] #[]
-    else if declName == ``Decidable.isFalse then
-      return .const ``Bool.false [] #[]
-    else if let some e' ← isTrivialConstructorApp? declName args then
+    if let some e' ← isTrivialConstructorApp? declName args then
       e'.toMono
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then
       ctorAppToMono ctorInfo args
@@ -84,18 +80,6 @@ partial def FunDeclCore.toMono (decl : FunDecl) : ToMonoM FunDecl := do
   let value ← decl.value.toMono
   decl.update type params value
 
-/-- Convert `cases` `Decidable` => `Bool` -/
-partial def decToMono (c : Cases) (_ : c.typeName == ``Decidable) : ToMonoM Code := do
-  let resultType ← toMonoType c.resultType
-  let alts ← c.alts.mapM fun alt => do
-    match alt with
-    | .default k => return alt.updateCode (← k.toMono)
-    | .alt ctorName ps k =>
-      eraseParams ps
-      let ctorName := if ctorName == ``Decidable.isTrue then ``Bool.true else ``Bool.false
-      return .alt ctorName #[] (← k.toMono)
-  return .cases { c with resultType, alts, typeName := ``Bool }
-
 /-- Eliminate `cases` for trivial structure. See `hasTrivialStructure?` -/
 partial def trivialStructToMono (info : TrivialStructureInfo) (c : Cases) : ToMonoM Code := do
   assert! c.alts.size == 1
@@ -117,9 +101,7 @@ partial def Code.toMono (code : Code) : ToMonoM Code := do
   | .unreach type => return .unreach (← toMonoType type)
   | .return .. | .jmp .. => return code
   | .cases c =>
-    if h : c.typeName == ``Decidable then
-      decToMono c h
-    else if let some info ← hasTrivialStructure? c.typeName then
+    if let some info ← hasTrivialStructure? c.typeName then
       trivialStructToMono info c
     else
       -- TODO: `casesOn` `[implemented_by]` support

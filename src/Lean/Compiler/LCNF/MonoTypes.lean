@@ -86,8 +86,6 @@ where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
     | .const declName us =>
-      if declName == ``Decidable then
-        return mkConst ``Bool
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
         toMonoType (getParamTypes (← instantiateForall ctorType args[:info.numParams]))[info.fieldIdx]!

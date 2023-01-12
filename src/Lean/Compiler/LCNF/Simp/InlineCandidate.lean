@@ -50,15 +50,14 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       We assume that at the base phase these annotations are for the instance methods that have been lambda lifted.
       -/
       if (← inBasePhase <&&> Meta.isInstance decl.name) then
-        unless decl.name == ``instDecidableEqBool do
-          /-
-          TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
-          Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
-          structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
-          way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
-          that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
-          -/
-          return false
+        /-
+        TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.
+        Recall that the current `Decidable` class is special case since it is an inductive datatype which is not a
+        structure like all other type classes. This is bad since it prevents us from treating all classes in a uniform
+        way. After we change `Decidable` to a structure as suggested by Gabriel, we should only accept type classes
+        that are structures. Moreover, we should reject instances that have only one exit point producing an explicit structure.
+        -/
+        return false
       if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
       if decl.inlineAttr || decl.inlineIfReduceAttr then return true

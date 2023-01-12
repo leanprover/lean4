@@ -79,8 +79,9 @@ binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -r
 %.flambda.ml.out: OCAML = $(OCAML_FLAMBDA)
 %.flambda.ml: %.ml; ln -f $< $@
 
-binarytrees.ml: binarytrees.ocaml-2.ml; ln -f $< $@
-binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
+binarytrees.ml: binarytrees5_multicore.ml; ln -f $< $@
+binarytrees%ml.out: OCAML_FLAGS += -noassert -fPIC -nodynlink -inline 100 -O3 -package domainslib -linkpkg
+binarytrees%ml.out: OCAML = ocamlfind ocamlopt
 
 %.mlton.out: %.sml
 	$(MLTON_BIN)/mlton $(MLTON_FLAGS) -output $@ $<
@@ -104,6 +105,7 @@ bench/%.bench: %.out | bench
 bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 100
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
+bench/binarytrees.ml.bench: BENCH_PARAMS = $$(nproc) 21
 
 bench/deriv.%.bench: BENCH_PARAMS = 10
 

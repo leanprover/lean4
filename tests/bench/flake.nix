@@ -9,10 +9,22 @@
   outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system: { packages = rec {
     leanPkgs = inputs.lean.packages.${system};
     pkgs = inputs.nixpkgs.legacyPackages.${system};
+    ocamlPkgs = pkgs.ocaml-ng.ocamlPackages_latest;
+    # https://github.com/ocaml/opam-repository/pull/22688
+    lockfree = ocamlPkgs.lockfree.overrideAttrs (_: rec {
+      version = "0.2.0";
+      src = pkgs.fetchurl {
+        url = "https://github.com/ocaml-multicore/lockfree/releases/download/v${version}/lockfree-${version}.tbz";
+        hash = "sha256-cEwgaTRiSNOJkTQIw2SDTBvEbepdQRwL7dg2hosh4yE=";
+      };
+    });
+    domainslib = ocamlPkgs.domainslib.overrideAttrs (_: {
+      propagatedBuildInputs = [ lockfree ];
+    });
     # for binarytrees.hs
     ghcPackages = p: [ p.parallel ];
     ghc = pkgs.haskell.packages.ghc944.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
-    ocaml = pkgs.ocaml-ng.ocamlPackages_latest.ocaml;
+    ocaml = ocamlPkgs.ocaml;
     # note that this will need to be compiled from source
     ocamlFlambda = ocaml.override { flambdaSupport = true; };
     mlton = inputs.mltonNixpkgs.legacyPackages.${system}.mlton;
@@ -50,6 +62,9 @@
       TEMCI = "${temci}/bin/temci";
       buildInputs = with pkgs; [
         ((builtins.elemAt temci.nativeBuildInputs 0).withPackages (ps: [ temci ps.numpy ps.pyyaml ]))
+        ocaml
+        ocamlPkgs.findlib
+        domainslib
         temci
         pkgs.linuxPackages.perf time unixtools.column
       ];

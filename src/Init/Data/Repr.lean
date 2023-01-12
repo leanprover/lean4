@@ -50,9 +50,7 @@ def Repr.addAppParen (f : Format) (prec : Nat) : Format :=
     f
 
 instance : Repr (Decidable p) where
-  reprPrec
-    | Decidable.isTrue _, prec  => Repr.addAppParen "isTrue _" prec
-    | Decidable.isFalse _, prec => Repr.addAppParen "isFalse _" prec
+  reprPrec d := Repr.addAppParen (if d.1 then "isTrue _" else "isFalse _")
 
 instance : Repr PUnit.{u+1} where
   reprPrec _ _ := "PUnit.unit"

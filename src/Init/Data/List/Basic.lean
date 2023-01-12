@@ -656,22 +656,24 @@ inductive lt [LT α] : List α → List α → Prop where
 
 instance [LT α] : LT (List α) := ⟨List.lt⟩
 
-instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLt [LT α] [DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
   | [],    _::_  => isTrue (List.lt.nil _ _)
   | _::_, []     => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
-    match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
-    | isFalse h₁ =>
-      match h b a with
-      | isTrue h₂  => isFalse (fun h => match h with
+    if h₁ : a < b then
+      isTrue (List.lt.head _ _ h₁)
+    else
+      if h₂ : b < a then
+        isFalse (fun h => match h with
          | List.lt.head _ _ h₁' => absurd h₁' h₁
          | List.lt.tail _ h₂' _ => absurd h₂ h₂')
-      | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
-        | isFalse h₃ => isFalse (fun h => match h with
+      else
+        have := hasDecidableLt as bs
+        if h₃ : as < bs then
+          isTrue (List.lt.tail h₁ h₂ h₃)
+        else
+          isFalse (fun h => match h with
            | List.lt.head _ _ h₁' => absurd h₁' h₁
            | List.lt.tail _ _ h₃' => absurd h₃' h₃)
 
@@ -714,17 +716,6 @@ and they are pairwise related by `eqv`.
   | [],    [],    _   => true
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     _   => false
-
-/--
-The equality relation on lists asserts that they have the same length
-and they are pairwise `BEq`.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
-instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
 /--
 `replicate n a` is `n` copies of `a`:

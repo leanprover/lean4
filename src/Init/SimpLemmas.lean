@@ -78,7 +78,7 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
 @[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
-@[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
+@[simp] theorem ite_self {_ : Decidable c} (a : α) : ite c a a = a := if h : c then if_pos h else if_neg h
 @[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.1), fun h => ⟨h, h⟩⟩
 @[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩
 @[simp] theorem true_and (p : Prop) : (True ∧ p) = p := propext ⟨(·.2), (⟨trivial, ·⟩)⟩
@@ -136,7 +136,7 @@ theorem Bool.not_beq_to_not_eq (a b : Bool) :
 @[simp] theorem Bool.not_eq_false (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
 
 @[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
-@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+@[simp] theorem not_decide_eq_true [Decidable p] : ((!decide p) = true) = ¬ p := propext (decide_iff (p := (¬ p)))
 
 @[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 
@@ -168,9 +168,9 @@ theorem cond_neg : ¬ c.asProp → cond c a b = b := by cases c <;> simp
 theorem Bool.eq_of_asProp_eq {b c : Bool} : b.asProp = c.asProp → b = c := by
   cases b <;> cases c <;> simp
 
-@[simp] theorem decide_asProp : decide (Bool.asProp b) = b := by cases b <;> simp
+@[simp] theorem decide_asProp : decide (Bool.asProp b) = b := rfl
 @[simp] theorem decide_False : decide False = false := rfl
 @[simp] theorem decide_True : decide True = true := rfl
-@[simp] theorem decide_and [Decidable p] [Decidable q] : decide (p ∧ q) = (decide p && decide q) := Bool.eq_of_asProp_eq (by simp)
-@[simp] theorem decide_or [Decidable p] [Decidable q] : decide (p ∨ q) = (decide p || decide q) := Bool.eq_of_asProp_eq (by simp)
-@[simp] theorem decide_not [Decidable p] : decide (¬ p) = !decide p := Bool.eq_of_asProp_eq (by simp)
+@[simp] theorem decide_and [Decidable p] [Decidable q] : decide (p ∧ q) = (decide p && decide q) := rfl
+@[simp] theorem decide_or [Decidable p] [Decidable q] : decide (p ∨ q) = (decide p || decide q) := rfl
+@[simp] theorem decide_not [Decidable p] : decide (¬ p) = !decide p := rfl

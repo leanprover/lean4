@@ -330,6 +330,7 @@ set_option pp.analyze.trustSubtypeMk true in
 #testDelabN List.partition.loop
 #testDelabN StateT.modifyGet
 #testDelabN Nat.gcd_one_left
+set_option pp.notation false in -- TODO: if-then-else ignores analyze options
 #testDelabN List.hasDecidableLt
 #testDelabN Lean.Xml.parse
 #testDelabN Add.noConfusionType

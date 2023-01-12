@@ -387,10 +387,9 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
     else
       return info.name == ``ite
        || info.name == ``dite
-       || info.name == ``decEq
        || info.name == ``Nat.decEq
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
-       || info.name == ``String.decEq || info.name == ``List.hasDecEq
+       || info.name == ``String.decEq
        || info.name == ``Fin.ofNat
        || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
        || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq

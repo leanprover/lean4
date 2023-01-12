@@ -101,12 +101,16 @@ set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
-  | ofNat a, ofNat b => match decEq a b with
-    | isTrue h  => isTrue  <| h ▸ rfl
-    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | negSucc a, negSucc b => match decEq a b with
-    | isTrue h  => isTrue  <| h ▸ rfl
-    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
+  | ofNat a, ofNat b =>
+    if h : a = b then
+      isTrue  <| h ▸ rfl
+    else
+      isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
+  | negSucc a, negSucc b =>
+    if h : a = b then
+      isTrue  <| h ▸ rfl
+    else
+      isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
   | ofNat _, negSucc _ => isFalse <| fun h => Int.noConfusion h
   | negSucc _, ofNat _ => isFalse <| fun h => Int.noConfusion h
 

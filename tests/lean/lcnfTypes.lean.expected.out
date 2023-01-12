@@ -14,7 +14,7 @@ Ty.denote : Ty → Type
 MonadControl.liftWith : {m : Type u → Type v} →
   {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → (({β : Type u} → n β → m ◾) → m α) → n α
 MonadControl.restoreM : {m : Type u → Type v} → {n : Type u → Type w} → [self : MonadControl m n] → {α : Type u} → m ◾ → n α
-Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (◾ → motive ◾) → (◾ → motive ◾) → motive ◾
+Decidable.casesOn : {p : Prop} → {motive : Decidable ◾ → Sort u} → Decidable ◾ → (Bool → ◾ → motive ◾) → motive ◾
 Lean.getConstInfo : {m : Type → Type} →
   [inst : Monad m] → [inst : Lean.MonadEnv m] → [inst : Lean.MonadError m] → Lean.Name → m Lean.ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
@@ -46,7 +46,7 @@ Member.head : ◾ → ◾ → List ◾ → Member ◾ ◾ ◾
 Ty.denote : ◾
 MonadControl.liftWith : ◾ → ◾ → MonadControl ◾ ◾ → ◾ → ((◾ → ◾ → ◾) → ◾) → ◾
 MonadControl.restoreM : ◾ → ◾ → MonadControl ◾ ◾ → ◾ → ◾ → ◾
-Decidable.casesOn : ◾ → ◾ → Bool → (◾ → ◾) → (◾ → ◾) → ◾
+Decidable.casesOn : ◾ → ◾ → Bool → (Bool → ◾ → ◾) → ◾
 Lean.getConstInfo : ◾ → Monad ◾ → Lean.MonadEnv ◾ → Lean.MonadError ◾ → Lean.Name → ◾
 Lean.Meta.instMonadMetaM : Monad ◾
 Lean.Meta.inferType : Lean.Expr → Lean.Meta.Context → ◾ → Lean.Core.Context → ◾ → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr

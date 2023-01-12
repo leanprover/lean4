@@ -44,9 +44,9 @@ theorem div_le_self (n k : Nat) : n / k ≤ n := by
   | ind n ih =>
     rw [div_eq]
     -- Note: manual split to avoid Classical.em which is not yet defined
-    cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
-    | isFalse h => simp [h]
-    | isTrue h =>
+    refine if h : 0 < k ∧ k ≤ n then ?t else ?e
+    case e => simp [h]
+    case t =>
       suffices (n - k) / k + 1 ≤ n by simp [h, this]
       have ⟨hK, hKN⟩ := h
       have hSub : n - k < n := sub_lt (Nat.lt_of_lt_of_le hK hKN) hK
@@ -55,9 +55,9 @@ theorem div_le_self (n k : Nat) : n / k ≤ n := by
 
 theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
   rw [div_eq]
-  cases (inferInstance : Decidable (0 < k ∧ k ≤ n)) with
-  | isFalse h => simp [hLtN, h]
-  | isTrue h =>
+  refine if h : 0 < k ∧ k ≤ n then ?t else ?e
+  case e => simp [hLtN, h]
+  case t =>
     suffices (n - k) / k + 1 < n by simp [h, this]
     have ⟨_, hKN⟩ := h
     have : (n - k) / k ≤ n - k := div_le_self (n - k) k
@@ -165,10 +165,9 @@ theorem mod_one (x : Nat) : x % 1 = 0 := by
 
 theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
   rw [div_eq, mod_eq]
-  have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
-  cases h with
-  | isFalse h => simp [h]
-  | isTrue h =>
+  refine if h : 0 < n ∧ n ≤ m then ?t else ?e
+  case e => simp [h]
+  case t =>
     simp [h]
     have ih := div_add_mod (m - n) n
     rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]

@@ -43,9 +43,15 @@ def Foo.deq (a b : Foo) : Decidable (a = b) := by
   case pair a b =>
     let (a₁, a₂) := a
     let (b₁, b₂) := b
-    exact match deq a₁ b₁, deq a₂ b₂ with
-    | isTrue h₁, isTrue h₂ => isTrue (by rw [h₁,h₂])
-    | isFalse h₁, _ => isFalse (fun h => by cases h; cases (h₁ rfl))
-    | _, isFalse h₂ => isFalse (fun h => by cases h; cases (h₂ rfl))
+    have := deq a₁ b₁
+    have := deq a₂ b₂
+    exact
+      if h₁ : a₁ = b₁ then
+        if h₂ : a₂ = b₂ then
+          isTrue (by rw [h₁,h₂])
+        else
+          isFalse (fun h => by cases h; cases (h₂ rfl))
+      else
+        isFalse (fun h => by cases h; cases (h₁ rfl))
 
 end Ex3

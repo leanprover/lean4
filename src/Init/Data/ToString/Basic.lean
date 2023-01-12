@@ -40,10 +40,8 @@ instance : ToString String.Iterator :=
 instance : ToString Bool :=
   ⟨fun b => cond b "true" "false"⟩
 
-instance {p : Prop} : ToString (Decidable p) := ⟨fun h =>
-  match h with
-  | Decidable.isTrue _  => "true"
-  | Decidable.isFalse _ => "false"⟩
+instance : ToString (Decidable p) where
+  toString h := toString h.1
 
 protected def List.toString [ToString α] : List α → String
   | [] => "[]"

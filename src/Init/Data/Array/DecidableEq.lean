@@ -42,9 +42,9 @@ theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y =>
   simp [isEqv, isEqvAux_self]
 
 instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun a b =>
-    match h:isEqv a b (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv a b h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+  fun a b => {
+    decide := a == b
+    decide_iff := ⟨eq_of_isEqv _ _, (· ▸ isEqv_self _)⟩
+  }
 
 end Array

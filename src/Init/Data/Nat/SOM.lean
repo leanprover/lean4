@@ -180,5 +180,3 @@ theorem Expr.eq_of_toPoly_eq (ctx : Context) (a b : Expr) (h : a.toPoly == b.toP
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [toPoly_denote] at h
   assumption
-
-end Nat.SOM

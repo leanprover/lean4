@@ -61,7 +61,7 @@
    "detail": "Bool → Bool → Bool"},
   {"label": "instDecidableAnd",
    "kind": 3,
-   "detail": "[dp : Decidable p] → [dq : Decidable q] → Decidable (p ∧ q)"},
+   "detail": "[inst : Decidable p] → [inst : Decidable q] → Decidable (p ∧ q)"},
   {"label": "instHAnd", "kind": 3, "detail": "[inst : AndOp α] → HAnd α α α"},
   {"label": "Append",
    "kind": 7,

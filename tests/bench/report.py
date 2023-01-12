@@ -28,7 +28,7 @@ stddev_by_cat = collections.defaultdict(list)
 def pp(bench, cat, prop, norm):
     f = f"bench/{bench}{cat}.bench"
     if not open(f).read():
-        return "-"
+        return ""
     s = single(bench, cat, prop)
     norm = norm if prop == 'etime' else 1
     mean_by_cat[cat].append(s.mean() / norm)

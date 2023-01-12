@@ -23,7 +23,7 @@ if(LLVM)
   endif()
   FILE(READ "${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h" LEAN_H)
   # generate LLVM IR for `static inline` definitions in lean.h for the LLVM backend
-  string(REPLACE "static inline" "__attribute__((always_inline))" LEAN_H "${LEAN_H}")
+  string(REPLACE "static inline" "__attribute__((always_inline, weak))" LEAN_H "${LEAN_H}")
   # drop '#pragma once' in .c file to avoid warning
   string(REPLACE "#pragma once" "" LEAN_H "${LEAN_H}")
   file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")

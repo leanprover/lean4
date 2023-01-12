@@ -464,13 +464,13 @@ theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := r
 `strictOr` is the same as `or`, but it does not use short-circuit evaluation semantics:
 both sides are evaluated, even if the first value is `true`.
 -/
-@[extern c inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[extern "lean_strict_or"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
 
 /--
 `strictAnd` is the same as `and`, but it does not use short-circuit evaluation semantics:
 both sides are evaluated, even if the first value is `false`.
 -/
-@[extern c inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[extern "lean_strict_and"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 /--
 `x != y` is boolean not-equal. It is the negation of `x == y` which is supplied by

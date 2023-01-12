@@ -206,24 +206,24 @@ private def isAlwaysZero : Level → LBool
   | .imax _ u   => isAlwaysZero u
 
 /--
-  `isArrowProp type n` is an "approximate" predicate which returns `LBool.true`
+  `isArrowPropQuick type n` is an "approximate" predicate which returns `LBool.true`
    if `type` is of the form `A_1 -> ... -> A_n -> Prop`.
    Remark: `type` can be a dependent arrow. -/
-private partial def isArrowProp : Expr → Nat → LBool
-  | .sort u,          0   => isAlwaysZeroQuick u
+private partial def isArrowPropQuick : Expr → Nat → LBool
+  | .sort u,          0   => isAlwaysZero u
   | .forallE ..,      0   => LBool.false
-  | .forallE _ _ b _, n+1 => isArrowProp b n
-  | .letE _ _ _ b _,  n   => isArrowProp b n
-  | .mdata _ e,       n   => isArrowProp e n
+  | .forallE _ _ b _, n+1 => isArrowPropQuick b n
+  | .letE _ _ _ b _,  n   => isArrowPropQuick b n
+  | .mdata _ e,       n   => isArrowPropQuick e n
   | _,                _   => LBool.undef
 
 /--
   `isPropQuickApp f n` is an "approximate" predicate which returns `LBool.true`
    if `f` applied to `n` arguments is a proposition. -/
 private partial def isPropQuickApp : Expr → Nat → MetaM LBool
-  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; return isArrowProp constType arity
-  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  return isArrowProp fvarType arity
-  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  return isArrowProp mvarType arity
+  | .const c lvls,   arity   => do let constType ← inferConstType c lvls; return isArrowPropQuick constType arity
+  | .fvar fvarId,    arity   => do let fvarType  ← inferFVarType fvarId;  return isArrowPropQuick fvarType arity
+  | .mvar mvarId,    arity   => do let mvarType  ← inferMVarType mvarId;  return isArrowPropQuick mvarType arity
   | .app f ..,       arity   => isPropQuickApp f (arity+1)
   | .mdata _ e,      arity   => isPropQuickApp e arity
   | .letE _ _ _ b _, arity   => isPropQuickApp b arity
@@ -243,9 +243,9 @@ partial def isPropQuick : Expr → MetaM LBool
   | .proj ..          => return LBool.undef
   | .forallE _ _ b _  => isPropQuick b
   | .mdata _ e        => isPropQuick e
-  | .const c lvls     => do let constType ← inferConstType c lvls; return isArrowProp constType 0
-  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  return isArrowProp fvarType 0
-  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  return isArrowProp mvarType 0
+  | .const c lvls     => do let constType ← inferConstType c lvls; return isArrowPropQuick constType 0
+  | .fvar fvarId      => do let fvarType  ← inferFVarType fvarId;  return isArrowPropQuick fvarType 0
+  | .mvar mvarId      => do let mvarType  ← inferMVarType mvarId;  return isArrowPropQuick mvarType 0
   | .app f ..         => isPropQuickApp f 1
 
 /-- `isProp whnf e` return `true` if `e` is a proposition.

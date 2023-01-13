@@ -127,7 +127,13 @@ def isExtern (env : Environment) (fn : Name) : Bool :=
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
   match getExternAttrData? env fn with
-  | some { entries := [ ExternEntry.standard `all _ ], .. } => true
+  | some { entries, .. } =>
+     entries.any
+       fun e => match e with
+                | .standard `all _ => true
+                | .standard `cpp _ => true
+                | .standard `c _   => true
+                | _                => false
   | _ => false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String := do

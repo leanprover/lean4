@@ -43,7 +43,6 @@ structure InteractiveGoalCore where
   type : CodeWithInfos
   /-- Metavariable context that the goal is well-typed in. -/
   ctx : WithRpcRef Elab.ContextInfo
-  deriving Inhabited
 
 /-- An interactive tactic-mode goal. -/
 structure InteractiveGoal extends InteractiveGoalCore where
@@ -58,7 +57,7 @@ structure InteractiveGoal extends InteractiveGoalCore where
   isInserted? : Option Bool := none
   /-- If true, the goal will be removed on the next tactic state. -/
   isRemoved? : Option Bool := none
-  deriving Inhabited, RpcEncodable
+  deriving RpcEncodable
 
 /-- An interactive term-mode goal. -/
 structure InteractiveTermGoal extends InteractiveGoalCore where
@@ -66,7 +65,7 @@ structure InteractiveTermGoal extends InteractiveGoalCore where
   range : Lsp.Range
   /-- Information about the term whose type is the term-mode goal. -/
   term : WithRpcRef Elab.TermInfo
-  deriving Inhabited, RpcEncodable
+  deriving RpcEncodable
 
 def InteractiveGoalCore.pretty (g : InteractiveGoalCore) (userName? : Option String)
     (goalPrefix : String) : Format := Id.run do

@@ -1513,7 +1513,7 @@ def optimizeLLVMModule (mod : LLVM.Module ctx) : IO Unit := do
 `emitLLVM` is the entrypoint for the lean shell to code generate LLVM.
 -/
 @[export lean_ir_emit_llvm]
-def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String): IO Unit := do
+def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String) : IO Unit := do
   LLVM.llvmInitializeTargetInfo
   let llvmctx ← LLVM.createContext
   let module ← LLVM.createModule llvmctx modName.toString

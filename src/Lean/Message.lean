@@ -361,6 +361,9 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
     mkCtx env lctx opts m!"application type mismatch{indentExpr e}\nargument has type{indentExpr argType}\nbut function has type{indentExpr fnType}"
   | invalidProj env lctx e              => mkCtx env lctx opts m!"(kernel) invalid projection{indentExpr e}"
   | other msg                           => m!"(kernel) {msg}"
+  | deterministicTimeout                => "(kernel) deterministic timeout"
+  | excessiveMemory                     => "(kernel) excessive memory consumption detected"
+  | deepRecursion                       => "(kernel) deep recursion detected"
 
 end KernelException
 end Lean

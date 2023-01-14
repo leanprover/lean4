@@ -761,14 +761,14 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (llvm_output && ok) {
 	        // marshal 'optional<string>' to 'lean_object*'
-	        lean_object* const target_triple_lean =
-	        target_triple ? mk_option_some(lean::string_ref(*target_triple).to_obj_arg()) : mk_option_none();
+            lean_object* const target_triple_lean =
+                target_triple ? mk_option_some(lean::string_ref(*target_triple).to_obj_arg()) : mk_option_none();
             initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
-                lean_io_mk_world());
+                    lean_io_mk_world());
             time_task _("LLVM code generation", opts);
             lean::consume_io_result(lean_ir_emit_llvm(
                         env.to_obj_arg(), (*main_module_name).to_obj_arg(),
-                        lean::string_ref(*llvm_output).to_obj_arg(), 
+                        lean::string_ref(*llvm_output).to_obj_arg(),
                         target_triple_lean,
                         lean_io_mk_world()));
         }

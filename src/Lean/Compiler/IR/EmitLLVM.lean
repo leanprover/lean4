@@ -1527,7 +1527,7 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr
          LLVM.linkModules (dest := emitLLVMCtx.llvmmodule) (src := modruntime)
          optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
-         let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple) 
+         let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple)
          let target ← LLVM.getTargetFromTriple tripleStr
          let cpu := "generic"
          let features := ""

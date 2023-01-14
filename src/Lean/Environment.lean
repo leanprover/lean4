@@ -222,6 +222,9 @@ inductive KernelException where
   | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
   | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
   | other            (msg : String)
+  | deterministicTimeout
+  | excessiveMemory
+  | deepRecursion
 
 namespace Environment
 

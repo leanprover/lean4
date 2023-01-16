@@ -1023,10 +1023,9 @@ mutual
 
   /--
     Given a metavariable with type `e`, kind `kind` and free/meta variables `xs` in its local context `lctx`,
-    get the type of the corresponding auxiliary metavariable.
-    This follows the pattern of pi-abstracting the types of `xs` in reverse order,
-    with the exception of non-`syntheticOpaque` let-bound free variables
-    (see "Gruesome details" section in the beginning of the file).
+    create the type for a new auxiliary metavariable. These auxiliary metavariables are created by `elimMVar`.
+
+    See "Gruesome details" section in the beginning of the file.
 
     Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
   -/
@@ -1059,11 +1058,6 @@ mutual
         let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
         return Lean.mkForall id (← read).binderInfoForMVars type e
   where
-    /-- Helper function that must be called on any expression that will be
-        included in the type of the auxiliary metavar. Given an expression `e`, it will:
-        1. Recursively eliminate `xs` from the contexts of any metavariables that appear within `e`.
-        2. Immediately replace the occurrences of `xs` with bound variables so that none appear
-        in the resulting type of the metavar (where `xs` will be stripped from the local context). -/
     abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
       let e ← elim xs e
       pure (e.abstractRange i xs)

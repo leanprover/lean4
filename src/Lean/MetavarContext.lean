@@ -545,7 +545,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
              `fvars.size` elements of `args`. -/
           if fvars.size > args.size then
             /- We don't have sufficient arguments for instantiating the free variables `fvars`.
-               This can only happen a tactic or elaboration function is not implemented correctly.
+               This can only happen if a tactic or elaboration function is not implemented correctly.
                We decided to not use `panic!` here and report it as an error in the frontend
                when we are checking for unassigned metavariables in an elaborated term. -/
             instArgs f
@@ -1019,7 +1019,7 @@ mutual
   /--
     Given a metavariable with type `e`, kind `kind` and free/meta variables `xs` in its local context `lctx`,
     get the type of the corresponding auxiliary metavariable.
-    This follows the pattern of pi-abstracting the types each variable in `xs` in reverse order,
+    This follows the pattern of pi-abstracting the types of `xs` in reverse order,
     with the exception of non-`syntheticOpaque` let-bound free variables
     (see "Gruesome details" section in the beginning of the file).
 
@@ -1055,7 +1055,7 @@ mutual
         return Lean.mkForall id (← read).binderInfoForMVars type e
   where
     /-- Helper function that must be called on any expression that will be
-        included in the the type of the auxiliary metavar. Given an expression `e`, it will:
+        included in the type of the auxiliary metavar. Given an expression `e`, it will:
         1. Recursively eliminate `xs` from the contexts of any metavariables that appear within `e`.
         2. Immediately replace the occurrences of `xs` with bound variables so that none appear
         in the resulting type of the metavar (where `xs` will be stripped from the local context). -/
@@ -1131,7 +1131,7 @@ mutual
       | some newF =>
         if newF.isLambda then
           let args ← args.mapM (visit xs)
-          /- Some of the arguments in args are irrelevant after we beta reduce. -/
+          /- Arguments in `args` can become irrelevant after we beta reduce. -/
           elim xs <| newF.betaRev args.reverse
         else
           elimApp xs newF args

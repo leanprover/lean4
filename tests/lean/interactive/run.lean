@@ -60,7 +60,7 @@ partial def main (args : List String) : IO Unit := do
     let text ← IO.FS.readFile args.head!
     Ipc.writeNotification ⟨"textDocument/didOpen", {
       textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
-    let _ ← Ipc.collectDiagnostics 1 uri 1
+    let initDiags ← Ipc.collectDiagnostics 1 uri 1
     let mut lineNo := 0
     let mut lastActualLineNo := 0
     let mut versionNo : Nat := 2
@@ -107,6 +107,9 @@ partial def main (args : List String) : IO Unit := do
           for diag in diags do
             IO.eprintln (toJson diag.param)
           requestNo := requestNo + 1
+        | "collectInitDiagnostics" =>
+          for diag in initDiags do
+            IO.eprintln (toJson diag.param)
         | "codeAction" =>
           let params : CodeActionParams := {
             textDocument := {uri := uri},
@@ -167,14 +170,6 @@ partial def main (args : List String) : IO Unit := do
             let resp ← Ipc.readResponseAs requestNo Lean.Widget.WidgetSource
             IO.eprintln (toJson resp.result)
             requestNo := requestNo + 1
-        | "wssymbols" =>
-          requestNo := requestNo + 1
-          let params : WorkspaceSymbolParams := { query := params }
-          Ipc.writeRequest ⟨requestNo, "workspace/symbol", params⟩
-          let r ← Ipc.readResponseAs requestNo (Array Json)
-          for x in r.result do
-            IO.eprintln x
-          requestNo := requestNo + 1
         | _ =>
           let Except.ok params ← pure <| Json.parse params
             | throw <| IO.userError s!"failed to parse {params}"

@@ -7,9 +7,4 @@ export ASAN_OPTIONS=detect_leaks=0
 
 # these tests don't have to succeed
 exec_capture lean -Dlinter.all=false --run run.lean "$f" || true
-
-# make sure there are no URIs that depend on the local FS
-rootDirUri="file://$(git rev-parse --show-toplevel)"
-sed -i "s#${rootDirUri}#file://__root__#g" "$f.produced.out"
-
 diff_produced

@@ -74,8 +74,6 @@ binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -r
 
 %.ml.out: %.ml
 	$(OCAML) $(OCAML_FLAGS) $< -o $@
-%.gc.ml.out: OCAML_FLAGS += -runtime-variant i
-%.gc.ml: %.ml; ln -f $< $@
 %.flambda.ml.out: OCAML = $(OCAML_FLAMBDA)
 %.flambda.ml: %.ml; ln -f $< $@
 
@@ -106,6 +104,7 @@ bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 100
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 bench/binarytrees.ml.bench: BENCH_PARAMS = $$(nproc) 21
+bench/binarytrees.gc.ml.bench: BENCH_PARAMS = $$(nproc) 21
 
 bench/deriv.%.bench: BENCH_PARAMS = 10
 
@@ -125,7 +124,7 @@ bench/unionfind.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_del,lean_dealloc_small,lean_free_small' | ./lean-gc.py"\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean_dec_ref_cold,lean_del_core,lean_free_small' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench
@@ -133,9 +132,9 @@ bench/%gc.hs.bench: %hs.out | bench
 		-d $< "./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2>&1 >/dev/null | ./ghc-gc.py"\
 		--runner output --out $@
 
-bench/%gc.ml.bench: %gc.ml.out | bench
+bench/%gc.ml.bench: %ml.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-		-d $< "echo > $@.tmp && OCAML_INSTR_FILE=$@.tmp time -ao $@.tmp -f '%e' ./$< $(BENCH_PARAMS) >/dev/null && ./ocaml-gc.py < $@.tmp"\
+		-d $< "time -ao $@.tmp -f '%U' olly trace $@.tmp './$< $(BENCH_PARAMS)' > /dev/null && ./ocaml-gc.py < $@.tmp"\
 		--runner output --out $@
 
 bench/%gc.mlton.bench: %gc.mlton.out | bench
@@ -157,9 +156,6 @@ bench/%.perf.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
 		--runner output --out $@
-
-# fork() breaks instrumentation
-bench/binarytrees.gc.ml.bench: ; touch $@
 
 # no benchmarksgame versions
 bench/binarytrees%mlton.bench: ; touch $@

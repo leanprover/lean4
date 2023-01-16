@@ -1,4 +1,4 @@
-// https://github.com/ocaml-bench/sandmark/blob/c668eb05aebb1dc9f57f322399bea7182640518c/benchmarks/multicore-numerical/binarytrees5_multicore.ml
+(* https://github.com/ocaml-bench/sandmark/blob/c668eb05aebb1dc9f57f322399bea7182640518c/benchmarks/multicore-numerical/binarytrees5_multicore.ml *)
 module T = Domainslib.Task
 
 let num_domains = try int_of_string Sys.argv.(1) with _ -> 1

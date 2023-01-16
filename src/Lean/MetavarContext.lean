@@ -107,7 +107,7 @@ https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379
   https://github.com/leanprover/lean/blob/92826917a252a6092cffaf5fc5f1acb1f8cef379/src/library/type_context.cpp#L2751
 
 - When creating lambda/forall expressions, we need to convert/abstract
-free variables and convert them to bound variables. Now, suppose we a
+free variables and convert them to bound variables. Now, suppose we are
 trying to create a lambda/forall expression by abstracting free
 variable `xs` and a term `t[?m]` which contains a metavariable `?m`,
 and the local context of `?m` contains `xs`. The term
@@ -117,7 +117,7 @@ fun xs => t[?m]
 will be ill-formed if we later assign a term `s` to `?m`, and
 `s` contains free variables in `xs`. We address this issue by changing
 the free variable abstraction procedure. We consider two cases: `?m`
-is natural, `?m` is synthetic. Assume the type of `?m` is
+is natural or synthetic, or `?m` is syntheticOpaque. Assume the type of `?m` is
 `A[xs]`. Then, in both cases we create an auxiliary metavariable `?n` with
 type `forall xs => A[xs]`, and local context := local context of `?m` - `xs`.
 In both cases, we produce the term `fun xs => t[?n xs]`
@@ -547,7 +547,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
              `fvars.size` elements of `args`. -/
           if fvars.size > args.size then
             /- We don't have sufficient arguments for instantiating the free variables `fvars`.
-               This can only happy if a tactic or elaboration function is not implemented correctly.
+               This can only happen if a tactic or elaboration function is not implemented correctly.
                We decided to not use `panic!` here and report it as an error in the frontend
                when we are checking for unassigned metavariables in an elaborated term. -/
             instArgs f
@@ -718,7 +718,7 @@ def exprDependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool 
 def dependsOn [Monad m] [MonadMCtx m] (e : Expr) (fvarId : FVarId) : m Bool :=
   exprDependsOn e fvarId
 
-/-- Return true iff `e` depends on the free variable `fvarId` -/
+/-- Return true iff `localDecl` depends on the free variable `fvarId` -/
 def localDeclDependsOn [Monad m] [MonadMCtx m] (localDecl : LocalDecl) (fvarId : FVarId) : m Bool :=
   findLocalDeclDependsOn localDecl (fvarId == ·)
 
@@ -912,7 +912,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
 
 /--
   Given `toRevert` an array of free variables s.t. `lctx` contains their declarations,
-  return a new array of free variables that contains `toRevert` and all free variables
+  return a new array of free variables that contains `toRevert` and all variables
   in `lctx` that may depend on `toRevert`.
 
   Remark: the result is sorted by `LocalDecl` indices.
@@ -922,7 +922,7 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   recursive definitions. The `revertFailure` due to auxiliary declaration dependency was originally
   introduced in Lean3 to address issue https://github.com/leanprover/lean/issues/1258.
   In Lean4, this solution is not satisfactory because all definitions/theorems are potentially
-  recursive. So, even an simple (incomplete) definition such as
+  recursive. So, even a simple (incomplete) definition such as
   ```
   variables {α : Type} in
   def f (a : α) : List α :=
@@ -932,9 +932,9 @@ private def getLocalDeclWithSmallestIdx (lctx : LocalContext) (xs : Array Expr) 
   the elaborator creates the auxiliary definition `f : {α : Type} → List α`.
   The `_` is elaborated as a new fresh variable `?m` that contains `α : Type`, `a : α`, and `f : α → List α` in its context,
   When we try to create the lambda `fun {α : Type} (a : α) => ?m`, we first need to create
-  an auxiliary `?n` which do not contain `α` and `a` in its context. That is,
+  an auxiliary `?n` which does not contain `α` and `a` in its context. That is,
   we create the metavariable `?n : {α : Type} → (a : α) → (f : α → List α) → List α`,
-  add the delayed assignment `?n #[α, a, f] := ?m α a f`, and create the lambda
+  add the delayed assignment `?n #[α, a, f] := ?m`, and create the lambda
   `fun {α : Type} (a : α) => ?n α a f`.
   See `elimMVarDeps` for more information.
   If we kept using the Lean3 approach, we would get the `Exception.revertFailure` exception because we are
@@ -948,7 +948,7 @@ def collectForwardDeps (lctx : LocalContext) (toRevert : Array Expr) : M (Array 
     pure toRevert
   else
     if (← preserveOrder) then
-      -- Make sure toRevert[j] does not depend on toRevert[i] for j > i
+      -- Make sure toRevert[j] does not depend on toRevert[i] for j < i
       toRevert.size.forM fun i => do
         let fvar := toRevert[i]!
         i.forM fun j => do
@@ -1019,9 +1019,18 @@ mutual
     | .mdata _ b       => return e.updateMData! (← visit xs b)
     | .app ..          => e.withApp fun f args => elimApp xs f args
     | .mvar _          => elimApp xs e #[]
-    | e                    => return e
+    | e                => return e
 
-  private partial def mkAuxMVarType (lctx : LocalContext)  (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
+  /--
+    Given a metavariable with type `e`, kind `kind` and free/meta variables `xs` in its local context `lctx`,
+    get the type of the corresponding auxiliary metavariable.
+    This follows the pattern of pi-abstracting the types of `xs` in reverse order,
+    with the exception of non-`syntheticOpaque` let-bound free variables
+    (see "Gruesome details" section in the beginning of the file).
+
+    Note: It is assumed that `xs` is the result of calling `collectForwardDeps` on a subset of variables in `lctx`.
+  -/
+  private partial def mkAuxMVarType (lctx : LocalContext) (xs : Array Expr) (kind : MetavarKind) (e : Expr) : M Expr := do
     let e ← abstractRangeAux xs xs.size e
     xs.size.foldRevM (init := e) fun i e => do
       let x := xs[i]!
@@ -1043,16 +1052,29 @@ mutual
             return mkForall n BinderInfo.default type e
           | _ => pure e
       else
+        -- `xs` may contain metavariables as "may dependencies" (see `findExprDependsOn`)
         let mvarDecl := (← get).mctx.getDecl x.mvarId!
         let type := mvarDecl.type.headBeta
         let type ← abstractRangeAux xs i type
         let id ← if mvarDecl.userName.isAnonymous then mkFreshBinderName else pure mvarDecl.userName
         return Lean.mkForall id (← read).binderInfoForMVars type e
   where
+    /-- Helper function that must be called on any expression that will be
+        included in the type of the auxiliary metavar. Given an expression `e`, it will:
+        1. Recursively eliminate `xs` from the contexts of any metavariables that appear within `e`.
+        2. Immediately replace the occurrences of `xs` with bound variables so that none appear
+        in the resulting type of the metavar (where `xs` will be stripped from the local context). -/
     abstractRangeAux (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
       let e ← elim xs e
       pure (e.abstractRange i xs)
 
+  /--
+    "Eliminate" the given variables `xs` from the context of the metavariable represented `mvarId`
+    by returning the application of a new metavariable whose type abstracts the forward dependencies
+    on `xs` after restricting it to the free variables in the local context of `mvarId`.
+
+    See details in the comment at the top of the file.
+  -/
   private partial def elimMVar (xs : Array Expr) (mvarId : MVarId) (args : Array Expr) : M (Expr × Array Expr) := do
     let mvarDecl  := (← getMCtx).getDecl mvarId
     let mvarLCtx  := mvarDecl.lctx
@@ -1064,7 +1086,7 @@ mutual
       /- `newMVarKind` is the kind for the new auxiliary metavariable.
           There is an alternative approach where we use
           ```
-          let newMVarKind := if !mctx.isExprAssignable mvarId || mvarDecl.isSyntheticOpaque then MetavarKind.syntheticOpaque else MetavarKind.natural
+          let newMVarKind := if !mctx.isAssignable mvarId || mvarDecl.isSyntheticOpaque then MetavarKind.syntheticOpaque else MetavarKind.natural
           ```
           In this approach, we use the natural kind for the new auxiliary metavariable if the original metavariable is synthetic and assignable.
           Since we mainly use synthetic metavariables for pending type class (TC) resolution problems,
@@ -1074,11 +1096,13 @@ mutual
       -/
       let newMVarKind := if !(← mvarId.isAssignable) then MetavarKind.syntheticOpaque else mvarDecl.kind
       let args ← args.mapM (visit xs)
+      -- Note that `toRevert` only contains free variables at this point since it is the result of `getInScope`;
+      -- after `collectForwardDeps`, this may no longer be the case because it may include metavariables
+      -- whose local contexts depend on `toRevert` (i.e. "may dependencies")
       let toRevert ← collectForwardDeps mvarLCtx toRevert
       let newMVarLCtx   := reduceLocalContext mvarLCtx toRevert
-      -- Note that `toRevert` only contains free variables since it is the result of `getInScope`
       let newLocalInsts := mvarDecl.localInstances.filter fun inst => toRevert.all fun x => inst.fvar != x
-      -- Remark: we must reset the before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
+      -- Remark: we must reset the cache before processing `mkAuxMVarType` because `toRevert` may not be equal to `xs`
       let newMVarType ← withFreshCache do mkAuxMVarType mvarLCtx toRevert newMVarKind mvarDecl.type
       let newMVarId    := { name := (← get).ngen.curr }
       let newMVar      := mkMVar newMVarId
@@ -1112,6 +1136,7 @@ mutual
       | some newF =>
         if newF.isLambda then
           let args ← args.mapM (visit xs)
+          /- Arguments in `args` can become irrelevant after we beta reduce. -/
           elim xs <| newF.betaRev args.reverse
         else
           elimApp xs newF args
@@ -1132,6 +1157,13 @@ partial def elimMVarDeps (xs : Array Expr) (e : Expr) : M Expr :=
     withFreshCache do
       elim xs e
 
+/--
+  Revert the variables `xs` from the local context of `mvarId`, returning
+  an expression representing the (new) reverted metavariable and the list of
+  variables that were actually reverted (this list will include any forward dependencies).
+
+  See details in the comment at the top of the file.
+-/
 partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) :=
   withFreshCache do
     elimMVar xs mvarId #[]
@@ -1140,16 +1172,15 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
   Similar to `Expr.abstractRange`, but handles metavariables correctly.
   It uses `elimMVarDeps` to ensure `e` and the type of the free variables `xs` do not
   contain a metavariable `?m` s.t. local context of `?m` contains a free variable in `xs`.
-
-  `elimMVarDeps` is defined later in this file. -/
+-/
 @[inline] def abstractRange (xs : Array Expr) (i : Nat) (e : Expr) : M Expr := do
   let e ← elimMVarDeps xs e
   pure (e.abstractRange i xs)
 
 /--
   Similar to `LocalContext.mkBinding`, but handles metavariables correctly.
-  If `usedOnly == false` then `forall` and `lambda` expressions are created only for used variables.
-  If `usedLetOnly == false` then `let` expressions are created only for used (let-) variables. -/
+  If `usedOnly == true` then `forall` and `lambda` expressions are created only for used variables.
+  If `usedLetOnly == true` then `let` expressions are created only for used (let-) variables. -/
 @[specialize] def mkBinding (isLambda : Bool) (lctx : LocalContext) (xs : Array Expr) (e : Expr) (usedOnly : Bool) (usedLetOnly : Bool) : M (Expr × Nat) := do
   let e ← abstractRange xs xs.size e
   xs.size.foldRevM (init := (e, 0)) fun i (e, num) => do
@@ -1214,7 +1245,7 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   MkBinding.collectForwardDeps ctx.lctx toRevert { preserveOrder, mainModule := ctx.mainModule }
 
 /--
-  `isWellFormed mctx lctx e` return true if
+  `isWellFormed lctx e` returns true iff
   - All locals in `e` are declared in `lctx`
   - All metavariables `?m` in `e` have a local context which is a subprefix of `lctx` or are assigned, and the assignment is well-formed. -/
 partial def isWellFormed [Monad m] [MonadMCtx m] (lctx : LocalContext) : Expr → m Bool
@@ -1305,7 +1336,7 @@ partial def main (e : Expr) : M Expr :=
       | .const _ us      => return e.updateConst! (← us.mapM visitLevel)
       | .sort u          => return e.updateSort! (← visitLevel u)
       | .mvar ..         => visitApp e #[]
-      | e                    => return e
+      | e                => return e
 where
   visitApp (f : Expr) (args : Array Expr) : M Expr := do
     match f with

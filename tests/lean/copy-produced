@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-root="${1:-$PWD}"
-cd $root
+root="$(realpath $(dirname $0))"
+cd ${1:-$PWD}
 for f in $(find . -name '*.expected.out'); do
     cp ${f/.expected/.produced} "$root/$f"
 done

@@ -87,26 +87,27 @@ instance [foo2 : Foo2] : Foo5 := .mk foo2
               --v textDocument/definition
 #check Foo2.foo  2
           --^ textDocument/definition
-#check Foo2.foo
-          --^ textDocument/definition
-#check Foo2.foo'
-          --^ textDocument/definition
+#check (Foo2.foo)
+           --^ textDocument/definition
+#check (Foo2.foo')
+           --^ textDocument/definition
 
 -- should go-to projection
 #check @Foo2.foo
            --^ textDocument/definition
 
 -- test that the correct instance index is extracted
-#check Foo3.foo
-          --^ textDocument/definition
+#check (Foo3.foo)
+           --^ textDocument/definition
 
 -- non-projections should not go-to instance
-#check Foo4.foo
+#check (Foo4.foo)
+           --^ textDocument/definition
 
 set_option pp.all true in
 -- test that multiple instances can be extracted
-#check Foo5.foo
-          --^ textDocument/definition
+#check (Foo5.foo)
+           --^ textDocument/definition
 
 -- duplicate definitions link to the original
 def mkFoo₁ := 1

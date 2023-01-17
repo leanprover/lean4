@@ -1,7 +1,7 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv const_fold parser qsort rbmap rbmap_10 rbmap_1 unionfind
-CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
+LEAN_BENCHES = binarytrees binarytrees.st deriv const_fold parser qsort rbmap rbmap_10 rbmap_1 unionfind
+CROSS_BENCHES = binarytrees binarytrees.st deriv const_fold rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
@@ -71,6 +71,7 @@ all: report_lean.tex report_cross.tex report
 binarytrees.hs: binarytrees.ghc-6.hs; ln -f $< $@
 # NOTE: changed `-N4` rtsopt to `-N` to be less system-dependent
 binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -rtsopts -with-rtsopts='-N -K128M -H'
+binarytrees.st%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -rtsopts -with-rtsopts='-K128M -H'
 
 %.ml.out: %.ml
 	$(OCAML) $(OCAML_FLAGS) $< -o $@
@@ -78,9 +79,11 @@ binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -r
 %.flambda.ml: %.ml; ln -f $< $@
 
 binarytrees.ml: binarytrees5_multicore.ml; ln -f $< $@
+binarytrees.st.ml: binarytrees5.ml; ln -f $< $@
 binarytrees%ml.out: OCAML_FLAGS += -noassert -fPIC -nodynlink -inline 100 -O3 -package domainslib -linkpkg
 binarytrees%ml.out: OCAML = ocamlfind ocamlopt
 
+binarytrees.st.sml: binarytrees.st.mlton-2.sml; ln -f $< $@
 %.mlton.out: %.sml
 	$(MLTON_BIN)/mlton $(MLTON_FLAGS) -output $@ $<
 %.gc.mlton.out: MLTON_FLAGS = -profile time
@@ -158,10 +161,12 @@ bench/%.perf.bench: %.out | bench
 		--runner output --out $@
 
 # no benchmarksgame versions
-bench/binarytrees%mlton.bench: ; touch $@
-bench/binarytrees%mlton.perf.bench: ; touch $@
-bench/binarytrees%mlkit.bench: ; touch $@
-bench/binarytrees%mlkit.perf.bench: ; touch $@
+bench/binarytrees.mlton.bench: ; touch $@
+bench/binarytrees.gc.mlton.bench: ; touch $@
+bench/binarytrees.mlton.perf.bench: ; touch $@
+bench/binarytrees.mlkit.bench: ; touch $@
+bench/binarytrees.gc.mlkit.bench: ; touch $@
+bench/binarytrees.mlkit.perf.bench: ; touch $@
 
 bench_lean: $(LEAN_INPUTS:%=bench/%.bench)
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)

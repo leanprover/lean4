@@ -81,6 +81,14 @@
   build_config:
     cmd: ./compile.sh binarytrees.lean
 - attributes:
+    description: binarytrees.st
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./binarytrees.st.lean.out 21
+  build_config:
+    cmd: ./compile.sh binarytrees.st.lean
+- attributes:
     description: const_fold
     tags: [fast, suite]
   run_config:

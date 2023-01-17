@@ -356,7 +356,7 @@ inductive Mem (a : α) : List α → Prop
 instance : Membership α (List α) where
   mem := Mem
 
-theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
+theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
   match as with
   | [] => simp [elem]
   | a'::as =>
@@ -365,12 +365,12 @@ theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as
     next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
     next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
 
-theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
+theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
   induction h with
   | head _ => simp [elem]
   | tail _ _ ih => simp [elem]; split; rfl; assumption
 
-instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
+instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
 theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by

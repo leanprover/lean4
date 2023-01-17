@@ -120,3 +120,11 @@ example : True := by
 example : False := by
 -- EOF test
 --^ $/lean/plainGoal
+
+example (hp : p) (hq : q) : p ∧ q := by
+  suffices q ∧ p by
+               --^ $/lean/plainGoal
+
+example (hp : p) (hq : q) : p ∧ q :=
+  show id (p ∧ q) by
+                --^ $/lean/plainGoal

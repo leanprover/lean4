@@ -7,4 +7,3 @@ def orderFuzzyMatches (names : Array Name) (pattern : String) : Array Name :=
 
 -- patterns matching at the end of a name should get a bonus
 #eval orderFuzzyMatches #[`Array.extract, `Lean.extractMainModule] "extract"
-  --^ collectInitDiagnostics

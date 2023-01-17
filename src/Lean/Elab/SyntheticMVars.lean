@@ -312,8 +312,12 @@ mutual
     -/
     try
       let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-         withTacticInfoContext tacticCode (evalTactic code)
-         synthesizeSyntheticMVars (mayPostpone := false)
+        withTacticInfoContext tacticCode do
+          -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
+          -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
+          withTacticInfoContext tacticCode[0] do
+            evalTactic code
+        synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
         reportUnsolvedGoals remainingGoals
     catch ex =>

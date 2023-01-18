@@ -132,6 +132,8 @@ jobs:
           submodules: true
       - name: Install Nix
         uses: cachix/install-nix-action@v18
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.12.0/install
         if: matrix.os == 'ubuntu-latest'
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2

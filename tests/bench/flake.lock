@@ -80,22 +80,6 @@
         "type": "github"
       }
     },
-    "mltonNixpkgs": {
-      "locked": {
-        "lastModified": 1659446231,
-        "narHash": "sha256-hekabNdTdgR/iLsgce5TGWmfIDZ86qjPhxDg/8TlzhE=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "eabc38219184cc3e04a974fe31857d8e0eac098d",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-21.11",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nix": {
       "inputs": {
         "lowdown-src": "lowdown-src",
@@ -203,7 +187,6 @@
           "flake-utils"
         ],
         "lean": "lean",
-        "mltonNixpkgs": "mltonNixpkgs",
         "nixpkgs": "nixpkgs_3",
         "temci": "temci"
       }

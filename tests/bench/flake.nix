@@ -4,7 +4,6 @@
   inputs.flake-utils.follows = "lean/flake-utils";
   inputs.temci.url = github:Kha/temci;
   inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-  inputs.mltonNixpkgs.url = github:NixOS/nixpkgs/nixos-21.11;
 
   outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system: { packages = rec {
     leanPkgs = inputs.lean.packages.${system};
@@ -27,7 +26,11 @@
     ocaml = ocamlPkgs.ocaml;
     # note that this will need to be compiled from source
     ocamlFlambda = ocaml.override { flambdaSupport = true; };
-    mlton = inputs.mltonNixpkgs.legacyPackages.${system}.mlton;
+    # https://github.com/MLton/mlton/issues/473
+    mlton = pkgs.mltonHEAD.override {
+      rev = "082087f7f82021a5a84eac0a593b98ba7b16f7fe";
+      sha256 = "sha256-AILSBF+Yu+wmeOikwk/binhvjNZD7ZTLnpxnRKijIV0=";
+    };
     mlkit = pkgs.mlkit;
     swift = pkgs.swift;
     temci = inputs.temci.packages.${system}.default.override { doCheck = false; };

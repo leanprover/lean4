@@ -496,8 +496,6 @@ theorem pos_pow_of_pos {n : Nat} (m : Nat) (h : 0 < n) : 0 < n^m :=
 
 /-! # min/max -/
 
-instance : Min Nat := minOfLe
-
 /--
 `Nat.min a b` is the minimum of `a` and `b`:
 * if `a ≤ b` then `Nat.min a b = a`

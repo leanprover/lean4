@@ -4,9 +4,9 @@ LEAN_BENCHES = binarytrees binarytrees.st deriv const_fold parser qsort rbmap rb
 CROSS_BENCHES = binarytrees binarytrees.st deriv const_fold rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
-CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
+CROSS_CATS = .lean .gc.lean .hs .gc.hs .ml .gc.ml .mlton .gc.mlton .mlkit .gc.mlkit .swift .gc.swift
 CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit .swift
-RETIRED_CATS = .gcc.lean .llvm.hs .strict.hs .flambda.ml
+RETIRED_CATS = .gcc.lean .llvm.hs .strict.hs .flambda.ml .lean.perf .hs.perf .ml.perf .mlton.perf .mlkit.perf .swift.perf
 
 LEAN_FLAGS =
 LEANC_FLAGS = -O3 -DNDEBUG

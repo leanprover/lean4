@@ -62,7 +62,7 @@
               let_fun __discr_4 := Lean.Syntax.getArg __discr_3 1;
               let_fun __discr_5 :=
                 Lean.mkNullNode
-                  (Array.extract (Lean.Syntax.getArgs __discr_3) 2 (Lean.Syntax.getNumArgs __discr_3 - 0));
+                  (Array.extract (Lean.Syntax.getArgs __discr_3) 2 (Nat.sub (Lean.Syntax.getNumArgs __discr_3) 0));
               let_fun moreArgs := Lean.TSyntaxArray.mk (Lean.Syntax.getArgs __discr_5);
               let_fun rhs := { raw := __discr_4 };
               let_fun lhs := { raw := __discr };

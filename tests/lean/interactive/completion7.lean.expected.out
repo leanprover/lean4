@@ -36,11 +36,6 @@
    "kind": 3,
    "detail": "∀ (p : Prop), (False ∧ p) = False"},
   {"label": "true_and", "kind": 3, "detail": "∀ (p : Prop), (True ∧ p) = p"},
-  {"label": "and_false",
-   "kind": 3,
-   "detail": "∀ (p : Prop), (p ∧ False) = False"},
-  {"label": "and_self", "kind": 3, "detail": "∀ (p : Prop), (p ∧ p) = p"},
-  {"label": "and_true", "kind": 3, "detail": "∀ (p : Prop), (p ∧ True) = p"},
   {"label": "HAnd",
    "kind": 7,
    "documentation":
@@ -48,6 +43,29 @@
     "The typeclass behind the notation `a &&& b : γ` where `a : α`, `b : β`. ",
     "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
+  {"label": "and_false",
+   "kind": 3,
+   "detail": "∀ (p : Prop), (p ∧ False) = False"},
+  {"label": "and_self", "kind": 3, "detail": "∀ (p : Prop), (p ∧ p) = p"},
+  {"label": "and_true", "kind": 3, "detail": "∀ (p : Prop), (p ∧ True) = p"},
+  {"label": "strictAnd",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "`strictAnd` is the same as `and`, but it does not use short-circuit evaluation semantics:\nboth sides are evaluated, even if the first value is `false`.\n",
+    "kind": "markdown"},
+   "detail": "Bool → Bool → Bool"},
+  {"label": "instDecidableAnd",
+   "kind": 3,
+   "detail": "[dp : Decidable p] → [dq : Decidable q] → Decidable (p ∧ q)"},
+  {"label": "instHAnd", "kind": 3, "detail": "[inst : AndOp α] → HAnd α α α"},
+  {"label": "Append",
+   "kind": 7,
+   "documentation":
+   {"value":
+    "The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. ",
+    "kind": "markdown"},
+   "detail": "Type u → Type u"},
   {"label": "HAndThen",
    "kind": 7,
    "documentation":
@@ -60,17 +78,6 @@
   {"label": "instAndOpUInt64", "kind": 21, "detail": "AndOp UInt64"},
   {"label": "instAndOpUInt8", "kind": 21, "detail": "AndOp UInt8"},
   {"label": "instAndOpUSize", "kind": 21, "detail": "AndOp USize"},
-  {"label": "strictAnd",
-   "kind": 3,
-   "documentation":
-   {"value":
-    "`strictAnd` is the same as `and`, but it does not use short-circuit evaluation semantics:\nboth sides are evaluated, even if the first value is `false`.\n",
-    "kind": "markdown"},
-   "detail": "Bool → Bool → Bool"},
-  {"label": "instDecidableAnd",
-   "kind": 3,
-   "detail": "[dp : Decidable p] → [dq : Decidable q] → Decidable (p ∧ q)"},
-  {"label": "instHAnd", "kind": 3, "detail": "[inst : AndOp α] → HAnd α α α"},
   {"label": "instHAndThen",
    "kind": 3,
    "detail": "[inst : AndThen α] → HAndThen α α α"},
@@ -81,13 +88,6 @@
   {"label": "iff_iff_implies_and_implies",
    "kind": 3,
    "detail": "∀ (a b : Prop), (a ↔ b) ↔ (a → b) ∧ (b → a)"},
-  {"label": "Append",
-   "kind": 7,
-   "documentation":
-   {"value":
-    "The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. ",
-    "kind": "markdown"},
-   "detail": "Type u → Type u"},
   {"label": "HAppend",
    "kind": 7,
    "documentation":
@@ -95,7 +95,10 @@
     "The notation typeclass for heterogeneous append.\nThis enables the notation `a ++ b : γ` where `a : α`, `b : β`.\n",
     "kind": "markdown"},
    "detail": "Type u → Type v → outParam (Type w) → Type (max (max u v) w)"},
-  {"label": "instAppendSubarray", "kind": 3, "detail": "Append (Subarray α)"}],
+  {"label": "instAppendSubarray", "kind": 3, "detail": "Append (Subarray α)"},
+  {"label": "instHAppend",
+   "kind": 3,
+   "detail": "[inst : Append α] → HAppend α α α"}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file://completion7.lean"},
  "position": {"line": 2, "character": 11}}

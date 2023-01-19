@@ -137,24 +137,22 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
 
           matchScore? := selectBest
             (getMiss result (patternIdx - 1) (wordIdx - 1) |>.map (· + matchResult
-              (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩)
+              patternIdx wordIdx
               (patternRoles.get! patternIdx) (wordRoles.get! wordIdx)
               none
-              (wordIdx == 0)
             - startPenalties.get! wordIdx))
             (getMatch result (patternIdx - 1) (wordIdx - 1) |>.map (· + matchResult
-              (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩)
+              patternIdx wordIdx
               (patternRoles.get! patternIdx) (wordRoles.get! wordIdx)
               (.some runLength)
-              (wordIdx == 0)
             )) |>.map fun score => if wordIdx >= lastSepIdx then score + 1 else score -- main identifier bonus
         else
           runLengths := runLengths.set! (getIdx patternIdx wordIdx) 1
           matchScore? := .some $ matchResult
-              (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩)
+              patternIdx wordIdx
               (patternRoles.get! patternIdx) (wordRoles.get! wordIdx)
               none
-              (wordIdx == 0) - startPenalties.get! wordIdx
+              - startPenalties.get! wordIdx
 
       result := set result patternIdx wordIdx missScore? matchScore?
 
@@ -198,14 +196,17 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       return true
 
     /-- Heuristic to rate a match. -/
-    matchResult (patternChar wordChar : Char) (patternRole wordRole : CharRole) (consecutive : Option Int) (wordStart : Bool) : Int := Id.run do
+    matchResult (patternIdx wordIdx : Nat) (patternRole wordRole : CharRole) (consecutive : Option Int) : Int := Id.run do
       let mut score : Int := 1
       /- Case-sensitive equality or beginning of a segment in pattern and word. -/
-      if patternChar == wordChar || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
+      if (pattern.get ⟨patternIdx⟩) == (word.get ⟨wordIdx⟩) || (patternRole matches CharRole.head && wordRole matches CharRole.head) then
         score := score + 1
-      /- Beginning of the word. -/
-      if wordStart then
+      /- Matched end of word with end of pattern -/
+      if wordIdx == word.length - 1 && patternIdx == pattern.length - 1 then
         score := score + 2
+      /- Matched beginning of the word. -/
+      if (wordIdx == 0) then
+        score := score + 3
       /- Consecutive character match. -/
       if let some bonus := consecutive then
         /- consecutive run bonus -/

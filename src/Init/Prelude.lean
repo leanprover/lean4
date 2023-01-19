@@ -1678,6 +1678,8 @@ instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
 instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=
   decLe (succ n) m
 
+instance : Min Nat := minOfLe
+
 set_option bootstrap.genMatcherCode false in
 /--
 (Truncated) subtraction of natural numbers. Because natural numbers are not
@@ -2591,6 +2593,22 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
         | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get ⟨j, hlt⟩)))
       (fun _ => as)
   loop bs.size 0 as
+
+/--
+  Returns the slice of `as` from indices `start` to `stop` (exclusive).
+  If `start` is greater or equal to `stop`, the result is empty.
+  If `stop` is greater than the length of `as`, the length is used instead. -/
+-- NOTE: used in the quotation elaborator output
+def Array.extract (as : Array α) (start stop : Nat) : Array α :=
+  let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
+    dite (LT.lt j as.size)
+      (fun hlt =>
+        match i with
+        | 0           => bs
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get ⟨j, hlt⟩)))
+      (fun _ => bs)
+  let sz' := Nat.sub (min stop as.size) start
+  loop sz' start (mkEmpty sz')
 
 /-- Auxiliary definition for `List.toArray`. -/
 @[inline_if_reduce]
@@ -3690,6 +3708,15 @@ abbrev interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
 like `"value = {x}"` in `s!"value = {x}"`.
 -/
 abbrev interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
+
+/-- Creates an info-less node of the given kind and children. -/
+@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=
+  ⟨Syntax.node SourceInfo.none k args⟩
+
+/-- Creates an info-less `nullKind` node with the given children, if any. -/
+-- NOTE: used by the quotation elaborator output
+@[inline] def mkNullNode (args : Array Syntax := Array.empty) : Syntax :=
+  mkNode nullKind args |>.raw
 
 namespace Syntax
 

@@ -79,11 +79,11 @@ partial def hasDuplicateAntiquot (stxs : Array Syntax) : Bool := Id.run do
           seen := seen.insert ident
   pure false
 
-/-- Try to derive a `SimpleDelab` from a notation.
+/-- Try to derive an unexpander from a notation.
     The notation must be of the form `notation ... => c body`
     where `c` is a declaration in the current scope and `body` any syntax
     that contains each variable from the LHS at most once. -/
-def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT MacroM Syntax := do
+def mkUnexpander (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT MacroM Syntax := do
   let (c, args) ← match qrhs with
     | `($c:ident $args*) => pure (c, args)
     | `($c:ident)        => pure (c, #[])
@@ -106,12 +106,22 @@ def mkSimpleDelab (attrKind : TSyntax ``attrKind) (pat qrhs : Term) : OptionT Ma
   -- The reference is attached to the syntactic representation of the called function itself, not the entire function application
   let lhs ← `($$f:ident)
   let lhs := Syntax.mkApp lhs (.mk args)
+  -- allow over-application, avoiding nested `app` nodes
+  let lhsWithMoreArgs := flattenApp (← `($lhs $$moreArgs*))
+  let patWithMoreArgs := flattenApp (← `($pat $$moreArgs*))
   `(@[$attrKind app_unexpander $(mkIdent c)]
     aux_def unexpand $(mkIdent c) : Lean.PrettyPrinter.Unexpander := fun
       | `($lhs)             => withRef f `($pat)
       -- must be a separate case as the LHS and RHS above might not be `app` nodes
-      | `($lhs $$moreArgs*) => withRef f `($pat $$moreArgs*)
+      | `($lhsWithMoreArgs) => withRef f `($patWithMoreArgs)
       | _                   => throw ())
+where
+  -- NOTE: we consider only one nesting level here
+  flattenApp : Term → Term
+    | stx@`($f $xs*) => match f with
+      | `($f' $xs'*) => Syntax.mkApp f' (xs' ++ xs)
+      | _            => stx
+    | stx            => stx
 
 private def expandNotationAux (ref : Syntax) (currNamespace : Name)
     (doc? : Option (TSyntax ``docComment))
@@ -146,7 +156,7 @@ private def expandNotationAux (ref : Syntax) (currNamespace : Name)
       `(section set_option quotPrecheck.allowSectionVars true $macroDecl end)
     else
       pure ⟨mkNullNode #[macroDecl]⟩
-  match (← mkSimpleDelab attrKind pat qrhs |>.run) with
+  match (← mkUnexpander attrKind pat qrhs |>.run) with
   | some delabDecl => return mkNullNode #[stxDecl, macroDecls, delabDecl]
   | none           => return mkNullNode #[stxDecl, macroDecls]
 

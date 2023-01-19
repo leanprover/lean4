@@ -451,9 +451,6 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-@[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax k :=
-  ⟨Syntax.node SourceInfo.none k args⟩
-
 /-- Syntax objects for a Lean module. -/
 structure Module where
   header   : Syntax
@@ -527,9 +524,6 @@ def mkCIdent (c : Name) : Ident :=
 @[export lean_mk_syntax_ident]
 def mkIdent (val : Name) : Ident :=
   ⟨Syntax.ident SourceInfo.none (toString val).toSubstring val []⟩
-
-@[inline] def mkNullNode (args : Array Syntax := #[]) : Syntax :=
-  mkNode nullKind args
 
 @[inline] def mkGroupNode (args : Array Syntax := #[]) : Syntax :=
   mkNode groupKind args

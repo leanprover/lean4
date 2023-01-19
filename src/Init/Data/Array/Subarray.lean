@@ -149,9 +149,6 @@ def ofSubarray (s : Subarray α) : Array α := Id.run do
     as := as.push a
   return as
 
-def extract (as : Array α) (start stop : Nat) : Array α :=
-  ofSubarray (as.toSubarray  start stop)
-
 instance : Coe (Subarray α) (Array α) := ⟨ofSubarray⟩
 
 syntax:max term noWs "[" withoutPosition(term ":" term) "]" : term

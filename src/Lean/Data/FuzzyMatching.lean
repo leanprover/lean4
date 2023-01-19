@@ -206,7 +206,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
         score := score + 2
       /- Matched beginning of the word. -/
       if (wordIdx == 0) then
-        score := score + 2
+        score := score + 3
       /- Consecutive character match. -/
       if let some bonus := consecutive then
         /- consecutive run bonus -/

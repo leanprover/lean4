@@ -1,7 +1,7 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees binarytrees.st deriv const_fold parser qsort rbmap rbmap_10 rbmap_1 unionfind
-CROSS_BENCHES = binarytrees binarytrees.st deriv const_fold rbmap rbmap_10 rbmap_1
+LEAN_BENCHES = binarytrees binarytrees.st deriv const_fold parser qsort rbmap rbmap_10 rbmap_2 rbmap_1 unionfind
+CROSS_BENCHES = binarytrees binarytrees.st deriv const_fold rbmap rbmap_10 rbmap_2 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .hs .gc.hs .ml .gc.ml .mlton .gc.mlton .mlkit .gc.mlkit .swift .gc.swift
@@ -119,6 +119,9 @@ bench/rbmap.%.bench: BENCH_PARAMS = 2000000
 
 rbmap_1.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_1.%.bench: BENCH_PARAMS = 2000000 1
+
+rbmap_2.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_2.%.bench: BENCH_PARAMS = 2000000 2
 
 rbmap_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_10.%.bench: BENCH_PARAMS = 2000000 10

@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 import Lean.PrettyPrinter
 import Lean.Server.Rpc.Basic
+import Lean.Server.InfoUtils
 import Lean.Widget.TaggedText
 import Lean.Widget.Basic
 
@@ -28,7 +29,7 @@ inductive DiffTag where
 /-- Information about a subexpression within delaborated code. -/
 structure SubexprInfo where
   /-- The `Elab.Info` node with the semantics of this part of the output. -/
-  info : WithRpcRef InfoWithCtx
+  info : WithRpcRef Lean.Elab.InfoWithCtx
   /-- The position of this subexpression within the top-level expression. See `Lean.SubExpr`. -/
   subexprPos : Lean.SubExpr.Pos
   -- TODO(WN): add fields for semantic highlighting
@@ -67,7 +68,7 @@ where
       | none   => go subTt
       | some i =>
         let t : SubexprInfo := {
-          info := WithRpcRef.mk { ctx, info := i }
+          info := WithRpcRef.mk { ctx, info := i, children := .empty }
           subexprPos := n
         }
         TaggedText.tag t (go subTt)

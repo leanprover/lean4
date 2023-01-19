@@ -412,7 +412,7 @@ inductive Expr where
 
   The let-expression `let x : Nat := 2; Nat.succ x` is represented as
   ```
-  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.bvar 0) true
+  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
   ```
   -/
   | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)

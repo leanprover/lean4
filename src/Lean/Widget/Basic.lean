@@ -9,10 +9,8 @@ open Elab Server
 
 deriving instance TypeName for InfoWithCtx
 deriving instance TypeName for MessageData
-
-instance : ToJson FVarId := ⟨fun f => toJson f.name⟩
-instance : ToJson MVarId := ⟨fun f => toJson f.name⟩
-instance : FromJson FVarId := ⟨fun j => FVarId.mk <$> fromJson? j⟩
-instance : FromJson MVarId := ⟨fun j => MVarId.mk <$> fromJson? j⟩
+deriving instance TypeName for LocalContext
+deriving instance TypeName for Elab.ContextInfo
+deriving instance TypeName for Elab.TermInfo
 
 end Lean.Widget

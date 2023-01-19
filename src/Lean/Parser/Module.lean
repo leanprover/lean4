@@ -41,7 +41,7 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let p   := andthenFn whitespace Module.header.fn
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
   let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
-  let stx := s.stxStack.back
+  let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   match s.errorMsg with
   | some errorMsg =>
     let msg := mkErrorMessage inputCtx s.pos (toString errorMsg)

@@ -134,7 +134,6 @@ def checkExpr (ty : IRType) : Expr → M Unit
   | Expr.uproj _ x          => checkObjVar x *> checkType ty (fun t => t == IRType.usize)
   | Expr.sproj _ _ x        => checkObjVar x *> checkScalarType ty
   | Expr.isShared x         => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
-  | Expr.isTaggedPtr x      => checkObjVar x *> checkType ty (fun t => t == IRType.uint8)
   | Expr.lit (LitVal.str _) => checkObjType ty
   | Expr.lit _              => pure ()
 

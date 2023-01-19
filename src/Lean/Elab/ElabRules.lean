@@ -95,7 +95,7 @@ def elabElab : CommandElab
     -- name
     let name ← match name? with
       | some name => pure name.getId
-      | none => liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)
+      | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)) attrKind
     let nameId := name?.getD (mkIdentFrom tk name (canonical := true))
     let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
     elabCommand <|← `(

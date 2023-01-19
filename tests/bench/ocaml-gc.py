@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 
 import sys
+import json
 
-events = sys.stdin.readlines()
-wall_secs = float(events[-1])
-gc_nanos = 0
-for event in events[::-1]:
-    data = event.split()
-    # see also https://gitlab.com/gasche/gc-latency-experiment/blob/master/parse_ocaml_log.ml
-    if len(data) == 4 and data[0] == '@@' and data[3] == 'dispatch':
-        gc_nanos += int(data[2]) - int(data[1])
-print(f"gc: {gc_nanos*1e-9/wall_secs*100}")
+lines = sys.stdin.readlines()
+user_secs = float(lines[-1])
+events = json.loads("\n".join(lines[:-1])[:-2] + "]")
+starts = {}
+gc_msecs = 0
+for event in events:
+    if event["name"] in ["minor", "major"]:
+        tid = event["tid"]
+        if event["ph"] == "B":
+            if tid not in starts:
+                starts[tid] = (event["name"], int(event["ts"]))
+        elif tid in starts and starts[tid][0] == event["name"]:
+            gc_msecs += int(event["ts"]) - starts[tid][1]
+            del starts[tid]
+print(f"gc: {gc_msecs*1e-6/user_secs*100}")

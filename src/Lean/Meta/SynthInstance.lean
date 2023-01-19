@@ -653,7 +653,6 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
         unless outParamsPos.isEmpty do
           let args := typeBody.getAppArgs
           let cType ← inferType c
-          trace[Meta.debug] "{declName} : {outParamsPos}"
           let args ← preprocessArgs cType 0 args outParamsPos
           return (← mkForallFVars xs (mkAppN c args))
       return type

@@ -453,20 +453,12 @@ def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit := do
   emitLhs z; emitBoxFn xType; emit "("; emit x; emitLn ");"
 
 def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit := do
-  emitLhs z;
-  match t with
-  | IRType.usize  => emit "lean_unbox_usize"
-  | IRType.uint32 => emit "lean_unbox_uint32"
-  | IRType.uint64 => emit "lean_unbox_uint64"
-  | IRType.float  => emit "lean_unbox_float"
-  | _             => emit "lean_unbox";
+  emitLhs z
+  emit (getUnboxOpName t)
   emit "("; emit x; emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit := do
   emitLhs z; emit "!lean_is_exclusive("; emit x; emitLn ");"
-
-def emitIsTaggedPtr (z : VarId) (x : VarId) : M Unit := do
-  emitLhs z; emit "!lean_is_scalar("; emit x; emitLn ");"
 
 def toHexDigit (c : Nat) : String :=
   String.singleton c.digitChar
@@ -516,7 +508,6 @@ def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
   | Expr.box t x        => emitBox z x t
   | Expr.unbox x        => emitUnbox z t x
   | Expr.isShared x     => emitIsShared z x
-  | Expr.isTaggedPtr x  => emitIsTaggedPtr z x
   | Expr.lit v          => emitLit z t v
 
 def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool := do
@@ -706,8 +697,12 @@ def emitDeclInit (d : Decl) : M Unit := do
         emit "if (builtin) {"
       emit "res = "; emitCName initFn; emitLn "(lean_io_mk_world());"
       emitLn "if (lean_io_result_is_error(res)) return res;"
-      emitCName n; emitLn " = lean_io_result_get_value(res);"
-      emitMarkPersistent d n
+      emitCName n
+      if d.resultType.isScalar then
+        emitLn (" = " ++ getUnboxOpName d.resultType ++ "(lean_io_result_get_value(res));")
+      else
+        emitLn " = lean_io_result_get_value(res);"
+        emitMarkPersistent d n
       emitLn "lean_dec_ref(res);"
       if getBuiltinInitFnNameFor? env d.name |>.isSome then
         emit "}"

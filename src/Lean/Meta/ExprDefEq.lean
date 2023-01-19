@@ -58,25 +58,33 @@ where
         return false
 
 /--
-  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`.
+  Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
+  resulting in `t =?= b x` (with a fresh free variable `x`).
 
   Remark: eta-reduction is not a good alternative even in a system without universe cumulativity like Lean.
   Example:
     ```
     (fun x : A => f ?m) =?= f
     ```
-    The left-hand side of the constraint above it not eta-reduced because `?m` is a metavariable. -/
-private def isDefEqEta (a b : Expr) : MetaM Bool := do
+    The left-hand side of the constraint above it not eta-reduced because `?m` is a metavariable.
+
+  Note: we do not backtrack after applying η-expansion anymore.
+  There is no case where `(fun x => t) =?= b` unifies, but `t =?= b x` does not.
+  Backtracking after η-expansion results in lots of duplicate δ-reductions,
+  because we can δ-reduce `a` before and after the η-expansion.
+  The fresh free variable `x` also busts the cache.
+  See https://github.com/leanprover/lean4/pull/2002 -/
+private def isDefEqEta (a b : Expr) : MetaM LBool := do
   if a.isLambda && !b.isLambda then
     let bType ← inferType b
     let bType ← whnfD bType
     match bType with
     | Expr.forallE n d _ c =>
       let b' := mkLambda n c d (mkApp b (mkBVar 0))
-      checkpointDefEq <| Meta.isExprDefEqAux a b'
-    | _ => pure false
+      toLBoolM <| checkpointDefEq <| Meta.isExprDefEqAux a b'
+    | _ => return .undef
   else
-    return false
+    return .undef
 
 /-- Support for `Lean.reduceBool` and `Lean.reduceNat` -/
 def isDefEqNative (s t : Expr) : MetaM LBool := do
@@ -719,7 +727,7 @@ mutual
               let lctx := toErase.foldl (init := mvarDecl.lctx) fun lctx toEraseFVar =>
                 lctx.erase toEraseFVar
               /- Compute new set of local instances. -/
-              let localInsts := mvarDecl.localInstances.filter fun localInst => toErase.contains localInst.fvar.fvarId!
+              let localInsts := mvarDecl.localInstances.filter fun localInst => !toErase.contains localInst.fvar.fvarId!
               let mvarType ← check mvarDecl.type
               let newMVar ← mkAuxMVar lctx localInsts mvarType mvarDecl.numScopeArgs
               mvarId.assign newMVar
@@ -1640,6 +1648,24 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve contraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
+    if isClass (← getEnv) structName then
+      /-
+      We disable this feature is `structName` is a class. See issue #2011.
+      The example at issue #2011, the following weird
+      instance was being generated for `Zero (f x)`
+      ```
+      (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
+      ```
+      where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
+      Note that this instance is definitinally equal to the expected nicer
+      instance `inst✝¹ x✝`.
+      However, the nasty instance trigger nasty unification higher order
+      constraints later.
+
+      We say this behavior is defensible because it is more reliable to use TC resolution to
+      assign `?m`.
+      -/
+      return false
     let ctorVal := getStructureCtor (← getEnv) structName
     if ctorVal.numFields != 1 then
       return false -- It is not a structure with a single field.
@@ -1701,7 +1727,8 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
     return .undef
 
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
-  if (← (isDefEqEta t s <||> isDefEqEta s t)) then return true
+  whenUndefDo (isDefEqEta t s) do
+  whenUndefDo (isDefEqEta s t) do
   -- TODO: investigate whether this is the place for putting this check
   if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then return true
   if (← isDefEqProj t s) then return true

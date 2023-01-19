@@ -3,20 +3,33 @@
   inputs.flake-utils.url = github:numtide/flake-utils;
   inputs.flake-utils.follows = "lean/flake-utils";
   inputs.temci.url = github:Kha/temci;
-  inputs.swiftPkgs.url = github:NixOS/nixpkgs/007ccf2f4f1da567903ae392cbf19966eb30cf20;
+  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+  inputs.mltonNixpkgs.url = github:NixOS/nixpkgs/nixos-21.11;
 
   outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system: { packages = rec {
     leanPkgs = inputs.lean.packages.${system};
-    pkgs = leanPkgs.nixpkgs;
+    pkgs = inputs.nixpkgs.legacyPackages.${system};
+    ocamlPkgs = pkgs.ocaml-ng.ocamlPackages_latest;
+    # https://github.com/ocaml/opam-repository/pull/22688
+    lockfree = ocamlPkgs.lockfree.overrideAttrs (_: rec {
+      version = "0.2.0";
+      src = pkgs.fetchurl {
+        url = "https://github.com/ocaml-multicore/lockfree/releases/download/v${version}/lockfree-${version}.tbz";
+        hash = "sha256-cEwgaTRiSNOJkTQIw2SDTBvEbepdQRwL7dg2hosh4yE=";
+      };
+    });
+    domainslib = ocamlPkgs.domainslib.overrideAttrs (_: {
+      propagatedBuildInputs = [ lockfree ];
+    });
     # for binarytrees.hs
     ghcPackages = p: [ p.parallel ];
-    ghc = pkgs.haskell.packages.ghc921.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
-    ocaml = pkgs.ocaml; # pkgs.ocaml-ng.ocamlPackages_latest.ocaml;
+    ghc = pkgs.haskell.packages.ghc944.ghcWithPackages ghcPackages; #.override { withLLVM = true; };
+    ocaml = ocamlPkgs.ocaml;
     # note that this will need to be compiled from source
     ocamlFlambda = ocaml.override { flambdaSupport = true; };
-    mlton = pkgs.mlton;
+    mlton = inputs.mltonNixpkgs.legacyPackages.${system}.mlton;
     mlkit = pkgs.mlkit;
-    swift = inputs.swiftPkgs.legacyPackages.${system}.swift; # pkgs.swift;
+    swift = pkgs.swift;
     temci = inputs.temci.packages.${system}.default.override { doCheck = false; };
 
     default = pkgs.stdenv.mkDerivation rec {
@@ -48,7 +61,10 @@
       SWIFTC = "${swift}/bin/swiftc";
       TEMCI = "${temci}/bin/temci";
       buildInputs = with pkgs; [
-        (python3.withPackages (ps: [ temci ps.numpy ps.pyyaml ]))
+        ((builtins.elemAt temci.nativeBuildInputs 0).withPackages (ps: [ temci ps.numpy ps.pyyaml ]))
+        ocaml
+        ocamlPkgs.findlib
+        domainslib
         temci
         pkgs.linuxPackages.perf time unixtools.column
       ];

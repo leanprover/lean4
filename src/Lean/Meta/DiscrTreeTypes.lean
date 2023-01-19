@@ -20,17 +20,17 @@ inductive Key (simpleReduce : Bool) where
   | star  : Key simpleReduce
   | other : Key simpleReduce
   | arrow : Key simpleReduce
-  | proj  : Name → Nat → Key simpleReduce
+  | proj  : Name → Nat → Nat → Key simpleReduce
   deriving Inhabited, BEq, Repr
 
 protected def Key.hash : Key s → UInt64
-  | Key.const n a => mixHash 5237 $ mixHash (hash n) (hash a)
-  | Key.fvar n a  => mixHash 3541 $ mixHash (hash n) (hash a)
-  | Key.lit v     => mixHash 1879 $ hash v
-  | Key.star      => 7883
-  | Key.other     => 2411
-  | Key.arrow     => 17
-  | Key.proj s i  => mixHash 11 $ mixHash (hash s) (hash i)
+  | Key.const n a   => mixHash 5237 $ mixHash (hash n) (hash a)
+  | Key.fvar n a    => mixHash 3541 $ mixHash (hash n) (hash a)
+  | Key.lit v       => mixHash 1879 $ hash v
+  | Key.star        => 7883
+  | Key.other       => 2411
+  | Key.arrow       => 17
+  | Key.proj s i a  =>  mixHash (hash a) $ mixHash (hash s) (hash i)
 
 instance : Hashable (Key s) := ⟨Key.hash⟩
 

@@ -285,7 +285,7 @@ syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosi
 
 /--
 Apply function extensionality and introduce new hypotheses.
-The tactic `funext` will keep applying new the `funext` lemma until the goal target is not reducible to
+The tactic `funext` will keep applying the `funext` lemma until the goal target is not reducible to
 ```
   |-  ((fun x => ...) = (fun x => ...))
 ```
@@ -296,9 +296,10 @@ Patterns can be used like in the `intro` tactic. Example, given a goal
 ```
 `funext (a, b)` applies `funext` once and performs pattern matching on the newly introduced pair.
 -/
-syntax "funext " (colGt term:max)+ : tactic
+syntax "funext" (ppSpace colGt term:max)* : tactic
 
 macro_rules
+  | `(tactic|funext) => `(tactic| repeat (apply funext; intro))
   | `(tactic|funext $x) => `(tactic| apply funext; intro $x:term)
   | `(tactic|funext $x $xs*) => `(tactic| apply funext; intro $x:term; funext $xs*)
 

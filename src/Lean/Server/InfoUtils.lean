@@ -27,6 +27,8 @@ the `InfoTree` structure (see `Lean.Elab.InfoTree.visitM`).
 There we use this as a convienience wrapper for queried nodes (e.g. the return value of
 `Lean.Elab.InfoTree.hoverableInfoAt?`). It also includes the children info nodes
 as additional context (this is unused in the RPC case, as delaboration has no notion of child nodes).
+
+NOTE: This type is for internal use in the infoview/LSP. It should not be used in user widgets.
 -/
 structure InfoWithCtx where
   ctx  : Elab.ContextInfo

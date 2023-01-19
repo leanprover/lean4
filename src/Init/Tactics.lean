@@ -625,8 +625,16 @@ macro_rules | `(tactic| trivial) => `(tactic| simp)
 syntax "trivial" : tactic
 
 /--
-The `split` tactic is useful for breaking nested if-then-else and match expressions in cases.
-For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals
+The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
+For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
+
+For example, given `n : Nat`, and a target `if n = 0 then Q else R`, `split` will generate
+one goal with hypothesis `n = 0` and target `Q`, and a second goal with hypothesis
+`¬n = 0` and target `R`.  Note that the introduced hypothesis is unnamed, and is commonly
+renamed used the `case` or `next` tactics.
+
+- `split` will split the goal (target).
+- `split at h` will split the hypothesis `h`.
 -/
 syntax (name := split) "split " (colGt term)? (location)? : tactic
 

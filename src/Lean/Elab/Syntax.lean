@@ -345,6 +345,20 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
   <|>
   throwError "invalid syntax node kind '{k}'"
 
+def isLocalAttrKind (attrKind : Syntax) : Bool :=
+  match attrKind with
+  | `(Parser.Term.attrKind| local) => true
+  | _ => false
+
+/--
+Add macro scope to `name` if it does not already have them, and `attrKind` is `local`.
+-/
+def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : Syntax) : m Name := do
+  if isLocalAttrKind attrKind && !name.hasMacroScopes then
+    MonadQuotation.addMacroScope name
+  else
+    return name
+
 @[builtin_command_elab «syntax»] def elabSyntax : CommandElab := fun stx => do
   let `($[$doc?:docComment]? $[ @[ $attrInstances:attrInstance,* ] ]? $attrKind:attrKind
       syntax%$tk $[: $prec? ]? $[(name := $name?)]? $[(priority := $prio?)]? $[$ps:stx]* : $catStx) := stx
@@ -361,7 +375,8 @@ def resolveSyntaxKind (k : Name) : CommandElabM Name := do
     | none      => pure precDefault
   let name ← match name? with
     | some name => pure name.getId
-    | none => liftMacroM <| mkNameFromParserSyntax cat syntaxParser
+    | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
+  trace[Meta.debug] "name: {name}"
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
   let stxNodeKind := (← getCurrNamespace) ++ name

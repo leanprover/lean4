@@ -363,7 +363,7 @@ def funBinder : Parser :=
 -- NOTE: we disable anonymous antiquotations to ensure that `fun $b => ...`
 -- remains a `term` antiquotation
 def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
-  ppGroup (many1 (ppSpace >> funBinder) >> optType >> " =>") >> ppSpace >> termParser
+  ppGroup (many1 (ppSpace >> funBinder) >> optType >> unicodeSymbol " ↦" " =>") >> ppSpace >> termParser
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
   ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 

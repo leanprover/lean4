@@ -51,7 +51,6 @@ private def collectExpr : Expr → Collector
   | Expr.unbox x        => collectVar x
   | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
-  | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
   collectArray alts fun alt => f alt.body
@@ -147,7 +146,6 @@ private def collectExpr : Expr → Collector
   | Expr.unbox x        => collectVar x
   | Expr.lit _          => skip
   | Expr.isShared x     => collectVar x
-  | Expr.isTaggedPtr x  => collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
   collectArray alts fun alt => f alt.body
@@ -208,7 +206,6 @@ def visitExpr (w : Index) : Expr → Bool
   | Expr.unbox x        => visitVar w x
   | Expr.lit _          => false
   | Expr.isShared x     => visitVar w x
-  | Expr.isTaggedPtr x  => visitVar w x
 
 partial def visitFnBody (w : Index) : FnBody → Bool
   | FnBody.vdecl _ _ v b    => visitExpr w v || visitFnBody w b

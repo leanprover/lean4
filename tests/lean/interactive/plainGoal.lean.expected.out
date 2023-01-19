@@ -156,3 +156,11 @@ null
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 120, "character": 2}}
 {"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 124, "character": 17}}
+{"rendered": "```lean\np q : Prop\nhp : p\nhq : q\nthis : q ∧ p\n⊢ p ∧ q\n```",
+ "goals": ["p q : Prop\nhp : p\nhq : q\nthis : q ∧ p\n⊢ p ∧ q"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 128, "character": 18}}
+{"rendered": "```lean\np q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)\n```",
+ "goals": ["p q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)"]}

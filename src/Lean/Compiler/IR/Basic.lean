@@ -219,8 +219,6 @@ inductive Expr where
   | lit (v : LitVal)
   /-- Return `1 : uint8` Iff `RC(x) > 1` -/
   | isShared (x : VarId)
-  /-- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
-  | isTaggedPtr (x : VarId)
 
 @[export lean_ir_mk_ctor_expr]  def mkCtorExpr (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr :=
   Expr.ctor ⟨n, cidx, size, usize, ssize⟩ ys
@@ -550,7 +548,6 @@ def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
   | Expr.unbox x₁,           Expr.unbox x₂           => aeqv ρ x₁ x₂
   | Expr.lit v₁,             Expr.lit v₂             => v₁ == v₂
   | Expr.isShared x₁,        Expr.isShared x₂        => aeqv ρ x₁ x₂
-  | Expr.isTaggedPtr x₁,     Expr.isTaggedPtr x₂     => aeqv ρ x₁ x₂
   | _,                        _                      => false
 
 instance : AlphaEqv Expr:= ⟨Expr.alphaEqv⟩
@@ -610,5 +607,13 @@ def mkIf (x : VarId) (t e : FnBody) : FnBody :=
     Alt.ctor {name := ``Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
     Alt.ctor {name := ``Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
   ]
+
+def getUnboxOpName (t : IRType) : String :=
+  match t with
+  | IRType.usize  => "lean_unbox_usize"
+  | IRType.uint32 => "lean_unbox_uint32"
+  | IRType.uint64 => "lean_unbox_uint64"
+  | IRType.float  => "lean_unbox_float"
+  | _             => "lean_unbox"
 
 end Lean.IR

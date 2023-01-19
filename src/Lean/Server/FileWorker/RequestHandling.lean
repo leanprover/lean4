@@ -262,7 +262,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
         let goal ← ci.runMetaM lctx' do
           Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
         let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
-        return some { goal with range }
+        return some { goal with range, term := ⟨ti⟩ }
       else
         return none
 
@@ -270,7 +270,7 @@ def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
   return t.map <| Except.map <| Option.map fun goal =>
-    { goal := toString goal.toInteractiveGoal.pretty
+    { goal := toString goal.pretty
       range := goal.range
     }
 
@@ -416,6 +416,14 @@ structure SemanticTokensState where
   data       : Array Nat
   lastLspPos : Lsp.Position
 
+-- TODO: make extensible, or don't
+def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
+  RBMap.empty
+    |>.insert "sorry" .leanSorryLike
+    |>.insert "admit" .leanSorryLike
+    |>.insert "stop" .leanSorryLike
+    |>.insert "#exit" .leanSorryLike
+
 partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
@@ -473,7 +481,7 @@ where
       if (val.length > 0 && val.front.isAlpha) ||
          -- Support for keywords of the form `#<alpha>...`
          (val.length > 1 && val.front == '#' && (val.get ⟨1⟩).isAlpha) then
-        addToken stx SemanticTokenType.keyword
+        addToken stx (keywordSemanticTokenMap.findD val .keyword)
   addToken stx type := do
     let ⟨beginPos, endPos, text, _⟩ ← read
     if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then

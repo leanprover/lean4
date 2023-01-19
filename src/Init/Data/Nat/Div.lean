@@ -65,19 +65,34 @@ theorem div_lt_self {n k : Nat} (hLtN : 0 < n) (hLtK : 1 < k) : n / k < n := by
     exact Nat.lt_of_lt_of_le (Nat.add_lt_add_left hLtK _) this
 
 @[extern "lean_nat_mod"]
-protected def mod (x y : @& Nat) : Nat :=
+protected def modCore (x y : @& Nat) : Nat :=
   if 0 < y ∧ y ≤ x then
-    Nat.mod (x - y) y
+    Nat.modCore (x - y) y
   else
     x
 decreasing_by apply div_rec_lemma; assumption
 
+@[extern "lean_nat_mod"]
+protected def mod : @& Nat → @& Nat → Nat
+  /- This case is not needed mathematically as the case below is equal to it; however, it makes
+  `0 % n = 0` true definitionally rather than just propositionally.
+  This property is desirable for `Fin n`, as it means `(ofNat 0 : Fin n).val = 0` by definition.
+  Primarily, this is valuable because mathlib in Lean3 assumed this was true definitionally, and so
+  keeping this definitional equality makes mathlib easier to port to mathlib4. -/
+  | 0, _ => 0
+  | x@(_ + 1), y => Nat.modCore x y
+
 instance : Mod Nat := ⟨Nat.mod⟩
 
+protected theorem modCore_eq_mod (x y : Nat) : Nat.modCore x y = x % y := by
+  cases x with
+  | zero =>
+    rw [Nat.modCore]
+    exact if_neg fun ⟨hlt, hle⟩ => Nat.lt_irrefl _ (Nat.lt_of_lt_of_le hlt hle)
+  | succ x => rfl
+
 theorem mod_eq (x y : Nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x := by
-  show Nat.mod x y = _
-  rw [Nat.mod]
-  rfl
+  rw [←Nat.modCore_eq_mod, ←Nat.modCore_eq_mod, Nat.modCore]
 
 theorem mod.inductionOn.{u}
       {motive : Nat → Nat → Sort u}
@@ -87,7 +102,7 @@ theorem mod.inductionOn.{u}
       : motive x y :=
   div.inductionOn x y ind base
 
-theorem mod_zero (a : Nat) : a % 0 = a :=
+@[simp] theorem mod_zero (a : Nat) : a % 0 = a :=
   have : (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a :=
     have h : ¬ (0 < 0 ∧ 0 ≤ a) := fun ⟨h₁, _⟩ => absurd h₁ (Nat.lt_irrefl _)
     if_neg h

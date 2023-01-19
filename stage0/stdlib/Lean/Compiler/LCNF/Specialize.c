@@ -216,7 +216,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Speci
 static lean_object* l_Lean_Compiler_LCNF_Expr_forFVarM___at_Lean_Compiler_LCNF_Specialize_withLetDecl___spec__5___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Specialize_mkKey(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___lambda__5___closed__1;
-size_t l___private_Lean_Data_HashMap_0__Lean_HashMapImp_mkIdx(lean_object*, uint64_t, lean_object*);
+size_t lean_data_hashmap_mk_idx(lean_object*, uint64_t);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Compiler_LCNF_Specialize_mkSpecDecl_go___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_instMonadCompilerM;
@@ -1867,7 +1867,7 @@ lean_object* x_3; lean_object* x_4; uint64_t x_5; size_t x_6; lean_object* x_7; 
 x_3 = lean_ctor_get(x_1, 1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1951_(x_2);
-x_6 = (size_t)(x_5) & (lean_unbox(x_4) - 1);
+x_6 = lean_data_hashmap_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
 x_8 = l_Lean_AssocList_contains___at_Lean_Compiler_LCNF_LCtx_addFunDecl___spec__2(x_2, x_7);
 lean_dec(x_7);

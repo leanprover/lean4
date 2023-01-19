@@ -37,6 +37,7 @@ void test(decl const & d);
 environment compile(environment const & env, options const & opts, comp_decls const & decls);
 environment add_extern(environment const & env, name const & fn);
 string_ref emit_c(environment const & env, name const & mod_name);
+void emit_llvm(environment const & env, name const & mod_name, std::string const &filepath);
 }
 void initialize_ir();
 void finalize_ir();

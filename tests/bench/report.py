@@ -20,7 +20,10 @@ def single(bench, cat, prop):
         runs = yaml.load(f, Loader=yaml.CLoader)
     stats_helper = rundata.RunDataStatsHelper.init_from_dicts(runs)
     stat = stats.TestedPairsAndSingles(stats_helper.valid_runs())
-    return stat.singles[0].properties[prop]
+    if stat.singles:
+        return stat.singles[0].properties[prop]
+    else:
+        raise Exception(f"failed to parse {f}")
 
 mean_by_cat = collections.defaultdict(list)
 stddev_by_cat = collections.defaultdict(list)
@@ -71,10 +74,16 @@ CATBAG = {
 
 benches = os.environ['BENCHES'].split(':')
 cats = os.environ['CATS'].split(':')
-print(";".join(["Benchmark"] + [f'{CATBAG[cat][0]};{CATBAG[cat][0]} std' for cat in cats]))
 
-for bench in benches:
-    norm = single('rbmap' if bench.startswith('rbmap') else bench, '.lean', 'etime').mean()
-    print(";".join([bench] + [pp(bench, cat, CATBAG[cat][1], norm) for cat in cats]))
+# create one file without rbmap_ benchmarks, one without only rbmap and normed by rbmap_1
+for sfx in ['', '_rbmap']:
+    f = open(sys.argv[1] + sfx + '.csv', 'w')
+    print(";".join(["Benchmark"] + [f'{CATBAG[cat][0]};{CATBAG[cat][0]} std' for cat in cats]), file=f)
 
-print(";".join(["geom. mean"] + [mean(cat, CATBAG[cat][1]) for cat in cats]))
+    for bench in benches:
+        if sfx == '' and bench.startswith('rbmap_') or sfx == '_rbmap' and not bench.startswith('rbmap'):
+            continue
+        norm = single('rbmap_1' if bench.startswith('rbmap') and sfx == '_rbmap' else bench, '.lean', 'etime').mean()
+        print(";".join([bench] + [pp(bench, cat, CATBAG[cat][1], norm) for cat in cats]), file=f)
+
+    print(";".join(["geom. mean"] + [mean(cat, CATBAG[cat][1]) for cat in cats]), file=f)

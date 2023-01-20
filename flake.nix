@@ -24,7 +24,7 @@
         # for `vscode-with-extensions`
         config.allowUnfree = true;
       };
-      lean-packages = pkgs.callPackage (./nix/packages.nix) { inherit nix lean4-mode; };
+      lean-packages = pkgs.callPackage (./nix/packages.nix) { src = ./.; inherit nix lean4-mode; };
     in {
       packages = lean-packages // rec {
         debug = lean-packages.override { debug = true; };

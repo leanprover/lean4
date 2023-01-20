@@ -1,4 +1,4 @@
-{ debug ? false, stage0debug ? false, extraCMakeFlags ? [],
+{ src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
   stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
@@ -26,7 +26,7 @@ rec {
   lean-bin-tools-unwrapped = buildCMake {
     name = "lean-bin-tools";
     outputs = [ "out" "leanc_src" ];
-    realSrc = sourceByRegex ../src [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
+    realSrc = sourceByRegex (src + "/src") [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
       sed -i 's/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
@@ -44,7 +44,7 @@ rec {
   };
   leancpp = buildCMake {
     name = "leancpp";
-    src = ../src;
+    src = src + "/src";
     buildFlags = [ "leancpp" "leanrt" "leanrt_initial-exec" "shell" ];
     installPhase = ''
       mkdir -p $out
@@ -55,12 +55,12 @@ rec {
   };
   stage0 = args.stage0 or (buildCMake {
     name = "lean-stage0";
-    realSrc = ../stage0/src;
+    realSrc = src + "/stage0/src";
     debug = stage0debug;
     cmakeFlags = [ "-DSTAGE=0" ];
     extraCMakeFlags = [];
     preConfigure = ''
-      ln -s ${../stage0/stdlib} ../stdlib
+      ln -s ${src + "/stage0/stdlib"} ../stdlib
     '';
     installPhase = ''
       mkdir -p $out/bin $out/lib/lean
@@ -85,9 +85,9 @@ rec {
         lean-final = self;
         leanFlags = [ "-DwarningAsError=true" ];
       } ({
-        src = ../src;
+        src = src + "/src";
         roots = [ { mod = args.name; glob = "andSubmodules"; } ];
-        fullSrc = ../.;
+        fullSrc = src;
         srcPrefix = "src";
         inherit debug;
       } // args);
@@ -144,7 +144,7 @@ rec {
       ];
       test = buildCMake {
         name = "lean-test-${desc}";
-        realSrc = lib.sourceByRegex ../. [ "src.*" "tests.*" ];
+        realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
         buildInputs = [ gmp perl ];
         preConfigure = ''
           cd src
@@ -165,7 +165,7 @@ rec {
       update-stage0 =
         let cTree = symlinkJoin { name = "cs"; paths = map (l: l.cTree) stdlib; }; in
         writeShellScriptBin "update-stage0" ''
-          CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${../script/update-stage0}
+          CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/update-stage0"}
         '';
       update-stage0-commit = writeShellScriptBin "update-stage0-commit" ''
         set -euo pipefail
@@ -180,11 +180,11 @@ rec {
       '';
       benchmarks =
         let
-          entries = attrNames (readDir ../tests/bench);
+          entries = attrNames (readDir (src + "/tests/bench"));
           leanFiles = map (n: elemAt n 0) (filter (n: n != null) (map (match "(.*)\.lean") entries));
         in lib.genAttrs leanFiles (n: (buildLeanPackage {
           name = n;
-          src = filterSource (e: _: baseNameOf e == "${n}.lean") ../tests/bench;
+          src = filterSource (e: _: baseNameOf e == "${n}.lean") (src + "/tests/bench");
         }).executable);
     };
   stage1 = stage { stage = 1; prevStage = stage0; self = stage1; };

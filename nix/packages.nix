@@ -1,4 +1,4 @@
-{ pkgs, nix, ... } @ args:
+{ src, pkgs, nix, ... } @ args:
 with pkgs;
 let
   nix-pinned = writeShellScriptBin "nix" ''
@@ -29,7 +29,7 @@ let
   stdenv' = if stdenv.isLinux then useGoldLinker stdenv else stdenv;
   lean = callPackage (import ./bootstrap.nix) (args // {
     stdenv = overrideCC stdenv' cc;
-    inherit buildLeanPackage llvmPackages;
+    inherit src buildLeanPackage llvmPackages;
   });
   makeOverridableLeanPackage = f:
     let newF = origArgs: f origArgs // {

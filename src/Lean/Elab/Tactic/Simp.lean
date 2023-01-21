@@ -337,14 +337,14 @@ where
 /-
   "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
 -/
-@[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => do
-  let { ctx, dischargeWrapper } ← withMainContext <| mkSimpContext stx (eraseLocal := false)
+@[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do
+  let { ctx, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
   let usedSimps ← dischargeWrapper.with fun discharge? =>
     simpLocation ctx discharge? (expandOptLocation stx[5])
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx usedSimps
 
-@[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do
   let { ctx, .. } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
   let (result?, usedSimps) ← simpAll (← getMainGoal) ctx
   match result? with
@@ -370,7 +370,7 @@ where
     | none => replaceMainGoal []
     | some mvarId => replaceMainGoal [mvarId]
     if tactic.simp.trace.get (← getOptions) then
-      traceSimpCall (← getRef) usedSimps
+      mvarId.withContext <| traceSimpCall (← getRef) usedSimps
 
 @[builtin_tactic Lean.Parser.Tactic.dsimp] def evalDSimp : Tactic := fun stx => do
   let { ctx, .. } ← withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)

@@ -73,16 +73,20 @@ where
     else
       k motives
 
-private partial def ignoreField (x : Expr) : MetaM Bool := do
-  let type ← whnf (← inferType x)
+private partial def ignoreFieldType (type : Expr) : MetaM Bool := do
+  let type ← whnf type
   if type.isForall then
     -- TODO: add support for finite domains
     if type.isArrow && type.bindingDomain!.isConstOf ``Unit then
-      ignoreField type.bindingBody!
+      ignoreFieldType type.bindingBody!
     else
       return true
   else
     return false
+
+private def ignoreField (x : Expr) : MetaM Bool := do
+  let type ← inferType x
+  ignoreFieldType type
 
 /-- See `ignoreField`. We have support for functions of the form `Unit → ...` -/
 private partial def mkSizeOfRecFieldFormIH (ih : Expr) : MetaM Expr := do

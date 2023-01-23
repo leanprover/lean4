@@ -1,21 +1,24 @@
-[Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm `Bool.false 1
-[Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm `Bool.true 2
+[Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm
+      `Decidable.isFalse 1
+[Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm
+      `Decidable.isTrue 2
 [Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm `Nat.zero 1
 [Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm `Nat.succ 1
-[Compiler.floatLetIn] size: 11
+[Compiler.floatLetIn] size: 12
     def provokeFloatLet x y cond : Nat :=
       let dual := Nat.mul x y;
-      cases cond : Nat
-      | Bool.false =>
+      let _x.1 := @instDecidableAsProp cond;
+      cases _x.1 : Nat
+      | Decidable.isFalse x.2 =>
         let b := Nat.add x y;
-        let _x.1 := Nat.add b dual;
-        return _x.1
-      | Bool.true =>
+        let _x.3 := Nat.add b dual;
+        return _x.3
+      | Decidable.isTrue x.4 =>
         cases dual : Nat
         | Nat.zero =>
           let a := Nat.pow x y;
           return a
-        | Nat.succ n.2 =>
+        | Nat.succ n.5 =>
           let c := Nat.sub x y;
           return c
 [Compiler.floatLetIn] Size of code that was pushed into arm: Lean.Compiler.LCNF.FloatLetIn.Decision.arm `Bool.false 0

@@ -263,21 +263,14 @@ where
   else if let some (_, lhs, rhs) := type.ne? then
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'False'"
-    if rhs.isConstOf ``Bool.true then
-      return [(← mkAppM ``Bool.of_not_eq_true #[e], ← mkEq lhs (mkConst ``Bool.false))]
-    else if rhs.isConstOf ``Bool.false then
-      return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
     let type ← mkEq (← mkEq lhs rhs) (mkConst ``False)
     let e    ← mkEqFalse e
     return [(e, type)]
   else if let some p := type.not? then
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'False'"
-    if let some (_, lhs, rhs) := p.eq? then
-      if rhs.isConstOf ``Bool.true then
-        return [(← mkAppM ``Bool.of_not_eq_true #[e], ← mkEq lhs (mkConst ``Bool.false))]
-      else if rhs.isConstOf ``Bool.false then
-        return [(← mkAppM ``Bool.of_not_eq_false #[e], ← mkEq lhs (mkConst ``Bool.true))]
+    if let some b := p.asProp? then
+      return [(← mkAppM ``Bool.of_not_asProp #[e], ← mkEq b (mkConst ``false))]
     let type ← mkEq p (mkConst ``False)
     let e    ← mkEqFalse e
     return [(e, type)]
@@ -285,6 +278,10 @@ where
     let e₁ := mkProj ``And 0 e
     let e₂ := mkProj ``And 1 e
     return (← go e₁ type₁) ++ (← go e₂ type₂)
+  else if let some b := type.asProp? then
+    if inv then
+      throwError "invalid '←' modifier in rewrite rule to 'true'"
+    return [(← mkAppM ``Bool.of_asProp #[e], ← mkEq b (mkConst ``true))]
   else
     if inv then
       throwError "invalid '←' modifier in rewrite rule to 'True'"

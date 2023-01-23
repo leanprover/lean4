@@ -550,6 +550,10 @@ inductive Bool : Type where
 
 export Bool (false true)
 
+/-- Interprets a Boolean value as a proposition. -/
+def Bool.asProp (b : Bool) : Prop :=
+  Eq b true
+
 /--
 `Subtype p`, usually written as `{x : α // p x}`, is a type which
 represents all the elements `x : α` for which `p x` is true. It is structurally
@@ -843,6 +847,13 @@ theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide 
   match (generalizing := false) inst a a with
   | isTrue  _  => rfl
   | isFalse h₁ => absurd rfl h₁
+
+theorem decide_asProp_of [Decidable p] : p → (decide p).asProp := decide_eq_true
+
+instance : Decidable (Bool.asProp b) :=
+  match b with
+  | true => isTrue rfl
+  | false => isFalse (nomatch ·)
 
 /-- Decidable equality for Bool -/
 @[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
@@ -1478,13 +1489,13 @@ def Nat.beq : (@& Nat) → (@& Nat) → Bool
 instance : BEq Nat where
   beq := Nat.beq
 
-theorem Nat.eq_of_beq_eq_true : {n m : Nat} → Eq (beq n m) true → Eq n m
+protected theorem Nat.eq_of_beq : {n m : Nat} → (beq n m).asProp → Eq n m
   | zero,   zero,   _ => rfl
   | zero,   succ _, h => Bool.noConfusion h
   | succ _, zero,   h => Bool.noConfusion h
   | succ n, succ m, h =>
     have : Eq (beq n m) true := h
-    have : Eq n m := eq_of_beq_eq_true this
+    have : Eq n m := Nat.eq_of_beq this
     this ▸ rfl
 
 theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
@@ -1505,7 +1516,7 @@ here is the logical model.
 @[reducible, extern "lean_nat_dec_eq"]
 protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
   match h:beq n m with
-  | true  => isTrue (eq_of_beq_eq_true h)
+  | true  => isTrue (Nat.eq_of_beq h)
   | false => isFalse (ne_of_beq_eq_false h)
 
 @[inline] instance : DecidableEq Nat := Nat.decEq
@@ -1649,30 +1660,30 @@ protected theorem Nat.lt_of_le_of_ne {n m : Nat} (h₁ : LE.le n m) (h₂ : Not 
   | Or.inl h₃ => h₃
   | Or.inr h₃ => absurd (Nat.le_antisymm h₁ h₃) h₂
 
-theorem Nat.le_of_ble_eq_true (h : Eq (Nat.ble n m) true) : LE.le n m :=
+theorem Nat.le_of_ble (h : (Nat.ble n m).asProp) : LE.le n m :=
   match n, m with
   | 0,      _      => Nat.zero_le _
-  | succ _, succ _ => Nat.succ_le_succ (le_of_ble_eq_true h)
+  | succ _, succ _ => Nat.succ_le_succ (le_of_ble h)
 
-theorem Nat.ble_self_eq_true : (n : Nat) → Eq (Nat.ble n n) true
+theorem Nat.ble_self : (n : Nat) → (Nat.ble n n).asProp
   | 0      => rfl
-  | succ n => ble_self_eq_true n
+  | succ n => ble_self n
 
-theorem Nat.ble_succ_eq_true : {n m : Nat} → Eq (Nat.ble n m) true → Eq (Nat.ble n (succ m)) true
+theorem Nat.ble_succ : {n m : Nat} → (Nat.ble n m).asProp → (Nat.ble n (succ m)).asProp
   | 0,      _,      _ => rfl
-  | succ n, succ _, h => ble_succ_eq_true (n := n) h
+  | succ n, succ _, h => ble_succ (n := n) h
 
-theorem Nat.ble_eq_true_of_le (h : LE.le n m) : Eq (Nat.ble n m) true :=
+theorem Nat.ble_of_le (h : LE.le n m) : (Nat.ble n m).asProp :=
   match h with
-  | Nat.le.refl   => Nat.ble_self_eq_true n
-  | Nat.le.step h => Nat.ble_succ_eq_true (ble_eq_true_of_le h)
+  | Nat.le.refl   => Nat.ble_self n
+  | Nat.le.step h => Nat.ble_succ (ble_of_le h)
 
-theorem Nat.not_le_of_not_ble_eq_true (h : Not (Eq (Nat.ble n m) true)) : Not (LE.le n m) :=
-  fun h' => absurd (Nat.ble_eq_true_of_le h') h
+theorem Nat.not_le_of_not_ble (h : Not (Nat.ble n m).asProp) : Not (LE.le n m) :=
+  fun h' => absurd (Nat.ble_of_le h') h
 
 @[extern "lean_nat_dec_le"]
 instance Nat.decLe (n m : @& Nat) : Decidable (LE.le n m) :=
-  dite (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
+  dite (Nat.ble n m).asProp (fun h => isTrue (Nat.le_of_ble h)) (fun h => isFalse (Nat.not_le_of_not_ble h))
 
 @[extern "lean_nat_dec_lt"]
 instance Nat.decLt (n m : @& Nat) : Decidable (LT.lt n m) :=

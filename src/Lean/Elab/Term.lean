@@ -1506,24 +1506,25 @@ partial def collectUnassignedMVars (type : Expr) (init : Array Expr := #[]) (exc
   if mvarIds.isEmpty then
     return init
   else
-    go mvarIds.toList init
+    go mvarIds.toList init init
 where
-  go (mvarIds : List MVarId) (result : Array Expr) : TermElabM (Array Expr) := do
+  go (mvarIds : List MVarId) (result visited : Array Expr) : TermElabM (Array Expr) := do
     match mvarIds with
     | [] => return result
     | mvarId :: mvarIds => do
+      let visited := visited.push (mkMVar mvarId)
       if (← mvarId.isAssigned) then
-        go mvarIds result
+        go mvarIds result visited
       else if result.contains (mkMVar mvarId) || except mvarId then
-        go mvarIds result
+        go mvarIds result visited
       else
         let mvarType := (← getMVarDecl mvarId).type
         let mvarIdsNew ← getMVars mvarType
-        let mvarIdsNew := mvarIdsNew.filter fun mvarId => !result.contains (mkMVar mvarId)
+        let mvarIdsNew := mvarIdsNew.filter fun mvarId => !visited.contains (mkMVar mvarId)
         if mvarIdsNew.isEmpty then
-          go  mvarIds (result.push (mkMVar mvarId))
+          go mvarIds (result.push (mkMVar mvarId)) visited
         else
-          go (mvarIdsNew.toList ++ mvarId :: mvarIds) result
+          go (mvarIdsNew.toList ++ mvarId :: mvarIds) result visited
 
 /--
   Return `autoBoundImplicits ++ xs`

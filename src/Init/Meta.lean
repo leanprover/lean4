@@ -208,12 +208,8 @@ protected theorem beq_iff_eq {m n : Name} : m == n ↔ m = n := by
   show m.beq n ↔ _
   induction m generalizing n <;> cases n <;> simp_all [Name.beq, And.comm]
 
-instance : LawfulBEq Name where
-  eq_of_beq := Name.beq_iff_eq.1
-  rfl := Name.beq_iff_eq.2 rfl
-
-instance : DecidableEq Name :=
-  fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
+instance : DecidableEq Name where
+  beq_iff_eq := Name.beq_iff_eq
 
 end Name
 

@@ -74,8 +74,9 @@ noncomputable scoped instance (priority := low) propDecidable (a : Prop) : Decid
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
   default := inferInstance
 
-noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun _ _ => inferInstance
+noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α where
+  beq a b := decide (a = b)
+  beq_iff_eq := ⟨of_decide_eq_true, decide_eq_true⟩
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with

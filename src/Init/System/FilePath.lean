@@ -8,6 +8,7 @@ import Init.System.Platform
 import Init.Data.String.Basic
 import Init.Data.Repr
 import Init.Data.ToString.Basic
+import Init.NotationExtra
 
 namespace System
 open Platform

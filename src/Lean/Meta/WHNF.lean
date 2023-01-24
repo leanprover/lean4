@@ -388,14 +388,12 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
       return info.name == ``ite
        || info.name == ``dite
        || info.name == ``decEq
-       || info.name == ``Nat.decEq
        || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
-       || info.name == ``String.decEq || info.name == ``List.hasDecEq
        || info.name == ``Fin.ofNat
-       || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
-       || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
-       || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
-       || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
+       || info.name == ``UInt8.ofNat
+       || info.name == ``UInt16.ofNat
+       || info.name == ``UInt32.ofNat
+       || info.name == ``UInt64.ofNat
        /- Remark: we need to unfold the following two definitions because they are used for `Fin`, and
           lazy unfolding at `isDefEq` does not unfold projections.  -/
        || info.name == ``HMod.hMod || info.name == ``Mod.mod

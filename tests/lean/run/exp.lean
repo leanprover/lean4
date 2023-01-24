@@ -2,7 +2,7 @@ inductive Expr : Type
   | const (n : Nat)
   | plus (e₁ e₂ : Expr)
   | mul (e₁ e₂ : Expr)
-  deriving BEq, Inhabited, Repr, DecidableEq
+  deriving Inhabited, Repr, DecidableEq
 
 def Expr.eval : Expr → Nat
   | const n    => n

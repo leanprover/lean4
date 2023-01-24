@@ -334,23 +334,16 @@ def arithmeticFolders : List (Name × Folder) := [
 ]
 
 def relationFolders : List (Name × Folder) := [
-  (``Nat.decEq, Folder.mkBinaryDecisionProcedure Nat.decEq),
   (``Nat.decLt, Folder.mkBinaryDecisionProcedure Nat.decLt),
   (``Nat.decLe, Folder.mkBinaryDecisionProcedure Nat.decLe),
-  (``UInt8.decEq, Folder.mkBinaryDecisionProcedure UInt8.decEq),
   (``UInt8.decLt, Folder.mkBinaryDecisionProcedure UInt8.decLt),
   (``UInt8.decLe, Folder.mkBinaryDecisionProcedure UInt8.decLe),
-  (``UInt16.decEq, Folder.mkBinaryDecisionProcedure UInt16.decEq),
   (``UInt16.decLt, Folder.mkBinaryDecisionProcedure UInt16.decLt),
   (``UInt16.decLe, Folder.mkBinaryDecisionProcedure UInt16.decLe),
-  (``UInt32.decEq, Folder.mkBinaryDecisionProcedure UInt32.decEq),
   (``UInt32.decLt, Folder.mkBinaryDecisionProcedure UInt32.decLt),
   (``UInt32.decLe, Folder.mkBinaryDecisionProcedure UInt32.decLe),
-  (``UInt64.decEq, Folder.mkBinaryDecisionProcedure UInt64.decEq),
   (``UInt64.decLt, Folder.mkBinaryDecisionProcedure UInt64.decLt),
-  (``UInt64.decLe, Folder.mkBinaryDecisionProcedure UInt64.decLe),
-  (``Bool.decEq, Folder.mkBinaryDecisionProcedure Bool.decEq),
-  (``Bool.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
+  (``UInt64.decLe, Folder.mkBinaryDecisionProcedure UInt64.decLe)
 ]
 
 /--

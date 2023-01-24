@@ -41,10 +41,9 @@ termination_by _ => a.size - i
 theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y => x = y) := by
   simp [isEqv, isEqvAux_self]
 
-instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun a b =>
-    match h:isEqv a b (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv a b h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+instance [DecidableEq α] : DecidableEq (Array α) where
+  beq_iff_eq {a b} :=
+    have : isEqv a b (fun x y => x = y) ↔ a = b := ⟨eq_of_isEqv a b, (· ▸ isEqv_self a)⟩
+    show isEqv a b (fun x y => x == y) ↔ _ by simp only [decide_eq] at this; exact this
 
 end Array

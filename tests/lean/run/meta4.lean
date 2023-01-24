@@ -9,7 +9,7 @@ trace[Meta.debug] msg
 def checkM (x : MetaM Bool) : MetaM Unit :=
 unless (← x) do throwError "check failed"
 
-axiom Ax : forall (α β : Type), α → β → DecidableEq β
+axiom Ax : forall (α β : Type), α → β → DecidableRel (@Eq α)
 
 set_option trace.Meta.debug true
 

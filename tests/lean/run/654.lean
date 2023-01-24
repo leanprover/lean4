@@ -278,7 +278,7 @@ inductive CXCursorKind where
   | CXCursor_FirstExtraDecl
   | CXCursor_LastExtraDecl
   | CXCursor_OverloadCandidate
-  deriving BEq, DecidableEq
+  deriving DecidableEq
 
 open CXCursorKind
 

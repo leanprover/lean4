@@ -147,23 +147,19 @@ theorem cond_eq_ite : cond c a b = ite c a b := by cases c <;> simp
 theorem cond_pos : c.asProp → cond c a b = a := by cases c <;> simp
 theorem cond_neg : ¬ c.asProp → cond c a b = b := by cases c <;> simp
 
-@[simp] theorem beq_self_eq_true [BEq α] [LawfulBEq α] (a : α) : (a == a) = true := LawfulBEq.rfl
-@[simp] theorem beq_self_eq_true' [DecidableEq α] (a : α) : (a == a) = true := by simp [BEq.beq]
-
-@[simp] theorem bne_self_eq_false [BEq α] [LawfulBEq α] (a : α) : (a != a) = false := by simp [bne]
-@[simp] theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp [bne]
+@[simp] theorem beq_self_eq_true [DecidableEq α] (a : α) : (a == a) = true := by simp [BEq.beq]
+@[simp] theorem bne_self_eq_false [DecidableEq α] (a : α) : (a != a) = false := by simp [bne]
 
 @[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
   propext ⟨fun h => Nat.le_antisymm h (Nat.zero_le ..), fun h => by simp [h]⟩
 
-@[simp] theorem Bool.asProp_decide [Decidable p] : (decide p).asProp = p := by simp [asProp]
+attribute [simp] decide_iff
 @[simp] theorem Bool.asProp_false : false.asProp = False := by simp [asProp]
 @[simp] theorem Bool.asProp_true : true.asProp = True := by simp [asProp]
 @[simp] theorem Bool.asProp_and : (b && c).asProp = (b ∧ c) := by simp [asProp]
 @[simp] theorem Bool.asProp_or : (b || c).asProp = (b ∨ c) := by simp [asProp]
 @[simp] theorem Bool.asProp_not : (!b).asProp = (¬ b) := by simp [asProp]
-@[simp] theorem Bool.asProp_beq [BEq α] [LawfulBEq α] (a b : α) : (a == b).asProp = (a = b) :=
-  propext ⟨eq_of_beq, (by subst ·; apply LawfulBEq.rfl)⟩
+@[simp] theorem Bool.asProp_beq [DecidableEq α] (a b : α) : (a == b).asProp = (a = b) := propext beq_iff_eq
 
 theorem Bool.eq_of_asProp_eq {b c : Bool} : b.asProp = c.asProp → b = c := by
   cases b <;> cases c <;> simp

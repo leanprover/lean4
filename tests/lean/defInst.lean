@@ -14,7 +14,7 @@ deriving instance BEq, Repr for Foo
 #check fun (x y : Foo) => x == y
 
 def Boo := List (String × String)
-  deriving BEq, Repr, DecidableEq
+  deriving Repr, DecidableEq
 
 def mkBoo (s : String) : Boo :=
   [(s, s)]

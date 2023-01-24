@@ -78,19 +78,6 @@ instance thunkCoe : CoeTail α (Thunk α) where
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
 
-/--
-If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
-By `propext`, this implies that `a` and `b` are equal and hence any expression involving `a`
-is equivalent to the corresponding expression with `b` instead.
--/
-structure Iff (a b : Prop) : Prop where
-  /-- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
-  intro ::
-  /-- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
-  mp : a → b
-  /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
-  mpr : b → a
-
 @[inherit_doc] infix:20 " <-> " => Iff
 @[inherit_doc] infix:20 " ↔ "   => Iff
 
@@ -484,30 +471,12 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
-/--
-`LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
-(which supplies the `a == b` notation) coincides with logical equality `a = b`.
-In other words, `a == b` implies `a = b`, and `a == a` is true.
--/
-class LawfulBEq (α : Type u) [BEq α] : Prop where
-  /-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
-  eq_of_beq : {a b : α} → a == b → a = b
-  /-- `==` is reflexive, that is, `(a == a) = true`. -/
-  protected rfl : {a : α} → a == a
+/-- If `a == b` evaluates to `true`, then `a` and `b` are equal in the logic. -/
+theorem eq_of_beq [DecidableEq α] {a b : α} : a == b → a = b :=
+  beq_iff_eq.1
 
-export LawfulBEq (eq_of_beq)
-
-instance : LawfulBEq Bool where
-  eq_of_beq {a b} h := by cases a <;> cases b <;> first | rfl | contradiction
-  rfl {a} := by cases a <;> decide
-
-instance [DecidableEq α] : LawfulBEq α where
-  eq_of_beq := of_decide_eq_true
-  rfl := of_decide_eq_self_eq_true _
-
-instance : LawfulBEq Char := inferInstance
-
-instance : LawfulBEq String := inferInstance
+@[simp] theorem beq_self [DecidableEq α] {a : α} : (a == a) = true :=
+  beq_iff_eq.2 rfl
 
 /-! # Logical connectives and equality -/
 
@@ -602,13 +571,11 @@ theorem Bool.of_not_asProp : ¬ b.asProp → b = false := of_not_eq_true
 
 theorem Bool.of_asProp : b.asProp → b = true := id
 
-theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
-  intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
+theorem ne_of_beq_false [DecidableEq α] {a b : α} (h : (a == b) = false) : a ≠ b :=
+  fun h' => nomatch (beq_iff_eq.2 h' ▸ h :)
 
-theorem beq_false_of_ne [BEq α] [LawfulBEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
-  have : ¬ (a == b) = true := by
-    intro h'; rw [eq_of_beq h'] at h; contradiction
-  Bool.of_not_eq_true this
+theorem beq_false_of_ne [DecidableEq α] {a b : α} (h : a ≠ b) : (a == b) = false :=
+  eq_false_of_ne_true (h ∘ beq_iff_eq.1)
 
 section
 variable {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
@@ -661,23 +628,6 @@ variable {a b c d : Prop}
 theorem iff_iff_implies_and_implies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
   Iff.intro (fun h => And.intro h.mp h.mpr) (fun h => Iff.intro h.left h.right)
 
-theorem Iff.refl (a : Prop) : a ↔ a :=
-  Iff.intro (fun h => h) (fun h => h)
-
-protected theorem Iff.rfl {a : Prop} : a ↔ a :=
-  Iff.refl a
-
-theorem Iff.trans (h₁ : a ↔ b) (h₂ : b ↔ c) : a ↔ c :=
-  Iff.intro
-    (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))
-    (fun hc => Iff.mpr h₁ (Iff.mpr h₂ hc))
-
-theorem Iff.symm (h : a ↔ b) : b ↔ a :=
-  Iff.intro (Iff.mpr h) (Iff.mp h)
-
-theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
-  Iff.intro Iff.symm Iff.symm
-
 theorem Iff.of_eq (h : a = b) : a ↔ b :=
   h ▸ Iff.refl _
 
@@ -692,6 +642,12 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   | intro a h => h₂ a h
 
 /-! # Decidable -/
+
+theorem decide_congr [Decidable p] [Decidable q] (h : p ↔ q) : decide p = decide q :=
+  if hp : p then
+    (decide_eq_true hp).trans (decide_eq_true (h.1 hp)).symm
+  else
+    (decide_eq_false hp).trans (decide_eq_false (hp ∘ h.2)).symm
 
 theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
   match h with
@@ -829,17 +785,18 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
 abbrev noConfusionTypeEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) (P : Sort w) (x y : α) : Sort w :=
-  (inst (f x) (f y)).casesOn
-    (fun _ => P)
-    (fun _ => P → P)
+  -- written explicitly so that it reduces reducibly
+  (inst.beq (f x) (f y)).casesOn P (P → P)
 
 /-- Auxiliary definition for generating compact `noConfusion` for enumeration types -/
 abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : α → β) {P : Sort w} {x y : α} (h : x = y) : noConfusionTypeEnum f P x y :=
-  Decidable.casesOn
-    (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
-    (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
-    (fun _ => fun x => x)
+  -- written explicitly so that it reduces reducibly
+  Bool.casesOn
+    (motive := fun b => (b ↔ f x = f y) → b.casesOn P (P → P))
+    (inst.beq (f x) (f y))
+    (nomatch ·.2 (h ▸ rfl))
+    (fun _ x => x)
+    beq_iff_eq
 
 /-! # Inhabited -/
 
@@ -964,10 +921,11 @@ theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by
 instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} where
   default := ⟨a, h⟩
 
-instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
-  fun ⟨a, h₁⟩ ⟨b, h₂⟩ =>
-    if h : a = b then isTrue (by subst h; exact rfl)
-    else isFalse (fun h' => Subtype.noConfusion h' (fun h' => absurd h' h))
+instance [BEq α] : BEq {x // p x} where
+  beq a b := a.val == b.val
+
+instance [DecidableEq α] : DecidableEq {x : α // p x} :=
+  .ofInj (·.val) Subtype.eq
 
 end Subtype
 
@@ -982,16 +940,17 @@ instance Sum.inhabitedLeft [Inhabited α] : Inhabited (Sum α β) where
 instance Sum.inhabitedRight [Inhabited β] : Inhabited (Sum α β) where
   default := Sum.inr default
 
-instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) := fun a b =>
-  match a, b with
-  | Sum.inl a, Sum.inl b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr a, Sum.inr b =>
-    if h : a = b then isTrue (h ▸ rfl)
-    else isFalse fun h' => Sum.noConfusion h' fun h' => absurd h' h
-  | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
-  | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
+/-- Boolean equality for sum types. -/
+protected def Sum.beq [BEq α] [BEq β] : Sum α β → Sum α β → Bool
+  | inl a, inl b | inr a, inr b => a == b
+  | _, _ => false
+
+instance [DecidableEq α] [DecidableEq β] : DecidableEq (Sum α β) where
+  beq := Sum.beq
+  beq_iff_eq := @fun
+    | .inl _, .inl _ => (beq_iff_eq (α := α)).trans ⟨(· ▸ rfl), (Sum.noConfusion · id)⟩
+    | .inr _, .inr _ => (beq_iff_eq (α := β)).trans ⟨(· ▸ rfl), (Sum.noConfusion · id)⟩
+    | .inr _, .inl _ | .inl _, .inr _ => ⟨(nomatch ·), (nomatch ·)⟩
 
 end
 
@@ -1006,17 +965,16 @@ instance [Inhabited α] [Inhabited β] : Inhabited (MProd α β) where
 instance [Inhabited α] [Inhabited β] : Inhabited (PProd α β) where
   default := ⟨default, default⟩
 
-instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
-  fun (a, b) (a', b') =>
-    match decEq a a' with
-    | isTrue e₁ =>
-      match decEq b b' with
-      | isTrue e₂  => isTrue (e₁ ▸ e₂ ▸ rfl)
-      | isFalse n₂ => isFalse fun h => Prod.noConfusion h fun _   e₂' => absurd e₂' n₂
-    | isFalse n₁ => isFalse fun h => Prod.noConfusion h fun e₁' _   => absurd e₁' n₁
-
 instance [BEq α] [BEq β] : BEq (α × β) where
   beq := fun (a₁, b₁) (a₂, b₂) => a₁ == a₂ && b₁ == b₂
+
+instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) where
+  beq_iff_eq := @fun (a, b) (a', b') =>
+    show (and _ _).asProp ↔ _ from
+    match ha : a == a', hb : b == b' with
+    | true, true => ⟨fun _ => beq_iff_eq.1 ha ▸ beq_iff_eq.1 hb ▸ rfl, fun _ => rfl⟩
+    | false, _ => ⟨(nomatch ·), (Prod.noConfusion · fun h _ => nomatch ha.symm.trans (beq_iff_eq.2 h))⟩
+    | true, false => ⟨(nomatch ·), (Prod.noConfusion · fun _ h => nomatch hb.symm.trans (beq_iff_eq.2 h))⟩
 
 /-- Lexicographical order for products -/
 def Prod.lexLt [LT α] [LT β] (s : α × β) (t : α × β) : Prop :=
@@ -1066,8 +1024,9 @@ instance : Subsingleton PUnit :=
 instance : Inhabited PUnit where
   default := ⟨⟩
 
-instance : DecidableEq PUnit :=
-  fun a b => isTrue (PUnit.subsingleton a b)
+instance : DecidableEq PUnit where
+  beq _ _ := true
+  beq_iff_eq := ⟨fun _ => rfl, fun _ => rfl⟩
 
 /-! # Setoid -/
 
@@ -1096,6 +1055,9 @@ theorem symm {a b : α} (hab : a ≈ b) : b ≈ a :=
 
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
   iseqv.trans hab hbc
+
+protected theorem congr {a b c d : α} (hab : a ≈ b) (hcd : c ≈ d) : a ≈ c ↔ b ≈ d :=
+  ⟨fun h => trans (symm hab) (trans h hcd), fun h => trans hab (trans h (symm hcd))⟩
 
 end Setoid
 
@@ -1163,8 +1125,7 @@ gen_injective_theorems% EStateM.Result
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
 
-@[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] (a b : α) : a == b ↔ a = b :=
-  ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
+attribute [simp] beq_iff_eq
 
 /-! # Quotients -/
 
@@ -1525,13 +1486,9 @@ section
 variable {α : Type u}
 variable (r : α → α → Prop)
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
-  fun (q₁ q₂ : Quotient s) =>
-    Quotient.recOnSubsingleton₂ q₁ q₂
-      fun a₁ a₂ =>
-        match d a₁ a₂ with
-        | isTrue h₁  => isTrue (Quotient.sound h₁)
-        | isFalse h₂ => isFalse fun h => absurd (Quotient.exact h) h₂
+instance {α : Sort u} {s : Setoid α} [∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) where
+  beq := Quotient.lift₂ (decide <| · ≈ ·) fun _ _ _ _ h₁ h₂ => decide_congr (Setoid.congr h₁ h₂)
+  beq_iff_eq := @(Quotient.ind₂ fun _ _ => decide_iff.trans ⟨Quotient.sound, Quotient.exact⟩)
 
 /-! # Function extensionality -/
 

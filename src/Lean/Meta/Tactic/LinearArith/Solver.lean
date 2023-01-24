@@ -123,18 +123,18 @@ structure AssumptionId where
 inductive Justification where
   | combine (c₁ : Int) (j₁ : Justification) (c₂ : Int) (j₂ : Justification)
   | assumption (id : AssumptionId)
-  deriving Inhabited, DecidableEq, BEq, Repr
+  deriving Inhabited, DecidableEq, Repr
 
 inductive CnstrKind where
   | eq | div | lt | le
-  deriving Inhabited, DecidableEq, BEq, Repr
+  deriving Inhabited, DecidableEq, Repr
 
 structure Cnstr where
   kind : CnstrKind
   lhs  : Poly
   rhs  : Int
   jst  : Justification
-  deriving Inhabited, DecidableEq, BEq, Repr
+  deriving Inhabited, DecidableEq, Repr
 
 abbrev Cnstr.isStrict (c : Cnstr) : Bool :=
   c.kind matches CnstrKind.lt

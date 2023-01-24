@@ -244,7 +244,12 @@ where go (acc : String) (s : String) : List String → String
 structure Iterator where
   s : String
   i : Pos
-  deriving DecidableEq
+  deriving BEq
+
+instance : DecidableEq Iterator where
+  beq_iff_eq := @fun {..} {..} =>
+    .trans (Bool.and_iff_congr (Bool.and_iff_congr Bool.true_iff beq_iff_eq) beq_iff_eq)
+      (by simp)
 
 def mkIterator (s : String) : Iterator :=
   ⟨s, 0⟩

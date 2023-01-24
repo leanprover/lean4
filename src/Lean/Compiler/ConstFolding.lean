@@ -119,7 +119,6 @@ def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
   let n₂   ← getNumLit a₂
   return toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
-def foldNatDecEq := foldNatBinPred mkNatEq (fun a b => a = b)
 def foldNatDecLt := foldNatBinPred mkNatLt (fun a b => a < b)
 def foldNatDecLe := foldNatBinPred mkNatLe (fun a b => a ≤ b)
 
@@ -141,7 +140,6 @@ def natFoldFns : List (Name × BinFoldFn) :=
    (``Nat.div, foldNatDiv),
    (``Nat.mod, foldNatMod),
    (``Nat.pow, foldNatPow),
-   (``Nat.decEq, foldNatDecEq),
    (``Nat.decLt, foldNatDecLt),
    (``Nat.decLe, foldNatDecLe),
    (``Nat.beq,   foldNatBeq),

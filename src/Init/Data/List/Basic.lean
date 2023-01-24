@@ -716,17 +716,6 @@ and they are pairwise related by `eqv`.
   | _,     _,     _   => false
 
 /--
-The equality relation on lists asserts that they have the same length
-and they are pairwise `BEq`.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
-instance [BEq α] : BEq (List α) := ⟨List.beq⟩
-
-/--
 `replicate n a` is `n` copies of `a`:
 * `replicate 5 a = [a, a, a, a, a]`
 -/
@@ -818,22 +807,6 @@ Returns the smallest element of the list, if it is not empty.
 def minimum? [Min α] : List α → Option α
   | []    => none
   | a::as => some <| as.foldl min a
-
-instance [BEq α] [LawfulBEq α] : LawfulBEq (List α) where
-  eq_of_beq {as bs} := by
-    induction as generalizing bs with
-    | nil => intro h; cases bs <;> first | rfl | contradiction
-    | cons a as ih =>
-      cases bs with
-      | nil => intro h; contradiction
-      | cons b bs =>
-        simp [show (a::as == b::bs) = (a == b && as == bs) from rfl]
-        intro ⟨h₁, h₂⟩
-        exact ⟨h₁, ih h₂⟩
-  rfl {as} := by
-    induction as with
-    | nil => rfl
-    | cons a as ih => simp [BEq.beq, List.beq, LawfulBEq.rfl]; exact ih
 
 theorem of_concat_eq_concat {as bs : List α} {a b : α} (h : as.concat a = bs.concat b) : as = bs ∧ a = b := by
   match as, bs with

@@ -99,20 +99,18 @@ instance : LT Int where
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_eq"]
-protected def decEq (a b : @& Int) : Decidable (a = b) :=
+protected def beq (a b : @& Int) : Bool :=
   match a, b with
-  | ofNat a, ofNat b => match decEq a b with
-    | isTrue h  => isTrue  <| h ▸ rfl
-    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | negSucc a, negSucc b => match decEq a b with
-    | isTrue h  => isTrue  <| h ▸ rfl
-    | isFalse h => isFalse <| fun h' => Int.noConfusion h' (fun h' => absurd h' h)
-  | ofNat _, negSucc _ => isFalse <| fun h => Int.noConfusion h
-  | negSucc _, ofNat _ => isFalse <| fun h => Int.noConfusion h
+  | ofNat a, ofNat b | negSucc a, negSucc b => a == b
+  | _, _ => false
 
-instance : DecidableEq Int := Int.decEq
+instance : BEq Int where
+  beq := Int.beq
 
-/-- TODO: remove after stage0 -/ protected def beq (a b : Int) := a == b
+instance : DecidableEq Int where
+  beq_iff_eq {a b} := by
+    show Int.beq _ _ ↔ _
+    cases a <;> cases b <;> simp [Int.beq]
 
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_nonneg"]
@@ -166,10 +164,6 @@ protected def pow (m : Int) : Nat → Int
 
 instance : HPow Int Nat Int where
   hPow := Int.pow
-
-instance : LawfulBEq Int where
-  eq_of_beq h := by simp [BEq.beq] at h; assumption
-  rfl := by simp [BEq.beq]
 
 instance : Min Int := minOfLe
 

@@ -7,6 +7,7 @@ prelude
 import Init.Core
 import Init.Control.Basic
 import Init.Coe
+import Init.SimpLemmas
 
 namespace Option
 
@@ -83,8 +84,13 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
 
 end Option
 
-deriving instance DecidableEq for Option
 deriving instance BEq for Option
+
+instance [DecidableEq α] : DecidableEq (Option α) where
+  beq_iff_eq := @fun
+    | some a, some b => show (true && a == b) ↔ some a = some b by simp
+    | none, none => ⟨fun _ => rfl, fun _ => rfl⟩
+    | none, some _ | some _, none => ⟨(nomatch ·), (nomatch ·)⟩
 
 instance [LT α] : LT (Option α) where
   lt := Option.lt (· < ·)

@@ -93,13 +93,9 @@ attribute [simp] Nat.zero_le
   induction a with simp [Nat.beq]
   | succ a ih => simp [ih]
 
-@[simp] theorem beq_eq : (Nat.beq x y).asProp = (x = y) := propext <| Iff.intro Nat.eq_of_beq (fun h => h ▸ (Nat.beq_refl x))
+@[simp] theorem beq_eq : (Nat.beq x y).asProp = (x = y) := propext (beq_iff_eq (α := Nat))
 @[simp] theorem ble_eq : (Nat.ble x y).asProp = (x ≤ y) := propext <| Iff.intro Nat.le_of_ble Nat.ble_of_le
 @[simp] theorem blt_eq : (Nat.blt x y).asProp = (x < y) := propext <| Iff.intro Nat.le_of_ble Nat.ble_of_le
-
-instance : LawfulBEq Nat where
-  eq_of_beq h := Nat.eq_of_beq h
-  rfl := by simp [BEq.beq]
 
 /-! # Nat.add theorems -/
 

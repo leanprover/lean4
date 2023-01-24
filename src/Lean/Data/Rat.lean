@@ -14,7 +14,7 @@ structure Rat where
   private mk ::
     num : Int
     den : Nat := 1
-  deriving Inhabited, BEq, DecidableEq
+  deriving Inhabited, DecidableEq
 
 instance : ToString Rat where
   toString a := if a.den == 1 then toString a.num else s!"{a.num}/{a.den}"

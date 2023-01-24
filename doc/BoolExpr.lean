@@ -6,7 +6,7 @@ inductive BoolExpr where
   | val (b : Bool)
   | or  (p q : BoolExpr)
   | not (p : BoolExpr)
-  deriving Repr, BEq, DecidableEq
+  deriving Repr, DecidableEq
 
 def BoolExpr.isValue : BoolExpr → Bool
   | val _ => true

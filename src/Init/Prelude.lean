@@ -507,6 +507,34 @@ structure And (a b : Prop) : Prop where
   right : b
 
 /--
+If and only if, or logical bi-implication. `a ↔ b` means that `a` implies `b` and vice versa.
+By `propext`, this implies that `a` and `b` are equal and hence any expression involving `a`
+is equivalent to the corresponding expression with `b` instead.
+-/
+structure Iff (a b : Prop) : Prop where
+  /-- If `a → b` and `b → a` then `a` and `b` are equivalent. -/
+  intro ::
+  /-- Modus ponens for if and only if. If `a ↔ b` and `a`, then `b`. -/
+  mp : a → b
+  /-- Modus ponens for if and only if, reversed. If `a ↔ b` and `b`, then `a`. -/
+  mpr : b → a
+
+protected theorem Iff.refl (a : Prop) : Iff a a := ⟨(·), (·)⟩
+
+protected theorem Iff.rfl : Iff a a := Iff.refl a
+
+theorem Iff.trans (h₁ : Iff a b) (h₂ : Iff b c) : Iff a c :=
+  Iff.intro
+    (fun ha => Iff.mp h₂ (Iff.mp h₁ ha))
+    (fun hc => Iff.mpr h₁ (Iff.mpr h₂ hc))
+
+theorem Iff.symm (h : Iff a b) : Iff b a :=
+  Iff.intro (Iff.mpr h) (Iff.mp h)
+
+theorem Iff.comm : Iff (Iff a b) (Iff b a) :=
+  Iff.intro Iff.symm Iff.symm
+
+/--
 `Or a b`, or `a ∨ b`, is the disjunction of propositions. There are two
 constructors for `Or`, called `Or.inl : a → a ∨ b` and `Or.inr : b → a ∨ b`,
 and you can use `match` or `cases` to destruct an `Or` assumption into the
@@ -814,15 +842,45 @@ abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
   (a b : α) → Decidable (r a b)
 
 /--
-Asserts that `α` has decidable equality, that is, `a = b` is decidable
+`BEq α` is a typeclass for supplying a boolean-valued equality relation on
+`α`, notated as `a == b`. Unlike `DecidableEq α` (which uses `a = b`), this
+is `Bool` valued instead of `Prop` valued, and it also does not have any
+axioms like being reflexive or agreeing with `=`. It is mainly intended for
+programming applications. See `DecidableEq` for a version that requires that
+`==` and `=` coincide.
+-/
+class BEq (α : Sort u) where
+  /-- Boolean equality, notated as `a == b`. -/
+  beq : α → α → Bool
+
+open BEq (beq)
+
+/--
+Asserts that `α` has decidable equality.
+This is equivalent to `a = b` being decidable
 for all `a b : α`. See `Decidable`.
 -/
-abbrev DecidableEq (α : Sort u) :=
-  (a b : α) → Decidable (Eq a b)
+class DecidableEq (α : Sort u) extends BEq α where
+  /-- `==` and `=` coincide. -/
+  beq_iff_eq {a b : α} : Iff (beq a b).asProp (Eq a b)
+
+theorem beq_iff_eq [DecidableEq α] {a b : α} : Iff (beq a b).asProp (Eq a b) :=
+  DecidableEq.beq_iff_eq
+
+/--
+Constructs a decidable equality equality instance on `α` given an injective
+function to another type that already has a decidable equality instance.
+-/
+abbrev DecidableEq.ofInj [DecidableEq β] (f : α → β)
+    (finj : ∀ {a b : α}, Eq (f a) (f b) → Eq a b) : DecidableEq α where
+  beq a b := beq (f a) (f b)
+  beq_iff_eq := (beq_iff_eq (α := β)).trans ⟨finj, (· ▸ rfl)⟩
 
 /-- Proves that `a = b` is decidable given `DecidableEq α`. -/
-def decEq {α : Sort u} [inst : DecidableEq α] (a b : α) : Decidable (Eq a b) :=
-  inst a b
+instance decEq [DecidableEq α] (a b : α) : Decidable (Eq a b) :=
+  match h : beq a b with
+  | true => isTrue (beq_iff_eq.1 h)
+  | false => isFalse fun h' => nomatch h.symm.trans (beq_iff_eq.2 h')
 
 set_option linter.unusedVariables false in
 theorem decide_eq_true : [inst : Decidable p] → p → Eq (decide p) true
@@ -843,48 +901,35 @@ theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p 
   | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
 
-theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
-  match (generalizing := false) inst a a with
-  | isTrue  _  => rfl
-  | isFalse h₁ => absurd rfl h₁
+theorem decide_eq [DecidableEq α] {a b : α} : Eq (decide (Eq a b)) (beq a b) :=
+  match h : beq a b with
+  | true => decide_eq_true (beq_iff_eq.1 h) ▸ rfl
+  | false => decide_eq_false (fun h' => nomatch h.symm.trans (beq_iff_eq.2 h')) ▸ rfl
 
-theorem decide_asProp_of [Decidable p] : p → (decide p).asProp := decide_eq_true
+theorem of_decide_eq_self_eq_true [DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
+  decide_eq_true (Eq.refl a) ▸ rfl
+
+theorem decide_iff [Decidable p] : Iff (decide p).asProp p :=
+  ⟨of_decide_eq_true, decide_eq_true⟩
+
+theorem decide_asProp_of [Decidable p] : p → (decide p).asProp := decide_iff.2
 
 instance : Decidable (Bool.asProp b) :=
   match b with
   | true => isTrue rfl
   | false => isFalse (nomatch ·)
 
-/-- Decidable equality for Bool -/
-@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
-   match a, b with
-   | false, false => isTrue rfl
-   | false, true  => isFalse (fun h => Bool.noConfusion h)
-   | true, false  => isFalse (fun h => Bool.noConfusion h)
-   | true, true   => isTrue rfl
+/-- Boolean equality for Bool -/
+@[inline] protected def Bool.beq : Bool → Bool → Bool
+  | false, false | true, true => true
+  | _, _ => false
 
-@[inline] instance : DecidableEq Bool :=
-   Bool.decEq
-
-/--
-`BEq α` is a typeclass for supplying a boolean-valued equality relation on
-`α`, notated as `a == b`. Unlike `DecidableEq α` (which uses `a = b`), this
-is `Bool` valued instead of `Prop` valued, and it also does not have any
-axioms like being reflexive or agreeing with `=`. It is mainly intended for
-programming applications. See `LawfulBEq` for a version that requires that
-`==` and `=` coincide.
--/
-class BEq (α : Type u) where
-  /-- Boolean equality, notated as `a == b`. -/
-  beq : α → α → Bool
-
-open BEq (beq)
-
-instance [DecidableEq α] : BEq α where
-  beq a b := decide (Eq a b)
-
-/-- TODO: remove after stage0 -/ protected def Bool.beq (a b : Bool) := beq a b
-
+@[inline] instance : DecidableEq Bool where
+  beq := Bool.beq
+  beq_iff_eq := @fun
+    | true, true | false, true => .rfl
+    | false, false => ⟨fun _ => rfl, fun _ => rfl⟩
+    | true, false => ⟨.symm, .symm⟩
 
 /--
 "Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
@@ -1488,40 +1533,16 @@ protected def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | succ _, zero   => false
   | succ n, succ m => Nat.beq n m
 
-instance : BEq Nat where
+@[inline] instance : BEq Nat where
   beq := Nat.beq
 
-protected theorem Nat.eq_of_beq : {n m : Nat} → (beq n m).asProp → Eq n m
-  | zero,   zero,   _ => rfl
-  | zero,   succ _, h => Bool.noConfusion h
-  | succ _, zero,   h => Bool.noConfusion h
-  | succ n, succ m, h =>
-    have : Eq (beq n m) true := h
-    have : Eq n m := Nat.eq_of_beq this
-    this ▸ rfl
+protected theorem Nat.beq_iff_eq : {n m : Nat} → Iff (beq n m).asProp (Eq n m)
+  | zero, zero => ⟨fun _ => rfl, fun _ => rfl⟩
+  | zero, succ _ | succ _, zero => ⟨(nomatch ·), (nomatch ·)⟩
+  | succ n, succ m => (@Nat.beq_iff_eq n m).trans ⟨(· ▸ rfl), (Nat.noConfusion · (·))⟩
 
-theorem Nat.ne_of_beq_eq_false : {n m : Nat} → Eq (beq n m) false → Not (Eq n m)
-  | zero,   zero,   h₁, _  => Bool.noConfusion h₁
-  | zero,   succ _, _,  h₂ => Nat.noConfusion h₂
-  | succ _, zero,   _,  h₂ => Nat.noConfusion h₂
-  | succ n, succ m, h₁, h₂ =>
-    have : Eq (beq n m) false := h₁
-    Nat.noConfusion h₂ (fun h₂ => absurd h₂ (ne_of_beq_eq_false this))
-
-/--
-A decision procedure for equality of natural numbers.
-
-This definition is overridden in the compiler to efficiently
-evaluate using the "bignum" representation (see `Nat`). The definition provided
-here is the logical model.
--/
-@[reducible, extern "lean_nat_dec_eq"]
-protected def Nat.decEq (n m : @& Nat) : Decidable (Eq n m) :=
-  match h:beq n m with
-  | true  => isTrue (Nat.eq_of_beq h)
-  | false => isFalse (ne_of_beq_eq_false h)
-
-@[inline] instance : DecidableEq Nat := Nat.decEq
+@[inline] instance : DecidableEq Nat where
+  beq_iff_eq := Nat.beq_iff_eq
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1737,20 +1758,19 @@ structure Fin (n : Nat) where
   /-- If `i : Fin n`, then `i.2` is a proof that `i.1 < n`. -/
   isLt : LT.lt val n
 
-theorem Fin.eq_of_val_eq {n} : ∀ {i j : Fin n}, Eq i.val j.val → Eq i j
-  | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+theorem Fin.eq_iff_val_eq {i j : Fin n} : Iff (Eq i j) (Eq i.1 j.1) :=
+  ⟨(· ▸ rfl), (match i, j, · with | .mk .., .mk .., rfl => rfl)⟩
 
-theorem Fin.val_eq_of_eq {n} {i j : Fin n} (h : Eq i j) : Eq i.val j.val :=
-  h ▸ rfl
+theorem Fin.eq_of_val_eq {i j : Fin n} : Eq i.val j.val → Eq i j := Fin.eq_iff_val_eq.2
 
-theorem Fin.ne_of_val_ne {n} {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
+theorem Fin.val_eq_of_eq {i j : Fin n} : Eq i j → Eq i.val j.val := Fin.eq_iff_val_eq.1
+
+theorem Fin.ne_of_val_ne {i j : Fin n} (h : Not (Eq i.val j.val)) : Not (Eq i j) :=
   fun h' => absurd (val_eq_of_eq h') h
 
-instance (n : Nat) : DecidableEq (Fin n) :=
-  fun i j =>
-    match decEq i.val j.val with
-    | isTrue h  => isTrue (Fin.eq_of_val_eq h)
-    | isFalse h => isFalse (Fin.ne_of_val_ne h)
+instance (n : Nat) : DecidableEq (Fin n) where
+  beq i j := beq i.1 j.1
+  beq_iff_eq := .trans (beq_iff_eq (α := Nat)) Fin.eq_iff_val_eq.symm
 
 instance {n} : LT (Fin n) where
   lt a b := LT.lt a.val b.val
@@ -1784,20 +1804,18 @@ This function is overridden with a native implementation.
 def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
   val := { val := n, isLt := h }
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides equality on `UInt8`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_dec_eq"]
-def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt8.noConfusion h' (fun h' => absurd h' h)))
+protected def UInt8.beq (a b : UInt8) : Bool :=
+  beq a.1 b.1
 
-instance : DecidableEq UInt8 := UInt8.decEq
-
-/-- TODO: remove after stage0 -/ protected def UInt8.beq (a b : UInt8) := beq a b
+instance : DecidableEq UInt8 where
+  beq := UInt8.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := Fin _)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
@@ -1825,20 +1843,18 @@ This function is overridden with a native implementation.
 def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
   val := { val := n, isLt := h }
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides equality on `UInt16`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_dec_eq"]
-def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
+protected def UInt16.beq (a b : UInt16) : Bool :=
+  beq a.1 b.1
 
-instance : DecidableEq UInt16 := UInt16.decEq
-
-/-- TODO: remove after stage0 -/ protected def UInt16.beq (a b : UInt16) := beq a b
+instance : DecidableEq UInt16 where
+  beq := UInt16.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := Fin _)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
@@ -1873,20 +1889,18 @@ This function is overridden with a native implementation.
 @[extern "lean_uint32_to_nat"]
 def UInt32.toNat (n : UInt32) : Nat := n.val.val
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides equality on `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_dec_eq"]
-def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h)))
+protected def UInt32.beq (a b : UInt32) : Bool :=
+  beq a.1 b.1
 
-instance : DecidableEq UInt32 := UInt32.decEq
-
-/-- TODO: remove after stage0 -/ protected def UInt32.beq (a b : UInt32) := beq a b
+instance : DecidableEq UInt32 where
+  beq := UInt32.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := Fin _)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
@@ -1944,20 +1958,18 @@ This function is overridden with a native implementation.
 def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
   val := { val := n, isLt := h }
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides equality on `UInt64`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_dec_eq"]
-def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt64.noConfusion h' (fun h' => absurd h' h)))
+protected def UInt64.beq (a b : UInt64) : Bool :=
+  beq a.1 b.1
 
-instance : DecidableEq UInt64 := UInt64.decEq
-
-/-- TODO: remove after stage0 -/ protected def UInt64.beq (a b : UInt64) := beq a b
+instance : DecidableEq UInt64 where
+  beq := UInt64.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := Fin _)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 (by decide)
@@ -1998,20 +2010,18 @@ def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize := {
   val := { val := n, isLt := h }
 }
 
-set_option bootstrap.genMatcherCode false in
 /--
 Decides equality on `USize`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_dec_eq"]
-def USize.decEq (a b : USize) : Decidable (Eq a b) :=
-  match a, b with
-  | ⟨n⟩, ⟨m⟩ =>
-    dite (Eq n m) (fun h =>isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
+protected def USize.beq (a b : USize) : Bool :=
+  beq a.1 b.1
 
-instance : DecidableEq USize := USize.decEq
-
-/-- TODO: remove after stage0 -/ protected def USize.beq (a b : USize) := beq a b
+instance : DecidableEq USize where
+  beq := USize.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := Fin _)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 instance : Inhabited USize where
   default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
@@ -2090,10 +2100,7 @@ theorem Char.val_ne_of_ne {c d : Char} (h : Not (Eq c d)) : Not (Eq c.val d.val)
   fun h' => absurd (eq_of_val_eq h') h
 
 instance : DecidableEq Char :=
-  fun c d =>
-    match decEq c.val d.val with
-    | isTrue h  => isTrue (Char.eq_of_val_eq h)
-    | isFalse h => isFalse (Char.ne_of_val_ne h)
+  .ofInj (·.val) @fun | {..}, {..}, rfl => rfl
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
 def Char.utf8Size (c : Char) : UInt32 :=
@@ -2187,20 +2194,29 @@ inductive List (α : Type u) where
 instance {α} : Inhabited (List α) where
   default := List.nil
 
-/-- Implements decidable equality for `List α`, assuming `α` has decidable equality. -/
-protected def List.hasDecEq {α : Type u} [DecidableEq α] : (a b : List α) → Decidable (Eq a b)
-  | nil,       nil       => isTrue rfl
-  | cons _ _, nil        => isFalse (fun h => List.noConfusion h)
-  | nil,       cons _ _  => isFalse (fun h => List.noConfusion h)
-  | cons a as, cons b bs =>
-    match decEq a b with
-    | isTrue hab  =>
-      match List.hasDecEq as bs with
-      | isTrue habs  => isTrue (hab ▸ habs ▸ rfl)
-      | isFalse nabs => isFalse (fun h => List.noConfusion h (fun _ habs => absurd habs nabs))
-    | isFalse nab => isFalse (fun h => List.noConfusion h (fun hab _ => absurd hab nab))
+/--
+The equality relation on lists asserts that they have the same length
+and they are pairwise `BEq`.
+-/
+protected def List.beq [BEq α] : List α → List α → Bool
+  | nil, nil => true
+  | cons a as, cons b bs => and (beq a b) (List.beq as bs)
+  | _, _ => false
 
-instance {α : Type u} [DecidableEq α] : DecidableEq (List α) := List.hasDecEq
+instance [BEq α] : BEq (List α) := ⟨List.beq⟩
+
+protected theorem List.beq_iff_eq [DecidableEq α] : {a b : List α} → Iff (beq a b).asProp (Eq a b)
+  | nil, nil => ⟨fun _ => rfl, fun _ => rfl⟩
+  | nil, cons _ _ | cons _ _, nil => ⟨(nomatch ·), (nomatch ·)⟩
+  | cons a as, cons b bs =>
+    show Iff (and _ _).asProp _ from
+    match ha : beq a b, has : List.beq as bs with
+    | true, true => ⟨fun _ => beq_iff_eq.1 ha ▸ List.beq_iff_eq.1 has ▸ rfl, fun _ => rfl⟩
+    | false, _ => ⟨(nomatch ·), (List.noConfusion · fun h _ => nomatch ha.symm.trans (beq_iff_eq.2 h))⟩
+    | true, false => ⟨(nomatch ·), (List.noConfusion · fun _ h => nomatch has.symm.trans (List.beq_iff_eq.2 h))⟩
+
+instance [DecidableEq α] : DecidableEq (List α) where
+  beq_iff_eq := List.beq_iff_eq
 
 /--
 Folds a function over a list from the left:
@@ -2282,14 +2298,13 @@ Decides equality on `String`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_string_dec_eq"]
-def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
-  match s₁, s₂ with
-  | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
+protected def String.beq (s₁ s₂ : @& String) : Bool :=
+  beq s₁.data s₂.data
 
-instance : DecidableEq String := String.decEq
-
-/-- TODO: remove after stage0 -/ protected def String.beq (a b : String) := beq a b
+instance : DecidableEq String where
+  beq := String.beq
+  beq_iff_eq {a b} := (beq_iff_eq (α := List Char)).trans
+    ⟨(match a, b, · with | {..}, {..}, rfl => rfl), (· ▸ rfl)⟩
 
 /--
 A byte position in a `String`. Internally, `String`s are UTF-8 encoded.
@@ -2306,9 +2321,7 @@ instance : Inhabited String.Pos where
   default := {}
 
 instance : DecidableEq String.Pos :=
-  fun ⟨a⟩ ⟨b⟩ => match decEq a b with
-    | isTrue h => isTrue (h ▸ rfl)
-    | isFalse h => isFalse (fun he => String.Pos.noConfusion he fun he => absurd he h)
+  .ofInj (·.byteIdx) @fun | {..}, {..}, rfl => rfl
 
 /--
 A `Substring` is a view into some subslice of a `String`.
@@ -3477,8 +3490,8 @@ abbrev mkSimple (s : String) : Name :=
 @[extern "lean_name_eq"]
 protected def beq : (@& Name) → (@& Name) → Bool
   | anonymous, anonymous => true
-  | str p₁ s₁, str p₂ s₂ => and (BEq.beq s₁ s₂) (Name.beq p₁ p₂)
-  | num p₁ n₁, num p₂ n₂ => and (BEq.beq n₁ n₂) (Name.beq p₁ p₂)
+  | str p₁ s₁, str p₂ s₂ => and (beq s₁ s₂) (Name.beq p₁ p₂)
+  | num p₁ n₁, num p₂ n₂ => and (beq n₁ n₂) (Name.beq p₁ p₂)
   | _,         _         => false
 
 instance : BEq Name where

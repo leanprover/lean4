@@ -883,6 +883,8 @@ open BEq (beq)
 instance [DecidableEq α] : BEq α where
   beq a b := decide (Eq a b)
 
+/-- TODO: remove after stage0 -/ protected def Bool.beq (a b : Bool) := beq a b
+
 
 /--
 "Dependent" if-then-else, normally written via the notation `if h : c then t(h) else e(h)`,
@@ -1480,11 +1482,11 @@ evaluate using the "bignum" representation (see `Nat`). The definition provided
 here is the logical model (and it is soundness-critical that they coincide).
 -/
 @[extern "lean_nat_dec_eq"]
-def Nat.beq : (@& Nat) → (@& Nat) → Bool
+protected def Nat.beq : (@& Nat) → (@& Nat) → Bool
   | zero,   zero   => true
   | zero,   succ _ => false
   | succ _, zero   => false
-  | succ n, succ m => beq n m
+  | succ n, succ m => Nat.beq n m
 
 instance : BEq Nat where
   beq := Nat.beq
@@ -1795,6 +1797,8 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt8 := UInt8.decEq
 
+/-- TODO: remove after stage0 -/ protected def UInt8.beq (a b : UInt8) := beq a b
+
 instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
@@ -1833,6 +1837,8 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
     dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt16.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt16 := UInt16.decEq
+
+/-- TODO: remove after stage0 -/ protected def UInt16.beq (a b : UInt16) := beq a b
 
 instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
@@ -1879,6 +1885,8 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
     dite (Eq n m) (fun h => isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => UInt32.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq UInt32 := UInt32.decEq
+
+/-- TODO: remove after stage0 -/ protected def UInt32.beq (a b : UInt32) := beq a b
 
 instance : Inhabited UInt32 where
   default := UInt32.ofNatCore 0 (by decide)
@@ -1949,6 +1957,8 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 
 instance : DecidableEq UInt64 := UInt64.decEq
 
+/-- TODO: remove after stage0 -/ protected def UInt64.beq (a b : UInt64) := beq a b
+
 instance : Inhabited UInt64 where
   default := UInt64.ofNatCore 0 (by decide)
 
@@ -2000,6 +2010,8 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
     dite (Eq n m) (fun h =>isTrue (h ▸ rfl)) (fun h => isFalse (fun h' => USize.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq USize := USize.decEq
+
+/-- TODO: remove after stage0 -/ protected def USize.beq (a b : USize) := beq a b
 
 instance : Inhabited USize where
   default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
@@ -2276,6 +2288,8 @@ def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
     dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq String := String.decEq
+
+/-- TODO: remove after stage0 -/ protected def String.beq (a b : String) := beq a b
 
 /--
 A byte position in a `String`. Internally, `String`s are UTF-8 encoded.

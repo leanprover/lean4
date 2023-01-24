@@ -174,7 +174,7 @@ class erase_irrelevant_fn {
         expr zero        = mk_lit(literal(nat(0)));
         expr one         = mk_lit(literal(nat(1)));
         expr nat_type    = mk_constant(get_nat_name());
-        expr dec_eq      = mk_app(mk_constant(get_nat_dec_eq_name()), major, zero);
+        expr dec_eq      = mk_app(mk_constant(get_nat_beq_name()), major, zero);
         expr dec_eq_type = mk_bool();
         expr c           = mk_simple_decl(dec_eq, dec_eq_type);
         expr minor_z     = args[2];

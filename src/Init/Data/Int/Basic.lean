@@ -112,6 +112,8 @@ protected def decEq (a b : @& Int) : Decidable (a = b) :=
 
 instance : DecidableEq Int := Int.decEq
 
+/-- TODO: remove after stage0 -/ protected def beq (a b : Int) := a == b
+
 set_option bootstrap.genMatcherCode false in
 @[extern "lean_int_dec_nonneg"]
 private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=

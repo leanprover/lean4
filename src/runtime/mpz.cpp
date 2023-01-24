@@ -259,9 +259,25 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 #else
 /***** NON GMP VERSION ******/
 
+static void *mpz_alloc(size_t size) {
+#ifdef LEAN_SMALL_ALLOCATOR
+    return alloc(size);
+#else
+    return malloc(size);
+#endif
+}
+
+static void mpz_dealloc(void *ptr, size_t size) {
+#ifdef LEAN_SMALL_ALLOCATOR
+        dealloc(ptr, size);
+#else
+        free(ptr);
+#endif
+}
+
 void mpz::allocate(size_t s) {
     m_size   = s;
-    m_digits = static_cast<mpn_digit*>(alloc(s * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(s * sizeof(mpn_digit)));
 }
 
 void mpz::init() {
@@ -330,7 +346,7 @@ void mpz::init_int64(int64 v) {
 void mpz::init_mpz(mpz const & v) {
     m_sign   = v.m_sign;
     m_size   = v.m_size;
-    m_digits = static_cast<mpn_digit*>(alloc(m_size * sizeof(mpn_digit)));
+    m_digits = static_cast<mpn_digit*>(mpz_alloc(m_size * sizeof(mpn_digit)));
     memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
 }
 
@@ -370,8 +386,9 @@ mpz::mpz(mpz && s):
 }
 
 mpz::~mpz() {
-    if (m_digits)
-        dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    if (m_digits) {
+        mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    }
 }
 
 void swap(mpz & a, mpz & b) {
@@ -438,7 +455,7 @@ mpz & mpz::operator=(mpz const & v) {
         if (v.m_size == m_size) {
             memcpy(m_digits, v.m_digits, m_size * sizeof(mpn_digit));
         } else {
-            dealloc(m_digits, sizeof(mpn_digit)*m_size);
+            mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
             init_mpz(v);
         }
     }
@@ -446,19 +463,19 @@ mpz & mpz::operator=(mpz const & v) {
 }
 
 mpz & mpz::operator=(char const * v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_str(v);
     return *this;
 }
 
 mpz & mpz::operator=(unsigned int v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_uint(v);
     return *this;
 }
 
 mpz & mpz::operator=(int v) {
-    dealloc(m_digits, sizeof(mpn_digit)*m_size);
+    mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
     init_int(v);
     return *this;
 }
@@ -509,7 +526,7 @@ void mpz::set(size_t sz, mpn_digit const * digits) {
     while (sz > 1 && digits[sz - 1] == 0)
         sz--;
     if (sz != m_size) {
-        dealloc(m_digits, sizeof(mpn_digit)*m_size);
+        mpz_dealloc(m_digits, sizeof(mpn_digit)*m_size);
         allocate(sz);
     }
     memcpy(m_digits, digits, sizeof(mpn_digit)*sz);

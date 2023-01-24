@@ -3417,7 +3417,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_IR_Decl_updateBody_x21___closed__1;
 x_2 = l_Lean_IR_Decl_updateBody_x21___closed__2;
-x_3 = lean_unsigned_to_nat(431u);
+x_3 = lean_unsigned_to_nat(429u);
 x_4 = lean_unsigned_to_nat(9u);
 x_5 = l_Lean_IR_Decl_updateBody_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -9839,7 +9839,7 @@ x_104 = 0;
 return x_104;
 }
 }
-case 12:
+default: 
 {
 if (lean_obj_tag(x_3) == 12)
 {
@@ -9854,23 +9854,6 @@ else
 uint8_t x_108; 
 x_108 = 0;
 return x_108;
-}
-}
-default: 
-{
-if (lean_obj_tag(x_3) == 13)
-{
-lean_object* x_109; lean_object* x_110; uint8_t x_111; 
-x_109 = lean_ctor_get(x_2, 0);
-x_110 = lean_ctor_get(x_3, 0);
-x_111 = l_Lean_IR_VarId_alphaEqv(x_1, x_109, x_110);
-return x_111;
-}
-else
-{
-uint8_t x_112; 
-x_112 = 0;
-return x_112;
 }
 }
 }

@@ -124,6 +124,11 @@ void set_max_memory_megabyte(unsigned max) {
     set_max_memory(m);
 }
 
+// separate definition to allow breakpoint in debugger
+void throw_memory_exception(char const * component_name) {
+    throw memory_exception(component_name);
+}
+
 void check_memory(char const * component_name) {
     if (g_max_memory == 0) return;
     g_counter++;
@@ -135,7 +140,7 @@ void check_memory(char const * component_name) {
         if (r > 0 && r < g_max_memory) return;
         r = get_current_rss();
         if (r == 0 || r < g_max_memory) return;
-        throw memory_exception(component_name);
+        throw_memory_exception(component_name);
     }
 }
 

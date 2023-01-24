@@ -92,13 +92,18 @@ size_t get_available_stack_size() {
         return g_stack_size - sz;
 }
 
+// separate definition to allow breakpoint in debugger
+void throw_stack_space_exception(char const * component_name) {
+    throw stack_space_exception(component_name);
+}
+
 void check_stack(char const * component_name) {
     if (!g_stack_info_init)
         save_stack_info(false);
     char y;
     size_t curr_stack = reinterpret_cast<size_t>(&y);
     if (curr_stack < g_stack_threshold)
-        throw stack_space_exception(component_name);
+        throw_stack_space_exception(component_name);
 }
 }
 #endif

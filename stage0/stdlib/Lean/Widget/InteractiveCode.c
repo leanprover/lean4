@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Widget.InteractiveCode
-// Imports: Init Lean.PrettyPrinter Lean.Server.Rpc.Basic Lean.Widget.TaggedText Lean.Widget.Basic
+// Imports: Init Lean.PrettyPrinter Lean.Server.Rpc.Basic Lean.Server.InfoUtils Lean.Widget.TaggedText Lean.Widget.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -59,6 +59,7 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_CodeWithInfos_merge
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_377____closed__21;
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_377____closed__29;
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRef_rpcEncode___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_PersistentArray_empty(lean_object*);
 lean_object* l_Lean_PrettyPrinter_Delaborator_withOptionAtCurrPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_CodeWithInfos_pretty(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_tagCodeInfos_go(lean_object*, lean_object*, lean_object*);
@@ -167,6 +168,7 @@ static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJ
 lean_object* l_Lean_PrettyPrinter_Delaborator_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonDiffTag____x40_Lean_Widget_InteractiveCode___hyg_79____lambda__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_SubexprInfo_diffStatus_x3f___default;
+static lean_object* l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_377____closed__15;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonDiffTag____x40_Lean_Widget_InteractiveCode___hyg_17_(uint8_t);
@@ -2833,6 +2835,14 @@ goto _start;
 }
 }
 }
+static lean_object* _init_l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_PersistentArray_empty(lean_box(0));
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Widget_tagCodeInfos_go___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2850,24 +2860,26 @@ return x_7;
 }
 else
 {
-lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
 x_8 = lean_ctor_get(x_6, 0);
 lean_inc(x_8);
 lean_dec(x_6);
+x_9 = l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1;
 lean_inc(x_2);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_2);
-lean_ctor_set(x_9, 1, x_8);
-x_10 = lean_box(0);
-x_11 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_11, 0, x_9);
-lean_ctor_set(x_11, 1, x_5);
-lean_ctor_set(x_11, 2, x_10);
-x_12 = l_Lean_Widget_tagCodeInfos_go(x_2, x_1, x_4);
-x_13 = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(x_13, 0, x_11);
-lean_ctor_set(x_13, 1, x_12);
-return x_13;
+x_10 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_10, 0, x_2);
+lean_ctor_set(x_10, 1, x_8);
+lean_ctor_set(x_10, 2, x_9);
+x_11 = lean_box(0);
+x_12 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_12, 0, x_10);
+lean_ctor_set(x_12, 1, x_5);
+lean_ctor_set(x_12, 2, x_11);
+x_13 = l_Lean_Widget_tagCodeInfos_go(x_2, x_1, x_4);
+x_14 = lean_alloc_ctor(2, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+return x_14;
 }
 }
 }
@@ -3175,6 +3187,7 @@ return x_9;
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_TaggedText(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Widget_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -3189,6 +3202,9 @@ res = initialize_Lean_PrettyPrinter(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Server_InfoUtils(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Widget_TaggedText(builtin, lean_io_mk_world());
@@ -3345,6 +3361,8 @@ l_Lean_Widget_instRpcEncodableSubexprInfo___closed__3 = _init_l_Lean_Widget_inst
 lean_mark_persistent(l_Lean_Widget_instRpcEncodableSubexprInfo___closed__3);
 l_Lean_Widget_instRpcEncodableSubexprInfo = _init_l_Lean_Widget_instRpcEncodableSubexprInfo();
 lean_mark_persistent(l_Lean_Widget_instRpcEncodableSubexprInfo);
+l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1 = _init_l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Widget_tagCodeInfos_go___lambda__1___closed__1);
 l_Lean_Widget_ppExprTagged___closed__1 = _init_l_Lean_Widget_ppExprTagged___closed__1();
 lean_mark_persistent(l_Lean_Widget_ppExprTagged___closed__1);
 l_Lean_Widget_ppExprTagged___closed__2 = _init_l_Lean_Widget_ppExprTagged___closed__2();

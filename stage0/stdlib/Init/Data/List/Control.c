@@ -13,13 +13,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_List_firstM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_firstM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findSomeM_x3f___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_instForMList(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_firstM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_firstM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_findSomeM_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_List_filterM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM(lean_object*);
@@ -706,50 +706,48 @@ x_2 = lean_alloc_closure((void*)(l_List_foldrM___rarg), 6, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_firstM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+LEAN_EXPORT lean_object* l_List_firstM___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_6; 
-lean_dec(x_5);
-x_6 = l_List_firstM___rarg(x_1, x_2, lean_box(0), lean_box(0), x_3, x_4);
-return x_6;
+lean_object* x_5; 
+lean_dec(x_4);
+x_5 = l_List_firstM___rarg(x_1, lean_box(0), lean_box(0), x_2, x_3);
+return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_List_firstM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l_List_firstM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-if (lean_obj_tag(x_6) == 0)
+if (lean_obj_tag(x_5) == 0)
 {
-lean_object* x_7; lean_object* x_8; 
-lean_dec(x_5);
+lean_object* x_6; lean_object* x_7; 
+lean_dec(x_4);
+x_6 = lean_ctor_get(x_1, 1);
+lean_inc(x_6);
 lean_dec(x_1);
-x_7 = lean_ctor_get(x_2, 1);
-lean_inc(x_7);
-lean_dec(x_2);
-x_8 = lean_apply_1(x_7, lean_box(0));
-return x_8;
+x_7 = lean_apply_1(x_6, lean_box(0));
+return x_7;
 }
 else
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_9 = lean_ctor_get(x_6, 0);
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_8 = lean_ctor_get(x_5, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_5, 1);
 lean_inc(x_9);
-x_10 = lean_ctor_get(x_6, 1);
-lean_inc(x_10);
-lean_dec(x_6);
-lean_inc(x_5);
-x_11 = lean_apply_1(x_5, x_9);
-lean_inc(x_2);
-x_12 = lean_alloc_closure((void*)(l_List_firstM___rarg___lambda__1), 5, 4);
-lean_closure_set(x_12, 0, x_1);
-lean_closure_set(x_12, 1, x_2);
-lean_closure_set(x_12, 2, x_5);
-lean_closure_set(x_12, 3, x_10);
-x_13 = lean_ctor_get(x_2, 2);
-lean_inc(x_13);
-lean_dec(x_2);
-x_14 = lean_apply_3(x_13, lean_box(0), x_11, x_12);
-return x_14;
+lean_dec(x_5);
+lean_inc(x_4);
+x_10 = lean_apply_1(x_4, x_8);
+lean_inc(x_1);
+x_11 = lean_alloc_closure((void*)(l_List_firstM___rarg___lambda__1), 4, 3);
+lean_closure_set(x_11, 0, x_1);
+lean_closure_set(x_11, 1, x_4);
+lean_closure_set(x_11, 2, x_9);
+x_12 = lean_ctor_get(x_1, 2);
+lean_inc(x_12);
+lean_dec(x_1);
+x_13 = lean_apply_3(x_12, lean_box(0), x_10, x_11);
+return x_13;
 }
 }
 }
@@ -757,7 +755,7 @@ LEAN_EXPORT lean_object* l_List_firstM(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_firstM___rarg), 6, 0);
+x_2 = lean_alloc_closure((void*)(l_List_firstM___rarg), 5, 0);
 return x_2;
 }
 }

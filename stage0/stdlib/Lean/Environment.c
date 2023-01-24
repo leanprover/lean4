@@ -3999,7 +3999,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(303u);
+x_3 = lean_unsigned_to_nat(306u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4109,7 +4109,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_modifyState___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(314u);
+x_3 = lean_unsigned_to_nat(317u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4219,7 +4219,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(321u);
+x_3 = lean_unsigned_to_nat(324u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -6961,7 +6961,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
 x_2 = l_Lean_TagDeclarationExtension_tag___closed__4;
-x_3 = lean_unsigned_to_nat(561u);
+x_3 = lean_unsigned_to_nat(564u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -7418,7 +7418,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
 x_2 = l_Lean_MapDeclarationExtension_insert___rarg___closed__3;
-x_3 = lean_unsigned_to_nat(591u);
+x_3 = lean_unsigned_to_nat(594u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_MapDeclarationExtension_insert___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

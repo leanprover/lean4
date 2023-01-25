@@ -35,7 +35,7 @@ jobs:
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
             if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              echo "::set-output name=nightly::$LEAN_VERSION_STRING"
+              echo "nightly=$LEAN_VERSION_STRING" >> $GITHUB_OUTPUT
             fi
           fi
 

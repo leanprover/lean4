@@ -174,3 +174,7 @@ theorem Bool.eq_of_asProp_eq {b c : Bool} : b.asProp = c.asProp → b = c := by
 @[simp] theorem decide_and [Decidable p] [Decidable q] : decide (p ∧ q) = (decide p && decide q) := Bool.eq_of_asProp_eq (by simp)
 @[simp] theorem decide_or [Decidable p] [Decidable q] : decide (p ∨ q) = (decide p || decide q) := Bool.eq_of_asProp_eq (by simp)
 @[simp] theorem decide_not [Decidable p] : decide (¬ p) = !decide p := Bool.eq_of_asProp_eq (by simp)
+
+-- Required for the DecidableEq derive handler.
+theorem Bool.true_iff : true ↔ True := by simp [Bool.asProp_true]
+theorem Bool.and_iff_congr {a b : Bool} (ha : a ↔ a') (hb : b ↔ b') : (a && b) ↔ (a' ∧ b') := by simp_all

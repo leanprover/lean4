@@ -76,3 +76,4 @@ fun n m l => Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat →
                             • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩ @ Lean.Elab.Term.elabIdent
                               • [.] l : none @ ⟨7, 39⟩-⟨7, 40⟩
                               • l : Nat @ ⟨7, 39⟩-⟨7, 40⟩
+[Elab.info] • command @ ⟨8, 0⟩-⟨8, 0⟩ @ Lean.Elab.Command.elabEoi

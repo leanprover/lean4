@@ -118,9 +118,13 @@ static void check_constant_val(environment const & env, constant_val const & v, 
     checker.ensure_sort(sort, v.get_type());
 }
 
-static void check_constant_val(environment const & env, constant_val const & v, bool safe_only) {
-    type_checker checker(env, safe_only);
+static void check_constant_val(environment const & env, constant_val const & v, definition_safety ds) {
+    type_checker checker(env, ds);
     check_constant_val(env, v, checker);
+}
+
+static void check_constant_val(environment const & env, constant_val const & v, bool safe_only) {
+  check_constant_val(env, v, safe_only ? definition_safety::safe : definition_safety::unsafe);
 }
 
 void environment::add_core(constant_info const & info) {
@@ -144,14 +148,12 @@ environment environment::add_definition(declaration const & d, bool check) const
         /* Meta definition can be recursive.
            So, we check the header, add, and then type check the body. */
         if (check) {
-            bool safe_only = false;
-            type_checker checker(*this, safe_only);
+            type_checker checker(*this, definition_safety::unsafe);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
         environment new_env = add(constant_info(d));
         if (check) {
-            bool safe_only = false;
-            type_checker checker(new_env, safe_only);
+            type_checker checker(new_env, definition_safety::unsafe);
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
@@ -204,10 +206,9 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_safety safety = head(vs).get_safety();
     if (safety == definition_safety::safe)
         throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as unsafe/partial");
-    bool safe_only = safety == definition_safety::partial;
     /* Check declarations header */
     if (check) {
-        type_checker checker(*this, safe_only);
+        type_checker checker(*this, safety);
         for (definition_val const & v : vs) {
             if (v.get_safety() != safety)
                 throw kernel_exception(*this, "invalid mutual definition, declarations must have the same safety annotation");
@@ -221,7 +222,7 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        type_checker checker(new_env, safe_only);
+        type_checker checker(new_env, safety);
         for (definition_val const & v : vs) {
             check_no_metavar_no_fvar(new_env, v.get_name(), v.get_value());
             expr val_type = checker.check(v.get_value(), v.get_lparams());

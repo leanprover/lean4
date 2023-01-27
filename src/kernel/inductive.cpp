@@ -167,7 +167,7 @@ public:
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, !m_is_unsafe); }
+    type_checker tc() { return type_checker(m_env, m_lctx, m_is_unsafe ? definition_safety::unsafe : definition_safety::safe); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {

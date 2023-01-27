@@ -90,12 +90,17 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
                                << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
-        if (m_safe_only && info.is_unsafe()) {
+        if (info.is_unsafe() && m_definition_safety != definition_safety::unsafe) {
             throw kernel_exception(env(), sstream() << "invalid declaration, it uses unsafe declaration '"
                                    << const_name(e) << "'");
         }
-        for (level const & l : ls)
+        if (info.is_definition() && info.to_definition_val().get_safety() == definition_safety::partial && m_definition_safety == definition_safety::safe) {
+            throw kernel_exception(env(), sstream() << "invalid declaration, safe declaration must not contain partial declaration '"
+                                   << const_name(e) << "'");
+        }
+        for (level const & l : ls) {
             check_level(l);
+        }
     }
     return instantiate_type_lparams(info, ls);
 }
@@ -1092,19 +1097,19 @@ expr type_checker::eta_expand(expr const & e) {
     return m_lctx.mk_lambda(fvars, r);
 }
 
-type_checker::type_checker(environment const & env, local_ctx const & lctx, bool safe_only):
+type_checker::type_checker(environment const & env, local_ctx const & lctx, definition_safety ds):
     m_st_owner(true), m_st(new state(env)),
-    m_lctx(lctx), m_safe_only(safe_only), m_lparams(nullptr) {
+    m_lctx(lctx), m_definition_safety(ds), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(state & st, local_ctx const & lctx, bool safe_only):
+type_checker::type_checker(state & st, local_ctx const & lctx, definition_safety ds):
     m_st_owner(false), m_st(&st), m_lctx(lctx),
-    m_safe_only(safe_only), m_lparams(nullptr) {
+    m_definition_safety(ds), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
     m_st_owner(src.m_st_owner), m_st(src.m_st), m_lctx(std::move(src.m_lctx)),
-    m_safe_only(src.m_safe_only), m_lparams(src.m_lparams) {
+    m_definition_safety(src.m_definition_safety), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
 }
 

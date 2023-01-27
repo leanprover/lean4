@@ -1,0 +1,5 @@
+2040.lean:3:8-3:13: error: failed to synthesize instance
+  HPow Nat Nat Int
+2040.lean:9:8-9:13: error: failed to synthesize instance
+  HPow Nat Nat Int
+2040.lean:12:0-12:7: warning: declaration uses 'sorry'

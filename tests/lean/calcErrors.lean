@@ -33,6 +33,6 @@ infix:50 "===" => HEqRel
 instance {α β γ} : Trans (HEqRel : α → β → Prop) (HEqRel : β → γ → Prop) (HEqRel : α → γ → Prop) where
   trans h₁ h₂ := HEq.trans h₁ h₂
 
-theorem ex7 {a : α} {b : β} {c : γ} (h₁ : a ≅ b) (h₂ : b ≅ c) : a ≅ c :=
+theorem ex7 {a : α} {b : β} {c : γ} (h₁ : a ≅ b) (h₂ : b ≅ c) : a === c :=
   calc a === b := h₁
        _ === c := h₂

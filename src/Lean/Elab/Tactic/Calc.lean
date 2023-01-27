@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.ElabTerm
 namespace Lean.Elab.Tactic
 open Meta
 
-def elabCalcSteps (steps : Array Syntax) : TacticM Expr := do
+def elabCalcSteps (steps : Array Syntax) (target : Expr) : TacticM Expr := do
   /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
   if (← read).recover then
     go
@@ -17,7 +17,7 @@ def elabCalcSteps (steps : Array Syntax) : TacticM Expr := do
     Term.withoutErrToSorry go
 where
   go : TermElabM Expr := do
-    let e ← Term.elabCalcSteps steps
+    let e ← Term.elabCalcSteps steps target (enforceLastRhs := false)
     Term.synthesizeSyntheticMVars (mayPostpone := false)
     instantiateMVars e
 
@@ -27,9 +27,9 @@ def evalCalc : Tactic := fun stx => do
   withMainContext do
     let steps := #[stx[1]] ++ stx[2].getArgs
     let (val, mvarIds) ← withCollectingNewGoalsFrom (tagSuffix := `calc) do
-      let val ← elabCalcSteps steps
-      let valType ← inferType val
       let target ← getMainTarget
+      let val ← elabCalcSteps steps target
+      let valType ← inferType val
       if (← isDefEq valType target) then
         return val
       else

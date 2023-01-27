@@ -44,23 +44,61 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
   | _ => throwError "invalid 'calc' step, failed to synthesize `Trans` instance{indentExpr selfType}"
 
 /--
+Adds a type annotation to a hole that occurs immediately at the beginning of the term.
+This is so that coercions can trigger when elaborating the term.
+See https://github.com/leanprover/lean4/issues/2040 for futher rationale.
+
+- `_ < 3` is annotated
+- `(_) < 3` is not, because it occurs after an atom
+- in `_ < _` only the first one is annotated
+- `_ + 2 < 3` is annotated (not the best heuristic, ideally we'd like to annotate `_ + 2`)
+- `lt _ 3` is not, because it occurs after an identifier
+-/
+partial def annotateFirstHoleWithType (t : Syntax) (type : Expr) : TermElabM Syntax :=
+  -- The state is true if we should annotate the immediately next hole with the type.
+  StateT.run' (go t) true
+where
+  go (t : Syntax) := do
+    unless ← get do return t
+    match t with
+    | .node _ ``Lean.Parser.Term.hole _ =>
+      set false
+      `(($(⟨t⟩) : $(← exprToSyntax type)))
+    | .node i k as => return .node i k (← as.mapM go)
+    | _ => set false; return t
+
+/--
   Elaborate `calc`-steps
 -/
-def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
+def elabCalcSteps (steps : Array Syntax) (goalType? : Option Expr)
+    (enforceLastRhs := true) : TermElabM Expr := do
+  let (goalLhs?, goalRhs?) ← id do
+    if let some goalType := goalType? then
+      unless goalType.getAppFn.isMVar do
+        if let some (_, goalLhs, goalRhs) ← getCalcRelation? goalType then
+          return (some goalLhs, some goalRhs)
+    return (none, none)
   let mut proofs := #[]
   let mut types  := #[]
+  let mut prevRhs? := goalLhs?
   for step in steps do
-    let type  ← elabType step[0]
-    let some (_, lhs, _) ← getCalcRelation? type |
+    let mut pred := step[0]
+    if let some prevRhs := prevRhs? then
+      pred ← annotateFirstHoleWithType pred (← inferType prevRhs)
+    let type ← elabType pred
+    let some (_, lhs, rhs) ← getCalcRelation? type |
       throwErrorAt step[0] "invalid 'calc' step, relation expected{indentExpr type}"
-    if types.size > 0 then
-      let some (_, _, prevRhs) ← getCalcRelation? types.back | unreachable!
+    if let some prevRhs := prevRhs? then
       unless (← isDefEqGuarded lhs prevRhs) do
-        throwErrorAt step[0] "invalid 'calc' step, left-hand-side is {indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
+        throwErrorAt step[0] "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nexpected{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
     types := types.push type
     let proof ← elabTermEnsuringType step[2] type
     synthesizeSyntheticMVars
     proofs := proofs.push proof
+    prevRhs? := rhs
+  if let (some prevRhs, some goalRhs, some prevStep) := (prevRhs?, goalRhs?, steps.back?) then
+    if enforceLastRhs && !(← isDefEqGuarded prevRhs goalRhs) then
+      throwErrorAt prevStep "invalid 'calc' step, right-hand-side is {indentD m!"{prevRhs} : {← inferType prevRhs}"}\nexpected{indentD m!"{goalRhs} : {← inferType goalRhs}"}"
   let mut result := proofs[0]!
   let mut resultType := types[0]!
   for i in [1:proofs.size] do
@@ -71,5 +109,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
 @[builtin_term_elab «calc»]
 def elabCalc : TermElab :=  fun stx expectedType? => do
   let steps := #[stx[1]] ++ stx[2].getArgs
-  let result ← elabCalcSteps steps
+  if let some expectedType := expectedType? then
+    tryPostponeIfMVar expectedType
+  let result ← elabCalcSteps steps expectedType?
   ensureHasType expectedType? result

@@ -114,7 +114,7 @@ structure Context where
       f x && g x
     ```
     Without the special support, Lean fails at `g x` saying `x` has type `Option Bool` but is expected to have type `Bool`.
-    From the users point of view this is a bug, since `let x := getElem xs 0` clearly constraints `x` to be `Bool`, but
+    From the user's point of view this is a bug, since `let x := getElem xs 0` clearly constrains `x` to be `Bool`, but
     we only obtain this information after we apply the `OfNat` default instance for `0`.
 
     Before converging to this solution, we have tried to create a "coercion placeholder" when `resultIsOutParamSupport = true`,
@@ -143,7 +143,7 @@ structure State where
     When `..` is used, eta-expansion is disabled, and missing arguments are treated as `_`.
   -/
   etaArgs              : Array Expr   := #[]
-  /-- Metavariables that we need the set the error context using the application being built. -/
+  /-- Metavariables that we need to set the error context using the application being built. -/
   toSetErrorCtx        : Array MVarId := #[]
   /-- Metavariables for the instance implicit arguments that have already been processed. -/
   instMVars            : Array MVarId := #[]
@@ -285,7 +285,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
     stx.getKind != ``Lean.Parser.Term.byTactic
 
 /--
-  Auxiliary method for propagating the expected type. We call it as soon as we find the first explict
+  Auxiliary method for propagating the expected type. We call it as soon as we find the first explicit
   argument. The goal is to propagate the expected type in applications of functions such as
   ```lean
   Add.add {α : Type u} : α → α → α
@@ -299,7 +299,7 @@ private def shouldPropagateExpectedTypeFor (nextArg : Arg) : Bool :=
   List.cons x []
   ```
   First, the elaborator creates a new metavariable `?α` for the implicit argument `{α : Type u}`.
-  Then, when it processes `x`, it assigns `?α := Nat`, and then obtain the
+  Then, when it processes `x`, it assigns `?α := Nat`, and then obtains the
   resultant type `List Nat` which is **not** definitionally equal to `List Int`.
   We solve the problem by executing this method before we elaborate the first explicit argument (`x` in this example).
   This method infers that the resultant type is `List ?α` and unifies it with `List Int`.
@@ -343,10 +343,10 @@ private def propagateExpectedType (arg : Arg) : M Unit := do
            We would elaborate `s.2` with `expectedType == Prop`.
            Before we elaborate `s`, this method would be invoked, and `s.fType` is `?α × ?β → ?β` and after
            propagation we would have `?α × Prop → Prop`. Then, when we would try to elaborate `s`, and
-           get a type error because `?α × Prop` cannot be unified with `Nat × Bool`
+           get a type error because `?α × Prop` cannot be unified with `Nat × Bool`.
            Most users would have a hard time trying to understand why these examples failed.
 
-           Here is a possible alternative workarounds. We give up the idea of using `Prop` at `if-then-else`.
+           Here is a possible alternative workaround. We give up the idea of using `Prop` at `if-then-else`.
            Drawback: users use `if-then-else` with conditions that are not Decidable.
            So, users would have to embrace `propDecidable` and `choice`.
            This may not be that bad since the developers and users don't seem to care about constructivism.
@@ -479,7 +479,7 @@ where
     | .bvar idx        => idx == i
     | _                => false
 
-  /-- (quick filter) Return true if `type` constains a binder `[C ...]` where `C` is a class containing outparams. -/
+  /-- (quick filter) Return true if `type` contains a binder `[C ...]` where `C` is a class containing outparams. -/
   hasLocalInstaceWithOutParams (type : Expr) : CoreM Bool := do
     let .forallE _ d b bi := type | return false
     if bi.isInstImplicit then
@@ -704,7 +704,7 @@ structure Context where
   elimInfo : ElimInfo
   expectedType : Expr
   /--
-  Position of additonal arguments that should be elabored eagerly
+  Position of additional arguments that should be elaborated eagerly
   because they can contribute to the motive inference procedure.
   For example, in the following theorem the argument `h : a = b`
   should be elaborated eagerly because it contains `b` which occurs
@@ -723,7 +723,7 @@ structure State where
   fType        : Expr
   /-- User-provided named arguments that still have to be processed. -/
   namedArgs    : List NamedArg
-  /-- User-providedarguments that still have to be processed. -/
+  /-- User-provided arguments that still have to be processed. -/
   args         : List Arg
   /-- Discriminants processed so far. -/
   discrs       : Array Expr := #[]
@@ -759,7 +759,7 @@ def revertArgs (args : List Arg) (f : Expr) (expectedType : Expr) : TermElabM (E
     return (mkApp f val, mkForall (← mkFreshBinderName) BinderInfo.default valType expectedTypeBody)
 
 /--
-Contruct the resulting application after all discriminants have bee elaborated, and we have
+Construct the resulting application after all discriminants have bee elaborated, and we have
 consumed as many given arguments as possible.
 -/
 def finalize : M Expr := do
@@ -1191,7 +1191,7 @@ private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Ar
         if xDecl.binderInfo.isExplicit then
           -- advance explicit argument position
           argIdx := argIdx + 1
-    throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with an unique name"
+    throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with a unique name"
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
@@ -1256,7 +1256,7 @@ def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
 /-!
 # Interaction between `errToSorry` and `observing`.
 
-- The method `elabTerm` catches exceptions, log them, and returns a synthetic sorry (IF `ctx.errToSorry` == true).
+- The method `elabTerm` catches exceptions, logs them, and returns a synthetic sorry (IF `ctx.errToSorry` == true).
 
 - When we elaborate choice nodes (and overloaded identifiers), we track multiple results using the `observing x` combinator.
   The `observing x` executes `x` and returns a `TermElabResult`.

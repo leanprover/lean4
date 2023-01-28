@@ -1229,7 +1229,7 @@ structure Config where
   etaStruct         : EtaStructMode := .all
   iota              : Bool := true
   proj              : Bool := true
-  decide            : Bool := true
+  decide            : Bool := false
   arith             : Bool := false
   autoUnfold        : Bool := false
   /--

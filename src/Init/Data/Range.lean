@@ -62,6 +62,12 @@ instance : ForIn' m Range Nat inferInstance where
 instance : ForM m Range Nat where
   forM := Range.forM
 
+def toArray (range : Range) : Array Nat := Id.run do
+  let mut out := #[]
+  for i in range do
+    out := out.push i
+  return out
+
 syntax:max "[" withoutPosition(":" term) "]" : term
 syntax:max "[" withoutPosition(term ":" term) "]" : term
 syntax:max "[" withoutPosition(":" term ":" term) "]" : term

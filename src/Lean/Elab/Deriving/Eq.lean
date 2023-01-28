@@ -4,16 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Gabriel Ebner
 -/
 import Lean.Meta.Transform
+import Lean.Meta.Inductive
 import Lean.Elab.Deriving.Basic
-
-theorem beq_iff_eq' [DecidableEq α] (a b : α) : a == b ↔ a = b := beq_iff_eq
-theorem Eq.to_iff (h : p = q) : p ↔ q := h ▸ .rfl
-
-def Std.Range.toArray (range : Range) : Array Nat := Id.run do
-  let mut out := #[]
-  for i in range do
-    out := out.push i
-  return out
 
 namespace Lean.Elab.Deriving.Eq
 open Lean.Parser.Term
@@ -41,16 +33,19 @@ def sameCtorArm (indVal : InductiveVal) (ctorInfo : ConstructorVal)
   let mut ctorArgs1 : List Term := []
   let mut ctorArgs2 : List Term := []
   for i in [:ctorInfo.numFields].toArray.reverse do
-    let a := mkIdent (← mkFreshUserName `a)
-    let b := mkIdent (← mkFreshUserName `b)
-    ctorArgs1 := a :: ctorArgs1
-    ctorArgs2 := b :: ctorArgs1
-    let x := xs[indVal.numParams + i]!
-    if (← inferType (← inferType x)).isProp then
-      -- proofs are defeq
-      continue
+    let i := indVal.numParams + i
+    let x := xs[i]!
     if type.containsFVar x.fvarId! then
       -- If resulting type depends on this field, we don't need to compare
+      ctorArgs1 := (← `(_)) :: ctorArgs1
+      ctorArgs2 := (← `(_)) :: ctorArgs2
+      continue
+    let a := mkIdent (← mkFreshUserName `x)
+    let b := mkIdent (← mkFreshUserName `y)
+    ctorArgs1 := a :: ctorArgs1
+    ctorArgs2 := b :: ctorArgs2
+    if (← inferType (← inferType x)).isProp then
+      -- proofs are defeq
       continue
     let (beqTerm, spec) ←
       if (← inferType x).isAppOf indVal.name then
@@ -59,7 +54,9 @@ def sameCtorArm (indVal : InductiveVal) (ctorInfo : ConstructorVal)
       else if ← hasFwdDeps i xs then
         beq ← `(
           if h : $a == $b then
-            by subst (beq_iff_eq' $a $b).1 h; exact $beq
+            have := $(quote i)
+            have heq : $a = $b := (beq_iff_eq' $a $b).1 h
+            by subst heq; exact $beq
           else
             false)
         pure (← `($a == $b), ← `(beq_iff_eq' $a $b))
@@ -67,14 +64,12 @@ def sameCtorArm (indVal : InductiveVal) (ctorInfo : ConstructorVal)
         beq ← `($a == $b && $beq)
         pure (← `($a == $b), ← `(beq_iff_eq' $a $b))
     proof ← withFreshMacroScope `(
-      match h : $beqTerm with
-      | true =>
+      if h : $beqTerm then
         have heq : $a = $b := ($spec).1 h
-        by subst heq; exact $proof
-      | false =>
-        have hne : $a ≠ $b :=
-          fun h' => nomatch h.symm.trans (($spec).2 h')
-        ⟨(nomatch ·), (by injection ·; contradiction)⟩)
+        by subst heq; simp only [Bool.true_and, dif_pos, h]; first | done | exact $proof
+      else
+        have : $a ≠ $b := h ∘ ($spec).2
+        ⟨by simp only [*, dif_neg, Bool.false_and, false_implies], (by injection ·; contradiction)⟩)
   -- add `_` for inductive parameters, they are inaccessible
   ctorArgs1 := .replicate indVal.numParams (← `(_)) ++ ctorArgs1
   ctorArgs2 := .replicate indVal.numParams (← `(_)) ++ ctorArgs2
@@ -85,7 +80,8 @@ def sameCtorArm (indVal : InductiveVal) (ctorInfo : ConstructorVal)
       ← `(@$(mkCIdent ctorInfo.name) $(ctorArgs2.toArray)*)]
   return {
     beqArm := ← `(matchAltExpr| | $patterns,* => $beq)
-    beqIffEqArm := ← `(matchAltExpr| | $patterns,* => $proof)
+    beqIffEqArm := ← `(matchAltExpr| | $patterns,* =>
+      by simp only [$beqFn:ident]; first | done | exact $proof)
   }
 
 def mkEqFuns (indVal : InductiveVal) (beqFn beqIffEqFn : Syntax.Ident)
@@ -94,24 +90,27 @@ def mkEqFuns (indVal : InductiveVal) (beqFn beqIffEqFn : Syntax.Ident)
   let ctors ← indVal.ctors.mapM fun ctorName => do
     sameCtorArm indVal (← getConstInfoCtor ctorName) beqFn beqIffEqFn
   let indPatterns := mkArray indVal.numIndices (← `(_)) -- add `_` pattern for indices
-  let beqArms := ctors.map (·.beqArm) ++
-    [(← `(matchAltExpr| | $indPatterns,*, _, _ => false) : TSyntax ``matchAlt)]
+  let beqArms := ctors.map (·.beqArm) ++ -- TODO: simplify after #2065
+    [(← `(matchAltExpr| | $[$(indPatterns ++ #[← `(_), ← `(_)])],* => false) : TSyntax ``matchAlt)]
   let beqCmd ← `(
-    protected def $beqFn (lhs rhs : @$(mkCIdent indVal.name) $params* $indices*) : Bool :=
-      match $[$params:ident],*, $[$indices:ident],*,
-        lhs, rhs with
+    set_option match.ignoreUnusedAlts true
+    def $beqFn {$indices*} (lhs rhs : @$(mkCIdent indVal.name) $params* $indices*) : Bool :=
+      -- TODO: simplify after #2065
+      match $((← indices.mapM (`(matchDiscr| $(·):ident))) ++ #[← `(matchDiscr| lhs), ← `(matchDiscr| rhs)]):matchDiscr,* with
       $(beqArms.toArray):matchAlt*
   )
   let mut proofArms : Array (TSyntax ``matchAlt) := ctors.map (·.beqIffEqArm) |>.toArray
   for ctor1 in indVal.ctors do for ctor2 in indVal.ctors do
     if ctor1 = ctor2 then continue
+    unless ← compatibleCtors ctor1 ctor2 do continue
     proofArms := proofArms.push <| ← `(matchAltExpr|
-      | $indPatterns,*, @$(mkCIdent ctor1) .., @$(mkCIdent ctor2) .. =>
+      -- TODO: simplify after #2065
+      | $[$(indPatterns ++ #[← `(@$(mkCIdent ctor1) ..), ← `($(mkCIdent ctor2) ..)])],* =>
         ⟨(nomatch ·), (nomatch ·)⟩)
   let beqIffEqCmd ← `(
-    protected theorem $beqIffEqFn (lhs rhs : @$(mkCIdent indVal.name) $params* $indices*) : lhs == rhs ↔ lhs = rhs :=
-      match $[$params:ident],*, $[$indices:ident],*,
-        lhs, rhs with
+    theorem $beqIffEqFn {$indices*} (lhs rhs : @$(mkCIdent indVal.name) $params* $indices*) : $beqFn lhs rhs ↔ lhs = rhs :=
+      -- TODO: simplify after #2065
+      match $((← indices.mapM (`(matchDiscr| $(·):ident))) ++ #[← `(matchDiscr| lhs), ← `(matchDiscr| rhs)]):matchDiscr,* with
       $proofArms:matchAlt*
   )
   return (beqCmd, beqIffEqCmd)
@@ -123,8 +122,9 @@ def paramsWithFwdDeps (indVal : InductiveVal) : MetaM (HashSet Nat) := do
       let mut ps := ps
       for i in [indVal.numParams:xs.size] do
         if ← hasFwdDeps i xs then
+          let xsiType ← inferType xs[i]!
           for j in [:indVal.numParams], p in xs do
-            if (← inferType xs[i]!).containsFVar p.fvarId! then
+            if xsiType.containsFVar p.fvarId! then
               ps := ps.insert j
       return ps
   return ps
@@ -149,20 +149,20 @@ def mkInstancesDefault (indVal : InductiveVal) (decEq : Bool) : CommandElabM Uni
         else
           `(bracketedBinderF| [BEq $pn])
       instsForDecEq := instsForDecEq.push <| ← `(bracketedBinderF| [DecidableEq $pn])
-    let beqFn := mkIdent <| `_root_ ++ (← mkAuxName (indVal.name ++ `beq) 1)
-    let beqIffEqFn := mkIdent <| `_root_ ++ (← mkAuxName (indVal.name ++ `beq_iff_eq) 1)
+    let beqFn : Ident ← `(beq_fn)
+    let beqIffEqFn : Ident ← `(beq_iff_eq_fn)
     let (beqCmd, beqIffEqCmd) ← withFreshMacroScope do
       mkEqFuns indVal beqFn beqIffEqFn params indices
     let beqInst ← `(section
-      variable {$params:ident* $indices:ident*} $instsForBEq*
+      variable $[{$params}]* $instsForBEq*
       $beqCmd:command
-      instance : BEq (@$(mkCIdent indVal.name) $params* $indices*) where
+      instance {$indices*} : BEq (@$(mkCIdent indVal.name) $params* $indices*) where
         beq := $beqFn
       end)
     let decEqInst ← `(section
-      variable {$params:ident* $indices:ident*} $instsForDecEq*
+      variable $[{$params}]* $instsForDecEq*
       $beqIffEqCmd:command
-      instance : DecidableEq (@$(mkCIdent indVal.name) $params* $indices*) where
+      instance {$indices*} : DecidableEq (@$(mkCIdent indVal.name) $params* $indices*) where
         beq_iff_eq := $beqIffEqFn _ _
       end)
     if decEq then `($beqInst $decEqInst:command) else return beqInst
@@ -181,4 +181,3 @@ def mkInstanceHandler (decEq : Bool) (declNames : Array Name) : CommandElabM Boo
 builtin_initialize
   registerDerivingHandler ``DecidableEq <| mkInstanceHandler (decEq := true)
   registerDerivingHandler ``BEq <| mkInstanceHandler (decEq := false)
-  -- registerTraceClass `Elab.Deriving.decEq

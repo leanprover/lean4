@@ -867,6 +867,8 @@ class DecidableEq (α : Sort u) extends BEq α where
 theorem beq_iff_eq [DecidableEq α] {a b : α} : Iff (beq a b).asProp (Eq a b) :=
   DecidableEq.beq_iff_eq
 
+theorem beq_iff_eq' [DecidableEq α] (a b : α) : Iff (beq a b).asProp (Eq a b) := beq_iff_eq ..
+
 /--
 Constructs a decidable equality equality instance on `α` given an injective
 function to another type that already has a decidable equality instance.

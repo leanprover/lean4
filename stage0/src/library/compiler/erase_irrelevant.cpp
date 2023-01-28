@@ -174,7 +174,7 @@ class erase_irrelevant_fn {
         expr zero        = mk_lit(literal(nat(0)));
         expr one         = mk_lit(literal(nat(1)));
         expr nat_type    = mk_constant(get_nat_name());
-        expr dec_eq      = mk_app(mk_constant(get_nat_dec_eq_name()), major, zero);
+        expr dec_eq      = mk_app(mk_constant(get_nat_beq_name()), major, zero);
         expr dec_eq_type = mk_bool();
         expr c           = mk_simple_decl(dec_eq, dec_eq_type);
         expr minor_z     = args[2];
@@ -249,20 +249,6 @@ class erase_irrelevant_fn {
                          binding_body(minor));
     }
 
-    expr decidable_to_bool_cases(buffer<expr> const & args) {
-        lean_always_assert(args.size() == 5);
-        expr const & major  = args[2];
-        expr minor1 = args[3];
-        expr minor2 = args[4];
-        minor1 = visit_minor(minor1);
-        minor2 = visit_minor(minor2);
-        lean_always_assert(is_lambda(minor1));
-        lean_always_assert(is_lambda(minor2));
-        minor1 = instantiate(binding_body(minor1), mk_enf_neutral());
-        minor2 = instantiate(binding_body(minor2), mk_enf_neutral());
-        return mk_app(mk_constant(get_bool_cases_on_name()), major, minor1, minor2);
-    }
-
     /* Remark: we only keep major and minor premises. */
     expr visit_cases_on(expr const & c, buffer<expr> & args) {
         name const & I_name = const_name(c).get_prefix();
@@ -280,8 +266,6 @@ class erase_irrelevant_fn {
             return elim_byte_array_cases(args);
         } else if (I_name == get_uint8_name() || I_name == get_uint16_name() || I_name == get_uint32_name() || I_name == get_uint64_name() || I_name == get_usize_name()) {
           return elim_uint_cases(I_name, args);
-        } else if (I_name == get_decidable_name()) {
-            return decidable_to_bool_cases(args);
         } else {
             unsigned minors_begin; unsigned minors_end;
             std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
@@ -388,10 +372,6 @@ class erase_irrelevant_fn {
                 } else {
                     f = mk_const(*n, const_levels(f));
                 }
-            } else if (fn == get_decidable_is_true_name()) {
-                return mk_constant(get_bool_true_name());
-            } else if (fn == get_decidable_is_false_name()) {
-                return mk_constant(get_bool_false_name());
             } else if (is_constructor(env(), fn)) {
                 return visit_constructor(f, args);
             } else if (is_cases_on_recursor(env(), fn)) {
@@ -400,10 +380,6 @@ class erase_irrelevant_fn {
                 return visit_quot_mk(args);
             } else if (fn == get_quot_lift_name()) {
                 return visit_quot_lift(args);
-            } else if (fn == get_decidable_decide_name() && args.size() == 2) {
-                /* Decidable.decide is the "identify" function since Decidable and Bool have
-                   the same runtime representation. */
-                return args[1];
             } else {
                 break;
             }

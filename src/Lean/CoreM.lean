@@ -294,13 +294,21 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | some (Expr.const declName ..) => throwError "code generator does not support recursor '{declName}' yet, consider using 'match ... with' and/or structural recursion"
     | _ => pure ()
 
+register_builtin_option compiler.enableNew : Bool := {
+  defValue := true
+  group    := "compiler"
+  descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
+}
+
 -- Forward declaration
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
-  compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
-  match (← getEnv).compileDecl (← getOptions) decl with
+  let opts ← getOptions
+  if compiler.enableNew.get opts then
+    compileDeclsNew (Compiler.getDeclNamesForCodeGen decl)
+  match (← getEnv).compileDecl opts decl with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
@@ -309,8 +317,10 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
-  compileDeclsNew decls
-  match (← getEnv).compileDecls (← getOptions) decls with
+  let opts ← getOptions
+  if compiler.enableNew.get opts then
+    compileDeclsNew decls
+  match (← getEnv).compileDecls opts decls with
   | Except.ok env   => setEnv env
   | Except.error (KernelException.other msg) =>
     throwError msg

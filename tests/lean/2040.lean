@@ -22,13 +22,13 @@ example (n : Nat) (h : n = 42) : 42 = (n : Int) :=
 
 example (n : Nat) (h : n = 42) : 42 = (n : Int) :=
   calc
-    42 = 42 := rfl -- type of 42 should match goal (i.e., `Int`)
+    (42 : Int) = 42 := rfl -- TODO: type of 42 should match goal (i.e., `Int`)
     _ = n := h ▸ rfl
       --^ coe needs to be inserted here
 
 example (n : Nat) (h : n = 42) : 42 = (n : Int) :=
   calc
-    _ = 42 := rfl -- type of 42 should match goal (i.e., `Int`)
+    (_ : Int) = 42 := rfl -- TODO: type of 42 should match goal (i.e., `Int`)
     _ = n := h ▸ rfl
       --^ coe needs to be inserted here
 

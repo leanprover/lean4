@@ -70,17 +70,10 @@ where
 /--
   Elaborate `calc`-steps
 -/
-def elabCalcSteps (steps : Array Syntax) (goalType? : Option Expr)
-    (enforceLastRhs := true) : TermElabM Expr := do
-  let (goalLhs?, goalRhs?) ← id do
-    if let some goalType := goalType? then
-      unless goalType.getAppFn.isMVar do
-        if let some (_, goalLhs, goalRhs) ← getCalcRelation? goalType then
-          return (some goalLhs, some goalRhs)
-    return (none, none)
+def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
   let mut proofs := #[]
   let mut types  := #[]
-  let mut prevRhs? := goalLhs?
+  let mut prevRhs? := none
   for step in steps do
     let mut pred := step[0]
     if let some prevRhs := prevRhs? then
@@ -90,15 +83,12 @@ def elabCalcSteps (steps : Array Syntax) (goalType? : Option Expr)
       throwErrorAt step[0] "invalid 'calc' step, relation expected{indentExpr type}"
     if let some prevRhs := prevRhs? then
       unless (← isDefEqGuarded lhs prevRhs) do
-        throwErrorAt step[0] "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nexpected{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
+        throwErrorAt step[0] "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
     types := types.push type
     let proof ← elabTermEnsuringType step[2] type
     synthesizeSyntheticMVars
     proofs := proofs.push proof
     prevRhs? := rhs
-  if let (some prevRhs, some goalRhs, some prevStep) := (prevRhs?, goalRhs?, steps.back?) then
-    if enforceLastRhs && !(← isDefEqGuarded prevRhs goalRhs) then
-      throwErrorAt prevStep "invalid 'calc' step, right-hand-side is {indentD m!"{prevRhs} : {← inferType prevRhs}"}\nexpected{indentD m!"{goalRhs} : {← inferType goalRhs}"}"
   let mut result := proofs[0]!
   let mut resultType := types[0]!
   for i in [1:proofs.size] do
@@ -109,7 +99,5 @@ def elabCalcSteps (steps : Array Syntax) (goalType? : Option Expr)
 @[builtin_term_elab «calc»]
 def elabCalc : TermElab :=  fun stx expectedType? => do
   let steps := #[stx[1]] ++ stx[2].getArgs
-  if let some expectedType := expectedType? then
-    tryPostponeIfMVar expectedType
-  let result ← elabCalcSteps steps expectedType?
+  let result ← elabCalcSteps steps
   ensureHasType expectedType? result

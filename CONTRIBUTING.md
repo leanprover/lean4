@@ -15,6 +15,10 @@ community using the [lean4 Zulip channel](https://leanprover.zulipchat.com/#narr
 
 Simple fixes for **typos and clear bugs** are welcome.
 
+# **IMPORTANT**
+
+We are currently overwhelmed. We respectfully request that you hold off on submitting Pull Requests and creating Request for Comments (RFCs) at this time. Our team is actively seeking funding to expand the Lean development team and improve our capacity to review and integrate contributions. We appreciate your understanding and look forward to being able to accept contributions in the near future. In the meantime, the process described in the following sections is temporarily suspended.
+
 ## Documentation
 
 Tutorial-like examples are very welcome.

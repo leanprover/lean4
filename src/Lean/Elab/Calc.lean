@@ -86,7 +86,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
         throwErrorAt step[0] "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
     types := types.push type
     let proof ← elabTermEnsuringType step[2] type
-    synthesizeSyntheticMVars
+    synthesizeSyntheticMVarsUsingDefault
     proofs := proofs.push proof
     prevRhs? := rhs
   let mut result := proofs[0]!

@@ -12,7 +12,7 @@ example (n : Nat) (a : Int) : a = 22 :=
 example (n : Nat) (a : Int) : a = (2 : Int) ^ n :=
   calc
     a = (37 : Int) := sorry
-    _ = 2 ^ n := sorry -- could be an error, but here unification figures out that (2 : Int) from the goal
+    _ = 2 ^ n := sorry -- should be same error as above
 
 example (n : Nat) (h : n = 42) : 42 = (n : Int) :=
   calc

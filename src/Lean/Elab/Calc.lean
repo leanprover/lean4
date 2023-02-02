@@ -92,7 +92,7 @@ def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
   let mut result := proofs[0]!
   let mut resultType := types[0]!
   for i in [1:proofs.size] do
-    (result, resultType) ← withRef steps[i]! <| mkCalcTrans result resultType proofs[i]! types[i]!
+    (result, resultType) ← withRef steps[i]![0] <| mkCalcTrans result resultType proofs[i]! types[i]!
   return result
 
 /-- Elaborator for the `calc` term mode variant. -/

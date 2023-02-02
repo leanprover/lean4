@@ -10,7 +10,7 @@ previous right-hand-side is
   b + b : Nat
 calcErrors.lean:15:8-15:11: error: invalid 'calc' step, relation expected
   p a
-calcErrors.lean:20:8-20:19: error: invalid 'calc' step, failed to synthesize `Trans` instance
+calcErrors.lean:20:8-20:13: error: invalid 'calc' step, failed to synthesize `Trans` instance
   Trans p p ?m
 calcErrors.lean:27:7-27:12: error: invalid 'calc' step, left-hand-side is
   γ : Sort u_1

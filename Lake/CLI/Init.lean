@@ -8,6 +8,7 @@ import Lake.Util.Sugar
 import Lake.Config.Package
 import Lake.Config.Workspace
 import Lake.Load.Config
+import Lake.Build.Actions
 
 namespace Lake
 open Git System
@@ -105,6 +106,9 @@ lean_lib {libRoot} \{
 }
 "
 
+def mathToolchainUrl : String :=
+  "https://raw.githubusercontent.com/leanprover-community/mathlib4/master/lean-toolchain"
+
 /-- The options for the template argument to `initPkg`. -/
 inductive InitTemplate
 | std | exe | lib | math
@@ -173,7 +177,10 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
 
   -- write Lean's toolchain to file (if it has one) for `elan`
   if Lean.toolchain ≠ "" then
-    IO.FS.writeFile (dir / toolchainFileName) <| Lean.toolchain ++ "\n"
+    if tmp = .math then
+      download "lean-toolchain" mathToolchainUrl (dir / toolchainFileName)
+    else
+      IO.FS.writeFile (dir / toolchainFileName) <| Lean.toolchain ++ "\n"
 
   -- update `.gitignore` with additional entries for Lake
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)

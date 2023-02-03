@@ -25,10 +25,14 @@ Setting up a basic release build:
 ```bash
 git clone https://github.com/leanprover/lean4 --recurse-submodules
 cd lean4
-mkdir -p build/release
-cd build/release
-cmake ../..
-make
+cmake -B build
+cd build
+
+pushd stage1
+make edit_cache # Enable/Disable optional features
+popd
+
+make -j
 ```
 
 For regular development, we recommend running

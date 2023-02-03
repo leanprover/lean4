@@ -19,12 +19,6 @@ structure Env where
   sharedLibPath : SearchPath
   deriving Inhabited, Repr
 
-/-- Gets a `SearchPath` from an environment variable. -/
-def getSearchPath (envVar : String) : BaseIO SearchPath := do
-  match (← IO.getEnv envVar) with
-  | some path => pure <| SearchPath.parse path
-  | none => pure []
-
 namespace Env
 
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/

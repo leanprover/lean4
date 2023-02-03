@@ -3,9 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lake.Build.Job
-import Lake.Config.Env
 import Lake.Util.Proc
+import Lake.Util.NativeLib
 
 namespace Lake
 open System

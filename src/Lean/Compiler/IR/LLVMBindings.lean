@@ -296,6 +296,9 @@ opaque getTargetFromTriple (triple : @&String) : BaseIO (Target ctx)
 @[extern "lean_llvm_create_target_machine"]
 opaque createTargetMachine (target : Target ctx) (tripleStr : @&String) (cpu : @&String) (features : @&String) : BaseIO (TargetMachine ctx)
 
+@[extern "lean_llvm_target_machine_pointer_size"]
+opaque targetMachinePointerSize (targetMachine : TargetMachine ctx) : BaseIO UInt64
+
 @[extern "lean_llvm_target_machine_emit_to_file"]
 opaque targetMachineEmitToFile (targetMachine : TargetMachine ctx) (module : Module ctx) (filepath : @&String) (codegenType : LLVM.CodegenFileType) : BaseIO Unit
 

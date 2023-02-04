@@ -59,6 +59,8 @@ structure Context (llvmctx : LLVM.Context) where
   mainFn     : FunId := default
   mainParams : Array Param := #[]
   llvmmodule : LLVM.Module llvmctx
+  /- pointer size in bits -/
+  size_t     : UInt64
 
 structure State (llvmctx : LLVM.Context) where
   var2val : HashMap VarId (LLVM.LLVMType llvmctx × LLVM.Value llvmctx)
@@ -1571,8 +1573,15 @@ partial def getModuleFunctions (mod : LLVM.Module llvmctx) : IO (Array (LLVM.Val
 def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String) : IO Unit := do
   LLVM.llvmInitializeTargetInfo
   let llvmctx ← LLVM.createContext
+  let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple)
+  let target ← LLVM.getTargetFromTriple tripleStr
+  let cpu := "generic"
+  let features := ""
+  let targetMachine ← LLVM.createTargetMachine target tripleStr cpu features
+  let pointer_size ← LLVM.targetMachinePointerSize targetMachine
+
   let module ← LLVM.createModule llvmctx modName.toString
-  let emitLLVMCtx : EmitLLVM.Context llvmctx := {env := env, modName := modName, llvmmodule := module}
+  let emitLLVMCtx : EmitLLVM.Context llvmctx := {env := env, modName := modName, llvmmodule := module, size_t := pointer_size }
   let initState := { var2val := default, jp2bb := default : EmitLLVM.State llvmctx}
   let out? ← ((EmitLLVM.main (llvmctx := llvmctx)).run initState).run emitLLVMCtx
   match out? with
@@ -1604,14 +1613,10 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr
 
          optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
-         let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple)
-         let target ← LLVM.getTargetFromTriple tripleStr
-         let cpu := "generic"
-         let features := ""
-         let targetMachine ← LLVM.createTargetMachine target tripleStr cpu features
+
          let codegenType := LLVM.CodegenFileType.ObjectFile
          LLVM.targetMachineEmitToFile targetMachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
          LLVM.disposeModule emitLLVMCtx.llvmmodule
-         LLVM.disposeTargetMachine targetMachine
   | .error err => throw (IO.Error.userError err)
+  LLVM.disposeTargetMachine targetMachine
 end Lean.IR

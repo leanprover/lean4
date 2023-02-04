@@ -102,7 +102,8 @@ These classes should be implemented for coercions:
   `CoeFun` instances apply to `CoeOut` as well.
 
 * `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`.
+  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
+  then it will be turned into `(x : CoeSort.coe a)`.
   `CoeSort` instances apply to `CoeOut` as well.
 
 On top of these instances this file defines several auxiliary type classes:

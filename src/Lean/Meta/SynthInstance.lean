@@ -668,13 +668,13 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   /-
-    We disable eta for structures that are not classes during TC resolution because it allows us to find unintended solutions.
-    See discussion at
-      https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/.60constructor.60.20and.20.60Applicative.60/near/279984801
+  We explicitly enable eta for structures because that is required to make
+  subobject projections and constructor applications commute (and we would get
+  non-defeq diamonds otherwise).
+  https://github.com/leanprover/lean4/issues/2074#issuecomment-1418198304
   -/
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false,
-                                          etaStruct := .notClasses }) do
+                                          foApprox := true, ctxApprox := true, constApprox := false }) do
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get

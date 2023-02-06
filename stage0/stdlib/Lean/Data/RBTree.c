@@ -56,6 +56,7 @@ LEAN_EXPORT lean_object* l_Lean_instEmptyCollectionRBTree___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_RBTree_revFold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_max___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_forM___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_max___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_insert(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkRBTree___boxed(lean_object*, lean_object*);
@@ -101,6 +102,7 @@ lean_object* l_List_repr___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_find_x3f(lean_object*);
 lean_object* l_Lean_RBNode_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBTree_instReprRBTree___rarg___closed__2;
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_any___at_Lean_RBTree_any___spec__1___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBTree_forM___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_rbtreeOf(lean_object*);
@@ -1817,6 +1819,43 @@ x_2 = lean_alloc_closure((void*)(l_Lean_RBNode_fold___at_Lean_RBTree_union___spe
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_dec(x_1);
+return x_2;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 3);
+lean_inc(x_6);
+lean_dec(x_3);
+lean_inc(x_1);
+x_7 = l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2___rarg(x_1, x_2, x_4);
+x_8 = lean_box(0);
+lean_inc(x_1);
+x_9 = l_Lean_RBNode_insert___rarg(x_1, x_7, x_5, x_8);
+x_2 = x_9;
+x_3 = x_6;
+goto _start;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2___rarg), 3, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_RBTree_union___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -1828,7 +1867,7 @@ return x_3;
 else
 {
 lean_object* x_4; 
-x_4 = l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__1___rarg(x_1, x_2, x_3);
+x_4 = l_Lean_RBNode_fold___at_Lean_RBTree_union___spec__2___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }

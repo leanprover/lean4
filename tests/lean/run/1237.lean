@@ -12,7 +12,7 @@ def dec_subtree (n m : Tree α) : Decidable (Subtree n m) :=
     let ht := dec_subtree .leaf t
     let hf := dec_subtree .leaf f
     match ht, hf with
-    | .isFalse ht, .isFalse hf => .isFalse (fun h =>
+    | ⟨false, ht⟩, ⟨false, hf⟩ => .isFalse (fun h =>
       match h with
       | .left_head _ _ => sorry
       | _ => sorry

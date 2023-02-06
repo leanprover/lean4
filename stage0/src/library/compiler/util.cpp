@@ -32,8 +32,6 @@ namespace lean {
 optional<unsigned> is_enum_type(environment const & env, name const & I) {
     constant_info info  = env.get(I);
     if (!info.is_inductive()) return optional<unsigned>();
-    /* `decidable` is morally an enumeration type */
-    if (I == get_decidable_name()) return optional<unsigned>(1);
     unsigned n = 0;
     names cs = info.to_inductive_val().get_cnstrs();
     if (length(cs) == 1) {
@@ -496,11 +494,6 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
             } else if (optional<unsigned> nbytes = is_enum_type(st.env(), c)) {
                 return *to_uint_type(*nbytes);
             }
-        }
-
-        if (is_app_of(e, get_decidable_name())) {
-            /* Recall that `decidable A` and `bool` have the same runtime representation. */
-            return *to_uint_type(1);
         }
 
         if (is_sort(e) || tc.is_prop(e)) {

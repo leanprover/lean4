@@ -1606,10 +1606,8 @@ class csimp_fn {
 
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major, is_let_val);
-        } else if (!is_let_val) {
-            return visit_cases_default(e);
         } else {
-            return e;
+            return visit_cases_default(e);
         }
     }
 

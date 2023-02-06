@@ -31,20 +31,20 @@ theorem eq_of_isEqv [DecidableEq α] (a b : Array α) : Array.isEqv a b (fun x y
    have aux := eq_of_isEqvAux a b hsz 0 (Nat.zero_le ..) h
    exact ext a b hsz fun i h _ => aux i (Nat.zero_le ..) _
 
-theorem isEqvAux_self [DecidableEq α] (a : Array α) (i : Nat) : Array.isEqvAux a a rfl (fun x y => x = y) i = true := by
+theorem isEqvAux_self [DecidableEq α] (a : Array α) (i : Nat) : Array.isEqvAux a a rfl (fun x y => x = y) i := by
   unfold Array.isEqvAux
   split
   case inl h => simp [h, isEqvAux_self a (i+1)]
   case inr h => simp [h]
 termination_by _ => a.size - i
 
-theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y => x = y) = true := by
+theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y => x = y) := by
   simp [isEqv, isEqvAux_self]
 
 instance [DecidableEq α] : DecidableEq (Array α) :=
-  fun a b =>
-    match h:isEqv a b (fun a b => a = b) with
-    | true  => isTrue (eq_of_isEqv a b h)
-    | false => isFalse fun h' => by subst h'; rw [isEqv_self] at h; contradiction
+  fun a b => {
+    decide := a == b
+    decide_iff := ⟨eq_of_isEqv _ _, (· ▸ isEqv_self _)⟩
+  }
 
 end Array

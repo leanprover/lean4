@@ -20,7 +20,7 @@ inductive Phase where
   | mono
   /-- In this phase impure stuff such as RC or efficient BaseIO transformations happen. -/
   | impure
-  deriving Inhabited
+  deriving Inhabited, DecidableEq
 
 /--
 The state managed by the `CompilerM` `Monad`.

@@ -202,6 +202,15 @@ object * catch_kernel_exceptions(std::function<A()> const & f) {
     } catch (exception & ex) {
         // 11 | other            (msg : String)
         return mk_cnstr(0, mk_cnstr(11, string_ref(ex.what()))).steal();
+    } catch (heartbeat_exception & ex) {
+        // 12 | deterministicTimeout
+        return mk_cnstr(0, box(12)).steal();
+    } catch (memory_exception & ex) {
+        // 13 | excessiveMemory
+        return mk_cnstr(0, box(13)).steal();
+    } catch (stack_space_exception & ex) {
+        // 14 | deepRecursion
+        return mk_cnstr(0, box(14)).steal();
     }
 }
 }

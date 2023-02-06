@@ -4,8 +4,8 @@ def Nat.hasDecEq: (a: Nat) → (b: Nat) → Decidable (Eq a b)
 |   0, n+1 => isFalse Nat.noConfusion
 | n+1, m+1 =>
   match h:hasDecEq n m with -- it works without `h:`
-  | isTrue heq => isTrue  (heq ▸ rfl)
-  | isFalse hne => isFalse (Nat.noConfusion · (λ heq  => absurd heq hne))
+  | ⟨true,  heq⟩ => isTrue  (heq.1 rfl ▸ rfl)
+  | ⟨false, hne⟩ => isFalse (Nat.noConfusion · (λ heq  => absurd heq (nomatch hne.2 ·)))
 termination_by _ a b => (a, b)
 
 set_option pp.proofs true

@@ -27,10 +27,15 @@ void set_max_heartbeat_thousands(unsigned max) { g_max_heartbeat = static_cast<s
 scope_heartbeat::scope_heartbeat(size_t max):flet<size_t>(g_heartbeat, max) {}
 scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_max_heartbeat, max) {}
 
+// separate definition to allow breakpoint in debugger
+void throw_heartbeat_exception() {
+    throw heartbeat_exception();
+}
+
 void check_heartbeat() {
     inc_heartbeat();
     if (g_max_heartbeat > 0 && g_heartbeat > g_max_heartbeat)
-        throw heartbeat_exception();
+        throw_heartbeat_exception();
 }
 
 LEAN_THREAD_VALUE(atomic_bool *, g_interrupt_flag, nullptr);

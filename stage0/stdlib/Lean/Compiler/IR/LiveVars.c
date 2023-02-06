@@ -3872,25 +3872,15 @@ x_31 = lean_box(0);
 x_32 = l_Lean_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_30, x_31);
 return x_32;
 }
-case 13:
+default: 
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 
-x_33 = lean_ctor_get(x_1, 0);
+x_33 = lean_ctor_get(x_1, 1);
 lean_inc(x_33);
 lean_dec(x_1);
 x_34 = lean_box(0);
 x_35 = l_Lean_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_33, x_34);
 return x_35;
-}
-default: 
-{
-lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-x_36 = lean_ctor_get(x_1, 1);
-lean_inc(x_36);
-lean_dec(x_1);
-x_37 = lean_box(0);
-x_38 = l_Lean_RBNode_insert___at_Lean_IR_mkLiveVarSet___spec__1(x_2, x_36, x_37);
-return x_38;
 }
 }
 }

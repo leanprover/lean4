@@ -331,9 +331,7 @@ def replace [BEq α] : List α → α → α → List α
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
-  | b::bs => match a == b with
-    | true  => true
-    | false => elem a bs
+  | b::bs => a == b || elem a bs
 
 /-- `notElem a l` is `!(elem a l)`. -/
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
@@ -356,22 +354,21 @@ inductive Mem (a : α) : List α → Prop
 instance : Membership α (List α) where
   mem := Mem
 
-theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
-  match as with
-  | [] => simp [elem]
-  | a'::as =>
-    simp [elem]
-    split
-    next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
-    next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
+theorem elem_iff_mem [DecidableEq α] {a : α} {as : List α} : elem a as ↔ a ∈ as := by
+  show _ ↔ Mem a as
+  have not_mem_nil : ∀ {a : α}, ¬ Mem a nil := by intro _ h; cases h
+  have mem_cons_iff : ∀ {a b : α} {bs}, Mem a (b::bs) ↔ (a = b ∨ Mem a bs) := by
+    intros; constructor <;> intro h <;> cases h <;> simp [*, Mem.head, Mem.tail]
+  induction as <;> simp [elem, *]
 
-theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
-  induction h with
-  | head _ => simp [elem]
-  | tail _ _ ih => simp [elem]; split; rfl; assumption
+theorem mem_of_elem [DecidableEq α] {a : α} {as : List α} : elem a as → a ∈ as :=
+  elem_iff_mem.1
+
+theorem elem_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as :=
+  elem_iff_mem.2 h
 
 instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+  decidable_of_decidable_of_iff elem_iff_mem
 
 theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
@@ -659,22 +656,24 @@ inductive lt [LT α] : List α → List α → Prop where
 
 instance [LT α] : LT (List α) := ⟨List.lt⟩
 
-instance hasDecidableLt [LT α] [h : DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
+instance hasDecidableLt [LT α] [DecidableRel (α:=α) (·<·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
   | [],    []    => isFalse (fun h => nomatch h)
   | [],    _::_  => isTrue (List.lt.nil _ _)
   | _::_, []     => isFalse (fun h => nomatch h)
   | a::as, b::bs =>
-    match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
-    | isFalse h₁ =>
-      match h b a with
-      | isTrue h₂  => isFalse (fun h => match h with
+    if h₁ : a < b then
+      isTrue (List.lt.head _ _ h₁)
+    else
+      if h₂ : b < a then
+        isFalse (fun h => match h with
          | List.lt.head _ _ h₁' => absurd h₁' h₁
          | List.lt.tail _ h₂' _ => absurd h₂ h₂')
-      | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
-        | isFalse h₃ => isFalse (fun h => match h with
+      else
+        have := hasDecidableLt as bs
+        if h₃ : as < bs then
+          isTrue (List.lt.tail h₁ h₂ h₃)
+        else
+          isFalse (fun h => match h with
            | List.lt.head _ _ h₁' => absurd h₁' h₁
            | List.lt.tail _ _ h₃' => absurd h₃' h₃)
 
@@ -717,17 +716,6 @@ and they are pairwise related by `eqv`.
   | [],    [],    _   => true
   | a::as, b::bs, eqv => eqv a b && isEqv as bs eqv
   | _,     _,     _   => false
-
-/--
-The equality relation on lists asserts that they have the same length
-and they are pairwise `BEq`.
--/
-protected def beq [BEq α] : List α → List α → Bool
-  | [],    []    => true
-  | a::as, b::bs => a == b && List.beq as bs
-  | _,     _     => false
-
-instance [BEq α] : BEq (List α) := ⟨List.beq⟩
 
 /--
 `replicate n a` is `n` copies of `a`:

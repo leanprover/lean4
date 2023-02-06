@@ -1,12 +1,12 @@
 def h : BV 32 → Array Bool :=
 fun x => (fun x => g (f x).val) x
 def r : Nat → Prop :=
-fun a => if (a == 0) = true then (a != 1) = true else (a != 2) = true
+fun a => if Bool.asProp (a == 0) then Bool.asProp (a != 1) else Bool.asProp (a != 2)
 def r : Nat → Prop :=
 fun (a : Nat) =>
-  @ite.{1} Prop (@Eq.{1} Bool (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))) Bool.true)
-    (instDecidableEqBool (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))) Bool.true)
-    (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))) Bool.true)
-    (@Eq.{1} Bool (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))) Bool.true)
+  @ite.{1} Prop (Bool.asProp (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))))
+    (@instDecidableAsProp (@BEq.beq.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 0 (instOfNatNat 0))))
+    (Bool.asProp (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 1 (instOfNatNat 1))))
+    (Bool.asProp (@bne.{0} Nat instBEqNat a (@OfNat.ofNat.{0} Nat 2 (instOfNatNat 2))))
 def s : Option Nat :=
 HOrElse.hOrElse (ConstantFunction.f myFun 3) fun x => ConstantFunction.f myFun 4

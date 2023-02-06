@@ -20,8 +20,8 @@ theorem ex1 : p ∨ q → q ∨ p := by
   done
 
 theorem ex2 : {p : Prop} → [Decidable p] → p → decide p = true
-  | _, isTrue  _, _   => _
-  | _, isFalse h₁, h₂ => absurd h₂ h₁
+  | _, ⟨true, _⟩, _   => _
+  | _, ⟨false, h₁⟩, h₂ => h₁.2 h₂
 
 theorem ex3 : ∀ {c d : Char}, c = d → c.val = d.val
   | _, _, rfl => _

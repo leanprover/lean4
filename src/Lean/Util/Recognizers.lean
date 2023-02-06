@@ -63,6 +63,9 @@ namespace Expr
 @[inline] def and? (p : Expr) : Option (Expr × Expr) :=
   p.app2? ``And
 
+@[inline] def asProp? (p : Expr) : Option Expr :=
+  p.app1? ``Bool.asProp
+
 @[inline] def heq? (p : Expr) : Option (Expr × Expr × Expr × Expr) :=
   p.app4? ``HEq
 

@@ -290,7 +290,7 @@ syntax:1024 (name := coeNotation) "↑" term:1024 : term
 /-! # Basic instances -/
 
 instance boolToProp : Coe Bool Prop where
-  coe b := Eq b true
+  coe := Bool.asProp
 
 instance boolToSort : CoeSort Bool Prop where
   coe b := b

@@ -8,11 +8,12 @@ inductive Test (α : Type)
 
 def test [DecidableEq α] (x y : Test α) : Decidable (x = y) :=
   match x, y with
-  | Test.mk n xs, Test.mk m ys => by
-    cases decEq n m with
-    | isFalse h => apply isFalse; intro n; injection n; apply h _; assumption; done
-    | isTrue  h =>
+  | Test.mk n xs, Test.mk m ys =>
+    if h : n = m then by
       subst h
-      cases decEq xs ys with
-      | isFalse h => apply isFalse; intro n; injection n; apply h _; assumption; done
-      | isTrue h  => subst h; exact isTrue rfl
+      exact if h : xs = ys then by
+        subst h; exact isTrue rfl
+      else by
+        apply isFalse; intro n; injection n; apply h _; assumption; done
+    else by
+      apply isFalse; intro n; injection n; apply h _; assumption; done

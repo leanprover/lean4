@@ -375,11 +375,11 @@ class interpreter {
 public:
     template<class T>
     static inline T with_interpreter(environment const & env, options const & opts, name const & fn, std::function<T(interpreter &)> const & f) {
+        time_task t("interpretation", opts, fn);
         if (g_interpreter && is_eqp(g_interpreter->m_env, env) && is_eqp(g_interpreter->m_opts, opts)) {
             return f(*g_interpreter);
         } else {
             // We changed threads or the closure was stored and called in a different context.
-            time_task t("interpretation", opts, fn);
             scope_trace_env scope_trace(env, opts);
             // the caches contain data from the Environment, so we cannot reuse them when changing it
             interpreter interp(env, opts);
@@ -514,6 +514,7 @@ private:
                 for (size_t i = 0; i < expr_ap_args(e).size(); i++) {
                     args[i] = eval_arg(expr_ap_args(e)[i]).m_obj;
                 }
+                time_task tt("", m_opts);
                 object * r = apply_n(var(expr_ap_fun(e)).m_obj, expr_ap_args(e).size(), args);
                 return r;
             }
@@ -851,6 +852,7 @@ private:
                 }
             }
             push_frame(e.m_decl, old_size);
+            time_task tt("", m_opts);
             object * o = curry(e.m_addr, args.size(), args2);
             type t = decl_type(e.m_decl);
             if (type_is_scalar(t)) {
@@ -980,6 +982,7 @@ public:
             }
         }
         if (n > 0) {
+            time_task tt("", m_opts);
             r = apply_n(r, n, args);
         }
         return r;
@@ -1030,6 +1033,7 @@ public:
             object * args[] = { io_mk_world() };
             object * r = call_boxed(init_decl, 1, args);
             if (io_result_is_ok(r)) {
+                time_task tt("", m_opts);
                 object * o = io_result_get_value(r);
                 mark_persistent(o);
                 dec_ref(r);

@@ -45,13 +45,15 @@ time_task::time_task(std::string const & category, options const & opts, name de
         m_category(category) {
     if (get_profiler(opts)) {
         m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
-            sstream ss;
-            ss << m_category;
-            if (decl)
-                ss << " of " << decl;
-            ss << " took " << display_profiling_time{duration} << "\n";
-            // output atomically, like IO.print
-            tout() << ss.str();
+            if (m_category.size()) {
+                sstream ss;
+                ss << m_category;
+                if (decl)
+                    ss << " of " << decl;
+                ss << " took " << display_profiling_time{duration} << "\n";
+                // output atomically, like IO.print
+                tout() << ss.str();
+            }
         });
         m_parent_task = g_current_time_task;
         g_current_time_task = this;
@@ -61,7 +63,8 @@ time_task::time_task(std::string const & category, options const & opts, name de
 time_task::~time_task() {
     if (m_timeit) {
         g_current_time_task = m_parent_task;
-        report_profiling_time(m_category, m_timeit->get_elapsed());
+        if (m_category.size())
+            report_profiling_time(m_category, m_timeit->get_elapsed());
         if (m_parent_task && m_parent_task->m_timeit)
             // report exclusive times
             m_parent_task->m_timeit->exclude_duration(m_timeit->get_elapsed_inclusive());

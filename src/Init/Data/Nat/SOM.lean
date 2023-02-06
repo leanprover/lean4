@@ -113,11 +113,11 @@ where
     induction fuel generalizing m₁ m₂ with
     | zero => simp! [append_denote]
     | succ _ ih =>
-      simp!
+      simp! [cond_eq_ite]
       split <;> simp!
       next v₁ m₁ v₂ m₂ =>
-        by_cases hlt : Nat.blt v₁ v₂ <;> simp! [hlt, Nat.mul_assoc, ih]
-        by_cases hgt : Nat.blt v₂ v₁ <;> simp! [hgt, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm, ih]
+        by_cases hlt : v₁ < v₂ <;> simp! [hlt, Nat.mul_assoc, ih]
+        by_cases hgt : v₂ < v₁ <;> simp! [hgt, Nat.mul_assoc, Nat.mul_comm, Nat.mul_left_comm, ih]
 
 theorem Poly.append_denote (ctx : Context) (p₁ p₂ : Poly) : (p₁ ++ p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   match p₁ with
@@ -135,11 +135,11 @@ where
       split <;> simp!
       next k₁ m₁ p₁ k₂ m₂ p₂ =>
         by_cases hlt : m₁ < m₂ <;> simp! [hlt, Nat.add_assoc, ih]
-        by_cases hgt : m₂ < m₁ <;> simp! [hgt, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm, ih]
+        by_cases hgt : m₂ < m₁ <;> simp! [hgt, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm, ih, cond_eq_ite]
         have : m₁ = m₂ := List.le_antisymm hgt hlt
         subst m₂
-        by_cases heq : k₁ + k₂ == 0 <;> simp! [heq, ih]
-        · simp [← Nat.add_assoc, ← Nat.right_distrib, eq_of_beq heq]
+        by_cases heq : k₁ + k₂ = 0 <;> simp! [heq, ih, if_pos, if_neg]
+        · simp [← Nat.add_assoc, ← Nat.right_distrib, heq]
         · simp [Nat.right_distrib, Nat.add_assoc, Nat.add_comm, Nat.add_left_comm]
 
 theorem Poly.denote_insertSorted (ctx : Context) (k : Nat) (m : Mon) (p : Poly) : (p.insertSorted k m).denote ctx = p.denote ctx + k * m.denote ctx := by
@@ -171,8 +171,7 @@ where
 theorem Expr.toPoly_denote (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   induction e with
   | num k =>
-    simp!; by_cases h : k == 0 <;> simp! [*]
-    simp [eq_of_beq h]
+    simp!; by_cases h : k = 0 <;> simp! [*, cond_eq_ite]
   | var v => simp!
   | add a b => simp! [Poly.add_denote, *]
   | mul a b => simp! [Poly.mul_denote, *]

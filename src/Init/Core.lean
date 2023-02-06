@@ -598,6 +598,10 @@ theorem Bool.of_not_eq_false : {b : Bool} → ¬ (b = false) → b = true
   | true,  _ => rfl
   | false, h => absurd rfl h
 
+theorem Bool.of_not_asProp : ¬ b.asProp → b = false := of_not_eq_true
+
+theorem Bool.of_asProp : b.asProp → b = true := id
+
 theorem ne_of_beq_false [BEq α] [LawfulBEq α] {a b : α} (h : (a == b) = false) : a ≠ b := by
   intro h'; subst h'; have : true = false := Eq.trans LawfulBEq.rfl.symm h; contradiction
 

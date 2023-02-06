@@ -32,6 +32,10 @@
   {"label": "andM",
    "kind": 3,
    "detail": "[inst : Monad m] → [inst : ToBool β] → m β → m β → m β"},
+  {"label": "decide_and",
+   "kind": 3,
+   "detail":
+   "∀ [inst : Decidable p] [inst_1 : Decidable q], decide (p ∧ q) = (decide p && decide q)"},
   {"label": "false_and",
    "kind": 3,
    "detail": "∀ (p : Prop), (False ∧ p) = False"},

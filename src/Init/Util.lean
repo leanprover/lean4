@@ -57,11 +57,11 @@ unsafe def ptrEqList : (as bs : List α) → Bool
   | _, _ => false
 
 set_option linter.unusedVariables.funArgs false in
-@[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool :=
+@[inline] unsafe def withPtrEqUnsafe {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k ()) : Bool :=
   if ptrEq a b then true else k ()
 
 @[implemented_by withPtrEqUnsafe]
-def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k () = true) : Bool := k ()
+def withPtrEq {α : Type u} (a b : α) (k : Unit → Bool) (h : a = b → k ()) : Bool := k ()
 
 /-- `withPtrEq` for `DecidableEq` -/
 @[inline] def withPtrEqDecEq {α : Type u} (a b : α) (k : Unit → Decidable (a = b)) : Decidable (a = b) :=

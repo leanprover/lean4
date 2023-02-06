@@ -331,9 +331,7 @@ def replace [BEq α] : List α → α → α → List α
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
-  | b::bs => match a == b with
-    | true  => true
-    | false => elem a bs
+  | b::bs => a == b || elem a bs
 
 /-- `notElem a l` is `!(elem a l)`. -/
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
@@ -356,22 +354,21 @@ inductive Mem (a : α) : List α → Prop
 instance : Membership α (List α) where
   mem := Mem
 
-theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
-  match as with
-  | [] => simp [elem]
-  | a'::as =>
-    simp [elem]
-    split
-    next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
-    next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
+theorem elem_iff_mem [DecidableEq α] {a : α} {as : List α} : elem a as ↔ a ∈ as := by
+  show _ ↔ Mem a as
+  have not_mem_nil : ∀ {a : α}, ¬ Mem a nil := by intro _ h; cases h
+  have mem_cons_iff : ∀ {a b : α} {bs}, Mem a (b::bs) ↔ (a = b ∨ Mem a bs) := by
+    intros; constructor <;> intro h <;> cases h <;> simp [*, Mem.head, Mem.tail]
+  induction as <;> simp [elem, *]
 
-theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
-  induction h with
-  | head _ => simp [elem]
-  | tail _ _ ih => simp [elem]; split; rfl; assumption
+theorem mem_of_elem [DecidableEq α] {a : α} {as : List α} : elem a as → a ∈ as :=
+  elem_iff_mem.1
+
+theorem elem_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as :=
+  elem_iff_mem.2 h
 
 instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
-  decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
+  decidable_of_decidable_of_iff elem_iff_mem
 
 theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h

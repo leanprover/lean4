@@ -1,11 +1,5 @@
-example (h : x ≠ true) : (x && y) = false := by
+example {x y : Bool} (h : ¬ x) : (x && y) = false := by
   simp [h]
 
-example (h : ¬ (x = true)) : (x && y) = false := by
-  simp [h]
-
-example (h : x ≠ false) : (x && y) = y := by
-  simp [h]
-
-example (h : ¬ (x = false)) : (x && y) = y := by
+example {x y : Bool} (h : x) : (x && y) = y := by
   simp [h]

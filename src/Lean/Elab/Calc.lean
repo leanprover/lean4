@@ -54,9 +54,9 @@ See https://github.com/leanprover/lean4/issues/2040 for futher rationale.
 - `_ + 2 < 3` is annotated (not the best heuristic, ideally we'd like to annotate `_ + 2`)
 - `lt _ 3` is not, because it occurs after an identifier
 -/
-partial def annotateFirstHoleWithType (t : Syntax) (type : Expr) : TermElabM Syntax :=
+partial def annotateFirstHoleWithType (t : Term) (type : Expr) : TermElabM Term :=
   -- The state is true if we should annotate the immediately next hole with the type.
-  StateT.run' (go t) true
+  return ⟨← StateT.run' (go t) true⟩
 where
   go (t : Syntax) := do
     unless ← get do return t
@@ -67,37 +67,41 @@ where
     | .node i k as => return .node i k (← as.mapM go)
     | _ => set false; return t
 
-/--
-  Elaborate `calc`-steps
--/
-def elabCalcSteps (steps : Array Syntax) : TermElabM Expr := do
-  let mut proofs := #[]
-  let mut types  := #[]
+def getCalcSteps (steps : TSyntax ``calcSteps) : Array (TSyntax ``calcStep) :=
+  match steps with
+  | `(calcSteps| $step0 $rest*) => #[step0] ++ rest
+  | _ => unreachable!
+
+def elabCalcSteps (steps : TSyntax ``calcSteps) : TermElabM Expr := do
+  let mut result? := none
   let mut prevRhs? := none
-  for step in steps do
-    let mut pred := step[0]
-    if let some prevRhs := prevRhs? then
-      pred ← annotateFirstHoleWithType pred (← inferType prevRhs)
-    let type ← elabType pred
+  for step in getCalcSteps steps do
+    let `(calcStep| $pred := $proofTerm) := step | unreachable!
+    let type ← elabType <| ← do
+      if let some prevRhs := prevRhs? then
+        annotateFirstHoleWithType pred (← inferType prevRhs)
+      else
+        pure pred
     let some (_, lhs, rhs) ← getCalcRelation? type |
-      throwErrorAt step[0] "invalid 'calc' step, relation expected{indentExpr type}"
+      throwErrorAt pred "invalid 'calc' step, relation expected{indentExpr type}"
     if let some prevRhs := prevRhs? then
       unless (← isDefEqGuarded lhs prevRhs) do
-        throwErrorAt step[0] "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}"
-    types := types.push type
-    let proof ← elabTermEnsuringType step[2] type
-    synthesizeSyntheticMVarsUsingDefault
-    proofs := proofs.push proof
+        throwErrorAt pred "invalid 'calc' step, left-hand-side is{indentD m!"{lhs} : {← inferType lhs}"}\nprevious right-hand-side is{indentD m!"{prevRhs} : {← inferType prevRhs}"}" -- "
+    let proof ← withFreshMacroScope do elabTermEnsuringType proofTerm type
+    result? := some <| ← do
+      if let some (result, resultType) := result? then
+        synthesizeSyntheticMVarsUsingDefault
+        withRef pred do mkCalcTrans result resultType proof type
+      else
+        pure (proof, type)
     prevRhs? := rhs
-  let mut result := proofs[0]!
-  let mut resultType := types[0]!
-  for i in [1:proofs.size] do
-    (result, resultType) ← withRef steps[i]![0] <| mkCalcTrans result resultType proofs[i]! types[i]!
-  return result
+  return result?.get!.1
 
 /-- Elaborator for the `calc` term mode variant. -/
 @[builtin_term_elab «calc»]
-def elabCalc : TermElab :=  fun stx expectedType? => do
-  let steps := #[stx[1]] ++ stx[2].getArgs
+def elabCalc : TermElab := fun stx expectedType? => do
+  let steps : TSyntax ``calcSteps := ⟨stx[1]⟩
   let result ← elabCalcSteps steps
-  ensureHasType expectedType? result
+  synthesizeSyntheticMVarsUsingDefault
+  let result ← ensureHasType expectedType? result
+  return result

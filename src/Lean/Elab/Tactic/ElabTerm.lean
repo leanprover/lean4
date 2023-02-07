@@ -15,20 +15,26 @@ open Meta
 
 /-! # `elabTerm` for Tactics and basic tactics that use it. -/
 
-/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
-elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/
-def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr := do
+/--
+Runs a term elaborator inside a tactic.
+
+This function ensures that term elaboration fails when backtracking,
+i.e., in `first| tac term | other`.
+-/
+def runTermElab (k : TermElabM α) (mayPostpone := false) : TacticM α := do
   /- If error recovery is disabled, we disable `Term.withoutErrToSorry` -/
   if (← read).recover then
     go
   else
     Term.withoutErrToSorry go
 where
-  go : TermElabM Expr :=
-    withRef stx do -- <|
-      let e ← Term.elabTerm stx expectedType?
-      Term.synthesizeSyntheticMVars mayPostpone
-      instantiateMVars e
+  go := k <* Term.synthesizeSyntheticMVars (mayPostpone := mayPostpone)
+
+/-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
+elaboration but not enforced (use `elabTermEnsuringType` to enforce an expected type). -/
+def elabTerm (stx : Syntax) (expectedType? : Option Expr) (mayPostpone := false) : TacticM Expr :=
+  withRef stx do instantiateMVars <| ← runTermElab (mayPostpone := mayPostpone) do
+    Term.elabTerm stx expectedType?
 
 /-- Elaborate `stx` in the current `MVarContext`. If given, the `expectedType` will be used to help
 elaboration and then a `TypeMismatchError` will be thrown if the elaborated type doesn't match.  -/

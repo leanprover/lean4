@@ -89,6 +89,7 @@ end
 
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " withPosition(term))
+syntax calcSteps := ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*)
 
 /-- Step-wise reasoning over transitive relations.
 ```
@@ -108,7 +109,7 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 
 [tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
-syntax (name := calc) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : term
+syntax (name := calc) "calc" calcSteps : term
 
 /-- Step-wise reasoning over transitive relations.
 ```
@@ -131,7 +132,7 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 
 [tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
-syntax (name := calcTactic) "calc" ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*) : tactic
+syntax (name := calcTactic) "calc" calcSteps : tactic
 
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())

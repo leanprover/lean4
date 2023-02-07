@@ -123,6 +123,11 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
   | `(($e :)) => precheck e
   | _ => throwUnsupportedSyntax
 
+@[builtin_quot_precheck Lean.Parser.Term.explicit] def precheckExplicit : Precheck
+  | `(@ $id) => do
+    precheck id
+  | _ => throwUnsupportedSyntax
+
 @[builtin_quot_precheck choice] def precheckChoice : Precheck := fun stx => do
   let checks ← stx.getArgs.mapM (_root_.observing ∘ precheck)
   let fails := checks.zip stx.getArgs |>.filterMap fun

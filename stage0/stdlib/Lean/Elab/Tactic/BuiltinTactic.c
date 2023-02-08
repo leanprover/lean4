@@ -17378,6 +17378,8 @@ lean_dec(x_15);
 x_24 = lean_nat_sub(x_19, x_16);
 lean_dec(x_19);
 x_25 = l_Array_extract___rarg(x_23, x_14, x_24);
+lean_dec(x_24);
+lean_dec(x_23);
 x_26 = lean_box(2);
 x_27 = l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_addCheckpoints___spec__1___closed__8;
 x_28 = lean_alloc_ctor(1, 3, 0);

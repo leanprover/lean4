@@ -6874,11 +6874,10 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_1, 3);
 lean_inc(x_10);
 x_11 = lean_unsigned_to_nat(0u);
-lean_inc(x_10);
-lean_inc(x_2);
 x_12 = l_Array_extract___rarg(x_2, x_11, x_10);
 x_13 = lean_array_get_size(x_2);
 x_14 = l_Array_extract___rarg(x_2, x_10, x_13);
+lean_dec(x_13);
 x_15 = lean_array_get_size(x_14);
 x_16 = lean_usize_of_nat(x_15);
 lean_dec(x_15);
@@ -7172,6 +7171,7 @@ lean_object* x_55; lean_object* x_56;
 lean_dec(x_1);
 x_55 = lean_box(0);
 x_56 = l_Lean_Meta_Match_toPattern___lambda__1(x_32, x_39, x_19, x_55, x_2, x_3, x_4, x_5, x_22);
+lean_dec(x_39);
 return x_56;
 }
 }
@@ -7602,6 +7602,7 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Meta_Match_toPattern___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
+lean_dec(x_2);
 return x_10;
 }
 }

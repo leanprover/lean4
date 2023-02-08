@@ -1020,6 +1020,7 @@ x_19 = l_Lean_Parser_SyntaxStack_size(x_18);
 x_20 = l_Lean_Parser_SyntaxStack_extract(x_18, x_6, x_19);
 lean_dec(x_19);
 lean_dec(x_6);
+lean_dec(x_18);
 x_21 = lean_array_to_list(lean_box(0), x_20);
 x_22 = l_List_toString___at_Lean_Parser_withCacheFn___spec__8(x_21);
 x_23 = l_Lean_Parser_dbgTraceStateFn___closed__4;

@@ -21183,8 +21183,6 @@ x_14 = lean_ctor_get(x_1, 3);
 lean_inc(x_14);
 lean_dec(x_1);
 x_15 = lean_unsigned_to_nat(0u);
-lean_inc(x_14);
-lean_inc(x_2);
 x_16 = l_Array_extract___rarg(x_2, x_15, x_14);
 x_17 = lean_array_get_size(x_16);
 x_18 = lean_usize_of_nat(x_17);
@@ -21198,6 +21196,7 @@ lean_inc(x_22);
 lean_dec(x_20);
 x_23 = lean_array_get_size(x_2);
 x_24 = l_Array_extract___rarg(x_2, x_14, x_23);
+lean_dec(x_23);
 x_25 = lean_array_get_size(x_24);
 x_26 = lean_usize_of_nat(x_25);
 lean_dec(x_25);
@@ -21666,6 +21665,7 @@ lean_object* x_66; lean_object* x_67;
 lean_dec(x_1);
 x_66 = lean_box(0);
 x_67 = l_Lean_Elab_Term_ToDepElimPattern_normalize___lambda__1(x_48, x_55, x_17, x_66, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_27);
+lean_dec(x_55);
 return x_67;
 }
 }
@@ -22263,6 +22263,7 @@ _start:
 lean_object* x_14; 
 x_14 = l_Lean_Elab_Term_ToDepElimPattern_normalize___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean_dec(x_4);
+lean_dec(x_2);
 return x_14;
 }
 }
@@ -22883,8 +22884,6 @@ lean_dec(x_25);
 x_30 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_1, x_27, x_29);
 x_31 = lean_ctor_get(x_23, 3);
 lean_inc(x_31);
-lean_inc(x_31);
-lean_inc(x_30);
 x_32 = l_Array_extract___rarg(x_30, x_24, x_31);
 x_33 = lean_array_get_size(x_32);
 x_34 = lean_usize_of_nat(x_33);
@@ -22898,6 +22897,8 @@ lean_inc(x_38);
 lean_dec(x_36);
 x_39 = lean_array_get_size(x_30);
 x_40 = l_Array_extract___rarg(x_30, x_31, x_39);
+lean_dec(x_39);
+lean_dec(x_30);
 x_41 = lean_array_get_size(x_40);
 x_42 = lean_usize_of_nat(x_41);
 lean_dec(x_41);

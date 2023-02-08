@@ -31,6 +31,9 @@ LEAN_CASSERT(LEAN_PAGE_SIZE > LEAN_MAX_SMALL_OBJECT_SIZE);
 LEAN_CASSERT(LEAN_SEGMENT_SIZE > LEAN_PAGE_SIZE);
 
 namespace lean {
+
+#ifdef LEAN_SMALL_ALLOCATOR
+
 namespace allocator {
 #ifdef LEAN_RUNTIME_STATS
 static atomic<uint64> g_num_alloc(0);
@@ -391,19 +394,6 @@ extern "C" LEAN_EXPORT void * lean_alloc_small(unsigned sz, unsigned slot_idx) {
     return r;
 }
 
-/* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
-extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
-    if (g_heap)
-        g_heap->m_heartbeat++;
-}
-
-uint64_t get_num_heartbeats() {
-    if (g_heap)
-        return g_heap->m_heartbeat;
-    else
-        return 0;
-}
-
 void * alloc(size_t sz) {
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
@@ -461,11 +451,41 @@ extern "C" LEAN_EXPORT unsigned lean_small_mem_size(void * o) {
     return p->m_header.m_obj_size;
 }
 
+#endif
+
 void initialize_alloc() {
+#ifdef LEAN_SMALL_ALLOCATOR
     g_heap_manager = new heap_manager();
     init_heap(true);
+#endif
 }
 
 void finalize_alloc() {
 }
+
+#ifndef LEAN_SMALL_ALLOCATOR
+LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
+#endif
+
+/* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
+extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
+#ifdef LEAN_SMALL_ALLOCATOR
+    if (g_heap)
+        g_heap->m_heartbeat++;
+#else
+    g_heartbeat++;
+#endif
+}
+
+uint64_t get_num_heartbeats() {
+#ifdef LEAN_SMALL_ALLOCATOR
+    if (g_heap)
+        return g_heap->m_heartbeat;
+    else
+        return 0;
+#else
+    return g_heartbeat;
+#endif
+}
+
 }

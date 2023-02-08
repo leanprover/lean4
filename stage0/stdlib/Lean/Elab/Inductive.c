@@ -245,6 +245,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_withNewBinderInfos___at___private_Lean_Elab
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_collectUniverses_go___spec__6___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_CollectLevelParams_main(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Inductive_0__Lean_Elab_Command_applyComputedFields(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_fixedIndicesToParams___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Command_withCtorRef___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_mkInductiveDecl___spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -18179,9 +18180,7 @@ else
 {
 size_t x_279; lean_object* x_280; lean_object* x_281; 
 lean_dec(x_4);
-lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_279 = lean_usize_add(x_8, x_7);
 x_280 = lean_array_uget(x_5, x_279);
 x_281 = lean_alloc_ctor(0, 2, 0);
@@ -18201,9 +18200,7 @@ lean_inc(x_10);
 x_11 = lean_ctor_get(x_4, 1);
 lean_inc(x_11);
 lean_inc(x_10);
-lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_12 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_10, x_5);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
@@ -18341,9 +18338,7 @@ x_52 = lean_ctor_get(x_4, 2);
 lean_inc(x_52);
 x_53 = lean_ctor_get_uint8(x_4, sizeof(void*)*3 + 8);
 lean_inc(x_51);
-lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_54 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_51, x_5);
 x_55 = lean_ctor_get(x_54, 0);
 lean_inc(x_55);
@@ -18522,9 +18517,7 @@ x_103 = lean_ctor_get(x_4, 2);
 lean_inc(x_103);
 x_104 = lean_ctor_get_uint8(x_4, sizeof(void*)*3 + 8);
 lean_inc(x_102);
-lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_105 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_102, x_5);
 x_106 = lean_ctor_get(x_105, 0);
 lean_inc(x_106);
@@ -18705,9 +18698,7 @@ x_155 = lean_ctor_get(x_4, 3);
 lean_inc(x_155);
 x_156 = lean_ctor_get_uint8(x_4, sizeof(void*)*4 + 8);
 lean_inc(x_153);
-lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_157 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_153, x_5);
 x_158 = lean_ctor_get(x_157, 0);
 lean_inc(x_158);
@@ -18715,9 +18706,7 @@ x_159 = lean_ctor_get(x_157, 1);
 lean_inc(x_159);
 lean_dec(x_157);
 lean_inc(x_154);
-lean_inc(x_3);
 lean_inc(x_2);
-lean_inc(x_1);
 x_160 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_154, x_159);
 x_161 = lean_ctor_get(x_160, 0);
 lean_inc(x_161);
@@ -19070,9 +19059,7 @@ return x_261;
 default: 
 {
 lean_object* x_262; 
-lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_262 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_262, 0, x_4);
 lean_ctor_set(x_262, 1, x_5);
@@ -19087,7 +19074,6 @@ _start:
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; uint8_t x_16; uint8_t x_17; lean_object* x_18; 
 x_12 = l_Lean_Expr_ReplaceImpl_Cache_new;
-lean_inc(x_3);
 x_13 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_4, x_12);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
@@ -19728,6 +19714,16 @@ x_16 = l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_
 return x_16;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Expr_ReplaceImpl_replaceUnsafeM_visit___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__1(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+lean_dec(x_1);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_replaceIndFVarsWithConsts___spec__2___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -19739,6 +19735,7 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
+lean_dec(x_1);
 return x_12;
 }
 }

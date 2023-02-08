@@ -8490,6 +8490,7 @@ x_19 = l_Array_qsort_sort___at_Lean_Server_Watchdog_handleWorkspaceSymbol___spec
 lean_dec(x_17);
 x_20 = lean_unsigned_to_nat(100u);
 x_21 = l_Array_extract___rarg(x_19, x_18, x_20);
+lean_dec(x_19);
 x_22 = lean_array_get_size(x_21);
 x_23 = lean_usize_of_nat(x_22);
 lean_dec(x_22);
@@ -8515,6 +8516,7 @@ x_32 = l_Array_qsort_sort___at_Lean_Server_Watchdog_handleWorkspaceSymbol___spec
 lean_dec(x_30);
 x_33 = lean_unsigned_to_nat(100u);
 x_34 = l_Array_extract___rarg(x_32, x_31, x_33);
+lean_dec(x_32);
 x_35 = lean_array_get_size(x_34);
 x_36 = lean_usize_of_nat(x_35);
 lean_dec(x_35);
@@ -19576,7 +19578,7 @@ static lean_object* _init_l_Lean_Server_Watchdog_initAndRunWatchdog___closed__4(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("0.1.1", 5);
+x_1 = lean_mk_string_from_bytes("0.1.2", 5);
 return x_1;
 }
 }

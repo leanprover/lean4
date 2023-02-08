@@ -1579,59 +1579,47 @@ x_4 = x_53;
 x_5 = x_54;
 goto _start;
 }
-case 13:
-{
-lean_object* x_56; lean_object* x_57; 
-lean_dec(x_10);
-lean_inc(x_8);
-x_56 = lean_array_push(x_4, x_8);
-x_57 = l_Lean_IR_FnBody_collectFreeIndices(x_8, x_5);
-x_1 = x_9;
-x_4 = x_56;
-x_5 = x_57;
-goto _start;
-}
 default: 
 {
-lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
 lean_dec(x_10);
 lean_dec(x_5);
 lean_dec(x_3);
-x_59 = lean_array_push(x_9, x_8);
-x_60 = l_Array_reverse___rarg(x_4);
-x_61 = l_Array_append___rarg(x_59, x_60);
-x_62 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_62, 0, x_61);
-lean_ctor_set(x_62, 1, x_2);
-return x_62;
+x_56 = lean_array_push(x_9, x_8);
+x_57 = l_Array_reverse___rarg(x_4);
+x_58 = l_Array_append___rarg(x_56, x_57);
+x_59 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_59, 0, x_58);
+lean_ctor_set(x_59, 1, x_2);
+return x_59;
 }
 }
 }
 else
 {
-lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
 lean_dec(x_5);
 lean_dec(x_3);
-x_63 = lean_array_push(x_9, x_8);
-x_64 = l_Array_reverse___rarg(x_4);
-x_65 = l_Array_append___rarg(x_63, x_64);
-x_66 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_66, 0, x_65);
-lean_ctor_set(x_66, 1, x_2);
-return x_66;
+x_60 = lean_array_push(x_9, x_8);
+x_61 = l_Array_reverse___rarg(x_4);
+x_62 = l_Array_append___rarg(x_60, x_61);
+x_63 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_63, 0, x_62);
+lean_ctor_set(x_63, 1, x_2);
+return x_63;
 }
 }
 else
 {
-lean_object* x_67; lean_object* x_68; 
+lean_object* x_64; lean_object* x_65; 
 lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_1);
-x_67 = l_Array_reverse___rarg(x_4);
-x_68 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_68, 0, x_67);
-lean_ctor_set(x_68, 1, x_2);
-return x_68;
+x_64 = l_Array_reverse___rarg(x_4);
+x_65 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_65, 0, x_64);
+lean_ctor_set(x_65, 1, x_2);
+return x_65;
 }
 }
 }

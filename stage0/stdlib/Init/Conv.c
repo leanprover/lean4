@@ -7703,6 +7703,8 @@ lean_dec(x_9);
 x_19 = lean_nat_sub(x_12, x_16);
 lean_dec(x_12);
 x_20 = l_Array_extract___rarg(x_18, x_8, x_19);
+lean_dec(x_19);
+lean_dec(x_18);
 x_21 = lean_box(2);
 x_22 = l_Lean_Parser_Tactic_Conv___aux__Init__Conv______macroRules__Lean__Parser__Tactic__Conv__convRfl__1___closed__6;
 x_23 = lean_alloc_ctor(1, 3, 0);

@@ -123,7 +123,6 @@ static lean_object* l_Array_term_____x5b___x3a___x5d___closed__2;
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__3;
 LEAN_EXPORT lean_object* l_Array_ofSubarray(lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__5;
-LEAN_EXPORT lean_object* l_Array_extract(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Subarray_foldr___spec__1___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_foldrM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -170,7 +169,6 @@ LEAN_EXPORT lean_object* l_Subarray_all(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_all___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Subarray_any___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_term_____x5b___x3a___x5d___closed__5;
-LEAN_EXPORT lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_term_____x5b_x3a___x5d___closed__1;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array___aux__Init__Data__Array__Subarray______macroRules__Array__term_____x5b___x3a_x5d__1___closed__3;
@@ -2506,23 +2504,6 @@ lean_dec(x_3);
 x_7 = l_Subarray_forInUnsafe_loop___at_Array_ofSubarray___spec__1___rarg(x_1, x_5, x_6, x_4);
 lean_dec(x_1);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Array_extract___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = l_Array_toSubarray___rarg(x_1, x_2, x_3);
-x_5 = l_Array_ofSubarray___rarg(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Array_extract(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Array_extract___rarg), 3, 0);
-return x_2;
 }
 }
 static lean_object* _init_l_Array_instCoeSubarrayArray___closed__1() {

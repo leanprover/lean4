@@ -2320,14 +2320,11 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 1);
-lean_inc(x_5);
-lean_dec(x_1);
 x_6 = lean_nat_add(x_5, x_2);
 x_7 = lean_nat_add(x_5, x_3);
-lean_dec(x_5);
 x_8 = l_Array_extract___rarg(x_4, x_6, x_7);
+lean_dec(x_7);
 return x_8;
 }
 }
@@ -2338,6 +2335,7 @@ lean_object* x_4;
 x_4 = l_Lean_Parser_SyntaxStack_extract(x_1, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_4;
 }
 }
@@ -2900,7 +2898,6 @@ x_10 = lean_nat_dec_eq(x_9, x_3);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-lean_inc(x_5);
 x_11 = l_Lean_Parser_SyntaxStack_extract(x_5, x_3, x_9);
 lean_dec(x_9);
 x_12 = lean_box(2);
@@ -2928,7 +2925,6 @@ else
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
 x_18 = l_Lean_Parser_SyntaxStack_size(x_5);
-lean_inc(x_5);
 x_19 = l_Lean_Parser_SyntaxStack_extract(x_5, x_3, x_18);
 lean_dec(x_18);
 x_20 = lean_box(2);
@@ -2966,7 +2962,6 @@ x_32 = lean_nat_dec_eq(x_31, x_3);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; 
-lean_inc(x_24);
 x_33 = l_Lean_Parser_SyntaxStack_extract(x_24, x_3, x_31);
 lean_dec(x_31);
 x_34 = lean_box(2);
@@ -3004,7 +2999,6 @@ else
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
 x_42 = l_Lean_Parser_SyntaxStack_size(x_24);
-lean_inc(x_24);
 x_43 = l_Lean_Parser_SyntaxStack_extract(x_24, x_3, x_42);
 lean_dec(x_42);
 x_44 = lean_box(2);
@@ -3046,7 +3040,6 @@ x_5 = lean_ctor_get(x_1, 0);
 x_6 = lean_unsigned_to_nat(1u);
 x_7 = lean_nat_sub(x_3, x_6);
 x_8 = l_Lean_Parser_SyntaxStack_size(x_5);
-lean_inc(x_5);
 x_9 = l_Lean_Parser_SyntaxStack_extract(x_5, x_7, x_8);
 lean_dec(x_8);
 x_10 = lean_box(2);
@@ -3077,7 +3070,6 @@ lean_dec(x_1);
 x_19 = lean_unsigned_to_nat(1u);
 x_20 = lean_nat_sub(x_3, x_19);
 x_21 = l_Lean_Parser_SyntaxStack_size(x_14);
-lean_inc(x_14);
 x_22 = l_Lean_Parser_SyntaxStack_extract(x_14, x_20, x_21);
 lean_dec(x_21);
 x_23 = lean_box(2);

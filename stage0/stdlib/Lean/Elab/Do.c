@@ -15860,6 +15860,8 @@ x_10 = l_Array_back___rarg(x_9, x_1);
 x_11 = lean_nat_sub(x_4, x_7);
 lean_dec(x_4);
 x_12 = l_Array_extract___rarg(x_1, x_5, x_11);
+lean_dec(x_11);
+lean_dec(x_1);
 x_13 = lean_array_get_size(x_12);
 x_14 = lean_nat_dec_lt(x_5, x_13);
 if (x_14 == 0)

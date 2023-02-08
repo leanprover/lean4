@@ -5067,11 +5067,11 @@ x_65 = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(x_22, x_62, x_64);
 x_66 = lean_ctor_get(x_36, 1);
 lean_inc(x_66);
 lean_dec(x_36);
-lean_inc(x_66);
-lean_inc(x_65);
 x_67 = l_Array_extract___rarg(x_65, x_59, x_66);
 x_68 = lean_array_get_size(x_65);
 x_69 = l_Array_extract___rarg(x_65, x_66, x_68);
+lean_dec(x_68);
+lean_dec(x_65);
 x_188 = lean_array_get_size(x_69);
 x_189 = lean_nat_dec_lt(x_59, x_188);
 if (x_189 == 0)
@@ -5158,11 +5158,9 @@ return x_212;
 block_166:
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; 
-lean_inc(x_70);
-lean_inc(x_4);
 x_71 = l_Array_extract___rarg(x_4, x_59, x_70);
-lean_inc(x_4);
 x_72 = l_Array_extract___rarg(x_4, x_70, x_8);
+lean_dec(x_8);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);

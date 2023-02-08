@@ -22,7 +22,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_beq_match__1_spl
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_fold_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_min___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldRev(lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instMinNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_allTR_loop___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instTransNatLtInstLTNatLeInstLENat;
 LEAN_EXPORT lean_object* l_Nat_instTransNatLtInstLTNat;
@@ -50,7 +49,6 @@ LEAN_EXPORT uint8_t l_Nat_allTR(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_max___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Prod_allI___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_fold_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_instMinNat(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_instAntisymmNatNotLtInstLTNat;
@@ -688,33 +686,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_box(0);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Nat_instMinNat(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = lean_nat_dec_le(x_1, x_2);
-if (x_3 == 0)
-{
-lean_inc(x_2);
-return x_2;
-}
-else
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Nat_instMinNat___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Nat_instMinNat(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Nat_min(lean_object* x_1, lean_object* x_2) {

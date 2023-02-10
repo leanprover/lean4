@@ -139,7 +139,8 @@ structure EvalTacticFailure where
   exception : Exception
   state : SavedState
 
-partial def evalTactic (stx : Syntax) : TacticM Unit :=
+partial def evalTactic (stx : Syntax) : TacticM Unit := do
+  profileitM Exception "tactic execution" (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| match stx with
     | .node _ k _    =>
       if k == nullKind then

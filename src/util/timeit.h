@@ -75,6 +75,18 @@ public:
     void exclude_duration(second_duration d) {
         m_excluded += d;
     }
+
+    void ignore(xtimeit const & ignored) {
+        // propagate nested times as usual,
+        exclude_duration(ignored.m_excluded);
+        // but exclude this block's time from the directly surrounding task only by adjusting its start time
+        m_start += std::chrono::duration_cast<std::chrono::steady_clock::duration>(ignored.get_elapsed());
+        // For example, if elaboration calls an interpreted tactic (without its own category) that calls `simp`,
+        // we subtract the `simp` time from both surrounding categories as usual.
+        // However, if the tactic also spends some time in uncategorized native code,
+        // we subtract it from the interpretation category only by adjusting `m_start`,
+        // which effectively adds the time to the surrounding `elaboration` category instead.
+    }
 };
 
 }

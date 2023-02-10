@@ -44,7 +44,7 @@ void finalize_time_task() {
 time_task::time_task(std::string const & category, options const & opts, name decl) :
         m_category(category) {
     if (!m_category.size()) {
-        // exclude given block from surrounding task, if any
+        // ignore given block in timings of surrounding task, if any
         if (g_current_time_task) {
             m_timeit = optional<xtimeit>([](second_duration _) {});
             m_parent_task = g_current_time_task;
@@ -68,11 +68,16 @@ time_task::time_task(std::string const & category, options const & opts, name de
 time_task::~time_task() {
     if (m_timeit) {
         g_current_time_task = m_parent_task;
-        if (m_category.size())
+        if (m_category.size()) {
             report_profiling_time(m_category, m_timeit->get_elapsed());
-        if (m_parent_task && m_parent_task->m_timeit)
-            // report exclusive times
-            m_parent_task->m_timeit->exclude_duration(m_timeit->get_elapsed_inclusive());
+            if (m_parent_task)
+                // report exclusive times
+                m_parent_task->m_timeit->exclude_duration(m_timeit->get_elapsed_inclusive());
+        } else {
+            if (m_parent_task) {
+                m_parent_task->m_timeit->ignore(*m_timeit);
+            }
+        }
     }
 }
 

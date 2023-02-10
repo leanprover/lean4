@@ -1811,7 +1811,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
 builtin_initialize
   registerTraceClass `Meta.isDefEq
   registerTraceClass `Meta.isDefEq.stuck
-  registerTraceClass `Meta.isDefEq.stuck.mvar (inherited := true)
+  registerTraceClass `Meta.isDefEq.stuckMVar (inherited := true)
   registerTraceClass `Meta.isDefEq.cache
   registerTraceClass `Meta.isDefEq.foApprox (inherited := true)
   registerTraceClass `Meta.isDefEq.onFailure (inherited := true)

@@ -672,6 +672,8 @@ private def preprocessOutParam (type : Expr) : MetaM Expr :=
 def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (Option Expr) := do profileitM Exception "typeclass inference" (← getOptions) do
   let opts ← getOptions
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
+  withTraceNode `Meta.synthInstance
+    (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
   /-
     We disable eta for structures that are not classes during TC resolution because it allows us to find unintended solutions.
     See discussion at
@@ -685,10 +687,10 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     let type ← preprocess type
     let s ← get
     match s.cache.synthInstance.find? type with
-    | some result => pure result
+    | some result =>
+      trace[Meta.synthInstance] "result {result} (cached)"
+      pure result
     | none        =>
-      withTraceNode `Meta.synthInstance
-        (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize

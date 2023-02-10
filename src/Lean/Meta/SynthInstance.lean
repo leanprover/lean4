@@ -8,6 +8,7 @@ Type class instance synthesizer using tabled resolution.
 import Lean.Meta.Basic
 import Lean.Meta.Instances
 import Lean.Meta.AbstractMVars
+import Lean.Meta.CollectFVars
 import Lean.Meta.WHNF
 import Lean.Meta.Check
 import Lean.Util.Profile
@@ -264,6 +265,52 @@ def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
     let mvarType ← instantiateMVars mvarType
     mkTableKey mvarType
 
+/-!
+Type class parameters can be annotated with `outParam` annotations.
+
+Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
+`a_i` is an `outParam`.
+The result is type correct because we reject type class declarations IF
+it contains a regular parameter X that depends on an `out` parameter Y.
+
+Then, we execute type class resolution as usual.
+If it succeeds, and metavariables ?m_i have been assigned, we try to unify
+the original type `C a_1 ... a_n` witht the normalized one.
+-/
+
+partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
+  if h : i < args.size then
+    let type ← whnf type
+    match type with
+    | .forallE _ d b _ => do
+      let arg := args.get ⟨i, h⟩
+      /-
+      We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
+      If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
+      -/
+      let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
+      let args := args.set ⟨i, h⟩ arg
+      preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
+    | _ =>
+      throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
+  else
+    return args
+
+def preprocessOutParam (type : Expr) : MetaM Expr :=
+  forallTelescope type fun xs typeBody => do
+    match typeBody.getAppFn with
+    | c@(Expr.const declName _) =>
+      let env ← getEnv
+      if let some outParamsPos := getOutParamPositions? env declName then
+        unless outParamsPos.isEmpty do
+          let args := typeBody.getAppArgs
+          let cType ← inferType c
+          let args ← preprocessArgs cType 0 args outParamsPos
+          return (← mkForallFVars xs (mkAppN c args))
+      return type
+    | _ =>
+      return type
+
 /-- See `getSubgoals` and `getSubgoalsAux`
 
    We use the parameter `j` to reduce the number of `instantiate*` invocations.
@@ -406,48 +453,33 @@ private def hasUnusedArguments : Expr → Bool
   | Expr.forallE _ _ b _ => !b.hasLooseBVar 0 || hasUnusedArguments b
   | _ => false
 
-/--
-  If the type of the metavariable `mvar` has unused argument, return a pair `(α, transformer)`
-  where `α` is a new type without the unused arguments and the `transformer` is a function for coverting a
-  solution with type `α` into a value that can be assigned to `mvar`.
-  Example: suppose `mvar` has type `(a : A) → (b : B a) → (c : C a) → D a c`, the result is the pair
-  ```
-  ((a : A) → (c : C a) → D a c,
-   fun (f : (a : A) → (c : C a) → D a c) (a : A) (b : B a) (c : C a) => f a c
-  )
-  ```
+def inprocessOutParams (mvar : Expr) : MetaM Expr := do
+  let type ← instantiateMVars (← inferType mvar)
+  let outerLCtx ← getLCtx
+  let outerLocalInsts ← getLocalInstances
+  forallTelescopeReducing type fun xs typeBody => do
+  let typeBody ← whnf typeBody
+  let c@(.const className _) := typeBody.getAppFn | return mvar
+  let some outParamsPos := getOutParamPositions? (← getEnv) className | return mvar
+  if outParamsPos.isEmpty then return mvar
+  let args := typeBody.getAppArgs
+  let cType ← inferType c
+  let args ← preprocessArgs cType 0 args outParamsPos
+  mkFreshExprMVarAt outerLCtx outerLocalInsts (← mkForallFVars xs (mkAppN c args))
 
-  This method is used to improve the effectiveness of the TC resolution procedure. It was suggested and prototyped by
-  Tomas Skrivan. It improves the support for instances of type `a : A → C` where `a` does not appear in class `C`.
-  When we look for such an instance it is enough to look for an instance `c : C` and then return `fun _ => c`.
-
-  Tomas' approach makes sure that instance of a type like `a : A → C` never gets tabled/cached. More on that later.
-  At the core is this method. it takes an expression E and does two things:
-
-  The modification to TC resolution works this way: We are looking for an instance of `E`, if it is tabled
-  just get it as normal, but if not first remove all unused arguments producing `E'`. Now we look up the table again but
-  for `E'`. If it exists, use the transformer to create E. If it does not exists, create a new goal `E'`.
--/
-private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM (Option (Expr × Expr)) :=
-  withMCtx mctx do
-    let mvarType ← instantiateMVars (← inferType mvar)
-    if !hasUnusedArguments mvarType then
-      return none
-    else
-      forallTelescope mvarType fun xs body => do
-        let ys ← xs.foldrM (init := []) fun x ys => do
-          if body.containsFVar x.fvarId! then
-            return x :: ys
-          else if (← ys.anyM fun y => return (← inferType y).containsFVar x.fvarId!) then
-            return x :: ys
-          else
-            return ys
-        let ys := ys.toArray
-        let mvarType' ← mkForallFVars ys body
-        withLocalDeclD `redf mvarType' fun f => do
-          let transformer ← mkLambdaFVars #[f] (← mkLambdaFVars xs (mkAppN f ys))
-          trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}\nTransformer{indentExpr transformer}"
-          return some (mvarType', transformer)
+def removeUnusedArguments (mvar : Expr) : MetaM Expr := do
+  let mvarType ← instantiateMVars (← inferType mvar)
+  if !hasUnusedArguments mvarType then return mvar
+  let outerLCtx ← getLCtx
+  let outerLocalInsts ← getLocalInstances
+  forallTelescope mvarType fun xs body => do
+  let ys := (← (← body.collectFVars.run {}).2.addDependencies).fvarSet
+  let ys := xs.filter (ys.contains ·.fvarId!)
+  let mvarType' ← mkForallFVars ys body
+  trace[Meta.synthInstance.unusedArgs] "{mvarType}\nhas unused arguments, reduced type{indentExpr mvarType'}"
+  let mvar' ← mkFreshExprMVarAt outerLCtx outerLocalInsts mvarType'
+  mvar.mvarId!.assign (← mkLambdaFVars xs (mkAppN mvar' ys))
+  return mvar'
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
@@ -468,36 +500,20 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
   }
   match cNode.subgoals with
   | []      => addAnswer cNode
-  | mvar::_ =>
-     let waiter := Waiter.consumerNode cNode
-     let key ← mkTableKeyFor cNode.mctx mvar
-     let entry? ← findEntry? key
-     match entry? with
-     | none       =>
-       -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
-       match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar waiter
-       | some (mvarType', transformer) =>
-         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
-         match (← findEntry? key') with
-         | none =>
-           let (mctx', mvar') ← withMCtx cNode.mctx do
-             let mvar' ← mkFreshExprMVar mvarType'
-             return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
-         | some entry' =>
-           let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
-             let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
-             let trAnswrType ← inferType trAnswr
-             pure { a with result.expr := trAnswr, resultType := trAnswrType }
-           modify fun s =>
-             { s with
-               resumeStack  := answers'.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-               tableEntries := s.tableEntries.insert key' { entry' with waiters := entry'.waiters.push waiter } }
-     | some entry => modify fun s =>
-       { s with
-         resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
-         tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
+  | mvar::mvars =>
+    let (mvar, mvar', mctx) ← withMCtx cNode.mctx do
+      let mvar ← removeUnusedArguments mvar
+      let mvar' ← inprocessOutParams mvar
+      return (mvar, mvar', ← getMCtx)
+    let cNode := { cNode with subgoals := mvar::mvars, mctx }
+    let waiter := Waiter.consumerNode cNode
+    let key ← mkTableKeyFor cNode.mctx mvar'
+    match (← findEntry? key) with
+    | none       => newSubgoal cNode.mctx key mvar' waiter
+    | some entry => modify fun s =>
+      { s with
+        resumeStack  := entry.answers.foldl (fun s answer => s.push (cNode, answer)) s.resumeStack,
+        tableEntries := s.tableEntries.insert key { entry with waiters := entry.waiters.push waiter } }
 
 def getTop : SynthM GeneratorNode :=
   return (← get).generatorStack.back
@@ -590,68 +606,10 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
 
 end SynthInstance
 
-/-!
-Type class parameters can be annotated with `outParam` annotations.
-
-Given `C a_1 ... a_n`, we replace `a_i` with a fresh metavariable `?m_i` IF
-`a_i` is an `outParam`.
-The result is type correct because we reject type class declarations IF
-it contains a regular parameter X that depends on an `out` parameter Y.
-
-Then, we execute type class resolution as usual.
-If it succeeds, and metavariables ?m_i have been assigned, we try to unify
-the original type `C a_1 ... a_n` witht the normalized one.
--/
-
 private def preprocess (type : Expr) : MetaM Expr :=
   forallTelescopeReducing type fun xs type => do
     let type ← whnf type
     mkForallFVars xs type
-
-private def preprocessLevels (us : List Level) : MetaM (List Level × Bool) := do
-  let mut r := #[]
-  let mut modified := false
-  for u in us do
-    let u ← instantiateLevelMVars u
-    if u.hasMVar then
-      r := r.push (← mkFreshLevelMVar)
-      modified := true
-    else
-      r := r.push u
-  return (r.toList, modified)
-
-private partial def preprocessArgs (type : Expr) (i : Nat) (args : Array Expr) (outParamsPos : Array Nat) : MetaM (Array Expr) := do
-  if h : i < args.size then
-    let type ← whnf type
-    match type with
-    | .forallE _ d b _ => do
-      let arg := args.get ⟨i, h⟩
-      /-
-      We should not simply check `d.isOutParam`. See `checkOutParam` and issue #1852.
-      If an instance implicit argument depends on an `outParam`, it is treated as an `outParam` too.
-      -/
-      let arg ← if outParamsPos.contains i then mkFreshExprMVar d else pure arg
-      let args := args.set ⟨i, h⟩ arg
-      preprocessArgs (b.instantiate1 arg) (i+1) args outParamsPos
-    | _ =>
-      throwError "type class resolution failed, insufficient number of arguments" -- TODO improve error message
-  else
-    return args
-
-private def preprocessOutParam (type : Expr) : MetaM Expr :=
-  forallTelescope type fun xs typeBody => do
-    match typeBody.getAppFn with
-    | c@(Expr.const declName _) =>
-      let env ← getEnv
-      if let some outParamsPos := getOutParamPositions? env declName then
-        unless outParamsPos.isEmpty do
-          let args := typeBody.getAppArgs
-          let cType ← inferType c
-          let args ← preprocessArgs cType 0 args outParamsPos
-          return (← mkForallFVars xs (mkAppN c args))
-      return type
-    | _ =>
-      return type
 
 /-!
   Remark: when `maxResultSize? == none`, the configuration option `synthInstance.maxResultSize` is used.
@@ -694,7 +652,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       pure result
     | none        =>
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
-        let normType ← preprocessOutParam type
+        let normType ← SynthInstance.preprocessOutParam type
         SynthInstance.main normType maxResultSize
       let result? ← match result? with
         | none        => pure none

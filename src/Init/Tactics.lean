@@ -42,13 +42,13 @@ syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
 `intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
 hypotheses until goal is not of a function type.
 -/
-syntax (name := intros) "intros " (colGt (ident <|> hole))* : tactic
+syntax (name := intros) "intros " (colGt binderIdent)* : tactic
 
 /--
 `rename t => x` renames the most recent hypothesis whose type matches `t`
 (which may contain placeholders) to `x`, or fails if no such hypothesis could be found.
 -/
-syntax (name := rename) "rename " term " => " ident : tactic
+syntax (name := rename) "rename " term " => " binderIdent : tactic
 
 /--
 `revert x...` is the inverse of `intro x...`: it moves the given hypotheses
@@ -376,13 +376,13 @@ Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with t
 `a = c` and `b = d` to the main goal.
 The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
-syntax (name := injection) "injection " term (" with " (colGt (ident <|> hole))+)? : tactic
+syntax (name := injection) "injection " term (" with " (colGt binderIdent)+)? : tactic
 
 /-- `injections` applies `injection` to all hypotheses recursively
 (since `injection` can produce new hypotheses). Useful for destructing nested
 constructor equalities like `(a::b::c) = (d::e::f)`. -/
 -- TODO: add with
-syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
+syntax (name := injections) "injections" (colGt binderIdent)* : tactic
 
 /--
 The discharger clause of `simp` and related tactics.
@@ -510,8 +510,13 @@ macro_rules
 macro "refine_lift' " e:term : tactic => `(tactic| focus (refine' no_implicit_lambda% $e; rotate_right))
 /-- Similar to `have`, but using `refine'` -/
 macro "have' " d:haveDecl : tactic => `(tactic| refine_lift' have $d:haveDecl; ?_)
+
 /-- Similar to `have`, but using `refine'` -/
-macro (priority := high) "have'" x:ident " := " p:term : tactic => `(tactic| have' $x : _ := $p)
+syntax (priority := high) "have'" binderIdent " := " term : tactic
+macro_rules
+  | `(tactic| have' $x:ident := $p) => `(tactic| have' $x : _ := $p)
+  | `(tactic| have' _ := $p) => `(tactic| have' _ : _ := $p)
+
 /-- Similar to `let`, but using `refine'` -/
 macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 
@@ -520,7 +525,7 @@ The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
 to the contstructor.
 -/
-syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
+syntax inductionAltLHS := "| " (("@"? ident) <|> hole) binderIdent*
 /--
 In induction alternative, which can have 1 or more cases on the left
 and `_`, `?_`, or a tactic sequence after the `=>`.
@@ -562,7 +567,7 @@ syntax (name := induction) "induction " term,+ (" using " ident)?
   ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
-syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
+syntax generalizeArg := atomic(binderIdent " : ")? term:51 " = " binderIdent
 
 /--
 * `generalize ([h :] e = x),+` replaces all occurrences `e`s in the main goal
@@ -577,7 +582,7 @@ syntax (name := generalize) "generalize " generalizeArg,+ (location)? : tactic
 A `cases` argument, of the form `e` or `h : e` (where `h` asserts that
 `e = cᵢ a b` for each constructor `cᵢ` of the inductive).
 -/
-syntax casesTarget := atomic(ident " : ")? term
+syntax casesTarget := atomic(binderIdent " : ")? term
 /--
 Assuming `x` is a variable in the local context with an inductive type,
 `cases x` splits the main goal, producing one goal for each constructor of the

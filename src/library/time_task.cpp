@@ -23,9 +23,12 @@ void report_profiling_time(std::string const & category, second_duration time) {
 void display_cumulative_profiling_times(std::ostream & out) {
     if (g_cum_times->empty())
         return;
-    out << "cumulative profiling times:\n";
+    sstream ss;
+    ss << "cumulative profiling times:\n";
     for (auto const & p : *g_cum_times)
-        out << "\t" << p.first << " " << display_profiling_time{p.second} << "\n";
+        ss << "\t" << p.first << " " << display_profiling_time{p.second} << "\n";
+    // output atomically, like IO.print
+    out << ss.str();
 }
 
 void initialize_time_task() {
@@ -42,10 +45,13 @@ time_task::time_task(std::string const & category, options const & opts, name de
         m_category(category) {
     if (get_profiler(opts)) {
         m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
-            tout() << m_category;
+            sstream ss;
+            ss << m_category;
             if (decl)
-                tout() << " of " << decl;
-            tout() << " took " << display_profiling_time{duration} << "\n";
+                ss << " of " << decl;
+            ss << " took " << display_profiling_time{duration} << "\n";
+            // output atomically, like IO.print
+            tout() << ss.str();
         });
         m_parent_task = g_current_time_task;
         g_current_time_task = this;

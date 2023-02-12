@@ -101,8 +101,9 @@ These classes should be implemented for coercions:
   `f` does not have a function type.
   `CoeFun` instances apply to `CoeOut` as well.
 
-* `CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-  `a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`.
+* `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
+  triggered when `a : α` appears in a place where a type is expected, like
+  `(x : a)` or `a → a`.
   `CoeSort` instances apply to `CoeOut` as well.
 
 On top of these instances this file defines several auxiliary type classes:
@@ -254,8 +255,9 @@ instance : CoeT α a α where coe := a
 /--
 `CoeFun α (γ : α → Sort v)` is a coercion to a function. `γ a` should be a
 (coercion-to-)function type, and this is triggered whenever an element
-`f : α` appears in an application like `f x` which would not make sense since
-`f` does not have a function type. This is automatically turned into `CoeFun.coe f x`.
+`f : α` appears in an application like `f x`, which would not make sense since
+`f` does not have a function type.
+`CoeFun` instances apply to `CoeOut` as well.
 -/
 class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   /-- Coerces a value `f : α` to type `γ f`, which should be either be a
@@ -267,9 +269,10 @@ attribute [coe_decl] CoeFun.coe
 instance [CoeFun α fun _ => β] : CoeOut α β where coe a := CoeFun.coe a
 
 /--
-`CoeSort α β` is a coercion to a sort. `β` must be a universe, and if
-`a : α` appears in a place where a type is expected, like `(x : a)` or `a → a`,
-then it will be turned into `(x : CoeSort.coe a)`.
+`CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is
+triggered when `a : α` appears in a place where a type is expected, like
+`(x : a)` or `a → a`.
+`CoeSort` instances apply to `CoeOut` as well.
 -/
 class CoeSort (α : Sort u) (β : outParam (Sort v)) where
   /-- Coerces a value of type `α` to `β`, which must be a universe. -/

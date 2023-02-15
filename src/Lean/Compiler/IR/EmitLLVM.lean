@@ -59,7 +59,7 @@ structure Context (llvmctx : LLVM.Context) where
   mainFn     : FunId := default
   mainParams : Array Param := #[]
   llvmmodule : LLVM.Module llvmctx
-  /-- pointer size in bits -/
+  /-- pointer size in bytes -/
   size_t     : UInt64
 
 structure State (llvmctx : LLVM.Context) where
@@ -93,15 +93,11 @@ def getEnv : M llvmctx Environment := Context.env <$> read
 def getModName : M llvmctx  Name := Context.modName <$> read
 
 def get_size_t_Type : M llvmctx (LLVM.LLVMType llvmctx) := do
-  let bits ← Context.size_t <$> read
-  LLVM.intTypeInContext llvmctx bits
+  let bytes ← Context.size_t <$> read
+  LLVM.intTypeInContext llvmctx (bytes * 8)
 
-/-- void* in bytes -/
-def getVoidPtrSize : M llvmctx Nat := do
-  let bits ← Context.size_t <$> read
-  let bytes := bits.toNat / 8
-  assert! bytes % 8 = 0
-  pure bytes
+/-- sizeof(void*) -/
+def getVoidPtrSize : M llvmctx Nat := (UInt64.toNat ∘ Context.size_t) <$> read
 
 def getDecl (n : Name) : M llvmctx Decl := do
   let env ← getEnv

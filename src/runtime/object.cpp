@@ -87,6 +87,7 @@ static void print_backtrace() {
 #ifdef __GLIBC__
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
+    std::cerr << "backtrace:\n";
     backtrace_symbols_fd(bt_buf, nptrs, STDERR_FILENO);
     if (nptrs == sizeof(bt_buf)) {
         std::cerr << "...\n";
@@ -100,13 +101,10 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     // TODO(Leo, Kha): add thread local buffer for interpreter.
     if (g_panic_messages) {
         std::cerr << lean_string_cstr(msg) << "\n";
-#ifdef __GLIBC__
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
-            std::cerr << "backtrace:\n";
             print_backtrace();
         }
-#endif
     }
 
     abort_on_panic();

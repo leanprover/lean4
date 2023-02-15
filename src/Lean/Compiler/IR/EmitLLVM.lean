@@ -1427,6 +1427,10 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
   unless xs.size == 2 || xs.size == 1 do throw s!"Invalid main function, main expected to have '2' or '1' arguments, found '{xs.size}' arguments"
   let env ← getEnv
   let usesLeanAPI := usesModuleFrom env `Lean
+  -- todo(locriacyber) :
+  --   libc entry point (main) need special type
+  --   current: (int64_t, void*) -> int64_t
+  --   need: (c_int, void*) -> c_int
   let mainTy ← LLVM.functionType (← LLVM.i64Type llvmctx)
       #[(← LLVM.i64Type llvmctx), (← LLVM.pointerType (← LLVM.voidPtrType llvmctx))]
   let main ← LLVM.getOrAddFunction mod "main" mainTy
@@ -1509,12 +1513,14 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
       if retTy.constName? == some ``UInt32 then do
         let resv ← LLVM.buildLoad2 builder resty res "resv"
         let retv ← callLeanUnboxUint32 builder (← callLeanIOResultGetValue builder resv "io_val") "retv"
+        -- todo(locriacyber) : return c_int, not int64_t
         let retv ← LLVM.buildSext builder retv (← LLVM.i64Type llvmctx) "retv_sext"
         callLeanDecRef builder resv
         let _ ← LLVM.buildRet builder retv
         pure ShouldForwardControlFlow.no
       else do
         callLeanDecRef builder resv
+        -- todo(locriacyber) : return c_int, not int64_t
         let _ ← LLVM.buildRet builder (← LLVM.constInt64 llvmctx 0)
         pure ShouldForwardControlFlow.no
 
@@ -1523,6 +1529,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let resv ← LLVM.buildLoad2 builder resty res "resv"
         callLeanIOResultShowError builder resv
         callLeanDecRef builder resv
+        -- todo(locriacyber) : return c_int, not int64_t
         let _ ← LLVM.buildRet builder (← LLVM.constInt64 llvmctx 1)
         pure ShouldForwardControlFlow.no)
   -- at the merge

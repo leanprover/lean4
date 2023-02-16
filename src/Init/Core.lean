@@ -1344,6 +1344,7 @@ then it lifts to a function on `Quotient s` such that `lift f h (mk a) = f a`.
 protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
+/-- The analogue of `Quot.ind`: every element of `Quotient s` is of the form `Quotient.mk s a`. -/
 protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quot Setoid.r) → motive q :=
   Quot.ind
 
@@ -1354,6 +1355,7 @@ then it lifts to a function on `Quotient s` such that `lift (mk a) f h = f a`.
 protected abbrev liftOn {α : Sort u} {β : Sort v} {s : Setoid α} (q : Quotient s) (f : α → β) (c : (a b : α) → a ≈ b → f a = f b) : β :=
   Quot.liftOn q f c
 
+/-- The analogue of `Quot.inductionOn`: every element of `Quotient s` is of the form `Quotient.mk s a`. -/
 @[elab_as_elim]
 protected theorem inductionOn {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop}
     (q : Quotient s)

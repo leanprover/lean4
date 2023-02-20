@@ -1344,7 +1344,7 @@ then it lifts to a function on `Quotient s` such that `lift f h (mk a) = f a`.
 protected abbrev lift {α : Sort u} {β : Sort v} {s : Setoid α} (f : α → β) : ((a b : α) → a ≈ b → f a = f b) → Quotient s → β :=
   Quot.lift f
 
-protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quot Setoid.r) → motive q :=
+protected theorem ind {α : Sort u} {s : Setoid α} {motive : Quotient s → Prop} : ((a : α) → motive (Quotient.mk s a)) → (q : Quotient s) → motive q :=
   Quot.ind
 
 /--

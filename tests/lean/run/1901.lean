@@ -7,10 +7,10 @@ class MulHomClass (F) (A B : outParam _) [Mul A] [Mul B] extends Funny F A B
 class Monoid (M) extends Mul M
 instance [Mul A] : Mul (Id A) := ‹_›
 
-#check @Funny.toFun
-#check @MulHomClass.toFunny
+#check Funny.toFun
+#check MulHomClass.toFunny
 
-example {_ : Monoid A} {_ : Monoid B} [MulHomClass F A B] : Funny F A B :=
+example [Monoid A] [Monoid B] [MulHomClass F A B] : Funny F A B :=
   inferInstance
 
 -- set_option trace.Meta.synthInstance true

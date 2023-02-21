@@ -34,17 +34,16 @@ namespace SynthInstance
 def getMaxHeartbeats (opts : Options) : Nat :=
   synthInstance.maxHeartbeats.get opts * 1000
 
-builtin_initialize inferTCGoalsRLAttr : TagAttribute ←
-  registerTagAttribute `infer_tc_goals_rl "instruct type class resolution procedure to solve goals from right to left for this instance"
-
-def hasInferTCGoalsRLAttribute (env : Environment) (constName : Name) : Bool :=
-  inferTCGoalsRLAttr.hasTag env constName
+structure Instance where
+  val : Expr
+  synthOrder : Array Nat
+  deriving Inhabited
 
 structure GeneratorNode where
   mvar            : Expr
   key             : Expr
   mctx            : MetavarContext
-  instances       : Array Expr
+  instances       : Array Instance
   currInstanceIdx : Nat
   deriving Inhabited
 
@@ -191,7 +190,7 @@ instance : Inhabited (SynthM α) where
   default := fun _ _ => default
 
 /-- Return globals and locals instances that may unify with `type` -/
-def getInstances (type : Expr) : MetaM (Array Expr) := do
+def getInstances (type : Expr) : MetaM (Array Instance) := do
   -- We must retrieve `localInstances` before we use `forallTelescopeReducing` because it will update the set of local instances
   let localInstances ← getLocalInstances
   forallTelescopeReducing type fun _ type => do
@@ -205,16 +204,27 @@ def getInstances (type : Expr) : MetaM (Array Expr) := do
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
       let erasedInstances ← getErasedInstances
-      let result ← result.filterMapM fun e => match e.val with
+      let mut result ← result.filterMapM fun e => match e.val with
         | Expr.const constName us =>
           if erasedInstances.contains constName then
             return none
           else
-            return some <| e.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
+            return some {
+              val := e.val.updateConst! (← us.mapM (fun _ => mkFreshLevelMVar))
+              synthOrder := e.synthOrder
+            }
         | _ => panic! "global instance is not a constant"
-      let result := localInstances.foldl (init := result) fun (result : Array Expr) linst =>
-        if linst.className == className then result.push linst.fvar else result
-      trace[Meta.synthInstance.instances] result
+      for linst in localInstances do
+        if linst.className == className then
+          let synthOrder ← forallTelescopeReducing (← inferType linst.fvar) fun xs _ => do
+            if xs.isEmpty then return #[]
+            let mut order := #[]
+            for i in [:xs.size], x in xs do
+              if (← getFVarLocalDecl x).binderInfo == .instImplicit then
+                order := order.push i
+            return order
+          result := result.push { val := linst.fvar, synthOrder }
+      trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
 def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
@@ -275,25 +285,6 @@ structure SubgoalsResult where
   instVal      : Expr
   instTypeBody : Expr
 
-private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr)
-    : Array Expr → Nat → List Expr → Expr → Expr → MetaM SubgoalsResult
-  | args, j, subgoals, instVal, Expr.forallE _ d b bi => do
-    let d        := d.instantiateRevRange j args.size args
-    let mvarType ← mkForallFVars xs d
-    let mvar     ← mkFreshExprMVarAt lctx localInsts mvarType
-    let arg      := mkAppN mvar xs
-    let instVal  := mkApp instVal arg
-    let subgoals := if bi.isInstImplicit then mvar::subgoals else subgoals
-    let args     := args.push (mkAppN mvar xs)
-    getSubgoalsAux lctx localInsts xs args j subgoals instVal b
-  | args, j, subgoals, instVal, type => do
-    let type := type.instantiateRevRange j args.size args
-    let type ← whnf type
-    if type.isForall then
-      getSubgoalsAux lctx localInsts xs args args.size subgoals instVal type
-    else
-      return ⟨subgoals, instVal, type⟩
-
 /--
   `getSubgoals lctx localInsts xs inst` creates the subgoals for the instance `inst`.
   The subgoals are in the context of the free variables `xs`, and
@@ -309,21 +300,36 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
   metavariables that are instance implicit arguments, and the expressions:
     - `inst (?m_1 xs) ... (?m_n xs)` (aka `instVal`)
     - `B (?m_1 xs) ... (?m_n xs)` -/
-def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM SubgoalsResult := do
-  let instType ← inferType inst
-  let result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
-  if let .const constName _ := inst.getAppFn then
-    let env ← getEnv
-    if hasInferTCGoalsRLAttribute env constName then
-      return result
-  return { result with subgoals := result.subgoals.reverse }
+def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Instance) : MetaM SubgoalsResult := do
+  let mut instVal := inst.val
+  let mut instType ← inferType instVal
+  let mut mvars := #[]
+  let mut subst := #[]
+  repeat do
+    if let .forallE _ d b _ := instType then
+      let d := d.instantiateRev subst
+      let mvar ← mkFreshExprMVarAt lctx localInsts (← mkForallFVars xs d)
+      subst := subst.push (mkAppN mvar xs)
+      instVal := mkApp instVal (mkAppN mvar xs)
+      instType := b
+      mvars := mvars.push mvar
+    else
+      instType ← whnf (instType.instantiateRev subst)
+      instVal := instVal.instantiateRev subst
+      subst := #[]
+      unless instType.isForall do break
+  return {
+    instVal := instVal.instantiateRev subst
+    instTypeBody := instType.instantiateRev subst
+    subgoals := inst.synthOrder.map (mvars[·]!) |>.toList
+  }
 
 /--
   Try to synthesize metavariable `mvar` using the instance `inst`.
   Remark: `mctx` is set using `withMCtx`.
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
-def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
+def tryResolve (mvar : Expr) (inst : Instance) : MetaM (Option (MetavarContext × List Expr)) := do
   let mvarType   ← inferType mvar
   let lctx       ← getLCtx
   let localInsts ← getLocalInstances
@@ -518,7 +524,7 @@ def generate : SynthM Unit := do
     let mvar := gNode.mvar
     discard do withMCtx mctx do
       withTraceNode `Meta.synthInstance
-        (return m!"{exceptOptionEmoji ·} apply {inst} to {← instantiateMVars (← inferType mvar)}") do
+        (return m!"{exceptOptionEmoji ·} apply {inst.val} to {← instantiateMVars (← inferType mvar)}") do
       modifyTop fun gNode => { gNode with currInstanceIdx := idx }
       if let some (mctx, subgoals) ← tryResolve mvar inst then
         consume { key, mvar, subgoals, mctx, size := 0 }

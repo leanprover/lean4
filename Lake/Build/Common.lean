@@ -92,14 +92,16 @@ def buildLeanSharedLibOfStatic (staticLibJob : BuildJob FilePath)
 (linkArgs : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
   staticLibJob.bindSync fun staticLib staticTrace => do
     let dynlib := staticLib.withExtension sharedLibExt
-    let trace ← buildFileUnlessUpToDate dynlib staticTrace do
-      let args :=
-        if System.Platform.isOSX then
-          #[s!"-Wl,-force_load,{staticLib}"]
-        else
-          #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
+    let baseArgs :=
+      if System.Platform.isOSX then
+        #[s!"-Wl,-force_load,{staticLib}"]
+      else
+        #["-Wl,--whole-archive", staticLib.toString, "-Wl,--no-whole-archive"]
+    let args := baseArgs ++ linkArgs
+    let depTrace := staticTrace.mix (← computeHash args)
+    let trace ← buildFileUnlessUpToDate dynlib depTrace do
       let name := dynlib.fileName.getD dynlib.toString
-      compileSharedLib name dynlib (args ++ linkArgs) (← getLeanc)
+      compileSharedLib name dynlib args (← getLeanc)
     return (dynlib, trace)
 
 def computeDynlibOfShared

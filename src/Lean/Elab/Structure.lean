@@ -761,7 +761,6 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
   withLocalDeclD `self structType fun source => do
     let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-    declType := mkOutParamArgsImplicit declType
     if view.isClass && isClass env parentStructName then
       declType := setSourceInstImplicit declType
     declType := declType.inferImplicit params.size true

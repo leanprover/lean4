@@ -23,15 +23,14 @@ class Trait (X : Type u) where
 
 attribute [reducible] Trait.R
 
-class SemiInner (X : Type u) (R : Type v) where
+class SemiInner (X : Type u) (R : outParam (Type v)) where
   semiInner : X → X → R
 
 @[reducible] instance (X) (R : Type u) [SemiInner X R] : Trait X := ⟨R⟩
 
-class SemiHilbert (X) (R : Type u) [Vec R] extends Vec X, SemiInner X R
+class SemiHilbert (X) (R : outParam (Type u)) [Vec R] [Vec X] extends SemiInner X R
 
-@[infer_tc_goals_rl]
-instance (X R) [Trait X] [Vec R] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
+instance (X R) [Trait X] [Vec R] [Vec X] [SemiHilbert X R] (ι : Type v) : SemiHilbert (ι → X) R := sorry
 instance : SemiHilbert ℝ ℝ := sorry
 
 --------------

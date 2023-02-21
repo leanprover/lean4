@@ -7,8 +7,10 @@ Declare new, simpler coercion class without the special support for transitivity
 Test that new tabled typeclass resolution deals with loops and diamonds correctly.
 -/
 
+set_option synthInstance.checkSynthOrder false
 
-class HasCoerce (a b : Type) :=
+
+class HasCoerce (a : Type) (b : Type) :=
 (coerce : a → b)
 
 def coerce {a b : Type} [HasCoerce a b] : a → b :=

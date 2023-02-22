@@ -46,7 +46,7 @@ def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body
   loop binders.size body
 
 def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
-  let combinator := mkIdentFrom (← getRef) combinatorDeclName
+  let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   let explicitBinders := explicitBinders[0]
   if explicitBinders.getKind == ``Lean.unbracketedExplicitBinders then
     let idents   := explicitBinders[0].getArgs
@@ -58,7 +58,7 @@ def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax)
     Macro.throwError "unexpected explicit binder"
 
 def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
-  let combinator := mkIdentFrom (← getRef) combinatorDeclName
+  let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   expandBrackedBindersAux combinator #[bracketedExplicitBinders] body
 
 syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term

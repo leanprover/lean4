@@ -327,29 +327,6 @@ def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array 
   If it succeeds, the result is a new updated metavariable context and a new list of subgoals.
   A subgoal is created for each instance implicit parameter of `inst`. -/
 def tryResolve (mvar : Expr) (inst : Expr) : MetaM (Option (MetavarContext × List Expr)) := do
-  if ← mvar.mvarId!.isAssigned then
-    /- The metavariable `mvar` may have been assigned when solving typing constraints.
-       This may happen when a local instance type depends on other local instances.
-       For example, in Mathlib, we have
-       ```
-       @Submodule.setLike : {R : Type u_1} → {M : Type u_2} →
-         [_inst_1 : Semiring R] →
-         [_inst_2 : AddCommMonoid M] →
-         [_inst_3 : @ModuleS R M _inst_1 _inst_2] →
-         SetLike (@Submodule R M _inst_1 _inst_2 _inst_3) M
-       ```
-       TODO: discuss what is the correct behavior here. There are other possibilities.
-       1) We could try to synthesize the instances `_inst_1` and `_inst_2` and check
-          whether it is defeq to the one inferred by typing constraints. That is, we
-          remove this `if`-statement. We discarded this one because some Mathlib theorems
-          failed to be elaborated using it.
-       2) Generate an error/warning message when instances such as `Submodule.setLike` are declared,
-          and instruct user to use `{}` binder annotation for `_inst_1` `_inst_2`.
-
-       It is important to check here whether `mvar` is *assigned*, it might
-       still contain metavariables (such as universe mvars etc.).
-     -/
-    return some ((← getMCtx), [])
   let mvarType   ← inferType mvar
   let lctx       ← getLCtx
   let localInsts ← getLocalInstances
@@ -477,6 +454,21 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
 
 /-- Process the next subgoal in the given consumer node. -/
 def consume (cNode : ConsumerNode) : SynthM Unit := do
+  /- Filter out subgoals that have already been assigned when solving typing constraints.
+    This may happen when a local instance type depends on other local instances.
+    For example, in Mathlib, we have
+    ```
+    @Submodule.setLike : {R : Type u_1} → {M : Type u_2} →
+      [_inst_1 : Semiring R] →
+      [_inst_2 : AddCommMonoid M] →
+      [_inst_3 : @ModuleS R M _inst_1 _inst_2] →
+      SetLike (@Submodule R M _inst_1 _inst_2 _inst_3) M
+    ```
+  -/
+  let cNode := { cNode with
+    subgoals := ← withMCtx cNode.mctx do
+      cNode.subgoals.filterM (not <$> ·.mvarId!.isAssigned)
+  }
   match cNode.subgoals with
   | []      => addAnswer cNode
   | mvar::_ =>

@@ -24,6 +24,11 @@ register_builtin_option synthInstance.maxSize : Nat := {
   descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
 }
 
+register_builtin_option synthInstance.etaExperiment : Bool := {
+  defValue := false
+  descr := "[DO NOT USE EXCEPT FOR TESTING] enable structure eta for type-classes during type-class search"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -672,9 +677,10 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     See discussion at
       https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/.60constructor.60.20and.20.60Applicative.60/near/279984801
   -/
+  let etaStruct := if synthInstance.etaExperiment.get (← getOptions) then .all else .notClasses
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false,
-                                          etaStruct := .notClasses }) do
+                                          etaStruct }) do
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get

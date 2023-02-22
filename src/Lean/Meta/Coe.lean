@@ -54,18 +54,28 @@ def coerceSimple? (expr expectedType : Expr) : MetaM (LOption Expr) := do
 
 /-- Coerces `expr` to a function type. -/
 def coerceToFunction? (expr : Expr) : MetaM (Option Expr) := do
-  let result ← try mkAppM ``CoeFun.coe #[expr] catch _ => return none
-  let expanded ← expandCoe result
+  -- constructing expression manually because mkAppM wouldn't assign universe mvars
+  let α ← inferType expr
+  let u ← getLevel α
+  let v ← mkFreshLevelMVar
+  let γ ← mkFreshExprMVar (← mkArrow α (mkSort v))
+  let .some inst ← trySynthInstance (mkApp2 (.const ``CoeFun [u,v]) α γ) | return none
+  let expanded ← expandCoe (mkApp4 (.const ``CoeFun.coe [u,v]) α γ inst expr)
   unless (← whnf (← inferType expanded)).isForall do
-    throwError "failed to coerce{indentExpr expr}\nto a function, after applying `CoeFun.coe`, result is still not a function{indentExpr expanded}\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was{indentExpr result.appFn!.appArg!}"
+    throwError "failed to coerce{indentExpr expr}\nto a function, after applying `CoeFun.coe`, result is still not a function{indentExpr expanded}\nthis is often due to incorrect `CoeFun` instances, the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Coerces `expr` to a type. -/
 def coerceToSort? (expr : Expr) : MetaM (Option Expr) := do
-  let result ← try mkAppM ``CoeSort.coe #[expr] catch _ => return none
-  let expanded ← expandCoe result
+  -- constructing expression manually because mkAppM wouldn't assign universe mvars
+  let α ← inferType expr
+  let u ← getLevel α
+  let v ← mkFreshLevelMVar
+  let β ← mkFreshExprMVar (mkSort v)
+  let .some inst ← trySynthInstance (mkApp2 (.const ``CoeSort [u,v]) α β) | return none
+  let expanded ← expandCoe (mkApp4 (.const ``CoeSort.coe [u,v]) α β inst expr)
   unless (← whnf (← inferType expanded)).isSort do
-    throwError "failed to coerce{indentExpr expr}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr expanded}\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was{indentExpr result.appFn!.appArg!}"
+    throwError "failed to coerce{indentExpr expr}\nto a type, after applying `CoeSort.coe`, result is still not a type{indentExpr expanded}\nthis is often due to incorrect `CoeSort` instances, the synthesized instance was{indentExpr inst}"
   return expanded
 
 /-- Return `some (m, α)` if `type` can be reduced to an application of the form `m α` using `[reducible]` transparency. -/

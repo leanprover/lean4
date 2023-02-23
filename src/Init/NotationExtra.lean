@@ -87,9 +87,11 @@ macro:35 xs:bracketedExplicitBinders " × " b:term:35  : term => expandBrackedBi
 macro:35 xs:bracketedExplicitBinders " ×' " b:term:35 : term => expandBrackedBinders ``PSigma xs b
 end
 
+-- first step of a `calc` block
+syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
-syntax calcStep := ppIndent(colGe term " := " withPosition(term))
-syntax calcSteps := ppLine withPosition(calcStep) ppLine withPosition((calcStep ppLine)*)
+syntax calcStep := ppIndent(colGe term " := " term)
+syntax calcSteps := ppLine withPosition(calcFirstStep) ppLine withPosition((calcStep ppLine)*)
 
 /-- Step-wise reasoning over transitive relations.
 ```
@@ -102,6 +104,23 @@ calc
 proves `a = z` from the given step-wise proofs. `=` can be replaced with any
 relation implementing the typeclass `Trans`. Instead of repeating the right-
 hand sides, subsequent left-hand sides can be replaced with `_`.
+```
+calc
+  a = b := pab
+  _ = c := pbc
+  ...
+  _ = z := pyz
+```
+It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
+<proof>`. This is useful for aligning relation symbols, especially on longer:
+identifiers:
+```
+calc abc
+  _ = bce := pabce
+  _ = cef := pbcef
+  ...
+  _ = xyz := pwxyz
+```
 
 `calc` has term mode and tactic mode variants. This is the term mode variant.
 
@@ -122,6 +141,22 @@ calc
 proves `a = z` from the given step-wise proofs. `=` can be replaced with any
 relation implementing the typeclass `Trans`. Instead of repeating the right-
 hand sides, subsequent left-hand sides can be replaced with `_`.
+```
+calc
+  a = b := pab
+  _ = c := pbc
+  ...
+  _ = z := pyz
+```
+It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
+<proof>`. This is useful for aligning relation symbols:
+```
+calc abc
+  _ = bce := pabce
+  _ = cef := pbcef
+  ...
+  _ = xyz := pwxyz
+```
 
 `calc` has term mode and tactic mode variants. This is the tactic mode variant,
 which supports an additional feature: it works even if the goal is `a = z'`

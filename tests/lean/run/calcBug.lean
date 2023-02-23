@@ -9,7 +9,7 @@ theorem zero_add (n : Nat) : 0 + n = n :=
    (fun (n : Nat) (ih : 0 + n = n) =>
     show 0 + succ n = succ n from
     calc
-       0 + succ n = succ (0 + n) := rfl
-                _ = succ n       := by rw [ih])
+      0 + succ n = succ (0 + n) := rfl
+      _          = succ n       := by rw [ih])
 
 end Hidden

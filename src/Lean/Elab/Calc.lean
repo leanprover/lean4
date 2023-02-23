@@ -67,15 +67,25 @@ where
     | .node i k as => return .node i k (← as.mapM go)
     | _ => set false; return t
 
-def getCalcSteps (steps : TSyntax ``calcSteps) : Array (TSyntax ``calcStep) :=
+def getCalcFirstStep (step0 : TSyntax ``calcFirstStep) : TermElabM (TSyntax ``calcStep) :=
+  match step0  with
+  | `(calcFirstStep| $term:term) =>
+    `(calcStep| $term = _ := rfl)
+  | `(calcFirstStep| $term := $proof) =>
+    `(calcStep| $term := $proof)
+  | _ => throwUnsupportedSyntax
+
+def getCalcSteps (steps : TSyntax ``calcSteps) : TermElabM (Array (TSyntax ``calcStep)) :=
   match steps with
-  | `(calcSteps| $step0 $rest*) => #[step0] ++ rest
+  | `(calcSteps| $step0:calcFirstStep $rest*) => do
+    let step0 ← getCalcFirstStep step0
+    pure (#[step0] ++ rest)
   | _ => unreachable!
 
 def elabCalcSteps (steps : TSyntax ``calcSteps) : TermElabM Expr := do
   let mut result? := none
   let mut prevRhs? := none
-  for step in getCalcSteps steps do
+  for step in ← getCalcSteps steps do
     let `(calcStep| $pred := $proofTerm) := step | unreachable!
     let type ← elabType <| ← do
       if let some prevRhs := prevRhs? then

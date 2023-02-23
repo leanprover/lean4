@@ -313,7 +313,7 @@ theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
 /--
 Equality is transitive: if `a = b` and `b = c` then `a = c`.
 
-Because this is in the `Eq` namespace, if you variables or expressions
+Because this is in the `Eq` namespace, if you have variables or expressions
 `h₁ : a = b` and `h₂ : b = c`, you can use `h₁.trans h₂ : a = c` as shorthand
 for `Eq.trans h₁ h₂`.
 
@@ -392,7 +392,7 @@ perform exactly these constructions, and installs this last equation as a
 definitional reduction rule.
 
 Given a type `α` and any binary relation `r` on `α`, `Quot r` is a type. Note
-that `r` is not required to be an equivalance relation. `Quot` is the basic
+that `r` is not required to be an equivalence relation. `Quot` is the basic
 building block used to construct later the type `Quotient`.
 -/
 add_decl_doc Quot
@@ -438,7 +438,7 @@ have all the same properties as `Eq`, because the assumption that the types of
 important non-theorem is the analogue of `congr`: If `HEq f g` and `HEq x y`
 and `f x` and `g y` are well typed it does not follow that `HEq (f x) (g y)`.
 (This does follow if you have `f = g` instead.) However if `a` and `b` have
-the same type then `a = b` and `HEq a b` ae equivalent.
+the same type then `a = b` and `HEq a b` are equivalent.
 -/
 inductive HEq : {α : Sort u} → α → {β : Sort u} → β → Prop where
   /-- Reflexivity of heterogeneous equality. -/
@@ -2397,7 +2397,7 @@ The `panicCore` definition cannot be specialized since it is an extern.
 When `panic` occurs in monadic code, the `Inhabited α` parameter depends on a
 `[inst : Monad m]` instance. The `inst` parameter will not be eliminated during
 specialization if it occurs inside of a binder (to avoid work duplication), and
-will prevent the the actual monad from being "copied" to the code being specialized.
+will prevent the actual monad from being "copied" to the code being specialized.
 When we reimplement the specializer, we may consider copying `inst` if it also
 occurs outside binders or if it is an instance.
 -/
@@ -3355,7 +3355,7 @@ opaque mixHash (u₁ u₂ : UInt64) : UInt64
 instance [Hashable α] {p : α → Prop} : Hashable (Subtype p) where
   hash a := hash a.val
 
-/-- A opaque string hash function. -/
+/-- An opaque string hash function. -/
 @[extern "lean_string_hash"]
 protected opaque String.hash (s : @& String) : UInt64
 
@@ -3578,7 +3578,7 @@ inductive Syntax where
   subexpression corresponding to this node. The parser sets the `info` field
   to `none`.
   The parser sets the `info` field to `none`, with position retrieval continuing recursively.
-  Nodes created by quotatons use the result from `SourceInfo.fromRef` so that they are marked
+  Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
   as synthetic even when the leading/trailing token is not.
   The delaborator uses the `info` field to store the position of the subexpression
   corresponding to this node.
@@ -3797,7 +3797,7 @@ def isIdent : Syntax → Bool
   | ident .. => true
   | _        => false
 
-/-- If this is a `ident`, return the parsed value, else `.anonymous`. -/
+/-- If this is an `ident`, return the parsed value, else `.anonymous`. -/
 def getId : Syntax → Name
   | ident _ _ val _ => val
   | _               => Name.anonymous
@@ -4100,7 +4100,7 @@ foo.bla._@.Init.Data.List.Basic._hyg.2.5
 ```
 
 We may have to combine scopes from different files/modules.
-The main modules being processed is always the right most one.
+The main modules being processed is always the right-most one.
 This situation may happen when we execute a macro generated in
 an imported file in the current file.
 ```
@@ -4225,7 +4225,7 @@ def addMacroScope (mainModule : Name) (n : Name) (scp : MacroScope) : Name :=
 
 /--
 Append two names that may have macro scopes. The macro scopes in `b` are always erased.
-If `a` has macro scopes, then the are propagated to result of `append a b`
+If `a` has macro scopes, then they are propagated to the result of `append a b`.
 -/
 def Name.append (a b : Name) : Name :=
   match a.hasMacroScopes, b.hasMacroScopes with
@@ -4365,14 +4365,14 @@ def throwUnsupported {α} : MacroM α :=
   throw Exception.unsupportedSyntax
 
 /--
-Throw a error with the given message,
+Throw an error with the given message,
 using the `ref` for the location information.
 -/
 def throwError {α} (msg : String) : MacroM α :=
   bind getRef fun ref =>
   throw (Exception.error ref msg)
 
-/-- Throw a error with the given message and location information. -/
+/-- Throw an error with the given message and location information. -/
 def throwErrorAt {α} (ref : Syntax) (msg : String) : MacroM α :=
   withRef ref (throwError msg)
 
@@ -4407,7 +4407,7 @@ structure Methods where
   hasDecl           : Name → MacroM Bool
   /-- Resolves the given name to an overload list of namespaces. -/
   resolveNamespace  : Name → MacroM (List Name)
-  /-- Resolves the given name to a overload list of global definitions.
+  /-- Resolves the given name to an overload list of global definitions.
   The `List String` in each alternative is the deduced list of projections
   (which are ambiguous with name components). -/
   resolveGlobalName : Name → MacroM (List (Prod Name (List String)))
@@ -4451,7 +4451,7 @@ def resolveNamespace (n : Name) : MacroM (List Name) := do
   (← getMethods).resolveNamespace n
 
 /--
-Resolves the given name to a overload list of global definitions.
+Resolves the given name to an overload list of global definitions.
 The `List String` in each alternative is the deduced list of projections
 (which are ambiguous with name components).
 -/

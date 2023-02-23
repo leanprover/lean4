@@ -92,7 +92,7 @@ lean_exe «hello» {
 }
 ```
 
-The command `lake build` can then be used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `build/bin`.
+The command `lake build` can then be used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `build/bin`. The command `lake clean` deletes `build`.
 
 ```
 $ lake build

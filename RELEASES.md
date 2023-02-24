@@ -1,6 +1,31 @@
 Unreleased
 ---------
 
+* [make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),
+  and [add `calc` alternative syntax allowing underscores `_` in the first relation](https://github.com/leanprover/lean4/pull/1844)
+
+  the flexible indentation in `calc` was often used to align relations/proofs
+  ```lean
+  example (x y : Nat) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+    calc
+        (x + y) * (x + y) = (x + y) * x + (x + y) * y       := by rw [Nat.mul_add]
+                        -- improper indentation
+                        _ = x * x + y * x + (x + y) * y     := by rw [Nat.add_mul]
+                        _ = x * x + y * x + (x * y + y * y) := by rw [Nat.add_mul]
+                        _ = x * x + y * x + x * y + y * y   := by rw [←Nat.add_assoc]
+  ```
+
+  this is no longer legal, but the alternative syntax accomplishes essentially the same goal with proper indentation:
+  ```lean
+  example (x y : Nat) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
+    calc (x + y) * (x + y)
+      _ = (x + y) * x + (x + y) * y       := by rw [Nat.mul_add]
+      _ = x * x + y * x + (x + y) * y     := by rw [Nat.add_mul]
+      _ = x * x + y * x + (x * y + y * y) := by rw [Nat.add_mul]
+      _ = x * x + y * x + x * y + y * y   := by rw [←Nat.add_assoc]
+  ```
+
+
 * Update Lake to latest prerelease.
 
 * [Make go-to-definition on a typeclass projection application go to the instance(s)](https://github.com/leanprover/lean4/pull/1767).

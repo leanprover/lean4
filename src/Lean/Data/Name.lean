@@ -96,16 +96,6 @@ def quickCmp (n₁ n₂ : Name) : Ordering :=
 def quickLt (n₁ n₂ : Name) : Bool :=
   quickCmp n₁ n₂ == Ordering.lt
 
-/-- Alternative HasLt instance. -/
-@[inline] protected def hasLtQuick : LT Name :=
-  ⟨fun a b => Name.quickLt a b = true⟩
-
-@[inline] def Name.decLt : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
-  inferInstanceAs (DecidableRel fun a b => Name.quickLt a b = true)
-
-instance : DecidableRel (@LT.lt Name Name.hasLtQuick) :=
-  Name.decLt
-
 /-- The frontend does not allow user declarations to start with `_` in any of its parts.
    We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
 def isInternal : Name → Bool

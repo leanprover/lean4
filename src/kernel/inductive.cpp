@@ -330,8 +330,9 @@ public:
     }
 
     /** \brief Return true iff `t` is a term of the form `I As t`
-        where `I` is the inductive datatype at position `i` being declared and
-        `As` are the global parameters of this declaration. */
+        where `I` is the inductive datatype at position `i` being declared,
+        `As` are the global parameters of this declaration,
+        and `t` does not contain any inductive datatype being declared. */
     bool is_valid_ind_app(expr const & t, unsigned i) {
         buffer<expr> args;
         expr I = get_app_args(t, args);
@@ -339,6 +340,15 @@ public:
             return false;
         for (unsigned i = 0; i < m_nparams; i++) {
             if (m_params[i] != args[i])
+                return false;
+        }
+        /*
+        Ensure that `t` does not contain the inductive datatype that is being declared.
+        Such occurrences are unsound in general. https://github.com/leanprover/lean4/issues/2125
+        We also used to reject them in Lean 3.
+        */
+        for (unsigned i = m_nparams; i < args.size(); i++) {
+            if (has_ind_occ(args[i]))
                 return false;
         }
         return true;

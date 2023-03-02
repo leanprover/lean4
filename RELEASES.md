@@ -1,10 +1,10 @@
 Unreleased
 ---------
 
-* [make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),
-  and [add `calc` alternative syntax allowing underscores `_` in the first relation](https://github.com/leanprover/lean4/pull/1844)
+* [Make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),
+  and [add `calc` alternative syntax allowing underscores `_` in the first relation](https://github.com/leanprover/lean4/pull/1844).
 
-  the flexible indentation in `calc` was often used to align relations/proofs
+  The flexible indentation in `calc` was often used to align the relation symbols:
   ```lean
   example (x y : Nat) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
     calc
@@ -15,7 +15,7 @@ Unreleased
                         _ = x * x + y * x + x * y + y * y   := by rw [←Nat.add_assoc]
   ```
 
-  this is no longer legal, but the alternative syntax accomplishes essentially the same goal with proper indentation:
+  This is no longer legal.  The new syntax puts the first term right after the `calc` and each step has the same indentation:
   ```lean
   example (x y : Nat) : (x + y) * (x + y) = x * x + y * x + x * y + y * y :=
     calc (x + y) * (x + y)

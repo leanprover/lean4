@@ -85,7 +85,7 @@ def id5 : {α : Type} → α → α :=
 
 ## Sugar for simple functions
 
-In Lean 3, we can create simple functions from infix operators by using parentheses. For example, `(+1)` is sugar for `fun x, x + 1`. In Lean 4, we generalize this notation using `·` As a placeholder. Here are a few examples:
+In Lean 3, we can create simple functions from infix operators by using parentheses. For example, `(+1)` is sugar for `fun x, x + 1`. In Lean 4, we generalize this notation using `·` as a placeholder. Here are a few examples:
 
 ```lean
 # namespace ex3

@@ -118,3 +118,8 @@ syntax "foo" term : term
 declare_syntax_cat mycat
 syntax "mystx" : mycat
 #eval run `(mycat| mystx)
+
+-- should not introduce an anonymous ldecl
+example
+  | `([$_,*]) => id 0
+  | _ => 1

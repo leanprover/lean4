@@ -91,7 +91,7 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
   | none => pure h
   | some logDir =>
     IO.FS.createDirAll logDir
-    let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write true
+    let hTee ← FS.Handle.mk (System.mkFilePath [logDir, fName]) FS.Mode.write
     let hTee := FS.Stream.ofHandle hTee
     pure $ if isOut then
       hTee.chainLeft h true

@@ -183,7 +183,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
       IO.FS.writeFile (dir / toolchainFileName) <| Lean.toolchain ++ "\n"
 
   -- update `.gitignore` with additional entries for Lake
-  let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append (bin := false)
+  let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append
   h.putStr gitignoreContents
 
   -- initialize a `.git` repository if none already

@@ -60,47 +60,42 @@ where
         failure
     | _ => failure
 
-/-- Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`. -/
-private partial def getOffsetAux (e : Expr) (top : Bool) : OptionT MetaM (Expr × Nat) := do
+mutual
+
+/--
+Quick function for converting `e` into `s + k` s.t. `e` is definitionally equal to `Nat.add s k`.
+This function always succeeds in finding such `s` and `k`
+(as a last resort it returns `e` and `0`).
+-/
+private partial def getOffset (e : Expr) : MetaM (Expr × Nat) :=
+  return (← isOffset? e).getD (e, 0)
+
+/--
+Similar to `getOffset` but returns `none` if the expression is not syntactically an offset.
+-/
+private partial def isOffset? (e : Expr) : OptionT MetaM (Expr × Nat) := do
   match e with
   | .app _ a => do
     let f := e.getAppFn
     match f with
-    | .mvar .. => withInstantiatedMVars e (getOffsetAux · top)
+    | .mvar .. => withInstantiatedMVars e isOffset?
     | .const c _ =>
       let nargs := e.getAppNumArgs
       if c == ``Nat.succ && nargs == 1 then
-        let (s, k) ← getOffsetAux a false
+        let (s, k) ← getOffset a
         pure (s, k+1)
       else if c == ``Nat.add && nargs == 2 then
         let v ← evalNat (e.getArg! 1)
-        let (s, k) ← getOffsetAux (e.getArg! 0) false
+        let (s, k) ← getOffset (e.getArg! 0)
         pure (s, k+v)
       else if (c == ``Add.add && nargs == 4) || (c == ``HAdd.hAdd && nargs == 6) then
-        getOffsetAux (← unfoldProjInst? e) false
+        isOffset? (← unfoldProjInst? e)
       else
-        guard (!top); return (e, 0)
-    | _ => guard (!top); return (e, 0)
-  | _ => guard (!top); return (e, 0)
-
-private def getOffset (e : Expr) : OptionT MetaM (Expr × Nat) :=
-  getOffsetAux e true
-
-private partial def isOffset (e : Expr) : OptionT MetaM (Expr × Nat) := do
-  match e with
-  | .app .. =>
-    let f := e.getAppFn
-    match f with
-    | .mvar ..   => withInstantiatedMVars e isOffset
-    | .const c _ =>
-      let nargs := e.getAppNumArgs
-      guard ((c == ``Nat.succ && nargs == 1) ||
-             (c == ``Nat.add && nargs == 2) ||
-             (c == ``Add.add && nargs == 4) ||
-             (c == ``HAdd.hAdd && nargs == 6))
-      getOffset e
+        failure
     | _ => failure
   | _ => failure
+
+end
 
 private def isNatZero (e : Expr) : MetaM Bool := do
   match (← evalNat e) with
@@ -128,9 +123,9 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
   if !(← getConfig).offsetCnstrs then
     return LBool.undef
   else
-    match (← isOffset s) with
+    match (← isOffset? s) with
     | some (s, k₁) =>
-      match (← isOffset t) with
+      match (← isOffset? t) with
       | some (t, k₂) => -- s+k₁ =?= t+k₂
         if k₁ == k₂ then
           isDefEq s t
@@ -150,7 +145,7 @@ def isDefEqOffset (s t : Expr) : MetaM LBool := do
     | none =>
       match (← evalNat s) with
       | some v₁ =>
-        match (← isOffset t) with
+        match (← isOffset? t) with
         | some (t, k₂) => -- v₁ =?= t+k₂
           if v₁ ≥ k₂ then
             isDefEq (mkNatLit <| v₁ - k₂) t

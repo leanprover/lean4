@@ -268,20 +268,17 @@ namespace FS
 
 namespace Handle
 
-private def fopenFlags (m : FS.Mode) (b : Bool) : String :=
-  let mode :=
-    match m with
-    | FS.Mode.read      => "r"
-    | FS.Mode.write     => "w"
-    | FS.Mode.readWrite => "r+"
-    | FS.Mode.append    => "a" ;
-  let bin := if b then "b" else "t"
-  mode ++ bin
+private def fopenFlags (m : FS.Mode) : String :=
+  match m with
+  | FS.Mode.read      => "br"
+  | FS.Mode.write     => "bw"
+  | FS.Mode.readWrite => "br+"
+  | FS.Mode.append    => "ba"
 
 @[extern "lean_io_prim_handle_mk"] opaque mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
 
-def mk (fn : FilePath) (Mode : Mode) (bin : Bool := true) : IO Handle :=
-  mkPrim fn (fopenFlags Mode bin)
+def mk (fn : FilePath) (Mode : Mode) : IO Handle :=
+  mkPrim fn (fopenFlags Mode)
 
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /--
@@ -342,15 +339,15 @@ partial def Handle.readToEnd (h : Handle) : IO String := do
   loop ""
 
 def readBinFile (fname : FilePath) : IO ByteArray := do
-  let h ← Handle.mk fname Mode.read true
+  let h ← Handle.mk fname Mode.read
   h.readBinToEnd
 
 def readFile (fname : FilePath) : IO String := do
-  let h ← Handle.mk fname Mode.read false
+  let h ← Handle.mk fname Mode.read
   h.readToEnd
 
 partial def lines (fname : FilePath) : IO (Array String) := do
-  let h ← Handle.mk fname Mode.read false
+  let h ← Handle.mk fname Mode.read
   let rec read (lines : Array String) := do
     let line ← h.getLine
     if line.length == 0 then
@@ -364,11 +361,11 @@ partial def lines (fname : FilePath) : IO (Array String) := do
   read #[]
 
 def writeBinFile (fname : FilePath) (content : ByteArray) : IO Unit := do
-  let h ← Handle.mk fname Mode.write true
+  let h ← Handle.mk fname Mode.write
   h.write content
 
 def writeFile (fname : FilePath) (content : String) : IO Unit := do
-  let h ← Handle.mk fname Mode.write false
+  let h ← Handle.mk fname Mode.write
   h.putStr content
 
 def Stream.putStrLn (strm : FS.Stream) (s : String) : IO Unit :=

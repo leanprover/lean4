@@ -253,9 +253,31 @@ extern "C" LEAN_EXPORT obj_res lean_chmod (b_obj_arg filename, uint32_t mode, ob
     }
 }
 
-/* Handle.mk (filename : @& String) (mode : @& String) : IO Handle */
-extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, b_obj_arg modeStr, obj_arg /* w */) {
-    FILE *fp = fopen(lean_string_cstr(filename), lean_string_cstr(modeStr));
+/* Handle.mk (filename : @& String) (mode : FS.Mode) : IO Handle */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 mode, obj_arg /* w */) {
+    int flags = 0;
+#ifdef LEAN_WINDOWS
+    // do not translate line endings
+    flags |= O_BINARY;
+#endif
+    switch (mode) {
+    case 0: flags |= O_RDONLY; break;  // read
+    case 1: flags |= O_WRONLY | O_CREAT | O_TRUNC; break;  // write
+    case 2: flags |= O_RDWR; break;  // readWrite
+    case 3: flags |= O_WRONLY | O_CREAT | O_APPEND; break;  // append
+    }
+    int fd = open(lean_string_cstr(filename), flags, 0666);
+    if (fd == -1) {
+        return io_result_mk_error(decode_io_error(errno, filename));
+    }
+    char const * fp_mode;
+    switch (mode) {
+    case 0: fp_mode = "r"; break;  // read
+    case 1: fp_mode = "w"; break;  // write
+    case 2: fp_mode = "r+"; break;  // readWrite
+    case 3: fp_mode = "a"; break;  // append
+    }
+    FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
         return io_result_mk_error(decode_io_error(errno, filename));
     } else {

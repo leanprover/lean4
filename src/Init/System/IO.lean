@@ -268,18 +268,7 @@ namespace FS
 
 namespace Handle
 
-private def fopenFlags (m : FS.Mode) : String :=
-  match m with
-  | FS.Mode.read      => "br"
-  | FS.Mode.write     => "bw"
-  | FS.Mode.readWrite => "br+"
-  | FS.Mode.append    => "ba"
-
-@[extern "lean_io_prim_handle_mk"] opaque mkPrim (fn : @& FilePath) (mode : @& String) : IO Handle
-
-def mk (fn : FilePath) (Mode : Mode) : IO Handle :=
-  mkPrim fn (fopenFlags Mode)
-
+@[extern "lean_io_prim_handle_mk"] opaque mk (fn : @& FilePath) (mode : FS.Mode) : IO Handle
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /--
 Read up to the given number of bytes from the handle.

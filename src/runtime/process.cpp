@@ -264,11 +264,15 @@ static optional<pipe> setup_stdio(stdio cfg) {
         return optional<pipe>();
     case stdio::PIPED:
         int fds[2];
-        if (::pipe(fds) == -1) {
-            throw errno;
-        } else {
-            return optional<pipe>(pipe { fds[0], fds[1] });
-        }
+#ifdef __APPLE__
+        // this is inherently racy, but there is nothing we can do on MacOS
+        if (::pipe(fds) == -1) { throw errno; }
+        if (::fcntl(fds[0], F_SETFD, FD_CLOEXEC)) { throw errno; }
+        if (::fcntl(fds[1], F_SETFD, FD_CLOEXEC)) { throw errno; }
+#else
+        if (::pipe2(fds, O_CLOEXEC) == -1) { throw errno; }
+#endif
+        return optional<pipe>(pipe { fds[0], fds[1] });
     case stdio::NUL:
         /* We should map /dev/null. */
         return optional<pipe>();

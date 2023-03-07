@@ -86,7 +86,7 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    fclose(static_cast<FILE *>(h));
+    lean_always_assert(fclose(static_cast<FILE *>(h)) == 0);
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
@@ -259,6 +259,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
 #ifdef LEAN_WINDOWS
     // do not translate line endings
     flags |= O_BINARY;
+    // do not inherit across process creation
+    flags |= O_NOINHERIT;
+#else
+    // do not inherit across process creation
+    flags |= O_CLOEXEC;
 #endif
     switch (mode) {
     case 0: flags |= O_RDONLY; break;  // read

@@ -336,8 +336,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_write(b_obj_arg h, b_obj_arg 
     }
 }
 
-static object * g_io_error_getline = nullptr;
-
 /*
   Handle.getLine : (@& Handle) → IO Unit
   The line returned by `lean_io_prim_handle_get_line`
@@ -365,7 +363,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_get_line(b_obj_arg h, obj_arg
             clearerr(fp);
             return io_result_mk_ok(mk_string(result));
         } else {
-            return io_result_mk_error(g_io_error_getline);
+            return io_result_mk_error(decode_io_error(errno, nullptr));
         }
         first = false;
     }
@@ -914,8 +912,6 @@ extern "C" LEAN_EXPORT obj_res lean_io_exit(uint8_t code, obj_arg /* w */) {
 void initialize_io() {
     g_io_error_nullptr_read = lean_mk_io_user_error(mk_string("null reference read"));
     mark_persistent(g_io_error_nullptr_read);
-    g_io_error_getline = lean_mk_io_user_error(mk_string("getLine failed"));
-    mark_persistent(g_io_error_getline);
     g_io_handle_external_class = lean_register_external_class(io_handle_finalizer, io_handle_foreach);
 #if defined(LEAN_WINDOWS)
     _setmode(_fileno(stdout), _O_BINARY);

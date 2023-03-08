@@ -312,14 +312,11 @@ private partial def getSubgoalsAux (lctx : LocalContext) (localInsts : LocalInst
 def getSubgoals (lctx : LocalContext) (localInsts : LocalInstances) (xs : Array Expr) (inst : Expr) : MetaM SubgoalsResult := do
   let instType ← inferType inst
   let result ← getSubgoalsAux lctx localInsts xs #[] 0 [] inst instType
-  match inst.getAppFn with
-  | Expr.const constName _ =>
+  if let .const constName _ := inst.getAppFn then
     let env ← getEnv
     if hasInferTCGoalsRLAttribute env constName then
       return result
-    else
-      return { result with subgoals := result.subgoals.reverse }
-  | _ => return result
+  return { result with subgoals := result.subgoals.reverse }
 
 /--
   Try to synthesize metavariable `mvar` using the instance `inst`.

@@ -422,16 +422,18 @@ where
       return ()
     for d in (← p.readDir) do
       modify (·.push d.path)
-      let m ← d.path.metadata
-      match m.type with
-      | FS.FileType.symlink =>
+      match (← d.path.metadata.toBaseIO) with
+      | .ok { type := .symlink, .. } =>
         let p' ← FS.realPath d.path
         if (← p'.isDir) then
           -- do not call `enter` on a non-directory symlink
           if (← enter p) then
             go p'
-      | FS.FileType.dir => go d.path
-      | _ => pure ()
+      | .ok { type := .dir, .. } => go d.path
+      | .ok _ => pure ()
+      -- entry vanished, ignore
+      | .error (.noFileOrDirectory ..) => pure ()
+      | .error e => throw e
 
 end System.FilePath
 

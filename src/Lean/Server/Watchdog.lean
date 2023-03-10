@@ -408,11 +408,16 @@ section NotificationHandling
       if let FileChangeType.Deleted := change.type then
         references.modify (fun r => r.removeIlean path)
       else if ileans.contains path then
-        let ilean ← Ilean.load path
-        if let FileChangeType.Changed := change.type then
-          references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-        else
-          references.modify (fun r => r.addIlean path ilean)
+        try
+          let ilean ← Ilean.load path
+          if let FileChangeType.Changed := change.type then
+            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+          else
+            references.modify (fun r => r.addIlean path ilean)
+        catch
+          -- ilean vanished, ignore error
+          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+          | e => throw e
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get

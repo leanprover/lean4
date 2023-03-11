@@ -86,7 +86,7 @@ def download (name : String) (url : String) (file : FilePath) : LogIO PUnit := d
     createParentDirs file
   let args :=
     if (← getIsVerbose) then #[] else #["-s"]
-  proc {
+  proc (quiet := true) {
     cmd := "curl"
     args := args ++ #["-f", "-o", file.toString, "-L", url]
   }

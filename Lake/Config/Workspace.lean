@@ -178,3 +178,9 @@ def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)
   ]
+
+/-- Remove all packages' build outputs (i.e., delete their build directories). -/
+def clean (self : Workspace) : IO Unit := do
+  for (_, pkg) in self.packageMap do
+    pkg.clean
+  self.root.clean

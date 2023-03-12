@@ -219,7 +219,11 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
   incVisited
   match code with
   | .let decl k =>
-    let mut decl ← normLetDecl decl
+    let baseDecl := decl
+    let mut decl ← normLetDecl baseDecl
+    if baseDecl != decl then
+      markSimplified
+
     if let some value ← simpValue? decl.value then
       markSimplified
       decl ← decl.updateValue value

@@ -605,7 +605,7 @@ def mkFreshIdent [Monad m] [MonadQuotation m] (ref : Syntax) (canonical := false
 
 private def applyAttributesCore
     (declName : Name) (attrs : Array Attribute)
-    (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit :=
+    (applicationTime? : Option AttributeApplicationTime) : TermElabM Unit := do profileitM Exception "attribute application" (← getOptions) do
   for attr in attrs do
     withRef attr.stx do withLogging do
     let env ← getEnv

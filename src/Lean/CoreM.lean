@@ -270,7 +270,7 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
-def addDecl (decl : Declaration) : CoreM Unit := do
+def addDecl (decl : Declaration) : CoreM Unit := do profileitM Exception "type checking" (← getOptions) do
   if !(← MonadLog.hasErrors) && decl.hasSorry then
     logWarning "declaration uses 'sorry'"
   match (← getEnv).addDecl decl with

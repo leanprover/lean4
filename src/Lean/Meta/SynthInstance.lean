@@ -676,25 +676,32 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get
+    let rec assignOutParams (result : Expr) : MetaM Bool := do
+      let resultType ← inferType result
+      /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
+         We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
+         TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
+      let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+      unless defEq do
+        trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
+      return defEq
     match s.cache.synthInstance.find? (localInsts, type) with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
+      if let some inst := result then
+        unless (← assignOutParams inst) do
+          return none
       pure result
     | none        =>
       let result? ← withNewMCtxDepth (allowLevelAssignments := true) do
         let normType ← preprocessOutParam type
         SynthInstance.main normType maxResultSize
-      let resultHasUnivMVars := if let some result := result? then !result.paramNames.isEmpty else false
       let result? ← match result? with
         | none        => pure none
         | some result => do
           let (_, _, result) ← openAbstractMVarsResult result
           trace[Meta.synthInstance] "result {result}"
-          let resultType ← inferType result
-          /- Output parameters of local instances may be marked as `syntheticOpaque` by the application-elaborator.
-             We use `withAssignableSyntheticOpaque` to make sure this kind of parameter can be assigned by the following `isDefEq`.
-             TODO: rewrite this check to avoid `withAssignableSyntheticOpaque`. -/
-          if (← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType) then
+          if (← assignOutParams result) then
             let result ← instantiateMVars result
             /- We use `check` to propogate universe constraints implied by the `result`.
                Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
@@ -724,13 +731,9 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
             check result
             pure (some result)
           else
-            trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
             pure none
-      if type.hasMVar || resultHasUnivMVars then
-        pure result?
-      else do
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
-        pure result?
+      modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
+      pure result?
 
 /--
   Return `LOption.some r` if succeeded, `LOption.none` if it failed, and `LOption.undef` if

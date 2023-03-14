@@ -672,10 +672,11 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
                                           foApprox := true, ctxApprox := true, constApprox := false,
                                           etaStruct }) do
+    let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type
     let s ← get
-    match s.cache.synthInstance.find? type with
+    match s.cache.synthInstance.find? (localInsts, type) with
     | some result =>
       trace[Meta.synthInstance] "result {result} (cached)"
       pure result
@@ -728,7 +729,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
       if type.hasMVar || resultHasUnivMVars then
         pure result?
       else do
-        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert type result? }
+        modify fun s => { s with cache.synthInstance := s.cache.synthInstance.insert (localInsts, type) result? }
         pure result?
 
 /--

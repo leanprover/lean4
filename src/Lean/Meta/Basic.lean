@@ -195,7 +195,7 @@ instance : Hashable InfoCacheKey :=
   ⟨fun ⟨transparency, expr, nargs⟩ => mixHash (hash transparency) <| mixHash (hash expr) (hash nargs)⟩
 end InfoCacheKey
 
-abbrev SynthInstanceCache := PersistentHashMap Expr (Option Expr)
+abbrev SynthInstanceCache := PersistentHashMap (LocalInstances × Expr) (Option Expr)
 
 abbrev InferTypeCache := PersistentExprStructMap Expr
 abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
@@ -873,38 +873,15 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
     | .lam ..     => return .undef
     | _           => return .none
 
-def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
-  let savedSythInstance := (← get).cache.synthInstance
-  modifyCache fun c => { c with synthInstance := {} }
-  return savedSythInstance
-
-def restoreSynthInstanceCache (cache : SynthInstanceCache) : MetaM Unit :=
-  modifyCache fun c => { c with synthInstance := cache }
-
-@[inline] private def resettingSynthInstanceCacheImpl (x : MetaM α) : MetaM α := do
-  let savedSythInstance ← saveAndResetSynthInstanceCache
-  try x finally restoreSynthInstanceCache savedSythInstance
-
-/-- Reset `synthInstance` cache, execute `x`, and restore cache -/
-@[inline] def resettingSynthInstanceCache : n α → n α :=
-  mapMetaM resettingSynthInstanceCacheImpl
-
-@[inline] def resettingSynthInstanceCacheWhen (b : Bool) (x : n α) : n α :=
-  if b then resettingSynthInstanceCache x else x
-
 private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
   let localDecl ← getFVarLocalDecl fvar
   if localDecl.isImplementationDetail then
     k
   else
-    resettingSynthInstanceCache <|
-      withReader
-        (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } })
-        k
+    withReader (fun ctx => { ctx with localInstances := ctx.localInstances.push { className := className, fvar := fvar } }) k
 
 /-- Add entry `{ className := className, fvar := fvar }` to localInstances,
-    and then execute continuation `k`.
-    It resets the type class cache using `resettingSynthInstanceCache`. -/
+    and then execute continuation `k`. -/
 def withNewLocalInstance (className : Name) (fvar : Expr) : n α → n α :=
   mapMetaM <| withNewLocalInstanceImp className fvar
 
@@ -919,9 +896,7 @@ mutual
     using free variables `fvars[j] ... fvars.back`, and execute `k`.
 
     - `isClassExpensive` is defined later.
-    - The type class chache is reset whenever a new local instance is found.
-    - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances.
-      Thus, each new local instance requires a new `resettingSynthInstanceCache`. -/
+    - `isClassExpensive` uses `whnf` which depends (indirectly) on the set of local instances. -/
   private partial def withNewLocalInstancesImp
       (fvars : Array Expr) (i : Nat) (k : MetaM α) : MetaM α := do
     if h : i < fvars.size then
@@ -1278,7 +1253,7 @@ def withLocalInstancesImp (decls : List LocalDecl) (k : MetaM α) : MetaM α := 
   if localInsts.size == size then
     k
   else
-    resettingSynthInstanceCache <| withReader (fun ctx => { ctx with localInstances := localInsts }) k
+    withReader (fun ctx => { ctx with localInstances := localInsts }) k
 
 /-- Register any local instance in `decls` -/
 def withLocalInstances (decls : List LocalDecl) : n α → n α :=
@@ -1322,12 +1297,8 @@ def withNewMCtxDepth (k : n α) (allowLevelAssignments := false) : n α :=
   mapMetaM (withNewMCtxDepthImp allowLevelAssignments) k
 
 private def withLocalContextImp (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : MetaM α := do
-  let localInstsCurr ← getLocalInstances
   withReader (fun ctx => { ctx with lctx := lctx, localInstances := localInsts }) do
-    if localInsts == localInstsCurr then
-      x
-    else
-      resettingSynthInstanceCache x
+    x
 
 /--
   `withLCtx lctx localInsts k` replaces the local context and local instances, and then executes `k`.

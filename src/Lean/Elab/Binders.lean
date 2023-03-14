@@ -421,9 +421,8 @@ private partial def elabFunBinderViews (binderViews : Array BinderView) (i : Nat
       let s := { s with lctx }
       match ← isClass? type, kind with
       | some className, .default =>
-        resettingSynthInstanceCache do
-          let localInsts := s.localInsts.push { className, fvar := mkFVar fvarId }
-          elabFunBinderViews binderViews (i+1) { s with localInsts }
+        let localInsts := s.localInsts.push { className, fvar := mkFVar fvarId }
+        elabFunBinderViews binderViews (i+1) { s with localInsts }
       | _, _ => elabFunBinderViews binderViews (i+1) s
   else
     pure s
@@ -445,7 +444,7 @@ def elabFunBinders (binders : Array Syntax) (expectedType? : Option Expr) (x : A
     let lctx ← getLCtx
     let localInsts ← getLocalInstances
     let s ← FunBinders.elabFunBindersAux binders 0 { lctx, localInsts, expectedType? }
-    resettingSynthInstanceCacheWhen (s.localInsts.size > localInsts.size) <| withLCtx s.lctx s.localInsts <|
+    withLCtx s.lctx s.localInsts do
       x s.fvars s.expectedType?
 
 def expandWhereDecls (whereDecls : Syntax) (body : Syntax) : MacroM Syntax :=

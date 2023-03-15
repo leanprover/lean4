@@ -169,5 +169,4 @@ null
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file://plainGoal.lean"},
  "position": {"line": 133, "character": 4}}
-{"rendered": "```lean\ncase right\n⊢ False\n```",
- "goals": ["case right\n⊢ False"]}
+{"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}

@@ -157,7 +157,7 @@ private def mkTacticMVar (type : Expr) (tacticCode : Syntax) : TermElabM Expr :=
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
 
-@[builtin_term_elab cdot] def elabBadCDot : TermElab := fun _ _ =>
+@[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun _ _ =>
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtin_term_elab str] def elabStrLit : TermElab := fun stx _ => do

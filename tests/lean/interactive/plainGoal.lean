@@ -134,4 +134,3 @@ example : True ∧ False := by
   · --
  --^ $/lean/plainGoal
   --^ $/lean/plainGoal
-  -- TODO: ^

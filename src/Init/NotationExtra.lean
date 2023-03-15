@@ -372,14 +372,9 @@ macro_rules
     `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
       attribute [instance] $ctor)
 
-section
-open Lean.Parser.Tactic
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
-macro_rules
-  | `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)
-end
 
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.

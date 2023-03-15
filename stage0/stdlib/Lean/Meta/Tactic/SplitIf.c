@@ -93,6 +93,7 @@ lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, le
 static lean_object* l_Lean_Meta_SplitIf_splitIfAt_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_simpIfTarget___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_1878____closed__8;
+lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_simpTarget(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*, uint8_t);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -171,7 +172,6 @@ lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_obj
 static lean_object* l_Lean_Meta_SplitIf_discharge_x3f___closed__9;
 static lean_object* l_Lean_Meta_SplitIf_discharge_x3f___closed__1;
 lean_object* l_Lean_Meta_SimpTheorems_addConst(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkHashMapImp___rarg(lean_object*);
 static lean_object* l_Lean_Meta_SplitIf_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_5____closed__6;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_SplitIf___hyg_1878____closed__11;
@@ -6205,7 +6205,7 @@ lean_closure_set(x_10, 0, x_9);
 lean_closure_set(x_10, 1, x_1);
 lean_closure_set(x_10, 2, x_3);
 lean_closure_set(x_10, 3, x_2);
-x_11 = lean_alloc_closure((void*)(l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg), 7, 2);
+x_11 = lean_alloc_closure((void*)(l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg), 7, 2);
 lean_closure_set(x_11, 0, x_1);
 lean_closure_set(x_11, 1, x_10);
 x_12 = l_Lean_commitWhenSome_x3f___at_Lean_Meta_splitIfLocalDecl_x3f___spec__1(x_11, x_4, x_5, x_6, x_7, x_8);

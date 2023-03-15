@@ -2904,7 +2904,6 @@ lean_dec(x_50);
 x_52 = lean_array_push(x_46, x_27);
 x_53 = 1;
 x_54 = l_Lean_Elab_applyAttributesOf(x_52, x_53, x_2, x_3, x_4, x_5, x_6, x_7, x_51);
-lean_dec(x_6);
 lean_dec(x_52);
 return x_54;
 }

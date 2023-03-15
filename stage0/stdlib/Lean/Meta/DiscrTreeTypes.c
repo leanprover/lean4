@@ -75,6 +75,7 @@ lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__15;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_instBEqKey___boxed(lean_object*);
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1933_(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__17;
 LEAN_EXPORT uint64_t l_Lean_Meta_DiscrTree_Key_hash___rarg(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__8;
@@ -82,7 +83,6 @@ static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__20;
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__5;
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1951_(lean_object*);
 static lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_433____rarg___closed__18;
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_Key_hash(uint8_t);
 LEAN_EXPORT uint8_t l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_beqKey____x40_Lean_Meta_DiscrTreeTypes___hyg_115____rarg(lean_object*, lean_object*);
@@ -1030,7 +1030,7 @@ lean_object* x_9; lean_object* x_10; uint64_t x_11; uint64_t x_12; uint64_t x_13
 x_9 = lean_ctor_get(x_1, 0);
 x_10 = lean_ctor_get(x_1, 1);
 x_11 = 3541;
-x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1951_(x_9);
+x_12 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1933_(x_9);
 x_13 = lean_uint64_of_nat(x_10);
 x_14 = lean_uint64_mix_hash(x_12, x_13);
 x_15 = lean_uint64_mix_hash(x_11, x_14);

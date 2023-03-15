@@ -2997,10 +2997,12 @@ lean_inc(x_28);
 lean_dec(x_27);
 x_29 = 2;
 lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
+lean_inc(x_3);
 lean_inc(x_26);
 x_30 = l_Lean_Elab_Term_applyAttributesAt(x_26, x_3, x_29, x_4, x_5, x_6, x_7, x_8, x_9, x_28);
 if (lean_obj_tag(x_30) == 0)

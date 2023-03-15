@@ -126,6 +126,7 @@ static lean_object* l_Lean_Lsp_instToJsonRefInfo___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonRefInfo___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonRefInfo___spec__5___closed__1;
+uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1933_(lean_object*);
 lean_object* l_List_redLength___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Lsp_instFromJsonRefInfo___spec__4(size_t, size_t, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -140,7 +141,6 @@ static lean_object* l_Lean_Json_getObjValAs_x3f___at_Lean_Lsp_instFromJsonRefInf
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_1412_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Lsp_instFromJsonModuleRefs___spec__5(lean_object*, lean_object*);
-uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1951_(lean_object*);
 static lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_1227____closed__6;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_String_drop(lean_object*, lean_object*);
@@ -240,7 +240,7 @@ else
 lean_object* x_6; uint64_t x_7; uint64_t x_8; uint64_t x_9; 
 x_6 = lean_ctor_get(x_1, 0);
 x_7 = 1;
-x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1951_(x_6);
+x_8 = l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1933_(x_6);
 x_9 = lean_uint64_mix_hash(x_7, x_8);
 return x_9;
 }

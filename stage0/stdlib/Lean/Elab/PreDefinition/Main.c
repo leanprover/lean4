@@ -4437,6 +4437,7 @@ x_28 = l_Array_forInUnsafe_loop___at___private_Lean_Elab_PreDefinition_Main_0__L
 x_29 = lean_array_push(x_28, x_14);
 x_30 = 0;
 lean_inc(x_10);
+lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
@@ -4450,6 +4451,7 @@ lean_inc(x_32);
 lean_dec(x_31);
 x_33 = 1;
 lean_inc(x_10);
+lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);

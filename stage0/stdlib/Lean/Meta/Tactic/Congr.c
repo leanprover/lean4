@@ -52,6 +52,7 @@ static lean_object* l_Lean_MVarId_congrImplies_x3f___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_CoreM_0__Lean_Core_mkFreshNameImp(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*, lean_object*);
@@ -70,7 +71,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_congrPre(lean_object*, lean_object*, lean
 static lean_object* l_Lean_MVarId_congrImplies_x3f___closed__2;
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_hcongr_x3f___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_12345_(uint8_t, uint8_t);
 static lean_object* l_Lean_MVarId_congrCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -78,6 +78,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_congrN_post(uint8_t, lean_object*, lean_o
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congrPre___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Congr_0__Lean_applyCongrThm_x3f___closed__2;
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_12336_(uint8_t, uint8_t);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_congr_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -92,7 +93,6 @@ static lean_object* l_Lean_MVarId_congrN___closed__1;
 static lean_object* l_Lean_MVarId_hcongr_x3f___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_MVarId_congrN_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
-lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_commitWhenSome_x3f___at_Lean_MVarId_congr_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1344,7 +1344,7 @@ lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_7);
 x_9 = lean_alloc_closure((void*)(l_Lean_commitWhenSomeNoEx_x3f___at_Lean_MVarId_congr_x3f___spec__1), 6, 1);
 lean_closure_set(x_9, 0, x_8);
-x_10 = l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg(x_1, x_9, x_2, x_3, x_4, x_5, x_6);
+x_10 = l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(x_1, x_9, x_2, x_3, x_4, x_5, x_6);
 return x_10;
 }
 }
@@ -1664,7 +1664,7 @@ lean_dec(x_10);
 lean_inc(x_11);
 x_13 = lean_alloc_closure((void*)(l_Lean_MVarId_hcongr_x3f___lambda__2), 6, 1);
 lean_closure_set(x_13, 0, x_11);
-x_14 = l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__1___rarg(x_11, x_13, x_3, x_4, x_5, x_6, x_12);
+x_14 = l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(x_11, x_13, x_3, x_4, x_5, x_6, x_12);
 return x_14;
 }
 else
@@ -2374,7 +2374,7 @@ lean_dec(x_9);
 x_24 = 2;
 x_25 = lean_unbox(x_22);
 lean_dec(x_22);
-x_26 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_12345_(x_25, x_24);
+x_26 = l___private_Init_Meta_0__Lean_Meta_beqTransparencyMode____x40_Init_Meta___hyg_12336_(x_25, x_24);
 if (x_26 == 0)
 {
 lean_object* x_27; 

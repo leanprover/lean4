@@ -91,7 +91,6 @@ lean_object* l_Array_zip___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_exprDiff(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBTree_fromArray___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_diffInteractiveGoals___spec__4___at_Lean_Widget_diffInteractiveGoals___spec__5(uint8_t, uint8_t, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
@@ -169,6 +168,7 @@ static lean_object* l_Lean_Widget_exprDiffCore_piDiff___lambda__3___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lean_Widget_diffInteractiveGoals___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Widget_ExprDiff_withChange___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getForallBinderNames(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instAppendExprDiff(lean_object*, lean_object*);
@@ -4057,7 +4057,7 @@ return x_20;
 else
 {
 uint8_t x_21; 
-x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_13, x_17);
+x_21 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_13, x_17);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 
@@ -5130,7 +5130,7 @@ return x_57;
 else
 {
 uint8_t x_58; 
-x_58 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_49, x_53);
+x_58 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_49, x_53);
 if (x_58 == 0)
 {
 uint8_t x_59; lean_object* x_60; lean_object* x_61; 

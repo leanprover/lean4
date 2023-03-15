@@ -32,7 +32,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_cmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isNum___boxed(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Name_Name_decLt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeStringName;
 LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isStr___boxed(lean_object*);
@@ -40,16 +39,13 @@ LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Name_instDecidableRelNameLtHasLtQuick___boxed(lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedString;
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmp___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Name_instDecidableRelNameLtHasLtQuick(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t l_String_startsWith(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Name_hasLtQuick;
 LEAN_EXPORT lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -61,7 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_isPrefixOf___boxed(lean_object*, lean_objec
 LEAN_EXPORT lean_object* l_Lean_Name_anyS___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isAnonymous___boxed(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Name_Name_decLt___boxed(lean_object*, lean_object*);
 uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_22_(uint8_t, uint8_t);
 static lean_object* l_Lean_instCoeStringName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Name_hashEx___boxed(lean_object*);
@@ -854,52 +849,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Name_hasLtQuick() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_box(0);
-return x_1;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Name_Name_decLt(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Lean_Name_quickLt(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Name_Name_decLt___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Name_Name_decLt(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT uint8_t l_Lean_Name_instDecidableRelNameLtHasLtQuick(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; 
-x_3 = l_Lean_Name_quickLt(x_1, x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Name_instDecidableRelNameLtHasLtQuick___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Name_instDecidableRelNameLtHasLtQuick(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT uint8_t l_Lean_Name_isInternal(lean_object* x_1) {
 _start:
 {
@@ -1259,8 +1208,6 @@ l_Lean_Name_getString_x21___closed__3 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__3);
 l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed__4();
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
-l_Lean_Name_hasLtQuick = _init_l_Lean_Name_hasLtQuick();
-lean_mark_persistent(l_Lean_Name_hasLtQuick);
 l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
 lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
 l_String_toName___closed__1 = _init_l_String_toName___closed__1();

@@ -91,7 +91,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_foldAncestors___rarg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Meta_withLetDecl___at___private_Lean_Meta_ExprLens_0__Lean_Meta_viewCoordAux___spec__1(lean_object*);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___closed__15;
 LEAN_EXPORT lean_object* l_Lean_Meta_replaceSubexpr___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_ExprLens_0__Lean_Meta_foldAncestorsAux___spec__4(lean_object*);
@@ -161,6 +160,7 @@ static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3___closed__4;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__10___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewCoordAux___rarg___closed__1;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_numBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -857,7 +857,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
@@ -981,7 +981,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_477_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 

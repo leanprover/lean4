@@ -1,6 +1,6 @@
 theorem byTopLevelNoIndent : ∀ (n : Nat), n > 1 → n > 1 :=
 fun n h => h
-byStrictIndent.lean:12:2: error: expected '{' or strict indentation
+byStrictIndent.lean:12:2: error: expected '{' or indented tactic sequence
 byStrictIndent.lean:11:25-11:27: error: unsolved goals
 n : Nat
 h : n > 0

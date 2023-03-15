@@ -164,3 +164,10 @@ null
  "position": {"line": 128, "character": 18}}
 {"rendered": "```lean\np q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)\n```",
  "goals": ["p q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 133, "character": 3}}
+{"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
+{"textDocument": {"uri": "file://plainGoal.lean"},
+ "position": {"line": 133, "character": 4}}
+{"rendered": "```lean\ncase right\n⊢ False\n```",
+ "goals": ["case right\n⊢ False"]}

@@ -128,3 +128,10 @@ example (hp : p) (hq : q) : p ∧ q := by
 example (hp : p) (hq : q) : p ∧ q :=
   show id (p ∧ q) by
                 --^ $/lean/plainGoal
+
+example : True ∧ False := by
+  constructor
+  · --
+ --^ $/lean/plainGoal
+  --^ $/lean/plainGoal
+  -- TODO: ^

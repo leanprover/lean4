@@ -115,6 +115,17 @@ def evalSepByIndentTactic (stx : Syntax) : TacticM Unit := do
     withInfoContext (pure ()) initInfo
     evalSepByIndentTactic stx[1]
 
+@[builtin_tactic cdot] def evalTacticCDot : Tactic := fun stx => do
+  -- adjusted copy of `evalTacticSeqBracketed`; we used to use the macro
+  -- ``| `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)``
+  -- but the token antiquotation does not copy trailing whitespace, leading to
+  -- differences in the goal display (#2153)
+  let initInfo ← mkInitialTacticInfo stx[0]
+  withRef stx[0] <| closeUsingOrAdmit do
+    -- save state before/after entering focus on `·`
+    withInfoContext (pure ()) initInfo
+    evalSepByIndentTactic stx[1]
+
 @[builtin_tactic Parser.Tactic.focus] def evalFocus : Tactic := fun stx => do
   let mkInfo ← mkInitialTacticInfo stx[0]
   focus do

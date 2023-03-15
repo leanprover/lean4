@@ -376,7 +376,7 @@ section
 open Lean.Parser.Tactic
 syntax cdotTk := patternIgnore("· " <|> ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
-syntax cdotTk tacticSeqIndentGt : tactic
+syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 macro_rules
   | `(tactic| $cdot:cdotTk $tacs) => `(tactic| {%$cdot ($tacs) }%$cdot)
 end

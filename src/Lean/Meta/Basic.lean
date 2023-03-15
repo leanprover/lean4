@@ -864,14 +864,23 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | .mdata _ e       => isClassQuick? e
   | .const n _       => isClassQuickConst? n
   | .mvar mvarId     => do
-    match (← getExprMVarAssignment? mvarId) with
+    match ← getExprMVarAssignment? mvarId with
     | some val => isClassQuick? val
     | none     => return .none
-  | .app f _         =>
-    match f.getAppFn with
+  | .app f _         => do
+    match ← getAppFnAssigningMVars f with
     | .const n .. => isClassQuickConst? n
     | .lam ..     => return .undef
     | _           => return .none
+where
+  getAppFnAssigningMVars : Expr → MetaM Expr
+  | .app f _ => getAppFnAssigningMVars f
+  | e@(.mvar mvarId)     => do
+    match ← getExprMVarAssignment? mvarId with
+    | some f => getAppFnAssigningMVars f
+    | none   => return e
+  | e => return e
+
 
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let savedSythInstance := (← get).cache.synthInstance
@@ -1007,7 +1016,7 @@ mutual
 
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none fun _ type => do
+      forallTelescopeReducingAux (← instantiateMVars type) none fun _ type => do
         let env ← getEnv
         match type.getAppFn with
         | .const c _ => do

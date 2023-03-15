@@ -52,7 +52,10 @@ let
     src = args.lean4-mode;
     packageRequires = with pkgs.emacsPackages.melpaPackages; [ dash f flycheck magit-section lsp-mode s ];
     recipe = pkgs.writeText "recipe" ''
-      (lean4-mode :repo "leanprover/lean4-mode" :fetcher github)
+      (lean4-mode
+       :repo "leanprover/lean4-mode"
+       :fetcher github
+       :files ("*.el" "data"))
     '';
   };
   lean-emacs = emacsWithPackages [ lean4-mode ];

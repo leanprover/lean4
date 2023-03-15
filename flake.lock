@@ -18,11 +18,11 @@
     "lean4-mode": {
       "flake": false,
       "locked": {
-        "lastModified": 1659020985,
-        "narHash": "sha256-+dRaXB7uvN/weSZiKcfSKWhcdJVNg9Vg8k0pJkDNjpc=",
+        "lastModified": 1676498134,
+        "narHash": "sha256-u3WvyKxOViZG53hkb8wd2/Og6muTecbh+NdflIgVeyk=",
         "owner": "leanprover",
         "repo": "lean4-mode",
-        "rev": "37d5c99b7b29c80ab78321edd6773200deb0bca6",
+        "rev": "2c6ef33f476fdf5eb5e4fa4fa023ba8b11372440",
         "type": "github"
       },
       "original": {

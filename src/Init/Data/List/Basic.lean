@@ -98,7 +98,7 @@ instance : Append (List α) := ⟨List.append⟩
 
 @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := rfl
 
-@[simp] theorem List.append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
+@[simp] theorem append_eq (as bs : List α) : List.append as bs = as ++ bs := rfl
 
 theorem append_assoc (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs) := by
   induction as with

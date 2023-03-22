@@ -368,7 +368,7 @@ inductive ReduceMatcherResult where
   should reduce in any transparency mode.
   Thus, we define a custom `canUnfoldAtMatcher` predicate for `whnfMatcher`.
 
-  This solution is not very modular because modications at the `match` compiler require changes here.
+  This solution is not very modular because modifications at the `match` compiler require changes here.
   We claim this is defensible because it is reducing the auxiliary declaration defined by the `match` compiler.
 
   Alternative solution: tactics that use `TransparencyMode.reducible` should rely on the equations we generated for match-expressions.
@@ -378,7 +378,7 @@ inductive ReduceMatcherResult where
 def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
   match cfg.transparency with
   | TransparencyMode.all     => return true
-  | TransparencyMode.default => return true
+  | TransparencyMode.default => return !(← isIrreducible info.name)
   | _ =>
     if (← isReducible info.name) || isGlobalInstance (← getEnv) info.name then
       return true
@@ -402,7 +402,7 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
 
 private def whnfMatcher (e : Expr) : MetaM Expr := do
   /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
-     we increase it to `TransparencyMode.instance`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
+     we increase it to `TransparencyMode.instances`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
      and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
      For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
 

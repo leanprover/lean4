@@ -406,7 +406,7 @@ The reduction relation is transitive, which is to say, is ``s`` reduces to ``s'`
 
 This last fact reflects the intuition that once we have proved a proposition ``p``, we only care that is has been proved; the proof does nothing more than witness the fact that ``p`` is true.
 
-Definitional equality is a strong notion of equalty of values. Lean's logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.
+Definitional equality is a strong notion of equality of values. Lean's logical foundations sanction treating definitionally equal terms as being the same when checking that a term is well-typed and/or that it has a given type.
 
 The reduction relation is believed to be strongly normalizing, which is to say, every sequence of reductions applied to a term will eventually terminate. The property guarantees that Lean's type-checking algorithm terminates, at least in principle. The consistency of Lean and its soundness with respect to set-theoretic semantics do not depend on either of these properties.
 

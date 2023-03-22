@@ -1,7 +1,7 @@
 
 # Macro Overview
 
-The offical paper describing the mechanics behind Lean 4's macro system can be
+The official paper describing the mechanics behind Lean 4's macro system can be
 found in [Beyond Notations: Hygienic Macro Expansion for Theorem Proving
 Languages](https://arxiv.org/abs/2001.10490) by Sebastian Ullrich and Leonardo
 de Moura, and the accompanying repo with example code can be found in the
@@ -257,7 +257,7 @@ pretty printed output.
 ## Syntax expansions with `macro_rules`, and how it desugars.
 
 `macro_rules` lets you declare expansions for a given `Syntax` element using a
-syntax simlar to a `match` statement. The left-hand side of a match arm is a
+syntax similar to a `match` statement. The left-hand side of a match arm is a
 quotation (with a leading `<cat>|` for categories other than `term` and
 `command`) in which users can specify the pattern they'd like to write an
 expansion for. The right-hand side returns a syntax quotation which is the

@@ -224,7 +224,7 @@ example (n : Nat) : (binToChar n).isSome -> n = 0 ∨ n = 1 := by
   next => exact fun _ => Or.inr rfl
   next => intro h; cases h
 
-/- Hypotheses about previous cases can be accessesd by assigning them a
+/- Hypotheses about previous cases can be accessed by assigning them a
    name, like `ne_zero` below. Information about the matched term can also
    be preserved using the `generalizing` tactic: -/
 example (n : Nat) : (n = 0) -> (binToChar n = some '0') := by

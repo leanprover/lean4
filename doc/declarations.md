@@ -60,7 +60,7 @@ a b c : Nat
 
 Here ``a b c : Nat`` indicates the local context, and the second ``Nat`` indicates the expected type of the result.
 
-A *context* is sometimes called a *telescope*, but the latter is used more generally to include a sequence of declarations occuring relative to a given context. For example, relative to the context ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)``, the types ``βᵢ`` in a telescope ``(b₁ : β₁) (b₂ : β₂) ... (bₙ : βₙ)`` can refer to ``a₁, ..., aₙ``. Thus a context can be viewed as a telescope relative to the empty context.
+A *context* is sometimes called a *telescope*, but the latter is used more generally to include a sequence of declarations occurring relative to a given context. For example, relative to the context ``(a₁ : α₁) (a₂ : α₂) ... (aₙ : αₙ)``, the types ``βᵢ`` in a telescope ``(b₁ : β₁) (b₂ : β₂) ... (bₙ : βₙ)`` can refer to ``a₁, ..., aₙ``. Thus a context can be viewed as a telescope relative to the empty context.
 
 Telescopes are often used to describe a list of arguments, or parameters, to a declaration. In such cases, it is often notationally convenient to let ``(a : α)`` stand for a telescope rather than just a single argument. In general, the annotations described in [Implicit Arguments](expressions.md#implicit_arguments) can be used to mark arguments as implicit.
 
@@ -76,7 +76,7 @@ Lean provides ways of adding new objects to the environment. The following provi
 * ``theorem c : p := v`` : similar to ``def``, but intended to be used when ``p`` is a proposition.
 * ``opaque c : α (:= v)?`` : declares a opaque constant named ``c`` of type ``α``, the optional value `v` is must have type `α`
   and can be viewed as a certificate that ``α`` is not an empty type. If the value is not provided, Lean tries to find one
-  using a proceture based on type class resolution. The value `v` is hidden from the type checker. You can assume that
+  using a procedure based on type class resolution. The value `v` is hidden from the type checker. You can assume that
   Lean "forgets" `v` after type checking this kind of declaration.
 
 It is sometimes useful to be able to simulate a definition or theorem without naming it or adding it to the environment.

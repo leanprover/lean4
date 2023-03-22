@@ -34,7 +34,7 @@ Unreleased
 
 * [Pretty-print signatures in hover and `#check <ident>`](https://github.com/leanprover/lean4/pull/1943).
 
-* [Introduce parser memoization to avoid exponentional behavior](https://github.com/leanprover/lean4/pull/1799).
+* [Introduce parser memoization to avoid exponential behavior](https://github.com/leanprover/lean4/pull/1799).
 
 * [feat: allow `doSeq` in `let x <- e | seq`](https://github.com/leanprover/lean4/pull/1809).
 
@@ -647,7 +647,7 @@ v4.0.0-m5 (07 August 2022)
     ...
   ```
 
-* Remove support for `{}` annotation from inductive datatype contructors. This annotation was barely used, and we can control the binder information for parameter bindings using the new inductive family indices to parameter promotion. Example: the following declaration using `{}`
+* Remove support for `{}` annotation from inductive datatype constructors. This annotation was barely used, and we can control the binder information for parameter bindings using the new inductive family indices to parameter promotion. Example: the following declaration using `{}`
   ```lean
   inductive LE' (n : Nat) : Nat → Prop where
     | refl {} : LE' n n -- Want `n` to be explicit

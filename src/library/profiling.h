@@ -10,10 +10,10 @@ Author: Gabriel Ebner
 
 namespace lean {
 
-using second_duration = std::chrono::duration<double>;
+using prof_clock = std::chrono::steady_clock;
 
 bool get_profiler(options const &);
-second_duration get_profiling_threshold(options const &);
+prof_clock::duration get_profiling_threshold(options const &);
 
 void initialize_profiling();
 void finalize_profiling();

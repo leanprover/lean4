@@ -24,8 +24,8 @@ bool get_profiler(options const & opts) {
     return opts.get_bool(*g_profiler, LEAN_DEFAULT_PROFILER);
 }
 
-second_duration get_profiling_threshold(options const & opts) {
-    return second_duration(static_cast<double>(opts.get_unsigned(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD))/1000.0);
+prof_clock::duration get_profiling_threshold(options const & opts) {
+    return prof_clock::duration(std::chrono::milliseconds(opts.get_unsigned(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD)));
 }
 
 void initialize_profiling() {

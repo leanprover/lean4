@@ -46,12 +46,12 @@ time_task::time_task(std::string const & category, options const & opts, name de
     if (!m_category.size()) {
         // ignore given block in timings of surrounding task, if any
         if (g_current_time_task) {
-            m_timeit = optional<xtimeit>([](second_duration _) {});
+            m_timeit = optional<xtimeit>([](prof_clock::duration _) {});
             m_parent_task = g_current_time_task;
             g_current_time_task = this;
         }
     } else if (get_profiler(opts)) {
-        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
+        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](prof_clock::duration duration) mutable {
             sstream ss;
             ss << m_category;
             if (decl)

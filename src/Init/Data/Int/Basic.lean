@@ -70,7 +70,7 @@ protected def neg (n : @& Int) : Int :=
   | ofNat n   => negOfNat n
   | negSucc n => succ n
 
-/--
+/-
   The `Neg Int` default instance must have priority higher than `low`
   since the default instance `OfNat Nat n` has `low` priority.
 

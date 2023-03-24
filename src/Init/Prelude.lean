@@ -594,6 +594,17 @@ the "member" type `α` is determined by looking at the container type.
 -/
 @[reducible] def outParam (α : Sort u) : Sort u := α
 
+/--
+Gadget for marking semi output parameters in type classes.
+
+For example, the `Coe` class is defined as:
+```
+class Coe (α : semiOutParam (Type u)) (β : Type v)
+```
+This means that all `Coe` instances should provide a concrete value for `α`.
+-/
+@[reducible] def semiOutParam (α : Sort u) : Sort u := α
+
 set_option linter.unusedVariables.funArgs false in
 /-- Auxiliary declaration used to implement named patterns like `x@h:p`. -/
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
@@ -2758,7 +2769,7 @@ Alternatively, an implementation of [`MonadLayer`] without `layerInvmap` (so far
   [`MonadTrans`]: https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html
   [`MonadLayer`]: https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer
 -/
-class MonadLift (m : Type u → Type v) (n : Type u → Type w) where
+class MonadLift (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
   /-- Lifts a value from monad `m` into monad `n`. -/
   monadLift : {α : Type u} → m α → n α
 
@@ -2793,7 +2804,7 @@ monad transformers. Alternatively, an implementation of [`MonadTransFunctor`].
   [`MFunctor`]: https://hackage.haskell.org/package/pipes-2.4.0/docs/Control-MFunctor.html
   [`MonadTransFunctor`]: http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadTransFunctor
 -/
-class MonadFunctor (m : Type u → Type v) (n : Type u → Type w) where
+class MonadFunctor (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
   /-- Lifts a monad morphism `f : {β : Type u} → m β → m β` to
   `monadMap f : {α : Type u} → n α → n α`. -/
   monadMap {α : Type u} : ({β : Type u} → m β → m β) → n α → n α
@@ -2846,7 +2857,7 @@ The `try ... catch e => ...` syntax inside `do` blocks is sugar for the
 
   [`MonadError`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError
 -/
-class MonadExceptOf (ε : Type u) (m : Type v → Type w) where
+class MonadExceptOf (ε : semiOutParam (Type u)) (m : Type v → Type w) where
   /-- `throw : ε → m α` "throws an error" of type `ε` to the nearest enclosing
   catch block. -/
   throw {α : Type v} : ε → m α
@@ -2998,7 +3009,7 @@ class MonadReaderOf (ρ : Type u) (n : Type u → Type u) where
 
   [`MonadReader`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Reader-Class.html#t:MonadReader
 -/
-class MonadReaderOf (ρ : Type u) (m : Type u → Type v) where
+class MonadReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
   /-- `(← read) : ρ` reads the state out of monad `m`. -/
   read : m ρ
 
@@ -3033,7 +3044,7 @@ function `f : ρ → ρ`. In addition to `ReaderT` itself, this operation lifts
 over most monad transformers, so it allows us to apply `withReader` to monads
 deeper in the stack.
 -/
-class MonadWithReaderOf (ρ : Type u) (m : Type u → Type v) where
+class MonadWithReaderOf (ρ : semiOutParam (Type u)) (m : Type u → Type v) where
   /-- `withReader (f : ρ → ρ) (x : m α) : m α`  runs the inner `x : m α` inside
   a modified context after applying the function `f : ρ → ρ`.-/
   withReader {α : Type u} : (ρ → ρ) → m α → m α
@@ -3069,7 +3080,7 @@ we use overlapping instances to derive instances automatically from `monadLift`.
 
   [`MonadState`]: https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-State-Class.html
 -/
-class MonadStateOf (σ : Type u) (m : Type u → Type v) where
+class MonadStateOf (σ : semiOutParam (Type u)) (m : Type u → Type v) where
   /-- `(← get) : σ` gets the state out of a monad `m`. -/
   get : m σ
   /-- `set (s : σ)` replaces the state with value `s`. -/

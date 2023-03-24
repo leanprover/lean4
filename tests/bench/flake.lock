@@ -210,11 +210,11 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1678981148,
-        "narHash": "sha256-bu/axGjFHNBPvkYinpOIBBLMB4Fr5RaGbrQdGR+FfCQ=",
+        "lastModified": 1679654014,
+        "narHash": "sha256-0vQYfDsIc42ilA3A30MYPuViQdjlw3zMapR9Azr/LwU=",
         "owner": "Kha",
         "repo": "temci",
-        "rev": "a450e332ebcef4249bb2b0173c42e06cedefab93",
+        "rev": "4ad28486ef92c5b530d6e7b8f6a975cdaa98a857",
         "type": "github"
       },
       "original": {

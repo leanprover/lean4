@@ -928,6 +928,7 @@ class Quote (α : Type) (k : SyntaxNodeKind := `term) where
 
 export Quote (quote)
 
+set_option synthInstance.checkSynthOrder false in
 instance [Quote α k] [CoeHTCT (TSyntax k) (TSyntax [k'])] : Quote α k' := ⟨fun a => quote (k := k) a⟩
 
 instance : Quote Term := ⟨id⟩

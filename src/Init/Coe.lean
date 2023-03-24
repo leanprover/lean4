@@ -122,7 +122,7 @@ chained with other `Coe` instances, and coercion is automatically used when
 `x` has type `α` but it is used in a context where `β` is expected.
 You can use the `↑x` operator to explicitly trigger coercion.
 -/
-class Coe (α : Sort u) (β : Sort v) where
+class Coe (α : semiOutParam (Sort u)) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
@@ -145,7 +145,7 @@ instance : CoeTC α α where coe a := a
 /--
 `CoeOut α β` is for coercions that are applied from left-to-right.
 -/
-class CoeOut (α : Sort u) (β : Sort v) where
+class CoeOut (α : Sort u) (β : semiOutParam (Sort v)) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
@@ -173,7 +173,7 @@ instance : CoeOTC α α where coe a := a
 `CoeHead α β` is for coercions that are applied from left-to-right at most once
 at beginning of the coercion chain.
 -/
-class CoeHead (α : Sort u) (β : Sort v) where
+class CoeHead (α : Sort u) (β : semiOutParam (Sort v)) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β
@@ -198,7 +198,7 @@ instance : CoeHTC α α where coe a := a
 sequence of coercions. That is, `α` can be further coerced via `Coe σ α` and
 `CoeHead τ σ` instances but `β` will only be the expected type of the expression.
 -/
-class CoeTail (α : Sort u) (β : Sort v) where
+class CoeTail (α : semiOutParam (Sort u)) (β : Sort v) where
   /-- Coerces a value of type `α` to type `β`. Accessible by the notation `↑x`,
   or by double type ascription `((x : α) : β)`. -/
   coe : α → β

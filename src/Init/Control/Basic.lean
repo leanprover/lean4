@@ -186,7 +186,7 @@ This is the same as [`MonadBaseControl`](https://hackage.haskell.org/package/mon
 To learn about `MonadControl`, see the comment above this docstring.
 
 -/
-class MonadControl (m : Type u → Type v) (n : Type u → Type w) where
+class MonadControl (m : semiOutParam (Type u → Type v)) (n : Type u → Type w) where
   stM      : Type u → Type u
   liftWith : {α : Type u} → (({β : Type u} → n β → m (stM β)) → m α) → n α
   restoreM : {α : Type u} → m (stM α) → n α

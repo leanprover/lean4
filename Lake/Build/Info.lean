@@ -7,7 +7,6 @@ import Lake.Config.LeanExe
 import Lake.Config.ExternLib
 import Lake.Build.Facets
 import Lake.Util.EquipT
-import Lake.Util.Fact
 
 /-!
 # Build Info
@@ -73,6 +72,12 @@ abbrev BuildInfo.key : (self : BuildInfo) → BuildKey
 | dynlibExternLib l => l.dynlibBuildKey
 | target p t => p.targetBuildKey t
 
+/-- Class recording that a package `p` has name `n`. -/
+class PackageName (p : Package) (n : outParam Name) : Prop where
+  proof : p.name = n
+
+instance : PackageName p p.name := ⟨rfl⟩
+
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 
 instance [FamilyDef ModuleData f α]
@@ -83,7 +88,7 @@ instance [FamilyDef PackageData f α]
 : FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
   family_key_eq_type := by unfold BuildData; simp
 
-instance [h : Fact (p.name = n)] [FamilyDef CustomData (n, t) α]
+instance [h : PackageName p n] [FamilyDef CustomData (n, t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p t)) α where
   family_key_eq_type := by unfold BuildData; simp [h.proof]
 

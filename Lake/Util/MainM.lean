@@ -74,8 +74,7 @@ protected def error (msg : String) (rc : ExitCode := 1) : MainM α := do
   exit rc
 
 instance : MonadError MainM := ⟨MainM.error⟩
-instance [ToString ε] : MonadLift (EIO ε) MainM := ⟨MonadError.runEIO⟩
-instance : MonadLift IO MainM := inferInstance -- necessary, but don't know why
+instance : MonadLift IO MainM := ⟨MonadError.runEIO⟩
 
 def runLogIO (x : LogIO α) (verbosity := Verbosity.normal) : MainM α :=
   liftM <| x.run <| MonadLog.eio verbosity

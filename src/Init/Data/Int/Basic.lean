@@ -12,7 +12,7 @@ import Init.Data.List.Basic
 set_option linter.missingDocs true -- keep it documented
 open Nat
 
-/-! # `Int`eger Type, Coercions, and Notation
+/-! # Integer Type, Coercions, and Notation
 
 This file defines the `Int` type as well as
 
@@ -26,10 +26,10 @@ This file defines the `Int` type as well as
 /--
 The type of integers. It is defined as an inductive type based on the
 natural number type `Nat` featuring two constructors: "a natural
-number is an integer", and "the negation of a `Nat.succ`essor of a
-natural number is an integer". The former represents integers between
-`0` (inclusive) and `∞`, and the latter integers between `-∞` and
-`-1` (inclusive).
+number is an integer", and "the negation of a successor of a natural
+number is an integer". The former represents integers between `0`
+(inclusive) and `∞`, and the latter integers between `-∞` and `-1`
+(inclusive).
 
 This type is special-cased by the compiler. The runtime has a special
 representation for `Int` which stores "small" signed numbers directly,

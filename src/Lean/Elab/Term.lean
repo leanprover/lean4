@@ -196,9 +196,9 @@ structure Context where
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
-  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for  -/
+  /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
   isNoncomputableSection : Bool        := false
-  /-- When `true` we skip TC failures. We use this option when processing patterns -/
+  /-- When `true` we skip TC failures. We use this option when processing patterns. -/
   ignoreTCFailures : Bool := false
   /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/
   inPattern        : Bool := false
@@ -367,14 +367,14 @@ opaque mkTermElabAttribute (ref : Name) : IO (KeyedDeclsAttribute TermElab)
 builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermElabAttribute decl_name%
 
 /--
-  Auxiliary datatatype for presenting a Lean lvalue modifier.
-  We represent a unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
+  Auxiliary datatype for presenting a Lean lvalue modifier.
+  We represent an unelaborated lvalue as a `Syntax` (or `Expr`) and `List LVal`.
   Example: `a.foo.1` is represented as the `Syntax` `a` and the list
   `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
 -/
 inductive LVal where
   | fieldIdx  (ref : Syntax) (i : Nat)
-  /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierachical/composite name.
+  /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
   `ref` is the syntax object representing the field. `targetStx` is the target object being accessed. -/
   | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (targetStx : Syntax)
 
@@ -398,7 +398,7 @@ def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecs
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 
-/-- Execute `x` with `declName? := name`. See `getDeclName? -/
+/-- Execute `x` with `declName? := name`. See `getDeclName?`. -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with declName? := name }) x
 
@@ -426,7 +426,7 @@ def withoutErrToSorryImp (x : TermElabM α) : TermElabM α :=
 
 /--
   Execute `x` without converting errors (i.e., exceptions) to `sorry` applications.
-  Recall that when `errToSorry = true`, the method `elabTerm` catches exceptions and convert them into `sorry` applications.
+  Recall that when `errToSorry = true`, the method `elabTerm` catches exceptions and converts them into `sorry` applications.
 -/
 def withoutErrToSorry [MonadFunctorT TermElabM m] : m α → m α :=
   monadMap (m := TermElabM) withoutErrToSorryImp
@@ -498,7 +498,7 @@ def registerCustomErrorIfMVar (e : Expr) (ref : Syntax) (msgData : MessageData) 
   Auxiliary method for reporting errors of the form "... contains metavariables ...".
   This kind of error is thrown, for example, at `Match.lean` where elaboration
   cannot continue if there are metavariables in patterns.
-  We only want to log it if we haven't logged any error so far. -/
+  We only want to log it if we haven't logged any errors so far. -/
 def throwMVarError (m : MessageData) : TermElabM α := do
   if (← MonadLog.hasErrors) then
     throwAbortTerm
@@ -724,7 +724,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       unless (← isDefEq oldVal val) do
         if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
           /- If `val` or `oldVal` contains metavariables directly or indirectly (e.g., in a let-declaration),
-             we return `false` to indicate we should try again later. This is very course grain since
+             we return `false` to indicate we should try again later. This is very coarse grain since
              the metavariable may not be responsible for the failure. We should refine the test in the future if needed.
              This check has been added to address dependencies between postponed metavariables. The following
              example demonstrates the issue fixed by this test.
@@ -797,7 +797,7 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   mkSyntheticSorry expectedType
 
 /--
-  Log the given exception, and create an synthetic sorry for representing the failed
+  Log the given exception, and create a synthetic sorry for representing the failed
   elaboration step with exception `ex`.
 -/
 def exceptionToSorry (ex : Exception) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -883,15 +883,15 @@ def getSyntheticMVarDecl? (mvarId : MVarId) : TermElabM (Option SyntheticMVarDec
   return (← get).syntheticMVars.find? mvarId
 
 /--
-  Create an auxiliary annotation to make sure we create a `Info` even if `e` is a metavariable.
+  Create an auxiliary annotation to make sure we create an `Info` even if `e` is a metavariable.
   See `mkTermInfo`.
 
-  We use this functions because some elaboration functions elaborate subterms that may not be immediately
+  We use this function because some elaboration functions elaborate subterms that may not be immediately
   part of the resulting term. Example:
   ```
   let_mvar% ?m := b; wait_if_type_mvar% ?m; body
   ```
-  If the type of `b` is not known, then `wait_if_type_mvar% ?m; body` is postponed and just return a fresh
+  If the type of `b` is not known, then `wait_if_type_mvar% ?m; body` is postponed and just returns a fresh
   metavariable `?n`. The elaborator for
   ```
   let_mvar% ?m := b; wait_if_type_mvar% ?m; body
@@ -978,7 +978,7 @@ def postponeElabTerm (stx : Syntax) (expectedType? : Option Expr) : TermElabM Ex
     postponeElabTermCore stx expectedType?
 
 /--
-  Helper function for `elabTerm` is tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
+  Helper function for `elabTerm` that tries the registered elaboration functions for `stxNode` kind until it finds one that supports the syntax or
   an error is found. -/
 private def elabUsingElabFnsAux (s : SavedState) (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone : Bool)
     : List (KeyedDeclsAttribute.AttributeEntry TermElab) → TermElabM Expr
@@ -1049,7 +1049,7 @@ private def isExplicitApp (stx : Syntax) : Bool :=
   stx.getKind == ``Lean.Parser.Term.app && isExplicit stx[0]
 
 /--
-  Return true if `stx` if a lambda abstraction containing a `{}` or `[]` binder annotation.
+  Return true if `stx` is a lambda abstraction containing a `{}` or `[]` binder annotation.
   Example: `fun {α} (a : α) => a` -/
 private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   match stx with
@@ -1134,7 +1134,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     end
   ```
   In the example above, we have two local declarations named `toString` in the local context, and
-  we want the `toString f` to be resolved to `Foo.toString f`
+  we want the `toString f` to be resolved to `Foo.toString f`.
   -/
   let matchAuxRecDecl? (localDecl : LocalDecl) (fullDeclName : Name) (givenNameView : MacroScopesView) : Option LocalDecl := do
     let fullDeclView := extractMacroScopes fullDeclName
@@ -1165,7 +1165,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
       return localDecl
     else
       /-
-         It is the standard algorithm we using at `resolveGlobalName` for processing namespaces.
+         It is the standard algorithm we are using at `resolveGlobalName` for processing namespaces.
 
          The current solution also has a limitation when using `def _root_` in a mutual block.
          The non `def _root_` declarations may update the namespace. See the following example:
@@ -1215,7 +1215,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
   /-
   We use the parameter `globalDeclFound` to decide whether we should skip auxiliary declarations or not.
   We set it to true if we found a global declaration `n` as we iterate over the `loop`.
-  Without this workaround, we would not be able to elaborate example such as
+  Without this workaround, we would not be able to elaborate an example such as
   ```
   def foo.aux := 1
   def foo : Nat → Nat
@@ -1319,7 +1319,7 @@ private def decorateErrorMessageWithLambdaImplicitVars (ex : Exception) (impFVar
         let auxMsg := m!"{impFVar} : {← inferType impFVar}"
         let auxMsg ← addMessageContext auxMsg
         msg := m!"{msg}{indentD auxMsg}"
-      msg := m!"{msg}\nyou can disable implict lambdas using `@` or writing a lambda expression with `\{}` or `[]` binder annotations."
+      msg := m!"{msg}\nyou can disable implicit lambdas using `@` or writing a lambda expression with `\{}` or `[]` binder annotations."
       return Exception.error ref msg
   | _ => return ex
 
@@ -1411,7 +1411,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPo
   let e ← elabTerm stx expectedType? catchExPostpone implicitLambda
   withRef stx <| ensureHasType expectedType? e errorMsgHeader?
 
-/-- Execute `x` and return `some` if no new errors were recorded or exceptions was thrown. Otherwise, return `none` -/
+/-- Execute `x` and return `some` if no new errors were recorded or exceptions were thrown. Otherwise, return `none`. -/
 def commitIfNoErrors? (x : TermElabM α) : TermElabM (Option α) := do
   let saved ← saveState
   Core.resetMessageLog
@@ -1434,7 +1434,7 @@ def adaptExpander (exp : Syntax → TermElabM Syntax) : TermElab := fun stx expe
 
 /--
   Create a new metavariable with the given type, and try to synthesize it.
-  It type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
+  If type class resolution cannot be executed (e.g., it is stuck because of metavariables in `type`),
   register metavariable as a pending one.
 -/
 def mkInstMVar (type : Expr) : TermElabM Expr := do
@@ -1445,7 +1445,7 @@ def mkInstMVar (type : Expr) : TermElabM Expr := do
   return mvar
 
 /--
-  Make sure `e` is a type by inferring its type and making sure it is a `Expr.sort`
+  Make sure `e` is a type by inferring its type and making sure it is an `Expr.sort`
   or is unifiable with `Expr.sort`, or can be coerced into one. -/
 def ensureType (e : Expr) : TermElabM Expr := do
   if (← isType e) then
@@ -1527,7 +1527,7 @@ where
 
 /--
   Return `autoBoundImplicits ++ xs`
-  This methoid throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
+  This method throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
   The `autoBoundImplicits` may contain free variables created by the auto-implicit feature, and unassigned free variables.
   It avoids the hack used at `autoBoundImplicitsOld`.
 
@@ -1554,9 +1554,9 @@ where
 
 /--
   Similar to `autoBoundImplicits`, but immediately if the resulting array of expressions contains metavariables,
-  it immediately use `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
+  it immediately uses `mkForallFVars` + `forallBoundedTelescope` to convert them into free variables.
   The type `type` is modified during the process if type depends on `xs`.
-  We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`
+  We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
 def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
   let xs ← addAutoBoundImplicits xs

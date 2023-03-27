@@ -16,7 +16,7 @@ open Nat
 
 This file defines the `Int` type as well as
 
-* coercions, conversions, and compatibility with arithmetic literals,
+* coercions, conversions, and compatibility with numeric literals,
 * basic arithmetic operations add/sub/mul/div/mod/pow,
 * a few `Nat`-related operations such as `negOfNat` and `subNatNat`,
 * relations `<`/`≤`/`≥`/`>`, the `NonNeg` property and `min`/`max`,
@@ -150,13 +150,13 @@ inductive NonNeg : Int → Prop where
   /-- Sole constructor, proving that `ofNat n` is positive. -/
   | mk (n : Nat) : NonNeg (ofNat n)
 
-/-- Proof that `a ≤ b` encoded as `b - a ≥ 0`. -/
+/-- Definition of `a ≤ b`, encoded as `b - a ≥ 0`. -/
 protected def le (a b : Int) : Prop := NonNeg (b - a)
 
 instance : LE Int where
   le := Int.le
 
-/-- Proof that `a < b` encoded as `a + 1 ≤ b`. -/
+/-- Definition of `a < b`, encoded as `a + 1 ≤ b`. -/
 protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
 instance : LT Int where
@@ -202,7 +202,7 @@ private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   | ofNat m   => isTrue <| NonNeg.mk m
   | negSucc _ => isFalse <| fun h => nomatch h
 
-/-- Decides wether `a ≤ b`.
+/-- Decides whether `a ≤ b`.
 
   ```
   #eval ¬ ( (7 : Int) ≤ (0 : Int) ) -- true
@@ -215,7 +215,7 @@ private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
   decNonneg _
 
-/-- Decides wether `a < b`.
+/-- Decides whether `a < b`.
 
   ```
   #eval `¬ ( (7 : Int) < 0 )` -- true

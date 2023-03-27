@@ -200,6 +200,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_isAssignable___at___private_Lean_Meta_Tac
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___lambda__7___closed__1;
 static lean_object* l_Lean_Meta_Simp_rewriteUsingDecide_x3f___closed__14;
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Meta_Simp_synthesizeArgs_synthesizeInstance___spec__4___closed__3;
 lean_object* l_Lean_Meta_Simp_Step_updateResult(lean_object*, lean_object*);
 extern lean_object* l_Lean_inheritedTraceOptions;
@@ -273,7 +274,6 @@ lean_object* l_Lean_Meta_isClass_x3f(lean_object*, lean_object*, lean_object*, l
 lean_object* l_Lean_Meta_mkCongrFun(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVarsCore(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_synthesizeArgs___spec__2___closed__3;
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_preDefault(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpArith_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
@@ -5017,7 +5017,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_isLevelMVarAssignable___at___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___spec__5___closed__1;
 x_2 = l_Lean_isLevelMVarAssignable___at___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___spec__5___closed__2;
-x_3 = lean_unsigned_to_nat(390u);
+x_3 = lean_unsigned_to_nat(393u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_isLevelMVarAssignable___at___private_Lean_Meta_Tactic_Simp_Rewrite_0__Lean_Meta_Simp_tryTheoremCore_go___spec__5___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10940,7 +10940,7 @@ x_44 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__4;
 x_45 = 0;
 x_46 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__5;
 x_47 = 0;
-x_48 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_44, x_45, x_1, x_46, x_47, x_2, x_3, x_4, x_5, x_28);
+x_48 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_44, x_45, x_1, x_46, x_47, x_2, x_3, x_4, x_5, x_28);
 if (lean_obj_tag(x_48) == 0)
 {
 uint8_t x_49; 
@@ -11087,7 +11087,7 @@ x_77 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__4;
 x_78 = 0;
 x_79 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__5;
 x_80 = 0;
-x_81 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_77, x_78, x_1, x_79, x_80, x_2, x_3, x_4, x_5, x_59);
+x_81 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_77, x_78, x_1, x_79, x_80, x_2, x_3, x_4, x_5, x_59);
 if (lean_obj_tag(x_81) == 0)
 {
 lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; 
@@ -11371,7 +11371,7 @@ x_141 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__4;
 x_142 = 0;
 x_143 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__5;
 x_144 = 0;
-x_145 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_141, x_142, x_1, x_143, x_144, x_2, x_3, x_4, x_5, x_122);
+x_145 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_141, x_142, x_1, x_143, x_144, x_2, x_3, x_4, x_5, x_122);
 if (lean_obj_tag(x_145) == 0)
 {
 lean_object* x_146; lean_object* x_147; lean_object* x_148; lean_object* x_149; 
@@ -11691,7 +11691,7 @@ x_213 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__4;
 x_214 = 0;
 x_215 = l_Lean_Meta_Simp_rewriteCtorEq_x3f___closed__5;
 x_216 = 0;
-x_217 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_213, x_214, x_1, x_215, x_216, x_185, x_3, x_4, x_5, x_194);
+x_217 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_213, x_214, x_1, x_215, x_216, x_185, x_3, x_4, x_5, x_194);
 if (lean_obj_tag(x_217) == 0)
 {
 lean_object* x_218; lean_object* x_219; lean_object* x_220; lean_object* x_221; 

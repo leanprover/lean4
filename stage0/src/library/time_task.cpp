@@ -68,10 +68,11 @@ time_task::~time_task() {
     }
 }
 
-/* profileit {α : Type} (category : String) (opts : Options) (fn : Unit → α) : α */
-extern "C" LEAN_EXPORT obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, obj_arg fn) {
+/* profileit {α : Type} (category : String) (opts : Options) (fn : Unit → α) (decl : Name) : α */
+extern "C" LEAN_EXPORT obj_res lean_profileit(b_obj_arg category, b_obj_arg opts, obj_arg fn, obj_arg decl) {
     time_task t(string_to_std(category),
-                TO_REF(options, opts));
+                TO_REF(options, opts),
+                name(decl));
     return apply_1(fn, box(0));
 }
 }

@@ -255,6 +255,7 @@ static lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___sp
 lean_object* l_Lean_MVarId_assert(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getInductiveUniverseAndParams___closed__1;
 static lean_object* l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_mkEqAndProof___closed__5;
+lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_byCases___closed__5;
 static lean_object* l_Lean_Meta_generalizeTargetsEq___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_generalizeTargetsEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -340,7 +341,6 @@ lean_object* l_Lean_mkEM(lean_object*);
 static lean_object* l_Lean_Meta_Cases_cases___lambda__2___closed__6;
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__48(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_hasIndepIndices___spec__55(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Cases_cases___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Cases_Context_nminors___default(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Meta_generalizeIndices___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1217,7 +1217,7 @@ lean_closure_set(x_25, 6, x_3);
 x_26 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_withNewEqs_loop___rarg___closed__2;
 x_27 = 0;
 x_28 = 0;
-x_29 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_26, x_27, x_23, x_25, x_28, x_7, x_8, x_9, x_10, x_22);
+x_29 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_26, x_27, x_23, x_25, x_28, x_7, x_8, x_9, x_10, x_22);
 return x_29;
 }
 else
@@ -1286,7 +1286,7 @@ lean_closure_set(x_40, 6, x_3);
 x_41 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_withNewEqs_loop___rarg___closed__2;
 x_42 = 0;
 x_43 = 0;
-x_44 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_41, x_42, x_38, x_40, x_43, x_7, x_8, x_9, x_10, x_37);
+x_44 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_41, x_42, x_38, x_40, x_43, x_7, x_8, x_9, x_10, x_37);
 return x_44;
 }
 else
@@ -2274,7 +2274,7 @@ lean_closure_set(x_22, 8, x_21);
 x_23 = l___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_withNewEqs_loop___rarg___closed__2;
 x_24 = 0;
 x_25 = 0;
-x_26 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_23, x_24, x_19, x_22, x_25, x_10, x_11, x_12, x_13, x_18);
+x_26 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_23, x_24, x_19, x_22, x_25, x_10, x_11, x_12, x_13, x_18);
 return x_26;
 }
 else
@@ -2348,7 +2348,7 @@ lean_closure_set(x_16, 4, x_5);
 lean_closure_set(x_16, 5, x_6);
 x_17 = 0;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_SynthInstance_removeUnusedArguments_x3f___spec__2___rarg(x_15, x_17, x_14, x_16, x_18, x_9, x_10, x_11, x_12, x_13);
+x_19 = l_Lean_Meta_withLocalDecl___at___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm___spec__1___rarg(x_15, x_17, x_14, x_16, x_18, x_9, x_10, x_11, x_12, x_13);
 return x_19;
 }
 }

@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_E
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getId(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_get_extern_const_arity(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__1;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
@@ -56,11 +57,13 @@ uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instBEqExpr;
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28;
 uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1116____at___private_Lean_Meta_Basic_0__Lean_Meta_beqInfoCacheKey____x40_Lean_Meta_Basic___hyg_368____spec__1(lean_object*, lean_object*);
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 extern lean_object* l_Lean_projectionFnInfoExt;
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 uint32_t l_String_Iterator_curr(lean_object*);
 LEAN_EXPORT lean_object* lean_get_extern_attr_data(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -73,6 +76,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getExternEntryFor___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_mkSimpleFnCall___closed__3;
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__17;
 uint8_t l_String_Iterator_hasNext(lean_object*);
 static lean_object* l_Lean_getExternConstArityExport___closed__8;
@@ -87,13 +91,16 @@ lean_object* lean_array_to_list(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___lambda__1___closed__1;
 lean_object* l_Lean_Syntax_isStrLit_x3f(lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Expr_instHashableExpr;
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866____closed__9;
 LEAN_EXPORT lean_object* l_Lean_mkSimpleFnCall(lean_object*, lean_object*);
 lean_object* l_List_foldl___at_String_join___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__19;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__9;
+lean_object* l_Lean_instHashableLocalInstance___boxed(lean_object*);
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__3;
 uint8_t lean_name_eq(lean_object*, lean_object*);
@@ -112,6 +119,7 @@ extern lean_object* l_Lean_instInhabitedProjectionFunctionInfo;
 static lean_object* l_Lean_getExternConstArityExport___closed__5;
 LEAN_EXPORT lean_object* l_Lean_getExternNameFor___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getExternConstArityExport___closed__1;
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__25;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_866____closed__1;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__4;
 static lean_object* l_Lean_getExternConstArityExport___closed__6;
@@ -130,6 +138,7 @@ lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__20;
 lean_object* l_Lean_ParametricAttribute_getParam_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__6;
+static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__3;
 lean_object* l_List_intersperse___rarg(lean_object*, lean_object*);
@@ -170,6 +179,7 @@ static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstA
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__18;
 static lean_object* l_Lean_getExternConstArityExport___closed__4;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__13;
+lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_parseOptNum(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__10;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2081,6 +2091,66 @@ return x_3;
 static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__17() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqLocalInstance___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__18() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__17;
+x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__19() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__18;
+x_2 = l_Lean_Expr_instBEqExpr;
+x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__20() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instHashableLocalInstance___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__21() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__20;
+x_2 = lean_alloc_closure((void*)(l_instHashableArray___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__21;
+x_2 = l_Lean_Expr_instHashableExpr;
+x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__3;
 x_2 = lean_unsigned_to_nat(0u);
@@ -2090,7 +2160,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__18() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2101,7 +2171,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__19() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2112,7 +2182,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__20() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2124,14 +2194,14 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__21() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__14;
 x_2 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__16;
-x_3 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__17;
-x_4 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__20;
+x_3 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23;
+x_4 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26;
 x_5 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -2142,13 +2212,13 @@ lean_ctor_set(x_5, 5, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__13;
-x_3 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__21;
+x_3 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27;
 x_4 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__7;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_2);
@@ -2158,7 +2228,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23() {
+static lean_object* _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29() {
 _start:
 {
 lean_object* x_1; 
@@ -2199,14 +2269,14 @@ lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_ConstantInfo_type(x_14);
 lean_dec(x_14);
-x_17 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22;
+x_17 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28;
 x_18 = lean_st_mk_ref(x_17, x_15);
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23;
+x_21 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
 x_22 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__9;
 lean_inc(x_19);
 x_23 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_16, x_21, x_22, x_19, x_2, x_3, x_20);
@@ -2314,14 +2384,14 @@ lean_inc(x_43);
 lean_dec(x_41);
 x_44 = l_Lean_ConstantInfo_type(x_42);
 lean_dec(x_42);
-x_45 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22;
+x_45 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28;
 x_46 = lean_st_mk_ref(x_45, x_43);
 x_47 = lean_ctor_get(x_46, 0);
 lean_inc(x_47);
 x_48 = lean_ctor_get(x_46, 1);
 lean_inc(x_48);
 lean_dec(x_46);
-x_49 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23;
+x_49 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
 x_50 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__9;
 lean_inc(x_47);
 x_51 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_44, x_49, x_50, x_47, x_2, x_3, x_48);
@@ -2448,14 +2518,14 @@ lean_inc(x_76);
 lean_dec(x_74);
 x_77 = l_Lean_ConstantInfo_type(x_75);
 lean_dec(x_75);
-x_78 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22;
+x_78 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28;
 x_79 = lean_st_mk_ref(x_78, x_76);
 x_80 = lean_ctor_get(x_79, 0);
 lean_inc(x_80);
 x_81 = lean_ctor_get(x_79, 1);
 lean_inc(x_81);
 lean_dec(x_79);
-x_82 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23;
+x_82 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
 x_83 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__9;
 lean_inc(x_80);
 x_84 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_77, x_82, x_83, x_80, x_2, x_3, x_81);
@@ -2564,14 +2634,14 @@ lean_inc(x_103);
 lean_dec(x_101);
 x_104 = l_Lean_ConstantInfo_type(x_102);
 lean_dec(x_102);
-x_105 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22;
+x_105 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28;
 x_106 = lean_st_mk_ref(x_105, x_103);
 x_107 = lean_ctor_get(x_106, 0);
 lean_inc(x_107);
 x_108 = lean_ctor_get(x_106, 1);
 lean_inc(x_108);
 lean_dec(x_106);
-x_109 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23;
+x_109 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29;
 x_110 = l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__9;
 lean_inc(x_107);
 x_111 = l_Lean_Meta_forallTelescopeReducing___at_Lean_Meta_getParamNames___spec__2___rarg(x_104, x_109, x_110, x_107, x_2, x_3, x_108);
@@ -3112,6 +3182,18 @@ l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22 = 
 lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__22);
 l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23();
 lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__23);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__24);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__25 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__25();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__25);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__26);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__27);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__28);
+l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29 = _init_l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29();
+lean_mark_persistent(l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__29);
 l_Lean_getExternConstArityExport___closed__1 = _init_l_Lean_getExternConstArityExport___closed__1();
 lean_mark_persistent(l_Lean_getExternConstArityExport___closed__1);
 l_Lean_getExternConstArityExport___closed__2 = _init_l_Lean_getExternConstArityExport___closed__2();

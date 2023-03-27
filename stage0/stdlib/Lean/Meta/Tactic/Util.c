@@ -64,6 +64,7 @@ LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_saturate_go___
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_headBetaMVarType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_throwTacticEx___rarg___closed__3;
+uint8_t l_Lean_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_throwNestedTacticEx___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -137,7 +138,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556___
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_MVarId_getNondepPropHyps___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getMVarType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_admit___lambda__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__7;
 LEAN_EXPORT lean_object* l_Lean_Meta_getPropHyps(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_extractMacroScopes(lean_object*);
@@ -170,6 +170,7 @@ LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_checked___at_Lean_MVarId_getNon
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_saturate_go___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_List_erase___at_Lean_MVarId_getNondepPropHyps___spec__4___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_exactlyOne(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_saturate_go___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_getPropHyps___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__2;
@@ -217,7 +218,6 @@ LEAN_EXPORT lean_object* l_List_replace___at_Lean_MVarId_getNondepPropHyps___spe
 LEAN_EXPORT lean_object* l_Lean_Meta_checkNotAssigned___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 uint64_t l___private_Lean_Expr_0__Lean_hashFVarId____x40_Lean_Expr___hyg_1933_(lean_object*);
-uint8_t l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_inferInstance___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_setTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2059,7 +2059,7 @@ x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
 lean_inc(x_1);
-x_14 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_13, x_1);
+x_14 = l_Lean_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_13, x_1);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
@@ -2075,7 +2075,7 @@ if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
 x_19 = lean_ctor_get(x_16, 1);
-x_20 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_19, x_1);
+x_20 = l_Lean_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_19, x_1);
 lean_ctor_set(x_16, 1, x_20);
 x_21 = lean_st_ref_set(x_2, x_16, x_17);
 x_22 = !lean_is_exclusive(x_21);
@@ -2111,7 +2111,7 @@ x_31 = lean_ctor_get(x_16, 1);
 lean_inc(x_31);
 lean_inc(x_30);
 lean_dec(x_16);
-x_32 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_31, x_1);
+x_32 = l_Lean_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_31, x_1);
 x_33 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_33, 0, x_30);
 lean_ctor_set(x_33, 1, x_32);
@@ -2160,7 +2160,7 @@ x_44 = lean_ctor_get(x_42, 1);
 lean_inc(x_44);
 lean_dec(x_42);
 lean_inc(x_1);
-x_45 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_44, x_1);
+x_45 = l_Lean_HashSetImp_contains___at_Lean_CollectFVars_visit___spec__1(x_44, x_1);
 if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; 
@@ -2182,7 +2182,7 @@ if (lean_is_exclusive(x_47)) {
  lean_dec_ref(x_47);
  x_51 = lean_box(0);
 }
-x_52 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_50, x_1);
+x_52 = l_Lean_HashSetImp_insert___at_Lean_CollectFVars_visit___spec__3(x_50, x_1);
 if (lean_is_scalar(x_51)) {
  x_53 = lean_alloc_ctor(0, 2, 0);
 } else {

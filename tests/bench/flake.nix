@@ -1,10 +1,10 @@
 {
   inputs.lean.url = "git+file:../..";
-  inputs.flake-utils.url = github:numtide/flake-utils;
+  inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.flake-utils.follows = "lean/flake-utils";
-  inputs.temci.url = github:Kha/temci;
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-  inputs.disable-st.url = https://github.com/Kha/lean4/commit/no-st.patch;
+  inputs.temci.url = "github:Kha/temci";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.disable-st.url = "https://github.com/Kha/lean4/commit/no-st.patch";
   inputs.disable-st.flake = false;
 
   outputs = inputs: inputs.flake-utils.lib.eachDefaultSystem (system: { packages = rec {

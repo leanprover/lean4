@@ -1,6 +1,8 @@
 Unreleased
 ---------
 
+* [Show typeclass and tactic names in profile output](https://github.com/leanprover/lean4/pull/2170).
+
 * [Make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),
   and [add `calc` alternative syntax allowing underscores `_` in the first relation](https://github.com/leanprover/lean4/pull/1844).
 

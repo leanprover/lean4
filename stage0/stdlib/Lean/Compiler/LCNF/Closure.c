@@ -50,7 +50,6 @@ lean_object* l_instInhabited___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Closure_State_params___default___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_Closure_collectFVar___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Closure_collectFVar___closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Closure_run___rarg___closed__1;
@@ -76,15 +75,16 @@ size_t lean_usize_add(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_checked___at_Lean_Compiler_LCNF_Closure_collectType___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExprWhere_visited___at_Lean_Compiler_LCNF_Closure_collectType___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_Closure_collectFVar___spec__1___closed__3;
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_findParam_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_HashSetImp_contains___at_Lean_CollectMVars_visit___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_State_params___default;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectFunDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Closure_collectType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Compiler_LCNF_Closure_State_visited___default() {
@@ -559,7 +559,7 @@ x_14 = lean_ctor_get(x_12, 1);
 lean_inc(x_14);
 lean_dec(x_12);
 lean_inc(x_1);
-x_15 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_14, x_1);
+x_15 = l_Lean_HashSetImp_contains___at_Lean_CollectMVars_visit___spec__1(x_14, x_1);
 if (x_15 == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -575,7 +575,7 @@ if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; uint8_t x_23; 
 x_20 = lean_ctor_get(x_17, 1);
-x_21 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_20, x_1);
+x_21 = l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_20, x_1);
 lean_ctor_set(x_17, 1, x_21);
 x_22 = lean_st_ref_set(x_2, x_17, x_18);
 x_23 = !lean_is_exclusive(x_22);
@@ -611,7 +611,7 @@ x_32 = lean_ctor_get(x_17, 1);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_17);
-x_33 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_32, x_1);
+x_33 = l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_32, x_1);
 x_34 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_34, 0, x_31);
 lean_ctor_set(x_34, 1, x_33);
@@ -660,7 +660,7 @@ x_45 = lean_ctor_get(x_43, 1);
 lean_inc(x_45);
 lean_dec(x_43);
 lean_inc(x_1);
-x_46 = l_Lean_HashSetImp_contains___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__1(x_45, x_1);
+x_46 = l_Lean_HashSetImp_contains___at_Lean_CollectMVars_visit___spec__1(x_45, x_1);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; lean_object* x_59; lean_object* x_60; 
@@ -682,7 +682,7 @@ if (lean_is_exclusive(x_48)) {
  lean_dec_ref(x_48);
  x_52 = lean_box(0);
 }
-x_53 = l_Lean_HashSetImp_insert___at___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit___spec__3(x_51, x_1);
+x_53 = l_Lean_HashSetImp_insert___at_Lean_CollectMVars_visit___spec__3(x_51, x_1);
 if (lean_is_scalar(x_52)) {
  x_54 = lean_alloc_ctor(0, 2, 0);
 } else {

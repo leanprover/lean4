@@ -23,7 +23,7 @@ namespace Name
 open Lean.Name
 
 @[simp] protected theorem beq_false (m n : Name) : (m == n) = false ↔ ¬ (m = n) := by
-  rw [← beq_iff_eq m n]; cases m == n <;> simp
+  rw [← beq_iff_eq m n]; cases m == n <;> simp (config := { decide := true })
 
 @[simp] theorem isPrefixOf_self {n : Name} : n.isPrefixOf n := by
   cases n <;> simp [isPrefixOf]

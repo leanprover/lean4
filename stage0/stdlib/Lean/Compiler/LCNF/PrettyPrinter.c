@@ -36,16 +36,19 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__16;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppParam___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppParam___closed__2;
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__26;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppCode(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__17;
+lean_object* l_Lean_instBEqLocalInstance___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Code_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at_Lean_Compiler_LCNF_toConfigOptions___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppExpr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__20;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppParam___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__24;
 static lean_object* l_Lean_Compiler_LCNF_runCompilerWithoutModifyingState___rarg___closed__3;
 extern lean_object* l_Lean_pp_explicit;
 uint8_t l_Lean_Expr_isType0(lean_object*);
@@ -65,6 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_ppAlt(lean_object*, lean_object
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__15;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__7;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppAlt___closed__4;
+lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_runCompilerWithoutModifyingState___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_getFunType___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppAlt___closed__2;
@@ -76,6 +80,8 @@ static lean_object* l_Lean_Compiler_LCNF_PP_ppFunDecl___closed__1;
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Compiler_LCNF_PrettyPrinter_0__Lean_Compiler_LCNF_PP_join___spec__1___rarg___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__18;
 lean_object* l_Lean_Compiler_LCNF_Decl_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__23;
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__22;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppFunDecl___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__10;
 lean_object* lean_nat_to_int(lean_object*);
@@ -104,6 +110,7 @@ LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Compile
 static lean_object* l_Lean_Compiler_LCNF_ppFunDecl___closed__1;
 lean_object* l_Lean_Compiler_LCNF_LitValue_toExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_getFunType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instHashableLocalInstance___boxed(lean_object*);
 lean_object* l_instHashableProd___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__5;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArgs___closed__1;
@@ -119,6 +126,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ppDecl_x27___lambda__1(lean_object
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ppFunDecl___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__21;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__12;
 lean_object* l_Lean_Compiler_LCNF_instantiateForall_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__9;
@@ -174,12 +182,14 @@ lean_object* lean_array_get_size(lean_object*);
 extern lean_object* l_Lean_pp_letVarTypes;
 static lean_object* l_Lean_Compiler_LCNF_runCompilerWithoutModifyingState___rarg___closed__2;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppArg___closed__6;
+static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__25;
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__2;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Compiler_LCNF_ppDecl___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 uint8_t l_Lean_Expr_isConst(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppExpr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_PP_run(lean_object*);
+lean_object* l_Array_instBEqArray___rarg___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_PP_ppCode___closed__16;
 lean_object* l_Std_Format_indentD(lean_object*);
@@ -911,6 +921,66 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__12() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instBEqLocalInstance___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__13() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__12;
+x_2 = lean_alloc_closure((void*)(l_Array_instBEqArray___rarg___boxed), 3, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__14() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__13;
+x_2 = l_Lean_Expr_instBEqExpr;
+x_3 = lean_alloc_closure((void*)(l_instBEqProd___rarg), 4, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__15() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_instHashableLocalInstance___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__16() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__15;
+x_2 = lean_alloc_closure((void*)(l_instHashableArray___rarg___boxed), 2, 1);
+lean_closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__17() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__16;
+x_2 = l_Lean_Expr_instHashableExpr;
+x_3 = lean_alloc_closure((void*)(l_instHashableProd___rarg___boxed), 3, 2);
+lean_closure_set(x_3, 0, x_1);
+lean_closure_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__18() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__4;
 x_2 = lean_unsigned_to_nat(0u);
@@ -920,7 +990,7 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__13() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -931,7 +1001,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__14() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -942,7 +1012,7 @@ lean_closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__15() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__21() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -954,14 +1024,14 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__16() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__9;
 x_2 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__11;
-x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__12;
-x_4 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__15;
+x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__18;
+x_4 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__21;
 x_5 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -972,7 +1042,7 @@ lean_ctor_set(x_5, 5, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__17() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -981,23 +1051,23 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__18() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__17;
+x_1 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__23;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__19() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__25() {
 _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 5;
-x_2 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__18;
-x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__17;
+x_2 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__24;
+x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__23;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_2);
@@ -1008,14 +1078,14 @@ lean_ctor_set_usize(x_5, 4, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__20() {
+static lean_object* _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__26() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__8;
-x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__16;
-x_4 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__19;
+x_3 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__22;
+x_4 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__25;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_2);
 lean_ctor_set(x_5, 1, x_3);
@@ -1039,7 +1109,7 @@ lean_ctor_set(x_12, 2, x_10);
 lean_ctor_set(x_12, 3, x_8);
 lean_ctor_set(x_12, 4, x_11);
 lean_ctor_set(x_12, 5, x_8);
-x_13 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__20;
+x_13 = l_Lean_Compiler_LCNF_PP_ppExpr___closed__26;
 x_14 = lean_st_mk_ref(x_13, x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
@@ -4607,6 +4677,18 @@ l_Lean_Compiler_LCNF_PP_ppExpr___closed__19 = _init_l_Lean_Compiler_LCNF_PP_ppEx
 lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__19);
 l_Lean_Compiler_LCNF_PP_ppExpr___closed__20 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__20();
 lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__20);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__21 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__21();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__21);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__22 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__22();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__22);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__23 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__23();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__23);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__24 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__24();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__24);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__25 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__25();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__25);
+l_Lean_Compiler_LCNF_PP_ppExpr___closed__26 = _init_l_Lean_Compiler_LCNF_PP_ppExpr___closed__26();
+lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppExpr___closed__26);
 l_Lean_Compiler_LCNF_PP_ppArg___closed__1 = _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__1();
 lean_mark_persistent(l_Lean_Compiler_LCNF_PP_ppArg___closed__1);
 l_Lean_Compiler_LCNF_PP_ppArg___closed__2 = _init_l_Lean_Compiler_LCNF_PP_ppArg___closed__2();

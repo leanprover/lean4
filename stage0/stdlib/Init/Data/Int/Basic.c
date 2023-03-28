@@ -165,6 +165,22 @@ lean_dec(x_1);
 return x_2;
 }
 }
+static lean_object* _init_l_Int_instNegInt___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Int_instNegInt() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Int_instNegInt___closed__1;
+return x_1;
+}
+}
 LEAN_EXPORT lean_object* l_Int_subNatNat(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -211,32 +227,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_mul___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_int_mul(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-static lean_object* _init_l_Int_instNegInt___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Int_neg___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Int_instNegInt() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Int_instNegInt___closed__1;
-return x_1;
-}
-}
 static lean_object* _init_l_Int_instAddInt___closed__1() {
 _start:
 {
@@ -251,6 +241,16 @@ _start:
 lean_object* x_1; 
 x_1 = l_Int_instAddInt___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Int_mul___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_int_mul(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Int_instMulInt___closed__1() {
@@ -392,16 +392,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_int_mod(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Int_instDivInt___closed__1() {
 _start:
 {
@@ -416,6 +406,16 @@ _start:
 lean_object* x_1; 
 x_1 = l_Int_instDivInt___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_int_mod(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 static lean_object* _init_l_Int_instModInt___closed__1() {

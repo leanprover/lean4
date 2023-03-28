@@ -4,15 +4,15 @@
   inputs.lean.url = path:../.;
   inputs.flake-utils.follows = "lean/flake-utils";
   inputs.mdBook = {
-    url = github:leanprover/mdBook;
+    url = "github:leanprover/mdBook";
     flake = false;
   };
   inputs.alectryon = {
-    url = github:Kha/alectryon/typeid;
+    url = "github:Kha/alectryon/typeid";
     flake = false;
   };
   inputs.leanInk = {
-    url = github:leanprover/LeanInk;
+    url = "github:leanprover/LeanInk";
     flake = false;
   };
 

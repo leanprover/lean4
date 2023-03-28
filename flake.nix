@@ -1,11 +1,11 @@
 {
   description = "Lean interactive theorem prover";
 
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-  inputs.flake-utils.url = github:numtide/flake-utils;
-  inputs.nix.url = github:NixOS/nix;
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.nix.url = "github:NixOS/nix";
   inputs.lean4-mode = {
-    url = github:leanprover/lean4-mode;
+    url = "github:leanprover/lean4-mode";
     flake = false;
   };
   # used *only* by `stage0-from-input` below

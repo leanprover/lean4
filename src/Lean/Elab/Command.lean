@@ -157,8 +157,8 @@ def liftCoreM (x : CoreM α) : CommandElabM α := do
   modify fun s => { s with
     env := coreS.env
     ngen := coreS.ngen
-    messages := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
-    traceState := coreS.traceState
+    messages := s.messages ++ coreS.messages
+    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
     infoState.trees := s.infoState.trees.append coreS.infoState.trees
   }
   match ea with
@@ -395,14 +395,15 @@ def liftTermElabM (x : TermElabM α) : CommandElabM α := do
   let x : TermElabM _  := withSaveInfoContext x
   let x : MetaM _      := (observing x).run (mkTermContext ctx s) { levelNames := scope.levelNames }
   let x : CoreM _      := x.run mkMetaContext {}
-  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled }
+  let x : EIO _ _      := x.run (mkCoreContext ctx s heartbeats) { env := s.env, ngen := s.ngen, nextMacroScope := s.nextMacroScope, infoState.enabled := s.infoState.enabled, traceState := s.traceState }
   let (((ea, _), _), coreS) ← liftEIO x
   modify fun s => { s with
-    env             := coreS.env
-    nextMacroScope  := coreS.nextMacroScope
-    ngen            := coreS.ngen
-    infoState.trees := s.infoState.trees.append coreS.infoState.trees
-    messages        := addTraceAsMessagesCore ctx (s.messages ++ coreS.messages) coreS.traceState
+    env               := coreS.env
+    nextMacroScope    := coreS.nextMacroScope
+    ngen              := coreS.ngen
+    infoState.trees   := s.infoState.trees.append coreS.infoState.trees
+    traceState.traces := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
+    messages          := s.messages ++ coreS.messages
   }
   match ea with
   | Except.ok a     => pure a

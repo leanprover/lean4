@@ -156,25 +156,51 @@ def withSeconds [Monad m] [MonadLiftT BaseIO m] (act : m α) : m (α × Float) :
   let stop ← IO.monoNanosNow
   return (a, (stop - start).toFloat / 1000000000)
 
-def withOptProfile [Monad m] [MonadLiftT BaseIO m] [MonadOptions m] (act : m α) : m (α × Option Float) := do
-  if (← getBoolOption `profiler) then
-    (fun (a, s) => (a, some s)) <$> withSeconds act
-  else
-    (·, none) <$> act
+register_builtin_option trace.profiler : Bool := {
+  defValue := false
+  group    := "profiler"
+  descr    := "activate nested traces with execution time over threshold"
+}
+
+register_builtin_option trace.profiler.threshold : Nat := {
+  defValue := 10
+  group    := "profiler"
+  descr    := "threshold in milliseconds, traces below threshold will not be activated"
+}
+
+def trace.profiler.threshold.getSecs (o : Options) : Float :=
+  (trace.profiler.threshold.get o).toFloat / 1000
+
+@[inline]
+def shouldProfile : m Bool := do
+  let opts ← getOptions
+  return profiler.get opts || trace.profiler.get opts
+
+@[inline]
+def shouldEnableNestedTrace (cls : Name) (secs : Float) : m Bool := do
+  return (← isTracingEnabledFor cls) || secs < trace.profiler.threshold.getSecs (← getOptions)
 
 def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : Except ε α → m MessageData) (k : m α)
     (collapsed := true) : m α := do
-  if !(← isTracingEnabledFor cls) then
-    k
-  else
-    let ref ← getRef
-    let oldTraces ← getResetTraces
-    let (res, secs?) ← withOptProfile <| observing k
-    let mut m ← msg res
-    if let some secs := secs? then
-      m := m!"[{secs}s] {m}"
-    addTraceNode oldTraces cls ref m collapsed
-    MonadExcept.ofExcept res
+  let opts ← getOptions
+  let clsEnabled ← isTracingEnabledFor cls
+  unless clsEnabled || profiler.get opts || trace.profiler.get opts do
+    return (← k)
+  let oldTraces ← getResetTraces
+  let (res, secs) ← withSeconds <| observing k
+  let aboveThresh := trace.profiler.get opts && secs > trace.profiler.threshold.getSecs opts
+  unless clsEnabled || aboveThresh do
+    modifyTraces (oldTraces ++ ·)
+    return (← MonadExcept.ofExcept res)
+  let ref ← getRef
+  let mut m ← msg res
+  if profiler.get opts || aboveThresh then
+    m := m!"[{secs}s] {m}"
+  addTraceNode oldTraces cls ref m collapsed
+  MonadExcept.ofExcept res
+
+def withTraceNodeConst [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : MessageData) (k : m α) : m α :=
+  withTraceNode cls (fun _ => return msg) k
 
 def withTraceNode' [MonadExcept Exception m] [MonadLiftT BaseIO m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
   let msg := fun
@@ -210,6 +236,12 @@ macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
 
+macro "with_trace[" id:ident "]" s:(interpolatedStr(term) <|> termBeforeDo) " do " cont:doSeq : doElem => do
+  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    let cls := $(quote id.getId.eraseMacroScopes)
+    withTraceNodeConst cls $msg (do $cont))
+
 def bombEmoji := "💥"
 def checkEmoji := "✅"
 def crossEmoji := "❌"
@@ -242,17 +274,22 @@ the result produced by `k` into an emoji (e.g., `💥`, `✅`, `❌`).
 TODO: find better name for this function.
 -/
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
-  if !(← isTracingEnabledFor cls) then
-    k
-  else
-    let ref ← getRef
-    let oldTraces ← getResetTraces
-    let msg ← withRef ref do addMessageContext (← msg)
-    let (res, secs?) ← withOptProfile <| observing k
-    let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
-    if let some secs := secs? then
-      msg := m!"[{secs}s] {msg}"
-    addTraceNodeCore oldTraces cls ref msg collapsed
-    MonadExcept.ofExcept res
+  let opts ← getOptions
+  let clsEnabled ← isTracingEnabledFor cls
+  unless clsEnabled || profiler.get opts || trace.profiler.get opts do
+    return (← k)
+  let oldTraces ← getResetTraces
+  let ref ← getRef
+  let msg ← withRef ref do addMessageContext (← msg)
+  let (res, secs) ← withSeconds <| observing k
+  let aboveThresh := trace.profiler.get opts && secs > trace.profiler.threshold.getSecs opts
+  unless clsEnabled || aboveThresh do
+    modifyTraces (oldTraces ++ ·)
+    return (← MonadExcept.ofExcept res)
+  let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
+  if profiler.get opts || aboveThresh then
+    msg := m!"[{secs}s] {msg}"
+  addTraceNodeCore oldTraces cls ref msg collapsed
+  MonadExcept.ofExcept res
 
 end Lean

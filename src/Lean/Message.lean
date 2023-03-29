@@ -103,6 +103,8 @@ def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext :=
 }
 
 def ofSyntax (stx : Syntax) : MessageData :=
+  -- discard leading/trailing whitespace
+  let stx := stx.copyHeadTailInfoFrom .missing
   .ofPPFormat {
     pp := fun
       | some ctx => ppTerm ctx ⟨stx⟩  -- HACK: might not be a term

@@ -300,30 +300,30 @@ builtin_initialize registerTraceClass `Elab.input
 macro expansion etc.
 -/
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
-  trace[Elab.input] stx
-  let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
-  let initInfoTrees ← getResetInfoTrees
-  -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
-  -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
-  -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
-  elabCommand stx
-  withLogging do
-    runLinters stx
+  with_trace[Elab.input] stx do
+    let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
+    let initInfoTrees ← getResetInfoTrees
+    -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error
+    -- recovery more coarse. In particular, If `c` in `set_option ... in $c` fails, the remaining
+    -- `end` command of the `in` macro would be skipped and the option would be leaked to the outside!
+    elabCommand stx
+    withLogging do
+      runLinters stx
 
-  -- note the order: first process current messages & info trees, then add back old messages & trees,
-  -- then convert new traces to messages
-  let mut msgs := (← get).messages
-  -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
-  if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
-    -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
-    msgs := ⟨msgs.msgs.filter fun msg =>
-      msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
-  for tree in (← getInfoTrees) do
-    trace[Elab.info] (← tree.format)
-  modify fun st => { st with
-    messages := initMsgs ++ msgs
-    infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
-  }
+    -- note the order: first process current messages & info trees, then add back old messages & trees,
+    -- then convert new traces to messages
+    let mut msgs := (← get).messages
+    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
+    if !showPartialSyntaxErrors.get (← getOptions) && initMsgs.hasErrors && stx.hasMissing then
+      -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
+      msgs := ⟨msgs.msgs.filter fun msg =>
+        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
+    for tree in (← getInfoTrees) do
+      trace[Elab.info] (← tree.format)
+    modify fun st => { st with
+      messages := initMsgs ++ msgs
+      infoState := { st.infoState with trees := initInfoTrees ++ st.infoState.trees }
+    }
   addTraceAsMessages
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/

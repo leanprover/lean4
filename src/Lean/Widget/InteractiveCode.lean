@@ -74,6 +74,8 @@ where
         TaggedText.tag t (go subTt)
 
 def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := do
+  if pp.raw.get (← getOptions) then
+    return .text (toString e)
   let delab := open PrettyPrinter.Delaborator in
     if explicit then
       withOptionAtCurrPos pp.tagAppFns.name true do

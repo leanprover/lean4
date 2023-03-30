@@ -1400,6 +1400,10 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 
+/-- Return `true` if `e` is of the form `outParam _` -/
+def isSemiOutParam (e : Expr) : Bool :=
+  e.isAppOfArity ``semiOutParam 1
+
 /-- Return `true` if `e` is of the form `optParam _ _` -/
 def isOptParam (e : Expr) : Bool :=
   e.isAppOfArity ``optParam 2
@@ -1419,7 +1423,7 @@ Examples:
 partial def consumeTypeAnnotations (e : Expr) : Expr :=
   if e.isOptParam || e.isAutoParam then
     consumeTypeAnnotations e.appFn!.appArg!
-  else if e.isOutParam then
+  else if e.isOutParam || e.isSemiOutParam then
     consumeTypeAnnotations e.appArg!
   else
     e

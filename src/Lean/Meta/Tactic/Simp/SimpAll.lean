@@ -121,7 +121,7 @@ def main : M (Option MVarId) := do
     let entries := (← get).entries
     let (_, mvarId) ← mvarId.assertHypotheses <| entries.filterMap fun e =>
       -- Do not assert `True` hypotheses
-      if e.type.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
+      if e.type.consumeMData.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
     mvarId.tryClearMany (entries.map fun e => e.fvarId)
 
 end SimpAll

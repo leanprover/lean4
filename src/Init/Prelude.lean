@@ -597,11 +597,21 @@ the "member" type `α` is determined by looking at the container type.
 /--
 Gadget for marking semi output parameters in type classes.
 
+Semi-output parameters influence the order in which arguments to type class
+instances are processed.  Lean determines an order where all non-(semi-)output
+parameters to the instance argument have to be figured out before attempting to
+synthesize an argument (that is, they do not contain metavariables).  This
+rules out instances such as `[Mul β] : Add α` (because `β` could be anything).
+Marking a parameter as semi-output is a promise that instances of the type
+class will always fill in a value for that parameter.
+
 For example, the `Coe` class is defined as:
 ```
 class Coe (α : semiOutParam (Type u)) (β : Type v)
 ```
 This means that all `Coe` instances should provide a concrete value for `α`.
+An instance like `Coe Nat Int` or `Coe α (Option α)` is fine, but `Coe α Nat`
+is not since it does not provide a value for `α`.
 -/
 @[reducible] def semiOutParam (α : Sort u) : Sort u := α
 

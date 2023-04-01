@@ -69,12 +69,14 @@ with builtins; let
     name = "${name}-depRoot";
     inherit deps;
     depRoots = map (drv: drv.LEAN_PATH) deps;
+
+    passAsFile = [ "deps" "depRoots" ];
     buildCommand = ''
       mkdir -p $out
-      for i in $depRoots; do
+      for i in $(cat $depRootsPath); do
         cp -dru --no-preserve=mode $i/. $out
       done
-      for i in $deps; do
+      for i in $(cat $depsPath); do
         cp -drsu --no-preserve=mode $i/. $out
       done
     '';

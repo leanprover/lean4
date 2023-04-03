@@ -12,7 +12,7 @@ namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
   defValue := true
-  descr := "check instances do not introduce metavariable in non-out-params"
+  descr := "check that instances do not introduce metavariable in non-out-params"
 }
 
 /-

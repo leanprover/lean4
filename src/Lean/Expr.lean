@@ -1400,7 +1400,7 @@ def getAutoParamTactic? (e : Expr) : Option Expr :=
 def isOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``outParam 1
 
-/-- Return `true` if `e` is of the form `outParam _` -/
+/-- Return `true` if `e` is of the form `semiOutParam _` -/
 def isSemiOutParam (e : Expr) : Bool :=
   e.isAppOfArity ``semiOutParam 1
 

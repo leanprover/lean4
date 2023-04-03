@@ -97,6 +97,7 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
 @[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
+@[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 
 @[simp] theorem Bool.or_false (b : Bool) : (b || false) = b  := by cases b <;> rfl
 @[simp] theorem Bool.or_true (b : Bool) : (b || true) = true := by cases b <;> rfl

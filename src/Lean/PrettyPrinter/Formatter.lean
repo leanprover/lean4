@@ -514,14 +514,28 @@ instance : Coe (Formatter → Formatter → Formatter) FormatterAliasValue := { 
 end Formatter
 open Formatter
 
+register_builtin_option pp.oneline : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) elide all but first line of pretty printer output"
+}
+
 def format (formatter : Formatter) (stx : Syntax) : CoreM Format := do
   trace[PrettyPrinter.format.input] "{Std.format stx}"
   let options ← getOptions
   let table ← Parser.builtinTokenTable.get
   catchInternalId backtrackExceptionId
     (do
-      let (_, st) ← (concat formatter { table := table, options := options }).run { stxTrav := Syntax.Traverser.fromSyntax stx };
-      pure $ Format.fill $ st.stack.get! 0)
+      let (_, st) ← (concat formatter { table, options }).run { stxTrav := .fromSyntax stx }
+      let mut f := st.stack[0]!
+      if pp.oneline.get options then
+        let mut s := f.pretty' options |>.trim
+        let lineEnd := s.find (· == '\n')
+        if lineEnd < s.endPos then
+          s := s.extract 0 lineEnd ++ " [...]"
+        -- TODO: preserve `Format.tag`s?
+        f := s
+      return .fill f)
     (fun _ => throwError "format: uncaught backtrack exception")
 
 def formatCategory (cat : Name) := format <| categoryFormatter cat

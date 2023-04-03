@@ -3656,7 +3656,7 @@ instance : Inhabited Syntax where
 instance : Inhabited (TSyntax ks) where
   default := ⟨default⟩
 
-/-! Builtin kinds -/
+/-! # Builtin kinds -/
 
 /--
 The `choice` kind is used when a piece of syntax has multiple parses, and the

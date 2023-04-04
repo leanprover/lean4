@@ -199,9 +199,6 @@ def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : E
   addTraceNode oldTraces cls ref m collapsed
   MonadExcept.ofExcept res
 
-def withTraceNodeConst [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : MessageData) (k : m α) : m α :=
-  withTraceNode cls (fun _ => return msg) k
-
 def withTraceNode' [MonadExcept Exception m] [MonadLiftT BaseIO m] (cls : Name) (k : m (α × MessageData)) (collapsed := true) : m α :=
   let msg := fun
     | .ok (_, msg) => return msg
@@ -235,12 +232,6 @@ macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
     let cls := $(quote id.getId.eraseMacroScopes)
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
-
-macro "with_trace[" id:ident "]" s:(interpolatedStr(term) <|> termBeforeDo) " do " cont:doSeq : doElem => do
-  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
-  `(doElem| do
-    let cls := $(quote id.getId.eraseMacroScopes)
-    withTraceNodeConst cls $msg (do $cont))
 
 def bombEmoji := "💥"
 def checkEmoji := "✅"

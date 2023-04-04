@@ -607,8 +607,10 @@ syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)
 syntax (name := renameI) "rename_i " (colGt binderIdent)+ : tactic
 
 /--
-`repeat tac` applies `tac` to main goal. If the application succeeds,
-the tactic is applied recursively to the generated subgoals until it eventually fails.
+`repeat tac` applies `tac` to main goal.
+If the application succeeds, the tactic is applied recursively
+to the first of the generated subgoals until it eventually fails.
+Failure on one subgoal will result in `tac` not running on any later subgoals.
 -/
 syntax "repeat " tacticSeq : tactic
 macro_rules

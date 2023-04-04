@@ -759,7 +759,7 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
       throwError "failed to synthesize instance{indentExpr type}"
 
 def mkCoe (expectedType : Expr) (e : Expr) (f? : Option Expr := none) (errorMsgHeader? : Option String := none) : TermElabM Expr := do
-  with_trace[Elab.coe] "adding coercion for {e} : {← inferType e} =?= {expectedType}" do
+  withTraceNode `Elab.coe (fun _ => return m!"adding coercion for {e} : {← inferType e} =?= {expectedType}") do
   try
     withoutMacroStackAtErr do
       match ← coerce? e expectedType with

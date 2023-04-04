@@ -146,8 +146,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
       if k == nullKind then
         -- Macro writers create a sequence of tactics `t₁ ... tₙ` using `mkNullNode #[t₁, ..., tₙ]`
         stx.getArgs.forM evalTactic
-      else do
-        with_trace[Elab.step] "{stx}" do
+      else withTraceNode `Elab.step (fun _ => return stx) do
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then

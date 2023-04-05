@@ -26,7 +26,7 @@ register_builtin_option synthInstance.maxSize : Nat := {
 
 register_builtin_option synthInstance.etaExperiment : Bool := {
   defValue := false
-  descr := "[DO NOT USE EXCEPT FOR TESTING] enable structure eta for type-classes during type-class search"
+  descr := "deprecated no-op, only provided for transitioning"
 }
 
 namespace SynthInstance
@@ -669,15 +669,8 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
   let maxResultSize := maxResultSize?.getD (synthInstance.maxSize.get opts)
   withTraceNode `Meta.synthInstance
     (return m!"{exceptOptionEmoji ·} {← instantiateMVars type}") do
-  /-
-    We disable eta for structures that are not classes during TC resolution because it allows us to find unintended solutions.
-    See discussion at
-      https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/.60constructor.60.20and.20.60Applicative.60/near/279984801
-  -/
-  let etaStruct := if synthInstance.etaExperiment.get (← getOptions) then .all else .notClasses
   withConfig (fun config => { config with isDefEqStuckEx := true, transparency := TransparencyMode.instances,
-                                          foApprox := true, ctxApprox := true, constApprox := false,
-                                          etaStruct }) do
+                                          foApprox := true, ctxApprox := true, constApprox := false }) do
     let localInsts ← getLocalInstances
     let type ← instantiateMVars type
     let type ← preprocess type

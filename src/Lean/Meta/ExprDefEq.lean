@@ -1729,13 +1729,17 @@ private def isDefEqProjInst (t : Expr) (s : Expr) : MetaM LBool := do
 private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
   whenUndefDo (isDefEqEta t s) do
   whenUndefDo (isDefEqEta s t) do
-  -- TODO: investigate whether this is the place for putting this check
-  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then return true
   if (← isDefEqProj t s) then return true
   whenUndefDo (isDefEqNative t s) do
   whenUndefDo (isDefEqNat t s) do
   whenUndefDo (isDefEqOffset t s) do
   whenUndefDo (isDefEqDelta t s) do
+  -- We try structure eta *after* lazy delta reduction;
+  -- otherwise we would end up applying it at every step of a reduction chain
+  -- as soon as one of the sides is a constructor application,
+  -- which is very costly because it requires us to unify the fields.
+  if (← (isDefEqEtaStruct t s <||> isDefEqEtaStruct s t)) then
+    return true
   if t.isConst && s.isConst then
     if t.constName! == s.constName! then isListLevelDefEqAux t.constLevels! s.constLevels! else return false
   else if (← pure t.isApp <&&> pure s.isApp <&&> isDefEqApp t s) then

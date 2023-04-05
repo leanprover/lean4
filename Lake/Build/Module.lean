@@ -13,7 +13,7 @@ namespace Lake
 
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
-(depTrace : BuildTrace) (leanOnly : Bool) : BuildM BuildTrace := do
+(depTrace : BuildTrace) : BuildM BuildTrace := do
   let isOldMode ← getIsOldMode
   let argTrace : BuildTrace := pureHash mod.leanArgs
   let srcTrace : BuildTrace ← computeTrace mod.leanFile
@@ -24,21 +24,9 @@ def Module.buildUnlessUpToDate (mod : Module)
     else
       modTrace.checkAgainstFile mod mod.traceFile
   let name := mod.name.toString
-  if leanOnly then
-    unless modUpToDate do
-      compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile none
-        (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
-  else
-    let cUpToDate ←
-      if isOldMode then
-        pure modUpToDate
-      else
-        (modUpToDate && ·) <$> modTrace.checkAgainstFile mod.cFile mod.cTraceFile
-    unless cUpToDate do
-      compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
-        (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
-    unless isOldMode do
-      modTrace.writeToFile mod.cTraceFile
+  unless modUpToDate do
+    compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
+      (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
   unless isOldMode do
     modTrace.writeToFile mod.traceFile
   return mixTrace (← computeTrace mod) depTrace
@@ -118,12 +106,9 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
   mkFacetConfig (·.recComputePrecompileImports)
 
 /--
-Recursively build a module and its (transitive, local) imports,
-optionally outputting a `.c` file if not `leanOnly`.
+Recursively build a module and its (transitive, local) imports.
 -/
-def Module.recBuildLeanCore (mod : Module)
-(leanOnly : Bool) : IndexBuildM (BuildJob Unit) := do
-
+private def Module.recBuildLeanCore (mod : Module) : IndexBuildM (BuildJob Unit) := do
   -- Compute and build dependencies
   let imports ← mod.imports.fetch
   let extraDepJob ← mod.pkg.extraDep.fetch
@@ -136,79 +121,46 @@ def Module.recBuildLeanCore (mod : Module)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 
-  -- Build Module
-  show SchedulerM _ from do
-    extraDepJob.bindAsync fun _ _ => do
-    importJob.bindAsync fun _ importTrace => do
-    modDynlibsJob.bindAsync fun modDynlibs modTrace => do
-    externDynlibsJob.bindSync fun externDynlibs externTrace => do
-      let depTrace := importTrace.mix <| modTrace.mix externTrace
-      /-
-      Requirements:
-      * Lean wants the external library symbols before module symbols.
-      * Unix requires the file extension of the dynlib.
-      * For some reason, building from the Lean server requires full paths.
-        Everything else loads fine with just the augmented library path.
-      * Linux still needs the augmented path to resolve nested dependencies in dynlibs.
-      -/
-      let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
-      let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
-      let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace leanOnly
-      return ((), trace)
-
-/-- Possible artifacts of the `lean` command. -/
-inductive LeanArtifact
-| none | olean | ilean | c
-deriving Inhabited, Repr, DecidableEq
-
-/--
-Recursively build a module using `recBuildLeanCore`, outputting a
-`.c` file if the module is not lean-only or the requested artifact is `c`.
-Returns a build job producing the requested artifact.
--/
-def Module.recBuildLean (mod : Module) (art : LeanArtifact)
-: IndexBuildM (BuildJob (if art = .none then Unit else FilePath)) := do
-  let leanOnly := mod.isLeanOnly ∧ art ≠ .c
-  let modJob ← mod.recBuildLeanCore leanOnly
-  -- Save All Resulting Jobs & Return Requested One
-  store mod.leanBin.key modJob
-  let oleanJob ← modJob.bindSync fun _ depTrace =>
-    return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
-  store mod.olean.key <| oleanJob
-  let ileanJob ← modJob.bindSync fun _ depTrace =>
-    return (mod.ileanFile, mixTrace (← computeTrace mod.ileanFile) depTrace)
-  store mod.ilean.key <| ileanJob
-  if h : leanOnly then
-    have : art ≠ .c := h.2
-    return match art with
-    | .none => modJob
-    | .olean => oleanJob
-    | .ilean => ileanJob
-  else
-    let cJob ← modJob.bindSync fun _  _ =>
-      return (mod.cFile, mixTrace (← computeTrace mod.cFile) (← getLeanTrace))
-    store mod.c.key cJob
-    return match art with
-    | .none => modJob
-    | .olean => oleanJob
-    | .ilean => ileanJob
-    | .c => cJob
+  extraDepJob.bindAsync fun _ _ => do
+  importJob.bindAsync fun _ importTrace => do
+  modDynlibsJob.bindAsync fun modDynlibs modTrace => do
+  externDynlibsJob.bindSync fun externDynlibs externTrace => do
+    let depTrace := importTrace.mix <| modTrace.mix externTrace
+    /-
+    Requirements:
+    * Lean wants the external library symbols before module symbols.
+    * Unix requires the file extension of the dynlib.
+    * For some reason, building from the Lean server requires full paths.
+      Everything else loads fine with just the augmented library path.
+    * Linux still needs the augmented path to resolve nested dependencies in dynlibs.
+    -/
+    let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
+    let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
+    let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace
+    return ((), trace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanBinFacet`. -/
 def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
-  mkFacetJobConfig (·.recBuildLean .none)
+  mkFacetJobConfig (·.recBuildLeanCore)
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfig (·.recBuildLean .olean)
+  mkFacetJobConfig fun mod => do
+    (← mod.leanBin.fetch).bindSync fun _ depTrace =>
+      return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
-  mkFacetJobConfig (·.recBuildLean .ilean)
+  mkFacetJobConfig fun mod => do
+    (← mod.leanBin.fetch).bindSync fun _ depTrace =>
+      return (mod.ileanFile, depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
-  mkFacetJobConfig (·.recBuildLean .c)
+  mkFacetJobConfig fun mod => do
+    (← mod.leanBin.fetch).bindSync fun _ _ =>
+      -- do content-aware hashing so that we avoid recompiling unchanged C files
+      return (mod.cFile, ← computeTrace mod.cFile)
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do

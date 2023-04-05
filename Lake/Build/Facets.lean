@@ -47,9 +47,8 @@ instance [FamilyDef ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
 
 /--
 The core compilation / elaboration of the Lean file via `lean`,
-which produce the Lean binaries of the module (i.e., `olean` and `ilean`).
+which produce the Lean binaries of the module (i.e., `olean`, `ilean`, `c`).
 It is thus the facet used by default for building imports of a module.
-Also, if the module is not lean-only, it produces `c` files as well.
 -/
 abbrev Module.leanBinFacet := `bin
 module_data bin : BuildJob Unit

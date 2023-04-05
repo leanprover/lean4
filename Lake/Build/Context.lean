@@ -19,6 +19,8 @@ namespace Lake
 structure BuildContext extends Context where
   leanTrace : BuildTrace
   oldMode : Bool := false
+  startedBuilds : IO.Ref Nat
+  finishedBuilds : IO.Ref Nat
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
@@ -49,3 +51,8 @@ instance [Pure m] : MonadLift LakeM (BuildT m) where
 
 def BuildM.catchFailure (f : Unit → BaseIO α) (self : BuildM α) : SchedulerM α :=
   fun ctx logMethods => self ctx logMethods |>.catchFailure f
+
+def logStep (message : String) : BuildM Unit := do
+  let done ← (← read).finishedBuilds.get
+  let started ← (← read).startedBuilds.get
+  logInfo s!"[{done}/{started}] {message}"

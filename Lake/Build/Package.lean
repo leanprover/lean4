@@ -49,7 +49,7 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
 def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
-  mkFacetJobConfig Package.recBuildExtraDepTargets
+  mkFacetJobConfigSmall Package.recBuildExtraDepTargets
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do

@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
+import Lake.Build.Context
 
 namespace Lake
 open System
@@ -17,8 +18,8 @@ def compileLeanModule (name : String) (leanFile : FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")
 (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
-: LogIO PUnit := do
-  logInfo s!"Building {name}"
+: BuildM Unit := do
+  logStep s!"Building {name}"
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
   if let some oleanFile := oleanFile? then
@@ -42,8 +43,8 @@ def compileLeanModule (name : String) (leanFile : FilePath)
   }
 
 def compileO (name : String) (oFile srcFile : FilePath)
-(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : LogIO Unit := do
-  logInfo s!"Compiling {name}"
+(moreArgs : Array String := #[]) (compiler : FilePath := "cc") : BuildM Unit := do
+  logStep s!"Compiling {name}"
   createParentDirs oFile
   proc {
     cmd := compiler.toString
@@ -51,8 +52,8 @@ def compileO (name : String) (oFile srcFile : FilePath)
   }
 
 def compileStaticLib (name : String) (libFile : FilePath)
-(oFiles : Array FilePath) (ar : FilePath := "ar") : LogIO Unit := do
-  logInfo s!"Creating {name}"
+(oFiles : Array FilePath) (ar : FilePath := "ar") : BuildM Unit := do
+  logStep s!"Creating {name}"
   createParentDirs libFile
   proc {
     cmd := ar.toString
@@ -60,8 +61,8 @@ def compileStaticLib (name : String) (libFile : FilePath)
   }
 
 def compileSharedLib (name : String) (libFile : FilePath)
-(linkArgs : Array String) (linker : FilePath := "cc") : LogIO Unit := do
-  logInfo s!"Linking {name}"
+(linkArgs : Array String) (linker : FilePath := "cc") : BuildM Unit := do
+  logStep s!"Linking {name}"
   createParentDirs libFile
   proc {
     cmd := linker.toString
@@ -69,8 +70,8 @@ def compileSharedLib (name : String) (libFile : FilePath)
   }
 
 def compileExe (name : String) (binFile : FilePath) (linkFiles : Array FilePath)
-(linkArgs : Array String := #[]) (linker : FilePath := "cc") : LogIO Unit := do
-  logInfo s!"Linking {name}"
+(linkArgs : Array String := #[]) (linker : FilePath := "cc") : BuildM Unit := do
+  logStep s!"Linking {name}"
   createParentDirs binFile
   proc {
     cmd := linker.toString

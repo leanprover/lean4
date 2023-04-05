@@ -145,19 +145,19 @@ def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
-  mkFacetJobConfig fun mod => do
+  mkFacetJobConfigSmall fun mod => do
     (← mod.leanBin.fetch).bindSync fun _ depTrace =>
       return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
-  mkFacetJobConfig fun mod => do
+  mkFacetJobConfigSmall fun mod => do
     (← mod.leanBin.fetch).bindSync fun _ depTrace =>
       return (mod.ileanFile, depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
-  mkFacetJobConfig fun mod => do
+  mkFacetJobConfigSmall fun mod => do
     (← mod.leanBin.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged C files
       return (mod.cFile, ← computeTrace mod.cFile)

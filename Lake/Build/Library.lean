@@ -44,7 +44,7 @@ protected def LeanLib.recBuildLean
 
 /-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
 def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
-  mkFacetJobConfig LeanLib.recBuildLean
+  mkFacetJobConfigSmall LeanLib.recBuildLean
 
 protected def LeanLib.recBuildStatic
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do

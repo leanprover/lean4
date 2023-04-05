@@ -14,7 +14,11 @@ namespace Lake
 def mkBuildContext (ws : Workspace) (oldMode : Bool) : IO BuildContext := do
   let lean := ws.lakeEnv.lean
   let leanTrace := Hash.ofString lean.githash
-  return {opaqueWs := ws, leanTrace, oldMode}
+  return {
+    opaqueWs := ws, leanTrace, oldMode
+    startedBuilds := ← IO.mkRef 0
+    finishedBuilds := ← IO.mkRef 0
+  }
 
 @[inline] def getLeanTrace : BuildM BuildTrace :=
   (·.leanTrace) <$> readThe BuildContext

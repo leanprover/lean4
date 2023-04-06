@@ -101,7 +101,7 @@ instance [Await k m] : Await (OptionT k) (OptionT m) where
 
 class BindSync (m : Type u → Type v) (n : outParam $ Type u' → Type w) (k : outParam $ Type u → Type u') where
   /-- Perform a synchronous action after another (a)synchronous task completes successfully. -/
-  bindSync {α β : Type u} : k α → (α → m β) → n (k β)
+  bindSync {α β : Type u} : Task.Priority → k α → (α → m β) → n (k β)
 
 export BindSync (bindSync)
 
@@ -143,29 +143,29 @@ extends SeqAsync n k, SeqLeftAsync n k, SeqRightAsync n k, SeqWithAsync n k wher
 
 /-! ## Standard Instances -/
 
-instance : BindSync Id Id Task := ⟨flip Task.map⟩
-instance : BindSync BaseIO BaseIO BaseIOTask := ⟨flip BaseIO.mapTask⟩
+instance : BindSync Id Id Task := ⟨fun _ => flip Task.map⟩
+instance : BindSync BaseIO BaseIO BaseIOTask := ⟨fun _ => flip BaseIO.mapTask⟩
 
 instance : BindSync (EIO ε) BaseIO (ETask ε) where
-  bindSync ka f := ka.run |> BaseIO.mapTask fun
+  bindSync prio ka f := ka.run |> BaseIO.mapTask (prio := prio) fun
     | Except.ok a => f a |>.toBaseIO
     | Except.error e => pure <| Except.error e
 
 instance : BindSync OptionIO BaseIO OptionIOTask where
-  bindSync ka f := ka.run |> BaseIO.mapTask fun
+  bindSync prio ka f := ka.run |> BaseIO.mapTask (prio := prio) fun
     | some a => f a |>.toBaseIO
     | none => pure none
 
 instance [BindSync m n k] : BindSync (ReaderT ρ m) (ReaderT ρ n) k where
-  bindSync ka f := fun r => bindSync ka fun a => f a r
+  bindSync prio ka f := fun r => bindSync prio ka fun a => f a r
 
 instance [BindSync m n k] [Pure m] : BindSync (ExceptT ε m) n (ExceptT ε k) where
-  bindSync ka f := cast (by delta ExceptT; rfl) <| bindSync (n := n) ka.run fun
+  bindSync prio ka f := cast (by delta ExceptT; rfl) <| bindSync prio (n := n) ka.run fun
     | Except.ok a => f a |>.run
     | Except.error e => pure <| Except.error e
 
 instance [BindSync m n k] [Pure m] : BindSync (OptionT m) n (OptionT k) where
-  bindSync ka f := cast (by delta OptionT; rfl) <| bindSync ka.run fun
+  bindSync prio ka f := cast (by delta OptionT; rfl) <| bindSync prio ka.run fun
     | some a => f a |>.run
     | none => pure none
 

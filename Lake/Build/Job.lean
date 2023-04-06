@@ -31,8 +31,8 @@ namespace Job
   await self
 
 @[inline] protected def bindSync
-(self : Job α) (f : α → JobM β) : SchedulerM (Job β) :=
-  bindSync self f
+(self : Job α) (f : α → JobM β) (prio := Task.Priority.default) : SchedulerM (Job β) :=
+  bindSync prio self f
 
 @[inline] protected def bindAsync
 (self : Job α) (f : α → SchedulerM (Job β)) : SchedulerM (Job β)  :=
@@ -69,8 +69,9 @@ instance : Functor BuildJob where
   map := BuildJob.map
 
 @[inline] protected def bindSync
-(self : BuildJob α) (f : α → BuildTrace → JobM β) : SchedulerM (Job β) :=
-  self.toJob.bindSync fun (a, t) => f a t
+(self : BuildJob α) (f : α → BuildTrace → JobM β)
+(prio : Task.Priority := .default) : SchedulerM (Job β) :=
+  self.toJob.bindSync (prio := prio) fun (a, t) => f a t
 
 @[inline] protected def bindAsync
 (self : BuildJob α) (f : α → BuildTrace → SchedulerM (Job β)) : SchedulerM (Job β)  :=

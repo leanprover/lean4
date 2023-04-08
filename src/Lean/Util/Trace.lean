@@ -184,7 +184,7 @@ def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : E
     (collapsed := true) : m α := do
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
-  unless clsEnabled || profiler.get opts || trace.profiler.get opts do
+  unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
   let (res, secs) ← withSeconds <| observing k
@@ -267,7 +267,7 @@ TODO: find better name for this function.
 def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m] [MonadExcept ε m] [MonadLiftT BaseIO m] [ExceptToEmoji ε α] (cls : Name) (msg : m MessageData) (k : m α) (collapsed := true) : m α := do
   let opts ← getOptions
   let clsEnabled ← isTracingEnabledFor cls
-  unless clsEnabled || profiler.get opts || trace.profiler.get opts do
+  unless clsEnabled || trace.profiler.get opts do
     return (← k)
   let oldTraces ← getResetTraces
   let ref ← getRef

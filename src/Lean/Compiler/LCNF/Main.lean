@@ -72,8 +72,8 @@ def run (declNames : Array Name) : CompilerM (Array Decl) := withAtLeastMaxRecDe
   decls := markRecDecls decls
   let manager ← getPassManager
   for pass in manager.passes do
-    trace[Compiler] "Running pass: {pass.name}"
-    decls ← withPhase pass.phase <| pass.run decls
+    decls ← withTraceNode `Compiler (fun _ => return m!"new compiler phase: {pass.phase}, pass: {pass.name}") do
+      withPhase pass.phase <| pass.run decls
     withPhase pass.phaseOut <| checkpoint pass.name decls
   if (← Lean.isTracingEnabledFor `Compiler.result) then
     for decl in decls do
@@ -94,7 +94,8 @@ def showDecl (phase : Phase) (declName : Name) : CoreM Format := do
 @[export lean_lcnf_compile_decls]
 def main (declNames : List Name) : CoreM Unit := do
   profileitM Exception "compilation new" (← getOptions) do
-    CompilerM.run <| discard <| PassManager.run declNames.toArray
+    withTraceNode `Compiler (fun _ => return m!"compiling new: {declNames}") do
+      CompilerM.run <| discard <| PassManager.run declNames.toArray
 
 builtin_initialize
   registerTraceClass `Compiler.init (inherited := true)

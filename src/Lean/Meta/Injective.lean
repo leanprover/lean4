@@ -151,6 +151,12 @@ def mkInjectiveTheorems (declName : Name) : MetaM Unit := do
   if (← getEnv).contains ``Eq.propIntro && genInjectivity.get (← getOptions) &&  !(← isInductivePredicate declName) then
     let info ← getConstInfoInduct declName
     unless info.isUnsafe do
+      -- We need to reset the local context here because `solveEqOfCtorEq` uses
+      -- `assumptionCore`, which can reference "outside" free variables that
+      -- were not introduced by `mkInjective(Eq)Theorem` and are not abstracted
+      -- by `mkLambdaFVars`, thus adding a declaration with free variables.
+      -- See https://github.com/leanprover/lean4/issues/2188
+      withLCtx {} {} do
       for ctor in info.ctors do
         let ctorVal ← getConstInfoCtor ctor
         if ctorVal.numFields > 0 then

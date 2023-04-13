@@ -422,8 +422,8 @@ partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
           pure none
       match r? with
       | some r => pure r
-      | none   => throwAppBuilderException `mkProjectionn ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
-  | _ => throwAppBuilderException `mkProjectionn ("structure expected" ++ hasTypeMsg s type)
+      | none   => throwAppBuilderException `mkProjection ("invalid field name '" ++ toString fieldName ++ "' for" ++ hasTypeMsg s type)
+  | _ => throwAppBuilderException `mkProjection ("structure expected" ++ hasTypeMsg s type)
 
 private def mkListLitAux (nil : Expr) (cons : Expr) : List Expr → Expr
   | []    => nil

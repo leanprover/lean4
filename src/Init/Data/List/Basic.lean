@@ -524,7 +524,7 @@ def takeWhile (p : α → Bool) : (xs : List α) → List α
 
 /--
 `O(|l|)`. Returns true if `p` is true for every element of `l`.
-* `any p [a, b, c] = p a && p b && p c`
+* `all p [a, b, c] = p a && p b && p c`
 -/
 @[inline] def all (l : List α) (p : α → Bool) : Bool :=
   foldr (fun a r => p a && r) true l

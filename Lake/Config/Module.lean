@@ -106,9 +106,6 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def nativeFacets (self : Module) : Array (ModuleFacet (BuildJob FilePath)) :=
   self.lib.nativeFacets
 
-@[inline] def isLeanOnly (self : Module) : Bool :=
-  self.pkg.isLeanOnly && !self.shouldPrecompile
-
 /-! ## Trace Helpers -/
 
 protected def getMTime (self : Module) : IO MTime := do

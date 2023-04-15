@@ -94,6 +94,10 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
     | .error e => error e
   let defaultTargets := defaultTargetAttr.ext.getState env
 
+  -- Warn about removed flag if used
+  if self.config.isLeanOnly then
+    logWarning s!"the `isLeanOnly` configuration flag has been removed"
+
   -- Fill in the Package
   return {self with
     opaqueDeps := deps.map (.mk ·)

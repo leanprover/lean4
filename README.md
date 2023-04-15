@@ -146,7 +146,6 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Build & Run
 
-* `isLeanOnly`: Whether the package is "Lean-only". A Lean-only package does not produce native files for modules (e.g. `.c`, `.o`). Defaults to `false`. Setting `precompileModules` to `true` will override this setting and produce native files anyway (as they are needed to build module dynlibs).
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
 * `moreServerArgs`:  Additional arguments to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
 * `buildType`: The `BuildType` of targets in the package (see [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670)). One of `debug`, `relWithDebInfo`, `minSizeRel`, or `release`. Defaults to `release`.

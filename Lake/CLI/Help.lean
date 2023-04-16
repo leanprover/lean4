@@ -163,7 +163,10 @@ USAGE:
   lake script run [<package>/]<script> [<args>...]
 
 This command runs the given `script` from `package`, passing `args` to it.
-Defaults to the root package."
+Defaults to the root package.
+
+A bare `run` command will run the default script(s) of the root package
+(with no arguments)."
 
 def helpScriptDoc :=
 "Print a script's docstring

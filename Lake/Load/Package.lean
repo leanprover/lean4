@@ -69,6 +69,9 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   let scripts : NameMap Script ← mkTagMap env scriptAttr fun name => do
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn name
     return {fn, doc? := (← findDocString? env name)}
+  let defaultScripts ← defaultScriptAttr.ext.getState env |>.mapM fun name =>
+    if let some script := scripts.find? name then pure script else
+      error s!"package is missing script `{name}` marked as a default"
   let leanLibConfigs ← IO.ofExcept <| mkTagMap env leanLibAttr fun name =>
     evalConstCheck env opts LeanLibConfig ``LeanLibConfig name
   let leanExeConfigs ← IO.ofExcept <| mkTagMap env leanExeAttr fun name =>
@@ -95,7 +98,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   return {self with
     opaqueDeps := deps.map (.mk ·)
     leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts
   }
 
 /--

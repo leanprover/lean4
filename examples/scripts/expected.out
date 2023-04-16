@@ -1,0 +1,17 @@
+scripts/dismiss
+scripts/greet
+Hello, world!
+Hello, me!
+Display a greeting
+
+USAGE:
+  lake run greet [name]
+
+Greet the entity with the given name. Otherwise, greet the whole world.
+
+error: unknown script nonexistant
+error: unknown script nonexistant
+scripts/dismiss
+scripts/greet
+Hello, world!
+Goodbye!

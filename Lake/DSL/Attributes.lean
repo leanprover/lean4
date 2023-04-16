@@ -17,6 +17,12 @@ initialize packageDepAttr : OrderedTagAttribute ←
 initialize scriptAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `script "mark a definition as a Lake script"
 
+initialize defaultScriptAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `default_script "mark a Lake script as the package's default"
+    fun name => do
+      unless (← getEnv <&> (scriptAttr.hasTag · name)) do
+        throwError "attribute `default_script` can only be used on a `script`"
+
 initialize leanLibAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `lean_lib "mark a definition as a Lake Lean library target configuration"
 

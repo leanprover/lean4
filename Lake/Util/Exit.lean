@@ -15,3 +15,7 @@ export MonadExit (exit)
 
 instance [MonadLift m n] [MonadExit m] : MonadExit n where
   exit rc := liftM (m := m) <| exit rc
+
+/-- Exit with `ExitCode` if it is not 0. Otherwise, continue. -/
+@[inline] def exitIfErrorCode [Pure m] [MonadExit m]  (rc : ExitCode) : m Unit :=
+  if rc != 0 then exit rc else pure ()

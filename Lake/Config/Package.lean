@@ -205,6 +205,11 @@ structure Package where
   defaultTargets : Array Name := #[]
   /-- Scripts for the package. -/
   scripts : NameMap Script := {}
+  /--
+  The names of the package's scripts run by default
+  (i.e., on a bare `lake run` of the package).
+  -/
+  defaultScripts : Array Script := #[]
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance

@@ -13,14 +13,23 @@ open Lean Parser Command
 syntax scriptDeclSpec :=
   ident (ppSpace simpleBinder)? (declValSimple <|> declValDo)
 
+/--
+Define a new Lake script for the package. Has two forms:
+
+```lean
+script «script-name» (args) do /- ... -/
+script «script-name» (args) := ...
+```
+-/
 scoped syntax (name := scriptDecl)
-(docComment)? "script " scriptDeclSpec : command
+(docComment)?  optional(Term.attributes) "script " scriptDeclSpec : command
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?]? script $id:ident $[$args?]? do $seq $[$wds?]?) => do
-  `($[$doc?]? script $id:ident $[$args?]? := do $seq $[$wds?]?)
-| `($[$doc?]? script $id:ident $[$args?]? := $defn $[$wds?]?) => do
+| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? do $seq $[$wds?]?) => do
+  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$wds?]?)
+| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := $defn $[$wds?]?) => do
   let args ← expandOptSimpleBinder args?
-  `($[$doc?]? @[«script»] def $id : ScriptFn := fun $args => $defn $[$wds?]?)
+  let attrs := #[← `(Term.attrInstance| «script»)] ++ expandAttrs attrs?
+  `($[$doc?]? @[$attrs,*] def $id : ScriptFn := fun $args => $defn $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed script declaration"

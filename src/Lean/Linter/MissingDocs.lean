@@ -64,9 +64,10 @@ def addHandler (env : Environment) (declName key : Name) (h : Handler) : Environ
 
 def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getState env).2
 
-partial def missingDocs : Linter := fun stx => do
-  if let some h := (getHandlers (← getEnv)).find? stx.getKind then
-    h (getLinterMissingDocs (← getOptions)) stx
+partial def missingDocs : Linter where
+  run stx := do
+    if let some h := (getHandlers (← getEnv)).find? stx.getKind then
+      h (getLinterMissingDocs (← getOptions)) stx
 
 builtin_initialize addLinter missingDocs
 
@@ -237,10 +238,10 @@ def handleIn : Handler := fun _ stx => do
   if stx[0].getKind == ``«set_option» then
     let opts ← Elab.elabSetOption stx[0][1] stx[0][2]
     withScope (fun scope => { scope with opts }) do
-      missingDocs stx[2]
+      missingDocs.run stx[2]
   else
-    missingDocs stx[2]
+    missingDocs.run stx[2]
 
 @[builtin_missing_docs_handler «mutual»]
 def handleMutual : Handler := fun _ stx => do
-  stx[1].getArgs.forM missingDocs
+  stx[1].getArgs.forM missingDocs.run

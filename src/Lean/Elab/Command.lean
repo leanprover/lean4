@@ -47,7 +47,9 @@ structure Context where
 abbrev CommandElabCoreM (ε) := ReaderT Context $ StateRefT State $ EIO ε
 abbrev CommandElabM := CommandElabCoreM Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
-abbrev Linter := Syntax → CommandElabM Unit
+structure Linter where
+  run : Syntax → CommandElabM Unit
+  name : Name := by exact decl_name%
 
 /-
 Make the compiler generate specialized `pure`/`bind` so we do not have to optimize through the
@@ -68,6 +70,7 @@ def mkState (env : Environment) (messages : MessageLog := {}) (opts : Options :=
 /- Linters should be loadable as plugins, so store in a global IO ref instead of an attribute managed by the
     environment (which only contains `import`ed objects). -/
 builtin_initialize lintersRef : IO.Ref (Array Linter) ← IO.mkRef #[]
+builtin_initialize registerTraceClass `Elab.lint
 
 def addLinter (l : Linter) : IO Unit := do
   let ls ← lintersRef.get
@@ -195,17 +198,20 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) : CommandElabM Unit := do profileitM Exception "linting" (← getOptions) do
-  let linters ← lintersRef.get
-  unless linters.isEmpty do
-    for linter in linters do
-      let savedState ← get
-      try
-        linter stx
-      catch ex =>
-        logException ex
-      finally
-        modify fun s => { savedState with messages := s.messages }
+def runLinters (stx : Syntax) : CommandElabM Unit := do
+  profileitM Exception "linting" (← getOptions) do
+    withTraceNode `Elab.lint (fun _ => return m!"running linters") do
+      let linters ← lintersRef.get
+      unless linters.isEmpty do
+        for linter in linters do
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}") do
+            let savedState ← get
+            try
+              linter.run stx
+            catch ex =>
+              logException ex
+            finally
+              modify fun s => { savedState with messages := s.messages }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule

@@ -13,7 +13,7 @@ namespace Lake
 
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
-(depTrace : BuildTrace) : BuildM BuildTrace := do
+(depTrace : BuildTrace) : BuildM PUnit := do
   let isOldMode ← getIsOldMode
   let argTrace : BuildTrace := pureHash mod.leanArgs
   let srcTrace : BuildTrace ← computeTrace mod.leanFile
@@ -29,7 +29,6 @@ def Module.buildUnlessUpToDate (mod : Module)
       (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
   unless isOldMode do
     modTrace.writeToFile mod.traceFile
-  return mixTrace (← computeTrace mod) depTrace
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
 def recBuildExternDynlibs (pkgs : Array Package)
@@ -85,7 +84,7 @@ def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetConfig (·.recParseImports)
 
 /-- Recursively compute a module's transitive imports. -/
-partial def Module.recComputeTransImports (mod : Module) : IndexBuildM (Array Module) := do
+def Module.recComputeTransImports (mod : Module) : IndexBuildM (Array Module) := do
   (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
     return set.appendArray (← imp.transImports.fetch) |>.insert imp
 
@@ -94,7 +93,7 @@ def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
   mkFacetConfig (·.recComputeTransImports)
 
 /-- Recursively compute a module's precompiled imports. -/
-partial def Module.recComputePrecompileImports (mod : Module) : IndexBuildM (Array Module) := do
+def Module.recComputePrecompileImports (mod : Module) : IndexBuildM (Array Module) := do
   (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
     if imp.shouldPrecompile then
       return set.appendArray (← imp.transImports.fetch) |>.insert imp
@@ -117,7 +116,7 @@ private def Module.recBuildLeanCore (mod : Module) : IndexBuildM (BuildJob Unit)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray
   let (externJobs, libDirs) ← recBuildExternDynlibs pkgs
-  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.leanBin.fetch)
+  let importJob ← BuildJob.mixArray <| ← imports.mapM (·.importBin.fetch)
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 
@@ -136,12 +135,18 @@ private def Module.recBuildLeanCore (mod : Module) : IndexBuildM (BuildJob Unit)
     -/
     let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
     let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
-    let trace ← mod.buildUnlessUpToDate dynlibPath dynlibs depTrace
-    return ((), trace)
+    mod.buildUnlessUpToDate dynlibPath dynlibs depTrace
+    return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanBinFacet`. -/
 def Module.leanBinFacetConfig : ModuleFacetConfig leanBinFacet :=
   mkFacetJobConfig (·.recBuildLeanCore)
+
+/-- The `ModuleFacetConfig` for the builtin `importBinFacet`. -/
+def Module.importBinFacetConfig : ModuleFacetConfig importBinFacet :=
+  mkFacetJobConfigSmall fun mod => do
+    (← mod.leanBin.fetch).bindSync fun _ depTrace =>
+      return ((), mixTrace (← computeTrace mod) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
@@ -153,7 +158,7 @@ def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanBin.fetch).bindSync fun _ depTrace =>
-      return (mod.ileanFile, depTrace)
+      return (mod.ileanFile, mixTrace (← computeTrace mod.ileanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
@@ -216,6 +221,7 @@ def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert transImportsFacet transImportsFacetConfig
   |>.insert precompileImportsFacet precompileImportsFacetConfig
   |>.insert leanBinFacet leanBinFacetConfig
+  |>.insert importBinFacet importBinFacetConfig
   |>.insert oleanFacet oleanFacetConfig
   |>.insert ileanFacet ileanFacetConfig
   |>.insert cFacet cFacetConfig

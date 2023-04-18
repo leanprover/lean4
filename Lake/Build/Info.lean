@@ -193,6 +193,7 @@ abbrev imports            := self.facet importsFacet
 abbrev transImports       := self.facet transImportsFacet
 abbrev precompileImports  := self.facet precompileImportsFacet
 abbrev leanBin            := self.facet leanBinFacet
+abbrev importBin          := self.facet importBinFacet
 abbrev olean              := self.facet oleanFacet
 abbrev ilean              := self.facet ileanFacet
 abbrev c                  := self.facet cFacet

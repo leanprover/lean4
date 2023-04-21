@@ -864,7 +864,7 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | .mdata _ e       => isClassQuick? e
   | .const n _       => isClassQuickConst? n
   | .mvar mvarId     => do
-    match ← getExprMVarAssignment? mvarId with
+    match (← getExprMVarAssignment? mvarId) with
     | some val => isClassQuick? val
     | none     => return .none
   | .app f _         => do

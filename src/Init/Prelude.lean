@@ -473,7 +473,7 @@ attribute [unbox] Prod
 
 /--
 Similar to `Prod`, but `α` and `β` can be propositions.
-We use this Type internally to automatically generate the `brecOn` recursor.
+We use this type internally to automatically generate the `brecOn` recursor.
 -/
 structure PProd (α : Sort u) (β : Sort v) where
   /-- The first projection out of a pair. if `p : PProd α β` then `p.1 : α`. -/

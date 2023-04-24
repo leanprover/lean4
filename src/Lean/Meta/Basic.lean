@@ -868,19 +868,11 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
     | some val => isClassQuick? val
     | none     => return .none
   | .app f _         => do
-    match ← getAppFnAssigningMVars f with
+    match f.getAppFn with
     | .const n .. => isClassQuickConst? n
     | .lam ..     => return .undef
+    | .mvar ..    => return .undef
     | _           => return .none
-where
-  getAppFnAssigningMVars : Expr → MetaM Expr
-  | .app f _ => getAppFnAssigningMVars f
-  | e@(.mvar mvarId)     => do
-    match ← getExprMVarAssignment? mvarId with
-    | some f => getAppFnAssigningMVars f
-    | none   => return e
-  | e => return e
-
 
 def saveAndResetSynthInstanceCache : MetaM SynthInstanceCache := do
   let savedSythInstance := (← get).cache.synthInstance

@@ -1010,6 +1010,7 @@ mutual
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
       forallTelescopeReducingAux type none fun _ type => do
         let env ← getEnv
+        let type ← instantiateMVars type
         match type.getAppFn with
         | .const c _ => do
           if isClass env c then

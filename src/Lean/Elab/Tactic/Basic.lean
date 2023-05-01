@@ -17,7 +17,7 @@ def admitGoal (mvarId : MVarId) : MetaM Unit :=
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
 
-def Term.reportUnsolvedGoals (goals : List MVarId) : TermElabM Unit := do
+def Term.reportUnsolvedGoals (goals : List MVarId) : MetaM Unit := do
   logError <| MessageData.tagged `Tactic.unsolvedGoals <| m!"unsolved goals\n{goalsToMessageData goals}"
   goals.forM fun mvarId => admitGoal mvarId
 

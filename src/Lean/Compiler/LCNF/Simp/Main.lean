@@ -223,7 +223,6 @@ partial def simp (code : Code) : SimpM Code := withIncRecDepth do
     let mut decl ← normLetDecl baseDecl
     if baseDecl != decl then
       markSimplified
-
     if let some value ← simpValue? decl.value then
       markSimplified
       decl ← decl.updateValue value

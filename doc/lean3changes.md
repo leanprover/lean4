@@ -196,6 +196,8 @@ example (f : Nat → Nat) (a b c : Nat) : f (a + b + c) = f (a + (b + c)) :=
   congrArg f (Nat.add_assoc ..)
 ```
 
+In Lean 4, writing `f(x)` in place of `f x` is no longer allowed.
+
 ## Dependent function types
 
 Given `α : Type` and `β : α → Type`, `(x : α) → β x` denotes the type of functions `f` with the property that,

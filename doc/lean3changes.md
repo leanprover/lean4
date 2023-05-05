@@ -196,7 +196,7 @@ example (f : Nat → Nat) (a b c : Nat) : f (a + b + c) = f (a + (b + c)) :=
   congrArg f (Nat.add_assoc ..)
 ```
 
-In Lean 4, writing `f(x)` in place of `f x` is no longer allowed.
+In Lean 4, writing `f(x)` in place of `f x` is no longer allowed, you must use whitespace between the function and its arguments (e.g., `f (x)`).
 
 ## Dependent function types
 

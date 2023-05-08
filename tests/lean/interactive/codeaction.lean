@@ -2,7 +2,7 @@ import Lean
 
 open Lean Server Lsp
 
-@[codeActionProvider]
+@[code_action_provider]
 def helloProvider : CodeActionProvider := fun params _snap => do
   let td := params.textDocument
   let edit : TextEdit := {

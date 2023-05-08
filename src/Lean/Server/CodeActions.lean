@@ -51,7 +51,7 @@ instance : Coe CodeAction LazyCodeAction where
   coe c := { eager := c }
 
 /-- A code action provider is a function for providing LSP code actions for an editor.
-You can register them with the `@[codeActionProvider]` attribute.
+You can register them with the `@[code_action_provider]` attribute.
 
 This is a low-level interface for making LSP code actions.
 This interface can be used to implement the following applications:
@@ -75,7 +75,7 @@ builtin_initialize codeActionProviderExt : SimplePersistentEnvExtension Name Nam
 }
 
 builtin_initialize registerBuiltinAttribute {
-  name := `codeActionProvider
+  name := `code_action_provider
   descr := "Use to decorate methods for suggesting code actions. This is a low-level interface for making code actions."
   add := fun src _stx _kind => do
     modifyEnv (codeActionProviderExt.addEntry · src)

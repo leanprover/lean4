@@ -24,11 +24,6 @@ register_builtin_option synthInstance.maxSize : Nat := {
   descr := "maximum number of instances used to construct a solution in the type class instance synthesis procedure"
 }
 
-register_builtin_option synthInstance.etaExperiment : Bool := {
-  defValue := false
-  descr := "deprecated no-op, only provided for transitioning"
-}
-
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=

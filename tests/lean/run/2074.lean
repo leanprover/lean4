@@ -1,5 +1,3 @@
-set_option synthInstance.etaExperiment true -- TODO: make work by default
-
 class NonUnitalNonAssocSemiring (α : Type u)
 
 class NonUnitalSemiring (α : Type u) extends NonUnitalNonAssocSemiring α

@@ -19,6 +19,8 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+builtin_initialize registerTraceClass `Kernel
+
 def getMaxHeartbeats (opts : Options) : Nat :=
   maxHeartbeats.get opts * 1000
 
@@ -270,12 +272,14 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
-def addDecl (decl : Declaration) : CoreM Unit := do profileitM Exception "type checking" (← getOptions) do
-  if !(← MonadLog.hasErrors) && decl.hasSorry then
-    logWarning "declaration uses 'sorry'"
-  match (← getEnv).addDecl decl with
-  | Except.ok    env => setEnv env
-  | Except.error ex  => throwKernelException ex
+def addDecl (decl : Declaration) : CoreM Unit := do
+  profileitM Exception "type checking" (← getOptions) do
+    withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
+      if !(← MonadLog.hasErrors) && decl.hasSorry then
+        logWarning "declaration uses 'sorry'"
+      match (← getEnv).addDecl decl with
+      | Except.ok    env => setEnv env
+      | Except.error ex  => throwKernelException ex
 
 private def supportedRecursors :=
   #[``Empty.rec, ``False.rec, ``Eq.ndrec, ``Eq.rec, ``Eq.recOn, ``Eq.casesOn, ``False.casesOn, ``Empty.casesOn, ``And.rec, ``And.casesOn]

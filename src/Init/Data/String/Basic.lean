@@ -60,7 +60,7 @@ def get (s : @& String) (p : @& Pos) : Char :=
 
 def utf8GetAux? : List Char → Pos → Pos → Option Char
   | [],    _, _ => none
-  | c::cs, i, p => if i = p then c else utf8GetAux cs (i + c) p
+  | c::cs, i, p => if i = p then c else utf8GetAux? cs (i + c) p
 
 @[extern "lean_string_utf8_get_opt"]
 def get? : (@& String) → (@& Pos) → Option Char

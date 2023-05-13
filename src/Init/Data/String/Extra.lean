@@ -33,40 +33,14 @@ opaque fromUTF8Unchecked (a : @& ByteArray) : String
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray
 
-theorem one_le_csize (c : Char) : 1 ≤ csize c := by
-  simp [csize, Char.utf8Size]
-  repeat (first | split | decide)
-
-@[simp] theorem pos_lt_eq (p₁ p₂ : Pos) : (p₁ < p₂) = (p₁.1 < p₂.1) := rfl
-
-@[simp] theorem pos_add_char (p : Pos) (c : Char) : (p + c).byteIdx = p.byteIdx + csize c := rfl
-
-theorem eq_empty_of_bsize_eq_zero (h : s.endPos = {}) : s = "" := by
-  match s with
-  | ⟨[]⟩   => rfl
-  | ⟨c::cs⟩ =>
-    injection h with h
-    simp [endPos, utf8ByteSize, utf8ByteSize.go] at h
-    have : utf8ByteSize.go cs + 1 ≤ utf8ByteSize.go cs + csize c := Nat.add_le_add_left (one_le_csize c) _
-    simp_arith [h] at this
-
-theorem lt_next (s : String) (i : String.Pos) : i.1 < (s.next i).1 := by
-  simp_arith [next]; apply one_le_csize
-
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h
-  have := String.lt_next s pos
-  apply Nat.sub.elim (motive := fun k => k < _) (utf8ByteSize s) (String.next s pos).1
-  . intro _ k he
-    simp [he]; rw [Nat.add_comm, Nat.add_sub_assoc (Nat.le_of_lt this)]
-    have := Nat.zero_lt_sub_of_lt this
-    simp_all_arith
-  . intro; apply Nat.zero_lt_sub_of_lt h
+  exact Nat.sub_lt_sub_left h (String.lt_next s pos)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_hasNext; assumption)
 
 theorem Iterator.sizeOf_next_lt_of_atEnd (i : String.Iterator) (h : ¬ i.atEnd = true) : sizeOf i.next < sizeOf i :=
-  have h : i.hasNext = true := by simp_arith [atEnd] at h; simp_arith [hasNext, h]
+  have h : i.hasNext := decide_eq_true <| Nat.gt_of_not_le <| mt decide_eq_true h
   sizeOf_next_lt_of_hasNext i h
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| apply String.Iterator.sizeOf_next_lt_of_atEnd; assumption)

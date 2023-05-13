@@ -797,6 +797,13 @@ theorem if_neg {c : Prop} {h : Decidable c} (hnc : ¬c) {α : Sort u} {t e : α}
   | isTrue hc   => absurd hc hnc
   | isFalse _   => rfl
 
+/-- Split an if-then-else into cases. The `split` tactic is generally easier to use than this theorem. -/
+def iteInduction {c} [inst : Decidable c] {motive : α → Sort _} {t e : α}
+    (hpos : c → motive t) (hneg : ¬c → motive e) : motive (ite c t e) :=
+  match inst with
+  | isTrue h => hpos h
+  | isFalse h => hneg h
+
 theorem dif_pos {c : Prop} {h : Decidable c} (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : (dite c t e) = t hc :=
   match h with
   | isTrue  _   => rfl

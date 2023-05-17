@@ -218,7 +218,7 @@ termination_by loop => stopPos.1 - i.1
 
 @[extern "lean_string_utf8_extract"]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
-  | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then ⟨[]⟩ else ⟨go₁ s 0 b e⟩
+  | ⟨s⟩, b, e => if b.byteIdx ≥ e.byteIdx then "" else ⟨go₁ s 0 b e⟩
 where
   go₁ : List Char → Pos → Pos → Pos → List Char
     | [],        _, _, _ => []

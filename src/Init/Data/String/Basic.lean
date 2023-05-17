@@ -398,21 +398,19 @@ termination_by _ => i.1
   foldrAux f init s s.endPos 0
 
 @[specialize] def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) (i : Pos) : Bool :=
-  let rec loop (i : Pos) :=
-    if h : i < stopPos then
-      if p (s.get i) then true
-      else
-        have := Nat.sub_lt_sub_left h (lt_next s i)
-        loop (s.next i)
-    else false
-  loop i
-termination_by loop => stopPos.1 - i.1
+  if h : i < stopPos then
+    if p (s.get i) then true
+    else
+      have := Nat.sub_lt_sub_left h (lt_next s i)
+      anyAux s stopPos p (s.next i)
+  else false
+termination_by _ => stopPos.1 - i.1
 
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
-anyAux s s.endPos p 0
+  anyAux s s.endPos p 0
 
 @[inline] def all (s : String) (p : Char → Bool) : Bool :=
-!s.any (fun c => !p c)
+  !s.any (fun c => !p c)
 
 def contains (s : String) (c : Char) : Bool :=
 s.any (fun a => a == c)

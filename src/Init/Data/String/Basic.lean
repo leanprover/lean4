@@ -375,25 +375,24 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
 
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) (i : Pos) (a : α) : α :=
-  let rec loop (i : Pos) (a : α) :=
-    if h : i < stopPos then
-      have := Nat.sub_lt_sub_left h (lt_next s i)
-      loop (s.next i) (f a (s.get i))
-    else a
-  loop i a
-termination_by loop => stopPos.1 - i.1
+  if h : i < stopPos then
+    have := Nat.sub_lt_sub_left h (lt_next s i)
+    foldlAux f s stopPos (s.next i) (f a (s.get i))
+  else a
+termination_by _ => stopPos.1 - i.1
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
 
-@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (stopPos : Pos) (i : Pos) : α :=
-  let rec loop (i : Pos) :=
-    if h : i < stopPos then
-      have := Nat.sub_lt_sub_left h (lt_next s i)
-      f (s.get i) (loop (s.next i))
-    else a
-  loop i
-termination_by loop => stopPos.1 - i.1
+@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
+  if h : begPos < i then
+    have := String.prev_lt_of_pos s i <| mt (congrArg String.Pos.byteIdx) <|
+      Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
+    let i := s.prev i
+    let a := f (s.get i) a
+    foldrAux f a s i begPos
+  else a
+termination_by _ => i.1
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
   foldrAux f init s s.endPos 0

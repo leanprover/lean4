@@ -158,7 +158,7 @@ are turned into a new anonymous constructor application. For example,
 `⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`.
 -/
 @[builtin_term_parser] def anonymousCtor := leading_parser
-  "⟨" >> sepBy termParser ", " >> "⟩"
+  "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", ")) >> "⟩"
 def optIdent : Parser :=
   optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser

@@ -233,8 +233,8 @@ where
   else
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
     if p (s.get i) then
-      let i := s.next i
-      splitAux s p i i (s.extract b { byteIdx := i.byteIdx - 1 } :: r)
+      let i' := s.next i
+      splitAux s p i' i' (s.extract b i :: r)
     else
       splitAux s p b (s.next i) r
 termination_by _ => s.endPos.1 - i.1

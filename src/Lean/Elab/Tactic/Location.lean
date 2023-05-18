@@ -56,6 +56,8 @@ def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget 
       let mut worked := worked
       -- We must traverse backwards because the given `atLocal` may use the revert/intro idiom
       for fvarId in (← getLCtx).getFVarIds.reverse do
+        if (← fvarId.getDecl).isImplementationDetail then
+          continue
         worked := worked || (← tryTactic <| withMainContext <| atLocal fvarId)
       unless worked do
         failed (← getMainGoal)

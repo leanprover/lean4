@@ -500,7 +500,7 @@ where
 
 def handleSemanticTokensFull (_ : SemanticTokensParams)
     : RequestM (RequestTask SemanticTokens) := do
-  handleSemanticTokens 0 ⟨1 <<< 16⟩
+  handleSemanticTokens 0 ⟨1 <<< 31⟩
 
 def handleSemanticTokensRange (p : SemanticTokensRangeParams)
     : RequestM (RequestTask SemanticTokens) := do

@@ -131,6 +131,18 @@ def computeFileHash (file : FilePath) : IO Hash :=
 
 instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 
+/--
+  A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
+  to normalize `\r\n` sequences to `\n` for cross-platform compatibility. -/
+structure TextFilePath where
+  path : FilePath
+
+instance : ComputeHash TextFilePath IO where
+  computeHash file := do
+    let text ← IO.FS.readFile file.path
+    let text := text.replace "\r\n" "\n"
+    return Hash.ofString text
+
 instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m where
   computeHash ar := ar.foldlM (fun b a => Hash.mix b <$> computeHash a) Hash.nil
 
@@ -171,6 +183,7 @@ def getFileMTime (file : FilePath) : IO MTime :=
   return (← file.metadata).modified
 
 instance : GetMTime FilePath := ⟨getFileMTime⟩
+instance : GetMTime TextFilePath := ⟨(getFileMTime ·.path)⟩
 
 /-- Check if the info's `MTIme` is at least `depMTime`. -/
 def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : BaseIO Bool :=

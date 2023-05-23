@@ -16,7 +16,7 @@ def Module.buildUnlessUpToDate (mod : Module)
 (depTrace : BuildTrace) : BuildM PUnit := do
   let isOldMode ← getIsOldMode
   let argTrace : BuildTrace := pureHash mod.leanArgs
-  let srcTrace : BuildTrace ← computeTrace mod.leanFile
+  let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
   let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
   let modUpToDate ← do
     if isOldMode then

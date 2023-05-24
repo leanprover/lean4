@@ -36,8 +36,8 @@ We provide two kinds of hints to the termination checker:
 2- A tactic for proving the recursive applications are "decreasing" (`p` is `tacticSeq`)
 -/
 def terminationHintMany (p : Parser) := leading_parser
-  atomic (lookahead (ident >> " => ")) >>
-  many1Indent (group (ppLine >> ident >> " => " >> p >> optional ";"))
+  atomic (lookahead (binderIdent >> " => ")) >>
+  many1Indent (group (ppLine >> binderIdent >> " => " >> p >> optional ";"))
 def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
@@ -47,7 +47,7 @@ def decreasingBy := leading_parser
   "decreasing_by " >> terminationHint Tactic.tacticSeq
 
 def terminationByElement   := leading_parser
-  ppLine >> (ident <|> Term.hole) >> many (ident <|> Term.hole) >>
+  ppLine >> binderIdent >> many binderIdent >>
   " => " >> termParser >> optional ";"
 def terminationBy          := leading_parser
   ppLine >> "termination_by " >> many1Indent terminationByElement
@@ -259,7 +259,7 @@ def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
 @[builtin_command_parser] def «initialize» := leading_parser
   declModifiers false >> initializeKeyword >>
-  optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+  optional (atomic (binderIdent >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
 
 @[builtin_command_parser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
 

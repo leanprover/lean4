@@ -160,7 +160,7 @@ are turned into a new anonymous constructor application. For example,
 @[builtin_term_parser] def anonymousCtor := leading_parser
   "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", ")) >> "⟩"
 def optIdent : Parser :=
-  optional (atomic (ident >> " : "))
+  optional (atomic (binderIdent >> " : "))
 def fromTerm   := leading_parser
   "from " >> termParser
 def showRhs := fromTerm <|> byTactic'
@@ -209,7 +209,6 @@ In contrast to regular patterns, `e` may be an arbitrary term of the appropriate
 -/
 @[builtin_term_parser] def inaccessible := leading_parser
   ".(" >> withoutPosition termParser >> ")"
-def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser :=
   if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
 def binderTactic  := leading_parser
@@ -298,7 +297,7 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
   leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
 def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
@@ -394,7 +393,7 @@ def letIdBinder :=
     binderIdent <|> bracketedBinder
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser :=
-  ident >> notFollowedBy (checkNoWsBefore "" >> "[")
+  binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
     "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >>
   many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
@@ -467,7 +466,7 @@ It is often used when building macros.
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
+def haveIdLhs    := optional (binderIdent >> many (ppSpace >> letIdBinder)) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
@@ -612,7 +611,7 @@ def isIdent (stx : Syntax) : Bool :=
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
   checkStackTop isIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '@'" >> "@" >>
-  optional (atomic (ident >> ":")) >> termParser maxPrec
+  optional (atomic (binderIdent >> ":")) >> termParser maxPrec
 
 /--
 `e |>.x` is a shorthand for `(e).x`.

@@ -67,7 +67,7 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
   precedence >> optNamedName >> optNamedPrio >> ppSpace >> strLit >> darrow >> termParser
 -- NOTE: We use `suppressInsideQuot` in the following parsers because quotations inside them are evaluated in the same stage and
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
-def identPrec  := leading_parser ident >> optPrecedence
+def identPrec  := leading_parser binderIdent >> optPrecedence
 
 def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
 
@@ -89,7 +89,7 @@ def catBehavior := optional ("(" >> nonReservedSymbol "behavior" >> " := " >> (c
 @[builtin_command_parser] def syntaxCat := leading_parser
   optional docComment >> "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser
-  optional (atomic (ident >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
+  optional (atomic (binderIdent >> checkNoWsBefore "no space before ':'" >> ":")) >> syntaxParser argPrec
 def macroRhs : Parser := leading_parser withPosition termParser
 def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
 @[builtin_command_parser] def «macro»       := leading_parser suppressInsideQuot <|

@@ -447,11 +447,13 @@ macro_rules
   | `($f $args* $ $a) => `($f $args* $a)
   | `($f $ $a) => `($f $a)
 
-@[inherit_doc Subtype] syntax "{ " withoutPosition(ident (" : " term)? " // " term) " }" : term
+@[inherit_doc Subtype] syntax "{ " withoutPosition(Lean.binderIdent (" : " term)? " // " term) " }" : term
 
 macro_rules
-  | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
-  | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
+  | `({ $x:ident : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
+  | `({ $x:ident // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
+  | `({ _ : $type // $p }) => ``(Subtype (fun (_ : $type) => $p))
+  | `({ _ // $p })         => ``(Subtype (fun (_ : _) => $p))
 
 /--
 `without_expected_type t` instructs Lean to elaborate `t` without an expected type.

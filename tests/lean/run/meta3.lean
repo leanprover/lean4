@@ -1,4 +1,4 @@
-import Lean.Meta
+import Lean
 
 open Lean
 open Lean.Meta

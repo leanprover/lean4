@@ -1,5 +1,4 @@
-import Lean.Meta.Match
-import Lean.Util.CollectLevelParams
+import Lean
 
 open Lean
 open Lean.Meta

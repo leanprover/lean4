@@ -34,9 +34,10 @@ def fromString (s : String) : Except String RefIdent := do
   -- See `FromJson Name`
   let name ← match sName with
     | "[anonymous]" => pure Name.anonymous
-    | _ => match Syntax.decodeNameLit ("`" ++ sName) with
-      | some n => pure n
-      | none => throw s!"expected a Name, got {sName}"
+    | _ =>
+      let n := s.toName
+      if n.isAnonymous then throw s!"expected a Name, got {sName}"
+      else pure n
   match sPrefix with
     | "c:" => return RefIdent.const name
     | "f:" => return RefIdent.fvar <| FVarId.mk name

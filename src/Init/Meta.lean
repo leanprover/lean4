@@ -836,22 +836,30 @@ private partial def splitNameLitAux (ss : Substring) (acc : List Substring) : Li
 def splitNameLit (ss : Substring) : List Substring :=
   splitNameLitAux ss [] |>.reverse
 
+def _root_.Substring.toName (s : Substring) : Name :=
+  match splitNameLitAux s [] with
+  | [] => .anonymous
+  | comps => comps.foldr (init := Name.anonymous)
+    fun comp n =>
+      let comp := comp.toString
+      if isIdBeginEscape comp.front then
+        Name.mkStr n (comp.drop 1 |>.dropRight 1)
+      else if comp.front.isDigit then
+        if let some k := decodeNatLitVal? comp then
+          Name.mkNum n k
+        else
+          unreachable!
+      else
+        Name.mkStr n comp
+
+def _root_.String.toName (s : String) : Name :=
+  s.toSubstring.toName
+
 def decodeNameLit (s : String) : Option Name :=
   if s.get 0 == '`' then
-    match splitNameLitAux (s.toSubstring.drop 1) [] with
-    | [] => none
-    | comps => some <| comps.foldr (init := Name.anonymous)
-      fun comp n =>
-        let comp := comp.toString
-        if isIdBeginEscape comp.front then
-          Name.mkStr n (comp.drop 1 |>.dropRight 1)
-        else if comp.front.isDigit then
-          if let some k := decodeNatLitVal? comp then
-            Name.mkNum n k
-          else
-            unreachable!
-        else
-          Name.mkStr n comp
+    match (s.toSubstring.drop 1).toName with
+    | .anonymous => none
+    | name => some name
   else
     none
 

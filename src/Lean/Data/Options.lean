@@ -62,28 +62,6 @@ def getOptionDescr (name : Name) : IO String := do
   let decl ← getOptionDecl name
   pure decl.descr
 
-def setOptionFromString (opts : Options) (entry : String) : IO Options := do
-  let ps := (entry.splitOn "=").map String.trim
-  let [key, val] ← pure ps | throw $ IO.userError "invalid configuration option entry, it must be of the form '<key> = <value>'"
-  let key := Name.mkSimple key
-  let defValue ← getOptionDefaultValue key
-  match defValue with
-  | DataValue.ofString _ => pure $ opts.setString key val
-  | DataValue.ofBool _   =>
-    if key == `true then pure $ opts.setBool key true
-    else if key == `false then pure $ opts.setBool key false
-    else throw $ IO.userError s!"invalid Bool option value '{val}'"
-  | DataValue.ofName _   => pure $ opts.setName key val.toName
-  | DataValue.ofNat _    =>
-    match val.toNat? with
-    | none   => throw (IO.userError s!"invalid Nat option value '{val}'")
-    | some v => pure $ opts.setNat key v
-  | DataValue.ofInt _    =>
-    match val.toInt? with
-    | none   => throw (IO.userError s!"invalid Int option value '{val}'")
-    | some v => pure $ opts.setInt key v
-  | DataValue.ofSyntax _ => throw (IO.userError s!"invalid Syntax option value")
-
 class MonadOptions (m : Type → Type) where
   getOptions : m Options
 

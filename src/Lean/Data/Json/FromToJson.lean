@@ -81,8 +81,8 @@ instance : FromJson Name where
     if s == "[anonymous]" then
       return Name.anonymous
     else
-      let some n := Syntax.decodeNameLit ("`" ++ s)
-        | throw s!"expected a `Name`, got '{j}'"
+      let n := s.toName
+      if n.isAnonymous then throw s!"expected a `Name`, got '{j}'"
       return n
 
 instance : ToJson Name where

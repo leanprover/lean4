@@ -151,7 +151,3 @@ end Name
 end Lean
 
 open Lean
-
-def String.toName (s : String) : Name :=
-  let ps := s.splitOn ".";
-  ps.foldl (fun n p => Name.mkStr n p.trim) Name.anonymous

@@ -2,6 +2,14 @@ import Lean
 
 open Lean
 
+initialize fooFloat : Float ← pure 1.2
+initialize foo8 : UInt8 ← pure 12
+initialize foo16 : UInt16 ← pure 1234
+initialize foo32 : UInt32 ← pure 1234
+initialize foo64 : UInt64 ← pure 1234
+initialize fooNat : Nat ← pure 1234
+initialize fooProd : UInt32 × Bool ← pure (1234, true)
+
 initialize fooExtension : SimplePersistentEnvExtension Name NameSet ←
   registerSimplePersistentEnvExtension {
     addEntryFn    := NameSet.insert

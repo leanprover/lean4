@@ -796,7 +796,7 @@ private:
         }
         if (object * const * o = g_init_globals->find(fn)) {
             // persistent, so no `inc` needed
-            return *o;
+            return type_is_scalar(t) ? unbox_t(*o, t) : *o;
         }
 
         symbol_cache_entry e = lookup_symbol(fn);
@@ -1035,7 +1035,18 @@ public:
                 dec_ref(r);
                 symbol_cache_entry e = lookup_symbol(decl);
                 if (e.m_addr) {
-                    *((object **)e.m_addr) = o;
+                    switch (decl_type(e.m_decl)) {
+                        case type::Float: *((double*)e.m_addr) = unbox_float(o); break;
+                        case type::UInt8: *((uint8*)e.m_addr) = unbox(o); break;
+                        case type::UInt16: *((uint16*)e.m_addr) = unbox(o); break;
+                        case type::UInt32: *((uint32*)e.m_addr) = unbox_uint32(o); break;
+                        case type::UInt64: *((uint64*)e.m_addr) = unbox_uint64(o); break;
+                        case type::USize: *((size_t*)e.m_addr) = unbox_size_t(o); break;
+                        case type::Object:
+                        case type::TObject:
+                        case type::Irrelevant: *((object **)e.m_addr) = o; break;
+                        default: lean_unreachable();
+                    }
                 } else {
                     g_init_globals->insert(decl, o);
                 }

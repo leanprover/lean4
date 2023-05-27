@@ -164,7 +164,6 @@ private def applySubst (s : FVarSubst) (fvarIds : List FVarId) : List FVarId :=
   the replace it everywhere with `lhs`.
 -/
 private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
-  assert! (← get).xs.contains rhs
   let (subst, mvarId) ← substCore (← get).mvarId eq (symm := true)
   modify fun s => { s with
     mvarId,
@@ -208,7 +207,7 @@ private def processNextEq : M Bool := do
       if let some (_, lhs, rhs) ← matchEq? eqType then
         if (← isDefEq lhs rhs) then
           return true
-        if rhs.isFVar then
+        if rhs.isFVar && s.xs.contains rhs.fvarId! then
           substRHS eq rhs.fvarId!
           return true
       if let some (α, lhs, β, rhs) ← matchHEq? eqType then

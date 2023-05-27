@@ -161,7 +161,7 @@ private def applySubst (s : FVarSubst) (fvarIds : List FVarId) : List FVarId :=
 
 /--
   Given an equation of the form `lhs = rhs` where `rhs` is variable in `xs`,
-  the replace it everywhere with `lhs`.
+  replace it everywhere with `lhs`.
 -/
 private def substRHS (eq : FVarId) (rhs : FVarId) : M Unit := do
   assert! (← get).xs.contains rhs
@@ -208,7 +208,7 @@ private def processNextEq : M Bool := do
       if let some (_, lhs, rhs) ← matchEq? eqType then
         if (← isDefEq lhs rhs) then
           return true
-        if rhs.isFVar then
+        if rhs.isFVar && s.xs.contains rhs.fvarId! then
           substRHS eq rhs.fvarId!
           return true
       if let some (α, lhs, β, rhs) ← matchHEq? eqType then

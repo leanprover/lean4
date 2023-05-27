@@ -58,3 +58,13 @@ match s with
 | { n := n, m := m, .. } => n + m.val
 
 #eval f7 { n := 10, y := mkVec 10 0, z := mkVec 10 0, h := rfl, m := ⟨10, rfl⟩ }
+
+inductive Bla : Unit → Unit × Unit → Type where
+  | left : Bla a (a, b)
+  | right : Bla b (a, b)
+
+def f8 : ∀ x y, Bla x y → Unit
+  | _, _, .left => ()
+  | _, _, .right => ()
+
+example (x : Bla () ((), ())) : f8 () ((), ()) x = () := by simp only [f8]

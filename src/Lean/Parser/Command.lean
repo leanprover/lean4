@@ -37,20 +37,20 @@ We provide two kinds of hints to the termination checker:
 -/
 def terminationHintMany (p : Parser) := leading_parser
   atomic (lookahead (ident >> " => ")) >>
-  many1Indent (group (ppLine >> ident >> " => " >> p >> optional ";"))
+  many1Indent (group (ppLine >> ppIndent (ident >> " => " >> p >> optional ";")))
 def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
 def terminationByCore := leading_parser
-  "termination_by' " >> terminationHint termParser
+  ppDedent ppLine >> "termination_by' " >> terminationHint termParser
 def decreasingBy := leading_parser
-  "decreasing_by " >> terminationHint Tactic.tacticSeq
+  ppDedent ppLine >> "decreasing_by " >> terminationHint Tactic.tacticSeq
 
 def terminationByElement   := leading_parser
-  ppLine >> (ident <|> Term.hole) >> many (ident <|> Term.hole) >>
+  ppLine >> (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
   " => " >> termParser >> optional ";"
 def terminationBy          := leading_parser
-  ppLine >> "termination_by " >> many1Indent terminationByElement
+  ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
 
 def terminationSuffix :=
   optional (terminationBy <|> terminationByCore) >> optional decreasingBy
@@ -60,8 +60,8 @@ def moduleDoc := leading_parser ppDedent <|
   "/-!" >> commentBody >> ppLine
 
 def namedPrio := leading_parser
-  atomic ("(" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
-def optNamedPrio := optional (ppSpace >> namedPrio)
+  atomic (" (" >> nonReservedSymbol "priority") >> " := " >> withoutPosition priorityParser >> ")"
+def optNamedPrio := optional namedPrio
 
 def «private»        := leading_parser "private "
 def «protected»      := leading_parser "protected "
@@ -95,7 +95,7 @@ def whereStructInst  := leading_parser
 /-
   Remark: we should not use `Term.whereDecls` at `declVal`
   because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
-  Issue #753 showns an example that fails to be parsed when we used `Term.whereDecls`.
+  Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
 -/
 def declVal          :=
   withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
@@ -103,7 +103,7 @@ def declVal          :=
 def «abbrev»         := leading_parser
   "abbrev " >> declId >> ppIndent optDeclSig >> declVal >> terminationSuffix
 def optDefDeriving   :=
-  optional (atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser
   "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
 def «theorem»        := leading_parser
@@ -123,7 +123,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> Term.structInst))) ", "
+def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> ppIndent Term.structInst))) ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -149,7 +149,7 @@ or an element `head : α` followed by a list `tail : List α`.
 For more information about [inductive types](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html).
 -/
 def «inductive»      := leading_parser
-  "inductive " >> declId >> optDeclSig >> optional (symbol " :=" <|> " where") >>
+  "inductive " >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>
   many ctor >> optional (ppDedent ppLine >> computedFields) >> optDeriving
 def classInductive   := leading_parser
   atomic (group (symbol "class " >> "inductive ")) >>
@@ -172,7 +172,7 @@ def structFields         := leading_parser
       structExplicitBinder <|> structImplicitBinder <|>
       structInstBinder <|> structSimpleBinder)
 def structCtor           := leading_parser
-  atomic (declModifiers true >> ident >> " :: ")
+  atomic (ppIndent (declModifiers true >> ident >> " :: "))
 def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
@@ -180,9 +180,8 @@ def classTk              := leading_parser
 def «extends»            := leading_parser
   " extends " >> sepBy1 termParser ", "
 def «structure»          := leading_parser
-    (structureTk <|> classTk) >>
-    declId >> many (ppSpace >> Term.bracketedBinder) >>
-    optional «extends» >> Term.optType >>
+    (structureTk <|> classTk) >> declId >>
+    ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser
@@ -192,17 +191,17 @@ def «structure»          := leading_parser
 @[builtin_command_parser] def «deriving»     := leading_parser
   "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 ident ", "
 @[builtin_command_parser] def noncomputableSection := leading_parser
-  "noncomputable " >> "section " >> optional ident
+  "noncomputable " >> "section" >> optional (ppSpace >> ident)
 @[builtin_command_parser] def «section»      := leading_parser
-  "section " >> optional ident
+  "section" >> optional (ppSpace >> ident)
 @[builtin_command_parser] def «namespace»    := leading_parser
   "namespace " >> ident
 @[builtin_command_parser] def «end»          := leading_parser
-  "end " >> optional ident
+  "end" >> optional (ppSpace >> ident)
 @[builtin_command_parser] def «variable»     := leading_parser
   "variable" >> many1 (ppSpace >> Term.bracketedBinder)
 @[builtin_command_parser] def «universe»     := leading_parser
-  "universe " >> many1 ident
+  "universe" >> many1 (ppSpace >> ident)
 @[builtin_command_parser] def check          := leading_parser
   "#check " >> termParser
 @[builtin_command_parser] def check_failure  := leading_parser
@@ -229,42 +228,43 @@ def eraseAttr := leading_parser
 @[builtin_command_parser] def «attribute»    := leading_parser
   "attribute " >> "[" >>
     withoutPosition (sepBy1 (eraseAttr <|> Term.attrInstance) ", ") >>
-  "] " >> many1 ident
+  "]" >> many1 (ppSpace >> ident)
 @[builtin_command_parser] def «export»       := leading_parser
   "export " >> ident >> " (" >> many1 ident >> ")"
 @[builtin_command_parser] def «import»       := leading_parser
   "import" -- not a real command, only for error messages
 def openHiding       := leading_parser
-  atomic (ident >> "hiding") >> many1 (checkColGt >> ident)
+  ppSpace >> atomic (ident >> " hiding") >> many1 (ppSpace >> checkColGt >> ident)
 def openRenamingItem := leading_parser
   ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
 def openRenaming     := leading_parser
-  atomic (ident >> "renaming") >> sepBy1 openRenamingItem ", "
+  ppSpace >> atomic (ident >> " renaming ") >> sepBy1 openRenamingItem ", "
 def openOnly         := leading_parser
-  atomic (ident >> " (") >> many1 ident >> ")"
+  ppSpace >> atomic (ident >> " (") >> many1 ident >> ")"
 def openSimple       := leading_parser
-  many1 (checkColGt >> ident)
+  many1 (ppSpace >> checkColGt >> ident)
 def openScoped       := leading_parser
-  "scoped " >> many1 (checkColGt >> ident)
+  " scoped" >> many1 (ppSpace >> checkColGt >> ident)
 def openDecl         :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
     openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
 @[builtin_command_parser] def «open»    := leading_parser
-  withPosition ("open " >> openDecl)
+  withPosition ("open" >> openDecl)
 
 @[builtin_command_parser] def «mutual» := leading_parser
-  "mutual " >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
+  "mutual" >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
   ppDedent (ppLine >> "end") >> terminationSuffix
 def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
 @[builtin_command_parser] def «initialize» := leading_parser
   declModifiers false >> initializeKeyword >>
-  optional (atomic (ident >> Term.typeSpec >> Term.leftArrow)) >> Term.doSeq
+  optional (atomic (ident >> Term.typeSpec >> ppSpace >> Term.leftArrow)) >> Term.doSeq
 
-@[builtin_command_parser] def «in»  := trailing_parser withOpen (" in " >> commandParser)
+@[builtin_command_parser] def «in»  := trailing_parser
+  withOpen (ppDedent (" in " >> commandParser))
 
 @[builtin_command_parser] def addDocString := leading_parser
-  docComment >> "add_decl_doc" >> ident
+  docComment >> "add_decl_doc " >> ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for
@@ -300,7 +300,7 @@ namespace Term
 It makes the given namespaces available in the term `e`.
 -/
 @[builtin_term_parser] def «open» := leading_parser:leadPrec
-  "open " >> Command.openDecl >> withOpenDecl (" in " >> termParser)
+  "open" >> Command.openDecl >> withOpenDecl (" in " >> termParser)
 
 /--
 `set_option opt val in e` is like `set_option opt val` but scoped to a single term.

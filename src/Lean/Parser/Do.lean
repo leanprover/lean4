@@ -72,7 +72,7 @@ def letIdDeclNoBinders := node ``letIdDecl <|
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have " >> Term.haveDecl
+  "have" >> Term.haveDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as
@@ -123,7 +123,7 @@ def doIfCond    :=
   optional (checkColGe "'else' in 'do' must be indented" >>
     ppDedent ppSpace >> ppRealFill ("else " >> doSeq))
 @[builtin_doElem_parser] def doUnless := leading_parser
-  "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+  "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
 /--
@@ -139,14 +139,14 @@ The types of `e2` etc. must implement the `ToStream` typeclass.
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtin_doElem_parser] def doMatch := leading_parser:leadPrec
   "match " >> optional Term.generalizingParam >> optional Term.motive >>
-  sepBy1 matchDiscr ", " >> " with " >> doMatchAlts
+  sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
 def doCatch      := leading_parser
-  atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
+  ppDedent ppLine >> atomic ("catch " >> binderIdent) >> optional (" : " >> termParser) >> darrow >> doSeq
 def doCatchMatch := leading_parser
-  "catch " >> doMatchAlts
+  ppDedent ppLine >> "catch " >> doMatchAlts
 def doFinally    := leading_parser
-  "finally " >> doSeq
+  ppDedent ppLine >> "finally " >> doSeq
 @[builtin_doElem_parser] def doTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
@@ -165,7 +165,7 @@ is highlighted when hovering over `return`.
 `return` not followed by a term starting on the same line is equivalent to `return ()`.
 -/
 @[builtin_doElem_parser] def doReturn    := leading_parser:leadPrec
-  withPosition ("return " >> optional (checkLineEq >> termParser))
+  withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
 @[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec
@@ -204,9 +204,9 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/
 @[builtin_term_parser] def termUnless := leading_parser
-  "unless " >> withForbidden "do" termParser >> "do " >> doSeq
+  "unless " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_term_parser] def termFor := leading_parser
-  "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+  "for " >> sepBy1 doForDecl ", " >> " do " >> doSeq
 @[builtin_term_parser] def termTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 /--
@@ -214,7 +214,7 @@ They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...
 and thus is equivalent to `pure e`, but helps with avoiding parentheses.
 -/
 @[builtin_term_parser] def termReturn := leading_parser:leadPrec
-  withPosition ("return " >> optional (checkLineEq >> termParser))
+  withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
 
 end Term
 end Parser

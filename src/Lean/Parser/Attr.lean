@@ -32,7 +32,7 @@ end Priority
 
 namespace Attr
 
-@[builtin_attr_parser] def simple     := leading_parser ident >> optional (priorityParser <|> ident)
+@[builtin_attr_parser] def simple     := leading_parser ident >> optional (ppSpace >> (priorityParser <|> ident))
 /- Remark, We can't use `simple` for `class`, `instance`, `export`, and `macro` because they are keywords. -/
 @[builtin_attr_parser] def «macro»    := leading_parser "macro " >> ident
 @[builtin_attr_parser] def «export»   := leading_parser "export " >> ident
@@ -40,12 +40,14 @@ namespace Attr
 /- We don't use `simple` for recursor because the argument is not a priority -/
 @[builtin_attr_parser] def recursor         := leading_parser nonReservedSymbol "recursor " >> numLit
 @[builtin_attr_parser] def «class»          := leading_parser "class"
-@[builtin_attr_parser] def «instance»       := leading_parser "instance" >> optional priorityParser
-@[builtin_attr_parser] def default_instance := leading_parser nonReservedSymbol "default_instance " >> optional priorityParser
-@[builtin_attr_parser] def «specialize»     := leading_parser (nonReservedSymbol "specialize") >> many (ident <|> numLit)
+@[builtin_attr_parser] def «instance»       := leading_parser "instance" >> optional (ppSpace >> priorityParser)
+@[builtin_attr_parser] def default_instance := leading_parser nonReservedSymbol "default_instance" >> optional (ppSpace >> priorityParser)
+@[builtin_attr_parser] def «specialize»     := leading_parser (nonReservedSymbol "specialize") >> many (ppSpace >> (ident <|> numLit))
 
-def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
-@[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry
+def externEntry := leading_parser
+  optional (ident >> ppSpace) >> optional (nonReservedSymbol "inline ") >> strLit
+@[builtin_attr_parser] def extern     := leading_parser
+  nonReservedSymbol "extern" >> optional (ppSpace >> numLit) >> many (ppSpace >> externEntry)
 
 end Attr
 

@@ -63,7 +63,7 @@ That is, `intro` can be followed by match arms and it introduces the values whil
 doing a pattern match. This is equivalent to `fun` with match arms in term mode.
 -/
 @[builtin_tactic_parser] def introMatch := leading_parser
-  nonReservedSymbol "intro " >> matchAlts
+  nonReservedSymbol "intro" >> matchAlts
 
 /-- `decide` will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Because this uses kernel

@@ -16,9 +16,9 @@ macro "Macro.trace[" id:ident "]" s:interpolatedStr(term) : term =>
 
 -- Auxiliary parsers and functions for declaring notation with binders
 
-syntax unbracketedExplicitBinders := binderIdent+ (" : " term)?
-syntax bracketedExplicitBinders   := "(" withoutPosition(binderIdent+ " : " term) ")"
-syntax explicitBinders            := bracketedExplicitBinders+ <|> unbracketedExplicitBinders
+syntax unbracketedExplicitBinders := (ppSpace binderIdent)+ (" : " term)?
+syntax bracketedExplicitBinders   := "(" withoutPosition((binderIdent ppSpace)+ ": " term) ")"
+syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unbracketedExplicitBinders
 
 open TSyntax.Compat in
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
@@ -64,7 +64,8 @@ def expandBrackedBinders (combinatorDeclName : Name) (bracketedExplicitBinders :
 syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
-syntax (docComment)? attrKind "unif_hint " (ident)? bracketedBinder* " where " withPosition(unifConstraintElem*) patternIgnore("|-" <|> "⊢ ") unifConstraint : command
+syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
+  " where " withPosition(unifConstraintElem*) patternIgnore("|-" <|> "⊢ ") unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
@@ -79,7 +80,7 @@ open Lean
 
 section
 open TSyntax.Compat
-macro "∃ " xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
+macro "∃" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
 macro "exists" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Exists xs b
 macro "Σ" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``Sigma xs b
 macro "Σ'" xs:explicitBinders ", " b:term : term => expandExplicitBinders ``PSigma xs b
@@ -379,7 +380,7 @@ syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 /--
   Similar to `first`, but succeeds only if one the given tactics solves the current goal.
 -/
-syntax (name := solve) "solve " withPosition((colGe "|" tacticSeq)+) : tactic
+syntax (name := solve) "solve" withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 macro_rules
   | `(tactic| solve $[| $ts]* ) => `(tactic| focus first $[| ($ts); done]*)
@@ -416,12 +417,12 @@ syntax "while " termBeforeDo " do " doSeq : doElem
 macro_rules
   | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
 
-syntax "repeat " doSeq " until " term : doElem
+syntax "repeat " doSeq ppDedent(ppLine) "until " term : doElem
 
 macro_rules
   | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
 
-macro:50 e:term:51 " matches " p:sepBy1(term:51, "|") : term =>
+macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
   `(((match $e:term with | $[$p:term]|* => true | _ => false) : Bool))
 
 end Lean

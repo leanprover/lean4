@@ -47,8 +47,8 @@ def inferInstanceAs (α : Type u) [i : α] : α :=
   i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in
-  inductive PUnit : Sort u
-    | unit : PUnit
+inductive PUnit : Sort u
+  | unit : PUnit
 
 /-- An abbreviation for `PUnit.{0}`, its most common instantiation.
     This Type should be preferred over `PUnit` where possible to avoid

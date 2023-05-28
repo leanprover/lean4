@@ -159,7 +159,7 @@ The first argument must be a `Syntax` that provides position information for
 the error message.
 `throwErrorAt ref msg` is equivalent to `withRef ref <| throwError msg`
 -/
-syntax "throwErrorAt " term:max (interpolatedStr(term) <|> term) : term
+syntax "throwErrorAt " term:max ppSpace (interpolatedStr(term) <|> term) : term
 
 macro_rules
   | `(throwError $msg:interpolatedStr) => `(Lean.throwError (m! $msg))

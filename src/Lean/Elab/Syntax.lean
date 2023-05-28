@@ -381,10 +381,12 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
   let name ← match name? with
     | some name => pure name.getId
     | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat syntaxParser) attrKind
-  trace[Meta.debug] "name: {name}"
   let prio ← liftMacroM <| evalOptPrio prio?
   let idRef := (name?.map (·.raw)).getD tk
-  let stxNodeKind := (← getCurrNamespace) ++ name
+  let stxNodeKind := if (`_root_).isPrefixOf name then
+    name.replacePrefix `_root_ Name.anonymous
+  else
+    (← getCurrNamespace) ++ name
   let catParserId := mkIdentFrom idRef (cat.appendAfter "_parser")
   let (val, lhsPrec?) ← runTermElabM fun _ => Term.toParserDescr syntaxParser cat
   let declName := name?.getD (mkIdentFrom idRef name (canonical := true))
@@ -404,8 +406,13 @@ def addMacroScopeIfLocal [MonadQuotation m] [Monad m] (name : Name) (attrKind : 
   let `($[$doc?:docComment]? syntax $declName:ident := $[$ps:stx]*) ← pure stx | throwUnsupportedSyntax
   -- TODO: nonatomic names
   let (val, _) ← runTermElabM fun _ => Term.toParserDescr (mkNullNode ps) Name.anonymous
-  let stxNodeKind := (← getCurrNamespace) ++ declName.getId
-  let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr := ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
+  let name := declName.getId
+  let stxNodeKind := if (`_root_).isPrefixOf name then
+    name.replacePrefix `_root_ Name.anonymous
+  else
+    (← getCurrNamespace) ++ name
+  let stx' ← `($[$doc?:docComment]? def $declName:ident : Lean.ParserDescr :=
+    ParserDescr.nodeWithAntiquot $(quote (toString declName.getId)) $(quote stxNodeKind) $val)
   withMacroExpansion stx stx' <| elabCommand stx'
 
 def checkRuleKind (given expected : SyntaxNodeKind) : Bool :=

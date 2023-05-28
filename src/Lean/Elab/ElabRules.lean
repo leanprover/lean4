@@ -97,7 +97,11 @@ def elabElab : CommandElab
       | some name => pure name.getId
       | none => addMacroScopeIfLocal (← liftMacroM <| mkNameFromParserSyntax cat.getId (mkNullNode stxParts)) attrKind
     let nameId := name?.getD (mkIdentFrom tk name (canonical := true))
-    let pat := ⟨mkNode ((← getCurrNamespace) ++ name) patArgs⟩
+    let stxNodeKind := if (`_root_).isPrefixOf name then
+      name.replacePrefix `_root_ Name.anonymous
+    else
+      (← getCurrNamespace) ++ name
+    let pat := ⟨mkNode stxNodeKind patArgs⟩
     elabCommand <|← `(
       $[$doc?:docComment]? $[@[$attrs?,*]]? $attrKind:attrKind
       syntax%$tk$[:$prec?]? (name := $nameId) (priority := $(quote prio):num) $[$stxParts]* : $cat

@@ -1,5 +1,5 @@
 syntaxPrec.lean:1:18: error: expected ':'
-[Elab.command] syntax "foo"("*" <|> term,+) : term
+[Elab.command] syntax "foo" ("*" <|> term,+) : term
   [Elab.command] @[term_parser 1000]
       def «termFoo*_» : Lean.ParserDescr✝ :=
         ParserDescr.node✝ `«termFoo*_» 1022

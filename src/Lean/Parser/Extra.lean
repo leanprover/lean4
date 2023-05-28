@@ -177,7 +177,7 @@ attribute [run_builtin_parser_attribute_hooks]
   ppHardSpace ppSpace ppLine ppGroup ppRealGroup ppRealFill ppIndent ppDedent
   ppAllowUngrouped ppDedentIfGrouped ppHardLineUnlessUngrouped
 
-syntax "register_parser_alias" group("(" &"kind" " := " term ")")? (strLit)? ident (colGt term)? : term
+syntax "register_parser_alias " group("(" &"kind" " := " term ") ")? (strLit ppSpace)? ident (ppSpace colGt term)? : term
 macro_rules
   | `(register_parser_alias $[(kind := $kind?)]? $(aliasName?)? $declName $(info?)?) => do
     let [(fullDeclName, [])] ← Macro.resolveGlobalName declName.getId |

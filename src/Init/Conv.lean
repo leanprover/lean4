@@ -79,7 +79,7 @@ syntax (name := arg) "arg " "@"? num : conv
 
 /-- `ext x` traverses into a binder (a `fun x => e` or `∀ x, e` expression)
 to target `e`, introducing name `x` in the process. -/
-syntax (name := ext) "ext" (colGt ident)* : conv
+syntax (name := ext) "ext" (ppSpace colGt ident)* : conv
 
 /-- `change t'` replaces the target `t` with `t'`,
 assuming `t` and `t'` are definitionally equal. -/
@@ -89,7 +89,7 @@ syntax (name := change) "change " term : conv
 Like the `delta` tactic, this ignores any definitional equations and uses
 primitive delta-reduction instead, which may result in leaking implementation details.
 Users should prefer `unfold` for unfolding definitions. -/
-syntax (name := delta) "delta " (colGt ident)+ : conv
+syntax (name := delta) "delta" (ppSpace colGt ident)+ : conv
 
 /--
 * `unfold foo` unfolds all occurrences of `foo` in the target.
@@ -97,7 +97,7 @@ syntax (name := delta) "delta " (colGt ident)+ : conv
 Like the `unfold` tactic, this uses equational lemmas for the chosen definition
 to rewrite the target. For recursive definitions,
 only one layer of unfolding is performed. -/
-syntax (name := unfold) "unfold " (colGt ident)+ : conv
+syntax (name := unfold) "unfold" (ppSpace colGt ident)+ : conv
 
 /--
 * `pattern pat` traverses to the first subterm of the target that matches `pat`.
@@ -139,8 +139,8 @@ example (a : Nat): (0 + 0) = a - a := by
     rw [← Nat.sub_self a]
 ```
 -/
-syntax (name := dsimp) "dsimp " (config)? (discharger)? (&"only ")?
-  ("[" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
+syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
+  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```
@@ -214,7 +214,7 @@ macro (name := case') tk:"case' " args:sepBy1(caseArg, " | ") arr:" => " s:convS
 `next x₁ ... xₙ => tac` additionally renames the `n` most recent hypotheses with
 inaccessible names to the given names.
 -/
-macro "next " args:binderIdent* " => " tac:convSeq : conv => `(conv| case _ $args* => $tac)
+macro "next" args:(ppSpace binderIdent)* " => " tac:convSeq : conv => `(conv| case _ $args* => $tac)
 
 /--
 `focus tac` focuses on the main goal, suppressing all other goals, and runs `tac` on it.
@@ -250,7 +250,7 @@ macro "left" : conv => `(conv| lhs)
 /-- `right` traverses into the right argument. Synonym for `rhs`. -/
 macro "right" : conv => `(conv| rhs)
 /-- `intro` traverses into binders. Synonym for `ext`. -/
-macro "intro" xs:(colGt ident)* : conv => `(conv| ext $xs*)
+macro "intro" xs:(ppSpace colGt ident)* : conv => `(conv| ext $xs*)
 
 syntax enterArg := ident <|> ("@"? num)
 
@@ -261,7 +261,7 @@ It is a shorthand for other conv tactics as follows:
 * `enter [x]` (where `x` is an identifier) is equivalent to `ext x`.
 For example, given the target `f (g a (fun x => x b))`, `enter [1, 2, x, 1]`
 will traverse to the subterm `b`. -/
-syntax "enter" " [" (colGt enterArg),+ "]": conv
+syntax "enter" " [" withoutPosition(enterArg,+) "]" : conv
 macro_rules
   | `(conv| enter [$i:num]) => `(conv| arg $i)
   | `(conv| enter [@$i]) => `(conv| arg @$i)
@@ -275,7 +275,7 @@ cannot be reasonably interpreted as proving one equality from a list of others. 
 macro "apply " e:term : conv => `(conv| tactic => apply $e)
 
 /-- `first | conv | ...` runs each `conv` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((colGe "|" convSeq)+) : conv
+syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " convSeq)+) : conv
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:convSeq : conv => `(conv| first | $t | skip)
@@ -284,7 +284,7 @@ macro:1 x:conv tk:" <;> " y:conv:0 : conv =>
   `(conv| tactic' => (conv' => $x:conv) <;>%$tk (conv' => $y:conv))
 
 /-- `repeat convs` runs the sequence `convs` repeatedly until it fails to apply. -/
-syntax "repeat" convSeq : conv
+syntax "repeat " convSeq : conv
 macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | rfl)
 
@@ -301,6 +301,6 @@ Basic forms:
 -/
 -- HACK: put this at the end so that references to `conv` above
 -- refer to the syntax category instead of this syntax
-syntax (name := conv) "conv " (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
+syntax (name := conv) "conv" (" at " ident)? (" in " (occs)? term)? " => " convSeq : tactic
 
 end Lean.Parser.Tactic.Conv

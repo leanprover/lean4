@@ -1272,13 +1272,15 @@ namespace Parser.Tactic
 /-- `erw [rules]` is a shorthand for `rw (config := { transparency := .default }) [rules]`.
 This does rewriting up to unfolding of regular definitions (by comparison to regular `rw`
 which only unfolds `@[reducible]` definitions). -/
-macro "erw " s:rwRuleSeq loc:(location)? : tactic =>
+macro "erw" s:rwRuleSeq loc:(location)? : tactic =>
   `(tactic| rw (config := { transparency := .default }) $s $(loc)?)
 
-syntax simpAllKind := atomic("(" &"all") " := " &"true" ")"
-syntax dsimpKind   := atomic("(" &"dsimp") " := " &"true" ")"
+syntax simpAllKind := atomic(" (" &"all") " := " &"true" ")"
+syntax dsimpKind   := atomic(" (" &"dsimp") " := " &"true" ")"
 
-macro (name := declareSimpLikeTactic) doc?:(docComment)? "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?) tacName:ident tacToken:str updateCfg:term : command => do
+macro (name := declareSimpLikeTactic) doc?:(docComment)?
+    "declare_simp_like_tactic" opt:((simpAllKind <|> dsimpKind)?)
+    ppSpace tacName:ident ppSpace tacToken:str ppSpace updateCfg:term : command => do
   let (kind, tkn, stx) ←
     if opt.raw.isNone then
       pure (← `(``simp), ← `("simp"), ← `($[$doc?:docComment]? syntax (name := $tacName) $tacToken:str (config)? (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic))

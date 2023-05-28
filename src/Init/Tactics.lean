@@ -36,13 +36,13 @@ be a `let` or function type.
   | ...
   ```
 -/
-syntax (name := intro) "intro " notFollowedBy("|") (colGt term:max)* : tactic
+syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
 `intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
 hypotheses until goal is not of a function type.
 -/
-syntax (name := intros) "intros " (colGt (ident <|> hole))* : tactic
+syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
 
 /--
 `rename t => x` renames the most recent hypothesis whose type matches `t`
@@ -54,20 +54,20 @@ syntax (name := rename) "rename " term " => " ident : tactic
 `revert x...` is the inverse of `intro x...`: it moves the given hypotheses
 into the main goal's target type.
 -/
-syntax (name := revert) "revert " (colGt term:max)+ : tactic
+syntax (name := revert) "revert" (ppSpace colGt term:max)+ : tactic
 
 /--
 `clear x...` removes the given hypotheses, or fails if there are remaining
 references to a hypothesis.
 -/
-syntax (name := clear) "clear " (colGt term:max)+ : tactic
+syntax (name := clear) "clear" (ppSpace colGt term:max)+ : tactic
 
 /--
 `subst x...` substitutes each `x` with `e` in the goal if there is a hypothesis
 of type `x = e` or `e = x`.
 If `x` is itself a hypothesis of type `y = e` or `e = y`, `y` is substituted instead.
 -/
-syntax (name := subst) "subst " (colGt term:max)+ : tactic
+syntax (name := subst) "subst" (ppSpace colGt term:max)+ : tactic
 
 /--
 Applies `subst` to all hypotheses of the form `h : x = t` or `h : t = x`.
@@ -220,20 +220,20 @@ In this setting all definitions that are not opaque are unfolded.
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
-syntax (name := first) "first " withPosition((colGe "|" tacticSeq)+) : tactic
+syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
 /--
 `rotate_left n` rotates goals to the left by `n`. That is, `rotate_left 1`
 takes the main goal and puts it to the back of the subgoal list.
 If `n` is omitted, it defaults to `1`.
 -/
-syntax (name := rotateLeft) "rotate_left" (num)? : tactic
+syntax (name := rotateLeft) "rotate_left" (ppSpace num)? : tactic
 
 /--
 Rotate the goals to the right by `n`. That is, take the goal at the back
 and push it to the front `n` times. If `n` is omitted, it defaults to `1`.
 -/
-syntax (name := rotateRight) "rotate_right" (num)? : tactic
+syntax (name := rotateRight) "rotate_right" (ppSpace num)? : tactic
 
 /-- `try tac` runs `tac` and succeeds even if `tac` failed. -/
 macro "try " t:tacticSeq : tactic => `(tactic| first | $t | skip)
@@ -298,13 +298,13 @@ macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 
 /-- The `*` location refers to all hypotheses and the goal. -/
-syntax locationWildcard := "*"
+syntax locationWildcard := " *"
 
 /--
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
-syntax locationHyp := (colGt term:max)+ patternIgnore("⊢" <|> "|-")?
+syntax locationHyp := (ppSpace colGt term:max)+ ppSpace patternIgnore("⊢" <|> "|-")?
 
 /--
 Location specifications are used by many tactics that can operate on either the
@@ -315,7 +315,7 @@ hypotheses or the goal. It can have one of the forms:
 * `at h₁ h₂ ⊢`: target the hypotheses `h₁` and `h₂`, and the goal
 * `at *`: target all hypotheses and the goal
 -/
-syntax location := withPosition(" at " (locationWildcard <|> locationHyp))
+syntax location := withPosition(" at" (locationWildcard <|> locationHyp))
 
 /--
 * `change tgt'` will change the goal from `tgt` to `tgt'`,
@@ -376,13 +376,13 @@ Given `h : a::b = c::d`, the tactic `injection h` adds two new hypothesis with t
 `a = c` and `b = d` to the main goal.
 The tactic `injection h with h₁ h₂` uses the names `h₁` and `h₂` to name the new hypotheses.
 -/
-syntax (name := injection) "injection " term (" with " (colGt (ident <|> hole))+)? : tactic
+syntax (name := injection) "injection " term (" with" (ppSpace colGt (ident <|> hole))+)? : tactic
 
 /-- `injections` applies `injection` to all hypotheses recursively
 (since `injection` can produce new hypotheses). Useful for destructing nested
 constructor equalities like `(a::b::c) = (d::e::f)`. -/
 -- TODO: add with
-syntax (name := injections) "injections" (colGt (ident <|> hole))* : tactic
+syntax (name := injections) "injections" (ppSpace colGt (ident <|> hole))* : tactic
 
 /--
 The discharger clause of `simp` and related tactics.
@@ -448,7 +448,7 @@ syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
 This is a low-level tactic, it will expose how recursive definitions have been
 compiled by Lean.
 -/
-syntax (name := delta) "delta " (colGt ident)+ (location)? : tactic
+syntax (name := delta) "delta" (ppSpace colGt ident)+ (location)? : tactic
 
 /--
 * `unfold id` unfolds definition `id`.
@@ -458,7 +458,7 @@ For non-recursive definitions, this tactic is identical to `delta`.
 For definitions by pattern matching, it uses "equation lemmas" which are
 autogenerated for each match arm.
 -/
-syntax (name := unfold) "unfold " (colGt ident)+ (location)? : tactic
+syntax (name := unfold) "unfold" (ppSpace colGt ident)+ (location)? : tactic
 
 /--
 Auxiliary macro for lifting have/suffices/let/...
@@ -530,7 +530,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := "with " (tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace tactic)? withPosition((colGe inductionAlt)+)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,
@@ -559,7 +559,7 @@ You can use `with` to provide the variables names for each constructor.
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
 syntax (name := induction) "induction " term,+ (" using " ident)?
-  ("generalizing " (colGt term:max)+)? (inductionAlts)? : tactic
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
 syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
@@ -604,7 +604,7 @@ You can use `with` to provide the variables names for each constructor.
 syntax (name := cases) "cases " casesTarget,+ (" using " ident)? (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
-syntax (name := renameI) "rename_i " (colGt binderIdent)+ : tactic
+syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 
 /--
 `repeat tac` repeatedly applies `tac` to the main goal until it fails.
@@ -637,7 +637,7 @@ renamed used the `case` or `next` tactics.
 - `split` will split the goal (target).
 - `split at h` will split the hypothesis `h`.
 -/
-syntax (name := split) "split " (colGt term)? (location)? : tactic
+syntax (name := split) "split" (ppSpace colGt term)? (location)? : tactic
 
 /-- `dbg_trace "foo"` prints `foo` when elaborated.
 Useful for debugging tactic control flow:
@@ -690,7 +690,7 @@ example : ∀ x : Nat, x = x := by unhygienic
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
 /-- `fail msg` is a tactic that always fails, and produces an error using the given message. -/
-syntax (name := fail) "fail " (str)? : tactic
+syntax (name := fail) "fail" (ppSpace str)? : tactic
 
 /--
 `checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
@@ -721,7 +721,7 @@ macro (name := save) "save" : tactic => `(tactic| skip)
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.
 It is used for debugging purposes only.
 -/
-syntax (name := sleep) "sleep" num : tactic
+syntax (name := sleep) "sleep " num : tactic
 
 /--
 `exists e₁, e₂, ...` is shorthand for `refine ⟨e₁, e₂, ...⟩; try trivial`.
@@ -738,7 +738,7 @@ For example, given `⊢ f (g (x + y)) = f (g (y + x))`,
 `congr` produces the goals `⊢ x = y` and `⊢ y = x`,
 while `congr 2` produces the intended `⊢ x + y = y + x`.
 -/
-syntax (name := congr) "congr " (num)? : tactic
+syntax (name := congr) "congr" (ppSpace num)? : tactic
 
 end Tactic
 
@@ -786,7 +786,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
 end Attr
 
 end Parser

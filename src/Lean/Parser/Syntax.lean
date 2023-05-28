@@ -53,7 +53,7 @@ end Syntax
 namespace Command
 
 def namedName := leading_parser
-  atomic ("(" >> nonReservedSymbol "name") >> " := " >> ident >> ")"
+  atomic (" (" >> nonReservedSymbol "name") >> " := " >> ident >> ")"
 def optNamedName := optional namedName
 
 def «prefix»   := leading_parser "prefix"
@@ -69,23 +69,23 @@ def mixfixKind := «prefix» <|> «infix» <|> «infixl» <|> «infixr» <|> «p
 -- thus should be ignored when we use `checkInsideQuot` to prepare the next stage for a builtin syntax change
 def identPrec  := leading_parser ident >> optPrecedence
 
-def optKind : Parser := optional ("(" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
+def optKind : Parser := optional (" (" >> nonReservedSymbol "kind" >> ":=" >> ident >> ")")
 
-def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" `Lean.Parser.Command.notationItem) (strLit <|> identPrec)
+def notationItem := ppSpace >> withAntiquot (mkAntiquot "notationItem" decl_name%) (strLit <|> identPrec)
 @[builtin_command_parser] def «notation»    := leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
   "notation" >> optPrecedence >> optNamedName >> optNamedPrio >> many notationItem >> darrow >> termParser
 @[builtin_command_parser] def «macro_rules» := suppressInsideQuot <| leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
-  "macro_rules" >>  optKind >> Term.matchAlts
+  "macro_rules" >> optKind >> Term.matchAlts
 @[builtin_command_parser] def «syntax»      := leading_parser
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
-  "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (syntaxParser argPrec) >> " : " >> ident
+  "syntax " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> syntaxParser argPrec) >> " : " >> ident
 @[builtin_command_parser] def syntaxAbbrev  := leading_parser
   optional docComment >> "syntax " >> ident >> " := " >> many1 syntaxParser
 def catBehaviorBoth   := leading_parser nonReservedSymbol "both"
 def catBehaviorSymbol := leading_parser nonReservedSymbol "symbol"
-def catBehavior := optional ("(" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
+def catBehavior := optional (" (" >> nonReservedSymbol "behavior" >> " := " >> (catBehaviorBoth <|> catBehaviorSymbol) >> ")")
 @[builtin_command_parser] def syntaxCat := leading_parser
   optional docComment >> "declare_syntax_cat " >> ident >> catBehavior
 def macroArg  := leading_parser
@@ -94,15 +94,15 @@ def macroRhs : Parser := leading_parser withPosition termParser
 def macroTail := leading_parser atomic (" : " >> ident) >> darrow >> macroRhs
 @[builtin_command_parser] def «macro»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
-  "macro " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 macroArg >> macroTail
+  "macro" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> macroArg) >> macroTail
 @[builtin_command_parser] def «elab_rules» := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
-  "elab_rules" >> optKind >> optional (" : " >> ident)  >> optional (" <= " >> ident) >> Term.matchAlts
+  "elab_rules" >> optKind >> optional (" : " >> ident) >> optional (" <= " >> ident) >> Term.matchAlts
 def elabArg  := macroArg
 def elabTail := leading_parser atomic (" : " >> ident >> optional (" <= " >> ident)) >> darrow >> withPosition termParser
 @[builtin_command_parser] def «elab»       := leading_parser suppressInsideQuot <|
   optional docComment >> optional Term.«attributes» >> Term.attrKind >>
-  "elab " >> optPrecedence >> optNamedName >> optNamedPrio >> many1 elabArg >> elabTail
+  "elab" >> optPrecedence >> optNamedName >> optNamedPrio >> many1 (ppSpace >> elabArg) >> elabTail
 
 end Command
 

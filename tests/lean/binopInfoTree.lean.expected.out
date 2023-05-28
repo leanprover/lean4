@@ -9,8 +9,8 @@
             3
               -- should propagate through multiple macro expansions
           ===>
-          binop% HAdd.hAdd✝
-            (1 + 2)3
+          binop% HAdd.hAdd✝ (1 + 2)
+            3
               -- should propagate through multiple macro expansions
           • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩† @ Lean.Elab.Term.Op.elabBinOp
             • 1 + 2 + 3 : Nat @ ⟨5, 7⟩†-⟨5, 16⟩†
@@ -50,7 +50,7 @@ fun n m l => Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Nat → Nat → Nat →
             • Macro expansion
               n + (m +' l)
               ===>
-              binop% HAdd.hAdd✝ n(m +' l)
+              binop% HAdd.hAdd✝ n (m +' l)
               • Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩† @ Lean.Elab.Term.Op.elabBinOp
                 • Int.ofNat n + (Int.ofNat m + Int.ofNat l) : Int @ ⟨7, 29⟩†-⟨7, 41⟩†
                   • [.] HAdd.hAdd✝ : none @ ⟨7, 29⟩†-⟨7, 41⟩†

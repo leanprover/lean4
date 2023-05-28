@@ -170,7 +170,7 @@ def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widg
 /-!  # Widget command -/
 
 /-- Use `#widget <widgetname> <props>` to display a widget. Useful for debugging widgets. -/
-syntax (name := widgetCmd) "#widget " ident term : command
+syntax (name := widgetCmd) "#widget " ident ppSpace term : command
 
 open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
 private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json :=

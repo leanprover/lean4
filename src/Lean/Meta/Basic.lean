@@ -864,14 +864,18 @@ private partial def isClassQuick? : Expr → MetaM (LOption Name)
   | .mdata _ e       => isClassQuick? e
   | .const n _       => isClassQuickConst? n
   | .mvar mvarId     => do
-    match (← getExprMVarAssignment? mvarId) with
-    | some val => isClassQuick? val
-    | none     => return .none
-  | .app f _         =>
+    let some val ← getExprMVarAssignment? mvarId | return .none
+    isClassQuick? val
+  | .app f _         => do
     match f.getAppFn with
-    | .const n .. => isClassQuickConst? n
-    | .lam ..     => return .undef
-    | _           => return .none
+    | .const n ..  => isClassQuickConst? n
+    | .lam ..      => return .undef
+    | .mvar mvarId =>
+      let some val ← getExprMVarAssignment? mvarId | return .none
+      match val.getAppFn with
+      | .const n .. => isClassQuickConst? n
+      | _ => return .undef
+    | _            => return .none
 
 private def withNewLocalInstanceImp (className : Name) (fvar : Expr) (k : MetaM α) : MetaM α := do
   let localDecl ← getFVarLocalDecl fvar
@@ -980,20 +984,25 @@ mutual
       else
         k #[] type
 
+
+  -- Helper method for isClassExpensive?
+  private partial def isClassApp? (type : Expr) : MetaM (Option Name) := do
+    match type.getAppFn with
+    | .const c _ =>
+      let env ← getEnv
+      if isClass env c then
+        return some c
+      else
+        -- Use whnf to make sure abbreviations are unfolded
+        match (← whnf type).getAppFn with
+        | .const c _ => if isClass env c then return some c else return none
+        | _ => return none
+    | .mvar .. => isClassApp? (← instantiateMVars type)
+    | _ => return none
+
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=
     withReducible do -- when testing whether a type is a type class, we only unfold reducible constants.
-      forallTelescopeReducingAux type none fun _ type => do
-        let env ← getEnv
-        match type.getAppFn with
-        | .const c _ => do
-          if isClass env c then
-            return some c
-          else
-            -- make sure abbreviations are unfolded
-            match (← whnf type).getAppFn with
-            | .const c _ => return if isClass env c then some c else none
-            | _ => return none
-        | _ => return none
+      forallTelescopeReducingAux type none fun _ type => isClassApp? type
 
   private partial def isClassImp? (type : Expr) : MetaM (Option Name) := do
     match (← isClassQuick? type) with

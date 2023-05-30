@@ -40,7 +40,7 @@ StxQuot.lean:19:15: error: expected term
 "(Term.match\n \"match\"\n []\n []\n [(Term.matchDiscr [] `a._@.UnhygienicMain._hyg.1)]\n \"with\"\n (Term.matchAlts\n  [(Term.matchAlt \"|\" [[`a._@.UnhygienicMain._hyg.1]] \"=>\" `b._@.UnhygienicMain._hyg.1)\n   (Term.matchAlt\n    \"|\"\n    [[(«term_+_» `a._@.UnhygienicMain._hyg.1 \"+\" (num \"1\"))]]\n    \"=>\"\n    («term_+_» `b._@.UnhygienicMain._hyg.1 \"+\" (num \"1\")))]))"
 "#[`a._@.UnhygienicMain._hyg.1, `b._@.UnhygienicMain._hyg.1]"
 "1"
-"(Term.sufficesDecl [] `x._@.UnhygienicMain._hyg.1 (Term.fromTerm \"from\" `x._@.UnhygienicMain._hyg.1))"
+"(Term.sufficesDecl\n (hygieneInfo `_@.UnhygienicMain._hyg.1)\n `x._@.UnhygienicMain._hyg.1\n (Term.fromTerm \"from\" `x._@.UnhygienicMain._hyg.1))"
 "#[(num \"1\"), [(num \"2\") (num \"3\")], (num \"4\")]"
 "#[(num \"2\")]"
 StxQuot.lean:95:39-95:44: error: unexpected antiquotation splice

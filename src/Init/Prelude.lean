@@ -3722,6 +3722,16 @@ abbrev nameLitKind : SyntaxNodeKind := `name
 abbrev fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
+`hygieneInfo` is the node kind of the `hygieneInfo` parser, which is an
+"invisible token" which captures the hygiene information at the current point
+without parsing anything.
+
+They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`)
+as if they were introduced by the calling context, not the called macro.
+-/
+abbrev hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
+
+/--
 `interpolatedStrLitKind` is the node kind of interpolated string literal
 fragments like `"value = {` and `}"` in `s!"value = {x}"`.
 -/

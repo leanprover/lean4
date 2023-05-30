@@ -492,6 +492,7 @@ def sepByNoAntiquot.parenthesizer (p pSep : Parenthesizer) : Parenthesizer := do
 @[combinator_parenthesizer skip] def skip.parenthesizer : Parenthesizer := pure ()
 
 @[combinator_parenthesizer pushNone] def pushNone.parenthesizer : Parenthesizer := goLeft
+@[combinator_parenthesizer hygieneInfoNoAntiquot] def hygieneInfoNoAntiquot.parenthesizer : Parenthesizer := goLeft
 
 @[combinator_parenthesizer interpolatedStr]
 def interpolatedStr.parenthesizer (p : Parenthesizer) : Parenthesizer := do

@@ -1072,6 +1072,20 @@ def identEq (id : Name) : Parser := {
   info := mkAtomicInfo "ident"
 }
 
+def hygieneInfoFn : ParserFn := fun c s =>
+  let input := c.input
+  let pos   := s.pos
+  let str   := mkEmptySubstringAt input pos
+  let info  := SourceInfo.original str pos str pos
+  let ident := mkIdent info str .anonymous
+  let stx   := mkNode hygieneInfoKind #[ident]
+  s.pushSyntax stx
+
+def hygieneInfoNoAntiquot : Parser := {
+  fn   := hygieneInfoFn
+  info := nodeInfo hygieneInfoKind epsilonInfo
+}
+
 namespace ParserState
 
 def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=

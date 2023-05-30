@@ -489,6 +489,7 @@ def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
 @[combinator_formatter skip] def skip.formatter : Formatter := pure ()
 
 @[combinator_formatter pushNone] def pushNone.formatter : Formatter := goLeft
+@[combinator_formatter hygieneInfoNoAntiquot] def hygieneInfoNoAntiquot.formatter : Formatter := goLeft
 
 @[combinator_formatter interpolatedStr]
 def interpolatedStr.formatter (p : Formatter) : Formatter := do

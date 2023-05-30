@@ -27,7 +27,8 @@ builtin_initialize
   register_parser_alias (kind := charLitKind) "char" charLit
   register_parser_alias (kind := nameLitKind) "name" nameLit
   register_parser_alias (kind := scientificLitKind) "scientific" scientificLit
-  register_parser_alias (kind := identKind) "ident" ident
+  register_parser_alias (kind := identKind) ident
+  register_parser_alias (kind := hygieneInfoKind) hygieneInfo
   register_parser_alias "colGt" checkColGt { stackSz? := some 0 }
   register_parser_alias "colGe" checkColGe { stackSz? := some 0 }
   register_parser_alias "colEq" checkColEq { stackSz? := some 0 }

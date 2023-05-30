@@ -119,6 +119,7 @@ def optSemicolon (p : Parser) : Parser :=
   "_"
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
+def binderIdent : Parser  := ident <|> hole
 /-- A temporary placeholder for a missing proof or value. -/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
@@ -165,7 +166,7 @@ def fromTerm   := leading_parser
   "from " >> termParser
 def showRhs := fromTerm <|> byTactic'
 def sufficesDecl := leading_parser
-  optIdent >> termParser >> ppSpace >> showRhs
+  (atomic (group (binderIdent >> " : ")) <|> hygieneInfo) >> termParser >> ppSpace >> showRhs
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
   withPosition ("suffices " >> sufficesDecl) >> optSemicolon termParser
 @[builtin_term_parser] def «show»     := leading_parser:leadPrec "show " >> termParser >> ppSpace >> showRhs
@@ -209,7 +210,6 @@ In contrast to regular patterns, `e` may be an arbitrary term of the appropriate
 -/
 @[builtin_term_parser] def inaccessible := leading_parser
   ".(" >> withoutPosition termParser >> ")"
-def binderIdent : Parser  := ident <|> hole
 def binderType (requireType := false) : Parser :=
   if requireType then node nullKind (" : " >> termParser) else optional (" : " >> termParser)
 def binderTactic  := leading_parser
@@ -394,7 +394,7 @@ def letIdBinder :=
     binderIdent <|> bracketedBinder
 /- Remark: we use `checkWsBefore` to ensure `let x[i] := e; b` is not parsed as `let x [i] := e; b` where `[i]` is an `instBinder`. -/
 def letIdLhs    : Parser :=
-  ident >> notFollowedBy (checkNoWsBefore "" >> "[")
+  binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
     "space is required before instance '[...]' binders to distinguish them from array updates `let x[i] := e; ...`" >>
   many (ppSpace >> letIdBinder) >> optType
 def letIdDecl   := leading_parser (withAnonymousAntiquot := false)
@@ -467,7 +467,7 @@ It is often used when building macros.
   withPosition ("let_tmp " >> letDecl) >> optSemicolon termParser
 
 /- like `let_fun` but with optional name -/
-def haveIdLhs    := optional (ppSpace >> ident >> many (ppSpace >> letIdBinder)) >> optType
+def haveIdLhs    := ((ppSpace >> binderIdent) <|> hygieneInfo) >> many (ppSpace >> letIdBinder) >> optType
 def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)

@@ -496,12 +496,6 @@ macro_rules
     else
       `(%[ $elems,* | List.nil ])
 
--- Declare `this` as a keyword that unhygienically binds to a scope-less `this` assumption (or other binding).
--- The keyword prevents declaring a `this` binding except through metaprogramming, as is done by `have`/`show`.
-/-- Special identifier introduced by "anonymous" `have : ...`, `suffices p ...` etc. -/
-macro tk:"this" : term =>
-  return (⟨(Syntax.ident tk.getHeadInfo "this".toSubstring `this [])⟩ : TSyntax `term)
-
 /--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.
 The only accepted parser for this category is an antiquotation.

@@ -37,6 +37,8 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
       throwErrorAt decl "patterns are not allowed in 'let rec' expressions"
     else if decl.isOfKind `Lean.Parser.Term.letIdDecl || decl.isOfKind `Lean.Parser.Term.letEqnsDecl then
       let declId := decl[0]
+      unless declId.isIdent do
+        throwErrorAt declId "'let rec' expressions must be named"
       let shortDeclName := declId.getId
       let currDeclName? ← getDeclName?
       let declName := currDeclName?.getD Name.anonymous ++ shortDeclName

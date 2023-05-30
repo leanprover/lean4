@@ -624,11 +624,11 @@ def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letDecl
   getLetDeclVars doLet[2]
 
-def getHaveIdLhsVar (optIdent : Syntax) : TermElabM Var :=
-  if optIdent.isNone then
-    `(this)
+def getHaveIdLhsVar (optIdent : Syntax) : Var :=
+  if optIdent.getKind == hygieneInfoKind then
+    HygieneInfo.mkIdent optIdent[0] `this
   else
-    pure optIdent[0]
+    optIdent
 
 def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) := do
   -- doHave := leading_parser "have " >> Term.haveDecl
@@ -636,13 +636,13 @@ def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) := do
   let arg := doHave[1][0]
   if arg.getKind == ``Parser.Term.haveIdDecl then
     -- haveIdDecl := leading_parser atomic (haveIdLhs >> " := ") >> termParser
-    -- haveIdLhs := optional (ident >> many (ppSpace >> letIdBinder)) >> optType
-    return #[← getHaveIdLhsVar arg[0]]
+    -- haveIdLhs := (binderIdent <|> hygieneInfo) >> many letIdBinder >> optType
+    return #[getHaveIdLhsVar arg[0]]
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
   else if arg.getKind == ``Parser.Term.haveEqnsDecl then
     -- haveEqnsDecl := leading_parser haveIdLhs >> matchAlts
-    return #[← getHaveIdLhsVar arg[0]]
+    return #[getHaveIdLhsVar arg[0]]
   else
     throwError "unexpected kind of have declaration"
 

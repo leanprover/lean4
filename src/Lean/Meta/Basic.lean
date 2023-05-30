@@ -986,7 +986,7 @@ mutual
 
 
   -- Helper method for isClassExpensive?
-  private partial def isClassApp? (type : Expr) : MetaM (Option Name) := do
+  private partial def isClassApp? (type : Expr) (instantiated := false) : MetaM (Option Name) := do
     match type.getAppFn with
     | .const c _ =>
       let env ← getEnv
@@ -997,7 +997,9 @@ mutual
         match (← whnf type).getAppFn with
         | .const c _ => if isClass env c then return some c else return none
         | _ => return none
-    | .mvar .. => isClassApp? (← instantiateMVars type)
+    | .mvar .. =>
+      if instantiated then return none
+      isClassApp? (← instantiateMVars type) true
     | _ => return none
 
   private partial def isClassExpensive? (type : Expr) : MetaM (Option Name) :=

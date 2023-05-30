@@ -210,6 +210,7 @@ private def expandWhereStructInst : Macro
         have : Coe (TSyntax ``letIdBinder) (TSyntax ``funBinder) := ⟨(⟨·⟩)⟩
         val ← if binders.size > 0 then `(fun $binders* => $val) else pure val
         `(structInstField|$id:ident := $val)
+      | stx@`(letIdDecl|_ $_* $[: $_]? := $_) => Macro.throwErrorAt stx "'_' is not allowed here"
       | _ => Macro.throwUnsupported
     let body ← `({ $structInstFields,* })
     match whereDecls? with

@@ -689,7 +689,7 @@ structure LetIdDeclView where
   value   : Syntax
 
 def mkLetIdDeclView (letIdDecl : Syntax) : LetIdDeclView :=
-  -- `letIdDecl` is of the form `ident >> many bracketedBinder >> optType >> " := " >> termParser
+  -- `letIdDecl` is of the form `binderIdent >> many bracketedBinder >> optType >> " := " >> termParser
   let id      := letIdDecl[0]
   let binders := letIdDecl[1].getArgs
   let optType := letIdDecl[2]
@@ -708,6 +708,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
   let body    := stx[3]
   if letDecl.getKind == ``Lean.Parser.Term.letIdDecl then
     let { id, binders, type, value } := mkLetIdDeclView letDecl
+    let id ← if id.isIdent then pure id else mkFreshIdent id (canonical := true)
     elabLetDeclAux id binders type value body expectedType? useLetExpr elabBodyFirst usedLetOnly
   else if letDecl.getKind == ``Lean.Parser.Term.letPatDecl then
     -- node `Lean.Parser.Term.letPatDecl  $ try (termParser >> pushNone >> optType >> " := ") >> termParser
@@ -717,7 +718,7 @@ def elabLetDeclCore (stx : Syntax) (expectedType? : Option Expr) (useLetExpr : B
     let optType := letDecl[2]
     let val     := letDecl[4]
     if pat.getKind == ``Parser.Term.hole then
-      -- `let _ := ...` should not be treated at a `letIdDecl`
+      -- `let _ := ...` should not be treated as a `letIdDecl`
       let id   ← mkFreshIdent pat (canonical := true)
       let type := expandOptType id optType
       elabLetDeclAux id #[] type val body expectedType? useLetExpr elabBodyFirst usedLetOnly

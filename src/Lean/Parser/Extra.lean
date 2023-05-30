@@ -37,6 +37,9 @@ attribute [run_builtin_parser_attribute_hooks]
 @[run_builtin_parser_attribute_hooks] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
+@[run_builtin_parser_attribute_hooks] def hygieneInfo : Parser :=
+  withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
+
 @[run_builtin_parser_attribute_hooks] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 

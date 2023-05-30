@@ -271,10 +271,11 @@ abbrev CharLit := TSyntax charLitKind
 abbrev NameLit := TSyntax nameLitKind
 abbrev ScientificLit := TSyntax scientificLitKind
 abbrev NumLit := TSyntax numLitKind
+abbrev HygieneInfo := TSyntax hygieneInfoKind
 
 end Syntax
 
-export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit)
+export Syntax (Term Command Prec Prio Ident StrLit CharLit NameLit ScientificLit NumLit HygieneInfo)
 
 namespace TSyntax
 
@@ -921,6 +922,9 @@ def getChar (s : CharLit) : Char :=
 def getName (s : NameLit) : Name :=
   s.raw.isNameLit?.getD .anonymous
 
+def getHygieneInfo (s : HygieneInfo) : Name :=
+  s.raw[0].getId
+
 namespace Compat
 
 scoped instance : CoeTail (Array Syntax) (Syntax.TSepArray k sep) where
@@ -929,6 +933,11 @@ scoped instance : CoeTail (Array Syntax) (Syntax.TSepArray k sep) where
 end Compat
 
 end TSyntax
+
+def HygieneInfo.mkIdent (s : HygieneInfo) (val : Name) (canonical := false) : Ident :=
+  let src := s.raw[0]
+  let id := { extractMacroScopes src.getId with name := val.eraseMacroScopes }.review
+  ⟨Syntax.ident (SourceInfo.fromRef src canonical) (toString val).toSubstring id []⟩
 
 /-- Reflect a runtime datum back to surface syntax (best-effort). -/
 class Quote (α : Type) (k : SyntaxNodeKind := `term) where

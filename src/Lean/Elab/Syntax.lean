@@ -260,7 +260,7 @@ open Lean.Parser.Command
 
 private def declareSyntaxCatQuotParser (catName : Name) : CommandElabM Unit := do
   if let .str _ suffix := catName then
-    let quotSymbol := "`(" ++ suffix ++ "|"
+    let quotSymbol := "`(" ++ suffix ++ "| "
     let name := catName ++ `quot
     let cmd ← `(
       @[term_parser] def $(mkIdent name) : Lean.ParserDescr :=

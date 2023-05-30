@@ -1,7 +1,10 @@
 {"textDocument": {"uri": "file://1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
- [{"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
+ [{"label": "getHygieneInfo",
+   "kind": 3,
+   "detail": "Lean.HygieneInfo → Lean.Name"},
+  {"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
   {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
   {"label": "expandInterpolatedStr",
    "kind": 3,
@@ -22,7 +25,10 @@
 {"textDocument": {"uri": "file://1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
- [{"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
+ [{"label": "getHygieneInfo",
+   "kind": 3,
+   "detail": "Lean.HygieneInfo → Lean.Name"},
+  {"label": "getId", "kind": 3, "detail": "Lean.Ident → Lean.Name"},
   {"label": "getName", "kind": 3, "detail": "Lean.NameLit → Lean.Name"},
   {"label": "expandInterpolatedStr",
    "kind": 3,

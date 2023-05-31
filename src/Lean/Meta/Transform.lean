@@ -10,7 +10,10 @@ namespace Lean
 inductive TransformStep where
   /-- Return expression without visiting any subexpressions. -/
   | done (e : Expr)
-  /-- Visit expression (which should be different from current expression) instead. -/
+  /--
+  Visit expression (which should be different from current expression) instead.
+  The new expression `e` is passed to `pre` again.
+  -/
   | visit (e : Expr)
   /--
   Continue transformation with the given expression (defaults to current expression).

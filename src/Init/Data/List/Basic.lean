@@ -285,7 +285,7 @@ def dropWhile (p : α → Bool) : List α → List α
   | []   => []
   | a::l => match p a with
     | true  => dropWhile p l
-    | false =>  a::l
+    | false => a::l
 
 /--
 `O(|l|)`. `find? p l` returns the first element for which `p` returns true,

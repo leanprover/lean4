@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.WHNF
+import Lean.Meta.Transform
 import Lean.Meta.DiscrTreeTypes
 
 namespace Lean.Meta.DiscrTree
@@ -253,6 +254,33 @@ private def isBadKey (fn : Expr) : Bool :=
   | _ => true
 
 /--
+  Try to eliminate loose bound variables by performing beta-reduction.
+  We use this method when processing terms in discrimination trees.
+  These trees distinguish dependent arrows from nondependent ones.
+  Recall that dependent arrows are indexed as `.other`, but nondependent arrows as `.arrow ..`.
+  Motivation: we want to "discriminate" implications and simple arrows in our index.
+
+  Now suppose we add the term `Foo (Nat → Nat)` to our index. The nested arrow appears as
+  `.arrow ..`. Then, suppose we want to check whether the index contains
+  `(x : Nat) → (fun _ => Nat) x`, but it will fail to retrieve `Foo (Nat → Nat)` because
+  it assumes the nested arrow is a dependent one and uses `.other`.
+
+  We use this method to address this issue by beta-reducing terms containing loose bound variables.
+  See issue #2232.
+
+  Remark: we expect the performance impact will be minimal.
+-/
+private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
+  Core.transform e
+    (pre := fun e => do
+      if !e.hasLooseBVars then
+        return .done e
+      else if e.isHeadBetaTarget then
+        return .visit e.headBeta
+      else
+        return .continue)
+
+/--
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
   We use this method instead of `reduce` for root terms at `pushArgs`. -/
@@ -314,6 +342,8 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
       else
         return (.star, todo)
     | .forallE _ d b _ =>
+      -- See comment at elimLooseBVarsByBeta
+      let b ← if b.hasLooseBVars then elimLooseBVarsByBeta b else pure b
       if b.hasLooseBVars then
         return (.other, todo)
       else
@@ -445,6 +475,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array 
     let nargs := e.getAppNumArgs
     return (.proj s i nargs, #[a] ++ e.getAppRevArgs)
   | .forallE _ d b _ =>
+    -- See comment at elimLooseBVarsByBeta
+    let b ← if b.hasLooseBVars then elimLooseBVarsByBeta b else pure b
     if b.hasLooseBVars then
       return (.other, #[])
     else

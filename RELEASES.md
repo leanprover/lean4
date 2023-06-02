@@ -1,6 +1,19 @@
 Unreleased
 ---------
 
+* [`hygieneInfo` parser, new `have this` implementation](https://github.com/leanprover/lean4/pull/2247).
+
+  Previously, `this` was a keyword which macro-expands to an identifier, but this
+  was a leaky abstraction resulting in several places where the name `this` has
+  divergent behavior compared to other variable names:
+  ```lean
+  #check let this := 1; (rfl : this = 1) -- fail
+  #check fun (this _ : Nat) => 1 -- fail
+  #check show 1 = 1 by generalize this : 1 = x; rfl -- fail
+  ```
+  With the new implementation these all work as expected. `have :=` still works as an
+  abbreviation for `have this :=`.
+
 * [Show typeclass and tactic names in profile output](https://github.com/leanprover/lean4/pull/2170).
 
 * [Make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),

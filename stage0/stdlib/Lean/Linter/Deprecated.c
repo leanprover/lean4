@@ -101,7 +101,6 @@ extern lean_object* l_Std_Format_defWidth;
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____spec__16___closed__3;
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____spec__4___closed__3;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_isDeprecated(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -126,6 +125,7 @@ static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47_
 LEAN_EXPORT lean_object* l_Lean_Linter_checkDeprecated___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 lean_object* l_Lean_ResolveName_resolveGlobalName(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____closed__8;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_47____spec__11(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -247,7 +247,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_6____closed__3;
 x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_6____closed__6;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_Deprecated___hyg_6____closed__9;
-x_5 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }

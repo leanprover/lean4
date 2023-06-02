@@ -32,7 +32,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_getParserState___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Command_mkState(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_runFrontend___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_setCommandState___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_processCommands(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1025____closed__5;
@@ -63,6 +62,7 @@ static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1025____c
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_elabCommandAtFrontend(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1025____closed__6;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Frontend___hyg_1025____closed__3;
+lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Frontend_runCommandElabM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2517,7 +2517,7 @@ lean_dec(x_30);
 x_31 = lean_ctor_get(x_22, 0);
 lean_dec(x_31);
 x_32 = l_Lean_Elab_runFrontend___closed__2;
-x_33 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_2, x_32);
+x_33 = l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(x_2, x_32);
 x_34 = !lean_is_exclusive(x_26);
 if (x_34 == 0)
 {
@@ -2574,7 +2574,7 @@ lean_inc(x_49);
 lean_inc(x_48);
 lean_dec(x_22);
 x_52 = l_Lean_Elab_runFrontend___closed__2;
-x_53 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_2, x_52);
+x_53 = l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(x_2, x_52);
 x_54 = lean_ctor_get(x_50, 0);
 lean_inc(x_54);
 x_55 = lean_ctor_get(x_50, 1);

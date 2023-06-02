@@ -8364,7 +8364,6 @@ x_8 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_Inhabited_0__Lea
 lean_closure_set(x_8, 0, x_1);
 lean_closure_set(x_8, 1, x_2);
 lean_closure_set(x_8, 2, x_7);
-lean_inc(x_4);
 x_9 = l_Lean_Elab_Command_liftTermElabM___rarg(x_8, x_4, x_5, x_6);
 if (lean_obj_tag(x_9) == 0)
 {

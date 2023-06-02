@@ -410,6 +410,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
 
     obj_res res = lean_alloc_sarray(1, 0, nbytes);
     size_t remain = nbytes;
+    uint8_t *dst = lean_sarray_cptr(res);
 
     while (remain > 0) {
 #if defined(LEAN_WINDOWS)
@@ -417,7 +418,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
         size_t read_sz = std::min(remain, static_cast<size_t>(std::numeric_limits<uint32_t>::max()));
         NTSTATUS status = BCryptGenRandom(
             NULL,
-            lean_sarray_cptr(res),
+            dst,
             static_cast<ULONG>(read_sz),
             BCRYPT_USE_SYSTEM_PREFERRED_RNG
         );
@@ -426,6 +427,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
             return io_result_mk_error("BCryptGenRandom failed");
         }
         remain -= read_sz;
+        dst += read_sz;
 #else
     #if defined(LEAN_EMSCRIPTEN)
         // `Crypto.getRandomValues` documents `dest` should be at most 65536 bytes.
@@ -433,7 +435,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
     #else
         size_t read_sz = remain;
     #endif
-        ssize_t nread = read(fd_urandom, lean_sarray_cptr(res), read_sz);
+        ssize_t nread = read(fd_urandom, dst, read_sz);
         if (nread < 0) {
             if (errno != EINTR) {
                 close(fd_urandom);
@@ -442,6 +444,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
             }
         } else {
             remain -= nread;
+            dst += nread;
         }
 #endif
     }

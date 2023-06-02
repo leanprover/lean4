@@ -52,7 +52,6 @@ extern lean_object* l_Lean_Expr_instBEqExpr;
 lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Eqns___hyg_16_(lean_object*);
 lean_object* l_List_mapTR_loop___at_Lean_mkConstWithLevelParams___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Meta_getEqnsFor_x3f___spec__8___closed__10;
 lean_object* l_instHashableArray___rarg___boxed(lean_object*, lean_object*);
@@ -102,6 +101,7 @@ static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_getEqnsFor
 LEAN_EXPORT lean_object* l_Lean_Meta_lambdaTelescope___at___private_Lean_Meta_Eqns_0__Lean_Meta_mkSimpleEqThm___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Eqns___hyg_1353_(lean_object*);
+lean_object* l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_registerGetEqnsFn___lambda__1___closed__1;
 static lean_object* l_List_forIn_loop___at_Lean_Meta_getEqnsFor_x3f___spec__8___closed__16;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_getEqnsFor_x3f___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -3808,7 +3808,7 @@ lean_closure_set(x_10, 1, x_9);
 lean_closure_set(x_10, 2, x_8);
 x_11 = l_Lean_Meta_getEqnsFor_x3f___closed__5;
 x_12 = l_Lean_Meta_getEqnsFor_x3f___closed__6;
-x_13 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__3___rarg(x_11, x_12, x_10, x_3, x_4, x_5, x_6, x_7);
+x_13 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(x_11, x_12, x_10, x_3, x_4, x_5, x_6, x_7);
 return x_13;
 }
 }
@@ -4554,7 +4554,7 @@ lean_closure_set(x_9, 0, x_1);
 lean_closure_set(x_9, 1, x_8);
 x_10 = l_Lean_Meta_getEqnsFor_x3f___closed__5;
 x_11 = l_Lean_Meta_getEqnsFor_x3f___closed__6;
-x_12 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__3___rarg(x_10, x_11, x_9, x_3, x_4, x_5, x_6, x_7);
+x_12 = l_Lean_Meta_withLCtx___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2___rarg(x_10, x_11, x_9, x_3, x_4, x_5, x_6, x_7);
 return x_12;
 }
 }

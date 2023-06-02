@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_mkCasesOn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__5___closed__6;
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_getConstInfoInduct___at___private_Lean_Meta_RecursorInfo_0__Lean_Meta_mkRecursorInfoForKernelRec___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -202,6 +201,7 @@ extern lean_object* l_Lean_warningAsError;
 uint8_t l_Lean_isExtern(lean_object*, lean_object*);
 static lean_object* l_Lean_setImplementedBy___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__12___closed__1;
 static lean_object* l_Lean_getConstInfoDefn___at_Lean_Elab_ComputedFields_overrideCasesOn___spec__1___closed__2;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallTelescope___at___private_Lean_Meta_InferType_0__Lean_Meta_inferForallType___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withLocalDecls___at_Lean_Elab_ComputedFields_mkComputedFieldOverrides___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -10187,7 +10187,7 @@ else
 {
 lean_object* x_263; uint8_t x_264; 
 x_263 = l_Lean_logAt___at_Lean_Elab_ComputedFields_setComputedFields___spec__2___closed__1;
-x_264 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_260, x_263);
+x_264 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_260, x_263);
 if (x_264 == 0)
 {
 x_10 = x_3;

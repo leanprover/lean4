@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_log(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logAt___rarg___lambda__14___closed__1;
@@ -61,6 +60,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__14(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_warningAsError;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logErrorAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logUnknownDecl___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getRefPos(lean_object*);
@@ -68,7 +68,6 @@ static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_214____closed__4;
 LEAN_EXPORT lean_object* l_Lean_logWarning___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__11(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_logUnknownDecl___rarg___closed__3;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logUnknownDecl(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Log___hyg_214____closed__5;
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -81,6 +80,7 @@ static lean_object* l_Lean_logUnknownDecl___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__7(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logAt___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfo(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_logInfoAt___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -354,7 +354,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_initFn____x40_Lean_Log___hyg_214____closed__2;
 x_3 = l_Lean_initFn____x40_Lean_Log___hyg_214____closed__5;
 x_4 = l_Lean_initFn____x40_Lean_Log___hyg_214____closed__7;
-x_5 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -721,7 +721,7 @@ lean_object* x_14; lean_object* x_15; uint8_t x_16;
 x_14 = lean_ctor_get(x_2, 1);
 lean_inc(x_14);
 x_15 = l_Lean_logAt___rarg___lambda__14___closed__1;
-x_16 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_7, x_15);
+x_16 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_7, x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -1121,7 +1121,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = l_Lean_logAt___rarg___lambda__14___closed__1;
-x_8 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_6, x_7);
+x_8 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_6, x_7);
 if (x_8 == 0)
 {
 uint8_t x_9; lean_object* x_10; 

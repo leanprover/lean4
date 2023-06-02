@@ -15,7 +15,6 @@ extern "C" {
 #endif
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckIdent___closed__5;
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_Quotation_precheckIdent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_Quotation_mkPrecheckAttribute___closed__2;
 static lean_object* l_Lean_Elab_Term_Quotation_precheckTypeAscription___closed__1;
@@ -183,6 +182,7 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Term_Quotation_precheckIdent___spec__11___closed__1;
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_Quotation_precheckIdent___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at_Lean_Elab_Term_Quotation_precheckIdent___spec__6___closed__4;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_Quotation_precheck___spec__8___rarg___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Term_Quotation_precheckApp___closed__1;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_Elab_Term_Quotation_precheckIdent___spec__8___closed__2;
@@ -2803,7 +2803,7 @@ lean_object* x_9; lean_object* x_10; uint8_t x_11;
 x_9 = lean_ctor_get(x_6, 2);
 lean_inc(x_9);
 x_10 = l_Lean_Elab_Term_Quotation_runPrecheck___closed__1;
-x_11 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_9, x_10);
+x_11 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_9, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -2825,7 +2825,7 @@ else
 {
 lean_object* x_14; uint8_t x_15; 
 x_14 = l_Lean_Elab_Term_Quotation_runPrecheck___closed__2;
-x_15 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_9, x_14);
+x_15 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_9, x_14);
 lean_dec(x_9);
 if (x_15 == 0)
 {
@@ -3836,7 +3836,7 @@ x_26 = lean_ctor_get(x_24, 1);
 lean_inc(x_26);
 lean_dec(x_24);
 x_27 = l_List_forIn_loop___at_Lean_Elab_Term_Quotation_precheckIdent___spec__11___closed__1;
-x_28 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_23, x_27);
+x_28 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_23, x_27);
 if (x_28 == 0)
 {
 lean_object* x_29; 

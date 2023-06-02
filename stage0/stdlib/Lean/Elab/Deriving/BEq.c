@@ -38,6 +38,7 @@ static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__16;
 LEAN_EXPORT lean_object* l_List_allM___at_Lean_Elab_Deriving_BEq_mkBEqInstanceHandler___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumFun___closed__4;
 static lean_object* l_Lean_Elab_Deriving_BEq_mkAuxFunction___lambda__1___closed__17;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstanceCmds___closed__2;
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -176,7 +177,6 @@ lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__4___closed__6;
 static lean_object* l_Lean_Elab_Deriving_BEq_initFn____x40_Lean_Elab_Deriving_BEq___hyg_3716____closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstanceCmds___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___closed__8;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumFun___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5914,7 +5914,6 @@ lean_dec(x_5);
 lean_dec(x_1);
 x_97 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqEnumCmd), 8, 1);
 lean_closure_set(x_97, 0, x_8);
-lean_inc(x_2);
 x_98 = l_Lean_Elab_Command_liftTermElabM___rarg(x_97, x_2, x_3, x_11);
 if (lean_obj_tag(x_98) == 0)
 {
@@ -5963,7 +5962,7 @@ x_109 = 0;
 x_110 = lean_usize_of_nat(x_102);
 lean_dec(x_102);
 x_111 = lean_box(0);
-x_112 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_100, x_109, x_110, x_111, x_2, x_3, x_101);
+x_112 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_100, x_109, x_110, x_111, x_2, x_3, x_101);
 lean_dec(x_100);
 if (lean_obj_tag(x_112) == 0)
 {
@@ -6067,7 +6066,7 @@ x_136 = 0;
 x_137 = lean_usize_of_nat(x_127);
 lean_dec(x_127);
 x_138 = lean_box(0);
-x_139 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_125, x_136, x_137, x_138, x_2, x_3, x_126);
+x_139 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_125, x_136, x_137, x_138, x_2, x_3, x_126);
 lean_dec(x_125);
 if (lean_obj_tag(x_139) == 0)
 {
@@ -6252,7 +6251,6 @@ lean_object* x_22; lean_object* x_23;
 lean_dec(x_12);
 x_22 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_BEq_0__Lean_Elab_Deriving_BEq_mkBEqInstanceCmds___boxed), 8, 1);
 lean_closure_set(x_22, 0, x_1);
-lean_inc(x_2);
 x_23 = l_Lean_Elab_Command_liftTermElabM___rarg(x_22, x_2, x_3, x_15);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -6301,7 +6299,7 @@ x_34 = 0;
 x_35 = lean_usize_of_nat(x_27);
 lean_dec(x_27);
 x_36 = lean_box(0);
-x_37 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_25, x_34, x_35, x_36, x_2, x_3, x_26);
+x_37 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_25, x_34, x_35, x_36, x_2, x_3, x_26);
 lean_dec(x_25);
 if (lean_obj_tag(x_37) == 0)
 {
@@ -6405,7 +6403,7 @@ x_61 = 0;
 x_62 = lean_usize_of_nat(x_52);
 lean_dec(x_52);
 x_63 = lean_box(0);
-x_64 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_50, x_61, x_62, x_63, x_2, x_3, x_51);
+x_64 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_50, x_61, x_62, x_63, x_2, x_3, x_51);
 lean_dec(x_50);
 if (lean_obj_tag(x_64) == 0)
 {

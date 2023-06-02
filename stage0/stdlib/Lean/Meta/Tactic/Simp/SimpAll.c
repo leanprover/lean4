@@ -147,6 +147,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_
 LEAN_EXPORT lean_object* l_Lean_Meta_SimpAll_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_SimpTheoremsArray_addTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at___private_Lean_Meta_Tactic_Simp_SimpAll_0__Lean_Meta_SimpAll_loop___spec__8___closed__16;
+lean_object* l_Lean_Expr_consumeMData(lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_SimpAll_main___spec__2___closed__2;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
@@ -4379,36 +4380,38 @@ uint8_t x_5;
 x_5 = lean_usize_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
-lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; size_t x_10; size_t x_11; 
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; size_t x_11; size_t x_12; 
 x_6 = lean_array_uget(x_1, x_2);
 x_7 = lean_ctor_get(x_6, 3);
 lean_inc(x_7);
-x_8 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_SimpAll_main___spec__2___closed__2;
-x_9 = l_Lean_Expr_isConstOf(x_7, x_8);
-x_10 = 1;
-x_11 = lean_usize_add(x_2, x_10);
-if (x_9 == 0)
+x_8 = l_Lean_Expr_consumeMData(x_7);
+x_9 = l_Array_foldlMUnsafe_fold___at_Lean_Meta_SimpAll_main___spec__2___closed__2;
+x_10 = l_Lean_Expr_isConstOf(x_8, x_9);
+lean_dec(x_8);
+x_11 = 1;
+x_12 = lean_usize_add(x_2, x_11);
+if (x_10 == 0)
 {
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
-x_12 = lean_ctor_get(x_6, 1);
-lean_inc(x_12);
-x_13 = lean_ctor_get(x_6, 4);
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+x_13 = lean_ctor_get(x_6, 1);
 lean_inc(x_13);
+x_14 = lean_ctor_get(x_6, 4);
+lean_inc(x_14);
 lean_dec(x_6);
-x_14 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_14, 0, x_12);
-lean_ctor_set(x_14, 1, x_7);
-lean_ctor_set(x_14, 2, x_13);
-x_15 = lean_array_push(x_4, x_14);
-x_2 = x_11;
-x_4 = x_15;
+x_15 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_15, 0, x_13);
+lean_ctor_set(x_15, 1, x_7);
+lean_ctor_set(x_15, 2, x_14);
+x_16 = lean_array_push(x_4, x_15);
+x_2 = x_12;
+x_4 = x_16;
 goto _start;
 }
 else
 {
 lean_dec(x_7);
 lean_dec(x_6);
-x_2 = x_11;
+x_2 = x_12;
 goto _start;
 }
 }

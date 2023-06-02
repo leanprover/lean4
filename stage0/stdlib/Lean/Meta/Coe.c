@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_expandCoe___lambda__1___closed__1;
 lean_object* l_Lean_Meta_mkAppOptM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -74,7 +73,6 @@ lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_obj
 static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__3;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_coerceToFunction_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291_(lean_object*);
 static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_coerceToSort_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -82,6 +80,7 @@ lean_object* l_Lean_Expr_constName_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_coerceToFunction_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__16;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_coerceToFunction_x3f___closed__5;
 static lean_object* l_Lean_Meta_expandCoe___closed__1;
 static lean_object* l_Lean_Meta_coerceSimple_x3f___closed__10;
@@ -91,7 +90,6 @@ static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__14;
 lean_object* l_Lean_registerTagAttribute(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Meta_coerceSimple_x3f___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_coeDeclAttr;
-lean_object* l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_coerceToSort_x3f___closed__4;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291____closed__6;
 static lean_object* l_Lean_Meta_coerceToSort_x3f___closed__2;
@@ -105,6 +103,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_expandCoe___lambda__1___boxed(lean_object*,
 static lean_object* l_Lean_Meta_coerceToFunction_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_isTypeApp_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_decLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_coerceSimple_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__9;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -118,6 +117,7 @@ static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_autoLift;
 LEAN_EXPORT lean_object* l_Lean_Meta_expandCoe___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_coerceToFunction_x3f___closed__8;
+lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291____closed__2;
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -828,7 +828,7 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291____closed__2;
 x_3 = l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291____closed__5;
 x_4 = l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_291____closed__6;
-x_5 = l_Lean_Option_register___at_Std_Format_initFn____x40_Lean_Data_Format___hyg_95____spec__1(x_2, x_3, x_4, x_1);
+x_5 = l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(x_2, x_3, x_4, x_1);
 return x_5;
 }
 }
@@ -2499,13 +2499,13 @@ lean_inc(x_19);
 x_20 = lean_ctor_get(x_17, 1);
 lean_inc(x_20);
 lean_dec(x_17);
-x_21 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_19, x_2, x_3, x_4, x_5, x_18);
+x_21 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_19, x_2, x_3, x_4, x_5, x_18);
 x_22 = lean_ctor_get(x_21, 0);
 lean_inc(x_22);
 x_23 = lean_ctor_get(x_21, 1);
 lean_inc(x_23);
 lean_dec(x_21);
-x_24 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_20, x_2, x_3, x_4, x_5, x_23);
+x_24 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_20, x_2, x_3, x_4, x_5, x_23);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -2659,13 +2659,13 @@ lean_inc(x_62);
 x_63 = lean_ctor_get(x_60, 1);
 lean_inc(x_63);
 lean_dec(x_60);
-x_64 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_62, x_2, x_3, x_4, x_5, x_61);
+x_64 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_62, x_2, x_3, x_4, x_5, x_61);
 x_65 = lean_ctor_get(x_64, 0);
 lean_inc(x_65);
 x_66 = lean_ctor_get(x_64, 1);
 lean_inc(x_66);
 lean_dec(x_64);
-x_67 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_63, x_2, x_3, x_4, x_5, x_66);
+x_67 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_63, x_2, x_3, x_4, x_5, x_66);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
@@ -3061,7 +3061,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_coerceMonadLift_x3f(lean_object* x_1, lean_
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
-x_8 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_2, x_3, x_4, x_5, x_6, x_7);
+x_8 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_2, x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get(x_8, 1);
@@ -3081,7 +3081,7 @@ lean_inc(x_12);
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_mkLeveErrorMessageCore___spec__2(x_12, x_3, x_4, x_5, x_6, x_13);
+x_14 = l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(x_12, x_3, x_4, x_5, x_6, x_13);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
@@ -3238,7 +3238,7 @@ lean_dec(x_48);
 x_49 = lean_ctor_get(x_5, 2);
 lean_inc(x_49);
 x_50 = l_Lean_Meta_coerceMonadLift_x3f___closed__1;
-x_51 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_49, x_50);
+x_51 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_49, x_50);
 lean_dec(x_49);
 if (x_51 == 0)
 {
@@ -5043,7 +5043,7 @@ lean_dec(x_43);
 x_353 = lean_ctor_get(x_5, 2);
 lean_inc(x_353);
 x_354 = l_Lean_Meta_coerceMonadLift_x3f___closed__1;
-x_355 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_353, x_354);
+x_355 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_353, x_354);
 lean_dec(x_353);
 if (x_355 == 0)
 {
@@ -7136,7 +7136,7 @@ if (lean_is_exclusive(x_686)) {
 x_691 = lean_ctor_get(x_5, 2);
 lean_inc(x_691);
 x_692 = l_Lean_Meta_coerceMonadLift_x3f___closed__1;
-x_693 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_691, x_692);
+x_693 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_691, x_692);
 lean_dec(x_691);
 if (x_693 == 0)
 {
@@ -9190,7 +9190,7 @@ if (lean_is_exclusive(x_1008)) {
 x_1013 = lean_ctor_get(x_5, 2);
 lean_inc(x_1013);
 x_1014 = l_Lean_Meta_coerceMonadLift_x3f___closed__1;
-x_1015 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_1013, x_1014);
+x_1015 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_1013, x_1014);
 lean_dec(x_1013);
 if (x_1015 == 0)
 {

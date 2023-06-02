@@ -67,3 +67,6 @@ def foo✝ : a✝ b✝ c✝ d✝ e✝ f✝ g✝ a✝ b✝ c✝ d✝ e✝ f✝ g�
   i✝ := 42
   j✝ := 42
   k✝ := 42
+calc
+  1 = 1 := rfl✝
+  1 = 1 := rfl✝

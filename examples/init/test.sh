@@ -10,11 +10,18 @@ LAKE=${LAKE:-../../build/bin/lake}
 $LAKE new foo bar && exit 1 || true
 $LAKE init foo bar && exit 1 || true
 
-# Test `new`
+# Test `new` with `.`
 
 $LAKE new hello.world
 $LAKE -d hello-world build
 hello-world/build/bin/hello-world
+
+# Test `new` with `-`
+# https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/lake.20new.20lean-data
+
+$LAKE new lean-data
+$LAKE -d lean-data build
+lean-data/build/bin/lean-data
 
 # Test issue 128
 

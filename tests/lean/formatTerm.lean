@@ -59,3 +59,7 @@ def foo : a b c d e f g a b c d e f g h where
   i := 42
   j := 42
   k := 42)
+
+#eval fmt `(calc
+  1 = 1 := rfl
+  1 = 1 := rfl)

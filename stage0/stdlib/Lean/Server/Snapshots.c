@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_Server_Snapshots_compileNextCmd_withNewInteractiveDiags___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__2(lean_object*);
@@ -83,6 +82,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snaps
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Snapshots_Snapshot_diagnostics___spec__3(size_t, size_t, lean_object*);
 lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_compileNextCmd___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1711,7 +1711,7 @@ lean_closure_set(x_46, 0, x_45);
 lean_closure_set(x_46, 1, x_44);
 lean_closure_set(x_46, 2, x_27);
 x_47 = l_Lean_Server_Snapshots_compileNextCmd___closed__1;
-x_48 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_12, x_47);
+x_48 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_12, x_47);
 lean_dec(x_12);
 x_49 = l_IO_FS_withIsolatedStreams___at_Lean_Server_Snapshots_compileNextCmd___spec__1(x_46, x_48, x_35);
 if (lean_obj_tag(x_49) == 0)
@@ -2025,7 +2025,7 @@ lean_closure_set(x_154, 0, x_153);
 lean_closure_set(x_154, 1, x_152);
 lean_closure_set(x_154, 2, x_135);
 x_155 = l_Lean_Server_Snapshots_compileNextCmd___closed__1;
-x_156 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_119, x_155);
+x_156 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_119, x_155);
 lean_dec(x_119);
 x_157 = l_IO_FS_withIsolatedStreams___at_Lean_Server_Snapshots_compileNextCmd___spec__1(x_154, x_156, x_143);
 if (lean_obj_tag(x_157) == 0)

@@ -283,7 +283,6 @@ if (x_6 == 0)
 {
 uint8_t x_8; lean_object* x_9; lean_object* x_10; 
 lean_dec(x_5);
-lean_dec(x_2);
 x_8 = 0;
 x_9 = lean_box(x_8);
 x_10 = lean_alloc_ctor(0, 2, 0);
@@ -300,7 +299,6 @@ lean_dec(x_5);
 if (x_12 == 0)
 {
 uint8_t x_13; lean_object* x_14; lean_object* x_15; 
-lean_dec(x_2);
 x_13 = 0;
 x_14 = lean_box(x_13);
 x_15 = lean_alloc_ctor(0, 2, 0);
@@ -411,6 +409,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_5;
 }

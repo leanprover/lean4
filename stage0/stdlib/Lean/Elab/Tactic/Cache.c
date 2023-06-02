@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache_x27___closed__4;
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalCheckpoint_declRange(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cache___hyg_20____closed__1;
@@ -73,6 +72,7 @@ LEAN_EXPORT uint8_t l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_equiv
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cache___hyg_20____closed__4;
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Cache___hyg_20____closed__9;
 static lean_object* l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache_x27___closed__5;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalCheckpoint___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -277,7 +277,7 @@ lean_object* x_11; lean_object* x_12; uint8_t x_13;
 x_11 = lean_ctor_get(x_8, 2);
 lean_inc(x_11);
 x_12 = l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache___closed__1;
-x_13 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_11, x_12);
+x_13 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_11, x_12);
 lean_dec(x_11);
 if (x_13 == 0)
 {
@@ -541,7 +541,7 @@ lean_object* x_14; lean_object* x_15; uint8_t x_16;
 x_14 = lean_ctor_get(x_11, 2);
 lean_inc(x_14);
 x_15 = l___private_Lean_Elab_Tactic_Cache_0__Lean_Elab_Tactic_dbg__cache___closed__1;
-x_16 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_14, x_15);
+x_16 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_14, x_15);
 lean_dec(x_14);
 if (x_16 == 0)
 {

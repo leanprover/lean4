@@ -2520,7 +2520,6 @@ lean_dec(x_4);
 x_10 = lean_array_uget(x_1, x_3);
 x_11 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_Nonempty_0__Lean_Elab_mkNonemptyInstance), 8, 1);
 lean_closure_set(x_11, 0, x_10);
-lean_inc(x_5);
 x_12 = l_Lean_Elab_Command_liftTermElabM___rarg(x_11, x_5, x_6, x_7);
 if (lean_obj_tag(x_12) == 0)
 {

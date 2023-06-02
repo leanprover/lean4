@@ -135,6 +135,7 @@ static lean_object* l_Lean_MessageData_ofList___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_MessageLog_toList___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_KernelException_toMessageData___closed__1;
 static lean_object* l_Lean_KernelException_toMessageData___closed__30;
+lean_object* l_Lean_Syntax_copyHeadTailInfoFrom(lean_object*, lean_object*);
 static lean_object* l_Lean_MessageData_formatAux___closed__8;
 static lean_object* l_Lean_MessageData_formatAux___closed__4;
 LEAN_EXPORT lean_object* l_String_split___at_Lean_stringToMessageData___spec__1(lean_object*);
@@ -1156,16 +1157,18 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_ofSyntax(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = lean_alloc_closure((void*)(l_Lean_MessageData_ofSyntax___lambda__1), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-x_3 = l_Lean_MessageData_ofSyntax___closed__1;
-x_4 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-x_5 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_5, 0, x_4);
-return x_5;
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_box(0);
+x_3 = l_Lean_Syntax_copyHeadTailInfoFrom(x_1, x_2);
+x_4 = lean_alloc_closure((void*)(l_Lean_MessageData_ofSyntax___lambda__1), 3, 1);
+lean_closure_set(x_4, 0, x_3);
+x_5 = l_Lean_MessageData_ofSyntax___closed__1;
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_4);
+lean_ctor_set(x_6, 1, x_5);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MessageData_ofSyntax___lambda__2___boxed(lean_object* x_1) {

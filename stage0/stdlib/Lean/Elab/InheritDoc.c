@@ -16,7 +16,6 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Elab_resolveGlobalConstNoOverloadWithInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__13___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__1___closed__2;
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed__8;
 LEAN_EXPORT lean_object* l_Lean_Elab_addConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__11(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,6 +105,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____closed_
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__5;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_warningAsError;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__4___closed__2;
 uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
@@ -1578,7 +1578,7 @@ else
 {
 lean_object* x_261; uint8_t x_262; 
 x_261 = l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__17___closed__1;
-x_262 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_258, x_261);
+x_262 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_258, x_261);
 if (x_262 == 0)
 {
 x_8 = x_3;
@@ -2574,7 +2574,7 @@ lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_5 = lean_ctor_get(x_2, 2);
 lean_inc(x_5);
 x_6 = l_Lean_logAt___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__17___closed__1;
-x_7 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_5, x_6);
+x_7 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_5, x_6);
 lean_dec(x_5);
 if (x_7 == 0)
 {

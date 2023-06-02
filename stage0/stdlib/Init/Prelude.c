@@ -124,6 +124,7 @@ LEAN_EXPORT lean_object* l_not___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getId(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instApplicativeReaderT___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableNot___rarg___boxed(lean_object*);
+static lean_object* l_Lean_hygieneInfoKind___closed__1;
 LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_rawImpl___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instHAppend(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfReaderT___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -679,6 +680,7 @@ LEAN_EXPORT lean_object* l_instHMod___rarg(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Fin_decLt___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__2___boxed(lean_object*, lean_object*);
 static lean_object* l_instInhabitedSubstring___closed__1;
+static lean_object* l_Lean_hygieneInfoKind___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Syntax_node7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instMonadRefMacroM___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getTailPos_x3f_loop___boxed(lean_object*, lean_object*, lean_object*);
@@ -855,6 +857,7 @@ LEAN_EXPORT lean_object* l_Array_data___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Char_utf8Size(uint32_t);
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__3;
+LEAN_EXPORT lean_object* l_Lean_hygieneInfoKind;
 LEAN_EXPORT lean_object* l_ReaderT_instMonadExceptOfReaderT(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_ofNat32___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_instMonadQuotationUnexpandM___spec__2___rarg(lean_object*, lean_object*, lean_object*);
@@ -8405,6 +8408,32 @@ x_1 = l_Lean_fieldIdxKind___closed__2;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_hygieneInfoKind___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("hygieneInfo", 11);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_hygieneInfoKind___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_hygieneInfoKind___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_hygieneInfoKind() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_hygieneInfoKind___closed__2;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_interpolatedStrLitKind___closed__1() {
 _start:
 {
@@ -12339,6 +12368,12 @@ l_Lean_fieldIdxKind___closed__2 = _init_l_Lean_fieldIdxKind___closed__2();
 lean_mark_persistent(l_Lean_fieldIdxKind___closed__2);
 l_Lean_fieldIdxKind = _init_l_Lean_fieldIdxKind();
 lean_mark_persistent(l_Lean_fieldIdxKind);
+l_Lean_hygieneInfoKind___closed__1 = _init_l_Lean_hygieneInfoKind___closed__1();
+lean_mark_persistent(l_Lean_hygieneInfoKind___closed__1);
+l_Lean_hygieneInfoKind___closed__2 = _init_l_Lean_hygieneInfoKind___closed__2();
+lean_mark_persistent(l_Lean_hygieneInfoKind___closed__2);
+l_Lean_hygieneInfoKind = _init_l_Lean_hygieneInfoKind();
+lean_mark_persistent(l_Lean_hygieneInfoKind);
 l_Lean_interpolatedStrLitKind___closed__1 = _init_l_Lean_interpolatedStrLitKind___closed__1();
 lean_mark_persistent(l_Lean_interpolatedStrLitKind___closed__1);
 l_Lean_interpolatedStrLitKind___closed__2 = _init_l_Lean_interpolatedStrLitKind___closed__2();

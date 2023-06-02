@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__18;
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Elab_Level_elabLevel___spec__7(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,7 +38,6 @@ static lean_object* l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverse
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_MetavarContext_addLevelMVarDecl(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
-lean_object* l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwIllFormedSyntax___at_Lean_Elab_Level_elabLevel___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Elab_Level_instMonadOptionsLevelElabM___spec__2(lean_object*, lean_object*);
@@ -67,6 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___la
 static lean_object* l_Lean_Elab_Level_elabLevel___closed__17;
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_440_(lean_object*);
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_440____closed__3;
+lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadOptionsLevelElabM;
 lean_object* l_Lean_Syntax_getKind(lean_object*);
@@ -89,6 +88,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadRefLevelElabM___closed__1;
 static lean_object* l_Lean_Elab_Level_initFn____x40_Lean_Elab_Level___hyg_440____closed__5;
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___lambda__3___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Level_instMonadNameGeneratorLevelElabM___closed__3;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
@@ -909,7 +909,7 @@ _start:
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_5 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__1;
-x_6 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 if (x_7 == 0)
 {
@@ -1042,7 +1042,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___rarg___lambda__1___closed__1;
-x_6 = l_Lean_Option_get___at_Std_Format_pretty_x27___spec__1(x_4, x_5);
+x_6 = l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(x_4, x_5);
 x_7 = lean_nat_dec_le(x_1, x_6);
 lean_dec(x_1);
 if (x_7 == 0)
@@ -1661,7 +1661,7 @@ else
 {
 lean_object* x_66; uint8_t x_67; uint8_t x_68; 
 x_66 = l_Lean_Elab_Level_elabLevel___closed__22;
-x_67 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_8, x_66);
+x_67 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_8, x_66);
 lean_dec(x_8);
 lean_inc(x_51);
 x_68 = l_Lean_Elab_isValidAutoBoundLevelName(x_51, x_67);
@@ -2483,7 +2483,7 @@ else
 {
 lean_object* x_269; uint8_t x_270; uint8_t x_271; 
 x_269 = l_Lean_Elab_Level_elabLevel___closed__22;
-x_270 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_212, x_269);
+x_270 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_212, x_269);
 lean_dec(x_212);
 lean_inc(x_254);
 x_271 = l_Lean_Elab_isValidAutoBoundLevelName(x_254, x_270);

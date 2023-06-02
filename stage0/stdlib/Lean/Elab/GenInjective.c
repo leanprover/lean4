@@ -957,6 +957,7 @@ x_11 = lean_alloc_closure((void*)(l_Lean_Elab_Command_elabGenInjectiveTheorems__
 lean_closure_set(x_11, 0, x_9);
 x_12 = l_Lean_Elab_Command_liftTermElabM___rarg(x_11, x_2, x_3, x_10);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_12;
 }
 else

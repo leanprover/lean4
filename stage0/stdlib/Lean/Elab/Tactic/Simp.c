@@ -15,7 +15,6 @@ extern "C" {
 #endif
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Tactic_elabSimpArgs___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -297,6 +296,7 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_elabSimpArgs_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_elabSimpArgs___lambda__2(lean_object*, uint8_t, uint8_t, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_mkSimpContext___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_simpLocation___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_initFn____x40_Lean_Elab_Tactic_Simp___hyg_4750____closed__7;
 static lean_object* l_Lean_Elab_Tactic_elabDSimpConfigCore___closed__2;
@@ -13345,7 +13345,7 @@ x_26 = lean_ctor_get(x_23, 1);
 x_27 = lean_ctor_get(x_8, 2);
 lean_inc(x_27);
 x_28 = l_Lean_Elab_Tactic_evalSimp___closed__1;
-x_29 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_27, x_28);
+x_29 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_27, x_28);
 lean_dec(x_27);
 if (x_29 == 0)
 {
@@ -13379,7 +13379,7 @@ lean_dec(x_23);
 x_34 = lean_ctor_get(x_8, 2);
 lean_inc(x_34);
 x_35 = l_Lean_Elab_Tactic_evalSimp___closed__1;
-x_36 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_34, x_35);
+x_36 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_34, x_35);
 lean_dec(x_34);
 if (x_36 == 0)
 {
@@ -13643,7 +13643,7 @@ lean_object* x_13; lean_object* x_14; uint8_t x_15;
 x_13 = lean_ctor_get(x_10, 2);
 lean_inc(x_13);
 x_14 = l_Lean_Elab_Tactic_evalSimp___closed__1;
-x_15 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_13, x_14);
+x_15 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_13, x_14);
 lean_dec(x_13);
 if (x_15 == 0)
 {
@@ -14148,7 +14148,7 @@ lean_object* x_12; lean_object* x_13; uint8_t x_14;
 x_12 = lean_ctor_get(x_9, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Elab_Tactic_evalSimp___closed__1;
-x_14 = l_Lean_Option_get___at_Lean_getSanitizeNames___spec__1(x_12, x_13);
+x_14 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_12, x_13);
 lean_dec(x_12);
 if (x_14 == 0)
 {

@@ -34,6 +34,7 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMa
 static lean_object* l_Lean_getConstInfoCtor___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___lambda__1___closed__21;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_Hashable_mkMatch___spec__1(size_t, size_t, lean_object*);
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__9;
 static lean_object* l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___closed__8;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,7 +143,6 @@ static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMa
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 static lean_object* l_Lean_Elab_Deriving_Hashable_mkAuxFunction___lambda__1___closed__3;
 static lean_object* l_List_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__5___lambda__1___closed__2;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__4___closed__14;
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Deriving_Hashable_mkMatch_mkAlts___spec__4___lambda__1___boxed(lean_object*, lean_object*);
@@ -4398,7 +4398,6 @@ else
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_alloc_closure((void*)(l___private_Lean_Elab_Deriving_Hashable_0__Lean_Elab_Deriving_Hashable_mkHashableInstanceCmds___boxed), 8, 1);
 lean_closure_set(x_16, 0, x_1);
-lean_inc(x_2);
 x_17 = l_Lean_Elab_Command_liftTermElabM___rarg(x_16, x_2, x_3, x_7);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -4447,7 +4446,7 @@ x_28 = 0;
 x_29 = lean_usize_of_nat(x_21);
 lean_dec(x_21);
 x_30 = lean_box(0);
-x_31 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_19, x_28, x_29, x_30, x_2, x_3, x_20);
+x_31 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_19, x_28, x_29, x_30, x_2, x_3, x_20);
 lean_dec(x_19);
 if (lean_obj_tag(x_31) == 0)
 {
@@ -4551,7 +4550,7 @@ x_55 = 0;
 x_56 = lean_usize_of_nat(x_46);
 lean_dec(x_46);
 x_57 = lean_box(0);
-x_58 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__19(x_44, x_55, x_56, x_57, x_2, x_3, x_45);
+x_58 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__18(x_44, x_55, x_56, x_57, x_2, x_3, x_45);
 lean_dec(x_44);
 if (lean_obj_tag(x_58) == 0)
 {

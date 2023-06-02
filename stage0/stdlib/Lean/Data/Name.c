@@ -24,7 +24,6 @@ LEAN_EXPORT uint8_t l_Lean_Name_isStr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_lt___boxed(lean_object*, lean_object*);
 uint8_t lean_uint64_dec_lt(uint64_t, uint64_t);
 LEAN_EXPORT uint8_t l_Lean_Name_isAnonymous(lean_object*);
-lean_object* l_String_trim(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_quickCmpAux___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_quickCmpAux(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_quickLt(lean_object*, lean_object*);
@@ -45,11 +44,9 @@ LEAN_EXPORT lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_components(lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 uint8_t l_String_startsWith(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isSuffixOf___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_componentsRev(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getNumParts___boxed(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -68,9 +65,7 @@ LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-static lean_object* l_String_toName___closed__1;
 uint64_t l_Lean_Name_hash___override(lean_object*);
-LEAN_EXPORT lean_object* l_String_toName(lean_object*);
 static lean_object* l_Lean_Name_getString_x21___closed__2;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_getString_x21(lean_object*);
@@ -86,7 +81,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternal(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
-lean_object* l_String_splitOn(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkSimple(lean_object*);
 static lean_object* _init_l_Lean_instCoeStringName___closed__1() {
 _start:
@@ -1138,55 +1132,6 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-return x_1;
-}
-else
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = l_String_trim(x_3);
-x_6 = l_Lean_Name_str___override(x_1, x_5);
-x_1 = x_6;
-x_2 = x_4;
-goto _start;
-}
-}
-}
-static lean_object* _init_l_String_toName___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(".", 1);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_String_toName(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l_String_toName___closed__1;
-x_3 = l_String_splitOn(x_1, x_2);
-x_4 = lean_box(0);
-x_5 = l_List_foldl___at_String_toName___spec__1(x_4, x_3);
-lean_dec(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldl___at_String_toName___spec__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_List_foldl___at_String_toName___spec__1(x_1, x_2);
-lean_dec(x_2);
-return x_3;
-}
-}
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_Name(uint8_t builtin, lean_object* w) {
@@ -1210,8 +1155,6 @@ l_Lean_Name_getString_x21___closed__4 = _init_l_Lean_Name_getString_x21___closed
 lean_mark_persistent(l_Lean_Name_getString_x21___closed__4);
 l_Lean_Name_isImplementationDetail___closed__1 = _init_l_Lean_Name_isImplementationDetail___closed__1();
 lean_mark_persistent(l_Lean_Name_isImplementationDetail___closed__1);
-l_String_toName___closed__1 = _init_l_String_toName___closed__1();
-lean_mark_persistent(l_String_toName___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

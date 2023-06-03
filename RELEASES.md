@@ -1,6 +1,10 @@
 Unreleased
 ---------
 
+* [New `have this` implementation](https://github.com/leanprover/lean4/pull/2247).
+
+  `this` is now a regular identifier again that is implicitly introduced by anonymous `have :=` for the remainder of the tactic block. It used to be a keyword that was visible in all scopes and led to unexpected behavior when explicitly used as a binder name.
+
 * [Show typeclass and tactic names in profile output](https://github.com/leanprover/lean4/pull/2170).
 
 * [Make `calc` require the sequence of relation/proof-s to have the same indentation](https://github.com/leanprover/lean4/pull/1844),

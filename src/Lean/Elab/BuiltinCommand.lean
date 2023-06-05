@@ -52,14 +52,19 @@ private def popScopes (numScopes : Nat) : CommandElabM Unit :=
   for _ in [0:numScopes] do
     popScope
 
-private def checkAnonymousScope : List Scope → Bool
-  | { header := "", .. } :: _   => true
-  | _                           => false
+private def checkAnonymousScope : List Scope → Option Name
+  | { header := "", .. } :: _ => none
+  | { header := h, .. }  :: _ => some h
+  | _                         => some .anonymous -- should not happen
 
-private def checkEndHeader : Name → List Scope → Bool
-  | .anonymous, _                             => true
-  | .str p s,   { header := h, .. } :: scopes => h == s && checkEndHeader p scopes
-  | _,          _                             => false
+private def checkEndHeader : Name → List Scope → Option Name
+  | .anonymous, _ => none
+  | .str p s, { header := h, .. } :: scopes =>
+    if h == s then
+      (.str · s) <$> checkEndHeader p scopes
+    else
+      some h
+  | _, _ => some .anonymous -- should not happen
 
 @[builtin_command_elab «namespace»] def elabNamespace : CommandElab := fun stx =>
   match stx with
@@ -94,12 +99,12 @@ private def checkEndHeader : Name → List Scope → Bool
     throwError "invalid 'end', insufficient scopes"
   match header? with
   | none        =>
-    unless checkAnonymousScope scopes do
-      throwError "invalid 'end', name is missing"
+    if let some name := checkAnonymousScope scopes then
+      throwError "invalid 'end', name is missing (expected {name})"
   | some header =>
-    unless checkEndHeader header scopes do
+    if let some name := checkEndHeader header scopes then
       addCompletionInfo <| CompletionInfo.endSection stx (scopes.map fun scope => scope.header)
-      throwError "invalid 'end', name mismatch"
+      throwError "invalid 'end', name mismatch (expected {if name == `«» then `nothing else name})"
 
 private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM Unit :=
   if h : i < cmds.size then

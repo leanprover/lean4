@@ -54,14 +54,23 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
       let ctx ← read
       if runAfterImport && (← isInitializerExecutionEnabled) then
         for mod in ctx.env.header.moduleNames,
+            modData in ctx.env.header.moduleData,
             modEntries in entries do
           -- any native Lean code reachable by the interpreter (i.e. from shared
           -- libraries with their corresponding module in the Environment) must
           -- first be initialized
-          if !(← runModInit mod) then
-            -- If no native code for the module is available, run `[init]` decls manually.
-            -- All other constants (nullary functions) are lazily initialized by the interpreter.
-            for (decl, initDecl) in modEntries do
+          if (← runModInit mod) then
+            continue
+          -- If no native code for the module is available, run `[init]` decls manually.
+          -- All other constants (nullary functions) are lazily initialized by the interpreter.
+          if modEntries.isEmpty then
+            -- If there are no `[init]` decls, don't bother walking through all module decls.
+            -- We do this after trying `runModInit` as that one may also efficiently initialize
+            -- nullary functions.
+            continue
+          for c in modData.constNames do
+            -- make sure to run initializers in declaration order, not extension state order, to respect dependencies
+            if let some (decl, initDecl) := modEntries.binSearch (c, default) (Name.quickLt ·.1 ·.1) then
               if initDecl.isAnonymous then
                 let initFn ← IO.ofExcept <| ctx.env.evalConst (IO Unit) ctx.opts decl
                 initFn

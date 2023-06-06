@@ -69,11 +69,14 @@ Output:
 -/
 -- Note that we need to preserve the separators to show the right goals after semicolons.
 def addCheckpoints (stx : Syntax) : TacticM Syntax := do
-  -- if (← readThe Term.Context).tacticCache? |>.isSome then
   if !(← stx.getSepArgs.anyM isCheckpointableTactic) then return stx
+  -- do not checkpoint checkpointable tactic by itself to prevent infinite recursion
+  -- TODO: rethink approach if we add non-trivial checkpointable tactics
+  if stx.getNumArgs <= 2 then return stx
   let mut currentCheckpointBlock := #[]
   let mut output := #[]
-  for i in [:stx.getArgs.size / 2] do
+  -- `+ 1` to account for optional trailing separator
+  for i in [:(stx.getArgs.size + 1) / 2] do
     let tac := stx[2*i]
     let sep? := stx.getArgs[2*i+1]?
     if (← isCheckpointableTactic tac) then
@@ -83,7 +86,7 @@ def addCheckpoints (stx : Syntax) : TacticM Syntax := do
           mkNode ``tacticSeq #[
             mkNode ``tacticSeq1Indented #[
               -- HACK: null node is not a valid tactic, but prevents infinite loop
-              mkNullNode (currentCheckpointBlock.push tac)
+              mkNullNode (currentCheckpointBlock.push (mkNullNode #[tac]))
             ]
           ]
         ]

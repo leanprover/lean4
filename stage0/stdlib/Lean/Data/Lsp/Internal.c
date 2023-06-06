@@ -429,14 +429,14 @@ lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t 
 x_2 = lean_unsigned_to_nat(2u);
 lean_inc(x_1);
 x_3 = l_String_take(x_1, x_2);
-lean_inc(x_1);
 x_4 = l_String_drop(x_1, x_2);
 x_5 = l_Lean_Lsp_RefIdent_fromString___closed__1;
 x_6 = lean_string_dec_eq(x_4, x_5);
 if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
-x_7 = l_String_toName(x_1);
+lean_inc(x_4);
+x_7 = l_String_toName(x_4);
 x_8 = l_Lean_Name_isAnonymous(x_7);
 if (x_8 == 0)
 {
@@ -465,7 +465,6 @@ else
 {
 lean_object* x_15; lean_object* x_16; 
 lean_dec(x_4);
-lean_dec(x_1);
 x_15 = lean_box(0);
 x_16 = l_Lean_Lsp_RefIdent_fromString___lambda__1(x_3, x_15);
 lean_dec(x_3);

@@ -26,7 +26,6 @@ static lean_object* l_List_foldl___at_List_toString___spec__1___rarg___closed__1
 static lean_object* l_instToStringSigma___rarg___closed__2;
 LEAN_EXPORT lean_object* l_instToStringUInt16(uint16_t);
 lean_object* l_String_toNat_x3f(lean_object*);
-static lean_object* l_addParenHeuristic___closed__5;
 static lean_object* l_instToStringSum___rarg___closed__1;
 static lean_object* l_List_toString___rarg___closed__3;
 LEAN_EXPORT lean_object* l_instToStringBool___boxed(lean_object*);
@@ -52,8 +51,10 @@ LEAN_EXPORT lean_object* l_instToStringFormat(lean_object*);
 LEAN_EXPORT lean_object* l_String_toInt_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt8___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUSize___boxed(lean_object*);
+lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_List_toString___rarg___closed__2;
 LEAN_EXPORT lean_object* l_instToStringPUnit(lean_object*);
+uint8_t l_Char_isWhitespace(uint32_t);
 LEAN_EXPORT lean_object* l_List_foldl___at_List_toString___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_addParenHeuristic___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -63,9 +64,7 @@ LEAN_EXPORT lean_object* l_instToStringUnit___boxed(lean_object*);
 lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_instToStringULift(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringIdType___rarg___boxed(lean_object*);
-lean_object* l_Char_isWhitespace___boxed(lean_object*);
 static lean_object* l_addParenHeuristic___closed__2;
-uint8_t l_String_anyAux_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringPUnit___boxed(lean_object*);
 static lean_object* l_instReprExcept___rarg___closed__2;
 static lean_object* l_instToStringSigma___rarg___closed__1;
@@ -73,6 +72,7 @@ LEAN_EXPORT lean_object* l_instToStringSum(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSubtype(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringExcept___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_String_anyAux___at_addParenHeuristic___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringSum___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringNat(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringFin___rarg(lean_object*);
@@ -99,7 +99,9 @@ LEAN_EXPORT lean_object* l_panic___at_String_toInt_x21___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringInt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instToStringInt(lean_object*);
 static lean_object* l_instReprExcept___rarg___closed__1;
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_addParenHeuristic(lean_object*);
+LEAN_EXPORT lean_object* l_String_anyAux___at_addParenHeuristic___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instToStringSubtype___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instToStringDecidable(lean_object*);
@@ -750,6 +752,41 @@ x_3 = lean_format_pretty(x_1, x_2);
 return x_3;
 }
 }
+LEAN_EXPORT uint8_t l_String_anyAux___at_addParenHeuristic___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = lean_nat_dec_lt(x_3, x_2);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+lean_dec(x_3);
+x_5 = 0;
+return x_5;
+}
+else
+{
+uint32_t x_6; uint8_t x_7; 
+x_6 = lean_string_utf8_get(x_1, x_3);
+x_7 = l_Char_isWhitespace(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; 
+x_8 = lean_string_utf8_next(x_1, x_3);
+lean_dec(x_3);
+x_3 = x_8;
+goto _start;
+}
+else
+{
+uint8_t x_10; 
+lean_dec(x_3);
+x_10 = 1;
+return x_10;
+}
+}
+}
+}
 static lean_object* _init_l_addParenHeuristic___closed__1() {
 _start:
 {
@@ -775,14 +812,6 @@ return x_1;
 }
 }
 static lean_object* _init_l_addParenHeuristic___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Char_isWhitespace___boxed), 1, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_addParenHeuristic___closed__5() {
 _start:
 {
 lean_object* x_1; 
@@ -813,30 +842,23 @@ x_8 = l_addParenHeuristic___closed__3;
 x_9 = l_String_isPrefixOf(x_8, x_1);
 if (x_9 == 0)
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
+lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_string_utf8_byte_size(x_1);
-x_11 = l_addParenHeuristic___closed__4;
-x_12 = lean_unsigned_to_nat(0u);
-x_13 = l_String_anyAux_loop(x_1, x_10, x_11, x_12);
+x_11 = lean_unsigned_to_nat(0u);
+x_12 = l_String_anyAux___at_addParenHeuristic___spec__1(x_1, x_10, x_11);
 lean_dec(x_10);
-if (x_13 == 0)
+if (x_12 == 0)
 {
 lean_inc(x_1);
 return x_1;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; 
-x_14 = lean_string_append(x_2, x_1);
-x_15 = l_addParenHeuristic___closed__5;
-x_16 = lean_string_append(x_14, x_15);
-return x_16;
-}
-}
-else
-{
-lean_inc(x_1);
-return x_1;
+lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_13 = lean_string_append(x_2, x_1);
+x_14 = l_addParenHeuristic___closed__4;
+x_15 = lean_string_append(x_13, x_14);
+return x_15;
 }
 }
 else
@@ -856,6 +878,23 @@ else
 lean_inc(x_1);
 return x_1;
 }
+}
+else
+{
+lean_inc(x_1);
+return x_1;
+}
+}
+}
+LEAN_EXPORT lean_object* l_String_anyAux___at_addParenHeuristic___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_String_anyAux___at_addParenHeuristic___spec__1(x_1, x_2, x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_addParenHeuristic___boxed(lean_object* x_1) {
@@ -905,7 +944,7 @@ lean_dec(x_5);
 x_7 = l_instToStringOption___rarg___closed__2;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_addParenHeuristic___closed__5;
+x_9 = l_addParenHeuristic___closed__4;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -951,7 +990,7 @@ lean_dec(x_5);
 x_7 = l_instToStringSum___rarg___closed__1;
 x_8 = lean_string_append(x_7, x_6);
 lean_dec(x_6);
-x_9 = l_addParenHeuristic___closed__5;
+x_9 = l_addParenHeuristic___closed__4;
 x_10 = lean_string_append(x_8, x_9);
 return x_10;
 }
@@ -968,7 +1007,7 @@ lean_dec(x_12);
 x_14 = l_instToStringSum___rarg___closed__2;
 x_15 = lean_string_append(x_14, x_13);
 lean_dec(x_13);
-x_16 = l_addParenHeuristic___closed__5;
+x_16 = l_addParenHeuristic___closed__4;
 x_17 = lean_string_append(x_15, x_16);
 return x_17;
 }
@@ -1000,7 +1039,7 @@ x_10 = lean_string_append(x_8, x_9);
 x_11 = lean_apply_1(x_2, x_5);
 x_12 = lean_string_append(x_10, x_11);
 lean_dec(x_11);
-x_13 = l_addParenHeuristic___closed__5;
+x_13 = l_addParenHeuristic___closed__4;
 x_14 = lean_string_append(x_12, x_13);
 return x_14;
 }
@@ -1479,8 +1518,6 @@ l_addParenHeuristic___closed__3 = _init_l_addParenHeuristic___closed__3();
 lean_mark_persistent(l_addParenHeuristic___closed__3);
 l_addParenHeuristic___closed__4 = _init_l_addParenHeuristic___closed__4();
 lean_mark_persistent(l_addParenHeuristic___closed__4);
-l_addParenHeuristic___closed__5 = _init_l_addParenHeuristic___closed__5();
-lean_mark_persistent(l_addParenHeuristic___closed__5);
 l_instToStringOption___rarg___closed__1 = _init_l_instToStringOption___rarg___closed__1();
 lean_mark_persistent(l_instToStringOption___rarg___closed__1);
 l_instToStringOption___rarg___closed__2 = _init_l_instToStringOption___rarg___closed__2();

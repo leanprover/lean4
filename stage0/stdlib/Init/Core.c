@@ -36,6 +36,7 @@ LEAN_EXPORT lean_object* l_Quotient_rec___boxed(lean_object*, lean_object*, lean
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__PSum__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2295_____closed__3;
 LEAN_EXPORT lean_object* l_instInhabitedTask(lean_object*);
+LEAN_EXPORT lean_object* l_iteInduction___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Task_pure___boxed(lean_object*, lean_object*);
 static lean_object* l_term___x3c_x2d_x3e_____closed__7;
 static lean_object* l_term___x3c_x2d_x3e_____closed__9;
@@ -48,6 +49,7 @@ LEAN_EXPORT lean_object* l_Eq_ndrecOn___boxed(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l___aux__Init__Core______unexpand__PSum__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2295_x27____1___closed__7;
 LEAN_EXPORT lean_object* l_instHasEquiv___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_iteInduction(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqSum___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_reduceBool(uint8_t);
 LEAN_EXPORT lean_object* l_instDecidableEqProd(lean_object*, lean_object*);
@@ -213,6 +215,7 @@ LEAN_EXPORT lean_object* l___aux__Init__Core______macroRules__term___u2194____1(
 static lean_object* l_term___u2248_____closed__4;
 static lean_object* l_term___u2295_x27_____closed__4;
 LEAN_EXPORT lean_object* l_Quot_indep(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_iteInduction___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Core______macroRules__term___u2260____1___closed__1;
 lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Sum_inhabitedRight___rarg(lean_object*);
@@ -4179,6 +4182,45 @@ lean_dec(x_2);
 x_5 = l_instDecidableIff___rarg(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_iteInduction___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_7; 
+lean_dec(x_5);
+x_7 = lean_apply_1(x_6, lean_box(0));
+return x_7;
+}
+else
+{
+lean_object* x_8; 
+lean_dec(x_6);
+x_8 = lean_apply_1(x_5, lean_box(0));
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_iteInduction(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_iteInduction___rarg___boxed), 6, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_iteInduction___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_1);
+lean_dec(x_1);
+x_8 = l_iteInduction___rarg(x_7, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_4);
+lean_dec(x_3);
+return x_8;
 }
 }
 LEAN_EXPORT uint8_t l_instDecidableIteProp___rarg(uint8_t x_1, uint8_t x_2, uint8_t x_3) {

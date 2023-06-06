@@ -752,7 +752,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_Conv_conv_quot___closed__10() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`(conv|", 7);
+x_1 = lean_mk_string_from_bytes("`(conv| ", 8);
 return x_1;
 }
 }

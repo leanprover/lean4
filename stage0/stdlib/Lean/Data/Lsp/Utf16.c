@@ -24,40 +24,38 @@ LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPos(lean_object*, lean_obje
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_utf16Size___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_foldrAux___at_String_utf16Length___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspPosToUtf8Pos___boxed(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_utf16Length___lambda__1(uint32_t, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_utf16PosToCodepointPosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_utf16Length___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8PosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPosFrom(lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Char_utf16Size(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_FileMap_leanPosToLspPos___boxed(lean_object*, lean_object*);
 extern lean_object* l_instInhabitedPos;
-lean_object* l_String_foldrAux_loop___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf16Pos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l_String_utf16Length___closed__1;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_FileMap_utf8PosToLspPos___boxed(lean_object*, lean_object*);
 lean_object* l_Array_back___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16PosToCodepointPosFrom___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16(uint32_t);
 lean_object* lean_array_get_size(lean_object*);
-LEAN_EXPORT lean_object* l_String_utf16Length___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_utf16Length(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_csize16___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf8PosFrom___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_codepointPosToUtf8PosFrom(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_foldrAux___at_String_utf16Length___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 LEAN_EXPORT uint32_t l_Char_utf16Size(uint32_t x_1) {
 _start:
@@ -109,54 +107,51 @@ x_3 = l___private_Lean_Data_Lsp_Utf16_0__String_csize16(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_String_utf16Length___lambda__1(uint32_t x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_String_foldrAux___at_String_utf16Length___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Data_Lsp_Utf16_0__String_csize16(x_1);
-x_4 = lean_nat_add(x_3, x_2);
+uint8_t x_5; 
+x_5 = lean_nat_dec_lt(x_4, x_3);
+if (x_5 == 0)
+{
 lean_dec(x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_String_utf16Length___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_String_utf16Length___lambda__1___boxed), 2, 0);
 return x_1;
+}
+else
+{
+lean_object* x_6; uint32_t x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = lean_string_utf8_prev(x_2, x_3);
+lean_dec(x_3);
+x_7 = lean_string_utf8_get(x_2, x_6);
+x_8 = l___private_Lean_Data_Lsp_Utf16_0__String_csize16(x_7);
+x_9 = lean_nat_add(x_8, x_1);
+lean_dec(x_1);
+lean_dec(x_8);
+x_1 = x_9;
+x_3 = x_6;
+goto _start;
+}
 }
 }
 LEAN_EXPORT lean_object* l_String_utf16Length(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_string_utf8_byte_size(x_1);
-x_3 = l_String_utf16Length___closed__1;
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_String_foldrAux_loop___rarg(x_3, x_4, x_1, x_2, x_4);
-lean_dec(x_2);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_String_utf16Length___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint32_t x_3; lean_object* x_4; 
-x_3 = lean_unbox_uint32(x_1);
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_String_foldrAux___at_String_utf16Length___spec__1(x_3, x_1, x_2, x_3);
 lean_dec(x_1);
-x_4 = l_String_utf16Length___lambda__1(x_3, x_2);
-lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_String_utf16Length___boxed(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_String_foldrAux___at_String_utf16Length___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_2; 
-x_2 = l_String_utf16Length(x_1);
-lean_dec(x_1);
-return x_2;
+lean_object* x_5; 
+x_5 = l_String_foldrAux___at_String_utf16Length___spec__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+lean_dec(x_2);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l___private_Lean_Data_Lsp_Utf16_0__String_codepointPosToUtf16PosFromAux(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -489,8 +484,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_String_utf16Length___closed__1 = _init_l_String_utf16Length___closed__1();
-lean_mark_persistent(l_String_utf16Length___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

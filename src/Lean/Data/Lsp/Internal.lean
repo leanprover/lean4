@@ -35,7 +35,7 @@ def fromString (s : String) : Except String RefIdent := do
   let name ← match sName with
     | "[anonymous]" => pure Name.anonymous
     | _ =>
-      let n := s.toName
+      let n := sName.toName
       if n.isAnonymous then throw s!"expected a Name, got {sName}"
       else pure n
   match sPrefix with

@@ -43,8 +43,6 @@ $ elan self update  # in case you haven't updated elan in a while
 $ elan default leanprover/lean4:stable
 # alternatively, use the latest nightly build (https://github.com/leanprover/lean4-nightly/releases)
 $ elan default leanprover/lean4:nightly
-# alternatively, activate Lean 4 in current directory only
-$ elan override set leanprover/lean4:stable
 ```
 
 ### `lake`

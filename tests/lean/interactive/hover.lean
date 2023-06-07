@@ -259,3 +259,9 @@ example : Nat :=
 
 def auto (o : Nat := by exact 1) : Nat := o
   --^ textDocument/hover
+
+example : 1 = 1 := by
+                    --v textDocument/hover
+  generalize _e : 1 = x
+           --^ textDocument/hover
+  exact Eq.refl x

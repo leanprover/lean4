@@ -555,3 +555,15 @@ null
  "contents":
  {"value": "```lean\nBar.auto (o : ℕ := by exact 1) : ℕ\n```",
   "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 264, "character": 22}}
+{"range":
+ {"start": {"line": 264, "character": 22},
+  "end": {"line": 264, "character": 23}},
+ "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 264, "character": 13}}
+{"range":
+ {"start": {"line": 264, "character": 13},
+  "end": {"line": 264, "character": 15}},
+ "contents": {"value": "```lean\n_e : 1 = x\n```", "kind": "markdown"}}

@@ -139,18 +139,18 @@ where
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit := do
-  let pkgName := name.decapitalize.toName
+  let pkgName := stringToLegalOrSimpleName name
 
   -- determine the name to use for the root
   -- use upper camel case unless the specific module name already exists
   let (root, rootFile, rootExists) ← do
-    let root := name.toName
+    let root := pkgName
     let rootFile := Lean.modToFilePath dir root "lean"
     let rootExists ← rootFile.pathExists
     if tmp = .exe || rootExists then
       pure (root, rootFile, rootExists)
     else
-      let root := toUpperCamelCase root
+      let root := toUpperCamelCase (toUpperCamelCaseString name |>.toName)
       let rootFile := Lean.modToFilePath dir root "lean"
       pure (root, rootFile, ← rootFile.pathExists)
 

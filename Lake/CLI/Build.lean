@@ -43,7 +43,7 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
   if spec.isEmpty then
     return ws.root
   else
-    match ws.findPackage? spec.toName with
+    match ws.findPackage? <| stringToLegalOrSimpleName spec with
     | some pkg => return pkg
     | none => throw <| CliError.unknownPackage spec
 
@@ -150,7 +150,7 @@ def resolveTargetBaseSpec
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInWorkspace ws spec.toName facet
+      resolveTargetInWorkspace ws (stringToLegalOrSimpleName spec) facet
   | [pkgSpec, targetSpec] =>
     let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
     let pkg ← parsePackageSpec ws pkgSpec

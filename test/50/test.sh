@@ -19,7 +19,8 @@ ${LAKE} build -KleancArgs=-DBAR | tee -a ../produced.out
 
 ${LAKE} build
 echo "# link args" | tee -a ../produced.out
-${LAKE} build -KlinkArgs=-Lbuild/lib | tee -a ../produced.out
+# Use `head -n1` to avoid extranous warnings on MacOS with current Lean
+${LAKE} build -KlinkArgs=-Lbuild/lib | head -n1 | tee -a ../produced.out
 
 # test
 if [ "$OS" = Windows_NT ]; then

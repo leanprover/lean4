@@ -308,6 +308,10 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def moreLeanArgs (self : Package) : Array String :=
   self.config.moreLeanArgs
 
+/-- The package's `weakLeanArgs` configuration. -/
+@[inline] def weakLeanArgs (self : Package) : Array String :=
+  self.config.weakLeanArgs
+
 /-- The package's `moreLeancArgs` configuration. -/
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs

@@ -94,6 +94,9 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs
 
+@[inline] def weakLeanArgs (self : Module) : Array String :=
+  self.lib.weakLeanArgs
+
 @[inline] def leancArgs (self : Module) : Array String :=
   self.lib.leancArgs
 

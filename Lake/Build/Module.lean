@@ -26,7 +26,7 @@ def Module.buildUnlessUpToDate (mod : Module)
   let name := mod.name.toString
   unless modUpToDate do
     compileLeanModule name mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
-      (← getLeanPath) mod.rootDir dynlibs dynlibPath mod.leanArgs (← getLean)
+      (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.leanArgs ++ mod.weakLeanArgs) (← getLean)
   unless isOldMode do
     modTrace.writeToFile mod.traceFile
 

@@ -91,6 +91,13 @@ That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
   self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
 
 /--
+The arguments to weakly pass to `lean` when compiling the library's Lean files.
+That is, the package's `weakLeanArgs` plus the library's  `weakLeanArgs`.
+-/
+@[inline] def weakLeanArgs (self : LeanLib) : Array String :=
+  self.pkg.weakLeanArgs ++ self.config.weakLeanArgs
+
+/--
 The arguments to pass to `leanc` when compiling the library's C files.
 That is, the build type's `leancArgs`, the package's `moreLeancArgs`,
 and then the library's `moreLeancArgs`.

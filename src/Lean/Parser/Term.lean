@@ -367,6 +367,9 @@ def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
 @[builtin_term_parser] def «fun» := leading_parser:maxPrec
   ppAllowUngrouped >> unicodeSymbol "λ" "fun" >> (basicFun <|> matchAlts)
 
+@[builtin_term_parser] def etaReduceFun := leading_parser:maxPrec
+  ppAllowUngrouped >> "eta_reduce_fun%" >> basicFun
+
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser
   atomic (" (" >> nonReservedSymbol "withAnonymousAntiquot" >> " := ") >>

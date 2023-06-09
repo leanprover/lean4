@@ -370,7 +370,7 @@ def basicFun : Parser := leading_parser (withAnonymousAntiquot := false)
 @[builtin_term_parser] def etaReduceFun := leading_parser:maxPrec
   ppAllowUngrouped >> "eta_reduce_fun%" >> basicFun
 @[builtin_term_parser] def etaReduceDelayed := leading_parser:maxPrec
-  "eta_reduce_delayed% " >> num >> termParser
+  "eta_reduce_delayed% " >> num >> ppSpace >> termParser
 
 def optExprPrecedence := optional (atomic ":" >> termParser maxPrec)
 def withAnonymousAntiquot := leading_parser

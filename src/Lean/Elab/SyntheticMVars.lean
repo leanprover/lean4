@@ -360,7 +360,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length
@@ -487,5 +487,6 @@ def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
 
 builtin_initialize
   registerTraceClass `Elab.resume
+  registerTraceClass `Elab.defaultInstance
 
 end Lean.Elab.Term

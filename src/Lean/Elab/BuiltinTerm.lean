@@ -327,4 +327,30 @@ private opaque evalFilePath (stx : Syntax) : TermElabM System.FilePath
     mkStrLit <$> IO.FS.readFile path
   | _, _ => throwUnsupportedSyntax
 
+@[builtin_term_elab etaReduceDelayed] def elabEtaReduceDelayed : TermElab
+  | `(eta_reduce_delayed% $n $e), expectedType? => do
+    let eOrig ← elabTerm e expectedType?
+    let e ← instantiateMVars eOrig
+    let e' ← if e.hasExprMVar then
+      tryPostpone
+      let e' := e.etaN n.getNat
+      -- This error is a control flow hack: because synthesizeSyntheticMVars will
+      -- try to elaborate with mayPostpone := false and postponeOnError := true
+      -- before trying default instances, we have to reject this case, even though
+      -- not eta reducing would also be a reasonable option here.
+      if e'.getAppFn.isMVar then
+        throwError "can't eta-reduce, expression contains metavariables{indentD e'}"
+      pure e'
+    else
+      pure <| e.etaN n.getNat
+    -- Because of a weird elaboration order, the info tree for the `eta_reduce_fun%`
+    -- which produced this term is stored in the info tree assignment for the mvar,
+    -- so we have to splice that in here.
+    if (← getInfoState).enabled then
+      if let .mvar mvarId := eOrig then
+        if let some tree ← getInfoHoleIdAssignment? mvarId then
+          pushInfoTree tree
+    return e'
+  | _, _ => throwUnsupportedSyntax
+
 end Lean.Elab.Term

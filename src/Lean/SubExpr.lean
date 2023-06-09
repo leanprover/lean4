@@ -11,7 +11,13 @@ namespace Lean
 
 /-- A position of a subexpression in an expression.
 
-See docstring of `SubExpr` for more detail.-/
+We use a simple encoding scheme for expression positions `Pos`:
+every `Expr` constructor has at most 3 direct expression children. Considering an expression's type
+to be one extra child as well, we can injectively map a path of `childIdxs` to a natural number
+by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary representations
+without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).
+
+See also `SubExpr`. -/
 def SubExpr.Pos := Nat
 
 namespace SubExpr.Pos
@@ -145,18 +151,12 @@ instance : FromJson Pos := ⟨fun j => fromJson? j >>= Pos.fromString?⟩
 
 end SubExpr.Pos
 
-/-- An expression and the position of a subexpression within this expression.
-
-Subexpressions are encoded as the current subexpression `e` and a
-position `p : Pos` denoting `e`'s position with respect to the root expression.
-
-We use a simple encoding scheme for expression positions `Pos`:
-every `Expr` constructor has at most 3 direct expression children. Considering an expression's type
-to be one extra child as well, we can injectively map a path of `childIdxs` to a natural number
-by computing the value of the 4-ary representation `1 :: childIdxs`, since n-ary representations
-without leading zeros are unique. Note that `pos` is initialized to `1` (case `childIdxs == []`).-/
+/-- A subexpression of some root expression. Both its value and its position
+within the root are stored. -/
 structure SubExpr where
+  /-- The subexpression. -/
   expr : Expr
+  /-- The position of the subexpression within the root expression. -/
   pos  : SubExpr.Pos
   deriving Inhabited
 
@@ -164,7 +164,7 @@ namespace SubExpr
 
 def mkRoot (e : Expr) : SubExpr := ⟨e, Pos.root⟩
 
-/-- Returns true if the selected subexpression is the topmost one.-/
+/-- Returns true if the selected subexpression is the topmost one. -/
 def isRoot (s : SubExpr) : Bool := s.pos.isRoot
 
 /-- Map from subexpr positions to values. -/

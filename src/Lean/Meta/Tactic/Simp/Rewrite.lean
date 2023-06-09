@@ -22,10 +22,20 @@ def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
 def synthesizeArgs (thmId : Origin) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
   for x in xs, bi in bis do
     let type ← inferType x
+    -- Note that the binderInfo may be misleading here:
+    -- `simp [foo _]` uses `abstractMVars` to turn the elaborated term with
+    -- mvars into the lambda expression `fun α x inst => foo x`, and all
+    -- its bound variables have default binderInfo!
     if bi.isInstImplicit then
       unless (← synthesizeInstance x type) do
         return false
     else if (← instantiateMVars x).isMVar then
+      -- A hypothesis can be both a type class instance as well as a proposition,
+      -- in that case we try both TC synthesis and the discharger
+      -- (because we don't know whether the argument was originally explicit or instance-implicit).
+      if (← isClass? type).isSome then
+        if (← synthesizeInstance x type) then
+          continue
       if (← isProp type) then
         match (← discharge? type) with
         | some proof =>
@@ -34,9 +44,6 @@ def synthesizeArgs (thmId : Origin) (xs : Array Expr) (bis : Array BinderInfo) (
             return false
         | none =>
           trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to discharge hypotheses{indentExpr type}"
-          return false
-      else if (← isClass? type).isSome then
-        unless (← synthesizeInstance x type) do
           return false
   return true
 where

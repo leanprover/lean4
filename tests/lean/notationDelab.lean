@@ -11,11 +11,7 @@ notation "{ " x " | " p " }" => setOf (fun x => p)
 
 #check { (x : Nat) | x ≤ 1 }
 
-notation "cdotTest " "(" x ", " y ")" => Prod.map (· + 1) (1 + ·) (x, y)
-
-#check cdotTest (13, 12)
-
-notation "tupleFunctionTest " "(" x ", " y ")"=> Prod.map (Nat.add 1) (Nat.add 2) (x, y)
+notation "tupleFunctionTest " "(" x ", " y ")" => Prod.map (Nat.add 1) (Nat.add 2) (x, y)
 
 #check tupleFunctionTest (15, 12)
 

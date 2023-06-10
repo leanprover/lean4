@@ -1,3 +1,6 @@
 [(1, 1), (2, 1), (3, 1)]
 (1, 2)
 (1, 2, 3)
+fun x x_1 => (x, x_1) : (x : ?m) → ?m x → ?m × ?m x
+Prod.mk : Nat → Nat → Nat × Nat
+HAdd.hAdd : Nat → Nat → Nat

@@ -582,7 +582,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
       `(@fun x => $body)
   loop (getMatchAltsNumPatterns matchAlts) #[]
 
-@[builtin_macro Parser.Term.fun] partial def expandFun : Macro
+@[builtin_macro Parser.Term.fun] def expandFun : Macro
   | `(fun $binders* : $ty => $body) => do
     let binders ← binders.mapM (expandSimpleBinderWithType ty)
     `(fun $binders* => $body)
@@ -595,7 +595,7 @@ def expandMatchAltsWhereDecls (matchAltsWhereDecls : Syntax) : MacroM Syntax :=
   | stx@`(fun $m:matchAlts) => expandMatchAltsIntoMatch stx m (useExplicit := false)
   | _ => Macro.throwUnsupported
 
-@[builtin_macro Parser.Term.explicit] partial def expandExplicitFun : Macro := fun stx =>
+@[builtin_macro Parser.Term.explicit] def expandExplicitFun : Macro := fun stx =>
   match stx with
   | `(@fun $m:matchAlts) => expandMatchAltsIntoMatch stx[1] m (useExplicit := true)
   | _ => Macro.throwUnsupported
@@ -612,7 +612,7 @@ open Lean.Elab.Term.Quotation in
     Quotation.withNewLocals ids <| precheck body
   | _ => throwUnsupportedSyntax
 
-@[builtin_term_elab «fun»] partial def elabFun : TermElab := fun stx expectedType? =>
+@[builtin_term_elab «fun»] def elabFun : TermElab := fun stx expectedType? =>
   match stx with
   | `(fun $binders* => $body) => do
     -- We can assume all `match` binders have been iteratively expanded by the above macro here, though
@@ -625,6 +625,28 @@ open Lean.Elab.Term.Quotation in
           and another instance for the dependent version. -/
       let e ← elabTermEnsuringType body expectedType?
       mkLambdaFVars xs e
+  | _ => throwUnsupportedSyntax
+
+@[builtin_term_elab etaReduceFun] def elabEtaReduceFun : TermElab := fun stx expectedType? =>
+  match stx with
+  | `(eta_reduce_fun% $binders* => $body) => do
+    let (binders, body, _) ← liftMacroM <| expandFunBinders binders body
+    let (n, e) ← elabFunBinders binders expectedType? fun xs expectedType? => do
+      let e ← elabTermEnsuringType body expectedType?
+      let e ← mkLambdaFVars xs e
+      return (xs.size, e)
+    let e ← instantiateMVars e
+    if !e.hasExprMVar then
+      return e.etaN n
+    -- If we get this far, then we couldn't eta-reduce reliably because of mvars in the term
+    -- (which can cause Expr.etaN to fail to eta-reduce). This usually happens because
+    -- the body postponed elaboration, e.g. in `(·.1)` where the type is not yet known.
+    -- In this case we register a synthetic mvar with the .etaN kind, which will assign
+    -- the expression once it has no more mvars.
+    let eType ← inferType e
+    let mvar ← mkFreshExprMVar eType .syntheticOpaque
+    registerSyntheticMVarWithCurrRef mvar.mvarId! (.etaN n e)
+    return mvar
   | _ => throwUnsupportedSyntax
 
 /-- If `useLetExpr` is true, then a kernel let-expression `let x : type := val; body` is created.

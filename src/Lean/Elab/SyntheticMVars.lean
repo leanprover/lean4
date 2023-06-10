@@ -220,6 +220,7 @@ def reportStuckSyntheticMVar (mvarId : MVarId) (ignoreStuckTC := false) : TermEl
       mvarId.withContext do
         throwTypeMismatchError header expectedType (← inferType e) e f?
           m!"failed to create type class instance for{indentExpr (← getMVarDecl mvarId).type}"
+    | .etaN .. => pure () -- this is only stuck if something else is
     | _ => unreachable! -- TODO handle other cases.
 
 /--
@@ -346,6 +347,15 @@ mutual
           mvarId.assign coerced
           return true
       return false
+    | .etaN n e =>
+      let e ← instantiateMVars e
+      if e.hasExprMVar then
+        if postponeOnError || (← read).mayPostpone then
+          return false
+        mvarId.assign e
+      else
+        mvarId.assign <| e.etaN n
+      return true
     -- NOTE: actual processing at `synthesizeSyntheticMVarsAux`
     | .postponed savedContext => resumePostponed savedContext mvarSyntheticDecl.stx mvarId postponeOnError
     | .tactic tacticCode savedContext =>
@@ -360,7 +370,7 @@ mutual
     Return `true` if at least one of them was synthesized. -/
   private partial def synthesizeSyntheticMVarsStep (postponeOnError : Bool) (runTactics : Bool) : TermElabM Bool := do
     let ctx ← read
-    traceAtCmdPos `Elab.resuming fun _ =>
+    traceAtCmdPos `Elab.resume fun _ =>
       m!"resuming synthetic metavariables, mayPostpone: {ctx.mayPostpone}, postponeOnError: {postponeOnError}"
     let pendingMVars    := (← get).pendingMVars
     let numSyntheticMVars := pendingMVars.length
@@ -487,5 +497,6 @@ def runPendingTacticsAt (e : Expr) : TermElabM Unit := do
 
 builtin_initialize
   registerTraceClass `Elab.resume
+  registerTraceClass `Elab.defaultInstance
 
 end Lean.Elab.Term

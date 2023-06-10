@@ -93,7 +93,7 @@ def registerBuiltinRpcProcedure (method : Name) paramType respType
     [RpcEncodable paramType] [RpcEncodable respType]
     (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
   let errMsg := s!"Failed to register builtin RPC call handler for '{method}'"
-  unless (← IO.initializing) do
+  unless (← initializing) do
     throw <| IO.userError s!"{errMsg}: only possible during initialization"
   if (←builtinRpcProcedures.get).contains method then
     throw <| IO.userError s!"{errMsg}: already registered"

@@ -177,7 +177,7 @@ inductive AliasValue (α : Type) where
 abbrev AliasTable (α) := NameMap (AliasValue α)
 
 def registerAliasCore {α} (mapRef : IO.Ref (AliasTable α)) (aliasName : Name) (value : AliasValue α) : IO Unit := do
-  unless (← IO.initializing) do throw ↑"aliases can only be registered during initialization"
+  unless (← initializing) do throw ↑"aliases can only be registered during initialization"
   if (← mapRef.get).contains aliasName then
     throw ↑s!"alias '{aliasName}' has already been declared"
   mapRef.modify (·.insert aliasName value)

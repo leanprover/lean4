@@ -750,18 +750,18 @@ partial def identFnAux (startPos : String.Pos) (tk : Option Token) (r : Name) : 
             parse r c s
           else
             mkIdResult startPos tk r c s
-    else if isIdFirst curr then
-      let startPart := i
-      let s         := takeWhileFn isIdRest c (s.next input i)
-      let stopPart  := s.pos
-      let r := .str r (input.extract startPart stopPart)
-      if isIdCont input s then
-        let s := s.next input s.pos
-        parse r c s
+      else if isIdFirst curr then
+        let startPart := i
+        let s         := takeWhileFn isIdRest c (s.next input i)
+        let stopPart  := s.pos
+        let r := .str r (input.extract startPart stopPart)
+        if isIdCont input s then
+          let s := s.next input s.pos
+          parse r c s
+        else
+          mkIdResult startPos tk r c s
       else
-        mkIdResult startPos tk r c s
-    else
-      mkTokenAndFixPos startPos tk c s
+        mkTokenAndFixPos startPos tk c s
   parse r
 
 private def isIdFirstOrBeginEscape (c : Char) : Bool :=

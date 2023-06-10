@@ -198,26 +198,29 @@ If `nFields` is set, we take that many fields from the end and keep the remainin
 as one name. For example, `` `foo.bla.boo `` with `(nFields := 1)` ↦ `` [`foo.bla, `boo] ``. -/
 def identComponents (stx : Syntax) (nFields? : Option Nat := none) : List Syntax :=
   match stx with
-  | ident (SourceInfo.original lead pos trail _) rawStr val _ =>
+  | ident si@(SourceInfo.original lead pos trail _) rawStr val _ => Id.run do
     let val := val.eraseMacroScopes
     -- With original info, we assume that `rawStr` represents `val`.
     let nameComps := nameComps val nFields?
     let rawComps := splitNameLit rawStr
-    let rawComps :=
-      if let some nFields := nFields? then
-        let nPrefix := rawComps.length - nFields
-        let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
-        let prefixSz := prefixSz - 1 -- The last component has no dot
-        rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
-      else
-        rawComps
-    assert! nameComps.length == rawComps.length
-    nameComps.zip rawComps |>.map fun (id, ss) =>
-      let off := ss.startPos - rawStr.startPos
-      let lead := if off == 0 then lead else "".toSubstring
-      let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
-      let info := original lead (pos + off) trail (pos + off + ⟨ss.bsize⟩)
-      ident info ss id []
+    if !rawComps.isEmpty then
+      let rawComps :=
+        if let some nFields := nFields? then
+          let nPrefix := rawComps.length - nFields
+          let prefixSz := rawComps.take nPrefix |>.foldl (init := 0) fun acc (ss : Substring) => acc + ss.bsize + 1
+          let prefixSz := prefixSz - 1 -- The last component has no dot
+          rawStr.extract 0 ⟨prefixSz⟩ :: rawComps.drop nPrefix
+        else
+          rawComps
+      if nameComps.length == rawComps.length then
+        return nameComps.zip rawComps |>.map fun (id, ss) =>
+          let off := ss.startPos - rawStr.startPos
+          let lead := if off == 0 then lead else "".toSubstring
+          let trail := if ss.stopPos == rawStr.stopPos then trail else "".toSubstring
+          let info := original lead (pos + off) trail (pos + off + ⟨ss.bsize⟩)
+          ident info ss id []
+    -- if re-parsing failed, just give them all the same span
+    nameComps.map fun n => ident si n.toString.toSubstring n []
   | ident si _ val _ =>
     let val := val.eraseMacroScopes
     /- With non-original info:

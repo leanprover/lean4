@@ -471,42 +471,43 @@ register_builtin_option genSizeOf : Bool := {
 
 register_builtin_option genSizeOfSpec : Bool := {
   defValue := true
-  descr    := "generate `SizeOf` specificiation theorems for automatically generated instances"
+  descr    := "generate `SizeOf` specification theorems for automatically generated instances"
 }
 
 def mkSizeOfInstances (typeName : Name) : MetaM Unit := do
   if (← getEnv).contains ``SizeOf && genSizeOf.get (← getOptions) && !(← isInductivePredicate typeName) then
-    let indInfo ← getConstInfoInduct typeName
-    unless indInfo.isUnsafe do
-      let (fns, recMap) ← mkSizeOfFns typeName
-      for indTypeName in indInfo.all, fn in fns do
-        let indInfo ← getConstInfoInduct indTypeName
-        forallTelescopeReducing indInfo.type fun xs _ =>
-          let params := xs[:indInfo.numParams]
-          withInstImplicitAsImplict params do
-            let indices := xs[indInfo.numParams:]
-            mkLocalInstances params fun localInsts => do
-              let us := indInfo.levelParams.map mkLevelParam
-              let indType := mkAppN (mkConst indTypeName us) xs
-              let sizeOfIndType ← mkAppM ``SizeOf #[indType]
-              withLocalDeclD `m indType fun m => do
-                let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
-                let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
-                let instDeclName := indTypeName ++ `_sizeOf_inst
-                let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
-                let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
-                trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
-                addDecl <| Declaration.defnDecl {
-                  name        := instDeclName
-                  levelParams := indInfo.levelParams
-                  type        := instDeclType
-                  value       := instDeclValue
-                  safety      := .safe
-                  hints       := .abbrev
-                }
-                addInstance instDeclName AttributeKind.global (eval_prio default)
-      if genSizeOfSpec.get (← getOptions) then
-        mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
+    withTraceNode `Meta.sizeOf (fun _ => return m!"{typeName}") do
+      let indInfo ← getConstInfoInduct typeName
+      unless indInfo.isUnsafe do
+        let (fns, recMap) ← mkSizeOfFns typeName
+        for indTypeName in indInfo.all, fn in fns do
+          let indInfo ← getConstInfoInduct indTypeName
+          forallTelescopeReducing indInfo.type fun xs _ =>
+            let params := xs[:indInfo.numParams]
+            withInstImplicitAsImplict params do
+              let indices := xs[indInfo.numParams:]
+              mkLocalInstances params fun localInsts => do
+                let us := indInfo.levelParams.map mkLevelParam
+                let indType := mkAppN (mkConst indTypeName us) xs
+                let sizeOfIndType ← mkAppM ``SizeOf #[indType]
+                withLocalDeclD `m indType fun m => do
+                  let v ← mkLambdaFVars #[m] <| mkAppN (mkConst fn us) (params ++ localInsts ++ indices ++ #[m])
+                  let sizeOfMk ← mkAppM ``SizeOf.mk #[v]
+                  let instDeclName := indTypeName ++ `_sizeOf_inst
+                  let instDeclType ← mkForallFVars (xs ++ localInsts) sizeOfIndType
+                  let instDeclValue ← mkLambdaFVars (xs ++ localInsts) sizeOfMk
+                  trace[Meta.sizeOf] ">> {instDeclName} : {instDeclType}"
+                  addDecl <| Declaration.defnDecl {
+                    name        := instDeclName
+                    levelParams := indInfo.levelParams
+                    type        := instDeclType
+                    value       := instDeclValue
+                    safety      := .safe
+                    hints       := .abbrev
+                  }
+                  addInstance instDeclName AttributeKind.global (eval_prio default)
+        if genSizeOfSpec.get (← getOptions) then
+          mkSizeOfSpecTheorems indInfo.all.toArray fns recMap
 
 builtin_initialize
   registerTraceClass `Meta.sizeOf

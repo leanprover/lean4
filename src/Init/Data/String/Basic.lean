@@ -247,7 +247,7 @@ termination_by _ => s.endPos.1 - i.1
 
 def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) : List String :=
   if h : s.atEnd i then
-    let r := if sep.atEnd j then ""::(s.extract b (i - j))::r else (s.extract b i)::r
+    let r := (s.extract b i)::r
     r.reverse
   else
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
@@ -263,7 +263,7 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
 termination_by _ => s.endPos.1 - i.1
 
 def splitOn (s : String) (sep : String := " ") : List String :=
-  if sep == "" then [s] else splitOnAux s sep 0 0 0 []
+  splitOnAux s sep 0 0 0 []
 
 instance : Inhabited String := ⟨""⟩
 

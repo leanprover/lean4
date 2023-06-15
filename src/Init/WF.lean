@@ -199,7 +199,6 @@ abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
 instance (priority := low) [SizeOf α] : WellFoundedRelation α :=
   sizeOfWFRel
 
-
 namespace Prod
 open WellFounded
 

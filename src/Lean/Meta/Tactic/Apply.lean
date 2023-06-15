@@ -27,6 +27,11 @@ structure ApplyConfig where
   -/
   synthAssignedInstances := true
   /--
+  If `allowSynthFailures` is `true`, then `apply` will return instance implicit arguments
+  for which typeclass search failed as new goals.
+  -/
+  allowSynthFailures := false
+  /--
   If `approx := true`, then we turn on `isDefEq` approximations. That is, we use
   the `approxDefEq` combinator.
   -/
@@ -47,15 +52,18 @@ def getExpectedNumArgs (e : Expr) : MetaM Nat := do
 private def throwApplyError {α} (mvarId : MVarId) (eType : Expr) (targetType : Expr) : MetaM α :=
   throwTacticEx `apply mvarId m!"failed to unify{indentExpr eType}\nwith{indentExpr targetType}"
 
-def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) (synthAssignedInstances : Bool) : MetaM Unit :=
+def synthAppInstances (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
+    (synthAssignedInstances : Bool) (allowSynthFailures : Bool) : MetaM Unit :=
   newMVars.size.forM fun i => do
     if binderInfos[i]!.isInstImplicit then
       let mvar := newMVars[i]!
       if synthAssignedInstances || !(← mvar.mvarId!.isAssigned) then
         let mvarType ← inferType mvar
-        let mvarVal  ← synthInstance mvarType
-        unless (← isDefEq mvar mvarVal) do
-          throwTacticEx tacticName mvarId "failed to assign synthesized instance"
+        try
+          let mvarVal  ← synthInstance mvarType
+          unless (← isDefEq mvar mvarVal) do
+            throwTacticEx tacticName mvarId "failed to assign synthesized instance"
+        catch e => unless allowSynthFailures do throw e
 
 def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) : MetaM Unit := do
   let parentTag ← mvarId.getTag
@@ -76,8 +84,9 @@ If `synthAssignedInstances` is `true`, then `apply` will synthesize instance imp
 even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
 one inferred. The `congr` tactic sets this flag to false.
 -/
-def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo) (synthAssignedInstances := true) : MetaM Unit := do
-  synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances
+def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
+    (synthAssignedInstances := true) (allowSynthFailures := false) : MetaM Unit := do
+  synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances allowSynthFailures
   -- TODO: default and auto params
   appendParentTag mvarId newMVars binderInfos
 
@@ -163,7 +172,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
         let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
         throwApplyError mvarId eType targetType
     let (newMVars, binderInfos) ← go rangeNumArgs.start
-    postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances
+    postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
     mvarId.assign (mkAppN e newMVars)
     let newMVars ← newMVars.filterM fun mvar => not <$> mvar.mvarId!.isAssigned

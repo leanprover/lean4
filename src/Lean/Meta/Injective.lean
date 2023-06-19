@@ -43,7 +43,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
       for arg1 in args1, arg2 in args2 do
         let arg1Type ← inferType arg1
         if !(← isProp arg1Type) && arg1 != arg2 then
-          eqs := eqs.push (← mkEqHEq arg1 arg2)
+          eqs := eqs.push (← withReducible <| mkEqHEq arg1 arg2)
       if let some andEqs := mkAnd? eqs then
         let result ← if useEq then
           mkEq eq andEqs

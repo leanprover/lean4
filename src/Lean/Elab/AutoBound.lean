@@ -11,7 +11,7 @@ namespace Lean.Elab
 
 register_builtin_option autoImplicit : Bool := {
     defValue := true
-    descr    := "Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only a lower case or greek letter followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
+    descr    := "Unbound local variables in declaration headers become implicit arguments. In \"relaxed\" mode (default), any atomic identifier is eligible, otherwise only single character followed by numeric digits are eligible. For example, `def f (x : Vector α n) : Vector α n :=` automatically introduces the implicit variables {α n}."
   }
 
 register_builtin_option relaxedAutoImplicit : Bool := {
@@ -39,7 +39,7 @@ Therefore, we do consider identifier with macro scopes anymore.
 
 def isValidAutoBoundImplicitName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | .str .anonymous s => s.length > 0 && (relaxed || ((isGreek s.front || s.front.isLower) && isValidAutoBoundSuffix s))
+  | .str .anonymous s => s.length > 0 && (relaxed || isValidAutoBoundSuffix s)
   | _ => false
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=

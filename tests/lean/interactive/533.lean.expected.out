@@ -1,7 +1,8 @@
 {"textDocument": {"uri": "file://533.lean"},
  "position": {"line": 2, "character": 10}}
 {"items":
- [{"label": "False",
+ [{"label": "F", "kind": 6, "detail": "Sort ?u"},
+  {"label": "False",
    "kind": 22,
    "documentation":
    {"value":

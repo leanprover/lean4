@@ -3,7 +3,7 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Parser.Basic
+import Lean.Parser.LeanToken
 namespace Lean.Parser
 
 def isQuotableCharForStrInterpolant (c : Char) : Bool :=
@@ -22,12 +22,12 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
       let curr := input.get i
       let s    := s.setPos (input.next i)
       if curr == '\"' then
-        let s := mkNodeToken interpolatedStrLitKind startPos c s
+        let s := mkNodeToken interpolatedStrLitKind startPos whitespace c.toTokenParserContext s
         s.mkNode interpolatedStrKind stackSize
       else if curr == '\\' then
         andthenFn (quotedCharCoreFn isQuotableCharForStrInterpolant) (parse startPos) c s
       else if curr == '{' then
-        let s := mkNodeToken interpolatedStrLitKind startPos c s
+        let s := mkNodeToken interpolatedStrLitKind startPos whitespace c.toTokenParserContext s
         let s := p c s
         if s.hasError then s
         else

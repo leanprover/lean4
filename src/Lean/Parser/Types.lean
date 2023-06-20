@@ -65,13 +65,6 @@ structure CacheableParserContext where
   forbiddenTk?       : Option Token := none
   deriving BEq
 
-/-- Parser context updateable in `adaptUncacheableContextFn`. -/
-structure ParserContextCore extends InputContext, ParserModuleContext, CacheableParserContext where
-  tokens : TokenTable
-
-/-- Opaque parser context updateable using `adaptCacheableContextFn` and `adaptUncacheableContextFn`. -/
-structure ParserContext extends ParserContextCore where private mk ::
-
 structure Error where
   unexpected : String := ""
   expected : List String := []
@@ -290,10 +283,29 @@ def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : Pa
 
 end ParserState
 
+structure TokenParserContext extends InputContext, ParserModuleContext, CacheableParserContext where
+  tokens  : TokenTable
+
+def TokenParserFn := TokenParserContext → ParserState → ParserState
+
+instance : Inhabited TokenParserFn where
+  default := fun _ s => s
+
+/-- Parser context updateable in `adaptUncacheableContextFn`. -/
+structure ParserContextCore extends TokenParserContext where
+  whitespaceFn : TokenParserFn
+  tokenFn      : TokenParserFn
+
+/-- Opaque parser context updateable using `adaptCacheableContextFn` and `adaptUncacheableContextFn`. -/
+structure ParserContext extends ParserContextCore where private mk ::
+
 def ParserFn := ParserContext → ParserState → ParserState
 
 instance : Inhabited ParserFn where
   default := fun _ s => s
+
+instance : Coe TokenParserFn ParserFn where
+  coe fn c s := fn c.toTokenParserContext s
 
 inductive FirstTokens where
   | epsilon   : FirstTokens
@@ -400,9 +412,5 @@ def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.r
 @[inherit_doc withCacheFn]
 def withCache (parserName : Name) : Parser → Parser := withFn (withCacheFn parserName)
 
-def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleContext) (tokens : TokenTable) (s : ParserState) : ParserState :=
-  p { pmctx with
-    prec           := 0
-    toInputContext := ictx
-    tokens
-  } s
+def ParserFn.run (p : ParserFn) (c : ParserContextCore) (s : ParserState) : ParserState :=
+  p ⟨c⟩ s

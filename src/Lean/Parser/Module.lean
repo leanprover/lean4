@@ -40,7 +40,14 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace Module.header.fn
   let tokens := Module.updateTokens (getTokenTable dummyEnv)
-  let s   := p.run inputCtx { env := dummyEnv, options := {} } tokens (mkParserState inputCtx.input)
+  let s   := p.run { inputCtx with
+    env := dummyEnv
+    options := {}
+    prec := 0
+    tokens
+    whitespaceFn := whitespace
+    tokenFn := tokenFnCore
+  } (mkParserState inputCtx.input)
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   match s.errorMsg with
   | some errorMsg =>
@@ -56,9 +63,9 @@ private def mkEOI (pos : String.Pos) : Syntax :=
 def isTerminalCommand (s : Syntax) : Bool :=
   s.isOfKind ``Command.exit || s.isOfKind ``Command.import || s.isOfKind ``Command.eoi
 
-private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext) (pos : String.Pos) : String.Pos :=
-  let s : ParserState := { cache := initCacheForInput inputCtx.input, pos := pos }
-  let s := tokenFn [] |>.run inputCtx pmctx (getTokenTable pmctx.env) s
+private def consumeInput (c : ParserContextCore) (pos : String.Pos) : String.Pos :=
+  let s : ParserState := { cache := initCacheForInput c.input, pos := pos }
+  let s := tokenFn [] |>.run c s
   match s.errorMsg with
   | some _ => pos + ' '
   | none   => s.pos
@@ -77,7 +84,13 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       break
     let pos' := pos
     let p := andthenFn whitespace topLevelCommandParserFn
-    let s := p.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.input, pos }
+    let c := { inputCtx, pmctx with
+      prec := 0
+      tokens := getTokenTable pmctx.env
+      whitespaceFn := whitespace
+      tokenFn := tokenFnCore
+    }
+    let s := p.run c { cache := initCacheForInput inputCtx.input, pos }
     pos := s.pos
     if recovering && !s.stxStack.isEmpty && s.stxStack.back.isAntiquot then
       -- top-level antiquotation during recovery is most likely remnant from unfinished quotation, ignore
@@ -90,7 +103,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     | some errorMsg =>
       -- advance at least one token to prevent infinite loops
       if pos == pos' then
-        pos := consumeInput inputCtx pmctx pos
+        pos := consumeInput c pos
       /- We ignore commands where `getPos?` is none. This happens only on commands that have a prefix comprised of optional elements.
           For example, unification hints start with `optional («scoped» <|> «local»)`.
           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/

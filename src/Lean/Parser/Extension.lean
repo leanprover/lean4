@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 import Lean.Parser.Basic
+import Lean.Parser.LeanToken
 import Lean.Compiler.InitAttr
 import Lean.ScopedEnvExtension
 import Lean.DocString
@@ -447,16 +448,24 @@ def mkParserState (input : String) : ParserState :=
   { cache := initCacheForInput input }
 
 /-- convenience function for testing -/
-def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>") : Except String Syntax :=
+def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>")
+  (whitespaceFn := whitespace) (tokenFn := tokenFnCore) : Except String Syntax :=
   let p := andthenFn whitespace (categoryParserFnImpl catName)
-  let ictx := mkInputContext input fileName
-  let s := p.run ictx { env, options := {} } (getTokenTable env) (mkParserState input)
+  let c := { mkInputContext input fileName with
+    tokens := getTokenTable env
+    env
+    options := {}
+    prec := 0
+    whitespaceFn := whitespaceFn
+    tokenFn := tokenFn
+  }
+  let s := p.run c (mkParserState input)
   if s.hasError then
-    Except.error (s.toErrorMsg ictx)
+    Except.error (s.toErrorMsg c.toInputContext)
   else if input.atEnd s.pos then
     Except.ok s.stxStack.back
   else
-    Except.error ((s.mkError "end of input").toErrorMsg ictx)
+    Except.error ((s.mkError "end of input").toErrorMsg c.toInputContext)
 
 def declareBuiltinParser (addFnName : Name) (catName : Name) (declName : Name) (prio : Nat) : CoreM Unit :=
   let val := mkAppN (mkConst addFnName) #[toExpr catName, toExpr declName, mkConst declName, mkRawNatLit prio]

@@ -6,4 +6,4 @@ def g (x : A) := x
 def h (x : AA) := x
 def i (x : A1) := x
 def j (x : A₁) := x
-def j (x : A') := x
+def k (x : A') := x

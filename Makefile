@@ -4,6 +4,9 @@ LAKE ?= ./build/bin/lake
 # Suite Targets
 #-------------------------------------------------------------------------------
 
+TESTS := $(addprefix test/, $(shell ls test))
+EXAMPLES := $(addprefix examples/, $(filter-out bootstrap, $(shell ls examples)))
+
 default: build
 
 all: build test
@@ -12,26 +15,22 @@ test: check-lake test-ci test-bootstrap test-bootstrapped
 
 test-ci: test-tests test-examples
 
-test-tests:\
-	test-44 test-49 test-50 test-62 test-75 test-102 test-104 test-116 test-174\
-	test-manifest test-meta
+test-tests: $(addsuffix .test, $(TESTS))
 
-test-examples: test-init test-hello test-deps\
-	test-git test-ffi test-targets test-precompile test-scripts
+test-examples: $(addsuffix .test, $(EXAMPLES))
 
 test-bootstrapped: test-boostrapped-hello
 
 clean: clean-tests clean-examples clean-build
 
-clean-tests:\
-	clean-44 clean-62 clean-102 clean-104 clean-116 clean-174 clean-manifest
+clean-tests: $(addsuffix .clean, $(TESTS))
 
-clean-examples: clean-init clean-hello clean-deps\
-	clean-git clean-ffi clean-targets clean-precompile clean-bootstrap
+clean-examples:  $(addsuffix .clean, $(EXAMPLES))
 
-.PHONY: all test test-ci test-tests test-examples\
-	clean clean-build clean-tests clean-examples build time-build check-lake\
-	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped
+.PHONY:
+	all test test-ci test-tests test-examples\
+	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
+	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS))
 
 #-------------------------------------------------------------------------------
 # Build Targets
@@ -50,53 +49,20 @@ check-lake:
 	$(LAKE) self-check
 
 #-------------------------------------------------------------------------------
-# Example Targets
+# Test / Example Targets
 #-------------------------------------------------------------------------------
 
-test-init:
-	cd examples/init && ./test.sh
+test/%.test:
+	cd test/$* && ./test.sh
 
-clean-init:
-	cd examples/init && ./clean.sh
+test/%.clean:
+	cd test/$* && ./clean.sh
 
-test-hello:
-	cd examples/hello && ./test.sh
+examples/%.test:
+	cd examples/$* && ./test.sh
 
-clean-hello:
-	cd examples/hello && ./clean.sh
-
-test-deps:
-	cd examples/deps && ./test.sh
-
-clean-deps:
-	cd examples/deps && ./clean.sh
-
-test-git:
-	cd examples/git && ./test.sh
-
-clean-git:
-	cd examples/git && ./clean.sh
-
-test-ffi:
-	cd examples/ffi && ./test.sh
-
-clean-ffi:
-	cd examples/ffi && ./clean.sh
-
-test-targets:
-	cd examples/targets && ./test.sh
-
-clean-targets:
-	cd examples/targets && ./clean.sh
-
-test-precompile:
-	cd examples/precompile && ./test.sh
-
-clean-precompile:
-	cd examples/precompile && ./clean.sh
-
-test-scripts:
-	cd examples/scripts && ./test.sh
+examples/%.clean:
+	cd examples/$* && ./clean.sh
 
 test-bootstrap:
 	cd examples/bootstrap && ./test.sh
@@ -115,61 +81,3 @@ check-bootstrap:
 
 test-boostrapped-hello:
 	cd examples/hello && ./bootstrapped-test.sh
-
-#-------------------------------------------------------------------------------
-# Test Targets
-#-------------------------------------------------------------------------------
-
-clean-44:
-	cd test/44 && ./clean.sh
-
-test-44:
-	cd test/44 && ./test.sh
-
-test-49:
-	cd test/49 && ./test.sh
-
-test-50:
-	cd test/50 && ./test.sh
-
-test-62:
-	cd test/62 && ./test.sh
-
-clean-62:
-	cd test/62 && ./clean.sh
-
-test-75:
-	cd test/75 && ./test.sh
-
-clean-102:
-	cd test/102 && ./clean.sh
-
-test-102:
-	cd test/102 && ./test.sh
-
-clean-104:
-	cd test/104 && ./clean.sh
-
-test-104:
-	cd test/104 && ./test.sh
-
-test-116:
-	cd test/116 && ./test.sh
-
-clean-116:
-	cd test/116 && ./clean.sh
-
-test-174:
-	cd test/174 && ./test.sh
-
-clean-174:
-	cd test/174 && ./clean.sh
-
-clean-manifest:
-	cd test/manifest && ./clean.sh
-
-test-manifest:
-	cd test/manifest && ./test.sh
-
-test-meta:
-	cd test/meta && ./test.sh

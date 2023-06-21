@@ -79,7 +79,7 @@ inductive SpecArgKind where
 
 structure SpecInfo where
   mutualDecls : List Name
-  argKinds : SpecArgKind
+  argKinds : List SpecArgKind
   deriving Inhabited
 
 structure SpecState where

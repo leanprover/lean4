@@ -538,14 +538,16 @@ return x_2;
 static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__2() {
 _start:
 {
-uint8_t x_1; uint8_t x_2; lean_object* x_3; 
+uint8_t x_1; uint8_t x_2; uint8_t x_3; lean_object* x_4; 
 x_1 = 0;
 x_2 = 1;
-x_3 = lean_alloc_ctor(0, 0, 3);
-lean_ctor_set_uint8(x_3, 0, x_1);
-lean_ctor_set_uint8(x_3, 1, x_2);
-lean_ctor_set_uint8(x_3, 2, x_2);
-return x_3;
+x_3 = 0;
+x_4 = lean_alloc_ctor(0, 0, 4);
+lean_ctor_set_uint8(x_4, 0, x_1);
+lean_ctor_set_uint8(x_4, 1, x_2);
+lean_ctor_set_uint8(x_4, 2, x_3);
+lean_ctor_set_uint8(x_4, 3, x_2);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_MVarId_existsIntro___lambda__1___closed__3() {

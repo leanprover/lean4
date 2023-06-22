@@ -254,7 +254,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initF
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Server_registerBuiltinRpcProcedure___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerRpcProcedure___lambda__3___closed__22;
-lean_object* lean_io_initializing(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_withoutErrToSorry___at_Lean_Server_registerRpcProcedure___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint64_dec_eq(uint64_t, uint64_t);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
@@ -2964,7 +2963,7 @@ x_11 = lean_string_append(x_10, x_9);
 lean_dec(x_9);
 x_12 = l_Lean_Server_registerBuiltinRpcProcedure___closed__2;
 x_13 = lean_string_append(x_11, x_12);
-x_14 = lean_io_initializing(x_7);
+x_14 = l_Lean_initializing(x_7);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 x_16 = lean_unbox(x_15);

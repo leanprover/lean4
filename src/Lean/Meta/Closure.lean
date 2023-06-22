@@ -366,4 +366,39 @@ def mkAuxDefinitionFor (name : Name) (value : Expr) (zeta : Bool := false) : Met
   let type := type.headBeta
   mkAuxDefinition name type value (zeta := zeta)
 
+/--
+  Create an auxiliary theorem with the given name, type and value. It is similar to `mkAuxDefinition`.
+-/
+def mkAuxTheorem (name : Name) (type : Expr) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
+  let result ← Closure.mkValueTypeClosure type value zeta
+  let env ← getEnv
+  let decl :=
+    if env.hasUnsafe result.type || env.hasUnsafe result.value then
+      -- `result` contains unsafe code, thus we cannot use a theorem.
+      Declaration.defnDecl {
+        name
+        levelParams := result.levelParams.toList
+        type        := result.type
+        value       := result.value
+        hints       := ReducibilityHints.opaque
+        safety      := DefinitionSafety.unsafe
+      }
+    else
+      Declaration.thmDecl {
+        name
+        levelParams := result.levelParams.toList
+        type        := result.type
+        value       := result.value
+      }
+  addDecl decl
+  return mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
+
+/--
+  Similar to `mkAuxTheorem`, but infers the type of `value`.
+-/
+def mkAuxTheoremFor (name : Name) (value : Expr) (zeta : Bool := false) : MetaM Expr := do
+  let type ← inferType value
+  let type := type.headBeta
+  mkAuxTheorem name type value zeta
+
 end Lean.Meta

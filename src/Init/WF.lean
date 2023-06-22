@@ -184,14 +184,8 @@ protected theorem caseStrongInductionOn
 
 end Nat
 
-def Measure {α : Sort u} : (α → Nat) → α → α → Prop :=
-  InvImage (fun a b => a < b)
-
 abbrev measure {α : Sort u} (f : α → Nat) : WellFoundedRelation α :=
   invImage f Nat.lt_wfRel
-
-def SizeOfRef (α : Sort u) [SizeOf α] : α → α → Prop :=
-  Measure sizeOf
 
 abbrev sizeOfWFRel {α : Sort u} [SizeOf α] : WellFoundedRelation α :=
   measure sizeOf

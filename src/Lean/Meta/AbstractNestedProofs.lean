@@ -8,11 +8,18 @@ import Lean.Meta.Closure
 namespace Lean.Meta
 namespace AbstractNestedProofs
 
+def getLambdaBody (e : Expr) : Expr :=
+  match e with
+  | .lam _ _ b _ => getLambdaBody b
+  | _ => e
+
 def isNonTrivialProof (e : Expr) : MetaM Bool := do
   if !(← isProof e) then
     pure false
   else
-    e.withApp fun f args =>
+    -- We consider proofs such as `fun x => f x a` as trivial.
+    -- For example, we don't want to abstract the body of `def rfl`
+    (getLambdaBody e).withApp fun f args =>
       pure $ !f.isAtomic || args.any fun arg => !arg.isAtomic
 
 structure Context where

@@ -182,6 +182,31 @@ private partial def isNumeral (e : Expr) : Bool :=
       else if fName == ``Nat.zero && e.getAppNumArgs == 0 then true
       else false
 
+private partial def toNatLit? (e : Expr) : Option Literal :=
+  if isNumeral e then
+    if let some n := loop e then
+      some (.natVal n)
+    else
+      none
+  else
+    none
+where
+  loop (e : Expr) : OptionT Id Nat := do
+    let f := e.getAppFn
+    match f with
+    | .lit (.natVal n) => return n
+    | .const fName .. =>
+      if fName == ``Nat.succ && e.getAppNumArgs == 1 then
+        let r ← loop e.appArg!
+        return r+1
+      else if fName == ``OfNat.ofNat && e.getAppNumArgs == 3 then
+        loop (e.getArg! 1)
+      else if fName == ``Nat.zero && e.getAppNumArgs == 0 then
+        return 0
+      else
+        failure
+    | _ => failure
+
 private def isNatType (e : Expr) : MetaM Bool :=
   return (← whnf e).isConstOf ``Nat
 
@@ -207,19 +232,14 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 
-  Remark: we currently tag numeral and "offset" terms to avoid having to add special
-  support for `Expr.lit` and offset terms.
+  Remark: we currently tag "offset" terms as star to avoid having to add special
+  support for offset terms.
   Example, suppose the discrimination tree contains the entry
   `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
   In this scenario, we want to retrieve `Nat.succ ?m |-> v`
-
-  TODO: add better support for Nat literals. Using `star` is a cheap trick to avoid different ways of representing them.
 -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
-  if isNumeral e then
-    return true
-  else
-    isOffset fName e
+  isOffset fName e
 
 def mkNoindexAnnotation (e : Expr) : Expr :=
   mkAnnotation `noindex e
@@ -317,13 +337,11 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
       return (k, todo)
     match fn with
     | .lit v     =>
-      unless root do
-        if fn.isNatLit then
-          -- See comment at `shouldAddAsStar`
-          return (.star, todo)
       return (.lit v, todo)
     | .const c _ =>
       unless root do
+        if let some v := toNatLit? e then
+          return (.lit v, todo)
         if (← shouldAddAsStar c e) then
           return (.star, todo)
       let nargs := e.getAppNumArgs
@@ -418,6 +436,8 @@ def insert [BEq α] (d : DiscrTree α s) (e : Expr) (v : α) : MetaM (DiscrTree 
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array Expr) := do
   let e ← reduceDT e root (simpleReduce := s)
+  if let some v := toNatLit? e then
+    return (.lit v, #[])
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>

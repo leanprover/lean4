@@ -207,13 +207,16 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   TODO: add hook for users adding their own functions for controlling `shouldAddAsStar`
   Different `DiscrTree` users may populate this set using, for example, attributes.
 
-  Remark: we currently tag `Nat.zero` and "offset" terms to avoid having to add special
+  Remark: we currently tag numeral and "offset" terms to avoid having to add special
   support for `Expr.lit` and offset terms.
   Example, suppose the discrimination tree contains the entry
   `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
-  In this scenario, we want to retrieve `Nat.succ ?m |-> v` -/
+  In this scenario, we want to retrieve `Nat.succ ?m |-> v`
+
+  TODO: add better support for Nat literals. Using `star` is a cheap trick to avoid different ways of representing them.
+-/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
-  if fName == ``Nat.zero then
+  if isNumeral e then
     return true
   else
     isOffset fName e
@@ -313,8 +316,13 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
     match fn with
-    | .lit v         => return (.lit v, todo)
-    | .const c _     =>
+    | .lit v     =>
+      unless root do
+        if fn.isNatLit then
+          -- See comment at `shouldAddAsStar`
+          return (.star, todo)
+      return (.lit v, todo)
+    | .const c _ =>
       unless root do
         if (← shouldAddAsStar c e) then
           return (.star, todo)

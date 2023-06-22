@@ -720,7 +720,8 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        let (some (cinfo@(ConstantInfo.defnInfo _))) ← getConstNoEx? declName | pure none
+        let some cinfo ← getConstNoEx? declName | pure none
+        unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
           (fun e => pure (some e))

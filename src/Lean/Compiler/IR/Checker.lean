@@ -16,6 +16,10 @@ def maxCtorFields := getMaxCtorFields ()
 opaque getMaxCtorScalarsSize : Unit → Nat
 def maxCtorScalarsSize := getMaxCtorScalarsSize ()
 
+@[extern c inline "lean_box(LeanMaxCtorTag)"]
+opaque getMaxCtorTag : Unit → Nat
+def maxCtorTag := getMaxCtorTag ()
+
 @[extern c inline "lean_box(sizeof(size_t))"]
 opaque getUSizeSize : Unit → Nat
 def usizeSize := getUSizeSize ()
@@ -113,6 +117,8 @@ def checkExpr (ty : IRType) : Expr → M Unit
   | Expr.ap x ys            => checkObjVar x *> checkArgs ys
   | Expr.fap f ys           => checkFullApp f ys
   | Expr.ctor c ys          => do
+    if c.cidx > maxCtorTag && (c.size > 0 || c.usize > 0 || c.ssize > 0) then
+      throw s!"tag for constructor '{c.name}' is too big, this is a limitation of the current runtime"
     if c.size > maxCtorFields then
       throw s!"constructor '{c.name}' has too many fields"
     if c.ssize + c.usize * usizeSize > maxCtorScalarsSize then
@@ -175,7 +181,7 @@ end Checker
 def checkDecl (decls : Array Decl) (decl : Decl) : CompilerM Unit := do
   let env ← getEnv
   match (Checker.checkDecl decl { env := env, decls := decls }).run' {} with
-  | .error msg => throw s!"IR check failed at '{decl.name}', error: {msg}"
+  | .error msg => throw s!"compiler IR check failed at '{decl.name}', error: {msg}"
   | _ => pure ()
 
 def checkDecls (decls : Array Decl) : CompilerM Unit :=

@@ -83,7 +83,7 @@ Work on two adjacent stages at the same time without the need for repeatedly upd
 ```bash
 # open an editor that will use only committed changes (so first commit them when changing files)
 nix run .#HEAD-as-stage1.emacs-dev&
-# open a second editor that will use those commited changes as stage 0
+# open a second editor that will use those committed changes as stage 0
 # (so don't commit changes done here until you are done and ran a final `update-stage0-commit`)
 nix run .#HEAD-as-stage0.emacs-dev&
 ```

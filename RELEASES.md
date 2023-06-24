@@ -818,7 +818,7 @@ v4.0.0-m4 (23 March 2022)
 
   initialize my_ext : SimpExtension ← registerSimpAttr `my_simp "my own simp attribute"
   ```
-  If you don't neet to acces `my_ext`, you can also use the macro
+  If you don't need to access `my_ext`, you can also use the macro
   ```lean
   import Lean
 

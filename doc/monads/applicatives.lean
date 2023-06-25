@@ -212,7 +212,7 @@ so you get a nice zipped list like this:
 -- [(1, 4), (2, 5), (3, 6)]
 /-!
 
-And of couse, as you would expect, there is an `unzip` also:
+And of course, as you would expect, there is an `unzip` also:
 
 -/
 #eval List.unzip (List.zip [1, 2, 3] [4, 5, 6])
@@ -286,7 +286,7 @@ But you will need to understand full Monads before this will make sense.
 Diving a bit deeper, (you can skip this and jump to the [Applicative
 Laws](laws.lean.md#what-are-the-applicative-laws) if don't want to dive into this implementation detail right
 now). But, if you write a simple `Option` example `(.*.) <$> some 4 <*> some 5` that produces `some 20`
-using `Seq.seq` you will see somthing interesting:
+using `Seq.seq` you will see something interesting:
 
 -/
 #eval Seq.seq ((.*.) <$> some 4) (fun (_ : Unit) => some 5) -- some 20

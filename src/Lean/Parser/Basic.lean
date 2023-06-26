@@ -493,19 +493,26 @@ def rawCh (c : Char) (trailingWs := false) : Parser := {
   fn := chFn c trailingWs
 }
 
-/-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
-def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) (whitespaceFn : TokenParserFn) : TokenParserFn := fun c s => Id.run do
+/-- Function to be called directly after parsing a token. When not in an error state, parses following whitespace,
+    sets up `SourceInfo`, and pushes result of calling `f` with token substring and info onto stack. -/
+@[specialize]
+def pushToken (f : Substring → SourceInfo → Syntax) (startPos : String.Pos) (whitespaceFn : TokenParserFn) :
+    TokenParserFn := fun c s => Id.run do
   if s.hasError then
     return s
   let input     := c.input
   let stopPos   := s.pos
   let leading   := mkEmptySubstringAt input startPos
-  let val       := input.extract startPos stopPos
+  let rawVal    := { str := input, startPos := startPos, stopPos := stopPos  : Substring }
   let s         := whitespaceFn c s
   let wsStopPos := s.pos
   let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
   let info      := SourceInfo.original leading startPos trailing stopPos
-  s.pushSyntax (Syntax.mkLit n val info)
+  s.pushSyntax (f rawVal info)
+
+/-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
+def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) (whitespaceFn : TokenParserFn) : TokenParserFn :=
+  pushToken (fun ss info => .mkLit n ss.toString info) startPos whitespaceFn
 
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`

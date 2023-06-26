@@ -212,7 +212,6 @@ private def isToken (idStartPos idStopPos : String.Pos) (tk : Option Token) : Bo
      -- we want it to be recognized as a symbol
     tk.endPos ≥ idStopPos - idStartPos
 
-
 def mkTokenAndFixPos (startPos : String.Pos) (tk : Option Token) : TokenParserFn := fun c s =>
   match tk with
   | none    => s.mkErrorAt "token" startPos
@@ -220,30 +219,16 @@ def mkTokenAndFixPos (startPos : String.Pos) (tk : Option Token) : TokenParserFn
     if c.forbiddenTk? == some tk then
       s.mkErrorAt "forbidden token" startPos
     else
-      let input     := c.input
-      let leading   := mkEmptySubstringAt input startPos
-      let stopPos   := startPos + tk
-      let s         := s.setPos stopPos
-      let s         := whitespace c s
-      let wsStopPos := s.pos
-      let trailing  := { str := input, startPos := stopPos, stopPos := wsStopPos : Substring }
-      let atom      := mkAtom (SourceInfo.original leading startPos trailing stopPos) tk
-      s.pushSyntax atom
+      let stopPos := startPos + tk
+      let s       := s.setPos stopPos
+      pushToken (fun _ info => mkAtom info tk) startPos whitespace c s
 
 def mkIdResult (startPos : String.Pos) (tk : Option Token) (val : Name) : TokenParserFn := fun c s =>
   let stopPos           := s.pos
   if isToken startPos stopPos tk then
     mkTokenAndFixPos startPos tk c s
   else
-    let input           := c.input
-    let rawVal          := { str := input, startPos := startPos, stopPos := stopPos  : Substring }
-    let s               := whitespace c s
-    let trailingStopPos := s.pos
-    let leading         := mkEmptySubstringAt input startPos
-    let trailing        := { str := input, startPos := stopPos, stopPos := trailingStopPos : Substring }
-    let info            := SourceInfo.original leading startPos trailing stopPos
-    let atom            := mkIdent info rawVal val
-    s.pushSyntax atom
+    pushToken (fun ss info => mkIdent info ss val) startPos whitespace c s
 
 partial def identFnAux (startPos : String.Pos) (tk : Option Token) (r : Name) : TokenParserFn :=
   let rec parse (r : Name) (c s) :=

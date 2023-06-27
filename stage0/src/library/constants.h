@@ -69,7 +69,6 @@ name const & get_ite_name();
 name const & get_lc_proof_name();
 name const & get_lc_unreachable_name();
 name const & get_list_name();
-name const & get_mut_quot_name();
 name const & get_nat_name();
 name const & get_nat_succ_name();
 name const & get_nat_zero_name();

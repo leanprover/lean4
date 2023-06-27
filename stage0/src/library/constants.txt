@@ -62,7 +62,6 @@ ite
 lcProof
 lcUnreachable
 List
-MutQuot
 Nat
 Nat.succ
 Nat.zero

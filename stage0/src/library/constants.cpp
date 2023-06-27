@@ -67,7 +67,6 @@ name const * g_ite = nullptr;
 name const * g_lc_proof = nullptr;
 name const * g_lc_unreachable = nullptr;
 name const * g_list = nullptr;
-name const * g_mut_quot = nullptr;
 name const * g_nat = nullptr;
 name const * g_nat_succ = nullptr;
 name const * g_nat_zero = nullptr;
@@ -237,8 +236,6 @@ void initialize_constants() {
     mark_persistent(g_lc_unreachable->raw());
     g_list = new name{"List"};
     mark_persistent(g_list->raw());
-    g_mut_quot = new name{"MutQuot"};
-    mark_persistent(g_mut_quot->raw());
     g_nat = new name{"Nat"};
     mark_persistent(g_nat->raw());
     g_nat_succ = new name{"Nat", "succ"};
@@ -385,7 +382,6 @@ void finalize_constants() {
     delete g_lc_proof;
     delete g_lc_unreachable;
     delete g_list;
-    delete g_mut_quot;
     delete g_nat;
     delete g_nat_succ;
     delete g_nat_zero;
@@ -491,7 +487,6 @@ name const & get_ite_name() { return *g_ite; }
 name const & get_lc_proof_name() { return *g_lc_proof; }
 name const & get_lc_unreachable_name() { return *g_lc_unreachable; }
 name const & get_list_name() { return *g_list; }
-name const & get_mut_quot_name() { return *g_mut_quot; }
 name const & get_nat_name() { return *g_nat; }
 name const & get_nat_succ_name() { return *g_nat_succ; }
 name const & get_nat_zero_name() { return *g_nat_zero; }

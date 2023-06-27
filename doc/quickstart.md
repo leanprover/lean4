@@ -21,6 +21,8 @@ See quick [walkthrough demo video](https://www.youtube.com/watch?v=yZo6k48L0VY).
     info: latest update on nightly, lean version nightly-2021-12-05
     info: downloading component 'lean'
     ```
+    If there is no popup, you probably have Elan installed already.
+    You may want to make sure that your default toolchain is Lean 4 in this case by running `elan default leanprover/lean4:nightly` and reopen the file, as the next step will fail otherwise.
 
 1. While it is installing, you can paste the following Lean program into the new file:
 

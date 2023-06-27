@@ -267,8 +267,8 @@ where
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkMaxHeartbeats "simp"
   let cfg ← getConfig
-  if (← isProof e) then
-    return { expr := e }
+--  if (← isProof e) then
+--    return { expr := e }
   if cfg.memoize then
     if let some result := (← get).cache.find? e then
       /-
@@ -624,16 +624,34 @@ where
     else
       f
 
+/-
   simpLambda (e : Expr) : M Result :=
     withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
       let r ← simp e
       let eNew ← mkLambdaFVars xs r.expr
-      match r.proof? with
-      | none   => return { expr := eNew }
-      | some h =>
-        let p ← xs.foldrM (init := h) fun x h => do
-          mkFunExt (← mkLambdaFVars #[x] h)
-        return { expr := eNew, proof? := p }
+      let some h := r.proof? | return { expr := eNew }
+      let mut p := h
+      for x in xs.reverse do
+        p ← mkFunExt (← mkLambdaFVars #[x] p)
+      return { expr := eNew, proof? := p }
+-/
+
+  simpLambda (e : Expr) : M Result := withParent e do
+    let .lam n d b c := e | return { expr := e }
+    withLocalDecl n c d fun x => do
+      let b := b.instantiate1 x
+      let r ← simp b
+      let some h := r.proof? | return { expr := (← mkLambdaFVars #[x] r.expr) }
+      let α := d
+      let u ← getLevel d
+      let β ← inferType b
+      let v ← getLevel β
+      let .app b (.app β h) := (mkApp r.expr (mkApp β h)).abstract #[x] | unreachable!
+      let eNew := mkLambda n c d b
+      let β    := mkLambda n c d β
+      let h    := mkLambda n c d h
+      let p := mkApp5 (Lean.mkConst ``funext [u, v]) α β e eNew h
+      return { expr := eNew, proof? := p }
 
   simpArrow (e : Expr) : M Result := do
     trace[Debug.Meta.Tactic.simp] "arrow {e}"

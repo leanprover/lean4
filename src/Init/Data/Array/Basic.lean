@@ -269,7 +269,15 @@ unsafe def mapMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad
 /-- Reference implementation for `mapM` -/
 @[implemented_by mapMUnsafe]
 def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m β) (as : Array α) : m (Array β) :=
-  as.foldlM (fun bs a => do let b ← f a; pure (bs.push b)) (mkEmpty as.size)
+  -- Note: we cannot use `foldlM` here for the reference implementation because this calls
+  -- `bind` and `pure` too many times. (We are not assuming `m` is a `LawfulMonad`)
+  let rec map (i : Nat) (r : Array β) : m (Array β) := do
+    if hlt : i < as.size then
+      map (i+1) (r.push (← f as[i]))
+    else
+      pure r
+  map 0 (mkEmpty as.size)
+termination_by map => as.size - i
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=

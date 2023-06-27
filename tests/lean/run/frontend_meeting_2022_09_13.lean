@@ -48,7 +48,7 @@ where
     return s.setPos i
 
 def commandCommentBody : Parser :=
-  { fn := rawFn commandCommentBodyFn (trailingWs := true) }
+  { fn := rawFn commandCommentBodyFn (whitespaceFn := whitespace) }
 
 @[combinator_parenthesizer commandCommentBody] def commandCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinator_formatter commandCommentBody] def commandCommentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous

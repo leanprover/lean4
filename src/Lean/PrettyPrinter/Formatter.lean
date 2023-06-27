@@ -325,8 +325,6 @@ def parseToken (s : String) : FormatterM ParserState :=
     options := ← getOptions
     prec := 0
     tokens := (← read).table
-    -- TODO: retriever from `Context` so they can be customized by formatters
-    whitespaceFn := whitespace
     tokenFn := tokenFnCore
   } (Parser.mkParserState s)
 

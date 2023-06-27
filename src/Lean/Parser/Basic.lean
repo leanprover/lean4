@@ -104,8 +104,10 @@ def andthen (p q : Parser) : Parser := {
 instance : AndThen Parser where
   andThen a b := andthen a (b ())
 
+def skipFn : TokenParserFn := fun _ s => s
+
 def skip : Parser := {
-  fn   := fun _ s => s
+  fn   := skipFn
   info := epsilonInfo
 }
 
@@ -464,35 +466,6 @@ def mkEmptySubstringAt (s : String) (p : String.Pos) : Substring := {
   str := s, startPos := p, stopPos := p
 }
 
-private def rawAux (startPos : String.Pos) (trailingWs : Bool) : ParserFn := fun c s =>
-  let input   := c.input
-  let stopPos := s.pos
-  let leading := mkEmptySubstringAt input startPos
-  let val     := input.extract startPos stopPos
-  if trailingWs then
-    let s        := c.whitespaceFn c.toTokenParserContext s
-    let stopPos' := s.pos
-    let trailing := { str := input, startPos := stopPos, stopPos := stopPos' : Substring }
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val)) val
-    s.pushSyntax atom
-  else
-    let trailing := mkEmptySubstringAt input stopPos
-    let atom     := mkAtom (SourceInfo.original leading startPos trailing (startPos + val)) val
-    s.pushSyntax atom
-
-/-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
-def rawFn (p : ParserFn) (trailingWs := false) : ParserFn := fun c s =>
-  let startPos := s.pos
-  let s := p c s
-  if s.hasError then s else rawAux startPos trailingWs c s
-
-def chFn (c : Char) (trailingWs := false) : ParserFn :=
-  rawFn (satisfyFn (fun d => c == d) ("'" ++ toString c ++ "'")) trailingWs
-
-def rawCh (c : Char) (trailingWs := false) : Parser := {
-  fn := chFn c trailingWs
-}
-
 /-- Function to be called directly after parsing a token. When not in an error state, parses following whitespace,
     sets up `SourceInfo`, and pushes result of calling `f` with token substring and info onto stack. -/
 @[specialize]
@@ -513,6 +486,21 @@ def pushToken (f : Substring → SourceInfo → Syntax) (startPos : String.Pos) 
 /-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) (whitespaceFn : TokenParserFn) : TokenParserFn :=
   pushToken (fun ss info => .mkLit n ss.toString info) startPos whitespaceFn
+
+/-- Match an arbitrary parser and return the consumed String in a `Syntax.atom`. -/
+def rawFn (p : ParserFn) (whitespaceFn : TokenParserFn) : ParserFn := fun c s => Id.run do
+  let startPos := s.pos
+  let s := p c s
+  if s.hasError then
+    return s
+  pushToken (fun ss info => .atom info ss.toString) startPos whitespaceFn c.toTokenParserContext s
+
+def chFn (c : Char) (whitespaceFn : TokenParserFn) : ParserFn :=
+  rawFn (satisfyFn (fun d => c == d) ("'" ++ toString c ++ "'")) whitespaceFn
+
+def rawCh (c : Char) (whitespaceFn : TokenParserFn) : Parser := {
+  fn := chFn c whitespaceFn
+}
 
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`

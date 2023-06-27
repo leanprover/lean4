@@ -449,14 +449,13 @@ def mkParserState (input : String) : ParserState :=
 
 /-- convenience function for testing -/
 def runParserCategory (env : Environment) (catName : Name) (input : String) (fileName := "<input>")
-  (whitespaceFn := whitespace) (tokenFn := tokenFnCore) : Except String Syntax :=
+    (tokenFn := tokenFnCore) : Except String Syntax :=
   let p := andthenFn whitespace (categoryParserFnImpl catName)
   let c := { mkInputContext input fileName with
     tokens := getTokenTable env
     env
     options := {}
     prec := 0
-    whitespaceFn := whitespaceFn
     tokenFn := tokenFn
   }
   let s := p.run c (mkParserState input)

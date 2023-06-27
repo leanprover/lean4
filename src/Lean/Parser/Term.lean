@@ -11,7 +11,7 @@ namespace Parser
 
 namespace Command
 def commentBody : Parser :=
-{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (trailingWs := true) }
+{ fn := rawFn (finishCommentBlock (pushMissingOnError := true) 1) (whitespaceFn := whitespace) }
 
 @[combinator_parenthesizer commentBody]
 def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
@@ -387,7 +387,7 @@ existent in the current context, or else fails.
 -- use `rawCh` because ``"`" >> ident`` overlaps with `nameLit`, with the latter being preferred by the tokenizer
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
 @[builtin_term_parser] def doubleQuotedName := leading_parser
-  "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
+  "`" >> checkNoWsBefore >> rawCh '`' (whitespaceFn := skipFn) >> ident
 
 def letIdBinder :=
   withAntiquot (mkAntiquot "letIdBinder" decl_name% (isPseudoKind := true)) <|

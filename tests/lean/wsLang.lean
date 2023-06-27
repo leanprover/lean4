@@ -64,7 +64,6 @@ def wsWhitespace : TokenParserFn :=
 
 def enterProg : Parser where
   fn := adaptUncacheableContextFn (fun ctx => { ctx with
-    whitespaceFn := wsWhitespace
     tokenFn := fun c s =>
       let startPos := s.pos
       let s := satisfyFn (·.isWhitespace) "" c s

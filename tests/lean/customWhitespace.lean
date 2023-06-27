@@ -9,7 +9,6 @@ def myWhitespace : TokenParserFn := fun c s =>
 
 def myTerm : Parser where
   fn := adaptUncacheableContextFn (fun ctx => { ctx with
-      whitespaceFn := myWhitespace
       tokenFn := fun c s =>
         -- NOTE: handles identifiers only
         let startPos := s.pos

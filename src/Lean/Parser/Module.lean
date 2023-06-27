@@ -45,7 +45,6 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
     options := {}
     prec := 0
     tokens
-    whitespaceFn := whitespace
     tokenFn := tokenFnCore
   } (mkParserState inputCtx.input)
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
@@ -87,7 +86,6 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
     let c := { inputCtx, pmctx with
       prec := 0
       tokens := getTokenTable pmctx.env
-      whitespaceFn := whitespace
       tokenFn := tokenFnCore
     }
     let s := p.run c { cache := initCacheForInput inputCtx.input, pos }

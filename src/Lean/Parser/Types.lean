@@ -293,7 +293,6 @@ instance : Inhabited TokenParserFn where
 
 /-- Parser context updateable in `adaptUncacheableContextFn`. -/
 structure ParserContextCore extends TokenParserContext where
-  whitespaceFn : TokenParserFn
   tokenFn      : TokenParserFn
 
 /-- Opaque parser context updateable using `adaptCacheableContextFn` and `adaptUncacheableContextFn`. -/

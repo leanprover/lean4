@@ -304,7 +304,7 @@ builtin_initialize registerTraceClass `Elab.input
 `elabCommand` wrapper that should be used for the initial invocation, not for recursive calls after
 macro expansion etc.
 -/
-def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do
+def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   let initMsgs ← modifyGet fun st => (st.messages, { st with messages := {} })
   let initInfoTrees ← getResetInfoTrees
   -- We should *not* factor out `elabCommand`'s `withLogging` to here since it would make its error

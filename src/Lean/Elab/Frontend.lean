@@ -62,7 +62,7 @@ def processCommand : FrontendM Bool := do
     modify fun s => { s with commands := s.commands.push cmd }
     setParserState ps
     setMessages messages
-    profileitM IO.Error "elaboration" scope.opts <| elabCommandAtFrontend cmd
+    elabCommandAtFrontend cmd
     pure (Parser.isTerminalCommand cmd)
 
 partial def processCommands : FrontendM Unit := do

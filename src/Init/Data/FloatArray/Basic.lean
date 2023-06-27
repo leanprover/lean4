@@ -9,6 +9,7 @@ import Init.Data.Float
 import Init.Data.Option.Basic
 universe u
 
+@[opaque_repr]
 structure FloatArray where
   data : Array Float
 

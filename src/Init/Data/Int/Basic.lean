@@ -37,6 +37,7 @@ and larger numbers use an arbitrary precision "bignum" library
 (usually [GMP](https://gmplib.org/)). A "small number" is an integer
 that can be encoded with 63 bits (31 bits on 32-bits architectures).
 -/
+@[opaque_repr]
 inductive Int : Type where
   /-- A natural number is an integer (`0` to `∞`). -/
   | ofNat   : Nat → Int

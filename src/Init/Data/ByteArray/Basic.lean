@@ -10,6 +10,7 @@ import Init.Data.UInt.Basic
 import Init.Data.Option.Basic
 universe u
 
+@[opaque_repr]
 structure ByteArray where
   data : Array UInt8
 

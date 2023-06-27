@@ -1,5 +1,5 @@
-This is the repository for **Lean 4**, which is currently being released as milestone releases towards a first stable release.
-[Lean 3](https://github.com/leanprover/lean) is still the latest stable release.
+This is the repository for **Lean 4**, which is being actively developed and published as nightly releases.
+Stable point releases are planned for a later date after establishing a robust release process.
 
 # About
 

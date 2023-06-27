@@ -2,7 +2,7 @@
 
 ### Tier 1
 
-Platforms built & tested by our CI, available as nightly & stable releases via elan (see above)
+Platforms built & tested by our CI, available as nightly releases via elan (see below)
 
 * x86-64 Linux with glibc 2.27+
 * x86-64 macOS 10.15+
@@ -10,13 +10,13 @@ Platforms built & tested by our CI, available as nightly & stable releases via e
 
 ### Tier 2
 
-Platforms cross-compiled but not tested by our CI, available as nightly & stable releases
+Platforms cross-compiled but not tested by our CI, available as nightly releases
 
 Releases may be silently broken due to the lack of automated testing.
 Issue reports and fixes are welcome.
 
 * aarch64 Linux with glibc 2.27+
-* aarch64 (M1) macOS
+* aarch64 (Apple Silicon) macOS
 
 <!--
 ### Tier 3
@@ -39,9 +39,7 @@ Release builds for all supported platforms are available at <https://github.com/
 Instead of downloading these and setting up the paths manually, however, it is recommended to use the Lean version manager [`elan`](https://github.com/leanprover/elan) instead:
 ```sh
 $ elan self update  # in case you haven't updated elan in a while
-# download & activate latest Lean 4 release (https://github.com/leanprover/lean4/releases)
-$ elan default leanprover/lean4:stable
-# alternatively, use the latest nightly build (https://github.com/leanprover/lean4-nightly/releases)
+# download & activate latest Lean 4 nightly release (https://github.com/leanprover/lean4-nightly/releases)
 $ elan default leanprover/lean4:nightly
 ```
 

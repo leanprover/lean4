@@ -18,7 +18,7 @@ See quick [walkthrough demo video](https://www.youtube.com/watch?v=yZo6k48L0VY).
 
     ```
     info: syncing channel updates for 'nightly'
-    info: latest update on nightly, lean version nightly-2021-12-05
+    info: latest update on nightly, lean version nightly-2023-06-27
     info: downloading component 'lean'
     ```
     If there is no popup, you probably have Elan installed already.

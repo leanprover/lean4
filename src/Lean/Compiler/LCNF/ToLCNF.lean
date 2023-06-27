@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.ProjFns
 import Lean.Compiler.BorrowedAnnotation
+import Lean.Compiler.OpaqueReprAttr
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
@@ -644,7 +645,7 @@ where
 
   visitProjFn (projInfo : ProjectionFunctionInfo) (e : Expr) : M Arg := do
     let typeName := projInfo.ctorName.getPrefix
-    if isRuntimeBultinType typeName then
+    if hasOpaqueReprAttribute (← getEnv) typeName then
       let numArgs := e.getAppNumArgs
       let arity := projInfo.numParams + 1
       if numArgs < arity then

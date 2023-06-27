@@ -112,7 +112,7 @@ public:
         name const & k        = pinfo.get_constructor();
         constructor_val k_val = env().get(k).to_constructor_val();
         name const & I_name   = k_val.get_induct();
-        if (is_runtime_builtin_type(I_name)) {
+        if (has_opaque_repr_attribute(env(), I_name)) {
             /* We should not expand projections of runtime builtin types */
             return visit_app_default(fn, args, root);
         } else {

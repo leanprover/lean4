@@ -436,8 +436,10 @@ def insert [BEq α] (d : DiscrTree α s) (e : Expr) (v : α) : MetaM (DiscrTree 
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array Expr) := do
   let e ← reduceDT e root (simpleReduce := s)
-  if let some v := toNatLit? e then
-    return (.lit v, #[])
+  unless root do
+    -- See pushArgs
+    if let some v := toNatLit? e then
+      return (.lit v, #[])
   match e.getAppFn with
   | .lit v         => return (.lit v, #[])
   | .const c _     =>

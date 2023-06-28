@@ -4,6 +4,7 @@
 - [Tour of Lean](./tour.md)
 - [Setting Up Lean](./quickstart.md)
   - [Extended Setup Notes](./setup.md)
+  - [Nix Setup](./setup/nix.md)
 - [Theorem Proving in Lean](./tpil.md)
 - [Functional Programming in Lean](fplean.md)
 - [Examples](./examples.md)

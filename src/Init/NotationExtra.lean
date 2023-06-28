@@ -65,10 +65,10 @@ syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
-  " where " withPosition(unifConstraintElem*) patternIgnore("|-" <|> "⊢ ") unifConstraint : command
+  " where " withPosition(unifConstraintElem*) "⊢ " unifConstraint : command
 
 macro_rules
-  | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
+  | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* ⊢ $t₁ ≟ $t₂) => do
     let mut body ← `($t₁ = $t₂)
     for (c₁, c₂) in cs₁.zip cs₂ |>.reverse do
       body ← `($c₁ = $c₂ → $body)
@@ -324,12 +324,12 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
 Apply function extensionality and introduce new hypotheses.
 The tactic `funext` will keep applying the `funext` lemma until the goal target is not reducible to
 ```
-  |-  ((fun x => ...) = (fun x => ...))
+  ⊢  ((fun x => ...) = (fun x => ...))
 ```
 The variant `funext h₁ ... hₙ` applies `funext` `n` times, and uses the given identifiers to name the new hypotheses.
 Patterns can be used like in the `intro` tactic. Example, given a goal
 ```
-  |-  ((fun x : Nat × Bool => ...) = (fun x => ...))
+  ⊢  ((fun x : Nat × Bool => ...) = (fun x => ...))
 ```
 `funext (a, b)` applies `funext` once and performs pattern matching on the newly introduced pair.
 -/

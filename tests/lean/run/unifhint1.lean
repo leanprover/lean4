@@ -18,13 +18,13 @@ def mul {s : Magma} (a b : s) : s :=
 
 /-- hi -/
 unif_hint (s : Magma) where
-  s =?= Nat.Magma |- s.α =?= Nat
+  s =?= Nat.Magma ⊢ s.α =?= Nat
 
 unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
   m.α =?= β
   n.α =?= δ
   s =?= Prod.Magma m n
-  |-
+  ⊢
   s.α =?= β × δ
 
 def f1 (x : Nat) : Nat :=

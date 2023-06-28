@@ -1,13 +1,13 @@
 /- The following hints are too expensive, but good enough for small natural numbers -/
 unif_hint natAddBase (x y : Nat) where
   y =?= 0
-  |-
+  ⊢
   Nat.add (Nat.succ x) y =?= Nat.succ x
 
 unif_hint natAddStep (x y z w : Nat) where
   y =?= Nat.succ w
   z =?= Nat.add (Nat.succ x) w
-  |-
+  ⊢
   Nat.add (Nat.succ x) y =?= Nat.succ z
 
 def BV (n : Nat) := { a : Array Bool // a.size = n }

@@ -12,7 +12,7 @@ theorem double.inj : double n = double m → n = m := by
     cases m with
     | zero   => contradiction
     | succ m =>
-      simp [double] at h |-
+      simp [double] at h ⊢
       apply ih h
 
 theorem double.inj' : double n = double m → n = m := by

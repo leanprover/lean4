@@ -32,7 +32,7 @@ theorem List.length_split_of_atLeast2 {as : List α} (h : as.atLeast2) : as.spli
     -- TODO: simplify using linear arith and more automation
     have : (c::d::as).atLeast2 := by simp_arith
     have ih := length_split_of_atLeast2 this
-    simp_arith [split] at ih |-
+    simp_arith [split] at ih ⊢
     have ⟨ih₁, ih₂⟩ := ih
     exact ⟨Nat.le_trans ih₁ (by simp_arith), Nat.le_trans ih₂ (by simp_arith)⟩
 

@@ -166,7 +166,7 @@ namespace Alt
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
     let msg := alt.fvarDecls.map fun d => m!"{d.toExpr}:({d.type})"
-    let mut msg := m!"{msg} |- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
+    let mut msg := m!"{msg} ⊢ {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
     for (lhs, rhs) in alt.cnstrs do
       msg := m!"{msg}\n  | {lhs} ≋ {rhs}"
     addMessageContext msg

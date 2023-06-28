@@ -181,7 +181,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
   return { elimApp := (← instantiateMVars s.f), alts, others := others }
 
-/-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
+/-- Given a goal `... targets ... ⊢ C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
 def setMotiveArg (mvarId : MVarId) (motiveArg : MVarId) (targets : Array FVarId) : MetaM Unit := do
   let type ← inferType (mkMVar mvarId)

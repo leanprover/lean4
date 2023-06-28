@@ -3,7 +3,7 @@ example (x y : Nat) (h : x = y) : 0 + x = y + 0 := by
   have := by exact h.symm
 --
 --^ $/lean/plainGoal
--- Good: ..., this : y = x |- 0 + x = y + 0
+-- Good: ..., this : y = x ⊢ 0 + x = y + 0
 
 example (x : Nat) : x = 0 + (0 + (0 + x)) ∧ p := by
   constructor
@@ -15,7 +15,7 @@ example (x : Nat) : x = 0 + (0 + (0 + x)) ∧ p := by
                                   --^ $/lean/plainGoal
                                   -- Bad? We still get all states except the one closed by implicit `rfl`
 --^ $/lean/plainGoal
--- Good: ... |- p
+-- Good: ... ⊢ p
 
 example (x : Nat) : x = 0 + (0 + (0 + x)) ∧ p := by
   constructor
@@ -27,4 +27,4 @@ example (x : Nat) : x = 0 + (0 + (0 + x)) ∧ p := by
        --^ $/lean/plainGoal
        -- Good: we get the succ state here
 --^ $/lean/plainGoal
--- Good:  ... |- p
+-- Good:  ... ⊢ p

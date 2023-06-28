@@ -29,7 +29,7 @@ def isEmpty (s : FVarSubst) : Bool :=
 def contains (s : FVarSubst) (fvarId : FVarId) : Bool :=
   s.map.contains fvarId
 
-/-- Add entry `fvarId |-> v` to `s` if `s` does not contain an entry for `fvarId`. -/
+/-- Add entry `fvarId ⊢> v` to `s` if `s` does not contain an entry for `fvarId`. -/
 def insert (s : FVarSubst) (fvarId : FVarId) (v : Expr) : FVarSubst :=
   if s.contains fvarId then s
   else

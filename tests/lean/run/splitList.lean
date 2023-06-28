@@ -29,8 +29,8 @@ def len : List α → Nat
       -- h₂ : HEq (splitList l) (ListSplit.split fst snd)
       have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
       -- The following two proofs ase used to justify the recursive applications `len fst` and `len snd`
-      have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
-      have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
+      have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this ⊢ ; simp [this]
+      have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this ⊢ ; simp [this]
       len fst + len snd
 termination_by _ xs => xs.length
 
@@ -81,7 +81,7 @@ decreasing_by
   simp_wf
   have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
   subst h₂
-  simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+  simp_arith [eq_of_heq h₃] at this ⊢ ; simp [this]
 
 theorem len_nil : len ([] : List α) = 0 := by
   simp [len]

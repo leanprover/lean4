@@ -74,7 +74,7 @@ where
   ...
   h : g x = 0
   ...
-  |- (match (WellFounded.fix ...) with | ...) = ...
+  ⊢ (match (WellFounded.fix ...) with | ...) = ...
   ```
   where `WellFounded.fix ...` can be folded back to `g x`.
 -/
@@ -138,7 +138,7 @@ private def tryToFoldLHS? (info : EqnInfo) (us : List Level) (fixedPrefix : Arra
     return mvarNew.mvarId!
 
 /--
-  Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
+  Given a goal of the form `⊢ f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`
   where `f` is a constant named `declName`, and `n = info.fixedPrefixSize`.
 -/
 private def getFixedPrefix (declName : Name) (info : EqnInfo) (mvarId : MVarId) : MetaM (List Level × Array Expr) := mvarId.withContext do

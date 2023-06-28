@@ -356,13 +356,13 @@ theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
     split <;> simp at h <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
-    · apply ih; simp [denote_eq] at h |-; assumption
+    · apply ih; simp [denote_eq] at h ⊢; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv]
-      · apply ih; simp [denote_eq] at h |-; assumption
+      · apply ih; simp [denote_eq] at h ⊢; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk]
         · apply ih
-          simp [denote_eq] at h |-
+          simp [denote_eq] at h ⊢
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
           rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
           apply Eq.symm
@@ -370,14 +370,14 @@ theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
           simp [h]
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk]
           · apply ih
-            simp [denote_eq] at h |-
+            simp [denote_eq] at h ⊢
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
             rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
             apply Nat.sub_eq_of_eq_add
             simp [h]
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
             apply ih
-            simp [denote_eq] at h |-
+            simp [denote_eq] at h ⊢
             rw [← Nat.add_assoc, ← Nat.add_assoc] at h
             exact Nat.add_right_cancel h
 
@@ -435,27 +435,27 @@ theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
     split <;> simp at h <;> try assumption
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
-    · apply ih; simp [denote_le] at h |-; assumption
+    · apply ih; simp [denote_le] at h ⊢; assumption
     · by_cases hgtv : Nat.blt v₂ v₁ <;> simp [hgtv]
-      · apply ih; simp [denote_le] at h |-; assumption
+      · apply ih; simp [denote_le] at h ⊢; assumption
       · have heqv : v₁ = v₂ := eq_of_not_blt_eq_true hltv hgtv; subst heqv
         by_cases hltk : Nat.blt k₁ k₂ <;> simp [hltk]
         · apply ih
-          simp [denote_le] at h |-
+          simp [denote_le] at h ⊢
           have haux : k₁ * Var.denote ctx v₁ ≤ k₂ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hltk))
           rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
           apply Nat.le_sub_of_add_le
           simp [h]
         · by_cases hgtk : Nat.blt k₂ k₁ <;> simp [hgtk]
           · apply ih
-            simp [denote_le] at h |-
+            simp [denote_le] at h ⊢
             have haux : k₂ * Var.denote ctx v₁ ≤ k₁ * Var.denote ctx v₁ := Nat.mul_le_mul_right _ (Nat.le_of_lt (Nat.blt_eq.mp hgtk))
             rw [Nat.mul_sub_right_distrib, ← Nat.add_assoc, ← Nat.add_sub_assoc haux]
             apply Nat.sub_le_of_le_add
             simp [h]
           · have heqk : k₁ = k₂ := eq_of_not_blt_eq_true hltk hgtk; subst heqk
             apply ih
-            simp [denote_le] at h |-
+            simp [denote_le] at h ⊢
             rw [← Nat.add_assoc, ← Nat.add_assoc] at h
             apply Nat.le_of_add_le_add_right h
     done
@@ -606,11 +606,11 @@ theorem PolyCnstr.denote_combine {ctx : Context} {c₁ c₂ : PolyCnstr} (h₁ :
   cases c₁; cases c₂; rename_i eq₁ lhs₁ rhs₁ eq₂ lhs₂ rhs₂
   simp [denote] at h₁ h₂
   simp [PolyCnstr.combine, denote]
-  by_cases he₁ : eq₁ = true <;> by_cases he₂ : eq₂ = true <;> simp [he₁, he₂] at h₁ h₂ |-
-  · rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq] at h₁ h₂ |-; simp [h₁, h₂]
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₁]; apply Nat.add_le_add_left h₂
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; rw [h₂]; apply Nat.add_le_add_right h₁
-  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ |-; apply Nat.add_le_add h₁ h₂
+  by_cases he₁ : eq₁ = true <;> by_cases he₂ : eq₂ = true <;> simp [he₁, he₂] at h₁ h₂ ⊢
+  · rw [Poly.denote_eq_cancel_eq]; simp [Poly.denote_eq] at h₁ h₂ ⊢; simp [h₁, h₂]
+  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ ⊢; rw [h₁]; apply Nat.add_le_add_left h₂
+  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ ⊢; rw [h₂]; apply Nat.add_le_add_right h₁
+  · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_eq, Poly.denote_le] at h₁ h₂ ⊢; apply Nat.add_le_add h₁ h₂
 
 attribute [local simp] PolyCnstr.denote_combine
 

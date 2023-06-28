@@ -18,7 +18,7 @@ def Nat.Magma : Magma where
   mul a b := Nat.mul a b
 
 unif_hint (s : Magma) where
-  s =?= Nat.Magma |- s.carrier =?= Nat
+  s =?= Nat.Magma ⊢ s.carrier =?= Nat
 
 example (x : Nat) : Nat :=
   x * x
@@ -31,7 +31,7 @@ unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) where
   m.carrier =?= β
   n.carrier =?= δ
   s =?= Prod.Magma m n
-  |-
+  ⊢
   s.carrier =?= β × δ
 
 def f2 (x y : Nat) : Nat × Nat :=
@@ -50,7 +50,7 @@ def magmaOfMul (α : Type u) [Mul α] : Magma where -- Bridge between `Mul α` a
 
 unif_hint (s : Magma) (α : Type u) [Mul α] where
   s =?= magmaOfMul α
-  |-
+  ⊢
   s.carrier =?= α
 
 def g (x y : Int) : Int :=

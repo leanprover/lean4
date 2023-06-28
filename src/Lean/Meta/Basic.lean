@@ -31,7 +31,7 @@ Configuration flags for the `MetaM` monad.
 Many of them are used to control the `isDefEq` function that checks whether two terms are definitionally equal or not.
 Recall that when `isDefEq` is trying to check whether
 `?m@C a₁ ... aₙ` and `t` are definitionally equal (`?m@C a₁ ... aₙ =?= t`), where
-`?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
+`?m@C` as a shorthand for `C ⊢ ?m : t` where `t` is the type of `?m`.
 We solve it using the assignment `?m := fun a₁ ... aₙ => t` if
 1) `a₁ ... aₙ` are pairwise distinct free variables that are ​*not*​ let-variables.
 2) `a₁ ... aₙ` are not in `C`

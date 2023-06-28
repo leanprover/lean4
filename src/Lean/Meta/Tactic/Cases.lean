@@ -68,12 +68,12 @@ structure GeneralizeIndicesSubgoal where
   Similar to `generalizeTargets` but customized for the `casesOn` motive.
   Given a metavariable `mvarId` representing the
   ```
-  Ctx, h : I A j, D |- T
+  Ctx, h : I A j, D ⊢ T
   ```
   where `fvarId` is `h`s id, and the type `I A j` is an inductive datatype where `A` are parameters,
   and `j` the indices. Generate the goal
   ```
-  Ctx, h : I A j, D, j' : J, h' : I A j' |- j == j' -> h == h' -> T
+  Ctx, h : I A j, D, j' : J, h' : I A j' ⊢ j == j' -> h == h' -> T
   ```
   Remark: `(j == j' -> h == h')` is a "telescopic" equality.
   Remark: `j` is sequence of terms, and `j'` a sequence of free variables.

@@ -348,7 +348,7 @@ If `e` is a defined constant, then the equational theorems associated with `e` a
 This provides a convenient way to unfold `e`.
 - `rewrite [e₁, ..., eₙ]` applies the given rules sequentially.
 - `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `⊢`
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢`
   can also be used, to signify the target of the goal.
 -/
 syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic

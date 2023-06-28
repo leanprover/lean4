@@ -209,11 +209,11 @@ private structure AnalyzeResult where
   max?            : Option Expr := none
   hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
 
-private def isUnknow : Expr → Bool
+private def isUnknown : Expr → Bool
   | .mvar ..        => true
-  | .app f _        => isUnknow f
-  | .letE _ _ _ b _ => isUnknow b
-  | .mdata _ b      => isUnknow b
+  | .app f _        => isUnknown f
+  | .letE _ _ _ b _ => isUnknown b
+  | .mdata _ b      => isUnknown b
   | _               => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
@@ -222,7 +222,7 @@ private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM Analyze
     | none => pure none
     | some expectedType =>
       let expectedType ← instantiateMVars expectedType
-      if isUnknow expectedType then pure none else pure (some expectedType)
+      if isUnknown expectedType then pure none else pure (some expectedType)
   (go t *> get).run' { max? }
 where
    go (t : Tree) : StateRefT AnalyzeResult TermElabM Unit := do
@@ -233,7 +233,7 @@ where
        | .unop _ _ arg => go arg
        | .term _ _ val =>
          let type ← instantiateMVars (← inferType val)
-         unless isUnknow type do
+         unless isUnknown type do
            match (← get).max? with
            | none     => modify fun s => { s with max? := type }
            | some max =>
@@ -246,7 +246,10 @@ where
                  trace[Elab.binop] "uncomparable types: {max}, {type}"
                  modify fun s => { s with hasUncomparable := true }
 
-private def mkBinOp (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
+private def mkBinOp (lazy : Bool) (f : Expr) (lhs rhs : Expr) : TermElabM Expr := do
+  let mut rhs := rhs
+  if lazy then
+    rhs ← mkFunUnit rhs
   elabAppArgs f #[] #[Arg.expr lhs, Arg.expr rhs] (expectedType? := none) (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
 
 private def mkUnOp (f : Expr) (arg : Expr) : TermElabM Expr := do
@@ -258,11 +261,7 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref lazy f lhs rhs =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      let lhs ← toExprCore lhs
-      let mut rhs ← toExprCore rhs
-      if lazy then
-        rhs ← mkFunUnit rhs
-      mkBinOp f lhs rhs
+      mkBinOp lazy f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
       mkUnOp f (← toExprCore arg)
@@ -359,7 +358,7 @@ mutual
           return .binop ref lazy f (← go lhs f true false) (← go rhs f false false)
         else
           let r ← withRef ref do
-            mkBinOp f (← toExpr lhs none) (← toExpr rhs none)
+            mkBinOp lazy f (← toExpr lhs none) (← toExpr rhs none)
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
       | .unop ref f arg =>
@@ -367,7 +366,7 @@ mutual
       | .term ref trees e =>
         let type ← instantiateMVars (← inferType e)
         trace[Elab.binop] "visiting {e} : {type} =?= {maxType}"
-        if isUnknow type then
+        if isUnknown type then
           if let some f := f? then
             if (← hasHeterogeneousDefaultInstances f maxType lhs) then
               -- See comment at `hasHeterogeneousDefaultInstances`

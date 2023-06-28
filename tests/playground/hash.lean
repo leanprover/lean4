@@ -9,7 +9,7 @@ def checkMap (s : String) (m : HashMap String Nat) : Nat → IO Unit
 | (n+1) := do
   let key := s ++ toString n,
   unless (m.contains key) (throw $ IO.userError "not found"),
-  IO.println (key ++ " ⊢> " ++ toString (m.find key)),
+  IO.println (key ++ " |-> " ++ toString (m.find key)),
   checkMap n
 
 def main (xs : List String): IO Unit :=

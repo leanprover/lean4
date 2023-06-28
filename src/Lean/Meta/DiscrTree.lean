@@ -235,8 +235,8 @@ private def isOffset (fName : Name) (e : Expr) : MetaM Bool := do
   Remark: we currently tag "offset" terms as star to avoid having to add special
   support for offset terms.
   Example, suppose the discrimination tree contains the entry
-  `Nat.succ ?m ⊢> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
-  In this scenario, we want to retrieve `Nat.succ ?m ⊢> v`
+  `Nat.succ ?m |-> v`, and we are trying to retrieve the matches for `Expr.lit (Literal.natVal 1) _`.
+  In this scenario, we want to retrieve `Nat.succ ?m |-> v`
 -/
 private def shouldAddAsStar (fName : Name) (e : Expr) : MetaM Bool := do
   isOffset fName e

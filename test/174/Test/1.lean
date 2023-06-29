@@ -1,1 +1,1 @@
-#check (2 : Nat)
+#eval "visited Test/1.lean"

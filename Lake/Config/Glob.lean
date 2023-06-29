@@ -24,12 +24,14 @@ deriving Inhabited, Repr
 instance : Coe Name Glob := ⟨Glob.one⟩
 
 partial def forEachModuleIn [Monad m] [MonadLiftT IO m]
-(dir : FilePath) (f : Name → m PUnit) : m PUnit := do
+(dir : FilePath) (f : Name → m PUnit) (ext := "lean") : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
       let n := Name.mkSimple entry.fileName
-      f n *> forEachModuleIn entry.path (f <| n ++ ·)
-    else if entry.path.extension == some "lean" then
+      let r := FilePath.withExtension entry.fileName ext
+      if (← liftM (m := IO) r.pathExists) then f n
+      forEachModuleIn entry.path (f <| n ++ ·)
+    else if entry.path.extension == some ext then
       f <| Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
 
 namespace Glob
@@ -39,7 +41,7 @@ def «matches» (m : Name) : (self : Glob) → Bool
 | submodules n => n.isPrefixOf m && n != m
 | andSubmodules n => n.isPrefixOf m
 
-nonrec def forEachModuleIn [Monad m] [MonadLiftT IO m]
+@[inline] nonrec def forEachModuleIn [Monad m] [MonadLiftT IO m]
 (dir : FilePath) (f : Name → m PUnit) : (self : Glob) → m PUnit
 | one n => f n
 | submodules n =>

@@ -36,12 +36,16 @@ abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
 
-/-- Get an `Array` of the library's modules. -/
+/-- Get an `Array` of the library's modules (as specified by its globs). -/
 def LeanLib.getModuleArray (self : LeanLib) : IO (Array Module) :=
   (·.2) <$> StateT.run (s := #[]) do
     self.config.globs.forM fun glob => do
       glob.forEachModuleIn self.srcDir fun mod => do
         modify (·.push {lib := self, name := mod})
+
+/-- The library's buildable root modules. -/
+def LeanLib.rootModules (self : LeanLib) : Array Module :=
+  self.config.roots.filterMap self.findModule?
 
 namespace Module
 

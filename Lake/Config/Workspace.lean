@@ -68,7 +68,7 @@ def packageArray (self : Workspace) : Array Package :=
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packageMap := self.packageMap.insert pkg.name pkg}
 
-/-- Get a package within the workspace by name. -/
+/-- Try to find a package within the workspace with the given name. -/
 @[inline] def findPackage? (pkg : Name) (self : Workspace) : Option Package :=
   self.packageMap.find? pkg
 
@@ -124,23 +124,23 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
 @[inline] def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
   self.libraryFacetConfigs.find? name
 
-/-- The `LEAN_PATH` of the workspace. -/
+/-- The workspace's binary Lean library paths (which are added to `LEAN_PATH`). -/
 def leanPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.oleanDir)
 
-/-- The `LEAN_SRC_PATH` of the workspace. -/
+/-- The workspace's  source directories (which are added to `LEAN_SRC_PATH`). -/
 def leanSrcPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.srcDir)
 
 /--
-The shared library path of the workspace (e.g., for `--load-dynlib`).
+The workspace's shared library path (e.g., for `--load-dynlib`).
 This is added to the `sharedLibPathEnvVar` by `lake env`.
 -/
-def libPath (self : Workspace) : SearchPath :=
+def sharedLibPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.libDir)
 
 /--
-Rhe detected `LEAN_PATH` of the environment
+The detected `LEAN_PATH` of the environment
 augmented with the workspace's `leanPath` and Lake's `libDir`.
 
 We include Lake's `oleanDir` at the end to ensure that same Lake package being
@@ -166,7 +166,7 @@ The detected `sharedLibPathEnv` value of the environment
 augmented with the workspace's `libPath`.
 -/
 def augmentedSharedLibPath (self : Workspace) : SearchPath :=
-  self.lakeEnv.sharedLibPath ++ self.libPath
+  self.lakeEnv.sharedLibPath ++ self.sharedLibPath
 
 /--
 The detected environment augmented with the Workspace's paths.

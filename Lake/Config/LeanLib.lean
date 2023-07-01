@@ -58,7 +58,7 @@ The names of the library's root modules
 
 /-- The path to the static library in the package's `libDir`. -/
 @[inline] def staticLibFile (self : LeanLib) : FilePath :=
-  self.pkg.libDir / self.staticLibFileName
+  self.pkg.nativeLibDir / self.staticLibFileName
 
 /-- The file name of the library's shared binary (i.e., its `dll`, `dylib`, or `so`) . -/
 @[inline] def sharedLibFileName (self : LeanLib) : FilePath :=
@@ -66,7 +66,7 @@ The names of the library's root modules
 
 /-- The path to the shared library in the package's `libDir`. -/
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
-  self.pkg.libDir / self.sharedLibFileName
+  self.pkg.nativeLibDir / self.sharedLibFileName
 
 /--
 Whether to precompile the library's modules.

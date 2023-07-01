@@ -126,7 +126,7 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
 
 /-- The workspace's binary Lean library paths (which are added to `LEAN_PATH`). -/
 def leanPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.oleanDir)
+  self.packageList.map (·.leanLibDir)
 
 /-- The workspace's  source directories (which are added to `LEAN_SRC_PATH`). -/
 def leanSrcPath (self : Workspace) : SearchPath :=
@@ -137,7 +137,7 @@ The workspace's shared library path (e.g., for `--load-dynlib`).
 This is added to the `sharedLibPathEnvVar` by `lake env`.
 -/
 def sharedLibPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.libDir)
+  self.packageList.map (·.nativeLibDir)
 
 /--
 The detected `LEAN_PATH` of the environment

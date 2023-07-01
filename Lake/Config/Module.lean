@@ -65,7 +65,7 @@ abbrev pkg (self : Module) : Package :=
   self.srcPath "lean"
 
 @[inline] def leanLibPath (ext : String) (self : Module) : FilePath :=
-  self.filePath self.pkg.oleanDir ext
+  self.filePath self.pkg.leanLibDir ext
 
 @[inline] def oleanFile (self : Module) : FilePath :=
   self.leanLibPath "olean"
@@ -90,7 +90,7 @@ abbrev pkg (self : Module) : Package :=
   self.name.toStringWithSep "-" (escape := true)
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.libDir / nameToSharedLib self.dynlibName
+  self.pkg.nativeLibDir / nameToSharedLib self.dynlibName
 
 @[inline] def buildType (self : Module) : BuildType :=
   self.lib.buildType

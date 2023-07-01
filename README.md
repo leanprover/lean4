@@ -139,10 +139,10 @@ Lake provides a large assortment of configuration options for packages.
 * `manifestFile`: The path of a package's manifest file, which stores the exact versions of its resolved dependencies. Defaults to `lake-manifest.json`.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
-* `oleanDir`: The build subdirectory to which Lake should output the package's binary Lean libraries (i.e., `.olean`, `.ilean` files). Defaults to `lib`.
-* `irDir`: The build subdirectory to which Lake should output the package's intermediary results (e.g., `.c`, `.o` files). Defaults to `ir`.
-* `libDir`: The build subdirectory to which Lake should output the package's native libraries (e.g., `.a`, `.so`, `.dll` files). Defaults to `lib`.
+* `leanLibDir`: The build subdirectory to which Lake should output the package's binary Lean libraries (e.g., `.olean`, `.ilean` files). Defaults to `lib`.
+* `nativeLibDir`: The build subdirectory to which Lake should output the package's native libraries (e.g., `.a`, `.so`, `.dll` files). Defaults to `lib`.
 * `binDir`: The build subdirectory to which Lake should output the package's binary executables. Defaults to `bin`.
+* `irDir`: The build subdirectory to which Lake should output the package's intermediary results (e.g., `.c`, `.o` files). Defaults to `ir`.
 
 ### Build & Run
 

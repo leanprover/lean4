@@ -57,14 +57,14 @@ def defaultManifestFile := "lake-manifest.json"
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
 
+/-- The default setting for a `PackageConfig`'s `leanLibDir` option. -/
+def defaultLeanLibDir : FilePath := "lib"
+
+/-- The default setting for a `PackageConfig`'s `nativeLibDir` option. -/
+def defaultNativeLibDir : FilePath := "lib"
+
 /-- The default setting for a `PackageConfig`'s `binDir` option. -/
 def defaultBinDir : FilePath := "bin"
-
-/-- The default setting for a `PackageConfig`'s `libDir` option. -/
-def defaultLibDir : FilePath := "lib"
-
-/-- The default setting for a `PackageConfig`'s `oleanDir` option. -/
-def defaultOleanDir : FilePath := defaultLibDir
 
 /-- The default setting for a `PackageConfig`'s `irDir` option. -/
 def defaultIrDir : FilePath := "ir"
@@ -100,12 +100,6 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   precompileModules : Bool := false
 
   /--
-  DEPRECATED: This feature has been removed.
-  See [lake#169](https://github.com/leanprover/lake/pull/169).
-  -/
-  isLeanOnly : Bool := false
-
-  /--
   Additional arguments to pass to the Lean language server
   (i.e., `lean --server`) launched by `lake server`.
   -/
@@ -126,10 +120,24 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   buildDir : FilePath := defaultBuildDir
 
   /--
-  The build subdirectory to which Lake should output the package's `.olean` files.
-  Defaults to  `defaultOleanDir` (i.e., `lib`).
+  The build subdirectory to which Lake should output the package's
+  binary Lean libraries (e.g., `.olean`, `.ilean` files).
+  Defaults to  `defaultLeanLibDir` (i.e., `lib`).
   -/
-  oleanDir : FilePath := defaultOleanDir
+  leanLibDir : FilePath := defaultLeanLibDir
+
+  /--
+  The build subdirectory to which Lake should output the package's
+  native libraries (e.g., `.a`, `.so`, `.dll` files).
+  Defaults to `defaultNativeLibDir` (i.e., `lib`).
+  -/
+  nativeLibDir : FilePath := defaultNativeLibDir
+
+  /--
+  The build subdirectory to which Lake should output the package's binary executable.
+  Defaults to `defaultBinDir` (i.e., `bin`).
+  -/
+  binDir : FilePath := defaultBinDir
 
   /--
   The build subdirectory to which Lake should output
@@ -137,18 +145,6 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   Defaults to `defaultIrDir` (i.e., `ir`).
   -/
   irDir : FilePath := defaultIrDir
-
-  /--
-  The build subdirectory to which Lake should output the package's static library.
-  Defaults to `defaultLibDir` (i.e., `lib`).
-  -/
-  libDir : FilePath := defaultLibDir
-
-  /--
-  The build subdirectory to which Lake should output the package's binary executable.
-  Defaults to `defaultBinDir` (i.e., `bin`).
-  -/
-  binDir : FilePath := defaultBinDir
 
   /--
   The URL of the GitHub repository to upload and download releases of this package.
@@ -188,7 +184,7 @@ structure Package where
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
   leanOpts : Options
-  /-- The URL this package's Git remote. -/
+  /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
   /-- The Git tag of this package. -/
   gitTag? : Option String := none
@@ -236,12 +232,12 @@ namespace Package
 abbrev name (self : Package) : Name :=
   self.config.name
 
-/-- An `Array` of the package's direct dependencies. -/
+/-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
 /--
-The package's remote packages directory.
+The directory for storing the package's remote dependencies.
 Either its `packagesDir` configuration or `defaultPackagesDir`.
 -/
 def relPkgsDir (self : Package) : FilePath :=
@@ -328,21 +324,21 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def rootDir (self : Package) : FilePath :=
   self.srcDir
 
-/-- The package's `buildDir` joined with its `oleanDir` configuration. -/
-@[inline] def oleanDir (self : Package) : FilePath :=
-  self.buildDir / self.config.oleanDir
+/-- The package's `buildDir` joined with its `leanLibDir` configuration. -/
+@[inline] def leanLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.leanLibDir
 
-/-- The package's `buildDir` joined with its `irDir` configuration. -/
-@[inline] def irDir (self : Package) : FilePath :=
-  self.buildDir / self.config.irDir
-
-/-- The package's `buildDir` joined with its `libDir` configuration. -/
-@[inline] def libDir (self : Package) : FilePath :=
-  self.buildDir / self.config.libDir
+/-- The package's `buildDir` joined with its `nativeLibDir` configuration. -/
+@[inline] def nativeLibDir (self : Package) : FilePath :=
+  self.buildDir / self.config.nativeLibDir
 
 /-- The package's `buildDir` joined with its `binDir` configuration. -/
 @[inline] def binDir (self : Package) : FilePath :=
   self.buildDir / self.config.binDir
+
+/-- The package's `buildDir` joined with its `irDir` configuration. -/
+@[inline] def irDir (self : Package) : FilePath :=
+  self.buildDir / self.config.irDir
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=

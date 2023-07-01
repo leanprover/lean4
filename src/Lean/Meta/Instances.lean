@@ -73,7 +73,7 @@ structure Instances where
 
 def addInstanceEntry (d : Instances) (e : InstanceEntry) : Instances :=
   match e.globalName? with
-  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e }
+  | some n => { d with discrTree := d.discrTree.insertCore e.keys e, instanceNames := d.instanceNames.insert n e, erased := d.erased.erase n }
   | none   => { d with discrTree := d.discrTree.insertCore e.keys e }
 
 def Instances.eraseCore (d : Instances) (declName : Name) : Instances :=

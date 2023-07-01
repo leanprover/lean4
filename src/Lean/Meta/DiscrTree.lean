@@ -402,8 +402,24 @@ private partial def createNodes (keys : Array (Key s)) (v : α) (i : Nat) : Trie
   else
     .node #[v] #[]
 
+/--
+If `vs` contains an element `v'` such that `v == v'`, then replace `v'` with `v`.
+Otherwise, push `v`.
+See issue #2155
+Recall that `BEq α` may not be Lawful.
+-/
 private def insertVal [BEq α] (vs : Array α) (v : α) : Array α :=
-  if vs.contains v then vs else vs.push v
+  loop 0
+where
+  loop (i : Nat) : Array α :=
+    if h : i < vs.size then
+      if v == vs[i] then
+        vs.set ⟨i,h⟩ v
+      else
+        loop (i+1)
+    else
+      vs.push v
+termination_by loop i => vs.size - i
 
 private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) : Nat → Trie α s → Trie α s
   | i, .node vs cs =>

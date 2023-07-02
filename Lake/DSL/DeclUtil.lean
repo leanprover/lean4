@@ -73,14 +73,14 @@ def mkConfigStructDecl (name? : Option Name)
 (doc? : Option DocComment) (attrs : Array AttrInstance) (ty : Term)
 : (spec : Syntax) → MacroM Syntax.Command
 | `(structDeclSig| $id:ident) =>
-  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty :=
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty :=
     {name := $(quote id.getId)})
 | `(structDeclSig| $id:ident where $ds;* $[$wds?]?) =>
-  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty where
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty where
       name := $(quote id.getId); $ds;* $[$wds?]?)
 | `(structDeclSig| $id:ident $[: $ty?]? := $defn $[$wds?]?) =>
-  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $(ty?.getD ty) := $defn $[$wds?]?)
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $(ty?.getD ty) := $defn $[$wds?]?)
 | `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
   let defn ← `({ name := $(quote id.getId), $fs,* })
-  `($[$doc?]? @[$attrs,*] def $(fixName id name?) : $ty := $defn $[$wds?]?)
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

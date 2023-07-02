@@ -13,14 +13,14 @@ structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type
   /-- The facet's build (function). -/
   build : ι → IndexBuildM (DataFam name)
   /-- Does this facet produce an associated asynchronous job? -/
-  getJob? : Option (DataFam name → Job Unit)
+  getJob? : Option (DataFam name → BuildJob Unit)
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 
 /-- A smart constructor for facet configurations that are not known to generate targets. -/
 @[inline] def mkFacetConfig (build : ι → IndexBuildM α)
-[h : FamilyDef Fam facet α] : FacetConfig Fam ι facet where
+[h : FamilyOut Fam facet α] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := none
 
@@ -29,15 +29,15 @@ A smart constructor for facet configurations that generate jobs for the CLI.
 This is for small jobs that do not the increase the progress counter.
 -/
 @[inline] def mkFacetJobConfigSmall (build : ι → IndexBuildM (BuildJob α))
-[h : FamilyDef Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
+[h : FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
   getJob? := some fun data => discard <| ofFamily data
 
 /-- A smart constructor for facet configurations that generate jobs for the CLI.  -/
 @[inline] def mkFacetJobConfig (build : ι → IndexBuildM (BuildJob α))
-[FamilyDef Fam facet (BuildJob α)] : FacetConfig Fam ι facet :=
+[FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet :=
   mkFacetJobConfigSmall fun i => do
-    let ctx ← readThe BuildContext 
+    let ctx ← readThe BuildContext
     ctx.startedBuilds.modify (·+1)
     let job ← build i
     job.bindSync (prio := .default + 1) fun a trace => do

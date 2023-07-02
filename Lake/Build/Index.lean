@@ -23,7 +23,7 @@ Converts a conveniently typed target facet build function into its
 dynamically typed equivalent.
 -/
 @[macro_inline] def mkTargetFacetBuild (facet : Name) (build : IndexBuildM α)
-[h : FamilyDef TargetData facet α] : IndexBuildM (TargetData facet) :=
+[h : FamilyOut TargetData facet α] : IndexBuildM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
@@ -89,12 +89,12 @@ Recursively build the given info using the Lake build index
 and a topological / suspending scheduler and return the dynamic result.
 -/
 @[macro_inline] def buildIndexTop (info : BuildInfo)
-[FamilyDef BuildData info.key α] : RecBuildM α := do
+[FamilyOut BuildData info.key α] : RecBuildM α := do
   cast (by simp) <| buildIndexTop' info
 
 /-- Build the given Lake target in a fresh build store. -/
 @[inline] def BuildInfo.build
-(self : BuildInfo) [FamilyDef BuildData self.key α] : BuildM α :=
+(self : BuildInfo) [FamilyOut BuildData self.key α] : BuildM α :=
   buildIndexTop self |>.run
 
 export BuildInfo (build)

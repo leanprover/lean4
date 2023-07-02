@@ -56,7 +56,7 @@ variable [Functor m]
   (·.root) <$> read
 
 @[inherit_doc Workspace.findPackage?, inline]
-def findPackage? (name : Name) : m (Option Package) :=
+def findPackage? (name : Name) : m (Option (NPackage name)) :=
   (·.findPackage? name) <$> getWorkspace
 
 @[inherit_doc Workspace.findModule?, inline]

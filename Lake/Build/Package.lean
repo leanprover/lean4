@@ -9,6 +9,45 @@ import Lake.Build.Common
 open System
 namespace Lake
 
+/-- Fetch the build job of the specified package target. -/
+def Package.fetchTargetJob (self : Package)
+(target : Name) : IndexBuildM (Option (BuildJob Unit)) :=  do
+  let some config := self.findTargetConfig? target
+    | error s!"package '{self.name}' has no target '{target}'"
+  return config.getJob (← fetch <| self.target target)
+
+/-- Fetch the build result of a target. -/
+protected def TargetDecl.fetch (self : TargetDecl)
+[FamilyDef CustomData (self.pkg, self.name) α] : IndexBuildM α := do
+  let some pkg ← findPackage? self.pkg
+    | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
+  fetch <| pkg.target self.name
+
+/-- Fetch the build job of the target. -/
+def TargetDecl.fetchJob (self : TargetDecl) : IndexBuildM (BuildJob Unit) :=  do
+  let some pkg ← findPackage? self.pkg
+    | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
+  return self.config.getJob (← fetch <| pkg.target self.name)
+
+/-- Fetch the build result of a package facet. -/
+@[inline] protected def PackageFacetDecl.fetch (pkg : Package)
+(self : PackageFacetDecl) [FamilyOut PackageData self.name α] : IndexBuildM α := do
+  fetch <| pkg.facet self.name
+
+/-- Fetch the build job of a package facet. -/
+def PackageFacetConfig.fetchJob (pkg : Package)
+(self : PackageFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
+  let some getJob := self.getJob?
+    | error "package facet '{pkg.name}' has no associated build job"
+  return getJob <| ← fetch <| pkg.facet self.name
+
+/-- Fetch the build job of a library facet. -/
+def Package.fetchFacetJob
+(name : Name) (self : Package) : IndexBuildM (BuildJob Unit) :=  do
+  let some config := (← getWorkspace).packageFacetConfigs.find? name
+    | error "package facet '{name}' does not exist in workspace"
+  inline <| config.fetchJob self
+
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
   let mut deps := #[]

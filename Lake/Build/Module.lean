@@ -11,6 +11,25 @@ open System
 
 namespace Lake
 
+/-- Fetch the build result of a module facet. -/
+@[inline] protected def ModuleFacetDecl.fetch (mod : Module)
+(self : ModuleFacetDecl) [FamilyOut ModuleData self.name α] : IndexBuildM α := do
+  fetch <| mod.facet self.name
+
+/-- Fetch the build job of a module facet. -/
+def ModuleFacetConfig.fetchJob (mod : Module)
+(self : ModuleFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
+  let some getJob := self.getJob?
+    | error "module facet '{self.name}' has no associated build job"
+  return getJob <| ← fetch <| mod.facet self.name
+
+/-- Fetch the build job of a module facet. -/
+def Module.fetchFacetJob
+(name : Name) (self : Module) : IndexBuildM (BuildJob Unit) :=  do
+  let some config := (← getWorkspace).moduleFacetConfigs.find? name
+    | error "library facet '{name}' does not exist in workspace"
+  inline <| config.fetchJob self
+
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
 (depTrace : BuildTrace) : BuildM PUnit := do

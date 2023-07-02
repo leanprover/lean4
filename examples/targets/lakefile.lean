@@ -23,13 +23,16 @@ lean_exe b
 lean_exe c
 
 @[default_target]
-target meow (pkg : Package) : Unit := do
+target meow pkg : Unit := do
   IO.FS.writeFile (pkg.buildDir / "meow.txt") "Meow!"
   return .nil
 
 target bark : Unit := do
   logInfo "Bark!"
   return .nil
+
+target bark_bark : Unit := do
+  bark.fetch
 
 package_facet print_name pkg : Unit := do
   IO.println pkg.name
@@ -39,7 +42,7 @@ module_facet get_src mod : FilePath := do
   inputFile mod.leanFile
 
 module_facet print_src mod : Unit := do
-  (← fetch (mod.facet `get_src)).bindSync fun src trace => do
+  (← fetch <| mod.facet `get_src).bindSync fun src trace => do
     IO.println src
     return ((), trace)
 

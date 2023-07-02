@@ -113,14 +113,14 @@ def foo := Id.run do
 ## Type Safety
 
 In order to maintain type safety, `a = b → Fam a = Fam b` must actually hold.
-That is, one must not define mapping to two different types with equivalent
+That is, one must not define mappings to two different types with equivalent
 keys. Since mappings are defined through axioms, Lean WILL NOT catch violations
 of this rule itself, so extra care must be taken when defining mappings.
 
 In Lake, this is solved by having its open type families be indexed by a
 `Lean.Name` and defining each mapping using a name literal `name` and the
-declaration ``axiom Fam.name : Fam `name = α`` thus causing a name clash
-if two keys overlap and thereby producing an error.
+declaration ``axiom Fam.name : Fam `name = α``. This causes a name clash
+if two keys overlap and thereby produces an error.
 -/
 
 open Lean
@@ -131,24 +131,29 @@ namespace Lake
 
 /--
 Defines a single mapping of the **open type family** `Fam`, namely `Fam a = β`.
-See the module documentation of `Lake.Util.Family` for details what an open type
-family is in Lake.
+See the module documentation of `Lake.Util.Family` for details on what an open
+type family is in Lake.
 -/
-class FamilyDef {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Type v) : Prop where
+class FamilyDef {α : Type u} (Fam : α → Type v) (a : α) (β : semiOutParam $ Type v) : Prop where
   family_key_eq_type : Fam a = β
 
-export FamilyDef (family_key_eq_type)
+/-- Like `FamilyDef`, but `β` is an `outParam`. -/
+class FamilyOut {α : Type u} (Fam : α → Type v) (a : α) (β : outParam $ Type v) : Prop where
+  family_key_eq_type : Fam a = β
 
--- Simplifies proofs involving open type families.
-attribute [simp] family_key_eq_type
+-- Simplifies proofs involving open type families
+attribute [simp] FamilyOut.family_key_eq_type
+
+instance [FamilyDef Fam a β] : FamilyOut Fam a β where
+  family_key_eq_type := FamilyDef.family_key_eq_type
 
 /-- Cast a datum from its individual type to its general family. -/
-@[macro_inline] def toFamily [FamilyDef Fam a β] (b : β) : Fam a :=
-  cast family_key_eq_type.symm b
+@[macro_inline] def toFamily [FamilyOut Fam a β] (b : β) : Fam a :=
+  cast FamilyOut.family_key_eq_type.symm b
 
 /-- Cast a datum from its general family to its individual type. -/
-@[macro_inline] def ofFamily [FamilyDef Fam a β] (b : Fam a) : β :=
-  cast family_key_eq_type b
+@[macro_inline] def ofFamily [FamilyOut Fam a β] (b : Fam a) : β :=
+  cast FamilyOut.family_key_eq_type b
 
 /--
 The syntax:

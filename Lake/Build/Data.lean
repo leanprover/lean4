@@ -53,7 +53,10 @@ as needed (via `library_data`).
 -/
 abbrev LibraryData (facet : Name) := TargetData (`leanLib ++ facet)
 
-instance [h : FamilyDef TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
+instance [h : FamilyOut LibraryData facet α] : FamilyDef TargetData (`leanLib ++ facet) α :=
+  ⟨by simp [h.family_key_eq_type]⟩
+
+instance [h : FamilyOut TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
   ⟨h.family_key_eq_type⟩
 
 /--
@@ -80,10 +83,10 @@ abbrev BuildData : BuildKey → Type
 | .targetFacet _ _ f => TargetData f
 | .customTarget p t => CustomData (p, t)
 
-instance : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
-instance : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
-instance : FamilyDef BuildData (.targetFacet p t f) (TargetData f) := ⟨rfl⟩
-instance : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.packageFacet p f) (PackageData f) := ⟨rfl⟩
+instance (priority := low) : FamilyDef BuildData (.targetFacet p t f) (TargetData f) := ⟨rfl⟩
+instance (priority := low)  : FamilyDef BuildData (.customTarget p t) (CustomData (p,t)) := ⟨rfl⟩
 
 --------------------------------------------------------------------------------
 /-! ## Macros for Declaring Build Data                                        -/

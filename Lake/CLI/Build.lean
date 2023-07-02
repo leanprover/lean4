@@ -12,23 +12,25 @@ namespace Lake
 
 structure BuildSpec where
   info : BuildInfo
-  getJob : BuildData info.key → Job Unit
+  getBuildJob : BuildData info.key → BuildJob Unit
 
-/-- Get the `Job` associated with some `BuildJob` `BuildData`. -/
-@[inline] def BuildData.toJob
-[FamilyDef BuildData k (BuildJob α)] (data : BuildData k) : Job Unit :=
+@[inline] def BuildSpec.getJob (self : BuildSpec) (data : BuildData self.info.key) : Job Unit :=
+  discard <| self.getBuildJob data
+
+@[inline] def BuildData.toBuildJob
+[FamilyOut BuildData k (BuildJob α)] (data : BuildData k) : BuildJob Unit :=
   discard <| ofFamily data
 
 @[inline] def mkBuildSpec (info : BuildInfo)
-[FamilyDef BuildData info.key (BuildJob α)] : BuildSpec :=
-  {info, getJob := BuildData.toJob}
+[FamilyOut BuildData info.key (BuildJob α)] : BuildSpec :=
+  {info, getBuildJob := BuildData.toBuildJob}
 
 @[inline] def mkConfigBuildSpec (facetType : String)
 (info : BuildInfo) (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
 : Except CliError BuildSpec := do
   let some getJob := config.getJob?
     | throw <| CliError.nonCliFacet facetType facet
-  return {info, getJob := h ▸ getJob}
+  return {info, getBuildJob := h ▸ getJob}
 
 def BuildSpec.build (self : BuildSpec) : RecBuildM (Job Unit) :=
   self.getJob <$> buildIndexTop' self.info
@@ -89,7 +91,7 @@ def resolveCustomTarget (pkg : Package)
   else do
     let info := pkg.target name
     have h : BuildData info.key = CustomData (pkg.name, name) := rfl
-    return {info, getJob := fun data => discard (h ▸ config.getJob data).toJob}
+    return {info, getBuildJob := h ▸ config.getJob}
 
 def resolveTargetInPackage (ws : Workspace)
 (pkg : Package) (target facet : Name) : Except CliError (Array BuildSpec) :=

@@ -40,7 +40,7 @@ kw:"module_facet " sig:buildDeclSig : command => do
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_modFacet")
     let mod ← expandOptSimpleBinder mod?
     `(module_data $id : BuildJob $ty
-      $[$doc?:docComment]? @[$attrs,*] def $facetId : ModuleFacetDecl := {
+      $[$doc?:docComment]? @[$attrs,*] abbrev $facetId : ModuleFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig
           fun $mod => ($defn : IndexBuildM (BuildJob $ty))
@@ -69,7 +69,7 @@ kw:"package_facet " sig:buildDeclSig : command => do
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
     let pkg ← expandOptSimpleBinder pkg?
     `(package_data $id : BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $facetId : PackageFacetDecl := {
+      $[$doc?]? @[$attrs,*] abbrev $facetId : PackageFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
@@ -98,7 +98,7 @@ kw:"library_facet " sig:buildDeclSig : command => do
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_libFacet")
     let lib ← expandOptSimpleBinder lib?
     `(library_data $id : BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $facetId : LibraryFacetDecl := {
+      $[$doc?]? @[$attrs,*] abbrev $facetId : LibraryFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig
           fun $lib => ($defn : IndexBuildM (BuildJob $ty))
@@ -127,11 +127,11 @@ kw:"target " sig:buildDeclSig : command => do
     let pkgName := mkIdentFrom id `_package.name
     let pkg ← expandOptSimpleBinder pkg?
     `(family_def $id : CustomData ($pkgName, $name) := BuildJob $ty
-      $[$doc?]? @[$attrs,*] def $id : TargetDecl := {
+      $[$doc?]? @[$attrs,*] abbrev $id : TargetDecl := {
         pkg := $pkgName
         name := $name
         config := Lake.mkTargetJobConfig
-          fun $pkg _ => ($defn : IndexBuildM (BuildJob $ty))
+          fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
       }  $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 

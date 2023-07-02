@@ -7,6 +7,19 @@ import Lake.Build.Common
 
 namespace Lake
 
+/-- Get the Lean executable in the workspace with the configuration's name. -/
+@[inline] def LeanExeConfig.get (self : LeanExeConfig)
+[Monad m] [MonadError m] [MonadLake m] : m LeanExe := do
+  let some exe ← findLeanExe? self.name
+    | error "Lean executable '{self.name}' does not exist in the workspace"
+  return exe
+
+
+/-- Fetch the build of the Lean executable. -/
+@[inline] def LeanExeConfig.fetch
+(self : LeanExeConfig) : IndexBuildM (BuildJob FilePath) := do
+  (← self.get).exe.fetch
+
 /-! # Build Executable -/
 
 protected def LeanExe.recBuildExe

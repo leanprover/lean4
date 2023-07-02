@@ -42,8 +42,8 @@ structure ModuleFacet (α) where
 instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
   ⟨facet.data_eq⟩
 
-instance [FamilyDef ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
-  ⟨facet, family_key_eq_type⟩
+instance [FamilyOut ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
+  ⟨facet, FamilyOut.family_key_eq_type⟩
 
 /--
 The core compilation / elaboration of the Lean file via `lean`,

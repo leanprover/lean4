@@ -226,11 +226,23 @@ abbrev PackageSet := HashSet Package
 abbrev OrdPackageSet := OrdHashSet Package
 @[inline] def OrdPackageSet.empty : OrdPackageSet := OrdHashSet.empty
 
-namespace Package
+/-- The package's name. -/
+abbrev Package.name (self : Package) : Name :=
+  self.config.name
+
+/-- A package with a name known at type-level. -/
+structure NPackage (name : Name) extends Package where
+  name_eq : toPackage.name = name
+
+attribute [simp] NPackage.name_eq
+
+instance : CoeOut (NPackage name) Package := ⟨NPackage.toPackage⟩
+instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 
 /-- The package's name. -/
-abbrev name (self : Package) : Name :=
-  self.config.name
+abbrev NPackage.name (_ : NPackage n) := n
+
+namespace Package
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=

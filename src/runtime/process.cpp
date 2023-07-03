@@ -23,6 +23,7 @@ Author: Jared Roesch
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <signal.h>
 #endif
 
 #include "runtime/object.h"
@@ -68,6 +69,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     return lean_io_result_mk_ok(box_uint32(exit_code));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
+    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
+    if (!TerminateProcess(h, 1)) {
+        return io_result_mk_error((sstream() << GetLastError()).str());
+    }
+    return lean_io_result_mk_ok(box(0));
+}
+
 static FILE * from_win_handle(HANDLE handle, char const * mode) {
     int fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_APPEND);
     return fdopen(fd, mode);
@@ -110,7 +119,8 @@ static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object **
 
 // This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
-                     stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env) {
+                     stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+                     bool _do_setsid) {
     HANDLE child_stdin  = GetStdHandle(STD_INPUT_HANDLE);
     HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
     HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
@@ -254,6 +264,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     }
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child, obj_arg) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
+    bool setsid = cnstr_get_uint8(child, 3 * sizeof(object *) + sizeof(pid_t));
+    if ((setsid ? killpg(pid, SIGKILL) : kill(pid, SIGKILL)) == -1) {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+    return lean_io_result_mk_ok(box(0));
+}
+
 struct pipe { int m_read_fd; int m_write_fd; };
 
 static optional<pipe> setup_stdio(stdio cfg) {
@@ -281,7 +301,8 @@ static optional<pipe> setup_stdio(stdio cfg) {
 }
 
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
-  stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env) {
+  stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+  bool do_setsid) {
     /* Setup stdio based on process configuration. */
     auto stdin_pipe  = setup_stdio(stdin_mode);
     auto stdout_pipe = setup_stdio(stdout_mode);
@@ -329,6 +350,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
             }
         }
 
+        if (do_setsid) {
+            lean_always_assert(setsid() >= 0);
+        }
+
         buffer<char *> pargs;
         pargs.push_back(strdup(proc_name.data()));
         for (auto & arg : args)
@@ -361,9 +386,10 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         parent_stderr = io_wrap_handle(fdopen(stderr_pipe->m_read_fd, "r"));
     }
 
-    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t));
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t) + sizeof(uint8_t));
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
     cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
+    cnstr_set_uint8(r.raw(), 3 * sizeof(object *) + sizeof(pid_t), do_setsid);
     return lean_io_result_mk_ok(r.steal());
 }
 
@@ -399,7 +425,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
                 stdout_mode,
                 stderr_mode,
                 cnstr_get_ref_t<option_ref<string_ref>>(args, 3),
-                cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4));
+                cnstr_get_ref_t<array_ref<pair_ref<string_ref, option_ref<string_ref>>>>(args, 4),
+                cnstr_get_uint8(args.raw(), 5 * sizeof(object *)));
     } catch (int err) {
         return lean_io_result_mk_error(decode_io_error(err, nullptr));
     } catch (std::system_error const & err) {

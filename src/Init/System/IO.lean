@@ -536,6 +536,8 @@ structure SpawnArgs extends StdioConfig where
   cwd : Option FilePath := none
   /-- Add or remove environment variables for the process. -/
   env : Array (String × Option String) := #[]
+  /-- Start process in new session and process group using `setsid`. Currently a no-op on non-POSIX platforms. -/
+  setsid : Bool := false
 
 -- TODO(Sebastian): constructor must be private
 structure Child (cfg : StdioConfig) where
@@ -546,6 +548,10 @@ structure Child (cfg : StdioConfig) where
 @[extern "lean_io_process_spawn"] opaque spawn (args : SpawnArgs) : IO (Child args.toStdioConfig)
 
 @[extern "lean_io_process_child_wait"] opaque Child.wait {cfg : @& StdioConfig} : @& Child cfg → IO UInt32
+
+/-- Terminates the child process using the SIGTERM signal or a platform analogue.
+    If the process was started using `SpawnArgs.setsid`, terminates the entire process group instead. -/
+@[extern "lean_io_process_child_kill"] opaque Child.kill {cfg : @& StdioConfig} : @& Child cfg → IO Unit
 
 /--
 Extract the `stdin` field from a `Child` object, allowing them to be freed independently.

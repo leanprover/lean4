@@ -210,6 +210,9 @@ section ServerM
         -- If writeLspMessage from above errors we will block here, but the main task will
         -- quit eventually anyways if that happens
         let exitCode ← fw.proc.wait
+        -- Remove surviving descendant processes, if any, such as from nested builds.
+        -- On Windows, we instead rely on elan doing this.
+        try fw.proc.kill catch _ => pure ()
         match exitCode with
         | 0 =>
           -- Worker was terminated
@@ -241,6 +244,8 @@ section ServerM
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
       args          := #["--worker"] ++ st.args.toArray ++ #[m.uri]
+      -- open session for `kill` above
+      setsid        := true
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     -- The task will never access itself, so this is fine

@@ -180,18 +180,38 @@ namespace Module
 abbrev facet (facet : Name) (self : Module) : BuildInfo :=
   .moduleFacet self facet
 
-variable (self : Module)
+@[inherit_doc importsFacet] abbrev imports (self : Module) :=
+  self.facet importsFacet
 
-abbrev imports            := self.facet importsFacet
-abbrev transImports       := self.facet transImportsFacet
-abbrev precompileImports  := self.facet precompileImportsFacet
-abbrev leanBin            := self.facet leanBinFacet
-abbrev importBin          := self.facet importBinFacet
-abbrev olean              := self.facet oleanFacet
-abbrev ilean              := self.facet ileanFacet
-abbrev c                  := self.facet cFacet
-abbrev o                  := self.facet oFacet
-abbrev dynlib             := self.facet dynlibFacet
+@[inherit_doc transImportsFacet] abbrev transImports (self : Module) :=
+  self.facet transImportsFacet
+
+@[inherit_doc precompileImportsFacet] abbrev precompileImports (self : Module) :=
+  self.facet precompileImportsFacet
+
+@[inherit_doc depsFacet] abbrev deps  (self : Module) :=
+  self.facet depsFacet
+
+@[inherit_doc leanBinFacet] abbrev leanBin  (self : Module) :=
+  self.facet leanBinFacet
+
+@[inherit_doc importBinFacet] abbrev importBin (self : Module) :=
+  self.facet importBinFacet
+
+@[inherit_doc oleanFacet] abbrev olean (self : Module) :=
+  self.facet oleanFacet
+
+@[inherit_doc ileanFacet] abbrev ilean (self : Module)  :=
+  self.facet ileanFacet
+
+@[inherit_doc cFacet] abbrev c (self : Module) :=
+  self.facet cFacet
+
+@[inherit_doc oFacet] abbrev o (self : Module) :=
+  self.facet oFacet
+
+@[inherit_doc dynlibFacet] abbrev dynlib (self : Module) :=
+  self.facet dynlibFacet
 
 end Module
 
@@ -199,11 +219,11 @@ end Module
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
   .packageFacet self facet
 
-/-- Build info for fetching the package's cloud release. -/
+@[inherit_doc releaseFacet]
 abbrev Package.release (self : Package) : BuildInfo :=
   self.facet releaseFacet
 
-/-- Build info for the package and its dependencies collective `extraDepTarget`. -/
+@[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet
 
@@ -215,19 +235,19 @@ abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
 abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
   .libraryFacet self facet
 
-/-- Build info of the Lean library's Lean modules. -/
+@[inherit_doc modulesFacet]
 abbrev LeanLib.modules (self : LeanLib) : BuildInfo :=
   self.facet modulesFacet
 
-/-- Build info of the Lean library's Lean binaries. -/
+@[inherit_doc leanFacet]
 abbrev LeanLib.lean (self : LeanLib) : BuildInfo :=
   self.facet leanFacet
 
-/-- Build info of the Lean library's static binary. -/
+@[inherit_doc staticFacet]
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
   self.facet staticFacet
 
-/-- Build info of the Lean library's shared binary. -/
+@[inherit_doc sharedFacet]
 abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
   self.facet sharedFacet
 

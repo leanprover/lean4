@@ -79,14 +79,14 @@ The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
 LIBRARY FACETS:         build the library's ...
-  lean (default)        Lean binaries (*.olean and *.ilean files)
+  lean (default)        Lean binaries (*.olean, *.ilean files)
   static                static binary (*.a file)
   shared                shared binary (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
-  bin (default)         Lean binaries (*.olean and *.ilean files)
-  c                     C file produced by `lean`
-  o                     *.o object file (of its `lean.c` C file)
+  deps                  transitive local imports & shared library dependencies
+  bin (default)         Lean binaries (*.olean, *.ilean files) and *.c file
+  o                     *.o object file (of its C file)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...

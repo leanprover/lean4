@@ -18,13 +18,17 @@ fi
 
 $LAKE build bark | grep -m1 Bark!
 $LAKE build targets/bark_bark | grep -m1 Bark!
-$LAKE build Foo.Test:print_src | grep -m1 Test.lean
+$LAKE build Foo.Bar:print_src | grep -m1 Bar.lean
 $LAKE build foo:print_name | grep -m1 foo
 
-$LAKE build +Foo.Test
+$LAKE build Foo:deps
 
-test -f ./build/lib/Foo/Test.olean
-test ! -f ./build/lib/Foo/Test.c
+test -f ./build/lib/Foo/Bar.olean
+test ! -f ./build/lib/Foo.olean
+
+$LAKE build +Foo.Baz
+
+test -f ./build/lib/Foo/Baz.olean
 
 $LAKE build Bar:o
 

@@ -16,7 +16,7 @@ import said configurations for `BuildInfo`.
 -/
 
 namespace Lake
-export System (FilePath)
+export System (SearchPath FilePath)
 
 /-- A dynamic/shared library for linking. -/
 structure Dynlib where
@@ -46,6 +46,14 @@ instance [FamilyOut ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
   ⟨facet, FamilyOut.family_key_eq_type⟩
 
 /--
+The facet which builds all of a module's dependencies
+(i.e., transitive local imports and `--load-dynlib` shared libraries).
+Returns the list of shared libraries to load along with their search path.
+-/
+abbrev Module.depsFacet := `deps
+module_data deps : BuildJob (SearchPath × Array FilePath)
+
+/--
 The core compilation / elaboration of the Lean file via `lean`,
 which produce the Lean binaries of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
@@ -56,7 +64,7 @@ module_data bin : BuildJob Unit
 /--
 The `leanBinFacet` combined with the module's trace
 (i.e., the trace of its `olean` and `ilean`).
-It is the facet used for building Lean imports of a module.
+It is the facet used for building a Lean import of a module.
 -/
 abbrev Module.importBinFacet := `importBin
 module_data importBin : BuildJob Unit
@@ -83,7 +91,7 @@ module_data o : BuildJob FilePath
 abbrev Package.releaseFacet := `release
 package_data release : BuildJob Unit
 
-/-- The package's `extraDepTarget` mixed with its transitive dependencies. -/
+/-- The package's `extraDepTarget` mixed with its transitive dependencies'. -/
 abbrev Package.extraDepFacet := `extraDep
 package_data extraDep : BuildJob Unit
 

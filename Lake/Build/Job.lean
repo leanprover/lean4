@@ -68,6 +68,9 @@ instance : Pure BuildJob := ⟨BuildJob.pure⟩
 instance : Functor BuildJob where
   map := BuildJob.map
 
+@[inline] def mapWithTrace (f : α → BuildTrace → β × BuildTrace) (self : BuildJob α) : BuildJob β :=
+  mk <| (fun (a,t) => f a t) <$> self.toJob
+
 @[inline] protected def bindSync
 (self : BuildJob α) (f : α → BuildTrace → JobM β)
 (prio : Task.Priority := .default) : SchedulerM (Job β) :=

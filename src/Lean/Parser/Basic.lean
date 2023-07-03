@@ -235,17 +235,19 @@ def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.
     -- `(structInstField| $id:structInstField <ERROR: expected ')'>.
     if s.pos > pPos then
       return s
-    if antiquotBehavior != .merge || s.stackSize != iniSz + 1 || !s.stxStack.back.isAntiquot then
+    if s.pos < pPos || antiquotBehavior != .merge || s.stackSize != iniSz + 1 || !s.stxStack.back.isAntiquots then
       return s.restore iniSz pPos |>.pushSyntax pBack
     -- Pop off result of `q`, push result(s) of `p` and `q` in that order, turn them into a choice node
     let qBack := s.stxStack.back
     s := s.popSyntax
-    if pBack.isOfKind choiceKind then
-      -- Flatten existing choice node
-      s := { s with stxStack := s.stxStack ++ pBack.getArgs }
-    else
-      s := s.pushSyntax pBack
-    s := s.pushSyntax qBack
+    let pushAntiquots stx s :=
+      if stx.isOfKind choiceKind then
+        -- Flatten existing choice node
+        { s with stxStack := s.stxStack ++ stx.getArgs }
+      else
+        s.pushSyntax stx
+    s := pushAntiquots pBack s
+    s := pushAntiquots qBack s
     s.mkNode choiceKind iniSz
 
 def orelseFn (p q : ParserFn) : ParserFn :=

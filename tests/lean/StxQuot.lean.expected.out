@@ -56,3 +56,12 @@ StxQuot.lean:108:22-108:23: error: unknown identifier 'y' at quotation precheck;
 "(Term.fun\n \"fun\"\n (Term.basicFun\n  [(Term.anonymousCtor \"⟨\" [`x._@.UnhygienicMain._hyg.1 \",\" `y._@.UnhygienicMain._hyg.1] \"⟩\")]\n  []\n  \"=>\"\n  `x._@.UnhygienicMain._hyg.1))"
 "1"
 "(mycatMystx \"mystx\")"
+fun e => do
+  let info ← MonadRef.mkInfoFromRefPos
+  let scp ← getCurrMacroScope
+  let mainModule ← getMainModule
+  pure
+      {
+        raw :=
+          Syntax.node2 info `termTestABC (Syntax.atom info "test")
+            e.raw } : (e : TSyntax [`token.a, `token.b, `token.c]) → ?m e (TSyntax `term)

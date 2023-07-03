@@ -123,3 +123,6 @@ syntax "mystx" : mycat
 example
   | `([$_,*]) => id 0
   | _ => 1
+
+syntax "test" ("a" <|> ("b" <|> "c")) : term
+#check fun e => `(test $e)

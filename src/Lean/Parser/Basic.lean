@@ -211,7 +211,6 @@ inductive OrElseOnAntiquotBehavior where
   deriving BEq
 
 def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.merge) : ParserFn := fun c s => Id.run do
-  let s0     := s
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let mut s  := p c s
@@ -222,22 +221,32 @@ def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.
     else
       s
   | none =>
-    let back := s.stxStack.back
-    if antiquotBehavior != .acceptLhs && s.stackSize == iniSz + 1 && back.isAntiquots then
-      let s' := q c s0
-      if !s'.hasError then
-        -- If `q` made more progress than `p`, we prefer its result.
-        -- Thus `(structInstField| $id := $val) is interpreted as
-        -- `(structInstField| $id:ident := $val:term), not
-        -- `(structInstField| $id:structInstField <ERROR: expected ')'>.
-        if s'.pos > s.pos then
-          return s'
-        else if antiquotBehavior == .merge && s'.stackSize == iniSz + 1 && s'.stxStack.back.isAntiquot then
-          if back.isOfKind choiceKind then
-            s := { s with stxStack := s.stxStack.pop ++ back.getArgs }
-          s := s.pushSyntax s'.stxStack.back
-          s := s.mkNode choiceKind iniSz
-    s
+    let pBack := s.stxStack.back
+    if antiquotBehavior == .acceptLhs || s.stackSize != iniSz + 1 || !pBack.isAntiquots then
+      return s
+    let pPos := s.pos
+    s := s.restore iniSz iniPos
+    s := q c s
+    if s.hasError then
+      return s.restore iniSz pPos |>.pushSyntax pBack
+    -- If `q` made more progress than `p`, we prefer its result.
+    -- Thus `(structInstField| $id := $val) is interpreted as
+    -- `(structInstField| $id:ident := $val:term), not
+    -- `(structInstField| $id:structInstField <ERROR: expected ')'>.
+    if s.pos > pPos then
+      return s
+    if antiquotBehavior != .merge || s.stackSize != iniSz + 1 || !s.stxStack.back.isAntiquot then
+      return s.restore iniSz pPos |>.pushSyntax pBack
+    -- Pop off result of `q`, push result(s) of `p` and `q` in that order, turn them into a choice node
+    let qBack := s.stxStack.back
+    s := s.popSyntax
+    if pBack.isOfKind choiceKind then
+      -- Flatten existing choice node
+      s := { s with stxStack := s.stxStack ++ pBack.getArgs }
+    else
+      s := s.pushSyntax pBack
+    s := s.pushSyntax qBack
+    s.mkNode choiceKind iniSz
 
 def orelseFn (p q : ParserFn) : ParserFn :=
   orelseFnCore p q

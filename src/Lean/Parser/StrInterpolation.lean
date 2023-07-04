@@ -15,9 +15,8 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
     let i     := s.pos
     if input.atEnd i then
-      let s := s.pushSyntax Syntax.missing
-      let s := s.mkNode interpolatedStrKind stackSize
-      s.setError "unterminated string literal"
+      let s := s.mkError "unterminated string literal"
+      s.mkNode interpolatedStrKind stackSize
     else
       let curr := input.get i
       let s    := s.setPos (input.next i)
@@ -37,9 +36,8 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
             let s := s.setPos (input.next i)
             parse i c s
           else
-            let s := s.pushSyntax Syntax.missing
-            let s := s.mkNode interpolatedStrKind stackSize
-            s.setError "'}'"
+            let s := s.mkError "'}'"
+            s.mkNode interpolatedStrKind stackSize
       else
         parse startPos c s
   let startPos := s.pos

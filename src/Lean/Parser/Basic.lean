@@ -134,8 +134,7 @@ def errorAtSavedPosFn (msg : String) (delta : Bool) : ParserFn := fun c s =>
   | none     => s
   | some pos =>
     let pos := if delta then c.input.next pos else pos
-    match s with
-    | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg }⟩
+    s.mkUnexpectedErrorAt msg pos
 
 /-- Generate an error at the position saved with the `withPosition` combinator.
    If `delta == true`, then it reports at saved position+1.

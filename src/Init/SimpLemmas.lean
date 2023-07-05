@@ -156,3 +156,6 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 
 @[simp] theorem decide_False : decide False = false := rfl
 @[simp] theorem decide_True : decide True = true := rfl
+
+@[simp] theorem bne_iff_ne [BEq α] [LawfulBEq α] (a b : α) : a != b ↔ a ≠ b := by
+  simp [bne]; rw [← beq_iff_eq a b]; simp [-beq_iff_eq]

@@ -1471,7 +1471,7 @@ set_option bootstrap.genMatcherCode false in
 /--
 The power operation on natural numbers.
 
-This definition is overridden in the compiler to efficiently
+This definition is overridden in both the kernel and the compiler to efficiently
 evaluate using the "bignum" representation (see `Nat`). The definition provided
 here is the logical model.
 -/

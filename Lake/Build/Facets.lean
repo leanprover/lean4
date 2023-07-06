@@ -9,10 +9,10 @@ import Lake.Build.Data
 /-!
 # Simple Builtin Facet Declarations
 
-This module declares most of the builtin facets an targets and
-their build data builtin facets and targets. Some of these definitions
-are needed for configurations, so we define them here before we need to
-import said configurations for `BuildInfo`.
+This module contains the definitions of most of the builtin facets.
+The others are defined `Build.Info`. The facets there require configuration
+definitions (e.g., `Module`), and some of the facets here are used in said
+definitions.
 -/
 
 namespace Lake

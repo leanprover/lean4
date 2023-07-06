@@ -137,9 +137,10 @@ export BuildInfo (fetch)
 /-!
 ### Complex Builtin Facet Declarations
 
-Additional builtin build data types on top of those defined in `FacetData` .
-Defined here because they need to import configurations, whereas the definitions
-there need to be imported by configurations.
+Additional builtin facets missing from `Build.Facets`.
+These are defined here because they need configuration definitions
+(e.g., `Module`), whereas the facets there are needed by the configuration
+definitions.
 -/
 
 /-- The direct local imports of the Lean module. -/

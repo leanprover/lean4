@@ -182,7 +182,10 @@ register_builtin_option checkBinderAnnotations : Bool := {
 /-- Throw an error if `type` is not a valid local instance. -/
 private partial def checkLocalInstanceParameters (type : Expr) : TermElabM Unit := do
   let .forallE n d b bi ← whnf type | return ()
-  if !b.hasLooseBVar 0 then
+  -- We allow instance arguments so that local instances of the form
+  -- `variable [∀ (a : α) [P a], Q a]`
+  -- are accepted, per https://github.com/leanprover/lean4/issues/2311
+  if bi != .instImplicit && !b.hasLooseBVar 0 then
     throwError "invalid parametric local instance, parameter with type{indentExpr d}\ndoes not have forward dependencies, type class resolution cannot use this kind of local instance because it will not be able to infer a value for this parameter."
   withLocalDecl n bi d fun x => checkLocalInstanceParameters (b.instantiate1 x)
 

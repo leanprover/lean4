@@ -687,9 +687,13 @@ def emitDeclInit (d : Decl) : M Unit := do
   let env ← getEnv
   let n := d.name
   if isIOUnitInitFn env n then
+    if isIOUnitBuiltinInitFn env n then
+      emit "if (builtin) {"
     emit "res = "; emitCName n; emitLn "(lean_io_mk_world());"
     emitLn "if (lean_io_result_is_error(res)) return res;"
     emitLn "lean_dec_ref(res);"
+    if isIOUnitBuiltinInitFn env n then
+      emit "}"
   else if d.params.size == 0 then
     match getInitFnNameFor? env d.name with
     | some initFn =>

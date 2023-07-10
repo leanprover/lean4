@@ -269,8 +269,8 @@ def natAbs (m : @& Int) : Nat :=
 
   #eval (12 : Int) / (7 : Int) -- 1
   #eval (12 : Int) / (-7 : Int) -- -1
-  #eval (-12 : Int) / (7 : Int) -- -2
-  #eval (-12 : Int) / (-7 : Int) -- 2
+  #eval (-12 : Int) / (7 : Int) -- -1
+  #eval (-12 : Int) / (-7 : Int) -- 1
   ```
 
   Implemented by efficient native code. -/

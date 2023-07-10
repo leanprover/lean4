@@ -4,7 +4,7 @@
 
 Platforms built & tested by our CI, available as nightly releases via elan (see below)
 
-* x86-64 Linux with glibc 2.26+
+* x86-64 Linux with glibc 2.27+
 * x86-64 macOS 10.15+
 * x86-64 Windows 10+
 

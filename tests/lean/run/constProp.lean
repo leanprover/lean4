@@ -431,18 +431,18 @@ theorem State.bot_le (σ : State) : ⊥ ≼ σ :=
 
 theorem State.erase_le_cons (h : σ' ≼ σ) : σ'.erase x ≼ ((x, v) :: σ) := by
   intro y w hf'
-  by_cases hyx : y = x <;> simp [*] at hf' ⊢
+  by_cases hyx : y = x <;> simp [*] at hf' |-
   exact h hf'
 
 theorem State.cons_le_cons (h : σ' ≼ σ) : (x, v) :: σ' ≼ (x, v) :: σ := by
   intro y w hf'
-  by_cases hyx : y = x <;> simp [*] at hf' ⊢
+  by_cases hyx : y = x <;> simp [*] at hf' |-
   next => assumption
   next => exact h hf'
 
 theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (x, v) :: σ' ≼ σ := by
   intro y w hf'
-  by_cases hyx : y = x <;> simp [*] at hf' ⊢
+  by_cases hyx : y = x <;> simp [*] at hf' |-
   next => assumption
   next => exact h₁ hf'
 
@@ -507,7 +507,7 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
 
 theorem State.erase_le_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
   intro y w hf'
-  by_cases hxy : x = y <;> simp [*] at hf' ⊢
+  by_cases hxy : x = y <;> simp [*] at hf' |-
   exact h hf'
 
 theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by

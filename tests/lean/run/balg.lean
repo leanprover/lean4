@@ -86,7 +86,7 @@ theorem mul_right_inv {G : Group} (a : G) : a * a⁻¹ = 1 := by
   assumption
 
 unif_hint (G : Group) where
-  ⊢ G.toMonoid.one =?= 1
+  |- G.toMonoid.one =?= 1
 
 theorem mul_inv_rev {G : Group} (a b : G) : (a * b)⁻¹ = b⁻¹ * a⁻¹ := by
   apply inv_eq_of_mul_eq_one

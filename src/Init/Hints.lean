@@ -9,4 +9,4 @@ import Init.NotationExtra
 /- Hint for making sure `Not p` is definitionally equal to `p → False` even when
    `TransparencyMode.reducible` -/
 unif_hint (p : Prop) where
-  ⊢ Not p =?= p → False
+  |- Not p =?= p → False

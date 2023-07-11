@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Revert
 namespace Lean.Meta
 
 /--
-  Convert the given goal `Ctx ⊢ target` into `Ctx ⊢ type -> target`.
+  Convert the given goal `Ctx |- target` into `Ctx |- type -> target`.
   It assumes `val` has type `type` -/
 def _root_.Lean.MVarId.assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId :=
   mvarId.withContext do
@@ -27,7 +27,7 @@ def assert (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MV
   mvarId.assert name type val
 
 /--
-  Convert the given goal `Ctx ⊢ target` into `Ctx ⊢ let name : type := val; target`.
+  Convert the given goal `Ctx |- target` into `Ctx |- let name : type := val; target`.
   It assumes `val` has type `type` -/
 def _root_.Lean.MVarId.define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MVarId := do
   mvarId.withContext do
@@ -44,7 +44,7 @@ def define (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) : MetaM MV
   mvarId.define name type val
 
 /--
-  Convert the given goal `Ctx ⊢ target` into `Ctx ⊢ (hName : type) -> hName = val -> target`.
+  Convert the given goal `Ctx |- target` into `Ctx |- (hName : type) -> hName = val -> target`.
   It assumes `val` has type `type` -/
 def _root_.Lean.MVarId.assertExt (mvarId : MVarId) (name : Name) (type : Expr) (val : Expr) (hName : Name := `h) : MetaM MVarId := do
   mvarId.withContext do
@@ -69,7 +69,7 @@ structure AssertAfterResult where
   subst  : FVarSubst
 
 /--
-  Convert the given goal `Ctx ⊢ target` into a goal containing `(userName : type)` after the local declaration with if `fvarId`.
+  Convert the given goal `Ctx |- target` into a goal containing `(userName : type)` after the local declaration with if `fvarId`.
   It assumes `val` has type `type`, and that `type` is well-formed after `fvarId`.
   Note that `val` does not need to be well-formed after `fvarId`. That is, it may contain variables that are defined after `fvarId`. -/
 def _root_.Lean.MVarId.assertAfter (mvarId : MVarId) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : MetaM AssertAfterResult := do
@@ -93,7 +93,7 @@ structure Hypothesis where
   value    : Expr
 
 /--
-  Convert the given goal `Ctx ⊢ target` into `Ctx, (hs[0].userName : hs[0].type) ... ⊢target`.
+  Convert the given goal `Ctx |- target` into `Ctx, (hs[0].userName : hs[0].type) ... |-target`.
   It assumes `hs[i].val` has type `hs[i].type`. -/
 def _root_.Lean.MVarId.assertHypotheses (mvarId : MVarId) (hs : Array Hypothesis) : MetaM (Array FVarId × MVarId) := do
   if hs.isEmpty then

@@ -16,7 +16,7 @@ abbrev Catish : CatIsh :=
 
 universe m o
 unif_hint (mvar : CatIsh) where
-  Catish.{m, o} =?= mvar ⊢ mvar.Obj =?= CatIsh.{o, m}
+  Catish.{m, o} =?= mvar |- mvar.Obj =?= CatIsh.{o, m}
 
 structure CtxSyntaxLayerParamsObj where
   Ct : CatIsh

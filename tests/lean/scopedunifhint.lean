@@ -19,7 +19,7 @@ def mul {s : Magma} (a b : s) : s :=
 namespace Algebra
 
 scoped unif_hint (s : Magma) where
-  s =?= Nat.Magma ⊢ s.α =?= Nat
+  s =?= Nat.Magma |- s.α =?= Nat
 
 end Algebra
 
@@ -46,7 +46,7 @@ local unif_hint (s : Magma) (m : Magma) (n : Magma) (β : Type u) (δ : Type v) 
   m.α =?= β
   n.α =?= δ
   s =?= Prod.Magma m n
-  ⊢
+  |-
   s.α =?= β × δ
 
 #check (x, x) * (x, x) -- works

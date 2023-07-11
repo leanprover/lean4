@@ -15,7 +15,7 @@ def Vec.const {α : Type _} (a : α) (n : Nat) : Vec α n
 
 /- `Vec` is defeq to a `DVec` with constant type -/
 unif_hint (α : Type _) (n : Nat) where
-  ⊢ Vec α n =?= DVec (Vec.const α n)
+  |- Vec α n =?= DVec (Vec.const α n)
 
 namespace DVec
   def hd {n : Nat} {αs : TypeVec (n+1)} (v : DVec αs) : (αs 0)

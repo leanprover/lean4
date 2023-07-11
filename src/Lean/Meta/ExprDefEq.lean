@@ -497,9 +497,9 @@ where
 
 /-!
   Each metavariable is declared in a particular local context.
-  We use the notation `C ⊢ ?m : t` to denote a metavariable `?m` that
+  We use the notation `C |- ?m : t` to denote a metavariable `?m` that
   was declared at the local context `C` with type `t` (see `MetavarDecl`).
-  We also use `?m@C` as a shorthand for `C ⊢ ?m : t` where `t` is the type of `?m`.
+  We also use `?m@C` as a shorthand for `C |- ?m : t` where `t` is the type of `?m`.
 
   The following method process the unification constraint
 

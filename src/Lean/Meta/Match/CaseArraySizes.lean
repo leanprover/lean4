@@ -51,11 +51,11 @@ private partial def introArrayLit (mvarId : MVarId) (a : Expr) (n : Nat) (xNameP
   pure newMVar.mvarId!
 
 /--
-  Split goal `... ⊢ C a` into sizes.size + 1 subgoals
-  1) `..., x_1 ... x_{sizes[0]} ⊢ C #[x_1, ... x_{sizes[0]}]`
+  Split goal `... |- C a` into sizes.size + 1 subgoals
+  1) `..., x_1 ... x_{sizes[0]} |- C #[x_1, ... x_{sizes[0]}]`
   ...
-  n) `..., x_1 ... x_{sizes[n-1]}  ⊢ C #[x_1, ..., x_{sizes[n-1]}]`
-  n+1) `..., (h_1 : a.size != sizes[0]), ..., (h_n : a.size != sizes[n-1]) ⊢ C a`
+  n) `..., x_1 ... x_{sizes[n-1]}  |- C #[x_1, ..., x_{sizes[n-1]}]`
+  n+1) `..., (h_1 : a.size != sizes[0]), ..., (h_n : a.size != sizes[n-1]) |- C a`
   where `n = sizes.size` -/
 def caseArraySizes (mvarId : MVarId) (fvarId : FVarId) (sizes : Array Nat) (xNamePrefix := `x) (hNamePrefix := `h) : MetaM (Array CaseArraySizesSubgoal) :=
   mvarId.withContext do

@@ -52,12 +52,12 @@ infix:65 (priority := high) "+" => gop
 
 unif_hint (r : Ring) (g : Group) where
   g =?= Group.ofRing r
-  ⊢
+  |-
   r.α =?= g.α
 
 unif_hint (r : Ring) (m : Monoid) where
   m =?= Monoid.ofRing r
-  ⊢
+  |-
   r.α =?= m.α
 
 def distrib {r : Ring} (a b c : r) := a * (b + c) = a * b + a * c

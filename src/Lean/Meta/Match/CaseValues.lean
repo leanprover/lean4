@@ -16,9 +16,9 @@ structure CaseValueSubgoal where
   deriving Inhabited
 
 /--
-  Split goal `... ⊢ C x` into two subgoals
-  `..., (h : x = value)  ⊢ C value`
-  `..., (h : x != value) ⊢ C x`
+  Split goal `... |- C x` into two subgoals
+  `..., (h : x = value)  |- C value`
+  `..., (h : x != value) |- C x`
   where `fvarId` is `x`s id.
   The type of `x` must have decidable equality.
 
@@ -65,11 +65,11 @@ structure CaseValuesSubgoal where
   deriving Inhabited
 
 /--
-  Split goal `... ⊢ C x` into values.size + 1 subgoals
-  1) `..., (h_1 : x = value[0])  ⊢ C value[0]`
+  Split goal `... |- C x` into values.size + 1 subgoals
+  1) `..., (h_1 : x = value[0])  |- C value[0]`
   ...
-  n) `..., (h_n : x = value[n - 1])  ⊢ C value[n - 1]`
-  n+1) `..., (h_1 : x != value[0]) ... (h_n : x != value[n-1]) ⊢ C x`
+  n) `..., (h_n : x = value[n - 1])  |- C value[n - 1]`
+  n+1) `..., (h_1 : x != value[0]) ... (h_n : x != value[n-1]) |- C x`
   where `n = values.size`
   where `fvarId` is `x`s id.
   The type of `x` must have decidable equality.

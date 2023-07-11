@@ -58,3 +58,7 @@ instance : Hashable Int where
 
 instance (P : Prop) : Hashable P where
   hash _ := 0
+
+/-- An opaque (low-level) hash operation used to implement hashing for pointers. -/
+@[always_inline, inline] def hash64 (u : UInt64) : UInt64 :=
+  mixHash u 11

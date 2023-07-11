@@ -4,52 +4,36 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Expr
+import Lean.Util.PtrSet
 
 namespace Lean
 namespace Expr
-
 namespace FindImpl
 
-abbrev cacheSize : USize := 8192 - 1
+unsafe abbrev FindM := StateT (PtrSet Expr) Id
 
-structure State where
-  keys : Array Expr -- Remark: our "unsafe" implementation relies on the fact that `()` is not a valid Expr
+@[inline] unsafe def checkVisited (e : Expr) : OptionT FindM Unit := do
+  if (← get).contains e then
+    failure
+  modify fun s => s.insert e
 
-abbrev FindM := StateT State Id
-
-unsafe def visited (e : Expr) (size : USize) : FindM Bool := do
-  let s ← get
-  let h := ptrAddrUnsafe e
-  let i := h % size
-  let k := s.keys.uget i lcProof
-  if ptrAddrUnsafe k == h then
-    pure true
-  else
-    modify fun s => { keys := s.keys.uset i e lcProof }
-    pure false
-
-unsafe def findM? (p : Expr → Bool) (size : USize) (e : Expr) : OptionT FindM Expr :=
+unsafe def findM? (p : Expr → Bool) (e : Expr) : OptionT FindM Expr :=
   let rec visit (e : Expr) := do
-    if (← visited e size)  then
-      failure
-    else if p e then
+    checkVisited e
+    if p e then
       pure e
     else match e with
-      | Expr.forallE _ d b _   => visit d <|> visit b
-      | Expr.lam _ d b _       => visit d <|> visit b
-      | Expr.mdata _ b         => visit b
-      | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
-      | Expr.app f a           => visit f <|> visit a
-      | Expr.proj _ _ b        => visit b
-      | _                      => failure
+      | .forallE _ d b _ => visit d <|> visit b
+      | .lam _ d b _     => visit d <|> visit b
+      | .mdata _ b       => visit b
+      | .letE _ t v b _  => visit t <|> visit v <|> visit b
+      | .app f a         => visit f <|> visit a
+      | .proj _ _ b      => visit b
+      | _                => failure
   visit e
 
-
-unsafe def initCache : State :=
-  { keys    := mkArray cacheSize.toNat (cast lcProof ()) }
-
 unsafe def findUnsafe? (p : Expr → Bool) (e : Expr) : Option Expr :=
-  Id.run <| findM? p cacheSize e |>.run' initCache
+  Id.run <| findM? p e |>.run' mkPtrSet
 
 end FindImpl
 
@@ -59,13 +43,13 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
   if p e then
     some e
   else match e with
-    | Expr.forallE _ d b _   => find? p d <|> find? p b
-    | Expr.lam _ d b _       => find? p d <|> find? p b
-    | Expr.mdata _ b         => find? p b
-    | Expr.letE _ t v b _    => find? p t <|> find? p v <|> find? p b
-    | Expr.app f a           => find? p f <|> find? p a
-    | Expr.proj _ _ b        => find? p b
-    | _                      => none
+    | .forallE _ d b _ => find? p d <|> find? p b
+    | .lam _ d b _     => find? p d <|> find? p b
+    | .mdata _ b       => find? p b
+    | .letE _ t v b _  => find? p t <|> find? p v <|> find? p b
+    | .app f a         => find? p f <|> find? p a
+    | .proj _ _ b      => find? p b
+    | _                => none
 
 /-- Return true if `e` occurs in `t` -/
 def occurs (e : Expr) (t : Expr) : Bool :=
@@ -81,32 +65,31 @@ inductive FindStep where
 
 namespace FindExtImpl
 
-unsafe def findM? (p : Expr → FindStep) (size : USize) (e : Expr) : OptionT FindImpl.FindM Expr :=
+unsafe def findM? (p : Expr → FindStep) (e : Expr) : OptionT FindImpl.FindM Expr :=
   visit e
 where
   visitApp (e : Expr) :=
     match e with
-    | Expr.app f a .. => visitApp f <|> visit a
+    | .app f a .. => visitApp f <|> visit a
     | e => visit e
 
   visit (e : Expr) := do
-    if (← FindImpl.visited e size)  then
-      failure
-    else match p e with
-      | FindStep.done  => failure
-      | FindStep.found => pure e
-      | FindStep.visit =>
+    FindImpl.checkVisited e
+    match p e with
+      | .done  => failure
+      | .found => pure e
+      | .visit =>
         match e with
-        | Expr.forallE _ d b _   => visit d <|> visit b
-        | Expr.lam _ d b _       => visit d <|> visit b
-        | Expr.mdata _ b         => visit b
-        | Expr.letE _ t v b _    => visit t <|> visit v <|> visit b
-        | Expr.app ..            => visitApp e
-        | Expr.proj _ _ b        => visit b
-        | _                      => failure
+        | .forallE _ d b _ => visit d <|> visit b
+        | .lam _ d b _     => visit d <|> visit b
+        | .mdata _ b       => visit b
+        | .letE _ t v b _  => visit t <|> visit v <|> visit b
+        | .app ..          => visitApp e
+        | .proj _ _ b      => visit b
+        | _                => failure
 
 unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=
-  Id.run <| findM? p FindImpl.cacheSize e |>.run' FindImpl.initCache
+  Id.run <| findM? p e |>.run' mkPtrSet
 
 end FindExtImpl
 

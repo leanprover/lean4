@@ -49,4 +49,9 @@ def test (n : Nat) : CoreM Unit := do
   }
   return ()
 
-#eval test 10000
+def main (args : List String) : IO Unit := do
+  let [size] := args | throw (IO.userError s!"unexpected number of arguments, numeral expected")
+  initSearchPath (← findSysroot)
+  let env ← importModules [{ module := `Init.Prelude }] {} 0
+  discard <| test size.toNat! |>.toIO { fileName := "<test>", fileMap := default } { env }
+  IO.println "ok"

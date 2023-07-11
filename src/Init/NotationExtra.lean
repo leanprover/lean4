@@ -65,7 +65,7 @@ syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
-  " where " withPosition(unifConstraintElem*) patternIgnore("|-" <|> "⊢ ") unifConstraint : command
+  " where " withPosition(unifConstraintElem*) patternIgnore("|" noWs "-") unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do

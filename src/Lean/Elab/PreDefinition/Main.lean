@@ -106,7 +106,12 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0]! then
-      let preDef := preDefs[0]!
+      /-
+      We must erase `recApp` annotations even when `preDef` is not recursive
+      because it may use another recursive declaration in the same mutual block.
+      See issue #2321
+      -/
+      let preDef ← eraseRecAppSyntax preDefs[0]!
       if preDef.modifiers.isNoncomputable then
         addNonRec preDef
       else

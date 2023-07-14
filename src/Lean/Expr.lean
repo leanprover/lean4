@@ -1585,7 +1585,7 @@ def updateFn : Expr → Expr → Expr
 /--
 Eta reduction. If `e` is of the form `(fun x => f x)`, then return `f`.
 -/
-partial def eta (e : Expr) : Expr :=
+def eta (e : Expr) : Expr :=
   match e with
   | Expr.lam _ d b _ =>
     let b' := b.eta
@@ -1597,6 +1597,22 @@ partial def eta (e : Expr) : Expr :=
         e.updateLambdaE! d b'
     | _ => e.updateLambdaE! d b'
   | _ => e
+
+/--
+Eta reduction up to depth `n`. Like `Expr.eta` but only reduces the first `n` variables.
+-/
+def etaN (n : Nat) (e : Expr) : Expr :=
+  match n, e with
+  | n+1, .lam _ d b _ =>
+    let b' := b.etaN n
+    match b' with
+    | .app f (.bvar 0) =>
+      if !f.hasLooseBVar 0 then
+        f.lowerLooseBVars 1 1
+      else
+        e.updateLambdaE! d b'
+    | _ => e.updateLambdaE! d b'
+  | _, e => e
 
 /--
 Annotate `e` with the given option.

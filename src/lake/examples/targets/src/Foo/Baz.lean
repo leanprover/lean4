@@ -1,0 +1,1 @@
+def Foo.baz := "foobaz"

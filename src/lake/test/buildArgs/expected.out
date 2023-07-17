@@ -1,0 +1,7 @@
+# issue 50
+[0/2] Building foo
+# issue 172
+# compile args
+[1/2] Compiling foo
+# link args
+[2/2] Linking foo

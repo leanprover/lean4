@@ -208,11 +208,18 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : CoreM Unit := do
-  let declNames := preDefs.map (·.declName)
-  modifyEnv fun env =>
-    preDefs.foldl (init := env) fun env preDef =>
-      eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec, fixedPrefixSize }
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+  /-
+  See issue #2327.
+  Remark: we could do better for mutual declarations that mix theorems and definitions. However, this is a rare
+  combination, and we would have add support for it in the equation generator. I did not check which assumptions are made there.
+  -/
+  unless preDefs.all fun p => p.kind.isTheorem do
+    unless (← preDefs.allM fun p => isProp p.type) do
+      let declNames := preDefs.map (·.declName)
+      modifyEnv fun env =>
+        preDefs.foldl (init := env) fun env preDef =>
+          eqnInfoExt.insert env preDef.declName { preDef with declNames, declNameNonRec, fixedPrefixSize }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

@@ -85,7 +85,14 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
     let preDef ← eraseRecAppSyntax preDefs[0]!
     state.addMatchers.forM liftM
-    registerEqnsInfo preDef recArgPos
+    unless preDef.kind.isTheorem do
+      unless (← isProp preDef.type) do
+        /-
+        Don't save predefinition info for equation generator
+        for theorems and definitions that are propositions.
+        See issue #2327
+        -/
+        registerEqnsInfo preDef recArgPos
     mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
       m!"structural recursion failed, produced type incorrect term{indentD msg}"
     addAndCompilePartialRec #[preDef]

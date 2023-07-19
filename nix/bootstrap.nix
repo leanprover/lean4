@@ -1,5 +1,5 @@
 { src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
+  stdenv, lib, cmake, gmp, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 rec {
@@ -158,7 +158,7 @@ rec {
       test = buildCMake {
         name = "lean-test-${desc}";
         realSrc = lib.sourceByRegex src [ "src.*" "tests.*" ];
-        buildInputs = [ gmp perl ];
+        buildInputs = [ gmp perl git ];
         preConfigure = ''
           cd src
         '';
@@ -169,7 +169,7 @@ rec {
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)|laketest_git' -j$NIX_BUILD_CORES
+          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           touch $out

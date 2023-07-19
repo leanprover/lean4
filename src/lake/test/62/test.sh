@@ -2,7 +2,10 @@
 set -euxo pipefail
 
 # skip if no elan found
-command -v elan > /dev/null || (echo "elan not found; skipping test"; exit 0)
+if ! command -v elan > /dev/null; then
+   echo "elan not found; skipping test"
+   exit 0
+fi
 
 if [ "`uname`" = Darwin ]; then
   sed_i() { sed -i '' "$@"; }

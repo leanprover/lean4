@@ -314,7 +314,7 @@ end
   | .lam ..        => return e
   | .sort ..       => return e
   | .lit ..        => return e
-  | .bvar ..       => unreachable!
+  | .bvar ..       => panic! "loose bvar in expression"
   | .letE ..       => k e
   | .const ..      => k e
   | .app ..        => k e

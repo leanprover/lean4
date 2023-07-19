@@ -8,9 +8,9 @@ root.lean:41:7-41:8: error: unknown identifier 'h'
 root.lean:43:7-43:8: error: unknown identifier 'f'
 Bla.f (x : Nat) : Nat
 prv (x : Nat) : Nat
-root.lean:90:48-90:52: error: unsolved goals
+root.lean:90:89-90:93: error: unsolved goals
 x : Nat
 ⊢ isEven (x + 1 + 1) = isEven x
-root.lean:95:48-95:52: error: unsolved goals
+root.lean:95:89-95:93: error: unsolved goals
 x : Nat
 ⊢ isEven (x + 1 + 1) = isEven x

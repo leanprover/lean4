@@ -28,6 +28,6 @@ through the `simp_all`.
 -/
 example : ∀ {A : Prop} (_ : A) (_ : W), W := by
   intros
-  simp_all
+  simp_all (config := { failIfUnchanged := false })
   rename_i w
   exact w

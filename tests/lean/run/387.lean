@@ -8,7 +8,8 @@ example (a : Nat) : p a a := by simp [foo a]
 example : p 0 0 := by simp [foo 0]
 example : p 0 0 := by simp [foo 0 0]
 example : p 0 0 := by
-  simp [foo 1] -- will not simplify
+  fail_if_success
+    simp [foo 1] -- will not simplify
   simp [foo 0]
 example : p 0 0 ∧ p 1 1 := by
   simp [foo 1]

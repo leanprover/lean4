@@ -235,7 +235,7 @@ notation:60 "(" σ ", " s ")"  " ⇓ " σ':60 => Bigstep σ s σ'
 
 /- This proof can be automated using forward reasoning. -/
 theorem Bigstem.det (h₁ : (σ, s) ⇓ σ₁) (h₂ : (σ, s) ⇓ σ₂) : σ₁ = σ₂ := by
-  induction h₁ generalizing σ₂ <;> cases h₂ <;> simp_all
+  induction h₁ generalizing σ₂ <;> cases h₂ <;> try simp_all
   -- The rest of this proof should be automatic with congruence closure and a bit of forward reasoning
   case seq ih₁ ih₂ _ h₁ h₂ =>
     simp [ih₁ h₁] at ih₂
@@ -451,7 +451,7 @@ theorem State.erase_le (σ : State) : σ.erase x ≼ σ := by
   | [] => simp; apply le_refl
   | (y, v) :: σ =>
     simp
-    split <;> simp [*]
+    split <;> try simp [*]
     next => apply erase_le_cons; apply le_refl
     next => apply cons_le_cons; apply erase_le
 

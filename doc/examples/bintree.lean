@@ -282,7 +282,7 @@ theorem BinTree.find_insert_of_ne (b : BinTree β) (h : k ≠ k') (v : β)
   let ⟨t, h⟩ := b; simp
   induction t with simp
   | leaf =>
-    split <;> simp <;> split <;> simp
+    split <;> (try simp) <;> split <;> (try simp)
     have_eq k k'
     contradiction
   | node left key value right ihl ihr =>

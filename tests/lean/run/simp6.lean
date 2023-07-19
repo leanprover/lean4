@@ -21,7 +21,7 @@ theorem ex6 : (if "hello" = "world" then 1 else 2) = 2 :=
 #print ex6
 
 theorem ex7 : (if "hello" = "world" then 1 else 2) = 2 := by
-  simp (config := { decide := false })
+  fail_if_success simp (config := { decide := false })
   simp
 
 theorem ex8 : (10 + 2000 = 20) = False :=

@@ -969,7 +969,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
     (usedSimps : UsedSimps := {}) : MetaM (Option (Array FVarId × MVarId) × UsedSimps) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    let mut mvarId := mvarId
+    let mut mvarIdNew := mvarId
     let mut toAssert := #[]
     let mut replaced := #[]
     let mut usedSimps := usedSimps
@@ -980,24 +980,27 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let (r, usedSimps') ← simp type ctx discharge? usedSimps
       usedSimps := usedSimps'
       match r.proof? with
-      | some _ => match (← applySimpResultToProp mvarId (mkFVar fvarId) type r) with
+      | some _ => match (← applySimpResultToProp mvarIdNew (mkFVar fvarId) type r) with
         | none => return (none, usedSimps)
         | some (value, type) => toAssert := toAssert.push { userName := localDecl.userName, type := type, value := value }
       | none =>
         if r.expr.consumeMData.isConstOf ``False then
-          mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))
+          mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkFVar fvarId))
           return (none, usedSimps)
         -- TODO: if there are no forwards dependencies we may consider using the same approach we used when `r.proof?` is a `some ...`
         -- Reason: it introduces a `mkExpectedTypeHint`
-        mvarId ← mvarId.replaceLocalDeclDefEq fvarId r.expr
+        mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId r.expr
         replaced := replaced.push fvarId
     if simplifyTarget then
-      match (← simpTarget mvarId ctx discharge?) with
+      match (← simpTarget mvarIdNew ctx discharge?) with
       | (none, usedSimps') => return (none, usedSimps')
-      | (some mvarIdNew, usedSimps') => mvarId := mvarIdNew; usedSimps := usedSimps'
-    let (fvarIdsNew, mvarIdNew) ← mvarId.assertHypotheses toAssert
+      | (some mvarIdNew', usedSimps') => mvarIdNew := mvarIdNew'; usedSimps := usedSimps'
+    let (fvarIdsNew, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert
+    mvarIdNew := mvarIdNew'
     let toClear := fvarIdsToSimp.filter fun fvarId => !replaced.contains fvarId
-    let mvarIdNew ← mvarIdNew.tryClearMany toClear
+    mvarIdNew ← mvarIdNew.tryClearMany toClear
+    if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
+      throwError "simp made no progress"
     return (some (fvarIdsNew, mvarIdNew), usedSimps)
 
 def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
@@ -1020,31 +1023,33 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
     (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
    mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    let mut mvarId := mvarId
+    let mut mvarIdNew := mvarId
     let mut usedSimps : UsedSimps := usedSimps
     for fvarId in fvarIdsToSimp do
       let type ← instantiateMVars (← fvarId.getType)
       let (typeNew, usedSimps') ← dsimp type ctx
       usedSimps := usedSimps'
       if typeNew.consumeMData.isConstOf ``False then
-        mvarId.assign (← mkFalseElim (← mvarId.getType) (mkFVar fvarId))
+        mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkFVar fvarId))
         return (none, usedSimps)
       if typeNew != type then
-        mvarId ← mvarId.replaceLocalDeclDefEq fvarId typeNew
+        mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId typeNew
     if simplifyTarget then
-      let target ← mvarId.getType
+      let target ← mvarIdNew.getType
       let (targetNew, usedSimps') ← dsimp target ctx usedSimps
       usedSimps := usedSimps'
       if targetNew.consumeMData.isConstOf ``True then
-        mvarId.assign (mkConst ``True.intro)
+        mvarIdNew.assign (mkConst ``True.intro)
         return (none, usedSimps)
       if let some (_, lhs, rhs) := targetNew.eq? then
         if (← withReducible <| isDefEq lhs rhs) then
-          mvarId.assign (← mkEqRefl lhs)
+          mvarIdNew.assign (← mkEqRefl lhs)
           return (none, usedSimps)
       if target != targetNew then
-        mvarId ← mvarId.replaceTargetDefEq targetNew
+        mvarIdNew ← mvarIdNew.replaceTargetDefEq targetNew
       pure () -- FIXME: bug in do notation if this is removed?
-    return (some mvarId, usedSimps)
+    if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
+      throwError "dsimp made no progress"
+    return (some mvarIdNew, usedSimps)
 
 end Lean.Meta

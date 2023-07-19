@@ -237,7 +237,7 @@ notation:60 "(" σ ", " s ")"  " ⇓ " σ':60 => Bigstep σ s σ'
 theorem Bigstem.det (h₁ : (σ, s) ⇓ σ₁) (h₂ : (σ, s) ⇓ σ₂) : σ₁ = σ₂ := by
   induction h₁ generalizing σ₂ <;> cases h₂ <;> simp_all
   -- The rest of this proof should be automatic with congruence closure and a bit of forward reasoning
-  case seq ih₁ ih₂ h₁ h₂ =>
+  case seq ih₁ ih₂ _ h₁ h₂ =>
     simp [ih₁ h₁] at ih₂
     simp [ih₂ h₂]
   case ifTrue ih h =>

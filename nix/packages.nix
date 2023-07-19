@@ -69,24 +69,8 @@ let
   lean-vscode = vscode-with-extensions.override {
     vscodeExtensions = [ vscode-lean4 ];
   };
-  Lake = buildLeanPackage {
-    name = "Lake";
-    src = ../src/lake;
-  };
-  Lake-Main = buildLeanPackage {
-    name = "Lake.Main";
-    executableName = "lake";
-    deps = [ Lake ];
-    linkFlags = pkgs.lib.optional pkgs.stdenv.isLinux "-rdynamic";
-    src = ../src/lake;
-  };
-  lake = runCommand "lake" { nativeBuildInputs = [ makeWrapper ]; } ''
-    mkdir -p $out/bin
-    cp -r ${Lake-Main.executable}/* $out
-    wrapProgram $out/bin/lake --prefix LEAN_PATH : ${Lake.modRoot}
-  '';
 in {
-  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4 Lake lake;
+  inherit cc lean4-mode buildLeanPackage llvmPackages vscode-lean4;
   lean = lean.stage1;
   stage0print-paths = lean.stage1.Lean.print-paths;
   HEAD-as-stage0 = (lean.stage1.Lean.overrideArgs { srcTarget = "..#stage0-from-input.stage0"; srcArgs = "(--override-input lean-stage0 ..\?rev=$(git rev-parse HEAD) -- -Dinterpreter.prefer_native=false \"$@\")"; });

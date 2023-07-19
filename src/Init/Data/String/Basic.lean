@@ -263,7 +263,7 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
 termination_by _ => s.endPos.1 - i.1
 
 def splitOn (s : String) (sep : String := " ") : List String :=
-  splitOnAux s sep 0 0 0 []
+  if sep == "" then [s] else splitOnAux s sep 0 0 0 []
 
 instance : Inhabited String := ⟨""⟩
 

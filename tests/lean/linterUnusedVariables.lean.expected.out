@@ -38,7 +38,6 @@ a : Nat
 ⊢ Nat
 linterUnusedVariables.lean:227:0-227:7: warning: declaration uses 'sorry'
 linterUnusedVariables.lean:228:0-228:7: warning: declaration uses 'sorry'
-linterUnusedVariables.lean:231:0: error: expected '{' or tactic
 linterUnusedVariables.lean:229:27-229:29: error: unsolved goals
 bar : ?m
 bar' : Nat → Nat
@@ -47,3 +46,4 @@ bar' : Nat → Nat
 inst : ToString α
 a : Nat
 ⊢ Nat
+linterUnusedVariables.lean:231:0: error: expected '{' or tactic

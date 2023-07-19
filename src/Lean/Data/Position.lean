@@ -11,7 +11,7 @@ namespace Lean
 structure Position where
   line   : Nat
   column : Nat
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, Ord
 
 namespace Position
 protected def lt : Position → Position → Bool

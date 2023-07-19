@@ -9,6 +9,7 @@ term has type
   Bar.fn ?m
 Fn.imp fn : Bar.fn p
 Fn.imp fn' Bp : Bar.fn p
+Fn.imp fn' (sorryAx (Bar.fn ?m) true) : Bar.fn ?m
 439.lean:39:11-39:12: error: application type mismatch
   Fn.imp fn' p
 argument
@@ -17,4 +18,3 @@ has type
   P : Sort u
 but is expected to have type
   Bar.fn ?m : Sort ?u
-Fn.imp fn' (sorryAx (Bar.fn ?m) true) : Bar.fn ?m

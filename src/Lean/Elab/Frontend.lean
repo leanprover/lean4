@@ -111,7 +111,7 @@ def runFrontend
     commandState := { commandState with infoState.enabled := true }
 
   let s ← IO.processCommands inputCtx parserState commandState
-  for msg in s.commandState.messages.toList do
+  for msg in s.commandState.messages do
     IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
 
   if let some ileanFileName := ileanFileName? then

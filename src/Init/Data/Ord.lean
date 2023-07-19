@@ -59,6 +59,13 @@ instance : Ord USize where
 instance : Ord Char where
   compare x y := compareOfLessAndEq x y
 
+instance [Ord α] : Ord (Option α) where
+  compare
+    | .none, .none     => .eq
+    | .none, _         => .lt
+    | _    , .none     => .gt
+    | .some a, .some b => compare a b
+
 /-- The lexicographic order on pairs. -/
 def lexOrd [Ord α] [Ord β] : Ord (α × β) where
   compare p1 p2 := match compare p1.1 p2.1 with

@@ -1,7 +1,7 @@
-have.lean:4:0: error: expected term
 have.lean:2:18-2:19: error: don't know how to synthesize placeholder
 context:
 ⊢ False
+have.lean:4:0: error: expected term
 have.lean:7:2-7:3: error: type mismatch
   f
 has type

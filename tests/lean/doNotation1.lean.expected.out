@@ -5,14 +5,14 @@ doNotation1.lean:20:7-20:22: error: invalid reassignment, value has type
   Vector Nat (n + 1) : Type
 but is expected to have type
   Vector Nat n : Type
-doNotation1.lean:25:7-25:11: error: invalid reassignment, value has type
-  Bool : Type
-but is expected to have type
-  Nat : Type
 doNotation1.lean:24:0-25:11: error: type mismatch, `for` has type
   PUnit : Sort ?u
 but is expected to have type
   List Bool : Type
+doNotation1.lean:25:7-25:11: error: invalid reassignment, value has type
+  Bool : Type
+but is expected to have type
+  Nat : Type
 doNotation1.lean:28:0-29:14: error: type mismatch, `for` has type
   PUnit : Sort ?u
 but is expected to have type

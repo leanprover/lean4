@@ -7,7 +7,7 @@ def runCore (input : String) (failIff : Bool := true) : CoreM Unit := do
 let env  ← getEnv;
 let opts ← getOptions;
 let (env, messages) ← process input env opts;
-messages.toList.forM fun msg => do IO.println (← msg.toString)
+messages.forM fun msg => do IO.println (← msg.toString)
 if failIff && messages.hasErrors then throwError "errors have been found";
 if !failIff && !messages.hasErrors then throwError "there are no errors";
 pure ()

@@ -992,7 +992,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         mvarId ← mvarId.replaceLocalDeclDefEq fvarId r.expr
         replaced := replaced.push fvarId
     if simplifyTarget then
-      match (← simpTarget mvarId ctx discharge?) with
+      match (← simpTarget mvarId ctx discharge? (usedSimps := usedSimps)) with
       | (none, usedSimps') => return (none, usedSimps')
       | (some mvarIdNew, usedSimps') => mvarId := mvarIdNew; usedSimps := usedSimps'
     let (fvarIdsNew, mvarIdNew) ← mvarId.assertHypotheses toAssert

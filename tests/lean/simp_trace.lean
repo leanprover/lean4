@@ -81,3 +81,5 @@ example : a ∧ (b ∧ b) ↔ a ∧ b := by simp [my_thm]
 example : (a ∧ (b ∧ b)) = (a ∧ b) := by simp only [my_thm]
 
 example : x - 1 + 1 = x := by simp (discharger := sorry) [Nat.sub_add_cancel]
+
+example (h : a ∧ a) : a := by simp at h; assumption

@@ -59,3 +59,5 @@ Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
 simp_trace.lean:83:0-83:7: warning: declaration uses 'sorry'
 [Meta.Tactic.simp.rewrite] @Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
 [Meta.Tactic.simp.rewrite] @eq_self:1000, x = x ==> True
+Try this: simp only [and_self] at h
+[Meta.Tactic.simp.rewrite] and_self:1000, a ∧ a ==> a

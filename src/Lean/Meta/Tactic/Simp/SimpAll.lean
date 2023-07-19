@@ -17,6 +17,7 @@ structure Entry where
   fvarId   : FVarId -- original fvarId
   userName : Name
   id       : Origin -- id of the theorem at `SimpTheorems`
+  origType : Expr
   type     : Expr
   proof    : Expr
   deriving Inhabited
@@ -42,7 +43,8 @@ private def initEntries : M Unit := do
       modify fun s => { s with ctx.simpTheorems := simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
-        let entry : Entry := { fvarId := h, userName := localDecl.userName, id := .fvar h, type := (← instantiateMVars localDecl.type), proof := proof }
+        let type ← instantiateMVars localDecl.type
+        let entry : Entry := { fvarId := h, userName := localDecl.userName, id := .fvar h, origType := type, type, proof }
         modify fun s => { s with entries := s.entries.push entry }
 
 private abbrev getSimpTheorems : M SimpTheoremsArray :=
@@ -118,17 +120,32 @@ def main : M (Option MVarId) := do
     return none -- close the goal
   else
     let mvarId := (← get).mvarId
-    let entries := (← get).entries
-    let (_, mvarId) ← mvarId.assertHypotheses <| entries.filterMap fun e =>
-      -- Do not assert `True` hypotheses
-      if e.type.consumeMData.isConstOf ``True then none else some { userName := e.userName, type := e.type, value := e.proof }
-    mvarId.tryClearMany (entries.map fun e => e.fvarId)
+    -- Prior to #2334, the logic here was to re-assert all hypotheses and call `tryClearMany` on them all.
+    -- This had the effect that the order of hypotheses was sometimes modified, whether or not any where simplified.
+    -- Now we only re-assert the first modified hypothesis,
+    -- along with all subsequent hypotheses, so as to preserve the order of hypotheses.
+    let mut toAssert := #[]
+    let mut toClear := #[]
+    let mut modified := false
+    for e in (← get).entries do
+      if e.type.consumeMData.isConstOf ``True then
+        -- Do not assert `True` hypotheses
+        toClear := toClear.push e.fvarId
+      else if modified || e.type != e.origType then
+        toClear := toClear.push e.fvarId
+        toAssert := toAssert.push { userName := e.userName, type := e.type, value := e.proof }
+        modified := true
+    let (_, mvarId) ← mvarId.assertHypotheses toAssert
+    mvarId.tryClearMany toClear
 
 end SimpAll
 
 def simpAll (mvarId : MVarId) (ctx : Simp.Context) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   mvarId.withContext do
     let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps }
+    if let .some mvarIdNew := r then
+      if ctx.config.failIfUnchanged && mvarId == mvarIdNew then
+        throwError "simp_all made no progress"
     return (r, s.usedSimps)
 
 end Lean.Meta

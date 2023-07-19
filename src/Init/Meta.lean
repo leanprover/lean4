@@ -1227,6 +1227,9 @@ structure Config where
   proj              : Bool := true
   decide            : Bool := false
   autoUnfold        : Bool := false
+  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
+  will fail if they do not make progress. -/
+  failIfUnchanged   : Bool := false
   deriving Inhabited, BEq, Repr
 
 end DSimp
@@ -1255,6 +1258,9 @@ structure Config where
     `simp` to visit them. If `dsimp := false`, then argument is not visited.
   -/
   dsimp             : Bool := true
+  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
+  will fail if they do not make progress. -/
+  failIfUnchanged   : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`

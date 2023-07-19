@@ -1,6 +1,20 @@
 Unreleased
 ---------
 
+* [`simp_all` now preserves order of hypotheses](https://github.com/leanprover/lean4/pull/2334).
+
+  In order to support the `failIfUnchanged` configuration option for `dsimp` / `simp` / `simp_all`
+  the way `simp_all` replaces hypotheses has changed.
+  In particular it is now more likely to preserve the order of hypotheses.
+  See [`simp_all` reorders hypotheses unnecessarily](https://github.com/leanprover/lean4/pull/2334).
+  (Previously all non-dependent propositional hypotheses were reverted and reintroduced.
+  Now only such hypotheses which were changed, or which come after a changed hypothesis,
+  are reverted and reintroduced.
+  This has the effect of preserving the ordering amongst the non-dependent propositional hypotheses,
+  but now any dependent or non-propositional hypotheses retain their position amongst the unchanged
+  non-dependent propositional hypotheses.)
+  This may affect proofs that use `rename_i`, `case ... =>`, or `next ... =>`.
+
 * [New `have this` implementation](https://github.com/leanprover/lean4/pull/2247).
 
   `this` is now a regular identifier again that is implicitly introduced by anonymous `have :=` for the remainder of the tactic block. It used to be a keyword that was visible in all scopes and led to unexpected behavior when explicitly used as a binder name.

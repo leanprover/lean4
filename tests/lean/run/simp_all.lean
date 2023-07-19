@@ -17,3 +17,17 @@ theorem ex4 (h₁ : a = f a) (h₂ : b + 0 = 0) : f b = 0 := by
 
 theorem ex5 (h₁ : a = f a) (h₂ : b + 0 = 0) : f (b + a) = a := by
   simp_all [-h₁, f]
+
+/-!
+Prior to lean4#2334, `simp_all` would unnecessarily reorder hypotheses,
+even when it did not do any simplification.
+See lean4#2402.
+
+This test verifies that the last hypothesis stays in the last position
+through the `simp_all`.
+-/
+example : ∀ {A : Prop} (_ : A) (_ : W), W := by
+  intros
+  simp_all
+  rename_i w
+  exact w

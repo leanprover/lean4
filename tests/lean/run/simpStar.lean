@@ -2,7 +2,7 @@ opaque f (x y : Nat) : Nat
 opaque g (x : Nat) : Nat
 
 theorem ex1 (x : Nat) (h₁ : f x x = g x) (h₂ : g x = x) : f x (f x x) = x := by
-  simp
+  fail_if_success simp
   simp [*]
 
 theorem ex2 (x : Nat) (h₁ : f x x = g x) (h₂ : g x = x) : f x (f x x) = x := by

@@ -87,12 +87,12 @@ example : isEven (x+1+1) = isEven x := by simp -- Ok
 
 end Ex
 
-example : isEven (x+1+1) = isEven x := by simp; done -- Error
+example : isEven (x+1+1) = isEven x := by simp (config := { failIfUnchanged := false }); done -- Error
 
 open Ex in
 example : isEven (x+1+1) = isEven x := by simp -- Ok
 
-example : isEven (x+1+1) = isEven x := by simp; done -- Error
+example : isEven (x+1+1) = isEven x := by simp (config := { failIfUnchanged := false }); done -- Error
 
 namespace Foo
 

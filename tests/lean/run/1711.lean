@@ -20,7 +20,6 @@ theorem MulOneClass.ext {M : Type u} : ∀ ⦃m₁ m₂ : MulOneClass M⦄, m₁
       cases mul₂ with | mk mul₂ =>
         simp
         intro h
-        simp [toMul, Mul.mul] at h -- h : mul₁ = mul₂
         cases h
         have := (one_mul₂ one₁).symm.trans (mul_one₁ one₂) -- TODO: make sure we can apply after congr
         subst this

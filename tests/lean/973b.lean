@@ -7,5 +7,5 @@ theorem ex {x : Nat} {p : Nat → Prop} (h₁ : p x) (h₂ : q x p = x) : f x = 
 
 set_option trace.Meta.Tactic.simp.discharge true
 theorem foo : f (f x) = x := by
-  simp
+  simp (config := { failIfUnchanged := false })
   sorry

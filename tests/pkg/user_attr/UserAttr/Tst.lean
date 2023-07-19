@@ -26,7 +26,7 @@ def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
 @[my_simp] theorem g_eq : g x = x + 1 := rfl
 
 example : f x + g x = 2*x + 3 := by
-  simp_arith -- does not appy f_eq and g_eq
+  fail_if_success simp_arith -- does not appy f_eq and g_eq
   simp_arith [f, g]
 
 example : f x + g x = 2*x + 3 := by

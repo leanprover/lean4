@@ -1229,7 +1229,7 @@ structure Config where
   autoUnfold        : Bool := false
   /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := false
+  failIfUnchanged   : Bool := true
   deriving Inhabited, BEq, Repr
 
 end DSimp
@@ -1260,7 +1260,7 @@ structure Config where
   dsimp             : Bool := true
   /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := false
+  failIfUnchanged   : Bool := true
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`

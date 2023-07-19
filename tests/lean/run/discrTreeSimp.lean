@@ -8,7 +8,7 @@ theorem map_map (f : α → β) (g : β → γ) (xs : List α) : (xs.map f |>.ma
   sorry
 
 theorem ex1 (f : Nat → Nat) (xs : List Nat) : (xs.map f |>.map f) = xs.map (f ∘ f) := by
-  simp
+  fail_if_success simp
   simp [map_map]
   done
 

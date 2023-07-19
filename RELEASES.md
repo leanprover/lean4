@@ -1,6 +1,14 @@
 Unreleased
 ---------
 
+* [`dsimp` / `simp` / `simp_all` now fail by default if they make no progress](https://github.com/leanprover/lean4/pull/2336).
+
+  This can be overriden with the `(config := { failIfUnchanged := false })` option.
+  This change was made to ease manual use of `simp` (with complicated goals it can be hard to tell if it was effective)
+  and to allow easier flow control in tactics internally using `simp`.
+  See the [summary discussion](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/simp.20fails.20if.20no.20progress/near/380153295)
+  on zulip for more details.
+
 * [`simp_all` now preserves order of hypotheses](https://github.com/leanprover/lean4/pull/2334).
 
   In order to support the `failIfUnchanged` configuration option for `dsimp` / `simp` / `simp_all`

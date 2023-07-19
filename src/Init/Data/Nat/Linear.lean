@@ -353,7 +353,7 @@ theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
   | zero => assumption
   | succ fuel ih =>
     simp
-    split <;> simp at h <;> try assumption
+    split <;> try (simp at h; try assumption)
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
     · apply ih; simp [denote_eq] at h |-; assumption
@@ -387,7 +387,7 @@ theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | zero => assumption
   | succ fuel ih =>
     simp at h
-    split at h <;> simp <;> try assumption
+    split at h <;> (try simp; assumption)
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv] at h
     · have ih := ih (h := h); simp [denote_eq] at ih ⊢; assumption
@@ -413,10 +413,9 @@ theorem Poly.of_denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
             rw [← Nat.add_assoc, ih, Nat.add_assoc]
 
 theorem Poly.denote_eq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_eq ctx (m₁, m₂)) : denote_eq ctx (cancel m₁ m₂) := by
-  simp; apply denote_eq_cancelAux; simp [h]
+  apply denote_eq_cancelAux; simp [h]
 
 theorem Poly.of_denote_eq_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_eq ctx (cancel m₁ m₂)) : denote_eq ctx (m₁, m₂) := by
-  simp at h
   have := Poly.of_denote_eq_cancelAux (h := h)
   simp at this
   assumption
@@ -432,7 +431,7 @@ theorem Poly.denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r�
   | zero => assumption
   | succ fuel ih =>
     simp
-    split <;> simp at h <;> try assumption
+    split <;> try (simp at h; assumption)
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv]
     · apply ih; simp [denote_le] at h |-; assumption
@@ -466,7 +465,7 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
   | zero => assumption
   | succ fuel ih =>
     simp at h
-    split at h <;> simp <;> try assumption
+    split at h <;> try (simp; assumption)
     rename_i k₁ v₁ m₁ k₂ v₂ m₂
     by_cases hltv : Nat.blt v₁ v₂ <;> simp [hltv] at h
     · have ih := ih (h := h); simp [denote_le] at ih ⊢; assumption
@@ -494,10 +493,9 @@ theorem Poly.of_denote_le_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁
             exact this
 
 theorem Poly.denote_le_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_le ctx (m₁, m₂)) : denote_le ctx (cancel m₁ m₂) := by
-  simp; apply denote_le_cancelAux; simp [h]
+  apply denote_le_cancelAux; simp [h]
 
 theorem Poly.of_denote_le_cancel {ctx : Context} {m₁ m₂ : Poly} (h : denote_le ctx (cancel m₁ m₂)) : denote_le ctx (m₁, m₂) := by
-  simp at h
   have := Poly.of_denote_le_cancelAux (h := h)
   simp at this
   assumption

@@ -12,7 +12,7 @@ b : β
 a : α
 h : α = β
 ⊢ (_ : α = β) ▸ a = b
-ppProofs.lean:5:50-5:57: error: unsolved goals
+ppProofs.lean:5:50-5:98: error: unsolved goals
 α β : Sort ?u
 b : β
 a : α

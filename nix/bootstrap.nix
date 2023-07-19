@@ -88,7 +88,7 @@ rec {
         src = src + "/src";
         roots = [ { mod = args.name; glob = "andSubmodules"; } ];
         fullSrc = src;
-        srcPrefix = "src";
+        srcPath = "$PWD/src:$PWD/src/lake";
         inherit debug;
       } // args);
       Init' = build { name = "Init"; deps = []; };
@@ -101,11 +101,23 @@ rec {
       inherit (Lean) emacs-dev emacs-package vscode-dev vscode-package;
       Init = attachSharedLib leanshared Init';
       Lean = attachSharedLib leanshared Lean' // { allExternalDeps = [ Init ]; };
-      stdlib = [ Init Lean ];
+      Lake = build {
+        name = "Lake";
+        src = src + "/src/lake";
+        deps = [ Init Lean ];
+      };
+      Lake-Main = build {
+        name = "Lake.Main";
+        roots = [ "Lake.Main" ];
+        executableName = "lake";
+        deps = [ Lake ];
+        linkFlags = lib.optional stdenv.isLinux "-rdynamic";
+        src = src + "/src/lake";
+      };
+      stdlib = [ Init Lean Lake ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
       depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
-      extlib = stdlib;  # TODO: add Lake
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
@@ -116,7 +128,8 @@ rec {
           $(${llvmPackages.libllvm.dev}/bin/llvm-config --ldflags --libs) \
           -o $out/$libName
       '';
-      mods = Init.mods // Lean.mods;
+      mods = foldl' (mods: pkg: mods // pkg.mods) {} stdlib;
+      print-paths = Lean.makePrintPathsFor [] mods;
       leanc = writeShellScriptBin "leanc" ''
         LEAN_CC=${stdenv.cc}/bin/cc ${Leanc.executable}/bin/leanc -I${lean-bin-tools-unwrapped}/include ${stdlibLinkFlags} -L${leanshared} "$@"
       '';
@@ -129,9 +142,9 @@ rec {
         name = "lean-${desc}";
         buildCommand = ''
           mkdir -p $out/bin $out/lib/lean
-          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList extlib)} ${leanshared}/* $out/lib/lean/
+          ln -sf ${leancpp}/lib/lean/* ${lib.concatMapStringsSep " " (l: "${l.modRoot}/* ${l.staticLib}/*") (lib.reverseList stdlib)} ${leanshared}/* $out/lib/lean/
           # put everything in a single final derivation so `IO.appDir` references work
-          cp ${lean}/bin/lean ${leanc}/bin/leanc $out/bin
+          cp ${lean}/bin/lean ${leanc}/bin/leanc ${Lake-Main.executable}/bin/lake $out/bin
           # NOTE: `lndir` will not override existing `bin/leanc`
           ${lndir}/bin/lndir -silent ${lean-bin-tools-unwrapped} $out
         '';
@@ -140,7 +153,7 @@ rec {
       cacheRoots = linkFarmFromDrvs "cacheRoots" [
         stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
         # .o files are not a runtime dependency on macOS because of lack of thin archives
-        Lean.oTree
+        Lean.oTree Lake.oTree
       ];
       test = buildCMake {
         name = "lean-test-${desc}";
@@ -151,19 +164,19 @@ rec {
         '';
         extraCMakeFlags = [ "-DLLVM=OFF" ];
         postConfigure = ''
-          patchShebangs ../../tests
+          patchShebangs ../../tests ../lake
           rm -r bin lib include share
           ln -sf ${lean-all}/* .
         '';
         buildPhase = ''
-          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)|laketest|leanpkgtest' -j$NIX_BUILD_CORES
+          ctest --output-on-failure -E 'leancomptest_(doc_example|foreign)|laketest_git' -j$NIX_BUILD_CORES
         '';
         installPhase = ''
           touch $out
         '';
       };
       update-stage0 =
-        let cTree = symlinkJoin { name = "cs"; paths = map (l: l.cTree) stdlib; }; in
+        let cTree = symlinkJoin { name = "cs"; paths = [ Init.cTree Lean.cTree ]; }; in
         writeShellScriptBin "update-stage0" ''
           CSRCS=${cTree} CP_C_PARAMS="--dereference --no-preserve=all" ${src + "/script/update-stage0"}
         '';

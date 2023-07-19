@@ -3,7 +3,7 @@
   runCommand, darwin, mkShell, ... }:
 let lean-final' = lean-final; in
 lib.makeOverridable (
-{ name, src, fullSrc ? src, srcPrefix ? "",
+{ name, src, fullSrc ? src, srcPrefix ? "", srcPath ? "$PWD/${srcPrefix}",
   # Lean dependencies. Each entry should be an output of buildLeanPackage.
   deps ? [ lean.Lean ],
   # Static library dependencies. Each derivation `static` should contain a static library in the directory `${static}`.
@@ -210,7 +210,6 @@ with builtins; let
       loadDynlibPaths = map pathOfSharedLib (loadDynlibsOfDeps deps);
     }}'
   '';
-  makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   expandGlob = g:
     if typeOf g == "string" then [g]
     else if g.glob == "one" then [g.mod]
@@ -270,6 +269,7 @@ in rec {
     ln -sf ${iTree}/* $dest/build/lib
   '';
 
+  makePrintPathsFor = deps: mods: printPaths deps // mapAttrs (_: mod: makePrintPathsFor (deps ++ [mod]) mods) mods;
   print-paths = makePrintPathsFor [] (mods' // externalModMap);
   # `lean` wrapper that dynamically runs Nix for the actual `lean` executable so the same editor can be
   # used for multiple projects/after upgrading the `lean` input/for editing both stage 1 and the tests
@@ -297,7 +297,7 @@ in rec {
   devShell = mkShell {
     buildInputs = [ nix ];
     shellHook = ''
-      export LEAN_SRC_PATH="$PWD/${srcPrefix}"
+      export LEAN_SRC_PATH="${srcPath}"
     '';
   };
 })

@@ -28,7 +28,7 @@ def ex1 : {α : Type} → {a b c : α} → a = b → b = c → a = c :=
        exact Eq.trans h₁ h₂)
 
 def f1 (x : Nat) : Nat := by
-  apply (· + ?hole)
+  apply (fun y => y + ?hole)
   exact 1
   case hole => exact x
 

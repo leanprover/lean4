@@ -33,6 +33,8 @@ inductive SyntheticMVarKind where
   Otherwise, if `header?` is `some header`, we generate the error `(header ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)`
   Otherwise, we generate the error `("type mismatch" ++ e ++ "has type" ++ eType ++ "but it is expected to have type" ++ expectedType)` -/
   | coe (header? : Option String) (expectedType : Expr) (e : Expr) (f? : Option Expr)
+  /-- Waits for `e` to have no metavariables, then constructs the value by using `Expr.etaN`. -/
+  | etaN (n : Nat) (e : Expr)
   /-- Use tactic to synthesize value for metavariable. -/
   | tactic (tacticCode : Syntax) (ctx : SavedContext)
   /-- Metavariable represents a hole whose elaboration has been postponed. -/
@@ -43,6 +45,7 @@ instance : ToString SyntheticMVarKind where
   toString
     | .typeClass    => "typeclass"
     | .coe ..       => "coe"
+    | .etaN ..      => "etaN"
     | .tactic ..    => "tactic"
     | .postponed .. => "postponed"
 

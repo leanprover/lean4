@@ -218,7 +218,7 @@ partial def hasCDot : Syntax → Bool
 partial def expandCDot? (stx : Term) : MacroM (Option Term) := do
   if hasCDot stx then
     let (newStx, binders) ← (go stx).run #[]
-    `(fun $binders* => $(⟨newStx⟩))
+    `(eta_reduce_fun% $binders* => $(⟨newStx⟩))
   else
     pure none
 where
@@ -247,12 +247,12 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none
   let stx ← liftMacroM <| expandMacros stx
   match stx with
-  | `(fun $binders* => $f $args*) =>
+  | `(eta_reduce_fun% $binders* => $f $args*) =>
     if binders == args then
       try Term.resolveId? f catch _ => return none
     else
       return none
-  | `(fun $binders* => binop% $f $a $b) =>
+  | `(eta_reduce_fun% $binders* => binop% $f $a $b) =>
     if binders == #[a, b] then
       try Term.resolveId? f catch _ => return none
     else

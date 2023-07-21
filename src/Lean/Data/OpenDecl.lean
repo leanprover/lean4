@@ -28,13 +28,15 @@ def rootNamespace := `_root_
 def removeRoot (n : Name) : Name :=
   n.replacePrefix rootNamespace Name.anonymous
 
-/-- Adds namespace prefix unless in root namespace, when it just removes `_root_`.
+/-- `addNamespaceUnlessRoot ns n` adds namespace `ns` prefix unless `n` has a `_root_` prefix.
+If `n` has a `_root_` prefix then it is removed and `ns` is not added. The end result is a fully
+qualified name assuming that `ns` is a fully qualified namespace prefix.
 ```
 addNamespaceUnlessRoot `a.b `c.d = `a.b.c.d
 addNamespaceUnlessRoot `a.b `_root_.c.d = `c.d
 ```
 -/
-abbrev addNamespaceUnlessRoot (ns : Name) (n : Name) : Name :=
+def addNamespaceUnlessRoot (ns n : Name) : Name :=
   if rootNamespace.isPrefixOf n then removeRoot n else ns ++ n
 
 end Lean

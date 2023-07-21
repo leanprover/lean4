@@ -608,7 +608,7 @@ parameter.
 
 For example, the `Coe` class is defined as:
 ```
-class Coe (α : semiOutParam (Type u)) (β : Type v)
+class Coe (α : semiOutParam (Sort u)) (β : Sort v)
 ```
 This means that all `Coe` instances should provide a concrete value for `α`
 (i.e., not an assignable metavariable). An instance like `Coe Nat Int` or `Coe

@@ -294,6 +294,14 @@ end Handle
 @[extern "lean_io_remove_dir"] opaque removeDir : @& FilePath → IO Unit
 @[extern "lean_io_create_dir"] opaque createDir : @& FilePath → IO Unit
 
+/--
+Moves a file or directory `old` to the new location `new`.
+
+This function coincides with the [POSIX `rename` function](https://pubs.opengroup.org/onlinepubs/9699919799/functions/rename.html),
+see there for more information.
+-/
+@[extern "lean_io_rename"] opaque rename (old new : @& FilePath) : IO Unit
+
 end FS
 
 @[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)

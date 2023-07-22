@@ -657,6 +657,17 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
     }
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
+    if (std::rename(string_cstr(from), string_cstr(to)) == 0) {
+        return io_result_mk_ok(box(0));
+    } else {
+        std::ostringstream s;
+        s << string_cstr(from) << " and/or " << string_cstr(to);
+        object_ref out{mk_string(s.str())};
+        return io_result_mk_error(decode_io_error(errno, out.raw()));
+    }
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
     if (std::remove(string_cstr(fname)) == 0) {
         return io_result_mk_ok(box(0));

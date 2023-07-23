@@ -1480,7 +1480,7 @@ end
 
 section Exact
 
-variable   {α : Sort u}
+variable {α : Sort u}
 
 private def rel {s : Setoid α} (q₁ q₂ : Quotient s) : Prop :=
   Quotient.liftOn₂ q₁ q₂

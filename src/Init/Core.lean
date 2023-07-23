@@ -1497,7 +1497,7 @@ private theorem rel_of_eq {s : Setoid α} {q₁ q₂ : Quotient s} : q₁ = q₂
   fun h => Eq.ndrecOn h (rel.refl q₁)
 
 theorem exact {s : Setoid α} {a b : α} : Quotient.mk s a = Quotient.mk s b → a ≈ b :=
-  fun h => rel_of_eq h
+  rel_of_eq
 
 end Exact
 

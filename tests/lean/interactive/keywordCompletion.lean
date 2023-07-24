@@ -1,9 +1,7 @@
-def regular := 0
+prelude
 
-macro "register_string " s:str : term => s
+def bin := Type
 
-#check register_
-              --^ textDocument/completion
-
-#check register_
+#check binop_
         --^ textDocument/completion
+           --^ textDocument/completion

@@ -127,14 +127,14 @@ private def matchAtomic (id : Name) (declName : Name) : Option Float :=
   | .str .anonymous s₁, .str .anonymous s₂ => fuzzyMatchScoreWithThreshold? s₁ s₂
   | _, _ => none
 
-private def normPrivateName (declName : Name) : MetaM Name := do
+private def normPrivateName? (declName : Name) : MetaM (Option Name) := do
   match privateToUserName? declName with
   | none => return declName
   | some userName =>
     if mkPrivateName (← getEnv) userName == declName then
       return userName
     else
-      return declName
+      return none
 
 /--
   Return the auto-completion label if `id` can be auto completed using `declName` assuming namespace `ns` is open.
@@ -144,7 +144,8 @@ private def normPrivateName (declName : Name) : MetaM Name := do
 -/
 private def matchDecl? (ns : Name) (id : Name) (danglingDot : Bool) (declName : Name) : MetaM (Option (Name × Float)) := do
   -- dbg_trace "{ns}, {id}, {declName}, {danglingDot}"
-  let declName ← normPrivateName declName
+  let some declName ← normPrivateName? declName
+    | return none
   if !ns.isPrefixOf declName then
     return none
   else
@@ -366,7 +367,9 @@ private def dotCompletion (ctx : ContextInfo) (info : TermInfo) (hoverInfo : Hov
         failure
     else
       (← getEnv).constants.forM fun declName c => do
-        let typeName := (← normPrivateName declName).getPrefix
+        let some declName ← normPrivateName? declName
+          | return
+        let typeName := declName.getPrefix
         if nameSet.contains typeName then
           unless (← isBlackListed c.name) do
             if (← isDotCompletionMethod typeName c) then

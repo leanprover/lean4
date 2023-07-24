@@ -27,7 +27,7 @@ def mkInductArgNames (indVal : InductiveVal) : TermElabM (Array Name) := do
 
 /-- Return the inductive declaration's type applied to the arguments in `argNames`. -/
 def mkInductiveApp (indVal : InductiveVal) (argNames : Array Name) : TermElabM Term :=
-  let f    := mkIdent indVal.name
+  let f    := mkCIdent indVal.name
   let args := argNames.map mkIdent
   `(@$f $args*)
 
@@ -54,7 +54,7 @@ def mkInstImplicitBinders (className : Name) (indVal : InductiveVal) (argNames :
         let c ← mkAppM className #[x]
         if (← isTypeCorrect c) then
           let argName := argNames[i]!
-          let binder : Syntax ← `(instBinderF| [ $(mkIdent className):ident $(mkIdent argName):ident ])
+          let binder : Syntax ← `(instBinderF| [ $(mkCIdent className):ident $(mkIdent argName):ident ])
           binders := binders.push binder
       catch _ =>
         pure ()
@@ -94,7 +94,7 @@ def mkLocalInstanceLetDecls (ctx : Context) (className : Name) (argNames : Array
     let binders      ← mkImplicitBinders currIndices
     let argNamesNew  := argNames[:numParams] ++ currIndices
     let indType      ← mkInductiveApp indVal argNamesNew
-    let type         ← `($(mkIdent className) $indType)
+    let type         ← `($(mkCIdent className) $indType)
     let val          ← `(⟨$(mkIdent auxFunName)⟩)
     let instName     ← mkFreshUserName `localinst
     let letDecl      ← `(Parser.Term.letDecl| $(mkIdent instName):ident $binders:implicitBinder* : $type := $val)
@@ -116,8 +116,10 @@ def mkInstanceCmds (ctx : Context) (className : Name) (typeNames : Array Name) (
       let binders      ← mkImplicitBinders argNames
       let binders      := binders ++ (← mkInstImplicitBinders className indVal argNames)
       let indType      ← mkInductiveApp indVal argNames
-      let type         ← `($(mkIdent className) $indType)
-      let val          ← if useAnonCtor then `(⟨$(mkIdent auxFunName)⟩) else pure <| mkIdent auxFunName
+      let type         ← `($(mkCIdent className) $indType)
+      let mut val      := mkIdent auxFunName
+      if useAnonCtor then
+        val ← `(⟨$val⟩)
       let instCmd ← `(instance $binders:implicitBinder* : $type := $val)
       instances := instances.push instCmd
   return instances

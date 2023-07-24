@@ -1,4 +1,10 @@
-import Lean
+prelude
+
+namespace Lean
+class MonadRef where
+  getRef : Type
+export MonadRef (getRef)
+end Lean
 
 open Lean in
 #check getRe

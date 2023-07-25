@@ -35,9 +35,24 @@ mutual
     | _                    => id
 end
 
+partial def collectBackwardDeps (lctx : LocalContext) (i : Nat) : Visitor := fun s =>
+  if h : i < s.fvarIds.size then
+    let s := if let some ldecl := lctx.find? s.fvarIds[i] then
+      visit ldecl.type s
+    else
+      s
+    collectBackwardDeps lctx (i + 1) s
+  else
+    s
+
 end CollectFVars
 
 def collectFVars (s : CollectFVars.State) (e : Expr) : CollectFVars.State :=
   CollectFVars.main e s
+
+/-- After a call to `collectFVars`, this will close the state under the dependency relation,
+meaning that if `v` is in the state and `u` is in the type of `v` then `u` is also in the state. -/
+def collectBackwardDeps (s : CollectFVars.State) (lctx : LocalContext) : CollectFVars.State :=
+  CollectFVars.collectBackwardDeps lctx 0 s
 
 end Lean

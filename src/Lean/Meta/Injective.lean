@@ -3,6 +3,7 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
+import Lean.Meta.CollectFVars
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Injection
 import Lean.Meta.Tactic.Apply
@@ -35,6 +36,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
   let type ← elimOptParam ctorVal.type
   forallBoundedTelescope type ctorVal.numParams fun params type =>
   forallTelescope type fun args1 resultType => do
+    let varsInResult := collectBackwardDeps (collectFVars {} resultType) (← getLCtx) |>.fvarSet
     let jp (args2 args2New : Array Expr) : MetaM (Option Expr) := do
       let lhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args1
       let rhs := mkAppN (mkAppN (mkConst ctorVal.name us) params) args2
@@ -57,7 +59,7 @@ private partial def mkInjectiveTheoremTypeCore? (ctorVal : ConstructorVal) (useE
         match (← whnf type) with
         | Expr.forallE n d b _ =>
           let arg1 := args1.get ⟨i, h⟩
-          if arg1.occurs resultType then
+          if varsInResult.contains arg1.fvarId! then
             mkArgs2 (i + 1) (b.instantiate1 arg1) (args2.push arg1) args2New
           else
             withLocalDecl n (if useEq then BinderInfo.default else BinderInfo.implicit) d fun arg2 =>

@@ -2575,15 +2575,15 @@ l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__8 = _init_l___regBuiltin_Le
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__8);
 l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__9 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__9();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold___closed__9);
-res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold(lean_io_mk_world());
+if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString___closed__1();
+}l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString___closed__1);
-res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString(lean_io_mk_world());
+if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold_docString(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__1();
+}l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__1 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__1);
 l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__2 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__2();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__2);
@@ -2597,10 +2597,10 @@ l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__6 = _init_l___reg
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__6);
 l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__7 = _init_l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__7();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange___closed__7);
-res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange(lean_io_mk_world());
+if (builtin) {res = l___regBuiltin_Lean_Elab_Tactic_evalUnfold_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

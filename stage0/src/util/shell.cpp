@@ -334,8 +334,8 @@ void load_plugin(std::string path) {
     if (!init) {
         throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
     }
-    auto init_fn = reinterpret_cast<object *(*)(object *)>(init);
-    object *r = init_fn(io_mk_world());
+    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
+    object *r = init_fn(1 /* builtin */, io_mk_world());
     consume_io_result(r);
     // NOTE: we never unload plugins
 }

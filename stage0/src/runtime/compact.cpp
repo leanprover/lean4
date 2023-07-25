@@ -168,14 +168,16 @@ void object_compactor::insert_string(object * o) {
 
 bool object_compactor::insert_constructor(object * o) {
     std::vector<object_offset> & offsets = m_tmp;
-    offsets.clear();
     bool missing_children = false;
     unsigned num_objs     = lean_ctor_num_objs(o);
-    for (unsigned i = 0; i < num_objs; i++) {
+    offsets.resize(num_objs);
+    unsigned i = num_objs;
+    while (i > 0) {
+        i--;
         object_offset c = to_offset(cnstr_get(o, i));
         if (c == g_null_offset)
             missing_children = true;
-        offsets.push_back(c);
+        offsets[i] = c;
     }
     if (missing_children)
         return false;
@@ -197,15 +199,17 @@ bool object_compactor::insert_constructor(object * o) {
 
 bool object_compactor::insert_array(object * o) {
     std::vector<object_offset> & offsets = m_tmp;
-    offsets.clear();
     bool missing_children = false;
     size_t sz = array_size(o);
+    offsets.resize(sz);
     // std::cout << sz << " array\n";
-    for (size_t i = 0; i < sz; i++) {
+    size_t i = sz;
+    while (i > 0) {
+        i--;
         object_offset c = to_offset(array_get(o, i));
         if (c == g_null_offset)
             missing_children = true;
-        offsets.push_back(c);
+        offsets[i] = c;
     }
     if (missing_children)
         return false;

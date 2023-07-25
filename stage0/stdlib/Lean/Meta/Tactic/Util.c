@@ -8075,10 +8075,10 @@ l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__17 = _init_
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__17);
 l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__18 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__18();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556____closed__18);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_Util___hyg_556_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_MVarId_admit___closed__1 = _init_l_Lean_MVarId_admit___closed__1();
+}l_Lean_MVarId_admit___closed__1 = _init_l_Lean_MVarId_admit___closed__1();
 lean_mark_persistent(l_Lean_MVarId_admit___closed__1);
 l_Lean_MVarId_admit___closed__2 = _init_l_Lean_MVarId_admit___closed__2();
 lean_mark_persistent(l_Lean_MVarId_admit___closed__2);

@@ -415,24 +415,38 @@ def emitFnDeclAux (mod : LLVM.Module llvmctx)
   let env ← getEnv
   -- bollu: if we have a declaration with no parameters, then we emit it as a global pointer.
   -- bollu: Otherwise, we emit it as a function
+  let global ←
+    if ps.isEmpty then
+        let retty ← (toLLVMType decl.resultType)
+        let global ← LLVM.getOrAddGlobal mod cppBaseName retty
+        if !isExternal then
+          LLVM.setInitializer global (← LLVM.getUndef retty)
+        pure global
+    else
+        let retty ← (toLLVMType decl.resultType)
+        let mut argtys := #[]
+        for p in ps do
+          -- if it is extern, then we must not add irrelevant args
+          if !(isExternC env decl.name) || !p.ty.isIrrelevant then
+            argtys := argtys.push (← toLLVMType p.ty)
+        -- TODO (bollu): simplify this API, this code of `closureMaxArgs` is duplicated in multiple places.
+        if argtys.size > closureMaxArgs && isBoxedName decl.name then
+          argtys := #[← LLVM.pointerType (← LLVM.voidPtrType llvmctx)]
+        let fnty ← LLVM.functionType retty argtys (isVarArg := false)
+        LLVM.getOrAddFunction mod cppBaseName fnty
+  -- we must now set symbol visibility for global.
   if ps.isEmpty then
-      let retty ← (toLLVMType decl.resultType)
-      let global ← LLVM.getOrAddGlobal mod cppBaseName retty
-      if !isExternal then
-        LLVM.setInitializer global (← LLVM.getUndef retty)
-      return global
-  else
-      let retty ← (toLLVMType decl.resultType)
-      let mut argtys := #[]
-      for p in ps do
-        -- if it is extern, then we must not add irrelevant args
-        if !(isExternC env decl.name) || !p.ty.isIrrelevant then
-          argtys := argtys.push (← toLLVMType p.ty)
-      -- TODO (bollu): simplify this API, this code of `closureMaxArgs` is duplicated in multiple places.
-      if argtys.size > closureMaxArgs && isBoxedName decl.name then
-        argtys := #[← LLVM.pointerType (← LLVM.voidPtrType llvmctx)]
-      let fnty ← LLVM.functionType retty argtys (isVarArg := false)
-      LLVM.getOrAddFunction mod cppBaseName fnty
+    if isClosedTermName env decl.name then LLVM.setVisibility global LLVM.Visibility.hidden -- static
+    else if isExternal then pure () -- extern (Recall that C/LLVM funcs are extern linkage by default.)
+    else LLVM.setDLLStorageClass global LLVM.DLLStorageClass.export  -- LEAN_EXPORT
+  else if !isExternal
+    -- An extern decl might be linked in from a different translation unit.
+    -- Thus, we cannot export an external declaration as we do not define it,
+    -- only declare its presence.
+    -- So, we only export non-external definitions.
+    then LLVM.setDLLStorageClass global LLVM.DLLStorageClass.export
+  return global
+
 
 def emitFnDecl (decl : Decl) (isExternal : Bool) : M llvmctx Unit := do
   let cppBaseName ← toCName decl.name
@@ -1137,6 +1151,14 @@ def emitDeclAux (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) (d 
           argtys := argtys.push (← toLLVMType x.ty)
       let fnty ← LLVM.functionType retty argtys (isVarArg := false)
       let llvmfn ← LLVM.getOrAddFunction mod name fnty
+      -- set linkage and visibility
+      -- TODO: consider refactoring these into a separate concept (e.g. 'setLinkageAndVisibility')
+      --       Find the spots where this refactor needs to happen by grepping for 'LEAN_EXPORT'
+      --       in the C backend
+      if xs.size == 0 then
+        LLVM.setVisibility llvmfn LLVM.Visibility.hidden -- "static "
+      else
+        LLVM.setDLLStorageClass llvmfn LLVM.DLLStorageClass.export  -- LEAN_EXPORT: make symbol visible to the interpreter
       withReader (fun llvmctx => { llvmctx with mainFn := f, mainParams := xs }) do
         set { var2val := default, jp2bb := default : EmitLLVM.State llvmctx } -- flush variable map
         let bb ← LLVM.appendBasicBlockInContext llvmctx llvmfn "entry"
@@ -1247,10 +1269,12 @@ def emitInitFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
 
   let initFnTy ← LLVM.functionType (← LLVM.voidPtrType llvmctx) #[ (← LLVM.i8Type llvmctx), (← LLVM.voidPtrType llvmctx)] (isVarArg := false)
   let initFn ← LLVM.getOrAddFunction mod (mkModuleInitializationFunctionName modName) initFnTy
+  LLVM.setDLLStorageClass initFn LLVM.DLLStorageClass.export  -- LEAN_EXPORT
   let entryBB ← LLVM.appendBasicBlockInContext llvmctx initFn "entry"
   LLVM.positionBuilderAtEnd builder entryBB
   let ginit?ty := ← LLVM.i1Type llvmctx
   let ginit?slot ← LLVM.getOrAddGlobal mod (modName.mangle ++ "_G_initialized") ginit?ty
+  LLVM.setVisibility ginit?slot LLVM.Visibility.hidden -- static
   LLVM.setInitializer ginit?slot (← LLVM.constFalse llvmctx)
   let ginit?v ← LLVM.buildLoad2 builder ginit?ty ginit?slot "init_v"
   buildIfThen_ builder "isGInitialized" ginit?v

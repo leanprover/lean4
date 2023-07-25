@@ -29,6 +29,13 @@ Lean's IR.
 #include "llvm-c/Transforms/PassManagerBuilder.h"
 #endif
 
+// This is mostly boilerplate, suppress warnings
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info() {
 
 #ifdef LEAN_LLVM
@@ -1274,6 +1281,30 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_dispose_module(size_t ctx, size_t 
                   "the LLVM backend function."));
 #else
     LLVMDisposeModule(lean_to_Module(mod));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_visibility(size_t ctx, size_t value, uint64_t vis,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMSetVisibility(lean_to_Value(value), LLVMVisibility(vis));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_dll_storage_class(size_t ctx, size_t value, uint64_t cls,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMSetDLLStorageClass(lean_to_Value(value), LLVMDLLStorageClass(cls));
     return lean_io_result_mk_ok(lean_box(0));
 #endif  // LEAN_LLVM
 }

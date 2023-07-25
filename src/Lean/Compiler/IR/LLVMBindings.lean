@@ -294,6 +294,28 @@ opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
 opaque disposeModule (m : Module ctx) : BaseIO Unit
 
 
+-- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L198
+structure Visibility where
+  private mk :: val : UInt64
+
+def Visibility.default   : Visibility := { val := 0 }
+def Visibility.hidden    : Visibility := { val := 1 }
+def Visibility.protected : Visibility := { val := 2 }
+
+@[extern "lean_llvm_set_visibility"]
+opaque setVisibility {ctx : Context} (value : Value ctx) (visibility : Visibility) : BaseIO Unit
+
+-- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L210
+structure DLLStorageClass where
+  private mk :: val : UInt64
+
+def DLLStorageClass.default : DLLStorageClass := { val := 0 }
+def DLLStorageClass.import  : DLLStorageClass := { val := 1 }
+def DLLStorageClass.export  : DLLStorageClass := { val := 2 }
+
+@[extern "lean_llvm_set_dll_storage_class"]
+opaque setDLLStorageClass {ctx : Context} (value : Value ctx) (dllStorageClass : DLLStorageClass) : BaseIO Unit
+
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m : Module ctx) (name : String) (type : LLVMType ctx) : BaseIO (Value ctx) :=  do
   match (← getNamedFunction m name) with

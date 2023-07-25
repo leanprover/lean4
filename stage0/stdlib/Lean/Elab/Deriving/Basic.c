@@ -6942,10 +6942,10 @@ l___regBuiltin_Lean_Elab_elabDeriving___closed__4 = _init_l___regBuiltin_Lean_El
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving___closed__4);
 l___regBuiltin_Lean_Elab_elabDeriving___closed__5 = _init_l___regBuiltin_Lean_Elab_elabDeriving___closed__5();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving___closed__5);
-res = l___regBuiltin_Lean_Elab_elabDeriving(lean_io_mk_world());
+if (builtin) {res = l___regBuiltin_Lean_Elab_elabDeriving(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__1 = _init_l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__1();
+}l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__1 = _init_l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__1();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__1);
 l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__2 = _init_l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__2();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__2);
@@ -6959,10 +6959,10 @@ l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__6 = _init_l___regBuilt
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__6);
 l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__7 = _init_l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__7();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_elabDeriving_declRange___closed__7);
-res = l___regBuiltin_Lean_Elab_elabDeriving_declRange(lean_io_mk_world());
+if (builtin) {res = l___regBuiltin_Lean_Elab_elabDeriving_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_getOptDerivingClasses___rarg___closed__1 = _init_l_Lean_Elab_getOptDerivingClasses___rarg___closed__1();
+}l_Lean_Elab_getOptDerivingClasses___rarg___closed__1 = _init_l_Lean_Elab_getOptDerivingClasses___rarg___closed__1();
 lean_mark_persistent(l_Lean_Elab_getOptDerivingClasses___rarg___closed__1);
 l_Lean_Elab_getOptDerivingClasses___rarg___closed__2 = _init_l_Lean_Elab_getOptDerivingClasses___rarg___closed__2();
 lean_mark_persistent(l_Lean_Elab_getOptDerivingClasses___rarg___closed__2);
@@ -6998,10 +6998,10 @@ l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870____closed__15 = _i
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870____closed__15);
 l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870____closed__16 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870____closed__16();
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870____closed__16);
-res = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Elab_initFn____x40_Lean_Elab_Deriving_Basic___hyg_2870_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

@@ -1873,10 +1873,10 @@ l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014____closed__15 = 
 lean_mark_persistent(l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014____closed__15);
 l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014____closed__16 = _init_l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014____closed__16();
 lean_mark_persistent(l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014____closed__16);
-res = l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014_(lean_io_mk_world());
+if (builtin) {res = l_Lean_MVarId_initFn____x40_Lean_Meta_Tactic_Acyclic___hyg_1014_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

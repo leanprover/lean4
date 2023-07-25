@@ -55549,10 +55549,10 @@ l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351____closed__14 = _init_
 lean_mark_persistent(l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351____closed__14);
 l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351____closed__15 = _init_l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351____closed__15();
 lean_mark_persistent(l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351____closed__15);
-res = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Elab_Term_initFn____x40_Lean_Elab_Term___hyg_18351_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__1 = _init_l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__1();
+}l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__1 = _init_l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__1();
 lean_mark_persistent(l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__1);
 l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__2 = _init_l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__2();
 lean_mark_persistent(l_Lean_Elab_Term_isLetRecAuxMVar___lambda__2___closed__2);
@@ -55782,10 +55782,10 @@ l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623____closed__8 = _init_l_Lean
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623____closed__8);
 l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623____closed__9 = _init_l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623____closed__9();
 lean_mark_persistent(l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623____closed__9);
-res = l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Elab_initFn____x40_Lean_Elab_Term___hyg_21623_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

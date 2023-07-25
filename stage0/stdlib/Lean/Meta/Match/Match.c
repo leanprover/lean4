@@ -35813,10 +35813,10 @@ l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090____closed__12 = _ini
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090____closed__12);
 l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090____closed__13 = _init_l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090____closed__13();
 lean_mark_persistent(l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090____closed__13);
-res = l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Meta_initFn____x40_Lean_Meta_Match_Match___hyg_16090_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+}return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus
 }

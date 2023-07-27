@@ -178,9 +178,11 @@ FOREACH(T ${LEANTESTS})
 ENDFOREACH(T)
 
 # Create a lake test for each subdirectory of `lake` which contains a `test.sh` file.
+# Disable tests that are prone to flake by construction
+# (e.g. laketest_116 has a 'sleep()' for a fixed duration).
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*(lake-packages|bootstrap|104|git).*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|104|116|git).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
     add_test(NAME "leanlaketest_${DIR_NAME}"

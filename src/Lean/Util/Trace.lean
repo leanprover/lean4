@@ -193,7 +193,9 @@ def withTraceNode [MonadExcept ε m] [MonadLiftT BaseIO m] (cls : Name) (msg : E
     modifyTraces (oldTraces ++ ·)
     return (← MonadExcept.ofExcept res)
   let ref ← getRef
-  let mut m ← msg res
+  let mut m := match ← observing <| msg res with
+    | .ok m => m
+    | .error _ => m!"<exception thrown while producing trace node message>"
   if profiler.get opts || aboveThresh then
     m := m!"[{secs}s] {m}"
   addTraceNode oldTraces cls ref m collapsed

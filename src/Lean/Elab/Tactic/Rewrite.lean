@@ -11,16 +11,20 @@ import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 
-def rewriteTarget (e : Expr) (symm : Bool) (config : Rewrite.Config) : TacticM Unit := do
-  let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
-  let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
-  replaceMainGoal (mvarId' :: r.mvarIds)
+def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config) : TacticM Unit := do
+  Term.withSynthesize <| withMainContext do
+    let e ← elabTerm stx none true
+    let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
+    let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
+    replaceMainGoal (mvarId' :: r.mvarIds)
 
-def rewriteLocalDecl (e : Expr) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config) : TacticM Unit := do
-  let localDecl ← fvarId.getDecl
-  let rwResult ← (← getMainGoal).rewrite localDecl.type e symm (config := config)
-  let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
-  replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
+def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config) : TacticM Unit := do
+  Term.withSynthesize <| withMainContext do
+    let e ← elabTerm stx none true
+    let localDecl ← fvarId.getDecl
+    let rwResult ← (← getMainGoal).rewrite localDecl.type e symm (config := config)
+    let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
+    replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
 def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]
@@ -58,11 +62,9 @@ declare_config_elab elabRewriteConfig Rewrite.Config
   let cfg ← elabRewriteConfig stx[1]
   let loc   := expandOptLocation stx[3]
   withRWRulesSeq stx[0] stx[2] fun symm term => do
-    Term.withSynthesize <| withMainContext do
-      let e ← elabTerm term none true
-      withLocation loc
-        (rewriteLocalDecl e symm · cfg)
-        (rewriteTarget e symm cfg)
-        (throwTacticEx `rewrite · "did not find instance of the pattern in the current goal")
+    withLocation loc
+      (rewriteLocalDecl term symm · cfg)
+      (rewriteTarget term symm cfg)
+      (throwTacticEx `rewrite · "did not find instance of the pattern in the current goal")
 
 end Lean.Elab.Tactic

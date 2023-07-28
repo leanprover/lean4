@@ -1959,27 +1959,27 @@ static inline uint8_t lean_strict_and(uint8_t b1, uint8_t b2) {
     return b1 && b2;
 }
 
-static inline lean_obj_res lean_get_major(lean_obj_arg _unit) {
+static inline lean_obj_res lean_version_get_major(lean_obj_arg _unit) {
     return lean_box(LEAN_VERSION_MAJOR);
 }
 
-static inline lean_obj_res lean_get_minor(lean_obj_arg _unit) {
+static inline lean_obj_res lean_version_get_minor(lean_obj_arg _unit) {
     return lean_box(LEAN_VERSION_MINOR);
 }
 
-static inline lean_obj_res lean_get_patch(lean_obj_arg _unit) {
+static inline lean_obj_res lean_version_get_patch(lean_obj_arg _unit) {
     return lean_box(LEAN_VERSION_PATCH);
 }
 
-static inline uint8_t lean_get_is_release(lean_obj_arg _unit) {
+static inline uint8_t lean_version_get_is_release(lean_obj_arg _unit) {
     return LEAN_VERSION_IS_RELEASE;
 }
 
-static inline lean_obj_res lean_get_special_desc(lean_obj_arg _unit) {
+static inline lean_obj_res lean_version_get_special_desc(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_SPECIAL_VERSION_DESC);
 }
 
-static inline uint8_t lean_is_stage0(lean_obj_arg _unit) {
+static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
     return LEAN_IS_STAGE0;
 }
 

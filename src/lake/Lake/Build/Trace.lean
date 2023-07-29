@@ -137,10 +137,27 @@ instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 structure TextFilePath where
   path : FilePath
 
+/-- This is the same as `String.replace text "\r\n" "\n"`, but more efficient. -/
+partial def crlf2lf (text : String) : String :=
+  go "" 0 0
+where
+  go (acc : String) (accStop pos : String.Pos) : String :=
+    if h : text.atEnd pos then
+      -- note: if accStop = 0 then acc is empty
+      if accStop = 0 then text else acc ++ text.extract accStop pos
+    else
+      let c := text.get' pos h
+      let pos' := text.next' pos h
+      if c == '\r' && text.get pos' == '\n' then
+        let acc := acc ++ text.extract accStop pos
+        go acc pos' (text.next pos')
+      else
+        go acc accStop pos'
+
 instance : ComputeHash TextFilePath IO where
   computeHash file := do
     let text ← IO.FS.readFile file.path
-    let text := text.replace "\r\n" "\n"
+    let text := crlf2lf text
     return Hash.ofString text
 
 instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m where

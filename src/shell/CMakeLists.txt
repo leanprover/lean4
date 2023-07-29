@@ -178,8 +178,9 @@ FOREACH(T ${LEANTESTS})
 ENDFOREACH(T)
 
 # Create a lake test for each subdirectory of `lake` which contains a `test.sh` file.
-# Disable tests that are prone to flake by construction
-# (e.g. laketest_116 has a 'sleep()' for a fixed duration).
+# bootstrap: too slow
+# 104, git: not adapted to living in the lean4 repo yet
+# 116: non-deterministic (`sleep`)
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|104|116|git).*")

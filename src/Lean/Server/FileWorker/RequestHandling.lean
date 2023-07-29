@@ -428,7 +428,7 @@ partial def handleSemanticTokens (beginPos endPos : String.Pos)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let t := doc.cmdSnaps.waitAll (·.beginPos < endPos)
+  let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
   mapTask t fun (snaps, _) =>
     StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do

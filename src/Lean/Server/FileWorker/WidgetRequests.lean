@@ -98,7 +98,7 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
   let doc ← readDoc
   let rangeEnd := params.lineRange?.map fun range =>
     doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
-  let t := doc.cmdSnaps.waitAll fun snap => rangeEnd.all (snap.beginPos < ·)
+  let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
   pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>
       snap.interactiveDiags.toArray.filter fun diag =>

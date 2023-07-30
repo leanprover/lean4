@@ -27,7 +27,7 @@ namespace HashSetImp
 variable {α : Type u}
 
 /- Remark: we use a C implementation because this function is performance critical. -/
-@[extern c inline "(size_t)(#2) & (lean_unbox(#1) - 1)"]
+@[extern "lean_hashset_mk_idx"]
 private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize // u.toNat < sz } :=
   -- TODO: avoid `if` in the reference implementation
   let u := hash.toUSize &&& (sz.toUSize - 1)

@@ -65,7 +65,8 @@ partial def getAll : AsyncList ε α → List α × Option ε
     | Except.ok tl => tl.getAll
     | Except.error e => ⟨[], some e⟩
 
-/-- Spawns a `Task` returning the prefix of elements up to (including) the first element for which `p` is true. -/
+/-- Spawns a `Task` returning the prefix of elements up to (including) the first element for which `p` is true.
+When `p` is not true of any element, it returns the entire list. -/
 partial def waitUntil (p : α → Bool) : AsyncList ε α → Task (List α × Option ε)
   | cons hd tl =>
     if !p hd then
@@ -79,7 +80,7 @@ partial def waitUntil (p : α → Bool) : AsyncList ε α → Task (List α × O
       | .error e => .pure ⟨[], some e⟩
 
 /-- Spawns a `Task` waiting on all elements. -/
-partial def waitAll : AsyncList ε α → Task (List α × Option ε) :=
+def waitAll : AsyncList ε α → Task (List α × Option ε) :=
   waitUntil (fun _ => false)
 
 /-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution

@@ -283,17 +283,26 @@ def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : Pa
 
 end ParserState
 
+/--
+  Parser context available to token parsers. It does not give access to the current tokenizer function
+  in order to prevent cyclic dependencies. -/
 structure TokenParserContext extends InputContext, ParserModuleContext, CacheableParserContext where
-  tokens  : TokenTable
+  /-- Current token table, available to token parsers. -/
+  tokens : TokenTable
 
+/-- A token parser. See `TokenParserContext`. -/
 def TokenParserFn := TokenParserContext → ParserState → ParserState
 
 instance : Inhabited TokenParserFn where
   default := fun _ s => s
 
-/-- Parser context updateable in `adaptUncacheableContextFn`. -/
+/--
+  Parser context updateable in `adaptUncacheableContextFn`.
+  On top of `CacheableParserContext`, it includes fields such as `tokens` and `tokenFn` that cannot easily
+  be included in the cache key. -/
 structure ParserContextCore extends TokenParserContext where
-  tokenFn      : TokenParserFn
+  /-- Current tokenizer function invoked by `Lean.Parser.tokenFn` on cache miss. -/
+  tokenFn : TokenParserFn
 
 /-- Opaque parser context updateable using `adaptCacheableContextFn` and `adaptUncacheableContextFn`. -/
 structure ParserContext extends ParserContextCore where private mk ::

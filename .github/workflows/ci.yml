@@ -50,6 +50,16 @@ jobs:
       matrix:
         include:
           # portable release build: use channel with older glibc (2.27)
+          - name: Linux LLVM
+            os: ubuntu-latest
+            release: true
+            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
+            prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
+            binary-check: ldd -v
+            # foreign code may be linked against more recent glibc
+            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
+            CMAKE_OPTIONS: -DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config
           - name: Linux release
             os: ubuntu-latest
             release: true

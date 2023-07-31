@@ -39,11 +39,12 @@ gcp llvm/lib/libc++.dylib stage1/lib/libc
 # make sure we search for the library in /usr/lib instead of the rpath, which should not contain `/usr/lib`
 # and apparently since Sonoma does not do so implicitly either
 install_name_tool -id /usr/lib/libc++.dylib stage1/lib/libc/libc++.dylib
-echo -n " -DLLVM=ON -DLLVM_CONFIG=$PWD/llvm-host/bin/llvm-config" # manually point to `llvm-config` location
+# forward `--target`
+echo -n " -DLEAN_EXTRA_MAKE_OPTS='${EXTRA_FLAGS:-}'"
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK
-echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}' -DLEAN_EXTRA_MAKE_OPTS='${EXTRA_FLAGS:-}'"
+echo -n " -DLEAN_EXTRA_CXX_FLAGS='${EXTRA_FLAGS:-}'"
 if [[ -L llvm-host ]]; then
   echo -n " -DCMAKE_C_COMPILER=$PWD/stage1/bin/clang"
   gcp $GMP/lib/libgmp.a stage1/lib/

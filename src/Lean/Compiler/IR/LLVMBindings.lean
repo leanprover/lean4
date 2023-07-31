@@ -29,6 +29,14 @@ def IntPredicate.EQ : IntPredicate := { val := 32 }
 def IntPredicate.NE : IntPredicate := { val := IntPredicate.EQ.val + 1 }
 def IntPredicate.UGT : IntPredicate := { val := IntPredicate.NE.val + 1 }
 
+-- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L457
+structure AttributeIndex where
+  private mk :: val : UInt64
+
+def AttributeIndex.AttributeReturnIndex : AttributeIndex := { val := 0 }
+-- This value is ~0 for 64 bit
+def AttributeIndex.AttributeFunctionIndex : AttributeIndex := { val := 18446744073709551615 }
+
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
 instance : Nonempty (BasicBlock ctx) := ⟨{ ptr := default }⟩
@@ -78,6 +86,10 @@ def Value.isNull (v : Value ctx) : Bool := v.ptr == 0
 
 @[extern "lean_llvm_get_value_name2"]
 opaque Value.getName {ctx : Context} (value : Value ctx) : BaseIO String
+
+structure Attribute (ctx : Context) where
+  private mk :: ptr : USize
+instance : Nonempty (Attribute ctx) := ⟨{ ptr := default }⟩
 
 @[extern "lean_llvm_initialize_target_info"]
 opaque llvmInitializeTargetInfo : BaseIO (Unit)
@@ -314,6 +326,12 @@ opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
 @[extern "lean_llvm_dispose_module"]
 opaque disposeModule (m : Module ctx) : BaseIO Unit
 
+@[extern "lean_llvm_create_string_attribute"]
+opaque createStringAttribute (key : String) (value : String) : BaseIO (Attribute ctx)
+
+@[extern "lean_llvm_add_attribute_at_index"]
+opaque addAttributeAtIndex (fn : Value ctx) (idx: AttributeIndex) (attr: Attribute ctx) : BaseIO Unit
+
 
 -- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L198
 structure Visibility where
@@ -377,18 +395,6 @@ def Linkage.linkerPrivateWeak : Linkage := { val := 16 }
 
 @[extern "lean_llvm_set_linkage"]
 opaque setLinkage {ctx : Context} (value : Value ctx) (linkage : Linkage) : BaseIO Unit
-
-
--- Helper to add a function if it does not exist, and to return the function handle if it does.
-def getOrAddFunction(m : Module ctx) (name : String) (type : LLVMType ctx) : BaseIO (Value ctx) :=  do
-  match (← getNamedFunction m name) with
-  | .some fn => return fn
-  | .none => addFunction m name type
-
-def getOrAddGlobal(m : Module ctx) (name : String) (type : LLVMType ctx) : BaseIO (Value ctx) :=  do
-  match (← getNamedGlobal m name) with
-  | .some fn => return fn
-  | .none => addGlobal m name type
 
 
 def i1Type (ctx : LLVM.Context) : BaseIO (LLVM.LLVMType ctx) :=

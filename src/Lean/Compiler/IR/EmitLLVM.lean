@@ -27,6 +27,27 @@ namespace LLVM
 -- TODO(bollu): instantiate target triple and find out what size_t is.
 def size_tType (llvmctx : LLVM.Context) : IO (LLVM.LLVMType llvmctx) :=
   LLVM.i64Type llvmctx
+
+-- Helper to add a function if it does not exist, and to return the function handle if it does.
+def getOrAddFunction (m : LLVM.Module ctx) (name : String) (type : LLVM.LLVMType ctx) : BaseIO (LLVM.Value ctx) :=  do
+  match (← LLVM.getNamedFunction m name) with
+  | some fn => return fn
+  | none =>
+    /-
+    By the evidence shown in: https://github.com/leanprover/lean4/issues/2373#issuecomment-1658743284
+    this is how clang implements `-fstack-clash-protection` in the LLVM IR, we want this feature
+    for robust stack overflow detection.
+    -/
+    let fn ← LLVM.addFunction m name type
+    let attr ← LLVM.createStringAttribute "probe-stack" "inline-asm"
+    LLVM.addAttributeAtIndex fn LLVM.AttributeIndex.AttributeFunctionIndex attr
+    return fn
+
+def getOrAddGlobal (m : LLVM.Module ctx) (name : String) (type : LLVM.LLVMType ctx) : BaseIO (LLVM.Value ctx) :=  do
+  match (← LLVM.getNamedGlobal m name) with
+  | .some fn => return fn
+  | .none => LLVM.addGlobal m name type
+
 end LLVM
 
 namespace EmitLLVM

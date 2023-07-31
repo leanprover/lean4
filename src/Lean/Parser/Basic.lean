@@ -852,16 +852,14 @@ def rawIdentFn : ParserFn := fun c s =>
   if input.atEnd i then s.mkEOIError
   else identFnAux i none .anonymous c s
 
-def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let startPos := s.pos
-  let s        := tokenFn expected c s
+def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s => Id.run do
+  let s := tokenFn expected c s
   if s.hasError then
-    s
-  else
-    match s.stxStack.back with
-    | .atom _ sym => if p sym then s else s.mkErrorsAt expected startPos initStackSz
-    | _           => s.mkErrorsAt expected startPos initStackSz
+    return s
+  if let .atom _ sym := s.stxStack.back then
+    if p sym then
+      return s
+  s.mkUnexpectedTokenErrors expected
 
 def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
   satisfySymbolFn (fun s => s == sym) [errorMsg]
@@ -891,22 +889,20 @@ def checkTailNoWs (prev : Syntax) : Bool :=
     For example, the universe `max` Function is parsed using this combinator so that
     it can still be used as an identifier outside of universe (but registering it
     as a token in a Term Syntax would not break the universe Parser). -/
-def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let startPos := s.pos
+def nonReservedSymbolFnAux (sym : String) (errorMsg : String) : ParserFn := fun c s => Id.run do
   let s := tokenFn [errorMsg] c s
-  if s.hasError then s
-  else
-    match s.stxStack.back with
-    | .atom _ sym' =>
-      if sym == sym' then s else s.mkErrorAt errorMsg startPos initStackSz
-    | .ident info rawVal _ _ =>
-      if sym == rawVal.toString then
-        let s := s.popSyntax
-        s.pushSyntax (Syntax.atom info sym)
-      else
-        s.mkErrorAt errorMsg startPos initStackSz
-    | _ => s.mkErrorAt errorMsg startPos initStackSz
+  if s.hasError then
+    return s
+  match s.stxStack.back with
+  | .atom _ sym' =>
+    if sym == sym' then
+      return s
+  | .ident info rawVal _ _ =>
+    if sym == rawVal.toString then
+      let s := s.popSyntax
+      return s.pushSyntax (Syntax.atom info sym)
+  | _ => ()
+  s.mkUnexpectedTokenError errorMsg
 
 def nonReservedSymbolFn (sym : String) : ParserFn :=
   nonReservedSymbolFnAux sym ("'" ++ sym ++ "'")
@@ -997,66 +993,49 @@ def unicodeSymbolNoAntiquot (sym asciiSym : String) : Parser :=
 def mkAtomicInfo (k : String) : ParserInfo :=
   { firstTokens := FirstTokens.tokens [ k ] }
 
-def numLitFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s      := tokenFn ["numeral"] c s
-  if !s.hasError && !(s.stxStack.back.isOfKind numLitKind) then s.mkErrorAt "numeral" iniPos initStackSz else s
+/--
+  Parses a token and asserts the result is of the given kind.
+  `desc` is used in error messages as the token kind. -/
+def expectTokenFn (k : SyntaxNodeKind) (desc : String) : ParserFn := fun c s =>
+  let s := tokenFn [desc] c s
+  if !s.hasError && !(s.stxStack.back.isOfKind k) then s.mkUnexpectedTokenError desc else s
+
+def numLitFn : ParserFn := expectTokenFn numLitKind "numeral"
 
 def numLitNoAntiquot : Parser := {
   fn   := numLitFn
   info := mkAtomicInfo "num"
 }
 
-def scientificLitFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s      := tokenFn ["scientific number"] c s
-  if !s.hasError && !(s.stxStack.back.isOfKind scientificLitKind) then s.mkErrorAt "scientific number" iniPos initStackSz else s
+def scientificLitFn : ParserFn := expectTokenFn scientificLitKind "scientific number"
 
 def scientificLitNoAntiquot : Parser := {
   fn   := scientificLitFn
   info := mkAtomicInfo "scientific"
 }
 
-def strLitFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s := tokenFn ["string literal"] c s
-  if !s.hasError && !(s.stxStack.back.isOfKind strLitKind) then s.mkErrorAt "string literal" iniPos initStackSz else s
+def strLitFn : ParserFn := expectTokenFn strLitKind "string literal"
 
 def strLitNoAntiquot : Parser := {
   fn   := strLitFn
   info := mkAtomicInfo "str"
 }
 
-def charLitFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s := tokenFn ["char literal"] c s
-  if !s.hasError && !(s.stxStack.back.isOfKind charLitKind) then s.mkErrorAt "character literal" iniPos initStackSz else s
+def charLitFn : ParserFn := expectTokenFn charLitKind "character literal"
 
 def charLitNoAntiquot : Parser := {
   fn   := charLitFn
   info := mkAtomicInfo "char"
 }
 
-def nameLitFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s := tokenFn ["Name literal"] c s
-  if !s.hasError && !(s.stxStack.back.isOfKind nameLitKind) then s.mkErrorAt "Name literal" iniPos initStackSz else s
+def nameLitFn : ParserFn := expectTokenFn nameLitKind "Name literal"
 
 def nameLitNoAntiquot : Parser := {
   fn   := nameLitFn
   info := mkAtomicInfo "name"
 }
 
-def identFn : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
-  let s      := tokenFn ["identifier"] c s
-  if !s.hasError && !(s.stxStack.back.isIdent) then s.mkErrorAt "identifier" iniPos initStackSz else s
+def identFn : ParserFn := expectTokenFn identKind "identifier"
 
 def identNoAntiquot : Parser := {
   fn   := identFn
@@ -1068,14 +1047,12 @@ def rawIdentNoAntiquot : Parser := {
 }
 
 def identEqFn (id : Name) : ParserFn := fun c s =>
-  let initStackSz := s.stackSize
-  let iniPos := s.pos
   let s      := tokenFn ["identifier"] c s
   if s.hasError then
     s
   else match s.stxStack.back with
-    | .ident _ _ val _ => if val != id then s.mkErrorAt ("expected identifier '" ++ toString id ++ "'") iniPos initStackSz else s
-    | _ => s.mkErrorAt "identifier" iniPos initStackSz
+    | .ident _ _ val _ => if val != id then s.mkUnexpectedTokenError s!"identifier '{id}'" else s
+    | _ => s.mkUnexpectedTokenError "identifier"
 
 def identEq (id : Name) : Parser := {
   fn   := identEqFn id
@@ -1597,7 +1574,11 @@ def leadingParserAux (kind : Name) (tables : PrattParsingTables) (behavior : Lea
     return s
   let ps      := tables.leadingParsers ++ ps
   if ps.isEmpty then
-    return s.mkError (toString kind)
+    -- if there are no applicable parsers, consume the leading token and flag it as unexpected at this position
+    let s := tokenFn [toString kind] c s
+    if s.hasError then
+      return s
+    return s.mkUnexpectedTokenError (toString kind)
   let s := longestMatchFn none ps c s
   mkResult s iniSz
 

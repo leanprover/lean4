@@ -73,6 +73,8 @@ structure ParserContextCore extends InputContext, ParserModuleContext, Cacheable
 structure ParserContext extends ParserContextCore where private mk ::
 
 structure Error where
+  /-- If set, the corresponding range is reported. The start position is always `ParserState.pos`. -/
+  stopPos? : Option String.Pos := none
   unexpected : String := ""
   expected : List String := []
   deriving Inhabited, BEq
@@ -98,7 +100,8 @@ instance : ToString Error where
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with
-  | { unexpected := u, .. } => { unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
+  -- We expect errors to be merged to be about the same token, so unconditionally copy second `stopPos?`
+  | { stopPos?, unexpected := u, .. } => { stopPos?, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
 
 end Error
 
@@ -283,6 +286,21 @@ def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStac
 
 def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
   s.mkErrorsAt [msg] pos initStackSz?
+
+/--
+  Reports given 'expected' messages at range of top stack element (assumed to be a single token).
+  Replaces the element with `missing`. -/
+def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) : ParserState :=
+  let tk := s.stxStack.back
+  let s := s.setPos tk.getPos?.get!
+  let s := s.setError { stopPos? := tk.getTailPos?, expected := ex }
+  s.popSyntax.pushSyntax .missing
+
+/--
+  Reports given 'expected' message at range of top stack element (assumed to be a single token).
+  Replaces the element with `missing`. -/
+def mkUnexpectedTokenError (s : ParserState) (msg : String) : ParserState :=
+  s.mkUnexpectedTokenErrors [msg]
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   s.setPos pos |>.mkUnexpectedError msg

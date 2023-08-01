@@ -181,7 +181,7 @@ lean_lib «target-name» {
 
 **Configuration Options**
 
-* `srcDir`: The subdirectory of the package' source directory containing the library's source files. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
+* `srcDir`: The subdirectory of the package's source directory containing the library's source files. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
 * `roots`: An `Array` of root module `Name`(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
 * `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
 * `libName`: The `String` name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.
@@ -203,8 +203,10 @@ lean_exe «target-name» {
 
 **Configuration Options**
 
+* `srcDir`: The subdirectory of the package's source directory containing the executable's source file. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
 * `root`: The root module `Name` of the binary executable. Should include a `main` definition that will serve as the entry point of the program. The root is built by recursively building its local imports (i.e., fellow modules of the workspace). Defaults to the name of the target.
 * `exeName`: The `String` name of the binary executable. Defaults to the target name with any `.` replaced with a `-`.
+* `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the executable. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
 * `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
 * `buildType`, `moreLeanArgs`, `weakLeanArgs`, `moreLeancArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Build.Facets
 import Lake.Config.LeanConfig
 
 namespace Lake
@@ -12,6 +13,14 @@ open Lean System
 structure LeanExeConfig extends LeanConfig where
   /-- The name of the target. -/
   name : Name
+
+  /--
+  The subdirectory of the package's source directory containing the executable's
+  Lean source file. Defaults simply to said `srcDir`.
+
+  (This will be passed to `lean` as the `-R` option.)
+  -/
+  srcDir : FilePath := "."
 
   /--
   The root module of the binary executable.
@@ -32,6 +41,13 @@ structure LeanExeConfig extends LeanConfig where
   exeName : String := name.toStringWithSep "-" (escape := false)
 
   /--
+  An `Array` of module facets to build and combine into the executable.
+  Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from
+  the Lean source).
+  -/
+  nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
+
+  /--
   Whether to expose symbols within the executable to the Lean interpreter.
   This allows the executable to interpret Lean files (e.g.,  via
   `Lean.Elab.runFrontend`).
@@ -43,4 +59,4 @@ structure LeanExeConfig extends LeanConfig where
   -/
   supportInterpreter : Bool := false
 
-deriving Inhabited, Repr
+deriving Inhabited

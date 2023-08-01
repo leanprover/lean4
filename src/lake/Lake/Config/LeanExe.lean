@@ -29,8 +29,10 @@ with a single module (the root).
 -/
 def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
   name := self.name
+  srcDir := self.srcDir
   roots := #[]
   libName := self.exeName
+  nativeFacets := self.nativeFacets
   toLeanConfig := self.toLeanConfig
 
 namespace LeanExe
@@ -80,5 +82,6 @@ end LeanExe
 
 /-- Locate the named module in the package (if it is buildable and local to it). -/
 def Package.findModule? (mod : Name) (self : Package) : Option Module :=
-  self.leanLibs.findSome? (·.findModule? mod) <|>
-  self.leanExes.findSome? (·.isRoot? mod)
+  self.leanExes.findSome? (·.isRoot? mod) <|>
+  self.leanLibs.findSome? (·.findModule? mod)
+

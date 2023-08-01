@@ -11,14 +11,14 @@ namespace Lake
 
 /-- Fetch the build job of the specified package target. -/
 def Package.fetchTargetJob (self : Package)
-(target : Name) : IndexBuildM (Option (BuildJob Unit)) :=  do
+(target : Name) : IndexBuildM (BuildJob Unit) :=  do
   let some config := self.findTargetConfig? target
     | error s!"package '{self.name}' has no target '{target}'"
   return config.getJob (← fetch <| self.target target)
 
 /-- Fetch the build result of a target. -/
 protected def TargetDecl.fetch (self : TargetDecl)
-[FamilyDef CustomData (self.pkg, self.name) α] : IndexBuildM α := do
+[FamilyOut CustomData (self.pkg, self.name) α] : IndexBuildM α := do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name

@@ -63,6 +63,8 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
             return pkg
           else
             let depPkg ← loadDepPackage ws.dir result pkg.leanOpts dep.options
+            if depPkg.name ≠ dep.name then
+              logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
             modifyThe (NameMap Package) (·.insert dep.name depPkg)
             return depPkg
         return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}

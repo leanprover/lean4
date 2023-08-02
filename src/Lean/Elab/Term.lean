@@ -1401,7 +1401,7 @@ def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr)
   The option `catchExPostpone == false` is used to implement `resumeElabTerm`
   to prevent the creation of another synthetic metavariable when resuming the elaboration.
 
-  If `implicitLambda == true`, then disable implicit lambdas feature for the given syntax, but not for its subterms.
+  If `implicitLambda == false`, then disable implicit lambdas feature for the given syntax, but not for its subterms.
   We use this flag to implement, for example, the `@` modifier. If `Context.implicitLambda == false`, then this parameter has no effect.
   -/
 def elabTerm (stx : Syntax) (expectedType? : Option Expr) (catchExPostpone := true) (implicitLambda := true) : TermElabM Expr :=

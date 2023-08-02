@@ -14,7 +14,7 @@ INITD_NOT=$'Content-Length: 40\r\n\r\n{"jsonrpc":"2.0","method":"initialized"}'
 OPEN_REQ=$'Content-Length: 145\r\n\r\n{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://Test.lean","languageId":"lean4","version":0,"text":""}}}'
 MSGS="$INIT_REQ$INITD_NOT$OPEN_REQ"
 
-(echo -n "$MSGS"; sleep 3) | $LAKE serve 2>&1 > lake.out || true
+(echo -n "$MSGS"; sleep 5) | $LAKE serve 2>&1 > lake.out || true
 
 echo
 grep -m1 Lake lake.out

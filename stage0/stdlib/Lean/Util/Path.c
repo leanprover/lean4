@@ -102,7 +102,7 @@ LEAN_EXPORT lean_object* lean_get_prefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findWithExt(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findWithExt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Internal_isStage0(lean_object*);
+uint8_t lean_internal_is_stage0(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findOLean_maybeThisOne___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_Lean_getBuildDir___closed__1;
@@ -1206,7 +1206,7 @@ _start:
 {
 lean_object* x_1; uint8_t x_2; 
 x_1 = lean_box(0);
-x_2 = LEAN_IS_STAGE0;
+x_2 = lean_internal_is_stage0(x_1);
 return x_2;
 }
 }

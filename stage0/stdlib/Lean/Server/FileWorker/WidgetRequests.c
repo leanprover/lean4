@@ -19,7 +19,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_makePopup___lambda__2(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableInfoPopup_enc____x40_Lean_Server_FileWorker_WidgetRequests___hyg_599_(lean_object*, lean_object*);
 lean_object* l_List_join___rarg(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_58____closed__9;
-lean_object* l_IO_AsyncList_waitAll___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_Server_builtinRpcProcedures;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_671____closed__14;
@@ -222,6 +221,7 @@ static lean_object* l_Lean_Widget_getInteractiveDiagnostics___lambda__1___closed
 static lean_object* l_Lean_Widget_instInhabitedInfoPopup___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_registerBuiltinRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_431____spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_2676____spec__3(lean_object*, lean_object*);
+lean_object* l_IO_AsyncList_waitUntil___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_2328____closed__11;
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonGetInteractiveDiagnosticsParams____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1798____closed__9;
@@ -348,6 +348,7 @@ static lean_object* l_Lean_Server_wrapRpcProcedure___at_Lean_Widget_initFn____x4
 lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_2138_(lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_671____closed__11;
+lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
 static lean_object* l_Lean_Widget_getInteractiveDiagnostics___lambda__1___closed__1;
 static lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Server_FileWorker_WidgetRequests___hyg_671____closed__1;
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Server_FileWorker_WidgetRequests___hyg_1683____closed__3;
@@ -4348,7 +4349,7 @@ LEAN_EXPORT uint8_t l_Lean_Widget_getInteractiveDiagnostics___lambda__2(lean_obj
 _start:
 {
 uint8_t x_2; 
-x_2 = 1;
+x_2 = 0;
 return x_2;
 }
 }
@@ -4356,8 +4357,9 @@ LEAN_EXPORT uint8_t l_Lean_Widget_getInteractiveDiagnostics___lambda__3(lean_obj
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = lean_ctor_get(x_2, 0);
-x_4 = lean_nat_dec_lt(x_3, x_1);
+x_3 = l_Lean_Server_Snapshots_Snapshot_endPos(x_2);
+x_4 = lean_nat_dec_le(x_1, x_3);
+lean_dec(x_3);
 return x_4;
 }
 }
@@ -4389,7 +4391,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
 lean_dec(x_6);
 x_9 = l_Lean_Widget_getInteractiveDiagnostics___closed__1;
-x_10 = l_IO_AsyncList_waitAll___rarg(x_9, x_7);
+x_10 = l_IO_AsyncList_waitUntil___rarg(x_9, x_7);
 x_11 = l_Task_Priority_default;
 x_12 = lean_task_map(x_8, x_10, x_11);
 lean_ctor_set(x_4, 0, x_12);
@@ -4418,7 +4420,7 @@ x_19 = l_Lean_FileMap_lspPosToUtf8Pos(x_15, x_18);
 lean_dec(x_15);
 x_20 = lean_alloc_closure((void*)(l_Lean_Widget_getInteractiveDiagnostics___lambda__3___boxed), 2, 1);
 lean_closure_set(x_20, 0, x_19);
-x_21 = l_IO_AsyncList_waitAll___rarg(x_20, x_7);
+x_21 = l_IO_AsyncList_waitUntil___rarg(x_20, x_7);
 x_22 = l_Task_Priority_default;
 x_23 = lean_task_map(x_8, x_21, x_22);
 lean_ctor_set(x_4, 0, x_23);
@@ -4443,7 +4445,7 @@ if (lean_obj_tag(x_1) == 0)
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
 lean_dec(x_24);
 x_28 = l_Lean_Widget_getInteractiveDiagnostics___closed__1;
-x_29 = l_IO_AsyncList_waitAll___rarg(x_28, x_26);
+x_29 = l_IO_AsyncList_waitUntil___rarg(x_28, x_26);
 x_30 = l_Task_Priority_default;
 x_31 = lean_task_map(x_27, x_29, x_30);
 x_32 = lean_alloc_ctor(0, 2, 0);
@@ -4474,7 +4476,7 @@ x_39 = l_Lean_FileMap_lspPosToUtf8Pos(x_35, x_38);
 lean_dec(x_35);
 x_40 = lean_alloc_closure((void*)(l_Lean_Widget_getInteractiveDiagnostics___lambda__3___boxed), 2, 1);
 lean_closure_set(x_40, 0, x_39);
-x_41 = l_IO_AsyncList_waitAll___rarg(x_40, x_26);
+x_41 = l_IO_AsyncList_waitUntil___rarg(x_40, x_26);
 x_42 = l_Task_Priority_default;
 x_43 = lean_task_map(x_27, x_41, x_42);
 x_44 = lean_alloc_ctor(0, 2, 0);

@@ -32,13 +32,6 @@ add_custom_target(lean ALL
   COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lean LEAN_SHELL="$<TARGET_OBJECTS:shell>"
   COMMAND_EXPAND_LISTS)
 
-# if we have LLVM enabled, then build `libruntime.bc` which has the LLVM bitcode
-# of Lean runtime to be built.
-if (LLVM)
-   add_dependencies(lean runtime_bc)
-endif()
-
-
 # use executable of current stage for tests
 string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
 
@@ -178,9 +171,12 @@ FOREACH(T ${LEANTESTS})
 ENDFOREACH(T)
 
 # Create a lake test for each subdirectory of `lake` which contains a `test.sh` file.
+# bootstrap: too slow
+# 104, git: not adapted to living in the lean4 repo yet
+# 116: non-deterministic (`sleep`)
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*(lake-packages|bootstrap|104|git).*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|104|116|git).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
     add_test(NAME "leanlaketest_${DIR_NAME}"

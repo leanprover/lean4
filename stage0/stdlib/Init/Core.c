@@ -104,7 +104,7 @@ LEAN_EXPORT lean_object* l_Squash_lift(lean_object*, lean_object*, lean_object*)
 static lean_object* l_term___x21_x3d_____closed__4;
 LEAN_EXPORT lean_object* l_noConfusionEnum(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instBEqProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_strictAnd(uint8_t, uint8_t);
+uint8_t lean_strict_and(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Prod_lexLtDec(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_term___u2248_____closed__3;
 LEAN_EXPORT lean_object* l_Quot_liftOn(lean_object*, lean_object*, lean_object*);
@@ -151,7 +151,7 @@ LEAN_EXPORT lean_object* l_Squash_mk___rarg(lean_object*);
 static lean_object* l_term___x21_x3d_____closed__6;
 LEAN_EXPORT lean_object* l_Quotient_rec___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableDitePropNot___rarg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_strictOr(uint8_t, uint8_t);
+uint8_t lean_strict_or(uint8_t, uint8_t);
 static lean_object* l_term___u2260_____closed__1;
 LEAN_EXPORT lean_object* l_instInhabitedForInStep__1(lean_object*);
 static lean_object* l_term___u2260_____closed__6;
@@ -3165,7 +3165,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = x_3 || x_4;
+x_5 = lean_strict_or(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -3178,7 +3178,7 @@ x_3 = lean_unbox(x_1);
 lean_dec(x_1);
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
-x_5 = x_3 && x_4;
+x_5 = lean_strict_and(x_3, x_4);
 x_6 = lean_box(x_5);
 return x_6;
 }

@@ -477,7 +477,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_declareLeadingBuiltinParser(lean_object*,
 LEAN_EXPORT lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_6_(lean_object*);
 static lean_object* l_Lean_Parser_initFn____x40_Lean_Parser_Extension___hyg_121____closed__5;
 static lean_object* l_Lean_Parser_parserOfStackFn___lambda__2___closed__1;
-uint8_t l_Lean_Internal_isStage0(lean_object*);
+uint8_t lean_internal_is_stage0(lean_object*);
 static lean_object* l_Lean_Parser_withOpenDeclFnCore___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_getTokenTable___boxed(lean_object*);
 static lean_object* l_Lean_Parser_parserOfStackFn___lambda__2___closed__4;
@@ -9341,7 +9341,7 @@ _start:
 {
 lean_object* x_1; uint8_t x_2; 
 x_1 = lean_box(0);
-x_2 = LEAN_IS_STAGE0;
+x_2 = lean_internal_is_stage0(x_1);
 return x_2;
 }
 }

@@ -1308,3 +1308,89 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_dll_storage_class(size_t ctx, 
     return lean_io_result_mk_ok(lean_box(0));
 #endif  // LEAN_LLVM
 }
+
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_global(size_t ctx, size_t mod,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out = LLVMGetFirstGlobal(lean_to_Module(mod));
+    return lean_io_result_mk_ok(lean_box_usize(Value_to_lean(out)));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_global(size_t ctx, size_t global,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out = LLVMGetNextGlobal(lean_to_Value(global));
+    return lean_io_result_mk_ok(lean_box_usize(Value_to_lean(out)));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_first_function(size_t ctx, size_t mod,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out = LLVMGetFirstFunction(lean_to_Module(mod));
+    return lean_io_result_mk_ok(lean_box_usize(Value_to_lean(out)));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_next_function(size_t ctx, size_t function,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out = LLVMGetNextFunction(lean_to_Value(function));
+    return lean_io_result_mk_ok(lean_box_usize(Value_to_lean(out)));
+#endif  // LEAN_LLVM
+}
+
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_linkage(size_t ctx, size_t value, uint64_t linkage,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMSetLinkage(lean_to_Value(value), LLVMLinkage(linkage));
+    return lean_io_result_mk_ok(lean_box(0));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_value_name2(size_t ctx, size_t value,
+    lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    size_t len;
+    const char *name = LLVMGetValueName2(lean_to_Value(value), &len);
+    return lean_io_result_mk_ok(lean::mk_string(name));
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *llvm_is_declaration(size_t ctx, size_t global, lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+	uint8_t is_bool = LLVMIsDeclaration(lean_to_Value(global));
+	return lean_io_result_mk_ok(lean_box(is_bool));
+#endif  // LEAN_LLVM
+}

@@ -143,7 +143,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
-  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
+  string(APPEND LEAN_EXTRA_MAKE_OPTS " -s40000")
 endif ()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
@@ -254,7 +254,7 @@ find_package(PythonInterp)
 include_directories(${CMAKE_BINARY_DIR}/include)
 
 # Pick up `llvm-config` to setup LLVM flags.
-if(LLVM MATCHES "ON")
+if(LLVM)
   if(NOT LLVM_CONFIG) # look for `llvm-config` if not supplied
     message(STATUS "'-DLLVM_CONFIG=<path/to/llvm-config>' not passed as CMake flag, finding `llvm-config` via CMake...")
     find_program(LLVM_CONFIG "llvm-config")
@@ -293,7 +293,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     find_package(ZLIB REQUIRED)
     message(STATUS "ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
     cmake_path(GET ZLIB_LIBRARY PARENT_PATH ZLIB_LIBRARY_PARENT_PATH)
-    string(APPEND LEAN_EXTRA_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
+    string(APPEND LEANSHARED_LINKER_FLAGS " -L ${ZLIB_LIBRARY_PARENT_PATH}")
   endif()
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -lleancpp -lInit -lLean -lleanrt")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
@@ -301,6 +301,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 else()
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
 endif()
+string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake")
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 

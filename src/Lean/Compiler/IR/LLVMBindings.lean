@@ -73,6 +73,12 @@ structure Value (ctx : Context) where
   private mk :: ptr : USize
 instance : Nonempty (Value ctx) := ⟨{ ptr := default }⟩
 
+/-- Check if the value is a null pointer. --/
+def Value.isNull (v : Value ctx) : Bool := v.ptr == 0
+
+@[extern "lean_llvm_get_value_name2"]
+opaque Value.getName {ctx : Context} (value : Value ctx) : BaseIO String
+
 @[extern "lean_llvm_initialize_target_info"]
 opaque llvmInitializeTargetInfo : BaseIO (Unit)
 
@@ -91,6 +97,12 @@ opaque writeBitcodeToFile (m : Module ctx) (path : @&String) : BaseIO Unit
 @[extern "lean_llvm_add_function"]
 opaque addFunction (m : Module ctx) (name : @&String) (type : LLVMType ctx) : BaseIO (Value ctx)
 
+@[extern "lean_llvm_get_first_function"]
+opaque getFirstFunction (m : Module ctx) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_get_next_function"]
+opaque getNextFunction (glbl : Value ctx) : BaseIO (Value ctx)
+
 @[extern "lean_llvm_get_named_function"]
 opaque getNamedFunction (m : Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
 
@@ -100,8 +112,17 @@ opaque addGlobal (m : Module ctx) (name : @&String) (type : LLVMType ctx) : Base
 @[extern "lean_llvm_get_named_global"]
 opaque getNamedGlobal (m : Module ctx) (name : @&String) : BaseIO (Option (Value ctx))
 
+@[extern "lean_llvm_get_first_global"]
+opaque getFirstGlobal (m : Module ctx) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_get_next_global"]
+opaque getNextGlobal (glbl : Value ctx) : BaseIO (Value ctx)
+
 @[extern "lean_llvm_build_global_string"]
 opaque buildGlobalString (builder : Builder ctx) (value : @&String) (name : @&String := "") : BaseIO (Value ctx)
+
+@[extern "llvm_is_declaration"]
+opaque isDeclaration (global : Value ctx) : BaseIO Bool
 
 @[extern "lean_llvm_set_initializer"]
 opaque setInitializer (glbl : Value ctx) (val : Value ctx) : BaseIO Unit
@@ -315,6 +336,48 @@ def DLLStorageClass.export  : DLLStorageClass := { val := 2 }
 
 @[extern "lean_llvm_set_dll_storage_class"]
 opaque setDLLStorageClass {ctx : Context} (value : Value ctx) (dllStorageClass : DLLStorageClass) : BaseIO Unit
+
+-- https://github.com/llvm/llvm-project/blob/c3e073bcbdc523b0f758d44a89a6333e38bff863/llvm/include/llvm-c/Core.h#L192
+structure Linkage where
+  private mk :: val : UInt64
+
+/-- Externally visible function -/
+def Linkage.external : Linkage := { val := 0 }
+def Linkage.availableExternally : Linkage := { val := 1 }
+/-- Keep one copy of function when linking (inline) -/
+def Linkage.linkOnceAny : Linkage := { val := 2 }
+/-- Same, but only replaced by something equivalent  -/
+def Linkage.linkOnceODR : Linkage := { val := 3 }
+/-- Obsolete -/
+def Linkage.linkOnceODRAutoHide : Linkage := { val := 4 }
+/-- Keep one copy of function when linking (weak) -/
+def Linkage.weakAny : Linkage := { val := 5 }
+/-- Same, but only replaced by something equivalent -/
+def Linkage.weakODR : Linkage := { val := 6 }
+/-- Special purpose, only applies to global arrays -/
+def Linkage.appending : Linkage := { val := 7 }
+/-- Rename collisions when linking (static functions) -/
+def Linkage.internal : Linkage := { val := 8 }
+/-- Like Internal, but omit from symbol table -/
+def Linkage.private : Linkage := { val := 9 }
+/-- Obsolete -/
+def Linkage.dllImport : Linkage := { val := 10 }
+/-- Obsolete -/
+def Linkage.dllExport : Linkage := { val := 11 }
+/-- ExternalWeak linkage description -/
+def Linkage.externalWeak : Linkage := { val := 12 }
+/-- Obsolete -/
+def Linkage.ghost : Linkage := { val := 13 }
+/-- Tentative definitions -/
+def Linkage.common : Linkage := { val := 14 }
+/-- Like Private, but linker removes. -/
+def Linkage.linkerPrivate : Linkage := { val := 15 }
+/-- Like LinkerPrivate, but is weak. -/
+def Linkage.linkerPrivateWeak : Linkage := { val := 16 }
+
+@[extern "lean_llvm_set_linkage"]
+opaque setLinkage {ctx : Context} (value : Value ctx) (linkage : Linkage) : BaseIO Unit
+
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.
 def getOrAddFunction(m : Module ctx) (name : String) (type : LLVMType ctx) : BaseIO (Value ctx) :=  do

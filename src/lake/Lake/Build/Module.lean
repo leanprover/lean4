@@ -136,11 +136,11 @@ def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Ar
   let externDynlibsJob ← BuildJob.collectArray externJobs
   let modDynlibsJob ← BuildJob.collectArray modJobs
 
-  extraDepJob.bindAsync fun _ _ => do
+  extraDepJob.bindAsync fun _ extraDepTrace => do
   importJob.bindAsync fun _ importTrace => do
   modDynlibsJob.bindAsync fun modDynlibs modTrace => do
   return externDynlibsJob.mapWithTrace fun externDynlibs externTrace =>
-    let depTrace := importTrace.mix <| modTrace.mix externTrace
+    let depTrace := extraDepTrace.mix <| importTrace.mix <| modTrace.mix externTrace
     /-
     Requirements:
     * Lean wants the external library symbols before module symbols.

@@ -179,11 +179,10 @@ ENDFOREACH(T)
 
 # Create a lake test for each subdirectory of `lake` which contains a `test.sh` file.
 # bootstrap: too slow
-# 104, git: not adapted to living in the lean4 repo yet
 # 116: non-deterministic (`sleep`)
 file(GLOB_RECURSE LEANLAKETESTS "${LEAN_SOURCE_DIR}/lake/test.sh")
 FOREACH(T ${LEANLAKETESTS})
-  if(NOT T MATCHES ".*(lake-packages|bootstrap|104|116|git).*")
+  if(NOT T MATCHES ".*(lake-packages|bootstrap|116).*")
     GET_FILENAME_COMPONENT(T_DIR ${T} DIRECTORY)
     GET_FILENAME_COMPONENT(DIR_NAME ${T_DIR} NAME)
     add_test(NAME "leanlaketest_${DIR_NAME}"

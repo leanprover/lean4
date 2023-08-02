@@ -1397,7 +1397,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   if tNew != t then return some tNew
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
-    Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assingment
+    Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
     `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of `mvarIdPending`,
     but not in the scope of `mvarId`. We can only perform the abstraction when `mvarIdPending` has been fully synthesized.
     That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
@@ -1411,7 +1411,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
     and this delayed assignment is morally `?m := fun xs => ?n`.
     Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
-    This is more precise than simplying droping the arguments `as`.
+    This is more precise than simply dropping the arguments `as`.
   -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
@@ -1538,9 +1538,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
-    We might other annotations in the future that we should not preserve.
-    Perhaps, we should mark the annotation we do want to preserve ones
-    (e.g., hints for the pretty printer), and consume all other
+    We might have other annotations in the future that we should not preserve.
+    Perhaps, we should mark the annotations we do want to preserve
+    (e.g., hints for the pretty printer), and consume all others.
   -/
   if let some t := patternAnnotation? t then
     isDefEqQuick t s
@@ -1567,7 +1567,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
-       is not definitionally equal to `A`. We left the code here as a remainder of this issue. -/
+       is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/
 --    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
 --      let t ← instantiateMVars t
 --     isDefEqQuick t s
@@ -1597,7 +1597,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
            2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
               The motivation: avoid unassigned metavariables in goals.
-           3- Each pending tactic goal is represented as a metavariable. It is marked as `synthethicOpaque` to make it clear
+           3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.
            4- When we abstract a term containing metavariables, we often create new metavariables.
               Example: when abstracting `x` at `f ?m`, we obtain `fun x => f (?m' x)`. If `x` is in the scope of `?m`.
@@ -1692,14 +1692,14 @@ where
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     if isClass (← getEnv) structName then
       /-
-      We disable this feature is `structName` is a class. See issue #2011.
+      We disable this feature if `structName` is a class. See issue #2011.
       The example at issue #2011, the following weird
       instance was being generated for `Zero (f x)`
       ```
       (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
       ```
       where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
-      Note that this instance is definitinally equal to the expected nicer
+      Note that this instance is definitionally equal to the expected nicer
       instance `inst✝¹ x✝`.
       However, the nasty instance trigger nasty unification higher order
       constraints later.
@@ -1733,7 +1733,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
+    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
     if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
@@ -1743,7 +1743,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
   matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
@@ -1802,7 +1802,7 @@ private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
 
 private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
   /-
-  We must ensure that all assigned metavariables in the key are replaced by their current assingments.
+  We must ensure that all assigned metavariables in the key are replaced by their current assignments.
   Otherwise, the key is invalid after the assignment is "backtracked".
   See issue #1870 for an example.
   -/

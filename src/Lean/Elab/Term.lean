@@ -211,7 +211,7 @@ structure Context where
   saveRecAppSyntax : Bool := true
   /--
   If `holesAsSyntheticOpaque` is `true`, then we mark metavariables associated
-  with `_`s as `synthethicOpaque` if they do not occur in patterns.
+  with `_`s as `syntheticOpaque` if they do not occur in patterns.
   This option is useful when elaborating terms in tactics such as `refine'` where
   we want holes there to become new goals. See issue #1681, we have
   `refine' (fun x => _)

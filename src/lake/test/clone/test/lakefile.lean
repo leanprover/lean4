@@ -7,9 +7,9 @@ package test
 def url : String :=
   match get_config? url with
   | some url => url
-  | none => (FilePath.mk ".." / ".."/"..").toString
+  | none => (FilePath.mk ".." / "hello").toString
 
-require hello from git url / "examples" / "hello"
+require hello from git url
 
 @[default_target]
 lean_exe test {

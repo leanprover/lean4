@@ -3,6 +3,7 @@
 .#*
 *.lock
 build
+!/src/lake/Lake/Build
 GPATH
 GRTAGS
 GSYMS

@@ -1529,6 +1529,20 @@ def optimizeLLVMModule (mod : LLVM.Module ctx) : IO Unit := do
   LLVM.disposePassManager pm
   LLVM.disposePassManagerBuilder pmb
 
+/-- Get the names of all global symbols in the module -/
+partial def getModuleGlobals (mod : LLVM.Module llvmctx) : IO (Array (LLVM.Value llvmctx)) := do
+  let rec go (v : LLVM.Value llvmctx) (acc : Array (LLVM.Value llvmctx)) : IO (Array (LLVM.Value llvmctx)) := do
+    if v.isNull then return acc
+    else go (← LLVM.getNextGlobal v) (acc.push v)
+  go (← LLVM.getFirstGlobal mod) #[]
+
+/-- Get the names of all global functions in the module -/
+partial def getModuleFunctions (mod : LLVM.Module llvmctx) : IO (Array (LLVM.Value llvmctx)) := do
+  let rec go (v : LLVM.Value llvmctx) (acc : Array (LLVM.Value llvmctx)) : IO (Array (LLVM.Value llvmctx)) := do
+    if v.isNull then return acc
+    else go (← LLVM.getNextFunction v) (acc.push v)
+  go (← LLVM.getFirstFunction mod) #[]
+
 /--
 `emitLLVM` is the entrypoint for the lean shell to code generate LLVM.
 -/
@@ -1544,7 +1558,29 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr
   | .ok _ => do
          let membuf ← LLVM.createMemoryBufferWithContentsOfFile (← getLeanHBcPath).toString
          let modruntime ← LLVM.parseBitcode llvmctx membuf
+         /- It is important that we extract the names here because
+            pointers into modruntime get invalidated by linkModules -/
+         let runtimeGlobals ← (← getModuleGlobals modruntime).mapM (·.getName)
+         let filter func := do
+           -- | Do not insert internal linkage for
+           -- intrinsics such as `@llvm.umul.with.overflow.i64` which clang generates, and also
+           -- for declarations such as `lean_inc_ref_cold` which are externally defined.
+           if (← LLVM.isDeclaration func) then
+             return none
+           else
+             return some (← func.getName)
+         let runtimeFunctions ← (← getModuleFunctions modruntime).filterMapM filter
          LLVM.linkModules (dest := emitLLVMCtx.llvmmodule) (src := modruntime)
+         -- Mark every global and function as having internal linkage.
+         for name in runtimeGlobals do
+           let some global ← LLVM.getNamedGlobal emitLLVMCtx.llvmmodule name
+              | throw <| IO.Error.userError s!"ERROR: linked module must have global from runtime module: '{name}'"
+           LLVM.setLinkage global LLVM.Linkage.internal
+         for name in runtimeFunctions do
+           let some fn ← LLVM.getNamedFunction emitLLVMCtx.llvmmodule name
+              | throw <| IO.Error.userError s!"ERROR: linked module must have function from runtime module: '{name}'"
+           LLVM.setLinkage fn LLVM.Linkage.internal
+
          optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
          let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple)

@@ -22,16 +22,15 @@ namespace Lake
 def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
   (packageDepAttr.ext.getState env).mapM (evalConstCheck env opts Dependency ``Dependency)
 
-def loadDepPackage (parentPkg : Package) (result : MaterializeResult)
-(dep : Dependency) : LogIO Package := do
-  let dir := result.pkgDir
-  let configEnv ← elabConfigFile dir dep.options parentPkg.leanOpts (dir / defaultConfigFile)
-  let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv parentPkg.leanOpts
+def loadDepPackage (wsDir : FilePath) (result : MaterializeResult)
+(leanOpts : Options) (lakeOpts : NameMap String) : LogIO Package := do
+  let dir := wsDir / result.relPkgDir
+  let configEnv ← elabConfigFile dir lakeOpts leanOpts (dir / defaultConfigFile)
+  let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
-    dir, config, configEnv
+    dir, config, configEnv, leanOpts
     remoteUrl? := result.remoteUrl?
     gitTag? := result.gitTag?
-    leanOpts := parentPkg.leanOpts
   }
 
 def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
@@ -51,22 +50,21 @@ def buildUpdatedManifest (ws : Workspace) : LogIO Manifest := do
               let result ← materializePackageEntry ws.dir ws.relPkgsDir entry
               modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
         let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
-        let deps ← deps.mapM fun dep => do
-          if let some result := (← getThe (NameMap MaterializeResult)).find? dep.name then
-            return (dep, result)
-          else
-            let depName := dep.name.toString (escape := false)
-            let entry ← updateSource relPkgDir ws.relPkgsDir depName dep.src
-            let result ← materializePackageEntry ws.dir ws.relPkgsDir entry
-            modifyThe (NameMap MaterializeResult) (·.insert entry.name result)
-            return (dep, result)
-        let depPkgs ← deps.mapM fun (dep, result) => do
+        let depPkgs ← deps.mapM fun dep => do
+          let result ← do
+            if let some result := (← getThe (NameMap MaterializeResult)).find? dep.name then
+              pure result
+            else
+              let depName := dep.name.toString (escape := false)
+              let result ← dep.src.materialize depName ws.dir ws.relPkgsDir relPkgDir
+              modifyThe (NameMap MaterializeResult) (·.insert dep.name result)
+              pure result
           if let .some pkg := (← getThe (NameMap Package)).find? dep.name then
             return pkg
           else
-            let pkg ← loadDepPackage pkg result dep
-            modifyThe (NameMap Package) (·.insert dep.name pkg)
-            return pkg
+            let depPkg ← loadDepPackage ws.dir result pkg.leanOpts dep.options
+            modifyThe (NameMap Package) (·.insert dep.name depPkg)
+            return depPkg
         return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok _, results) =>
@@ -157,7 +155,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Wor
             | error <| s!"dependency {dep.name} of {pkg.name} not in manifest, " ++
               "use `lake update` to update"
           let result ← materializePackageEntry ws.dir relPkgsDir entry
-          loadDepPackage pkg result dep
+          loadDepPackage ws.dir result pkg.leanOpts dep.options
       return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
   match res with
   | Except.ok root =>

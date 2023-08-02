@@ -45,23 +45,40 @@ def updateGitRepo (repo : GitRepo) (url : String)
   else
     cloneGitPkg repo url rev?
 
-def updateSource (relParentDir packagesDir : FilePath) (name : String) (source : Source) : LogIO PackageEntry :=
-  match source with
-  | .path dir => return .path name (relParentDir / dir)
-  | .git url inputRev? subDir? => do
-    let dir := packagesDir / name
-    let repo := GitRepo.mk dir
-    updateGitRepo repo url inputRev? name
-    let rev ← repo.headRevision
-    return .git name url rev inputRev? subDir?
-
 structure MaterializeResult where
-  pkgDir : FilePath
   relPkgDir : FilePath
   remoteUrl? : Option String
   gitTag? : Option String
   manifestEntry : PackageEntry
   deriving Repr, Inhabited
+
+@[inline] def MaterializeResult.name (self : MaterializeResult) :=
+  self.manifestEntry.name
+
+def Source.materialize (src : Source) (name : String)
+(wsDir relPkgsDir relParentDir : FilePath) : LogIO MaterializeResult :=
+  match src with
+  | .path dir =>
+    let relPkgDir := relParentDir / dir
+    return {
+      relPkgDir
+      remoteUrl? := none
+      gitTag? := none
+      manifestEntry := .path name relPkgDir
+    }
+  | .git url inputRev? subDir? => do
+    let tmpName := toString <| hash url
+    let relGitDir := relPkgsDir / tmpName
+    let repo := GitRepo.mk (wsDir / relGitDir)
+    updateGitRepo repo url inputRev? name
+    let rev ← repo.headRevision
+    let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
+    return {
+      relPkgDir
+      remoteUrl? := Git.filterUrl? url
+      gitTag? := ← repo.findTag?
+      manifestEntry := .git name url rev inputRev? subDir?
+    }
 
 /--
 Materializes a package entry, cloning and/or checkout it out as necessary.
@@ -70,7 +87,6 @@ def materializePackageEntry (wsDir relPkgsDir : FilePath) (manifestEntry : Packa
   match manifestEntry with
   | .path _name pkgDir =>
     return {
-      pkgDir := wsDir / pkgDir
       relPkgDir := pkgDir
       remoteUrl? := none
       gitTag? := none
@@ -94,7 +110,6 @@ def materializePackageEntry (wsDir relPkgsDir : FilePath) (manifestEntry : Packa
       updateGitRepo repo url rev name
     let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
     return {
-      pkgDir := wsDir / relPkgDir
       relPkgDir
       remoteUrl? := Git.filterUrl? url
       gitTag? := ← repo.findTag?

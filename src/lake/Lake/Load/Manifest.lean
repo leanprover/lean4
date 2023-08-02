@@ -22,7 +22,7 @@ inductive PackageEntry
   (inputRev? : Option String) (subDir? : Option FilePath)
 deriving FromJson, ToJson, Repr, Inhabited
 
-def PackageEntry.name : PackageEntry → String
+@[inline] def PackageEntry.name : PackageEntry → String
 | path name .. | git name .. => name
 
 def PackageEntry.inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry

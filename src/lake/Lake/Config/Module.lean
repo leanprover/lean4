@@ -85,9 +85,12 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def oFile (self : Module) : FilePath :=
   self.irPath "o"
 
+/-- Suffix for single module dynlibs (e.g., for precompilation). -/
+@[noinline] def dynlibSuffix := "-1"
+
 @[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows
-  self.name.toStringWithSep "-" (escape := true)
+  self.name.toStringWithSep "-" (escape := true) ++ dynlibSuffix
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.nativeLibDir / nameToSharedLib self.dynlibName

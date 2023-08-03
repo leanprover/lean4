@@ -46,6 +46,10 @@ $LAKE build foo:shared bar
 test -f ./build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
 test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 
+$LAKE build Foo:dynlib bar
+
+test -f ./build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
+
 test ! -f ./build/lib/Baz.olean
 
 $LAKE build a b

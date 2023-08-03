@@ -6,13 +6,15 @@ Authors: Mac Malone
 
 namespace Lake
 
-def version.major := 4
-def version.minor := 1
+def version.major := 5
+def version.minor := 0
 def version.patch := 0
 
-def version.isPrerelease := true
-def version.isRelease := !isPrerelease
-def version.specialDesc := if isPrerelease then "pre" else ""
+def version.isRelease :=
+  Lean.version.isRelease
+
+def version.specialDesc :=
+  if isRelease && !Lean.githash.isEmpty then Lean.githash.take 7 else "src"
 
 def versionStringCore :=
   s!"{version.major}.{version.minor}.{version.patch}"

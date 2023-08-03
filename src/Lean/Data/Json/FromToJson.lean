@@ -64,11 +64,11 @@ instance [ToJson α] : ToJson (Option α) :=
     | none   => Json.null
     | some a => toJson a⟩
 
-instance [FromJson α] [FromJson β] : FromJson (α × β) where
+instance {α : Type u} {β : Type v} [FromJson α] [FromJson β] : FromJson (α × β) where
   fromJson?
     | Json.arr #[ja, jb] => do
-      let a ← fromJson? ja
-      let b ← fromJson? jb
+      let ⟨a⟩ : ULift.{v} α := ← (fromJson? ja).map ULift.up
+      let ⟨b⟩ : ULift.{u} β := ← (fromJson? jb).map ULift.up
       return (a, b)
     | j => throw s!"expected pair, got '{j}'"
 

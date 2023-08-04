@@ -10,9 +10,6 @@ import Lake.Build.Context
 namespace Lake
 open System
 
-def createParentDirs (path : FilePath) : IO Unit := do
-  if let some dir := path.parent then IO.FS.createDirAll dir
-
 def compileLeanModule (name : String) (leanFile : FilePath)
 (oleanFile? ileanFile? cFile? : Option FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")

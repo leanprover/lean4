@@ -67,8 +67,7 @@ def Source.materialize (src : Source) (name : String)
       manifestEntry := .path name relPkgDir
     }
   | .git url inputRev? subDir? => do
-    let tmpName := toString <| hash url
-    let relGitDir := relPkgsDir / tmpName
+    let relGitDir := relPkgsDir / name
     let repo := GitRepo.mk (wsDir / relGitDir)
     updateGitRepo repo url inputRev? name
     let rev ← repo.headRevision

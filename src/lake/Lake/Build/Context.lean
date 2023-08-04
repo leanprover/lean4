@@ -56,3 +56,6 @@ def logStep (message : String) : BuildM Unit := do
   let done ← (← read).finishedBuilds.get
   let started ← (← read).startedBuilds.get
   logInfo s!"[{done}/{started}] {message}"
+
+def createParentDirs (path : FilePath) : IO Unit := do
+  if let some dir := path.parent then IO.FS.createDirAll dir

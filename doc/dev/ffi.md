@@ -11,6 +11,8 @@ There are two primary attributes for interoperating with other languages:
   It can also be used with `def` to provide an internal definition, but ensuring consistency of both definitions is up to the user.
 * `@[export sym] def leanSym : ...` exports `leanSym` under the unmangled symbol name `sym`.
 
+For simple examples of how to call foreign code from Lean and vice versa, see <https://github.com/leanprover/lean4/blob/master/src/lake/examples/ffi> and <https://github.com/leanprover/lean4/blob/master/src/lake/examples/reverse-ffi>, respectively.
+
 ## The Lean ABI
 
 The Lean Application Binary Interface (ABI) describes how the signature of a Lean declaration is encoded as a native calling convention.

@@ -58,7 +58,7 @@ def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
       let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     else
-      IO.eprint "warning: package configuration has errors, falling back to plain `lean --server`"
+      IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
       pure (config.env.installVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
     cmd := config.env.lean.lean.toString

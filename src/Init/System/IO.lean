@@ -220,7 +220,7 @@ local macro "nonempty_list" : tactic =>
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
 inductive FS.Mode where
-  | read | write | readWrite | append
+  | read | write | writeNew | readWrite | append
 
 opaque FS.Handle : Type := Unit
 
@@ -517,6 +517,10 @@ partial def FS.removeDirAll (p : FilePath) : IO Unit := do
   removeDir p
 
 namespace Process
+
+/-- Get the process ID of the current process. -/
+@[extern "lean_io_process_get_pid"] opaque getPID : BaseIO UInt32
+
 inductive Stdio where
   | piped
   | inherit

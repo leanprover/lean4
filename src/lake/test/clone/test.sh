@@ -24,6 +24,7 @@ cd test
 
 # test git clone
 $LAKE update
+test -d lake-packages/hello
 $LAKE build
 ./build/bin/test
 

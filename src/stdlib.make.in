@@ -1,4 +1,8 @@
-SHELL := /usr/bin/env bash -euo pipefail
+# LEAN_BASH: Makes the Bash shell used by the Lean build configurable.
+# On Windows, when CMake/Make is spawned directly (e.g., VSCode's CMake Tools),
+# it lacks a proper shell environment, so we need to manually point it to Bash.
+LEAN_BASH ?= /usr/bin/env bash
+SHELL := $(LEAN_BASH) -eo pipefail
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=

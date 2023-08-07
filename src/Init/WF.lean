@@ -222,7 +222,7 @@ section
 variable {α : Type u} {β : Type v}
 variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible (aca : Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
+def lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
   induction aca generalizing b with
   | intro xa _ iha =>
     induction (acb b) with

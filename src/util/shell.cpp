@@ -752,13 +752,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             out.close();
         }
 
-        // target triple is only used by the LLVM backend. Save users
-        // a great deal of pain by erroring out if they misuse flags.
-        if (target_triple && !llvm_output) {
-            std::cerr << "ERROR: '--target' must be used with '--bc' to enable LLVM backend. Quitting code generation.\n";
-            return 1;
-        }
-
         if (llvm_output && ok) {
 	        // marshal 'optional<string>' to 'lean_object*'
             lean_object* const target_triple_lean =

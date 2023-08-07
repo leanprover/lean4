@@ -236,7 +236,7 @@ def lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b : �
 -- The lexicographical order of well founded relations is well-founded
 @[reducible] def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := Prod.Lex ha.rel hb.rel
-  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
+  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf a) (WellFounded.apply hb.wf) b⟩
 
 instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
   lex ha hb

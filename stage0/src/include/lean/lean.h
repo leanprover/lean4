@@ -1935,6 +1935,13 @@ static inline uint64_t lean_expr_data(lean_obj_arg expr) {
     return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
 }
 
+// eliding unused parameter names is C23+, so ignore warning instead in the following
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
     return lean_box(LEAN_MAX_CTOR_FIELDS);
 }

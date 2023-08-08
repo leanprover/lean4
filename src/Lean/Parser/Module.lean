@@ -34,7 +34,9 @@ structure ModuleParserState where
 
 private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Error) : Message := Id.run do
   let mut pos := c.fileMap.toPosition s.pos
-  if e.stopPos?.isSome then
+  -- if there is an unexpected token, include preceding whitespace as well as the expected token could
+  -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
+  if !e.unexpected.isEmpty && e.stopPos?.isSome then
     if let .original (trailing := trailing) .. := s.stxStack.back.getTailInfo then
       if trailing.stopPos == s.pos then
         pos := c.fileMap.toPosition trailing.startPos

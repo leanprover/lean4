@@ -39,3 +39,7 @@ example := 0
 set_option pp.all
 
 example := 0
+
+/-! Do not shift other kinds of errors. -/
+
+example := "a

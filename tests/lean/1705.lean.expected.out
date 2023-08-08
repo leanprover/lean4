@@ -2,4 +2,4 @@
   T
 term has type
   ?m
-1705.lean:1:18: error: expected command
+1705.lean:1:18-1:19: error: unexpected identifier; expected command

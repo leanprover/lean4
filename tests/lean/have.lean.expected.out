@@ -1,4 +1,4 @@
-have.lean:4:0: error: expected term
+have.lean:2:19-4:7: error: unexpected token 'example'; expected term
 have.lean:2:18-2:19: error: don't know how to synthesize placeholder
 context:
 ⊢ False

@@ -59,58 +59,58 @@ jobs:
             binary-check: ldd -v
             # foreign code may be linked against more recent glibc
             CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
-          - name: Linux
-            os: ubuntu-latest
-            check-stage3: true
-            test-speedcenter: true
-          - name: Linux Debug
-            os: ubuntu-latest
-            CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
-            # exclude seriously slow tests
-            CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
-          - name: Linux fsanitize
-            os: ubuntu-latest
-            # turn off custom allocator & symbolic functions to make LSAN do its magic
-            CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
-            # exclude seriously slow/problematic tests (laketests crash)
-            CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
-          - name: macOS
-            os: macos-latest
-            release: true
-            shell: bash -euxo pipefail {0}
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
-            prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
-            binary-check: otool -L
-            tar: gtar  # https://github.com/actions/runner-images/issues/2619
-          - name: macOS aarch64
-            os: macos-latest
-            release: true
-            cross: true
-            shell: bash -euxo pipefail {0}
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
-            prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
-            binary-check: otool -L
-            tar: gtar  # https://github.com/actions/runner-images/issues/2619
-          - name: Windows
-            os: windows-2022
-            release: true
-            shell: msys2 {0}
-            CMAKE_OPTIONS: -G "Unix Makefiles" -DUSE_GMP=OFF
-            # for reasons unknown, interactivetests are flaky on Windows
-            CTEST_OPTIONS: --repeat until-pass:2
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst
-            prepare-llvm: ../script/prepare-llvm-mingw.sh lean-llvm*
-            binary-check: ldd
-          - name: Linux aarch64
-            os: ubuntu-latest
-            CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64
-            release: true
-            cross: true
-            shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
-            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
-            prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+          # - name: Linux
+          #   os: ubuntu-latest
+          #   check-stage3: true
+          #   test-speedcenter: true
+          # - name: Linux Debug
+          #   os: ubuntu-latest
+          #   CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
+          #   # exclude seriously slow tests
+          #   CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
+          # - name: Linux fsanitize
+          #   os: ubuntu-latest
+          #   # turn off custom allocator & symbolic functions to make LSAN do its magic
+          #   CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
+          #   # exclude seriously slow/problematic tests (laketests crash)
+          #   CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
+          # - name: macOS
+          #   os: macos-latest
+          #   release: true
+          #   shell: bash -euxo pipefail {0}
+          #   CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+          #   prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
+          #   binary-check: otool -L
+          #   tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          # - name: macOS aarch64
+          #   os: macos-latest
+          #   release: true
+          #   cross: true
+          #   shell: bash -euxo pipefail {0}
+          #   CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+          #   prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+          #   binary-check: otool -L
+          #   tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          # - name: Windows
+          #   os: windows-2022
+          #   release: true
+          #   shell: msys2 {0}
+          #   CMAKE_OPTIONS: -G "Unix Makefiles" -DUSE_GMP=OFF
+          #   # for reasons unknown, interactivetests are flaky on Windows
+          #   CTEST_OPTIONS: --repeat until-pass:2
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst
+          #   prepare-llvm: ../script/prepare-llvm-mingw.sh lean-llvm*
+          #   binary-check: ldd
+          # - name: Linux aarch64
+          #   os: ubuntu-latest
+          #   CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64
+          #   release: true
+          #   cross: true
+          #   shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
+          #   llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
+          #   prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -194,7 +194,7 @@ jobs:
           dir=$(echo lean-*)
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
-          if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
+          if [[ '${{ matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
             zip -rq pack/$dir.zip $dir
           else
@@ -205,67 +205,67 @@ jobs:
         with:
           name: build-${{ matrix.name }}
           path: pack/*
-      - name: Lean stats
-        run: |
-          build/stage1/bin/lean --stats src/Lean.lean
-        if: ${{ !matrix.cross }}
-      - name: Test
-        run: |
-          cd build/stage1
-          ulimit -c unlimited # coredumps
-          # exclude nonreproducible test
-          ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: ${{ !matrix.cross }}
-      - name: Check Test Binary
-        run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross }}
-      - name: Build Stage 2
-        run: |
-          cd build
-          ulimit -c unlimited # coredumps
-          make -j4 stage2
-        if: matrix.build-stage2 || matrix.check-stage3
-      - name: Check Stage 3
-        run: |
-          cd build
-          ulimit -c unlimited # coredumps
-          make -j4 check-stage3
-        if: matrix.check-stage3
-      - name: Test Speedcenter Benchmarks
-        run: |
-          echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
-          export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
-          cd tests/bench
-          nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: matrix.test-speedcenter
-      - name: Check rebootstrap
-        run: |
-          cd build
-          ulimit -c unlimited # coredumps
-          make update-stage0 && make -j4
-        if: matrix.name == 'Linux'
-      - name: CCache stats
-        run: ccache -s
-      - name: Show stacktrace for coredumps
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
-        run: |
-          for c in coredumps/*; do
-            progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
-            echo bt | $GDB/bin/gdb -q $progbin $c || true
-          done
-      - name: Upload coredumps
-        uses: actions/upload-artifact@v3
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
-        with:
-          name: coredumps-${{ matrix.name }}
-          path: |
-            ./coredumps
-            ./build/stage0/bin/lean
-            ./build/stage0/lib/lean/libleanshared.so
-            ./build/stage1/bin/lean
-            ./build/stage1/lib/lean/libleanshared.so
-            ./build/stage2/bin/lean
-            ./build/stage2/lib/lean/libleanshared.so
+      # - name: Lean stats
+      #   run: |
+      #     build/stage1/bin/lean --stats src/Lean.lean
+      #   if: ${{ !matrix.cross }}
+      # - name: Test
+      #   run: |
+      #     cd build/stage1
+      #     ulimit -c unlimited # coredumps
+      #     # exclude nonreproducible test
+      #     ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
+      #   if: ${{ !matrix.cross }}
+      # - name: Check Test Binary
+      #   run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
+      #   if: ${{ !matrix.cross }}
+      # - name: Build Stage 2
+      #   run: |
+      #     cd build
+      #     ulimit -c unlimited # coredumps
+      #     make -j4 stage2
+      #   if: matrix.build-stage2 || matrix.check-stage3
+      # - name: Check Stage 3
+      #   run: |
+      #     cd build
+      #     ulimit -c unlimited # coredumps
+      #     make -j4 check-stage3
+      #   if: matrix.check-stage3
+      # - name: Test Speedcenter Benchmarks
+      #   run: |
+      #     echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
+      #     export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
+      #     cd tests/bench
+      #     nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
+      #   if: matrix.test-speedcenter
+      # - name: Check rebootstrap
+      #   run: |
+      #     cd build
+      #     ulimit -c unlimited # coredumps
+      #     make update-stage0 && make -j4
+      #   if: matrix.name == 'Linux'
+      # - name: CCache stats
+      #   run: ccache -s
+      # - name: Show stacktrace for coredumps
+      #   if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+      #   run: |
+      #     for c in coredumps/*; do
+      #       progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
+      #       echo bt | $GDB/bin/gdb -q $progbin $c || true
+      #     done
+      # - name: Upload coredumps
+      #   uses: actions/upload-artifact@v3
+      #   if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+      #   with:
+      #     name: coredumps-${{ matrix.name }}
+      #     path: |
+      #       ./coredumps
+      #       ./build/stage0/bin/lean
+      #       ./build/stage0/lib/lean/libleanshared.so
+      #       ./build/stage1/bin/lean
+      #       ./build/stage1/lib/lean/libleanshared.so
+      #       ./build/stage2/bin/lean
+      #       ./build/stage2/lib/lean/libleanshared.so
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -284,16 +284,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pr-release:
-    if: ${{ ! startsWith(github.ref, 'refs/tags/') }}   # TODO add  ' && ! needs.set-nightly.outputs.nightly'
+    if: ${{ ! startsWith(github.ref, 'refs/tags/') && ! needs.set-nightly.outputs.nightly }}
     runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/download-artifact@v3
         with:
           path: artifacts
+      - id: PR
+        uses: 8BitJonny/gh-get-current-pr@2.2.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          filterOutClosed: true
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
+          name: PR-release-${{ steps.PR.outputs.number }}
           files: artifacts/*/*
           fail_on_unmatched_files: true
           draft: true

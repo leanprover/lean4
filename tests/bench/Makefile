@@ -26,7 +26,7 @@ MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
 SWIFTC ?= swiftc
 
-PARSER_TEST_FILE ?= ../../src/Init/Core.lean
+PARSER_TEST_FILE ?= ../../src/Init/Prelude.lean
 
 ## IMPLEMENTATION
 
@@ -103,7 +103,7 @@ bench:
 bench/%.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS) -d $< "./$< $(BENCH_PARAMS)" --out $@
 
-bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 10
+bench/parser.%.bench: BENCH_PARAMS = $(PARSER_TEST_FILE) 50
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 bench/binarytrees.ml.bench: BENCH_PARAMS = $$(nproc) 21

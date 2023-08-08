@@ -299,7 +299,16 @@ protected def printPaths : CliM PUnit := do
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions)
-  noArgsRem do (← loadWorkspace config).clean
+  let ws ← loadWorkspace config
+  let pkgSpecs ← takeArgs
+  if pkgSpecs.isEmpty then
+    ws.clean
+  else
+    let pkgs ← pkgSpecs.mapM fun pkgSpec =>
+      match  ws.findPackage? <| stringToLegalOrSimpleName pkgSpec with
+      | none => throw <| .unknownPackage pkgSpec
+      | some pkg => pure pkg.toPackage
+    pkgs.forM (·.clean)
 
 protected def script : CliM PUnit := do
   if let some cmd ← takeArg? then

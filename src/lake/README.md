@@ -219,11 +219,11 @@ A external library target is a non-Lean **static** library that will be linked t
 **Syntax**
 
 ```lean
-extern_lib «target-name» (pkg : Package) :=
+extern_lib «target-name» (pkg : NPackage _package.name) :=
   -- a build function that produces its static library
 ```
 
-The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `IndexBuildM (BuildJob System.FilePath)` function that builds the static library.
+The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `IndexBuildM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
 
 ### Custom Targets
 
@@ -232,11 +232,11 @@ A arbitrary target that can be built via `lake build <target-name>`.
 **Syntax**
 
 ```lean
-target «target-name» (pkg : Package) : α :=
+target «target-name» (pkg : NPackage _package.name) : α :=
   -- a build function that produces a `BuildJob α`
 ```
 
-The `pkg` parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`.
+The `pkg` parameter and its type specifier are optional and the body should be a term of type `IndexBuildM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
 
 ## Defining New Facets
 

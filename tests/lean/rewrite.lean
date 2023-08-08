@@ -1,3 +1,9 @@
+/-!
+# Tests exercising basic behaviour of `rw`.
+
+See also `tests/lean/run/rewrite.lean`.
+-/
+
 axiom appendNil {α} (as : List α) : as ++ [] = as
 axiom appendAssoc {α} (as bs cs : List α) : (as ++ bs) ++ cs = as ++ (bs ++ cs)
 axiom reverseEq {α} (as : List α) : as.reverse.reverse = as

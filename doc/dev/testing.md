@@ -87,6 +87,16 @@ All these tests are included by [src/shell/CMakeLists.txt](https://github.com/le
 - `tests/plugin`: tests that compiled Lean code can be loaded into
   `lean` via the `--plugin` command line option.
 
+## Writing Good Tests
+
+Every test file should contain:
+* an initial `/-! -/` module docstring summarizing the test's purpose
+* a module docstring for each test section that describes what is tested
+  and, if not 100% clear, why that is the desirable behavior
+
+At the time of writing, most tests do not follow these new guidelines yet.
+For an example of a conforming test, see `tests/lean/1971.lean`.
+
 ## Fixing Tests
 
 When the Lean source code or the standard library are modified, some of the

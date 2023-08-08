@@ -113,6 +113,14 @@
   build_config:
     cmd: ./compile.sh liasolver.lean
 - attributes:
+    description: parser
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./parser.lean.out ../../src/Init/Prelude.lean 50
+  build_config:
+    cmd: ./compile.sh parser.lean
+- attributes:
     description: qsort
     tags: [fast, suite]
   run_config:
@@ -145,14 +153,6 @@
   build_config:
     cmd: ./compile.sh rbmap_checkpoint.lean
 - attributes:
-    description: rbmap_library
-    tags: [fast, suite]
-  run_config:
-    <<: *time
-    cmd: ./rbmap_library.lean.out 2000000
-  build_config:
-    cmd: ./compile.sh rbmap_library.lean
-- attributes:
     description: rbmap_fbip
     tags: [fast, suite]
   run_config:
@@ -160,6 +160,14 @@
     cmd: ./rbmap_fbip.lean.out 2000000
   build_config:
     cmd: ./compile.sh rbmap_fbip.lean
+- attributes:
+    description: rbmap_library
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap_library.lean.out 2000000
+  build_config:
+    cmd: ./compile.sh rbmap_library.lean
 - attributes:
     description: unionfind
     tags: [fast, suite]

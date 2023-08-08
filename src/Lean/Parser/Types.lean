@@ -293,7 +293,11 @@ def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? 
 def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) : ParserState :=
   let tk := s.stxStack.back
   let s := s.setPos tk.getPos?.get!
-  let s := s.setError { stopPos? := tk.getTailPos?, expected := ex }
+  let unexpected := match tk with
+    | .ident .. => "unexpected identifier"
+    | .atom _ v => s!"unexpected token '{v}'"
+    | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+  let s := s.setError { stopPos? := tk.getTailPos?, expected := ex, unexpected }
   s.popSyntax.pushSyntax .missing
 
 /--

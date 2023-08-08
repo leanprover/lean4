@@ -1,4 +1,4 @@
-syntaxPrec.lean:1:18: error: expected ':'
+syntaxPrec.lean:1:17-1:21: error: unexpected token '<|>'; expected ':'
 [Elab.command] syntax "foo" ("*" <|> term,+) : term
   [Elab.command] @[term_parser 1000]
       def «termFoo*_» : Lean.ParserDescr✝ :=

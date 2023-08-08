@@ -15,10 +15,10 @@ n : Nat
 h : n > 0
 helper : n > 1
 ⊢ n > 1
-byStrictIndent.lean:19:3: error: expected command
+byStrictIndent.lean:19:3-19:8: error: unexpected token 'sorry'; expected command
 byStrictIndent.lean:22:54-24:9: error: unsolved goals
 n : Nat
 h : n > 0
 helper : n > 1
 ⊢ n > 1
-byStrictIndent.lean:25:6: error: expected command
+byStrictIndent.lean:25:6-25:11: error: unexpected token 'sorry'; expected command

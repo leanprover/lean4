@@ -31,6 +31,27 @@ unsafe opaque runModInit (mod : Name) : IO Bool
 @[extern "lean_run_init"]
 unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
 
+/--
+This is an extension point to allow controlling more specifically which initializers
+are run. It is only relevant if `runInitializersRef` is set to `true`.
+-/
+builtin_initialize runInitializersForRef : IO.Ref (Option (Name → IO Bool)) ← IO.mkRef none
+
+/--
+This sets up the initialization state so that initialization for additional imports can be run
+without causing duplicate initialization errors. This should be run after initialization has already
+run once, and the input `env` should contain all the imports that have been initialized so far.
+-/
+def enableReinitialization (env : Environment) : IO Unit := do
+  -- we use an Option to detect if this function itself is called multiple times
+  if (← runInitializersForRef.get).isNone then
+    let mods ← IO.mkRef (env.header.moduleNames.foldl (·.insert) {} : NameSet)
+    runInitializersForRef.set <| some fun mod => do
+      if (← mods.get).contains mod then
+        return false
+      mods.modify (·.insert mod)
+      return true
+
 unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
     ref := ref
@@ -53,9 +74,13 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
     afterImport := fun entries => do
       let ctx ← read
       if runAfterImport && (← isInitializerExecutionEnabled) then
+        let shouldRunInit ← runInitializersForRef.get
         for mod in ctx.env.header.moduleNames,
             modData in ctx.env.header.moduleData,
             modEntries in entries do
+          if let some shouldRunInit := shouldRunInit then
+            if !(← shouldRunInit mod) then
+              continue
           -- any native Lean code reachable by the interpreter (i.e. from shared
           -- libraries with their corresponding module in the Environment) must
           -- first be initialized

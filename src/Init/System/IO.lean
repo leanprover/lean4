@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
+Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Malone
 -/
 prelude
 import Init.Control.EState
@@ -219,8 +219,67 @@ local macro "nonempty_list" : tactic =>
 /-- Helper method for implementing "deterministic" timeouts. It is the number of "small" memory allocations performed by the current execution thread. -/
 @[extern "lean_io_get_num_heartbeats"] opaque getNumHeartbeats : BaseIO Nat
 
+/--
+The mode of a file handle (i.e., a set of `open` flags and an `fdopen` mode).
+
+All modes do not translate line endings (i.e., `O_BINARY` on Windows) and
+are not inherited across process creation (i.e., `O_NOINHERIT` on Windows,
+`O_CLOEXEC` elsewhere).
+
+**References:**
+* Windows:
+  [`_open`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/open-wopen?view=msvc-170),
+  [`_fdopen`](https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/fdopen-wfdopen?view=msvc-170)
+* Linux:
+  [`open`](https://linux.die.net/man/2/open),
+  [`fdopen`](https://linux.die.net/man/3/fdopen)
+-/
 inductive FS.Mode where
-  | read | write | writeNew | readWrite | append
+  /--
+  File opened for reading.
+  On open, the stream is positioned at the beginning of the file.
+  Errors if the file does not exist.
+
+  * `open` flags: `O_RDONLY`
+  * `fdopen` mode: `r`
+  -/
+  | read
+  /--
+  File opened for writing.
+  On open, truncate an existing file to zero length or create a new file.
+  The stream is positioned at the beginning of the file.
+
+  * `open` flags: `O_WRONLY | O_CREAT | O_TRUNC`
+  * `fdopen` mode: `w`
+  -/
+  | write
+  /--
+  New file opened for writing.
+  On open, create a new file with the stream positioned at the start.
+  Errors if the file already exists.
+
+  * `open` flags: `O_WRONLY | O_CREAT | O_TRUNC | O_EXCL`
+  * `fdopen` mode: `w`
+  -/
+  | writeNew
+  /--
+  File opened for reading and writing.
+  On open, the stream is positioned at the beginning of the file.
+  Errors if the file does not exist.
+
+  * `open` flags: `O_RDWR`
+  * `fdopen` mode: `r+`
+  -/
+  | readWrite
+  /--
+  File opened for writing.
+  On open, create a new file if it does not exist.
+  The stream is positioned at the end of the file.
+
+  * `open` flags: `O_WRONLY | O_CREAT | O_APPEND`
+  * `fdopen` mode: `a`
+  -/
+  | append
 
 opaque FS.Handle : Type := Unit
 
@@ -518,7 +577,7 @@ partial def FS.removeDirAll (p : FilePath) : IO Unit := do
 
 namespace Process
 
-/-- Get the process ID of the current process. -/
+/-- Returns the process ID of the current process. -/
 @[extern "lean_io_process_get_pid"] opaque getPID : BaseIO UInt32
 
 inductive Stdio where

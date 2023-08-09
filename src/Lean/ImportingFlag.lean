@@ -17,6 +17,8 @@ Remark: it is not safe to run `initialize` code when using multiple threads.
 Remark: Any loaded native Lean code must match its imported version. In particular,
   no two versions of the same module may be loaded when this flag is set.
   No native code may be loaded after its module has been imported.
+Remark: Compacted module regions must not be freed when using this flag as the
+  cached initializer results may reference objects in them.
 Remark: The Lean frontend executes this method at startup time.
 -/
 @[export lean_enable_initializer_execution]

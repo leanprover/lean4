@@ -4,36 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Build.Common
+import Lake.Build.Targets
+
+/-! # Library Facet Builds
+Build function definitions for a library's builtin facets.
+-/
 
 namespace Lake
 
-/-- Get the Lean library in the workspace with the configuration's name. -/
-@[inline] def LeanLibConfig.get (self : LeanLibConfig)
-[Monad m] [MonadError m] [MonadLake m] : m LeanLib := do
-  let some lib ← findLeanLib? self.name
-    | error "Lean library '{self.name}' does not exist in the workspace"
-  return lib
-
-/-- Fetch the build result of a library facet. -/
-@[inline] protected def LibraryFacetDecl.fetch (lib : LeanLib)
-(self : LibraryFacetDecl) [FamilyOut LibraryData self.name α] : IndexBuildM α := do
-  fetch <| lib.facet self.name
-
-/-- Fetch the build job of a library facet. -/
-def LibraryFacetConfig.fetchJob (lib : LeanLib)
-(self : LibraryFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error "library facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| lib.facet self.name
-
-/-- Fetch the build job of a library facet. -/
-def LeanLib.fetchFacetJob
-(name : Name) (self : LeanLib) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).libraryFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
-
-/-! # Build Lean & Static Lib -/
+/-! ## Build Lean & Static Lib -/
 
 /--
 Collect the local modules of a library.
@@ -83,7 +62,7 @@ protected def LeanLib.recBuildStatic
 def LeanLib.staticFacetConfig : LibraryFacetConfig staticFacet :=
   mkFacetJobConfig LeanLib.recBuildStatic
 
-/-! # Build Shared Lib -/
+/-! ## Build Shared Lib -/
 
 protected def LeanLib.recBuildShared
 (self : LeanLib) : IndexBuildM (BuildJob FilePath) := do
@@ -98,6 +77,17 @@ protected def LeanLib.recBuildShared
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
   mkFacetJobConfig LeanLib.recBuildShared
 
+/-! ## Build `extraDepTargets` -/
+
+/-- Build the `extraDepTargets` for the library and its package. -/
+def LeanLib.recBuildExtraDepTargets (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
+  self.extraDepTargets.foldlM (init := ← self.pkg.extraDep.fetch) fun job target => do
+    job.mix <| ← self.pkg.fetchTargetJob target
+
+/-- The `LibraryFacetConfig` for the builtin `extraDepFacet`. -/
+def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
+  mkFacetJobConfigSmall LeanLib.recBuildExtraDepTargets
+
 open LeanLib in
 /--
 A library facet name to build function map that contains builders for
@@ -109,3 +99,4 @@ def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
   |>.insert leanFacet leanFacetConfig
   |>.insert staticFacet staticFacetConfig
   |>.insert sharedFacet sharedFacetConfig
+  |>.insert extraDepFacet extraDepFacetConfig

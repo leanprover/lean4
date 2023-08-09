@@ -32,6 +32,7 @@ def LeanExeConfig.toLeanLibConfig (self : LeanExeConfig) : LeanLibConfig where
   srcDir := self.srcDir
   roots := #[]
   libName := self.exeName
+  extraDepTargets := self.extraDepTargets
   nativeFacets := self.nativeFacets
   toLeanConfig := self.toLeanConfig
 

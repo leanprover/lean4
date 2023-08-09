@@ -40,6 +40,9 @@ structure LeanExeConfig extends LeanConfig where
   -/
   exeName : String := name.toStringWithSep "-" (escape := false)
 
+  /-- An `Array` of target names to build before the executable's modules. -/
+  extraDepTargets : Array Name := #[]
+
   /--
   An `Array` of module facets to build and combine into the executable.
   Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from

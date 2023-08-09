@@ -252,6 +252,10 @@ abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
 abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
   self.facet sharedFacet
 
+@[inherit_doc extraDepFacet]
+abbrev LeanLib.extraDep (self : LeanLib) : BuildInfo :=
+  self.facet extraDepFacet
+
 /-- Build info of the Lean executable. -/
 abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
   .leanExe self

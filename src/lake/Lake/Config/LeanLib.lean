@@ -68,6 +68,10 @@ The names of the library's root modules
 @[inline] def sharedLibFile (self : LeanLib) : FilePath :=
   self.pkg.nativeLibDir / self.sharedLibFileName
 
+/-- The library's `extraDepTargets` configuration. -/
+@[inline] def extraDepTargets (self : LeanLib) :=
+  self.config.extraDepTargets
+
 /--
 Whether to precompile the library's modules.
 Is true if either the package or the library have `precompileModules` set.

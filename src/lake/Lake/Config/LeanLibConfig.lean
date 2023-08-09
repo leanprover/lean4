@@ -52,6 +52,9 @@ structure LeanLibConfig extends LeanConfig where
   -/
   libName := toUpperCamelCase name |>.toString (escape := false)
 
+  /-- An `Array` of target names to build before the library's modules. -/
+  extraDepTargets : Array Name := #[]
+
   /--
   Whether to compile each of the library's modules into a native shared library
   that is loaded whenever the module is imported. This speeds up evaluation of

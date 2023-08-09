@@ -14,7 +14,9 @@ lean_lib bar {
   defaultFacets := #[LeanLib.sharedFacet]
 }
 
-lean_lib baz
+lean_lib baz {
+  extraDepTargets := #[`caw]
+}
 
 lean_exe a
 lean_exe b
@@ -25,6 +27,10 @@ lean_exe c
 @[default_target]
 target meow pkg : Unit := do
   IO.FS.writeFile (pkg.buildDir / "meow.txt") "Meow!"
+  return .nil
+
+target caw pkg : Unit := do
+  IO.FS.writeFile (pkg.buildDir / "caw.txt") "Caw!"
   return .nil
 
 target bark : Unit := do

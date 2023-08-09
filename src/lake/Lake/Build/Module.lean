@@ -7,28 +7,13 @@ import Lake.Util.OrdHashSet
 import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 
+/-! # Module Facet Builds
+Build function definitions for a module's builtin facets.
+-/
+
 open System
 
 namespace Lake
-
-/-- Fetch the build result of a module facet. -/
-@[inline] protected def ModuleFacetDecl.fetch (mod : Module)
-(self : ModuleFacetDecl) [FamilyOut ModuleData self.name α] : IndexBuildM α := do
-  fetch <| mod.facet self.name
-
-/-- Fetch the build job of a module facet. -/
-def ModuleFacetConfig.fetchJob (mod : Module)
-(self : ModuleFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error "module facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| mod.facet self.name
-
-/-- Fetch the build job of a module facet. -/
-def Module.fetchFacetJob
-(name : Name) (self : Module) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).moduleFacetConfigs.find? name
-    | error "library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
 
 def Module.buildUnlessUpToDate (mod : Module)
 (dynlibPath : SearchPath) (dynlibs : Array FilePath)
@@ -126,7 +111,7 @@ def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFac
 /-- Recursively build a module's transitive local imports and shared library dependencies. -/
 def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Array FilePath)) := do
   let imports ← mod.imports.fetch
-  let extraDepJob ← mod.pkg.extraDep.fetch
+  let extraDepJob ← mod.lib.extraDep.fetch
   let precompileImports ← mod.precompileImports.fetch
   let modJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg)

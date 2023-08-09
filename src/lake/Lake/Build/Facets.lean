@@ -87,11 +87,11 @@ module_data o : BuildJob FilePath
 
 /-! ## Package Facets -/
 
-/-- The package's cloud build release. -/
+/-- A package's cloud build release. -/
 abbrev Package.releaseFacet := `release
 package_data release : BuildJob Unit
 
-/-- The package's `extraDepTarget` mixed with its transitive dependencies'. -/
+/-- A package's `extraDepTargets` mixed with its transitive dependencies'. -/
 abbrev Package.extraDepFacet := `extraDep
 package_data extraDep : BuildJob Unit
 
@@ -108,6 +108,10 @@ library_data static : BuildJob FilePath
 /-- A Lean library's shared binary. -/
 abbrev LeanLib.sharedFacet := `shared
 library_data shared : BuildJob FilePath
+
+/-- A Lean library's `extraDepTargets` mixed with its package's. -/
+abbrev LeanLib.extraDepFacet := `extraDep
+library_data extraDep : BuildJob Unit
 
 /-- A Lean binary executable. -/
 abbrev LeanExe.exeFacet := `leanExe

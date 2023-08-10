@@ -12,6 +12,7 @@ fi
 ./clean.sh
 
 # Test lock file creation on build
+touch test.log
 $LAKE build Loop 2>&1 > test.log &
 grep -q "Building" < <($TAIL --pid=$$ -f test.log)
 kill %%

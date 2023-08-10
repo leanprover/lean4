@@ -481,6 +481,7 @@ lean_object* lean_io_app_path(lean_object*);
 uint32_t l_String_back(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_isDir___boxed(lean_object*, lean_object*);
 static lean_object* l_instMonadExceptOfEIO___closed__1;
+LEAN_EXPORT lean_object* l_IO_Process_getPID___boxed(lean_object*);
 static uint32_t l_IO_AccessRight_flags___closed__10;
 static lean_object* l___private_Init_System_IO_0__IO_FS_reprDirEntry____x40_Init_System_IO___hyg_2729____closed__18;
 LEAN_EXPORT lean_object* l_BaseIO_asTask___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -610,6 +611,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_beqFileType____x40_Init_System_IO___hyg_2992____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftBaseIOEIO(lean_object*, lean_object*);
 lean_object* lean_io_get_random_bytes(size_t, lean_object*);
+lean_object* lean_io_process_get_pid(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_readBinFile(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_asTask___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f_loop___at_IO_FS_Stream_ofBuffer___elambda__2___spec__1___boxed(lean_object*, lean_object*);
@@ -2483,11 +2485,17 @@ lean_object* x_4;
 x_4 = lean_unsigned_to_nat(2u);
 return x_4;
 }
-default: 
+case 3:
 {
 lean_object* x_5; 
 x_5 = lean_unsigned_to_nat(3u);
 return x_5;
+}
+default: 
+{
+lean_object* x_6; 
+x_6 = lean_unsigned_to_nat(4u);
+return x_6;
 }
 }
 }
@@ -7121,6 +7129,14 @@ lean_object* x_3;
 x_3 = l_IO_FS_removeDirAll(x_1, x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_IO_Process_getPID___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_io_process_get_pid(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_IO_Process_Stdio_toCtorIdx(uint8_t x_1) {

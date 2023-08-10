@@ -834,7 +834,7 @@ LEAN_EXPORT lean_object* l_Lean_mkAtomFrom(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_EStateM_modifyGet___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Char_ofNatAux___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_withTheReader(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Nat_pred(lean_object*);
+lean_object* lean_nat_pred(lean_object*);
 LEAN_EXPORT lean_object* l_withTheReader___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadLiftT__1___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_set_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2236,7 +2236,7 @@ LEAN_EXPORT lean_object* l_Nat_pred___boxed(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_nat_sub(x_1, lean_box(1));
+x_2 = lean_nat_pred(x_1);
 lean_dec(x_1);
 return x_2;
 }

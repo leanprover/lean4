@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-size_t l___private_Lean_Data_HashSet_0__Lean_HashSetImp_mkIdx(lean_object*, uint64_t, lean_object*);
+size_t lean_hashset_mk_idx(lean_object*, uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_mkHashSetImp___rarg(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -214,7 +214,7 @@ lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_array_get_size(x_3);
 x_5 = l_Lean_Expr_hash(x_2);
-x_6 = (size_t)(x_5) & (lean_unbox(x_4) - 1);
+x_6 = lean_hashset_mk_idx(x_4, x_5);
 x_7 = lean_array_uget(x_3, x_6);
 lean_dec(x_3);
 x_8 = l_List_elem___at_Lean_CollectFVars_visit___spec__2(x_2, x_7);
@@ -241,7 +241,7 @@ x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_array_get_size(x_1);
 x_7 = l_Lean_Expr_hash(x_4);
-x_8 = (size_t)(x_7) & (lean_unbox(x_6) - 1);
+x_8 = lean_hashset_mk_idx(x_6, x_7);
 x_9 = lean_array_uget(x_1, x_8);
 lean_ctor_set(x_2, 1, x_9);
 x_10 = lean_array_uset(x_1, x_8, x_2);
@@ -259,7 +259,7 @@ lean_inc(x_12);
 lean_dec(x_2);
 x_14 = lean_array_get_size(x_1);
 x_15 = l_Lean_Expr_hash(x_12);
-x_16 = (size_t)(x_15) & (lean_unbox(x_14) - 1);
+x_16 = lean_hashset_mk_idx(x_14, x_15);
 x_17 = lean_array_uget(x_1, x_16);
 x_18 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_18, 0, x_12);
@@ -398,7 +398,7 @@ x_5 = lean_ctor_get(x_1, 1);
 x_6 = lean_array_get_size(x_5);
 x_7 = l_Lean_Expr_hash(x_2);
 lean_inc(x_6);
-x_8 = (size_t)(x_7) & (lean_unbox(x_6) - 1);
+x_8 = lean_hashset_mk_idx(x_6, x_7);
 x_9 = lean_array_uget(x_5, x_8);
 x_10 = l_List_elem___at_Lean_CollectFVars_visit___spec__2(x_2, x_9);
 if (x_10 == 0)
@@ -450,7 +450,7 @@ lean_dec(x_1);
 x_21 = lean_array_get_size(x_20);
 x_22 = l_Lean_Expr_hash(x_2);
 lean_inc(x_21);
-x_23 = (size_t)(x_22) & (lean_unbox(x_21) - 1);
+x_23 = lean_hashset_mk_idx(x_21, x_22);
 x_24 = lean_array_uget(x_20, x_23);
 x_25 = l_List_elem___at_Lean_CollectFVars_visit___spec__2(x_2, x_24);
 if (x_25 == 0)

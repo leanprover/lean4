@@ -1923,8 +1923,75 @@ static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
 static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
 
 /* Efficient C implementations of defns used by the compiler */
-static inline size_t lean_data_hashmap_mk_idx(lean_object* sz, uint64_t hash) {
+static inline size_t lean_hashmap_mk_idx(lean_obj_arg sz, uint64_t hash) {
     return (size_t)(hash & (lean_unbox(sz) - 1));
+}
+
+static inline size_t lean_hashset_mk_idx(lean_obj_arg sz, uint64_t hash) {
+    return (size_t)(hash & (lean_unbox(sz) - 1));
+}
+
+static inline uint64_t lean_expr_data(lean_obj_arg expr) {
+    return lean_ctor_get_uint64(expr, lean_ctor_num_objs(expr)*sizeof(void*));
+}
+
+// eliding unused parameter names is C23+, so ignore warning instead in the following
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
+static inline lean_obj_res lean_get_max_ctor_fields(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_FIELDS);
+}
+
+static inline lean_obj_res lean_get_max_ctor_scalars_size(lean_obj_arg _unit) {
+    return lean_box(LEAN_MAX_CTOR_SCALARS_SIZE);
+}
+
+static inline lean_obj_res lean_get_usize_size(lean_obj_arg _unit) {
+    return lean_box(sizeof(size_t));
+}
+
+static inline lean_obj_res lean_get_max_ctor_tag(lean_obj_arg _unit) {
+    return lean_box(LeanMaxCtorTag);
+}
+
+static inline uint8_t lean_strict_or(uint8_t b1, uint8_t b2) {
+    return b1 || b2;
+}
+
+static inline uint8_t lean_strict_and(uint8_t b1, uint8_t b2) {
+    return b1 && b2;
+}
+
+static inline lean_obj_res lean_version_get_major(lean_obj_arg _unit) {
+    return lean_box(LEAN_VERSION_MAJOR);
+}
+
+static inline lean_obj_res lean_version_get_minor(lean_obj_arg _unit) {
+    return lean_box(LEAN_VERSION_MINOR);
+}
+
+static inline lean_obj_res lean_version_get_patch(lean_obj_arg _unit) {
+    return lean_box(LEAN_VERSION_PATCH);
+}
+
+static inline uint8_t lean_version_get_is_release(lean_obj_arg _unit) {
+    return LEAN_VERSION_IS_RELEASE;
+}
+
+static inline lean_obj_res lean_version_get_special_desc(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_SPECIAL_VERSION_DESC);
+}
+
+static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
+    return LEAN_IS_STAGE0;
+}
+
+static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
+    return lean_nat_sub(n, lean_box(1));
 }
 
 #ifdef __cplusplus

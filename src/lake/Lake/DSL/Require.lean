@@ -26,14 +26,14 @@ def expandDepSpec : TSyntax ``depSpec → MacroM Command
   `(@[package_dep] def $name : Dependency := {
     name := $(quote name.getId),
     src := Source.git $url $rev $path,
-    options := $opts
+    opts := $opts
   })
 | `(depSpec| $name:ident from $path:term $[with $opts?]?) => do
   let opts := opts?.getD <| ← `({})
   `(@[package_dep] def $name : Dependency := {
     name :=  $(quote name.getId),
     src := Source.path $path,
-    options := $opts
+    opts := $opts
   })
 | _ => Macro.throwUnsupported
 

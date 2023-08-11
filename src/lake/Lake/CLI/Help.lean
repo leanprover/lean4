@@ -29,7 +29,7 @@ COMMANDS:
   new <name> [<temp>]   create a Lean package in a new directory
   init <name> [<temp>]  create a Lean package in the current directory
   build [<targets>...]  build targets
-  update                update dependencies
+  update                update dependencies and save them to the manifest
   upload <tag>          upload build artifacts to a GitHub release
   clean                 remove build outputs
   script                manage and run workspace scripts
@@ -101,22 +101,22 @@ A bare `build` command will build the default facet of the root package.
 Package dependencies are not updated during a build."
 
 def helpUpdate :=
-"Update dependencies
+"Update dependencies and save them to the manifest
 
 USAGE:
-  lake update
+  lake update [<package>...]
 
-This command sets up the directory with the package's dependencies
-(i.e., `packagesDir`, which is, by default, `lake-packages`).
+Updates the Lake package manifest (i.e., `lake-manifest.json`),
+downloading and upgrading packages as needed. For each new (transitive) git
+dependency, the appropriate commit is cloned into a subdirectory of
+`packagesDir`. No copy is made of local dependencies.
 
-For each (transitive) git dependency, the specified commit is checked out
-into a sub-directory of `packagesDir`. Already checked out dependencies are
-updated to the latest version compatible with the package's configuration.
-If there are dependencies on multiple versions of the same package, the
-version materialized is undefined. The specific revision of the resolved
-packages are cached in the `manifest.json` file of the `packagesDir`.
+If a set of packages are specified, said dependencies are upgraded to
+the latest version compatible with the package's configuration (or removed if
+removed from the configuration). If there are dependencies on multiple versions
+of the same package, the version materialized is undefined.
 
-No copy is made of local dependencies."
+A bare `lake update` will upgrade all dependencies."
 
 def helpUpload :=
 "Upload build artifacts to a GitHub release

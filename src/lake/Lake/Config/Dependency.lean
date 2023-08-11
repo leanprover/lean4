@@ -36,6 +36,6 @@ structure Dependency where
   /--
   Arguments to pass to the dependency's package configuration.
   -/
-  options : NameMap String := {}
+  opts : NameMap String := {}
 
 deriving Inhabited

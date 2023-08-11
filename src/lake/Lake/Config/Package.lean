@@ -249,7 +249,7 @@ namespace Package
   self.opaqueDeps.map (·.get)
 
 /--
-The directory for storing the package's remote dependencies.
+The path for storing the package's remote dependencies relative to `dir`.
 Either its `packagesDir` configuration or `defaultPackagesDir`.
 -/
 def relPkgsDir (self : Package) : FilePath :=

@@ -18,8 +18,8 @@ def upstreamBranch :=
   "master"
 
 /--
-Try to turn a remote URL into a URL that can be used to e.g.,
-make GitHub  API requests. That is, do not accept SSH URLs and
+Try to turn a remote URL into a URL that can be used to, e.g.,
+make GitHub API requests. That is, do not accept SSH URLs and
 drop an ending `.git`.
 -/
 def filterUrl? (url : String) : Option String :=

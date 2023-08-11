@@ -45,28 +45,37 @@ def updateGitRepo (repo : GitRepo) (url : String)
   else
     cloneGitPkg repo url rev?
 
-structure MaterializeResult where
+structure MaterializedDep where
+  /-- Path to the materialized package relative to the workspace's root directory. -/
   relPkgDir : FilePath
   remoteUrl? : Option String
   gitTag? : Option String
   manifestEntry : PackageEntry
-  deriving Repr, Inhabited
+  deriving Inhabited
 
-@[inline] def MaterializeResult.name (self : MaterializeResult) :=
+@[inline] def MaterializedDep.name (self : MaterializedDep) :=
   self.manifestEntry.name
 
-def Source.materialize (src : Source) (name : String)
-(wsDir relPkgsDir relParentDir : FilePath) : LogIO MaterializeResult :=
-  match src with
+@[inline] def MaterializedDep.opts (self : MaterializedDep) :=
+  self.manifestEntry.opts
+
+/--
+Materializes a configuration dependency.
+For Git dependencies, updates it to the latest input revision.
+-/
+def Dependency.materialize (dep : Dependency) (inherited : Bool)
+(wsDir relPkgsDir relParentDir : FilePath) : LogIO MaterializedDep :=
+  match dep.src with
   | .path dir =>
     let relPkgDir := relParentDir / dir
     return {
       relPkgDir
       remoteUrl? := none
-      gitTag? := none
-      manifestEntry := .path name relPkgDir
+      gitTag? := ← (GitRepo.mk <| wsDir / relPkgDir).findTag?
+      manifestEntry := .path dep.name dep.opts inherited relPkgDir
     }
   | .git url inputRev? subDir? => do
+    let name := dep.name.toString (escape := false)
     let relGitDir := relPkgsDir / name
     let repo := GitRepo.mk (wsDir / relGitDir)
     updateGitRepo repo url inputRev? name
@@ -76,28 +85,28 @@ def Source.materialize (src : Source) (name : String)
       relPkgDir
       remoteUrl? := Git.filterUrl? url
       gitTag? := ← repo.findTag?
-      manifestEntry := .git name url rev inputRev? subDir?
+      manifestEntry := .git dep.name dep.opts inherited url rev inputRev? subDir?
     }
 
 /--
-Materializes a package entry, cloning and/or checkout it out as necessary.
--/
-def materializePackageEntry (wsDir relPkgsDir : FilePath) (manifestEntry : PackageEntry) : LogIO MaterializeResult :=
+Materializes a manifest package entry, cloning and/or checking it out as necessary. -/
+def PackageEntry.materialize (wsDir relPkgsDir : FilePath) (manifestEntry : PackageEntry) : LogIO MaterializedDep :=
   match manifestEntry with
-  | .path _name pkgDir =>
+  | .path _name _opts _inherited relPkgDir =>
     return {
-      relPkgDir := pkgDir
+      relPkgDir
       remoteUrl? := none
-      gitTag? := none
+      gitTag? := ← (GitRepo.mk <| wsDir / relPkgDir).findTag?
       manifestEntry
     }
-  | .git name url rev _inputRev? subDir? => do
+  | .git name _opts _inherited url rev _inputRev? subDir? => do
+    let name := name.toString (escape := false)
     let relGitDir := relPkgsDir / name
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
     /-
     Do not update (fetch remote) if already on revision
-    Avoids errors when offline e.g. [leanprover/lake#104][104]
+    Avoids errors when offline, e.g., [leanprover/lake#104][104].
 
     [104]: https://github.com/leanprover/lake/issues/104
     -/

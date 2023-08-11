@@ -44,7 +44,7 @@ namespace Workspace
 @[inline] def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
-/-- The workspace's remote packages directory. -/
+/-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] def relPkgsDir (self : Workspace) : FilePath :=
   self.root.relPkgsDir
 

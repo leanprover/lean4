@@ -10,24 +10,53 @@ open System Lean
 
 namespace Lake
 
+instance [ToJson α] : ToJson (NameMap α) where
+  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
+
+instance [FromJson α] : FromJson (NameMap α) where
+  fromJson? j := do
+    (← j.getObj?).foldM (init := {}) fun m k v =>
+      let k := k.toName
+      if k.isAnonymous then
+        throw "expected name"
+      else
+        return m.insert k (← fromJson? v)
+
 /-- Current version of the manifest format. -/
-def Manifest.version : Nat := 4
+def Manifest.version : Nat := 5
 
 /-- An entry for a package stored in the manifest. -/
 inductive PackageEntry
-| path (name : String) (dir : FilePath)
-  -- `dir` is relative to the package directory
-  -- of the package containing the manifest
-| git (name : String) (url : String) (rev : String)
-  (inputRev? : Option String) (subDir? : Option FilePath)
-deriving FromJson, ToJson, Repr, Inhabited
+| /--
+  A local filesystem package. `dir` is relative to the package directory
+  of the package containing the manifest.
+  -/
+  path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
+| /-- A remote Git package. -/
+  git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
+    (inputRev? : Option String) (subDir? : Option FilePath)
+deriving FromJson, ToJson, Inhabited
 
-@[inline] def PackageEntry.name : PackageEntry → String
-| path name .. | git name .. => name
+namespace PackageEntry
 
-def PackageEntry.inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
-| path name dir => path name (pkgDir / dir)
+@[inline] protected def name : PackageEntry → Name
+| .path name .. | .git name .. => name
+
+@[inline] protected def opts : PackageEntry → NameMap String
+| .path _ opts .. | .git _ opts .. => opts
+
+@[inline] protected def inherited : PackageEntry → Bool
+| .path _ _ inherited .. | .git _ _ inherited .. => inherited
+
+def setInherited : PackageEntry → PackageEntry
+| .path name opts _ dir => .path name opts true dir
+| .git name opts _ url rev inputRev? subDir? => .git name opts true url rev inputRev? subDir?
+
+def inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
+| .path name opts inherited dir => .path name opts inherited (pkgDir / dir)
 | entry => entry
+
+end PackageEntry
 
 /-- Manifest file format. -/
 structure Manifest where
@@ -67,8 +96,7 @@ instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
 protected def fromJson? (json : Json) : Except String Manifest := do
   let ver ← (← json.getObjVal? "version").getNat?
-  match ver with
-  | 3 | 4 =>
+  if ver = 5 then
     let packagesDir? ← do
       match json.getObjVal? "packagesDir" with
       | .ok path => fromJson? path
@@ -78,9 +106,9 @@ protected def fromJson? (json : Json) : Except String Manifest := do
       packagesDir?,
       entryMap := entries.foldl (fun map entry => map.insert entry.name entry) {}
     }
-  | 1 | 2 =>
+  else if ver < 5 then
     throw s!"incompatible manifest version `{ver}`"
-  | _ =>
+  else
     throw s!"unknown manifest version `{ver}`"
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩

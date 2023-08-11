@@ -56,7 +56,7 @@ def discharge? (useDecide := false) : Simp.Discharge := fun prop => do
          else
            return none
 
-/-- Return the condition of an `if` expression to case split. -/
+/-- Return the condition (and decidability instance) of an `if` expression to case split. -/
 partial def findIfToSplit? (e : Expr) : Option (Expr × Expr) :=
   if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
     let cond := iteApp.getArg! 1 5

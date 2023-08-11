@@ -39,8 +39,6 @@ gcp llvm/lib/libc++.dylib stage1/lib/libc
 # make sure we search for the library in /usr/lib instead of the rpath, which should not contain `/usr/lib`
 # and apparently since Sonoma does not do so implicitly either
 install_name_tool -id /usr/lib/libc++.dylib stage1/lib/libc/libc++.dylib
-# forward `--target`
-echo -n " -DLEAN_EXTRA_MAKE_OPTS='${EXTRA_FLAGS:-}'"
 echo -n " -DLEAN_STANDALONE=ON"
 # do not change C++ compiler; libc++ etc. being system libraries means there's no danger of conflicts,
 # and the custom clang++ outputs a myriad of warnings when consuming the SDK

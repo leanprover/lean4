@@ -6,9 +6,9 @@ External Contribution Guidelines
 Before You Submit a Pull Request (PR):
 -------
 
-**Start with an Issue**: Before submitting a PR, always open an issue discussing the problem you wish to solve or the feature you'd like to add. Use the prefix `RFC:`. Ask for feedback from other users. Take the time to summarize all the feedback. This allows the maintainers to evaluate your proposal more efficiently.
+**Start with an Issue**: Before submitting a PR, always open an issue discussing the problem you wish to solve or the feature you'd like to add. Use the prefix `RFC:` (request for comments) if you are proposing a new feature. Ask for feedback from other users. Take the time to summarize all the feedback. This allows the maintainers to evaluate your proposal more efficiently.
 
-**Understand the Project**: Familiarize yourself with the project's roadmap, existing issues, and latest commits. Ensure your contribution aligns with the project's direction and priorities.
+**Understand the Project**: Familiarize yourself with the project, existing issues, and latest commits. Ensure your contribution aligns with the project's direction and priorities.
 
 **Stay Updated**: Regularly fetch and merge changes from the main branch to ensure your branch is up-to-date and can be smoothly integrated.
 
@@ -36,7 +36,7 @@ Coding Standards:
 PR Submission:
 ---
 
-**Descriptive Title and Summary**: The PR title should briefly explain the purpose of the PR. The summary should give more detailed information on what changes are made and why. Links to Zulip threads are not acceptable. You are responsible for summarizing the discussion, and getting support for it.
+**Descriptive Title and Summary**: The PR title should briefly explain the purpose of the PR. The summary should give more detailed information on what changes are made and why. Links to Zulip threads are not acceptable as a summary. You are responsible for summarizing the discussion, and getting support for it.
 
 **Link to Relevant Issues**: Reference any issues that your PR addresses to provide context.
 

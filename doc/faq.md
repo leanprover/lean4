@@ -7,15 +7,6 @@ Lean is a new open source theorem prover being developed at Microsoft Research.
 It is a research project that aims to bridge the gap between interactive and automated theorem proving.
 Lean can be also used as a programming language. Actually, some Lean features are implemented in Lean itself.
 
-### Are pull requests welcome?
-
-In the past, we accepted most pull requests. This practice produced hard to maintain code, performance problems, and bugs.
-It takes time to review a pull request and make sure it is correct, useful and is not in conflict with our plans.
-Small bug fixes (few lines of code) are always welcome. Any other kind of unrequested pull request is not.
-Thus, before implementing a feature or modifying the system, please ask whether the change is welcome or not.
-We have issues tagged with ["help wanted"](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), if you want to contribute to the project, please take a look at them.
-If you are interested in one of them, post comments, ask questions, and engage with the core developers there.
-
 ### Should I use Lean?
 
 Lean is under heavy development, and we are constantly trying new

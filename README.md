@@ -12,6 +12,7 @@ Stable point releases are planned for a later date after establishing a robust r
 - [Manual](https://leanprover.github.io/lean4/doc/)
 - [Release notes](RELEASES.md) starting at v4.0.0-m3
 - [Examples](https://leanprover.github.io/lean4/doc/examples.html)
+- [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/doc/contributions.md)
 - [FAQ](https://leanprover.github.io/lean4/doc/faq.html)
 
 # Installation

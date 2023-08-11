@@ -1779,7 +1779,11 @@ def mkNot (p : Expr) : Expr := mkApp (mkConst ``Not) p
 def mkOr (p q : Expr) : Expr := mkApp2 (mkConst ``Or) p q
 /-- Return `p ∧ q` -/
 def mkAnd (p q : Expr) : Expr := mkApp2 (mkConst ``And) p q
-/-- Return `Classical.em p` -/
-def mkEM (p : Expr) : Expr := mkApp (mkConst ``Classical.em) p
+/-- Return `Classical.em p` if `dec` is `none` and
+  return `@Decidable.em p inst` if `dec` is `some inst` -/
+def mkEM (p : Expr) (dec : Option Expr := none) : Expr :=
+  match dec with
+  | some inst => mkApp2 (mkConst ``Decidable.em) p inst
+  | none => mkApp (mkConst ``Classical.em) p
 
 end Lean

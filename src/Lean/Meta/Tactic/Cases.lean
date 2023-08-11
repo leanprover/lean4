@@ -307,9 +307,10 @@ private def toByCasesSubgoal (s : CasesSubgoal) : MetaM ByCasesSubgoal :=  do
 
 /--
 Split the goal in two subgoals: one containing the hypothesis `h : p` and another containing `h : ¬ p`.
+If `dec` is `some inst` then use this decidable instance for `p` instead of classical logic axioms.
 -/
-def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
-  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p)
+def _root_.Lean.MVarId.byCases (mvarId : MVarId) (p : Expr) (hName : Name := `h) (dec : Option Expr := none) : MetaM (ByCasesSubgoal × ByCasesSubgoal) := do
+  let mvarId ← mvarId.assert `hByCases (mkOr p (mkNot p)) (mkEM p dec)
   let (fvarId, mvarId) ← mvarId.intro1
   let #[s₁, s₂] ← mvarId.cases fvarId #[{ varNames := [hName] }, { varNames := [hName] }] |
     throwError "'byCases' tactic failed, unexpected number of subgoals"

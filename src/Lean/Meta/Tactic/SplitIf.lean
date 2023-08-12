@@ -61,7 +61,7 @@ partial def findIfToSplit? (e : Expr) : Option (Expr × Option Expr) :=
   if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
     let cond := iteApp.getArg! 1 5
     -- If the decidability instance has loose bound variables then we fall back on using classical axioms
-    let inst := if (e.getArg! 2 5).hasLooseBVars then none else some <| iteApp.getArg! 2 5
+    let inst := if (iteApp.getArg! 2 5).hasLooseBVars then none else some <| iteApp.getArg! 2 5
     -- Try to find a nested `if` in `cond`
     findIfToSplit? cond |>.getD (cond, inst)
   else

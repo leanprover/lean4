@@ -1,0 +1,2 @@
+'ittt1' does not depend on any axioms
+'ittt2' depends on axioms: [Classical.choice, Quot.sound, propext]

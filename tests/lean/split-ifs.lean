@@ -13,3 +13,9 @@ theorem ittt2 (c : Prop) :
   split <;> rfl
 
 #print axioms ittt2
+
+/- Example with nested ifs: split inside out -/
+theorem ittt3 : (if (if n = 0 then True else False) then 0 else n) = n := by
+  split
+  next h => rw [(h : n = 0)]; rfl
+  next => rfl

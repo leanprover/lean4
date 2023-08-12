@@ -61,20 +61,20 @@ partial def findIfToSplit? (e : Expr) : Option (Expr × Option Expr) :=
   if let some iteApp := e.find? fun e => (e.isIte || e.isDIte) && !(e.getArg! 1 5).hasLooseBVars then
     let cond := iteApp.getArg! 1 5
     -- If the decidability instance has loose bound variables then we fall back on using classical axioms
-    let inst := if (iteApp.getArg! 2 5).hasLooseBVars then none else some <| iteApp.getArg! 2 5
+    let dec? := if (iteApp.getArg! 2 5).hasLooseBVars then none else some <| iteApp.getArg! 2 5
     -- Try to find a nested `if` in `cond`
-    findIfToSplit? cond |>.getD (cond, inst)
+    findIfToSplit? cond |>.getD (cond, dec?)
   else
     none
 
 def splitIfAt? (mvarId : MVarId) (e : Expr) (hName? : Option Name) : MetaM (Option (ByCasesSubgoal × ByCasesSubgoal)) := do
   let e ← instantiateMVars e
-  if let some (cond, inst) := findIfToSplit? e then
+  if let some (cond, dec?) := findIfToSplit? e then
     let hName ← match hName? with
       | none       => mkFreshUserName `h
       | some hName => pure hName
     trace[Meta.Tactic.splitIf] "splitting on {cond}"
-    return some (← mvarId.byCases cond hName inst)
+    return some (← mvarId.byCases cond hName dec?)
   else
     return none
 

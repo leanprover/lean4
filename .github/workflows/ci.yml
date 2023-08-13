@@ -68,7 +68,7 @@ jobs:
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
             binary-check: ldd -v
             # foreign code may be linked against more recent glibc
-            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
+            CTEST_OPTIONS: -E 'foreign'
           - name: Linux
             os: ubuntu-latest
             check-stage3: true

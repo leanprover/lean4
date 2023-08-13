@@ -28,8 +28,11 @@ abbrev MonadLake (m : Type → Type u) :=
   MonadReaderOf Context m
 
 /-- Make a `Lake.Context` from a `Workspace`. -/
-def mkLakeContext (ws : Workspace) : Context where
+@[inline] def mkLakeContext (ws : Workspace) : Context where
   opaqueWs := ws
+
+instance [MonadWorkspace m] [Functor m] : MonadLake m where
+  read := (mkLakeContext ·) <$> read
 
 @[inline] def Context.workspace (self : Context) :=
   self.opaqueWs.get

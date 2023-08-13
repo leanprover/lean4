@@ -28,8 +28,7 @@ The `print-paths` command is used internally by Lean 4 server.
 -/
 def printPaths (config : LoadConfig) (imports : List String := [])
 (oldMode : Bool := false) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  let configFile := config.rootDir / config.configFile
-  if (← configFile.pathExists) then
+  if (← config.configFile.pathExists) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
@@ -58,7 +57,7 @@ def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
       let ctx := mkLakeContext ws
       pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
     else
-      IO.eprint "warning: package configuration has errors, falling back to plain `lean --server`"
+      IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
       pure (config.env.installVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
     cmd := config.env.lean.lean.toString

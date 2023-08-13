@@ -57,6 +57,10 @@ lean_object * wrap_win_handle(HANDLE h) {
     return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
 }
 
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
+    return lean_io_result_mk_ok(box_uint32(GetCurrentProcessId()));
+}
+
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
     DWORD exit_code;
@@ -247,6 +251,11 @@ void initialize_process() {
 void finalize_process() {}
 
 #else
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_get_pid(obj_arg) {
+    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
+    return lean_io_result_mk_ok(box_uint32(getpid()));
+}
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child, obj_arg) {
     static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT

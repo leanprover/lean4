@@ -131,9 +131,10 @@ def helpClean :=
 "Remove build outputs
 
 USAGE:
-  lake clean
+  lake clean [<package>...]
 
-Deletes the build directory of the package."
+If no package is specified, deletes the build directories of every package in
+the workspace. Otherwise, just deletes those of the specified packages."
 
 def helpScriptCli :=
 "Manage Lake scripts

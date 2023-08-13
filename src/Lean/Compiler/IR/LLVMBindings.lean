@@ -375,10 +375,8 @@ def Linkage.linkerPrivate : Linkage := { val := 15 }
 /-- Like LinkerPrivate, but is weak. -/
 def Linkage.linkerPrivateWeak : Linkage := { val := 16 }
 
-
 @[extern "lean_llvm_set_linkage"]
 opaque setLinkage {ctx : Context} (value : Value ctx) (linkage : Linkage) : BaseIO Unit
-
 
 
 -- Helper to add a function if it does not exist, and to return the function handle if it does.

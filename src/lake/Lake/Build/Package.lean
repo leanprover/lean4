@@ -5,48 +5,14 @@ Authors: Mac Malone
 -/
 import Lake.Util.Sugar
 import Lake.Build.Common
+import Lake.Build.Targets
+
+/-! # Package Facet Builds
+Build function definitions for a package's builtin facets.
+-/
 
 open System
 namespace Lake
-
-/-- Fetch the build job of the specified package target. -/
-def Package.fetchTargetJob (self : Package)
-(target : Name) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := self.findTargetConfig? target
-    | error s!"package '{self.name}' has no target '{target}'"
-  return config.getJob (← fetch <| self.target target)
-
-/-- Fetch the build result of a target. -/
-protected def TargetDecl.fetch (self : TargetDecl)
-[FamilyOut CustomData (self.pkg, self.name) α] : IndexBuildM α := do
-  let some pkg ← findPackage? self.pkg
-    | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
-  fetch <| pkg.target self.name
-
-/-- Fetch the build job of the target. -/
-def TargetDecl.fetchJob (self : TargetDecl) : IndexBuildM (BuildJob Unit) :=  do
-  let some pkg ← findPackage? self.pkg
-    | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
-  return self.config.getJob (← fetch <| pkg.target self.name)
-
-/-- Fetch the build result of a package facet. -/
-@[inline] protected def PackageFacetDecl.fetch (pkg : Package)
-(self : PackageFacetDecl) [FamilyOut PackageData self.name α] : IndexBuildM α := do
-  fetch <| pkg.facet self.name
-
-/-- Fetch the build job of a package facet. -/
-def PackageFacetConfig.fetchJob (pkg : Package)
-(self : PackageFacetConfig name) : IndexBuildM (BuildJob Unit) :=  do
-  let some getJob := self.getJob?
-    | error "package facet '{pkg.name}' has no associated build job"
-  return getJob <| ← fetch <| pkg.facet self.name
-
-/-- Fetch the build job of a library facet. -/
-def Package.fetchFacetJob
-(name : Name) (self : Package) : IndexBuildM (BuildJob Unit) :=  do
-  let some config := (← getWorkspace).packageFacetConfigs.find? name
-    | error "package facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
@@ -67,7 +33,7 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
   mkFacetConfig Package.recComputeDeps
 
 /--
-Build the `extraDepTarget` for the package and its transitive dependencies.
+Build the `extraDepTargets` for the package and its transitive dependencies.
 Also fetch pre-built releases for the package's' dependencies.
 -/
 def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Unit) := do
@@ -80,10 +46,7 @@ def Package.recBuildExtraDepTargets (self : Package) : IndexBuildM (BuildJob Uni
     job ← job.mix <| ← self.release.fetch
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
-    if let some config := self.findTargetConfig? target then
-      job ← job.mix <| config.getJob <| ← fetch <| self.target target
-    else
-      error s!"unknown target `{target}`"
+    job ← job.mix <| ← self.fetchTargetJob target
   return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/

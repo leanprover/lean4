@@ -222,8 +222,8 @@ section
 variable {α : Type u} {β : Type v}
 variable {ra  : α → α → Prop} {rb  : β → β → Prop}
 
-def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a : α) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
-  induction (aca a) generalizing b with
+def lexAccessible {a : α} (aca : Acc ra a) (acb : (b : β) → Acc rb b) (b : β) : Acc (Prod.Lex ra rb) (a, b) := by
+  induction aca generalizing b with
   | intro xa _ iha =>
     induction (acb b) with
     | intro xb _ ihb =>
@@ -236,7 +236,7 @@ def lexAccessible (aca : (a : α) → Acc ra a) (acb : (b : β) → Acc rb b) (a
 -- The lexicographical order of well founded relations is well-founded
 @[reducible] def lex (ha : WellFoundedRelation α) (hb : WellFoundedRelation β) : WellFoundedRelation (α × β) where
   rel := Prod.Lex ha.rel hb.rel
-  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf) (WellFounded.apply hb.wf) a b⟩
+  wf  := ⟨fun (a, b) => lexAccessible (WellFounded.apply ha.wf a) (WellFounded.apply hb.wf) b⟩
 
 instance [ha : WellFoundedRelation α] [hb : WellFoundedRelation β] : WellFoundedRelation (α × β) :=
   lex ha hb

@@ -5,7 +5,7 @@ Authors: Mac Malone
 -/
 namespace Lake
 
-/-- Conceptually identical `OptionT BaseIO`, but practically more efficient. -/
+/-- Conceptually identical to `OptionT BaseIO`, but practically more efficient. -/
 def OptionIO := EIO PUnit
 
 instance : Monad OptionIO := inferInstanceAs (Monad (EIO PUnit))
@@ -30,15 +30,21 @@ namespace OptionIO
 @[inline] def catchFailure (f : Unit → BaseIO α) (self : OptionIO α) : BaseIO α :=
   self.toEIO.catchExceptions f
 
-protected def failure : OptionIO α :=
+@[inline] protected def failure : OptionIO α :=
   mk <| throw ()
 
-protected def orElse (self : OptionIO α) (f : Unit → OptionIO α) : OptionIO α :=
+@[inline] protected def orElse (self : OptionIO α) (f : Unit → OptionIO α) : OptionIO α :=
   mk <| tryCatch self.toEIO f
 
 instance : Alternative OptionIO where
   failure := OptionIO.failure
   orElse := OptionIO.orElse
+
+@[always_inline] instance OptionIO.finally : MonadFinally OptionIO where
+  tryFinally' := fun x h => do
+    match (← x.toBaseIO) with
+    | some a => h (some a) <&> ((a, ·))
+    | none => h none *> failure
 
 def asTask (self : OptionIO α) (prio := Task.Priority.dedicated) : BaseIO (Task (Option α)) :=
   self.toBaseIO.asTask prio

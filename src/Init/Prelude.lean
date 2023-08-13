@@ -1706,7 +1706,7 @@ instance : Min Nat := minOfLe
 set_option bootstrap.genMatcherCode false in
 /--
 (Truncated) subtraction of natural numbers. Because natural numbers are not
-closed under subtraction, we define `m - n` to be `0` when `n < m`.
+closed under subtraction, we define `n - m` to be `0` when `n < m`.
 
 This definition is overridden in both the kernel and the compiler to efficiently
 evaluate using the "bignum" representation (see `Nat`). The definition provided

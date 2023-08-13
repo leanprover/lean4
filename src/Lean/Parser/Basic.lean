@@ -853,13 +853,15 @@ def rawIdentFn : ParserFn := fun c s =>
   else identFnAux i none .anonymous c s
 
 def satisfySymbolFn (p : String → Bool) (expected : List String) : ParserFn := fun c s => Id.run do
+  let iniPos := s.pos
   let s := tokenFn expected c s
   if s.hasError then
     return s
   if let .atom _ sym := s.stxStack.back then
     if p sym then
       return s
-  s.mkUnexpectedTokenErrors expected
+  -- this is a very hot `mkUnexpectedTokenErrors` call, so explicitly pass `iniPos`
+  s.mkUnexpectedTokenErrors expected iniPos
 
 def symbolFnAux (sym : String) (errorMsg : String) : ParserFn :=
   satisfySymbolFn (fun s => s == sym) [errorMsg]

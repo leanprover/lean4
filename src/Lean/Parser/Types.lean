@@ -73,8 +73,10 @@ structure ParserContextCore extends InputContext, ParserModuleContext, Cacheable
 structure ParserContext extends ParserContextCore where private mk ::
 
 structure Error where
-  /-- If set, the corresponding range is reported. The start position is always `ParserState.pos`. -/
-  stopPos? : Option String.Pos := none
+  /--
+    If set, used for lazily calculating `unexpected` message and range in `mkErrorMessage`.
+    Otherwise, `ParserState.pos` is used as an empty range. -/
+  unexpectedTk? : Option Syntax := none
   unexpected : String := ""
   expected : List String := []
   deriving Inhabited, BEq
@@ -100,8 +102,9 @@ instance : ToString Error where
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with
-  -- We expect errors to be merged to be about the same token, so unconditionally copy second `stopPos?`
-  | { stopPos?, unexpected := u, .. } => { stopPos?, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
+  -- We expect errors to be merged to be about the same token, so unconditionally copy second `unexpectedTk?`
+  | { unexpectedTk?, unexpected := u, .. } =>
+    { unexpectedTk?, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
 
 end Error
 
@@ -289,22 +292,22 @@ def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? 
 
 /--
   Reports given 'expected' messages at range of top stack element (assumed to be a single token).
-  Replaces the element with `missing`. -/
-def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) : ParserState :=
+  Replaces the element with `missing` and resets position to the token position.
+  `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
+-- We use `0` as a cheap default to save an allocation; we're unlikely to do enough backtracking at that
+-- position to be significant.
+def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : String.Pos := 0) : ParserState :=
   let tk := s.stxStack.back
-  let s := s.setPos tk.getPos?.get!
-  let unexpected := match tk with
-    | .ident .. => "unexpected identifier"
-    | .atom _ v => s!"unexpected token '{v}'"
-    | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
-  let s := s.setError { stopPos? := tk.getTailPos?, expected := ex, unexpected }
+  let s := s.setPos (if iniPos > 0 then iniPos else tk.getPos?.get!)
+  let s := s.setError { unexpectedTk? := tk, expected := ex }
   s.popSyntax.pushSyntax .missing
 
 /--
   Reports given 'expected' message at range of top stack element (assumed to be a single token).
-  Replaces the element with `missing`. -/
-def mkUnexpectedTokenError (s : ParserState) (msg : String) : ParserState :=
-  s.mkUnexpectedTokenErrors [msg]
+  Replaces the element with `missing` and resets position to the token position.
+  `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
+def mkUnexpectedTokenError (s : ParserState) (msg : String) (iniPos : String.Pos := 0) : ParserState :=
+  s.mkUnexpectedTokenErrors [msg] iniPos
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
   s.setPos pos |>.mkUnexpectedError msg

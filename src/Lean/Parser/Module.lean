@@ -33,16 +33,27 @@ structure ModuleParserState where
   deriving Inhabited
 
 private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Error) : Message := Id.run do
-  let mut pos := c.fileMap.toPosition s.pos
-  -- if there is an unexpected token, include preceding whitespace as well as the expected token could
-  -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
-  if !e.unexpected.isEmpty && e.stopPos?.isSome then
+  let mut pos := s.pos
+  let mut endPos? := none
+  let mut e := e
+  if let some tk := e.unexpectedTk? then
+    -- calculate error parts too costly to do eagerly
+    if let some r := tk.getRange? then
+      pos := r.start
+      endPos? := some r.stop
+    let unexpected := match tk with
+      | .ident .. => "unexpected identifier"
+      | .atom _ v => s!"unexpected token '{v}'"
+      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+    e := { e with unexpected }
+    -- if there is an unexpected token, include preceding whitespace as well as the expected token could
+    -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
     if let .original (trailing := trailing) .. := s.stxStack.back.getTailInfo then
-      if trailing.stopPos == s.pos then
-        pos := c.fileMap.toPosition trailing.startPos
+      if trailing.stopPos == pos then
+        pos := trailing.startPos
   { fileName := c.fileName
-    pos
-    endPos := c.fileMap.toPosition <$> e.stopPos?
+    pos := c.fileMap.toPosition pos
+    endPos := c.fileMap.toPosition <$> endPos?
     keepFullRange := true
     data := toString e }
 

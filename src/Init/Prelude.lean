@@ -1035,6 +1035,7 @@ This type is special-cased by both the kernel and the compiler:
   to 2^63 directly and larger numbers use an arbitrary precision "bignum"
   library (usually [GMP](https://gmplib.org/)).
 -/
+@[opaque_repr]
 inductive Nat where
   /-- `Nat.zero`, normally written `0 : Nat`, is the smallest natural number.
   This is one of the two constructors of `Nat`. -/
@@ -1780,6 +1781,7 @@ def UInt8.size : Nat := 256
 The type of unsigned 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
+@[opaque_repr]
 structure UInt8 where
   /-- Unpack a `UInt8` as a `Nat` less than `2^8`.
   This function is overridden with a native implementation. -/
@@ -1819,6 +1821,7 @@ def UInt16.size : Nat := 65536
 The type of unsigned 16-bit integers. This type has special support in the
 compiler to make it actually 16 bits rather than wrapping a `Nat`.
 -/
+@[opaque_repr]
 structure UInt16 where
   /-- Unpack a `UInt16` as a `Nat` less than `2^16`.
   This function is overridden with a native implementation. -/
@@ -1858,6 +1861,7 @@ def UInt32.size : Nat := 4294967296
 The type of unsigned 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
+@[opaque_repr]
 structure UInt32 where
   /-- Unpack a `UInt32` as a `Nat` less than `2^32`.
   This function is overridden with a native implementation. -/
@@ -1934,6 +1938,7 @@ def UInt64.size : Nat := 18446744073709551616
 The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
 -/
+@[opaque_repr]
 structure UInt64 where
   /-- Unpack a `UInt64` as a `Nat` less than `2^64`.
   This function is overridden with a native implementation. -/
@@ -1985,6 +1990,7 @@ for the platform's architecture.
 For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.
 -/
+@[opaque_repr]
 structure USize where
   /-- Unpack a `USize` as a `Nat` less than `USize.size`.
   This function is overridden with a native implementation. -/
@@ -2268,6 +2274,7 @@ def List.get {α : Type u} : (as : List α) → Fin as.length → α
 The compiler overrides the data representation of this type to a byte sequence,
 and both `String.utf8ByteSize` and `String.length` are cached and O(1).
 -/
+@[opaque_repr]
 structure String where
   /-- Pack a `List Char` into a `String`. This function is overridden by the
   compiler and is O(n) in the length of the list. -/
@@ -2492,6 +2499,7 @@ as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
 -/
+@[opaque_repr]
 structure Array (α : Type u) where
   /-- Convert a `List α` into an `Array α`. This function is overridden
   to `List.toArray` and is O(n) in the length of the list. -/

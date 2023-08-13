@@ -376,24 +376,9 @@ bool is_llnf_void_type(expr const & e) {
     return e == *g_void_type;
 }
 
-bool is_runtime_builtin_type(name const & n) {
-    /* TODO(Leo): use an attribute? */
-    return
-        n == get_string_name() ||
-        n == get_uint8_name()  ||
-        n == get_uint16_name() ||
-        n == get_uint32_name() ||
-        n == get_uint64_name() ||
-        n == get_usize_name()  ||
-        n == get_float_name()  ||
-        n == get_thunk_name()  ||
-        n == get_task_name()   ||
-        n == get_array_name()  ||
-        n == get_mut_quot_name()  ||
-        n == get_byte_array_name()  ||
-        n == get_float_array_name()  ||
-        n == get_nat_name()    ||
-        n == get_int_name();
+extern "C" uint8 lean_has_opaque_repr_attribute(object* env, object *n);
+bool has_opaque_repr_attribute(environment const & env, name const & n) {
+    return lean_has_opaque_repr_attribute(env.to_obj_arg(), n.to_obj_arg());
 }
 
 bool is_runtime_scalar_type(name const & n) {
@@ -454,7 +439,7 @@ bool depends_on(expr const & e, name_hash_set const & s) {
 }
 
 optional<unsigned> has_trivial_structure(environment const & env, name const & I_name) {
-    if (is_runtime_builtin_type(I_name))
+    if (has_opaque_repr_attribute(env, I_name))
         return optional<unsigned>();
     inductive_val I_val = env.get(I_name).to_inductive_val();
     if (I_val.is_unsafe())

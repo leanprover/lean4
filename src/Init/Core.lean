@@ -38,6 +38,7 @@ attribute [simp] namedPattern
   Thunks are "lazy" values that are evaluated when first accessed using `Thunk.get/map/bind`.
   The value is then stored and not recomputed for all further accesses. -/
 -- NOTE: the runtime has special support for the `Thunk` type to implement this behavior
+@[opaque_repr]
 structure Thunk (α : Type u) : Type u where
   /-- Constructs a new thunk from a function `Unit → α`
   that will be called when the thunk is forced. -/
@@ -359,6 +360,7 @@ possibly being computed on another thread. This is similar to `Future` in Scala,
 
 The tasks have an overridden representation in the runtime.
 -/
+@[opaque_repr]
 structure Task (α : Type u) : Type u where
   /-- `Task.pure (a : α)` constructs a task that is already resolved with value `a`. -/
   pure ::

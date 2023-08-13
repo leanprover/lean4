@@ -26,6 +26,7 @@ opaque floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
+@[opaque_repr]
 structure Float where
   val : floatSpec.float
 

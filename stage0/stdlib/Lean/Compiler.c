@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler
-// Imports: Init Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.ConstFolding Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.ImplementedByAttr Lean.Compiler.NeverExtractAttr Lean.Compiler.IR Lean.Compiler.CSimpAttr Lean.Compiler.FFI Lean.Compiler.NoncomputableAttr Lean.Compiler.Main Lean.Compiler.AtMostOnce Lean.Compiler.Old
+// Imports: Init Lean.Compiler.InlineAttrs Lean.Compiler.Specialize Lean.Compiler.ConstFolding Lean.Compiler.ClosedTermCache Lean.Compiler.ExternAttr Lean.Compiler.ImplementedByAttr Lean.Compiler.NeverExtractAttr Lean.Compiler.OpaqueReprAttr Lean.Compiler.IR Lean.Compiler.CSimpAttr Lean.Compiler.FFI Lean.Compiler.NoncomputableAttr Lean.Compiler.Main Lean.Compiler.AtMostOnce Lean.Compiler.Old
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,6 +21,7 @@ lean_object* initialize_Lean_Compiler_ClosedTermCache(uint8_t builtin, lean_obje
 lean_object* initialize_Lean_Compiler_ExternAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_ImplementedByAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_NeverExtractAttr(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Compiler_OpaqueReprAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_IR(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_CSimpAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Compiler_FFI(uint8_t builtin, lean_object*);
@@ -55,6 +56,9 @@ res = initialize_Lean_Compiler_ImplementedByAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_NeverExtractAttr(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Compiler_OpaqueReprAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR(builtin, lean_io_mk_world());

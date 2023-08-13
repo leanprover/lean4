@@ -72,22 +72,4 @@ def getCtorArity? (declName : Name) : CoreM (Option Nat) := do
   let .ctorInfo val ← getConstInfo declName | return none
   return val.numParams + val.numFields
 
-/--
-List of types that have builtin runtime support
--/
-def builtinRuntimeTypes : List Name := [
-  ``String,
-  ``UInt8, ``UInt16, ``UInt32, ``UInt64, ``USize,
-  ``Float,
-  ``Thunk, ``Task,
-  ``Array, ``ByteArray, ``FloatArray,
-  ``Nat, ``Int
-]
-
-/--
-Return `true` iff `declName` is the name of a type with builtin support in the runtime.
--/
-def isRuntimeBultinType (declName : Name) : Bool :=
-  builtinRuntimeTypes.contains declName
-
 end Lean.Compiler.LCNF

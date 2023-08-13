@@ -149,10 +149,10 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e);
 
 // =======================================
 
-/* Return true if `n` is the name of a type with builtin support in the code generator. */
-bool is_runtime_builtin_type(name const & n);
-inline bool is_runtime_builtin_type(expr const & e) {
-    return is_constant(e) && is_runtime_builtin_type(const_name(e));
+/* Return true if `n` has the `[opaque_repr]` attribute, used to suppress the 'trivial structure' optimization. */
+bool has_opaque_repr_attribute(environment const & env, name const & n);
+inline bool has_opaque_repr_attribute(environment const & env, expr const & e) {
+    return is_constant(e) && has_opaque_repr_attribute(env, const_name(e));
 }
 
 /* Return true if `n` is the name of a type that is treated as a scalar type by the code generator. */

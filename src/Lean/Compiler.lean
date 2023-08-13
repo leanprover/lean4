@@ -10,6 +10,7 @@ import Lean.Compiler.ClosedTermCache
 import Lean.Compiler.ExternAttr
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.NeverExtractAttr
+import Lean.Compiler.OpaqueReprAttr
 import Lean.Compiler.IR
 import Lean.Compiler.CSimpAttr
 import Lean.Compiler.FFI

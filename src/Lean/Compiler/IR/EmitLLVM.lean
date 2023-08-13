@@ -111,11 +111,11 @@ instance : ToString RefcountKind where
 def callLeanRefcountFn (builder : LLVM.Builder llvmctx)
     (kind : RefcountKind) (checkRef? : Bool) (arg : LLVM.Value llvmctx)
     (delta : Option (LLVM.Value llvmctx) := Option.none) : M llvmctx Unit := do
-  let fnName :=  s!"lean_{kind}{if checkRef? then "" else "_ref"}{if delta.isNone then "" else "_n"}" 
+  let fnName :=  s!"lean_{kind}{if checkRef? then "" else "_ref"}{if delta.isNone then "" else "_n"}"
   let retty ← LLVM.voidType llvmctx
   let argtys := if delta.isNone then #[← LLVM.voidPtrType llvmctx] else #[← LLVM.voidPtrType llvmctx, ← LLVM.size_tType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
-  let fnty ← LLVM.functionType retty argtys 
+  let fnty ← LLVM.functionType retty argtys
   match delta with
   | .none => do
     -- since refcount δ is 1, we only supply the pointer.

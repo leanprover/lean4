@@ -55,18 +55,26 @@ $(OLEAN_OUT)/$(PKG) $(LIB_OUT) $(BIN_OUT):
 # .olean files will be located even before any of them are actually built.
 $(TEMP_OUT)/%.depend: %.lean | $(OLEAN_OUT)/$(PKG)
 	@mkdir -p "$(TEMP_OUT)/$(*D)"
-# use separate assignment to ensure failure propagation
 # convert path separators and newlines on Windows
-	@deps=`$(LEAN) --deps $< | tr '\\\\' / | tr -d '\\r'`; echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
+	deps=`$(LEAN) --deps $<` || (echo "$(LEAN) --deps $< failed ($$?): $$deps"; exit 1); \
+  deps=`echo "$$deps" | tr '\\\\' / | tr -d '\\r'`; \
+  echo $(OLEAN_OUT)/$(<:.lean=.olean): $$deps > $@
 
 $(OLEAN_OUT)/%.olean: %.lean $(TEMP_OUT)/%.depend $(MORE_DEPS)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p $(OLEAN_OUT)/$(*D)
+ifndef LLVM
 	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
-	mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
+	@mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
+else
+	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" --bc="$(TEMP_OUT)/$*.bc.tmp" $<
+	@mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
+	@mv "$(TEMP_OUT)/$*.bc.tmp" "$(TEMP_OUT)/$*.bc"
+	@mv "$(TEMP_OUT)/$*.bc.tmp.o" "$(TEMP_OUT)/$*.o"
+endif
 
 $(OLEAN_OUT)/%.ilean: $(OLEAN_OUT)/%.olean
 	@
@@ -76,6 +84,11 @@ $(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
 	@
 endif
 
+ifdef LLVM
+# currently built as part of `--bc`
+$(TEMP_OUT)/%.o: $(OLEAN_OUT)/%.olean
+	@
+else
 $(TEMP_OUT)/%.o: $(C_OUT)/%.c
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
@@ -85,6 +98,7 @@ ifdef PROFILE
 	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
 else
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
+endif
 endif
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)

@@ -58,7 +58,8 @@ jobs:
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
             binary-check: ldd -v
             # foreign code may be linked against more recent glibc
-            CTEST_OPTIONS: -E 'foreign|leanlaketest_git'
+            # reverse-ffi needs to be updated to link to LLVM libraries
+            CTEST_OPTIONS: -E 'foreign|leanlaketest_reverse-ffi'
             CMAKE_OPTIONS: -DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config
           - name: Linux release
             os: ubuntu-latest

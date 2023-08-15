@@ -31,6 +31,9 @@ unsafe opaque runModInit (mod : Name) : IO Bool
 @[extern "lean_run_init"]
 unsafe opaque runInit (env : @& Environment) (opts : @& Options) (decl initDecl : @& Name) : IO Unit
 
+/-- Set of modules for which we have already run the module initializer in the interpreter. -/
+builtin_initialize interpretedModInits : IO.Ref NameSet ← IO.mkRef {}
+
 unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref : Name) : IO (ParametricAttribute Name) :=
   registerParametricAttribute {
     ref := ref
@@ -68,6 +71,11 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
             -- We do this after trying `runModInit` as that one may also efficiently initialize
             -- nullary functions.
             continue
+          -- As `[init]` decls can have global side effects, ensure we run them at most once,
+          -- just like the compiled code does.
+          if (← interpretedModInits.get).contains mod then
+            continue
+          interpretedModInits.modify (·.insert mod)
           for c in modData.constNames do
             -- make sure to run initializers in declaration order, not extension state order, to respect dependencies
             if let some (decl, initDecl) := modEntries.binSearch (c, default) (Name.quickLt ·.1 ·.1) then

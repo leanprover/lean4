@@ -14,9 +14,9 @@ else
 fi
 
 ./clean.sh
-lake +leanprover/lean4:nightly-2022-06-30 new foo
+elan run leanprover/lean4:nightly-2022-06-30 lake new foo
 cd foo
-lake +leanprover/lean4:nightly-2022-06-30 build | grep -m1 foo
+elan run leanprover/lean4:nightly-2022-06-30 lake build +Foo:olean | grep -m1 Foo.olean
 rm lean-toolchain
 sed_i 's/defaultTarget/default_target/g' lakefile.lean
-${LAKE:-../../../build/bin/lake} build -v | grep -m1 foo
+${LAKE:-../../../build/bin/lake} build -v | grep -m1 Foo.olean

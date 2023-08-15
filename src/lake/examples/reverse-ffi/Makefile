@@ -7,42 +7,53 @@ all: run run-local
 lake:
 	lake --dir=lib build
 
+OUT_DIR = out
+LEAN_SYSROOT ?= $(shell lean --print-prefix)
+LEAN_LIBDIR := $(LEAN_SYSROOT)/lib/lean
+
+$(OUT_DIR):
+	mkdir -p $@
+
 ifneq ($(OS),Windows_NT)
 # Add shared library paths to loader path (no Windows equivalent)
-  LINK_FLAGS=-Wl,-rpath,`lean --print-prefix`/lib/lean -Wl,-rpath,$(PWD)/lib/build/lib
+LINK_FLAGS=-Wl,-rpath,$(LEAN_LIBDIR) -Wl,-rpath,$(PWD)/lib/build/lib
 endif
 
-main: main.c lake
+$(OUT_DIR)/main: main.c lake | $(OUT_DIR)
 # Add library paths for Lake package and for Lean itself
-	cc -o $@ $< -I `lean --print-prefix`/include -L `lean --print-libdir` -L lib/build/lib -lRFFI -lleanshared $(LINK_FLAGS)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/build/lib -lRFFI -lleanshared $(LINK_FLAGS)
 
-run: main
+run: $(OUT_DIR)/main
 ifeq ($(OS),Windows_NT)
-# Add shared library path to loader path dynamically (`lean`'s directory is already in `PATH`)
-	PATH=lib/build/lib:$(PATH) ./main
+# Add shared library paths to loader path dynamically
+	env PATH="lib/build/lib:$(shell cygpath $(LEAN_SYSROOT))/bin:$(PATH)" $(OUT_DIR)/main
 else
-	./main
+	$(OUT_DIR)/main
 endif
 
 # Alternatively, we can copy all shared lib dependencies to the current directory
 # in order to avoid path set up and obtain a more portable executable
 
 ifeq ($(OS),Windows_NT)
-  SHLIB_EXT=dll
+SHLIB_PREFIX :=
+SHLIB_EXT := dll
+LEAN_SHLIB := $(LEAN_SYSROOT)/bin/libleanshared.$(SHLIB_EXT)
 else
-  # Add current directory to loader path (default on Windows)
-  ifeq ($(shell uname -s),Darwin)
-    LINK_FLAGS_LOCAL=-Wl,-rpath,@executable_path
-    SHLIB_EXT=dylib
-  else
-    LINK_FLAGS_LOCAL=-Wl,-rpath,$$ORIGIN
-    SHLIB_EXT=so
-  endif
+SHLIB_PREFIX := lib
+# Add current directory to loader path (default on Windows)
+ifeq ($(shell uname -s),Darwin)
+LINK_FLAGS_LOCAL := -Wl,-rpath,@executable_path
+SHLIB_EXT := dylib
+else
+LINK_FLAGS_LOCAL := -Wl,-rpath,'$${ORIGIN}'
+SHLIB_EXT := so
+endif
+LEAN_SHLIB=$(LEAN_LIBDIR)/libleanshared.$(SHLIB_EXT)
 endif
 
-main-local: main.c lake
-	cp -f `lean --print-libdir`/libleanshared.$(SHLIB_EXT) lib/build/lib/libRFFI.$(SHLIB_EXT) .
-	cc -o $@ $< -I `lean --print-prefix`/include -L . -lRFFI -lleanshared $(LINK_FLAGS_LOCAL)
+$(OUT_DIR)/main-local: main.c lake | $(OUT_DIR)
+	cp -f $(LEAN_SHLIB) lib/build/lib/$(SHLIB_PREFIX)RFFI.$(SHLIB_EXT) $(OUT_DIR)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -lRFFI -lleanshared $(LINK_FLAGS_LOCAL)
 
-run-local: main-local
-	./main-local
+run-local: $(OUT_DIR)/main-local
+	$(OUT_DIR)/main-local

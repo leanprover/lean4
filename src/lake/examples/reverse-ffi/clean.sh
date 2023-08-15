@@ -1,2 +1,1 @@
-rm -rf lib/build
-rm -f main
+rm -rf out lib/build

@@ -11,10 +11,10 @@ namespace Lake
 
 namespace Git
 
-def defaultRemote :=
+@[noinline] def defaultRemote :=
   "origin"
 
-def upstreamBranch :=
+@[noinline] def upstreamBranch :=
   "master"
 
 /--
@@ -42,7 +42,7 @@ instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
 namespace GitRepo
 
-def cwd : GitRepo := ⟨"."⟩
+@[noinline] def cwd : GitRepo := ⟨"."⟩
 
 @[inline] def dirExists (repo : GitRepo) : BaseIO Bool :=
   repo.dir.isDir
@@ -80,10 +80,10 @@ def cwd : GitRepo := ⟨"."⟩
 @[inline] def resolveRevision (rev : String) (repo : GitRepo) : LogIO String := do
   repo.captureGit #["rev-parse", "--verify", rev]
 
-@[inline] def headRevision (repo : GitRepo) : LogIO String :=
+@[inline] def getHeadRevision (repo : GitRepo) : LogIO String :=
   repo.resolveRevision "HEAD"
 
-@[inline] def headRevision? (repo : GitRepo) : BaseIO (Option String) :=
+@[inline] def getHeadRevision? (repo : GitRepo) : BaseIO (Option String) :=
   repo.resolveRevision? "HEAD"
 
 def resolveRemoteRevision (rev : String) (remote := Git.defaultRemote) (repo : GitRepo) : LogIO String := do
@@ -109,3 +109,9 @@ def findRemoteRevision (repo : GitRepo) (rev? : Option String := none) (remote :
 
 def getFilteredRemoteUrl? (remote := Git.defaultRemote) (repo : GitRepo) : BaseIO (Option String) := OptionT.run do
   Git.filterUrl? (← repo.getRemoteUrl? remote)
+
+@[inline] def hasNoDiff (repo : GitRepo) : BaseIO Bool := do
+  repo.testGit #["diff", "--exit-code"]
+
+@[inline] def hasDiff (repo : GitRepo) : BaseIO Bool := do
+  not <$> repo.hasNoDiff

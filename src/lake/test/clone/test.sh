@@ -28,6 +28,12 @@ test -d lake-packages/hello
 $LAKE build
 ./build/bin/test
 
+# test leanprover/lake#167
+sed_i "s/Hello,/Goodbye,/" lake-packages/hello/Main.lean
+! git -C lake-packages/hello diff --exit-code
+$LAKE build 2>&1 | grep -m1 "has local changes"
+./build/bin/test
+
 # test leanprover/lake#104
 TEST_URL=https://example.com/hello.git
 MANIFEST=lake-manifest.json

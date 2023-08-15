@@ -158,7 +158,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Wor
               "use `lake update` to update"
           if let .some entry := manifest.find? dep.name then
           match dep.src, entry with
-          | .git (url := url) (rev := rev) .., .git (url := url') (rev := rev')  .. =>
+          | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
             if url ≠ url' then warnOutOfDate "git url"
             if rev ≠ rev' then warnOutOfDate "git revision"
           | .path .., .path .. => pure ()

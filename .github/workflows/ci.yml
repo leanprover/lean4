@@ -52,7 +52,7 @@ jobs:
           # portable release build: use channel with older glibc (2.27)
           - name: Linux LLVM
             os: ubuntu-latest
-            release: true
+            release: false
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*

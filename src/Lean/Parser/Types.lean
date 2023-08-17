@@ -201,6 +201,7 @@ structure ParserState where
 
 namespace ParserState
 
+@[inline]
 def hasError (s : ParserState) : Bool :=
   s.errorMsg != none
 

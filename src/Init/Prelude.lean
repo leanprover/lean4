@@ -3685,41 +3685,41 @@ instance : Inhabited (TSyntax ks) where
 The `choice` kind is used when a piece of syntax has multiple parses, and the
 determination of which to use is deferred until typing information is available.
 -/
-@[noinline, reducible] def choiceKind : SyntaxNodeKind := `choice
+@[reducible] def choiceKind : SyntaxNodeKind := `choice
 
 /-- The null kind is used for raw list parsers like `many`. -/
-@[noinline, reducible] def nullKind : SyntaxNodeKind := `null
+@[reducible] def nullKind : SyntaxNodeKind := `null
 
 /--
 The `group` kind is by the `group` parser, to avoid confusing with the null
 kind when used inside `optional`.
 -/
-@[noinline, reducible] def groupKind : SyntaxNodeKind := `group
+@[reducible] def groupKind : SyntaxNodeKind := `group
 
 /--
 `ident` is not actually used as a node kind, but it is returned by
 `getKind` in the `ident` case so that things that handle different node
 kinds can also handle `ident`.
 -/
-@[noinline, reducible] def identKind : SyntaxNodeKind := `ident
+@[reducible] def identKind : SyntaxNodeKind := `ident
 
 /-- `str` is the node kind of string literals like `"foo"`. -/
-@[noinline, reducible] def strLitKind : SyntaxNodeKind := `str
+@[reducible] def strLitKind : SyntaxNodeKind := `str
 
 /-- `char` is the node kind of character literals like `'A'`. -/
-@[noinline, reducible] def charLitKind : SyntaxNodeKind := `char
+@[reducible] def charLitKind : SyntaxNodeKind := `char
 
 /-- `num` is the node kind of number literals like `42`. -/
-@[noinline, reducible] def numLitKind : SyntaxNodeKind := `num
+@[reducible] def numLitKind : SyntaxNodeKind := `num
 
 /-- `scientific` is the node kind of floating point literals like `1.23e-3`. -/
-@[noinline, reducible] def scientificLitKind : SyntaxNodeKind := `scientific
+@[reducible] def scientificLitKind : SyntaxNodeKind := `scientific
 
 /-- `name` is the node kind of name literals like `` `foo ``. -/
-@[noinline, reducible] def nameLitKind : SyntaxNodeKind := `name
+@[reducible] def nameLitKind : SyntaxNodeKind := `name
 
 /-- `fieldIdx` is the node kind of projection indices like the `2` in `x.2`. -/
-@[noinline, reducible] def fieldIdxKind : SyntaxNodeKind := `fieldIdx
+@[reducible] def fieldIdxKind : SyntaxNodeKind := `fieldIdx
 
 /--
 `hygieneInfo` is the node kind of the `hygieneInfo` parser, which is an
@@ -3729,18 +3729,18 @@ without parsing anything.
 They can be used to generate identifiers (with `Lean.HygieneInfo.mkIdent`)
 as if they were introduced by the calling context, not the called macro.
 -/
-@[noinline, reducible] def hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
+@[reducible] def hygieneInfoKind : SyntaxNodeKind := `hygieneInfo
 
 /--
 `interpolatedStrLitKind` is the node kind of interpolated string literal
 fragments like `"value = {` and `}"` in `s!"value = {x}"`.
 -/
-@[noinline, reducible] def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
+@[reducible] def interpolatedStrLitKind : SyntaxNodeKind := `interpolatedStrLitKind
 /--
 `interpolatedStrKind` is the node kind of an interpolated string literal
 like `"value = {x}"` in `s!"value = {x}"`.
 -/
-@[noinline, reducible] def interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
+@[reducible] def interpolatedStrKind : SyntaxNodeKind := `interpolatedStrKind
 
 /-- Creates an info-less node of the given kind and children. -/
 @[inline] def mkNode (k : SyntaxNodeKind) (args : Array Syntax) : TSyntax (.cons k .nil) :=

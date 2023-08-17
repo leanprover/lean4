@@ -74,9 +74,9 @@ structure ParserContext extends ParserContextCore where private mk ::
 
 structure Error where
   /--
-    If set, used for lazily calculating `unexpected` message and range in `mkErrorMessage`.
+    If not `missing`, used for lazily calculating `unexpected` message and range in `mkErrorMessage`.
     Otherwise, `ParserState.pos` is used as an empty range. -/
-  unexpectedTk? : Option Syntax := none
+  unexpectedTk : Syntax := .missing
   unexpected : String := ""
   expected : List String := []
   deriving Inhabited, BEq
@@ -102,9 +102,9 @@ instance : ToString Error where
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with
-  -- We expect errors to be merged to be about the same token, so unconditionally copy second `unexpectedTk?`
-  | { unexpectedTk?, unexpected := u, .. } =>
-    { unexpectedTk?, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
+  -- We expect errors to be merged to be about the same token, so unconditionally copy second `unexpectedTk`
+  | { unexpectedTk, unexpected := u, .. } =>
+    { unexpectedTk, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
 
 end Error
 
@@ -300,7 +300,7 @@ def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? 
 def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : String.Pos := 0) : ParserState :=
   let tk := s.stxStack.back
   let s := s.setPos (if iniPos > 0 then iniPos else tk.getPos?.get!)
-  let s := s.setError { unexpectedTk? := tk, expected := ex }
+  let s := s.setError { unexpectedTk := tk, expected := ex }
   s.popSyntax.pushSyntax .missing
 
 /--

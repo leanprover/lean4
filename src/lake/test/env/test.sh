@@ -29,8 +29,11 @@ test `LEAN_CC=foo $LAKE env printenv LEAN_CC` = foo
 if [ "$OS" = Windows_NT ]; then
 $LAKE env which libleanshared.dll # DLL in `bin` directory is in `PATH`
 elif [ "`uname`" = Darwin ]; then
-$LAKE env printenv DYLD_LIBRARY_PATH | grep lib/lean
-$LAKE -d ../../examples/hello env printenv DYLD_LIBRARY_PATH | grep examples/hello
+# MacOS's System Integrity Protection does not permit
+# us to spawn a `printenv` process with `DYLD_LIBRARY_PATH` set
+# https://apple.stackexchange.com/questions/212945/unable-to-set-dyld-fallback-library-path-in-shell-on-osx-10-11-1
+$LAKE env | grep DYLD_LIBRARY_PATH | grep lib/lean
+$LAKE -d ../../examples/hello env | grep DYLD_LIBRARY_PATH | grep examples/hello
 else
 $LAKE env printenv LD_LIBRARY_PATH  | grep lib/lean
 $LAKE -d ../../examples/hello env printenv LD_LIBRARY_PATH | grep examples/hello

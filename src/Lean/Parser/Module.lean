@@ -36,12 +36,12 @@ private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Erro
   let mut pos := s.pos
   let mut endPos? := none
   let mut e := e
-  if let some tk := e.unexpectedTk? then
+  unless e.unexpectedTk.isMissing do
     -- calculate error parts too costly to do eagerly
-    if let some r := tk.getRange? then
+    if let some r := e.unexpectedTk.getRange? then
       pos := r.start
       endPos? := some r.stop
-    let unexpected := match tk with
+    let unexpected := match e.unexpectedTk with
       | .ident .. => "unexpected identifier"
       | .atom _ v => s!"unexpected token '{v}'"
       | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?

@@ -16,7 +16,7 @@ import Init.Data.Ord
 
 open System
 
-/-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
+/-- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
     Makes sure we never reorder `IO` operations.
 
     TODO: mark opaque -/

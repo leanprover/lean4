@@ -124,13 +124,21 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
 @[inline] def findLibraryFacetConfig? (name : Name) (self : Workspace) : Option (LibraryFacetConfig name) :=
   self.libraryFacetConfigs.find? name
 
-/-- The workspace's binary Lean library paths (which are added to `LEAN_PATH`). -/
+/-- The workspace's binary directories (which are added to `Path`). -/
+def binPath (self : Workspace) : SearchPath :=
+  self.packageList.map (·.binDir)
+
+/-- The workspace's Lean library directories (which are added to `LEAN_PATH`). -/
 def leanPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.leanLibDir)
 
-/-- The workspace's  source directories (which are added to `LEAN_SRC_PATH`). -/
-def leanSrcPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.srcDir)
+/-- The workspace's source directories (which are added to `LEAN_SRC_PATH`). -/
+def leanSrcPath (self : Workspace) : SearchPath := Id.run do
+  let mut path : SearchPath := {}
+  for pkg in self.packageArray do
+    for (_, config) in pkg.leanLibConfigs do
+      path := pkg.srcDir / config.srcDir :: path
+  return path
 
 /--
 The workspace's shared library path (e.g., for `--load-dynlib`).
@@ -140,44 +148,47 @@ def sharedLibPath (self : Workspace) : SearchPath :=
   self.packageList.map (·.nativeLibDir)
 
 /--
-The detected `LEAN_PATH` of the environment
-augmented with the workspace's `leanPath` and Lake's `libDir`.
+The detected `PATH` of the environment augmented with
+the workspace's `binDir` and Lean and Lake installations' `binDir`.
+-/
+def augmentedPath (self : Workspace) : SearchPath :=
+  self.binPath ++ self.lakeEnv.path
 
-We include Lake's `oleanDir` at the end to ensure that same Lake package being
-used to build is available to the environment (and thus, e.g., the Lean server).
-Otherwise, it may fall back on whatever the default Lake instance is.
+/--
+The detected `LEAN_PATH` of the environment augmented with
+the workspace's `leanPath` and Lake's `libDir`.
 -/
 def augmentedLeanPath (self : Workspace) : SearchPath :=
-  self.lakeEnv.leanPath ++ self.leanPath ++ [self.lakeEnv.lake.libDir]
+  self.leanPath ++ self.lakeEnv.leanPath
 
 /--
-The detected `LEAN_SRC_PATH` of the environment
-augmented with the workspace's `leanSrcPath` and Lake's `srcDir`.
-
-We include Lake's `srcDir` at the end to ensure that same Lake package being
-used to build is available to the environment (and thus, e.g., the Lean server).
-Otherwise, it may fall back on whatever the default Lake instance is.
+The detected `LEAN_SRC_PATH` of the environment augmented with
+the workspace's `leanSrcPath` and Lake's `srcDir`.
 -/
 def augmentedLeanSrcPath (self : Workspace) : SearchPath :=
-  self.lakeEnv.leanSrcPath ++ self.leanSrcPath ++ [self.lakeEnv.lake.srcDir]
+  self.leanSrcPath ++ self.lakeEnv.leanSrcPath
 
 /-
-The detected `sharedLibPathEnv` value of the environment
-augmented with the workspace's `libPath`.
+The detected `sharedLibPathEnv` value of the environment augmented with
+the workspace's `libPath` and Lean installation's shared library directories.
 -/
 def augmentedSharedLibPath (self : Workspace) : SearchPath :=
-  self.lakeEnv.sharedLibPath ++ self.sharedLibPath
+  self.sharedLibPath ++ self.lakeEnv.sharedLibPath
 
 /--
-The detected environment augmented with the Workspace's paths.
+The detected environment augmented with Lake's and the workspace's paths.
 These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
-  self.lakeEnv.installVars ++ #[
+  let vars := self.lakeEnv.installVars ++ #[
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
-    (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)
+    ("PATH", some self.augmentedPath.toString)
   ]
+  if Platform.isWindows then
+    vars
+  else
+    vars.push (sharedLibPathEnvVar, some self.augmentedSharedLibPath.toString)
 
 /-- Remove all packages' build outputs (i.e., delete their build directories). -/
 def clean (self : Workspace) : IO Unit := do

@@ -328,11 +328,19 @@ protected def serve : CliM PUnit := do
   noArgsRem do exit <| ← serve config args
 
 protected def env : CliM PUnit := do
-  let cmd ← takeArg "command"; let args ← takeArgs
   let config ← mkLoadConfig (← getThe LakeOptions)
-  let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws
-  exit <| ← (env cmd args.toArray).run ctx
+  let env ← do
+    if (← config.configFile.pathExists) then
+      pure (← loadWorkspace config).augmentedEnvVars
+    else
+      pure config.env.vars
+  if let some cmd ← takeArg? then
+    let child ← IO.Process.spawn {cmd, args := (← takeArgs).toArray, env}
+    exit <| ← child.wait
+  else
+    env.forM fun (var, val?) =>
+      IO.println s!"{var}={val?.getD ""}"
+    exit 0
 
 protected def exe : CliM PUnit := do
   let exeName ← takeArg "executable name"

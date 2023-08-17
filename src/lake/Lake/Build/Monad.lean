@@ -73,7 +73,15 @@ where
 
 /-- Busy wait to acquire the lock of `lockFile`, run `act`, and then release the lock. -/
 @[inline] def withLockFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (lockFile : FilePath) (act : m α) : m α := do
-  try busyAcquireLockFile lockFile; act finally IO.FS.removeFile lockFile
+  try
+    busyAcquireLockFile lockFile; act
+  finally show IO _ from do
+    try
+      IO.FS.removeFile lockFile
+    catch
+      | .noFileOrDirectory .. => IO.eprintln <|
+        s!"warning: `{lockFile}` was deleted before the lock was released"
+      | e => throw e
 
 /-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
 @[noinline] def lockFileName : String :=

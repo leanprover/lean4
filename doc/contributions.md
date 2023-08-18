@@ -6,14 +6,21 @@ External Contribution Guidelines
 Before You Submit a Pull Request (PR):
 -------
 
-**Start with an Issue**: Before submitting a PR, always open an issue discussing the problem you wish to solve or the feature you'd like to add. Use the prefix `RFC:` (request for comments) if you are proposing a new feature. Ask for feedback from other users. Take the time to summarize all the feedback. This allows the maintainers to evaluate your proposal more efficiently.
+**Start with an Issue**: Before submitting a PR, always open an issue discussing the problem you wish to solve or the feature you'd like to add. Use the prefix `RFC:` (request for comments) if you are proposing a new feature. Ask for feedback from other users. Take the time to summarize all the feedback. This allows the maintainers to evaluate your proposal more efficiently. When creating a RFC, consider the following questions:
+
+  - **User Experience**: How does this feature improve the user experience?
+
+  - **Beneficiaries**: Which Lean users and projects do benefit most from this feature/change?
+
+  - **Community Feedback**: Have you sought feedback or insights from other Lean users?
+
+  - **Maintainability**: Will this change streamline code maintenance or simplify its structure?
 
 **Understand the Project**: Familiarize yourself with the project, existing issues, and latest commits. Ensure your contribution aligns with the project's direction and priorities.
 
 **Stay Updated**: Regularly fetch and merge changes from the main branch to ensure your branch is up-to-date and can be smoothly integrated.
 
 **Help wanted**: We have issues tagged with ["help wanted"](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), if you want to contribute to the project, please take a look at them. If you are interested in one of them, post comments, ask questions, and engage with the core developers there.
-
 
 Quality Over Quantity:
 -----

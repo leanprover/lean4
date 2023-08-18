@@ -273,7 +273,7 @@ opaque printModuletoString (mod : Module ctx) : BaseIO (String)
 opaque printModuletoFile (mod : Module ctx) (file : @&String) : BaseIO Unit
 
 @[extern "llvm_count_params"]
-opaque countParams (fn : Value ctx) : UInt64
+opaque countParams (fn : Value ctx) : BaseIO UInt64
 
 @[extern "llvm_get_param"]
 opaque getParam (fn : Value ctx) (ix : UInt64) : BaseIO (Value ctx)

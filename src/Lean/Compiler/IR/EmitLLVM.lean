@@ -1145,7 +1145,7 @@ def emitFnArgs (builder : LLVM.Builder llvmctx)
           LLVM.buildStore builder pv alloca
           addVartoState params[i]!.x alloca llvmty
   else
-      let n := LLVM.countParams llvmfn
+      let n ← LLVM.countParams llvmfn
       for i in (List.range n.toNat) do
         let llvmty ← toLLVMType params[i]!.ty
         let alloca ← LLVM.buildAlloca builder  llvmty s!"arg_{i}"

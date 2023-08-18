@@ -25,6 +25,7 @@ lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___spec__1___rarg___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__4;
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_declRange___closed__2;
@@ -40,13 +41,13 @@ static lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_declRange(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_declRange___closed__7;
 lean_object* l_Lean_MVarId_congrN(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___spec__1___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__5;
 lean_object* l_Lean_TSyntax_getNat(lean_object*);
+extern lean_object* l_Lean_nullKind;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr_declRange___closed__1;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -510,12 +511,13 @@ x_16 = l_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___closed__6;
 x_17 = l_Lean_Syntax_isNone(x_15);
 if (x_17 == 0)
 {
-uint8_t x_18; 
+lean_object* x_18; uint8_t x_19; 
+x_18 = l_Lean_nullKind;
 lean_inc(x_15);
-x_18 = l_Lean_Syntax_matchesNull(x_15, x_14);
-if (x_18 == 0)
+x_19 = l_Lean_Syntax_isNodeOf(x_15, x_18, x_14);
+if (x_19 == 0)
 {
-lean_object* x_19; 
+lean_object* x_20; 
 lean_dec(x_15);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -525,30 +527,30 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_19 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___spec__1___rarg(x_10);
-return x_19;
+x_20 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_Lean_Elab_Tactic_evalCongr___spec__1___rarg(x_10);
+return x_20;
 }
 else
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_20 = lean_unsigned_to_nat(0u);
-x_21 = l_Lean_Syntax_getArg(x_15, x_20);
+lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_21 = lean_unsigned_to_nat(0u);
+x_22 = l_Lean_Syntax_getArg(x_15, x_21);
 lean_dec(x_15);
-x_22 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_22, 0, x_21);
-x_23 = lean_box(0);
-x_24 = lean_apply_11(x_16, x_23, x_22, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_24;
+x_23 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_23, 0, x_22);
+x_24 = lean_box(0);
+x_25 = lean_apply_11(x_16, x_24, x_23, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_25;
 }
 }
 else
 {
-lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_26; lean_object* x_27; lean_object* x_28; 
 lean_dec(x_15);
-x_25 = lean_box(0);
 x_26 = lean_box(0);
-x_27 = lean_apply_11(x_16, x_26, x_25, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_27;
+x_27 = lean_box(0);
+x_28 = lean_apply_11(x_16, x_27, x_26, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_28;
 }
 }
 }

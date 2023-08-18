@@ -8503,7 +8503,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = lean_box(2);
-x_3 = l_Lean_nullKind___closed__2;
+x_3 = l_Lean_nullKind;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -8561,7 +8561,7 @@ default:
 {
 lean_object* x_7; 
 lean_dec(x_1);
-x_7 = l_Lean_identKind___closed__2;
+x_7 = l_Lean_identKind;
 return x_7;
 }
 }
@@ -8745,7 +8745,7 @@ if (lean_obj_tag(x_1) == 1)
 lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
 x_2 = lean_ctor_get(x_1, 1);
 x_3 = lean_ctor_get(x_1, 2);
-x_4 = l_Lean_nullKind___closed__2;
+x_4 = l_Lean_nullKind;
 x_5 = lean_name_eq(x_2, x_4);
 if (x_5 == 0)
 {
@@ -10792,7 +10792,7 @@ LEAN_EXPORT uint8_t l_Lean_Syntax_matchesNull(lean_object* x_1, lean_object* x_2
 _start:
 {
 lean_object* x_3; uint8_t x_4; 
-x_3 = l_Lean_nullKind___closed__2;
+x_3 = l_Lean_nullKind;
 x_4 = l_Lean_Syntax_isNodeOf(x_1, x_3, x_2);
 return x_4;
 }

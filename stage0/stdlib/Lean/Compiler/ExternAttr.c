@@ -114,6 +114,7 @@ LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_876
 static lean_object* l_Lean_getExternConstArityExport___closed__3;
 LEAN_EXPORT lean_object* l_Lean_getExternNameFor(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_876_(lean_object*);
+extern lean_object* l_Lean_numLitKind;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__5;
 extern lean_object* l_Lean_instInhabitedProjectionFunctionInfo;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_876____closed__8;
@@ -164,7 +165,6 @@ LEAN_EXPORT lean_object* l_Lean_ExternAttrData_arity_x3f___default;
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__21;
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-lean_object* l_Lean_Syntax_isNatLit_x3f(lean_object*);
 static lean_object* l___private_Lean_Compiler_ExternAttr_0__Lean_getExternConstArity___closed__7;
 LEAN_EXPORT lean_object* l_Lean_externAttr;
 LEAN_EXPORT lean_object* l_Lean_isExtern___boxed(lean_object*, lean_object*);
@@ -191,6 +191,7 @@ static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_876____c
 static uint8_t l_Lean_expandExternPatternAux___closed__1;
 static lean_object* l_Lean_initFn____x40_Lean_Compiler_ExternAttr___hyg_876____closed__6;
 static uint8_t l_Lean_expandExternPatternAux___closed__3;
+lean_object* l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(lean_object*, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_ExternAttrData_arity_x3f___default() {
@@ -634,46 +635,47 @@ x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_nat_dec_eq(x_11, x_12);
 if (x_7 == 0)
 {
-lean_object* x_24; lean_object* x_25; 
+lean_object* x_24; lean_object* x_25; lean_object* x_26; 
 x_24 = l_Lean_Syntax_getArg(x_6, x_12);
 lean_dec(x_6);
-x_25 = l_Lean_Syntax_isNatLit_x3f(x_24);
+x_25 = l_Lean_numLitKind;
+x_26 = l___private_Init_Meta_0__Lean_Syntax_isNatLitAux(x_25, x_24);
 lean_dec(x_24);
-if (lean_obj_tag(x_25) == 0)
+if (lean_obj_tag(x_26) == 0)
 {
-lean_object* x_26; 
-x_26 = l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__4;
+lean_object* x_27; 
+x_27 = l___private_Lean_Compiler_ExternAttr_0__Lean_syntaxToExternAttrData___closed__4;
+x_14 = x_27;
+goto block_23;
+}
+else
+{
+uint8_t x_28; 
+x_28 = !lean_is_exclusive(x_26);
+if (x_28 == 0)
+{
 x_14 = x_26;
 goto block_23;
 }
 else
 {
-uint8_t x_27; 
-x_27 = !lean_is_exclusive(x_25);
-if (x_27 == 0)
-{
-x_14 = x_25;
-goto block_23;
-}
-else
-{
-lean_object* x_28; lean_object* x_29; 
-x_28 = lean_ctor_get(x_25, 0);
-lean_inc(x_28);
-lean_dec(x_25);
-x_29 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_29, 0, x_28);
-x_14 = x_29;
-goto block_23;
-}
-}
-}
-else
-{
-lean_object* x_30; 
-lean_dec(x_6);
-x_30 = lean_box(0);
+lean_object* x_29; lean_object* x_30; 
+x_29 = lean_ctor_get(x_26, 0);
+lean_inc(x_29);
+lean_dec(x_26);
+x_30 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_30, 0, x_29);
 x_14 = x_30;
+goto block_23;
+}
+}
+}
+else
+{
+lean_object* x_31; 
+lean_dec(x_6);
+x_31 = lean_box(0);
+x_14 = x_31;
 goto block_23;
 }
 block_23:

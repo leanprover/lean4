@@ -379,6 +379,7 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Tactic_traceSim
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalSimp_declRange(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_tacticToDischarge___closed__3;
+extern lean_object* l_Lean_nullKind;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_TermElabM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_traceSimpCall___lambda__1___closed__10;
@@ -2032,7 +2033,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 9, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 10, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 11, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_3);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_4);
 return x_6;
 }
 }
@@ -2395,7 +2396,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 9, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 10, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 11, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_3);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 13, x_3);
 return x_6;
 }
 }
@@ -2585,7 +2586,7 @@ lean_ctor_set_uint8(x_4, 4, x_1);
 lean_ctor_set_uint8(x_4, 5, x_1);
 lean_ctor_set_uint8(x_4, 6, x_3);
 lean_ctor_set_uint8(x_4, 7, x_3);
-lean_ctor_set_uint8(x_4, 8, x_3);
+lean_ctor_set_uint8(x_4, 8, x_1);
 return x_4;
 }
 }
@@ -12366,7 +12367,7 @@ x_14 = lean_array_push(x_13, x_12);
 x_15 = l_Lean_Elab_Tactic_traceSimpCall___lambda__1___closed__9;
 x_16 = lean_array_push(x_14, x_15);
 x_17 = lean_box(2);
-x_18 = l_Lean_Elab_Tactic_tacticToDischarge___closed__11;
+x_18 = l_Lean_nullKind;
 x_19 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
@@ -12393,7 +12394,7 @@ else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; 
 x_31 = lean_box(2);
-x_32 = l_Lean_Elab_Tactic_tacticToDischarge___closed__11;
+x_32 = l_Lean_nullKind;
 x_33 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_33, 0, x_31);
 lean_ctor_set(x_33, 1, x_32);
@@ -12592,7 +12593,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(2);
-x_2 = l_Lean_Elab_Tactic_tacticToDischarge___closed__11;
+x_2 = l_Lean_nullKind;
 x_3 = l_Lean_Elab_Tactic_traceSimpCall___closed__3;
 x_4 = lean_alloc_ctor(1, 3, 0);
 lean_ctor_set(x_4, 0, x_1);

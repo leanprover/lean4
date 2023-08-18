@@ -104,6 +104,7 @@ lean_object* l_Lean_Expr_cleanupAnnotations(lean_object*);
 lean_object* l_Lean_stringToMessageData(lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalExt_declRange___closed__3;
+uint8_t l_Lean_Syntax_isNodeOf(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalArg_declRange___closed__5;
 lean_object* l_Lean_Meta_appendTag(lean_object*, lean_object*);
 uint8_t lean_int_dec_le(lean_object*, lean_object*);
@@ -204,7 +205,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Ta
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Conv_Congr_0__Lean_Elab_Tactic_Conv_extCore___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__11;
 static lean_object* l_Lean_Elab_Tactic_Conv_congr___lambda__2___closed__5;
@@ -257,6 +257,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Conv_evalRhs___rarg___closed__2;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr_declRange___closed__2;
+extern lean_object* l_Lean_nullKind;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Conv_evalCongr___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_loop___at_Lean_Elab_Tactic_Conv_congr___spec__3___closed__3;
@@ -6822,12 +6823,13 @@ x_15 = l_Lean_Syntax_getArg(x_1, x_14);
 x_16 = l_Lean_Syntax_isNone(x_15);
 if (x_16 == 0)
 {
-uint8_t x_17; 
+lean_object* x_17; uint8_t x_18; 
+x_17 = l_Lean_nullKind;
 lean_inc(x_15);
-x_17 = l_Lean_Syntax_matchesNull(x_15, x_14);
-if (x_17 == 0)
+x_18 = l_Lean_Syntax_isNodeOf(x_15, x_17, x_14);
+if (x_18 == 0)
 {
-lean_object* x_18; 
+lean_object* x_19; 
 lean_dec(x_15);
 lean_dec(x_9);
 lean_dec(x_8);
@@ -6838,30 +6840,30 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_18 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_10);
-return x_18;
+x_19 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_10);
+return x_19;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_19 = lean_unsigned_to_nat(0u);
-x_20 = l_Lean_Syntax_getArg(x_15, x_19);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_20 = lean_unsigned_to_nat(0u);
+x_21 = l_Lean_Syntax_getArg(x_15, x_20);
 lean_dec(x_15);
-x_21 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_21, 0, x_20);
-x_22 = lean_box(0);
-x_23 = l_Lean_Elab_Tactic_Conv_evalArg___lambda__2(x_1, x_22, x_21, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_23;
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+x_23 = lean_box(0);
+x_24 = l_Lean_Elab_Tactic_Conv_evalArg___lambda__2(x_1, x_23, x_22, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_24;
 }
 }
 else
 {
-lean_object* x_24; lean_object* x_25; lean_object* x_26; 
+lean_object* x_25; lean_object* x_26; lean_object* x_27; 
 lean_dec(x_15);
-x_24 = lean_box(0);
 x_25 = lean_box(0);
-x_26 = l_Lean_Elab_Tactic_Conv_evalArg___lambda__2(x_1, x_25, x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-return x_26;
+x_26 = lean_box(0);
+x_27 = l_Lean_Elab_Tactic_Conv_evalArg___lambda__2(x_1, x_26, x_25, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+return x_27;
 }
 }
 }

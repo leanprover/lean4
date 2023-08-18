@@ -177,9 +177,10 @@ def mkLocalDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type 
     let decl := LocalDecl.cdecl idx fvarId userName type bi kind
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
+-- `mkLocalDecl` without `kind`
 @[export lean_local_ctx_mk_local_decl]
-private def mkLocalDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind := .default) : LocalContext :=
-  mkLocalDecl lctx fvarId userName type bi kind
+private def mkLocalDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) : LocalContext :=
+  mkLocalDecl lctx fvarId userName type bi
 
 /-- Low level API for let declarations. Do not use directly.-/
 def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) (kind : LocalDeclKind := default) : LocalContext :=

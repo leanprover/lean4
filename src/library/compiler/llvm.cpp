@@ -36,7 +36,7 @@ Lean's IR.
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info() {
+extern "C" LEAN_EXPORT lean_object* lean_llvm_initialize_target_info(lean_object * /* w */) {
 
 #ifdef LEAN_LLVM
     LLVMInitializeAllTargetInfos();
@@ -1015,15 +1015,15 @@ extern "C" LEAN_EXPORT lean_object *llvm_get_param(size_t ctx, size_t f, uint64_
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT uint64_t llvm_count_params(size_t ctx, size_t f,
-                                                  lean_object * /* w */) {
+extern "C" LEAN_EXPORT lean_object * llvm_count_params(size_t ctx, size_t f,
+                                                       lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
     int n = LLVMCountParams(lean_to_Value(f));
-    return n;
+    return lean_io_result_mk_ok(lean_box_uint64(n));
 #endif  // LEAN_LLVM
 }
 
@@ -1147,9 +1147,7 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_target_from_triple(size_t ctx,
 #endif  // LEAN_LLVM
 }
 
-// opaque getDefaultTargetTriple: IO String
-extern "C" LEAN_EXPORT lean_object *lean_llvm_get_default_target_triple(size_t ctx,
-    lean_object * /* w */) {
+extern "C" LEAN_EXPORT lean_object *lean_llvm_get_default_target_triple(lean_object * /* w */) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "

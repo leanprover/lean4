@@ -659,7 +659,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
+extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean_object * /* w */) {
     if (std::rename(string_cstr(from), string_cstr(to)) == 0) {
         return io_result_mk_ok(box(0));
     } else {

@@ -1022,7 +1022,7 @@ extern "C" LEAN_EXPORT lean_object * llvm_count_params(size_t ctx, size_t f,
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-    int n = LLVMCountParams(lean_to_Value(f));
+    unsigned n = LLVMCountParams(lean_to_Value(f));
     return lean_io_result_mk_ok(lean_box_uint64(n));
 #endif  // LEAN_LLVM
 }

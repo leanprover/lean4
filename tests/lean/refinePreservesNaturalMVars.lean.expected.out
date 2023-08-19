@@ -1,14 +1,14 @@
-refinePreservesNaturalMVars.lean:19:2: error: unsolved goals
+refinePreservesNaturalMVars.lean:29:2-29:3: error: unsolved goals
 case d
 ⊢ Bool
 
 case e
 ⊢ Nat
-refinePreservesNaturalMVars.lean:20:2: error: no goals to be solved
-refinePreservesNaturalMVars.lean:26:2: error: unsolved goals
+refinePreservesNaturalMVars.lean:30:2-30:3: error: no goals to be solved
+refinePreservesNaturalMVars.lean:36:2-36:3: error: unsolved goals
 case d
 ⊢ Bool
 
 case e
 ⊢ Bool
-refinePreservesNaturalMVars.lean:27:2: error: no goals to be solved
+refinePreservesNaturalMVars.lean:37:2-37:3: error: no goals to be solved

@@ -125,7 +125,8 @@ where
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
     /- if we pass this check while `allowNaturalHoles` is `false`, then all mvars in `newMVarIds`
-    are either non-natural or pre-existing natural mvars. -/
+    are either non-natural or pre-existing natural mvars (and thus should be included in the
+    resulting goal list). See #2434. -/
     unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
       let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved

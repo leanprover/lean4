@@ -571,6 +571,9 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
     else pure none
   | _, _ => pure none
 
+/--Generates the auxiliarry lemmas `below` and `brecOn` for a recursive inductive predicate.
+The current generator doesn't support nested predicates, but pattern-matching on them still works
+thanks to well-founded recursion. -/
 def mkBelow (declName : Name) : MetaM Unit := do
   if (← isInductivePredicate declName) then
     let x ← getConstInfoInduct declName

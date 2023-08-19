@@ -124,21 +124,19 @@ where
     let newMVarIds ← getMVarsNoDelayed val
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-    let newMVarIds ← if allowNaturalHoles then
-      pure newMVarIds.toList
-    else
+    /- if we pass this check while `allowNaturalHoles` is `false`, then all mvars in `newMVarIds`
+    are either non-natural or pre-existing natural mvars. -/
+    unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
-      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
       let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
       logUnassignedAndAbort naturalMVarIds
-      pure syntheticMVarIds.toList
     /-
     We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
     See issue #1682.
     Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
     appear in the `.lean` file. We should tell users to prefer tagged goals.
     -/
-    let newMVarIds ← sortMVarIdsByIndex newMVarIds
+    let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
     tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
     return (val, newMVarIds)
 

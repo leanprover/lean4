@@ -132,7 +132,7 @@ macro "default" : prio => `(prio| 1000)
 /-- The standardized "low" priority `low = 100`, for things that should be lower than default priority. -/
 macro "low"     : prio => `(prio| 100)
 /--
-The standardized "medium" priority `med = 1000`. This is lower than `default`, and higher than `low`.
+The standardized "medium" priority `mid = 500`. This is lower than `default`, and higher than `low`.
 -/
 macro "mid"     : prio => `(prio| 500)
 /-- The standardized "high" priority `high = 10000`, for things that should be higher than default priority. -/

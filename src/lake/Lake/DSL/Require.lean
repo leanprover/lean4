@@ -38,7 +38,7 @@ def expandDepSpec : TSyntax ``depSpec → MacroM Command
 | _ => Macro.throwUnsupported
 
 /--
-Adds a mew package dependency to the workspace. Has two forms:
+Adds a new package dependency to the workspace. Has two forms:
 
 ```lean
 require foo from "path"/"to"/"local"/"package" with NameMap.empty

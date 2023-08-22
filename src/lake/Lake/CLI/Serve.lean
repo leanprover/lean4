@@ -26,15 +26,15 @@ If no configuration file exists, exit silently with `noConfigFileCode` (i.e, 2).
 
 The `print-paths` command is used internally by Lean 4 server.
 -/
-def printPaths (config : LoadConfig) (imports : List String := [])
-(oldMode : Bool := false) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  if (← config.configFile.pathExists) then
+def printPaths (loadConfig : LoadConfig) (imports : List String := [])
+(buildConfig : BuildConfig := {}) (verbosity : Verbosity := .normal) : MainM PUnit := do
+  if (← loadConfig.configFile.pathExists) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
-    let ws ← MainM.runLogIO (loadWorkspace config) verbosity
-    let dynlibs ← ws.runBuild (buildImportsAndDeps imports) oldMode
+    let ws ← MainM.runLogIO (loadWorkspace loadConfig) verbosity
+    let dynlibs ← ws.runBuild (buildImportsAndDeps imports) buildConfig
       |>.run (MonadLog.eio verbosity)
     IO.println <| Json.compress <| toJson {
       oleanPath := ws.leanPath

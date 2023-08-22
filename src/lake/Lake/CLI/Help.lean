@@ -23,6 +23,7 @@ OPTIONS:
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
+  --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
 
 COMMANDS:

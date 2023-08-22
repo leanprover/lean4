@@ -14,24 +14,49 @@ namespace Lake
 def inputFile (path : FilePath) : SchedulerM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
 
-@[specialize] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
+/-- Check if the `info` is up-to-date by comparing `depTrace` with `traceFile`. -/
+@[specialize] def BuildTrace.checkUpToDate [CheckExists ι] [GetMTime ι]
+(info : ι) (depTrace : BuildTrace) (traceFile : FilePath) : JobM Bool := do
+  if (← getIsOldMode) then
+    depTrace.checkAgainstTime info
+  else
+    depTrace.checkAgainstFile info traceFile
+
+@[inline] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  let isOldMode ← getIsOldMode
-  let upToDate ←
-    if isOldMode then
-      depTrace.checkAgainstTime info
-    else
-      depTrace.checkAgainstFile info traceFile
-  unless upToDate do
+  unless (← depTrace.checkUpToDate info traceFile) do
     build
-    unless isOldMode do
-      depTrace.writeToFile traceFile
+    depTrace.writeToFile traceFile
+
+/-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
+def fetchFileTrace (file : FilePath) : BuildM BuildTrace := do
+  if (← getTrustHash) then
+    let hashFile := FilePath.mk <| file.toString ++ ".hash"
+    if let some hash ← Hash.load? hashFile then
+      return .mk hash (← getMTime file)
+    else
+      let hash ← computeHash file
+      IO.FS.writeFile hashFile hash.toString
+      return .mk hash (← getMTime file)
+  else
+    computeTrace file
+
+/-- Compute the hash of a file and save it to a `.hash` file. -/
+def cacheFileHash (file : FilePath) : IO Hash := do
+  let hash ← computeHash file
+  let hashFile := FilePath.mk <| file.toString ++ ".hash"
+  IO.FS.writeFile hashFile hash.toString
+  return hash
 
 def buildFileUnlessUpToDate (file : FilePath)
 (depTrace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
-  buildUnlessUpToDate file depTrace traceFile build
-  computeTrace file
+  if (← depTrace.checkUpToDate file traceFile) then
+    fetchFileTrace file
+  else
+    build
+    depTrace.writeToFile traceFile
+    return .mk (← cacheFileHash file) (← getMTime file)
 
 @[inline] def buildFileAfterDep
 (file : FilePath) (dep : BuildJob α) (build : α → BuildM PUnit)

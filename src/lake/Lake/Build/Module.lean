@@ -141,6 +141,9 @@ def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
     buildUnlessUpToDate mod modTrace mod.traceFile do
       compileLeanModule mod.name.toString mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
         (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.leanArgs ++ mod.weakLeanArgs) (← getLean)
+      discard <| cacheFileHash mod.oleanFile
+      discard <| cacheFileHash mod.ileanFile
+      discard <| cacheFileHash mod.cFile
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
@@ -151,20 +154,20 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
-      return (mod.oleanFile, mixTrace (← computeTrace mod.oleanFile) depTrace)
+      return (mod.oleanFile, mixTrace (← fetchFileTrace mod.oleanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
-      return (mod.ileanFile, mixTrace (← computeTrace mod.ileanFile) depTrace)
+      return (mod.ileanFile, mixTrace (← fetchFileTrace mod.ileanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged C files
-      return (mod.cFile, ← computeTrace mod.cFile)
+      return (mod.cFile, ← fetchFileTrace mod.cFile)
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
 def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do

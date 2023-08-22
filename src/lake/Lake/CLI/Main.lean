@@ -33,8 +33,9 @@ structure LakeOptions where
   subArgs : List String := []
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
-  oldMode : Bool := false
   updateDeps : Bool := false
+  oldMode : Bool := false
+  trustHash : Bool := true
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -66,7 +67,12 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
     leanOpts := Lean.Options.empty
   }
 
-export LakeOptions (mkLoadConfig)
+/-- Make a `BuildConfig` from a `LakeOptions`. -/
+def LakeOptions.mkBuildConfig (opts : LakeOptions) : BuildConfig where
+  oldMode := opts.oldMode
+  trustHash := opts.trustHash
+
+export LakeOptions (mkLoadConfig mkBuildConfig)
 
 /-! ## Monad -/
 
@@ -134,6 +140,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | 'U' => modifyThe LakeOptions ({· with updateDeps := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
+| 'H' => modifyThe LakeOptions ({· with trustHash := false})
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
@@ -141,6 +148,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--verbose" => modifyThe LakeOptions ({· with verbosity := .verbose})
 | "--update"  => modifyThe LakeOptions ({· with updateDeps := true})
 | "--old"     => modifyThe LakeOptions ({· with oldMode := true})
+| "--rehash"  => modifyThe LakeOptions ({· with trustHash := false})
 | "--dir"     => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"    => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
 | "--lean"    => do setLean <| ← takeOptArg "--lean" "path or command"
@@ -265,7 +273,8 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config opts.updateDeps
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
-  ws.runBuild (buildSpecs specs) opts.oldMode |>.run (MonadLog.io opts.verbosity)
+  let buildConfig := mkBuildConfig opts
+  ws.runBuild (buildSpecs specs) buildConfig |>.run (MonadLog.io opts.verbosity)
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
@@ -293,8 +302,9 @@ protected def upload : CliM PUnit := do
 protected def printPaths : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let config ← mkLoadConfig opts
-  printPaths config (← takeArgs) opts.oldMode opts.verbosity
+  let loadConfig ← mkLoadConfig opts
+  let buildConfig := mkBuildConfig opts
+  printPaths loadConfig (← takeArgs) buildConfig opts.verbosity
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -349,7 +359,8 @@ protected def exe : CliM PUnit := do
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let ctx := mkLakeContext ws
-  exit <| ← (exe exeName args.toArray opts.oldMode).run ctx
+  let buildConfig := mkBuildConfig opts
+  exit <| ← (exe exeName args.toArray buildConfig).run ctx
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption

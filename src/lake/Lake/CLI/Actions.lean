@@ -10,10 +10,10 @@ namespace Lake
 def env (cmd : String) (args : Array String := #[]) : LakeT IO UInt32 := do
   IO.Process.spawn {cmd, args, env := ← getAugmentedEnv} >>= (·.wait)
 
-def exe (name : Name) (args  : Array String := #[]) (oldMode := false) : LakeT LogIO UInt32 := do
+def exe (name : Name) (args  : Array String := #[]) (buildConfig : BuildConfig := {}) : LakeT LogIO UInt32 := do
   let ws ← getWorkspace
   if let some exe := ws.findLeanExe? name then
-    let exeFile ← ws.runBuild (exe.build >>= (·.await)) oldMode
+    let exeFile ← ws.runBuild (exe.build >>= (·.await)) buildConfig
     env exeFile.toString args
   else
     error s!"unknown executable `{name}`"

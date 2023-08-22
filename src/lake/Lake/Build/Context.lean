@@ -15,15 +15,31 @@ import Lake.Build.Topological
 open System
 namespace Lake
 
-/-- A Lake context with some additional caching for builds. -/
-structure BuildContext extends Context where
-  leanTrace : BuildTrace
+/-- Configuration options for a Lake build. -/
+structure BuildConfig where
   oldMode : Bool := false
+  trustHash : Bool := true
+
+/-- A Lake context with a build configuration and additional build data. -/
+structure BuildContext extends BuildConfig, Context where
+  leanTrace : BuildTrace
   startedBuilds : IO.Ref Nat
   finishedBuilds : IO.Ref Nat
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
+
+@[inline] def getLeanTrace [Monad m] : BuildT m BuildTrace :=
+  (·.leanTrace) <$> readThe BuildContext
+
+@[inline] def getBuildConfig [Monad m] : BuildT m BuildConfig :=
+  (·.toBuildConfig) <$> readThe BuildContext
+
+@[inline] def getIsOldMode [Monad m] : BuildT m Bool :=
+  (·.oldMode) <$> getBuildConfig
+
+@[inline] def getTrustHash [Monad m] : BuildT m Bool :=
+  (·.trustHash) <$> getBuildConfig
 
 /-- The monad for the Lake build manager. -/
 abbrev SchedulerM := BuildT <| LogT BaseIO

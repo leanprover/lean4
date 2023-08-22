@@ -79,20 +79,23 @@ The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
 LIBRARY FACETS:         build the library's ...
-  lean (default)        Lean binaries (*.olean, *.ilean files)
-  static                static binary (*.a file)
-  shared                shared binary (*.so, *.dll, or *.dylib file)
+  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  static                static artifact (*.a file)
+  shared                shared artifact (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
-  deps                  transitive local imports & shared library dependencies
-  bin (default)         Lean binaries (*.olean, *.ilean files) and *.c file
-  o                     *.o object file (of its C file)
+  deps                  dependencies (e.g., imports, shared libraries, etc.)
+  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  olean                 OLean (binary blob of Lean data for importers)
+  ilean                 ILean (binary blob of metadata for the Lean LSP server)
+  c                     compiled C file
+  o                     compiled object file (of its C file)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...
   a                     default facet of target `a`
   @a                    default target(s) of package `a`
-  +A                    olean and .ilean files of module `A`
+  +A                    Lean artifacts of module `A`
   a/b                   default facet of target `b` of package `a`
   a/+A:c                C file of module `A` of package `a`
   :foo                  facet `foo` of the root package

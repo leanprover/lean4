@@ -119,16 +119,11 @@ abbrev pkg (self : Module) : Package :=
 /-! ## Trace Helpers -/
 
 protected def getMTime (self : Module) : IO MTime := do
-  return mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)
+  return mixTrace (mixTrace (← getMTime self.oleanFile) (← getMTime self.ileanFile)) (← getMTime self.cFile)
 
 instance : GetMTime Module := ⟨Module.getMTime⟩
 
-protected def computeHash (self : Module) : IO Hash := do
-  return mixTrace (← computeHash self.oleanFile) (← computeHash self.ileanFile)
-
-instance : ComputeHash Module IO := ⟨Module.computeHash⟩
-
 protected def checkExists (self : Module) : BaseIO Bool := do
-  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile)
+  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile)
 
 instance : CheckExists Module := ⟨Module.checkExists⟩

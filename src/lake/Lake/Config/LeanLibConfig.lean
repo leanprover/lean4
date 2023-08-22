@@ -68,7 +68,7 @@ structure LeanLibConfig extends LeanConfig where
   An `Array` of library facets to build on a bare `lake build` of the library.
   For example, `#[LeanLib.sharedLib]` will build the shared library facet.
   -/
-  defaultFacets : Array Name := #[LeanLib.leanFacet]
+  defaultFacets : Array Name := #[LeanLib.leanArtsFacet]
 
   /--
   An `Array` of module facets to build and combine into the library's static

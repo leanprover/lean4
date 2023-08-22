@@ -302,7 +302,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PR_RELEASE_TOKEN }}
+          token: ${{ secrets.PR_RELEASES_TOKEN }}
           # needed for tagging
           fetch-depth: 0
       - uses: actions/download-artifact@v3
@@ -310,13 +310,13 @@ jobs:
           path: artifacts
       - name: Prepare release
         run: |
-          git remote add pr-releases https://foo:'${{ secrets.PR_RELEASE_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           # Try to delete any existing release for the current PR.
           gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ github.event.number }} -y || true
           git tag -f pr-release-${{ github.event.number }}
           git push -f pr-releases pr-release-${{ github.event.number }}
         env:
-          GH_TOKEN: ${{ secrets.PR_RELEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -328,7 +328,7 @@ jobs:
           repository: ${{ github.repository_owner }}/lean4-pr-releases
         env:
           # The token used here must have `workflow` privileges.
-          GITHUB_TOKEN: ${{ secrets.PR_RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
 
 
   release-nightly:

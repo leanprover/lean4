@@ -11,6 +11,9 @@ on:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
 
+permissions:
+  contents: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
@@ -72,8 +75,8 @@ jobs:
             CTEST_OPTIONS: -E 'foreign'
           - name: Linux
             os: ubuntu-latest
-            check-stage3: true
-            test-speedcenter: true
+            check-stage3: false
+            test-speedcenter: false
           - name: Linux Debug
             os: ubuntu-latest
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug

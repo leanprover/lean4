@@ -29,10 +29,10 @@ class MonadLog (m : Type u → Type v) where
 
 export MonadLog (log getVerbosity)
 
-def getIsVerbose [Functor m] [MonadLog m] : m Bool :=
+@[inline] def getIsVerbose [Functor m] [MonadLog m] : m Bool :=
   getVerbosity <&> (· == .verbose)
 
-def getIsQuiet [Functor m] [MonadLog m] : m Bool :=
+@[inline] def getIsQuiet [Functor m] [MonadLog m] : m Bool :=
   getVerbosity <&> (· == .quiet)
 
 @[inline] def logVerbose [Monad m] [MonadLog m] (message : String) : m PUnit := do
@@ -41,41 +41,41 @@ def getIsQuiet [Functor m] [MonadLog m] : m Bool :=
 @[inline] def logInfo [Monad m] [MonadLog m] (message : String) : m PUnit := do
   if !(← getIsQuiet) then log message .info
 
-abbrev logWarning [MonadLog m] (message : String) : m PUnit :=
+@[inline] def logWarning [MonadLog m] (message : String) : m PUnit :=
   log message .warning
 
-abbrev logError  [MonadLog m] (message : String) : m PUnit :=
+@[inline] def logError  [MonadLog m] (message : String) : m PUnit :=
   log message .error
 
 namespace MonadLog
 
-def nop [Pure m] : MonadLog m :=
+@[specialize] def nop [Pure m] : MonadLog m :=
   ⟨pure .normal, fun _ _ => pure ()⟩
 
 instance [Pure m] : Inhabited (MonadLog m) := ⟨MonadLog.nop⟩
 
-def io [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
+@[specialize] def io [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
   getVerbosity := (pure verbosity : BaseIO _)
   log msg
     | .info => IO.println msg.trim |>.catchExceptions fun _ => pure ()
     | .warning => IO.eprintln s!"warning: {msg.trim}" |>.catchExceptions fun _ => pure ()
     | .error => IO.eprintln s!"error: {msg.trim}" |>.catchExceptions fun _ => pure ()
 
-def eio [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
+@[specialize] def eio [MonadLiftT BaseIO m] (verbosity := Verbosity.normal) : MonadLog m where
   getVerbosity := (pure verbosity : BaseIO _)
   log msg
     | .info => IO.eprintln s!"info: {msg.trim}" |>.catchExceptions fun _ => pure ()
     | .warning => IO.eprintln s!"warning: {msg.trim}" |>.catchExceptions fun _ => pure ()
     | .error => IO.eprintln s!"error: {msg.trim}" |>.catchExceptions fun _ => pure ()
 
-def lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
+@[specialize] def lift [MonadLiftT m n] (self : MonadLog m) : MonadLog n where
   getVerbosity := liftM <| self.getVerbosity
   log msg lv := liftM <| self.log msg lv
 
 instance [MonadLift m n] [methods : MonadLog m] : MonadLog n := lift methods
 
 /-- Log the given error message and then fail. -/
-protected def error [Alternative m] [MonadLog m] (msg : String) : m α :=
+@[inline] protected def error [Alternative m] [MonadLog m] (msg : String) : m α :=
   logError msg *> failure
 
 end MonadLog
@@ -92,11 +92,11 @@ instance [Monad n] [MonadLiftT m n] : MonadLog (MonadLogT m n) where
   getVerbosity := do (← read).getVerbosity
   log msg lv := do (← read).log msg lv
 
-abbrev MonadLogT.adaptMethods [Monad n]
+@[inline] def MonadLogT.adaptMethods [Monad n]
 (f : MonadLog m → MonadLog m') (self : MonadLogT m' n α) : MonadLogT m n α :=
   ReaderT.adapt f self
 
-abbrev MonadLogT.ignoreLog [Pure m] (self : MonadLogT m n α) : n α :=
+@[inline] def  MonadLogT.ignoreLog [Pure m] (self : MonadLogT m n α) : n α :=
   self MonadLog.nop
 
 abbrev LogIO :=

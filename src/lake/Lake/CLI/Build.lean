@@ -52,7 +52,7 @@ def parsePackageSpec (ws : Workspace) (spec : String) : Except CliError Package 
 open Module in
 def resolveModuleTarget (ws : Workspace) (mod : Module) (facet : Name) : Except CliError BuildSpec :=
   if facet.isAnonymous then
-    return mkBuildSpec <| mod.facet leanBinFacet
+    return mkBuildSpec <| mod.facet leanArtsFacet
   else if let some config := ws.findModuleFacetConfig? facet then do
     mkConfigBuildSpec "module" (mod.facet facet) config rfl
   else

@@ -11,10 +11,10 @@ namespace Lake
 
 /-! # General Utilities -/
 
-@[inline] def inputFile (path : FilePath) : SchedulerM (BuildJob FilePath) :=
+def inputFile (path : FilePath) : SchedulerM (BuildJob FilePath) :=
   Job.async <| (path, ·) <$> computeTrace path
 
-@[inline] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
+@[specialize] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
   let isOldMode ← getIsOldMode
   let upToDate ←
@@ -27,7 +27,7 @@ namespace Lake
     unless isOldMode do
       depTrace.writeToFile traceFile
 
-@[inline] def buildFileUnlessUpToDate (file : FilePath)
+def buildFileUnlessUpToDate (file : FilePath)
 (depTrace : BuildTrace) (build : BuildM PUnit) : BuildM BuildTrace := do
   let traceFile := FilePath.mk <| file.toString ++ ".trace"
   buildUnlessUpToDate file depTrace traceFile build
@@ -53,13 +53,13 @@ namespace Lake
 
 /-! # Common Builds -/
 
-def buildO (name : String)
+@[inline] def buildO (name : String)
 (oFile : FilePath) (srcJob : BuildJob FilePath)
 (args : Array String := #[]) (compiler : FilePath := "cc") : SchedulerM (BuildJob FilePath) :=
   buildFileAfterDep oFile srcJob (extraDepTrace := computeHash args) fun srcFile => do
-     compileO name oFile srcFile args compiler
+    compileO name oFile srcFile args compiler
 
-def buildLeanO (name : String)
+@[inline] def buildLeanO (name : String)
 (oFile : FilePath) (srcJob : BuildJob FilePath)
 (args : Array String := #[]) : SchedulerM (BuildJob FilePath) :=
   buildFileAfterDep oFile srcJob (extraDepTrace := computeHash args) fun srcFile => do

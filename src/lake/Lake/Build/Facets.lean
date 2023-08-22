@@ -54,34 +54,27 @@ abbrev Module.depsFacet := `deps
 module_data deps : BuildJob (SearchPath × Array FilePath)
 
 /--
-The core compilation / elaboration of the Lean file via `lean`,
-which produce the Lean binaries of the module (i.e., `olean`, `ilean`, `c`).
+The core build facet of a Lean file.
+Elaborates the Lean file via `lean` and produces all the Lean artifacts
+of the module (i.e., `olean`, `ilean`, `c`).
 Its trace just includes its dependencies.
 -/
-abbrev Module.leanBinFacet := `bin
-module_data bin : BuildJob Unit
+abbrev Module.leanArtsFacet := `leanArts
+module_data leanArts : BuildJob Unit
 
-/--
-The `leanBinFacet` combined with the module's trace
-(i.e., the trace of its `olean` and `ilean`).
-It is the facet used for building a Lean import of a module.
--/
-abbrev Module.importBinFacet := `importBin
-module_data importBin : BuildJob Unit
-
-/-- The `olean` file produced by `lean`  -/
+/-- The `olean` file produced by `lean`. -/
 abbrev Module.oleanFacet := `olean
 module_data olean : BuildJob FilePath
 
-/-- The `ilean` file produced by `lean` -/
+/-- The `ilean` file produced by `lean`. -/
 abbrev Module.ileanFacet := `ilean
 module_data ilean : BuildJob FilePath
 
-/-- The C file built from the Lean file via `lean` -/
+/-- The C file built from the Lean file via `lean`. -/
 abbrev Module.cFacet := `c
 module_data c : BuildJob FilePath
 
-/-- The object file built from `lean.c` -/
+/-- The object file built from `c`. -/
 abbrev Module.oFacet := `o
 module_data o : BuildJob FilePath
 
@@ -97,15 +90,15 @@ package_data extraDep : BuildJob Unit
 
 /-! ## Target Facets -/
 
-/-- A Lean library's Lean libraries. -/
-abbrev LeanLib.leanFacet := `lean
-library_data lean : BuildJob Unit
+/-- A Lean library's Lean artifacts (i.e., `olean`, `ilean`, `c`). -/
+abbrev LeanLib.leanArtsFacet := `leanArts
+library_data leanArts : BuildJob Unit
 
-/-- A Lean library's static binary. -/
+/-- A Lean library's static artifact. -/
 abbrev LeanLib.staticFacet := `static
 library_data static : BuildJob FilePath
 
-/-- A Lean library's shared binary. -/
+/-- A Lean library's shared artifact. -/
 abbrev LeanLib.sharedFacet := `shared
 library_data shared : BuildJob FilePath
 

@@ -94,7 +94,8 @@ where
 /-- Run the given build function in the Workspace's context. -/
 @[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (oldMode := false) : LogIO α := do
   let ctx ← mkBuildContext ws oldMode
-  withLockFile ws.lockFile do build.run ctx
+  --withLockFile ws.lockFile do
+  build.run ctx
 
 /-- Run the given build function in the Lake monad's workspace. -/
 @[inline] def runBuild (build : BuildM α) (oldMode := false) : LakeT LogIO α := do

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+echo "lock file currently disabled; skipping test"
+exit 0
+
 LAKE=${LAKE:-../../build/bin/lake}
 
 if [ "`uname`" = Darwin ]; then

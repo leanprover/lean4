@@ -124,9 +124,12 @@ where
     let newMVarIds ← getMVarsNoDelayed val
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-    /- if we pass this check while `allowNaturalHoles` is `false`, then all mvars in `newMVarIds`
-    are either non-natural or pre-existing natural mvars (and thus should be included in the
-    resulting goal list). See #2434. -/
+    /- The following `unless … do` block guards against unassigned natural mvarids created during
+    `k` in the case that `allowNaturalHoles := false`. If we pass this block without aborting, we
+    can be assured that `newMVarIds` does not contain unassigned natural mvars created during `k`.
+    Note that in all cases we must allow `newMVarIds` to contain unassigned natural mvars which
+    were created *before* `k`; this is the purpose of `mvarCounterSaved`, which lets us distinguish
+    mvars created before `k` from those created during and after. See issue #2434. -/
     unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
       let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved

@@ -211,8 +211,10 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
       let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
       let depTrace := oTrace.mix <| libTrace.mix externTrace
       let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
-        let args := links.map toString ++
-          libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}")
+        let args :=
+          links.map toString ++
+          libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
+          mod.linkArgs
         compileSharedLib mod.name.toString mod.dynlibFile args (← getLeanc)
       return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
 

@@ -94,7 +94,13 @@ where
 /-- Run the given build function in the Workspace's context. -/
 @[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (oldMode := false) : LogIO α := do
   let ctx ← mkBuildContext ws oldMode
-  --withLockFile ws.lockFile do
+  /-
+  TODO: 
+  The lock file has been temporarily disabled (by lean4#2445)
+  until we have an API for catching `Ctrl-C` during a build.
+  Absent this, the lock file was too disruptive for users.
+  -/
+  -- withLockFile ws.lockFile do
   build.run ctx
 
 /-- Run the given build function in the Lake monad's workspace. -/

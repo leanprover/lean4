@@ -37,7 +37,7 @@ We provide two kinds of hints to the termination checker:
 -/
 def terminationHintMany (p : Parser) := leading_parser
   atomic (lookahead (ident >> " => ")) >>
-  many1Indent (group (ppLine >> ppIndent (ident >> " => " >> p >> optional ";")))
+  many1Indent (group (ppIndent (ident >> " => " >> p >> optional ";")))
 def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
@@ -47,7 +47,7 @@ def decreasingBy := leading_parser
   ppDedent ppLine >> "decreasing_by " >> terminationHint Tactic.tacticSeq
 
 def terminationByElement   := leading_parser
-  ppLine >> (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
+  (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
   " => " >> termParser >> optional ";"
 def terminationBy          := leading_parser
   ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
@@ -129,7 +129,7 @@ def optDeriving      := leading_parser
 def computedField    := leading_parser
   declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser
-  "with" >> manyIndent (ppLine >> ppGroup computedField)
+  "with" >> manyIndent (ppGroup computedField)
 /--
 In Lean, every concrete type other than the universes
 and every type constructor other than dependent arrows
@@ -167,8 +167,7 @@ def structSimpleBinder   := leading_parser
   atomic (declModifiers true >> ident) >> optDeclSig >>
   optional (Term.binderTactic <|> Term.binderDefault)
 def structFields         := leading_parser
-  manyIndent <|
-    ppLine >> checkColGe >> ppGroup (
+  manyIndent <| ppGroup (
       structExplicitBinder <|> structImplicitBinder <|>
       structInstBinder <|> structSimpleBinder)
 def structCtor           := leading_parser

@@ -295,7 +295,7 @@ instance : Coe (TSyntax ``matchAltExpr) (TSyntax ``matchAlt) where
   coe stx := ⟨stx.raw⟩
 
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
-  leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
+  leading_parser withPosition $ many1Indent (matchAlt rhsParser)
 
 def matchDiscr := leading_parser
   optional (atomic (ident >> " : ")) >> termParser

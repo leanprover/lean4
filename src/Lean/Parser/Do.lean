@@ -20,11 +20,11 @@ def leftArrow : Parser := unicodeSymbol "← " "<- "
   leftArrow >> termParser
 
 def doSeqItem      := leading_parser
-  ppLine >> doElemParser >> optional "; "
+  doElemParser >> optional "; "
 def doSeqIndent    := leading_parser
   many1Indent doSeqItem
 def doSeqBracketed := leading_parser
-  "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
+  "{" >> withoutPosition (many1 (ppLine >> doSeqItem)) >> ppLine >> "}"
 def doSeq          :=
   withAntiquot (mkAntiquot "doSeq" decl_name% (isPseudoKind := true)) <|
     doSeqBracketed <|> doSeqIndent

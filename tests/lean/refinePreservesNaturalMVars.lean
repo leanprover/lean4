@@ -49,5 +49,5 @@ example : Bool × Bool := by
   add_natural_goal e : Bool
   · refine (?d,?e)
     refine ?d
-    refine ?e
+    refine ?e   -- This unifies `?d` and `?e`, so only one goal remains.
     exact true

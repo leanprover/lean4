@@ -142,6 +142,8 @@ section ServerM
     initParams     : InitializeParams
     workerPath     : System.FilePath
     srcSearchPath  : System.SearchPath
+    pkgSearchPath  : List (System.FilePath × Name)
+    pkgArgs        : NameMap (Array String)
     references     : IO.Ref References
 
   abbrev ServerM := ReaderT ServerContext IO
@@ -240,10 +242,15 @@ section ServerM
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     publishProgressAtPos m 0 (← read).hOut
     let st ← read
+    let mut args := st.args.toArray
+    if let some path := fileUriToPath? m.uri then
+      if let some (_, pkg) ← searchModuleNameAndPkgOfFileName path st.pkgSearchPath then
+        if let some pkgArgs := st.pkgArgs.find? pkg then
+          args := pkgArgs
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
-      args          := #["--worker"] ++ st.args.toArray ++ #[m.uri]
+      args          := #["--worker"] ++ args ++ #[m.uri]
       -- open session for `kill` above
       setsid        := true
     }
@@ -640,6 +647,18 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path
   return workerPath
 
+def initPackageArgs : IO (List (System.FilePath × Name) × NameMap (Array String)) := do
+  try
+    let stdout ← Process.run {
+      cmd  := (← getLakePath).toString
+      args := #["get-pkg-args"]
+    }
+    let Except.ok (paths : PackageArgs) := Json.parse stdout >>= fromJson?
+      | throwServerError s!"invalid output from `lake get-pkg-args`:\n{stdout}"
+    pure (paths.pkgPath, .fromArray paths.pkgArgs _)
+  catch _ =>
+    pure ([], ∅)
+
 def loadReferences : IO References := do
   let oleanSearchPath ← Lean.searchPathRef.get
   let mut refs := References.empty
@@ -656,6 +675,7 @@ def loadReferences : IO References := do
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
   let srcSearchPath ← initSrcSearchPath (← getBuildDir)
+  let (pkgSearchPath, pkgArgs) ← initPackageArgs
   let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i
@@ -695,6 +715,8 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     initParams     := initRequest.param
     workerPath
     srcSearchPath
+    pkgSearchPath
+    pkgArgs
     references
     : ServerContext
   }

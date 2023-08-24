@@ -28,4 +28,9 @@ def initSrcSearchPath (_leanSysroot : FilePath) (sp : SearchPath := ∅) : IO Se
   -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
   return srcSearchPath ++ sp ++ [srcPath / "lake", srcPath]
 
+structure PackageArgs where
+  pkgPath : List (FilePath × Name) := []
+  pkgArgs : Array (Name × Array String) := #[]
+  deriving ToJson, FromJson
+
 end Lean

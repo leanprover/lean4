@@ -296,6 +296,13 @@ protected def printPaths : CliM PUnit := do
   let config ← mkLoadConfig opts
   printPaths config (← takeArgs) opts.oldMode opts.verbosity
 
+protected def getPkgArgs : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  noArgsRem do
+    getPkgArgs config opts.verbosity
+
 protected def clean : CliM PUnit := do
   processOptions lakeOption
   let config ← mkLoadConfig (← getThe LakeOptions)
@@ -368,6 +375,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "resolve-deps"  => lake.resolveDeps
 | "upload"        => lake.upload
 | "print-paths"   => lake.printPaths
+| "get-pkg-args"  => lake.getPkgArgs
 | "clean"         => lake.clean
 | "script"        => lake.script
 | "scripts"       => lake.script.list

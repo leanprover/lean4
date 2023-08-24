@@ -195,13 +195,7 @@ section Initialization
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
     (headerStx, ·) <$> EIO.asTask do
       let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
-      let lakePath ← match (← IO.getEnv "LAKE") with
-        | some path => pure <| System.FilePath.mk path
-        | none =>
-          let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-            | some path => pure <| System.FilePath.mk path / "bin" / "lake"
-            | _         => pure <| (← appDir) / "lake"
-          pure <| lakePath.withExtension System.FilePath.exeExtension
+      let lakePath ← getLakePath
       let (headerEnv, msgLog) ← try
         if let some path := System.Uri.fileUriToPath? m.uri then
           -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps

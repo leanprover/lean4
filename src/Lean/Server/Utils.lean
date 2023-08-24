@@ -142,6 +142,15 @@ def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
 def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : IO Unit :=
   hOut.writeLspRequest ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
 
+def getLakePath : IO System.FilePath := do
+  match (← IO.getEnv "LAKE") with
+  | some path => pure <| System.FilePath.mk path
+  | none =>
+    let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
+      | some path => pure <| System.FilePath.mk path / "bin" / "lake"
+      | _         => pure <| (← appDir) / "lake"
+    pure <| lakePath.withExtension System.FilePath.exeExtension
+
 end Lean.Server
 
 def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=

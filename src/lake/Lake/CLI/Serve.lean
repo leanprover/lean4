@@ -8,7 +8,7 @@ import Lake.Build
 import Lake.Util.MainM
 
 namespace Lake
-open Lean (Json toJson fromJson? LeanPaths)
+open Lean (Json toJson fromJson? LeanPaths PackageArgs)
 
 /-- Exit code to return if `print-paths` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
@@ -44,6 +44,28 @@ def printPaths (config : LoadConfig) (imports : List String := [])
     }
   else
     exit noConfigFileCode
+
+/--
+Returns the source paths and per-package server arguments for all packages in the workspace.
+
+The `get-pkg-args` command is used internally by Lean 4 server.
+-/
+def getPkgArgs (config : LoadConfig) (verbosity : Verbosity := .normal) : MainM PUnit := do
+  let mut pkgPath : List (FilePath × Name) := []
+  let mut pkgArgs : Array (Name × Array String) := #[]
+  if (← config.configFile.pathExists) then
+    if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
+      IO.eprint errLog
+      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
+      exit 1
+    let ws ← MainM.runLogIO (loadWorkspace config) verbosity
+    for ⟨name, pkg⟩ in ws.packageMap do
+      for (_, config) in pkg.leanLibConfigs do
+        pkgPath := (pkg.srcDir / config.srcDir, name) :: pkgPath
+      for (_, config) in pkg.leanExeConfigs do
+        pkgPath := (pkg.srcDir / config.srcDir, name) :: pkgPath
+      pkgArgs := pkgArgs.push (name, pkg.moreServerArgs)
+  IO.println <| Json.compress <| toJson { pkgPath, pkgArgs : PackageArgs }
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

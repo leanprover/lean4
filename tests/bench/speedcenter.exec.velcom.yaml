@@ -105,6 +105,67 @@
   build_config:
     cmd: ./compile.sh deriv.lean
 - attributes:
+    description: lake build clean
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -Ktest=Clean clean
+      lake -dinundation -Ktest=Clean build
+      "
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -Ktest=Clean run mk 40 40
+      lake -dinundation -Ktest=Clean build
+      "
+- attributes:
+    description: lake build no-op
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -Ktest=Nop build
+      "
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -Ktest=Nop run mk 40 40
+      lake -dinundation -Ktest=Nop build
+      "
+- attributes:
+    description: lake configure
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation script run nop
+      "
+- attributes:
+    description: lake no configure
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake self-check
+      "
+- attributes:
     description: liasolver
     tags: [fast, suite]
   run_config:

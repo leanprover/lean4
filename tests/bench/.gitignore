@@ -1,3 +1,4 @@
+/build
 *.out
 *.lean.c
 *.lean.linked.bc

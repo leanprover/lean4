@@ -30,8 +30,11 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PR_RELEASES_TOKEN }}
-          # We only need to checkout for tagging, so depth 0 is fine:
-          fetch-depth: 0
+          # We don't interact with the local checkout except to create a tag
+          # and push it to the `lean4-pr-releases` repo, so a shallow clone is sufficient here.
+          # Note that as we are running in the `workflow_run` action,
+          # this checkout retrieves `master`, not the target PR.
+          fetch-depth: 1
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact

@@ -833,9 +833,9 @@ private def getDefInfoTemp (info : ConstantInfo) : MetaM (Option ConstantInfo) :
     else
       return none
 
-/-- Remark: we later define `getConst?` at `GetConst.lean` after we define `Instances.lean`.
+/-- Remark: we later define `getUnfoldableConst?` at `GetConst.lean` after we define `Instances.lean`.
    This method is only used to implement `isClassQuickConst?`.
-   It is very similar to `getConst?`, but it returns none when `TransparencyMode.instances` and
+   It is very similar to `getUnfoldableConst?`, but it returns none when `TransparencyMode.instances` and
    `constName` is an instance. This difference should be irrelevant for `isClassQuickConst?`. -/
 private def getConstTemp? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with

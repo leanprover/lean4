@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Structure
 import Lean.Util.Recognizers
-import Lean.Meta.GetConst
+import Lean.Meta.GetUnfoldableConst
 import Lean.Meta.FunInfo
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchPatternAttr
@@ -62,7 +62,7 @@ def isAuxDef (constName : Name) : MetaM Bool := do
 @[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α :=
   match e with
   | Expr.const name lvls => do
-    let (some cinfo) ← getConst? name | failK ()
+    let (some cinfo) ← getUnfoldableConst? name | failK ()
     k cinfo lvls
   | _ => failK ()
 
@@ -71,7 +71,7 @@ def isAuxDef (constName : Name) : MetaM Bool := do
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getConstNoEx? d | pure none
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d | pure none
   return some ctor
 
 private def mkNullaryCtor (type : Expr) (nparams : Nat) : MetaM (Option Expr) := do
@@ -209,7 +209,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recLvls : List Level) (recArgs : 
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getConstNoEx? majorFn | failK ()
+        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getUnfoldableConstNoEx? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
@@ -272,7 +272,7 @@ mutual
         | .mvar mvarId => return some mvarId
         | _ => getStuckMVar? e
       | .const fName _ =>
-        match (← getConstNoEx? fName) with
+        match (← getUnfoldableConstNoEx? fName) with
         | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
@@ -720,7 +720,7 @@ mutual
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        let some cinfo ← getConstNoEx? declName | pure none
+        let some cinfo ← getUnfoldableConstNoEx? declName | pure none
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)

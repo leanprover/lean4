@@ -30,6 +30,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.PR_RELEASES_TOKEN }}
+          # Since `workflow_run` runs on master, we need to specify which commit to check out,
+          # so that we tag the PR.
+          ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
           # We don't interact with the local checkout except to create a tag
           # and push it to the `lean4-pr-releases` repo, so a shallow clone is sufficient here.
           # Note that as we are running in the `workflow_run` action,

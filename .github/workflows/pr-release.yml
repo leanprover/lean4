@@ -22,7 +22,7 @@ jobs:
         uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
         id: workflow-info
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} d
+          token: ${{ secrets.GITHUB_TOKEN }}
           sourceRunId: ${{ github.event.workflow_run.id }}
       - name: Checkout
         # Only proceed if the previous workflow had a pull request number.

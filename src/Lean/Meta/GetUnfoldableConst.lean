@@ -26,14 +26,25 @@ def canUnfold (info : ConstantInfo) : MetaM Bool := do
   else
     canUnfoldDefault ctx.config info
 
-def getConst? (constName : Name) : MetaM (Option ConstantInfo) := do
+/--
+Look up a constant name, returning the `ConstantInfo`
+if it should be unfolded at the current reducibility settings,
+or `none` otherwise.
+
+This is part of the implementation of `whnf`.
+External users wanting to look up names should be using `Lean.getConstInfo`.
+-/
+def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none
   | some info                 => return some info
   | none                      => throwUnknownConstant constName
 
-def getConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
+/--
+As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.
+-/
+def getUnfoldableConstNoEx? (constName : Name) : MetaM (Option ConstantInfo) := do
   match (← getEnv).find? constName with
   | some (info@(.thmInfo _))  => getTheoremInfo info
   | some (info@(.defnInfo _)) => if (← canUnfold info) then return info else return none

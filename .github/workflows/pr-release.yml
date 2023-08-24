@@ -38,6 +38,7 @@ jobs:
           # Note that as we are running in the `workflow_run` action,
           # this checkout retrieves `master`, not the target PR.
           fetch-depth: 1
+
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact

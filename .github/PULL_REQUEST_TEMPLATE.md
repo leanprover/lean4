@@ -9,3 +9,6 @@
 
 * Please make sure the PR has excellent documentation and tests.
   If we label it `missing documentation` or `missing tests` then it needs fixing!
+
+* You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels
+  yourself, by writing a comment containing one of these labels on its own line.

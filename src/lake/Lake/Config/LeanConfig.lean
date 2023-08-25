@@ -75,6 +75,11 @@ structure LeanConfig where
   -/
   moreLeancArgs : Array String := #[]
   /--
+  Additional arguments to pass to the Lean language server
+  (i.e., `lean --server`) launched by `lake server`.
+  -/
+  moreServerArgs : Array String := #[]
+  /--
   Additional arguments to pass to `leanc` when linking (e.g., for shared
   libraries or binary executables). These will come *after* the paths of
   external libraries.

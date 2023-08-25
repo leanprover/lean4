@@ -134,15 +134,6 @@ def searchModuleNameOfFileName (fname : FilePath) (rootDirs : SearchPath) : IO (
       | _ => pure ()
   return none
 
-def searchModuleNameAndPkgOfFileName (fname : FilePath) (rootDirs : List (FilePath × Name)) : IO (Option (Name × Name)) := do
-  for (rootDir, pkg) in rootDirs do
-    try
-      return some (← moduleNameOfFileName fname <| some rootDir, pkg)
-    catch
-      -- Try the next one
-      | _ => pure ()
-  return none
-
 /--
   Find the system root of the given `lean` command
   by calling `lean --print-prefix` and returning the path it prints.

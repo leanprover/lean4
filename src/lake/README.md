@@ -148,6 +148,7 @@ Lake provides a large assortment of configuration options for packages.
 
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
 * `moreServerArgs`:  Additional arguments to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
+* `moreGlobalServerArgs`: Additional arguments to pass to `lean --server` which apply both to this package and anything else in the same server session (e.g. when browsing other packages from the same session via go-to-definition)
 * `buildType`: The `BuildType` of targets in the package (see [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670)). One of `debug`, `relWithDebInfo`, `minSizeRel`, or `release`. Defaults to `release`.
 * `moreLeanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files.
 * `weakLeanArgs`: An `Array` of additional arguments to pass to `lean` while compiling Lean source files. Unlike `moreLeanArgs`, these arguments do not affect the trace of the build
@@ -188,7 +189,7 @@ lean_lib «target-name» {
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the library's modules.
 * `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the library's static and shared libraries. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
-* `precompileModules`, `buildType`, `moreLeanArgs`, `weakLeanArgs`, `moreLeancArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
+* `precompileModules`, `buildType`, `moreLeanArgs`, `weakLeanArgs`, `moreLeancArgs`, `moreServerArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The library's arguments come after, modules are precompiled if either the library or package are precompiled, and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest)
 
 ### Binary Executables
 
@@ -210,7 +211,7 @@ lean_exe «target-name» {
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the executable's modules.
 * `nativeFacets`: An `Array` of [module facets](#defining-new-facets) to build and combine into the executable. Defaults to ``#[Module.oFacet]`` (i.e., the object file compiled from the Lean source).
 * `supportInterpreter`: Whether to expose symbols within the executable to the Lean interpreter. This allows the executable to interpret Lean files (e.g., via `Lean.Elab.runFrontend`). Implementation-wise, this passes `-rdynamic` to the linker when building on a non-Windows systems. Defaults to `false`.
-* `buildType`, `moreLeanArgs`, `weakLeanArgs`, `moreLeancArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
+* `buildType`, `moreLeanArgs`, `weakLeanArgs`, `moreLeancArgs`, `moreServerArgs`, `moreLinkArgs`: Augments the package's corresponding configuration option. The executable's arguments come after and the build type is the minimum of the two (`debug` is the lowest, and `release` is the highest).
 
 ### External Libraries
 

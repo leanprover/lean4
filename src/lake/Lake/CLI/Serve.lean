@@ -51,7 +51,7 @@ Returns the source paths and per-package server arguments for all packages in th
 The `get-pkg-args` command is used internally by Lean 4 server.
 -/
 def getPkgArgs (config : LoadConfig) (verbosity : Verbosity := .normal) : MainM PUnit := do
-  let mut pkgPath : List (FilePath × Name) := []
+  let mut pkgPath : List Lean.PackagePath := []
   let mut pkgArgs : Array (Name × Array String) := #[]
   if (← config.configFile.pathExists) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
@@ -60,11 +60,12 @@ def getPkgArgs (config : LoadConfig) (verbosity : Verbosity := .normal) : MainM 
       exit 1
     let ws ← MainM.runLogIO (loadWorkspace config) verbosity
     for ⟨name, pkg⟩ in ws.packageMap do
-      for (_, config) in pkg.leanLibConfigs do
-        pkgPath := (pkg.srcDir / config.srcDir, name) :: pkgPath
-      for (_, config) in pkg.leanExeConfigs do
-        pkgPath := (pkg.srcDir / config.srcDir, name) :: pkgPath
-      pkgArgs := pkgArgs.push (name, pkg.moreServerArgs)
+      for (lib, config) in pkg.leanLibConfigs do
+        pkgPath := { path := pkg.srcDir / config.srcDir, name := name ++ lib, mod? := none } :: pkgPath
+        pkgArgs := pkgArgs.push (name ++ lib, pkg.moreServerArgs ++ config.moreServerArgs)
+      for (exe, config) in pkg.leanExeConfigs do
+        pkgPath := { path := pkg.srcDir / config.srcDir, name := name ++ exe, mod? := exe } :: pkgPath
+        pkgArgs := pkgArgs.push (name ++ exe, pkg.moreServerArgs ++ config.moreServerArgs)
   IO.println <| Json.compress <| toJson { pkgPath, pkgArgs : PackageArgs }
 
 /--
@@ -72,17 +73,17 @@ Start the Lean LSP for the `Workspace` loaded from `config`
 with the given additional `args`.
 -/
 def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
-  let (extraEnv, moreServerArgs) ← do
+  let (extraEnv, moreGlobalServerArgs) ← do
     let (log, ws?) ← loadWorkspace config |>.captureLog
     IO.eprint log
     if let some ws := ws? then
       let ctx := mkLakeContext ws
-      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreServerArgs)
+      pure (← LakeT.run ctx getAugmentedEnv, ws.root.moreGlobalServerArgs)
     else
       IO.eprintln "warning: package configuration has errors, falling back to plain `lean --server`"
       pure (config.env.installVars.push (invalidConfigEnvVar, log), #[])
   (← IO.Process.spawn {
     cmd := config.env.lean.lean.toString
-    args := #["--server"] ++ moreServerArgs ++ args
+    args := #["--server"] ++ moreGlobalServerArgs ++ args
     env := extraEnv
   }).wait

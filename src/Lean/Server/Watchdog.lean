@@ -94,6 +94,23 @@ section Utils
     | running
 
   abbrev PendingRequestMap := RBMap RequestID JsonRpc.Message compare
+
+  def searchModuleNameAndPkgOfFileName (fname : System.FilePath) (rootDirs : List PackagePath) : IO (Option (Name × Name)) := do
+    let mut foundLib := none
+    for pkgPath in rootDirs do
+      match pkgPath.mod? with
+      | none =>
+        if foundLib.isNone then
+          try
+            foundLib := some (← moduleNameOfFileName fname <| some pkgPath.path, pkgPath.name)
+          catch _ => pure ()
+      | some mod =>
+        try
+          if mod == (← moduleNameOfFileName fname <| some pkgPath.path) then
+            return some (mod, pkgPath.name)
+        catch _ => pure ()
+    return foundLib
+
 end Utils
 
 section FileWorker
@@ -142,7 +159,7 @@ section ServerM
     initParams     : InitializeParams
     workerPath     : System.FilePath
     srcSearchPath  : System.SearchPath
-    pkgSearchPath  : List (System.FilePath × Name)
+    pkgSearchPath  : List PackagePath
     pkgArgs        : NameMap (Array String)
     references     : IO.Ref References
 
@@ -246,7 +263,7 @@ section ServerM
     if let some path := fileUriToPath? m.uri then
       if let some (_, pkg) ← searchModuleNameAndPkgOfFileName path st.pkgSearchPath then
         if let some pkgArgs := st.pkgArgs.find? pkg then
-          args := pkgArgs
+          args := args ++ pkgArgs
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
       cmd           := st.workerPath.toString
@@ -647,7 +664,7 @@ def findWorkerPath : IO System.FilePath := do
     workerPath := System.FilePath.mk path
   return workerPath
 
-def initPackageArgs : IO (List (System.FilePath × Name) × NameMap (Array String)) := do
+def initPackageArgs : IO (List PackagePath × NameMap (Array String)) := do
   try
     let stdout ← Process.run {
       cmd  := (← getLakePath).toString

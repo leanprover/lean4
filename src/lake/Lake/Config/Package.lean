@@ -101,9 +101,10 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   Additional arguments to pass to the Lean language server
-  (i.e., `lean --server`) launched by `lake server`.
+  (i.e., `lean --server`) launched by `lake server`, both for this package and
+  also for any packages browsed from this one in the same session.
   -/
-  moreServerArgs : Array String := #[]
+  moreGlobalServerArgs : Array String := #[]
 
   /--
   The directory containing the package's Lean source files.
@@ -307,6 +308,10 @@ def release? (self : Package) : Option (String × String) := do
 /-- The package's `moreServerArgs` configuration. -/
 @[inline] def moreServerArgs (self : Package) : Array String :=
   self.config.moreServerArgs
+
+/-- The package's `moreGlobalServerArgs` configuration. -/
+@[inline] def moreGlobalServerArgs (self : Package) : Array String :=
+  self.config.moreGlobalServerArgs
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=

@@ -1642,7 +1642,7 @@ def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? :
       return (c, ids.head!, ids.tail!)
   | _ => throwError "identifier expected"
 
-def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) :=
+def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (Option Expr) := withRef stx do
   match stx with
   | .ident _ _ val preresolved => do
     let rs ← try resolveName stx val preresolved [] catch _ => pure []

@@ -31,3 +31,5 @@ def f4 (x : Nat) := x + 1
 set_option linter.deprecated false in
 #eval f2 0 + 1
 #eval f4 0 + 1
+
+example : True := by simp [f4]

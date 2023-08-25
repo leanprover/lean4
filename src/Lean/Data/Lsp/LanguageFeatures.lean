@@ -351,5 +351,13 @@ structure FoldingRange where
   kind? : Option FoldingRangeKind := none
   deriving ToJson
 
+structure RenameOptions where
+  prepareProvider : Bool := false
+  deriving FromJson, ToJson
+
+structure RenameParams extends TextDocumentPositionParams where
+  newName : String
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

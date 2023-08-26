@@ -105,7 +105,7 @@
   build_config:
     cmd: ./compile.sh deriv.lean
 - attributes:
-    description: lake build clean
+    description: lake build dummy
     tags: [slow]
   run_config:
     <<: *time
@@ -125,7 +125,7 @@
       lake -dinundation -Ktest=Clean build
       "
 - attributes:
-    description: lake build no-op
+    description: lake build lean
     tags: [slow]
   run_config:
     <<: *time
@@ -133,30 +133,49 @@
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation -Ktest=Nop build
+      lake -Ktest=Clean clean
+      lake -Ktest=Clean build
+      "
+    max_runs: 2
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -Ktest=Clean build
+      "
+- attributes:
+    description: lake build no-op
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -Ktest=Nop build
       "
   build_config:
     cmd: |
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation -Ktest=Nop run mk 40 40
-      lake -dinundation -Ktest=Nop build
+      lake -Ktest=Nop build
       "
 - attributes:
     description: lake configure
-    tags: [slow]
+    tags: [fast]
   run_config:
     <<: *time
     cmd: |
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation script run nop
+      lake script run nop
       "
 - attributes:
-    description: lake no configure
-    tags: [slow]
+    description: lake startup
+    tags: [fast]
   run_config:
     <<: *time
     cmd: |

@@ -116,6 +116,7 @@
       lake -Ktest=Clean clean
       lake -Ktest=Clean build
       "
+    max_runs: 2
   build_config:
     cmd: |
       bash -c "

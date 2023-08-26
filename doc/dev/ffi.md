@@ -109,6 +109,30 @@ if (lean_io_result_is_ok(res)) {
 
 //lean_init_task_manager();  // necessary if you (indirectly) use `Task`
 lean_io_mark_end_initialization();
+
+// Do work using the Lean runtime, e.g. lean_alloc_object(sz);
+
+// Finalization is not required since the OS will normally clean up,
+// but this will avoid memory leak reports in valgrind
+void lean_finalize_runtime_module();
+void lean_finalize();
+lean_finalize_runtime_module();
+//lean_finalize();
+```
+
+When using Lean from a multithreaded program, any threads created externally to Lean must also be initialized before any Lean code can be run on them.
+```c
+void lean_thread_initialize();
+void lean_thread_finalize();
+
+// On a thread created using e.g. pthread_create:
+void my_thread() {
+    lean_thread_initialize();
+
+    // do work, e.g. lean_alloc_object(sz);
+
+    lean_thread_finalize();
+}
 ```
 
 ## `@[extern]` in the Interpreter

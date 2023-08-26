@@ -27,7 +27,7 @@ extern "C" LEAN_EXPORT void lean_initialize_runtime_module() {
 void initialize_runtime_module() {
     lean_initialize_runtime_module();
 }
-void finalize_runtime_module() {
+extern "C" LEAN_EXPORT void lean_finalize_runtime_module() {
     finalize_stack_overflow();
     finalize_process();
     finalize_mutex();
@@ -36,5 +36,8 @@ void finalize_runtime_module() {
     finalize_object();
     finalize_debug();
     finalize_alloc();
+}
+void finalize_runtime_module() {
+    lean_finalize_runtime_module();
 }
 }

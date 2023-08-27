@@ -23,7 +23,7 @@ The Lean parser was developed with the following primary goals in mind:
 Given these constraints, we decided to implement a combinatoric, non-monadic, lexer-less, memoizing recursive-descent
 parser. Using combinators instead of some more formal and introspectible grammar representation ensures ultimate
 flexibility as well as efficient extensibility: there is (almost) no pre-processing necessary when extending the grammar
-with a new parser. However, because the all results the combinators produce are of the homogeneous `Syntax` type, the
+with a new parser. However, because all the results the combinators produce are of the homogeneous `Syntax` type, the
 basic parser type is not actually a monad but a monomorphic linear function `ParserState → ParserState`, avoiding
 constructing and deconstructing countless monadic return values. Instead of explicitly returning syntax objects, parsers
 push (zero or more of) them onto a syntax stack inside the linear state. Chaining parsers via `>>` accumulates their
@@ -1346,7 +1346,7 @@ inductive LeadingIdentBehavior where
   | default
   /-- `LeadingIdentBehavior.symbol`: if the leading token is
   an identifier `<foo>`, and there are parsers `P` associated with
-  the toek `<foo>`, then it executes `P`. Otherwise, it executes
+  the token `<foo>`, then it executes `P`. Otherwise, it executes
   only the parsers associated with the auxiliary token "ident". -/
   | symbol
   /-- `LeadingIdentBehavior.both`: if the leading token

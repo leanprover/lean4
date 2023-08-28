@@ -64,18 +64,21 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
 
 def findEntry? [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option (α × β) :=
   match m with
+  | ⟨0, _⟩ => none
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].findEntry? a
 
 def find? [beq : BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
   match m with
+  | ⟨0, _⟩ => none
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].find? a
 
 def contains [BEq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
   match m with
+  | ⟨0, _⟩ => false
   | ⟨_, buckets⟩ =>
     let ⟨i, h⟩ := mkIdx (hash a) buckets.property
     buckets.val[i].contains a

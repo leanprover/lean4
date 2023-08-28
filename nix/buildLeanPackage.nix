@@ -158,7 +158,7 @@ with builtins; let
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
-      if [ -d $src ]; then cp -r $src/. $dir/; else cp $src $leanPath; fi
+      if [ -d $src ]; then cp -r $src/. .; else cp $src $leanPath; fi
       lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
     '';
   }) // {

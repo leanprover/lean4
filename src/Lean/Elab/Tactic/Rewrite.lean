@@ -11,14 +11,15 @@ import Lean.Elab.Tactic.Config
 namespace Lean.Elab.Tactic
 open Meta
 
-def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config) : TacticM Unit := do
+def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) : TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let r ← (← getMainGoal).rewrite (← getMainTarget) e symm (config := config)
     let mvarId' ← (← getMainGoal).replaceTargetEq r.eNew r.eqProof
     replaceMainGoal (mvarId' :: r.mvarIds)
 
-def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config) : TacticM Unit := do
+def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config := {}) :
+    TacticM Unit := do
   Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← fvarId.getDecl

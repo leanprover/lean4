@@ -20,7 +20,7 @@ structure RewriteResult where
 Rewrite goal `mvarId`
 -/
 def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
-    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
+    (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
   mvarId.withContext do
     mvarId.checkNotAssigned `rewrite
     let heqType ← instantiateMVars (← inferType heq)
@@ -34,7 +34,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           if lhs.getAppFn.isMVar then
             throwTacticEx `rewrite mvarId m!"pattern is a metavariable{indentExpr lhs}\nfrom equation{indentExpr heqType}"
           let e ← instantiateMVars e
-          let eAbst ← withConfig (fun oldConfig => { config, oldConfig with }) <| kabstract e lhs occs
+          let eAbst ← withConfig (fun oldConfig => { config, oldConfig with }) <| kabstract e lhs config.occs
           unless eAbst.hasLooseBVars do
             throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
           -- construct rewrite proof
@@ -69,7 +69,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
 
 @[deprecated MVarId.rewrite]
 def rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
-    (symm : Bool := false) (occs : Occurrences := Occurrences.all) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
-  mvarId.rewrite e heq symm occs config
+    (symm : Bool := false) (config := { : Rewrite.Config }) : MetaM RewriteResult :=
+  mvarId.rewrite e heq symm config
 
 end Lean.Meta

@@ -39,6 +39,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             throwTacticEx `rewrite mvarId m!"did not find instance of the pattern in the target expression{indentExpr lhs}"
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
+          -- touch
           let eNew ← instantiateMVars eNew
           let eEqE ← mkEq e e
           let eEqEAbst := mkApp eEqE.appFn! eAbst

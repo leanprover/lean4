@@ -33,11 +33,8 @@ jobs:
           # Since `workflow_run` runs on master, we need to specify which commit to check out,
           # so that we tag the PR.
           ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
-          # We don't interact with the local checkout except to create a tag
-          # and push it to the `lean4-pr-releases` repo, so a shallow clone is sufficient here.
-          # Note that as we are running in the `workflow_run` action,
-          # this checkout retrieves `master`, not the target PR.
-          fetch-depth: 1
+          # We need a full checkout, so that we can push the PR commits to the `lean4-pr-releases` repo,
+          # so it is essential to *not* set `fetch-depth` here.
 
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}

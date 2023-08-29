@@ -38,21 +38,21 @@ where
 def mkTagMap
 (env : Environment) (attr : OrderedTagAttribute)
 [Monad m]  (f : Name → m α) : m (NameMap α) :=
-  attr.ext.getState env |>.foldlM (init := {}) fun map declName =>
+  attr.getAllEntries env |>.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
 
 /-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
 def mkDTagMap
 (env : Environment) (attr : OrderedTagAttribute)
 [Monad m] (f : (n : Name) → m (β n)) : m (DNameMap β) :=
-  attr.ext.getState env |>.foldlM (init := {}) fun map declName =>
+  attr.getAllEntries env |>.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageConfig` from a configuration environment. -/
 def PackageConfig.loadFromEnv
 (env : Environment) (opts := Options.empty) : Except String PackageConfig := do
   let declName ←
-    match packageAttr.ext.getState env |>.toList with
+    match packageAttr.getAllEntries env |>.toList with
     | [] => error s!"configuration file is missing a `package` declaration"
     | [name] => pure name
     | _ => error s!"configuration file has multiple `package` declarations"
@@ -69,7 +69,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   let scripts : NameMap Script ← mkTagMap env scriptAttr fun name => do
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn name
     return {fn, doc? := (← findDocString? env name)}
-  let defaultScripts ← defaultScriptAttr.ext.getState env |>.mapM fun name =>
+  let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
     if let some script := scripts.find? name then pure script else
       error s!"package is missing script `{name}` marked as a default"
   let leanLibConfigs ← IO.ofExcept <| mkTagMap env leanLibAttr fun name =>
@@ -92,7 +92,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
       else
         error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
     | .error e => error e
-  let defaultTargets := defaultTargetAttr.ext.getState env
+  let defaultTargets := defaultTargetAttr.getAllEntries env
 
   -- Fill in the Package
   return {self with
@@ -107,15 +107,15 @@ Load module/package facets into a `Workspace` from a configuration environment.
 def Workspace.addFacetsFromEnv
 (env : Environment) (opts : Options) (self : Workspace) : Except String Workspace := do
   let mut ws := self
-  for name in moduleFacetAttr.ext.getState env do
+  for name in moduleFacetAttr.getAllEntries env do
     match evalConstCheck env opts ModuleFacetDecl ``ModuleFacetDecl name with
     | .ok decl => ws := ws.addModuleFacetConfig <| decl.config
     | .error e => error e
-  for name in packageFacetAttr.ext.getState env do
+  for name in packageFacetAttr.getAllEntries env do
     match evalConstCheck env opts PackageFacetDecl ``PackageFacetDecl name with
     | .ok decl => ws := ws.addPackageFacetConfig <| decl.config
     | .error e => error e
-  for name in libraryFacetAttr.ext.getState env do
+  for name in libraryFacetAttr.getAllEntries env do
     match evalConstCheck env opts LibraryFacetDecl ``LibraryFacetDecl name with
     | .ok decl => ws := ws.addLibraryFacetConfig <| decl.config
     | .error e => error e

@@ -24,16 +24,16 @@ namespace Lake
 
 /-- Load the tagged `Dependency` definitions from a package configuration environment. -/
 def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
-  (packageDepAttr.ext.getState env).mapM (evalConstCheck env opts Dependency ``Dependency)
+  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts Dependency ``Dependency)
 
 /--
 Elaborate a dependency's configuration file into a `Package`.
 The resulting package does not yet include any dependencies.
 -/
 def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
-(leanOpts : Options) (lakeOpts : NameMap String) : LogIO Package := do
+(leanOpts : Options) (lakeOpts : NameMap String) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
-  let configEnv ← elabConfigFile dir lakeOpts leanOpts (dir / defaultConfigFile)
+  let configEnv ← importConfigFile dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir, config, configEnv, leanOpts
@@ -48,8 +48,11 @@ Packages are updated to latest specific revision matching that in `require`
 (e.g., if the `require` is `@master`, update to latest commit on master) or
 removed if the `require` is removed. If `tuUpdate` is empty, update/remove all
 root dependencies. Otherwise, only update the root dependencies specified.
+
+If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
 -/
-def buildUpdatedManifest (ws : Workspace) (toUpdate : NameSet := {}) : LogIO Manifest := do
+def buildUpdatedManifest (ws : Workspace)
+(toUpdate : NameSet := {}) (reconfigure := true) : LogIO (Workspace × Manifest) := do
   let res ← StateT.run (s := mkNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
     unless toUpdate.isEmpty do
@@ -69,7 +72,7 @@ def buildUpdatedManifest (ws : Workspace) (toUpdate : NameSet := {}) : LogIO Man
           return (pkg, dep.relPkgDir)
         else
           -- Load the package
-          let depPkg ← loadDepPackage ws.dir dep pkg.leanOpts dep.opts
+          let depPkg ← loadDepPackage ws.dir dep pkg.leanOpts dep.opts reconfigure
           if depPkg.name ≠ dep.name then
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
@@ -83,9 +86,10 @@ def buildUpdatedManifest (ws : Workspace) (toUpdate : NameSet := {}) : LogIO Man
       -- Resolve dependencies's dependencies recursively
       return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
   match res with
-  | (.ok _, deps) =>
+  | (.ok root, deps) =>
     let manifest : Manifest := {packagesDir? := ws.relPkgsDir}
-    return deps.fold (fun m _ d => m.insert d.manifestEntry) manifest
+    let manifest := deps.fold (fun m _ d => m.insert d.manifestEntry) manifest
+    return ({ws with root}, manifest)
   | (.error cycle, _) =>
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
@@ -96,7 +100,8 @@ Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← elabConfigFile config.rootDir config.configOpts config.leanOpts config.configFile
+  let configEnv ← importConfigFile config.rootDir
+    config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let repo := GitRepo.mk config.rootDir
   let root := {
@@ -140,7 +145,7 @@ def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
 Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
-def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Workspace := do
+def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigure := false) : LogIO Workspace := do
   if !manifest.isEmpty && manifest.packagesDir? != some ws.relPkgsDir then
     logWarning <|
       "manifest out of date: packages directory changed, " ++
@@ -168,7 +173,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) : LogIO Wor
           | error <| s!"dependency '{dep.name}' of '{pkg.name}' not in manifest, " ++
             "use `lake update` to update"
         let result ← entry.materialize ws.dir relPkgsDir
-        loadDepPackage ws.dir result pkg.leanOpts dep.opts
+        loadDepPackage ws.dir result pkg.leanOpts dep.opts reconfigure
       return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
   match res with
   | Except.ok root =>
@@ -183,18 +188,18 @@ elaborating its configuration file and resolving its dependencies.
 If `updateDeps` is true, updates the manifest before resolving dependencies.
 -/
 def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace := do
+  let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
-  let manifest ← do
-    if updateDeps then
-      let manifest ← buildUpdatedManifest ws
-      manifest.saveToFile ws.manifestFile
-      pure manifest
-    else
-      Manifest.loadOrEmpty ws.manifestFile
-  ws.materializeDeps manifest
+  if updateDeps then
+    let (ws, manifest) ← buildUpdatedManifest ws {} rc
+    manifest.saveToFile ws.manifestFile
+    ws.finalize
+  else
+    ws.materializeDeps (← Manifest.loadOrEmpty ws.manifestFile) rc
 
 /-- Updates the manifest for the loaded Lake workspace (see `buildUpdatedManifest`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
+  let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
-  let manifest ← buildUpdatedManifest ws toUpdate
+  let (ws, manifest) ← buildUpdatedManifest ws toUpdate rc
   manifest.saveToFile ws.manifestFile

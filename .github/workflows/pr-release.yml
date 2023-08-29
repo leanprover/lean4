@@ -43,6 +43,8 @@ jobs:
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: artifacts
+          name: build-.*
+          name_is_regexp: true
       - name: Prepare release
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |

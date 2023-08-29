@@ -61,15 +61,29 @@ jobs:
         id: set
         run: |
           TAG_NAME=${GITHUB_REF##*/}
-          # From https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-          # with "v" prepended.
-          SEMVER_REGEX="^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+
+          # From https://github.com/fsaintjacques/semver-tool/blob/master/src/semver
+
+          NAT='0|[1-9][0-9]*'
+          ALPHANUM='[0-9]*[A-Za-z-][0-9A-Za-z-]*'
+          IDENT="$NAT|$ALPHANUM"
+          FIELD='[0-9A-Za-z-]+'
+
+          SEMVER_REGEX="\
+          ^[vV]?\
+          ($NAT)\\.($NAT)\\.($NAT)\
+          (\\-(${IDENT})(\\.(${IDENT}))*)?\
+          (\\+${FIELD}(\\.${FIELD})*)?$"
+
           if [[ ${TAG_NAME} =~ ${SEMVER_REGEX} ]]; then
+            echo "Tag ${TAG_NAME} matches SemVer regex, with groups ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]}"
             echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
             echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
             echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
             echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]}" >> $GITHUB_OUTPUT
             echo "RELEASE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
 
   build:

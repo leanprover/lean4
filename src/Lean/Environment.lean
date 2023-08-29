@@ -33,6 +33,8 @@ structure Import where
   runtimeOnly : Bool := false
   deriving Repr, Inhabited
 
+instance : Coe Name Import := ⟨({module := ·})⟩
+
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
 /--
@@ -731,73 +733,77 @@ def throwAlreadyImported (s : ImportState) (const2ModIdx : HashMap Name ModuleId
   let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
   throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
 
+abbrev ImportStateM := StateRefT ImportState IO
+
+@[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
+  x.run s
+
+partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
+  for i in imports do
+    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
+      continue
+    modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
+    let mFile ← findOLean i.module
+    unless (← mFile.pathExists) do
+      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
+    let (mod, region) ← readModuleData mFile
+    importModulesCore mod.imports
+    modify fun s => { s with
+      moduleData  := s.moduleData.push mod
+      regions     := s.regions.push region
+      moduleNames := s.moduleNames.push i.module
+    }
+
+def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+  let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
+    numConsts + mod.constants.size + mod.extraConstNames.size
+  let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
+  let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
+  for h:modIdx in [0:s.moduleData.size] do
+    let mod := s.moduleData[modIdx]'h.upper
+    for cname in mod.constNames, cinfo in mod.constants do
+      match constantMap.insert' cname cinfo with
+      | (constantMap', replaced) =>
+        constantMap := constantMap'
+        if replaced then
+          throwAlreadyImported s const2ModIdx modIdx cname
+      const2ModIdx := const2ModIdx.insert cname modIdx
+    for cname in mod.extraConstNames do
+      const2ModIdx := const2ModIdx.insert cname modIdx
+  let constants : ConstMap := SMap.fromHashMap constantMap false
+  let exts ← mkInitialExtensionStates
+  let env : Environment := {
+    const2ModIdx    := const2ModIdx
+    constants       := constants
+    extraConstNames := {}
+    extensions      := exts
+    header          := {
+      quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
+      trustLevel   := trustLevel
+      imports      := imports
+      regions      := s.regions
+      moduleNames  := s.moduleNames
+      moduleData   := s.moduleData
+    }
+  }
+  let env ← setImportedEntries env s.moduleData
+  let env ← finalizePersistentExtensions env s.moduleData opts
+  pure env
+
 @[export lean_import_modules]
-partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+  let imports := imports
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
-    let (_, s) ← importMods imports |>.run {}
-    let mut numConsts := 0
-    for mod in s.moduleData do
-      numConsts := numConsts + mod.constants.size + mod.extraConstNames.size
-    let mut modIdx : Nat := 0
-    let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
-    let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
-    for mod in s.moduleData do
-      for cname in mod.constNames, cinfo in mod.constants do
-        match constantMap.insert' cname cinfo with
-        | (constantMap', replaced) =>
-          constantMap := constantMap'
-          if replaced then
-            throwAlreadyImported s const2ModIdx modIdx cname
-        const2ModIdx := const2ModIdx.insert cname modIdx
-      for cname in mod.extraConstNames do
-        const2ModIdx := const2ModIdx.insert cname modIdx
-      modIdx := modIdx + 1
-    let constants : ConstMap := SMap.fromHashMap constantMap false
-    let exts ← mkInitialExtensionStates
-    let env : Environment := {
-      const2ModIdx    := const2ModIdx
-      constants       := constants
-      extraConstNames := {}
-      extensions      := exts
-      header          := {
-        quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
-        trustLevel   := trustLevel
-        imports      := imports.toArray
-        regions      := s.regions
-        moduleNames  := s.moduleNames
-        moduleData   := s.moduleData
-      }
-    }
-    let env ← setImportedEntries env s.moduleData
-    let env ← finalizePersistentExtensions env s.moduleData opts
-    pure env
-where
-  importMods : List Import → StateRefT ImportState IO Unit
-  | []    => pure ()
-  | i::is => do
-    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
-      importMods is
-    else do
-      modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
-      let mFile ← findOLean i.module
-      unless (← mFile.pathExists) do
-        throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-      let (mod, region) ← readModuleData mFile
-      importMods mod.imports.toList
-      modify fun s => { s with
-        moduleData  := s.moduleData.push mod
-        regions     := s.regions.push region
-        moduleNames := s.moduleNames.push i.module
-      }
-      importMods is
+    let (_, s) ← importModulesCore imports |>.run
+    finalizeImport s imports opts trustLevel
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
   let env ← importModules imports opts trustLevel
   try x env finally env.freeRegions
 

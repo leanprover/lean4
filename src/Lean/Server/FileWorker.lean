@@ -207,7 +207,7 @@ section Initialization
           -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
           -- NOTE: lake does not exist in stage 0 (yet?)
           if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
-            let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx).toArray hOut
+            let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx) hOut
             srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
         Elab.processHeader headerStx opts msgLog m.mkInputContext
       catch e =>  -- should be from `lake print-paths`

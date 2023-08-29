@@ -80,7 +80,7 @@ jobs:
             echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
             echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
             echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
-            echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]}" >> $GITHUB_OUTPUT
+            echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]##-}" >> $GITHUB_OUTPUT
             echo "RELEASE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
           else
             echo "Tag ${TAG_NAME} did not match SemVer regex."

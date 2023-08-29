@@ -1,1 +1,1 @@
-rm -rf out lib/build
+rm -rf out lib/build lib/lakefile.olean

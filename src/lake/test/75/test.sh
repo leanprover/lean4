@@ -4,7 +4,7 @@ set -euxo pipefail
 LAKE=${LAKE:-../../../build/bin/lake}
 
 cd foo
-rm -rf build
+rm -rf build lakefile.olean
 mkdir -p Foo
 echo $'def a := "a"' > Foo/Test.lean
 echo $'import Foo.Test def hello := a' > Foo.lean

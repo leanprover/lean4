@@ -1,5 +1,7 @@
-This is the repository for **Lean 4**, which is being actively developed and published as nightly releases.
-Stable point releases are planned for a later date after establishing a robust release process.
+This is the repository for **Lean 4**.
+
+We provide [nightly releases](https://github.com/leanprover/lean4-nightly/releases)
+and have just begun regular [stable point releases](https://github.com/leanprover/lean4/releases).
 
 # About
 

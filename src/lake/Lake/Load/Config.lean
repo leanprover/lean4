@@ -26,3 +26,5 @@ structure LoadConfig where
   configOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/
   leanOpts : Options := {}
+  /-- If true, Lake will elaborate configuration files instead of using OLeans. -/
+  reconfigure : Bool := false

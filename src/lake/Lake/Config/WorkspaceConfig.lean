@@ -16,5 +16,5 @@ structure WorkspaceConfig where
   The directory to which Lake should download remote dependencies.
   Defaults to `defaultPackagesDir` (i.e., `lake-packages`).
   -/
-  packagesDir : Option FilePath := none
+  packagesDir : FilePath := defaultPackagesDir
   deriving Inhabited, Repr

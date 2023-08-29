@@ -25,6 +25,7 @@ OPTIONS:
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
+  --reconfigure, -R     elaborate configuration files instead of using OLeans
 
 COMMANDS:
   new <name> <temp>     create a Lean package in a new directory

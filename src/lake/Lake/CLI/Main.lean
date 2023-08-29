@@ -34,6 +34,7 @@ structure LakeOptions where
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
   updateDeps : Bool := false
+  reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
 
@@ -65,6 +66,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
     configFile := opts.rootDir / opts.configFile
     configOpts := opts.configOpts
     leanOpts := Lean.Options.empty
+    reconfigure := opts.reconfigure
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
@@ -139,22 +141,24 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
 | 'U' => modifyThe LakeOptions ({· with updateDeps := true})
+| 'R' => modifyThe LakeOptions ({· with reconfigure := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'H' => modifyThe LakeOptions ({· with trustHash := false})
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
-| "--quiet"   => modifyThe LakeOptions ({· with verbosity := .quiet})
-| "--verbose" => modifyThe LakeOptions ({· with verbosity := .verbose})
-| "--update"  => modifyThe LakeOptions ({· with updateDeps := true})
-| "--old"     => modifyThe LakeOptions ({· with oldMode := true})
-| "--rehash"  => modifyThe LakeOptions ({· with trustHash := false})
-| "--dir"     => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
-| "--file"    => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
-| "--lean"    => do setLean <| ← takeOptArg "--lean" "path or command"
-| "--help"    => modifyThe LakeOptions ({· with wantsHelp := true})
-| "--"        => do let subArgs ← takeArgs; modifyThe LakeOptions ({· with subArgs})
-| opt         => throw <| CliError.unknownLongOption opt
+| "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
+| "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
+| "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
+| "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
+| "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+| "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
+| "--dir"         => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
+| "--file"        => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
+| "--lean"        => do setLean <| ← takeOptArg "--lean" "path or command"
+| "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+| "--"            => do let subArgs ← takeArgs; modifyThe LakeOptions ({· with subArgs})
+| opt             =>  throw <| CliError.unknownLongOption opt
 
 def lakeOption :=
   option {

@@ -248,19 +248,16 @@ namespace Package
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
-/--
-The path for storing the package's remote dependencies relative to `dir`.
-Either its `packagesDir` configuration or `defaultPackagesDir`.
--/
-def relPkgsDir (self : Package) : FilePath :=
-  self.config.packagesDir.getD defaultPackagesDir
+/-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
+@[inline] def relPkgsDir (self : Package) : FilePath :=
+  self.config.packagesDir
 
 /-- The package's `dir` joined with its `relPkgsDir` -/
-def pkgsDir (self : Package) : FilePath :=
+@[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
 /-- The package's JSON manifest of remote dependencies. -/
-def manifestFile (self : Package) : FilePath :=
+@[inline] def manifestFile (self : Package) : FilePath :=
   self.dir / self.config.manifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/

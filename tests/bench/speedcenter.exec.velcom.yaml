@@ -121,7 +121,7 @@
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation -Ktest=Clean run mk 40 40
+      lake -dinundation -Ktest=Clean run mk
       lake -dinundation -Ktest=Clean build
       "
 - attributes:
@@ -171,7 +171,7 @@
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake script run nop
+      lake -dinundation script run nop
       "
 - attributes:
     description: lake startup

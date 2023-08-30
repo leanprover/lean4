@@ -705,8 +705,11 @@ private def shouldVisit (e : Expr) : M Bool := do
           if pm mvarId then
             return true
           else
-            let lctx := (← getMCtx).getDecl mvarId |>.lctx
-            return lctx.any fun decl => pf decl.fvarId
+            match ← getDelayedMVarAssignment? mvarId with
+            | some d => visit (.mvar d.mvarIdPending)
+            | none =>
+              let lctx := (← getMCtx).getDecl mvarId |>.lctx
+              return lctx.any fun decl => pf decl.fvarId
       | .fvar fvarId     => return pf fvarId
       | _                    => pure false
   visit e

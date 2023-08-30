@@ -22,10 +22,13 @@ partial def num2letters (n : Nat) : String :=
 
 /--
 USAGE:
-  lake run mk layers width
+  lake run [-Ktest=<dir>] mk [<layers>] [<width>]
 -/
 script mk (args : List String) := do
-  let [some layers, some width] := args.map String.toNat?
+  let argc := args.length
+  let some layers := if h : argc > 0 then args[0].toNat? else some 40
+    | return 1
+  let some width  := if h : argc > 1 then args[1].toNat? else some 40
     | return 1
 
   let mkImportsFor (layer : Nat) := Id.run do
@@ -34,7 +37,7 @@ script mk (args : List String) := do
       out := out ++ s!"import Inundation.{test}.{num2letters layer}{idx}\n"
     return out
   let mkImportsAt (layer : Nat) :=
-    if let prev + 1 := layer then mkImportsFor prev else ""
+    if let .succ prev := layer then mkImportsFor prev else ""
 
   try
     IO.FS.removeDirAll test

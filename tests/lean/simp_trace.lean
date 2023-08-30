@@ -81,3 +81,35 @@ example : a ∧ (b ∧ b) ↔ a ∧ b := by simp [my_thm]
 example : (a ∧ (b ∧ b)) = (a ∧ b) := by simp only [my_thm]
 
 example : x - 1 + 1 = x := by simp (discharger := sorry) [Nat.sub_add_cancel]
+
+-- The following examples test simplification at hypotheses.
+
+-- Two simp lemmas applied to one hypothesis.
+example (h' : bla x = x) : x + x = x := by
+  simp [bla, h] at *
+  exact h'
+
+-- Ditto, but simplifying the hypothesis explicitly.
+example (h' : bla x = x) : x + x = x := by
+  simp [bla, h] at h'
+  exact h'
+
+-- Various simp lemmas applied to different hypotheses, but each lemma is
+-- applied to exactly one hypothesis.
+example {α : Type} (xs ys : List α) (h₁ : bla x = y) (h₂ : (xs ++ ys).length = y) : x = length xs := by
+  simp [bla, h, List.length_append] at *
+
+-- Ditto, but with an additional unused lemma.
+example {α : Type} (xs ys : List α) (h₁ : bla x = y) (h₂ : (xs ++ ys).length = y) : x = length xs := by
+  simp [bla, h, List.length_append, Nat.add_one] at *
+
+-- Two simp lemmas applied to two hypotheses, with each lemma applied to both
+-- hypotheses.
+example (h' : bla x = x) (_ : bla y = y) : x + x = x := by
+  simp [bla, h] at *
+  exact h'
+
+-- Two simp lemmas applied to both a hypothesis and the target.
+example (h' : bla x = x) : bla x = x := by
+  simp [bla, h] at *
+  exact h'

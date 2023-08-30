@@ -59,3 +59,57 @@ Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
 simp_trace.lean:83:0-83:7: warning: declaration uses 'sorry'
 [Meta.Tactic.simp.rewrite] @Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
 [Meta.Tactic.simp.rewrite] @eq_self:1000, x = x ==> True
+Try this: simp only [bla, h] at *
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+Try this: simp only [bla, h] at h' 
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+Try this: simp only [bla, h, List.length_append] at *
+simp_trace.lean:99:101-100:40: error: unsolved goals
+x y : Nat
+α : Type
+xs ys : List α
+h₁ : x + x = y
+h₂ : List.length xs + List.length ys = y
+⊢ x = length xs
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+[Meta.Tactic.simp.rewrite] @List.length_append:1000, List.length (xs ++ ys) ==> List.length xs + List.length ys
+Try this: simp only [bla, h, List.length_append] at *
+simp_trace.lean:103:101-104:53: error: unsolved goals
+x y : Nat
+α : Type
+xs ys : List α
+h₁ : x + x = y
+h₂ : List.length xs + List.length ys = y
+⊢ x = length xs
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+[Meta.Tactic.simp.rewrite] @List.length_append:1000, List.length (xs ++ ys) ==> List.length xs + List.length ys
+Try this: simp only [bla, h] at *
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+[Meta.Tactic.simp.rewrite] unfold bla, bla y ==> match h y with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h y ==> Sum.inl (y, y)
+Try this: simp only [bla, h] at *
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+[Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
+    | Sum.inl (y, z) => y + z
+    | Sum.inr val => 0
+[Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)

@@ -113,16 +113,16 @@
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation -Ktest=Clean clean
-      lake -dinundation -Ktest=Clean build
+      lake -dinundation clean
+      lake -dinundation build
       "
   build_config:
     cmd: |
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -dinundation -Ktest=Clean run mk
-      lake -dinundation -Ktest=Clean build
+      lake -dinundation run mk
+      lake -dinundation build
       "
 - attributes:
     description: lake build lean
@@ -153,20 +153,28 @@
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -Ktest=Nop build
+      lake -f lakefile-nop.lean -Ktest=Nop build
       "
   build_config:
     cmd: |
       bash -c "
       set -ex
       ulimit -s unlimited
-      lake -Ktest=Nop build
+      cp lakefile.lean lakefile-nop.lean
+      lake -f lakefile-nop.lean -Ktest=Nop build
       "
 - attributes:
     description: lake configure
     tags: [fast]
   run_config:
     <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation script run nop
+      "
+  build_config:
     cmd: |
       bash -c "
       set -ex

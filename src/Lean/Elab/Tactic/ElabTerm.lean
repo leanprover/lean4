@@ -193,11 +193,14 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
       elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles (onlyNewGoals := true)
     let mvarId ← getMainGoal
     let val ← instantiateMVars val
-    unless val == mkMVar mvarId do
+    /- If `val` is simply the main goal, preserve it. Otherwise, it would get thrown away since it's older than the elaboration. -/
+    if val == mkMVar mvarId then
+      replaceMainGoal (mvarId :: mvarIds')
+    else
       if val.findMVar? (· == mvarId) matches some _ then
         throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
       mvarId.assign val
-    replaceMainGoal mvarIds'
+      replaceMainGoal mvarIds'
 
 @[builtin_tactic «refine»] def evalRefine : Tactic := fun stx =>
   match stx with

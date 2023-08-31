@@ -155,6 +155,29 @@ where
     tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
     return (val, newMVarIds)
 
+/-- Elaborates `stx` and collects the `MVarId`s of any encountered holes.
+
+With `allowNaturalHoles := false` (the default), any newly-created natural holes (`_`) which cannot
+be synthesized during elaboration cause `elabTermWithHoles` to fail. Natural holes in `stx` which
+were created prior to elaboration are permitted.
+
+With `onlyNewGoals := false` (the default), all mvars encountered in `stx` appear in the returned
+`List MVarId`. Otherwise, if `onlyNewGoals := true`, only `MVarId`s which are created during the
+elaboration of `stx` are returned.
+
+Unnamed `MVarId`s are renamed to share the main goal's tag. If multiple unnamed goals are
+encountered, `tagSuffix` is appended to the main goal's tag along with a numerical index.
+
+Note:
+
+* All parts of `elabTermWithHoles` operate at the current `MCtxDepth`, and therefore may assign
+metavariables.
+
+* When `allowNaturalHoles := true`, `stx` is elaborated under `withAssignableSyntheticOpaque`,
+meaning that `.syntheticOpaque` metavariables might be assigned during elaboration. This is a
+consequence of the implementation.
+
+* Metavariables with delayed assignments are excluded from the returned list in all cases. -/
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name)
     (allowNaturalHoles := false) (onlyNewGoals := false) : TacticM (Expr × List MVarId) := do
   withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles

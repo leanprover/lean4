@@ -157,7 +157,8 @@ def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : 
    "Synthetic" metavariables are meant to be filled by tactics and are usually created using the synthetic hole notation `?<hole-name>`. -/
 def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : TacticM Unit := do
   withMainContext do
-    let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
+    let (val, mvarIds') ←
+      elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles (onlyNewGoals := true)
     let mvarId ← getMainGoal
     let val ← instantiateMVars val
     unless val == mkMVar mvarId do

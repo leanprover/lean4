@@ -140,10 +140,10 @@ where
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
       -- If `onlyNewGoals`, then old mvars have already been filtered out.
       -- As such, we only need to filter if `!onlyNewGoals`.
-      let naturalMVarIds ← if !onlyNewGoals then
-          filterOldMVars naturalMVarIds mvarCounterSaved
-        else
+      let naturalMVarIds ← if onlyNewGoals then
           pure naturalMVarIds
+        else
+          filterOldMVars naturalMVarIds mvarCounterSaved
       logUnassignedAndAbort naturalMVarIds
     /-
     We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.

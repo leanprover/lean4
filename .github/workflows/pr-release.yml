@@ -89,6 +89,9 @@ jobs:
       - name: Check if branch exists
         id: check_branch
         run: |
+          git config user.name "leanprover-community-mathlib4-bot"
+          git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
+
           EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} | wc -l)
           echo "Branch exists: $EXISTS"
           if [ "$EXISTS" = "0" ]; then
@@ -105,6 +108,4 @@ jobs:
 
       - name: Push changes
         run: |
-          git config user.name "leanprover-community-mathlib4-bot"
-          git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}

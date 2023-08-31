@@ -1,0 +1,118 @@
+# Push a release to the lean4-pr-releases repository, whenever someone pushes to a PR branch.
+
+# This needs to run with the `secrets.PR_RELEASES_TOKEN` token available,
+# but PR branches will generally come from forks,
+# so it is not possible to run this using the `pull_request` or `pull_request_target` workflows.
+# Instead we use `workflow_run`, which essentially allows us to escalate privileges
+# (but only runs the CI as described in the `master` branch, not in the PR branch).
+
+name: PR release
+
+on:
+  workflow_run: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_run
+    workflows: [CI]
+    types: [completed]
+
+jobs:
+  on-success:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Retrieve information about the original workflow
+        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        id: workflow-info
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+      - name: Checkout
+        # Only proceed if the previous workflow had a pull request number.
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PR_RELEASES_TOKEN }}
+          # Since `workflow_run` runs on master, we need to specify which commit to check out,
+          # so that we tag the PR.
+          ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
+          # We need a full checkout, so that we can push the PR commits to the `lean4-pr-releases` repo.
+          fetch-depth: 0
+
+      - name: Download artifact from the previous workflow.
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2 # https://github.com/marketplace/actions/download-workflow-artifact
+        with:
+          run_id: ${{ github.event.workflow_run.id }}
+          path: artifacts
+          name: build-.*
+          name_is_regexp: true
+      - name: Prepare release
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
+          git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          # Try to delete any existing release for the current PR.
+          gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} -y || true
+          git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+          git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+        env:
+          GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+      - name: Release
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release for PR ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          # There are coredumps files here as well, but all in deeper subdirectories.
+          files: artifacts/*/*
+          fail_on_unmatched_files: true
+          draft: false
+          tag_name: pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+          repository: ${{ github.repository_owner }}/lean4-pr-releases
+        env:
+          # The token used here must have `workflow` privileges.
+          GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+
+      - name: Add label
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ steps.workflow-info.outputs.pullRequestNumber }}
+          labels: toolchain-available
+
+      # We next automatically create a Mathlib branch using this toolchain.
+      # Mathlib CI will be responsible for reporting back success or failure
+      # to the PR comments asynchronously.
+      - name: Cleanup workspace
+        run: |
+          sudo rm -rf *
+
+      # Checkout the mathlib4 repository with all branches
+      - name: Checkout mathlib4 repository
+        uses: actions/checkout@v2
+        with:
+          repository: leanprover-community/mathlib4
+          token: ${{ secrets.MATHLIB4_BOT }}
+          ref: master
+          fetch-depth: 0
+
+      - name: Check if branch exists
+        id: check_branch
+        run: |
+          git config user.name "leanprover-community-mathlib4-bot"
+          git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
+
+          EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} | wc -l)
+          echo "Branch exists: $EXISTS"
+          if [ "$EXISTS" = "0" ]; then
+            echo "Branch does not exist, creating it."
+            git checkout -b lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+            echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}" > lean-toolchain
+            git add lean-toolchain
+            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+          else
+            echo "Branch already exists, pushing an empty commit."
+            git checkout lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+            git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
+          fi
+
+      - name: Push changes
+        run: |
+          git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}

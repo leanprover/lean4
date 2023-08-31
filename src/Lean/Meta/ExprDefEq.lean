@@ -1148,7 +1148,7 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
 private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) := do
   match t.getAppFn with
   | Expr.const c _ =>
-    match (← getConst? c) with
+    match (← getUnfoldableConst? c) with
     | r@(some info) => if info.hasValue then return r else return none
     | _             => return none
   | _ => pure none

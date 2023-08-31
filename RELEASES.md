@@ -1,5 +1,19 @@
-Unreleased
+# Lean 4 releases
+
+We intend to provide regular "minor version" releases of the Lean language at approximately monthly intervals.
+There is not yet a strong guarantee of backwards compatibility between versions,
+only an expectation that breaking changes will be documented in this file.
+
+This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
+Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status of each version.
+
+v4.0.0
 ---------
+
+* [`Lean.Meta.getConst?` has been renamed](https://github.com/leanprover/lean4/pull/2454).
+  We have renamed `getConst?` to `getUnfoldableConst?` (and `getConstNoEx?` to `getUnfoldableConstNoEx?`).
+  These were not intended to be part of the public API, but downstream projects had been using them
+  (sometimes expecting different behaviour) incorrectly instead of `Lean.getConstInfo`.
 
 * [`dsimp` / `simp` / `simp_all` now fail by default if they make no progress](https://github.com/leanprover/lean4/pull/2336).
 

@@ -26,7 +26,7 @@ instance : MonadError (Except String) where
 Perform an EIO action.
 If it throws an error, invoke `error` with its string representation.
 -/
-protected def MonadError.runEIO [Monad m]
+@[inline] protected def MonadError.runEIO [Monad m]
 [MonadError m] [MonadLiftT BaseIO m] [ToString ε] (x : EIO ε α) : m α := do
   match (← x.toBaseIO) with
   | Except.ok a => pure a

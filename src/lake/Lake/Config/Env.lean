@@ -8,15 +8,28 @@ import Lake.Config.InstallPath
 
 open System
 
+/-! # Lake's Environment
+Definitions related to a Lake environment.
+A Lake environment is computed on Lake's startup from
+user-specified CLI options and the process environment.
+-/
+
 namespace Lake
 
-/-- The detected Lake environment. -/
+/-- A Lake environment. -/
 structure Env where
+  /-- The Lake installation of the environment. -/
   lake : LakeInstall
+  /-- The Lean installation of the environment. -/
   lean : LeanInstall
-  leanPath : SearchPath
-  leanSrcPath : SearchPath
-  sharedLibPath : SearchPath
+  /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
+  initLeanPath : SearchPath
+  /-- The initial Lean source search path of the environment (i.e., `LEAN_SRC_PATH`). -/
+  initLeanSrcPath : SearchPath
+  /-- The initial shared library search path of the environment. -/
+  initSharedLibPath : SearchPath
+  /-- The initial binary search path of the environment (i.e., `PATH`). -/
+  initPath : SearchPath
   deriving Inhabited, Repr
 
 namespace Env
@@ -24,13 +37,53 @@ namespace Env
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
 def compute (lake : LakeInstall) (lean : LeanInstall) : BaseIO Env :=
   return {
-    lake, lean
-    leanPath := ← getSearchPath "LEAN_PATH",
-    leanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
-    sharedLibPath := ← getSearchPath sharedLibPathEnvVar
+    lake, lean,
+    initLeanPath := ← getSearchPath "LEAN_PATH",
+    initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
+    initSharedLibPath := ← getSearchPath sharedLibPathEnvVar,
+    initPath := ← getSearchPath "PATH"
   }
 
-/-- Environment variable settings based only on the given Lean and Lake installations. -/
+/--
+The Lean library search path of the environment (i.e., `LEAN_PATH`).
+Combines the initial path of the environment with that of the Lake installation.
+-/
+def path (env : Env) : SearchPath :=
+  if env.lake.binDir = env.lean.binDir then
+    env.lean.binDir :: env.initPath
+  else
+    env.lake.binDir :: env.lean.binDir :: env.initPath
+
+/-
+We include Lake's installation in the cases below to ensure that the
+Lake being used to build is available to the environment (and thus, e.g.,
+the Lean server). Otherwise, it may fall back on whatever the default Lake
+instance is.
+-/
+
+/--
+The Lean library search path of the environment (i.e., `LEAN_PATH`).
+Combines the initial path of the environment with that of the Lake installation.
+-/
+def leanPath (env : Env) : SearchPath :=
+  env.lake.libDir :: env.initLeanPath
+
+/--
+The Lean source search path of the environment (i.e., `LEAN_SRC_PATH`).
+Combines the initial path of the environment with that of the Lake abd Lean
+installations.
+-/
+def leanSrcPath (env : Env) : SearchPath :=
+  env.lake.srcDir :: env.initLeanSrcPath
+
+/--
+The shared library search path of the environment.
+Combines the initial path of the environment with that of the Lean installation.
+-/
+def sharedLibPath (env : Env) : SearchPath :=
+  env.lean.sharedLibPath ++ env.initSharedLibPath
+
+/-- Environment variable settings based only on the Lean and Lake installations. -/
 def installVars (env : Env) : Array (String × Option String)  :=
   #[
     ("LAKE", env.lake.lake.toString),
@@ -42,11 +95,15 @@ def installVars (env : Env) : Array (String × Option String)  :=
 
 /-- Environment variable settings for the `Lake.Env`. -/
 def vars (env : Env) : Array (String × Option String)  :=
-  env.installVars ++ #[
+  let vars := env.installVars ++ #[
     ("LEAN_PATH", some env.leanPath.toString),
     ("LEAN_SRC_PATH", some env.leanSrcPath.toString),
-    (sharedLibPathEnvVar, some env.sharedLibPath.toString)
+    ("PATH", some env.path.toString)
   ]
+  if Platform.isWindows then
+    vars
+  else
+    vars.push (sharedLibPathEnvVar, some <| env.sharedLibPath.toString)
 
 /--
 The default search path the Lake executable

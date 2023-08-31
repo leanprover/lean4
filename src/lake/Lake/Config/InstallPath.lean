@@ -41,6 +41,7 @@ structure LeanInstall where
   leanLibDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
   systemLibDir := sysroot / "lib"
+  binDir := sysroot / "bin"
   lean := leanExe sysroot
   leanc := leancExe sysroot
   sharedLib := leanSharedLib sysroot
@@ -48,6 +49,16 @@ structure LeanInstall where
   cc : FilePath
   customCc : Bool
   deriving Inhabited, Repr
+
+/--
+A `SearchPath` including the Lean installation's shared library directories
+(i.e., the system library and Lean library directories).
+-/
+def LeanInstall.sharedLibPath (self : LeanInstall) : SearchPath :=
+  if Platform.isWindows then
+    [self.binDir]
+  else
+    [self.leanLibDir, self.systemLibDir]
 
 /-- The `LEAN_CC` of the Lean installation. -/
 def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
@@ -61,6 +72,7 @@ def lakeExe (buildHome : FilePath) :=
 structure LakeInstall where
   home : FilePath
   srcDir := home
+  binDir := home / "build" / "bin"
   libDir := home / "build" / "lib"
   lake := lakeExe <| home / "build"
   deriving Inhabited, Repr
@@ -218,6 +230,7 @@ def findInstall? : BaseIO (Option LeanInstall × Option LakeInstall) := do
       some {
         home,
         srcDir := lean.srcDir / "lake",
+        binDir := lean.binDir,
         libDir := lean.leanLibDir,
         lake := lakeExe home
       }

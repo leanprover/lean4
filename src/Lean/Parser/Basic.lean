@@ -1282,7 +1282,7 @@ def checkColGeFn (errorMsg : String) : ParserFn := fun c s =>
     if pos.column ≥ savedPos.column then s
     else s.mkError errorMsg
 
-/-- The `colGe` parser requires that the next token starts at least the column of the saved
+/-- The `colGe` parser requires that the next token starts from at least the column of the saved
 position (see `withPosition`), but allows it to be more indented.
 This can be used for whitespace sensitive syntax to ensure that a block does not go outside a
 certain indentation scope. For example it is used in the lean grammar for `else if`, to ensure

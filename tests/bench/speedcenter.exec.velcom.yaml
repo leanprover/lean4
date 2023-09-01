@@ -182,6 +182,19 @@
       lake -dinundation script run nop
       "
 - attributes:
+    description: lake reconfigure
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -flakefile-rc.lean -R script run nop
+      "
+  build_config:
+    cmd: cp inundation/lakefile.lean inundation/lakefile-rc.lean
+- attributes:
     description: lake startup
     tags: [fast]
   run_config:

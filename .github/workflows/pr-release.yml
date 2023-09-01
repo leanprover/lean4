@@ -90,7 +90,7 @@ jobs:
         with:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}
-          ref: master
+          ref: nightly-testing # This is more likely than `master` to work with the base of this PR.
           fetch-depth: 0
 
       - name: Check if branch exists

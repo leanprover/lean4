@@ -278,7 +278,7 @@ and solved by typeclass inference of the specified class.
 -/
 def instBinder := ppGroup <| leading_parser
   "[" >> withoutPosition (optIdent >> termParser) >> "]"
-/-- A `bracketedBinder` matches any kind of binder group with an explicit bracketing syntax:
+/-- A `bracketedBinder` matches any kind of binder group that uses some kind of brackets:
 * An explicit binder like `(x y : A)`
 * An implicit binder like `{x y : A}`
 * A strict implicit binder, `⦃y z : A⦄` or its ASCII alternative `{{y z : A}}`

@@ -19,7 +19,8 @@ Try this: simp only [g, Id.pure_eq]
       (let x := x;
       pure x)
 [Meta.Tactic.simp.rewrite] @Id.pure_eq:1000, pure x ==> x
-Try this: simp only [f1, modify, StateT.modifyGet, f2, StateT.bind, getThe, StateT.get, StateT.set]
+Try this: simp only [f1, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, pure, f2, bind, StateT.bind, get,
+  getThe, MonadStateOf.get, StateT.get, set, StateT.set]
 [Meta.Tactic.simp.rewrite] unfold f1, f1 ==> modify fun x => g x
 [Meta.Tactic.simp.rewrite] unfold modify, modify fun x => g x ==> modifyGet fun s => (PUnit.unit, (fun x => g x) s)
 [Meta.Tactic.simp.rewrite] unfold StateT.modifyGet, StateT.modifyGet fun s =>
@@ -56,7 +57,7 @@ Try this: simp only [my_thm]
 [Meta.Tactic.simp.rewrite] @my_thm:1000, b ∧ b ==> b
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (a ∧ b) = (a ∧ b) ==> True
 Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
-simp_trace.lean:83:0-83:7: warning: declaration uses 'sorry'
+simp_trace.lean:85:0-85:7: warning: declaration uses 'sorry'
 [Meta.Tactic.simp.rewrite] @Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
 [Meta.Tactic.simp.rewrite] @eq_self:1000, x = x ==> True
 Try this: simp only [bla, h] at *
@@ -70,7 +71,7 @@ Try this: simp only [bla, h] at h'
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 Try this: simp only [bla, h, List.length_append] at *
-simp_trace.lean:99:101-100:40: error: unsolved goals
+simp_trace.lean:101:101-102:40: error: unsolved goals
 x y : Nat
 α : Type
 xs ys : List α
@@ -83,7 +84,7 @@ h₂ : List.length xs + List.length ys = y
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 [Meta.Tactic.simp.rewrite] @List.length_append:1000, List.length (xs ++ ys) ==> List.length xs + List.length ys
 Try this: simp only [bla, h, List.length_append] at *
-simp_trace.lean:103:101-104:53: error: unsolved goals
+simp_trace.lean:105:101-106:53: error: unsolved goals
 x y : Nat
 α : Type
 xs ys : List α
@@ -113,3 +114,4 @@ Try this: simp only [bla, h] at *
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
+Try this: simp only [HasProp.toProp]

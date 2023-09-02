@@ -1,20 +1,20 @@
-rtest.lean:27:18: error: unsolved goals
+refineFiltersOldMVars.lean:27:18-29:11: error: unsolved goals
 case a
 ⊢ True
-rtest.lean:36:17: error: unsolved goals
+refineFiltersOldMVars.lean:36:17-38:18: error: unsolved goals
 case b
 h : Type
 ⊢ ?a
 
 case a
 ⊢ Type
-rtest.lean:57:4: error: no goals to be solved
-rtest.lean:89:2: error: unsolved goals
+refineFiltersOldMVars.lean:57:4-57:11: error: no goals to be solved
+refineFiltersOldMVars.lean:89:2-89:3: error: unsolved goals
 case d
 ⊢ Bool
-rtest.lean:90:2: error: unsolved goals
+refineFiltersOldMVars.lean:90:2-90:3: error: unsolved goals
 case e
 ⊢ Nat
-rtest.lean:97:2: error: unsolved goals
+refineFiltersOldMVars.lean:97:2-97:3: error: unsolved goals
 case e
 ⊢ Bool

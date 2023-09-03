@@ -8,6 +8,19 @@ import Lean.Expr
 namespace Lean
 namespace Expr
 
+@[specialize]
+def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
+  match f? e with
+  | some eNew => eNew
+  | none      => match e with
+    | .forallE _ d b _ => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateForallE! d b
+    | .lam _ d b _     => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateLambdaE! d b
+    | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
+    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
+    | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
+    | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
+    | e                => e
+
 namespace ReplaceImpl
 
 structure Cache where
@@ -69,27 +82,20 @@ unsafe def replaceUnsafeM (f? : Expr → Option Expr) (e : Expr) : ReplaceM Expr
         | e                      => pure e
   visit e
 
+def cacheTriggerDepth : UInt32 := 5
+
 @[inline]
 unsafe def replaceUnsafe (f? : Expr → Option Expr) (e : Expr) : Expr :=
-  (replaceUnsafeM f? e).run' (Cache.new e)
+  if e.approxDepth <= cacheTriggerDepth then
+    replaceNoCache f? e
+  else
+    (replaceUnsafeM f? e).run' (Cache.new e)
+
 
 end ReplaceImpl
 
 /- TODO: use withPtrAddr, withPtrEq to avoid unsafe tricks above.
    We also need an invariant at `State` and proofs for the `uget` operations. -/
-
-@[specialize]
-def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
-  match f? e with
-  | some eNew => eNew
-  | none      => match e with
-    | .forallE _ d b _ => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateForallE! d b
-    | .lam _ d b _     => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateLambdaE! d b
-    | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
-    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
-    | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
-    | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
-    | e                => e
 
 @[implemented_by ReplaceImpl.replaceUnsafe]
 partial def replace (f? : Expr → Option Expr) (e : Expr) : Expr :=

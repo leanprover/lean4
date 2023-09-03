@@ -1,2 +1,2 @@
-rm -rf foo/build
-rm -rf bar/build
+rm -rf foo/build foo/lakefile.olean
+rm -rf bar/build bar/lakefile.olean

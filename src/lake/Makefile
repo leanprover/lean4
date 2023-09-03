@@ -30,7 +30,7 @@ clean-examples:  $(addsuffix .clean, $(EXAMPLES))
 .PHONY:
 	all test test-ci test-tests test-examples\
 	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
-	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS))
+	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS) $(EXAMPLES))
 
 #-------------------------------------------------------------------------------
 # Build Targets

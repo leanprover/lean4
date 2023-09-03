@@ -22,6 +22,7 @@ def toolchainFileName : FilePath :=
 
 def gitignoreContents :=
 s!"/{defaultBuildDir}
+/{defaultConfigFile.withExtension "olean"}
 /{defaultPackagesDir}/*
 "
 

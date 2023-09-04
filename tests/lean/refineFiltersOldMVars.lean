@@ -60,7 +60,7 @@ def bar : Bar := {
 /-!
 # Issue #2434
 
-Resolving this issue also resolves issue #2434, which identified an inconsistency in *which* pre-existing mvars were being preserved—namely, `refine` would include old pre-existing syntheticOpaque mvars, but not old natural mvars. This would erroneously close goals. Here, we demonstrate that uniformly filtering out old mvars also resolves that issue.
+Resolving this issue also resolves issue #2434, which identified an inconsistency in *which* pre-existing mvars were being preserved --- namely, `refine` would include old pre-existing syntheticOpaque mvars, but not old natural mvars. This would erroneously close goals. Here, we demonstrate that uniformly filtering out old mvars also resolves that issue.
 -/
 
 open Lean Meta Elab Tactic Term in

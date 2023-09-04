@@ -1,16 +1,21 @@
 import Lean
 
-/-! These tests ensure that `refine e` only returns goals that were created during elaboration of `e` (and not before).
+/-! These tests ensure that `refine e` only returns goals that were created during elaboration of
+`e` (and not before).
 
-Including mvars encountered in `e` that were created at any point in time caused trouble in a couple of ways:
+Including mvars encountered in `e` that were created at any point in time caused trouble in a
+couple of ways:
 
 * Pre-existing goals were duplicated in the infoview (issue #2495)
-* "Goal tunneling": natural holes (`_`) created far earlier in the term could suddenly resurface after using `refine` on a term that happened to involve them (not documented on the lean4 repo; discovered during testing in Mathlib). A schematic example of this sort of issue:
+* "Goal tunneling": natural holes (`_`) created far earlier in the term could suddenly resurface
+  after using `refine` on a term that happened to involve them (not documented on the lean4 repo;
+  discovered during testing in Mathlib). A schematic example of this sort of issue:
 ```
 def x := {
   /- `field1` introduces a natural mvar: -/
   field1 := f _
-  /- the value of `field1` is used in `field2`, and prior to this fix, the goal created above "tunnels" into the infoview via `refine'`: -/
+  /- the value of `field1` is used in `field2`, and prior to this fix, the goal created above
+  "tunnels" into the infoview via `refine'`: -/
   field2 := by refine' <term involving field1> -- includes pre-existing natural mvar
 }
 ```
@@ -30,7 +35,8 @@ example : True := by
   have : True := ?a
   refine ?a -- should produce only one `case a`
 
-/-! Only new goals in the refined expression should replace the main goal. Pre-existing side goals should stay at the bottom of the list. -/
+/-! Only new goals in the refined expression should replace the main goal. Pre-existing side goals
+should stay at the bottom of the list. -/
 
 inductive Foo where
 | mk (α : Type) : α → Foo
@@ -43,7 +49,8 @@ example : Foo := by
 
 /-! # Goal tunneling -/
 
-/-! Natural mvars created earlier should not be able to tunnel into later uses of `refine`, but should be solved separately. -/
+/-! Natural mvars created earlier should not be able to tunnel into later uses of `refine`, but
+should be solved separately. -/
 
 axiom neq3 {n} : n ≠ 3
 

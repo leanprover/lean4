@@ -14,6 +14,8 @@ def x := {
   field2 := by refine' <term involving field1> -- includes pre-existing natural mvar
 }
 ```
+
+These issues were fixed in lean4#2502.
 -/
 
 /-! # Issue 2495 -/
@@ -60,7 +62,10 @@ def bar : Bar := {
 /-!
 # Issue #2434
 
-Resolving this issue also resolves issue #2434, which identified an inconsistency in *which* pre-existing mvars were being preserved --- namely, `refine` would include old pre-existing syntheticOpaque mvars, but not old natural mvars. This would erroneously close goals. Here, we demonstrate that uniformly filtering out old mvars also resolves that issue.
+Resolving this issue also resolves issue #2434, which identified an inconsistency in *which*
+pre-existing mvars were being preserved --- namely, `refine` would include old pre-existing
+syntheticOpaque mvars, but not old natural mvars. This would erroneously close goals. Here, we
+demonstrate that uniformly filtering out old mvars also resolves that issue.
 -/
 
 open Lean Meta Elab Tactic Term in
@@ -71,8 +76,8 @@ elab "add_natural_goal" s:ident " : " t:term : tactic => do
   appendGoals [g.mvarId!]
 
 /-!
-In the following, `refine` would erroneously close each focused goal, leading to a
-`(kernel) declaration has metavariables '_example'` error.
+In the following, prior to lean4#2502, `refine` would erroneously close each focused goal, leading
+to a `(kernel) declaration has metavariables '_example'` error.
 This occurred because `withCollectingNewGoalsFrom` was only erroring on new natural goals (as
 determined by `index`), while simultaneously only passing through non-natural goals to construct
 the resulting goal list. This orphaned old natural metavariables and closed the goal list

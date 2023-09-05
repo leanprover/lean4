@@ -2,7 +2,8 @@
 
 This folder generates a deeply nested import tree of Lean modules
 that can then be used as a stress test of large Lake builds (e.g., Mathlib).
-The the modules lack any code.
+The modules lack any code.
+
 This removes variations in Lean elaboration time as a confounding factor,
 but also means this test cannot be used to profile features that depend on code size
 (e.g., OLean hashing or a module system).

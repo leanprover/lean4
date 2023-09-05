@@ -116,7 +116,7 @@ In other words, it describes only a single value, which consists of said constru
 to no arguments whatsoever.
 The `Unit` type is similar to `void` in languages derived from C.
 
-`Unit` is actually defined as `PUnit.{0}` where `PUnit` is the universe
+`Unit` is actually defined as `PUnit.{1}` where `PUnit` is the universe
 polymorphic version. The `Unit` should be preferred over `PUnit` where possible to avoid
 unnecessary universe parameters.
 

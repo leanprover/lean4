@@ -11,6 +11,51 @@ import Lean.PrettyPrinter.Formatter
 namespace Lean
 namespace Parser
 
+/-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
+@[inline] def ppHardSpace : Parser := skip
+/-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
+@[inline] def ppSpace : Parser := skip
+/-- No-op parser that advises the pretty printer to emit a hard line break. -/
+@[inline] def ppLine : Parser := skip
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.fill` node. -/
+@[inline] def ppRealFill : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to emit a `Format.group` node. -/
+@[inline] def ppRealGroup : Parser → Parser := id
+/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
+@[inline] def ppIndent : Parser → Parser := id
+/--
+  No-op parser combinator that advises the pretty printer to group and indent the given syntax.
+  By default, only syntax categories are grouped. -/
+@[inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
+/--
+  No-op parser combinator that advises the pretty printer to dedent the given syntax.
+  Dedenting can in particular be used to counteract automatic indentation. -/
+@[inline] def ppDedent : Parser → Parser := id
+
+/--
+  No-op parser combinator that allows the pretty printer to omit the group and
+  indent operation in the enclosing category parser.
+  ```
+  syntax ppAllowUngrouped "by " tacticSeq : term
+  -- allows a `by` after `:=` without linebreak in between:
+  theorem foo : True := by
+    trivial
+  ```
+-/
+@[inline] def ppAllowUngrouped : Parser := skip
+
+/--
+  No-op parser combinator that advises the pretty printer to dedent the given syntax,
+  if it was grouped by the category parser.
+  Dedenting can in particular be used to counteract automatic indentation. -/
+@[inline] def ppDedentIfGrouped : Parser → Parser := id
+
+/--
+  No-op parser combinator that prints a line break.
+  The line break is soft if the combinator is followed
+  by an ungrouped parser (see ppAllowUngrouped), otherwise hard. -/
+@[inline] def ppHardLineUnlessUngrouped : Parser := skip
+
 -- synthesize pretty printers for parsers declared prior to `Lean.PrettyPrinter`
 -- (because `Parser.Extension` depends on them)
 attribute [run_builtin_parser_attribute_hooks]
@@ -59,10 +104,10 @@ attribute [run_builtin_parser_attribute_hooks]
   node groupKind p
 
 @[run_builtin_parser_attribute_hooks, inline] def many1Indent (p : Parser) : Parser :=
-  withPosition $ many1 (checkColGe "irrelevant" >> p)
+  withPosition $ many1 (checkColGe "irrelevant" >> ppLine >> p)
 
 @[run_builtin_parser_attribute_hooks, inline] def manyIndent (p : Parser) : Parser :=
-  withPosition $ many (checkColGe "irrelevant" >> p)
+  withPosition $ many (checkColGe "irrelevant" >> ppLine >> p)
 
 @[inline] def sepByIndent (p : Parser) (sep : String) (psep : Parser := symbol sep) (allowTrailingSep : Bool := false) : Parser :=
   let p := withAntiquotSpliceAndSuffix `sepBy p (symbol "*")
@@ -97,51 +142,6 @@ attribute [run_builtin_parser_attribute_hooks] sepByIndent sepBy1Indent
 
 /-- No-op parser combinator that annotates subtrees to be ignored in syntax patterns. -/
 @[inline, run_builtin_parser_attribute_hooks] def patternIgnore : Parser → Parser := node `patternIgnore
-
-/-- No-op parser that advises the pretty printer to emit a non-breaking space. -/
-@[inline] def ppHardSpace : Parser := skip
-/-- No-op parser that advises the pretty printer to emit a space/soft line break. -/
-@[inline] def ppSpace : Parser := skip
-/-- No-op parser that advises the pretty printer to emit a hard line break. -/
-@[inline] def ppLine : Parser := skip
-/-- No-op parser combinator that advises the pretty printer to emit a `Format.fill` node. -/
-@[inline] def ppRealFill : Parser → Parser := id
-/-- No-op parser combinator that advises the pretty printer to emit a `Format.group` node. -/
-@[inline] def ppRealGroup : Parser → Parser := id
-/-- No-op parser combinator that advises the pretty printer to indent the given syntax without grouping it. -/
-@[inline] def ppIndent : Parser → Parser := id
-/--
-  No-op parser combinator that advises the pretty printer to group and indent the given syntax.
-  By default, only syntax categories are grouped. -/
-@[inline] def ppGroup (p : Parser) : Parser := ppRealFill (ppIndent p)
-/--
-  No-op parser combinator that advises the pretty printer to dedent the given syntax.
-  Dedenting can in particular be used to counteract automatic indentation. -/
-@[inline] def ppDedent : Parser → Parser := id
-
-/--
-  No-op parser combinator that allows the pretty printer to omit the group and
-  indent operation in the enclosing category parser.
-  ```
-  syntax ppAllowUngrouped "by " tacticSeq : term
-  -- allows a `by` after `:=` without linebreak in between:
-  theorem foo : True := by
-    trivial
-  ```
--/
-@[inline] def ppAllowUngrouped : Parser := skip
-
-/--
-  No-op parser combinator that advises the pretty printer to dedent the given syntax,
-  if it was grouped by the category parser.
-  Dedenting can in particular be used to counteract automatic indentation. -/
-@[inline] def ppDedentIfGrouped : Parser → Parser := id
-
-/--
-  No-op parser combinator that prints a line break.
-  The line break is soft if the combinator is followed
-  by an ungrouped parser (see ppAllowUngrouped), otherwise hard. -/
-@[inline] def ppHardLineUnlessUngrouped : Parser := skip
 
 end Parser
 

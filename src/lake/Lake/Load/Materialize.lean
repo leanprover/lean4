@@ -45,6 +45,7 @@ def updateGitRepo (repo : GitRepo) (url : String)
 (rev? : Option String) (name : String) : LogIO Unit := do
   let sameUrl ← EIO.catchExceptions (h := fun _ => pure false) <| show IO Bool from do
     let some remoteUrl ← repo.getRemoteUrl? | return false
+    if remoteUrl = url then return true
     return (← IO.FS.realPath remoteUrl) = (← IO.FS.realPath url)
   if sameUrl then
     updateGitPkg repo rev? name

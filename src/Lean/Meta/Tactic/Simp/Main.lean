@@ -98,7 +98,10 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           and invoke `unfoldDefinition?`.
           Recall that `unfoldDefinition?` has support for unfolding this kind of projection when transparency mode is `.instances`.
           -/
-          withReducibleAndInstances <| unfoldDefinition? e
+          let e? ← withReducibleAndInstances <| unfoldDefinition? e
+          if e?.isSome then
+            recordSimpTheorem (.decl cinfo.name)
+          return e?
         else
           /-
           Recall that class projections are **not** marked with `[reducible]` because we want them to be

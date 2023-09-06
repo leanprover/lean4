@@ -22,28 +22,36 @@ popd
 
 cd test
 
-# test git clone
+# Test that Lake produces no warnings on a `lake build` after a `lake update`
+# See https://github.com/leanprover/lean4/issues/2427
+
 $LAKE update
 test -d lake-packages/hello
-$LAKE build
-./build/bin/test
+# test that Lake produces no warnings
+$LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
+./build/bin/test | grep "Hello, world"
 
-# test leanprover/lake#167
-sed_i "s/Hello,/Goodbye,/" lake-packages/hello/Main.lean
+# Test that Lake produces a warning if local changes are made to a dependency
+# See https://github.com/leanprover/lake/issues/167
+
+sed_i "s/world/changes/" lake-packages/hello/Hello.lean
 ! git -C lake-packages/hello diff --exit-code
-$LAKE build 2>&1 | grep -m1 "has local changes"
-./build/bin/test
+$LAKE build 3>&1 1>&2 2>&3 | grep "has local changes"
+./build/bin/test | grep "Hello, changes"
+git -C lake-packages/hello reset --hard
+$LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 
-# test leanprover/lake#104
+# Test no `git fetch` on a `lake build` if already on the proper revision
+# See https://github.com/leanprover/lake/issues/104
+
 TEST_URL=https://example.com/hello.git
 MANIFEST=lake-manifest.json
 
-$LAKE update
-$LAKE build
 cat $MANIFEST
 sed_i "s,\\.\\.[^\"]*,$TEST_URL," $MANIFEST
 cat $MANIFEST
 # set invalid remote
 git -C lake-packages/hello remote set-url origin $TEST_URL
-# should still succeed (do nothing) as remote should not be fetched
-$LAKE build -Kurl=$TEST_URL
+# build should succeed (do nothing) despite the invalid remote because
+# the remote should not be fetched; Lake should also not produce any warnings
+$LAKE build -R -Kurl=$TEST_URL 3>&1 1>&2 2>&3 | diff - /dev/null

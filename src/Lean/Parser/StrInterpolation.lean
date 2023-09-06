@@ -58,6 +58,17 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   info := mkAtomicInfo "interpolatedStr"
 }
 
+/-- The parser `interpolatedStr(p)` parses a string literal like `"foo"` (see `str`), but the string
+may also contain `{}` escapes, and within the escapes the parser `p` is used. For example,
+`interpolatedStr(term)` will parse `"foo {2 + 2}"`, where `2 + 2` is parsed as a term rather than
+as a string. Note that the full Lean term grammar is available here, including string literals,
+so for example `"foo {"bar" ++ "baz"}"` is a legal interpolated string (which evaluates to
+`foo barbaz`).
+
+This parser has arity 1, and returns a `interpolatedStrKind` with an odd number of arguments,
+alternating between chunks of literal text and results from `p`. The literal chunks contain
+uninterpreted substrings of the input. For example, `"foo\n{2 + 2}"` would have three arguments:
+an atom `"foo\n{`, the parsed `2 + 2` term, and then the atom `}"`. -/
 def interpolatedStr (p : Parser) : Parser :=
   withAntiquot (mkAntiquot "interpolatedStr" interpolatedStrKind) $ interpolatedStrNoAntiquot p
 

@@ -19,7 +19,7 @@ def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
 /-- A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
-a regular comment (that is, as whitespace); it is parsed and forms part of the abstract syntax tree.
+a regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
 
 A `docComment` node contains a `/--` atom and then the remainder of the comment, `foo -/` in this
 example. Use `TSyntax.getDocString` to extract the body text from a doc string syntax node. -/

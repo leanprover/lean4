@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
+# Tests that Lake rebuilds when toolchain changes
+# See https://github.com/leanprover/lake/issues/62
+# Requires Elan to download a toolchain
+
 # skip if no elan found
 if ! command -v elan > /dev/null; then
    echo "elan not found; skipping test"

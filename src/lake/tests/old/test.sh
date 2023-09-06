@@ -5,6 +5,9 @@ LAKE=${LAKE:-../../build/bin/lake}
 
 ./clean.sh
 
+# Tests the `--old` option for using outdate oleans
+# See https://github.com/leanprover/lake/issues/44
+
 $LAKE new hello
 $LAKE -d hello build
 sleep 0.5 # for some reason, delay needed for `--old` rebuild consistency

@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-LAKE=${LAKE:-../../../build/bin/lake}
+LAKE=${LAKE:-../../build/bin/lake}
 
-cd foo
-rm -rf build lakefile.olean
+./clean.sh
+
+# Tests that Lake rebulds C files and relinks executables on changes
+# See https://github.com/leanprover/lake/issues/75
+
+# The exact issue is no longer applicable as Lake now always rebuilds C files
+# with the other `lean` artifacts but the test is still nice to have
+
 mkdir -p Foo
 echo $'def a := "a"' > Foo/Test.lean
 echo $'import Foo.Test def hello := a' > Foo.lean

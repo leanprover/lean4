@@ -175,7 +175,7 @@ ENDFOREACH(T)
 # bootstrap: too slow
 # 62: requires elan to download toolchain
 file(GLOB_RECURSE LEANLAKETESTS
-  "${LEAN_SOURCE_DIR}/lake/test/test.sh"
+  "${LEAN_SOURCE_DIR}/lake/tests/test.sh"
   "${LEAN_SOURCE_DIR}/lake/examples/test.sh")
 FOREACH(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|62).*")

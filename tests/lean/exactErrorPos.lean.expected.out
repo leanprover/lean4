@@ -1,17 +1,10 @@
-exactErrorPos.lean:4:13-4:14: error: don't know how to synthesize placeholder
-context:
-f : Nat → Nat
-x : Nat
-h1 : ∀ (x : Nat), x > 0 → f x = x
-h2 : x > 0
-⊢ x > 0
 exactErrorPos.lean:3:99-4:14: error: unsolved goals
 f : Nat → Nat
 x : Nat
 h1 : ∀ (x : Nat), x > 0 → f x = x
 h2 : x > 0
 ⊢ f x = x
-exactErrorPos.lean:7:14-7:15: error: don't know how to synthesize placeholder
+exactErrorPos.lean:4:13-4:14: error: don't know how to synthesize placeholder
 context:
 f : Nat → Nat
 x : Nat
@@ -24,7 +17,7 @@ x : Nat
 h1 : ∀ (x : Nat), x > 0 → f x = x
 h2 : x > 0
 ⊢ f x = x
-exactErrorPos.lean:22:38-22:39: error: don't know how to synthesize placeholder
+exactErrorPos.lean:7:14-7:15: error: don't know how to synthesize placeholder
 context:
 f : Nat → Nat
 x : Nat
@@ -37,3 +30,10 @@ x : Nat
 h1 : ∀ (x : Nat), x > 0 → f x = x
 h2 : x > 0
 ⊢ f x = x
+exactErrorPos.lean:22:38-22:39: error: don't know how to synthesize placeholder
+context:
+f : Nat → Nat
+x : Nat
+h1 : ∀ (x : Nat), x > 0 → f x = x
+h2 : x > 0
+⊢ x > 0

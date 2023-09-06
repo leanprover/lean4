@@ -1,22 +1,22 @@
 holes.lean:4:4-4:7: error: placeholders '_' cannot be used where a function is expected
-holes.lean:10:15-10:18: error: don't know how to synthesize implicit argument
-  @g Nat (?m x) x
-context:
-x : Nat
-⊢ Type
 holes.lean:10:9-10:12: error: don't know how to synthesize implicit argument
   @g Nat (?m x) x
 context:
 x : Nat
 ⊢ Type
-holes.lean:11:8-11:13: error: don't know how to synthesize placeholder
+holes.lean:10:15-10:18: error: don't know how to synthesize implicit argument
+  @g Nat (?m x) x
 context:
-case hole
+x : Nat
+⊢ Type
+holes.lean:11:4-11:5: error: don't know how to synthesize placeholder
+context:
 x : Nat
 y : Nat := g x + g x
 ⊢ Nat
-holes.lean:11:4-11:5: error: don't know how to synthesize placeholder
+holes.lean:11:8-11:13: error: don't know how to synthesize placeholder
 context:
+case hole
 x : Nat
 y : Nat := g x + g x
 ⊢ Nat

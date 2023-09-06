@@ -265,11 +265,17 @@ def errorsToWarnings (log : MessageLog) : MessageLog :=
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { msgs := log.msgs.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 
-def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
-  log.msgs.forM f
+/-- Returns all messages sorted by position. -/
+def toArray (log : MessageLog) : Array Message :=
+  let _ := @lexOrd
+  log.msgs.toArray.qsort fun m₁ m₂ =>
+    Ord.compare (m₁.fileName, m₁.pos, m₁.endPos) (m₂.fileName, m₂.pos, m₂.endPos) == .lt
 
-def toList (log : MessageLog) : List Message :=
-  (log.msgs.foldl (fun acc msg => msg :: acc) []).reverse
+def forM {m : Type → Type} [Monad m] (log : MessageLog) (f : Message → m Unit) : m Unit :=
+  log.toArray.forM f
+
+instance : ForIn m MessageLog Message where
+  forIn log := log.toArray.forIn
 
 end MessageLog
 

@@ -1,34 +1,34 @@
-hidingInaccessibleNames.lean:4:15-4:16: error: don't know how to synthesize placeholder
+hidingInaccessibleNames.lean:2:16-2:17: error: don't know how to synthesize placeholder
 context:
-x✝² : List Nat
 x✝¹ : Nat
-x✝ : x✝² ≠ []
+x✝ : [] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:3:19-3:20: error: don't know how to synthesize placeholder
 context:
 a b x✝¹ : Nat
 x✝ : [a, b] ≠ []
 ⊢ Nat
-hidingInaccessibleNames.lean:2:16-2:17: error: don't know how to synthesize placeholder
-context:
-x✝¹ : Nat
-x✝ : [] ≠ []
-⊢ Nat
-hidingInaccessibleNames.lean:10:16-10:17: error: don't know how to synthesize placeholder
+hidingInaccessibleNames.lean:4:15-4:16: error: don't know how to synthesize placeholder
 context:
 x✝² : List Nat
 x✝¹ : Nat
 x✝ : x✝² ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:8:16-8:17: error: don't know how to synthesize placeholder
+context:
+x✝¹ : Nat
+x✝ : [] ≠ []
 ⊢ Nat
 hidingInaccessibleNames.lean:9:19-9:20: error: don't know how to synthesize placeholder
 context:
 a b x✝¹ : Nat
 x✝ : [a, b] ≠ []
 ⊢ Nat
-hidingInaccessibleNames.lean:8:16-8:17: error: don't know how to synthesize placeholder
+hidingInaccessibleNames.lean:10:16-10:17: error: don't know how to synthesize placeholder
 context:
+x✝² : List Nat
 x✝¹ : Nat
-x✝ : [] ≠ []
+x✝ : x✝² ≠ []
 ⊢ Nat
 case inl
 p q : Prop

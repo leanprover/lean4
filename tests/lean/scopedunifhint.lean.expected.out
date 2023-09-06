@@ -1,3 +1,4 @@
+mul (sorryAx ?m.α true) (sorryAx ?m.α true) : ?m.α
 scopedunifhint.lean:28:11-28:12: error: application type mismatch
   mul x
 argument
@@ -15,7 +16,7 @@ has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
-mul (sorryAx ?m.α true) (sorryAx ?m.α true) : ?m.α
+sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
 scopedunifhint.lean:33:7-33:8: error: application type mismatch
   mul x
 argument
@@ -24,9 +25,9 @@ has type
   Nat : Type
 but is expected to have type
   ?m.α : Type ?u
+x*x : Nat.Magma.α
+x*x : Nat.Magma.α
 sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
-x*x : Nat.Magma.α
-x*x : Nat.Magma.α
 scopedunifhint.lean:39:11-39:17: error: application type mismatch
   mul (x, x)
 argument
@@ -35,8 +36,8 @@ has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
-sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
 (x, x)*(x, x) : (Prod.Magma Nat.Magma Nat.Magma).α
+sorryAx ?m.α true*sorryAx ?m.α true : ?m.α
 scopedunifhint.lean:56:7-56:13: error: application type mismatch
   mul (x, x)
 argument
@@ -45,4 +46,3 @@ has type
   Nat × Nat : Type
 but is expected to have type
   ?m.α : Type ?u
-sorryAx ?m.α true*sorryAx ?m.α true : ?m.α

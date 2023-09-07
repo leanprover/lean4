@@ -42,6 +42,6 @@ assignees: ''
 
 [Additional information, configuration or data that might be necessary to reproduce the issue]
 
+### Impact
 
-
-[Impact: If others are affected by this problem, ask them to add :+1: to this issue. Add :+1: to [other issues you consider important](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc).]
+Add :+1: to [issues you consider important](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc). If others are impacted by this issue, please ask them to add :+1: to it.

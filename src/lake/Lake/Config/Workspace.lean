@@ -72,6 +72,10 @@ def addPackage (pkg : Package) (self : Workspace) : Workspace :=
 @[inline] def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
   self.packageMap.find? name
 
+/-- Try to find a script in the workspace with the given name. -/
+def findScript? (script : Name) (self : Workspace) : Option Script :=
+  self.packageArray.findSome? (·.scripts.find? script)
+
 /-- Check if the module is local to any package in the workspace. -/
 def isLocalModule (mod : Name) (self : Workspace) : Bool :=
   self.packageMap.any fun _ pkg => pkg.isLocalModule mod

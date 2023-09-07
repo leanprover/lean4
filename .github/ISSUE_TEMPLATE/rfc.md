@@ -21,6 +21,6 @@ Clear and detailed description of the proposal. Consider the following questions
 
 Ideas should be discussed on [the Lean Zulip](https://leanprover.zulipchat.com) prior to submitting a proposal. Summarize all prior discussions and link them here.
 
+### Impact
 
-
-[Impact: If others are interested in adding the suggestions from this proposal, ask them to add :+1: to this issue. Add :+1: to [other issues you consider important](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc).]
+Add :+1: to [issues you consider important](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc). If others benefit from the changes in this proposal being added, please ask them to add :+1: to it.

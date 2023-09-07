@@ -181,10 +181,17 @@ def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
   let (leanInstall, _) ← opts.getInstall
   verifyLeanVersion leanInstall
 
-def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=
+def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
   match spec.splitOn "/" with
-  | [script] => return (ws.root, script)
-  | [pkg, script] => return (← parsePackageSpec ws pkg, script)
+  | [scriptName] =>
+    match ws.findScript? scriptName with
+    | some script => return script
+    | none => throw <| CliError.unknownScript spec
+  | [pkg, scriptName] => do
+    let pkg ← parsePackageSpec ws pkg
+    match pkg.scripts.find? scriptName with
+    | some script => return script
+    | none => throw <| CliError.unknownScript spec
   | _ => throw <| CliError.invalidScriptSpec spec
 
 def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
@@ -220,11 +227,8 @@ protected nonrec def run : CliM PUnit := do
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
     let args ← takeArgs
-    let (pkg, scriptName) ← parseScriptSpec ws spec
-    if let some script := pkg.scripts.find? scriptName then
-        exit <| ← script.run args |>.run {opaqueWs := ws}
-    else do
-      throw <| CliError.unknownScript scriptName
+    let script ← parseScriptSpec ws spec
+    exit <| ← script.run args |>.run {opaqueWs := ws}
   else
     for script in ws.root.defaultScripts do
       exitIfErrorCode <| ← script.run [] |>.run {opaqueWs := ws}
@@ -236,13 +240,10 @@ protected def doc : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
-    let (pkg, scriptName) ← parseScriptSpec ws spec
-    if let some script := pkg.scripts.find? scriptName then
-      match script.doc? with
-      | some doc => IO.println doc
-      | none => throw <| CliError.missingScriptDoc scriptName
-    else
-      throw <| CliError.unknownScript scriptName
+    let script ← parseScriptSpec ws spec
+    match script.doc? with
+    | some doc => IO.println doc
+    | none => throw <| CliError.missingScriptDoc script.name
 
 protected def help : CliM PUnit := do
   IO.println <| helpScript <| (← takeArg?).getD ""

@@ -168,8 +168,8 @@ def helpScriptRun :=
 USAGE:
   lake script run [[<package>/]<script>] [<args>...]
 
-This command runs the given `script` from `package`, passing `args` to it.
-Defaults to the root package.
+This command runs the `script` of the workspace (or the specific `package`),
+passing `args` to it.
 
 A bare `lake run` command will run the default script(s) of the root package
 (with no arguments)."
@@ -180,7 +180,7 @@ def helpScriptDoc :=
 USAGE:
   lake script doc [<package>/]<script>
 
-Print the docstring of `script` in `package`. Defaults to the root package."
+Print the docstring of `script` in the workspace or the specific `package`."
 
 def helpServe :=
 "Start the Lean language server

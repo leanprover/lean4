@@ -63,12 +63,15 @@ Load the remainder of a `Package`
 from its configuration environment after resolving its dependencies.
 -/
 def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := do
-  let env := self.configEnv; let opts := self.leanOpts
+  let env := self.configEnv
+  let opts := self.leanOpts
+  let strName := self.name.toString (escape := false)
 
   -- Load Script, Facet, & Target Configurations
-  let scripts : NameMap Script ← mkTagMap env scriptAttr fun name => do
-    let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn name
-    return {fn, doc? := (← findDocString? env name)}
+  let scripts : NameMap Script ← mkTagMap env scriptAttr fun scriptName => do
+    let name := strName ++ "/" ++ scriptName.toString (escape := false)
+    let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn scriptName
+    return {name, fn, doc? := ← findDocString? env scriptName}
   let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
     if let some script := scripts.find? name then pure script else
       error s!"package is missing script `{name}` marked as a default"

@@ -244,6 +244,8 @@ jobs:
             OPTIONS+=(-DLEAN_VERSION_IS_RELEASE=1)
             OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.set-release.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
+          echo OPTIONS is set to:
+          echo ${OPTIONS[@]}
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
           make -j4

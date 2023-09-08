@@ -135,7 +135,7 @@ where
   escape s :=  Lean.idBeginEscape.toString ++ s ++ Lean.idEndEscape.toString
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
-def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit := do
+def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
   let pkgName := stringToLegalOrSimpleName name
 
   -- determine the name to use for the root
@@ -172,12 +172,25 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
       unless (← mainFile.pathExists) do
         IO.FS.writeFile mainFile <| mainFileContents rootNameStr
 
-  -- write Lean's toolchain to file (if it has one) for `elan`
-  if Lean.toolchain ≠ "" then
+  /-
+  Write the detected toolchain to file (if there is one) for `elan`.
+  See [lean4#2518][1] for details on the design considerations taken here.
+
+  [1]: https://github.com/leanprover/lean4/issues/2518
+  -/
+  let toolchainFile := dir / toolchainFileName
+  if env.toolchain.isEmpty then
+    -- Empty githash implies dev build
+    unless env.lean.githash.isEmpty do
+      unless (← toolchainFile.pathExists) do
+        logWarning <|
+          "could not create a `lean-toolchain` file for the new package; "  ++
+          "no known toolchain name for the current Elan/Lean/Lake"
+  else
     if tmp = .math then
-      download "lean-toolchain" mathToolchainUrl (dir / toolchainFileName)
+      download "lean-toolchain" mathToolchainUrl toolchainFile
     else
-      IO.FS.writeFile (dir / toolchainFileName) <| Lean.toolchain ++ "\n"
+      IO.FS.writeFile toolchainFile <| env.toolchain ++ "\n"
 
   -- update `.gitignore` with additional entries for Lake
   let h ← IO.FS.Handle.mk (dir / ".gitignore") IO.FS.Mode.append
@@ -193,10 +206,10 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) : LogIO PUnit 
     else
       logWarning "failed to initialize git repository"
 
-def init (pkgName : String) (tmp : InitTemplate) : LogIO PUnit :=
-  initPkg "." pkgName tmp
+def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit :=
+  initPkg "." pkgName tmp env
 
-def new (pkgName : String) (tmp : InitTemplate) : LogIO PUnit := do
+def new (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
   let dirName := pkgName.map fun chr => if chr == '.' then '-' else chr
   IO.FS.createDir dirName
-  initPkg dirName pkgName tmp
+  initPkg dirName pkgName tmp env

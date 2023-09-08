@@ -215,11 +215,9 @@ protected def list : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
-    ws.packageMap.forM fun _ pkg => do
-      let pkgName := pkg.name.toString (escape := false)
-      pkg.scripts.forM fun name _ =>
-        let scriptName := name.toString (escape := false)
-        IO.println s!"{pkgName}/{scriptName}"
+    ws.packages.forM fun pkg => do
+      pkg.scripts.forM fun _ script =>
+        IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
   processOptions lakeOption

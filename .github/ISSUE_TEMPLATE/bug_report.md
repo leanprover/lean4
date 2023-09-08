@@ -31,8 +31,6 @@ assignees: ''
 
 **Actual behavior:** [Clear and concise description of what actually happens]
 
-**Reproduces how often:** [Percentage of times the issue reproduces]
-
 ### Versions
 
 [Output of `lean --version` in the folder that the issue occured in]

@@ -27,6 +27,7 @@ namespace Lake
 structure LakeOptions where
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
+  elanInstall? : Option ElanInstall := none
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
   configOpts : NameMap String := {}
@@ -56,7 +57,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
-  Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall)
+  Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -83,8 +84,8 @@ abbrev CliStateM := StateT LakeOptions CliMainM
 abbrev CliM := ArgsT CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
-  let (leanInstall?, lakeInstall?) ← findInstall?
-  let main := self args |>.run' {leanInstall?, lakeInstall?}
+  let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
+  let main := self args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
@@ -176,6 +177,7 @@ def verifyLeanVersion (leanInstall : LeanInstall) : Except CliError PUnit := do
 
 /-- Output the detected installs and verify the Lean version. -/
 def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
+  IO.println s!"Elan:\n{repr <| opts.elanInstall?}"
   IO.println s!"Lean:\n{repr <| opts.leanInstall?}"
   IO.println s!"Lake:\n{repr <| opts.lakeInstall?}"
   let (leanInstall, _) ← opts.getInstall
@@ -259,15 +261,17 @@ def scriptCli : (cmd : String) → CliM PUnit
 
 protected def new : CliM PUnit := do
   processOptions lakeOption
-  let pkgName ← takeArg "package name"
-  let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new pkgName template) (← getThe LakeOptions).verbosity
+  let opts ← getThe LakeOptions
+  let name ← takeArg "package name"
+  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv)) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
-  let pkgName ← takeArg "package name"
-  let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init pkgName template) (← getThe LakeOptions).verbosity
+  let opts ← getThe LakeOptions
+  let name ← takeArg "package name"
+  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv)) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption

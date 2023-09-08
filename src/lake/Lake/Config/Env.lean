@@ -22,6 +22,10 @@ structure Env where
   lake : LakeInstall
   /-- The Lean installation of the environment. -/
   lean : LeanInstall
+  /-- The Elan installation (if any) of the environment. -/
+  elan? : Option ElanInstall
+  /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
+  initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/
   initLeanPath : SearchPath
   /-- The initial Lean source search path of the environment (i.e., `LEAN_SRC_PATH`). -/
@@ -35,9 +39,10 @@ structure Env where
 namespace Env
 
 /-- Compute an `Lake.Env` object from the given installs and set environment variables. -/
-def compute (lake : LakeInstall) (lean : LeanInstall) : BaseIO Env :=
+def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstall) : BaseIO Env :=
   return {
-    lake, lean,
+    lake, lean, elan?,
+    initToolchain := (← IO.getEnv "ELAN_TOOLCHAIN").getD ""
     initLeanPath := ← getSearchPath "LEAN_PATH",
     initLeanSrcPath := ← getSearchPath "LEAN_SRC_PATH",
     initSharedLibPath := ← getSearchPath sharedLibPathEnvVar,
@@ -45,7 +50,17 @@ def compute (lake : LakeInstall) (lean : LeanInstall) : BaseIO Env :=
   }
 
 /--
-The Lean library search path of the environment (i.e., `LEAN_PATH`).
+The preferred toolchain of the environment. May be empty.
+Order is: `env.lean.toolchain` or `env.initToolchain` or Lake's `Lean.toolchain`
+-/
+def toolchain (env : Env) : String :=
+  if env.lean.toolchain.isEmpty then
+    if env.initToolchain.isEmpty then Lean.toolchain else env.initToolchain
+  else
+    env.lean.toolchain
+
+/--
+The binary search path of the environment (i.e., `PATH`).
 Combines the initial path of the environment with that of the Lake installation.
 -/
 def path (env : Env) : SearchPath :=
@@ -83,9 +98,11 @@ Combines the initial path of the environment with that of the Lean installation.
 def sharedLibPath (env : Env) : SearchPath :=
   env.lean.sharedLibPath ++ env.initSharedLibPath
 
-/-- Environment variable settings based only on the Lean and Lake installations. -/
+/-- Environment variable settings based only on the Elan/Lean/Lake installations. -/
 def installVars (env : Env) : Array (String × Option String)  :=
   #[
+    ("ELAN_HOME", env.elan?.map (·.home.toString)),
+    ("ELAN_TOOLCHAIN", if env.toolchain.isEmpty then none else env.toolchain),
     ("LAKE", env.lake.lake.toString),
     ("LAKE_HOME", env.lake.home.toString),
     ("LEAN_SYSROOT", env.lean.sysroot.toString),

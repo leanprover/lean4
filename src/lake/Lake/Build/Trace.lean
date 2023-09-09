@@ -205,10 +205,6 @@ instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
 instance : GetMTime FilePath := ⟨getFileMTime⟩
 instance : GetMTime TextFilePath := ⟨(getFileMTime ·.path)⟩
 
-/-- Check if the info's `MTIme` is at least `depMTime`. -/
-@[inline] def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : BaseIO Bool :=
-  (return (depMTime < (← getMTime info) : Bool)).catchExceptions fun _ => pure false
-
 --------------------------------------------------------------------------------
 /-! # Lake Build Trace (Hash + MTIme) -/
 --------------------------------------------------------------------------------
@@ -260,7 +256,8 @@ That is, check if the info is newer than this input trace's modification time.
 -/
 @[inline] def checkAgainstTime [GetMTime i]
 (info : i) (self : BuildTrace) : BaseIO Bool :=
-  checkIfNewer info self.mtime
+  EIO.catchExceptions (h := fun _ => pure false) do
+    return self.mtime < (← getMTime info)
 
 /--
 Check if the info is up-to-date using a trace file.

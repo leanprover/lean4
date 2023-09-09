@@ -78,7 +78,7 @@ where
       | e => throw e
 
 /-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
-@[noinline] def lockFileName : String :=
+def lockFileName : String :=
   "lake.lock"
 
 /-- The workspace's build lock file. -/

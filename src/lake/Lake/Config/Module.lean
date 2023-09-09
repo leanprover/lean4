@@ -86,7 +86,7 @@ abbrev pkg (self : Module) : Package :=
   self.irPath "o"
 
 /-- Suffix for single module dynlibs (e.g., for precompilation). -/
-@[noinline] def dynlibSuffix := "-1"
+def dynlibSuffix := "-1"
 
 @[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows

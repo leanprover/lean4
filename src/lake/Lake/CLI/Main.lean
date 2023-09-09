@@ -85,7 +85,7 @@ abbrev CliM := ArgsT CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
+  let main := self.run' args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
@@ -416,4 +416,4 @@ def lake : CliM PUnit := do
         throw <| CliError.missingCommand
 
 def cli (args : List String) : BaseIO ExitCode :=
-  (lake).run args
+  inline <| (lake).run args

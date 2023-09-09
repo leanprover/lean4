@@ -33,7 +33,7 @@ The resulting package does not yet include any dependencies.
 def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
 (leanOpts : Options) (lakeOpts : NameMap String) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
-  let configEnv ← importConfigFile dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
+  let configEnv ← importConfigFile wsDir dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir, config, configEnv, leanOpts
@@ -100,7 +100,7 @@ Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← importConfigFile config.rootDir
+  let configEnv ← importConfigFile config.rootDir config.rootDir
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let repo := GitRepo.mk config.rootDir

@@ -78,17 +78,20 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
     return s.commandState.env
 
 /--
-If `reconfigure` is not set and up-to-date OLean for the configuration file exists,
-import it. Otherwise, elaborate the configuration and store save it to the OLean.
+Import the OLean for the configuration file if `reconfigure` is not set
+and an up-to-date one exists (i.e., one newer than the configuration and the
+toolchain). Otherwise, elaborate the configuration and save it to the OLean.
 -/
-def importConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
+def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
   let olean := configFile.withExtension "olean"
   let useOLean ← id do
     if reconfigure then return false
-    unless (← olean.pathExists) do return false
-    unless (← getMTime olean) > (← getMTime configFile) do return false
-    return true
+    let .ok oleanMTime ← getMTime olean |>.toBaseIO | return false
+    unless oleanMTime > (← getMTime configFile) do return false
+    let toolchainFile := wsDir / toolchainFileName
+    let .ok toolchainMTime ← getMTime toolchainFile |>.toBaseIO | return true
+    return oleanMTime > toolchainMTime
   if useOLean then
     withImporting do
     let (mod, region) ← readModuleData olean

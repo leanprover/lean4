@@ -321,10 +321,12 @@ def parseToken (s : String) : FormatterM ParserState :=
     input := s,
     fileName := "",
     fileMap := FileMap.ofString ""
-  } {
     env := ← getEnv,
     options := ← getOptions
-  } ((← read).table) (Parser.mkParserState s)
+    prec := 0
+    tokens := (← read).table
+    tokenFn := tokenFnCore
+  } (Parser.mkParserState s)
 
 def pushToken (info : SourceInfo) (tk : String) : FormatterM Unit := do
   match info with

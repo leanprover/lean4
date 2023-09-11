@@ -20,4 +20,4 @@ protected def LeanExe.recBuildExe
   let deps := (← fetch <| self.pkg.facet `deps).push self.pkg
   for dep in deps do for lib in dep.externLibs do
     linkJobs := linkJobs.push <| ← lib.static.fetch
-  buildLeanExe self.file linkJobs self.linkArgs
+  buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs

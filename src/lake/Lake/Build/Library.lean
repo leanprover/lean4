@@ -71,7 +71,7 @@ protected def LeanLib.recBuildShared
     mod.nativeFacets.mapM fun facet => fetch <| mod.facet facet.name
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
   let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.shared.fetch))
-  buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.linkArgs
+  buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=

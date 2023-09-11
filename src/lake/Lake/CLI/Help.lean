@@ -111,6 +111,8 @@ def helpUpdate :=
 USAGE:
   lake update [<package>...]
 
+ALIAS: lake upgrade
+
 Updates the Lake package manifest (i.e., `lake-manifest.json`),
 downloading and upgrading packages as needed. For each new (transitive) git
 dependency, the appropriate commit is cloned into a subdirectory of
@@ -160,6 +162,8 @@ def helpScriptList :=
 USAGE:
   lake script list
 
+ALIAS: lake scripts
+
 This command prints the list of all available scripts in the workspace."
 
 def helpScriptRun :=
@@ -167,6 +171,8 @@ def helpScriptRun :=
 
 USAGE:
   lake script run [[<package>/]<script>] [<args>...]
+
+ALIAS: lake run
 
 This command runs the `script` of the workspace (or the specific `package`),
 passing `args` to it.
@@ -225,28 +231,30 @@ def helpExe :=
 USAGE:
   lake exe <exe-target> [<args>...]
 
+ALIAS: lake exec
+
 Looks for the executable target in the workspace (see `lake help build` to
 learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
 def helpScript : (cmd : String) → String
-| "list"      => helpScriptList
-| "run"       => helpScriptRun
-| "doc"       => helpScriptDoc
-| _           => helpScriptCli
+| "list"                => helpScriptList
+| "run"                 => helpScriptRun
+| "doc"                 => helpScriptDoc
+| _                     => helpScriptCli
 
 def help : (cmd : String) → String
-| "new"       => helpNew
-| "init"      => helpInit
-| "build"     => helpBuild
-| "update"    => helpUpdate
-| "upload"    => helpUpload
-| "clean"     => helpClean
-| "script"    => helpScriptCli
-| "scripts"   => helpScriptList
-| "run"       => helpScriptRun
-| "serve"     => helpServe
-| "env"       => helpEnv
-| "exe"       => helpExe
-| _           => usage
+| "new"                 => helpNew
+| "init"                => helpInit
+| "build"               => helpBuild
+| "update" | "upgrade"  => helpUpdate
+| "upload"              => helpUpload
+| "clean"               => helpClean
+| "script"              => helpScriptCli
+| "scripts"             => helpScriptList
+| "run"                 => helpScriptRun
+| "serve"               => helpServe
+| "env"                 => helpEnv
+| "exe" | "exec"        => helpExe
+| _                     => usage

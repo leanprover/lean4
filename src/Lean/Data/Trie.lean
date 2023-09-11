@@ -79,24 +79,20 @@ where
       modify (·.push a)
     cs.forM fun _ c => collect c
 
-private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
-  match v, acc with
-  | some v, (_, _) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
-  | none,   acc    => acc
-
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
   let rec loop
-    | Trie.Node v m, i, acc =>
+    | Trie.Node v m, i, res =>
       match s.atEnd i with
-      | true  => updtAcc v i acc
+      | true  =>
+        if v.isSome then v else res
       | false =>
-        let acc := updtAcc v i acc
+        let res := if v.isSome then v else res
         let c   := s.get i
         let i   := s.next i
         match RBNode.find compare m c with
-        | some t => loop t i acc
-        | none   => acc
-  loop t i (i, none)
+        | some t => loop t i res
+        | none   => res
+  loop t i none
 
 private partial def toStringAux {α : Type} : Trie α → List Format
   | Trie.Node _ map => map.fold (fun Fs c t =>

@@ -148,8 +148,8 @@ downloading and/or updating them as necessary.
 def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigure := false) : LogIO Workspace := do
   if !manifest.isEmpty && manifest.packagesDir? != some ws.relPkgsDir then
     logWarning <|
-      "manifest out of date: packages directory changed, " ++
-      "use `lake update` to update"
+      "manifest out of date: packages directory changed; " ++
+      "use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)"
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
   let pkgEntries := manifest.packages.foldl (init := mkNameMap PackageEntry)
     fun map entry => map.insert entry.name entry
@@ -158,11 +158,13 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
       let topLevel := pkg.name = ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
       if topLevel then
+        if manifest.isEmpty && !deps.isEmpty then
+          error "missing manifest; use `lake update` to generate one"
         for dep in deps do
           let warnOutOfDate (what : String) :=
             logWarning <|
-              s!"manifest out of date: {what} of dependency '{dep.name}' changed, " ++
-              "use `lake update` to update"
+              s!"manifest out of date: {what} of dependency '{dep.name}' changed; " ++
+              s!"use `lake update {dep.name}` to update it"
           if let .some entry := pkgEntries.find? dep.name then
           match dep.src, entry with
           | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
@@ -171,11 +173,18 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
           | .path .., .path .. => pure ()
           | _, _ => warnOutOfDate "source kind (git/path)"
       let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
-        let .some entry := pkgEntries.find? dep.name
-          | error <| s!"dependency '{dep.name}' of '{pkg.name}' not in manifest, " ++
-            "use `lake update` to update"
-        let result ← entry.materialize ws.dir relPkgsDir
-        loadDepPackage ws.dir result pkg.leanOpts dep.opts reconfigure
+        if let some entry := pkgEntries.find? dep.name then
+          let result ← entry.materialize ws.dir relPkgsDir
+          loadDepPackage ws.dir result pkg.leanOpts dep.opts reconfigure
+        else if topLevel then
+          error <|
+            s!"dependency '{dep.name}' not in manifest; " ++
+            s!"use `lake update {dep.name}` to add it"
+        else
+          error <|
+            s!"dependency '{dep.name}' of '{pkg.name}' not in manifest; " ++
+            s!"this suggests that the manifest is corrupt;" ++
+            s!"use `lake update` to generate a new, complete file (warning: this will update ALL workspace dependencies)"
       return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | Except.ok root =>

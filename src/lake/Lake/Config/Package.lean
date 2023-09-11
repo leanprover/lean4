@@ -318,9 +318,17 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs
 
+/-- The package's `weakLeancArgs` configuration. -/
+@[inline] def weakLeancArgs (self : Package) : Array String :=
+  self.config.weakLeancArgs
+
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
+
+/-- The package's `weakLinkArgs` configuration. -/
+@[inline] def weakLinkArgs (self : Package) : Array String :=
+  self.config.weakLinkArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 @[inline] def srcDir (self : Package) : FilePath :=

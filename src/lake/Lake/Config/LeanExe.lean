@@ -79,6 +79,14 @@ def linkArgs (self : LeanExe) : Array String :=
   else
     self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
 
+
+/--
+The arguments to weakly pass to `leanc` when linking the binary executable.
+That is, the package's `weakLinkArgs` plus the executable's  `weakLinkArgs`.
+-/
+@[inline] def weakLinkArgs (self : LeanExe) : Array String :=
+  self.pkg.weakLinkArgs ++ self.config.weakLinkArgs
+
 end LeanExe
 
 /-- Locate the named module in the package (if it is buildable and local to it). -/

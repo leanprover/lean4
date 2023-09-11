@@ -176,7 +176,7 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos
     | Trie.Node v? cs ts, i, acc =>
       let acc := updtAcc v? i acc
       match i == s.utf8ByteSize with
-      | true  => updtAcc v? i acc
+      | true  => acc
       | false =>
         let c := s.getUtf8Byte i
         match cs.findIdx? (· == c) with

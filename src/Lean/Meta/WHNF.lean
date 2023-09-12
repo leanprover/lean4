@@ -820,6 +820,8 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
       else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
       else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
       else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
+      else if fn == ``Nat.pow then reduceBinNatOp Nat.pow a1 a2
+      else if fn == ``Nat.gcd then reduceBinNatOp Nat.gcd a1 a2
       else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
       else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
       else return none

@@ -6,7 +6,6 @@ Author: Sebastian Ullrich, Leonardo de Moura, Joachim Breitner
 A string trie data strucuture, used for tokenizing the Lean language
 -/
 import Lean.Data.Format
-import Init.Data.String.Extra
 
 namespace Lean
 namespace Parser
@@ -55,7 +54,7 @@ instance : Inhabited (Trie α) where
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
     match i == s.utf8ByteSize  with
-    | true => Trie.Node (f .none) .empty .empty
+    | true => Trie.Leaf (f .none)
     | false =>
       let c := s.getUtf8Byte i
       let t := insertEmpty (i + 1)

@@ -175,7 +175,9 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
       let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then
           let result ← entry.materialize ws.dir relPkgsDir
-          loadDepPackage ws.dir result pkg.leanOpts dep.opts reconfigure
+          -- Union manifest and configuration options (preferring manifest)
+          let opts := entry.opts.mergeBy (fun _ e _ => e) dep.opts
+          loadDepPackage ws.dir result pkg.leanOpts opts reconfigure
         else if topLevel then
           error <|
             s!"dependency '{dep.name}' not in manifest; " ++

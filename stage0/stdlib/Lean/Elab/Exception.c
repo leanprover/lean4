@@ -747,20 +747,22 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_7 = l_Lean_FileMap_toPosition(x_2, x_5);
 x_8 = l_Lean_FileMap_toPosition(x_2, x_6);
 x_9 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_9, 0, x_8);
-x_10 = l_Lean_Elab_mkMessageCore___closed__1;
-x_11 = lean_alloc_ctor(0, 5, 1);
-lean_ctor_set(x_11, 0, x_1);
-lean_ctor_set(x_11, 1, x_7);
-lean_ctor_set(x_11, 2, x_9);
-lean_ctor_set(x_11, 3, x_10);
-lean_ctor_set(x_11, 4, x_3);
-lean_ctor_set_uint8(x_11, sizeof(void*)*5, x_4);
-return x_11;
+x_10 = 0;
+x_11 = l_Lean_Elab_mkMessageCore___closed__1;
+x_12 = lean_alloc_ctor(0, 5, 2);
+lean_ctor_set(x_12, 0, x_1);
+lean_ctor_set(x_12, 1, x_7);
+lean_ctor_set(x_12, 2, x_9);
+lean_ctor_set(x_12, 3, x_11);
+lean_ctor_set(x_12, 4, x_3);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5, x_10);
+lean_ctor_set_uint8(x_12, sizeof(void*)*5 + 1, x_4);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_mkMessageCore___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {

@@ -57,7 +57,6 @@ uint8_t l_String_isEmpty(lean_object*);
 static lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree___closed__3;
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__2;
 uint8_t l_Lean_Parser_isTerminalCommand(lean_object*);
-lean_object* l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_initFn____x40_Lean_Server_Snapshots___hyg_6____closed__4;
@@ -93,6 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___rarg
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Snapshots_compileNextCmd___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Server_Snapshots_Snapshot_isAtEnd(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Server_Snapshots_Snapshot_infoTree___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Snapshots_dummyTacticCache;
@@ -1642,7 +1642,7 @@ if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_106; lean_object* x_107; 
 x_106 = l_Lean_Server_Snapshots_compileNextCmd___closed__6;
-x_107 = l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(x_106);
+x_107 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_106);
 x_25 = x_107;
 goto block_105;
 }
@@ -1774,13 +1774,14 @@ x_72 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_72, 0, x_71);
 x_73 = 0;
 x_74 = l_Lean_Server_Snapshots_compileNextCmd___closed__2;
-x_75 = lean_alloc_ctor(0, 5, 1);
+x_75 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_75, 0, x_36);
 lean_ctor_set(x_75, 1, x_69);
 lean_ctor_set(x_75, 2, x_70);
 lean_ctor_set(x_75, 3, x_74);
 lean_ctor_set(x_75, 4, x_72);
-lean_ctor_set_uint8(x_75, sizeof(void*)*5, x_73);
+lean_ctor_set_uint8(x_75, sizeof(void*)*5, x_23);
+lean_ctor_set_uint8(x_75, sizeof(void*)*5 + 1, x_73);
 x_76 = l_Lean_PersistentArray_push___rarg(x_68, x_75);
 lean_ctor_set(x_64, 1, x_76);
 x_77 = lean_box(0);
@@ -1819,13 +1820,14 @@ x_91 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_91, 0, x_90);
 x_92 = 0;
 x_93 = l_Lean_Server_Snapshots_compileNextCmd___closed__2;
-x_94 = lean_alloc_ctor(0, 5, 1);
+x_94 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_94, 0, x_36);
 lean_ctor_set(x_94, 1, x_88);
 lean_ctor_set(x_94, 2, x_89);
 lean_ctor_set(x_94, 3, x_93);
 lean_ctor_set(x_94, 4, x_91);
-lean_ctor_set_uint8(x_94, sizeof(void*)*5, x_92);
+lean_ctor_set_uint8(x_94, sizeof(void*)*5, x_23);
+lean_ctor_set_uint8(x_94, sizeof(void*)*5 + 1, x_92);
 x_95 = l_Lean_PersistentArray_push___rarg(x_80, x_94);
 x_96 = lean_alloc_ctor(0, 9, 0);
 lean_ctor_set(x_96, 0, x_79);
@@ -1956,7 +1958,7 @@ if (lean_obj_tag(x_131) == 0)
 {
 lean_object* x_203; lean_object* x_204; 
 x_203 = l_Lean_Server_Snapshots_compileNextCmd___closed__6;
-x_204 = l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(x_203);
+x_204 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_203);
 x_133 = x_204;
 goto block_202;
 }
@@ -2116,13 +2118,14 @@ x_188 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_188, 0, x_187);
 x_189 = 0;
 x_190 = l_Lean_Server_Snapshots_compileNextCmd___closed__2;
-x_191 = lean_alloc_ctor(0, 5, 1);
+x_191 = lean_alloc_ctor(0, 5, 2);
 lean_ctor_set(x_191, 0, x_144);
 lean_ctor_set(x_191, 1, x_185);
 lean_ctor_set(x_191, 2, x_186);
 lean_ctor_set(x_191, 3, x_190);
 lean_ctor_set(x_191, 4, x_188);
-lean_ctor_set_uint8(x_191, sizeof(void*)*5, x_189);
+lean_ctor_set_uint8(x_191, sizeof(void*)*5, x_130);
+lean_ctor_set_uint8(x_191, sizeof(void*)*5 + 1, x_189);
 x_192 = l_Lean_PersistentArray_push___rarg(x_176, x_191);
 if (lean_is_scalar(x_184)) {
  x_193 = lean_alloc_ctor(0, 9, 0);

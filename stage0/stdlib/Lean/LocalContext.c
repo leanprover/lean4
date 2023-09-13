@@ -75,7 +75,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_LocalContext_anyM
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_LocalContext_erase___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_LocalContext_0__Lean_reprLocalDeclKind____x40_Lean_LocalContext___hyg_23____closed__19;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_LocalContext_replaceFVarId___spec__8(lean_object*, size_t, size_t, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_mkLocalDeclExported___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_mkLocalDeclExported___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadLCtx(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyMAux___at_Lean_LocalContext_anyM___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_LocalContext_isSubPrefixOf___boxed(lean_object*, lean_object*, lean_object*);
@@ -514,7 +514,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at_Lean_LocalContext_all___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_anyM___at_Lean_LocalContext_allM___spec__1(lean_object*);
-LEAN_EXPORT lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t);
+LEAN_EXPORT lean_object* lean_local_ctx_mk_local_decl(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_LocalContext_getFVarIds___spec__2(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_LocalContext_allM___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_findSomeM_x3f___at_Lean_LocalContext_findDecl_x3f___spec__2___rarg(lean_object*, lean_object*);
@@ -2864,24 +2864,23 @@ x_9 = l_Lean_LocalContext_mkLocalDecl(x_1, x_2, x_3, x_4, x_7, x_8);
 return x_9;
 }
 }
-LEAN_EXPORT lean_object* lean_local_ctx_mk_local_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, uint8_t x_6) {
+LEAN_EXPORT lean_object* lean_local_ctx_mk_local_decl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5) {
 _start:
 {
-lean_object* x_7; 
+uint8_t x_6; lean_object* x_7; 
+x_6 = 0;
 x_7 = l_Lean_LocalContext_mkLocalDecl(x_1, x_2, x_3, x_4, x_5, x_6);
 return x_7;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_mkLocalDeclExported___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+LEAN_EXPORT lean_object* l___private_Lean_LocalContext_0__Lean_LocalContext_mkLocalDeclExported___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_7; uint8_t x_8; lean_object* x_9; 
-x_7 = lean_unbox(x_5);
+uint8_t x_6; lean_object* x_7; 
+x_6 = lean_unbox(x_5);
 lean_dec(x_5);
-x_8 = lean_unbox(x_6);
-lean_dec(x_6);
-x_9 = lean_local_ctx_mk_local_decl(x_1, x_2, x_3, x_4, x_7, x_8);
-return x_9;
+x_7 = lean_local_ctx_mk_local_decl(x_1, x_2, x_3, x_4, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_LocalContext_mkLetDecl(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, uint8_t x_6, uint8_t x_7) {
@@ -3221,7 +3220,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
 x_2 = l_Lean_LocalContext_get_x21___closed__1;
-x_3 = lean_unsigned_to_nat(215u);
+x_3 = lean_unsigned_to_nat(216u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10881,7 +10880,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_LocalDecl_value___closed__1;
 x_2 = l_Nat_foldRev___at_Lean_LocalContext_mkBinding___spec__1___closed__1;
-x_3 = lean_unsigned_to_nat(406u);
+x_3 = lean_unsigned_to_nat(407u);
 x_4 = lean_unsigned_to_nat(14u);
 x_5 = l_Lean_LocalContext_get_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

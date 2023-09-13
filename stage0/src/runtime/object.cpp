@@ -1614,7 +1614,7 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
     size_t len1     = lean_string_len(s1);
     size_t len2     = lean_string_len(s2);
     size_t new_len  = len1 + len2;
-    unsigned new_sz = sz1 + sz2 - 1;
+    size_t new_sz   = sz1 + sz2 - 1;
     object * r;
     if (!lean_is_exclusive(s1)) {
         r = lean_alloc_string(new_sz, mk_capacity(new_sz), new_len);

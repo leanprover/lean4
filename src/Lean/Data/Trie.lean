@@ -153,38 +153,29 @@ where
         modify (·.push a)
       ts.forM fun t' => collect t'
 
-private def updtAcc (v? : Option α) (i : Nat) (acc : String.Pos × Option α) : String.Pos × Option α :=
-  match v?, acc with
-  | some v, (_, _) => (.mk i, some v)
-       -- we pattern match on `acc` to enable memory reuse
-       -- by constuction, only valid string positions have entries in the trie
-  | none,   acc    => acc
-
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
   let rec loop
-    | Trie.Leaf v?, i, acc =>
-      updtAcc v? i acc
-    | Trie.Node1 v? c' t', i, acc =>
-      let acc := updtAcc v? i acc
+    | Trie.Leaf v, _, res =>
+      if v.isSome then v else res
+    | Trie.Node1 v c' t', i, res =>
+      let res := if v.isSome then v else res
       match i == s.utf8ByteSize with
-      | true  => acc
+      | true  => res
       | false =>
         let c := s.getUtf8Byte i
         if c == c'
-        then loop t' (i + 1) acc
-        else acc
-    | Trie.Node v? cs ts, i, acc =>
-      let acc := updtAcc v? i acc
+        then loop t' (i + 1) res
+        else res
+    | Trie.Node v cs ts, i, res =>
+      let res := if v.isSome then v else res
       match i == s.utf8ByteSize with
-      | true  => acc
+      | true  => res
       | false =>
         let c := s.getUtf8Byte i
         match cs.findIdx? (· == c) with
-        | none => acc
-        | some idx => loop (ts.get! idx) (i + 1) acc
-  loop t i.byteIdx (i, none)
-
-open Lean
+        | none => res
+        | some idx => loop (ts.get! idx) (i + 1) res
+  loop t i.byteIdx none
 
 private partial def toStringAux {α : Type} : Trie α → List Format
   | Trie.Leaf _ => []

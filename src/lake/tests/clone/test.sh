@@ -44,7 +44,7 @@ $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 # Test that Lake produces a warning if local changes are made to a dependency
 # See https://github.com/leanprover/lake/issues/167
 
-sed_i "s/world/changes/" lake-packages/hello/Hello.lean
+sed_i "s/world/changes/" lake-packages/hello/Hello/Basic.lean
 ! git -C lake-packages/hello diff --exit-code
 $LAKE build 3>&1 1>&2 2>&3 | grep "has local changes"
 ./build/bin/test | grep "Hello, changes"

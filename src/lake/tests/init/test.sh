@@ -7,23 +7,25 @@ LAKE=${LAKE:-../../build/bin/lake}
 
 # Test `new` and `init` with bad template (should error)
 
-$LAKE new foo bar && exit 1 || true
-$LAKE init foo bar && exit 1 || true
+! $LAKE new foo bar
+! $LAKE init foo bar
 
-# Test `new` with `.`
+# Test creating multi-level packages with a `.`
 
 $LAKE new hello.world
 $LAKE -d hello-world build
 hello-world/build/bin/hello-world
+test -f hello-world/Hello/World/Basic.lean
 
-# Test `new` with `-`
+# Test creating packages with a `-` (i.e., a non-Lean name)
 # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/lake.20new.20lean-data
 
 $LAKE new lean-data
 $LAKE -d lean-data build
 lean-data/build/bin/lean-data
 
-# Test issue 128
+# Test creating packages with keyword names
+# https://github.com/leanprover/lake/issues/128
 
 $LAKE new meta
 $LAKE -d meta build

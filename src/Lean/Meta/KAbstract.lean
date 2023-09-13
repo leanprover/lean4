@@ -16,9 +16,11 @@ By default, all occurrences are abstracted,
 but this behavior can be controlled using the `occs` parameter.
 
 All matches of `p` in `e` are considered for occurrences,
-but at the first match (whether included in the occurrences or not)
+but for each match that is included by the `occs` parameter,
 metavariables appearing in `p` (or `e`) may become instantiated,
 affecting the possibility of subsequent matches.
+For matches that are not included in the `occs` parameter, the metavariable context is rolled back
+to prevent blocking subsequent matches which require different instantiations.
 -/
 def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr := do
   let e ← instantiateMVars e
@@ -41,15 +43,22 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         visitChildren ()
       else if e.toHeadIndex != pHeadIdx || e.headNumArgs != pNumArgs then
         visitChildren ()
-      else if (← isDefEq e p) then
-        let i ← get
-        set (i+1)
-        if occs.contains i then
-          return mkBVar offset
+      else
+        -- We save the metavariable context here,
+        -- so that it can be rolled back unless `occs.contains i`.
+        let mctx ← getMCtx
+        if (← isDefEq e p) then
+          let i ← get
+          set (i+1)
+          if occs.contains i then
+            return mkBVar offset
+          else
+            -- Revert the metavariable context,
+            -- so that other matches are still possible.
+            setMCtx mctx
+            visitChildren ()
         else
           visitChildren ()
-      else
-        visitChildren ()
     visit e 0 |>.run' 1
 
 end Lean.Meta

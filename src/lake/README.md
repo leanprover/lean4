@@ -1,11 +1,11 @@
 # Lake
 
-Lake (Lean Make) is a new build system and package manager for Lean 4.
+Lake (Lean Make) is the new build system and package manager for Lean 4.
 With Lake, the package's configuration is written in Lean inside a dedicated `lakefile.lean` stored in the root of the package's directory.
 
 Each `lakefile.lean` includes a `package` declaration (akin to `main`) which defines the package's basic configuration. It also typically includes build configurations for different targets (e.g., Lean libraries and binary executables) and Lean scripts to run on the command line (via `lake script run`).
 
-***This README provides information about Lake relative to the current commit. If you are looking for documentation for the Lake version shipped with a given Lean nightly, you should look at the README of that version.***
+***This README provides information about Lake relative to the current commit. If you are looking for documentation for the Lake version shipped with a given Lean release, you should look at the README of that version.***
 
 ## Table of Contents
 
@@ -32,9 +32,7 @@ Each `lakefile.lean` includes a `package` declaration (akin to `main`) which def
 
 ## Getting Lake
 
-Lake is part of the [lean4](https://github.com/leanprover/lean4) repository and is distributed along with its official releases (e.g., as part of the [elan](https://github.com/leanprover/elan) toolchain). So if you have installed a semi-recent Lean 4 nightly, you should already have it!
-
-Note that the Lake included with Lean is not updated as frequently as this repository, so some bleeding edge features may be missing. If you want to build the latest version from the source yourself, check out the [build instructions](#building-and-running-lake-from-the-source) at the bottom of this README.
+Lake is part of the [lean4](https://github.com/leanprover/lean4) repository and is distributed along with its official releases (e.g., as part of the [elan](https://github.com/leanprover/elan) toolchain). So if you have installed a semi-recent Lean 4 nightly, you should already have it! If you want to build the latest version from the source yourself, check out the [build instructions](#building-and-running-lake-from-the-source) at the bottom of this README.
 
 ## Creating and Building a Package
 
@@ -53,13 +51,32 @@ $ lake new hello
 $ cd hello
 ```
 
-Either way, Lake will initialize a git repository in the package directory with a basic `.gitignore` that ignores the build directory (i.e., `build`) where Lake outputs build files.
+Either way, Lake will create the following template directory structure and initialize a Git repository for the package.
 
-It will also create the root Lean file for the package's library, which uses the capitalized version of the package's name (e.g., `Hello.lean` in this example), and the root file for the package's binary `Main.lean`. They contain the following dummy "Hello World" program split across the two files:
+```
+build/         # Lake build outputs
+Hello/         # library source files; accessible via `import Hello.*`
+  Basic.lean   # an example library module file
+  ...          # additional files should be added here
+Hello.lean     # library root; imports standard modules from Hello
+Main.lean      # main file of the executable (contains `def main`)
+lakefile.lean  # Lake package configuration
+lean-toolchain # the Lean version used by the package
+.gitignore     # excludes system-specific files (e.g. `build`) from Git
+```
+
+The example modules files contain the following dummy "Hello World" program.
+
+**Hello/Basic.lean**
+```lean
+def hello := "world"
+```
 
 **Hello.lean**
 ```lean
-def hello := "world"
+-- This module serves as the root of the `Hello` library.
+-- Import modules here that should be built as part of the library.
+import «Hello».Basic
 ```
 
 **Main.lean**
@@ -70,7 +87,7 @@ def main : IO Unit :=
   IO.println s!"Hello, {hello}!"
 ```
 
-Lake also creates a basic `lakefile.lean` for the package along with a `lean-toolchain` file that contains the version string of the currently active Lean, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
+Lake also creates a basic `lakefile.lean` for the package along with a `lean-toolchain` file that contains the name of the Lean toolchain Lake belongs to, which tells [`elan`](https://github.com/leanprover/elan) to use that Lean toolchain for the package.
 
 
 **lakefile.lean**
@@ -78,21 +95,22 @@ Lake also creates a basic `lakefile.lean` for the package along with a `lean-too
 import Lake
 open Lake DSL
 
-package «hello» {
+package «hello» where
   -- add package configuration options here
-}
 
-lean_lib «Hello» {
+lean_lib «Hello» where
   -- add library configuration options here
-}
 
 @[default_target]
-lean_exe «hello» {
+lean_exe «hello» where
   root := `Main
-}
+  -- Enables the use of the Lean interpreter by the executable (e.g.,
+  -- `runFrontend`) at the expense of increased binary size on Linux.
+  -- Remove this line if you do not need such functionality.
+  supportInterpreter := true
 ```
 
-The command `lake build` can then be used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `build/bin`. The command `lake clean` deletes `build`.
+The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `build/bin`. The command `lake clean` deletes `build`.
 
 ```
 $ lake build
@@ -111,13 +129,13 @@ Lake uses a lot of terms common in software development -- like workspace, packa
 
 * A **lakefile** is the Lean file that configures a package. It defines how to view, edit, build, and run the code within it, and it specifies what other packages it may require in order to do so.
 
-* A **dependency** is a package required by another package and the package requiring it is its **dependent**. See the [Adding Dependencies section](#adding-dependencies) for details on how to specify dependencies.
+* If package `B` requires package `A`, then package `A` is a **dependency** of package B and package `B` is its **dependent**. Package `A` is **upstream** of package `B` and package `B` is reversely **downstream** of package `A`. See the [Adding Dependencies section](#adding-dependencies) for details on how to specify dependencies.
 
 * A **workspace** is the **broadest organizational unit in Lake**. It bundles together a package (termed the **root**), its transitive dependencies, and Lake's environment. Every package can operate as the root of a workspace and the workspace will derive its configuration from this root.
 
 * A **module** is the **smallest unit of code visible to Lake's build system**. It is generally represented by a Lean source file and a set of binary libraries (i.e., a Lean `olean` and `ilean` plus a system shared library if `precompileModules` is turned on). Modules can import one another in order to use each other's code and Lake exists primarily to facilitate this process.
 
-* A **Lean library** is a collection of modules that share a single configuration. Its modules are defined by its source directory, a set of **module roots**, and a set of **module globs**.  See the [Lean Libraries section](#lean-libraries) for more details.
+* A **Lean library** is a collection of modules that share a single configuration. Its configuration defines a set of **module roots** that determines which modules are part of the library, and a set of **module globs** that selects which modules to build on a `lake build` of the library.  See the [Lean Libraries section](#lean-libraries) for more details.
 
 * A **Lean binary executable** is a binary executable (i.e., a program a user can run on their computer without Lean installed) built from a Lean module termed its **root** (which should have a `main` definition). See the [Binary Executables section](#binary-executables) for more details.
 
@@ -127,7 +145,7 @@ Lake uses a lot of terms common in software development -- like workspace, packa
 
 * A **facet** is an element built from another organizational unit (e.g., a package, module, library, etc.). For instance, Lake produces `olean`, `ilean`, `c`, and `o` files all from a single module. Each of these components are thus termed a *facet* of the module. Similarly, Lake can build both static and shared binaries from a library. Thus, libraries have both `static` and `shared` facets. Lake also allows users to define their own custom facets to build from modules and packages, but this feature is currently experimental and not yet documented.
 
-* A **trace** is a piece of data (generally a hash) which is used to verify whether a given target is up-to-date. If the trace stored with a built target matches the trace computed during build, then a target is considered up-to-date. A target's trace is derived from its various **inputs** (e.g., source file, Lean toolchain, imports, etc.).
+* A **trace** is a piece of data (generally a hash) which is used to verify whether a given target is up-to-date (i.e., does not not need to be rebuilt). If the trace stored with a built target matches the trace computed during build, then a target is considered up-to-date. A target's trace is derived from its various **inputs** (e.g., source file, Lean toolchain, imports, etc.).
 
 ## Package Configuration Options
 
@@ -184,7 +202,7 @@ lean_lib «target-name» {
 
 * `srcDir`: The subdirectory of the package's source directory containing the library's source files. Defaults to the package's `srcDir`. (This will be passed to `lean` as the `-R` option.)
 * `roots`: An `Array` of root module `Name`(s) of the library. Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered part of the library. Defaults to a single root of the library's upper camel case name.
-* `globs`: An `Array` of module `Glob`s to build for the library. Defaults to a `Glob.one` of each of the library's  `roots`. Submodule globs build every source file within their directory. Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built.
+* `globs`: An `Array` of module `Glob`(s) to build for the library. The term `glob` comes from [file globs](https://en.wikipedia.org/wiki/Glob_(programming)) (e.g., `foo/*`) on Unix. A submodule glob builds every Lean source file within the module's directory (i.e., ``Glob.submodules `Foo`` is essentially equivalent to a theoretical `import Foo.*`). Local imports of glob'ed files (i.e., fellow modules of the workspace) are also recursively built. Defaults to a `Glob.one` of each of the library's  `roots`.
 * `libName`: The `String` name of the library. Used as a base for the file names of its static and dynamic binaries. Defaults to the upper camel case name of the target.
 * `extraDepTargets`: An `Array` of [target](#custom-targets) names to build before the library's modules.
 * `defaultFacets`: An `Array` of library facets to build on a bare `lake build` of the library. For example, setting this to `#[LeanLib.sharedLib]` will build the shared library facet.
@@ -262,7 +280,7 @@ In all of these, the object parameter and its type specifier are optional and th
 
 ## Adding Dependencies
 
-Lake packages can have dependencies. Dependencies are other Lake packages the current package needs in order to function. They can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. For example, one can depend on the Lean 4 port of [mathlib](https://github.com/leanprover-community/mathlib4) like so:
+Lake packages can have dependencies. Dependencies are other Lake packages the current package needs in order to function. They can be sourced directly from a local folder (e.g., a subdirectory of the package) or come from remote Git repositories. For example, one can depend on [mathlib](https://github.com/leanprover-community/mathlib4) like so:
 
 ```lean
 package hello
@@ -271,9 +289,11 @@ require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"
 ```
 
-The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `lake-manifest.json` to enable reproducibility. To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
+The next run of `lake build` (or refreshing dependencies in an editor like VSCode) will clone the mathlib repository and build it. Information on the specific revision cloned will then be saved to `lake-manifest.json` to enable reproducibility (i.e., ensure the same version of mathlib is used by future builds). To update `mathlib` after this, you will need to run `lake update` -- other commands do not update resolved dependencies.
 
-For a theorem proving packages which depend on `mathlib`, you can also run `lake new <package-name> math` to generate a package configuration file that already has the `mathlib` dependency (and no binary executable target).
+For theorem proving packages which depend on `mathlib`, you can also run `lake new <package-name> math` to generate a package configuration file that already has the `mathlib` dependency (and no binary executable target).
+
+**NOTE:** For mathlib in particular, you should run `lake exe cache get` prior to a `lake build` after adding or updating a mathlib dependency. Otherwise, it will be rebuilt from scratch (which can take hours). For more information, see mathlib's [wiki page](https://github.com/leanprover-community/mathlib4/wiki/Using-mathlib4-as-a-dependency) on using it as a dependency.
 
 ### Syntax of `require`
 
@@ -290,7 +310,7 @@ Both forms also support an optional `with` clause to specify arguments to pass t
 
 ## GitHub Release Builds
 
-Lake supports uploading and downloading build artifacts (i.e., the archived build directory) to/from GitHub releases of packages to enable end users to fetch pre-built artifacts from the cloud without needed to rebuild the package from the source themselves.
+Lake supports uploading and downloading build artifacts (i.e., the archived build directory) to/from the GitHub releases of packages. This enables end users to fetch pre-built artifacts from the cloud without needed to rebuild the package from the source themselves.
 
 ### Downloading
 

@@ -22,8 +22,13 @@ s!"/{defaultBuildDir}
 /{defaultPackagesDir}/*
 "
 
-def libFileContents :=
+def basicFileContents :=
   s!"def hello := \"world\""
+
+def libRootFileContents (libName : String) (libRoot : String) :=
+s!"-- This module serves as the root of the `{libName}` library.
+-- Import modules here that should be built as part of the library.
+import {libRoot}.Basic"
 
 def mainFileName : FilePath :=
   s!"{defaultExeRoot}.lean"
@@ -44,63 +49,61 @@ def stdConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
-package {pkgName} \{
+package {pkgName} where
   -- add package configuration options here
-}
 
-lean_lib {libRoot} \{
+lean_lib {libRoot} where
   -- add library configuration options here
-}
 
 @[default_target]
-lean_exe {pkgName} \{
+lean_exe {pkgName} where
   root := `Main
-}
+  -- Enables the use of the Lean interpreter by the executable (e.g.,
+  -- `runFrontend`) at the expense of increased binary size on Linux.
+  -- Remove this line if you do not need such functionality.
+  supportInterpreter := true
 "
 
 def exeConfigFileContents (pkgName exeRoot : String) :=
 s!"import Lake
 open Lake DSL
 
-package {pkgName} \{
+package {pkgName} where
   -- add package configuration options here
-}
 
 @[default_target]
-lean_exe {exeRoot} \{
-  -- add executable configuration options here
-}
+lean_exe {exeRoot} where
+  -- Enables the use of the Lean interpreter by the executable (e.g.,
+  -- `runFrontend`) at the expense of increased binary size on Linux.
+  -- Remove this line if you do not need such functionality.
+  supportInterpreter := true
 "
 
 def libConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
-package {pkgName} \{
+package {pkgName} where
   -- add package configuration options here
-}
 
 @[default_target]
-lean_lib {libRoot} \{
+lean_lib {libRoot} where
   -- add library configuration options here
-}
 "
 
 def mathConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
-package {pkgName} \{
+package {pkgName} where
   -- add any package configuration options here
-}
 
 require mathlib from git
   \"https://github.com/leanprover-community/mathlib4.git\"
 
 @[default_target]
-lean_lib {libRoot} \{
+lean_lib {libRoot} where
   -- add any library configuration options here
-}
 "
 
 def mathToolchainUrl : String :=
@@ -164,9 +167,14 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
     unless (← rootFile.pathExists) do
       IO.FS.writeFile rootFile exeFileContents
   else
-    if !rootExists then
-      IO.FS.createDirAll rootFile.parent.get!
-      IO.FS.writeFile rootFile libFileContents
+    unless rootExists do
+      let libDir := rootFile.withExtension ""
+      let basicFile := libDir / "Basic.lean"
+      unless (← basicFile.pathExists) do
+        IO.FS.createDirAll libDir
+        IO.FS.writeFile basicFile basicFileContents
+      let rootContents := libRootFileContents root.toString rootNameStr
+      IO.FS.writeFile rootFile rootContents
     if tmp = .std then
       let mainFile := dir / mainFileName
       unless (← mainFile.pathExists) do

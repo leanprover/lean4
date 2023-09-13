@@ -205,8 +205,17 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 @[inherit_doc cFacet] abbrev c (self : Module) :=
   self.facet cFacet
 
+@[inherit_doc cFacet] abbrev bc (self : Module) :=
+  self.facet bcFacet
+
 @[inherit_doc oFacet] abbrev o (self : Module) :=
   self.facet oFacet
+
+@[inherit_doc coFacet] abbrev co (self : Module) :=
+  self.facet coFacet
+
+@[inherit_doc bcoFacet] abbrev bco (self : Module) :=
+  self.facet bcoFacet
 
 @[inherit_doc dynlibFacet] abbrev dynlib (self : Module) :=
   self.facet dynlibFacet

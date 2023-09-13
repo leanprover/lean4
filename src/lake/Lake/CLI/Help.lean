@@ -91,7 +91,10 @@ MODULE FACETS:          build the module's ...
   olean                 OLean (binary blob of Lean data for importers)
   ilean                 ILean (binary blob of metadata for the Lean LSP server)
   c                     compiled C file
-  o                     compiled object file (of its C file)
+  bc                    compiled LLVM bitcode file
+  c.o                   compiled object file (of its C file)
+  bc.o                  compiled object file (of its LLVM bitcode file)
+  o                     compiled object file (of its configured backend)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...

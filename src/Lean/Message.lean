@@ -208,13 +208,15 @@ end MessageData
 /-- A `Message` is a richly formatted piece of information emitted by Lean.
 They are rendered by client editors in the infoview and in diagnostic windows. -/
 structure Message where
-  fileName : String
-  pos      : Position
-  endPos   : Option Position := none
-  severity : MessageSeverity := MessageSeverity.error
-  caption  : String          := ""
+  fileName      : String
+  pos           : Position
+  endPos        : Option Position := none
+  /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
+  keepFullRange : Bool := false
+  severity      : MessageSeverity := MessageSeverity.error
+  caption       : String          := ""
   /-- The content of the message. -/
-  data     : MessageData
+  data          : MessageData
   deriving Inhabited
 
 namespace Message

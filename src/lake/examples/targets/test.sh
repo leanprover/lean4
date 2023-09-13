@@ -36,10 +36,10 @@ test ! -f ./build/lib/Foo/Baz.olean
 $LAKE build +Foo.Baz
 test -f ./build/lib/Foo/Baz.olean
 
-# Test `o` specifier
-test ! -f ./build/ir/Bar.o
+# Test `.c.o` specifier
+test ! -f ./build/ir/Bar.c.o
 $LAKE build Bar:o
-test -f ./build/ir/Bar.o
+test -f ./build/ir/Bar.c.o
 
 # Test default targets
 test ! -f ./build/bin/c

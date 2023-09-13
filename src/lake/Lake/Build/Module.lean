@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Sebastian Ullrich, Mac Malone
+Authors: Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.OrdHashSet
 import Lake.Util.List
@@ -142,7 +142,7 @@ def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
 /--
 Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
-all possible artifacts (i.e., `.olean`, `ilean`, and `.c`).
+all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
   (← mod.deps.fetch).bindSync fun (dynlibPath, dynlibs) depTrace => do
@@ -150,11 +150,15 @@ def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
     let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
     buildUnlessUpToDate mod modTrace mod.traceFile do
-      compileLeanModule mod.name.toString mod.leanFile mod.oleanFile mod.ileanFile mod.cFile
+      let hasLLVM := Lean.Internal.hasLLVMBackend ()
+      let bcFile? := if hasLLVM then some mod.bcFile else none
+      compileLeanModule mod.name.toString mod.leanFile mod.oleanFile mod.ileanFile mod.cFile bcFile?
         (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       discard <| cacheFileHash mod.oleanFile
       discard <| cacheFileHash mod.ileanFile
       discard <| cacheFileHash mod.cFile
+      if hasLLVM then
+        discard <| cacheFileHash mod.bcFile
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
@@ -180,13 +184,38 @@ def Module.cFacetConfig : ModuleFacetConfig cFacet :=
       -- do content-aware hashing so that we avoid recompiling unchanged C files
       return (mod.cFile, ← fetchFileTrace mod.cFile)
 
-/-- Recursively build the module's object file from its C file produced by `lean`. -/
-def Module.recBuildLeanO (self : Module) : IndexBuildM (BuildJob FilePath) := do
-  buildLeanO self.name.toString self.oFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+/-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
+def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
+  mkFacetJobConfigSmall fun mod => do
+    (← mod.leanArts.fetch).bindSync fun _ _ =>
+      -- do content-aware hashing so that we avoid recompiling unchanged bitcode files
+      return (mod.bcFile, ← fetchFileTrace mod.bcFile)
 
-/-- The `ModuleFacetConfig` for the builtin `oFacet`. -/
+/-- Recursively build the module's object file from its C file produced by `lean`. -/
+def Module.recBuildLeanCToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+  -- TODO: add option to pass a target triplet for cross compilation
+  buildLeanO self.name.toString self.coFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
+
+/-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
+def Module.recBuildLeanBcToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+  -- TODO: add option to pass a target triplet for cross compilation
+  buildLeanO self.name.toString self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
+
+/-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
+def Module.coFacetConfig : ModuleFacetConfig coFacet :=
+  mkFacetJobConfig Module.recBuildLeanCToO
+
+/-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
+def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
+  mkFacetJobConfig Module.recBuildLeanBcToO
+
+/-- The `ModuleFacetConfig` for the builtin `OFacet`. -/
 def Module.oFacetConfig : ModuleFacetConfig oFacet :=
-  mkFacetJobConfig Module.recBuildLeanO
+  mkFacetJobConfigSmall fun mod =>
+    match mod.backend with
+    | .default | .c => mod.co.fetch
+    | .llvm => mod.bco.fetch
+
 
 -- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
@@ -241,5 +270,8 @@ def initModuleFacetConfigs : DNameMap ModuleFacetConfig :=
   |>.insert oleanFacet oleanFacetConfig
   |>.insert ileanFacet ileanFacetConfig
   |>.insert cFacet cFacetConfig
+  |>.insert bcFacet bcFacetConfig
+  |>.insert coFacet coFacetConfig
+  |>.insert bcoFacet bcoFacetConfig
   |>.insert oFacet oFacetConfig
   |>.insert dynlibFacet dynlibFacetConfig

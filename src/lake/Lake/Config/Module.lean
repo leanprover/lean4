@@ -82,8 +82,14 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def cFile (self : Module) : FilePath :=
   self.irPath "c"
 
-@[inline] def oFile (self : Module) : FilePath :=
-  self.irPath "o"
+@[inline] def bcFile (self : Module) : FilePath :=
+  self.irPath "bc"
+
+@[inline] def coFile (self : Module) : FilePath :=
+  self.irPath "c.o"
+
+@[inline] def bcoFile (self : Module) : FilePath :=
+  self.irPath "bc.o"
 
 /-- Suffix for single module dynlibs (e.g., for precompilation). -/
 def dynlibSuffix := "-1"
@@ -97,6 +103,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def buildType (self : Module) : BuildType :=
   self.lib.buildType
+
+@[inline] def backend (self : Module) : Backend :=
+  self.lib.backend
 
 @[inline] def leanArgs (self : Module) : Array String :=
   self.lib.leanArgs
@@ -130,6 +139,11 @@ protected def getMTime (self : Module) : IO MTime := do
 instance : GetMTime Module := ⟨Module.getMTime⟩
 
 protected def checkExists (self : Module) : BaseIO Bool := do
-  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile)
+  let bcFileExists? ←
+    if Lean.Internal.hasLLVMBackend () then
+      checkExists self.bcFile
+    else
+      pure true
+  return (← checkExists self.oleanFile) && (← checkExists self.ileanFile) && (← checkExists self.cFile) && bcFileExists?
 
 instance : CheckExists Module := ⟨Module.checkExists⟩

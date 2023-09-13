@@ -95,6 +95,13 @@ That is, the minimum of package's `buildType` and the library's  `buildType`.
   min self.pkg.buildType self.config.buildType
 
 /--
+The backend type for modules of this library.
+Prefer the library's `backend` configuration, then the package's,
+then the default (which is C for now).
+-/
+@[inline] def backend (self : LeanLib) : Backend :=
+  Backend.orPreferLeft self.config.backend self.pkg.backend
+/--
 The arguments to pass to `lean` when compiling the library's Lean files.
 That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
 -/

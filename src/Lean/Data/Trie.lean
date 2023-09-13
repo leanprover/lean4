@@ -53,41 +53,41 @@ instance : Inhabited (Trie α) where
 
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
-    match i == s.utf8ByteSize  with
-    | true => Trie.Leaf (f .none)
-    | false =>
-      let c := s.getUtf8Byte i
+    if h : i < s.utf8ByteSize then
+      let c := s.getUtf8Byte i h
       let t := insertEmpty (i + 1)
       Trie.Node1 none c t
+    else
+      Trie.Leaf (f .none)
   let rec loop
     | i, Leaf v =>
-      match i == s.utf8ByteSize  with
-      | true  => Trie.Leaf (f v)
-      | false =>
-          let c := s.getUtf8Byte i
-          let t := insertEmpty (i + 1)
-          Trie.Node1 v c t
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        let t := insertEmpty (i + 1)
+        Trie.Node1 v c t
+      else
+        Trie.Leaf (f v)
     | i, Node1 v c' t' =>
-      match i == s.utf8ByteSize  with
-      | true  => Trie.Node1 (f v) c' t'
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         if c == c'
         then Trie.Node1 v c' (loop (i + 1) t')
         else 
           let t := insertEmpty (i + 1)
           Trie.Node v (.mk #[c, c']) #[t, t']
+      else
+        Trie.Node1 (f v) c' t'
     | i, Trie.Node v cs ts =>
-      match i == s.utf8ByteSize  with
-      | true  => Trie.Node (f v) cs ts
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
           | none   =>
             let t := insertEmpty (i + 1)
             Trie.Node v (cs.push c) (ts.push t)
           | some idx =>
             Trie.Node v cs (ts.modify idx (loop (i + 1)))
+      else
+        Trie.Node (f v) cs ts
   loop 0 t
 
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
@@ -96,25 +96,26 @@ partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
 partial def find? (t : Trie α) (s : String) : Option α :=
   let rec loop
     | i, Trie.Leaf val =>
-      match i == s.utf8ByteSize  with
-      | true  => val
-      | false => none
+      if i < s.utf8ByteSize then
+        none
+      else
+        val
     | i, Trie.Node1 val c' t' =>
-      match i == s.utf8ByteSize  with
-      | true  => val
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         if c == c'
         then loop (i + 1) t'
         else none
+      else
+        val
     | i, Trie.Node val cs ts =>
-      match i == s.utf8ByteSize  with
-      | true  => val
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none   => none
         | some idx => loop (i + 1) (ts.get! idx)
+      else
+        val
   loop 0 t
 
 /-- Return values that match the given `prefix` -/
@@ -122,10 +123,8 @@ partial def findPrefix (t : Trie α) (pre : String) : Array α :=
   go t 0 |>.run #[] |>.2
 where
   go (t : Trie α) (i : Nat) : StateM (Array α) Unit :=
-    if i == pre.utf8ByteSize then
-      collect t
-    else
-      let c := pre.getUtf8Byte i
+    if h : i < pre.utf8ByteSize then
+      let c := pre.getUtf8Byte i h
       match t with
       | Leaf _val =>
         pure ()
@@ -137,6 +136,8 @@ where
         match cs.findIdx? (· == c) with
         | none   => pure ()
         | some idx => go (ts.get! idx) (i + 1)
+    else
+      collect t
 
   collect (t : Trie α) : StateM (Array α) Unit := do
     match t with
@@ -158,22 +159,22 @@ partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α 
       if v.isSome then v else res
     | Trie.Node1 v c' t', i, res =>
       let res := if v.isSome then v else res
-      match i == s.utf8ByteSize with
-      | true  => res
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         if c == c'
         then loop t' (i + 1) res
         else res
+      else
+        res
     | Trie.Node v cs ts, i, res =>
       let res := if v.isSome then v else res
-      match i == s.utf8ByteSize with
-      | true  => res
-      | false =>
-        let c := s.getUtf8Byte i
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
         match cs.findIdx? (· == c) with
         | none => res
         | some idx => loop (ts.get! idx) (i + 1) res
+      else
+        res
   loop t i.byteIdx none
 
 private partial def toStringAux {α : Type} : Trie α → List Format

@@ -34,8 +34,8 @@ opaque fromUTF8Unchecked (a : @& ByteArray) : String
 opaque toUTF8 (a : @& String) : ByteArray
 
 /-- Accesses a byte in the [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding of the `Strig` -/
-@[extern "lean_string_get_byte"]
-def getUtf8Byte (s : @& String) (n : Nat) : UInt8 := s.toUTF8.get! n
+@[extern "lean_string_get_byte_fast"]
+opaque getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 
 theorem Iterator.sizeOf_next_lt_of_hasNext (i : String.Iterator) (h : i.hasNext) : sizeOf i.next < sizeOf i := by
   cases i; rename_i s pos; simp [Iterator.next, Iterator.sizeOf_eq]; simp [Iterator.hasNext] at h

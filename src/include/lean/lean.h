@@ -1014,11 +1014,10 @@ static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_ar
   if ((c & 0x80) == 0) return c;
   return lean_string_utf8_get_fast_cold(str, idx, lean_string_size(s), c);
 }
-static inline uint8_t lean_string_get_byte(b_lean_obj_arg s, b_lean_obj_arg i) {
+static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
   char const * str = lean_string_cstr(s);
   size_t idx = lean_unbox(i);
-  if (idx < lean_string_size(s) - 1) return str[idx];
-  return 0;
+  return str[idx];
 }
 
 LEAN_SHARED lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Data.Json.FromToJson
 import Lake.Util.Casing
 import Lake.Build.Facets
 import Lake.Config.InstallPath
@@ -77,7 +78,7 @@ structure LeanLibConfig extends LeanConfig where
   -/
   nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
 
-deriving Inhabited
+deriving Inhabited, ToJson
 
 namespace LeanLibConfig
 

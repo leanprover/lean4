@@ -3,9 +3,10 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Data.Json.FromToJson
 import Lake.Util.NativeLib
 
-open System
+open System Lean
 namespace Lake
 
 /-! ## Data Structures -/
@@ -20,7 +21,7 @@ structure ElanInstall where
   elan := elanExe home
   binDir := home / "bin"
   toolchainsDir := home / "toolchains"
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, ToJson
 
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
@@ -63,7 +64,7 @@ structure LeanInstall where
   ar : FilePath
   cc : FilePath
   customCc : Bool
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, ToJson
 
 /--
 A `SearchPath` including the Lean installation's shared library directories
@@ -90,7 +91,7 @@ structure LakeInstall where
   binDir := home / "build" / "bin"
   libDir := home / "build" / "lib"
   lake := lakeExe <| home / "build"
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, ToJson
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/
 def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where

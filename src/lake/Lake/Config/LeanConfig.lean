@@ -3,6 +3,10 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lean.Data.Json.FromToJson
+
+open Lean
+
 namespace Lake
 
 /--
@@ -32,7 +36,7 @@ inductive BuildType
   (e.g., passes `-O3 -DNDEBUG` when compiling C code).
   -/
   | release
-deriving Inhabited, Repr, DecidableEq, Ord
+deriving Inhabited, Repr, DecidableEq, Ord, ToJson
 
 instance : LT BuildType := ltOfOrd
 instance : LE BuildType := leOfOrd

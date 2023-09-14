@@ -15,6 +15,8 @@ definitions (e.g., `Module`), and some of the facets here are used in said
 definitions.
 -/
 
+open Lean
+
 namespace Lake
 export System (SearchPath FilePath)
 
@@ -38,6 +40,8 @@ structure ModuleFacet (α) where
   /-- Proof that module's facet build result is of type α. -/
   data_eq : ModuleData name = α
   deriving Repr
+
+instance : ToJson (ModuleFacet α) := ⟨fun m => toJson m.name⟩
 
 instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
   ⟨facet.data_eq⟩

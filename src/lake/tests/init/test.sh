@@ -10,6 +10,13 @@ LAKE=${LAKE:-../../build/bin/lake}
 ! $LAKE new foo bar
 ! $LAKE init foo bar
 
+# Test creating packages with uppercase names
+# https://github.com/leanprover/lean4/issues/2540
+
+$LAKE new Hello
+$LAKE -d Hello build
+Hello/build/bin/hello
+
 # Test creating multi-level packages with a `.`
 
 $LAKE new hello.world

@@ -38,9 +38,6 @@ abbrev OrdNameMap α := RBArray Name α Name.quickCmp
 @[inline] def OrdNameMap.empty : OrdNameMap α := RBArray.empty
 @[inline] def mkOrdNameMap (α : Type) : OrdNameMap α := RBArray.empty
 
-instance [ToJson α] : ToJson (OrdNameMap α) where
-  toJson m := .obj <| m.toRBMap.revFold (fun ps n s => ps.insert compare n.toString (toJson s)) ∅
-
 abbrev DNameMap α := DRBMap Name α Name.quickCmp
 @[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
 

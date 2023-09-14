@@ -226,8 +226,8 @@ instance : ToJson Package where
     Json.opt "remoteUrl" x.remoteUrl?,
     Json.opt "gitTag" x.gitTag?,
     [("deps", toJson x.depsConfig)],
-    [("libs", toJson x.leanLibConfigs)],
-    [("exes", toJson x.leanExeConfigs)],
+    [("libs", toJson x.leanLibConfigs.toArray)],
+    [("exes", toJson x.leanExeConfigs.toArray)],
     [("defaultTargets", toJson x.defaultTargets)],
     [("scripts", toJson x.scripts)],
     [("defaultScripts", toJson (x.defaultScripts.map (·.name)))]]

@@ -51,9 +51,11 @@ extern "C" LEAN_EXPORT obj_res lean_io_condvar_new(obj_arg) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_condvar_wait(b_obj_arg condvar, b_obj_arg mtx, obj_arg) {
+#if defined(LEAN_MULTI_THREAD)
     unique_lock<mutex> lock(*basemutex_get(mtx), std::adopt_lock_t());
     condvar_get(condvar)->wait(lock);
     lock.release();
+#endif
     return io_result_mk_ok(box(0));
 }
 

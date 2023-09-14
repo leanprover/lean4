@@ -26,7 +26,7 @@ endforeach()
 include(ExternalProject)
 project(LEAN CXX C)
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
+if(("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten") AND ("${USE_GMP}" MATCHES "ON"))
   # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
   set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)
   set(EMSCRIPTEN_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1 -O3")

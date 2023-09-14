@@ -296,7 +296,10 @@ void print_value(tout const & ios, value const & v, type t) {
 }
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_EMSCRIPTEN)
+    void* self = dlopen(NULL, RTLD_LAZY);
+    return dlsym(self, sym);
+#elif defined(LEAN_WINDOWS)
     std::vector<HMODULE> hmods(128);
     DWORD bytes_needed;
     lean_always_assert(EnumProcessModules(GetCurrentProcess(), &hmods[0], hmods.size() * sizeof(HMODULE), &bytes_needed));

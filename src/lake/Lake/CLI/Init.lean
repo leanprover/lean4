@@ -45,7 +45,7 @@ s!"def main : IO Unit :=
   IO.println s!\"Hello, world!\"
 "
 
-def stdConfigFileContents (pkgName libRoot : String) :=
+def stdConfigFileContents (pkgName libRoot exeName : String) :=
 s!"import Lake
 open Lake DSL
 
@@ -56,7 +56,7 @@ lean_lib {libRoot} where
   -- add library configuration options here
 
 @[default_target]
-lean_exe {pkgName} where
+lean_exe {exeName} where
   root := `Main
   -- Enables the use of the Lean interpreter by the executable (e.g.,
   -- `runFrontend`) at the expense of increased binary size on Linux.
@@ -124,7 +124,7 @@ def InitTemplate.parse? : String → Option InitTemplate
 | _ => none
 
 def InitTemplate.configFileContents (pkgName root : String) : InitTemplate → String
-| .std => stdConfigFileContents pkgName root
+| .std => stdConfigFileContents pkgName root pkgName.toLower
 | .lib => libConfigFileContents pkgName root
 | .exe => exeConfigFileContents pkgName root
 | .math => mathConfigFileContents pkgName root

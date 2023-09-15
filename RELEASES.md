@@ -7,6 +7,19 @@ only an expectation that breaking changes will be documented in this file.
 This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status of each version.
 
+v4.1.0
+---------
+
+* The signatures of `Lean.importModules`, `Lean.Elab.headerToImports`, and `Lean.Elab.parseImports`
+  have [changed](https://github.com/leanprover/lean4/pull/2480) from taking `List Import` to `Array Import`.
+
+* There is now [an `occs` field](https://github.com/leanprover/lean4/pull/2470)
+  in the configuration object for the `rewrite` tactic,
+  allowing control of which occurrences of a pattern should be rewritten.
+  This was previously a separate argument for `Lean.MVarId.rewrite`,
+  and this has been removed in favour of an additional field of `Rewrite.Config`.
+  It was not previously accessible from user tactics.
+
 v4.0.0
 ---------
 

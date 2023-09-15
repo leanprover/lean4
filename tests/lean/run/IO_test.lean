@@ -35,6 +35,7 @@ pure ()
 #eval test
 
 def test2 : IO Unit := do
+let fn1 := "bar2.txt";
 let fn2 := "foo2.txt";
 let xs₀ : String := "⟨[₂,α]⟩";
 let xs₁ := "⟨[6,8,@]⟩";
@@ -43,14 +44,15 @@ let xs₂ := "/* Handle.getLine : Handle → IO Unit                     */" ++
            "/*   is truncated at the first \'\\0\' character and the    */" ++
            "/*   rest of the line is discarded.                      */";
     -- multi-buffer line
-withFile fn2 Mode.write $ fun h => pure ();
+withFile fn1 Mode.write $ fun _h => pure ();
 
-withFile fn2 Mode.write $ fun h => do
-{ h.putStr xs₀;
-  h.putStrLn xs₀;
-  h.putStrLn xs₂;
-  h.putStrLn xs₁;
-  pure () };
+withFile fn1 Mode.write $ fun h => do
+  h.putStr xs₀
+  h.putStrLn xs₀
+  h.putStrLn xs₂
+  h.putStrLn xs₁
+withFile fn2 Mode.write $ fun h => h.putStr "overwritten"
+rename fn1 fn2
 let ys ← withFile fn2 Mode.read $ fun h => h.getLine;
 IO.println ys;
 check_eq "1" (xs₀ ++ xs₀ ++ "\n") ys;
@@ -80,7 +82,7 @@ let xs₀ := "abc"
 let xs₁ := ""
 let xs₂ := "hello"
 let xs₃ := "world"
-withFile fn3 Mode.write $ fun h => do {
+withFile fn3 Mode.write $ fun _h => do {
   pure ()
 }
 let ys ← lines fn3
@@ -100,7 +102,7 @@ pure ()
 
 def test4 : IO Unit := do
 let fn4 := "foo4.txt"
-withFile fn4 Mode.write fun h => do pure ();
+withFile fn4 Mode.write fun _h => do pure ();
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;
 check_eq "1" [] ys.toList
 let ys ← withFile fn4 Mode.read $ fun h => h.read 1;

@@ -1,7 +1,11 @@
-# issue 50
-[0/2] Building foo
-# issue 172
+# lean args
+[0/1] Building Hello
+# weak lean args
 # compile args
-[1/2] Compiling foo
+[1/2] Compiling Hello
+# weak compile args
 # link args
-[2/2] Linking foo
+[2/3] Linking Hello
+[2/3] Linking Hello
+[4/4] Linking hello
+# weak link args

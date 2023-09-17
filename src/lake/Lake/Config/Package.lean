@@ -171,9 +171,6 @@ deriving Inhabited
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-abbrev DNameMap α := DRBMap Name α Name.quickCmp
-@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
-
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
   /-- The path to the package's directory. -/
@@ -191,9 +188,9 @@ structure Package where
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
-  leanLibConfigs : NameMap LeanLibConfig := {}
+  leanLibConfigs : OrdNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
-  leanExeConfigs : NameMap LeanExeConfig := {}
+  leanExeConfigs : OrdNameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
   externLibConfigs : DNameMap (ExternLibConfig config.name) := {}
   /-- (Opaque references to) targets defined in the package. -/
@@ -321,9 +318,17 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs
 
+/-- The package's `weakLeancArgs` configuration. -/
+@[inline] def weakLeancArgs (self : Package) : Array String :=
+  self.config.weakLeancArgs
+
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
+
+/-- The package's `weakLinkArgs` configuration. -/
+@[inline] def weakLinkArgs (self : Package) : Array String :=
+  self.config.weakLinkArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 @[inline] def srcDir (self : Package) : FilePath :=
@@ -351,12 +356,12 @@ def release? (self : Package) : Option (String × String) := do
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun _ lib => lib.isLocalModule mod)
+  self.leanLibConfigs.any (fun lib => lib.isLocalModule mod)
 
 /-- Whether the given module is in the package (i.e., can build it). -/
 def isBuildableModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun _ lib => lib.isBuildableModule mod) ||
-  self.leanExeConfigs.any (fun _ exe => exe.root == mod)
+  self.leanLibConfigs.any (fun lib => lib.isBuildableModule mod) ||
+  self.leanExeConfigs.any (fun exe => exe.root == mod)
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 def clean (self : Package) : IO PUnit := do

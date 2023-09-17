@@ -8,6 +8,20 @@ import Lake.Util.NativeLib
 open System
 namespace Lake
 
+/-! ## Data Structures -/
+
+/-- Standard path of `elan` in a Elan installation. -/
+def elanExe (home : FilePath) :=
+  home / "bin" / "elan" |>.withExtension FilePath.exeExtension
+
+/-- Information about the local Elan setup. -/
+structure ElanInstall where
+  home : FilePath
+  elan := elanExe home
+  binDir := home / "bin"
+  toolchainsDir := home / "toolchains"
+  deriving Inhabited, Repr
+
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
   sysroot / "bin" / "lean" |>.withExtension FilePath.exeExtension
@@ -37,6 +51,7 @@ def leanSharedLib (sysroot : FilePath) :=
 structure LeanInstall where
   sysroot : FilePath
   githash : String
+  toolchain : String
   srcDir := sysroot / "src" / "lean"
   leanLibDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
@@ -77,8 +92,27 @@ structure LakeInstall where
   lake := lakeExe <| home / "build"
   deriving Inhabited, Repr
 
+/-- Construct a Lake installation co-located with the specified Lean installation. -/
+def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
+  home := lean.sysroot
+  srcDir := lean.srcDir / "lake"
+  binDir := lean.binDir
+  libDir := lean.leanLibDir
+  lake := lakeExe lean.sysroot
+
+/-! ## Detection Functions -/
+
 /--
-Try to find the sysroot of the given `lean` command (if it exists)
+Attempt to detect a Elan installation by checking the `ELAN_HOME`
+environment variable for a installation location.
+-/
+def findElanInstall? : BaseIO (Option ElanInstall) := do
+  if let some home ← IO.getEnv "ELAN_HOME" then
+    return some {home}
+  return none
+
+/--
+Attempt to find the sysroot of the given `lean` command (if it exists)
 by calling `lean --print-prefix` and returning the path it prints.
 Defaults to trying the `lean` in `PATH`.
 -/
@@ -98,11 +132,12 @@ def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
 Construct the `LeanInstall` object for the given Lean sysroot.
 
 Does the following:
-1. Invokes `lean` to find out its `githash`.
+1. Invokes `lean` to find out its `githash` and `Lean.toolchain`
 2. Finds the  `ar` and `cc` to use with Lean.
 3. Computes the sub-paths of the Lean install.
 
-For (1), if the invocation fails, `githash` is set to the empty string.
+For (1), if the invocation fails, `githash` and `toolchain` are set
+to the empty string.
 
 For (2), if `LEAN_AR` or `LEAN_CC` are defined, it uses those paths.
 Otherwise, if Lean is packaged with an `llvm-ar` and/or `clang`, use them.
@@ -122,22 +157,30 @@ Lean libraries in `<lean-sysroot>/lib/lean`, and its system libraries in
 `<lean-sysroot>/lib`.
 -/
 def LeanInstall.get (sysroot : FilePath) : BaseIO LeanInstall := do
+  let githash ← getGithash
+  let toolchain ← getToolchain
   let (cc, customCc) ← findCc
-  return {
-    sysroot,
-    githash := ← getGithash
-    ar := ← findAr
-    cc, customCc
-  }
+  let ar ← findAr
+  return {sysroot, githash, toolchain, ar, cc, customCc}
 where
+  getToolchain := do
+    EIO.catchExceptions (h := fun _ => pure "") do
+      let child ← IO.Process.spawn {
+        cmd := leanExe sysroot |>.toString,
+        args := #["--stdin"],
+        stdout := .piped,
+        stdin := .piped,
+        stderr := .null
+      }
+      child.stdin.putStr "#eval IO.print Lean.toolchain"
+      pure <| (← child.stdout.getLine).trim
   getGithash := do
-    let act : IO _ := do
+    EIO.catchExceptions (h := fun _ => pure "") do
       let out ← IO.Process.output {
         cmd := leanExe sysroot |>.toString,
         args := #["--githash"]
       }
       pure <| out.stdout.trim
-    act.catchExceptions fun _ => pure ""
   findAr := do
     if let some ar ← IO.getEnv "LEAN_AR" then
       return ar
@@ -153,7 +196,7 @@ where
       return (cc, false)
 
 /--
-Try to find the installation of the given `lean` command
+Attempt to detect the installation of the given `lean` command
 by calling `findLeanCmdHome?`. See `LeanInstall.get` for how it assumes the
 Lean install is organized.
 -/
@@ -161,11 +204,11 @@ def findLeanCmdInstall? (lean := "lean") : BaseIO (Option LeanInstall) :=
   OptionT.run do LeanInstall.get (← findLeanSysroot? lean)
 
 /--
-Check if Lake's executable is co-located with Lean, and, if so,
+Check if the running Lake's executable is co-located with Lean, and, if so,
 try to return their joint home by assuming they are both located at `<home>/bin`.
 -/
 def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
-  if let Except.ok appPath ← IO.appPath.toBaseIO then
+  if let .ok appPath ← IO.appPath.toBaseIO then
     if let some appDir := appPath.parent then
       let leanExe := appDir / "lean" |>.withExtension FilePath.exeExtension
       if (← leanExe.pathExists) then
@@ -173,14 +216,14 @@ def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
   return none
 
 /--
-Try to get Lake's home by assuming
+Attempt to detect a specified Lake's executable's home by assuming
 the executable is located at `<lake-home>/build/bin/lake`.
 -/
 def lakePackageHome? (lake : FilePath) : Option FilePath := do
   (← (← lake.parent).parent).parent
 
 /--
-Try to find Lean's installation by first checking the
+Attempt to detect Lean's installation by first checking the
 `LEAN_SYSROOT` environment variable and then by trying `findLeanCmdHome?`.
 See `LeanInstall.get` for how it assumes the Lean install is organized.
 -/
@@ -192,7 +235,7 @@ def findLeanInstall? : BaseIO (Option LeanInstall) := do
   return none
 
 /--
-Try to find Lake's installation by
+Attempt to detect Lake's installation by
 first checking the `LAKE_HOME` environment variable
 and then by trying the `lakePackageHome?` of the running executable.
 
@@ -210,30 +253,25 @@ def findLakeInstall? : BaseIO (Option LakeInstall) := do
   return none
 
 /--
-Try to get Lake's install path by first trying `findLakeLeanHome?`
-then by running `findLeanInstall?` and `findLakeInstall?`.
+Attempt to automatically detect an Elan, Lake, and Lean installation.
 
-If Lake is co-located with `lean` (i.e., there is `lean` executable
-in the same directory as itself), it will assume it was installed with
-Lean and that both Lake's and Lean's files are all located their shared
-sysroot.
-In particular, their binaries are located in `<sysroot>/bin`,
-their Lean libraries in `<sysroot>/lib/lean`,
-Lean's source files in `<sysroot>/src/lean`,
-and Lake's source files in `<sysroot>/src/lean/lake`.
+First, it calls `findElanInstall?` to detect a Elan installation.
+Then it attempts to detect if Lake and Lean are part of a single installation
+where the `lake` executable is co-located with the `lean` executable (i.e., they
+are in the same directory). If Lean and Lake are not co-located, Lake will
+attempt  to find the their installations separately by calling
+`findLeanInstall?` and `findLakeInstall?`.
+
+When co-located, Lake will assume that Lean and Lake's binaries are located in
+`<sysroot>/bin`, their Lean libraries  in `<sysroot>/lib/lean`, Lean's source files
+in `<sysroot>/src/lean`, and Lake's source files in `<sysroot>/src/lean/lake`,
+following the pattern of a regular Lean toolchain.
 -/
-def findInstall? : BaseIO (Option LeanInstall × Option LakeInstall) := do
+def findInstall? : BaseIO (Option ElanInstall × Option LeanInstall × Option LakeInstall) := do
+  let elan? ← findElanInstall?
   if let some home ← findLakeLeanJointHome? then
     let lean ← LeanInstall.get home
-    return (
-      some lean,
-      some {
-        home,
-        srcDir := lean.srcDir / "lake",
-        binDir := lean.binDir,
-        libDir := lean.leanLibDir,
-        lake := lakeExe home
-      }
-    )
+    let lake := LakeInstall.ofLean lean
+    return (elan?, lean, lake)
   else
-    return (← findLeanInstall?, ← findLakeInstall?)
+    return (elan?, ← findLeanInstall?, ← findLakeInstall?)

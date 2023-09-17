@@ -77,7 +77,7 @@ def compileExe (name : String) (binFile : FilePath) (linkFiles : Array FilePath)
 
 /-- Download a file using `curl`, clobbering any existing file. -/
 def download (name : String) (url : String) (file : FilePath) : LogIO PUnit := do
-  logInfo s!"Downloading {name}"
+  logVerbose s!"Downloading {name}"
   if (← file.pathExists) then
     IO.FS.removeFile file
   else
@@ -91,7 +91,7 @@ def download (name : String) (url : String) (file : FilePath) : LogIO PUnit := d
 
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 def untar (name : String) (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
-  logInfo s!"Unpacking {name}"
+  logVerbose s!"Unpacking {name}"
   let mut opts := "-x"
   if (← getIsVerbose) then
     opts := opts.push 'v'
@@ -105,7 +105,7 @@ def untar (name : String) (file : FilePath) (dir : FilePath) (gzip := true) : Lo
 /-- Pack a directory `dir` using `tar` into the archive `file`. -/
 def tar (name : String) (dir : FilePath) (file : FilePath)
 (gzip := true) (excludePaths : Array FilePath := #[]) : LogIO PUnit := do
-  logInfo s!"Packing {name}"
+  logVerbose s!"Packing {name}"
   createParentDirs file
   let mut args := #["-c"]
   if gzip then

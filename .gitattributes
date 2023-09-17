@@ -2,3 +2,5 @@
 *.expected.out -text
 RELEASES.md merge=union
 stage0/** binary linguist-generated
+# The following file is often manually edited, so do show it in diffs
+stage0/src/stdlib_flags.h -binary -linguist-generated

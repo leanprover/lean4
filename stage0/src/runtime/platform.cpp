@@ -40,5 +40,5 @@ extern "C" LEAN_EXPORT uint8 lean_system_platform_emscripten(obj_arg) {
 #endif
 }
 
-extern "C" object * lean_get_githash() { return lean_mk_string(LEAN_GITHASH); }
+extern "C" object * lean_get_githash(obj_arg) { return lean_mk_string(LEAN_GITHASH); }
 }

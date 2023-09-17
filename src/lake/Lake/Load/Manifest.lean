@@ -58,58 +58,49 @@ def inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
 
 end PackageEntry
 
-/-- Manifest file format. -/
+/-- Manifest data structure that is serialized to the file. -/
 structure Manifest where
   packagesDir? : Option FilePath := none
-  entryMap : NameMap PackageEntry := {}
+  packages : Array PackageEntry := #[]
 
 namespace Manifest
 
 def empty : Manifest := {}
 
-def isEmpty (self : Manifest) : Bool :=
-  self.entryMap.isEmpty
+@[inline] def isEmpty (self : Manifest) : Bool :=
+  self.packages.isEmpty
 
-def entryArray (self : Manifest) : Array PackageEntry :=
-  self.entryMap.fold (fun a _ v => a.push v) #[]
-
-def contains (packageName : Name) (self : Manifest) : Bool :=
-  self.entryMap.contains packageName
-
-def find? (packageName : Name) (self : Manifest) : Option PackageEntry :=
-  self.entryMap.find? packageName
-
-def insert (entry : PackageEntry) (self : Manifest) : Manifest :=
-  {self with entryMap := self.entryMap.insert entry.name entry}
+def addPackage (entry : PackageEntry) (self : Manifest) : Manifest :=
+  {self with packages := self.packages.push entry}
 
 instance : ForIn m Manifest PackageEntry where
-  forIn self init f := self.entryMap.forIn init (f ·.2)
+  forIn self init f := self.packages.forIn init f
 
 protected def toJson (self : Manifest) : Json :=
   Json.mkObj [
     ("version", version),
     ("packagesDir", toJson self.packagesDir?),
-    ("packages", toJson self.entryArray)
+    ("packages", toJson self.packages)
   ]
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
 protected def fromJson? (json : Json) : Except String Manifest := do
-  let ver ← (← json.getObjVal? "version").getNat?
-  if ver = 5 then
+  let ver ← json.getObjVal? "version"
+  let .ok ver := ver.getNat? | throw s!"unknown manifest version `{ver}`"
+  if ver < 5 then
+    throw s!"incompatible manifest version `{ver}`"
+  else if ver = 5 then
     let packagesDir? ← do
       match json.getObjVal? "packagesDir" with
       | .ok path => fromJson? path
       | .error _ => pure none
-    let entries : Array PackageEntry ← fromJson? (← json.getObjVal? "packages")
-    return {
-      packagesDir?,
-      entryMap := entries.foldl (fun map entry => map.insert entry.name entry) {}
-    }
-  else if ver < 5 then
-    throw s!"incompatible manifest version `{ver}`"
+    let packages : Array PackageEntry ← fromJson? (← json.getObjVal? "packages")
+    return {packagesDir?, packages}
   else
-    throw s!"unknown manifest version `{ver}`"
+    throw <|
+      s!"manifest version `{ver}` is higher than this Lake's '{Manifest.version}';" ++
+      "you may need to update your `lean-toolchain`"
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

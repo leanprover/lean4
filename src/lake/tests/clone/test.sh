@@ -20,12 +20,22 @@ git add --all
 git commit -m "initial commit"
 popd
 
+HELLO_URL="file://$(pwd)/hello"
+
 cd test
+
+$LAKE -R -Kurl="$HELLO_URL" update
+# test that a second `lake update` is a no-op (with URLs)
+# see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
+$LAKE -R -Kurl="$HELLO_URL" update | diff - /dev/null
+rm -rf lake-packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
 # See https://github.com/leanprover/lean4/issues/2427
 
-$LAKE update
+$LAKE -R update
+# test that a second `lake update` is a no-op (with file paths)
+$LAKE -R update | diff - /dev/null
 test -d lake-packages/hello
 # test that Lake produces no warnings
 $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
@@ -34,7 +44,7 @@ $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 # Test that Lake produces a warning if local changes are made to a dependency
 # See https://github.com/leanprover/lake/issues/167
 
-sed_i "s/world/changes/" lake-packages/hello/Hello.lean
+sed_i "s/world/changes/" lake-packages/hello/Hello/Basic.lean
 ! git -C lake-packages/hello diff --exit-code
 $LAKE build 3>&1 1>&2 2>&3 | grep "has local changes"
 ./build/bin/test | grep "Hello, changes"

@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Data.NameMap
+import Lake.Util.DRBMap
+import Lake.Util.RBArray
 import Lake.Util.Compare
 
 open Lean
@@ -16,6 +18,15 @@ export Lean (Name NameMap)
 
 instance : ForIn m (NameMap α) (Name × α) where
   forIn self init f := self.forIn init f
+
+instance : Coe (RBMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
+
+abbrev OrdNameMap α := RBArray Name α Name.quickCmp
+@[inline] def OrdNameMap.empty : OrdNameMap α := RBArray.empty
+@[inline] def mkOrdNameMap (α : Type) : OrdNameMap α := RBArray.empty
+
+abbrev DNameMap α := DRBMap Name α Name.quickCmp
+@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
 
 /-! # Name Helpers -/
 

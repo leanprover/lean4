@@ -1,3 +1,4 @@
+dep/hello
 scripts/dismiss
 scripts/greet
 Hello, world!
@@ -5,12 +6,15 @@ Hello, me!
 Display a greeting
 
 USAGE:
-  lake run greet [name]
+lake run greet [name]
 
 Greet the entity with the given name. Otherwise, greet the whole world.
 
+Hello from Dep!
+Hello from Dep!
 error: unknown script nonexistant
 error: unknown script nonexistant
+dep/hello
 scripts/dismiss
 scripts/greet
 Hello, world!

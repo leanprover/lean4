@@ -15,8 +15,8 @@ lean_lib FFI
 target ffi.o pkg : FilePath := do
   let oFile := pkg.buildDir / "c" / "ffi.o"
   let srcJob ← inputFile <| pkg.dir / "c" / "ffi.cpp"
-  let flags := #["-I", (← getLeanIncludeDir).toString, "-fPIC"]
-  buildO "ffi.cpp" oFile srcJob flags "c++"
+  let weakArgs := #["-I", (← getLeanIncludeDir).toString]
+  buildO "ffi.cpp" oFile srcJob weakArgs #["-fPIC"] "c++" getLeanTrace
 
 extern_lib libleanffi pkg := do
   let name := nameToStaticLib "leanffi"

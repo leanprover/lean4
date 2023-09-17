@@ -189,13 +189,6 @@ private partial def toStringAux {α : Type} : Trie α → List Format
 instance {α : Type} : ToString (Trie α) :=
   ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
 
--- #eval Trie.empty
---   |>.insert "hello" ()
---   |>.insert "heho" ()
---   |>.insert "hella" ()
---   |>.insert "helli" ()
---   |>.insert "xeno" ()
-
 end Trie
 
 end Parser

@@ -86,6 +86,3 @@ def main : IO Unit := do
       IO.println s!"Inserting {s}"
       t := t.insert s
       t.check
-
-#eval main
- 

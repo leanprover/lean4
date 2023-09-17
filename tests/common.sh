@@ -35,7 +35,7 @@ function compile_lean_llvm_backend {
     rm "*.bc" || true # remove bitcode files
     rm "*.o" || true # remove object files
     lean --bc="$f.linked.bc" "$f" || fail "Failed to compile $f into bitcode file"
-    leanc ${LEANC_OPTS-} -o "$f.out" "$@" "$f.linked.bc.o" || fail "Failed to link object file '$f.linked.bc.o'"
+    leanc ${LEANC_OPTS-} -O3 -DNDEBUG -o "$f.out" "$@" "$f.linked.bc" || fail "Failed to link object file '$f.linked.bc'"
     set +o xtrace
 }
 

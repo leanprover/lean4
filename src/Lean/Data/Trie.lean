@@ -11,18 +11,20 @@ namespace Lean
 namespace Parser
 
 /-
-Implementation notes:
+## Implementation notes
+
 Tries have typically many nodes with small degree, where a linear scan
 through the (compact) `ByteArray` is faster than using binary search or
-search tress.
+search trees like `RBTree`.
 
-Moreover, many nodes have degree 1, which justifies the special case `Node1
-constructors.
+Moreover, many nodes have degree 1, which justifies the special case `Node1`
+constructor.
 
-The code would be a bit less repetitive if we had
+The code would be a bit less repetitive if we used something like the following
 ```
 mutual
 def Trie α := (Option α, ByteAssoc α)
+
 inductive ByteAssoc α where
   | Leaf : Trie α
   | Node1 : UInt8 → Trie α → Trie α
@@ -33,8 +35,7 @@ but that would come at the cost of extra indirections.
 -/
 
 /-- A Trie is a key-value store where the keys are of type `String`,
-and the internal structure is a tree that branches on the bytes of the string.
--/
+and the internal structure is a tree that branches on the bytes of the string.  -/
 inductive Trie (α : Type) where
   | Leaf : Option α → Trie α
   | Node1 : Option α → UInt8 → Trie α → Trie α
@@ -43,6 +44,7 @@ inductive Trie (α : Type) where
 namespace Trie
 variable {α : Type}
 
+/-- The empty `Trie` -/
 def empty : Trie α := Leaf none
 
 instance : EmptyCollection (Trie α) :=
@@ -51,6 +53,7 @@ instance : EmptyCollection (Trie α) :=
 instance : Inhabited (Trie α) where
   default := empty
 
+/-- Insert or update the value at a the given key `s`.  -/
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
     if h : i < s.utf8ByteSize then
@@ -90,9 +93,11 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         Trie.Node (f v) cs ts
   loop 0 t
 
+/-- Inserts a value at a the given key `s`, overriding an existing value if present. -/
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
   upsert t s (fun _ => val)
 
+/-- Looks up a value at the given key `s`.  -/
 partial def find? (t : Trie α) (s : String) : Option α :=
   let rec loop
     | i, Trie.Leaf val =>
@@ -118,7 +123,7 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         val
   loop 0 t
 
-/-- Return values that match the given `prefix` -/
+/-- Returns all values whose key have the given string `pre` as a prefix, in no particular order. -/
 partial def findPrefix (t : Trie α) (pre : String) : Array α :=
   go t 0 |>.run #[] |>.2
 where
@@ -153,6 +158,8 @@ where
         modify (·.push a)
       ts.forM fun t' => collect t'
 
+/-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
+and return the associated value. -/
 partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
   let rec loop
     | Trie.Leaf v, _, res =>

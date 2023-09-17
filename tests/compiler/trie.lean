@@ -13,7 +13,7 @@ This test does not test `upsert`; since `Trie.insert` goes through it, it should
 (and it would make this test approach more complicated.)
 -/
 
-open Lean.Parser
+open Lean.Data
 
 /-- These keys used in `T.check` below. Also include keys for negative lookup tests here!  -/
 def keys : Array String :=  #[

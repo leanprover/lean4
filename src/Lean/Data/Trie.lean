@@ -8,7 +8,7 @@ A string trie data strucuture, used for tokenizing the Lean language
 import Lean.Data.Format
 
 namespace Lean
-namespace Parser
+namespace Data
 
 /-
 ## Implementation notes
@@ -198,5 +198,5 @@ instance {α : Type} : ToString (Trie α) :=
 
 end Trie
 
-end Parser
+end Data
 end Lean

@@ -22,11 +22,9 @@ import Lean.Data.PersistentArray
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 import Lean.Data.Position
-import Lean.Data.PrefixTree
 import Lean.Data.SMap
 import Lean.Data.Trie
 import Lean.Data.Xml
-import Lean.Data.NameTrie
 import Lean.Data.RBTree
 import Lean.Data.RBMap
 import Lean.Data.Rat

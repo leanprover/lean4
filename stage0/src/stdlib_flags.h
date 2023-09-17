@@ -6,7 +6,7 @@ options get_default_options() {
     // see https://leanprover.github.io/lean4/doc/dev/bootstrap.html#further-bootstrapping-complications
 #if LEAN_IS_STAGE0 == 1
     // switch to `true` for ABI-breaking changes affecting meta code
-    opts = opts.update({"interpreter", "prefer_native"}, false);
+    opts = opts.update({"interpreter", "prefer_native"}, true);
     // switch to `true` for changing built-in parsers used in quotations
     opts = opts.update({"internal", "parseQuotWithCurrentStage"}, false);
     // toggling `parseQuotWithCurrentStage` may also require toggling the following option if macros/syntax

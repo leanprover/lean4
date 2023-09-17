@@ -104,7 +104,7 @@ def registerBuiltinRpcProcedure (method : Name) paramType respType
 open Lean Elab Command Term Meta in
 def registerRpcProcedure (method : Name) : CoreM Unit := do
   let env ← getEnv
-  let errMsg := "Failed to register RPC call handler for '{method}'"
+  let errMsg := s!"Failed to register RPC call handler for '{method}'"
   if (←builtinRpcProcedures.get).contains method then
     throwError s!"{errMsg}: already registered (builtin)"
   if userRpcProcedures.contains env method then

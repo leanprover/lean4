@@ -33,7 +33,7 @@ The resulting package does not yet include any dependencies.
 def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
 (leanOpts : Options) (lakeOpts : NameMap String) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
-  let configEnv ← importConfigFile dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
+  let configEnv ← importConfigFile wsDir dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir, config, configEnv, leanOpts
@@ -53,13 +53,13 @@ If `reconfigure`, elaborate configuration files while updating, do not use OLean
 -/
 def buildUpdatedManifest (ws : Workspace)
 (toUpdate : NameSet := {}) (reconfigure := true) : LogIO (Workspace × Manifest) := do
-  let res ← StateT.run (s := mkNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
+  let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
     unless toUpdate.isEmpty do
       for entry in (← Manifest.loadOrEmpty ws.manifestFile) do
         unless entry.inherited || toUpdate.contains entry.name do
           let dep ← entry.materialize ws.dir ws.relPkgsDir
-          modifyThe (NameMap MaterializedDep) (·.insert entry.name dep)
+          modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
     buildAcyclic (·.1.name) (ws.root, FilePath.mk ".") fun (pkg, relPkgDir) resolve => do
       let inherited := pkg.name != ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
@@ -77,10 +77,10 @@ def buildUpdatedManifest (ws : Workspace)
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           for entry in (← Manifest.loadOrEmpty depPkg.manifestFile) do
-            unless (← getThe (NameMap MaterializedDep)).contains entry.name do
+            unless (← getThe (OrdNameMap MaterializedDep)).contains entry.name do
               let entry := entry.setInherited.inDirectory dep.relPkgDir
               let dep ← entry.materialize ws.dir ws.relPkgsDir
-              modifyThe (NameMap MaterializedDep) (·.insert entry.name dep)
+              modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
           modifyThe (NameMap Package) (·.insert dep.name depPkg)
           return (depPkg, dep.relPkgDir)
       -- Resolve dependencies's dependencies recursively
@@ -88,7 +88,7 @@ def buildUpdatedManifest (ws : Workspace)
   match res with
   | (.ok root, deps) =>
     let manifest : Manifest := {packagesDir? := ws.relPkgsDir}
-    let manifest := deps.fold (fun m _ d => m.insert d.manifestEntry) manifest
+    let manifest := deps.foldl (fun m d => m.addPackage d.manifestEntry) manifest
     return ({ws with root}, manifest)
   | (.error cycle, _) =>
     let cycle := cycle.map (s!"  {·}")
@@ -100,7 +100,7 @@ Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← importConfigFile config.rootDir
+  let configEnv ← importConfigFile config.rootDir config.rootDir
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let repo := GitRepo.mk config.rootDir
@@ -148,20 +148,24 @@ downloading and/or updating them as necessary.
 def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigure := false) : LogIO Workspace := do
   if !manifest.isEmpty && manifest.packagesDir? != some ws.relPkgsDir then
     logWarning <|
-      "manifest out of date: packages directory changed, " ++
-      "use `lake update` to update"
+      "manifest out of date: packages directory changed; " ++
+      "use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)"
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
+  let pkgEntries := manifest.packages.foldl (init := mkNameMap PackageEntry)
+    fun map entry => map.insert entry.name entry
   let res ← EStateT.run' (mkNameMap Package) do
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let topLevel := pkg.name = ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
       if topLevel then
+        if manifest.isEmpty && !deps.isEmpty then
+          error "missing manifest; use `lake update` to generate one"
         for dep in deps do
           let warnOutOfDate (what : String) :=
             logWarning <|
-              s!"manifest out of date: {what} of dependency '{dep.name}' changed, " ++
-              "use `lake update` to update"
-          if let .some entry := manifest.find? dep.name then
+              s!"manifest out of date: {what} of dependency '{dep.name}' changed; " ++
+              s!"use `lake update {dep.name}` to update it"
+          if let .some entry := pkgEntries.find? dep.name then
           match dep.src, entry with
           | .git (url := url) (rev := rev) .., .git (url := url') (inputRev? := rev')  .. =>
             if url ≠ url' then warnOutOfDate "git url"
@@ -169,12 +173,21 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
           | .path .., .path .. => pure ()
           | _, _ => warnOutOfDate "source kind (git/path)"
       let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
-        let .some entry := manifest.find? dep.name
-          | error <| s!"dependency '{dep.name}' of '{pkg.name}' not in manifest, " ++
-            "use `lake update` to update"
-        let result ← entry.materialize ws.dir relPkgsDir
-        loadDepPackage ws.dir result pkg.leanOpts dep.opts reconfigure
-      return { pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·) }
+        if let some entry := pkgEntries.find? dep.name then
+          let result ← entry.materialize ws.dir relPkgsDir
+          -- Union manifest and configuration options (preferring manifest)
+          let opts := entry.opts.mergeBy (fun _ e _ => e) dep.opts
+          loadDepPackage ws.dir result pkg.leanOpts opts reconfigure
+        else if topLevel then
+          error <|
+            s!"dependency '{dep.name}' not in manifest; " ++
+            s!"use `lake update {dep.name}` to add it"
+        else
+          error <|
+            s!"dependency '{dep.name}' of '{pkg.name}' not in manifest; " ++
+            s!"this suggests that the manifest is corrupt;" ++
+            s!"use `lake update` to generate a new, complete file (warning: this will update ALL workspace dependencies)"
+      return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | Except.ok root =>
     ({ws with root}).finalize

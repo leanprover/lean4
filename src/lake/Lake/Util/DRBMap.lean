@@ -31,6 +31,8 @@ instance inhabitedOfEmptyCollection [EmptyCollection α] : Inhabited α where
 def DRBMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) : Type (max u v) :=
   {t : RBNode α β // t.WellFormed cmp }
 
+instance : Coe (DRBMap α (fun _ => β) cmp) (RBMap α β cmp) := ⟨id⟩
+
 @[inline] def mkDRBMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) : DRBMap α β cmp :=
   ⟨leaf, WellFormed.leafWff⟩
 

@@ -116,6 +116,10 @@ variable [MonadLakeEnv m] [Functor m]
 @[inline] def getLakeEnv : m Lake.Env :=
   read
 
+/-- Get the name of Elan toolchain for the Lake environment. Empty if none. -/
+@[inline] def getElanToolchain : m String :=
+  (·.toolchain) <$> getLakeEnv
+
 /-! ### Search Path Helpers -/
 
 /-- Get the detected `LEAN_PATH` value of the Lake environment. -/
@@ -129,6 +133,20 @@ variable [MonadLakeEnv m] [Functor m]
 /-- Get the detected `sharedLibPathEnvVar` value of the Lake environment. -/
 @[inline] def getEnvSharedLibPath : m SearchPath :=
   (·.sharedLibPath) <$> getLakeEnv
+
+/-! ### Elan Install Helpers -/
+
+/-- Get the detected Elan installation (if one). -/
+@[inline] def getElanInstall? : m (Option ElanInstall) :=
+  (·.elan?) <$> getLakeEnv
+
+/-- Get the root directory of the detected Elan installation (i.e., `ELAN_HOME`). -/
+@[inline] def getElanHome? : m (Option FilePath) :=
+  (·.map (·.home)) <$> getElanInstall?
+
+/-- Get the path of the `elan` binary in the detected Elan installation. -/
+@[inline] def getElan? : m (Option FilePath) :=
+  (·.map (·.elan)) <$> getElanInstall?
 
 /-! ### Lean Install Helpers -/
 

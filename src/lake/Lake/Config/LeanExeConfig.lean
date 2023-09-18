@@ -51,12 +51,13 @@ structure LeanExeConfig extends LeanConfig where
   nativeFacets : Array (ModuleFacet (BuildJob FilePath)) := #[Module.oFacet]
 
   /--
-  Whether to expose symbols within the executable to the Lean interpreter.
-  This allows the executable to interpret Lean files (e.g.,  via
-  `Lean.Elab.runFrontend`).
+  Enables the executable to interpret Lean files (e.g., via
+  `Lean.Elab.runFrontend`) by exposing symbols within the  executable
+  to the Lean interpreter.
 
   Implementation-wise, this passes `-rdynamic` to the linker when building
-  on non-Windows systems.
+  on non-Windows systems. This increases the size of the binary on Linux, so
+  this feature should only be enabled when necessary.
 
   Defaults to `false`.
   -/

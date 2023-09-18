@@ -803,9 +803,9 @@ def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (act : Environment → IO α) : IO α := do
   let env ← importModules imports opts trustLevel
-  try x env finally env.freeRegions
+  try act env finally env.freeRegions
 
 /--
 Environment extension for tracking all `namespace` declared by users.

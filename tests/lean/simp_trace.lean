@@ -56,6 +56,8 @@ def f2 : StateM Nat Unit := do
   let s ← get
   set <| g s
 
+-- Note: prior to PR #2489, the `Try this` suggestion reported by this `simp`
+-- call was incomplete.
 example : f1 = f2 := by
   simp [f1, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, pure, set, StateT.set, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet]
 
@@ -113,3 +115,14 @@ example (h' : bla x = x) (_ : bla y = y) : x + x = x := by
 example (h' : bla x = x) : bla x = x := by
   simp [bla, h] at *
   exact h'
+
+-- This example tests tracing of class projections.
+
+class HasProp (A) where
+  toProp : A → Prop
+
+instance : HasProp Nat where
+  toProp _ := True
+
+example : HasProp.toProp 0 := by
+  simp [HasProp.toProp]

@@ -21,15 +21,54 @@ attribute [run_builtin_parser_attribute_hooks]
   withOpen withOpenDecl
   dbgTraceState
 
+/-- The parser `optional(p)`, or `(p)?`, parses `p` if it succeeds,
+otherwise it succeeds with no value.
+
+Note that because `?` is a legal identifier character, one must write `(p)?` or `p ?` for
+it to parse correctly. `ident?` will not work; one must write `(ident)?` instead.
+
+This parser has arity 1: it produces a `nullKind` node containing either zero arguments
+(for the `none` case) or the list of arguments produced by `p`.
+(In particular, if `p` has arity 0 then the two cases are not differentiated!) -/
 @[run_builtin_parser_attribute_hooks] def optional (p : Parser) : Parser :=
   optionalNoAntiquot (withAntiquotSpliceAndSuffix `optional p (symbol "?"))
 
+/-- The parser `many(p)`, or `p*`, repeats `p` until it fails, and returns the list of results.
+
+The argument `p` is "auto-grouped", meaning that if the arity is greater than 1 it will be
+automatically replaced by `group(p)` to ensure that it produces exactly 1 value.
+
+This parser has arity 1: it produces a `nullKind` node containing one argument for each
+invocation of `p` (or `group(p)`). -/
 @[run_builtin_parser_attribute_hooks] def many (p : Parser) : Parser :=
   manyNoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
+/-- The parser `many1(p)`, or `p+`, repeats `p` until it fails, and returns the list of results.
+`p` must succeed at least once, or this parser will fail.
+
+Note that this parser produces the same parse tree as the `many(p)` / `p*` combinator,
+and one matches both `p*` and `p+` using `$[ .. ]*` syntax in a syntax match.
+(There is no `$[ .. ]+` syntax.)
+
+The argument `p` is "auto-grouped", meaning that if the arity is greater than 1 it will be
+automatically replaced by `group(p)` to ensure that it produces exactly 1 value.
+
+This parser has arity 1: it produces a `nullKind` node containing one argument for each
+invocation of `p` (or `group(p)`). -/
 @[run_builtin_parser_attribute_hooks] def many1 (p : Parser) : Parser :=
   many1NoAntiquot (withAntiquotSpliceAndSuffix `many p (symbol "*"))
 
+/-- The parser `ident` parses a single identifier, possibly with namespaces, such as `foo` or
+`bar.baz`. The identifier must not be a declared token, so for example it will not match `"def"`
+because `def` is a keyword token. Tokens are implicitly declared by using them in string literals
+in parser declarations, so `syntax foo := "bla"` will make `bla` no longer legal as an identifier.
+
+Identifiers can contain special characters or keywords if they are escaped using the `«»` characters:
+`«def»` is an identifier named `def`, and `«x»` is treated the same as `x`. This is useful for
+using disallowed characters in identifiers such as `«foo.bar».baz` or `«hello world»`.
+
+This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
+You can use `TSyntax.getId` to extract the name from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def ident : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) identNoAntiquot
 
@@ -37,30 +76,96 @@ attribute [run_builtin_parser_attribute_hooks]
 @[run_builtin_parser_attribute_hooks] def rawIdent : Parser :=
   withAntiquot (mkAntiquot "ident" identKind) rawIdentNoAntiquot
 
+/-- The parser `hygieneInfo` parses no text, but captures the current macro scope information
+as though it parsed an identifier at the current position. It returns a `hygieneInfoKind` node
+around an `.ident` which is `Name.anonymous` but with macro scopes like a regular identifier.
+
+This is used to implement `have := ...` syntax: the `hygieneInfo` between the `have` and `:=`
+substitutes for the identifier which would normally go there as in `have x :=`, so that we
+can expand `have :=` to `have this :=` while retaining the usual macro name resolution behavior.
+See [doc/macro_overview.md](https://github.com/leanprover/lean4/blob/master/doc/macro_overview.md)
+for more information about macro hygiene.
+
+This parser has arity 1: it produces a `Syntax.ident` node containing the parsed identifier.
+You can use `TSyntax.getHygieneInfo` to extract the name from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def hygieneInfo : Parser :=
   withAntiquot (mkAntiquot "hygieneInfo" hygieneInfoKind (anonymous := false)) hygieneInfoNoAntiquot
 
+/-- The parser `num` parses a numeric literal in several bases:
+
+* Decimal: `129`
+* Hexadecimal: `0xdeadbeef`
+* Octal: `0o755`
+* Binary: `0b1101`
+
+This parser has arity 1: it produces a `numLitKind` node containing an atom with the text of the
+literal.
+You can use `TSyntax.getNat` to extract the number from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def numLit : Parser :=
   withAntiquot (mkAntiquot "num" numLitKind) numLitNoAntiquot
 
+/-- The parser `scientific` parses a scientific-notation literal, such as `1.3e-24`.
+
+This parser has arity 1: it produces a `scientificLitKind` node containing an atom with the text
+of the literal.
+You can use `TSyntax.getScientific` to extract the parts from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def scientificLit : Parser :=
   withAntiquot (mkAntiquot "scientific" scientificLitKind) scientificLitNoAntiquot
 
+/-- The parser `str` parses a string literal, such as `"foo"` or `"\r\n"`. Strings can contain
+C-style escapes like `\n`, `\"`, `\x00` or `\u2665`, as well as literal unicode characters like `∈`.
+Newlines in a string are interpreted literally.
+
+This parser has arity 1: it produces a `strLitKind` node containing an atom with the raw
+literal (including the quote marks and without interpreting the escapes).
+You can use `TSyntax.getString` to decode the string from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def strLit : Parser :=
   withAntiquot (mkAntiquot "str" strLitKind) strLitNoAntiquot
 
+/-- The parser `char` parses a character literal, such as `'a'` or `'\n'`. Character literals can
+contain C-style escapes like `\n`, `\"`, `\x00` or `\u2665`, as well as literal unicode characters
+like `∈`, but must evaluate to a single unicode codepoint, so `'♥'` is allowed but `'❤️'` is not
+(since it is two codepoints but one grapheme cluster).
+
+This parser has arity 1: it produces a `charLitKind` node containing an atom with the raw
+literal (including the quote marks and without interpreting the escapes).
+You can use `TSyntax.getChar` to decode the string from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def charLit : Parser :=
   withAntiquot (mkAntiquot "char" charLitKind) charLitNoAntiquot
 
+/-- The parser `name` parses a name literal like `` `foo``. The syntax is the same as for identifiers
+(see `ident`) but with a leading backquote.
+
+This parser has arity 1: it produces a `nameLitKind` node containing the raw literal
+(including the backquote).
+You can use `TSyntax.getName` to extract the name from the resulting syntax object. -/
 @[run_builtin_parser_attribute_hooks] def nameLit : Parser :=
   withAntiquot (mkAntiquot "name" nameLitKind) nameLitNoAntiquot
 
+/-- The parser `group(p)` parses the same thing as `p`, but it wraps the results in a `groupKind`
+node.
+
+This parser always has arity 1, even if `p` does not. Parsers like `p*` are automatically
+rewritten to `group(p)*` if `p` does not have arity 1, so that the results from separate invocations
+of `p` can be differentiated. -/
 @[run_builtin_parser_attribute_hooks, inline] def group (p : Parser) : Parser :=
   node groupKind p
 
+/-- The parser `many1Indent(p)` is equivalent to `withPosition((colGe p)+)`. This has the effect of
+parsing one or more occurrences of `p`, where each subsequent `p` parse needs to be indented
+the same or more than the first parse.
+
+This parser has arity 1, and returns a list of the results from `p`.
+`p` is "auto-grouped" if it is not arity 1. -/
 @[run_builtin_parser_attribute_hooks, inline] def many1Indent (p : Parser) : Parser :=
   withPosition $ many1 (checkColGe "irrelevant" >> p)
 
+/-- The parser `manyIndent(p)` is equivalent to `withPosition((colGe p)*)`. This has the effect of
+parsing zero or more occurrences of `p`, where each subsequent `p` parse needs to be indented
+the same or more than the first parse.
+
+This parser has arity 1, and returns a list of the results from `p`.
+`p` is "auto-grouped" if it is not arity 1. -/
 @[run_builtin_parser_attribute_hooks, inline] def manyIndent (p : Parser) : Parser :=
   withPosition $ many (checkColGe "irrelevant" >> p)
 

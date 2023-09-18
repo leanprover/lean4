@@ -27,6 +27,7 @@ namespace Lake
 structure LakeOptions where
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
+  elanInstall? : Option ElanInstall := none
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
   configOpts : NameMap String := {}
@@ -56,7 +57,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
-  Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall)
+  Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -83,8 +84,8 @@ abbrev CliStateM := StateT LakeOptions CliMainM
 abbrev CliM := ArgsT CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
-  let (leanInstall?, lakeInstall?) ← findInstall?
-  let main := self args |>.run' {leanInstall?, lakeInstall?}
+  let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
+  let main := self.run' args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
@@ -176,15 +177,23 @@ def verifyLeanVersion (leanInstall : LeanInstall) : Except CliError PUnit := do
 
 /-- Output the detected installs and verify the Lean version. -/
 def verifyInstall (opts : LakeOptions) : ExceptT CliError MainM PUnit := do
+  IO.println s!"Elan:\n{repr <| opts.elanInstall?}"
   IO.println s!"Lean:\n{repr <| opts.leanInstall?}"
   IO.println s!"Lake:\n{repr <| opts.lakeInstall?}"
   let (leanInstall, _) ← opts.getInstall
   verifyLeanVersion leanInstall
 
-def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError (Package × String) :=
+def parseScriptSpec (ws : Workspace) (spec : String) : Except CliError Script :=
   match spec.splitOn "/" with
-  | [script] => return (ws.root, script)
-  | [pkg, script] => return (← parsePackageSpec ws pkg, script)
+  | [scriptName] =>
+    match ws.findScript? scriptName with
+    | some script => return script
+    | none => throw <| CliError.unknownScript spec
+  | [pkg, scriptName] => do
+    let pkg ← parsePackageSpec ws pkg
+    match pkg.scripts.find? scriptName with
+    | some script => return script
+    | none => throw <| CliError.unknownScript spec
   | _ => throw <| CliError.invalidScriptSpec spec
 
 def parseTemplateSpec (spec : String) : Except CliError InitTemplate :=
@@ -208,11 +217,9 @@ protected def list : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
-    ws.packageMap.forM fun _ pkg => do
-      let pkgName := pkg.name.toString (escape := false)
-      pkg.scripts.forM fun name _ =>
-        let scriptName := name.toString (escape := false)
-        IO.println s!"{pkgName}/{scriptName}"
+    ws.packages.forM fun pkg => do
+      pkg.scripts.forM fun _ script =>
+        IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
   processOptions lakeOption
@@ -220,11 +227,8 @@ protected nonrec def run : CliM PUnit := do
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
     let args ← takeArgs
-    let (pkg, scriptName) ← parseScriptSpec ws spec
-    if let some script := pkg.scripts.find? scriptName then
-        exit <| ← script.run args |>.run {opaqueWs := ws}
-    else do
-      throw <| CliError.unknownScript scriptName
+    let script ← parseScriptSpec ws spec
+    exit <| ← script.run args |>.run {opaqueWs := ws}
   else
     for script in ws.root.defaultScripts do
       exitIfErrorCode <| ← script.run [] |>.run {opaqueWs := ws}
@@ -236,13 +240,10 @@ protected def doc : CliM PUnit := do
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
-    let (pkg, scriptName) ← parseScriptSpec ws spec
-    if let some script := pkg.scripts.find? scriptName then
-      match script.doc? with
-      | some doc => IO.println doc
-      | none => throw <| CliError.missingScriptDoc scriptName
-    else
-      throw <| CliError.unknownScript scriptName
+    let script ← parseScriptSpec ws spec
+    match script.doc? with
+    | some doc => IO.println doc
+    | none => throw <| CliError.missingScriptDoc script.name
 
 protected def help : CliM PUnit := do
   IO.println <| helpScript <| (← takeArg?).getD ""
@@ -260,15 +261,17 @@ def scriptCli : (cmd : String) → CliM PUnit
 
 protected def new : CliM PUnit := do
   processOptions lakeOption
-  let pkgName ← takeArg "package name"
-  let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new pkgName template) (← getThe LakeOptions).verbosity
+  let opts ← getThe LakeOptions
+  let name ← takeArg "package name"
+  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv)) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
-  let pkgName ← takeArg "package name"
-  let template ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init pkgName template) (← getThe LakeOptions).verbosity
+  let opts ← getThe LakeOptions
+  let name ← takeArg "package name"
+  let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
+  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv)) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -376,23 +379,23 @@ protected def help : CliM PUnit := do
 end lake
 
 def lakeCli : (cmd : String) → CliM PUnit
-| "new"           => lake.new
-| "init"          => lake.init
-| "build"         => lake.build
-| "update"        => lake.update
-| "resolve-deps"  => lake.resolveDeps
-| "upload"        => lake.upload
-| "print-paths"   => lake.printPaths
-| "clean"         => lake.clean
-| "script"        => lake.script
-| "scripts"       => lake.script.list
-| "run"           => lake.script.run
-| "serve"         => lake.serve
-| "env"           => lake.env
-| "exe"           => lake.exe
-| "self-check"    => lake.selfCheck
-| "help"          => lake.help
-| cmd             => throw <| CliError.unknownCommand cmd
+| "new"                 => lake.new
+| "init"                => lake.init
+| "build"               => lake.build
+| "update" | "upgrade"  => lake.update
+| "resolve-deps"        => lake.resolveDeps
+| "upload"              => lake.upload
+| "print-paths"         => lake.printPaths
+| "clean"               => lake.clean
+| "script"              => lake.script
+| "scripts"             => lake.script.list
+| "run"                 => lake.script.run
+| "serve"               => lake.serve
+| "env"                 => lake.env
+| "exe" | "exec"        => lake.exe
+| "self-check"          => lake.selfCheck
+| "help"                => lake.help
+| cmd                   => throw <| CliError.unknownCommand cmd
 
 def lake : CliM PUnit := do
   match (← getArgs) with
@@ -413,4 +416,4 @@ def lake : CliM PUnit := do
         throw <| CliError.missingCommand
 
 def cli (args : List String) : BaseIO ExitCode :=
-  (lake).run args
+  inline <| (lake).run args

@@ -19,6 +19,8 @@ structure Workspace : Type where
   root : Package
   /-- The detect `Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
+  /-- The packages within the workspace (in `require` declaration order). -/
+  packages : Array Package := {}
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}
   /-- Name-configuration map of module facets defined in the workspace. -/
@@ -56,49 +58,45 @@ namespace Workspace
 @[inline] def manifestFile (self : Workspace) : FilePath :=
   self.root.manifestFile
 
-/-- The `List` of packages to the workspace. -/
-def packageList (self : Workspace) : List Package :=
-  self.packageMap.revFold (fun pkgs _ pkg => pkg.toPackage :: pkgs) []
-
-/-- The `Array` of packages to the workspace. -/
-def packageArray (self : Workspace) : Array Package :=
-  self.packageMap.fold (fun pkgs _ pkg => pkgs.push pkg.toPackage) #[]
-
 /-- Add a package to the workspace. -/
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=
-  {self with packageMap := self.packageMap.insert pkg.name pkg}
+  {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}
 
 /-- Try to find a package within the workspace with the given name. -/
 @[inline] def findPackage? (name : Name) (self : Workspace) : Option (NPackage name) :=
   self.packageMap.find? name
 
+/-- Try to find a script in the workspace with the given name. -/
+def findScript? (script : Name) (self : Workspace) : Option Script :=
+  self.packages.findSome? (·.scripts.find? script)
+
 /-- Check if the module is local to any package in the workspace. -/
 def isLocalModule (mod : Name) (self : Workspace) : Bool :=
-  self.packageMap.any fun _ pkg => pkg.isLocalModule mod
+  self.packages.any fun pkg => pkg.isLocalModule mod
 
 /-- Check if the module is buildable by any package in the workspace. -/
 def isBuildableModule (mod : Name) (self : Workspace) : Bool :=
-  self.packageMap.any fun _ pkg => pkg.isBuildableModule mod
+  self.packages.any fun pkg => pkg.isBuildableModule mod
 
 /-- Locate the named module in the workspace (if it is local to it). -/
 def findModule? (mod : Name) (self : Workspace) : Option Module :=
-  self.packageArray.findSome? (·.findModule? mod)
+  self.packages.findSome? (·.findModule? mod)
 
 /-- Try to find a Lean library in the workspace with the given name. -/
 def findLeanLib? (name : Name) (self : Workspace) : Option LeanLib :=
-  self.packageArray.findSome? fun pkg => pkg.findLeanLib? name
+  self.packages.findSome? fun pkg => pkg.findLeanLib? name
 
 /-- Try to find a Lean executable in the workspace with the given name. -/
 def findLeanExe? (name : Name) (self : Workspace) : Option LeanExe :=
-  self.packageArray.findSome? fun pkg => pkg.findLeanExe? name
+  self.packages.findSome? fun pkg => pkg.findLeanExe? name
 
 /-- Try to find an external library in the workspace with the given name. -/
 def findExternLib? (name : Name) (self : Workspace) : Option ExternLib :=
-  self.packageArray.findSome? fun pkg => pkg.findExternLib? name
+  self.packages.findSome? fun pkg => pkg.findExternLib? name
 
 /-- Try to find a target configuration in the workspace with the given name. -/
 def findTargetConfig? (name : Name) (self : Workspace) : Option ((pkg : Package) × TargetConfig pkg.name name) :=
-  self.packageArray.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
+  self.packages.findSome? fun pkg => pkg.findTargetConfig? name <&> (⟨pkg, ·⟩)
 
 /-- Add a module facet to the workspace. -/
 def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
@@ -126,26 +124,24 @@ def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : W
 
 /-- The workspace's binary directories (which are added to `Path`). -/
 def binPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.binDir)
+  self.packages.foldr (fun pkg dirs => pkg.binDir :: dirs) []
 
 /-- The workspace's Lean library directories (which are added to `LEAN_PATH`). -/
 def leanPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.leanLibDir)
+  self.packages.foldr (fun pkg dirs => pkg.leanLibDir :: dirs) []
 
 /-- The workspace's source directories (which are added to `LEAN_SRC_PATH`). -/
-def leanSrcPath (self : Workspace) : SearchPath := Id.run do
-  let mut path : SearchPath := {}
-  for pkg in self.packageArray do
-    for (_, config) in pkg.leanLibConfigs do
-      path := pkg.srcDir / config.srcDir :: path
-  return path
+def leanSrcPath (self : Workspace) : SearchPath :=
+  self.packages.foldr (init := {}) fun pkg dirs =>
+    pkg.leanLibConfigs.foldr (init := dirs) fun cfg dirs =>
+        pkg.srcDir / cfg.srcDir :: dirs
 
 /--
 The workspace's shared library path (e.g., for `--load-dynlib`).
 This is added to the `sharedLibPathEnvVar` by `lake env`.
 -/
 def sharedLibPath (self : Workspace) : SearchPath :=
-  self.packageList.map (·.nativeLibDir)
+   self.packages.foldr (fun pkg dirs => pkg.nativeLibDir :: dirs) []
 
 /--
 The detected `PATH` of the environment augmented with
@@ -192,4 +188,4 @@ def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
 
 /-- Remove all packages' build outputs (i.e., delete their build directories). -/
 def clean (self : Workspace) : IO Unit := do
-  self.packageMap.forM fun _ pkg => pkg.clean
+  self.packages.forM fun pkg => pkg.clean

@@ -17,7 +17,7 @@ structure LeanLib where
 
 /-- The Lean libraries of the package (as an Array). -/
 @[inline] def Package.leanLibs (self : Package) : Array LeanLib :=
-  self.leanLibConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+  self.leanLibConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
 
 /-- Try to find a Lean library in the package with the given name. -/
 @[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
@@ -109,7 +109,7 @@ That is, the package's `weakLeanArgs` plus the library's  `weakLeanArgs`.
   self.pkg.weakLeanArgs ++ self.config.weakLeanArgs
 
 /--
-The arguments to pass to `leanc` when compiling the library's C files.
+The arguments to pass to `leanc` when compiling the library's Lean-produced C files.
 That is, the build type's `leancArgs`, the package's `moreLeancArgs`,
 and then the library's `moreLeancArgs`.
 -/
@@ -117,8 +117,22 @@ and then the library's `moreLeancArgs`.
   self.buildType.leancArgs ++ self.pkg.moreLeancArgs ++ self.config.moreLeancArgs
 
 /--
+The arguments to weakly pass to `leanc` when compiling the library's Lean-produced C files.
+That is, the package's `weakLeancArgs` plus the library's  `weakLeancArgs`.
+-/
+@[inline] def weakLeancArgs (self : LeanLib) : Array String :=
+  self.pkg.weakLeancArgs ++ self.config.weakLeancArgs
+
+/--
 The arguments to pass to `leanc` when linking the shared library.
 That is, the package's `moreLinkArgs` plus the library's  `moreLinkArgs`.
 -/
 @[inline] def linkArgs (self : LeanLib) : Array String :=
   self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+
+/--
+The arguments to weakly pass to `leanc` when linking the shared library.
+That is, the package's `weakLinkArgs` plus the library's  `weakLinkArgs`.
+-/
+@[inline] def weakLinkArgs (self : LeanLib) : Array String :=
+  self.pkg.weakLinkArgs ++ self.config.weakLinkArgs

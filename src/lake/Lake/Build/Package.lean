@@ -16,17 +16,8 @@ namespace Lake
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeDeps (self : Package) : IndexBuildM (Array Package) := do
-  let mut deps := #[]
-  let mut depSet := PackageSet.empty
-  for dep in self.deps do
-    for depDep in (← fetch <| dep.facet `deps) do
-      unless depSet.contains depDep do
-        deps := deps.push depDep
-        depSet := depSet.insert depDep
-    unless depSet.contains dep do
-      deps := deps.push dep
-      depSet := depSet.insert dep
-  return deps
+  (·.toArray) <$> self.deps.foldlM (init := OrdPackageSet.empty) fun deps dep => do
+    return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
@@ -62,16 +53,32 @@ def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.as
   let logName := s!"{self.name}/{tag}/{self.buildArchive}"
   try
     let depTrace := Hash.ofString url
-    let trace ← buildFileUnlessUpToDate self.buildArchiveFile depTrace do
+    let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
+    buildUnlessUpToDate self.buildArchiveFile depTrace traceFile do
+      logStep s!"Fetching {self.name} cloud release"
       download logName url self.buildArchiveFile
       untar logName self.buildArchiveFile self.buildDir
-    return ((), trace)
+    return ((), .nil)
   else
     return ((), .nil)
 
 /-- The `PackageFacetConfig` for the builtin `releaseFacet`. -/
 def Package.releaseFacetConfig : PackageFacetConfig releaseFacet :=
   mkFacetJobConfig (·.fetchRelease)
+
+/-- Perform a build job after first checking for a cloud release for the package. -/
+def Package.afterReleaseAsync (self : Package) (build : SchedulerM (Job α)) : IndexBuildM (Job α) := do
+  if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
+    (← self.release.fetch).bindAsync fun _ _ => build
+  else
+    build
+
+/-- Perform a build after first checking for a cloud release for the package. -/
+def Package.afterReleaseSync (self : Package) (build : BuildM α) : IndexBuildM (Job α) := do
+  if self.preferReleaseBuild ∧ self.name ≠ (← getRootPackage).name then
+    (← self.release.fetch).bindSync fun _ _ => build
+  else
+    Job.async build
 
 open Package in
 /--

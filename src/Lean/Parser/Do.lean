@@ -25,9 +25,17 @@ def doSeqIndent    := leading_parser
   many1Indent doSeqItem
 def doSeqBracketed := leading_parser
   "{" >> withoutPosition (many1 doSeqItem) >> ppLine >> "}"
+/-- A `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other
+do elements that take blocks. It can either have the form `"{" (doElem ";"?)* "}"` or
+`many1Indent (doElem ";"?)`, where `many1Indent` ensures that all the items are at
+the same or higher indentation level as the first line. -/
 def doSeq          :=
   withAntiquot (mkAntiquot "doSeq" decl_name% (isPseudoKind := true)) <|
     doSeqBracketed <|> doSeqIndent
+/-- `termBeforeDo` is defined as `withForbidden("do", term)`, which will parse a term but
+disallows `do` outside of a bracketing construct. This is used for parsers like `for _ in t do ...`
+or `unless t do ...`, where we do not want `t do ...` to be parsed as an application of `t` to a
+`do` block, which would otherwise be allowed. -/
 def termBeforeDo := withForbidden "do" termParser
 
 attribute [run_builtin_parser_attribute_hooks] doSeq termBeforeDo

@@ -33,7 +33,7 @@ opaque fromUTF8Unchecked (a : @& ByteArray) : String
 @[extern "lean_string_to_utf8"]
 opaque toUTF8 (a : @& String) : ByteArray
 
-/-- Accesses a byte in the [UTF-8](https://en.wikipedia.org/wiki/UTF-8) encoding of the `Strig` -/
+/-- Accesses a byte in the UTF-8 encoding of the `String`. O(1) -/
 @[extern "lean_string_get_byte_fast"]
 opaque getUtf8Byte (s : @& String) (n : Nat) (h : n < s.utf8ByteSize) : UInt8
 

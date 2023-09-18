@@ -123,40 +123,40 @@ partial def find? (t : Trie α) (s : String) : Option α :=
         val
   loop 0 t
 
-/-- Returns all values whose key have the given string `pre` as a prefix, in no particular order. -/
-partial def findPrefix (t : Trie α) (pre : String) : Array α :=
-  go t 0 |>.run #[] |>.2
-where
-  go (t : Trie α) (i : Nat) : StateM (Array α) Unit :=
-    if h : i < pre.utf8ByteSize then
-      let c := pre.getUtf8Byte i h
-      match t with
-      | leaf _val =>
-        pure ()
-      | node1 _val c' t' =>
-        if c == c'
-        then go t' (i + 1)
-        else pure ()
-      | node _val cs ts =>
-        match cs.findIdx? (· == c) with
-        | none   => pure ()
-        | some idx => go (ts.get! idx) (i + 1)
-    else
-      collect t
+/-- Returns an `Array` of all values in the trie, in no particular order. -/
+partial def values (t : Trie α) : Array α := go t |>.run #[] |>.2
+  where
+    go : Trie α → StateM (Array α) Unit
+      | leaf a? => do
+        if let some a := a? then
+          modify (·.push a)
+      | node1 a? _ t' => do
+        if let some a := a? then
+          modify (·.push a)
+        go t'
+      | node a? _ ts => do
+        if let some a := a? then
+          modify (·.push a)
+        ts.forM fun t' => go t'
 
-  collect (t : Trie α) : StateM (Array α) Unit := do
-    match t with
-    | leaf a? =>
-      if let some a := a? then
-        modify (·.push a)
-    | node1 a? _ t' =>
-      if let some a := a? then
-        modify (·.push a)
-      collect t'
-    | node a? _ ts =>
-      if let some a := a? then
-        modify (·.push a)
-      ts.forM fun t' => collect t'
+/-- Returns all values whose key have the given string `pre` as a prefix, in no particular order. -/
+partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
+  where
+    go (t : Trie α) (i : Nat) : Array α :=
+      if h : i < pre.utf8ByteSize then
+        let c := pre.getUtf8Byte i h
+        match t with
+        | leaf _val => .empty
+        | node1 _val c' t' =>
+          if c == c'
+          then go t' (i + 1)
+          else .empty
+        | node _val cs ts =>
+          match cs.findIdx? (· == c) with
+          | none   => .empty
+          | some idx => go (ts.get! idx) (i + 1)
+      else
+        t.values
 
 /-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
 and return the associated value. -/

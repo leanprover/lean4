@@ -98,7 +98,7 @@ where
     else
       false
 
-def isTracingEnabledFor (cls : Name) : m Bool := do
+@[inline] def isTracingEnabledFor (cls : Name) : m Bool := do
   let inherited ← (inheritedTraceOptions.get : IO _)
   pure (checkTraceOption inherited (← getOptions) cls)
 

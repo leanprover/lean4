@@ -2,6 +2,7 @@ name: 'Label stale PRs'
 on:
   schedule:
     - cron: '30 1 * * *'
+  workflow_dispatch:
 
 permissions:
   pull-requests: write

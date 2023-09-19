@@ -510,8 +510,7 @@ partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) (simpleReduceOnly :
   go e
 where
   go (e : Expr) : MetaM Expr :=
-    whnfEasyCases e fun e => do
-      trace[Meta.whnf] e
+    whnfEasyCases e fun e => withTraceNodeBefore `Meta.whnf (return m!"{e}") do
       match e with
       | Expr.const ..  => pure e
       | Expr.letE _ _ v b _ => go <| b.instantiate1 v

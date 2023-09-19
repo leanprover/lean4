@@ -247,6 +247,10 @@ def exceptOptionEmoji : Except ε (Option α) → String
   | .ok (some _) => checkEmoji
   | .ok none => crossEmoji
 
+def exceptEmoji : Except ε α → String
+  | .error _ => bombEmoji
+  | .ok _ => checkEmoji
+
 class ExceptToEmoji (ε α : Type) where
   toEmoji : Except ε α → String
 
@@ -255,6 +259,9 @@ instance : ExceptToEmoji ε Bool where
 
 instance : ExceptToEmoji ε (Option α) where
   toEmoji := exceptOptionEmoji
+
+instance (priority := low) : ExceptToEmoji ε α where
+  toEmoji := exceptEmoji
 
 /--
 Similar to `withTraceNode`, but msg is constructed **before** executing `k`.

@@ -1,0 +1,21 @@
+name: 'Label stale PRs'
+on:
+  schedule:
+    - cron: '30 1 * * *'
+
+permissions:
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v8
+        with:
+          days-before-stale: -1
+          days-before-pr-stale: 30
+          days-before-close: -1
+          stale-pr-lable: 'stale'
+          only-labels: 'awaiting-author'
+          debug-only: true
+          operations-per-run: 1000  # for dry-run

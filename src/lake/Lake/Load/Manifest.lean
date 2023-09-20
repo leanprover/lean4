@@ -23,7 +23,7 @@ instance [FromJson α] : FromJson (NameMap α) where
         return m.insert k (← fromJson? v)
 
 /-- Current version of the manifest format. -/
-def Manifest.version : Nat := 5
+def Manifest.version : Nat := 6
 
 /-- An entry for a package stored in the manifest. -/
 inductive PackageEntry
@@ -60,6 +60,7 @@ end PackageEntry
 
 /-- Manifest data structure that is serialized to the file. -/
 structure Manifest where
+  name? : Option Name := none
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
 
@@ -77,10 +78,11 @@ instance : ForIn m Manifest PackageEntry where
   forIn self init f := self.packages.forIn init f
 
 protected def toJson (self : Manifest) : Json :=
-  Json.mkObj [
-    ("version", version),
-    ("packagesDir", toJson self.packagesDir?),
-    ("packages", toJson self.packages)
+  Json.mkObj <| .join [
+    [("version", version)],
+    Json.opt "name" self.name?,
+    [("packagesDir", toJson self.packagesDir?)],
+    [("packages", toJson self.packages)]
   ]
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩
@@ -90,16 +92,17 @@ protected def fromJson? (json : Json) : Except String Manifest := do
   let .ok ver := ver.getNat? | throw s!"unknown manifest version `{ver}`"
   if ver < 5 then
     throw s!"incompatible manifest version `{ver}`"
-  else if ver = 5 then
+  else if ver ≤ 6 then
+    let name? ← json.getObjValAs? _ "name"
     let packagesDir? ← do
       match json.getObjVal? "packagesDir" with
       | .ok path => fromJson? path
       | .error _ => pure none
     let packages : Array PackageEntry ← fromJson? (← json.getObjVal? "packages")
-    return {packagesDir?, packages}
+    return {name?, packagesDir?, packages}
   else
     throw <|
-      s!"manifest version `{ver}` is higher than this Lake's '{Manifest.version}';" ++
+      s!"manifest version `{ver}` is higher than this Lake's '{Manifest.version}'; " ++
       "you may need to update your `lean-toolchain`"
 
 instance : FromJson Manifest := ⟨Manifest.fromJson?⟩

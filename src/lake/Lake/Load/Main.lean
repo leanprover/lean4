@@ -87,7 +87,7 @@ def buildUpdatedManifest (ws : Workspace)
       return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok root, deps) =>
-    let manifest : Manifest := {packagesDir? := ws.relPkgsDir}
+    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
     let manifest := deps.foldl (fun m d => m.addPackage d.manifestEntry) manifest
     return ({ws with root}, manifest)
   | (.error cycle, _) =>

@@ -271,7 +271,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -524,11 +524,11 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 c_output = optarg;
                 break;
             case 'b':
-                check_optarg("b");
+                check_optarg("bc");
                 llvm_output = optarg;
                 break;
             case '3':
-                check_optarg("target");
+		check_optarg("target");
                 target_triple = optarg;
                 break;
             case 's':

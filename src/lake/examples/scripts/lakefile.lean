@@ -2,6 +2,7 @@ import Lake
 open Lake DSL
 
 package scripts
+require dep from "dep"
 
 /--
 Display a greeting
@@ -18,7 +19,6 @@ script greet (args) do
   else
     IO.println "Hello, world!"
   return 0
-
 
 @[default_script]
 script dismiss do

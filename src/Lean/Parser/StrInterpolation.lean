@@ -15,9 +15,8 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   let rec parse (startPos : String.Pos) (c : ParserContext) (s : ParserState) : ParserState :=
     let i     := s.pos
     if input.atEnd i then
-      let s := s.pushSyntax Syntax.missing
-      let s := s.mkNode interpolatedStrKind stackSize
-      s.setError "unterminated string literal"
+      let s := s.mkError "unterminated string literal"
+      s.mkNode interpolatedStrKind stackSize
     else
       let curr := input.get i
       let s    := s.setPos (input.next i)
@@ -37,9 +36,8 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
             let s := s.setPos (input.next i)
             parse i c s
           else
-            let s := s.pushSyntax Syntax.missing
-            let s := s.mkNode interpolatedStrKind stackSize
-            s.setError "'}'"
+            let s := s.mkError "'}'"
+            s.mkNode interpolatedStrKind stackSize
       else
         parse startPos c s
   let startPos := s.pos
@@ -58,6 +56,17 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
   info := mkAtomicInfo "interpolatedStr"
 }
 
+/-- The parser `interpolatedStr(p)` parses a string literal like `"foo"` (see `str`), but the string
+may also contain `{}` escapes, and within the escapes the parser `p` is used. For example,
+`interpolatedStr(term)` will parse `"foo {2 + 2}"`, where `2 + 2` is parsed as a term rather than
+as a string. Note that the full Lean term grammar is available here, including string literals,
+so for example `"foo {"bar" ++ "baz"}"` is a legal interpolated string (which evaluates to
+`foo barbaz`).
+
+This parser has arity 1, and returns a `interpolatedStrKind` with an odd number of arguments,
+alternating between chunks of literal text and results from `p`. The literal chunks contain
+uninterpreted substrings of the input. For example, `"foo\n{2 + 2}"` would have three arguments:
+an atom `"foo\n{`, the parsed `2 + 2` term, and then the atom `}"`. -/
 def interpolatedStr (p : Parser) : Parser :=
   withAntiquot (mkAntiquot "interpolatedStr" interpolatedStrKind) $ interpolatedStrNoAntiquot p
 

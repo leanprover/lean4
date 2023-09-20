@@ -86,7 +86,7 @@ abbrev pkg (self : Module) : Package :=
   self.irPath "o"
 
 /-- Suffix for single module dynlibs (e.g., for precompilation). -/
-@[noinline] def dynlibSuffix := "-1"
+def dynlibSuffix := "-1"
 
 @[inline] def dynlibName (self : Module) : String :=
   -- NOTE: file name MUST be unique on Windows
@@ -107,8 +107,14 @@ abbrev pkg (self : Module) : Package :=
 @[inline] def leancArgs (self : Module) : Array String :=
   self.lib.leancArgs
 
+@[inline] def weakLeancArgs (self : Module) : Array String :=
+  self.lib.weakLeancArgs
+
 @[inline] def linkArgs (self : Module) : Array String :=
   self.lib.linkArgs
+
+@[inline] def weakLinkArgs (self : Module) : Array String :=
+  self.lib.weakLinkArgs
 
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules

@@ -374,7 +374,7 @@ jobs:
           git fetch nightly --tags
           git tag ${{ needs.set-nightly.outputs.nightly }}
           git push nightly ${{ needs.set-nightly.outputs.nightly }}
-          last_tag=$(git describe HEAD^ --abbrev=0 --tags)
+          last_tag=$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show $last_tag:RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md

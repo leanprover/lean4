@@ -70,6 +70,20 @@ def «noncomputable»  := leading_parser "noncomputable "
 def «unsafe»         := leading_parser "unsafe "
 def «partial»        := leading_parser "partial "
 def «nonrec»         := leading_parser "nonrec "
+
+/-- `declModifiers` is the collection of modifiers on a declaration:
+* a doc comment `/-! ... -/`
+* a list of attributes `@[attr1, attr2]`
+* a visibility specifier, `private` or `protected`
+* `noncomputable`
+* `unsafe`
+* `partial` or `nonrec`
+
+All modifiers are optional, and have to come in the listed order.
+
+`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed
+on the same line as the declaration. It is used for declarations nested inside other syntax,
+such as inductive constructors, structure projections, and `let rec` / `where` definitions. -/
 def declModifiers (inline : Bool) := leading_parser
   optional docComment >>
   optional (Term.«attributes» >> if inline then skip else ppDedent ppLine) >>
@@ -77,10 +91,13 @@ def declModifiers (inline : Bool) := leading_parser
   optional «noncomputable» >>
   optional «unsafe» >>
   optional («partial» <|> «nonrec»)
+/-- `declId` matches `foo` or `foo.{u,v}`: an identifier possibly followed by a list of universe names -/
 def declId           := leading_parser
   ident >> optional (".{" >> sepBy1 ident ", " >> "}")
+/-- `declSig` matches the signature of a declaration with required type: a list of binders and then `: type` -/
 def declSig          := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.typeSpec
+/-- `optDeclSig` matches the signature of a declaration with optional type: a list of binders and then possibly `: type` -/
 def optDeclSig       := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser
@@ -92,12 +109,15 @@ def whereStructField := leading_parser
 def whereStructInst  := leading_parser
   ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
   optional Term.whereDecls
-/-
-  Remark: we should not use `Term.whereDecls` at `declVal`
-  because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
-  Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
+/-- `declVal` matches the right-hand side of a declaration, one of:
+* `:= expr` (a "simple declaration")
+* a sequence of `| pat => expr` (a declaration by equations), shorthand for a `match`
+* `where` and then a sequence of `field := value` initializers, shorthand for a structure constructor
 -/
 def declVal          :=
+  -- Remark: we should not use `Term.whereDecls` at `declVal`
+  -- because `Term.whereDecls` is defined using `Term.letRecDecl` which may contain attributes.
+  -- Issue #753 shows an example that fails to be parsed when we used `Term.whereDecls`.
   withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
@@ -245,6 +265,7 @@ def openSimple       := leading_parser
   many1 (ppSpace >> checkColGt >> ident)
 def openScoped       := leading_parser
   " scoped" >> many1 (ppSpace >> checkColGt >> ident)
+/-- `openDecl` is the body of an `open` declaration (see `open`) -/
 def openDecl         :=
   withAntiquot (mkAntiquot "openDecl" `Lean.Parser.Command.openDecl (isPseudoKind := true)) <|
     openHiding <|> openRenaming <|> openOnly <|> openSimple <|> openScoped
@@ -279,8 +300,10 @@ def initializeKeyword := leading_parser
 builtin_initialize
   registerBuiltinNodeKind ``eoi
 
-@[run_builtin_parser_attribute_hooks] abbrev declModifiersF := declModifiers false
-@[run_builtin_parser_attribute_hooks] abbrev declModifiersT := declModifiers true
+@[run_builtin_parser_attribute_hooks, inherit_doc declModifiers]
+abbrev declModifiersF := declModifiers false
+@[run_builtin_parser_attribute_hooks, inherit_doc declModifiers]
+abbrev declModifiersT := declModifiers true
 
 builtin_initialize
   register_parser_alias (kind := ``declModifiers) "declModifiers"       declModifiersF

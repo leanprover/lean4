@@ -17,7 +17,7 @@ structure LeanExe where
 
 /-- The Lean executables of the package (as an Array). -/
 @[inline] def Package.leanExes (self : Package) : Array LeanExe :=
-  self.leanExeConfigs.fold (fun a _ v => a.push (⟨self, v⟩)) #[]
+  self.leanExeConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
 
 /-- Try to find a Lean executable in the package with the given name. -/
 @[inline] def Package.findLeanExe? (name : Name) (self : Package) : Option LeanExe :=
@@ -78,6 +78,14 @@ def linkArgs (self : LeanExe) : Array String :=
     #["-rdynamic"] ++ self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
   else
     self.pkg.moreLinkArgs ++ self.config.moreLinkArgs
+
+
+/--
+The arguments to weakly pass to `leanc` when linking the binary executable.
+That is, the package's `weakLinkArgs` plus the executable's  `weakLinkArgs`.
+-/
+@[inline] def weakLinkArgs (self : LeanExe) : Array String :=
+  self.pkg.weakLinkArgs ++ self.config.weakLinkArgs
 
 end LeanExe
 

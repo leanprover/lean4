@@ -174,10 +174,8 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     | some endPos =>
       /-
         Truncate messages that are more than one line long.
-        This is a workaround to avoid big blocks of "red squiggly lines" on VS Code.
-        TODO: should it be a parameter?
-      -/
-      let endPos := if endPos.line > m.pos.line then { line := m.pos.line + 1, column := 0 } else endPos
+        This is a workaround to avoid big blocks of "red squiggly lines" on VS Code. -/
+      let endPos := if !m.keepFullRange && endPos.line > m.pos.line then { line := m.pos.line + 1, column := 0 } else endPos
       text.leanPosToLspPos endPos
     | none        => low
   let range : Range := ⟨low, high⟩

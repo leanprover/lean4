@@ -31,3 +31,21 @@ p : Prop
 a b c : α
 h : p → a = b
 ⊢ p
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [0, f 2, 0, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [0, f 2, 0, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [f 1, f 2, f 1, f 2] = [0, 0, 0, 0]
+f : Nat → Nat
+w : ∀ (n : Nat), f n = 0
+⊢ [f 1, f 2, 0, f 2] = [0, 0, 0, 0]

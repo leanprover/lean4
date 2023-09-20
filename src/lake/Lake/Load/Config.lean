@@ -11,6 +11,9 @@ import Lake.Util.Log
 namespace Lake
 open System Lean
 
+/-- `elan` toolchain file name -/
+def toolchainFileName : FilePath := "lean-toolchain"
+
 /-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
 def defaultConfigFile : FilePath := "lakefile.lean"
 

@@ -144,7 +144,7 @@
  {"start": {"line": 87, "character": 14}, "end": {"line": 87, "character": 36}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\n*import Lean.Parser.Do*",
+  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 89, "character": 30}}
@@ -152,7 +152,7 @@
  {"start": {"line": 89, "character": 29}, "end": {"line": 89, "character": 34}},
  "contents":
  {"value":
-  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\n*import Lean.Parser.Do*",
+  "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 92, "character": 2}}
@@ -370,7 +370,12 @@
  "contents": {"value": "```lean\nn : ℕ\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 192, "character": 2}}
-null
+{"range":
+ {"start": {"line": 192, "character": 0}, "end": {"line": 192, "character": 9}},
+ "contents":
+ {"value":
+  "`declModifiers` is the collection of modifiers on a declaration:\n* a doc comment `/-! ... -/`\n* a list of attributes `@[attr1, attr2]`\n* a visibility specifier, `private` or `protected`\n* `noncomputable`\n* `unsafe`\n* `partial` or `nonrec`\n\nAll modifiers are optional, and have to come in the listed order.\n\n`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed\non the same line as the declaration. It is used for declarations nested inside other syntax,\nsuch as inductive constructors, structure projections, and `let rec` / `where` definitions. ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 198, "character": 2}}
 {"range":

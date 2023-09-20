@@ -34,18 +34,20 @@ where
 @[implemented_by unsafeEvalConstCheck] opaque evalConstCheck
 (env : Environment) (opts : Options) (α) (type : Name) (const : Name) : Except String α
 
-/-- Construct a `NameMap` from the declarations tagged with `attr`. -/
+/-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
 def mkTagMap
 (env : Environment) (attr : OrderedTagAttribute)
-[Monad m]  (f : Name → m α) : m (NameMap α) :=
-  attr.getAllEntries env |>.foldlM (init := {}) fun map declName =>
+[Monad m] (f : (n : Name) → m (β n)) : m (DNameMap β) :=
+  let entries := attr.getAllEntries env
+  entries.foldlM (init := {}) fun map declName =>
     return map.insert declName <| ← f declName
 
-/-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
-def mkDTagMap
+/-- Construct a `OrdNameMap` from the declarations tagged with `attr`. -/
+def mkOrdTagMap
 (env : Environment) (attr : OrderedTagAttribute)
-[Monad m] (f : (n : Name) → m (β n)) : m (DNameMap β) :=
-  attr.getAllEntries env |>.foldlM (init := {}) fun map declName =>
+[Monad m] (f : (n : Name) → m β) : m (OrdNameMap β) :=
+  let entries := attr.getAllEntries env
+  entries.foldlM (init := .mkEmpty entries.size) fun map declName =>
     return map.insert declName <| ← f declName
 
 /-- Load a `PackageConfig` from a configuration environment. -/
@@ -63,20 +65,23 @@ Load the remainder of a `Package`
 from its configuration environment after resolving its dependencies.
 -/
 def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := do
-  let env := self.configEnv; let opts := self.leanOpts
+  let env := self.configEnv
+  let opts := self.leanOpts
+  let strName := self.name.toString (escape := false)
 
   -- Load Script, Facet, & Target Configurations
-  let scripts : NameMap Script ← mkTagMap env scriptAttr fun name => do
-    let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn name
-    return {fn, doc? := (← findDocString? env name)}
+  let scripts ← mkTagMap env scriptAttr fun scriptName => do
+    let name := strName ++ "/" ++ scriptName.toString (escape := false)
+    let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn scriptName
+    return {name, fn, doc? := ← findDocString? env scriptName : Script}
   let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
     if let some script := scripts.find? name then pure script else
       error s!"package is missing script `{name}` marked as a default"
-  let leanLibConfigs ← IO.ofExcept <| mkTagMap env leanLibAttr fun name =>
+  let leanLibConfigs ← IO.ofExcept <| mkOrdTagMap env leanLibAttr fun name =>
     evalConstCheck env opts LeanLibConfig ``LeanLibConfig name
-  let leanExeConfigs ← IO.ofExcept <| mkTagMap env leanExeAttr fun name =>
+  let leanExeConfigs ← IO.ofExcept <| mkOrdTagMap env leanExeAttr fun name =>
     evalConstCheck env opts LeanExeConfig ``LeanExeConfig name
-  let externLibConfigs ← mkDTagMap env externLibAttr fun name =>
+  let externLibConfigs ← mkTagMap env externLibAttr fun name =>
     match evalConstCheck env opts ExternLibDecl ``ExternLibDecl name with
     | .ok decl =>
       if h : decl.pkg = self.config.name ∧ decl.name = name then
@@ -84,7 +89,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
       else
         error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
     | .error e => error e
-  let opaqueTargetConfigs ← mkDTagMap env targetAttr fun name =>
+  let opaqueTargetConfigs ← mkTagMap env targetAttr fun name =>
     match evalConstCheck env opts TargetDecl ``TargetDecl name with
     | .ok decl =>
       if h : decl.pkg = self.config.name ∧ decl.name = name then

@@ -1,2 +1,2 @@
-1760.lean:3:0: error: expected ':', ']' or term
+1760.lean:2:31-3:6: error: unexpected token '#check'; expected ':', ']' or term
 () : Unit

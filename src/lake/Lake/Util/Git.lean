@@ -11,10 +11,10 @@ namespace Lake
 
 namespace Git
 
-@[noinline] def defaultRemote :=
+def defaultRemote :=
   "origin"
 
-@[noinline] def upstreamBranch :=
+def upstreamBranch :=
   "master"
 
 /--
@@ -42,7 +42,7 @@ instance : ToString GitRepo := ⟨(·.dir.toString)⟩
 
 namespace GitRepo
 
-@[noinline] def cwd : GitRepo := ⟨"."⟩
+def cwd : GitRepo := ⟨"."⟩
 
 @[inline] def dirExists (repo : GitRepo) : BaseIO Bool :=
   repo.dir.isDir

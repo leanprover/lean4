@@ -16,7 +16,5 @@ jobs:
           days-before-stale: -1
           days-before-pr-stale: 30
           days-before-close: -1
-          stale-pr-lable: 'stale'
+          stale-pr-label: 'stale'
           only-labels: 'awaiting-author'
-          debug-only: true
-          operations-per-run: 1000  # for dry-run

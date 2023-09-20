@@ -16,7 +16,7 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
         uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
@@ -110,6 +110,11 @@ jobs:
           else
             echo "Branch already exists, pushing an empty commit."
             git checkout lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
+            # The Mathlib `nightly-testing` branch may have moved since this branch was created, so merge their changes.
+            # If the base of this Lean4 PR becomes significantly older than the nightly being used by `nightly-testing`
+            # this will cause breakages rather than fixing them!
+            # Without cumbersome requirements that Lean4 PRs are based off nightlies, I'm not sure there is a perfect solution here.
+            git merge nightly-testing --strategy-option ours --no-commit --allow-unrelated-histories
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

@@ -92,7 +92,7 @@ end
 syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " term)
-syntax calcSteps := ppLine withPosition(calcFirstStep) withPosition((ppLine calcStep)*)
+syntax calcSteps := ppLine withPosition(calcFirstStep) withPosition((ppLine linebreak calcStep)*)
 
 /-- Step-wise reasoning over transitive relations.
 ```

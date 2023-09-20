@@ -136,7 +136,6 @@ jobs:
             os: macos-latest
             release: true
             shell: bash -euxo pipefail {0}
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
@@ -146,7 +145,7 @@ jobs:
             release: true
             cross: true
             shell: bash -euxo pipefail {0}
-            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
             binary-check: otool -L
@@ -183,6 +182,7 @@ jobs:
       LSAN_OPTIONS: max_leaks=10
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
+      MACOSX_DEPLOYMENT_TARGET: 10.15
     steps:
       - name: Checkout
         uses: actions/checkout@v3

@@ -68,6 +68,7 @@ where
     | _ => set false; return t
 
 def getCalcFirstStep (step0 : TSyntax ``calcFirstStep) : TermElabM (TSyntax ``calcStep) :=
+  withRef step0 do
   match step0  with
   | `(calcFirstStep| $term:term) =>
     `(calcStep| $term = _ := rfl)
@@ -77,7 +78,9 @@ def getCalcFirstStep (step0 : TSyntax ``calcFirstStep) : TermElabM (TSyntax ``ca
 
 def getCalcSteps (steps : TSyntax ``calcSteps) : TermElabM (Array (TSyntax ``calcStep)) :=
   match steps with
-  | `(calcSteps| $step0:calcFirstStep $rest*) => do
+  | `(calcSteps|
+        $step0:calcFirstStep
+        $rest*) => do
     let step0 ← getCalcFirstStep step0
     pure (#[step0] ++ rest)
   | _ => unreachable!

@@ -42,6 +42,7 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Parser_Module_prelude_parenthesizer
 lean_object* l_Lean_Parser_addParserTokens(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_import_formatter___closed__1;
 static lean_object* l_Lean_Parser_testParseModuleAux_parse___closed__3;
+lean_object* l_Lean_Data_Trie_empty(lean_object*);
 static lean_object* l_Lean_Parser_Module_module_formatter___closed__8;
 lean_object* l_Lean_Parser_Error_toString(lean_object*);
 lean_object* l_Lean_Parser_many_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -133,7 +134,6 @@ static lean_object* l___regBuiltin_Lean_Parser_Module_prelude_parenthesizer___cl
 LEAN_EXPORT lean_object* l_Lean_Parser_Module_import_formatter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_module___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_testParseModuleAux_parse___lambda__1(lean_object*, lean_object*);
-lean_object* l_Lean_Parser_Trie_instInhabitedTrie(lean_object*);
 lean_object* l_Lean_Parser_tokenFn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Module_prelude_parenthesizer___closed__3;
 static lean_object* l_Lean_Parser_Module_module_parenthesizer___closed__1;
@@ -1856,7 +1856,7 @@ static lean_object* _init_l_panic___at_Lean_Parser_Module_updateTokens___spec__1
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Trie_instInhabitedTrie(lean_box(0));
+x_1 = l_Lean_Data_Trie_empty(lean_box(0));
 return x_1;
 }
 }

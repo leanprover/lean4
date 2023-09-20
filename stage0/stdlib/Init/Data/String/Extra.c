@@ -15,11 +15,13 @@ extern "C" {
 #endif
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__8;
 static lean_object* l_String_toNat_x21___closed__3;
+LEAN_EXPORT lean_object* l_String_getUtf8Byte___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toNat_x21(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__9;
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__10;
 LEAN_EXPORT lean_object* l_String_fromUTF8Unchecked___boxed(lean_object*);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 static lean_object* l_String_toNat_x21___closed__1;
 lean_object* l_String_Iterator_next(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__3;
@@ -162,6 +164,16 @@ lean_object* x_2;
 x_2 = lean_string_to_utf8(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_String_getUtf8Byte___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_string_get_byte_fast(x_1, x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
 }
 }
 static lean_object* _init_l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__1() {

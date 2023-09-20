@@ -1,6 +1,6 @@
 # Documentation
 
-The Lean `doc` folder contains the [Lean Manual](https://leanprover.github.io/lean4/doc/) and is
+The Lean `doc` folder contains the [Lean Manual](https://lean-lang.org/lean4/doc/) and is
 authored in a combination of markdown (`*.md`) files and literate Lean files.  The .lean files are
 preprocessed using a tool called [LeanInk](https://github.com/leanprover/leanink) and
 [Alectryon](https://github.com/Kha/alectryon) which produces a generated markdown file.  We then run
@@ -83,7 +83,7 @@ Then run the following:
     ```
 
 This will put the HTML in a `out` folder so you can load `out/index.html` in your web browser and
-it should look like https://leanprover.github.io/lean4/doc/.
+it should look like https://lean-lang.org/lean4/doc/.
 
 1. It is also handy to use e.g. [`mdbook watch`](https://rust-lang.github.io/mdBook/cli/watch.html)
    in the `doc/` folder so that it keeps the html up to date while you are editing.

@@ -166,7 +166,7 @@ inductive List (α : Type u) where
 ```
 A list of elements of type `α` is either the empty list, `nil`,
 or an element `head : α` followed by a list `tail : List α`.
-For more information about [inductive types](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html).
+For more information about [inductive types](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html).
 -/
 def «inductive»      := leading_parser
   "inductive " >> declId >> ppIndent optDeclSig >> optional (symbol " :=" <|> " where") >>

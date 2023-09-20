@@ -127,7 +127,7 @@ calc abc
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
 syntax (name := calc) "calc" calcSteps : term
 
@@ -166,7 +166,7 @@ leave a subgoal proving `z = z'`.
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 

@@ -51,13 +51,10 @@ def compute (lake : LakeInstall) (lean : LeanInstall) (elan? : Option ElanInstal
 
 /--
 The preferred toolchain of the environment. May be empty.
-Order is: `env.lean.toolchain` or `env.initToolchain` or Lake's `Lean.toolchain`
+Tries `env.initToolchain` first and then Lake's `Lean.toolchain`.
 -/
 def toolchain (env : Env) : String :=
-  if env.lean.toolchain.isEmpty then
-    if env.initToolchain.isEmpty then Lean.toolchain else env.initToolchain
-  else
-    env.lean.toolchain
+  if env.initToolchain.isEmpty then Lean.toolchain else env.initToolchain
 
 /--
 The binary search path of the environment (i.e., `PATH`).

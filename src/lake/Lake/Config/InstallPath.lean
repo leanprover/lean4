@@ -51,7 +51,6 @@ def leanSharedLib (sysroot : FilePath) :=
 structure LeanInstall where
   sysroot : FilePath
   githash : String
-  toolchain : String
   srcDir := sysroot / "src" / "lean"
   leanLibDir := sysroot / "lib" / "lean"
   includeDir := sysroot / "include"
@@ -158,22 +157,10 @@ Lean libraries in `<lean-sysroot>/lib/lean`, and its system libraries in
 -/
 def LeanInstall.get (sysroot : FilePath) : BaseIO LeanInstall := do
   let githash ← getGithash
-  let toolchain ← getToolchain
   let (cc, customCc) ← findCc
   let ar ← findAr
-  return {sysroot, githash, toolchain, ar, cc, customCc}
+  return {sysroot, githash, ar, cc, customCc}
 where
-  getToolchain := do
-    EIO.catchExceptions (h := fun _ => pure "") do
-      let child ← IO.Process.spawn {
-        cmd := leanExe sysroot |>.toString,
-        args := #["--stdin"],
-        stdout := .piped,
-        stdin := .piped,
-        stderr := .null
-      }
-      child.stdin.putStr "#eval IO.print Lean.toolchain"
-      pure <| (← child.stdout.getLine).trim
   getGithash := do
     EIO.catchExceptions (h := fun _ => pure "") do
       let out ← IO.Process.output {

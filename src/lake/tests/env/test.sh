@@ -21,15 +21,8 @@ $LAKE env printenv LEAN_SRC_PATH | grep lake
 $LAKE -d ../../examples/hello env printenv LEAN_SRC_PATH | grep examples/hello
 $LAKE -d ../../examples/hello env printenv PATH | grep examples/hello
 
-# Test toolchain variable is set
-toolchain=`echo "#eval IO.print Lean.toolchain" | $LAKE env lean --stdin`
-if [ -n "$toolchain" ]; then
-  test "`$LAKE env printenv ELAN_TOOLCHAIN`" = "$toolchain"
-else
-  test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = foo
-fi
-
 # Test that `env` preserves the input environment for certain variables
+test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = foo
 test "`LEAN_AR=foo $LAKE env printenv LEAN_AR`" = foo
 test "`LEAN_CC=foo $LAKE env printenv LEAN_CC`" = foo
 

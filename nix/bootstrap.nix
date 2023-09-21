@@ -116,7 +116,6 @@ rec {
       };
       stdlib = [ Init Lean Lake ];
       modDepsFiles = symlinkJoin { name = "modDepsFiles"; paths = map (l: l.modDepsFile) (stdlib ++ [ Leanc ]); };
-      depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
       stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${leancpp}/lib/lean";
@@ -151,7 +150,7 @@ rec {
         meta.mainProgram = "lean";
       };
       cacheRoots = linkFarmFromDrvs "cacheRoots" [
-        stage0 lean leanc lean-all iTree modDepsFiles depRoots Leanc.src
+        stage0 lean leanc lean-all iTree modDepsFiles Lean.modRoot Leanc.src
         # .o files are not a runtime dependency on macOS because of lack of thin archives
         Lean.oTree Lake.oTree
       ];

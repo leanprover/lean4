@@ -67,18 +67,11 @@ with builtins; let
   '';
   depRoot = name: deps: mkBareDerivation {
     name = "${name}-depRoot";
-    inherit deps;
-    depRoots = map (drv: drv.LEAN_PATH) deps;
-
-    passAsFile = [ "deps" "depRoots" ];
+    buildInputs = [ symlinkSearchPath ];
+    depList = lib.concatLines deps;
+    passAsFile = [ "depList" ];
     buildCommand = ''
-      mkdir -p $out
-      for i in $(cat $depRootsPath); do
-        cp -dru --no-preserve=mode $i/. $out
-      done
-      for i in $(cat $depsPath); do
-        cp -drsu --no-preserve=mode $i/. $out
-      done
+      symlinkSearchPath $out $depListPath
     '';
   };
   srcRoot = src;
@@ -88,9 +81,9 @@ with builtins; let
   allNativeSharedLibs =
     lib.unique (lib.flatten (nativeSharedLibs ++ (map (dep: dep.allNativeSharedLibs or []) allExternalDeps)));
 
-  # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`, 
+  # A flattened list of all static library dependencies: this and every dep module's explicitly provided `staticLibDeps`,
   # plus every dep module itself: `dep.staticLib`
-  allStaticLibDeps = 
+  allStaticLibDeps =
     lib.unique (lib.flatten (staticLibDeps ++ (map (dep: [dep.staticLib] ++ dep.staticLibDeps or []) allExternalDeps)));
 
   pathOfSharedLib = dep: dep.libPath or "${dep}/${dep.libName or dep.name}";
@@ -142,10 +135,9 @@ with builtins; let
   # TODO: make `rec` parts override-compatible?
   buildMod = mod: deps: maybeOverrideAttrs overrideBuildModAttrs (mkBareDerivation rec {
     name = "${mod}";
-    LEAN_PATH = depRoot mod deps;
     LEAN_ABORT_ON_PANIC = "1";
     relpath = modToPath mod;
-    buildInputs = [ lean ];
+    buildInputs = [ lean symlinkSearchPath ];
     leanPath = relpath + ".lean";
     # should be either single .lean file or directory directly containing .lean file plus dependencies
     src = copyToStoreSafe srcRoot ("/" + leanPath);
@@ -153,13 +145,19 @@ with builtins; let
     oleanPath = relpath + ".olean";
     ileanPath = relpath + ".ilean";
     cPath = relpath + ".c";
+    # this will be part of the output as lean-deps.txt
+    depList = lib.concatLines deps;
+    passAsFile = [ "depList" ];
     inherit leanFlags leanPluginFlags;
     leanLoadDynlibFlags = map (p: "--load-dynlib=${pathOfSharedLib p}") (loadDynlibsOfDeps deps);
     buildCommand = ''
       dir=$(dirname $relpath)
       mkdir -p $dir $out/$dir $ilean/$dir $c/$dir
+      symlinkSearchPath imports $depListPath
+      export LEAN_PATH=imports
       if [ -d $src ]; then cp -r $src/. .; else cp $src $leanPath; fi
       lean -o $out/$oleanPath -i $ilean/$ileanPath -c $c/$cPath $leanPath $leanFlags $leanPluginFlags $leanLoadDynlibFlags
+      cp $depListPath $out/lean-deps.txt
     '';
   }) // {
     inherit deps;
@@ -203,6 +201,7 @@ with builtins; let
   makeVSCodeWrapper = name: lean: writeShellScriptBin name ''
     PATH=${lean}/bin:$PATH ${lean-vscode}/bin/code "$@"
   '';
+  symlinkSearchPath = writeShellScriptBin "symlinkSearchPath" (readFile ./symlinkSearchPath.sh);
   printPaths = deps: writeShellScriptBin "print-paths" ''
     echo '${toJSON {
       oleanPath = [(depRoot "print-paths" deps)];
@@ -241,7 +240,6 @@ in rec {
       lib.optionalAttrs precompilePackage { propagatedLoadDynlibs = [sharedLib]; })
     mods';
   modRoot   = depRoot name (attrValues mods);
-  depRoots  = linkFarmFromDrvs "depRoots" (map (m: m.LEAN_PATH) (attrValues mods));
   cTree     = symlinkJoin { name = "${name}-cTree"; paths = map (mod: mod.c) (attrValues mods); };
   oTree     = symlinkJoin { name = "${name}-oTree"; paths = (attrValues objects); };
   iTree     = symlinkJoin { name = "${name}-iTree"; paths = map (mod: mod.ilean) (attrValues mods); };

@@ -131,12 +131,13 @@ def findLeanSysroot? (lean := "lean") : BaseIO (Option FilePath) := do
 Construct the `LeanInstall` object for the given Lean sysroot.
 
 Does the following:
-1. Invokes `lean` to find out its `githash` and `Lean.toolchain`
+1. Find `lean`'s githash.
 2. Finds the  `ar` and `cc` to use with Lean.
 3. Computes the sub-paths of the Lean install.
 
-For (1), if the invocation fails, `githash` and `toolchain` are set
-to the empty string.
+For (1), If `lake` is not-collocated with `lean`, invoke `lean --githash`;
+otherwise, use Lake's `Lean.githash`. If the invocation fails, `githash` is
+set to the empty string.
 
 For (2), if `LEAN_AR` or `LEAN_CC` are defined, it uses those paths.
 Otherwise, if Lean is packaged with an `llvm-ar` and/or `clang`, use them.
@@ -155,10 +156,15 @@ That is, with its binaries located in `<lean-sysroot>/bin`, its
 Lean libraries in `<lean-sysroot>/lib/lean`, and its system libraries in
 `<lean-sysroot>/lib`.
 -/
-def LeanInstall.get (sysroot : FilePath) : BaseIO LeanInstall := do
-  let githash ← getGithash
-  let (cc, customCc) ← findCc
+def LeanInstall.get (sysroot : FilePath) (collocated : Bool := false) : BaseIO LeanInstall := do
+  let githash ← do
+    if collocated then
+      pure Lean.githash
+    else
+      -- Remark: This is expensive (at least on Windows), so try to avoid it.
+      getGithash
   let ar ← findAr
+  let (cc, customCc) ← findCc
   return {sysroot, githash, ar, cc, customCc}
 where
   getGithash := do
@@ -170,7 +176,7 @@ where
       pure <| out.stdout.trim
   findAr := do
     if let some ar ← IO.getEnv "LEAN_AR" then
-      return ar
+      return FilePath.mk ar
     else
       let ar := leanArExe sysroot
       if (← ar.pathExists) then pure ar else pure "ar"
@@ -257,7 +263,7 @@ following the pattern of a regular Lean toolchain.
 def findInstall? : BaseIO (Option ElanInstall × Option LeanInstall × Option LakeInstall) := do
   let elan? ← findElanInstall?
   if let some home ← findLakeLeanJointHome? then
-    let lean ← LeanInstall.get home
+    let lean ← LeanInstall.get home (collocated := true)
     let lake := LakeInstall.ofLean lean
     return (elan?, lean, lake)
   else

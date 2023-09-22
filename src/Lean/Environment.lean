@@ -659,7 +659,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
 Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
-private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do

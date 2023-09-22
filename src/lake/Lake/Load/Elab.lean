@@ -14,29 +14,23 @@ open Lean System
 
 deriving instance BEq, Hashable for Import
 
-/- Cache for the import state of Lake configuration files. -/
-initialize importStateCache : IO.Ref (HashMap (Array Import) ImportState) ← IO.mkRef {}
+/- Cache for the imported header environment of Lake configuration files. -/
+initialize importEnvCache : IO.Ref (HashMap (Array Import) Environment) ← IO.mkRef {}
 
-/--
-Like `importModulesCore`, but fetch the
-resulting import state from the cache if possible. -/
-def importModulesUsingCache (imports : Array Import) : IO ImportState := do
-  match (← importStateCache.get).find? imports with
-  | none =>
-    let (_, s) ← importModulesCore imports |>.run
-    importStateCache.modify (·.insert imports s)
-    return s
-  | some s =>
-    return s
+/-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
+def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
+  if let some env := (← importEnvCache.get).find? imports then
+    return env
+  let env ← importModules imports opts trustLevel
+  importEnvCache.modify (·.insert imports env)
+  return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
 def processHeader (header : Syntax) (opts : Options)
 (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
   try
     let imports := Elab.headerToImports header
-    withImporting do
-      let s ← importModulesUsingCache imports
-      finalizeImport s imports opts 1024
+    importModulesUsingCache imports opts 1024
   catch e =>
     let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
@@ -93,15 +87,29 @@ def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
     let .ok toolchainMTime ← getMTime toolchainFile |>.toBaseIO | return true
     return oleanMTime > toolchainMTime
   if useOLean then
-    withImporting do
-    let (mod, region) ← readModuleData olean
-    let s ← importModulesUsingCache mod.imports
-    let s := {s with
-      moduleData  := s.moduleData.push mod
-      regions     := s.regions.push region
-      moduleNames := s.moduleNames.push configModuleName
-    }
-    finalizeImport s #[configModuleName] leanOpts 1024
+    /- We could import the olean together with its imports using one
+       `importModules` call, but that would mean we pay for a full
+       `finalizeImports` each time, which is linear in the number of imported
+       constants and extension entries (in fact, it is paid two more times: when
+       marking the `Environment` object as multi-threaded, and when releasing
+       it). As most lakefiles use the same set of imports, we instead construct
+       an `Environment` for it only once, and then apply the lakefile contents
+       on top of it like the elaborator would. Thus the non-shared, part of the
+       `Environment` is very small. -/
+    let (mod, _) ← readModuleData olean
+    let mut env ← importModulesUsingCache mod.imports leanOpts 1024
+    -- Apply constants (does not go through the kernel, so order is irrelevant)
+    env := mod.constants.foldl (·.add) env
+    -- Apply extension entries (`PersistentEnvExtension.addEntryFn` is pure and
+    -- does not have access to the whole environment, so no dependency worries
+    -- here either)
+    let extDescrs ← persistentEnvExtensionsRef.get
+    let extNameIdx ← mkExtNameMap 0
+    for (extName, ents) in mod.entries do
+      if let some entryIdx := extNameIdx.find? extName then
+        for ent in ents do
+          env := extDescrs[entryIdx]!.addEntry env ent
+    return env
   else
     let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
     Lean.writeModule env olean

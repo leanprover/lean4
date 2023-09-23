@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Data.NameMap
+import Lean.Data.Json.FromToJson
 import Lake.Util.DRBMap
 import Lake.Util.RBArray
 import Lake.Util.Compare
@@ -13,6 +14,18 @@ open Lean
 namespace Lake
 
 export Lean (Name NameMap)
+
+instance [ToJson α] : ToJson (NameMap α) where
+  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
+
+instance [FromJson α] : FromJson (NameMap α) where
+  fromJson? j := do
+    (← j.getObj?).foldM (init := {}) fun m k v =>
+      let k := k.toName
+      if k.isAnonymous then
+        throw "expected name"
+      else
+        return m.insert k (← fromJson? v)
 
 @[inline] def NameMap.empty : NameMap α := RBMap.empty
 

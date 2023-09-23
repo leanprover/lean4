@@ -6,7 +6,7 @@ Authors: Mac Malone
 import Lake.Util.NativeLib
 import Lake.Config.InstallPath
 
-open System
+open System Lean
 
 /-! # Lake's Environment
 Definitions related to a Lake environment.
@@ -34,7 +34,7 @@ structure Env where
   initSharedLibPath : SearchPath
   /-- The initial binary search path of the environment (i.e., `PATH`). -/
   initPath : SearchPath
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, ToJson
 
 namespace Env
 

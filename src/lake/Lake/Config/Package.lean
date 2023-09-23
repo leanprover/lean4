@@ -165,7 +165,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   -/
   preferReleaseBuild : Bool := false
 
-deriving Inhabited
+deriving Inhabited, ToJson
 
 --------------------------------------------------------------------------------
 /-! # Package -/
@@ -185,6 +185,8 @@ structure Package where
   remoteUrl? : Option String := none
   /-- The Git tag of this package. -/
   gitTag? : Option String := none
+  /-- Source information regarding the package's dependencies. -/
+  depsConfig : Array Dependency := #[]
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
@@ -216,6 +218,19 @@ hydrate_opaque_type OpaquePackage Package
 
 instance : Hashable Package where hash pkg := hash pkg.config.name
 instance : BEq Package where beq p1 p2 := p1.config.name == p2.config.name
+
+instance : ToJson Package where
+  toJson x := .mkObj <| .join [
+    [("dir", toJson x.dir)],
+    [("config", toJson x.config)],
+    Json.opt "remoteUrl" x.remoteUrl?,
+    Json.opt "gitTag" x.gitTag?,
+    [("deps", toJson x.depsConfig)],
+    [("libs", toJson x.leanLibConfigs.toArray)],
+    [("exes", toJson x.leanExeConfigs.toArray)],
+    [("defaultTargets", toJson x.defaultTargets)],
+    [("scripts", toJson x.scripts)],
+    [("defaultScripts", toJson (x.defaultScripts.map (·.name)))]]
 
 abbrev PackageSet := HashSet Package
 @[inline] def PackageSet.empty : PackageSet := HashSet.empty

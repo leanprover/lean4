@@ -3,10 +3,11 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Mac Malone
 -/
+import Lean.Data.Json.FromToJson
 import Lean.Util.Path
 import Lake.Util.Name
 
-open Lean (Name)
+open Lean
 open System (FilePath)
 
 namespace Lake
@@ -19,7 +20,7 @@ inductive Glob
   | submodules : Name → Glob
   /-- Selects the specified module and all submodules. -/
   | andSubmodules : Name → Glob
-deriving Inhabited, Repr
+deriving Inhabited, Repr, ToJson
 
 instance : Coe Name Glob := ⟨Glob.one⟩
 
@@ -45,6 +46,6 @@ def «matches» (m : Name) : (self : Glob) → Bool
 (dir : FilePath) (f : Name → m PUnit) : (self : Glob) → m PUnit
 | one n => f n
 | submodules n =>
-  forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)
+  forEachModuleIn (modToFilePath dir n "") (f <| n ++ ·)
 | andSubmodules n =>
-  f n *> forEachModuleIn (Lean.modToFilePath dir n "") (f <| n ++ ·)
+  f n *> forEachModuleIn (modToFilePath dir n "") (f <| n ++ ·)

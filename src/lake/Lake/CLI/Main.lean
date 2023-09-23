@@ -14,6 +14,7 @@ import Lake.CLI.Build
 import Lake.CLI.Error
 import Lake.CLI.Actions
 import Lake.CLI.Serve
+import Lake.CLI.DumpConfig
 
 -- # CLI
 
@@ -369,6 +370,13 @@ protected def exe : CliM PUnit := do
   let buildConfig := mkBuildConfig opts
   exit <| ← (exe exeName args.toArray buildConfig).run ctx
 
+protected def dumpConfig : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  noArgsRem do IO.println <| toJson ws.toExport
+
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
   noArgsRem do verifyInstall (← getThe LakeOptions)
@@ -393,6 +401,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "serve"               => lake.serve
 | "env"                 => lake.env
 | "exe" | "exec"        => lake.exe
+| "dump-config"         => lake.dumpConfig
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
 | cmd                   => throw <| CliError.unknownCommand cmd

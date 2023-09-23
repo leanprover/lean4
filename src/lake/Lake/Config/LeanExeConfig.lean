@@ -63,4 +63,4 @@ structure LeanExeConfig extends LeanConfig where
   -/
   supportInterpreter : Bool := false
 
-deriving Inhabited
+deriving Inhabited, ToJson

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lean.Data.NameMap
+import Lake.Util.Name
 
 namespace Lake
 open Lean System
@@ -19,7 +20,7 @@ In Lake, dependency sources currently come into flavors:
 inductive Source where
 | path (dir : FilePath)
 | git (url : String) (rev : Option String) (subDir : Option FilePath)
-deriving Inhabited, Repr
+deriving Inhabited, Repr, ToJson
 
 /-- A `Dependency` of a package. -/
 structure Dependency where
@@ -38,4 +39,4 @@ structure Dependency where
   -/
   opts : NameMap String := {}
 
-deriving Inhabited
+deriving Inhabited, ToJson

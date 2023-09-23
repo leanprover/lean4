@@ -187,7 +187,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
             s!"dependency '{dep.name}' of '{pkg.name}' not in manifest; " ++
             s!"this suggests that the manifest is corrupt;" ++
             s!"use `lake update` to generate a new, complete file (warning: this will update ALL workspace dependencies)"
-      return {pkg with opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
+      return {pkg with depsConfig := deps, opaqueDeps := ← depPkgs.mapM (.mk <$> resolve ·)}
   match res with
   | Except.ok root =>
     ({ws with root}).finalize

@@ -6,6 +6,7 @@ Authors: Mac Malone
 import Lake.Util.Exit
 import Lake.Config.Context
 
+open Lean
 namespace Lake
 
 /--
@@ -31,6 +32,9 @@ structure Script where
   fn : ScriptFn
   doc? : Option String
   deriving Inhabited
+
+instance : ToJson Script where
+  toJson x := .mkObj <| .join [[("name", toJson x.name)], Json.opt "doc" x.doc?]
 
 def Script.run (args : List String) (self : Script) : ScriptM ExitCode :=
   self.fn args

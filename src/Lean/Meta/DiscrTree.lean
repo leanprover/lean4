@@ -665,10 +665,10 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
       | _      => visitNonStar k args result
     | .path ks t =>
       let rec loop (todo : Array Expr) (result : Array α) (i : Nat) : MetaM (Array α) := do
-        -- the following logic is a copy of the .branch case, with just a single child
-        if todo.isEmpty then
-          return result
-        else if h : i < ks.size then
+        -- the following logic is a copy of the .branch case, as if `cs` is a singleton
+        if h : i < ks.size then
+          if todo.isEmpty then
+            return result
           let e     := todo.back
           let todo  := todo.pop
           let k'    := ks.get ⟨i, h⟩

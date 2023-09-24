@@ -490,14 +490,14 @@ private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) (i : Nat)
             let t2 := createNodes keys v (i + j + 1)
             branch2 k1 t1 k2 t2
           else
-            -- the new entry is on the present path, so split the path and insert the value
+            -- the entry keys are a prefix of the path in the node: split the path, insert the value
             .values #[v] (.path (ks.extract j ks.size) t)
         else
           -- the node path is a prefix of the new entry
-          .path ks (insertAux keys v (i + j) t)
+          insertAux keys v (i + j) t
       if 0 < j then
         -- add a .path for the common prefix, if present
-        .path (keys.extract 0 j) t'
+        .path (ks.extract 0 j) t'
       else
         t'
     | .branch cs =>

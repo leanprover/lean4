@@ -785,7 +785,7 @@ where
             | some c => process 0 (todo ++ args) c.2 result
           match k with
           | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
-          -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
+          -- See comment at `getMatch` regarding non-dependent arrows vs dependent arrows
           | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
           | _      => visitNonStar k args (← visitStar result)
     | .path ks t =>
@@ -815,7 +815,7 @@ where
               let (k, args) ← getUnifyKeyArgs e (root := false)
               match k with
               | .star  => loop k'.arity todo result (i + 1)
-              -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
+              -- See comment at `getMatch` regarding non-dependent arrows vs dependent arrows
               | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
               | _      => visitNonStar k args (← visitStar result)
           else

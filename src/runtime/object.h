@@ -38,13 +38,13 @@ inline external_object_class * register_external_object_class(external_object_fi
     return lean_register_external_class(p1, p2);
 }
 
-inline bool is_scalar(object * o) { return lean_is_scalar(o); }
+inline bool is_scalar(b_obj_arg o) { return lean_is_scalar(o); }
 inline object * box(size_t n) { return lean_box(n); }
 inline size_t unbox(object * o) { return lean_unbox(o); }
 
-inline bool is_mt_heap_obj(object * o) { return lean_is_mt(o); }
-inline bool is_st_heap_obj(object * o) { return lean_is_st(o); }
-inline bool is_heap_obj(object * o) { return is_st_heap_obj(o) || is_mt_heap_obj(o); }
+inline bool is_mt_heap_obj(b_obj_arg o) { return lean_is_mt(o); }
+inline bool is_st_heap_obj(b_obj_arg o) { return lean_is_st(o); }
+inline bool is_heap_obj(b_obj_arg o) { return is_st_heap_obj(o) || is_mt_heap_obj(o); }
 inline void mark_mt(object * o) { lean_mark_mt(o); }
 inline bool is_shared(object * o) { return lean_is_shared(o); }
 inline bool is_exclusive(object * o) { return lean_is_exclusive(o); }
@@ -56,16 +56,16 @@ inline void inc(object * o, size_t n) { lean_inc_n(o, n); }
 inline void dec(object * o) { lean_dec(o); }
 inline void free_heap_obj(object * o) { lean_free_object(o); }
 
-inline bool is_cnstr(object * o) { return lean_is_ctor(o); }
-inline bool is_closure(object * o) { return lean_is_closure(o); }
-inline bool is_array(object * o) { return lean_is_array(o); }
-inline bool is_sarray(object * o) { return lean_is_sarray(o); }
-inline bool is_string(object * o) { return lean_is_string(o); }
-inline bool is_mpz(object * o) { return lean_is_mpz(o); }
-inline bool is_thunk(object * o) { return lean_is_thunk(o); }
-inline bool is_task(object * o) { return lean_is_task(o); }
-inline bool is_external(object * o) { return lean_is_external(o); }
-inline bool is_ref(object * o) { return lean_is_ref(o); }
+inline bool is_cnstr(b_obj_arg o) { return lean_is_ctor(o); }
+inline bool is_closure(b_obj_arg o) { return lean_is_closure(o); }
+inline bool is_array(b_obj_arg o) { return lean_is_array(o); }
+inline bool is_sarray(b_obj_arg o) { return lean_is_sarray(o); }
+inline bool is_string(b_obj_arg o) { return lean_is_string(o); }
+inline bool is_mpz(b_obj_arg o) { return lean_is_mpz(o); }
+inline bool is_thunk(b_obj_arg o) { return lean_is_thunk(o); }
+inline bool is_task(b_obj_arg o) { return lean_is_task(o); }
+inline bool is_external(b_obj_arg o) { return lean_is_external(o); }
+inline bool is_ref(b_obj_arg o) { return lean_is_ref(o); }
 
 inline void mark_persistent(object * o) { return lean_mark_persistent(o); }
 
@@ -74,9 +74,9 @@ inline unsigned obj_tag(b_obj_arg o) { return lean_obj_tag(o); }
 // =======================================
 // Constructors
 
-inline unsigned cnstr_num_objs(object * o) { return lean_ctor_num_objs(o); }
-inline object ** cnstr_obj_cptr(object * o) { return lean_ctor_obj_cptr(o); }
-inline uint8 * cnstr_scalar_cptr(object * o) { return lean_ctor_scalar_cptr(o); }
+inline unsigned cnstr_num_objs(b_obj_arg o) { return lean_ctor_num_objs(o); }
+inline b_obj_res * cnstr_obj_cptr(b_obj_arg o) { return lean_ctor_obj_cptr(o); }
+inline uint8 * cnstr_scalar_cptr(b_obj_arg o) { return lean_ctor_scalar_cptr(o); }
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) { return lean_alloc_ctor(tag, num_objs, scalar_sz); }
 inline unsigned cnstr_tag(b_obj_arg o) { lean_assert(is_cnstr(o)); return lean_ptr_tag(o); }
 inline void cnstr_set_tag(b_obj_arg o, unsigned tag) { lean_ctor_set_tag(o, tag); }
@@ -99,116 +99,116 @@ inline void cnstr_set_float(b_obj_arg o, unsigned offset, double v) { lean_ctor_
 // =======================================
 // Closures
 
-void free_closure_obj(object * o);
-inline void * closure_fun(object * o) { return lean_closure_fun(o); }
-inline unsigned closure_arity(object * o) { return lean_closure_arity(o); }
-inline unsigned closure_num_fixed(object * o) { return lean_closure_num_fixed(o); }
-inline object ** closure_arg_cptr(object * o) { return lean_closure_arg_cptr(o); }
+inline void * closure_fun(b_obj_arg o) { return lean_closure_fun(o); }
+inline unsigned closure_arity(b_obj_arg o) { return lean_closure_arity(o); }
+inline unsigned closure_num_fixed(b_obj_arg o) { return lean_closure_num_fixed(o); }
+inline b_obj_res * closure_arg_cptr(b_obj_arg o) { return lean_closure_arg_cptr(o); }
 inline obj_res alloc_closure(void * fun, unsigned arity, unsigned num_fixed) { return lean_alloc_closure(fun, arity, num_fixed); }
 inline b_obj_res closure_get(b_obj_arg o, unsigned i) { return lean_closure_get(o, i); }
 inline void closure_set(u_obj_arg o, unsigned i, obj_arg a) { lean_closure_set(o, i, a); }
-inline obj_res alloc_closure(object*(*fun)(object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 1, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 2, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 3, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 4, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 5, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 6, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 7, num_fixed);
 }
-inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+inline obj_res alloc_closure(obj_res(*fun)(obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg, obj_arg), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 8, num_fixed);
 }
-inline object* apply_1(object* f, object* a1) { return lean_apply_1(f, a1); }
-inline object* apply_2(object* f, object* a1, object* a2) { return lean_apply_2(f, a1, a2); }
-inline object* apply_3(object* f, object* a1, object* a2, object* a3) { return lean_apply_3(f, a1, a2, a3); }
-inline object* apply_4(object* f, object* a1, object* a2, object* a3, object* a4) { return lean_apply_4(f, a1, a2, a3, a4); }
-inline object* apply_5(object* f, object* a1, object* a2, object* a3, object* a4, object* a5) {
+inline obj_res apply_1(obj_arg f, obj_arg a1) { return lean_apply_1(f, a1); }
+inline obj_res apply_2(obj_arg f, obj_arg a1, obj_arg a2) { return lean_apply_2(f, a1, a2); }
+inline obj_res apply_3(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3) { return lean_apply_3(f, a1, a2, a3); }
+inline obj_res apply_4(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) { return lean_apply_4(f, a1, a2, a3, a4); }
+inline obj_res apply_5(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
     return lean_apply_5(f, a1, a2, a3, a4, a5);
 }
-inline object* apply_6(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6) {
+inline obj_res apply_6(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
     return lean_apply_6(f, a1, a2, a3, a4, a5, a6);
 }
-inline object* apply_7(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7) {
+inline obj_res apply_7(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7) {
     return lean_apply_7(f, a1, a2, a3, a4, a5, a6, a7);
 }
-inline object* apply_8(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8) {
+inline obj_res apply_8(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8) {
     return lean_apply_8(f, a1, a2, a3, a4, a5, a6, a7, a8);
 }
-inline object* apply_9(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9) {
+inline obj_res apply_9(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9) {
     return lean_apply_9(f, a1, a2, a3, a4, a5, a6, a7, a8, a9);
 }
-inline object* apply_10(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10) {
+inline obj_res apply_10(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10) {
     return lean_apply_10(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
 }
-inline object* apply_11(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11) {
+inline obj_res apply_11(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11) {
     return lean_apply_11(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
 }
-inline object* apply_12(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12) {
+inline obj_res apply_12(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11, obj_arg a12) {
     return lean_apply_12(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12);
 }
-inline object* apply_13(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13) {
+inline obj_res apply_13(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11, obj_arg a12, obj_arg a13) {
     return lean_apply_13(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13);
 }
-inline object* apply_14(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14) {
+inline obj_res apply_14(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11, obj_arg a12, obj_arg a13, obj_arg a14) {
     return lean_apply_14(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14);
 }
-inline object* apply_15(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15) {
+inline obj_res apply_15(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11, obj_arg a12, obj_arg a13, obj_arg a14, obj_arg a15) {
     return lean_apply_15(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15);
 }
-inline object* apply_16(object* f, object* a1, object* a2, object* a3, object* a4, object* a5, object* a6, object* a7, object* a8, object* a9, object* a10, object* a11, object* a12, object* a13, object* a14, object* a15, object* a16) {
+inline obj_res apply_16(obj_arg f, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6, obj_arg a7, obj_arg a8, obj_arg a9, obj_arg a10, obj_arg a11, obj_arg a12, obj_arg a13, obj_arg a14, obj_arg a15, obj_arg a16) {
     return lean_apply_16(f, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16);
 }
-inline object* apply_n(object* f, unsigned n, object** args) { return lean_apply_n(f, n, args); }
+// pre: n > 0
+inline obj_res apply_n(obj_arg f, unsigned n, obj_arg* args) { return lean_apply_n(f, n, args); }
 // pre: n > 16
-inline object* apply_m(object* f, unsigned n, object** args) { return lean_apply_m(f, n, args); }
+inline obj_res apply_m(obj_arg f, unsigned n, obj_arg* args) { return lean_apply_m(f, n, args); }
 
 // =======================================
 // MPZ
 
-object * alloc_mpz(mpz const &);
-inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
+obj_res alloc_mpz(mpz const &);
+inline mpz_object * to_mpz(b_obj_arg o) { lean_assert(is_mpz(o)); return (mpz_object*)o; }
 
 // =======================================
 // Array of objects
 
-inline size_t array_capacity(object * o) { return lean_array_capacity(o); }
-inline object ** array_cptr(object * o) { return lean_array_cptr(o); }
+inline size_t array_capacity(b_obj_arg o) { return lean_array_capacity(o); }
+inline b_obj_res * array_cptr(b_obj_arg o) { return lean_array_cptr(o); }
 inline obj_res alloc_array(size_t size, size_t capacity) { return lean_alloc_array(size, capacity); }
-object * array_mk_empty();
+obj_res array_mk_empty();
 inline size_t array_size(b_obj_arg o) { return lean_array_size(o); }
 inline void array_set_size(u_obj_arg o, size_t sz) { lean_array_set_size(o, sz); }
 inline b_obj_res array_get(b_obj_arg o, size_t i) { return lean_array_get_core(o, i); }
 inline void array_set(u_obj_arg o, size_t i, obj_arg v) { lean_array_set_core(o, i, v); }
-inline object * array_sz(obj_arg a) { return lean_array_sz(a); }
-inline object * array_get_size(b_obj_arg a) { return lean_array_get_size(a); }
-inline object * mk_empty_array() { return lean_mk_empty_array(); }
-inline object * mk_empty_array(b_obj_arg capacity) { return lean_mk_empty_array_with_capacity(capacity); }
-inline object * array_uget(b_obj_arg a, usize i) { return lean_array_uget(a, i); }
+inline obj_res array_sz(obj_arg a) { return lean_array_sz(a); }
+inline obj_res array_get_size(b_obj_arg a) { return lean_array_get_size(a); }
+inline obj_res mk_empty_array() { return lean_mk_empty_array(); }
+inline obj_res mk_empty_array(b_obj_arg capacity) { return lean_mk_empty_array_with_capacity(capacity); }
+inline obj_res array_uget(b_obj_arg a, usize i) { return lean_array_uget(a, i); }
 inline obj_res array_fget(b_obj_arg a, b_obj_arg i) { return lean_array_fget(a, i); }
-inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
+inline obj_res array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
 inline obj_res copy_array(obj_arg a, bool expand = false) { return lean_copy_expand_array(a, expand); }
-inline object * array_uset(obj_arg a, usize i, obj_arg v) { return lean_array_uset(a, i, v); }
-inline object * array_fset(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_fset(a, i, v); }
-inline object * array_set(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_set(a, i, v); }
-inline object * array_pop(obj_arg a) { return lean_array_pop(a); }
-inline object * array_uswap(obj_arg a, usize i, usize j) { return lean_array_uswap(a, i, j); }
-inline object * array_fswap(obj_arg a, b_obj_arg i, b_obj_arg j) { return lean_array_fswap(a, i, j); }
-inline object * array_swap(obj_arg a, b_obj_arg i, b_obj_arg j) { return lean_array_swap(a, i, j); }
-inline object * array_push(obj_arg a, obj_arg v) { return lean_array_push(a, v); }
-inline object * mk_array(obj_arg n, obj_arg v) { return lean_mk_array(n, v); }
+inline obj_res array_uset(obj_arg a, usize i, obj_arg v) { return lean_array_uset(a, i, v); }
+inline obj_res array_fset(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_fset(a, i, v); }
+inline obj_res array_set(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_set(a, i, v); }
+inline obj_res array_pop(obj_arg a) { return lean_array_pop(a); }
+inline obj_res array_uswap(obj_arg a, usize i, usize j) { return lean_array_uswap(a, i, j); }
+inline obj_res array_fswap(obj_arg a, b_obj_arg i, b_obj_arg j) { return lean_array_fswap(a, i, j); }
+inline obj_res array_swap(obj_arg a, b_obj_arg i, b_obj_arg j) { return lean_array_swap(a, i, j); }
+inline obj_res array_push(obj_arg a, obj_arg v) { return lean_array_push(a, v); }
+inline obj_res mk_array(obj_arg n, obj_arg v) { return lean_mk_array(n, v); }
 
 // =======================================
 // Array of scalars
@@ -216,9 +216,9 @@ inline object * mk_array(obj_arg n, obj_arg v) { return lean_mk_array(n, v); }
 inline obj_res alloc_sarray(unsigned elem_size, size_t size, size_t capacity) { return lean_alloc_sarray(elem_size, size, capacity); }
 inline size_t sarray_size(b_obj_arg o) { return lean_sarray_size(o); }
 inline void sarray_set_size(u_obj_arg o, size_t sz) { lean_sarray_set_size(o, sz); }
-inline unsigned sarray_elem_size(object * o) { return lean_sarray_elem_size(o); }
-inline size_t sarray_capacity(object * o) { return lean_sarray_capacity(o); }
-inline uint8 * sarray_cptr(object * o) { return lean_sarray_cptr(o); }
+inline unsigned sarray_elem_size(b_obj_arg o) { return lean_sarray_elem_size(o); }
+inline size_t sarray_capacity(b_obj_arg o) { return lean_sarray_capacity(o); }
+inline uint8 * sarray_cptr(b_obj_arg o) { return lean_sarray_cptr(o); }
 
 // =======================================
 // ByteArray
@@ -235,7 +235,7 @@ inline obj_res byte_array_set(obj_arg a, b_obj_arg i, uint8 b) { return lean_byt
 // =======================================
 // String
 
-inline size_t string_capacity(object * o) { return lean_string_capacity(o); }
+inline size_t string_capacity(b_obj_arg o) { return lean_string_capacity(o); }
 inline uint32 char_default_value() { return lean_char_default_value(); }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) { return lean_alloc_string(size, capacity, len); }
 inline obj_res mk_string(char const * s) { return lean_mk_string(s); }
@@ -295,9 +295,9 @@ inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any
 // =======================================
 // External
 
-inline object * alloc_external(external_object_class * cls, void * data) { return lean_alloc_external(cls, data); }
-inline external_object_class * external_class(object * o) { return lean_get_external_class(o); }
-inline void * external_data(object * o) { return lean_get_external_data(o); }
+inline obj_res alloc_external(external_object_class * cls, void * data) { return lean_alloc_external(cls, data); }
+inline external_object_class * external_class(b_obj_arg o) { return lean_get_external_class(o); }
+inline void * external_data(b_obj_arg o) { return lean_get_external_data(o); }
 
 // =======================================
 // Option
@@ -309,8 +309,8 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // Natural numbers
 
 inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
-object * mpz_to_nat_core(mpz const & m);
-inline object * mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
+obj_res mpz_to_nat_core(mpz const & m);
+inline obj_res mk_nat_obj_core(mpz const & m) { return mpz_to_nat_core(m); }
 inline obj_res mk_nat_obj(mpz const & m) {
     if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT)
         return box(m.get_size_t());
@@ -340,7 +340,8 @@ inline obj_res nat_lxor(b_obj_arg a1, b_obj_arg a2) { return lean_nat_lxor(a1, a
 
 // =======================================
 // Integers
-object * mk_int_obj_core(mpz const & m);
+obj_res mpz_to_int_core(mpz const & m);
+inline obj_res mk_int_obj_core(mpz const & m) { return mpz_to_int_core(m); }
 inline obj_res mk_int_obj(mpz const & m) {
     if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT)
         return mk_int_obj_core(m);
@@ -449,9 +450,9 @@ inline usize usize_dec_le(usize a1, usize a2) { return lean_usize_dec_le(a1, a2)
 
 // =======================================
 // debugging helper functions
-inline object * dbg_trace(obj_arg s, obj_arg fn) { return lean_dbg_trace(s, fn); }
-inline object * dbg_sleep(uint32 ms, obj_arg fn) { return lean_dbg_sleep(ms, fn); }
-inline object * dbg_trace_if_shared(obj_arg s, obj_arg a) { return lean_dbg_trace_if_shared(s, a); }
+inline obj_res dbg_trace(obj_arg s, obj_arg fn) { return lean_dbg_trace(s, fn); }
+inline obj_res dbg_sleep(uint32 ms, obj_arg fn) { return lean_dbg_sleep(ms, fn); }
+inline obj_res dbg_trace_if_shared(obj_arg s, obj_arg a) { return lean_dbg_trace_if_shared(s, a); }
 
 // =======================================
 // IO helper functions

@@ -754,7 +754,7 @@ where
     | .empty => return result
     | .values vs t =>
       if skip == 0 && todo.isEmpty then
-          return result ++ vs
+        return result ++ vs
       else
         process skip todo t result
     | .branch cs =>
@@ -793,8 +793,8 @@ where
         if h : i < ks.size then
           match skip with
           | skip+1 =>
-              let k := ks.get ⟨i, h⟩
-              loop (skip + k.arity) todo result (i + 1)
+              let k' := ks.get ⟨i, h⟩
+              loop (skip + k'.arity) todo result (i + 1)
           | 0 => do
             if todo.isEmpty then
               return result

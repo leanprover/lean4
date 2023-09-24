@@ -38,7 +38,10 @@ instance : Hashable (Key s) := ⟨Key.hash⟩
 Discrimination tree trie. See `DiscrTree`.
 -/
 inductive Trie (α : Type) (simpleReduce : Bool) where
-  | node (vs : Array α) (children : Array (Key simpleReduce × Trie α simpleReduce)) : Trie α simpleReduce
+  | empty
+  | values (vs : Array α) (t : Trie α simpleReduce)
+  | path (ks : Array (Key simpleReduce)) (t : Trie α simpleReduce)
+  | branch (children : Array (Key simpleReduce × Trie α simpleReduce))
 
 end DiscrTree
 

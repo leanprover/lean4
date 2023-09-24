@@ -466,33 +466,37 @@ private def branch2 (k1 : Key s) (t1 : Trie α s) (k2 : Key s) (t2 : Trie α s) 
   else
     .branch #[(k2, t2), (k1, t1)]
 
-private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) : Nat → Trie α s → Trie α s
-  | i, .empty => createNodes keys v i
-  | i, .values vs t =>
-    if i < keys.size then
-      .values vs (insertAux keys v i t)
-    else
-      .values (insertVal vs v) t
-  | i, .path ks t => 
-    let j := commonPrefix ks keys i
-    -- add a .path for the common prefix, if present
-    (if 0 < j then .path (keys.extract 0 j) else id) $
-      if h1 : j < ks.size then
-        if h2 : j + i < keys.size then
-          -- we must branch at offset j
-          let k1 := ks.get ⟨j, h1⟩
-          let t1 := if j + 1 < ks.size then .path (ks.extract (j + 1) ks.size) t else t
-          let k2 := keys.get ⟨j + i, h2⟩
-          let t2 := createNodes keys v (j + i + 1)
-          branch2 k1 t1 k2 t2
-        else
-          -- the new entry is on the present path, so split that and insert the value
-          .values #[v] (.path (ks.extract j ks.size) t)
-      else
-        -- the node path is a prefix of the new entry
-        insertAux keys v (i + j) t
-  | i, .branch cs =>
-    if h : i < keys.size then
+/-- Smart constructor ensuring that `.value` constructors are not nested -/
+private partial def insertHere [BEq α] (v : α) : Trie α s → Trie α s
+  | .values vs t => .values (insertVal vs v) t
+  | t => .values #[v] t
+
+private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) (i : Nat) (t : Trie α s) :
+    Trie α s :=
+  if h : i < keys.size then
+    -- we have to walk down the tree some more
+    match t with
+    | .empty => createNodes keys v i
+    | .values _ t => insertAux keys v i t
+    | .path ks t => 
+        let j := commonPrefix ks keys i
+        -- add a .path for the common prefix, if present
+        (if 0 < j then .path (keys.extract 0 j) else id) $
+          if h1 : j < ks.size then
+            if h2 : j + i < keys.size then
+              -- we must branch at offset j
+              let k1 := ks.get ⟨j, h1⟩
+              let t1 := if j + 1 < ks.size then .path (ks.extract (j + 1) ks.size) t else t
+              let k2 := keys.get ⟨j + i, h2⟩
+              let t2 := createNodes keys v (j + i + 1)
+              branch2 k1 t1 k2 t2
+            else
+              -- the new entry is on the present path, so split that and insert the value
+              .values #[v] (.path (ks.extract j ks.size) t)
+          else
+            -- the node path is a prefix of the new entry
+            insertAux keys v (i + j) t
+    | .branch cs =>
       let k := keys.get ⟨i, h⟩
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
@@ -500,8 +504,10 @@ private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) : Nat →
           (fun _ => let c := createNodes keys v (i+1); (k, c))
           (k, default)
       .branch c
-    else
-      .values #[v] (.branch cs)
+  else
+    -- this is where we need to insert the value
+    insertHere v t
+
 
 def insertCore [BEq α] (d : DiscrTree α s) (keys : Array (Key s)) (v : α) : DiscrTree α s :=
   if keys.isEmpty then panic! "invalid key sequence"
@@ -657,7 +663,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
       | _      => visitNonStar k args result
   | .path ks t =>
     let rec loop (todo : Array Expr) (result : Array α) (i : Nat) : MetaM (Array α) := do
-      -- the folloing logic is a copy of the .branch case, with just a single child
+      -- the following logic is a copy of the .branch case, with just a single child
       if todo.isEmpty then
         return result
       else if h : i < ks.size then
@@ -772,7 +778,6 @@ where
         else
           let e     := todo.back
           let todo  := todo.pop
-          let (k, args) ← getUnifyKeyArgs e (root := false)
           let visitStar (result : Array α) : MetaM (Array α) :=
             let first := cs[0]!
             if first.1 == .star then
@@ -783,6 +788,7 @@ where
             match findKey cs k with
             | none   => return result
             | some c => process 0 (todo ++ args) c.2 result
+          let (k, args) ← getUnifyKeyArgs e (root := false)
           match k with
           | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
           -- See comment at `getMatch` regarding non-dependent arrows vs dependent arrows

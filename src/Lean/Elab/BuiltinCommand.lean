@@ -118,6 +118,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
+/-- Declares a list of type universes. -/
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
@@ -126,6 +127,29 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
+/-- Brings some definitions in scope and exports them.
+
+Example
+
+```lean
+namespace Ident.Path
+  def I (a : α) : α := a
+  def K (a : α) : β → α := fun _ => a
+  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
+end Ident.Path
+
+namespace re_export
+  export Ident.Path (I K)
+  -- `I` and `K` are now in scope
+  #check I
+  #check K
+end re_export
+
+-- `I` and `K` are visibile in `re_export`
+#check re_export.I
+#check re_export.K
+```
+-/
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
   let nss ← resolveNamespace ns
@@ -140,6 +164,36 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
+/-- Brings some definitions in scope.
+
+* `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
+* `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
+  `Some.Namespace.Ident.def2` in scope.
+
+Examples
+
+```lean
+namespace Ident.Path
+  def I (a : α) : α := a
+  def K (a : α) : β → α := fun _ => a
+  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
+end Ident.Path
+
+section
+  -- open everything under `Ident.Path`, *i.e.* `I`, `K` and `S` here
+  open Ident.Path
+
+  theorem SKx_eq_K : S K x = I := rfl
+end
+
+section
+  -- open only `S` and `K` under `Ident.Path`
+  open Ident.Path (S K)
+
+  theorem SKxy_eq_y : S K x y = y := rfl
+end
+```
+-/
 @[builtin_command_elab «open»] def elabOpen : CommandElab
   | `(open $decl:openDecl) => do
     let openDecls ← elabOpenDecl decl

@@ -163,7 +163,7 @@ instance [One α] [One β] : One (α × β) where
     one := (1, 1)
 
 theorem Product.ext : {p q : α × β} → p.1 = q.1 → p.2 = q.2 → p = q
-    | (a, b), (c, d) => by simp_all
+  | (a, b), (c, d) => by simp_all
 
 instance [Semigroup α] [Semigroup β] : Semigroup (α × β) where
     mulAssoc := by

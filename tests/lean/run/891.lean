@@ -33,9 +33,9 @@ example (year : Nat) : daysInMonth year 2 = (if isLeapYear year then 29 else 28)
   simp [daysInMonth]
 
 def f : Char → Nat → Nat
- | 'a', _ => 1
- | 'b', _ => 2
- | _, _   => 3
+  | 'a', _ => 1
+  | 'b', _ => 2
+  | _, _   => 3
 
 example : f 'a' n = 1 := by
   simp[f]
@@ -47,9 +47,9 @@ example : f 'c' n = 3 := by
   simp[f]
 
 def g : String → Nat → Nat
- | "hello", _ => 1
- | "world", _ => 2
- | _, _       => 3
+  | "hello", _ => 1
+  | "world", _ => 2
+  | _, _       => 3
 
 example : g "hello" n = 1 := by
   simp[g]
@@ -61,9 +61,9 @@ example : g "abc" n = 3 := by
   simp[g]
 
 def fn : Fin 8 → Nat → Nat
- | 2, _ => 1
- | 3, _ => 2
- | _, _ => 3
+  | 2, _ => 1
+  | 3, _ => 2
+  | _, _ => 3
 
 example : fn 2 n = 1 := by
   simp [fn]
@@ -72,9 +72,9 @@ example : fn 4 n = 3 := by
   simp [fn]
 
 def f8 : UInt8 → Nat → Nat
- | 10, _ => 1
- | 20, _ => 2
- | _, _  => 3
+  | 10, _ => 1
+  | 20, _ => 2
+  | _, _  => 3
 
 example : f8 10 n = 1 := by
   simp [f8]
@@ -83,9 +83,9 @@ example : f8 30 n = 3 := by
   simp [f8]
 
 def f16 : UInt16 → Nat → Nat
- | 10, _ => 1
- | 20, _ => 2
- | _, _  => 3
+  | 10, _ => 1
+  | 20, _ => 2
+  | _, _  => 3
 
 example : f16 10 n = 1 := by
   simp [f16]
@@ -94,9 +94,9 @@ example : f16 30 n = 3 := by
   simp [f16]
 
 def f32 : UInt32 → Nat → Nat
- | 10, _ => 1
- | 20, _ => 2
- | _, _  => 3
+  | 10, _ => 1
+  | 20, _ => 2
+  | _, _  => 3
 
 example : f32 10 n = 1 := by
   simp [f32]
@@ -105,9 +105,9 @@ example : f32 30 n = 3 := by
   simp [f32]
 
 def f64 : UInt64 → Nat → Nat
- | 10, _ => 1
- | 20, _ => 2
- | _, _  => 3
+  | 10, _ => 1
+  | 20, _ => 2
+  | _, _  => 3
 
 example : f64 10 n = 1 := by
   simp [f64]

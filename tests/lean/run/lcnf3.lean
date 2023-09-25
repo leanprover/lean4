@@ -10,7 +10,7 @@ def f1 (x : Option Nat) (y : Nat) : Nat :=
     0
 
 inductive Ty where
- | c1 | c2 | c3 | c4 | c5
+  | c1 | c2 | c3 | c4 | c5
 
 def f2 (a b : Ty) (n : Nat) : Nat :=
   let x := match a with

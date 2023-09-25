@@ -246,10 +246,10 @@ end
 instance : ToString Expression := ⟨exprToString⟩
 
 def valToString : Value → String
-    | .nil    => "«nil»"
-    | .lit  l => l.toString
-    | .list l => toString $ l.map Literal.toString
-    | .lam  _ => "«function»"
+  | .nil    => "«nil»"
+  | .lit  l => l.toString
+  | .list l => toString $ l.map Literal.toString
+  | .lam  _ => "«function»"
 
 instance : ToString Value := ⟨valToString⟩
 

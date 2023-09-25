@@ -14,8 +14,8 @@ attribute [simp] g
 #check g._eq_2
 
 theorem ex3 : g (n + 1) = match g n with
+  | 0 => 0
+  | m + 1 => match g (n - m) with
     | 0 => 0
-    | m + 1 => match g (n - m) with
-      | 0 => 0
-      | m + 1 => g n := by
+    | m + 1 => g n := by
   conv => lhs; unfold g

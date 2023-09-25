@@ -183,8 +183,6 @@ structure Package where
   leanOpts : Options
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
-  /-- The Git tag of this package. -/
-  gitTag? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
@@ -268,15 +266,6 @@ namespace Package
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo?
-
-/--
-The package's URL × tag release.
-Tries `releaseRepo?` first and then falls back to `remoteUrl?`.
--/
-def release? (self : Package) : Option (String × String) := do
-  let url ← self.releaseRepo? <|> self.remoteUrl?
-  let tag ← self.gitTag?
-  return (url, tag)
 
 /-- The package's `buildArchive?` configuration. -/
 @[inline] def buildArchive? (self : Package) : Option String :=

@@ -38,7 +38,6 @@ def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
   return {
     dir, config, configEnv, leanOpts
     remoteUrl? := dep.remoteUrl?
-    gitTag? := dep.gitTag?
   }
 
 /--
@@ -103,12 +102,9 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   let configEnv ← importConfigFile config.rootDir config.rootDir
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
-  let repo := GitRepo.mk config.rootDir
   let root := {
     configEnv, leanOpts := config.leanOpts
     dir := config.rootDir, config := pkgConfig
-    remoteUrl? := ← repo.getFilteredRemoteUrl?
-    gitTag? := ← repo.findTag?
   }
   return {
     root, lakeEnv := config.env

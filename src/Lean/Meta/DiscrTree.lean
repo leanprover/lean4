@@ -429,7 +429,11 @@ where
       vs.push v
 termination_by loop i => vs.size - i
 
-private def commonPrefix (ks1 : Array (Key s)) (ks2 : Array (Key s)) (i : Nat) : Nat := Id.run $ do
+/--
+Calculate the length of the common prefix of two arrays of keys.
+The parameter `i` marks the starting position in he second array.
+-/
+def commonPrefix (ks1 : Array (Key s)) (ks2 : Array (Key s)) (i : Nat) : Nat := Id.run $ do
   let mut j := 0
   let e := min ks1.size (ks2.size - i)
   while h : j < e do
@@ -823,6 +827,5 @@ where
             else
               process skip todo t result
         loop skip todo result 0
-
 
 end Lean.Meta.DiscrTree

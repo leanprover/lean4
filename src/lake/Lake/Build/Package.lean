@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
 import Lake.Build.Targets
@@ -46,8 +47,15 @@ def Package.extraDepFacetConfig : PackageFacetConfig extraDepFacet :=
 
 /-- Download and unpack the package's prebuilt release archive (from GitHub). -/
 def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.async do
-  let some (repoUrl, tag) := self.release? | do
-    logWarning "wanted prebuilt release, but release repository and tag was not known"
+  let repo := GitRepo.mk self.dir
+  let repoUrl? := self.releaseRepo? <|> self.remoteUrl?
+  let some repoUrl := repoUrl? <|> (← repo.getFilteredRemoteUrl?) | do
+    logWarning <| s!"{self.name}: wanted prebuilt release, " ++
+      "but package's repository URL was not known; it may need to set `releaseRepo?`"
+    return ((), .nil)
+  let some tag ← repo.findTag? | do
+    logWarning <| s!"{self.name}: wanted prebuilt release, " ++
+      "but could not find an associated tag for the package's revision"
     return ((), .nil)
   let url := s!"{repoUrl}/releases/download/{tag}/{self.buildArchive}"
   let logName := s!"{self.name}/{tag}/{self.buildArchive}"

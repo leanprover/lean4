@@ -74,7 +74,6 @@ structure MaterializedDep where
   /-- Path to the materialized package relative to the workspace's root directory. -/
   relPkgDir : FilePath
   remoteUrl? : Option String
-  gitTag? : Option String
   manifestEntry : PackageEntry
   deriving Inhabited
 
@@ -96,7 +95,6 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := none
-      gitTag? := ← (GitRepo.mk <| wsDir / relPkgDir).findTag?
       manifestEntry := .path dep.name dep.opts inherited relPkgDir
     }
   | .git url inputRev? subDir? => do
@@ -109,7 +107,6 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := Git.filterUrl? url
-      gitTag? := ← repo.findTag?
       manifestEntry := .git dep.name dep.opts inherited url rev inputRev? subDir?
     }
 
@@ -121,7 +118,6 @@ def PackageEntry.materialize (wsDir relPkgsDir : FilePath) (manifestEntry : Pack
     return {
       relPkgDir
       remoteUrl? := none
-      gitTag? := ← (GitRepo.mk <| wsDir / relPkgDir).findTag?
       manifestEntry
     }
   | .git name _opts _inherited url rev _inputRev? subDir? => do
@@ -147,6 +143,5 @@ def PackageEntry.materialize (wsDir relPkgsDir : FilePath) (manifestEntry : Pack
     return {
       relPkgDir
       remoteUrl? := Git.filterUrl? url
-      gitTag? := ← repo.findTag?
       manifestEntry
     }

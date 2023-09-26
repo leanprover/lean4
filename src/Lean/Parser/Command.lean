@@ -72,7 +72,7 @@ def «partial»        := leading_parser "partial "
 def «nonrec»         := leading_parser "nonrec "
 
 /-- `declModifiers` is the collection of modifiers on a declaration:
-* a doc comment `/-! ... -/`
+* a doc comment `/-- ... -/`
 * a list of attributes `@[attr1, attr2]`
 * a visibility specifier, `private` or `protected`
 * `noncomputable`

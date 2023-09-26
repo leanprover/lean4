@@ -62,7 +62,8 @@ def handleHover (p : HoverParams)
       let stack? := snap.stx.findStack? (·.getRange?.any (·.contains hoverPos))
       let stxDoc? ← match stack? with
         | some stack => stack.findSomeM? fun (stx, _) => do
-          return (← findDocString? snap.env stx.getKind).map (·, stx.getRange?.get!)
+          let .node _ kind _ := stx | pure none
+          return (← findDocString? snap.env kind).map (·, stx.getRange?.get!)
         | none => pure none
 
       -- now try info tree

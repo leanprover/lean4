@@ -168,6 +168,8 @@ def foo.bar : Nat := 1
   --^ textDocument/hover
       --^ textDocument/hover
 
+end Bar
+
 example : Nat → Nat → Nat :=
   fun x y =>
     --^ textDocument/hover
@@ -205,6 +207,7 @@ example : Nat := Id.run do (← 1)
 #check (· + ·)
       --^ textDocument/hover
         --^ textDocument/hover
+/-- my_intro tactic -/
 macro "my_intro" x:(ident <|> "_") : tactic =>
   match x with
   | `($x:ident) => `(tactic| intro $x:ident)
@@ -216,8 +219,15 @@ example : α → α := by intro _; assumption
                           --^ textDocument/hover
 example : α → α := by my_intro x; assumption
                              --^ textDocument/hover
+                    --v textDocument/hover
 example : α → α := by my_intro _; assumption
                              --^ textDocument/hover
+
+/-- my_intro term -/
+def my_intro : Nat := 1
+
+                    --v textDocument/hover
+example : α → α := by my_intro _; assumption
 
 example : Nat → True := by
   intro x

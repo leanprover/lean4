@@ -1,0 +1,50 @@
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqTree✝ (x✝ : @Tree✝) (x✝¹ : @Tree✝) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @Tree.node a✝, @Tree.node b✝ =>
+           let inst✝ := decEqListTree✝ a✝ b✝;
+           if h✝ : a✝ = b✝ then by subst h✝; exact isTrue✝ rfl✝
+           else isFalse✝ (by intro n✝; injection n✝; apply h✝ _; assumption)
+       private def decEqListTree✝ (x✝² : @ListTree✝) (x✝³ : @ListTree✝) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @ListTree.nil, @ListTree.nil => isTrue✝¹ rfl✝¹
+         | ListTree.nil .., ListTree.cons .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
+         | ListTree.cons .., ListTree.nil .. => isFalse✝¹ (by intro h✝¹; injection h✝¹)
+         | @ListTree.cons a✝¹ a✝², @ListTree.cons b✝¹ b✝² =>
+           let inst✝¹ := decEqTree✝ a✝¹ b✝¹;
+           if h✝² : a✝¹ = b✝¹ then by subst h✝²;
+             exact
+               let inst✝² := decEqListTree✝ a✝² b✝²;
+               if h✝³ : a✝² = b✝² then by subst h✝³; exact isTrue✝² rfl✝²
+               else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝³ _; assumption)
+           else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝² _; assumption)
+     end,
+     instance : DecidableEq✝ (@ListTree✝) :=
+       decEqListTree✝]
+[Elab.Deriving.decEq] 
+    [mutual
+       private def decEqFoo₁✝ (x✝ : @Foo₁✝) (x✝¹ : @Foo₁✝) : Decidable✝ (x✝ = x✝¹) :=
+         match x✝, x✝¹ with
+         | @Foo₁.foo₁₁, @Foo₁.foo₁₁ => isTrue✝ rfl✝
+         | Foo₁.foo₁₁ .., Foo₁.foo₁₂ .. => isFalse✝ (by intro h✝; injection h✝)
+         | Foo₁.foo₁₂ .., Foo₁.foo₁₁ .. => isFalse✝ (by intro h✝; injection h✝)
+         | @Foo₁.foo₁₂ a✝, @Foo₁.foo₁₂ b✝ =>
+           let inst✝ := decEqFoo₂✝ a✝ b✝;
+           if h✝¹ : a✝ = b✝ then by subst h✝¹; exact isTrue✝¹ rfl✝¹
+           else isFalse✝¹ (by intro n✝; injection n✝; apply h✝¹ _; assumption)
+       private def decEqFoo₂✝ (x✝² : @Foo₂✝) (x✝³ : @Foo₂✝) : Decidable✝ (x✝² = x✝³) :=
+         match x✝², x✝³ with
+         | @Foo₂.foo₂ a✝¹, @Foo₂.foo₂ b✝¹ =>
+           let inst✝¹ := decEqFoo₃✝ a✝¹ b✝¹;
+           if h✝² : a✝¹ = b✝¹ then by subst h✝²; exact isTrue✝² rfl✝²
+           else isFalse✝² (by intro n✝¹; injection n✝¹; apply h✝² _; assumption)
+       private def decEqFoo₃✝ (x✝⁴ : @Foo₃✝) (x✝⁵ : @Foo₃✝) : Decidable✝ (x✝⁴ = x✝⁵) :=
+         match x✝⁴, x✝⁵ with
+         | @Foo₃.foo₃ a✝², @Foo₃.foo₃ b✝² =>
+           let inst✝² := decEqFoo₁✝ a✝² b✝²;
+           if h✝³ : a✝² = b✝² then by subst h✝³; exact isTrue✝³ rfl✝³
+           else isFalse✝³ (by intro n✝²; injection n✝²; apply h✝³ _; assumption)
+     end,
+     instance : DecidableEq✝ (@Foo₁✝) :=
+       decEqFoo₁✝]

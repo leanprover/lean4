@@ -20,6 +20,10 @@ Interesting options:
     | none      => pure <| (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
+  let env := match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
+    | some _ => #[]
+    | none   => #[("MACOSX_DEPLOYMENT_TARGET", "99.0")]
+
   -- let compileOnly := args.contains "-c"
   let linkStatic := !args.contains "-shared"
 
@@ -50,5 +54,5 @@ Interesting options:
   let args := args.filter (!·.isEmpty) |>.map rootify
   if args.contains "-v" then
     IO.eprintln s!"{cc} {" ".intercalate args.toList}"
-  let child ← IO.Process.spawn { cmd := cc, args }
+  let child ← IO.Process.spawn { cmd := cc, args, env }
   child.wait

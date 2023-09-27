@@ -13,7 +13,7 @@ v4.3.0 (development in progress)
 v4.2.0
 ---------
 
-No breaking changes.
+* Improvements to Lake startup time ([#2572](https://github.com/leanprover/lean4/pull/2572), [#2573](https://github.com/leanprover/lean4/pull/2573))
 
 v4.1.0
 ---------

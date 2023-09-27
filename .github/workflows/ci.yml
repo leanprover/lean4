@@ -145,7 +145,13 @@ jobs:
             release: true
             cross: true
             shell: bash -euxo pipefail {0}
-            CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            # The OSX_DEPLOYMENT_TARGET variable has no effect besides generating confusing warnings from the linker:
+            # ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0
+            # As clang+lld doesn't know how to derive the minor version
+            # https://github.com/llvm/llvm-project/blob/a7b78cac9a77e3ef6bbbd8ab1a559891dc693401/llvm/lib/TargetParser/Triple.cpp#L1238C11-L1238C11
+            # it is difficult for us to get this right.
+            # So we simply set it far into the future to suppress the unhelpful warnings.
+            CMAKE_OPTIONS: -DCMAKE_OSX_DEPLOYMENT_TARGET=99.0 -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
             binary-check: otool -L

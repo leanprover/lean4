@@ -38,7 +38,6 @@ def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
   return {
     dir, config, configEnv, leanOpts
     remoteUrl? := dep.remoteUrl?
-    gitTag? := dep.gitTag?
   }
 
 /--
@@ -87,7 +86,7 @@ def buildUpdatedManifest (ws : Workspace)
       return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok root, deps) =>
-    let manifest : Manifest := {packagesDir? := ws.relPkgsDir}
+    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
     let manifest := deps.foldl (fun m d => m.addPackage d.manifestEntry) manifest
     return ({ws with root}, manifest)
   | (.error cycle, _) =>
@@ -103,12 +102,9 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   let configEnv ← importConfigFile config.rootDir config.rootDir
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
-  let repo := GitRepo.mk config.rootDir
   let root := {
     configEnv, leanOpts := config.leanOpts
     dir := config.rootDir, config := pkgConfig
-    remoteUrl? := ← repo.getFilteredRemoteUrl?
-    gitTag? := ← repo.findTag?
   }
   return {
     root, lakeEnv := config.env

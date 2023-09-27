@@ -3,7 +3,7 @@
 namespace lean {
 options get_default_options() {
     options opts;
-    // see https://leanprover.github.io/lean4/doc/dev/bootstrap.html#further-bootstrapping-complications
+    // see https://lean-lang.org/lean4/doc/dev/bootstrap.html#further-bootstrapping-complications
 #if LEAN_IS_STAGE0 == 1
     // switch to `true` for ABI-breaking changes affecting meta code
     opts = opts.update({"interpreter", "prefer_native"}, false);

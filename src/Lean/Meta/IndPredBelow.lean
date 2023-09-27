@@ -571,10 +571,13 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
     else pure none
   | _, _ => pure none
 
+/-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate.
+The current generator doesn't support nested predicates, but pattern-matching on them still works
+thanks to well-founded recursion. -/
 def mkBelow (declName : Name) : MetaM Unit := do
   if (← isInductivePredicate declName) then
     let x ← getConstInfoInduct declName
-    if x.isRec then
+    if x.isRec && !x.isNested then
       let ctx ← IndPredBelow.mkContext declName
       let decl ← IndPredBelow.mkBelowDecl ctx
       addDecl decl
@@ -585,7 +588,7 @@ def mkBelow (declName : Name) : MetaM Unit := do
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
           addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
-    else trace[Meta.IndPredBelow] "Not recursive"
+    else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"
 
 builtin_initialize

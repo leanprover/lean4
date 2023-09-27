@@ -409,7 +409,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
-    check_system("whnf");
+    check_system("type checker: whnf");
 
     // handle easy cases
     switch (e.kind()) {

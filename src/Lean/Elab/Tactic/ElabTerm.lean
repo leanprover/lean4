@@ -124,24 +124,39 @@ where
     let newMVarIds ← getMVarsNoDelayed val
     /- ignore let-rec auxiliary variables, they are synthesized automatically later -/
     let newMVarIds ← newMVarIds.filterM fun mvarId => return !(← Term.isLetRecAuxMVar mvarId)
-    let newMVarIds ← if allowNaturalHoles then
-      pure newMVarIds.toList
-    else
+    /- Filter out all mvars that were created prior to `k`. -/
+    let newMVarIds ← filterOldMVars newMVarIds mvarCounterSaved
+    /- If `allowNaturalHoles := false`, all natural mvarIds must be assigned.
+    Passing this guard ensures that `newMVarIds` does not contain unassigned natural mvars. -/
+    unless allowNaturalHoles do
       let naturalMVarIds ← newMVarIds.filterM fun mvarId => return (← mvarId.getKind).isNatural
-      let syntheticMVarIds ← newMVarIds.filterM fun mvarId => return !(← mvarId.getKind).isNatural
-      let naturalMVarIds ← filterOldMVars naturalMVarIds mvarCounterSaved
       logUnassignedAndAbort naturalMVarIds
-      pure syntheticMVarIds.toList
     /-
     We sort the new metavariable ids by index to ensure the new goals are ordered using the order the metavariables have been created.
     See issue #1682.
     Potential problem: if elaboration of subterms is delayed the order the new metavariables are created may not match the order they
     appear in the `.lean` file. We should tell users to prefer tagged goals.
     -/
-    let newMVarIds ← sortMVarIdsByIndex newMVarIds
+    let newMVarIds ← sortMVarIdsByIndex newMVarIds.toList
     tagUntaggedGoals (← getMainTag) tagSuffix newMVarIds
     return (val, newMVarIds)
 
+/-- Elaborates `stx` and collects the `MVarId`s of any holes that were created during elaboration.
+
+With `allowNaturalHoles := false` (the default), any new natural holes (`_`) which cannot
+be synthesized during elaboration cause `elabTermWithHoles` to fail. (Natural goals appearing in
+`stx` which were created prior to elaboration are permitted.)
+
+Unnamed `MVarId`s are renamed to share the main goal's tag. If multiple unnamed goals are
+encountered, `tagSuffix` is appended to the main goal's tag along with a numerical index.
+
+Note:
+* Previously-created `MVarId`s which appear in `stx` are not returned.
+* All parts of `elabTermWithHoles` operate at the current `MCtxDepth`, and therefore may assign
+metavariables.
+* When `allowNaturalHoles := true`, `stx` is elaborated under `withAssignableSyntheticOpaque`,
+meaning that `.syntheticOpaque` metavariables might be assigned during elaboration. This is a
+consequence of the implementation. -/
 def elabTermWithHoles (stx : Syntax) (expectedType? : Option Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) := do
   withCollectingNewGoalsFrom (elabTermEnsuringType stx expectedType?) tagSuffix allowNaturalHoles
 
@@ -154,11 +169,18 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
     let (val, mvarIds') ← elabTermWithHoles stx (← getMainTarget) tagSuffix allowNaturalHoles
     let mvarId ← getMainGoal
     let val ← instantiateMVars val
-    unless val == mkMVar mvarId do
+    if val == mkMVar mvarId then
+      /- `val == mkMVar mvarId` is `true` when we've refined the main goal. Refining the main goal
+      (e.g. `refine ?a` when `?a` is the main goal) is an unlikely practice; further, it shouldn't
+      be possible to create new mvarIds during elaboration when doing so. But in the rare event
+      that somehow this happens, this is how we ought to handle it. -/
+      replaceMainGoal (mvarId :: mvarIds')
+    else
+      /- Ensure that the main goal does not occur in `val`. -/
       if val.findMVar? (· == mvarId) matches some _ then
         throwError "'refine' tactic failed, value{indentExpr val}\ndepends on the main goal metavariable '{mkMVar mvarId}'"
       mvarId.assign val
-    replaceMainGoal mvarIds'
+      replaceMainGoal mvarIds'
 
 @[builtin_tactic «refine»] def evalRefine : Tactic := fun stx =>
   match stx with

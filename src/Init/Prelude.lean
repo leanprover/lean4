@@ -104,7 +104,7 @@ set_option bootstrap.inductiveCheckResultingUniverse false in
 The unit type, the canonical type with one element, named `unit` or `()`.
 This is the universe-polymorphic version of `Unit`; it is preferred to use
 `Unit` instead where applicable.
-For more information about universe levels: [Types as objects](https://leanprover.github.io/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
+For more information about universe levels: [Types as objects](https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects)
 -/
 inductive PUnit : Sort u where
   /-- `PUnit.unit : PUnit` is the canonical element of the unit type. -/
@@ -171,7 +171,7 @@ unsafe axiom lcUnreachable {α : Sort u} : α
 /--
 `True` is a proposition and has only an introduction rule, `True.intro : True`.
 In other words, `True` is simply true, and has a canonical proof, `True.intro`
-For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 inductive True : Prop where
   /-- `True` is true, and `True.intro` (or more commonly, `trivial`)
@@ -184,7 +184,7 @@ It represents a contradiction. `False` elimination rule, `False.rec`,
 expresses the fact that anything follows from a contradiction.
 This rule is sometimes called ex falso (short for ex falso sequitur quodlibet),
 or the principle of explosion.
-For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 inductive False : Prop
 
@@ -206,7 +206,7 @@ inductive PEmpty : Sort u where
 so if your goal is `¬p` you can use `intro h` to turn the goal into
 `h : p ⊢ False`, and if you have `hn : ¬p` and `h : p` then `hn h : False`
 and `(hn h).elim` will prove anything.
-For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 def Not (a : Prop) : Prop := a → False
 
@@ -228,7 +228,7 @@ Anything follows from two contradictory hypotheses. Example:
 ```
 example (hp : p) (hnp : ¬p) : q := absurd hp hnp
 ```
-For more information: [Propositional Logic](https://leanprover.github.io/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
+For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
 @[macro_inline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : Not a) : b :=
   (h₂ h₁).rec
@@ -258,7 +258,7 @@ example (α : Type) (a b : α) (p : α → Prop)
   h1 ▸ h2
 ```
 The triangle in the second presentation is a macro built on top of `Eq.subst` and `Eq.symm`, and you can enter it by typing `\t`.
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 inductive Eq : α → α → Prop where
   /-- `Eq.refl a : a = a` is reflexivity, the unique constructor of the
@@ -294,7 +294,7 @@ essentially a fancy algorithm for finding good `motive` arguments to usefully
 apply this theorem to replace occurrences of `a` with `b` in the goal or
 hypotheses.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.subst {α : Sort u} {motive : α → Prop} {a b : α} (h₁ : Eq a b) (h₂ : motive a) : motive b :=
   Eq.ndrec h₂ h₁
@@ -305,7 +305,7 @@ Equality is symmetric: if `a = b` then `b = a`.
 Because this is in the `Eq` namespace, if you have a variable `h : a = b`,
 `h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.symm {α : Sort u} {a b : α} (h : Eq a b) : Eq b a :=
   h ▸ rfl
@@ -317,7 +317,7 @@ Because this is in the `Eq` namespace, if you have variables or expressions
 `h₁ : a = b` and `h₂ : b = c`, you can use `h₁.trans h₂ : a = c` as shorthand
 for `Eq.trans h₁ h₂`.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem Eq.trans {α : Sort u} {a b c : α} (h₁ : Eq a b) (h₂ : Eq b c) : Eq a c :=
   h₂ ▸ h₁
@@ -331,7 +331,7 @@ It is best to avoid this function if you can, because it is more complicated
 to reason about terms containing casts, but if the types don't match up
 definitionally sometimes there isn't anything better you can do.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 @[macro_inline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   h.rec a
@@ -344,7 +344,7 @@ you can also use a lambda expression for `f` to prove that
 internally by tactics like `congr` and `simp` to apply equalities inside
 subterms.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
@@ -354,7 +354,7 @@ Congruence in both function and argument. If `f₁ = f₂` and `a₁ = a₂` the
 `f₁ a₁ = f₂ a₂`. This only works for nondependent functions; the theorem
 statement is more complex in the dependent case.
 
-For more information: [Equality](https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
+For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
 theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : α} (h₁ : Eq f₁ f₂) (h₂ : Eq a₁ a₂) : Eq (f₁ a₁) (f₂ a₂) :=
   h₁ ▸ h₂ ▸ rfl
@@ -461,7 +461,7 @@ as notation for `Prod.mk a b`. Moreover, `(a, b, c)` is notation for
 `Prod.mk a (Prod.mk b c)`.
 Given `p : Prod α β`, `p.1 : α` and `p.2 : β`. They are short for `Prod.fst p`
 and `Prod.snd p` respectively. You can also write `p.fst` and `p.snd`.
-For more information: [Constructors with Arguments](https://leanprover.github.io/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
+For more information: [Constructors with Arguments](https://lean-lang.org/theorem_proving_in_lean4/inductive_types.html?highlight=Prod#constructors-with-arguments)
 -/
 structure Prod (α : Type u) (β : Type v) where
   /-- The first projection out of a pair. if `p : α × β` then `p.1 : α`. -/
@@ -2744,7 +2744,7 @@ Like many functional programming languages, Lean makes extensive use of monads
 for structuring programs. In particular, the `do` notation is a very powerful
 syntax over monad operations, and it depends on a `Monad` instance.
 
-See [the `do` notation](https://leanprover.github.io/lean4/doc/do.html)
+See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
 chapter of the manual for details.
 -/
 class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where

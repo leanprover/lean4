@@ -821,7 +821,7 @@ private def tokenFnAux : ParserFn := fun c s =>
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
   else
-    let (_, tk) := c.tokens.matchPrefix input i
+    let tk := c.tokens.matchPrefix input i
     identFnAux i tk .anonymous c s
 
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=

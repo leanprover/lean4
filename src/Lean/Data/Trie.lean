@@ -1,110 +1,202 @@
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Sebastian Ullrich, Leonardo de Moura
+Author: Sebastian Ullrich, Leonardo de Moura, Joachim Breitner
 
-Trie for tokenizing the Lean language
+A string trie data structure, used for tokenizing the Lean language
 -/
 import Lean.Data.Format
 
 namespace Lean
-namespace Parser
+namespace Data
 
+/-
+## Implementation notes
+
+Tries have typically many nodes with small degree, where a linear scan
+through the (compact) `ByteArray` is faster than using binary search or
+search trees like `RBTree`.
+
+Moreover, many nodes have degree 1, which justifies the special case `Node1`
+constructor.
+
+The code would be a bit less repetitive if we used something like the following
+```
+mutual
+def Trie α := Option α × ByteAssoc α
+
+inductive ByteAssoc α where
+  | leaf : Trie α
+  | node1 : UInt8 → Trie α → Trie α
+  | node : ByteArray → Array (Trie α) → Trie α
+end
+```
+but that would come at the cost of extra indirections.
+-/
+
+/-- A Trie is a key-value store where the keys are of type `String`,
+and the internal structure is a tree that branches on the bytes of the string.  -/
 inductive Trie (α : Type) where
-  | Node : Option α → RBNode Char (fun _ => Trie α) → Trie α
+  | leaf : Option α → Trie α
+  | node1 : Option α → UInt8 → Trie α → Trie α
+  | node : Option α → ByteArray → Array (Trie α) → Trie α
 
 namespace Trie
 variable {α : Type}
 
-def empty : Trie α :=
-  ⟨none, RBNode.leaf⟩
+/-- The empty `Trie` -/
+def empty : Trie α := leaf none
 
 instance : EmptyCollection (Trie α) :=
   ⟨empty⟩
 
 instance : Inhabited (Trie α) where
-  default := Node none RBNode.leaf
+  default := empty
 
-partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
-  let rec insertEmpty (i : String.Pos) : Trie α :=
-    match s.atEnd i with
-    | true => Trie.Node (some val) RBNode.leaf
-    | false =>
-      let c := s.get i
-      let t := insertEmpty (s.next i)
-      Trie.Node none (RBNode.singleton c t)
+/-- Insert or update the value at a the given key `s`.  -/
+partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
+  let rec insertEmpty (i : Nat) : Trie α :=
+    if h : i < s.utf8ByteSize then
+      let c := s.getUtf8Byte i h
+      let t := insertEmpty (i + 1)
+      node1 none c t
+    else
+      leaf (f .none)
   let rec loop
-    | Trie.Node v m, i =>
-      match s.atEnd i with
-      | true  => Trie.Node (some val) m -- overrides old value
-      | false =>
-        let c := s.get i
-        let i := s.next i
-        let t := match RBNode.find compare m c with
-          | none   => insertEmpty i
-          | some t => loop t i
-        Trie.Node v (RBNode.insert compare m c t)
-  loop t 0
+    | i, leaf v =>
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        let t := insertEmpty (i + 1)
+        node1 v c t
+      else
+        leaf (f v)
+    | i, node1 v c' t' =>
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        if c == c'
+        then node1 v c' (loop (i + 1) t')
+        else 
+          let t := insertEmpty (i + 1)
+          node v (.mk #[c, c']) #[t, t']
+      else
+        node1 (f v) c' t'
+    | i, node v cs ts =>
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        match cs.findIdx? (· == c) with
+          | none   =>
+            let t := insertEmpty (i + 1)
+            node v (cs.push c) (ts.push t)
+          | some idx =>
+            node v cs (ts.modify idx (loop (i + 1)))
+      else
+        node (f v) cs ts
+  loop 0 t
 
+/-- Inserts a value at a the given key `s`, overriding an existing value if present. -/
+partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
+  upsert t s (fun _ => val)
+
+/-- Looks up a value at the given key `s`.  -/
 partial def find? (t : Trie α) (s : String) : Option α :=
   let rec loop
-    | Trie.Node val m, i =>
-      match s.atEnd i with
-      | true  => val
-      | false =>
-        let c := s.get i
-        let i := s.next i
-        match RBNode.find compare m c with
+    | i, leaf val =>
+      if i < s.utf8ByteSize then
+        none
+      else
+        val
+    | i, node1 val c' t' =>
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        if c == c'
+        then loop (i + 1) t'
+        else none
+      else
+        val
+    | i, node val cs ts =>
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        match cs.findIdx? (· == c) with
         | none   => none
-        | some t => loop t i
-  loop t 0
+        | some idx => loop (i + 1) (ts.get! idx)
+      else
+        val
+  loop 0 t
 
-/-- Return values that match the given `prefix` -/
-partial def findPrefix (t : Trie α) (pre : String) : Array α :=
-  go t 0 |>.run #[] |>.2
-where
-  go (t : Trie α) (i : String.Pos) : StateM (Array α) Unit :=
-    if pre.atEnd i then
-      collect t
-    else
-      let k := pre.get i
-      let i := pre.next i
-      let ⟨_, cs⟩ := t
-      cs.forM fun k' c => do
-        if k == k' then go c i
+/-- Returns an `Array` of all values in the trie, in no particular order. -/
+partial def values (t : Trie α) : Array α := go t |>.run #[] |>.2
+  where
+    go : Trie α → StateM (Array α) Unit
+      | leaf a? => do
+        if let some a := a? then
+          modify (·.push a)
+      | node1 a? _ t' => do
+        if let some a := a? then
+          modify (·.push a)
+        go t'
+      | node a? _ ts => do
+        if let some a := a? then
+          modify (·.push a)
+        ts.forM fun t' => go t'
 
-  collect (t : Trie α) : StateM (Array α) Unit := do
-    let ⟨a?, cs⟩ := t
-    if let some a := a? then
-      modify (·.push a)
-    cs.forM fun _ c => collect c
+/-- Returns all values whose key have the given string `pre` as a prefix, in no particular order. -/
+partial def findPrefix (t : Trie α) (pre : String) : Array α := go t 0
+  where
+    go (t : Trie α) (i : Nat) : Array α :=
+      if h : i < pre.utf8ByteSize then
+        let c := pre.getUtf8Byte i h
+        match t with
+        | leaf _val => .empty
+        | node1 _val c' t' =>
+          if c == c'
+          then go t' (i + 1)
+          else .empty
+        | node _val cs ts =>
+          match cs.findIdx? (· == c) with
+          | none   => .empty
+          | some idx => go (ts.get! idx) (i + 1)
+      else
+        t.values
 
-private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
-  match v, acc with
-  | some v, (_, _) => (i, some v)  -- we pattern match on `acc` to enable memory reuse
-  | none,   acc    => acc
-
-partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
+/-- Find the longest _key_ in the trie that is contained in the given string `s` at position `i`,
+and return the associated value. -/
+partial def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : Option α :=
   let rec loop
-    | Trie.Node v m, i, acc =>
-      match s.atEnd i with
-      | true  => updtAcc v i acc
-      | false =>
-        let acc := updtAcc v i acc
-        let c   := s.get i
-        let i   := s.next i
-        match RBNode.find compare m c with
-        | some t => loop t i acc
-        | none   => acc
-  loop t i (i, none)
+    | leaf v, _, res =>
+      if v.isSome then v else res
+    | node1 v c' t', i, res =>
+      let res := if v.isSome then v else res
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        if c == c'
+        then loop t' (i + 1) res
+        else res
+      else
+        res
+    | node v cs ts, i, res =>
+      let res := if v.isSome then v else res
+      if h : i < s.utf8ByteSize then
+        let c := s.getUtf8Byte i h
+        match cs.findIdx? (· == c) with
+        | none => res
+        | some idx => loop (ts.get! idx) (i + 1) res
+      else
+        res
+  loop t i.byteIdx none
 
 private partial def toStringAux {α : Type} : Trie α → List Format
-  | Trie.Node _ map => map.fold (fun Fs c t =>
-   format (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
+  | leaf _ => []
+  | node1 _ c t =>
+    [ format (repr c), Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t ]
+  | node _ cs ts =>
+    List.join $ List.zipWith (fun c t =>
+      [ format (repr c), (Format.group $ Format.nest 4 $ flip Format.joinSep Format.line $ toStringAux t) ]
+    ) cs.toList ts.toList
 
 instance {α : Type} : ToString (Trie α) :=
   ⟨fun t => (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
+
 end Trie
 
-end Parser
+end Data
 end Lean

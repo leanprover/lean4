@@ -63,8 +63,11 @@ def getMVarType (mvarId : MVarId) : MetaM Expr :=
 
 /-- Get the type the given metavariable after instantiating metavariables and reducing to
 weak head normal form. -/
+-- The `instantiateMVars` needs to be on the outside,
+-- since `whnf` can unfold local definitions which may introduce metavariables.
+-- We don't need an `instantiateMVars` before the `whnf`, since it instantiates as necessary.
 def _root_.Lean.MVarId.getType' (mvarId : MVarId) : MetaM Expr := do
-  whnf (← instantiateMVars (← mvarId.getType))
+  instantiateMVars (← whnf (← mvarId.getType))
 
 @[deprecated MVarId.getType']
 def getMVarType' (mvarId : MVarId) : MetaM Expr := do

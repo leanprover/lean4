@@ -374,7 +374,7 @@
  {"start": {"line": 194, "character": 0}, "end": {"line": 194, "character": 9}},
  "contents":
  {"value":
-  "`declModifiers` is the collection of modifiers on a declaration:\n* a doc comment `/-! ... -/`\n* a list of attributes `@[attr1, attr2]`\n* a visibility specifier, `private` or `protected`\n* `noncomputable`\n* `unsafe`\n* `partial` or `nonrec`\n\nAll modifiers are optional, and have to come in the listed order.\n\n`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed\non the same line as the declaration. It is used for declarations nested inside other syntax,\nsuch as inductive constructors, structure projections, and `let rec` / `where` definitions. ",
+  "`declModifiers` is the collection of modifiers on a declaration:\n* a doc comment `/-- ... -/`\n* a list of attributes `@[attr1, attr2]`\n* a visibility specifier, `private` or `protected`\n* `noncomputable`\n* `unsafe`\n* `partial` or `nonrec`\n\nAll modifiers are optional, and have to come in the listed order.\n\n`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed\non the same line as the declaration. It is used for declarations nested inside other syntax,\nsuch as inductive constructors, structure projections, and `let rec` / `where` definitions. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file://hover.lean"},
  "position": {"line": 200, "character": 2}}

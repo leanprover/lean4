@@ -10,6 +10,8 @@ Please check the [releases](https://github.com/leanprover/lean4/releases) page f
 v4.3.0 (development in progress)
 ---------
 
+* The derive handler for `DecidableEq` [now handles](https://github.com/leanprover/lean4/pull/2591) mutual inductive types.
+
 v4.2.0
 ---------
 

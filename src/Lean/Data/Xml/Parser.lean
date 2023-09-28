@@ -408,7 +408,7 @@ def Attribute : Parsec (String × String) := do
 protected def elementPrefix : Parsec (Array Content → Element) := do
   skipChar '<'
   let name ← Name
-  let attributes ← many (S *> Attribute)
+  let attributes ← many (attempt <| S *> Attribute)
   optional S *> pure ()
   return Element.Element name (RBMap.fromList attributes.toList compare)
 

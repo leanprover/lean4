@@ -119,7 +119,7 @@ def XMLdecl : Parsec Unit := do
 def Comment : Parsec String :=
   let notDash := Char.toString <$> satisfy (λ c => c ≠ '-')
   skipString "<!--" *>
-  Array.foldl String.append "" <$> many (notDash <|> (do
+  Array.foldl String.append "" <$> many (attempt <| notDash <|> (do
     let d ← pchar '-'
     let c ← notDash
     pure $ d.toString ++ c))

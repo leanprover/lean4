@@ -359,6 +359,9 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+  # The Emscripten build circumvents `leanshared.so` because Emscripten `.so` libraries may not link system libraries:
+  # https://emscripten.org/docs/compiling/Dynamic-Linking.html#overview-of-dynamic-linking
+  # Instead we link `Init` `Lean` and `leancpp` directly.
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s LINKABLE=1 -s EXPORT_ALL=1")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared")

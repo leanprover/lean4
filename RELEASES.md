@@ -14,6 +14,7 @@ v4.3.0 (development in progress)
 * The derive handler for `DecidableEq` [now handles](https://github.com/leanprover/lean4/pull/2591) mutual inductive types.
 * [Show path of failed import in Lake](https://github.com/leanprover/lean4/pull/2616).
 * [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
+* **Lake:** Add `postUpdate?` package configuration option. Used by a package to specify some code which should be run after a successful `lake update` of the package or one of its downstream dependencies. ([lake#185](https://github.com/leanprover/lake/issues/185))
 
 v4.2.0
 ---------

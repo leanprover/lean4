@@ -41,59 +41,6 @@ def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
   }
 
 /--
-Rebuild the workspace's Lake manifest and materialize missing dependencies.
-
-Packages are updated to latest specific revision matching that in `require`
-(e.g., if the `require` is `@master`, update to latest commit on master) or
-removed if the `require` is removed. If `tuUpdate` is empty, update/remove all
-root dependencies. Otherwise, only update the root dependencies specified.
-
-If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
--/
-def buildUpdatedManifest (ws : Workspace)
-(toUpdate : NameSet := {}) (reconfigure := true) : LogIO (Workspace × Manifest) := do
-  let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
-    -- Use manifest versions of root packages that should not be updated
-    unless toUpdate.isEmpty do
-      for entry in (← Manifest.loadOrEmpty ws.manifestFile) do
-        unless entry.inherited || toUpdate.contains entry.name do
-          let dep ← entry.materialize ws.dir ws.relPkgsDir
-          modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
-    buildAcyclic (·.1.name) (ws.root, FilePath.mk ".") fun (pkg, relPkgDir) resolve => do
-      let inherited := pkg.name != ws.root.name
-      let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
-      -- Materialize this package's dependencies first
-      let deps ← deps.mapM fun dep => fetchOrCreate dep.name do
-        dep.materialize inherited ws.dir ws.relPkgsDir relPkgDir
-      -- Load dependency packages and materialize their locked dependencies
-      let deps ← deps.mapM fun dep => do
-        if let .some pkg := (← getThe (NameMap Package)).find? dep.name then
-          return (pkg, dep.relPkgDir)
-        else
-          -- Load the package
-          let depPkg ← loadDepPackage ws.dir dep pkg.leanOpts dep.opts reconfigure
-          if depPkg.name ≠ dep.name then
-            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
-          -- Materialize locked dependencies
-          for entry in (← Manifest.loadOrEmpty depPkg.manifestFile) do
-            unless (← getThe (OrdNameMap MaterializedDep)).contains entry.name do
-              let entry := entry.setInherited.inDirectory dep.relPkgDir
-              let dep ← entry.materialize ws.dir ws.relPkgsDir
-              modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
-          modifyThe (NameMap Package) (·.insert dep.name depPkg)
-          return (depPkg, dep.relPkgDir)
-      -- Resolve dependencies's dependencies recursively
-      return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
-  match res with
-  | (.ok root, deps) =>
-    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
-    let manifest := deps.foldl (fun m d => m.addPackage d.manifestEntry) manifest
-    return ({ws with root}, manifest)
-  | (.error cycle, _) =>
-    let cycle := cycle.map (s!"  {·}")
-    error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
-
-/--
 Load a `Workspace` for a Lake package by elaborating its configuration file.
 Does not resolve dependencies.
 -/
@@ -136,6 +83,65 @@ def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
     error <|
       s!"oops! dependency load cycle detected (this likely indicates a bug in Lake):\n" ++
       "\n".intercalate cycle
+
+/--
+Rebuild the workspace's Lake manifest and materialize missing dependencies.
+
+Packages are updated to latest specific revision matching that in `require`
+(e.g., if the `require` is `@master`, update to latest commit on master) or
+removed if the `require` is removed. If `tuUpdate` is empty, update/remove all
+root dependencies. Otherwise, only update the root dependencies specified.
+
+If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
+-/
+def buildUpdatedManifest (ws : Workspace)
+(toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
+  let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
+    -- Use manifest versions of root packages that should not be updated
+    unless toUpdate.isEmpty do
+      for entry in (← Manifest.loadOrEmpty ws.manifestFile) do
+        unless entry.inherited || toUpdate.contains entry.name do
+          let dep ← entry.materialize ws.dir ws.relPkgsDir
+          modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
+    buildAcyclic (·.1.name) (ws.root, FilePath.mk ".") fun (pkg, relPkgDir) resolve => do
+      let inherited := pkg.name != ws.root.name
+      let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
+      -- Materialize this package's dependencies first
+      let deps ← deps.mapM fun dep => fetchOrCreate dep.name do
+        dep.materialize inherited ws.dir ws.relPkgsDir relPkgDir
+      -- Load dependency packages and materialize their locked dependencies
+      let deps ← deps.mapM fun dep => do
+        if let .some pkg := (← getThe (NameMap Package)).find? dep.name then
+          return (pkg, dep.relPkgDir)
+        else
+          -- Load the package
+          let depPkg ← loadDepPackage ws.dir dep pkg.leanOpts dep.opts reconfigure
+          if depPkg.name ≠ dep.name then
+            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+          -- Materialize locked dependencies
+          for entry in (← Manifest.loadOrEmpty depPkg.manifestFile) do
+            unless (← getThe (OrdNameMap MaterializedDep)).contains entry.name do
+              let entry := entry.setInherited.inDirectory dep.relPkgDir
+              let dep ← entry.materialize ws.dir ws.relPkgsDir
+              modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
+          modifyThe (NameMap Package) (·.insert dep.name depPkg)
+          return (depPkg, dep.relPkgDir)
+      -- Resolve dependencies's dependencies recursively
+      return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
+  match res with
+  | (.ok root, deps) =>
+    let ws : Workspace ← {ws with root}.finalize
+    LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
+      if let some postUpdate := pkg.postUpdate? then
+        logInfo s!"{pkg.name}: running post-update hook"
+        postUpdate
+    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
+    let manifest := deps.foldl (·.addPackage ·.manifestEntry) manifest
+    manifest.saveToFile ws.manifestFile
+    return ws
+  | (.error cycle, _) =>
+    let cycle := cycle.map (s!"  {·}")
+    error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
 
 /--
 Resolving a workspace's dependencies using a manifest,
@@ -200,9 +206,7 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   if updateDeps then
-    let (ws, manifest) ← buildUpdatedManifest ws {} rc
-    manifest.saveToFile ws.manifestFile
-    ws.finalize
+    buildUpdatedManifest ws {} rc
   else
     ws.materializeDeps (← Manifest.loadOrEmpty ws.manifestFile) rc
 
@@ -210,5 +214,5 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
-  let (ws, manifest) ← buildUpdatedManifest ws toUpdate rc
-  manifest.saveToFile ws.manifestFile
+  discard <| buildUpdatedManifest ws toUpdate rc
+

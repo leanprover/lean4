@@ -117,6 +117,9 @@ declared by users are stored in an environment extension. Users can declare new 
 using meta-programming.
 -/
 structure Environment where
+  /-- The constructor of `Environment` is private to protect against modification
+  that bypasses the kernel. -/
+  private mk ::
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -149,7 +152,7 @@ structure Environment where
 
 namespace Environment
 
-def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 /--

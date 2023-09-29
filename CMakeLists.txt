@@ -26,23 +26,6 @@ endforeach()
 include(ExternalProject)
 project(LEAN CXX C)
 
-if("${CMAKE_SYSTEM_NAME}" MATCHES "Emscripten")
-  # For Emscripten, we build GMP before any of the stages and reuse it in all of them.
-  set(GMP_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/gmp-root)
-  set(EMSCRIPTEN_FLAGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1 -O3")
-  ExternalProject_Add(
-    gmp
-    URL https://gmplib.org/download/gmp/gmp-6.2.1.tar.bz2
-    URL_HASH SHA256=eae9326beb4158c386e39a356818031bd28f3124cf915f8c5b1dc4c7a36b4d7c
-    BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND emconfigure ./configure "CFLAGS=${EMSCRIPTEN_FLAGS}" --host=wasm32-unknown-emscripten --disable-assembly --prefix=${GMP_INSTALL_PREFIX}
-    BUILD_COMMAND emmake make -j4
-    INSTALL_COMMAND emmake make install
-  )
-  set(EXTRA_DEPENDS "gmp")
-  list(APPEND CL_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
-  list(APPEND PLATFORM_ARGS "-DGMP_INSTALL_PREFIX=${GMP_INSTALL_PREFIX}")
-endif()
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"
   SOURCE_SUBDIR src

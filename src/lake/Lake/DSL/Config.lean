@@ -40,7 +40,7 @@ def elabDirConst : TermElab := fun stx expectedType? => do
 
 /--
 A macro that expands to the specified configuration option (or `none`,
-if not the option has not been set) during the Lakefile's elaboration.
+if the option has not been set) during the Lakefile's elaboration.
 
 Configuration arguments are set either via the Lake CLI (by the `-K` option)
 or via the `with` clause in a `require` statement.

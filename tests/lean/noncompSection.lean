@@ -1,3 +1,4 @@
+import Lean
 noncomputable section
 
 theorem ex : ∃ x : Nat, x > 0 :=
@@ -33,3 +34,9 @@ end Foo
 end
 
 def i : Nat := Classical.choose ex -- Error
+
+open Lean Meta in
+#eval show MetaM Unit from do
+  if isNoncomputable (← getEnv) `g then
+    dbg_trace "g is noncomputable"
+

@@ -117,10 +117,13 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     withSaveInfoContext do  -- save new env
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
-    if preDef.modifiers.isNoncomputable then
+    let didCompile ←
+      if compile && shouldGenCodeFor preDef then
+        compileDecl decl
+      else
+        pure false
+    if preDef.modifiers.isNoncomputable || !didCompile then
       modifyEnv fun env => addNoncomputable env preDef.declName
-    if compile && shouldGenCodeFor preDef then
-      discard <| compileDecl decl
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 

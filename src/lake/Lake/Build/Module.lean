@@ -58,7 +58,18 @@ Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
-  let contents ← IO.FS.readFile mod.leanFile
+  let callstack : CallStack BuildKey ← EquipT.lift <| CycleT.readCallStack
+  let contents ← liftM <| tryCatch (IO.FS.readFile mod.leanFile) (fun err =>
+    -- filter out only modules from build key
+    let callstack := callstack.filterMap (fun bk =>
+      match bk with
+      | .moduleFacet mod .. => .some s!"'{mod.toString}'"
+      | _ => .none
+    )
+    -- render as breadcrumb
+    let breadcrumb := String.intercalate " ▸ " callstack.reverse
+    throw <| IO.userError s!"({breadcrumb}): {err}"
+  )
   let imports ← Lean.parseImports' contents mod.leanFile.toString
   let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
     findModule? imp.module <&> fun | some mod => set.insert mod | none => set

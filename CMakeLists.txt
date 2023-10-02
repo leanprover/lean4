@@ -24,7 +24,7 @@ foreach(var ${vars})
 endforeach()
 
 if(NOT STAGE0_CMAKE_EXECUTABLE_SUFFIX)
-    set(STAGE0_CMAKE_EXECUTABLE_SUFFIX ${CMAKE_EXECUTABLE_SUFFIX})
+    set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
 endif()
 
 include(ExternalProject)

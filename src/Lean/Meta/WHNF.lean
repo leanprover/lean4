@@ -419,10 +419,13 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
 
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
-  let mut transparency ← getTransparency
-  if transparency == TransparencyMode.reducible then
-    transparency := TransparencyMode.instances
-  withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+  if (← getTransparency) matches .instances | .reducible then
+    -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
+    withTransparency .instances <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+      whnf e
+  else
+    -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
+    -- In the future, we want to work on better reduction strategies that do not require caching.
     whnf e
 
 def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do

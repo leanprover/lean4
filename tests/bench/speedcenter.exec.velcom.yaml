@@ -283,6 +283,12 @@
   build_config:
     cmd: ./compile.sh rbmap_library.lean
 - attributes:
+    description: reduceMatch
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean reduceMatch.lean
+- attributes:
     description: unionfind
     tags: [fast, suite]
   run_config:

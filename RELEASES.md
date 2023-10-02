@@ -10,6 +10,8 @@ Please check the [releases](https://github.com/leanprover/lean4/releases) page f
 v4.3.0 (development in progress)
 ---------
 
+* [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
+
 v4.2.0
 ---------
 

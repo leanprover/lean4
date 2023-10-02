@@ -20,6 +20,9 @@ Interesting options:
     | none      => pure <| (← IO.appDir).parent.get!
   let rootify s := s.replace "ROOT" root.toString
 
+  -- It is difficult to identify the correct minor version here, leading to linking warnings like:
+  -- `ld64.lld: warning: /usr/lib/system/libsystem_kernel.dylib has version 13.5.0, which is newer than target minimum of 13.0.0`
+  -- In order to suppress these we set the MACOSX_DEPLOYMENT_TARGET variable into the far future.
   let env := match (← IO.getEnv "MACOSX_DEPLOYMENT_TARGET") with
     | some _ => #[]
     | none   => #[("MACOSX_DEPLOYMENT_TARGET", "99.0")]

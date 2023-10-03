@@ -66,7 +66,25 @@ opaque foldConsts {α : Type} (e : Expr) (init : α) (f : Name → α → α) : 
 def getUsedConstants (e : Expr) : Array Name :=
   e.foldConsts #[] fun c cs => cs.push c
 
+/-- Like `Expr.getUsedConstants`, but produce a `NameSet`. -/
+def getUsedConstants' (e : Expr) : NameSet :=
+  e.foldConsts {} fun c cs => cs.insert c
+
 end Expr
+
+namespace ConstantInfo
+
+/-- Return all names appearing in the type or value of a `ConstantInfo`. -/
+def getUsedConstants (c : ConstantInfo) : NameSet :=
+  c.type.getUsedConstants' ++ match c.value? with
+  | some v => v.getUsedConstants'
+  | none => match c with
+    | .inductInfo val => .ofList val.ctors
+    | .opaqueInfo val => val.value.getUsedConstants'
+    | .ctorInfo val => ({} : NameSet).insert val.name
+    | _ => {}
+
+end ConstantInfo
 
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
   e.foldConsts 0 fun constName max =>

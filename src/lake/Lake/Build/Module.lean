@@ -13,6 +13,15 @@ Build function definitions for a module's builtin facets.
 
 open System
 
+
+/-- Remove adjacent duplicates. -/
+def List.squeeze [BEq α] : List α → List α
+| [] => []
+| x :: xs =>
+  match List.squeeze xs with
+  | [] => [x]
+  | x' :: xs' => if x == x' then x' :: xs' else x :: x' :: xs'
+
 namespace Lake
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
@@ -65,7 +74,7 @@ def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
       match bk with
       | .moduleFacet mod .. => .some s!"'{mod.toString}'"
       | _ => .none
-    )
+    ) |>.squeeze
     -- render as breadcrumb
     let breadcrumb := String.intercalate " ▸ " callstack.reverse
     throw <| IO.userError s!"({breadcrumb}): {err}"

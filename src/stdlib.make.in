@@ -12,7 +12,7 @@ export LEAN_ABORT_ON_PANIC=1
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
-	LEAN="${PREV_STAGE}/bin/lean.exe"\
+	LEAN="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
 	LEANC="${CMAKE_BINARY_DIR}/leanc.sh"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
@@ -21,7 +21,7 @@ LEANMAKE_OPTS=\
 	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -DwarningAsError=true"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_AR="${CMAKE_AR}"\
-	MORE_DEPS+="${PREV_STAGE}/bin/lean.exe"\
+	MORE_DEPS+="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
 	${EXTRA_LEANMAKE_OPTS}\
 	CMAKE_LIKE_OUTPUT=1
 
@@ -33,11 +33,6 @@ endif
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
-	echo "HELLO=${HELLO}"
-	echo "PREV_STAGE=${PREV_STAGE}"
-	echo "CMAKE_EXECUTABLE_SUFFIX=${CMAKE_EXECUTABLE_SUFFIX}"
-	echo "STAGE0_CMAKE_EXECUTABLE_SUFFIX=${STAGE0_CMAKE_EXECUTABLE_SUFFIX}"
-	echo "PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX=${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"
 # Use `+` to use the Make jobserver with `leanmake` for parallelized builds
 	+"${LEAN_BIN}/leanmake" lib PKG=Init $(LEANMAKE_OPTS) LEANC_OPTS+=-DLEAN_EXPORTING
 

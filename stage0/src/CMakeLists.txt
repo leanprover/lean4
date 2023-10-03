@@ -106,11 +106,10 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
-    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s MAIN_MODULE=1 -fwasm-exceptions -pthread -flto")
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -fwasm-exceptions -pthread -flto")
     string(APPEND LEANC_EXTRA_FLAGS " -pthread")
     string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
-    unset(CMAKE_EXECUTABLE_SUFFIX)
 endif()
 
 # Added for CTest
@@ -359,7 +358,11 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+  # We do not use dynamic linking via leanshared for Emscripten to keep things
+  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
+  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
+  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared")
 endif()

@@ -792,7 +792,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
 @[export lean_import_modules]
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
-  let imports := imports
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"

@@ -23,12 +23,13 @@ foreach(var ${vars})
   endif()
 endforeach()
 
-# if(NOT STAGE0_CMAKE_EXECUTABLE_SUFFIX)
-    set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
-# endif()
 
 include(ExternalProject)
 project(LEAN CXX C)
+
+# if(NOT STAGE0_CMAKE_EXECUTABLE_SUFFIX)
+set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
+# endif()
 
 ExternalProject_add(stage0
   SOURCE_DIR "${LEAN_SOURCE_DIR}/stage0"

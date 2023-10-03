@@ -49,7 +49,7 @@ def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget 
       let fvarId ← getFVarId hyp
       atLocal fvarId
     if type then
-      atTarget
+      withMainContext atTarget
   | Location.wildcard =>
     let worked ← tryTactic <| withMainContext <| atTarget
     withMainContext do

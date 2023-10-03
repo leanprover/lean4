@@ -23,9 +23,9 @@ foreach(var ${vars})
   endif()
 endforeach()
 
-if(NOT STAGE0_CMAKE_EXECUTABLE_SUFFIX)
+# if(NOT STAGE0_CMAKE_EXECUTABLE_SUFFIX)
     set(STAGE0_CMAKE_EXECUTABLE_SUFFIX "${CMAKE_EXECUTABLE_SUFFIX}")
-endif()
+# endif()
 
 include(ExternalProject)
 project(LEAN CXX C)

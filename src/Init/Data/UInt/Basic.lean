@@ -10,7 +10,7 @@ import Init.System.Platform
 open Nat
 
 @[extern "lean_uint8_of_nat"]
-def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨Fin.ofNat n⟩
+def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨Fin.ofNat' n (by decide)⟩
 abbrev Nat.toUInt8 := UInt8.ofNat
 @[extern "lean_uint8_to_nat"]
 def UInt8.toNat (n : UInt8) : Nat := n.val.val
@@ -77,7 +77,7 @@ instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
 
 @[extern "lean_uint16_of_nat"]
-def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat n⟩
+def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat' n (by decide)⟩
 abbrev Nat.toUInt16 := UInt16.ofNat
 @[extern "lean_uint16_to_nat"]
 def UInt16.toNat (n : UInt16) : Nat := n.val.val
@@ -149,7 +149,7 @@ instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
+def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat' n (by decide)⟩
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨⟨n, h⟩⟩
 abbrev Nat.toUInt32 := UInt32.ofNat
@@ -203,7 +203,7 @@ instance : ShiftLeft UInt32  := ⟨UInt32.shiftLeft⟩
 instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
 @[extern "lean_uint64_of_nat"]
-def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
+def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat' n (by decide)⟩
 abbrev Nat.toUInt64 := UInt64.ofNat
 @[extern "lean_uint64_to_nat"]
 def UInt64.toNat (n : UInt64) : Nat := n.val.val

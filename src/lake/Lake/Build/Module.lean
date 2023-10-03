@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.OrdHashSet
+import Lake.Util.List
 import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 
@@ -12,15 +13,6 @@ Build function definitions for a module's builtin facets.
 -/
 
 open System
-
-
-/-- Remove adjacent duplicates. -/
-def List.squeeze [BEq α] : List α → List α
-| [] => []
-| x :: xs =>
-  match List.squeeze xs with
-  | [] => [x]
-  | x' :: xs' => if x == x' then x' :: xs' else x :: x' :: xs'
 
 namespace Lake
 
@@ -69,13 +61,13 @@ building an `Array` product of its direct local imports.
 def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
   let callstack : CallStack BuildKey ← EquipT.lift <| CycleT.readCallStack
   let contents ← liftM <| tryCatch (IO.FS.readFile mod.leanFile) (fun err =>
-    -- filter out only modules from build key
+    -- filter out only modules from build key, and remove adjacent duplicates (squeeze),
+    -- since Lake visits multiple nested facets of the same module.
     let callstack := callstack.filterMap (fun bk =>
       match bk with
       | .moduleFacet mod .. => .some s!"'{mod.toString}'"
       | _ => .none
-    ) |>.squeeze
-    -- render as breadcrumb
+    ) |> List.squeeze
     let breadcrumb := String.intercalate " ▸ " callstack.reverse
     throw <| IO.userError s!"({breadcrumb}): {err}"
   )

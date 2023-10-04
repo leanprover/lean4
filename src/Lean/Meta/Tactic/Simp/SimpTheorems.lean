@@ -18,7 +18,7 @@ what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
   /-- A global declaration in the environment. -/
-  | decl (declName : Name)
+  | decl (declName : Name) (inv : Bool)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension
@@ -42,9 +42,9 @@ inductive Origin where
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
-  | .decl declName => declName
+  | .decl declName _ => declName
   | .fvar fvarId => fvarId.name
-  | .stx id _ => id
+  | .stx id _  => id
   | .other name => name
 
 instance : BEq Origin := ⟨(·.key == ·.key)⟩
@@ -136,7 +136,7 @@ instance : ToFormat SimpTheorem where
     name ++ prio ++ perm
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n => mkConstWithLevelParams n
+  | .decl n inv => do let r ← mkConstWithLevelParams n; if inv then return m!"← {r}" else return r
   | .fvar n => return mkFVar n
   | .stx _ ref => return ref
   | .other n => return n
@@ -186,10 +186,10 @@ def SimpTheorems.registerDeclToUnfoldThms (d : SimpTheorems) (declName : Name) (
 
 partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   let d := { d with erased := d.erased.insert thmId, lemmaNames := d.lemmaNames.erase thmId }
-  if let .decl declName := thmId then
+  if let .decl declName false := thmId then
     let d := { d with toUnfold := d.toUnfold.erase declName }
     if let some thms := d.toUnfoldThms.find? declName then
-      thms.foldl (init := d) (eraseCore · <| .decl ·)
+      thms.foldl (init := d) (eraseCore · <| .decl · false)
     else
       d
   else
@@ -198,7 +198,7 @@ partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpThe
 def SimpTheorems.erase [Monad m] [MonadError m] (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
   unless d.isLemma thmId ||
     match thmId with
-    | .decl declName => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
+    | .decl declName false => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
     | _ => false
   do
     throwError "'{thmId.key}' does not have [simp] attribute"
@@ -318,10 +318,10 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore (.decl declName) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
+        r := r.push <| (← mkSimpTheoremCore (.decl declName inv) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
       return r
     else
-      return #[← mkSimpTheoremCore (.decl declName) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
+      return #[← mkSimpTheoremCore (.decl declName false) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -367,7 +367,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
       discard <| go.run {} {}
     erase := fun declName => do
       let s := ext.getState (← getEnv)
-      let s ← s.erase (.decl declName)
+      let s ← s.erase (.decl declName false)
       modifyEnv fun env => ext.modifyState env fun _ => s
   }
 
@@ -403,7 +403,7 @@ def getSimpTheorems : CoreM SimpTheorems :=
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName) }
+  let s := { s with erased := s.erased.erase (.decl declName inv) }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
   return simpThms.foldl addSimpTheoremEntry s
 

@@ -100,7 +100,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           -/
           let e? ← withReducibleAndInstances <| unfoldDefinition? e
           if e?.isSome then
-            recordSimpTheorem (.decl cinfo.name)
+            recordSimpTheorem (.decl cinfo.name false)
           return e?
         else
           /-
@@ -154,7 +154,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     return none -- should be reduced by `reduceProjFn?`
   let ctx ← read
   if ctx.config.autoUnfold then
-    if ctx.simpTheorems.isErased (.decl fName) then
+    if ctx.simpTheorems.isErased (.decl fName false) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then
       withDefault <| unfoldDefinition? e
@@ -191,7 +191,7 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
-    recordSimpTheorem (.decl e.getAppFn.constName!)
+    recordSimpTheorem (.decl e.getAppFn.constName! false)
     reduce e'
   | none => return e
 
@@ -571,7 +571,7 @@ where
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
-      unless (← synthesizeArgs (.decl c.theoremName) xs bis (← read).discharge?) do
+      unless (← synthesizeArgs (.decl c.theoremName false) xs bis (← read).discharge?) do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
         return none
       let eNew ← instantiateMVars rhs

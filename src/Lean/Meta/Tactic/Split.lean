@@ -47,7 +47,7 @@ where
       | none    =>
       -- Try lemma
       let simpTheorem := {
-        origin := .decl matchEqDeclName
+        origin := .decl matchEqDeclName false
         proof := mkConst matchEqDeclName
         rfl := (← isRflTheorem matchEqDeclName)
       }

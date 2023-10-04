@@ -115,3 +115,8 @@ Try this: simp only [bla, h] at *
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 Try this: simp only [HasProp.toProp]
+Try this: simp only [← h]
+[Meta.Tactic.simp.rewrite] ← h:1000, Q ==> P
+Try this: simp only [← my_thm']
+[Meta.Tactic.simp.rewrite] ← @my_thm':1000, P ∧ P ==> P
+[Meta.Tactic.simp.rewrite] iff_self:1000, P ↔ P ==> True

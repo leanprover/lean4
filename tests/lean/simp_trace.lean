@@ -126,3 +126,11 @@ instance : HasProp Nat where
 
 example : HasProp.toProp 0 := by
   simp [HasProp.toProp]
+
+example (P Q : Prop) (h : P ↔ Q) (p : P) : Q := by
+  simp [← h]
+  exact p
+
+theorem my_thm' : a ↔ a ∧ a := my_thm.symm
+
+example (P : Prop) : P ∧ P ↔ P := by simp only [← my_thm']

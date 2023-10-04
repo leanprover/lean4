@@ -57,6 +57,7 @@ option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
+option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
@@ -84,6 +85,10 @@ else()
   set(NumBits 32)
 endif()
 
+if ("${MMAP}" MATCHES "ON")
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MMAP")
+endif()
+
 if ("${RUNTIME_STATS}" MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
@@ -93,28 +98,18 @@ if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set(MULTI_THREAD OFF)
     # TODO(WN): code size/performance tradeoffs
     # - we're using -O3; it's /okay/
-    # - -flto crashes at runtime
     # - -Oz produces quite slow code
     # - system libraries such as OpenGL are included in the JS but shouldn't be
     # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
-    # - -fexceptions is a slow JS blob, remove when more runtimes support the WASM exceptions spec
 
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
-    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -fwasm-exceptions -pthread -flto")
+    string(APPEND LEANC_EXTRA_FLAGS " -pthread")
     string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
-endif()
-if (CMAKE_CROSSCOMPILING_EMULATOR)
-  # emscripten likes to quote "node"
-  string(REPLACE "\"" "" CMAKE_CROSSCOMPILING_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
-  # HACK(WN): lazy compilation makes Node.js startup time a bad but tolerable ~4s
-  string(APPEND CMAKE_CROSSCOMPILING_EMULATOR " --wasm-lazy-compilation")
-else()
-  set(CMAKE_CROSSCOMPILING_EMULATOR)
 endif()
 
 # Added for CTest
@@ -339,7 +334,7 @@ endif()
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-dead_strip")
-else()
+elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
@@ -355,18 +350,28 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  string(APPEND CMAKE_CXX_FLAGS " -fPIC")
+  string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+  # We do not use dynamic linking via leanshared for Emscripten to keep things
+  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
+  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
+  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -ldl")
 endif()
 
-if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND NOT(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten"))
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")

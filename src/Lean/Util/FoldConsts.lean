@@ -67,7 +67,7 @@ def getUsedConstants (e : Expr) : Array Name :=
   e.foldConsts #[] fun c cs => cs.push c
 
 /-- Like `Expr.getUsedConstants`, but produce a `NameSet`. -/
-def getUsedConstants' (e : Expr) : NameSet :=
+def getUsedConstantsAsSet (e : Expr) : NameSet :=
   e.foldConsts {} fun c cs => cs.insert c
 
 end Expr
@@ -75,13 +75,14 @@ end Expr
 namespace ConstantInfo
 
 /-- Return all names appearing in the type or value of a `ConstantInfo`. -/
-def getUsedConstants (c : ConstantInfo) : NameSet :=
-  c.type.getUsedConstants' ++ match c.value? with
-  | some v => v.getUsedConstants'
+def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
+  c.type.getUsedConstantsAsSet ++ match c.value? with
+  | some v => v.getUsedConstantsAsSet
   | none => match c with
     | .inductInfo val => .ofList val.ctors
-    | .opaqueInfo val => val.value.getUsedConstants'
+    | .opaqueInfo val => val.value.getUsedConstantsAsSet
     | .ctorInfo val => ({} : NameSet).insert val.name
+    | .recInfo val => .ofList val.all
     | _ => {}
 
 end ConstantInfo

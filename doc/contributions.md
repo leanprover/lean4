@@ -1,68 +1,128 @@
-External Contribution Guidelines
-============
+# Contribution Guidelines
 
-**In the past, we accepted most pull requests. This practice produced hard to maintain code, performance problems, and bugs.** In order to improve the quality and maintainability of our codebase, we've established the following guidelines for external contributions.
+Thank you for your interest in contributing to Lean! There are many ways to contribute and we appreciate all of them.
 
-Before You Submit a Pull Request (PR):
--------
+* [Asking questions](#asking-questions)
+* [Cloning and building](#cloning-and-building)
+* [Contributing](#contributing)
+  * [Bug reports](#bug-reports)
+  * [Bug fixes](#bug-fixes)
+  * [Feature requests](#feature-requests)
+  * [Feature implementations](#feature-implementations)
+  * [Documentation updates](#documentation-updates)
+* [Workflows](#workflows)
+  * [Making commits](#making-commits)
+  * [Submitting pull requests](#submitting-pull-requests)
 
-**Start with an Issue**: Before submitting a PR, always open an issue discussing the problem you wish to solve or the feature you'd like to add. Use the prefix `RFC:` (request for comments) if you are proposing a new feature. Ask for feedback from other users. Take the time to summarize all the feedback. This allows the maintainers to evaluate your proposal more efficiently. When creating a RFC, consider the following questions:
+## Asking questions
 
-  - **User Experience**: How does this feature improve the user experience?
+If you have questions, please make a post on the [Lean Zulip server](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4).
 
-  - **Beneficiaries**: Which Lean users and projects do benefit most from this feature/change?
+**Please ask questions!** A lot of people report feeling that they are "wasting expert time", but nobody on the team feels this way. Contributors are important to us.
 
-  - **Community Feedback**: Have you sought feedback or insights from other Lean users?
+Also, your questions will help other people, since they will be able to find the answers quickly.
 
-  - **Maintainability**: Will this change streamline code maintenance or simplify its structure?
+We do ask that you be mindful to include as much useful information as you can in your question, but we recognize this can be hard if you are unfamiliar with contributing to Lean.
 
-**Understand the Project**: Familiarize yourself with the project, existing issues, and latest commits. Ensure your contribution aligns with the project's direction and priorities.
+## Cloning and building
 
-**Stay Updated**: Regularly fetch and merge changes from the main branch to ensure your branch is up-to-date and can be smoothly integrated.
+Please refer to "[Development workflow](./dev/index.md)".
 
-**Help wanted**: We have issues tagged with ["help wanted"](https://github.com/leanprover/lean4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22), if you want to contribute to the project, please take a look at them. If you are interested in one of them, post comments, ask questions, and engage with the core developers there.
+## Contributing
 
-Quality Over Quantity:
------
+### Bug reports
 
-**Focused Changes**: Each PR should address a single, clearly-defined issue or feature. Avoid making multiple unrelated changes in a single PR.
+Bug reports as new issues are always welcome.
 
-**Write Tests**: Every new feature or bug fix should come with relevant tests. This ensures the robustness and reliability of the contribution.
+* Please check [the existing issues](https://github.com/leanprover/lean4/issues) first.
+* Reduce the issue to a self-contained, reproducible test case.
 
-**Documentation**: Update relevant documentation, including comments in the code, to explain the logic and reasoning behind your changes.
+If you're not sure if something is a bug or not, feel free to file a bug anyway. You may also want to discuss it with the Lean community [on Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4).
 
-Coding Standards:
-----
+### Bug fixes
 
-**Follow the Code Style**: Ensure that your code follows the established coding style of the project.
+* Follow ["Submitting pull requests"](#submitting-pull-requests)
 
-**Lean on Lean**: Use Lean's built-in features and libraries effectively, avoiding reinventions.
+### Feature requests
 
-**Performance**: Make sure that your changes do not introduce performance regressions. If possible, optimize the solution for speed and resource usage.
+If you're willing to implement the feature, please refer to "[Feature implementations](#feature-implementations)". Otherwise, we kindly ask you not to submit a feature request, since we're prioritizing active PRs with code.
 
-PR Submission:
----
+### Feature implementations
 
-**Descriptive Title and Summary**: The PR title should briefly explain the purpose of the PR. The summary should give more detailed information on what changes are made and why. Links to Zulip threads are not acceptable as a summary. You are responsible for summarizing the discussion, and getting support for it.
+* [Create a new topic on Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4) to discuss your idea with the Lean community.
+  * Prefix your topic name with "RFC: ".
+* If there is broad support, [create an issue on GitHub](https://github.com/leanprover/lean4/issues/new/choose).
+  * Prefix the issue name with "RFC: "
+  * Tag the issue with `RFC`.
+* Wait for one of the core developers to give you a "go ahead".
+* Follow ["Submitting pull requests"](#submitting-pull-requests)
 
-**Link to Relevant Issues**: Reference any issues that your PR addresses to provide context.
+After this, the core developers will work with you to make sure your PR gets merged.
 
-**Stay Responsive**: Once the PR is submitted, stay responsive to feedback and be prepared to make necessary revisions. We will close any PR that has been inactive (no response or updates from the submitter) for more than a month.
+When creating a RFC, consider the following questions:
 
-Reviews and Feedback:
-----
+* **User Experience**: How does this feature improve the user experience?
+* **Beneficiaries**: Which Lean users and projects do benefit most from this feature?
+* **Community Feedback**: What do other Lean users think about this feature?
+* **Maintainability**: Are the benefits higher than costs for this feature?
 
-**Be Patient**: Given the limited number of full-time maintainers and the volume of PRs, reviews may take some time.
+### Documentation updates
 
-**Engage Constructively**: Always approach feedback positively and constructively. Remember, reviews are about ensuring the best quality for the project, not personal criticism.
+Documentation is very important - it's the first thing the person reads when starting out with Lean. Therefore, we highly welcome improvements & expansions of the existing docs. Please follow the guidelines for specific documentation types:
 
-**Continuous Integration**: Ensure that all CI checks pass on your PR. Failed checks will delay the review process. The maintainers will not check PRs containing failures.
+* [Docstrings](#docstrings)
+* [Tutorials](#tutorials)
+* [References](#references)
 
-What to Expect:
-----
+#### Docstrings
 
-**Not All PRs Get Merged**: While we appreciate every contribution, not all PRs will be merged. Ensure your changes align with the project's goals and quality standards.
+Docstrings are special comments that may appear above definitions in the Lean code. They are helpful for getting in-context help during development, as they are displayed in the inline popups. Currently we don't have any specific requirements for docstrings; feel free to use them to explain the definitions in your own words (including using non-technical language).
 
-**Feedback is a Gift**: It helps improve the project and can also help you grow as a developer or contributor.
+#### Tutorials
 
-**Community Involvement**: Engage with the Lean community on our communication channels. This can lead to better collaboration and understanding of the project's direction.
+Tutorial-like examples are very welcome. They are useful for finding rough edges and bugs in Lean 4, for highlighting new features, and for showing how to use Lean.
+
+If you want to store your tutorial in the Lean 4 repository to make sure future changes will not break it, we suggest the following workflow:
+
+* Contact one of the Lean developers [on Zulip](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4), and check whether your tutorial is a good match for the Lean 4 repository.
+* Send bug reports and report rough edges. We will work with you until the tutorial looks great.
+* Add plenty of comments and make sure others will be able to follow it.
+* Create a pull request in the Lean 4 repository. After merging, we will link it to the official documentation and make sure it becomes a part of our test suite.
+
+You can use `.lean` or `.md` files to create your tutorial. The `.md` files are ideal when you want to format your prose using markdown. For an example, see [this `.md` file](https://github.com/leanprover/lean4/blob/master/doc/lean3changes.md).
+
+#### References
+
+Contributions to the reference manual are also welcome, but since Lean 4 is changing rapidly, please [contact us first](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4) to find out which parts are stable enough to document. We will work with you to get this kind of pull request merged. We are also happy to meet using Zoom, Skype or Google hangout to coordinate this kind of effort.
+
+## Workflows
+
+### Making commits
+
+* Follow the [commit convention](./dev/commit_convention.md).
+* Follow the style of the surrounding code. When in doubt, look at other files using the particular syntax as well.
+* Try reusing existing definitions from [the Lean compiler](https://github.com/leanprover/lean4), [Std](https://github.com/leanprover/std4), [Mathlib](https://github.com/leanprover-community/mathlib4).
+* Check that your changes do not introduce performance regressions.
+* Add docstrings to non-trivial definitions.
+* Add tests for non-trivial cases (see ["Testing"](./dev/testing.md)).
+
+### Submitting pull requests
+
+See also: [Making commits](#making-commits)
+
+* Sync your fork with the main repository.
+* Check that all tests pass (see ["Fixing tests"](./dev/testing.md#fixing-tests)).
+* Check that the pull request contains a single, clearly-defined issue or feature.
+* Provide a descriptive title & summary. If the proposed change has already been discussed on Zulip, please summarize the discussion (don't just drop a link).
+* Reference any issues that your PR addresses to provide context.
+* After submitting, ensure that all CI checks pass on your PR.
+
+Once the PR is submitted, please stay responsive to feedback and be prepared to make necessary revisions. We will close any PR that has been inactive (no response or updates from the submitter) for more than a month.
+
+What to expect:
+
+* Feedback: we may ask you to improve the PR to match the code quality standards.
+* Time: we try to respond to every PR, but we can't promise a specific timeframe.
+* Merge: we try to merge most PRs, but we can't promise to merge every single PR. To improve the chances of your PR getting merged, please ensure your changes align with the project's goals and quality standards.
+
+**Thank you for contributing!**

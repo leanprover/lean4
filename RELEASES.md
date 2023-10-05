@@ -11,6 +11,7 @@ v4.3.0 (development in progress)
 ---------
 
 * The derive handler for `DecidableEq` [now handles](https://github.com/leanprover/lean4/pull/2591) mutual inductive types.
+* [Show path of failed import in Lake](https://github.com/leanprover/lean4/pull/2616).
 * [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
 
 v4.2.0

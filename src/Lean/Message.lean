@@ -185,7 +185,7 @@ def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 /-- Wrap the given message in square brackets `[]`. -/
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
-/-- Append the given list of messages with the given separarator. -/
+/-- Append the given list of messages with the given separator. -/
 def joinSep : List MessageData → MessageData → MessageData
   | [],    _   => Format.nil
   | [a],   _   => a

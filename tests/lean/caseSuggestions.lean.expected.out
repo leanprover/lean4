@@ -1,0 +1,42 @@
+caseSuggestions.lean:11:2-12:8: error: Case tag 'nonexistent' not found.
+
+There are no cases to select.
+caseSuggestions.lean:20:2-21:8: error: Case tag 'nonexistent' not found.
+
+The only available case tag is 'unit'.
+caseSuggestions.lean:29:2-30:8: error: Case tag 'nonexistent' not found.
+
+Available tags: 'false', 'true'
+caseSuggestions.lean:34:2-35:8: error: Case tag 'nonexistent' not found.
+
+Available tags: 'false.false', 'false.true', 'true.false', 'true.true'
+caseSuggestions.lean:39:2-40:8: error: Case tag 'nonexistent' not found.
+
+Available tags:
+  'false.false.false',
+  'false.false.true',
+  'false.true.false',
+  'false.true.true',
+  'true.false.false',
+  'true.false.true',
+  'true.true.false',
+  'true.true.true'
+caseSuggestions.lean:44:2-45:8: error: Case tag 'nonexistent' not found.
+
+Available tags:
+  'false.false.false.false',
+  'false.false.false.true',
+  'false.false.true.false',
+  'false.false.true.true',
+  'false.true.false.false',
+  'false.true.false.true',
+  'false.true.true.false',
+  'false.true.true.true',
+  'true.false.false.false',
+  'true.false.false.true',
+  'true.false.true.false',
+  'true.false.true.true',
+  'true.true.false.false',
+  'true.true.false.true',
+  'true.true.true.false',
+  'true.true.true.true'

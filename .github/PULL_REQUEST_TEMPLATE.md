@@ -1,6 +1,12 @@
-* [ ] Put an X in this bracket to confirm you have read the [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/doc/contributions.md).
-* [ ] Put the link to your `RFC` or `bug` issue here:
+# Before submitting
 
-If the issue does not already have approval from a developer: please open this PR in "Draft" mode.
+* Ensure your PR follows the [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/doc/contributions.md).
+* Add the link to your `RFC` or `bug` issue below.
+* If the issue does not already have approval from a developer: submit the PR as draft.
+* Remove the whole "Before submitting" section.
 
-You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels yourself, by writing a comment containing one of these labels on its own line.
+P.S. You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels yourself, by writing a comment containing one of these labels on its own line.
+
+# Summary
+
+Parent issue:

@@ -65,6 +65,15 @@ def toolchain :=
 @[extern "lean_internal_is_stage0"]
 opaque Internal.isStage0 (u : Unit) : Bool
 
+/--
+This function can be used to detect whether the compiler has support for
+generating LLVM instead of C. It is used by lake instead of the --features
+flag in order to avoid having to run a compiler for this every time on startup.
+See #2572.
+-/
+@[extern "lean_internal_has_llvm_backend"]
+opaque Internal.hasLLVMBackend (u : Unit) : Bool
+
 /-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd

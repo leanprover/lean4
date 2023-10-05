@@ -47,7 +47,7 @@ We expect similar independent checkers will be built for Lean 4.
 
 We use [GitHub](https://github.com/leanprover/lean4/issues) to track bugs and new features.
 Bug reports are always welcome, but nitpicking issues are not (e.g., the error message is confusing).
-See also our [contribution guidelines](../CONTRIBUTING.md).
+See also our [contribution guidelines](https://github.com/leanprover/lean4/blob/master/CONTRIBUTING.md).
 
 ### Is it Lean, LEAN, or L∃∀N?
 

@@ -41,11 +41,11 @@ If you're not sure if something is a bug or not, feel free to file a bug anyway.
 
 ### Bug fixes
 
-* Follow ["Submitting pull requests"](#submitting-pull-requests)
+* Follow "[Submitting pull requests](#submitting-pull-requests)".
 
 ### Feature requests
 
-If you're willing to implement the feature, please refer to "[Feature implementations](#feature-implementations)". Otherwise, we kindly ask you not to submit a feature request, since we're prioritizing active PRs with code.
+If you're willing to implement the feature, please refer to [Feature implementations](#feature-implementations). Otherwise, we kindly ask you not to submit a feature request, since we're prioritizing active PRs with code.
 
 ### Feature implementations
 
@@ -55,7 +55,7 @@ If you're willing to implement the feature, please refer to "[Feature implementa
   * Prefix the issue name with "RFC: "
   * Tag the issue with `RFC`.
 * Wait for one of the core developers to give you a "go ahead".
-* Follow ["Submitting pull requests"](#submitting-pull-requests)
+* Follow "[Submitting pull requests](#submitting-pull-requests)".
 
 After this, the core developers will work with you to make sure your PR gets merged.
 
@@ -104,14 +104,14 @@ Contributions to the reference manual are also welcome, but since Lean 4 is chan
 * Try reusing existing definitions from [the Lean compiler](https://github.com/leanprover/lean4), [Std](https://github.com/leanprover/std4), [Mathlib](https://github.com/leanprover-community/mathlib4).
 * Check that your changes do not introduce performance regressions.
 * Add docstrings to non-trivial definitions.
-* Add tests for non-trivial cases (see ["Testing"](./dev/testing.md)).
+* Add tests for non-trivial cases (see "[Testing](./dev/testing.md)").
 
 ### Submitting pull requests
 
 See also: [Making commits](#making-commits)
 
 * Sync your fork with the main repository.
-* Check that all tests pass (see ["Fixing tests"](./dev/testing.md#fixing-tests)).
+* Check that all tests pass (see "[Fixing tests](./dev/testing.md#fixing-tests)").
 * Check that the pull request contains a single, clearly-defined issue or feature.
 * Provide a descriptive title & summary. If the proposed change has already been discussed on Zulip, please summarize the discussion (don't just drop a link).
 * Reference any issues that your PR addresses to provide context.

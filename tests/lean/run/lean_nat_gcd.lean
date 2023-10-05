@@ -15,7 +15,7 @@ example : Nat.gcd 2  4  = 2  := rfl
 example : Nat.gcd 9  6  = 3  := rfl
 
 /-!
-We check that `Nat.gcd` is evaluated using GMP functions in the kernel.
+We check that `Nat.gcd` is evaluated using bignum functions in the kernel.
 
 Because of variations in run time on different operating systems during CI,
 for the larger calculations we don't attempt to do any timing.

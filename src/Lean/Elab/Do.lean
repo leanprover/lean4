@@ -1595,7 +1595,7 @@ mutual
   partial def doSeqToCode : List Syntax → M CodeBlock
     | [] => do liftMacroM mkPureUnitAction
     | doElem::doElems => withIncRecDepth <| withRef doElem do
-      checkMaxHeartbeats "`do`-expander"
+      checkSystem "`do`-expander"
       match (← liftMacroM <| expandMacro? doElem) with
       | some doElem => doSeqToCode (doElem::doElems)
       | none =>

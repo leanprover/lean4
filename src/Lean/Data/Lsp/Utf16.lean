@@ -37,7 +37,7 @@ def utf16Length (s : String) : Nat :=
 
 private def codepointPosToUtf32PosFromAux (s : String) : Nat → Pos → Nat → Nat
   | 0,    _,       utf32pos => utf32pos
-  | cp+1, utf8pos, utf32pos => codepointPosToUtf32PosFromAux s cp (s.next utf8pos) (utf32pos + csize32 (s.get utf8pos))
+  | cp+1, utf8pos, utf32pos => codepointPosToUtf32PosFromAux s cp (s.next utf8pos) (utf32pos + 1)
 
 /-- Computes the UTF-32 offset of the `n`-th Unicode codepoint
 in the substring of `s` starting at UTF-8 offset `off`.

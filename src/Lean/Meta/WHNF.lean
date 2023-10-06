@@ -863,7 +863,7 @@ private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
 @[export lean_whnf]
 partial def whnfImp (e : Expr) : MetaM Expr :=
   withIncRecDepth <| whnfEasyCases e fun e => do
-    checkMaxHeartbeats "whnf"
+    checkSystem "whnf"
     let useCache ← useWHNFCache e
     match (← cached? useCache e) with
     | some e' => pure e'

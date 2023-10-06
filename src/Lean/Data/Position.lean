@@ -29,9 +29,13 @@ instance : ToExpr Position where
 
 end Position
 
+/-- A representation of the locations of the lines in the contents of a file -/
 structure FileMap where
+  /-- The contents of the file as a string -/
   source    : String
+  /-- The positions of newlines in the file -/
   positions : Array String.Pos
+  /-- The 1-indexed line numbers of the file, aligned pairwise with the positions -/
   lines     : Array Nat
   deriving Inhabited
 

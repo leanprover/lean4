@@ -1354,7 +1354,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
   | .missing => mkSyntheticSorryFor expectedType?
   | stx => withFreshMacroScope <| withIncRecDepth do
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}") do
-    checkMaxHeartbeats "elaborator"
+    checkSystem "elaborator"
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>

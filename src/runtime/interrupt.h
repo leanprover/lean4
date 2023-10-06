@@ -42,12 +42,8 @@ public:
 
 void check_heartbeat();
 
-struct scoped_interrupt_flag : flet<atomic_bool *> {
-    scoped_interrupt_flag(atomic_bool *); // NOLINT
-};
-
 /**
-   \brief Throw an interrupted exception if the (interrupt) flag is set.
+   \brief Throw an interrupted exception if the current task is marked cancelled.
 */
 void check_interrupted();
 
@@ -65,42 +61,4 @@ constexpr unsigned g_small_sleep = 10;
 */
 void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
 inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
-
-/**
-   \brief Thread that provides a method for setting its interrupt flag.
-*/
-class interruptible_thread {
-public:
-    template<typename Function>
-    interruptible_thread(Function && fun):
-        m_thread([&, fun]() {
-                save_stack_info(false);
-                scoped_interrupt_flag scope_int_flag(&m_flag);
-                fun();
-            })
-        {}
-
-    /**
-       \brief Return true iff an interrupt request has been made to the current thread.
-    */
-    bool interrupted() const;
-    /**
-       \brief Send a interrupt request to the current thread. Return
-       true iff the request has been successfully performed.
-    */
-    void request_interrupt();
-
-    void join();
-private:
-    atomic_bool m_flag;
-    lthread m_thread;
-};
-
-#if !defined(LEAN_MULTI_THREAD)
-inline void check_threadsafe() {
-    throw exception("Lean was compiled without support for multi-threading");
-}
-#else
-inline void check_threadsafe() {}
-#endif
 }

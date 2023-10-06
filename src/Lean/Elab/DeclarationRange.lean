@@ -10,16 +10,16 @@ import Lean.Data.Lsp.Utf16
 
 namespace Lean.Elab
 
-def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m DeclarationRange := do
+def getDeclarationRange [Monad m] [MonadFileMap m] (encoding : Lean.Lsp.PositionEncodingKind) (stx : Syntax) : m DeclarationRange := do
   let fileMap ← getFileMap
   let pos    := stx.getPos?.getD 0
   let endPos := stx.getTailPos?.getD pos |> fileMap.toPosition
   let pos    := pos |> fileMap.toPosition
   return {
-    pos          := pos
-    charUtf16    := fileMap.leanPosToLspPos pos |>.character
-    endPos       := endPos
-    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
+    pos        := pos
+    charLsp    := fileMap.leanPosToLspPos encoding pos |>.character
+    endPos     := endPos
+    endCharLsp := fileMap.leanPosToLspPos encoding endPos |>.character
   }
 
 /--
@@ -51,20 +51,20 @@ def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
   Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object decribing `declName`.
   This method is for the builtin declarations only.
   User-defined commands should use `Lean.addDeclarationRanges` to store this information for their commands. -/
-def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) : m Unit := do
+def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (encoding : Lean.Lsp.PositionEncodingKind) (declName : Name) (stx : Syntax) : m Unit := do
   if stx.getKind == ``Parser.Command.«example» then
     return ()
   else
     Lean.addDeclarationRanges declName {
-      range          := (← getDeclarationRange stx)
-      selectionRange := (← getDeclarationRange (getDeclarationSelectionRef stx))
+      range          := (← getDeclarationRange encoding stx)
+      selectionRange := (← getDeclarationRange encoding (getDeclarationSelectionRef stx))
     }
 
 /-- Auxiliary method for recording ranges for auxiliary declarations (e.g., fields, nested declarations, etc. -/
-def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do
+def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (encoding : Lean.Lsp.PositionEncodingKind) (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do
   Lean.addDeclarationRanges declName {
-    range          := (← getDeclarationRange stx)
-    selectionRange := (← getDeclarationRange header)
+    range          := (← getDeclarationRange encoding stx)
+    selectionRange := (← getDeclarationRange encoding header)
   }
 
 end Lean.Elab

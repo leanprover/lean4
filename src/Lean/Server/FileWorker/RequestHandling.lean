@@ -89,7 +89,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange enc text) <$> i.range?
+    locationLinksFromDecl enc rc.srcSearchPath doc.meta.uri n <| (·.toLspRange enc text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun

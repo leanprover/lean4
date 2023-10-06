@@ -7,6 +7,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
+import Lean.Data.Lsp.PositionEncodingKind
 import Lean.Data.Position
 
 

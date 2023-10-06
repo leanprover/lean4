@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 import Lean.MonadEnv
 import Lean.AuxRecursor
 import Lean.ToExpr
+import Lean.Data.Lsp.PositionEncodingKind
 
 namespace Lean
 
@@ -27,12 +28,17 @@ instance : ToExpr EncodedPosition where
   toExpr p := mkAppN (mkConst ``EncodedPosition.mk) #[toExpr p.utf8, toExpr p.utf16, toExpr p.utf32]
   toTypeExpr := mkConst ``EncodedPosition
 
+def EncodedPosition.get (pos : EncodedPosition) : Lsp.PositionEncodingKind → Nat
+  | .utf8 => pos.utf8
+  | .utf16 => pos.utf16
+  | .utf32 => pos.utf32
+
 /-- Store position information for declarations. -/
 structure DeclarationRange where
   pos        : Position
-  charLsp    : Nat -- EncodedPosition
+  charLsp    : EncodedPosition
   endPos     : Position
-  endCharLsp : Nat -- EncodedPosition
+  endCharLsp : EncodedPosition
   deriving Inhabited, DecidableEq, Repr
 
 instance : ToExpr DeclarationRange where

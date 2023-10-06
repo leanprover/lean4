@@ -25,7 +25,7 @@ def documentUriFromModule (srcSearchPath : SearchPath) (modName : Name) : IO (Op
   return some <| System.Uri.pathToUri modFname
 
 open Elab in
-def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : Name)
+def locationLinksFromDecl (encoding : PositionEncodingKind) (srcSearchPath : SearchPath) (uri : DocumentUri) (n : Name)
     (originRange? : Option Range) : MetaM (Array LocationLink) := do
   let mod? ← findModuleOf? n
   let modUri? ← match mod? with
@@ -35,8 +35,8 @@ def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : 
   let ranges? ← findDeclarationRanges? n
   if let (some ranges, some modUri) := (ranges?, modUri?) then
     let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-      { start := ⟨r.pos.line - 1, r.charLsp⟩
-        «end» := ⟨r.endPos.line - 1, r.endCharLsp⟩ }
+      { start := ⟨r.pos.line - 1, r.charLsp.get encoding⟩
+        «end» := ⟨r.endPos.line - 1, r.endCharLsp.get encoding⟩ }
     let ll : LocationLink := {
       originSelectionRange? := originRange?
       targetUri := modUri

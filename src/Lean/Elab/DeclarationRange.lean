@@ -69,7 +69,7 @@ def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Nam
     }
 
 /-- Auxiliary method for recording ranges for auxiliary declarations (e.g., fields, nested declarations, etc. -/
-def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do -- TODO
+def addAuxDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) (header : Syntax) : m Unit := do
   Lean.addDeclarationRanges declName {
     range          := (← getDeclarationRange stx)
     selectionRange := (← getDeclarationRange header)

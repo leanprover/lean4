@@ -130,13 +130,15 @@ def identOf : Info → Option (RefIdent × Bool)
   | Info.ofOptionInfo oi => some (RefIdent.const oi.declName, false)
   | _ => none
 
-def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do
+
+-- TODO DTC Try to refactor to make the LSP stuff here optional - many clients don't use it. Or perhaps include all three encodings?
+def findReferences (encoding : Lsp.PositionEncodingKind) (text : FileMap) (trees : Array InfoTree) : Array Reference := Id.run <| StateT.run' (s := #[]) do
   for tree in trees do
     tree.visitM' (postNode := fun ci info _ => do
       if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
           if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
-            modify (·.push { ident, range := range.toLspRange .utf16 text, stx := info.stx, ci, info, isBinder })) -- TODO
+            modify (·.push { ident, range := range.toLspRange encoding text, stx := info.stx, ci, info, isBinder })) -- TODO
   get
 
 /--
@@ -213,12 +215,12 @@ def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := fals
   let dedupedRefs := refsByIdAndRange.fold (init := #[]) fun refs _ ref => refs.push ref
   return dedupedRefs.qsort (·.range < ·.range)
 
-def findModuleRefs (text : FileMap) (trees : Array InfoTree) (localVars : Bool := true)
+def findModuleRefs (encoding : Lsp.PositionEncodingKind) (text : FileMap) (trees : Array InfoTree) (localVars : Bool := true)
     (allowSimultaneousBinderUse := false) : ModuleRefs := Id.run do
   let mut refs :=
     dedupReferences (allowSimultaneousBinderUse := allowSimultaneousBinderUse) <|
     combineFvars trees <|
-    findReferences text trees
+    findReferences encoding text trees
   if !localVars then
     refs := refs.filter fun
       | { ident := RefIdent.fvar _, .. } => false

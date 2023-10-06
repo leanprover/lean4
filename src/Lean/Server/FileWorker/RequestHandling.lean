@@ -27,7 +27,7 @@ def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let pos := text.lspPosToUtf8Pos p.position
+  let pos := text.lspPosToUtf8Pos (← encoding) p.position
   let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
@@ -55,7 +55,7 @@ def handleHover (p : HoverParams)
     range? := r.toLspRange text
   }
 
-  let hoverPos := text.lspPosToUtf8Pos p.position
+  let hoverPos := text.lspPosToUtf8Pos (← encoding) p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       -- try to find parser docstring from syntax tree
@@ -194,7 +194,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
     : RequestM (RequestTask (Array LocationLink)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
+  let hoverPos := text.lspPosToUtf8Pos (← encoding) p.position
 
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
@@ -206,7 +206,7 @@ open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
+  let hoverPos := text.lspPosToUtf8Pos (← encoding) p.position
   -- NOTE: use `>=` since the cursor can be *after* the input
   withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
@@ -252,7 +252,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
     : RequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let hoverPos := text.lspPosToUtf8Pos p.position
+  let hoverPos := text.lspPosToUtf8Pos (← encoding) p.position
   withWaitFindSnap doc (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       if let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := snap.infoTree.termGoalAt? hoverPos then
@@ -279,7 +279,7 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     : RequestM (RequestTask (Array DocumentHighlight)) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let pos := text.lspPosToUtf8Pos p.position
+  let pos := text.lspPosToUtf8Pos (← encoding) p.position
 
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
     | `(doElem|return%$i $e) => Id.run do
@@ -507,8 +507,8 @@ def handleSemanticTokensRange (p : SemanticTokensRangeParams)
     : RequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
   let text := doc.meta.text
-  let beginPos := text.lspPosToUtf8Pos p.range.start
-  let endPos := text.lspPosToUtf8Pos p.range.end
+  let beginPos := text.lspPosToUtf8Pos (← encoding) p.range.start
+  let endPos := text.lspPosToUtf8Pos (← encoding) p.range.end
   handleSemanticTokens beginPos endPos
 
 partial def handleFoldingRange (_ : FoldingRangeParams)

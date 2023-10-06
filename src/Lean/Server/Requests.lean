@@ -89,6 +89,10 @@ namespace RequestM
 open FileWorker
 open Snapshots
 
+def encoding [Monad m] [MonadReaderOf RequestContext m] : m Lsp.PositionEncodingKind := do
+  let rc ← readThe RequestContext
+  return rc.initParams.positionEncodingKind
+
 def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
   let rc ← readThe RequestContext
   return rc.doc
@@ -141,11 +145,12 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
 /-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
 If no such snapshot exists, the request fails with an error. -/
 def withWaitFindSnapAtPos
+    (encoding : Lsp.PositionEncodingKind)
     (lspPos : Lsp.Position)
     (f : Snapshots.Snapshot → RequestM α)
     : RequestM (RequestTask α) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
+  let pos := doc.meta.text.lspPosToUtf8Pos encoding lspPos
   withWaitFindSnap doc (fun s => s.endPos >= pos)
     (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
     (x := f)

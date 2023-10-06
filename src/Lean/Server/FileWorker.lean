@@ -153,6 +153,9 @@ structure WorkerState where
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
+def WorkerM.encoding : WorkerM Lsp.PositionEncodingKind := do
+  return (← read).initParams.positionEncodingKind
+
 /- Worker initialization sequence. -/
 section Initialization
   /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
@@ -326,13 +329,15 @@ end Updates
 /- Notifications are handled in the main thread. They may change global worker state
 such as the current file contents. -/
 section NotificationHandling
+  open WorkerM
+
   def handleDidChange (p : DidChangeTextDocumentParams) : WorkerM Unit := do
     let docId := p.textDocument
     let changes := p.contentChanges
     let oldDoc := (←get).doc
     let newVersion := docId.version?.getD 0
     if ¬ changes.isEmpty then
-      let newDocText := foldDocumentChanges changes oldDoc.meta.text
+      let newDocText := foldDocumentChanges changes (← encoding) oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do

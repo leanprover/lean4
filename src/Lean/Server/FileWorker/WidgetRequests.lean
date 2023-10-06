@@ -96,8 +96,9 @@ structure GetInteractiveDiagnosticsParams where
 open RequestM in
 def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
   let doc ← readDoc
+  let enc ← encoding
   let rangeEnd := params.lineRange?.map fun range =>
-    doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
+    doc.meta.text.lspPosToUtf8Pos enc ⟨range.«end», 0⟩
   let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
   pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>

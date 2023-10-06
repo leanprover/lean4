@@ -69,6 +69,11 @@ structure ClientCapabilities where
   general?      : Option GeneralClientCapabilities      := none
   deriving ToJson, FromJson
 
+def ClientCapabilities.positionEncodingKind (caps : ClientCapabilities) : PositionEncodingKind :=
+  match caps.general? with
+  | none => .utf16
+  | some general => general.positionEncodings.getD 0 .utf16
+
 -- TODO largely unimplemented
 structure ServerCapabilities where
   positionEncoding          : PositionEncodingKind           := .utf16

@@ -101,7 +101,7 @@ leading_parser try (declModifiers >> ident >> " :: ")
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
-    addAuxDeclarationRanges declName structStx[2] structStx[2]
+    addAuxDeclarationRanges declName structStx[2] structStx[2] -- TODO
     pure { ref := structStx, modifiers := {}, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
@@ -122,7 +122,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName := structDeclName ++ name
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
-      addAuxDeclarationRanges declName ctor[1] ctor[1]
+      addAuxDeclarationRanges declName ctor[1] ctor[1] -- TODO
       pure { ref := ctor, name, modifiers := ctorModifiers, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do

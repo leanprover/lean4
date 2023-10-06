@@ -136,7 +136,7 @@ def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :
       if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
           if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
-            modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
+            modify (·.push { ident, range := range.toLspRange .utf16 text, stx := info.stx, ci, info, isBinder })) -- TODO
   get
 
 /--

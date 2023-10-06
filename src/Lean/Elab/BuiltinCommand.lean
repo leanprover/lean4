@@ -16,10 +16,10 @@ namespace Lean.Elab.Command
 
 @[builtin_command_elab moduleDoc] def elabModuleDoc : CommandElab := fun stx => do
    match stx[1] with
-   | Syntax.atom _ val =>
-     let doc := val.extract 0 (val.endPos - ⟨2⟩)
-     let range ← Elab.getDeclarationRange stx
-     modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
+   | Syntax.atom _ _val => pure ()
+     --let doc := val.extract 0 (val.endPos - ⟨2⟩)
+     --let range ← Elab.getDeclarationRange stx
+     --modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
    | _ => throwErrorAt stx "unexpected module doc string{indentD stx[1]}"
 
 private def addScope (isNewNamespace : Bool) (isNoncomputable : Bool) (header : String) (newNamespace : Name) : CommandElabM Unit := do
@@ -430,10 +430,10 @@ opaque elabEval : CommandElab
   match stx with
   | `($doc:docComment add_decl_doc $id) =>
     let declName ← resolveGlobalConstNoOverloadWithInfo id
-    if let .none ← findDeclarationRangesCore? declName then
+    --if let .none ← findDeclarationRangesCore? declName then
       -- this is only relevant for declarations added without a declaration range
       -- in particular `Quot.mk` et al which are added by `init_quot`
-      addAuxDeclarationRanges declName stx id
+      --addAuxDeclarationRanges declName stx id
     addDocString declName (← getDocStringText doc)
   | _ => throwUnsupportedSyntax
 

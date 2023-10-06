@@ -35,8 +35,8 @@ def locationLinksFromDecl (srcSearchPath : SearchPath) (uri : DocumentUri) (n : 
   let ranges? ← findDeclarationRanges? n
   if let (some ranges, some modUri) := (ranges?, modUri?) then
     let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-      { start := ⟨r.pos.line - 1, r.charUtf16⟩
-        «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩ }
+      { start := ⟨r.pos.line - 1, r.charLsp⟩
+        «end» := ⟨r.endPos.line - 1, r.endCharLsp⟩ }
     let ll : LocationLink := {
       originSelectionRange? := originRange?
       targetUri := modUri

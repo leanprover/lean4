@@ -73,9 +73,7 @@ def InitializeParams.editDelay (params : InitializeParams) : Nat :=
 /-- Determine the client's preferred encoding for positions, falling back
 to UTF-16 per the LSP spec -/
 def InitializeParams.positionEncodingKind (params : InitializeParams) : PositionEncodingKind :=
-  match params.capabilities.general? with
-  | none => .utf16
-  | some general => general.positionEncodings.getD 0 .utf16
+  params.capabilities.positionEncodingKind
 
 instance : FromJson InitializeParams where
   fromJson? j := do

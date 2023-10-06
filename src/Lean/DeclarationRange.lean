@@ -30,9 +30,9 @@ instance : ToExpr EncodedPosition where
 /-- Store position information for declarations. -/
 structure DeclarationRange where
   pos        : Position
-  charLsp    : EncodedPosition
+  charLsp    : Nat -- EncodedPosition
   endPos     : Position
-  endCharLsp : EncodedPosition
+  endCharLsp : Nat -- EncodedPosition
   deriving Inhabited, DecidableEq, Repr
 
 instance : ToExpr DeclarationRange where

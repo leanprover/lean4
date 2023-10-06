@@ -133,7 +133,7 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
   }
 
 def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }] hOut
+  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos .utf16 pos, m.text.utf8PosToLspPos .utf16 m.text.source.endPos⟩, kind := kind }] hOut -- TODO
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut

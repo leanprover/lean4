@@ -416,7 +416,7 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
             none -- InsertReplaceEdit not supported by client
           else if let some ⟨start, stop⟩ := stx[1].getRange? then
             let stop := if trailingDot then stop + ' ' else stop
-            let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
+            let range := ⟨ctx.fileMap.utf8PosToLspPos caps.positionEncodingKind start, ctx.fileMap.utf8PosToLspPos caps.positionEncodingKind stop⟩
             some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
           else
             none

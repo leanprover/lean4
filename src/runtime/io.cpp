@@ -690,11 +690,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_app_path(obj_arg) {
 #if defined(LEAN_WINDOWS)
-    HMODULE hModule = GetModuleHandleW(NULL);
-    WCHAR path[MAX_PATH];
-    GetModuleFileNameW(hModule, path, MAX_PATH);
-    std::wstring pathwstr(path);
-    std::string pathstr(pathwstr.begin(), pathwstr.end());
+    HMODULE hModule = GetModuleHandle(NULL);
+    char path[MAX_PATH];
+    GetModuleFileName(hModule, path, MAX_PATH);
+    std::string pathstr(path);
     // Hack for making sure disk is lower case
     // TODO(Leo): more robust solution
     if (pathstr.size() >= 2 && pathstr[1] == ':') {

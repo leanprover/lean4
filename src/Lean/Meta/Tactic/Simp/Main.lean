@@ -66,7 +66,7 @@ private def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
   let e := src.updateForallE! r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }
-  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bootleneck
+  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=

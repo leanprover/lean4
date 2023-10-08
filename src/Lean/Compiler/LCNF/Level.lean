@@ -33,7 +33,7 @@ structure State where
   /-- Parameters that have been normalized. -/
   paramNames : Array Name := #[]
 
-/-- Monad for the universe leve normalizer -/
+/-- Monad for the universe level normalizer -/
 abbrev M := StateM State
 
 /--

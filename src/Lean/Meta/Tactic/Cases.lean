@@ -168,7 +168,7 @@ private def hasIndepIndices (ctx : Context) : MetaM Bool := do
     /- One of the indices is not a free variable. -/
     return false
   else if ctx.majorTypeIndices.size.any fun i => i.any fun j => ctx.majorTypeIndices[i]! == ctx.majorTypeIndices[j]! then
-    /- An index ocurrs more than once -/
+    /- An index occurs more than once -/
     return false
   else
     (← getLCtx).allM fun decl =>

@@ -114,7 +114,7 @@ protected def toString : JsonNumber → String
 protected def shiftl : JsonNumber → Nat → JsonNumber
   -- if s ≤ e, then 10 ^ (s - e) = 1, and hence the mantissa remains unchanged.
   -- otherwise, the expression pads the mantissa with zeroes
-  -- to accomodate for the remaining places to shift.
+  -- to accommodate for the remaining places to shift.
   | ⟨m, e⟩, s => ⟨m * (10 ^ (s - e) : Nat), e - s⟩
 
 -- shift a JsonNumber by a specified amount of places to the right

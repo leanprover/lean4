@@ -51,7 +51,7 @@ instance : BEq Origin := ⟨(·.key == ·.key)⟩
 instance : Hashable Origin := ⟨(hash ·.key)⟩
 
 /-
-Note: we want to use iota reduction when indexing instaces. Otherwise,
+Note: we want to use iota reduction when indexing instances. Otherwise,
 we cannot use simp theorems such as
 ```
 @[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :

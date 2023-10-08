@@ -139,7 +139,7 @@ where
     return numOccs
 
 /--
-Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error messsage.
+Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in the error message.
 -/
 @[inline] def withIncRecDepth (x : SimpM α) : SimpM α := do
   let curr ← MonadRecDepth.getRecDepth

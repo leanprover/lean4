@@ -48,7 +48,7 @@ def getDeclarationSelectionRef (stx : Syntax) : Syntax :=
 
 
 /--
-  Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object decribing `declName`.
+  Store the `range` and `selectionRange` for `declName` where `stx` is the whole syntax object describing `declName`.
   This method is for the builtin declarations only.
   User-defined commands should use `Lean.addDeclarationRanges` to store this information for their commands. -/
 def addDeclarationRanges [Monad m] [MonadEnv m] [MonadFileMap m] (declName : Name) (stx : Syntax) : m Unit := do

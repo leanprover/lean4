@@ -9,7 +9,7 @@ namespace Lean
 
 /--
   Return true if `e` does **not** contain `mvarId` directly or indirectly
-  This function considers assigments and delayed assignments. -/
+  This function considers assignments and delayed assignments. -/
 partial def occursCheck [Monad m] [MonadMCtx m] (mvarId : MVarId) (e : Expr) : m Bool := do
   if !e.hasExprMVar then
     return true

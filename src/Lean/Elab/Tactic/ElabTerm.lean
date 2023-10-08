@@ -261,7 +261,7 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
     More complex solution:
       - We do not disable "error to sorry"
       - We elaborate term and check whether errors were produced
-      - If there are other tactic braches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
+      - If there are other tactic branches and there are errors, we remove the errors from the log, and throw a new error to force the tactic to backtrack.
   -/
   withoutRecover <| elabTerm stx none mayPostpone
 

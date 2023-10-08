@@ -82,7 +82,7 @@ open Meta
     let type ← withSynthesize (mayPostpone := true) do
       let type ← elabType type
       if let some expectedType := expectedType? then
-        -- Recall that a similiar approach is used when elaborating applications
+        -- Recall that a similar approach is used when elaborating applications
         discard <| isDefEq expectedType type
       return type
     /-

@@ -133,7 +133,7 @@ def isNum : Name → Bool
   | _      => false
 
 /--
-Return `true` if `n` contains a string part `s` that satifies `f`.
+Return `true` if `n` contains a string part `s` that satisfies `f`.
 
 Examples:
 ```

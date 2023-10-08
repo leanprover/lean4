@@ -16,7 +16,7 @@ register_builtin_option synthInstance.checkSynthOrder : Bool := {
 }
 
 /-
-Note: we want to use iota reduction when indexing instaces. Otherwise,
+Note: we want to use iota reduction when indexing instances. Otherwise,
 we cannot elaborate examples such as
 ```
 inductive Ty where

@@ -191,7 +191,7 @@ def mvarId! : Level → LMVarId
   | mvar mvarId => mvarId
   | _           => panic! "metavariable expected"
 
-/-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
+/-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occurring
     in `l`, `l[A] != zero` -/
 def isNeverZero : Level → Bool
   | zero         => false

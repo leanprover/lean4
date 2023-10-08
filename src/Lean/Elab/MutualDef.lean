@@ -32,7 +32,7 @@ structure DefViewElabHeader where
   declName      : Name
   /-- Universe level parameter names explicitly provided by the user. -/
   levelNames    : List Name
-  /-- Syntax objects for the binders occurring befor `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
+  /-- Syntax objects for the binders occurring before `:`, we use them to populate the `InfoTree` when elaborating `valueStx`. -/
   binderIds     : Array Syntax
   /-- Number of parameters before `:`, it also includes auto-implicit parameters automatically added by Lean. -/
   numParams     : Nat

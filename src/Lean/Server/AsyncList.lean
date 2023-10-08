@@ -83,7 +83,7 @@ partial def waitUntil (p : α → Bool) : AsyncList ε α → Task (List α × O
 def waitAll : AsyncList ε α → Task (List α × Option ε) :=
   waitUntil (fun _ => false)
 
-/-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
+/-- Spawns a `Task` acting like `List.find?` but which will wait for tail evaluation
 when necessary to traverse the list. If the tail terminates before a matching element
 is found, the task throws the terminating value. -/
 partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (Option α))

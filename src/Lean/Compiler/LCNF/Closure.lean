@@ -24,7 +24,7 @@ structure Context where
   inScope : FVarId → Bool
   /--
   If `abstract x` returns `true`, we convert `x` into a closure parameter. Otherwise,
-  we collect the dependecies in the `let`/`fun`-declaration too, and include the declaration in the closure.
+  we collect the dependencies in the `let`/`fun`-declaration too, and include the declaration in the closure.
   Remark: the lambda lifting pass abstracts all `let`/`fun`-declarations.
   -/
   abstract : FVarId → Bool

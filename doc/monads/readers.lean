@@ -113,7 +113,7 @@ the monadic container type.
 to write `(readerFunc3 args).run env` and this is a bit ugly, so Lean provides an infix operator
 `|>` that eliminates those parentheses so you can write `readerFunc3 args |>.run env` and then you can
 chain multiple monadic actions like this `m1 args1 |>.run args2 |>.run args3` and this is the
-recommended style.  You will see this patten used heavily in Lean code.
+recommended style.  You will see this pattern used heavily in Lean code.
 
 The `let env ← read` expression in `readerFunc1` unwraps the environment from the `ReaderM` so we
 can use it. Each type of monad might provide one or more extra functions like this, functions that

@@ -202,19 +202,19 @@ can be either separated by newlines or `;`.
 syntax (name := paren) "(" withoutPosition(tacticSeq) ")" : tactic
 
 /--
-`with_reducible tacs` excutes `tacs` using the reducible transparency setting.
+`with_reducible tacs` executes `tacs` using the reducible transparency setting.
 In this setting only definitions tagged as `[reducible]` are unfolded.
 -/
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
 
 /--
-`with_reducible_and_instances tacs` excutes `tacs` using the `.instances` transparency setting.
+`with_reducible_and_instances tacs` executes `tacs` using the `.instances` transparency setting.
 In this setting only definitions tagged as `[reducible]` or type class instances are unfolded.
 -/
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 
 /--
-`with_unfolding_all tacs` excutes `tacs` using the `.all` transparency setting.
+`with_unfolding_all tacs` executes `tacs` using the `.all` transparency setting.
 In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
@@ -438,7 +438,7 @@ syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
-are simplified multiple times until no simplication is applicable.
+are simplified multiple times until no simplification is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
 syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
@@ -527,7 +527,7 @@ macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
-to the contstructor.
+to the constructor.
 -/
 syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
 /--

@@ -126,7 +126,7 @@ x
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
 
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsibility of the caller
    to decrement the RC.
    This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
 

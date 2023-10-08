@@ -47,7 +47,7 @@ protected def sub : Fin n → Fin n → Fin n
 /-!
 Remark: mod/div/modn/land/lor can be defined without using (% n), but
 we are trying to minimize the number of Nat theorems
-needed to boostrap Lean.
+needed to bootstrap Lean.
 -/
 
 protected def mod : Fin n → Fin n → Fin n

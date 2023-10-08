@@ -1091,7 +1091,7 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     /* This function is only called if we have created auxiliary inductive types when eliminating
        the nested inductives. */
     lean_assert(length(all_names) > ntypes);
-    /* Remark: we use the `main_name` to declarate the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
+    /* Remark: we use the `main_name` to declare the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
        This is a little bit asymmetrical if `d` is a mutual declaration, but it makes sure we have simple names. */
     buffer<name>   old_rec_names;
     name_map<name> rec_map;

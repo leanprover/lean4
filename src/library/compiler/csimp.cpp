@@ -825,7 +825,7 @@ class csimp_fn {
            For example, consider the following scenario. When starting a `float_cases_on` operation, we determine
            that the already processed entries `[_j_1._join, _x_1]` do not depend on the operation.
            Moreover, `_j_1._join` is a new join-point that depends on `_x_1`. Recall that entries are in reverse
-           dependecy order, and this is why `_j_1._join` occurs before `_x_1`.
+           dependency order, and this is why `_j_1._join` occurs before `_x_1`.
            Then, during the actual execution of the `float_cases_on` operation, we create a new joint point `_j_2._join` that depends on `_j_1._join`,
            and is consequently attached to `_x_1`, that is, `m_fvar2jps[_x_1]` contains `_j_2._join`.
            After executing this procedure, `entries` will contain `[_j_1._join, _j_2._join, _x_1]` which is incorrect
@@ -1798,7 +1798,7 @@ class csimp_fn {
             if (!is_app(r)) return r;
             fn = get_app_fn(r);
             /* If `r` is an application of the form `g ...` where
-               `g` is an interal name and `g` prefix of the main function, we unfold this
+               `g` is an internal name and `g` prefix of the main function, we unfold this
                application too. */
             if (!is_constant(fn) || !is_internal_name(const_name(fn)) ||
                 const_name(fn).get_prefix() != main)

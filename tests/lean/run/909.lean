@@ -16,7 +16,7 @@ instance (a b : Date) : Decidable (a <= b) :=
 -/
 
 /-
-This implemenation evaluates successfully:
+This implementation evaluates successfully:
 instance (a b : Date) : Decidable (a <= b) :=
   dite (a.val <= b.val) isTrue (fun nle => isFalse (fun hf => False.elim (nle hf)))
 -/

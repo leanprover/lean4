@@ -18,7 +18,7 @@ Dummy.val α
 
 /-
 In Lean4, we should use a different approach. We keep a metavariable context in the command elaborator.
-Before, a declaration `D` is sent to the kernel we resolve the metavariables occuring in `D`.
+Before, a declaration `D` is sent to the kernel we resolve the metavariables occurring in `D`.
 We must implement a MetavarContext GC to make sure the metavariable context does not keep increasing.
 That is, after a declaration is sent to the kernel, we visit all variables in the elaborator context and
 instantiate assigned metavariables. Then, we delete all assigned metavariables.

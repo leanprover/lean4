@@ -566,7 +566,7 @@ def prevn : Substring → Nat → String.Pos → String.Pos
 @[inline] def front (s : Substring) : Char :=
   s.get 0
 
-/-- Return the offset into `s` of the first occurence of `c` in `s`,
+/-- Return the offset into `s` of the first occurrence of `c` in `s`,
 or `s.bsize` if `c` doesn't occur. -/
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
   match s with

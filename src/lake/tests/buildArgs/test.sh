@@ -26,7 +26,7 @@ ${LAKE} build +Hello -R -KweakLeanArgs=-DwarningAsError=true | tee -a produced.o
 
 ${LAKE} build +Hello:o -R
 echo "# compile args" >> produced.out
-# Use `head -n1` to avoid extranous warnings on Windows with current Lean (8/1/23)
+# Use `head -n1` to avoid extraneous warnings on Windows with current Lean (8/1/23)
 ${LAKE} build +Hello:o -R -KleancArgs=-DBAR | head -n1 | tee -a produced.out
 
 ${LAKE} build +Hello:o -R
@@ -35,7 +35,7 @@ ${LAKE} build +Hello:o -R -KweakLeancArgs=-DBAR | tee -a produced.out
 
 ${LAKE} build +Hello:dynlib Hello:shared hello -R
 echo "# link args" >> produced.out
-# Use `head -n1` to avoid extranous warnings on MacOS with current Lean (6/8/23)
+# Use `head -n1` to avoid extraneous warnings on MacOS with current Lean (6/8/23)
 ${LAKE} build +Hello:dynlib -R -KlinkArgs=-Lbuild/lib | head -n1 | tee -a produced.out
 ${LAKE} build Hello:shared -R -KlinkArgs=-Lbuild/lib | head -n1 | tee -a produced.out
 ${LAKE} build hello -R -KlinkArgs=-Lbuild/lib | head -n1 | tee -a produced.out

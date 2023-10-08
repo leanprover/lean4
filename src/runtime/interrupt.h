@@ -24,7 +24,7 @@ public:
     scope_heartbeat(size_t curr);
 };
 
-/** \brief Threshold on the number of hearbeats. check_system will throw
+/** \brief Threshold on the number of heartbeats. check_system will throw
     an exception if a thread exceeds the limit. The default is unlimited.
     The limit is checked in the check_system API.
 
@@ -52,7 +52,7 @@ struct scoped_interrupt_flag : flet<atomic_bool *> {
 void check_interrupted();
 
 /**
-   \brief Check system resources: stack, memory, hearbeat, interrupt flag.
+   \brief Check system resources: stack, memory, heartbeat, interrupt flag.
 */
 void check_system(char const * component_name);
 

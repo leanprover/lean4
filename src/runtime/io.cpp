@@ -623,7 +623,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
 #elif defined(LEAN_WINDOWS)
-    // TOOD: sub-second precision on Windows
+    // TODO: sub-second precision on Windows
     cnstr_set(mdata, 0, timespec_to_obj(timespec { st.st_atime, 0 }));
     cnstr_set(mdata, 1, timespec_to_obj(timespec { st.st_mtime, 0 }));
 #else

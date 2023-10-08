@@ -54,7 +54,7 @@ v4.0.0
 
 * [`dsimp` / `simp` / `simp_all` now fail by default if they make no progress](https://github.com/leanprover/lean4/pull/2336).
 
-  This can be overriden with the `(config := { failIfUnchanged := false })` option.
+  This can be overridden with the `(config := { failIfUnchanged := false })` option.
   This change was made to ease manual use of `simp` (with complicated goals it can be hard to tell if it was effective)
   and to allow easier flow control in tactics internally using `simp`.
   See the [summary discussion](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/simp.20fails.20if.20no.20progress/near/380153295)
@@ -153,7 +153,7 @@ v4.0.0
 
 * New [code generator](https://github.com/leanprover/lean4/tree/master/src/Lean/Compiler/LCNF) project has started.
 
-* Remove description argument frome `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
+* Remove description argument from `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
 
 * [Additional concurrency primitives](https://github.com/leanprover/lean4/pull/1555).
 
@@ -673,7 +673,7 @@ v4.0.0-m5 (07 August 2022)
   `Foo : {Foo : Type u} → List Foo → Type`.
 
 
-* Fix syntax hightlighting for recursive declarations. Example
+* Fix syntax highlighting for recursive declarations. Example
   ```lean
   inductive List (α : Type u) where
     | nil : List α  -- `List` is not highlighted as a variable anymore
@@ -982,7 +982,7 @@ For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now no
 
 * Various improvements to go-to-definition & find-all-references accuracy.
 
-* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [whishlist](https://github.com/leanprover/lean4/issues/988)).
+* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [wishlist](https://github.com/leanprover/lean4/issues/988)).
 
 * Rename option `autoBoundImplicitLocal` => `autoImplicit`.
 

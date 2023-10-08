@@ -67,7 +67,7 @@ option(USE_GMP "USE_GMP" ON)
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
-set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
+set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
 
 if ("${LAZY_RC}" MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")

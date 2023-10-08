@@ -416,7 +416,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
   /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
      we increase it to `TransparencyMode.instances`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
      and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
-     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
+     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occurring in the target.
 
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
   let mut transparency ← getTransparency

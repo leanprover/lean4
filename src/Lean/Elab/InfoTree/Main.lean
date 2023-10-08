@@ -52,7 +52,7 @@ partial def InfoTree.findInfo? (p : Info → Bool) (t : InfoTree) : Option Info 
   | _ => none
 
 /-- Instantiate the holes on the given `tree` with the assignment table.
-(analoguous to instantiating the metavariables in an expression) -/
+(analogous to instantiating the metavariables in an expression) -/
 partial def InfoTree.substitute (tree : InfoTree) (assignment : PersistentHashMap MVarId InfoTree) : InfoTree :=
   match tree with
   | node i c => node i <| c.map (substitute · assignment)

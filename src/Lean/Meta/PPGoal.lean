@@ -52,7 +52,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
     let lctx           := mvarDecl.lctx
     let lctx           := lctx.sanitizeNames.run' { options := (← getOptions) }
     withLCtx lctx mvarDecl.localInstances do
-      -- The followint two `let rec`s are being used to control the generated code size.
+      -- The following two `let rec`s are being used to control the generated code size.
       -- Then should be remove after we rewrite the compiler in Lean
       let rec pushPending (ids : List Name) (type? : Option Expr) (fmt : Format) : MetaM Format := do
         if ids.isEmpty then

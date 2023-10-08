@@ -46,7 +46,7 @@ This can be set to
 - `implicit` --  `{x : α}`
 - `strict_implicit` -- `⦃x : α⦄`
 - `inst_implicit` -- `[x : α]`.
-- `aux_decl` -- Auxillary definitions are helper methods that
+- `aux_decl` -- Auxiliary definitions are helper methods that
   Lean generates. `aux_decl` is used for `_match`, `_fun_match`,
   `_let_match` and the self reference that appears in recursive pattern matching.
 
@@ -67,7 +67,7 @@ inductive BinderInfo where
   | default
   /-- Implicit binder annotation, e.g., `{x : α}` -/
   | implicit
-  /-- Strict implict binder annotation, e.g., `{{ x : α  }}` -/
+  /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
   /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
   | instImplicit
@@ -321,7 +321,7 @@ inductive Expr where
   /--
   The `fvar` constructor represent free variables. These /free/ variable
   occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
-  contructor and its binder exists in a local context only.
+  constructor and its binder exists in a local context only.
 
   Note that Lean uses the /locally nameless approach/. See [here](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
   for additional details.
@@ -1441,7 +1441,7 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
 
-/-- Return true iff `e` contains a free variable which statisfies `p`. -/
+/-- Return true iff `e` contains a free variable which satisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else
     match e with
@@ -1754,21 +1754,21 @@ def isLHSGoal? (e : Expr) : Option Expr :=
 
 /--
 Polymorphic operation for generating unique/fresh free variable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshFVarId [Monad m] [MonadNameGenerator m] : m FVarId :=
   return { name := (← mkFreshId) }
 
 /--
 Polymorphic operation for generating unique/fresh metavariable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
   return { name := (← mkFreshId) }
 
 /--
 Polymorphic operation for generating unique/fresh universe metavariable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshLMVarId [Monad m] [MonadNameGenerator m] : m LMVarId :=
   return { name := (← mkFreshId) }

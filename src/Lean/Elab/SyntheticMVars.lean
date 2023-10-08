@@ -274,7 +274,7 @@ private def throwStuckAtUniverseCnstr : TermElabM Unit := do
   ```
   Another benefit of using `withoutPostponingUniverseConstraints` is better error messages. Instead
   of getting a mysterious type mismatch constraint, we get a list of
-  universe contraints the system is stuck at.
+  universe constraints the system is stuck at.
 -/
 private def processPostponedUniverseContraints : TermElabM Unit := do
   unless (← processPostponed (mayPostpone := false) (exceptionOnFailure := true)) do
@@ -304,7 +304,7 @@ mutual
     `?m2` (for `by tac`). When `A` is resumed, it creates a new metavariable `?m3` for the nested `by ...` term in `A`.
     `?m3` is after `?m2` in the to-do list. Then, we execute `by tac` for synthesizing `?m2`, but its type depends on
     `?m3`. We have considered putting `?m3` at `?m2` place in the to-do list, but this is not super robust.
-    The ideal solution is to make sure a tactic "resolves" all pending metavariables nested in their local contex and target type
+    The ideal solution is to make sure a tactic "resolves" all pending metavariables nested in their local context and target type
     before starting tactic execution. The procedure would be a generalization of `runPendingTacticsAt`. We can try to combine
     it with `instantiateMVarDeclMVars` to make sure we do not perform two traversals.
     Regarding issue #1380, we addressed the issue by avoiding the elaboration postponement step. However, the same issue can happen
@@ -415,7 +415,7 @@ mutual
                Recall that we postponed `x` at `Prod.fst x` because its type it is not known.
                We the type of `x` may learn later its type and it may contain implicit and/or auto arguments.
                By disabling postponement, we are essentially giving up the opportunity of learning `x`s type
-               and assume it does not have implict and/or auto arguments. -/
+               and assume it does not have implicit and/or auto arguments. -/
             if ← withoutPostponing <| synthesizeSyntheticMVarsStep (postponeOnError := true) (runTactics := false) then
               loop ()
             else if ← synthesizeUsingDefault then

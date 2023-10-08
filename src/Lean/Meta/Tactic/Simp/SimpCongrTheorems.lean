@@ -13,7 +13,7 @@ namespace Lean.Meta
 /--
   Data for user-defined theorems marked with the `congr` attribute.
 
-  This type should be confused with `CongrTheorem` which reprents different kinds of automatically
+  This type should be confused with `CongrTheorem` which represents different kinds of automatically
   generated congruence theorems. The `simp` tactic also uses some of them.
 -/
 structure SimpCongrTheorem where

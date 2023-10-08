@@ -105,7 +105,7 @@ section FileWorker
     -- This should not be mutated outside of namespace FileWorker, as it is used as shared mutable state
     /-- The pending requests map contains all requests
     that have been received from the LSP client, but were not answered yet.
-    We need them for forwaring cancellation requests to the correct worker as well as cleanly aborting
+    We need them for forwarding cancellation requests to the correct worker as well as cleanly aborting
     requests on worker crashes. -/
     pendingRequestsRef : IO.Ref PendingRequestMap
 

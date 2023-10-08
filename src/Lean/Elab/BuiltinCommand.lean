@@ -158,7 +158,7 @@ private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id 
 /--
   Auxiliary method for processing binder annotation update commands: `variable (α)` and `variable {α}`.
   The argument `binder` is the binder of the `variable` command.
-  The method retuns an array containing the "residue", that is, variables that do not correspond to updates.
+  The method returns an array containing the "residue", that is, variables that do not correspond to updates.
   Recall that a `bracketedBinder` can be of the form `(x y)`.
   ```
   variable {α β : Type}

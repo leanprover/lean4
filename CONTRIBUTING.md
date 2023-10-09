@@ -1,7 +1,7 @@
 External Contribution Guidelines
 ============
 
-Thank you for your interest in contributing to Lean! There are many ways to contribute and we appreciate all of them.
+In the past, we accepted most pull requests. This practice produced hard to maintain code, performance problems, and bugs. In order to improve the quality and maintainability of our codebase, we've established the following guidelines for external contributions.
 
 Helpful links
 -------

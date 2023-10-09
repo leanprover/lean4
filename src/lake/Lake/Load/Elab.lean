@@ -72,6 +72,13 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
     return s.commandState.env
 
 /--
+`Lean.Environment.add` is now private, but exported as `lean_environment_add`.
+We call it here via `@[extern]` with a mock implementation.
+-/
+@[extern "lean_environment_add"]
+private def add (env : Environment) (_ : ConstantInfo) : Environment := env
+
+/--
 Import the OLean for the configuration file if `reconfigure` is not set
 and an up-to-date one exists (i.e., one newer than the configuration and the
 toolchain). Otherwise, elaborate the configuration and save it to the OLean.
@@ -99,7 +106,7 @@ def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
     let (mod, _) ← readModuleData olean
     let mut env ← importModulesUsingCache mod.imports leanOpts 1024
     -- Apply constants (does not go through the kernel, so order is irrelevant)
-    env := mod.constants.foldl (·.add) env
+    env := mod.constants.foldl add env
     -- Apply extension entries (`PersistentEnvExtension.addEntryFn` is pure and
     -- does not have access to the whole environment, so no dependency worries
     -- here either)

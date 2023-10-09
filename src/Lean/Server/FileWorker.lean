@@ -66,10 +66,19 @@ structure WorkerContext where
 /-! # Asynchronous snapshot elaboration -/
 
 section Elab
+  structure AsyncElabContext where
+    encoding : PositionEncodingKind
+
   structure AsyncElabState where
     snaps : Array Snapshot
 
-  abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
+  abbrev AsyncElabM := ReaderT AsyncElabContext <| StateT AsyncElabState <| EIO ElabTaskError
+
+  namespace AsyncElabM
+  def encoding : AsyncElabM PositionEncodingKind := do return (← read).encoding
+  end AsyncElabM
+
+  open AsyncElabM
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
@@ -98,8 +107,8 @@ section Elab
       -- went wrong during the incremental updates.
       publishIleanInfoFinal m ctx.hOut s.snaps
       return none
-    publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileNextCmd m.mkInputContext lastSnap ctx.clientHasWidgets
+    publishProgressAtPos m (← encoding) lastSnap.endPos ctx.hOut
+    let snap ← compileNextCmd m.mkInputContext (← encoding) lastSnap ctx.clientHasWidgets
     set { s with snaps := s.snaps.push snap }
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
@@ -127,7 +136,7 @@ section Elab
     if headerSnap.msgLog.hasErrors then
       -- Treat header processing errors as fatal so users aren't swamped with
       -- followup errors
-      publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
+      publishProgressAtPos m ctx.initParams.positionEncodingKind headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
       publishIleanInfoFinal m ctx.hOut #[headerSnap]
       return AsyncList.ofList [headerSnap]
     else
@@ -136,7 +145,7 @@ section Elab
       publishIleanInfoUpdate m ctx.hOut snaps
       return AsyncList.ofList snaps.toList ++ AsyncList.delayed (← EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
         IO.sleep startAfterMs
-        AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
+        AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk ⟨ctx.initParams.positionEncodingKind⟩) { snaps })
 end Elab
 
 -- Pending requests are tracked so they can be cancelled
@@ -192,7 +201,7 @@ section Initialization
     | 2 => pure []  -- no lakefile.lean
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (encoding : PositionEncodingKind) (opts : Options) (hasWidgets : Bool)
       : IO (Syntax × Task (Except Error (Snapshot × SearchPath))) := do
     -- parsing should not take long, do synchronously
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
@@ -243,7 +252,7 @@ section Initialization
         stx := headerStx
         mpState := headerParserState
         cmdState := cmdState
-        interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
+        interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic encoding m.text · hasWidgets)
         tacticCache := (← IO.mkRef {})
       }
       publishDiagnostics m headerSnap.diagnostics.toArray hOut
@@ -252,7 +261,7 @@ section Initialization
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let (headerStx, headerTask) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
+    let (headerStx, headerTask) ← compileHeader meta o initParams.positionEncodingKind opts (hasWidgets := clientHasWidgets)
     let cancelTk ← CancelToken.new
     let ctx :=
       { hIn  := i

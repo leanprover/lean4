@@ -18,16 +18,9 @@ def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m Declaratio
   let pos    := pos |> fileMap.toPosition
   return {
     pos        := pos
-    charLsp    := lspPos fileMap pos
+    charLsp    := fileMap.leanPosToLspPos pos
     endPos     := endPos
-    endCharLsp := lspPos fileMap endPos
-  }
-
-where
-  lspPos (f : FileMap) (pos : Position) : EncodedPosition := {
-    utf8 := f.leanPosToLspPos .utf8 pos |>.character
-    utf16 := f.leanPosToLspPos .utf16 pos |>.character
-    utf32 := f.leanPosToLspPos .utf32 pos |>.character
+    endCharLsp := fileMap.leanPosToLspPos endPos
   }
 
 /--

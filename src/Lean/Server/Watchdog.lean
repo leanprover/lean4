@@ -189,6 +189,7 @@ section ServerM
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
     let o := (←read).hOut
+    let enc ← encoding
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
@@ -233,7 +234,7 @@ section ServerM
           -- Worker crashed
           fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
             s!"Server process for {fw.doc.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
-          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
+          publishProgressAtPos fw.doc enc 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -242,7 +243,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishProgressAtPos m 0 (← read).hOut
+    publishProgressAtPos m (← encoding) 0 (← read).hOut
     let st ← read
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
@@ -341,24 +342,26 @@ section RequestHandling
 open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let enc ← encoding
   let mut definitions := #[]
   if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
-        if let some definition ← references.definitionOf? ident srcSearchPath then
+      for ident in references.findAt enc module p.position do
+        if let some definition ← references.definitionOf? enc ident srcSearchPath then
           definitions := definitions.push definition
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let enc ← encoding
   let mut result := #[]
   if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
-        let identRefs ← references.referringTo module ident srcSearchPath p.context.includeDeclaration
+      for ident in references.findAt enc module p.position do
+        let identRefs ← references.referringTo enc module ident srcSearchPath p.context.includeDeclaration
         result := result.append identRefs
   return result
 
@@ -367,7 +370,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     return #[]
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
+  let symbols ← references.definitionsMatching (← encoding) srcSearchPath (maxAmount? := none)
     fun name =>
       let name := privateToUserName? name |>.getD name
       if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then

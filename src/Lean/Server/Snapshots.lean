@@ -103,7 +103,7 @@ register_builtin_option server.stderrAsMessages : Bool := {
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
 -- over "store snapshots"/"don't store snapshots" would likely result in confusing
 -- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
+def compileNextCmd (inputCtx : Parser.InputContext) (encoding : Lsp.PositionEncodingKind) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
   let cmdState := snap.cmdState
   let scope := cmdState.scopes.head!
   let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
@@ -157,7 +157,7 @@ where
     let mut ret := snap.interactiveDiags
     for i in List.iota newMsgCount do
       let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
-      ret := ret.push (← Widget.msgToInteractiveDiagnostic inputCtx.fileMap newMsg hasWidgets)
+      ret := ret.push (← Widget.msgToInteractiveDiagnostic encoding inputCtx.fileMap newMsg hasWidgets)
     return ret
 
 end Lean.Server.Snapshots

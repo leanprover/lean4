@@ -53,7 +53,7 @@ def handleHover (p : HoverParams)
       kind := MarkupKind.markdown
       value := s
     }
-    range? := r.toLspRange enc text
+    range? := r.toLspRanges text |>.toLsp enc
   }
 
   let hoverPos := text.lspPosToUtf8Pos (← encoding) p.position
@@ -89,16 +89,16 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
   let text := doc.meta.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl enc rc.srcSearchPath doc.meta.uri n <| (·.toLspRange enc text) <$> i.range?
+    locationLinksFromDecl enc rc.srcSearchPath doc.meta.uri n <| (·.toLspRanges text |>.toLsp enc) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
         | Info.ofTermInfo { isBinder := true, expr := Expr.fvar id' .., .. } => id' == id
         | _ => false then
       if let some r := i'.range? then
-        let r := r.toLspRange enc text
+        let r := r.toLspRanges text |>.toLsp enc
         let ll : LocationLink := {
-          originSelectionRange? := (·.toLspRange enc text) <$> i.range?
+          originSelectionRange? := (·.toLspRanges text |>.toLsp enc) <$> i.range?
           targetUri := doc.meta.uri
           targetRange := r
           targetSelectionRange := r
@@ -111,7 +111,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
     if let some modUri ← documentUriFromModule rc.srcSearchPath name then
       let range := { start := ⟨0, 0⟩, «end» := ⟨0, 0⟩ : Range }
       let ll : LocationLink := {
-        originSelectionRange? := (·.toLspRange enc text) <$> i.stx[2].getRange? (canonicalOnly := true)
+        originSelectionRange? := (·.toLspRanges text |>.toLsp enc) <$> i.stx[2].getRange? (canonicalOnly := true)
         targetUri := modUri
         targetRange := range
         targetSelectionRange := range
@@ -264,7 +264,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
         let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
         let goal ← ci.runMetaM lctx' do
           Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
-        let range := if let some r := i.range? then r.toLspRange (← encoding) text else ⟨p.position, p.position⟩
+        let range := if let some r := i.range? then r.toLspRanges text |>.toLsp (← encoding) else ⟨p.position, p.position⟩
         return some { goal with range, term := ⟨ti⟩ }
       else
         return none
@@ -288,23 +288,23 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(doElem|return%$i $e) => Id.run do
       if let some range := i.getRange? then
         if range.contains pos then
-          return some { range := doRange?.getD (range.toLspRange enc text), kind? := DocumentHighlightKind.text }
+          return some { range := doRange?.getD (range.toLspRanges text |>.toLsp enc), kind? := DocumentHighlightKind.text }
       highlightReturn? doRange? e
-    | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange enc text) elems
+    | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRanges text |>.toLsp enc) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
   let highlightRefs? (snaps : Array Snapshot) : Option (Array DocumentHighlight) := Id.run do
     let trees := snaps.map (·.infoTree)
     let refs : Lsp.ModuleRefs := findModuleRefs text trees
     let mut ranges := #[]
-    for ident in ← refs.findAt p.position do
+    for ident in ← refs.findAt enc p.position do
       if let some info ← refs.find? ident then
         if let some definition := info.definition then
           ranges := ranges.push definition
         ranges := ranges.append info.usages
     if ranges.isEmpty then
       return none
-    some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+    some <| ranges.map ({ range := ·.toLsp enc, kind? := DocumentHighlightKind.text })
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
@@ -335,8 +335,8 @@ def NamespaceEntry.finish (encoding : Lsp.PositionEncodingKind) (text : FileMap)
       -- anonymous sections are represented by `«»` name components
       name := if name == `«» then "<section>" else name.toString
       kind := .namespace
-      range := range.toLspRange encoding text
-      selectionRange := selection.getRange?.getD range |>.toLspRange encoding text
+      range := range.toLspRanges text |>.toLsp encoding
+      selectionRange := selection.getRange?.getD range |>.toLspRanges text |>.toLsp encoding
       children? := syms
     }
 
@@ -395,8 +395,8 @@ where
             let sym := DocumentSymbol.mk {
               name := name
               kind := SymbolKind.method
-              range := stxRange.toLspRange enc text
-              selectionRange := selRange.toLspRange enc text
+              range := stxRange.toLspRanges text |>.toLsp enc
+              selectionRange := selRange.toLspRanges text |>.toLsp enc
             }
             return toDocumentSymbols enc text stxs (syms.push sym) stack
         toDocumentSymbols enc text stxs syms stack
@@ -493,10 +493,10 @@ where
     if let (some pos, some tailPos) := (stx.getPos?, stx.getTailPos?) then
       if beginPos <= pos && pos < endPos then
         let lspPos := (← get).lastLspPos
-        let lspPos' := text.utf8PosToLspPos enc pos
+        let lspPos' := text.utf8PosToLspPos pos |>.toLsp enc
         let deltaLine := lspPos'.line - lspPos.line
         let deltaStart := lspPos'.character - (if lspPos'.line == lspPos.line then lspPos.character else 0)
-        let length := (text.utf8PosToLspPos enc tailPos).character - lspPos'.character
+        let length := (text.utf8PosToLspPos tailPos |>.toLsp enc).character - lspPos'.character
         let tokenType := type.toNat
         let tokenModifiers := 0
         modify fun st => {
@@ -590,8 +590,8 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
     addRange (text : FileMap) kind start? stop? := do
       let enc ← encoding
       if let (some startP, some endP) := (start?, stop?) then
-        let startP := text.utf8PosToLspPos enc startP
-        let endP := text.utf8PosToLspPos enc endP
+        let startP := text.utf8PosToLspPos startP |>.toLsp enc
+        let endP := text.utf8PosToLspPos endP |>.toLsp enc
         if startP.line != endP.line then
           modify fun st => st.push
             { startLine := startP.line

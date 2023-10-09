@@ -7,38 +7,20 @@ import Lean.MonadEnv
 import Lean.AuxRecursor
 import Lean.ToExpr
 import Lean.Data.Lsp.PositionEncodingKind
+import Lean.Data.Lsp.Basic
 
 namespace Lean
 
-/-- A precomputed `character` field as in `Lean.Lsp.Position`. We
-need to store this because some LSP clients want us to report the range
-in terms of UTF-16, but converting a Unicode codepoint stored in
-`Lean.Position` to UTF-16 requires loading and mapping the target
-source file, which is IO-heavy.
-
-To avoid a tricky invariant that there's a globally consistent
-setting, all three possibilities are cached. -/
-structure EncodedPosition where
-  utf8 : Nat
-  utf16 : Nat
-  utf32 : Nat
-  deriving Inhabited, DecidableEq, Repr
-
-instance : ToExpr EncodedPosition where
-  toExpr p := mkAppN (mkConst ``EncodedPosition.mk) #[toExpr p.utf8, toExpr p.utf16, toExpr p.utf32]
-  toTypeExpr := mkConst ``EncodedPosition
-
-def EncodedPosition.get (pos : EncodedPosition) : Lsp.PositionEncodingKind → Nat
-  | .utf8 => pos.utf8
-  | .utf16 => pos.utf16
-  | .utf32 => pos.utf32
+instance : ToExpr Lsp.EncodedPosition where
+  toExpr p := mkAppN (mkConst ``Lsp.EncodedPosition.mk) #[toExpr p.line, toExpr p.characterUtf8, toExpr p.characterUtf16, toExpr p.characterUtf32]
+  toTypeExpr := mkConst ``Lsp.EncodedPosition
 
 /-- Store position information for declarations. -/
 structure DeclarationRange where
   pos        : Position
-  charLsp    : EncodedPosition
+  charLsp    : Lsp.EncodedPosition
   endPos     : Position
-  endCharLsp : EncodedPosition
+  endCharLsp : Lsp.EncodedPosition
   deriving Inhabited, DecidableEq, Repr
 
 instance : ToExpr DeclarationRange where

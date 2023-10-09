@@ -140,11 +140,16 @@ def lspPosToUtf8Pos (text : FileMap) (encoding : Lsp.PositionEncodingKind) (pos 
     | .utf8 => text.source.utf16PosToCodepointPosFrom pos.character colPos
   text.source.codepointPosToStringPosFrom colPos chr
 
-def leanPosToLspPos (encoding : Lean.Lsp.PositionEncodingKind) (text : FileMap) : Lean.Position → Lsp.Position
-  | ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToLspPosFrom encoding col (text.positions.get! $ ln - 1)⟩
+def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.EncodedPosition
+  | ⟨ln, col⟩ => {
+    line := ln-1
+    characterUtf8 := text.source.codepointPosToLspPosFrom .utf8 col (text.positions.get! $ ln - 1),
+    characterUtf16 := text.source.codepointPosToLspPosFrom .utf16 col (text.positions.get! $ ln - 1),
+    characterUtf32 := text.source.codepointPosToLspPosFrom .utf32 col (text.positions.get! $ ln - 1)
+  }
 
-def utf8PosToLspPos (encoding : Lean.Lsp.PositionEncodingKind) (text : FileMap) (pos : String.Pos) : Lsp.Position :=
-  text.leanPosToLspPos encoding (text.toPosition pos)
+def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.EncodedPosition :=
+  text.leanPosToLspPos (text.toPosition pos)
 
 end FileMap
 end Lean

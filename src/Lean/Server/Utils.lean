@@ -132,8 +132,15 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
     }
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos .utf16 pos, m.text.utf8PosToLspPos .utf16 m.text.source.endPos⟩, kind := kind }] hOut -- TODO
+def publishProgressAtPos (m : DocumentMeta) (encoding : Lsp.PositionEncodingKind) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
+  let info := {
+    range := {
+      start := m.text.utf8PosToLspPos pos |>.toLsp encoding,
+      «end» := m.text.utf8PosToLspPos m.text.source.endPos |>.toLsp encoding
+    },
+    kind := kind
+  }
+  publishProgress m #[info] hOut
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut
@@ -144,5 +151,5 @@ def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : 
 
 end Lean.Server
 
-def String.Range.toLspRange (encoding : Lean.Lsp.PositionEncodingKind) (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
-  ⟨text.utf8PosToLspPos encoding r.start, text.utf8PosToLspPos encoding r.stop⟩
+def String.Range.toLspRanges (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.EncodedRange :=
+  { start := text.utf8PosToLspPos r.start, «end» := text.utf8PosToLspPos r.stop }

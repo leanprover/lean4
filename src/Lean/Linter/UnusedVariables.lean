@@ -152,9 +152,7 @@ def unusedVariables : Linter where
       return
 
     -- collect references
-    -- The constant .utf16 is safe here because the computed LSP ranges constructed by findModuleRefs
-    -- are discarded.
-    let refs := findModuleRefs .utf16 fileMap infoTrees (allowSimultaneousBinderUse := true)
+    let refs := findModuleRefs fileMap infoTrees (allowSimultaneousBinderUse := true)
 
     let mut vars : HashMap FVarId RefInfo := .empty
     let mut constDecls : HashSet String.Range := .empty

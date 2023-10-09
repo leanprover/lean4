@@ -35,8 +35,8 @@ def locationLinksFromDecl (encoding : PositionEncodingKind) (srcSearchPath : Sea
   let ranges? ← findDeclarationRanges? n
   if let (some ranges, some modUri) := (ranges?, modUri?) then
     let declRangeToLspRange (r : DeclarationRange) : Lsp.Range :=
-      { start := ⟨r.pos.line - 1, r.charLsp.get encoding⟩
-        «end» := ⟨r.endPos.line - 1, r.endCharLsp.get encoding⟩ }
+      { start := ⟨r.pos.line - 1, r.charLsp.toLsp encoding |>.character⟩
+        «end» := ⟨r.endPos.line - 1, r.endCharLsp.toLsp encoding |>.character⟩ }
     let ll : LocationLink := {
       originSelectionRange? := originRange?
       targetUri := modUri

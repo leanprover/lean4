@@ -871,8 +871,8 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         | some v => cache useCache e v
         | none   =>
           match (← unfoldDefinition? e') with
-          | some e => whnfImp e
-          | none   => cache useCache e e'
+          | some e'' => cache useCache e (← whnfImp e'')
+          | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

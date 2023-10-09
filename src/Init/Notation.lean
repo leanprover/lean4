@@ -471,7 +471,7 @@ which uses let bindings as intermediates as in
 Note that this changes the order of evaluation, although it should not be observable
 unless you use side effecting operations like `dbg_trace`.
 -/
-syntax "[" withoutPosition(term,*) "]"  : term
+syntax "[" withoutPosition(term,*,?) "]"  : term
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
@@ -479,20 +479,26 @@ The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
 It uses binary partitioning to construct a tree of intermediate let bindings as in
 `let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
 -/
-syntax "%[" withoutPosition(term,* " | " term) "]" : term
+syntax "%[" withoutPosition(term,*,? " | " term) "]" : term
 
 namespace Lean
 
 macro_rules
   | `([ $elems,* ]) => do
     -- NOTE: we do not have `TSepArray.getElems` yet at this point
+    let rec isEven (i: Nat) :=
+      match i with
+      | 0 => true
+      | 1 => false
+      | i + 2 => isEven i
     let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
       | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
-    if elems.elemsAndSeps.size < 64 then
-      expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
+    let size := elems.elemsAndSeps.size
+    if size < 64 then
+      expandListLit size (isEven size) (← ``(List.nil))
     else
       `(%[ $elems,* | List.nil ])
 

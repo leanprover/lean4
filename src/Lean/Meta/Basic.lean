@@ -216,7 +216,11 @@ structure Cache where
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEq          : DefEqCache := {}
+  defEq          : DefEqCache := {} -- transient cache for terms containing mvars and nonstardard configuration options, it is frequently reset.
+  defEqReducible : DefEqCache := {} -- permanent cache for terms not containing mvars and `TransparencyMode.reducible`
+  defEqInstances : DefEqCache := {} -- permanent cache for terms not containing mvars and `TransparencyMode.instances`
+  defEqDefault   : DefEqCache := {} -- permanent cache for terms not containing mvars and `TransparencyMode.default`
+  defEqAll       : DefEqCache := {} -- permanent cache for terms not containing mvars and `TransparencyMode.all`
   deriving Inhabited
 
 /--
@@ -363,10 +367,10 @@ variable [MonadControlT MetaM n] [Monad n]
   modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6, c7, c8, c9⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6, c7, c8, c9⟩
 
-@[inline] def modifyDefEqCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeq⟩ => ⟨c1, c2, c3, c4, c5, f defeq⟩
+@[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeq, c6, c7, c8, c9⟩ => ⟨c1, c2, c3, c4, c5, f defeq, c6, c7, c8, c9⟩
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -1601,7 +1605,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     See issue #1102 for an example that triggers an exponential blowup if we don't use this more
     aggressive form of caching.
   -/
-  modifyDefEqCache fun _ => {}
+  modifyDefEqTransientCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then

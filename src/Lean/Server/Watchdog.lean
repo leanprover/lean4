@@ -588,7 +588,7 @@ section MainLoop
         mainLoop clientTask
 end MainLoop
 
-def mkLeanServerCapabilities : ServerCapabilities := {
+def mkLeanServerCapabilities (encoding : PositionEncodingKind) : ServerCapabilities := {
   textDocumentSync? := some {
     openClose         := true
     change            := TextDocumentSyncKind.incremental
@@ -621,6 +621,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     resolveProvider? := true,
     codeActionKinds? := some #["quickfix", "refactor"]
   }
+  positionEncoding := encoding
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do
@@ -672,7 +673,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   o.writeLspResponse {
     id     := initRequest.id
     result := {
-      capabilities := mkLeanServerCapabilities
+      capabilities := mkLeanServerCapabilities initRequest.param.positionEncodingKind
       serverInfo?  := some {
         name     := "Lean 4 Server"
         version? := "0.1.2"

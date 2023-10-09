@@ -24,7 +24,7 @@ end Char
 namespace String
 
 private def csize32 (_ : Char) : Nat :=
-  4
+  1
 
 private def csize16 (c : Char) : Nat :=
   c.utf16Size.toNat
@@ -102,7 +102,7 @@ private partial def utf8PosToCodepointPosFromAux (s : String) : Nat → Pos → 
 /-- Computes the position of the Unicode codepoint at UTF-8 offset
 `utf8pos` in the substring of `s` starting at UTF-8 offset `off`. -/
 def utf8PosToCodepointPosFrom (s : String) (utf8pos : Nat) (off : Pos) : Nat :=
-  utf16PosToCodepointPosFromAux s utf8pos off 0
+  utf8PosToCodepointPosFromAux s utf8pos off 0
 
 
 def utf32PosToCodepointPos (s : String) (pos : Nat) : Nat :=
@@ -135,9 +135,9 @@ def lspPosToUtf8Pos (text : FileMap) (encoding : Lsp.PositionEncodingKind) (pos 
     else
       text.positions.back
   let chr := match encoding with
-    | .utf32 => text.source.utf16PosToCodepointPosFrom pos.character colPos
+    | .utf32 => text.source.utf32PosToCodepointPosFrom pos.character colPos
     | .utf16 => text.source.utf16PosToCodepointPosFrom pos.character colPos
-    | .utf8 => text.source.utf16PosToCodepointPosFrom pos.character colPos
+    | .utf8 => text.source.utf8PosToCodepointPosFrom pos.character colPos
   text.source.codepointPosToStringPosFrom colPos chr
 
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.EncodedPosition

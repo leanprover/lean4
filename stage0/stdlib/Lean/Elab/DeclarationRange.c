@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Lean_addDeclarationRanges___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRanges(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_lspPos(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_getTailPos_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange(lean_object*);
@@ -33,11 +32,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRanges___rarg___lambda__2(lea
 uint8_t l_Lean_Syntax_isIdent(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addAuxDeclarationRanges___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addDeclarationRanges___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_leanPosToLspPos(uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__2;
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_lspPos___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_addAuxDeclarationRanges(lean_object*);
 static lean_object* l_Lean_Elab_addDeclarationRanges___rarg___closed__1;
@@ -46,43 +44,6 @@ static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__3;
 static lean_object* l_Lean_Elab_getDeclarationSelectionRef___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_lspPos(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_3 = 0;
-lean_inc(x_2);
-x_4 = l_Lean_FileMap_leanPosToLspPos(x_3, x_1, x_2);
-x_5 = lean_ctor_get(x_4, 1);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = 1;
-lean_inc(x_2);
-x_7 = l_Lean_FileMap_leanPosToLspPos(x_6, x_1, x_2);
-x_8 = lean_ctor_get(x_7, 1);
-lean_inc(x_8);
-lean_dec(x_7);
-x_9 = 2;
-x_10 = l_Lean_FileMap_leanPosToLspPos(x_9, x_1, x_2);
-x_11 = lean_ctor_get(x_10, 1);
-lean_inc(x_11);
-lean_dec(x_10);
-x_12 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_12, 0, x_5);
-lean_ctor_set(x_12, 1, x_8);
-lean_ctor_set(x_12, 2, x_11);
-return x_12;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange_lspPos___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Elab_getDeclarationRange_lspPos(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Elab_getDeclarationRange___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -102,7 +63,7 @@ lean_dec(x_7);
 x_9 = lean_unsigned_to_nat(0u);
 x_10 = l_Lean_FileMap_toPosition(x_3, x_9);
 lean_inc(x_10);
-x_11 = l_Lean_Elab_getDeclarationRange_lspPos(x_3, x_10);
+x_11 = l_Lean_FileMap_leanPosToLspPos(x_3, x_10);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_12; lean_object* x_13; 
@@ -125,7 +86,7 @@ lean_dec(x_6);
 x_15 = l_Lean_FileMap_toPosition(x_3, x_14);
 lean_dec(x_14);
 lean_inc(x_15);
-x_16 = l_Lean_Elab_getDeclarationRange_lspPos(x_3, x_15);
+x_16 = l_Lean_FileMap_leanPosToLspPos(x_3, x_15);
 x_17 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_17, 0, x_10);
 lean_ctor_set(x_17, 1, x_11);
@@ -150,7 +111,7 @@ lean_dec(x_5);
 x_22 = l_Lean_FileMap_toPosition(x_3, x_21);
 lean_dec(x_21);
 lean_inc(x_22);
-x_23 = l_Lean_Elab_getDeclarationRange_lspPos(x_3, x_22);
+x_23 = l_Lean_FileMap_leanPosToLspPos(x_3, x_22);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_24; lean_object* x_25; 
@@ -173,7 +134,7 @@ lean_dec(x_6);
 x_27 = l_Lean_FileMap_toPosition(x_3, x_26);
 lean_dec(x_26);
 lean_inc(x_27);
-x_28 = l_Lean_Elab_getDeclarationRange_lspPos(x_3, x_27);
+x_28 = l_Lean_FileMap_leanPosToLspPos(x_3, x_27);
 x_29 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_29, 0, x_22);
 lean_ctor_set(x_29, 1, x_23);

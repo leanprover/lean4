@@ -174,7 +174,6 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_reprStructFieldKind____x40_Lean_Elab_Structure___hyg_345____closed__11;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidFieldModifier(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_getDeclarationRange_lspPos(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Command_StructFieldInfo_isFromParent(lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
@@ -672,6 +671,7 @@ static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_elabStr
 static lean_object* l___private_Lean_Elab_Structure_0__Lean_Elab_Command_copyNewFieldsFrom_copyFields_copy___rarg___closed__4;
 static lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__4___lambda__2___closed__3;
 lean_object* l_Lean_Elab_Term_addTermInfo_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_levelMVarToParam___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabStructure___lambda__2___boxed(lean_object**);
 static lean_object* l_Lean_Elab_elabAttr___at___private_Lean_Elab_Structure_0__Lean_Elab_Command_expandCtor___spec__4___lambda__1___closed__1;
@@ -4556,7 +4556,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15;
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Lean_FileMap_toPosition(x_9, x_13);
 lean_inc(x_14);
-x_15 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_14);
+x_15 = l_Lean_FileMap_leanPosToLspPos(x_9, x_14);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -4581,7 +4581,7 @@ lean_dec(x_12);
 x_19 = l_Lean_FileMap_toPosition(x_9, x_18);
 lean_dec(x_18);
 lean_inc(x_19);
-x_20 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_19);
+x_20 = l_Lean_FileMap_leanPosToLspPos(x_9, x_19);
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
 lean_ctor_set(x_21, 1, x_15);
@@ -4602,7 +4602,7 @@ lean_dec(x_11);
 x_24 = l_Lean_FileMap_toPosition(x_9, x_23);
 lean_dec(x_23);
 lean_inc(x_24);
-x_25 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_24);
+x_25 = l_Lean_FileMap_leanPosToLspPos(x_9, x_24);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -4627,7 +4627,7 @@ lean_dec(x_12);
 x_29 = l_Lean_FileMap_toPosition(x_9, x_28);
 lean_dec(x_28);
 lean_inc(x_29);
-x_30 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_29);
+x_30 = l_Lean_FileMap_leanPosToLspPos(x_9, x_29);
 x_31 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_31, 0, x_24);
 lean_ctor_set(x_31, 1, x_25);

@@ -1,0 +1,165 @@
+Requested #[], got "utf-16", wanted "utf-16" (ok)
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 17}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 13}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 15}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 5}}
+[{"range":
+  {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 29}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 31}}
+[]
+Requested #["utf-8"], got "utf-8", wanted "utf-8" (ok)
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 17}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 13}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 15}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 5}}
+[{"range":
+  {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 29}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 31}}
+[]
+Requested #["utf-16"], got "utf-16", wanted "utf-16" (ok)
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 17}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 13}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 15}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 5}}
+[{"range":
+  {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 29}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 24}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 31}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 31}}
+[]
+Requested #["utf-32"], got "utf-32", wanted "utf-32" (ok)
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 14}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 12}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 13}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 21}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 5}}
+[{"range":
+  {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 20}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 21}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 21}}
+[]
+Requested #["utf-32", "utf-16"], got "utf-32", wanted "utf-32" (ok)
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 14}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 3, "character": 12}}
+{"items": [{"label": "𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟𝓟", "kind": 21, "detail": "Nat"}],
+ "isIncomplete": true}
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 13}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 21}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 5}}
+[{"range":
+  {"start": {"line": 7, "character": 0}, "end": {"line": 7, "character": 7}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 20}}
+[{"range":
+  {"start": {"line": 0, "character": 4}, "end": {"line": 0, "character": 14}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 7, "character": 11}, "end": {"line": 7, "character": 21}},
+  "kind": 1}]
+{"textDocument": {"uri": "file://fancyUnicode.lean"},
+ "position": {"line": 7, "character": 21}}
+[]

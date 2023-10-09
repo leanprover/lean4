@@ -183,7 +183,6 @@ static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_Term_elabMutualDef_p
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_MutualClosure_ClosureState_newLocalDecls___default;
 static lean_object* l_Lean_Elab_addDeclarationRanges___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_elabHeaders___spec__3___closed__2;
 lean_object* l_Lean_throwError___at_Lean_Elab_Term_throwErrorIfErrors___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_getDeclarationRange_lspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_typeHasRecFun___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkClosureForAux___closed__5;
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -667,6 +666,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_clean
 static lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_expandWhereStructInst___spec__3___closed__4;
 static lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkFreeVarMap___spec__5___rarg___closed__1;
 static lean_object* l_Lean_Elab_elabAttr___at_Lean_Elab_Command_elabMutualDef___spec__4___lambda__2___closed__2;
+lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_elabMutualDef___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConst___at_Lean_Elab_Term_elabMutualDef_processDeriving___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at___private_Lean_Elab_MutualDef_0__Lean_Elab_Term_MutualClosure_mkInitialUsedFVarsMap___spec__2(lean_object*);
@@ -3700,7 +3700,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15;
 x_13 = lean_unsigned_to_nat(0u);
 x_14 = l_Lean_FileMap_toPosition(x_9, x_13);
 lean_inc(x_14);
-x_15 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_14);
+x_15 = l_Lean_FileMap_leanPosToLspPos(x_9, x_14);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_16; lean_object* x_17; 
@@ -3725,7 +3725,7 @@ lean_dec(x_12);
 x_19 = l_Lean_FileMap_toPosition(x_9, x_18);
 lean_dec(x_18);
 lean_inc(x_19);
-x_20 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_19);
+x_20 = l_Lean_FileMap_leanPosToLspPos(x_9, x_19);
 x_21 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_21, 0, x_14);
 lean_ctor_set(x_21, 1, x_15);
@@ -3746,7 +3746,7 @@ lean_dec(x_11);
 x_24 = l_Lean_FileMap_toPosition(x_9, x_23);
 lean_dec(x_23);
 lean_inc(x_24);
-x_25 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_24);
+x_25 = l_Lean_FileMap_leanPosToLspPos(x_9, x_24);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
@@ -3771,7 +3771,7 @@ lean_dec(x_12);
 x_29 = l_Lean_FileMap_toPosition(x_9, x_28);
 lean_dec(x_28);
 lean_inc(x_29);
-x_30 = l_Lean_Elab_getDeclarationRange_lspPos(x_9, x_29);
+x_30 = l_Lean_FileMap_leanPosToLspPos(x_9, x_29);
 x_31 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_31, 0, x_24);
 lean_ctor_set(x_31, 1, x_25);

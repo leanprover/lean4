@@ -14,6 +14,7 @@ namespace Lean.Lsp
 clients can advertise encoding support -/
 inductive PositionEncodingKind where
   | utf8 | utf16 | utf32
+deriving BEq, Repr
 
 instance : ToJson PositionEncodingKind where
   toJson

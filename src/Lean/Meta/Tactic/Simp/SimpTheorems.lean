@@ -44,7 +44,7 @@ inductive Origin where
 def Origin.key : Origin → Name
   | .decl declName _ => declName
   | .fvar fvarId => fvarId.name
-  | .stx id _  => id
+  | .stx id _ => id
   | .other name => name
 
 instance : BEq Origin := ⟨(·.key == ·.key)⟩

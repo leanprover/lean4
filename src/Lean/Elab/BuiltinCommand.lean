@@ -350,7 +350,8 @@ mentions a variable, Lean will add it as an argument of the definition. This pro
 infer typeclass parameters.
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
-can be explicit, implicit, or instance implicit (in which case they can be anonymous).
+can be explicit, implicit, or instance implicit (in which case they can be anonymous). This can be
+changed, for instance one can turn explicit variable `x` into an implicit one with `variable {x}`.
 
 ## Examples
 
@@ -367,6 +368,14 @@ section
 
   #check isEqual
   -- isEqual.{u} {α : Type u} (a : α) [instBEq : BEq α] (b : α) : Bool
+
+  variable
+    {a} -- `a` is implicit now
+
+  def eqComm {b : α} := a == b ↔ b == a
+
+  #check eqComm
+  -- eqComm.{u} {α : Type u} {a : α} [instBEq : BEq α] {b : α} : Prop
 end
 ```
 -/

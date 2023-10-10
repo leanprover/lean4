@@ -186,10 +186,10 @@ def SimpTheorems.registerDeclToUnfoldThms (d : SimpTheorems) (declName : Name) (
 
 partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   let d := { d with erased := d.erased.insert thmId, lemmaNames := d.lemmaNames.erase thmId }
-  if let .decl declName false := thmId then
+  if let .decl declName := thmId then
     let d := { d with toUnfold := d.toUnfold.erase declName }
     if let some thms := d.toUnfoldThms.find? declName then
-      thms.foldl (init := d) (eraseCore · <| .decl · false)
+      thms.foldl (init := d) (eraseCore · <| .decl ·)
     else
       d
   else
@@ -198,7 +198,7 @@ partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpThe
 def SimpTheorems.erase [Monad m] [MonadError m] (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
   unless d.isLemma thmId ||
     match thmId with
-    | .decl declName false => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
+    | .decl declName => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
     | _ => false
   do
     throwError "'{thmId.key}' does not have [simp] attribute"
@@ -321,7 +321,7 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
         r := r.push <| (← mkSimpTheoremCore (.decl declName inv) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
       return r
     else
-      return #[← mkSimpTheoremCore (.decl declName false) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
+      return #[← mkSimpTheoremCore (.decl declName) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -367,7 +367,7 @@ def mkSimpAttr (attrName : Name) (attrDescr : String) (ext : SimpExtension)
       discard <| go.run {} {}
     erase := fun declName => do
       let s := ext.getState (← getEnv)
-      let s ← s.erase (.decl declName false)
+      let s ← s.erase (.decl declName)
       modifyEnv fun env => ext.modifyState env fun _ => s
   }
 

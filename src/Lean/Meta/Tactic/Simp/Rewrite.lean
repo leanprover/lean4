@@ -224,7 +224,7 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
 def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
   for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq false, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
     | some r => return some (Simp.Step.done r)
   return none

@@ -183,8 +183,8 @@ end ReExport
 * `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
 * `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
   `Some.Namespace.Ident.def2` in scope.
-* `open Namespace renaming def1 → def1', def2 → def2'` brings `def1` (`def2`) in scope under the
-  name `def1'` (`def2'`).
+* `open Namespace renaming def1 → def1', def2 → def2'` brings `def1` and `def2` in scope under the
+  name `def1'` and `def2'` respectively.
 * `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
 * `open scoped Namespace1 Namespace2` opens scoped notations, instances, and attributes from
   `Namespace1` and `Namespace2`, does **not** bring anything else in scope.

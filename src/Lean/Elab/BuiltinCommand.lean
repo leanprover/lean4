@@ -123,8 +123,14 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 ## Examples
 
 ```lean
-universe u
-universe u' v' w'
+universe u v w
+
+structure Pair (α : Type u) (β : Type v) : Type (max u v) where
+  a : α
+  b : β
+
+#check Pair.{v, w}
+-- Pair : Type v → Type w → Type (max v w)
 ```
 -/
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
@@ -146,16 +152,16 @@ namespace Ident.Path
   def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
 end Ident.Path
 
-namespace re_export
+namespace ReExport
   export Ident.Path (I K)
   -- `I` and `K` are now in scope
   #check I
   #check K
-end re_export
+end ReExport
 
--- `I` and `K` are visibile in `re_export`
-#check re_export.I
-#check re_export.K
+-- `I` and `K` are visible in `ReExport`
+#check ReExport.I
+#check ReExport.K
 ```
 -/
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
@@ -177,6 +183,12 @@ end re_export
 * `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
 * `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
   `Some.Namespace.Ident.def2` in scope.
+* `open Namespace renaming def1 → def1', def2 → def2'` brings `def1` (`def2`) in scope under the
+  name `def1'` (`def2'`).
+* `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
+* `open scoped Namespace1 Namespace2` opens scoped notations, instances, and attributes from
+  `Namespace1` and `Namespace2`, does **not** bring anything else in scope.
+
 
 ## Examples
 
@@ -199,6 +211,50 @@ section
   open Ident.Path (S K)
 
   theorem SKxy_eq_y : S K x y = y := rfl
+
+  -- `I` is not in scope, we have to use its full path
+  theorem SKxy_eq_Iy : S K x y = Ident.Path.I y := rfl
+end
+
+section
+  open Ident.Path
+    renaming
+      I → identity,
+      K → konstant
+
+  #check identity
+  #check konstant
+end
+
+section
+  open Ident.Path
+    hiding S
+
+  #check I
+  #check K
+end
+
+section
+  namespace Demo
+    inductive MyType
+    | val
+
+    namespace N1
+      scoped infix:68 " ≋ " => BEq.beq
+
+      scoped instance : BEq MyType where
+        beq _ _ := true
+
+      def Alias := MyType
+    end N1
+  end Demo
+
+  -- bring `≋` and the instance in scope, but not `Alias`
+  open scoped Demo.N1
+
+  #check Demo.MyType.val == Demo.MyType.val
+  #check Demo.MyType.val ≋ Demo.MyType.val
+  -- #check Alias -- unknown identifier 'Alias'
 end
 ```
 -/
@@ -293,15 +349,18 @@ Introduces variables that can be used in definitions within the same scope. When
 mentions a variable, Lean will add it as an argument of the definition. This process is also able to
 infer typeclass parameters.
 
+Variable declarations have the same flexibility as regular function paramaters. In particular they
+can be explicit, implicit, or instance implicit (in which case they can be anonymous).
+
 ## Examples
 
 ```lean
 section
   variable
-    {α : Type u}
-    (a : α)
-    [instBEq : BEq α]
-    [Hashable α]
+    {α : Type u}      -- implicit
+    (a : α)           -- explicit
+    [instBEq : BEq α] -- instance implicit, named
+    [Hashable α]      -- instance implicit, anonymous
 
   def isEqual (b : α) : Bool :=
     a == b

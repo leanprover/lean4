@@ -417,8 +417,8 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
           else if let some ⟨start, stop⟩ := stx[1].getRange? then
             let stop := if trailingDot then stop + ' ' else stop
             let range := {
-              start := ctx.fileMap.utf8PosToLspPos start |>.toLsp caps.positionEncodingKind,
-              «end» := ctx.fileMap.utf8PosToLspPos stop |>.toLsp caps.positionEncodingKind
+              start := ctx.fileMap.utf8PosToEncodedLspPos caps.positionEncodingKind start,
+              «end» := ctx.fileMap.utf8PosToEncodedLspPos caps.positionEncodingKind stop
             }
             some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
           else

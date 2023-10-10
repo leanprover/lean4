@@ -135,8 +135,8 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
 def publishProgressAtPos (m : DocumentMeta) (encoding : Lsp.PositionEncodingKind) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
   let info := {
     range := {
-      start := m.text.utf8PosToLspPos pos |>.toLsp encoding,
-      «end» := m.text.utf8PosToLspPos m.text.source.endPos |>.toLsp encoding
+      start := m.text.utf8PosToEncodedLspPos encoding pos
+      «end» := m.text.utf8PosToEncodedLspPos encoding m.text.source.endPos
     },
     kind := kind
   }
@@ -153,3 +153,6 @@ end Lean.Server
 
 def String.Range.toLspRanges (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.EncodedRange :=
   { start := text.utf8PosToLspPos r.start, «end» := text.utf8PosToLspPos r.stop }
+
+def String.Range.toEncodedLspRange (encoding : Lean.Lsp.PositionEncodingKind) (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+  { start := text.utf8PosToEncodedLspPos encoding r.start, «end» := text.utf8PosToEncodedLspPos encoding r.stop }

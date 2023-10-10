@@ -109,7 +109,7 @@ partial def main (args : List String) : IO Unit := do
           let method := directive.extract 0 colon |>.trim
           let column := ws.endPos + "--"
           let leanPos : Lean.Position := ⟨line+1, column.byteIdx⟩ -- Assumption: all control lines are one byte chars
-          let pos : Lsp.Position := { fileMap.leanPosToLspPos leanPos |>.toLsp encoding with line := line }
+          let pos : Lsp.Position := fileMap.leanPosToEncodedLspPos encoding leanPos
           let params := if colon < directive.endPos then directive.extract (colon + ':') directive.endPos |>.trim else "{}"
           match method with
           | "insert" =>

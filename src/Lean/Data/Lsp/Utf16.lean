@@ -148,8 +148,17 @@ def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.EncodedPosition
     characterUtf32 := text.source.codepointPosToLspPosFrom .utf32 col (text.positions.get! $ ln - 1)
   }
 
+def leanPosToEncodedLspPos (text : FileMap) (encoding : Lsp.PositionEncodingKind) : Lean.Position → Lsp.Position
+  | ⟨ln, col⟩ => {
+    line := ln-1
+    character := text.source.codepointPosToLspPosFrom encoding col (text.positions.get! $ ln - 1)
+  }
+
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.EncodedPosition :=
   text.leanPosToLspPos (text.toPosition pos)
+
+def utf8PosToEncodedLspPos (text : FileMap) (encoding : Lsp.PositionEncodingKind) (pos : String.Pos) : Lsp.Position :=
+  text.leanPosToEncodedLspPos encoding (text.toPosition pos)
 
 end FileMap
 end Lean

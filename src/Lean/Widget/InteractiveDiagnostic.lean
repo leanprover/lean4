@@ -168,15 +168,15 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
 
 /-- Transform a Lean Message concerning the given text into an LSP Diagnostic. -/
 def msgToInteractiveDiagnostic (encoding : Lsp.PositionEncodingKind) (text : FileMap) (m : Message) (hasWidgets : Bool) : IO InteractiveDiagnostic := do
-  let low : Lsp.Position := text.leanPosToLspPos m.pos |>.toLsp encoding
-  let fullHigh := text.leanPosToLspPos (m.endPos.getD m.pos) |>.toLsp encoding
+  let low : Lsp.Position := text.leanPosToEncodedLspPos encoding m.pos
+  let fullHigh := text.leanPosToEncodedLspPos encoding (m.endPos.getD m.pos)
   let high : Lsp.Position := match m.endPos with
     | some endPos =>
       /-
         Truncate messages that are more than one line long.
         This is a workaround to avoid big blocks of "red squiggly lines" on VS Code. -/
       let endPos := if !m.keepFullRange && endPos.line > m.pos.line then { line := m.pos.line + 1, column := 0 } else endPos
-      text.leanPosToLspPos endPos |>.toLsp encoding
+      text.leanPosToEncodedLspPos encoding endPos
     | none        => low
   let range : Range := ⟨low, high⟩
   let fullRange : Range := ⟨low, fullHigh⟩

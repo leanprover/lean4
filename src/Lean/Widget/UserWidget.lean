@@ -153,7 +153,7 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
       return {
         widget with
         props := w.props
-        range? := (String.Range.toLspRanges filemap · |>.toLsp (← encoding)) <$> Syntax.getRange? w.stx
+        range? := (String.Range.toEncodedLspRange (← encoding) filemap) <$> Syntax.getRange? w.stx
       })
     return {widgets := ws}
 

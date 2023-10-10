@@ -7,7 +7,7 @@ import Lean.Log
 import Lean.Parser.Command
 import Lean.DeclarationRange
 import Lean.Data.Lsp.PositionEncodingKind
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 
 namespace Lean.Elab
 

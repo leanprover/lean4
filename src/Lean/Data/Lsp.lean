@@ -14,7 +14,7 @@ import Lean.Data.Lsp.InitShutdown
 import Lean.Data.Lsp.Internal
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.TextSync
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 import Lean.Data.Lsp.Workspace
 import Lean.Data.Lsp.Ipc
 import Lean.Data.Lsp.CodeActions

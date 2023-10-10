@@ -8,7 +8,7 @@ import Lean.Parser.Term
 import Lean.Data.FuzzyMatching
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.Capabilities
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
 import Lean.Server.InfoUtils

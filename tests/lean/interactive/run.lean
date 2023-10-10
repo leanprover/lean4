@@ -1,5 +1,5 @@
 import Lean.Data.Lsp
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 import Lean.Widget
 
 open Lean

@@ -291,14 +291,14 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+    unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEq a₁ a₂) do
       return false
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
-      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEq a₁ a₂) do
        return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
@@ -366,7 +366,7 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
       let vType ← inferType v
-      if (← withTransparency TransparencyMode.default <| Meta.isExprDefEqAux mvarType vType) then
+      if (← withTransparency TransparencyMode.default <| Meta.isExprDefEq mvarType vType) then
         mvar.mvarId!.assign v
         pure true
       else
@@ -1458,12 +1458,12 @@ private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
     | LBool.true  =>
       let tType ← inferType t
       let sType ← inferType s
-      toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEqAux tType sType
+      toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEq tType sType
     | LBool.undef =>
       let tType ← inferType t
       if (← isProp tType) then
         let sType ← inferType s
-        toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEqAux tType sType
+        toLBoolM <| withProofIrrelTransparency <| Meta.isExprDefEq tType sType
       else
         pure LBool.undef
   else

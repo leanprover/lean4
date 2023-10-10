@@ -1601,10 +1601,16 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     See issue #1102 for an example that triggers an exponential blowup if we don't use this more
     aggressive form of caching.
   -/
+  let oldCache := (← get).cache.defEq
   modifyDefEqCache fun _ => {}
   let postponed ← getResetPostponed
   try
-    if (← x) then
+    let b ← x
+    /- We did not use to restore the old cache here, which is wrong as it allows the cache of `x`
+       to escape into surrounding `isDefEq` calls that may have incompatible settings. Always
+       clearing the cache here would also work. -/
+    modifyDefEqCache fun _ => oldCache
+    if b then
       if (← processPostponed mayPostpone) then
         let newPostponed ← getPostponed
         setPostponed (postponed ++ newPostponed)
@@ -1617,6 +1623,7 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
       return false
   catch ex =>
     s.restore
+    modifyDefEqCache fun _ => oldCache
     throw ex
 
 /--

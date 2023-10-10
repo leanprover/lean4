@@ -372,6 +372,9 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
   modifyCache fun ⟨c1, c2, c3, c4, c5, defeq, c6, c7, c8, c9⟩ => ⟨c1, c2, c3, c4, c5, f defeq, c6, c7, c8, c9⟩
 
+@[inline] def resetDefEqPermCaches : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, _, _, _, _⟩ => ⟨c1, c2, c3, c4, c5, c6, {}, {}, {}, {}⟩
+
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
 
@@ -1632,6 +1635,26 @@ def isLevelDefEq (u v : Level) : MetaM Bool :=
 /-- See `isDefEq`. -/
 def isExprDefEq (t s : Expr) : MetaM Bool :=
   withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
+    /-
+    The following `resetDefEqPermCaches` is a workaround. Without it the test suite fails, and we probably cannot compile complex libraries such as Mathlib.
+    TODO: investigate why we need this reset.
+    Some conjectures:
+    - It is not enough to check whether `t` and `s` do not contain metavariables. We would need to check the type
+      of all local variables `t` and `s` depend on. If the local variables contain metavariables, the result of `isDefEq` may change if these
+      variables are instantiated.
+    - Related to the previous one: the operation
+      ```lean
+      _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
+      ```
+      is probably being misused. We are probably using it to replace a `type` with `typeNew` where these two types
+      are definitionally equal IFF we can assign the metavariables in `type`.
+
+    Possible fix: always generate new `FVarId`s when update the type of local variables.
+    Drawback: this operation can be quite expensive, and we must evaluate whether it is worth doing to remove the following `reset`.
+
+    Remark: the kernel does *not* update the type of variables in the local context.
+    -/
+    resetDefEqPermCaches
     checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
 
 /--

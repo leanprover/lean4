@@ -230,6 +230,7 @@ inductive KernelException where
   | deterministicTimeout
   | excessiveMemory
   | deepRecursion
+  | interrupted
 
 namespace Environment
 

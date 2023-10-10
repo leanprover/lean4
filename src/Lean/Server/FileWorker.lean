@@ -300,6 +300,7 @@ section Updates
       let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
       -- Ignore exceptions, we are only interested in the successful snapshots
       let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
+      oldDoc.cmdSnaps.cancel
       -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
       -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
       let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
@@ -465,6 +466,7 @@ section MainLoop
     | Message.notification "exit" none =>
       let doc := st.doc
       doc.cancelTk.set
+      doc.cmdSnaps.cancel
       return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)

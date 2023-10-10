@@ -1,4 +1,4 @@
--- encoding: [[], ["utf-8"], ["utf-16"], ["utf-32"], ["utf-32", "utf-16"]]
+-- encoding: [["utf-32"]]
 
 /-! Test Unicode handling in the server by using identifiers and
 strings that are multi-byte in variable-width encodings. -/

@@ -47,7 +47,7 @@ def codepointPosToUtf16PosFrom (s : String) (n : Nat) (off : Pos) : Nat :=
 
 private def codepointPosToUtf8PosFromAux (s : String) : Nat → Pos → Nat → Nat
   | 0,    _,       utf8pos => utf8pos
-  | cp+1, utf8pos, utf8pos' => codepointPosToUtf16PosFromAux s cp (s.next utf8pos) (utf8pos' + csize16 (s.get utf8pos))
+  | cp+1, utf8pos, utf8pos' => codepointPosToUtf8PosFromAux s cp (s.next utf8pos) (utf8pos' + csize8 (s.get utf8pos))
 
 /-- Computes the UTF-8 offset of the `n`-th Unicode codepoint
 in the substring of `s` starting at UTF-8 offset `off`.

@@ -132,17 +132,17 @@ section ServerM
   abbrev FileWorkerMap := RBMap DocumentUri FileWorker compare
 
   structure ServerContext where
-    hIn              : FS.Stream
-    hOut             : FS.Stream
-    hLog             : FS.Stream
+    hIn            : FS.Stream
+    hOut           : FS.Stream
+    hLog           : FS.Stream
     /-- Command line arguments. -/
-    args             : List String
-    fileWorkersRef   : IO.Ref FileWorkerMap
+    args           : List String
+    fileWorkersRef : IO.Ref FileWorkerMap
     /-- We store these to pass them to workers. -/
-    initParams       : InitializeParams
-    workerPath       : System.FilePath
-    srcSearchPath    : System.SearchPath
-    references       : IO.Ref References
+    initParams     : InitializeParams
+    workerPath     : System.FilePath
+    srcSearchPath  : System.SearchPath
+    references     : IO.Ref References
 
   abbrev ServerM := ReaderT ServerContext IO
 
@@ -695,12 +695,12 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
     : RegistrationParams }
   }
   ReaderT.run initAndRunWatchdogAux {
-    hIn              := i
-    hOut             := o
-    hLog             := e
-    args             := args
-    fileWorkersRef   := fileWorkersRef
-    initParams       := initRequest.param
+    hIn            := i
+    hOut           := o
+    hLog           := e
+    args           := args
+    fileWorkersRef := fileWorkersRef
+    initParams     := initRequest.param
     workerPath
     srcSearchPath
     references

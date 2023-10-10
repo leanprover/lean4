@@ -18,7 +18,7 @@ what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
   /-- A global declaration in the environment. -/
-  | decl (declName : Name) (inv : Bool)
+  | decl (declName : Name) (inv := false)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension

@@ -1802,7 +1802,7 @@ private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
   else match (← getConfig).transparency with
     | .default   => return .permDefault
     | .all       => return .permAll
-    | .reducible => return .permDefault
+    | .reducible => return .permReducible
     | .instances => return .permInst
 
 /--
@@ -1824,7 +1824,7 @@ private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
     | .permDefault => cache.defEqDefault
     | .permAll => cache.defEqAll
     | .permInst => cache.defEqInstances
-    | .permReducible => cache.defEqInstances
+    | .permReducible => cache.defEqReducible
   match cache.find? keyInfo.key with
   | some val => return val.toLBool
   | none => return .undef

@@ -38,16 +38,18 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__3___boxed(lean_obje
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_IO_FS_createDirAll(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_publishProgress(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Range_toEncodedLspRange___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_foldDocumentChanges___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__3___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_maybeTee___closed__1;
+lean_object* l_Lean_FileMap_utf8PosToEncodedLspPos(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspNotification___at_Lean_Server_publishDiagnostics___spec__1(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Lsp_EncodedPosition_toLsp(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_String_Range_toEncodedLspRange(uint8_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishDiagnostics___spec__2___closed__1;
 lean_object* l_Lean_FileMap_ofString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedDocumentMeta;
@@ -1747,31 +1749,27 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Server_publishProgressAtPos(lean_object* x_1, uint8_t x_2, lean_object* x_3, lean_object* x_4, uint8_t x_5, lean_object* x_6) {
 _start:
 {
-lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_7 = lean_ctor_get(x_1, 2);
 lean_inc(x_7);
-x_8 = l_Lean_FileMap_utf8PosToLspPos(x_7, x_3);
-x_9 = l_Lean_Lsp_EncodedPosition_toLsp(x_2, x_8);
-lean_dec(x_8);
-x_10 = lean_ctor_get(x_7, 0);
-lean_inc(x_10);
-x_11 = lean_string_utf8_byte_size(x_10);
+x_8 = l_Lean_FileMap_utf8PosToEncodedLspPos(x_7, x_2, x_3);
+x_9 = lean_ctor_get(x_7, 0);
+lean_inc(x_9);
+x_10 = lean_string_utf8_byte_size(x_9);
+lean_dec(x_9);
+x_11 = l_Lean_FileMap_utf8PosToEncodedLspPos(x_7, x_2, x_10);
 lean_dec(x_10);
-x_12 = l_Lean_FileMap_utf8PosToLspPos(x_7, x_11);
-lean_dec(x_11);
 lean_dec(x_7);
-x_13 = l_Lean_Lsp_EncodedPosition_toLsp(x_2, x_12);
-lean_dec(x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_9);
-lean_ctor_set(x_14, 1, x_13);
-x_15 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_15, 0, x_14);
-lean_ctor_set_uint8(x_15, sizeof(void*)*1, x_5);
-x_16 = l_Lean_Server_publishProgressAtPos___closed__1;
-x_17 = lean_array_push(x_16, x_15);
-x_18 = l_Lean_Server_publishProgress(x_1, x_17, x_4, x_6);
-return x_18;
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_8);
+lean_ctor_set(x_12, 1, x_11);
+x_13 = lean_alloc_ctor(0, 1, 1);
+lean_ctor_set(x_13, 0, x_12);
+lean_ctor_set_uint8(x_13, sizeof(void*)*1, x_5);
+x_14 = l_Lean_Server_publishProgressAtPos___closed__1;
+x_15 = lean_array_push(x_14, x_13);
+x_16 = l_Lean_Server_publishProgress(x_1, x_15, x_4, x_6);
+return x_16;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_publishProgressAtPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -1891,6 +1889,32 @@ x_3 = l_String_Range_toLspRanges(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_String_Range_toEncodedLspRange(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_3, 0);
+x_5 = l_Lean_FileMap_utf8PosToEncodedLspPos(x_2, x_1, x_4);
+x_6 = lean_ctor_get(x_3, 1);
+x_7 = l_Lean_FileMap_utf8PosToEncodedLspPos(x_2, x_1, x_6);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_5);
+lean_ctor_set(x_8, 1, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_String_Range_toEncodedLspRange___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_String_Range_toEncodedLspRange(x_4, x_2, x_3);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_5;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

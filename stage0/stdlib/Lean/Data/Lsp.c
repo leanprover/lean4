@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp
-// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Client Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.Internal Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc Lean.Data.Lsp.CodeActions
+// Imports: Init Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Client Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.Internal Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.PositionEncoding Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc Lean.Data.Lsp.CodeActions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,7 +24,7 @@ lean_object* initialize_Lean_Data_Lsp_InitShutdown(uint8_t builtin, lean_object*
 lean_object* initialize_Lean_Data_Lsp_Internal(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_LanguageFeatures(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_TextSync(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Lsp_Utf16(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_PositionEncoding(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Workspace(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Ipc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_CodeActions(uint8_t builtin, lean_object*);
@@ -66,7 +66,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_TextSync(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Data_Lsp_Utf16(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_Lsp_PositionEncoding(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Workspace(builtin, lean_io_mk_world());

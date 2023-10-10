@@ -44,18 +44,26 @@ def ident : Parsec Name := do
   let xs ← Parsec.many1 (Parsec.pchar '.' *> word)
   return xs.foldl Name.mkStr $ head
 
-def allEncodings : List (Array PositionEncodingKind) := [#[], #[.utf8], #[.utf16], #[.utf32], #[.utf32, .utf16]]
+def getEncodings (firstLine : String) : Option (Array (Array PositionEncodingKind)) := do
+  let [_ws, directive] := firstLine.splitOn "--"
+    | none
+  let [_, encodings] := directive.splitOn "encoding:"
+    | none
+  match Json.parse encodings >>= FromJson.fromJson? (α := Array (Array PositionEncodingKind)) with
+  | .error err => panic! s!"Failed to parse single-line JSON for LSP text encodings: {err}"
+  | .ok val => some val
 
-def correctEncoding (client : Array PositionEncodingKind) (server : PositionEncodingKind) : IO Unit :=
-  let correct : PositionEncodingKind :=
-    match client[0]? with
-    | some enc => enc
-    | none => .utf16
-  let ok := if correct == server then "(ok)" else "(wrong)"
-  IO.eprintln s!"Requested {client.map toJson}, got {toJson server}, wanted {toJson correct} {ok}"
+
+def correctEncoding (client : Array PositionEncodingKind) (server : PositionEncodingKind) : IO Unit := do
+  let correct : PositionEncodingKind := client[0]?.getD .utf16
+  if correct != server then
+    IO.eprintln s!"Requested {client.map toJson}, got {toJson server}, wanted {toJson correct}"
 
 partial def main (args : List String) : IO Unit := do
-  for enc in allEncodings do
+  -- Discover encodings for this test run
+  let encodings := ((← IO.FS.readFile args.head!).splitOn "\n")[0]? >>= getEncodings
+
+  for enc in encodings.getD #[#[]] do
     let uri := s!"file://{args.head!}"
     Ipc.runWith (←IO.appPath) #["--server"] do
       let capabilities := {

@@ -100,7 +100,7 @@ Tree :=
   { range := { pos := { line := 18, column := 0 },
                charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharLsp := { line := 19, characterUtf8 := 56, characterUtf16 := 56, characterUtf32 := 56 } },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
                         charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
@@ -112,7 +112,7 @@ Tree.rec :=
   { range := { pos := { line := 18, column := 0 },
                charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharLsp := { line := 19, characterUtf8 := 56, characterUtf16 := 56, characterUtf32 := 56 } },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
                         charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
@@ -124,7 +124,7 @@ Tree.casesOn :=
   { range := { pos := { line := 18, column := 0 },
                charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharLsp := { line := 19, characterUtf8 := 56, characterUtf16 := 56, characterUtf32 := 56 } },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
                         charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
@@ -136,7 +136,7 @@ Tree.node :=
   { range := { pos := { line := 19, column := 2 },
                charLsp := { line := 18, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 19, column := 64 },
-               endCharLsp := { line := 18, characterUtf8 := 64, characterUtf16 := 64, characterUtf32 := 64 } },
+               endCharLsp := { line := 18, characterUtf8 := 68, characterUtf16 := 64, characterUtf32 := 64 } },
     selectionRange := { pos := { line := 19, column := 35 },
                         charLsp := { line := 18, characterUtf8 := 35, characterUtf16 := 35, characterUtf32 := 35 },
                         endPos := { line := 19, column := 39 },
@@ -148,7 +148,7 @@ Tree.leaf :=
   { range := { pos := { line := 20, column := 2 },
                charLsp := { line := 19, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 20, column := 56 },
-               endCharLsp := { line := 19, characterUtf8 := 56, characterUtf16 := 56, characterUtf32 := 56 } },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 20, column := 39 },
                         charLsp := { line := 19, characterUtf8 := 39, characterUtf16 := 39, characterUtf32 := 39 },
                         endPos := { line := 20, column := 43 },
@@ -165,7 +165,15 @@ Bla.test :=
                         charLsp := { line := 24, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 25, column := 8 },
                         endCharLsp := { line := 24, characterUtf8 := 8, characterUtf16 := 8, characterUtf32 := 8 } } }
-range for 'Bla.test.aux' is not available
+Bla.test.aux :=
+  { range := { pos := { line := 31, column := 2 },
+               charLsp := { line := 30, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
+               endPos := { line := 31, column := 16 },
+               endCharLsp := { line := 30, characterUtf8 := 16, characterUtf16 := 16, characterUtf32 := 16 } },
+    selectionRange := { pos := { line := 31, column := 2 },
+                        charLsp := { line := 30, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
+                        endPos := { line := 31, column := 5 },
+                        endCharLsp := { line := 30, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
 f :=
   { range := { pos := { line := 35, column := 0 },
                charLsp := { line := 34, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
@@ -175,7 +183,18 @@ f :=
                         charLsp := { line := 34, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 35, column := 5 },
                         endCharLsp := { line := 34, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
-range for 'f.foo' is not available
+f.foo :=
+  { range := { pos := { line := 36, column := 44 },
+               charLsp := { line := 35, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
+               endPos := { line := 38, column := 22 },
+               endCharLsp := { line := 37, characterUtf8 := 22, characterUtf16 := 22, characterUtf32 := 22 } },
+    selectionRange := { pos := { line := 36, column := 44 },
+                        charLsp := { line := 35, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
+                        endPos := { line := 36, column := 47 },
+                        endCharLsp := { line := 35,
+                                        characterUtf8 := 47,
+                                        characterUtf16 := 47,
+                                        characterUtf32 := 47 } } }
 g :=
   { range := { pos := { line := 41, column := 0 },
                charLsp := { line := 40, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
@@ -185,4 +204,15 @@ g :=
                         charLsp := { line := 40, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 41, column := 5 },
                         endCharLsp := { line := 40, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
-range for 'g.foo' is not available
+g.foo :=
+  { range := { pos := { line := 42, column := 44 },
+               charLsp := { line := 41, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
+               endPos := { line := 44, column := 22 },
+               endCharLsp := { line := 43, characterUtf8 := 22, characterUtf16 := 22, characterUtf32 := 22 } },
+    selectionRange := { pos := { line := 42, column := 44 },
+                        charLsp := { line := 41, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
+                        endPos := { line := 42, column := 47 },
+                        endCharLsp := { line := 41,
+                                        characterUtf8 := 47,
+                                        characterUtf16 := 47,
+                                        characterUtf32 := 47 } } }

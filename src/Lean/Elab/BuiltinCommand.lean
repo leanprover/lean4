@@ -118,7 +118,15 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
-/-- Declares a list of type universes. -/
+/-- Declares a list of type universes.
+
+## Examples
+
+```lean
+universe u
+universe u' v' w'
+```
+-/
 @[builtin_command_elab «universe»] def elabUniverse : CommandElab := fun n => do
   n[1].forArgsM addUnivLevel
 
@@ -129,7 +137,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 /-- Brings some definitions in scope and exports them.
 
-Example
+## Examples
 
 ```lean
 namespace Ident.Path
@@ -170,7 +178,7 @@ end re_export
 * `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
   `Some.Namespace.Ident.def2` in scope.
 
-Examples
+## Examples
 
 ```lean
 namespace Ident.Path
@@ -279,6 +287,30 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   else
     return #[binder]
 
+/-- Declares a list of typed variables.
+
+Introduces variables that can be used in definitions within the same scope. When a definition
+mentions a variable, Lean will add it as an argument of the definition. This process is also able to
+infer typeclass parameters.
+
+## Examples
+
+```lean
+section
+  variable
+    {α : Type u}
+    (a : α)
+    [instBEq : BEq α]
+    [Hashable α]
+
+  def isEqual (b : α) : Bool :=
+    a == b
+
+  #check isEqual
+  -- isEqual.{u} {α : Type u} (a : α) [instBEq : BEq α] (b : α) : Bool
+end
+```
+-/
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do
     -- Try to elaborate `binders` for sanity checking

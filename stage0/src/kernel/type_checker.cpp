@@ -862,7 +862,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
         /* If `s_n` is a projection application, we try to unfold it instead.
-           We added this extra test to address a perfomance issue at defeq tests such as
+           We added this extra test to address a performance issue at defeq tests such as
            ```lean
            expensive_term =?= instFoo.1 a
            ```

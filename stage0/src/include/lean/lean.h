@@ -126,7 +126,7 @@ x
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
 
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsibility of the caller
    to decrement the RC.
    This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
 
@@ -1312,8 +1312,8 @@ LEAN_SHARED lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 
 /* Integers */
 
-#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))
-#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : -(1 << 30))
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (INT_MAX >> 1))
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : (INT_MIN >> 1))
 LEAN_SHARED lean_object * lean_int_big_neg(lean_object * a);
 LEAN_SHARED lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);

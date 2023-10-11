@@ -587,32 +587,16 @@ return x_10;
 }
 else
 {
-uint8_t x_11; 
-x_11 = lean_nat_dec_le(x_5, x_5);
-if (x_11 == 0)
-{
-uint8_t x_12; lean_object* x_13; lean_object* x_14; 
+size_t x_11; size_t x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; 
+x_11 = 0;
+x_12 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
-x_12 = 0;
-x_13 = lean_box(x_12);
-x_14 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_14, 0, x_13);
-lean_ctor_set(x_14, 1, x_3);
-return x_14;
-}
-else
-{
-size_t x_15; size_t x_16; uint8_t x_17; lean_object* x_18; lean_object* x_19; 
-x_15 = 0;
-x_16 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_17 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_inMutualBlock___spec__1(x_1, x_4, x_15, x_16);
-x_18 = lean_box(x_17);
-x_19 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_19, 0, x_18);
-lean_ctor_set(x_19, 1, x_3);
-return x_19;
-}
+x_13 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_inMutualBlock___spec__1(x_1, x_4, x_11, x_12);
+x_14 = lean_box(x_13);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_3);
+return x_15;
 }
 }
 }
@@ -2248,26 +2232,13 @@ return x_6;
 }
 else
 {
-uint8_t x_7; 
-x_7 = lean_nat_dec_le(x_3, x_3);
-if (x_7 == 0)
-{
-uint8_t x_8; 
+size_t x_7; size_t x_8; uint8_t x_9; 
+x_7 = 0;
+x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
+x_9 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__16(x_2, x_1, x_7, x_8);
 lean_dec(x_1);
-x_8 = 0;
-return x_8;
-}
-else
-{
-size_t x_9; size_t x_10; uint8_t x_11; 
-x_9 = 0;
-x_10 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
-x_11 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_FixedParams_evalApp___spec__16(x_2, x_1, x_9, x_10);
-lean_dec(x_1);
-return x_11;
-}
+return x_9;
 }
 }
 }

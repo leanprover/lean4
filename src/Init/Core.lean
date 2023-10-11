@@ -1615,7 +1615,7 @@ namespace Lean
 /--
 Depends on the correctness of the Lean compiler, interpreter, and all `[implemented_by ...]` and `[extern ...]` annotations.
 -/
-axiom trustCompiler : False
+axiom trustCompiler : True
 
 /--
 When the kernel tries to reduce a term `Lean.reduceBool c`, it will invoke the Lean interpreter to evaluate `c`.

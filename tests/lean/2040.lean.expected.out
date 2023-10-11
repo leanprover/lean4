@@ -1,12 +1,3 @@
-2040.lean:3:8-3:13: error: failed to synthesize instance
-  HPow Nat Nat Int
-2040.lean:9:8-9:13: error: failed to synthesize instance
-  HPow Nat Nat Int
-2040.lean:15:8-15:13: error: failed to synthesize instance
-  HPow Nat Nat Int
-2040.lean:13:2-15:22: error: type mismatch
-  trans (sorryAx (a = 37)) (sorryAx (37 = 2 ^ n))
-has type
-  a = @OfNat.ofNat Nat 2 (instOfNatNat 2) ^ n : Prop
-but is expected to have type
-  a = @OfNat.ofNat Int 2 instOfNatInt ^ n : Prop
+2040.lean:3:0-3:7: warning: declaration uses 'sorry'
+2040.lean:8:0-8:7: warning: declaration uses 'sorry'
+2040.lean:14:0-14:7: warning: declaration uses 'sorry'

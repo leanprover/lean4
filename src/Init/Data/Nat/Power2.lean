@@ -24,7 +24,7 @@ where
 termination_by go p h => n - p
 decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
-def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
+def isPowerOfTwo (n : Nat) := ∃ k : Nat, n = 2 ^ k
 
 theorem one_isPowerOfTwo : isPowerOfTwo 1 :=
   ⟨0, by decide⟩

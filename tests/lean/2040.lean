@@ -1,18 +1,20 @@
+/-! Unification across `calc` steps -/
+
 example (n : Nat) (a : Int) : a = 22 :=
   calc
-    a = 2 ^ n := sorry -- error
+    a = 2 ^ n := sorry -- works, coercion ignores `^` RHS
     _ = (22 : Int) := sorry
 
 example (n : Nat) (a : Int) : a = 22 :=
   calc
     a = (37 : Int) := sorry
-    _ = 2 ^ n := sorry -- should be same error as above
+    _ = 2 ^ n := sorry -- ditto
     _ = (22 : Int) := sorry
 
 example (n : Nat) (a : Int) : a = (2 : Int) ^ n :=
   calc
     a = (37 : Int) := sorry
-    _ = 2 ^ n := sorry -- should be same error as above
+    _ = 2 ^ n := sorry -- ditto
 
 example (n : Nat) (h : n = 42) : 42 = (n : Int) :=
   calc

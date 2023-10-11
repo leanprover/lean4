@@ -23,7 +23,7 @@ def tst1 : IO Unit := do
   IO.println (256 : Float).toUInt8
   IO.println (1 / 0 : Float).toUInt8
   IO.println (-1 : Float).toUInt64
-  IO.println (2^64 : Float).toUInt64
+  IO.println (2^(64 : Float) : Float).toUInt64
   IO.println (1 / 0 : Float).toUInt64
   IO.println (let x : Float := 1.4; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))
   IO.println (let x : Float := 0 / 0; (x, x.isNaN, x.isInf, x.isFinite, x.frExp))

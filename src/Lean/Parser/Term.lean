@@ -555,11 +555,18 @@ def matchAltsWhereDecls := leading_parser
 /-- Similar to `binrel`, but coerce `Prop` arguments into `Bool`. -/
 @[builtin_term_parser] def binrel_no_prop := leading_parser
   "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def binop  := leading_parser
+@[builtin_term_parser] def binop := leading_parser
   "binop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def binop_lazy  := leading_parser
+-- like `binop%` but wrap arguments in `fun () => _`
+@[builtin_term_parser] def binop_lazy := leading_parser
   "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def unop  := leading_parser
+/-- Left action; the right argument can participate in the operator coercion elaborator. -/
+@[builtin_term_parser] def leftact := leading_parser
+  "leftact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- Right action; the left argument can participate in the operator coercion elaborator. -/
+@[builtin_term_parser] def rightact := leading_parser
+  "rightact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+@[builtin_term_parser] def unop := leading_parser
   "unop% " >> ident >> ppSpace >> termParser maxPrec
 
 @[builtin_term_parser] def forInMacro := leading_parser

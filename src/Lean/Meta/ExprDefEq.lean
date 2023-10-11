@@ -1794,16 +1794,13 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
 
 inductive DefEqCacheKind where
   | transient -- problem has mvars or is using nonstardard configuration, we should use transient cache
-  | permReducible | permInst | permDefault | permAll -- problem does not have mvars and we are using stardard config, we can use one persistent cache.
+  | permanent -- problem does not have mvars and we are using stardard config, we can use one persistent cache.
 
 private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
   if t.hasMVar || s.hasMVar || (← read).canUnfold?.isSome then
     return .transient
-  else match (← getConfig).transparency with
-    | .default   => return .permDefault
-    | .all       => return .permAll
-    | .reducible => return .permReducible
-    | .instances => return .permInst
+  else
+    return .permanent
 
 /--
 Structure for storing defeq cache key information.
@@ -1818,24 +1815,30 @@ private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
   return { key, kind }
 
 private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
-  let cache := (← get).cache
-  let cache := match keyInfo.kind with
-    | .transient => cache.defEq
-    | .permDefault => cache.defEqDefault
-    | .permAll => cache.defEqAll
-    | .permInst => cache.defEqInstances
-    | .permReducible => cache.defEqReducible
+  let cache ← match keyInfo.kind with
+    | .transient => pure (← get).cache.defEqTrans
+    | .permanent => pure (← get).cache.defEqPerm
+  let cache := match (← getTransparency) with
+    | .reducible => cache.reducible
+    | .instances => cache.instances
+    | .default   => cache.default
+    | .all       => cache.all
   match cache.find? keyInfo.key with
   | some val => return val.toLBool
   | none => return .undef
 
+def DefEqCache.update (cache : DefEqCache) (mode : TransparencyMode) (key : Expr × Expr) (result : Bool) : DefEqCache :=
+  match mode with
+  | .reducible => { cache with reducible := cache.reducible.insert key result }
+  | .instances => { cache with instances := cache.instances.insert key result }
+  | .default   => { cache with default   := cache.default.insert key result }
+  | .all       => { cache with all       := cache.all.insert key result }
+
 private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Unit := do
+  let mode ← getTransparency
   let key := keyInfo.key
   match keyInfo.kind with
-  | .permDefault   => modify fun s => { s with cache.defEqDefault   := s.cache.defEqDefault.insert key result }
-  | .permAll       => modify fun s => { s with cache.defEqAll       := s.cache.defEqAll.insert key result }
-  | .permInst      => modify fun s => { s with cache.defEqInstances := s.cache.defEqInstances.insert key result }
-  | .permReducible => modify fun s => { s with cache.defEqReducible := s.cache.defEqReducible.insert key result }
+  | .permanent => modifyDefEqPermCache fun c => c.update mode key result
   | .transient =>
     /-
     We must ensure that all assigned metavariables in the key are replaced by their current assignments.
@@ -1843,7 +1846,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
     See issue #1870 for an example.
     -/
     let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
-    modifyDefEqTransientCache fun c => c.insert key result
+    modifyDefEqTransientCache fun c => c.update mode key result
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do

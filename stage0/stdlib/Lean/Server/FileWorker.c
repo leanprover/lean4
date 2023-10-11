@@ -212,6 +212,7 @@ static lean_object* l_Lean_Server_FileWorker_handleNotification___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_initAndRunWorker___boxed__const__2;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_initAndRunWorker___boxed__const__1;
 static lean_object* l_Lean_Server_FileWorker_parseParams___rarg___closed__2;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1119____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_compileHeader___lambda__1___closed__15;
 lean_object* l_IO_AsyncList_unfoldAsync___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__7;
@@ -389,7 +390,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at_Lean_Server_FileWorker_m
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_parseParams(lean_object*);
 lean_object* lean_io_exit(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_parseParams___at_Lean_Server_FileWorker_handleNotification___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1116____at_Lean_SearchPath_findAllWithExt___spec__1(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_nextCmdSnap___closed__2;
 lean_object* l_Lean_Server_foldDocumentChanges(lean_object*, lean_object*);
@@ -5391,7 +5391,7 @@ lean_inc(x_58);
 lean_dec(x_56);
 x_59 = l_System_FilePath_fileName(x_55);
 x_60 = l_Lean_Server_FileWorker_compileHeader___lambda__3___closed__4;
-x_61 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1116____at_Lean_SearchPath_findAllWithExt___spec__1(x_59, x_60);
+x_61 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1119____at_Lean_SearchPath_findAllWithExt___spec__1(x_59, x_60);
 lean_dec(x_59);
 if (x_61 == 0)
 {

@@ -56,7 +56,6 @@ lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___at_Lean_Elab_checkSyntaxNodeKindAtCurrentNamespaces___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKind(lean_object*);
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_372____closed__6;
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1116____at___private_Lean_Parser_Types_0__Lean_Parser_beqCacheableParserContext____x40_Lean_Parser_Types___hyg_235____spec__1(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__4(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_mkElabAttribute___rarg___lambda__4___closed__3;
@@ -187,6 +186,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_logException(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_macroAttribute;
 static lean_object* l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_2984____closed__17;
 LEAN_EXPORT lean_object* l_Lean_Elab_pp_macroStack;
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1119____at___private_Lean_Parser_Types_0__Lean_Parser_beqCacheableParserContext____x40_Lean_Parser_Types___hyg_235____spec__1(lean_object*, lean_object*);
 uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_checkSyntaxNodeKindAtNamespaces___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -533,7 +533,7 @@ x_2 = lean_ctor_get(x_1, 0);
 x_3 = 0;
 x_4 = l_Lean_Syntax_getPos_x3f(x_2, x_3);
 x_5 = lean_box(0);
-x_6 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1116____at___private_Lean_Parser_Types_0__Lean_Parser_beqCacheableParserContext____x40_Lean_Parser_Types___hyg_235____spec__1(x_4, x_5);
+x_6 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1119____at___private_Lean_Parser_Types_0__Lean_Parser_beqCacheableParserContext____x40_Lean_Parser_Types___hyg_235____spec__1(x_4, x_5);
 lean_dec(x_4);
 if (x_6 == 0)
 {

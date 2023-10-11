@@ -553,16 +553,28 @@ def matchAltsWhereDecls := leading_parser
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec
 
+/-- `binrel% r a b` elaborates `r a b` as a binary relation using the type propogation protocol in `Lean.Elab.Extra`. -/
 @[builtin_term_parser] def binrel := leading_parser
   "binrel% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-/-- Similar to `binrel`, but coerce `Prop` arguments into `Bool`. -/
+/-- `binrel_no_prop% r a b` is similar to `binrel% r a b`, but it coerces `Prop` arguments into `Bool`. -/
 @[builtin_term_parser] def binrel_no_prop := leading_parser
   "binrel_no_prop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def binop  := leading_parser
+/-- `binop% f a b` elaborates `f a b` as a binary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+@[builtin_term_parser] def binop := leading_parser
   "binop% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def binop_lazy  := leading_parser
+/-- `binop_lazy%` is similar to `binop% f a b`, but it wraps `b` as a function from `Unit`. -/
+@[builtin_term_parser] def binop_lazy := leading_parser
   "binop_lazy% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
-@[builtin_term_parser] def unop  := leading_parser
+/-- `leftact% f a b` elaborates `f a b` as a left action using the type propogation protocol in `Lean.Elab.Extra`.
+In particular, it is like a unary operation with a fixed parameter `a`, where only the right argument `b` participates in the operator coercion elaborator. -/
+@[builtin_term_parser] def leftact := leading_parser
+  "leftact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `rightact% f a b` elaborates `f a b` as a right action using the type propogation protocol in `Lean.Elab.Extra`.
+In particular, it is like a unary operation with a fixed parameter `b`, where only the left argument `a` participates in the operator coercion elaborator. -/
+@[builtin_term_parser] def rightact := leading_parser
+  "rightact% " >> ident >> ppSpace >> termParser maxPrec >> ppSpace >> termParser maxPrec
+/-- `unop% f a` elaborates `f a` as a unary operation using the type propogation protocol in `Lean.Elab.Extra`. -/
+@[builtin_term_parser] def unop := leading_parser
   "unop% " >> ident >> ppSpace >> termParser maxPrec
 
 @[builtin_term_parser] def forInMacro := leading_parser

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Basic
+import Lean.Data.Lsp.TextSync
 import Lean.Server.Rpc.Basic
 
 /-! This file contains Lean-specific extensions to LSP. See the structures below for which
@@ -12,6 +13,13 @@ additional requests and notifications are supported. -/
 
 namespace Lean.Lsp
 open Json
+
+structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
+  /--
+    Further flags passed to `lake print-paths` for the opened document.
+    Used for forwarding `--no-build` on initial open. -/
+  extraPrintPathsFlags? : Option (Array String)
+  deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.
 

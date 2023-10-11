@@ -252,8 +252,18 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
       try Term.resolveId? f catch _ => return none
     else
       return none
-  | `(fun $binders* => binop% $f $a $b) =>
+  | `(fun $binders* => binop% $f $a $b)
+  | `(fun $binders* => binop_lazy% $f $a $b)
+  | `(fun $binders* => leftact% $f $a $b)
+  | `(fun $binders* => rightact% $f $a $b)
+  | `(fun $binders* => binrel% $f $a $b)
+  | `(fun $binders* => binrel_no_prop% $f $a $b) =>
     if binders == #[a, b] then
+      try Term.resolveId? f catch _ => return none
+    else
+      return none
+  | `(fun $binders* => unop% $f $a) =>
+    if binders == #[a] then
       try Term.resolveId? f catch _ => return none
     else
       return none

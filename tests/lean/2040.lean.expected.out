@@ -1,10 +1,10 @@
-2040.lean:3:8-3:13: error: failed to synthesize instance
+2040.lean:8:8-8:13: error: failed to synthesize instance
   HPow Nat Nat Int
-2040.lean:9:8-9:13: error: failed to synthesize instance
+2040.lean:14:8-14:13: error: failed to synthesize instance
   HPow Nat Nat Int
-2040.lean:15:8-15:13: error: failed to synthesize instance
+2040.lean:20:8-20:13: error: failed to synthesize instance
   HPow Nat Nat Int
-2040.lean:13:2-15:22: error: type mismatch
+2040.lean:18:2-20:22: error: type mismatch
   trans (sorryAx (a = 37)) (sorryAx (37 = 2 ^ n))
 has type
   a = @OfNat.ofNat Nat 2 (instOfNatNat 2) ^ n : Prop

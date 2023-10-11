@@ -28,6 +28,8 @@ true
 (NaN, (true, (false, (false, (NaN, 0)))))
 (inf, (false, (true, (false, (inf, 0)))))
 (-inf, (false, (true, (false, (-inf, 0)))))
+0.500000
+5.666696
 -----
 2.333333
 3.500000

@@ -1297,10 +1297,37 @@ class Mod (α : Type u) where
 The homogeneous version of `HPow`: `a ^ b : α` where `a : α`, `b : β`.
 (The right argument is not the same as the left since we often want this even
 in the homogeneous case.)
+
+Types can choose to subscribe to particular defaulting behavior by providing
+an instance to either `NatPow` or `HomogeneousPow`:
+- `NatPow` is for types whose exponents is preferentially a `Nat`.
+- `HomogeneousPow` is for types whose base and exponent are preferentially the same.
 -/
 class Pow (α : Type u) (β : Type v) where
   /-- `a ^ b` computes `a` to the power of `b`. See `HPow`. -/
   pow : α → β → α
+
+/-- The homogenous version of `Pow` where the exponent is a `Nat`.
+The purpose of this class is that it provides a default `Pow` instance,
+which can be used to specialize the exponent to `Nat` during elaboration.
+
+For example, if `x ^ 2` should preferentially elaborate with `2 : Nat` then `x`'s type should
+provide an instance for this class. -/
+class NatPow (α : Type u) where
+  /-- `a ^ n` computes `a` to the power of `n` where `n : Nat`. See `Pow`. -/
+  protected pow : α → Nat → α
+
+/-- The completely homogeneous version of `Pow` where the exponent has the same type as the base.
+The purpose of this class is that it provides a default `Pow` instance,
+which can be used to specialize the exponent to have the same type as the base's type during elaboration.
+This is to say, a type should provide an instance for this class in case `x ^ y` should be elaborated
+with both `x` and `y` having the same type.
+
+For example, the `Float` type provides an instance of this class, which causes expressions
+such as `(2.2 ^ 2.2 : Float)` to elaborate. -/
+class HomogeneousPow (α : Type u) where
+  /-- `a ^ b` computes `a` to the power of `b` where `a` and `b` both have the same type. -/
+  protected pow : α → α → α
 
 /-- The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. -/
 class Append (α : Type u) where
@@ -1384,6 +1411,14 @@ instance [Mod α] : HMod α α α where
 @[default_instance]
 instance [Pow α β] : HPow α β α where
   hPow a b := Pow.pow a b
+
+@[default_instance]
+instance [NatPow α] : Pow α Nat where
+  pow a n := NatPow.pow a n
+
+@[default_instance]
+instance [HomogeneousPow α] : Pow α α where
+  pow a b := HomogeneousPow.pow a b
 
 @[default_instance]
 instance [Append α] : HAppend α α α where
@@ -1480,8 +1515,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : Pow Nat Nat where
-  pow := Nat.pow
+instance : NatPow Nat := ⟨Nat.pow⟩
 
 set_option bootstrap.genMatcherCode false in
 /--

@@ -221,8 +221,8 @@ structure Cache where
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars and nonstardard configuration options, it is frequently reset.
-  defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and `TransparencyMode.reducible`
+  defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
+  defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
 
 /--

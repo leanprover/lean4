@@ -1793,8 +1793,8 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     isDefEqOnFailure t s
 
 inductive DefEqCacheKind where
-  | transient -- problem has mvars or is using nonstardard configuration, we should use transient cache
-  | permanent -- problem does not have mvars and we are using stardard config, we can use one persistent cache.
+  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
+  | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
 private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
   if t.hasMVar || s.hasMVar || (← read).canUnfold?.isSome then

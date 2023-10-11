@@ -237,7 +237,7 @@ section ServerM
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
 
-  def startFileWorker (m : DocumentMeta) : ServerM Unit := do
+  def startFileWorker (m : DocumentMeta) (extraPrintPathsFlags : Array String := #[]) : ServerM Unit := do
     publishProgressAtPos m 0 (← read).hOut
     let st ← read
     let workerProc ← Process.spawn {
@@ -267,7 +267,9 @@ section ServerM
           languageId := "lean"
           version    := m.version
           text       := m.text.source
-        } : DidOpenTextDocumentParams
+        }
+        extraPrintPathsFlags? := extraPrintPathsFlags
+        : LeanDidOpenTextDocumentParams
       }
     }
     updateFileWorkers fw
@@ -379,14 +381,14 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
 end RequestHandling
 
 section NotificationHandling
-  def handleDidOpen (p : DidOpenTextDocumentParams) : ServerM Unit :=
+  def handleDidOpen (p : LeanDidOpenTextDocumentParams) : ServerM Unit :=
     let doc := p.textDocument
     /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
        "\n", which should be enough to handle both LF and CRLF correctly.
        This is because LSP always refers to characters by (line, column),
        so if we get the line number correct it shouldn't matter that there
        is a CR there. -/
-    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap⟩
+    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap⟩ (p.extraPrintPathsFlags?.getD #[])
 
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let doc := p.textDocument

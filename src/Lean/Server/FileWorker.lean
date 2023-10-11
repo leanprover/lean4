@@ -187,6 +187,8 @@ section Initialization
       paths.loadDynlibPaths.forM loadDynlib
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
+    -- error from `--no-build`
+    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Refresh File Dependencies\" command in your editor\n\n{stdout}"
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)

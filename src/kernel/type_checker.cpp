@@ -1003,6 +1003,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
+    if (r != l_undef) return r == l_true;
+    
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.
@@ -1011,7 +1013,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
             return true;
         }
     }
-    if (r != l_undef) return r == l_true;
 
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*

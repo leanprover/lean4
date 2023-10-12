@@ -576,6 +576,8 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
 def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) : TermElabM CodeBlock := do
   unless hasTerminalAction terminal.code do
     throwErrorAt kRef "`do` element is unreachable"
+  -- remove updates to variable `y` in `k` because `y` is being defined (see #2663)
+  let k := if let some y := y? then { k with uvars := eraseVars k.uvars #[y] } else k
   let (terminal, k) ← homogenize terminal k
   let xs := varSetToArray k.uvars
   let y ← match y? with | some y => pure y | none => `(y)

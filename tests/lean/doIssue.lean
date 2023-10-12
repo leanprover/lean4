@@ -24,3 +24,8 @@ def h' (xs : Array Nat) : IO Unit := do
 
 example : IO Unit := do
   let x ← if true then pure true else pure false
+
+example : Id Unit := do
+  let mut x ← if true then pure true else pure false
+  if let .true := x then
+    x := false

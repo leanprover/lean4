@@ -94,7 +94,7 @@ root dependencies. Otherwise, only update the root dependencies specified.
 
 If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
 -/
-def buildUpdatedManifest (ws : Workspace)
+def Workspace.updateAndMaterialize (ws : Workspace)
 (toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
   let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
@@ -206,13 +206,16 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   if updateDeps then
-    buildUpdatedManifest ws {} rc
+    ws.updateAndMaterialize {} rc
+  else if let some manifest ← Manifest.load? ws.manifestFile then
+    ws.materializeDeps manifest rc
   else
-    ws.materializeDeps (← Manifest.loadOrEmpty ws.manifestFile) rc
+    ws.updateAndMaterialize {} rc
+
 
 /-- Updates the manifest for the loaded Lake workspace (see `buildUpdatedManifest`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
-  discard <| buildUpdatedManifest ws toUpdate rc
+  discard <| ws.updateAndMaterialize toUpdate rc
 

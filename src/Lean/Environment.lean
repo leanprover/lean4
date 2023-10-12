@@ -851,7 +851,7 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, _        => env
 
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   let env := registerNamePrefixes env cinfo.name
   env.addAux cinfo
 

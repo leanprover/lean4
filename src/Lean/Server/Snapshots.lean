@@ -92,12 +92,6 @@ def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax 
     Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
   return cmdStx
 
-register_builtin_option server.stderrAsMessages : Bool := {
-  defValue := true
-  group    := "server"
-  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
-}
-
 /-- Compiles the next command occurring after the given snapshot. If there is no next command
 (file ended), `Snapshot.isAtEnd` will hold of the return value. -/
 -- NOTE: This code is really very similar to Elab.Frontend. But generalizing it

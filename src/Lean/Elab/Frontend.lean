@@ -3,8 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
-import Lean.Elab.Import
-import Lean.Elab.Command
+import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
 
@@ -85,11 +84,7 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   pure (s.commandState.env, s.commandState.messages)
 
 builtin_initialize
-  registerOption `printMessageEndPos { defValue := false, descr := "print end position of each message in addition to start position" }
   registerTraceClass `Elab.info
-
-def getPrintMessageEndPos (opts : Options) : Bool :=
-  opts.getBool `printMessageEndPos false
 
 @[export lean_run_frontend]
 def runFrontend
@@ -100,26 +95,18 @@ def runFrontend
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
+  let process ← Lean.Language.Lean.mkProcessor { mainModuleName, opts }
   let inputCtx := Parser.mkInputContext input fileName
-  let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts messages inputCtx trustLevel
-  let env := env.setMainModule mainModuleName
-  let mut commandState := Command.mkState env messages opts
-
-  if ileanFileName?.isSome then
-    -- Collect InfoTrees so we can later extract and export their info to the ilean file
-    commandState := { commandState with infoState.enabled := true }
-
-  let s ← IO.processCommands inputCtx parserState commandState
-  for msg in s.commandState.messages.toList do
-    IO.print (← msg.toString (includeEndPos := getPrintMessageEndPos opts))
-
+  let snaps ← process inputCtx
+  snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then
-    let trees := s.commandState.infoState.trees.toArray
+    let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
     let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
-  pure (s.commandState.env, !s.commandState.messages.hasErrors)
+  let hasErrors := snaps.getAll.any (·.msgLog.hasErrors)
+  let env := sorry  -- TODO
+  pure (env, !hasErrors)
 
 end Lean.Elab

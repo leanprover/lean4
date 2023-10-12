@@ -159,7 +159,7 @@ section Initialization
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files. -/
   partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let args := #["print-paths"] ++ imports.map (toString ·.module)
+    let args := #["print-paths"] ++ imports.map (toString ·.module) ++ m.extraPrintPathsFlags
     let cmdStr := " ".intercalate (toString lakePath :: args.toList)
     let lakeProc ← Process.spawn {
       stdin  := Process.Stdio.null
@@ -336,7 +336,7 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText⟩
+      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.extraPrintPathsFlags⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -476,14 +476,15 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
-  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
+  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
+  let extraPrintPathsFlags := param.extraPrintPathsFlags?.getD #[]
   let doc := param.textDocument
   /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
     "\n", which should be enough to handle both LF and CRLF correctly.
     This is because LSP always refers to characters by (line, column),
     so if we get the line number correct it shouldn't matter that there
     is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, extraPrintPathsFlags⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try

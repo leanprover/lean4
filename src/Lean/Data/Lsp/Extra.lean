@@ -18,7 +18,7 @@ structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
   /--
     Further flags passed to `lake print-paths` for the opened document.
     Used for forwarding `--no-build` on initial open. -/
-  extraPrintPathsFlags? : Option (Array String)
+  extraPrintPathsFlags? : Option (Array String) := none
   deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.

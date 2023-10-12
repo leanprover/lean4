@@ -14,11 +14,20 @@ additional requests and notifications are supported. -/
 namespace Lean.Lsp
 open Json
 
+/--
+  Controls when dependencies are built on `textDocument/didOpen` notifications.
+-/
+inductive DependencyBuildMode where
+  /-- Always build dependencies. -/
+  | always
+  /-- Build dependencies once, but then do not build them again on import changes / crashes. Used for `didOpen` notifications that are explicitly intended for manually triggering the build. -/
+  | once
+  /--  Never build dependencies. -/
+  | never
+  deriving FromJson, ToJson, Inhabited
+
 structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
-  /--
-    Further flags passed to `lake print-paths` for the opened document.
-    Used for forwarding `--no-build` on initial open. -/
-  extraPrintPathsFlags? : Option (Array String) := none
+  dependencyBuildMode : DependencyBuildMode := .always -- Compatibility with clients pre-build-mode
   deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.

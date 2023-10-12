@@ -116,3 +116,7 @@ inductive A (α : Type u) (β : Type v)
 
 open A
 #check cons -- unknown `cons`, it is protected
+
+-- Test14
+inductive B.{u, v} : Sort ((imax u v)+1)
+  | x : Sort u → B

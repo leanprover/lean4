@@ -237,7 +237,7 @@ section ServerM
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
 
-  def startFileWorker (m : DocumentMeta) (extraPrintPathsFlags : Array String := #[]) : ServerM Unit := do
+  def startFileWorker (m : DocumentMeta) : ServerM Unit := do
     publishProgressAtPos m 0 (← read).hOut
     let st ← read
     let workerProc ← Process.spawn {
@@ -268,7 +268,7 @@ section ServerM
           version    := m.version
           text       := m.text.source
         }
-        extraPrintPathsFlags? := extraPrintPathsFlags
+        extraPrintPathsFlags? := m.extraPrintPathsFlags
         : LeanDidOpenTextDocumentParams
       }
     }
@@ -388,7 +388,7 @@ section NotificationHandling
        This is because LSP always refers to characters by (line, column),
        so if we get the line number correct it shouldn't matter that there
        is a CR there. -/
-    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap⟩ (p.extraPrintPathsFlags?.getD #[])
+    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap, p.extraPrintPathsFlags?.getD #[]⟩
 
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let doc := p.textDocument
@@ -399,7 +399,7 @@ section NotificationHandling
     if changes.isEmpty then
       return
     let newDocText := foldDocumentChanges changes oldDoc.text
-    let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
+    let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.extraPrintPathsFlags⟩
     updateFileWorkers { fw with doc := newDoc }
     tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" p) (restartCrashedWorker := true)
 

@@ -276,7 +276,7 @@ section ServerM
           version    := m.version
           text       := m.text.source
         }
-        dependencyBuildMode := initialDependencyBuildMode
+        dependencyBuildMode? := initialDependencyBuildMode
         : LeanDidOpenTextDocumentParams
       }
     }
@@ -396,7 +396,7 @@ section NotificationHandling
        This is because LSP always refers to characters by (line, column),
        so if we get the line number correct it shouldn't matter that there
        is a CR there. -/
-    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap, p.dependencyBuildMode⟩
+    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap, p.dependencyBuildMode?.getD .always⟩
 
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let doc := p.textDocument

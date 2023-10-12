@@ -485,7 +485,7 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
     This is because LSP always refers to characters by (line, column),
     so if we get the line number correct it shouldn't matter that there
     is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode⟩
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try

@@ -328,8 +328,9 @@ unsafe def anyMUnsafe {α : Type u} {m : Type → Type w} [Monad m] (p : α → 
       else
         any (i+1) stop
   if start < stop then
-    if stop ≤ as.size then
-      any (USize.ofNat start) (USize.ofNat stop)
+    let stop' := min stop as.size
+    if start < stop' then
+      any (USize.ofNat start) (USize.ofNat stop')
     else
       pure false
   else

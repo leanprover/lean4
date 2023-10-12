@@ -21,3 +21,6 @@ def h (xs : Array Nat) : IO Unit := do
 def h' (xs : Array Nat) : IO Unit := do
   discard <| pure (xs.set! 0 1)
   IO.println xs
+
+example : IO Unit := do
+  let x ← if true then pure true else pure false

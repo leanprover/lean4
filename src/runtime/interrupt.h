@@ -50,11 +50,11 @@ void check_interrupted();
 /**
    \brief Check system resources: stack, memory, heartbeat, interrupt flag.
 
-   `do_check_interrupted` should be set to `false` in places where a C++ exception
-   is not caught and would bring down the entire process as interruption
+   `do_check_interrupted` should only be set to `true` in places where a C++ exception
+   is caught and would not bring down the entire process as interruption
    should not be a fatal error.
 */
-void check_system(char const * component_name, bool do_check_interrupted = true);
+void check_system(char const * component_name, bool do_check_interrupted = false);
 
 constexpr unsigned g_small_sleep = 10;
 

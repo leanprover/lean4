@@ -12,7 +12,7 @@ if (← get) == 0 then
 modify (· - x)
 
 def f1 (x : Nat) : M Nat := do
-let v ←
+let v : Bool ←
   try
     dec x
     return x

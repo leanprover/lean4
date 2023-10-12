@@ -573,8 +573,10 @@ def mkMatch (ref : Syntax) (genParam : Syntax) (discrs : Syntax) (optMotive : Sy
 
 /-- Return a code block that executes `terminal` and then `k` with the value produced by `terminal`.
    This method assumes `terminal` is a terminal -/
-def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) : TermElabM CodeBlock := do
+def concat (terminal : CodeBlock) (kRef : Syntax) (y? : Option Var) (k : CodeBlock) (allowUnreachable := false) : TermElabM CodeBlock := do
   unless hasTerminalAction terminal.code do
+    if allowUnreachable then
+      return terminal
     throwErrorAt kRef "`do` element is unreachable"
   -- remove updates to variable `y` in `k` because `y` is being defined (see #2663)
   let k := if let some y := y? then { k with uvars := eraseVars k.uvars #[y] } else k
@@ -1335,7 +1337,7 @@ mutual
       | none =>
         checkLetArrowRHS doElem
         let c ← doSeqToCode [doElem]
-        concat c (doElems.headD doLetArrow) y k
+        concat c (doElems.headD doLetArrow) y k (allowUnreachable := doElems.isEmpty)
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
       let doElem  := decl[2]

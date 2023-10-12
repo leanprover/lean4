@@ -11,6 +11,8 @@ fi
 
 ./clean.sh
 
+# Test Lake's management of a single Git-cloned dependency.
+
 mkdir hello
 pushd hello
 $LAKE init hello

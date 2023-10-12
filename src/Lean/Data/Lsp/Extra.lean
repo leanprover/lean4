@@ -27,7 +27,7 @@ inductive DependencyBuildMode where
   deriving FromJson, ToJson, Inhabited
 
 structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
-  dependencyBuildMode : DependencyBuildMode := .always -- Compatibility with clients pre-build-mode
+  dependencyBuildMode? : Option DependencyBuildMode := none -- `none`: Compatibility with clients pre-build-mode
   deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.

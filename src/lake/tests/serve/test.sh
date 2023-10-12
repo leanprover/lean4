@@ -35,7 +35,7 @@ echo "tested 49"
 # Test that `lake print-paths` produces the error from `LAKE_INVALID_CONFIG`
 set -x
 # NOTE: For some reason, using `!` here does not work on macOS
-(LAKE_INVALID_CONFIG=$'foo\n' $LAKE print-paths 2>&1 || true) |  grep foo
+(LAKE_INVALID_CONFIG=$'foo\n' $LAKE print-paths 2>&1 && exit 1 || true) | grep foo
 set +x
 
 # Test that `lake serve` produces the `Invalid Lake configuration message`.

@@ -248,9 +248,17 @@ section ServerM
       setsid        := true
     }
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
+    let initialDependencyBuildMode := m.dependencyBuildMode
+    let updatedDependencyBuildMode :=
+      if initialDependencyBuildMode matches .once then
+        -- By sending the first `didOpen` notification, we build the dependencies once
+        -- => no future builds
+        .never
+      else
+        initialDependencyBuildMode
     -- The task will never access itself, so this is fine
     let fw : FileWorker := {
-      doc                := m
+      doc                := { m with dependencyBuildMode := updatedDependencyBuildMode}
       proc               := workerProc
       commTask           := Task.pure WorkerEvent.terminated
       state              := WorkerState.running
@@ -268,7 +276,7 @@ section ServerM
           version    := m.version
           text       := m.text.source
         }
-        extraPrintPathsFlags? := m.extraPrintPathsFlags
+        dependencyBuildMode := initialDependencyBuildMode
         : LeanDidOpenTextDocumentParams
       }
     }
@@ -388,7 +396,7 @@ section NotificationHandling
        This is because LSP always refers to characters by (line, column),
        so if we get the line number correct it shouldn't matter that there
        is a CR there. -/
-    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap, p.extraPrintPathsFlags?.getD #[]⟩
+    startFileWorker ⟨doc.uri, doc.version, doc.text.toFileMap, p.dependencyBuildMode⟩
 
   def handleDidChange (p : DidChangeTextDocumentParams) : ServerM Unit := do
     let doc := p.textDocument
@@ -399,7 +407,7 @@ section NotificationHandling
     if changes.isEmpty then
       return
     let newDocText := foldDocumentChanges changes oldDoc.text
-    let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.extraPrintPathsFlags⟩
+    let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText, oldDoc.dependencyBuildMode⟩
     updateFileWorkers { fw with doc := newDoc }
     tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" p) (restartCrashedWorker := true)
 

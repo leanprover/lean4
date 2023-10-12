@@ -287,7 +287,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
     lean_assert(!has_loose_bvars(e));
-    check_system("type checker");
+    check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
     if (it != m_st->m_infer_type[infer_only].end())
@@ -410,7 +410,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
-    check_system("type checker: whnf");
+    check_system("type checker: whnf", /* do_check_interrupted */ true);
 
     // handle easy cases
     switch (e.kind()) {
@@ -1002,7 +1002,7 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
-    check_system("is_definitionally_equal");
+    check_system("is_definitionally_equal", /* do_check_interrupted */ true);
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
     if (r != l_undef) return r == l_true;

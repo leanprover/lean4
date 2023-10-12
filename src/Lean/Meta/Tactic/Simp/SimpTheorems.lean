@@ -103,11 +103,12 @@ mutual
       else
         return false
     | _ =>
-      if type.isAppOfArity ``Eq 3 then
-        if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 then
+      if type.isAppOfArity ``Eq 3 || type.isAppOfArity ``Iff 2 then
+        if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 ||
+            proof.isAppOfArity ``Iff.refl 2 || proof.isAppOfArity ``Iff.rfl 2 then
           return true
-        else if proof.isAppOfArity ``Eq.symm 4 then
-          -- `Eq.symm` of rfl theorem is a rfl theorem
+        else if proof.isAppOfArity ``Eq.symm 4 || proof.isAppOfArity ``Iff.symm 3 then
+          -- `Eq.symm` or `Iff.symm` of rfl theorem is a rfl theorem
           isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem

@@ -105,7 +105,7 @@ mutual
     | _ =>
       if type.isAppOfArity ``Eq 3 || type.isAppOfArity ``Iff 2 then
         if proof.isAppOfArity ``Eq.refl 2 || proof.isAppOfArity ``rfl 2 ||
-            proof.isAppOfArity ``Iff.refl 2 || proof.isAppOfArity ``Iff.rfl 2 then
+            proof.isAppOfArity ``Iff.refl 1 || proof.isAppOfArity ``Iff.rfl 1 then
           return true
         else if proof.isAppOfArity ``Eq.symm 4 || proof.isAppOfArity ``Iff.symm 3 then
           -- `Eq.symm` or `Iff.symm` of rfl theorem is a rfl theorem

@@ -8,3 +8,8 @@ thus allowing for delta-reduction.
 def family := Type → Type
 
 inductive bad : family
+
+def Set (A : Type _) := A → Prop
+
+inductive Thing (s : Set V) : Set V
+| basic : ∀ x, s x → Thing s x

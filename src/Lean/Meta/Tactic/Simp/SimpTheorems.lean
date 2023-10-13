@@ -110,6 +110,15 @@ mutual
         else if proof.isAppOfArity ``Eq.symm 4 || proof.isAppOfArity ``Iff.symm 3 then
           -- `Eq.symm` or `Iff.symm` of rfl theorem is a rfl theorem
           isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+        else if proof.isAppOfArity ``propext 3 then
+          -- `propext` is applied to `Iff` proofs during preprocessing
+          if let some n := proof.appArg!.getAppFn.constName? then
+            -- Check if the proof of `a ↔ b` is a `rfl` theorem or an application of a `rfl` theorem
+            isRflTheorem n
+          else
+            -- small hack: we don't need the exact type: `type` is `a = b`, and `proof : a ↔ b`.
+            -- Both `a = b` and `a ↔ b` behave the same way in this function.
+            isRflProofCore type proof.appArg!
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem

@@ -302,12 +302,10 @@ class csimp_fn {
     }
 
     expr get_minor_body(expr e, buffer<expr> & xs) {
-        unsigned i = 0;
         while (is_lambda(e)) {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
             expr x = m_lctx.mk_local_decl(ngen(), binding_name(e), d, binding_info(e));
             xs.push_back(x);
-            i++;
             e  = binding_body(e);
         }
         return instantiate_rev(e, xs.size(), xs.data());

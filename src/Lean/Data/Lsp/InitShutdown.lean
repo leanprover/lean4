@@ -70,6 +70,11 @@ structure InitializeParams where
 def InitializeParams.editDelay (params : InitializeParams) : Nat :=
   params.initializationOptions? |>.bind (·.editDelay?) |>.getD 200
 
+/-- Determine the client's preferred encoding for positions, falling back
+to UTF-16 per the LSP spec -/
+def InitializeParams.positionEncodingKind (params : InitializeParams) : PositionEncodingKind :=
+  params.capabilities.positionEncodingKind
+
 instance : FromJson InitializeParams where
   fromJson? j := do
     /- Many of these params can be null instead of not present.

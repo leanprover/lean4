@@ -7,6 +7,7 @@ Authors: Joscha Mennicken
 
 import Lean.Expr
 import Lean.Data.Lsp.Basic
+import Lean.Server.Utils
 
 /-! This file contains types for communication between the watchdog and the
 workers. These messages are not visible externally to users of the LSP server.
@@ -46,13 +47,15 @@ def fromString (s : String) : Except String RefIdent := do
 end RefIdent
 
 structure RefInfo where
-  definition : Option Lsp.Range
-  usages : Array Lsp.Range
+  definition : Option Lsp.EncodedRange
+  usages : Array Lsp.EncodedRange
 
 instance : ToJson RefInfo where
   toJson i :=
-    let rangeToList (r : Lsp.Range) : List Nat :=
-      [r.start.line, r.start.character, r.end.line, r.end.character]
+    let rangeToList (r : Lsp.EncodedRange) : List Nat :=
+      [ r.start.line, r.start.characterUtf8, r.start.characterUtf16, r.start.characterUtf32,
+        r.end.line, r.end.characterUtf8, r.end.characterUtf16, r.end.characterUtf32
+      ]
     Json.mkObj [
       ("definition", toJson $ i.definition.map rangeToList),
       ("usages", toJson $ i.usages.map rangeToList)
@@ -60,9 +63,10 @@ instance : ToJson RefInfo where
 
 instance : FromJson RefInfo where
   fromJson? j := do
-    let listToRange (l : List Nat) : Except String Lsp.Range := match l with
-      | [sLine, sChar, eLine, eChar] => pure ⟨⟨sLine, sChar⟩, ⟨eLine, eChar⟩⟩
-      | _ => throw s!"Expected list of length 4, not {l.length}"
+    let listToRange (l : List Nat) : Except String Lsp.EncodedRange := match l with
+      | [sLine, sChar8, sChar16, sChar32, eLine, eChar8, eChar16, eChar32] =>
+        pure ⟨⟨sLine, sChar8, sChar16, sChar32⟩, ⟨eLine, eChar8, eChar16, eChar32⟩⟩
+      | _ => throw s!"Expected list of length 8, not {l.length}"
     let definition ← j.getObjValAs? (Option $ List Nat) "definition"
     let definition ← match definition with
       | none => pure none

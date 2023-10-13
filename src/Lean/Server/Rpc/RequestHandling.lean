@@ -41,7 +41,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   else
     let doc ← readDoc
     let text := doc.meta.text
-    let callPos := text.lspPosToUtf8Pos p.position
+    let callPos := text.lspPosToUtf8Pos (← encoding) p.position
     let throwNotFound := throwThe RequestError
       { code := .methodNotFound
         message := s!"No RPC method '{p.method}' found"}

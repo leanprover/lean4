@@ -8,7 +8,7 @@ import Lean.Parser.Term
 import Lean.Data.FuzzyMatching
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.Capabilities
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 import Lean.Meta.Tactic.Apply
 import Lean.Meta.Match.MatcherInfo
 import Lean.Server.InfoUtils
@@ -416,7 +416,10 @@ private def optionCompletion (ctx : ContextInfo) (stx : Syntax) (caps : ClientCa
             none -- InsertReplaceEdit not supported by client
           else if let some ⟨start, stop⟩ := stx[1].getRange? then
             let stop := if trailingDot then stop + ' ' else stop
-            let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
+            let range := {
+              start := ctx.fileMap.utf8PosToEncodedLspPos caps.positionEncodingKind start,
+              «end» := ctx.fileMap.utf8PosToEncodedLspPos caps.positionEncodingKind stop
+            }
             some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
           else
             none

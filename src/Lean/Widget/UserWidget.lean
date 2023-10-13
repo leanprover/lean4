@@ -95,7 +95,7 @@ open Server RequestM in
 @[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos args.pos
+  let pos := doc.meta.text.lspPosToUtf8Pos (← encoding) args.pos
   let notFound := throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
   withWaitFindSnap doc (notFoundX := notFound)
     (fun s => s.endPos >= pos || (widgetSourceRegistry.getState s.env).contains args.hash)
@@ -143,7 +143,7 @@ open Lean Server RequestM in
 def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  let pos := filemap.lspPosToUtf8Pos args
+  let pos := filemap.lspPosToUtf8Pos (← encoding) args
   withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
@@ -153,7 +153,7 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
       return {
         widget with
         props := w.props
-        range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx
+        range? := (String.Range.toEncodedLspRange (← encoding) filemap) <$> Syntax.getRange? w.stx
       })
     return {widgets := ws}
 

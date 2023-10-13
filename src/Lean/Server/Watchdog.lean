@@ -146,6 +146,10 @@ section ServerM
 
   abbrev ServerM := ReaderT ServerContext IO
 
+  def encoding : ServerM Lsp.PositionEncodingKind := do
+    return (← read).initParams.positionEncodingKind
+
+
   def updateFileWorkers (val : FileWorker) : ServerM Unit := do
     (←read).fileWorkersRef.modify (fun fileWorkers => fileWorkers.insert val.doc.uri val)
 
@@ -185,6 +189,7 @@ section ServerM
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
   private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
     let o := (←read).hOut
+    let enc ← encoding
     let rec loop : ServerM WorkerEvent := do
       try
         let msg ← fw.stdout.readLspMessage
@@ -229,7 +234,7 @@ section ServerM
           -- Worker crashed
           fw.errorPendingRequests o (if exitCode = 1 then ErrorCode.workerExited else ErrorCode.workerCrashed)
             s!"Server process for {fw.doc.uri} crashed, {if exitCode = 1 then "see stderr for exception" else "likely due to a stack overflow or a bug"}."
-          publishProgressAtPos fw.doc 0 o (kind := LeanFileProgressKind.fatalError)
+          publishProgressAtPos fw.doc enc 0 o (kind := LeanFileProgressKind.fatalError)
           return WorkerEvent.crashed err
       loop
     let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
@@ -238,7 +243,7 @@ section ServerM
       | Except.error e => WorkerEvent.ioError e
 
   def startFileWorker (m : DocumentMeta) : ServerM Unit := do
-    publishProgressAtPos m 0 (← read).hOut
+    publishProgressAtPos m (← encoding) 0 (← read).hOut
     let st ← read
     let workerProc ← Process.spawn {
       toStdioConfig := workerCfg
@@ -337,24 +342,26 @@ section RequestHandling
 open FuzzyMatching
 
 def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location := do
+  let enc ← encoding
   let mut definitions := #[]
   if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
-        if let some definition ← references.definitionOf? ident srcSearchPath then
+      for ident in references.findAt enc module p.position do
+        if let some definition ← references.definitionOf? enc ident srcSearchPath then
           definitions := definitions.push definition
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
+  let enc ← encoding
   let mut result := #[]
   if let some path := fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
-        let identRefs ← references.referringTo module ident srcSearchPath p.context.includeDeclaration
+      for ident in references.findAt enc module p.position do
+        let identRefs ← references.referringTo enc module ident srcSearchPath p.context.includeDeclaration
         result := result.append identRefs
   return result
 
@@ -363,7 +370,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     return #[]
   let references ← (← read).references.get
   let srcSearchPath := (← read).srcSearchPath
-  let symbols ← references.definitionsMatching srcSearchPath (maxAmount? := none)
+  let symbols ← references.definitionsMatching (← encoding) srcSearchPath (maxAmount? := none)
     fun name =>
       let name := privateToUserName? name |>.getD name
       if let some score := fuzzyMatchScoreWithThreshold? p.query name.toString then
@@ -396,7 +403,7 @@ section NotificationHandling
     let newVersion := doc.version?.getD 0
     if changes.isEmpty then
       return
-    let newDocText := foldDocumentChanges changes oldDoc.text
+    let newDocText := foldDocumentChanges changes (← encoding) oldDoc.text
     let newDoc : DocumentMeta := ⟨doc.uri, newVersion, newDocText⟩
     updateFileWorkers { fw with doc := newDoc }
     tryWriteMessage doc.uri (Notification.mk "textDocument/didChange" p) (restartCrashedWorker := true)
@@ -581,7 +588,7 @@ section MainLoop
         mainLoop clientTask
 end MainLoop
 
-def mkLeanServerCapabilities : ServerCapabilities := {
+def mkLeanServerCapabilities (encoding : PositionEncodingKind) : ServerCapabilities := {
   textDocumentSync? := some {
     openClose         := true
     change            := TextDocumentSyncKind.incremental
@@ -614,6 +621,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     resolveProvider? := true,
     codeActionKinds? := some #["quickfix", "refactor"]
   }
+  positionEncoding := encoding
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do
@@ -665,7 +673,7 @@ def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   o.writeLspResponse {
     id     := initRequest.id
     result := {
-      capabilities := mkLeanServerCapabilities
+      capabilities := mkLeanServerCapabilities initRequest.param.positionEncodingKind
       serverInfo?  := some {
         name     := "Lean 4 Server"
         version? := "0.1.2"

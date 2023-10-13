@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Json
 import Lean.Data.Lsp.Basic
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncoding
 
 import Lean.Message
 

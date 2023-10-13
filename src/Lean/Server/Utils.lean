@@ -75,9 +75,9 @@ def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
   fileMap  := doc.text
 
-def replaceLspRange (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
-  let start := text.lspPosToUtf8Pos r.start
-  let «end» := text.lspPosToUtf8Pos r.«end»
+def replaceLspRange (encoding : Lsp.PositionEncodingKind) (text : FileMap) (r : Lsp.Range) (newText : String) : FileMap :=
+  let start := text.lspPosToUtf8Pos encoding r.start
+  let «end» := text.lspPosToUtf8Pos encoding r.«end»
   let pre := text.source.extract 0 start
   let post := text.source.extract «end» text.source.endPos
   (pre ++ newText ++ post).toFileMap
@@ -101,15 +101,15 @@ def maybeTee (fName : String) (isOut : Bool) (h : FS.Stream) : IO FS.Stream := d
 open Lsp
 
 /-- Returns the document contents with the change applied. -/
-def applyDocumentChange (oldText : FileMap) : (change : Lsp.TextDocumentContentChangeEvent) → FileMap
+def applyDocumentChange (encoding : PositionEncodingKind) (oldText : FileMap) : (change : Lsp.TextDocumentContentChangeEvent) → FileMap
   | TextDocumentContentChangeEvent.rangeChange (range : Range) (newText : String) =>
-    replaceLspRange oldText range newText
+    replaceLspRange encoding oldText range newText
   | TextDocumentContentChangeEvent.fullChange (newText : String) =>
     newText.toFileMap
 
 /-- Returns the document contents with all changes applied. -/
-def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (oldText : FileMap) : FileMap :=
-  changes.foldl applyDocumentChange oldText
+def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (encoding : Lsp.PositionEncodingKind) (oldText : FileMap) : FileMap :=
+  changes.foldl (applyDocumentChange encoding) oldText
 
 def publishDiagnostics (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) (hOut : FS.Stream) : IO Unit :=
   hOut.writeLspNotification {
@@ -132,8 +132,15 @@ def publishProgress (m : DocumentMeta) (processing : Array LeanFileProgressProce
     }
   }
 
-def publishProgressAtPos (m : DocumentMeta) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
-  publishProgress m #[{ range := ⟨m.text.utf8PosToLspPos pos, m.text.utf8PosToLspPos m.text.source.endPos⟩, kind := kind }] hOut
+def publishProgressAtPos (m : DocumentMeta) (encoding : Lsp.PositionEncodingKind) (pos : String.Pos) (hOut : FS.Stream) (kind : LeanFileProgressKind := LeanFileProgressKind.processing) : IO Unit :=
+  let info := {
+    range := {
+      start := m.text.utf8PosToEncodedLspPos encoding pos
+      «end» := m.text.utf8PosToEncodedLspPos encoding m.text.source.endPos
+    },
+    kind := kind
+  }
+  publishProgress m #[info] hOut
 
 def publishProgressDone (m : DocumentMeta) (hOut : FS.Stream) : IO Unit :=
   publishProgress m #[] hOut
@@ -144,5 +151,8 @@ def applyWorkspaceEdit (params : ApplyWorkspaceEditParams) (hOut : FS.Stream) : 
 
 end Lean.Server
 
-def String.Range.toLspRange (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
-  ⟨text.utf8PosToLspPos r.start, text.utf8PosToLspPos r.stop⟩
+def String.Range.toLspRanges (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.EncodedRange :=
+  { start := text.utf8PosToLspPos r.start, «end» := text.utf8PosToLspPos r.stop }
+
+def String.Range.toEncodedLspRange (encoding : Lean.Lsp.PositionEncodingKind) (text : Lean.FileMap) (r : String.Range) : Lean.Lsp.Range :=
+  { start := text.utf8PosToEncodedLspPos encoding r.start, «end» := text.utf8PosToEncodedLspPos encoding r.stop }

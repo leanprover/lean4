@@ -1,8 +1,8 @@
 some { range := { pos := { line := 175, column := 42 },
-             charUtf16 := 42,
+             charLsp := { line := 174, characterUtf8 := 42, characterUtf16 := 42, characterUtf32 := 42 },
              endPos := { line := 181, column := 31 },
-             endCharUtf16 := 31 },
+             endCharLsp := { line := 180, characterUtf8 := 31, characterUtf16 := 31, characterUtf32 := 31 } },
   selectionRange := { pos := { line := 175, column := 46 },
-                      charUtf16 := 46,
+                      charLsp := { line := 174, characterUtf8 := 46, characterUtf16 := 46, characterUtf32 := 46 },
                       endPos := { line := 175, column := 58 },
-                      endCharUtf16 := 58 } }
+                      endCharLsp := { line := 174, characterUtf8 := 58, characterUtf16 := 58, characterUtf32 := 58 } } }

@@ -95,7 +95,7 @@ This is implemented by calling all of the registered `CodeActionProvider` functi
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_codeAction). -/
 def handleCodeAction (params : CodeActionParams) : RequestM (RequestTask (Array CodeAction)) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos params.range.end
+  let pos := doc.meta.text.lspPosToUtf8Pos (← encoding) params.range.end
   withWaitFindSnap doc (fun s => s.endPos ≥ pos)
     (notFoundX := return #[])
     fun snap => do
@@ -127,7 +127,7 @@ def handleCodeActionResolve (param : CodeAction) : RequestM (RequestTask CodeAct
   let some data := param.data?
     | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
   let data : CodeActionResolveData ← liftExcept <| Except.mapError RequestError.invalidParams <| fromJson? data
-  let pos := doc.meta.text.lspPosToUtf8Pos data.params.range.end
+  let pos := doc.meta.text.lspPosToUtf8Pos (← encoding) data.params.range.end
   withWaitFindSnap doc (fun s => s.endPos ≥ pos)
     (notFoundX := throw <| RequestError.internalError "snapshot not found")
     fun snap => do

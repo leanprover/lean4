@@ -17,14 +17,17 @@ static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_de
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_format_pretty(lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__8;
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__1;
 lean_object* l_List_mapTR_loop___at_Lean_resolveGlobalConstNoOverload___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_formatStxAux(lean_object*, uint8_t, lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__3;
 lean_object* l_Lean_mkConstWithLevelParams___at_Lean_Elab_Command_expandDeclId___spec__8(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11;
 lean_object* l_Lean_addBuiltinDeclarationRanges(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7___closed__4;
 extern lean_object* l_Lean_LocalContext_empty;
@@ -78,6 +81,7 @@ static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_e
 static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalConstCore___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_elabGenInjectiveTheorems___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwUnknownConstant___at_Lean_Elab_Command_elabGenInjectiveTheorems___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1190,6 +1194,20 @@ static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheor
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(45u);
+x_3 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(14u);
 x_2 = lean_unsigned_to_nat(37u);
 x_3 = lean_alloc_ctor(0, 2, 0);
@@ -1198,14 +1216,28 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__3() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(13u);
+x_2 = lean_unsigned_to_nat(37u);
+x_3 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__1;
-x_2 = lean_unsigned_to_nat(45u);
-x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(37u);
+x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__2;
+x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__3;
+x_4 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__4;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -1214,7 +1246,7 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__4() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1226,7 +1258,21 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__5() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(49u);
+x_3 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -1238,14 +1284,28 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(10u);
+x_2 = lean_unsigned_to_nat(73u);
+x_3 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 3, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__4;
-x_2 = lean_unsigned_to_nat(49u);
-x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__5;
-x_4 = lean_unsigned_to_nat(73u);
+x_1 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6;
+x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7;
+x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8;
+x_4 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9;
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -1254,12 +1314,12 @@ lean_ctor_set(x_5, 3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7() {
+static lean_object* _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__3;
-x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6;
+x_1 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__5;
+x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1271,7 +1331,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_2 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems___closed__8;
-x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7;
+x_3 = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11;
 x_4 = l_Lean_addBuiltinDeclarationRanges(x_2, x_3, x_1);
 return x_4;
 }
@@ -1350,6 +1410,14 @@ l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6 
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__6);
 l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7();
 lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__7);
+l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__8);
+l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__9);
+l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__10);
+l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11 = _init_l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11();
+lean_mark_persistent(l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange___closed__11);
 if (builtin) {res = l___regBuiltin_Lean_Elab_Command_elabGenInjectiveTheorems_declRange(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

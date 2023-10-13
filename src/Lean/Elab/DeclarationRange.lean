@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 import Lean.Log
 import Lean.Parser.Command
 import Lean.DeclarationRange
-import Lean.Data.Lsp.Utf16
+import Lean.Data.Lsp.PositionEncodingKind
+import Lean.Data.Lsp.PositionEncoding
 
 namespace Lean.Elab
 
@@ -16,10 +17,10 @@ def getDeclarationRange [Monad m] [MonadFileMap m] (stx : Syntax) : m Declaratio
   let endPos := stx.getTailPos?.getD pos |> fileMap.toPosition
   let pos    := pos |> fileMap.toPosition
   return {
-    pos          := pos
-    charUtf16    := fileMap.leanPosToLspPos pos |>.character
-    endPos       := endPos
-    endCharUtf16 := fileMap.leanPosToLspPos endPos |>.character
+    pos        := pos
+    charLsp    := fileMap.leanPosToLspPos pos
+    endPos     := endPos
+    endCharLsp := fileMap.leanPosToLspPos endPos
   }
 
 /--

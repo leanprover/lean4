@@ -96,8 +96,9 @@ structure GetInteractiveDiagnosticsParams where
 open RequestM in
 def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : RequestM (RequestTask (Array InteractiveDiagnostic)) := do
   let doc ← readDoc
+  let enc ← encoding
   let rangeEnd := params.lineRange?.map fun range =>
-    doc.meta.text.lspPosToUtf8Pos ⟨range.«end», 0⟩
+    doc.meta.text.lspPosToUtf8Pos enc ⟨range.«end», 0⟩
   let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
   pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>
@@ -128,13 +129,14 @@ builtin_initialize
     fun ⟨kind, ⟨i⟩⟩ => RequestM.asTask do
       let rc ← read
       let ls ← FileWorker.locationLinksOfInfo kind i
+      let enc := rc.initParams.positionEncodingKind
       if !ls.isEmpty then return ls
       -- TODO(WN): unify handling of delab'd (infoview) and elab'd (editor) applications
       let .ofTermInfo ti := i.info | return #[]
       let .app _ _ := ti.expr | return #[]
       let some nm := ti.expr.getAppFn.constName? | return #[]
       i.ctx.runMetaM ti.lctx <|
-        locationLinksFromDecl rc.srcSearchPath rc.doc.meta.uri nm none
+        locationLinksFromDecl enc rc.srcSearchPath rc.doc.meta.uri nm none
 
 def lazyTraceChildrenToInteractive (children : WithRpcRef LazyTraceChildren) :
     RequestM (RequestTask (Array (TaggedText MsgEmbed))) :=

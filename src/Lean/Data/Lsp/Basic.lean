@@ -6,6 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Json
 import Lean.Data.JsonRpc
+import Lean.Data.Lsp.PositionEncodingKind
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -39,6 +40,28 @@ instance : ToString Position := ⟨fun p =>
 instance : LT Position := ltOfOrd
 instance : LE Position := leOfOrd
 
+/-- LSP supports negotiation of which encoding is used for
+source-column positions. It's not always efficient to calculate this
+at the last minute, as it can be IO-heavy to re-load the source
+string, as is required for variable-length encodings.  This structure
+allows the selection of encoding to be delayed until the client's
+preference is known. To avoid a tricky invariant that there's a
+globally consistent setting, all three possibilities are cached.
+
+The lack of a ToJson instance is intentional - this should not be sent
+to clients.  -/
+structure EncodedPosition where
+  line : Nat
+  characterUtf8 : Nat
+  characterUtf16 : Nat
+  characterUtf32 : Nat
+  deriving Inhabited, BEq, Ord, Hashable, DecidableEq, Repr
+
+def EncodedPosition.toLsp : PositionEncodingKind → EncodedPosition → Position
+  | .utf8, p => { line := p.line, character := p.characterUtf8 }
+  | .utf16, p => { line := p.line, character := p.characterUtf16 }
+  | .utf32, p => { line := p.line, character := p.characterUtf32 }
+
 structure Range where
   start : Position
   «end» : Position
@@ -46,6 +69,26 @@ structure Range where
 
 instance : LT Range := ltOfOrd
 instance : LE Range := leOfOrd
+
+/-- LSP supports negotiation of which encoding is used for
+source-column positions. It's not always efficient to calculate this
+at the last minute, as it can be IO-heavy to re-load the source
+string.  This structure allows the selection of encoding to be delayed
+until the client's preference is known.
+
+The lack of a ToJson instance is intentional - this should not be sent
+to clients.  -/
+structure EncodedRange where
+  start : EncodedPosition
+  «end» : EncodedPosition
+  deriving Inhabited, BEq, Ord, Hashable, DecidableEq, Repr
+
+instance : LT EncodedRange := ltOfOrd
+instance : LE EncodedRange := leOfOrd
+
+def EncodedRange.toLsp (encoding : PositionEncodingKind) (r : EncodedRange) : Range where
+  start := r.start.toLsp encoding
+  «end» := r.«end».toLsp encoding
 
 /-- A `Location` is a `DocumentUri` and a `Range`. -/
 structure Location where

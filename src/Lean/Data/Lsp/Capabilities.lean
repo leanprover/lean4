@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.JsonRpc
+import Lean.Data.Lsp.Basic
 import Lean.Data.Lsp.TextSync
 import Lean.Data.Lsp.LanguageFeatures
 import Lean.Data.Lsp.CodeActions
@@ -57,14 +58,25 @@ structure WorkspaceClientCapabilities where
   workspaceEdit? : Option WorkspaceEditClientCapabilities := none
   deriving ToJson, FromJson
 
+structure GeneralClientCapabilities where
+  positionEncodings : Array PositionEncodingKind := #[.utf16]
+  deriving ToJson, FromJson
+
 structure ClientCapabilities where
   textDocument? : Option TextDocumentClientCapabilities := none
   window?       : Option WindowClientCapabilities       := none
   workspace?    : Option WorkspaceClientCapabilities    := none
+  general?      : Option GeneralClientCapabilities      := none
   deriving ToJson, FromJson
+
+def ClientCapabilities.positionEncodingKind (caps : ClientCapabilities) : PositionEncodingKind :=
+  match caps.general? with
+  | none => .utf16
+  | some general => general.positionEncodings.getD 0 .utf16
 
 -- TODO largely unimplemented
 structure ServerCapabilities where
+  positionEncoding          : PositionEncodingKind           := .utf16
   textDocumentSync?         : Option TextDocumentSyncOptions := none
   completionProvider?       : Option CompletionOptions       := none
   hoverProvider             : Bool                           := false

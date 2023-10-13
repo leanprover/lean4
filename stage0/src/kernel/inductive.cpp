@@ -614,7 +614,6 @@ public:
             d_idx++;
         }
         /* First, populate the field m_minors */
-        unsigned minor_idx = 1;
         d_idx = 0;
         for (inductive_type const & ind_type : m_ind_types) {
             name ind_type_name = ind_type.get_name();
@@ -666,7 +665,6 @@ public:
                 name minor_name = cnstr_name.replace_prefix(ind_type_name, name());
                 expr minor      = mk_local_decl(minor_name, minor_ty);
                 m_rec_infos[d_idx].m_minors.push_back(minor);
-                minor_idx++;
             }
             d_idx++;
         }

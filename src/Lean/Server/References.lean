@@ -16,7 +16,7 @@ structure Reference where
   ident : RefIdent
   /-- FVarIds that are logically identical to this reference -/
   aliases : Array RefIdent := #[]
-  range : Lsp.Range
+  range : Lsp.EncodedRange
   stx : Syntax
   ci : ContextInfo
   info : Info
@@ -72,12 +72,12 @@ def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
     usages := a.usages.append b.usages
   }
 
-def contains (self : RefInfo) (pos : Lsp.Position) : Bool := Id.run do
+def contains (self : RefInfo) (encoding : Lsp.PositionEncodingKind) (pos : Lsp.Position) : Bool := Id.run do
   if let some range := self.definition then
-    if contains range pos then
+    if contains (range.toLsp encoding) pos then
       return true
   for range in self.usages do
-    if contains range pos then
+    if contains (range.toLsp encoding) pos then
       return true
   false
 where
@@ -89,10 +89,10 @@ end Lean.Lsp.RefInfo
 namespace Lean.Lsp.ModuleRefs
 open Server
 
-def findAt (self : ModuleRefs) (pos : Lsp.Position) : Array RefIdent := Id.run do
+def findAt (self : ModuleRefs) (encoding : Lsp.PositionEncodingKind) (pos : Lsp.Position) : Array RefIdent := Id.run do
   let mut result := #[]
   for (ident, info) in self.toList do
-    if info.contains pos then
+    if info.contains encoding pos then
       result := result.push ident
   result
 
@@ -136,7 +136,7 @@ def findReferences (text : FileMap) (trees : Array InfoTree) : Array Reference :
       if let some (ident, isBinder) := identOf info then
         if let some range := info.range? then
           if info.stx.getHeadInfo matches .original .. then  -- we are not interested in canonical syntax here
-            modify (·.push { ident, range := range.toLspRange text, stx := info.stx, ci, info, isBinder }))
+            modify (·.push { ident, range := range.toLspRanges text, stx := info.stx, ci, info, isBinder }))
   get
 
 /--
@@ -151,7 +151,7 @@ chain/DAG) and gets rid of duplicate definitions.
 -/
 partial def combineFvars (trees : Array InfoTree) (refs : Array Reference) : Array Reference := Id.run do
   -- Deduplicate definitions based on their exact range
-  let mut posMap : HashMap Lsp.Range FVarId := HashMap.empty
+  let mut posMap : HashMap Lsp.EncodedRange FVarId := HashMap.empty
   for ref in refs do
     if let { ident := RefIdent.fvar id, range, isBinder := true, .. } := ref then
       posMap := posMap.insert range id
@@ -202,7 +202,7 @@ where
       modify (·.insert id baseId)
 
 def dedupReferences (refs : Array Reference) (allowSimultaneousBinderUse := false) : Array Reference := Id.run do
-  let mut refsByIdAndRange : HashMap (RefIdent × Option Bool × Lsp.Range) Reference := HashMap.empty
+  let mut refsByIdAndRange : HashMap (RefIdent × Option Bool × Lsp.EncodedRange) Reference := HashMap.empty
   for ref in refs do
     let isBinder := if allowSimultaneousBinderUse then some ref.isBinder else none
     let key := (ref.ident, isBinder, ref.range)
@@ -270,12 +270,12 @@ def allRefs (self : References) : HashMap Name Lsp.ModuleRefs :=
   let ileanRefs := self.ileans.toList.foldl (init := HashMap.empty) fun m (name, _, refs) => m.insert name refs
   self.workers.toList.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
 
-def findAt (self : References) (module : Name) (pos : Lsp.Position) : Array RefIdent := Id.run do
+def findAt (self : References) (encoding : Lsp.PositionEncodingKind) (module : Name) (pos : Lsp.Position) : Array RefIdent := Id.run do
   if let some refs := self.allRefs.find? module then
-    return refs.findAt pos
+    return refs.findAt encoding pos
   #[]
 
-def referringTo (self : References) (identModule : Name) (ident : RefIdent) (srcSearchPath : SearchPath)
+def referringTo (self : References) (encoding : Lsp.PositionEncodingKind) (identModule : Name) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do
   let refsToCheck := match ident with
     | RefIdent.const _ => self.allRefs.toList
@@ -291,12 +291,12 @@ def referringTo (self : References) (identModule : Name) (ident : RefIdent) (src
         let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
         if includeDefinition then
           if let some range := info.definition then
-            result := result.push ⟨uri, range⟩
+            result := result.push ⟨uri, range.toLsp encoding⟩
         for range in info.usages do
-          result := result.push ⟨uri, range⟩
+          result := result.push ⟨uri, range.toLsp encoding⟩
   return result
 
-def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+def definitionOf? (self : References) (encoding : Lsp.PositionEncodingKind) (ident : RefIdent) (srcSearchPath : SearchPath)
     : IO (Option Location) := do
   for (module, refs) in self.allRefs.toList do
     if let some info := refs.find? ident then
@@ -305,10 +305,10 @@ def definitionOf? (self : References) (ident : RefIdent) (srcSearchPath : Search
           -- Resolve symlinks (such as `src` in the build dir) so that files are
           -- opened in the right folder
           let uri := System.Uri.pathToUri <| ← IO.FS.realPath path
-          return some ⟨uri, definition⟩
+          return some ⟨uri, definition.toLsp encoding⟩
   return none
 
-def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter : Name → Option α)
+def definitionsMatching (self : References) (encoding : Lsp.PositionEncodingKind) (srcSearchPath : SearchPath) (filter : Name → Option α)
     (maxAmount? : Option Nat := none) : IO $ Array (α × Location) := do
   let mut result := #[]
   for (module, refs) in self.allRefs.toList do
@@ -317,7 +317,7 @@ def definitionsMatching (self : References) (srcSearchPath : SearchPath) (filter
       for (ident, info) in refs.toList do
         if let (RefIdent.const name, some definition) := (ident, info.definition) then
           if let some a := filter name then
-            result := result.push (a, ⟨uri, definition⟩)
+            result := result.push (a, ⟨uri, definition.toLsp encoding⟩)
             if let some maxAmount := maxAmount? then
               if result.size >= maxAmount then
                 return result

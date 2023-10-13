@@ -19,6 +19,10 @@ Author: Leonardo de Moura
     #include <sys/resource.h> // NOLINT
 #endif
 
+#if defined(LEAN_EMSCRIPTEN)
+#include <emscripten/stack.h>
+#endif
+
 namespace lean {
 void throw_get_stack_size_failed() {
     throw exception("failed to retrieve thread stack size");
@@ -41,6 +45,14 @@ size_t get_stack_size(int main) {
             throw_get_stack_size_failed();
         }
         return curr.rlim_cur;
+    } else {
+        return lthread::get_thread_stack_size();
+    }
+}
+#elif defined(LEAN_EMSCRIPTEN)
+size_t get_stack_size(int main) {
+    if (main) {
+        return emscripten_stack_get_end() - emscripten_stack_get_base();
     } else {
         return lthread::get_thread_stack_size();
     }

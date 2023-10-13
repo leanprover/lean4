@@ -20,172 +20,199 @@ doc string for 'g' is not available
 "Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\nit reduces `A` and continues building the telescope if it is a `forall`. "
 Foo :=
   { range := { pos := { line := 4, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 3, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 6, column := 58 },
-               endCharUtf16 := 58 },
+               endCharLsp := { line := 5, characterUtf8 := 58, characterUtf16 := 58, characterUtf32 := 58 } },
     selectionRange := { pos := { line := 4, column := 10 },
-                        charUtf16 := 10,
+                        charLsp := { line := 3, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 4, column := 13 },
-                        endCharUtf16 := 13 } }
+                        endCharLsp := { line := 3, characterUtf8 := 13, characterUtf16 := 13, characterUtf32 := 13 } } }
 Foo.name :=
   { range := { pos := { line := 5, column := 19 },
-               charUtf16 := 19,
+               charLsp := { line := 4, characterUtf8 := 19, characterUtf16 := 19, characterUtf32 := 19 },
                endPos := { line := 5, column := 23 },
-               endCharUtf16 := 23 },
+               endCharLsp := { line := 4, characterUtf8 := 23, characterUtf16 := 23, characterUtf32 := 23 } },
     selectionRange := { pos := { line := 5, column := 19 },
-                        charUtf16 := 19,
+                        charLsp := { line := 4, characterUtf8 := 19, characterUtf16 := 19, characterUtf32 := 19 },
                         endPos := { line := 5, column := 23 },
-                        endCharUtf16 := 23 } }
+                        endCharLsp := { line := 4, characterUtf8 := 23, characterUtf16 := 23, characterUtf32 := 23 } } }
 Foo.val :=
   { range := { pos := { line := 6, column := 44 },
-               charUtf16 := 44,
+               charLsp := { line := 5, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                endPos := { line := 6, column := 47 },
-               endCharUtf16 := 47 },
+               endCharLsp := { line := 5, characterUtf8 := 47, characterUtf16 := 47, characterUtf32 := 47 } },
     selectionRange := { pos := { line := 6, column := 44 },
-                        charUtf16 := 44,
+                        charLsp := { line := 5, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                         endPos := { line := 6, column := 47 },
-                        endCharUtf16 := 47 } }
+                        endCharLsp := { line := 5, characterUtf8 := 47, characterUtf16 := 47, characterUtf32 := 47 } } }
 myAxiom :=
   { range := { pos := { line := 9, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 8, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 9, column := 19 },
-               endCharUtf16 := 19 },
+               endCharLsp := { line := 8, characterUtf8 := 19, characterUtf16 := 19, characterUtf32 := 19 } },
     selectionRange := { pos := { line := 9, column := 6 },
-                        charUtf16 := 6,
+                        charLsp := { line := 8, characterUtf8 := 6, characterUtf16 := 6, characterUtf32 := 6 },
                         endPos := { line := 9, column := 13 },
-                        endCharUtf16 := 13 } }
+                        endCharLsp := { line := 8, characterUtf8 := 13, characterUtf16 := 13, characterUtf32 := 13 } } }
 Boo :=
   { range := { pos := { line := 11, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 10, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 15, column := 12 },
-               endCharUtf16 := 12 },
+               endCharLsp := { line := 14, characterUtf8 := 12, characterUtf16 := 12, characterUtf32 := 12 } },
     selectionRange := { pos := { line := 11, column := 10 },
-                        charUtf16 := 10,
+                        charLsp := { line := 10, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 11, column := 13 },
-                        endCharUtf16 := 13 } }
+                        endCharLsp := { line := 10,
+                                        characterUtf8 := 13,
+                                        characterUtf16 := 13,
+                                        characterUtf32 := 13 } } }
 Boo.makeBoo :=
   { range := { pos := { line := 13, column := 2 },
-               charUtf16 := 2,
+               charLsp := { line := 12, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 13, column := 9 },
-               endCharUtf16 := 9 },
+               endCharLsp := { line := 12, characterUtf8 := 9, characterUtf16 := 9, characterUtf32 := 9 } },
     selectionRange := { pos := { line := 13, column := 2 },
-                        charUtf16 := 2,
+                        charLsp := { line := 12, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                         endPos := { line := 13, column := 9 },
-                        endCharUtf16 := 9 } }
+                        endCharLsp := { line := 12, characterUtf8 := 9, characterUtf16 := 9, characterUtf32 := 9 } } }
 Boo.x :=
   { range := { pos := { line := 14, column := 27 },
-               charUtf16 := 27,
+               charLsp := { line := 13, characterUtf8 := 27, characterUtf16 := 27, characterUtf32 := 27 },
                endPos := { line := 14, column := 28 },
-               endCharUtf16 := 28 },
+               endCharLsp := { line := 13, characterUtf8 := 28, characterUtf16 := 28, characterUtf32 := 28 } },
     selectionRange := { pos := { line := 14, column := 27 },
-                        charUtf16 := 27,
+                        charLsp := { line := 13, characterUtf8 := 27, characterUtf16 := 27, characterUtf32 := 27 },
                         endPos := { line := 14, column := 28 },
-                        endCharUtf16 := 28 } }
+                        endCharLsp := { line := 13,
+                                        characterUtf8 := 28,
+                                        characterUtf16 := 28,
+                                        characterUtf32 := 28 } } }
 Boo.y :=
   { range := { pos := { line := 15, column := 4 },
-               charUtf16 := 4,
+               charLsp := { line := 14, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                endPos := { line := 15, column := 5 },
-               endCharUtf16 := 5 },
+               endCharLsp := { line := 14, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } },
     selectionRange := { pos := { line := 15, column := 4 },
-                        charUtf16 := 4,
+                        charLsp := { line := 14, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 15, column := 5 },
-                        endCharUtf16 := 5 } }
+                        endCharLsp := { line := 14, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
 Tree :=
   { range := { pos := { line := 18, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharUtf16 := 56 },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
-                        charUtf16 := 10,
+                        charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
-                        endCharUtf16 := 14 } }
+                        endCharLsp := { line := 17,
+                                        characterUtf8 := 14,
+                                        characterUtf16 := 14,
+                                        characterUtf32 := 14 } } }
 Tree.rec :=
   { range := { pos := { line := 18, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharUtf16 := 56 },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
-                        charUtf16 := 10,
+                        charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
-                        endCharUtf16 := 14 } }
+                        endCharLsp := { line := 17,
+                                        characterUtf8 := 14,
+                                        characterUtf16 := 14,
+                                        characterUtf32 := 14 } } }
 Tree.casesOn :=
   { range := { pos := { line := 18, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 17, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 20, column := 56 },
-               endCharUtf16 := 56 },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 18, column := 10 },
-                        charUtf16 := 10,
+                        charLsp := { line := 17, characterUtf8 := 10, characterUtf16 := 10, characterUtf32 := 10 },
                         endPos := { line := 18, column := 14 },
-                        endCharUtf16 := 14 } }
+                        endCharLsp := { line := 17,
+                                        characterUtf8 := 14,
+                                        characterUtf16 := 14,
+                                        characterUtf32 := 14 } } }
 Tree.node :=
   { range := { pos := { line := 19, column := 2 },
-               charUtf16 := 2,
+               charLsp := { line := 18, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 19, column := 64 },
-               endCharUtf16 := 64 },
+               endCharLsp := { line := 18, characterUtf8 := 68, characterUtf16 := 64, characterUtf32 := 64 } },
     selectionRange := { pos := { line := 19, column := 35 },
-                        charUtf16 := 35,
+                        charLsp := { line := 18, characterUtf8 := 35, characterUtf16 := 35, characterUtf32 := 35 },
                         endPos := { line := 19, column := 39 },
-                        endCharUtf16 := 39 } }
+                        endCharLsp := { line := 18,
+                                        characterUtf8 := 39,
+                                        characterUtf16 := 39,
+                                        characterUtf32 := 39 } } }
 Tree.leaf :=
   { range := { pos := { line := 20, column := 2 },
-               charUtf16 := 2,
+               charLsp := { line := 19, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 20, column := 56 },
-               endCharUtf16 := 56 },
+               endCharLsp := { line := 19, characterUtf8 := 60, characterUtf16 := 56, characterUtf32 := 56 } },
     selectionRange := { pos := { line := 20, column := 39 },
-                        charUtf16 := 39,
+                        charLsp := { line := 19, characterUtf8 := 39, characterUtf16 := 39, characterUtf32 := 39 },
                         endPos := { line := 20, column := 43 },
-                        endCharUtf16 := 43 } }
+                        endCharLsp := { line := 19,
+                                        characterUtf8 := 43,
+                                        characterUtf16 := 43,
+                                        characterUtf32 := 43 } } }
 Bla.test :=
   { range := { pos := { line := 25, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 24, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 31, column := 16 },
-               endCharUtf16 := 16 },
+               endCharLsp := { line := 30, characterUtf8 := 16, characterUtf16 := 16, characterUtf32 := 16 } },
     selectionRange := { pos := { line := 25, column := 4 },
-                        charUtf16 := 4,
+                        charLsp := { line := 24, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 25, column := 8 },
-                        endCharUtf16 := 8 } }
+                        endCharLsp := { line := 24, characterUtf8 := 8, characterUtf16 := 8, characterUtf32 := 8 } } }
 Bla.test.aux :=
   { range := { pos := { line := 31, column := 2 },
-               charUtf16 := 2,
+               charLsp := { line := 30, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                endPos := { line := 31, column := 16 },
-               endCharUtf16 := 16 },
+               endCharLsp := { line := 30, characterUtf8 := 16, characterUtf16 := 16, characterUtf32 := 16 } },
     selectionRange := { pos := { line := 31, column := 2 },
-                        charUtf16 := 2,
+                        charLsp := { line := 30, characterUtf8 := 2, characterUtf16 := 2, characterUtf32 := 2 },
                         endPos := { line := 31, column := 5 },
-                        endCharUtf16 := 5 } }
+                        endCharLsp := { line := 30, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
 f :=
   { range := { pos := { line := 35, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 34, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 39, column := 14 },
-               endCharUtf16 := 14 },
+               endCharLsp := { line := 38, characterUtf8 := 14, characterUtf16 := 14, characterUtf32 := 14 } },
     selectionRange := { pos := { line := 35, column := 4 },
-                        charUtf16 := 4,
+                        charLsp := { line := 34, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 35, column := 5 },
-                        endCharUtf16 := 5 } }
+                        endCharLsp := { line := 34, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
 f.foo :=
   { range := { pos := { line := 36, column := 44 },
-               charUtf16 := 44,
+               charLsp := { line := 35, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                endPos := { line := 38, column := 22 },
-               endCharUtf16 := 22 },
+               endCharLsp := { line := 37, characterUtf8 := 22, characterUtf16 := 22, characterUtf32 := 22 } },
     selectionRange := { pos := { line := 36, column := 44 },
-                        charUtf16 := 44,
+                        charLsp := { line := 35, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                         endPos := { line := 36, column := 47 },
-                        endCharUtf16 := 47 } }
+                        endCharLsp := { line := 35,
+                                        characterUtf8 := 47,
+                                        characterUtf16 := 47,
+                                        characterUtf32 := 47 } } }
 g :=
   { range := { pos := { line := 41, column := 0 },
-               charUtf16 := 0,
+               charLsp := { line := 40, characterUtf8 := 0, characterUtf16 := 0, characterUtf32 := 0 },
                endPos := { line := 45, column := 7 },
-               endCharUtf16 := 7 },
+               endCharLsp := { line := 44, characterUtf8 := 7, characterUtf16 := 7, characterUtf32 := 7 } },
     selectionRange := { pos := { line := 41, column := 4 },
-                        charUtf16 := 4,
+                        charLsp := { line := 40, characterUtf8 := 4, characterUtf16 := 4, characterUtf32 := 4 },
                         endPos := { line := 41, column := 5 },
-                        endCharUtf16 := 5 } }
+                        endCharLsp := { line := 40, characterUtf8 := 5, characterUtf16 := 5, characterUtf32 := 5 } } }
 g.foo :=
   { range := { pos := { line := 42, column := 44 },
-               charUtf16 := 44,
+               charLsp := { line := 41, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                endPos := { line := 44, column := 22 },
-               endCharUtf16 := 22 },
+               endCharLsp := { line := 43, characterUtf8 := 22, characterUtf16 := 22, characterUtf32 := 22 } },
     selectionRange := { pos := { line := 42, column := 44 },
-                        charUtf16 := 44,
+                        charLsp := { line := 41, characterUtf8 := 44, characterUtf16 := 44, characterUtf32 := 44 },
                         endPos := { line := 42, column := 47 },
-                        endCharUtf16 := 47 } }
+                        endCharLsp := { line := 41,
+                                        characterUtf8 := 47,
+                                        characterUtf16 := 47,
+                                        characterUtf32 := 47 } } }

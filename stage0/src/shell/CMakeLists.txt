@@ -47,13 +47,11 @@ add_test(lean_unknown_option bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "$
 add_test(lean_unknown_file1 bash "${LEAN_SOURCE_DIR}/cmake/check_failure.sh" "${CMAKE_BINARY_DIR}/bin/lean" "boofoo.lean")
 
 if(${EMSCRIPTEN})
-  set(LEAN_EXE "node --stack-size=8192 ${CMAKE_BINARY_DIR}/bin/lean")
-else()
-  set(LEAN_EXE "lean")
+  configure_file("${LEAN_SOURCE_DIR}/bin/lean.in" "${CMAKE_BINARY_DIR}/bin/lean")
 endif()
 
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers
-set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}' LEANC_OPTS='${LEANC_OPTS}' LEAN_EXE='${LEAN_EXE}'")
+set(TEST_VARS "PATH=${LEAN_BIN}:$PATH ${LEAN_TEST_VARS} CXX='${CMAKE_CXX_COMPILER} ${LEANC_OPTS}' LEANC_OPTS='${LEANC_OPTS}'")
 
 # LEAN TESTS
 file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")

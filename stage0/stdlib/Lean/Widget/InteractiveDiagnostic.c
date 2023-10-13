@@ -25,7 +25,7 @@ static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_msgToInteractive_fmtToTT___spec__4(lean_object*, size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableMsgEmbed_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_593____closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752_(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_go___closed__4;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__60;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -88,7 +88,6 @@ LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodabl
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__35;
 lean_object* l_Lean_Server_instRpcEncodableWithRpcRef_rpcEncode___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752____lambda__1(lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_916_(lean_object*);
 extern lean_object* l_Lean_instInhabitedJson;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__9;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__49;
@@ -138,7 +137,9 @@ static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget
 static lean_object* l_Lean_Widget_instRpcEncodableMsgEmbed_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_593____closed__3;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableDiagnosticWith_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____spec__7___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_go___closed__2;
+lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+lean_object* l_Lean_FileMap_leanPosToEncodedLspPos(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableDiagnosticWith_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____spec__5(size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instTypeNameLazyTraceChildren;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableDiagnosticWith_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____spec__6(lean_object*, lean_object*);
@@ -239,10 +240,10 @@ LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_W
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_88____lambda__1___closed__2;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752____lambda__1___closed__1;
 lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_FileMap_leanPosToLspPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752____lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodableArray___spec__2(size_t, size_t, lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1708_(lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_instRpcEncodableArray___spec__3(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableDiagnosticWith_dec____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instInhabitedEmbedFmt___closed__2;
@@ -261,7 +262,6 @@ static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget
 LEAN_EXPORT lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__47;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Widget_TaggedText_rewrite___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_isUnusedVariableWarning___lambda__1___boxed(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_msgToInteractiveAux_go___lambda__1___closed__1;
@@ -285,7 +285,6 @@ LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752____lambda__1___closed__6;
 lean_object* l___private_Lean_Widget_TaggedText_0__Lean_Widget_toJsonTaggedText____x40_Lean_Widget_TaggedText___hyg_635____at_Lean_Widget_TaggedText_instRpcEncodableTaggedText___spec__3(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__40;
-lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_866_(lean_object*);
 static lean_object* l_Lean_Widget_msgToInteractiveDiagnostic___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractive_fmtToTT(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__16;
@@ -353,7 +352,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_expr_dbg_to_string(lean_object*);
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_752____lambda__1___closed__13;
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__37;
-LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(lean_object*, lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(uint8_t, lean_object*, lean_object*, uint8_t, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instImpl____x40_Lean_Widget_InteractiveDiagnostic___hyg_574____closed__4;
 LEAN_EXPORT lean_object* l_Lean_Widget_instRpcEncodableStrictOrLazy(lean_object*, lean_object*);
@@ -384,6 +383,7 @@ static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget
 static lean_object* l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__1;
 static lean_object* l_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1726____rarg___closed__5;
 uint8_t l_Array_isEmpty___rarg(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1758_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_instInhabitedStrictOrLazy___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -4822,16 +4822,16 @@ lean_ctor_set(x_6, 0, x_4);
 lean_ctor_set(x_6, 1, x_5);
 x_7 = lean_ctor_get(x_1, 1);
 x_8 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__23;
-x_9 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_8, x_7);
+x_9 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_8, x_7);
 x_10 = lean_ctor_get(x_1, 2);
 x_11 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__29;
-x_12 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_11, x_10);
+x_12 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_11, x_10);
 x_13 = lean_ctor_get(x_1, 3);
 x_14 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__35;
-x_15 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_14, x_13);
+x_15 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_14, x_13);
 x_16 = lean_ctor_get(x_1, 4);
 x_17 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__41;
-x_18 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_17, x_16);
+x_18 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_17, x_16);
 x_19 = lean_ctor_get(x_1, 5);
 x_20 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__47;
 lean_inc(x_19);
@@ -4843,13 +4843,13 @@ lean_ctor_set(x_22, 0, x_21);
 lean_ctor_set(x_22, 1, x_5);
 x_23 = lean_ctor_get(x_1, 6);
 x_24 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__52;
-x_25 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_24, x_23);
+x_25 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_24, x_23);
 x_26 = lean_ctor_get(x_1, 7);
 x_27 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__58;
-x_28 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_27, x_26);
+x_28 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_27, x_26);
 x_29 = lean_ctor_get(x_1, 8);
 x_30 = l___private_Lean_Widget_InteractiveDiagnostic_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveDiagnostic___hyg_1810____closed__64;
-x_31 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_588____spec__1(x_30, x_29);
+x_31 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_30, x_29);
 x_32 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_32, 0, x_31);
 lean_ctor_set(x_32, 1, x_5);
@@ -5104,7 +5104,7 @@ _start:
 lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_167; 
 x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-x_5 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_866_(x_4);
+x_5 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1708_(x_4);
 x_167 = lean_ctor_get(x_2, 1);
 lean_inc(x_167);
 if (lean_obj_tag(x_167) == 0)
@@ -5123,7 +5123,7 @@ if (x_169 == 0)
 {
 lean_object* x_170; lean_object* x_171; 
 x_170 = lean_ctor_get(x_167, 0);
-x_171 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_866_(x_170);
+x_171 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1708_(x_170);
 lean_ctor_set(x_167, 0, x_171);
 x_6 = x_167;
 x_7 = x_3;
@@ -5135,7 +5135,7 @@ lean_object* x_172; lean_object* x_173; lean_object* x_174;
 x_172 = lean_ctor_get(x_167, 0);
 lean_inc(x_172);
 lean_dec(x_167);
-x_173 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_866_(x_172);
+x_173 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1708_(x_172);
 x_174 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_174, 0, x_173);
 x_6 = x_174;
@@ -6413,7 +6413,7 @@ if (lean_is_exclusive(x_4)) {
 }
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
-x_8 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_916_(x_7);
+x_8 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1758_(x_7);
 lean_dec(x_7);
 x_9 = l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveTermGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_2537____spec__1(x_8, x_3);
 if (lean_obj_tag(x_9) == 0)
@@ -6468,7 +6468,7 @@ if (x_2009 == 0)
 {
 lean_object* x_2010; lean_object* x_2011; lean_object* x_2012; 
 x_2010 = lean_ctor_get(x_2007, 0);
-x_2011 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_916_(x_2010);
+x_2011 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1758_(x_2010);
 lean_dec(x_2010);
 x_2012 = l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveTermGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_2537____spec__1(x_2011, x_3);
 if (lean_obj_tag(x_2012) == 0)
@@ -6514,7 +6514,7 @@ lean_object* x_2017; lean_object* x_2018; lean_object* x_2019;
 x_2017 = lean_ctor_get(x_2007, 0);
 lean_inc(x_2017);
 lean_dec(x_2007);
-x_2018 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_916_(x_2017);
+x_2018 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_fromJsonRange____x40_Lean_Data_Lsp_Basic___hyg_1758_(x_2017);
 lean_dec(x_2017);
 x_2019 = l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveTermGoal_dec____x40_Lean_Widget_InteractiveGoal___hyg_2537____spec__1(x_2018, x_3);
 if (lean_obj_tag(x_2019) == 0)
@@ -20738,208 +20738,208 @@ lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(uint8_t x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_5);
-lean_inc(x_5);
-x_6 = l_Lean_FileMap_leanPosToLspPos(x_1, x_5);
-x_7 = lean_ctor_get(x_2, 2);
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_6 = lean_ctor_get(x_3, 1);
+lean_inc(x_6);
+lean_inc(x_6);
+x_7 = l_Lean_FileMap_leanPosToEncodedLspPos(x_2, x_1, x_6);
+x_8 = lean_ctor_get(x_3, 2);
+lean_inc(x_8);
+x_9 = lean_ctor_get_uint8(x_3, sizeof(void*)*5 + 1);
+x_10 = lean_ctor_get(x_3, 4);
+lean_inc(x_10);
+x_11 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__3;
+lean_inc(x_10);
+x_12 = l_Lean_MessageData_hasTag(x_11, x_10);
+x_13 = lean_unsigned_to_nat(0u);
+lean_inc(x_10);
+x_14 = l_Lean_Widget_msgToInteractive(x_10, x_4, x_13, x_5);
+if (lean_obj_tag(x_8) == 0)
+{
+lean_inc(x_6);
+x_15 = x_6;
+goto block_61;
+}
+else
+{
+lean_object* x_62; 
+x_62 = lean_ctor_get(x_8, 0);
+lean_inc(x_62);
+x_15 = x_62;
+goto block_61;
+}
+block_61:
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_16 = l_Lean_FileMap_leanPosToEncodedLspPos(x_2, x_1, x_15);
 lean_inc(x_7);
-x_8 = lean_ctor_get_uint8(x_2, sizeof(void*)*5 + 1);
-x_9 = lean_ctor_get(x_2, 4);
-lean_inc(x_9);
-x_10 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__3;
-lean_inc(x_9);
-x_11 = l_Lean_MessageData_hasTag(x_10, x_9);
-x_12 = lean_unsigned_to_nat(0u);
-lean_inc(x_9);
-x_13 = l_Lean_Widget_msgToInteractive(x_9, x_3, x_12, x_4);
-if (lean_obj_tag(x_7) == 0)
+x_17 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_17, 0, x_7);
+lean_ctor_set(x_17, 1, x_16);
+if (lean_obj_tag(x_8) == 0)
 {
-lean_inc(x_5);
-x_14 = x_5;
-goto block_60;
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+lean_inc(x_7);
+x_18 = x_7;
+goto block_48;
 }
 else
 {
-lean_object* x_61; 
-x_61 = lean_ctor_get(x_7, 0);
-lean_inc(x_61);
-x_14 = x_61;
-goto block_60;
-}
-block_60:
+uint8_t x_49; 
+x_49 = lean_ctor_get_uint8(x_3, sizeof(void*)*5);
+lean_dec(x_3);
+if (x_49 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_FileMap_leanPosToLspPos(x_1, x_14);
-lean_inc(x_6);
-x_16 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_16, 0, x_6);
-lean_ctor_set(x_16, 1, x_15);
-if (lean_obj_tag(x_7) == 0)
-{
-lean_dec(x_5);
-lean_dec(x_2);
-lean_dec(x_1);
-lean_inc(x_6);
-x_17 = x_6;
-goto block_47;
-}
-else
-{
-uint8_t x_48; 
-x_48 = lean_ctor_get_uint8(x_2, sizeof(void*)*5);
-lean_dec(x_2);
-if (x_48 == 0)
-{
-lean_object* x_49; lean_object* x_50; lean_object* x_51; uint8_t x_52; 
-x_49 = lean_ctor_get(x_7, 0);
-lean_inc(x_49);
-lean_dec(x_7);
-x_50 = lean_ctor_get(x_5, 0);
+lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; 
+x_50 = lean_ctor_get(x_8, 0);
 lean_inc(x_50);
-lean_dec(x_5);
-x_51 = lean_ctor_get(x_49, 0);
+lean_dec(x_8);
+x_51 = lean_ctor_get(x_6, 0);
 lean_inc(x_51);
-x_52 = lean_nat_dec_lt(x_50, x_51);
+lean_dec(x_6);
+x_52 = lean_ctor_get(x_50, 0);
+lean_inc(x_52);
+x_53 = lean_nat_dec_lt(x_51, x_52);
+lean_dec(x_52);
+if (x_53 == 0)
+{
+lean_object* x_54; 
 lean_dec(x_51);
-if (x_52 == 0)
-{
-lean_object* x_53; 
-lean_dec(x_50);
-x_53 = l_Lean_FileMap_leanPosToLspPos(x_1, x_49);
-lean_dec(x_1);
-x_17 = x_53;
-goto block_47;
+x_54 = l_Lean_FileMap_leanPosToEncodedLspPos(x_2, x_1, x_50);
+lean_dec(x_2);
+x_18 = x_54;
+goto block_48;
 }
 else
 {
-lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; 
-lean_dec(x_49);
-x_54 = lean_unsigned_to_nat(1u);
-x_55 = lean_nat_add(x_50, x_54);
+lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 lean_dec(x_50);
-x_56 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_56, 0, x_55);
-lean_ctor_set(x_56, 1, x_12);
-x_57 = l_Lean_FileMap_leanPosToLspPos(x_1, x_56);
-lean_dec(x_1);
-x_17 = x_57;
-goto block_47;
+x_55 = lean_unsigned_to_nat(1u);
+x_56 = lean_nat_add(x_51, x_55);
+lean_dec(x_51);
+x_57 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_57, 0, x_56);
+lean_ctor_set(x_57, 1, x_13);
+x_58 = l_Lean_FileMap_leanPosToEncodedLspPos(x_2, x_1, x_57);
+lean_dec(x_2);
+x_18 = x_58;
+goto block_48;
 }
 }
 else
 {
-lean_object* x_58; lean_object* x_59; 
-lean_dec(x_5);
-x_58 = lean_ctor_get(x_7, 0);
-lean_inc(x_58);
-lean_dec(x_7);
-x_59 = l_Lean_FileMap_leanPosToLspPos(x_1, x_58);
-lean_dec(x_1);
-x_17 = x_59;
-goto block_47;
+lean_object* x_59; lean_object* x_60; 
+lean_dec(x_6);
+x_59 = lean_ctor_get(x_8, 0);
+lean_inc(x_59);
+lean_dec(x_8);
+x_60 = l_Lean_FileMap_leanPosToEncodedLspPos(x_2, x_1, x_59);
+lean_dec(x_2);
+x_18 = x_60;
+goto block_48;
 }
 }
-block_47:
+block_48:
 {
-lean_object* x_18; uint8_t x_19; 
-x_18 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_18, 0, x_6);
-lean_ctor_set(x_18, 1, x_17);
-switch (x_8) {
+lean_object* x_19; uint8_t x_20; 
+x_19 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_19, 0, x_7);
+lean_ctor_set(x_19, 1, x_18);
+switch (x_9) {
 case 0:
 {
-uint8_t x_44; 
-x_44 = 2;
-x_19 = x_44;
-goto block_43;
+uint8_t x_45; 
+x_45 = 2;
+x_20 = x_45;
+goto block_44;
 }
 case 1:
 {
-uint8_t x_45; 
-x_45 = 1;
-x_19 = x_45;
-goto block_43;
+uint8_t x_46; 
+x_46 = 1;
+x_20 = x_46;
+goto block_44;
 }
 default: 
 {
-uint8_t x_46; 
-x_46 = 0;
-x_19 = x_46;
-goto block_43;
+uint8_t x_47; 
+x_47 = 0;
+x_20 = x_47;
+goto block_44;
 }
 }
-block_43:
+block_44:
 {
-lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_box(x_19);
-x_21 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_21, 0, x_20);
-if (x_11 == 0)
+lean_object* x_21; lean_object* x_22; lean_object* x_23; 
+x_21 = lean_box(x_20);
+x_22 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_22, 0, x_21);
+if (x_12 == 0)
 {
-lean_object* x_38; uint8_t x_39; 
-x_38 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__6;
-x_39 = l_Lean_MessageData_hasTag(x_38, x_9);
-if (x_39 == 0)
-{
-lean_object* x_40; 
-x_40 = lean_box(0);
-x_22 = x_40;
-goto block_37;
-}
-else
+lean_object* x_39; uint8_t x_40; 
+x_39 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__6;
+x_40 = l_Lean_MessageData_hasTag(x_39, x_10);
+if (x_40 == 0)
 {
 lean_object* x_41; 
-x_41 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__9;
-x_22 = x_41;
-goto block_37;
-}
+x_41 = lean_box(0);
+x_23 = x_41;
+goto block_38;
 }
 else
 {
 lean_object* x_42; 
-lean_dec(x_9);
-x_42 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__11;
-x_22 = x_42;
-goto block_37;
+x_42 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__9;
+x_23 = x_42;
+goto block_38;
 }
-block_37:
-{
-if (lean_obj_tag(x_13) == 0)
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_23 = lean_ctor_get(x_13, 0);
-lean_inc(x_23);
-x_24 = lean_ctor_get(x_13, 1);
-lean_inc(x_24);
-lean_dec(x_13);
-x_25 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__2;
-x_26 = l_Lean_Widget_msgToInteractiveDiagnostic___lambda__1(x_16, x_18, x_21, x_25, x_22, x_23, x_24);
-return x_26;
 }
 else
 {
-lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_27 = lean_ctor_get(x_13, 0);
-lean_inc(x_27);
-x_28 = lean_ctor_get(x_13, 1);
+lean_object* x_43; 
+lean_dec(x_10);
+x_43 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__11;
+x_23 = x_43;
+goto block_38;
+}
+block_38:
+{
+if (lean_obj_tag(x_14) == 0)
+{
+lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+x_24 = lean_ctor_get(x_14, 0);
+lean_inc(x_24);
+x_25 = lean_ctor_get(x_14, 1);
+lean_inc(x_25);
+lean_dec(x_14);
+x_26 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__2;
+x_27 = l_Lean_Widget_msgToInteractiveDiagnostic___lambda__1(x_17, x_19, x_22, x_26, x_23, x_24, x_25);
+return x_27;
+}
+else
+{
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
+x_28 = lean_ctor_get(x_14, 0);
 lean_inc(x_28);
-lean_dec(x_13);
-x_29 = lean_io_error_to_string(x_27);
-x_30 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__4;
-x_31 = lean_string_append(x_30, x_29);
-lean_dec(x_29);
-x_32 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__5;
-x_33 = lean_string_append(x_31, x_32);
-x_34 = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(x_34, 0, x_33);
-x_35 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__2;
-x_36 = l_Lean_Widget_msgToInteractiveDiagnostic___lambda__1(x_16, x_18, x_21, x_35, x_22, x_34, x_28);
-return x_36;
+x_29 = lean_ctor_get(x_14, 1);
+lean_inc(x_29);
+lean_dec(x_14);
+x_30 = lean_io_error_to_string(x_28);
+x_31 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__4;
+x_32 = lean_string_append(x_31, x_30);
+lean_dec(x_30);
+x_33 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__5;
+x_34 = lean_string_append(x_32, x_33);
+x_35 = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(x_35, 0, x_34);
+x_36 = l_Lean_Widget_msgToInteractiveDiagnostic___closed__2;
+x_37 = l_Lean_Widget_msgToInteractiveDiagnostic___lambda__1(x_17, x_19, x_22, x_36, x_23, x_35, x_29);
+return x_37;
 }
 }
 }
@@ -20947,14 +20947,16 @@ return x_36;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Widget_msgToInteractiveDiagnostic___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
 _start:
 {
-uint8_t x_5; lean_object* x_6; 
-x_5 = lean_unbox(x_3);
-lean_dec(x_3);
-x_6 = l_Lean_Widget_msgToInteractiveDiagnostic(x_1, x_2, x_5, x_4);
-return x_6;
+uint8_t x_6; uint8_t x_7; lean_object* x_8; 
+x_6 = lean_unbox(x_1);
+lean_dec(x_1);
+x_7 = lean_unbox(x_4);
+lean_dec(x_4);
+x_8 = l_Lean_Widget_msgToInteractiveDiagnostic(x_6, x_2, x_3, x_7, x_5);
+return x_8;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);

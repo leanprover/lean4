@@ -92,12 +92,15 @@ def runFrontend
     (opts : Options)
     (fileName : String)
     (mainModuleName : Name)
-    (trustLevel : UInt32 := 0)
+    -- TODO: do we still want this in the driver?
+    (_trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
-  let process ← Lean.Language.Lean.mkProcessor { mainModuleName, opts }
   let inputCtx := Parser.mkInputContext input fileName
-  let snaps ← process inputCtx
+  -- TODO: replace with `#lang` processing
+  let lang := Language.Lean
+  let snap ← lang.process { mainModuleName, opts } none inputCtx
+  let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
@@ -106,7 +109,9 @@ def runFrontend
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   let hasErrors := snaps.getAll.any (·.msgLog.hasErrors)
-  let env := sorry  -- TODO
+  -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
+  -- where we use the environment despite errors in the file is `--stats`
+  let env := lang.getFinalEnv? snap |>.getD (← mkEmptyEnvironment)
   pure (env, !hasErrors)
 
 end Lean.Elab

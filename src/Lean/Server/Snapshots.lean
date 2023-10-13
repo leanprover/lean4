@@ -8,6 +8,7 @@ import Init.System.IO
 
 import Lean.Elab.Import
 import Lean.Elab.Command
+import Lean.Language.Lean
 
 import Lean.Widget.InteractiveDiagnostic
 
@@ -115,7 +116,7 @@ def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidget
     fileMap      := inputCtx.fileMap
     tacticCache? := some tacticCacheNew
   }
-  let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
+  let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := Language.Lean.server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
     Elab.Command.catchExceptions
       (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
       cmdCtx cmdStateRef

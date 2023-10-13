@@ -58,6 +58,9 @@ def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask
     BaseIO (SnapshotTask β) :=
   return { range, task := (← BaseIO.bindTask t.task fun a => (·.task) <$> (act a)) }
 
+def SnapshotTask.get (t : SnapshotTask α) : α :=
+  t.task.get
+
 /--
   Tree of snapshots where each snapshot comes with an array of asynchronous
   further subtrees. Used for asynchronously collecting information about the
@@ -89,7 +92,7 @@ register_builtin_option printMessageEndPos : Bool := {
 partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) : IO Unit := do
   s.element.msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.println)
   for t in s.children do
-    t.task.get.runAndReport opts
+    t.get.runAndReport opts
 
 /-- Waits on and returns all snapshots in the tree. -/
 partial def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
@@ -98,7 +101,7 @@ where
   go s : StateM (Array Snapshot) Unit := do
     modify (·.push s.element)
     for t in s.children do
-      go t.task.get
+      go t.get
 
 /-- Reports `IO` exceptions as single snapshot message. -/
 def withFatalExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
@@ -110,12 +113,12 @@ def withFatalExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
 
 def get? (t? : Option (SnapshotTask α)) : BaseIO (Option α) := do
   let some t := t? | return none
-  return if (← IO.hasFinished t.task) then t.task.get else none
+  return if (← IO.hasFinished t.task) then t.get else none
 
 def getOrCancel (t? : Option (SnapshotTask α)) : BaseIO (Option α) := do
   let some t := t? | return none
   if (← IO.hasFinished t.task) then
-    return t.task.get
+    return t.get
   IO.cancel t.task
   return none
 
@@ -138,14 +141,20 @@ structure ProcessingContext where
   opts : Options
 
 structure Language where
-  mkProcessor : ProcessingContext → BaseIO (Parser.InputContext → BaseIO SnapshotTree)
+  InitialSnapshot : Type
+  [instToSnapshotTree : ToSnapshotTree InitialSnapshot]
+  process : ProcessingContext → (old? : Option InitialSnapshot) → Parser.InputContext → BaseIO InitialSnapshot
+  -- TODO: is this the right interface for other languages as well?
+  /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/
+  getFinalEnv? : InitialSnapshot → Option Environment
+
+instance (lang : Language) : ToSnapshotTree lang.InitialSnapshot := lang.instToSnapshotTree
 
 /-- Returns a function for processing a language using incremental snapshots. -/
-partial def mkIncrementalProcessor [ToSnapshotTree α]
-  (process : ProcessingContext → Option α → Parser.InputContext → BaseIO α) :
+partial def Language.mkIncrementalProcessor (lang : Language) :
     ProcessingContext → BaseIO (Parser.InputContext → BaseIO SnapshotTree) := fun ctx => do
   let oldRef ← IO.mkRef none
   return fun doc => do
-    let snap ← process ctx (← oldRef.get) doc
+    let snap ← lang.process ctx (← oldRef.get) doc
     oldRef.set (some snap)
     return toSnapshotTree snap

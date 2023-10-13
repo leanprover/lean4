@@ -273,7 +273,18 @@ where
       }
     return postCmdState
 
+partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
+  let snap ← snap.success?
+  let snap ← snap.next.get.success?
+  goCmd snap.next.get
+where goCmd snap :=
+  if let some next := snap.next? then
+    goCmd next.get
+  else
+    snap.data.sig.get.finished.get.cmdState.env
+
 end Lean
 
 def Lean : Language where
-  mkProcessor := mkIncrementalProcessor Lean.processLean
+  process := Lean.processLean
+  getFinalEnv? := Lean.getFinalEnv?

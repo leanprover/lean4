@@ -90,7 +90,7 @@ register_builtin_option printMessageEndPos : Bool := {
   Runs a tree of snapshots to conclusion and incrementally report messages
   on stdout. Messages are reported in tree preorder. -/
 partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) : IO Unit := do
-  s.element.msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.println)
+  s.element.msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
   for t in s.children do
     t.get.runAndReport opts
 

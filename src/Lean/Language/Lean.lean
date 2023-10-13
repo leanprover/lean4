@@ -190,7 +190,7 @@ where
       let beginPos := parserState.pos
       let scope := cmdState.scopes.head!
       let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-      let (stx, parserState, msgLog) := Parser.parseCommand ictx pmctx parserState cmdState.messages
+      let (stx, parserState, msgLog) := Parser.parseCommand ictx pmctx parserState .empty
 
       -- TODO: move into `parseCommand`; it should add the length of `peekToken`,
       -- which is the full extent the parser considered before stopping
@@ -211,7 +211,7 @@ where
           tacs := #[]
           finished := .pure {
             msgLog := .empty
-            cmdState
+            cmdState := { cmdState with messages := .empty }
           }
         }
 

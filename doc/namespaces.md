@@ -106,3 +106,6 @@ Sections are also useful for delimiting the scope of commands such as ``set_opti
 In many respects, however, a ``namespace ... end`` block behaves the same as a ``section ... end`` block.
 In particular, if you use the ``variable`` command within a namespace, its scope is limited to the namespace.
 Similarly, if you use an ``open`` command within a namespace, its effects disappear when the namespace is closed.
+
+In all the examples above, we have indented the namespace contents for demonstration purposes.
+In practice, we elide indentation of sections and namespaces in favor of the document structure hints the editor extensions provide.

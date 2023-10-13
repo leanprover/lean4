@@ -116,8 +116,8 @@ mutual
             -- Check if the proof of `a ↔ b` is a `rfl` theorem or an application of a `rfl` theorem
             isRflTheorem n
           else
-            -- small hack: we don't need the exact type: `type` is `a = b`, and `proof : a ↔ b`.
-            -- Both `a = b` and `a ↔ b` behave the same way in this function.
+            -- small hack: we don't need the exact type: `type` is `a = b`, and `proof.appArg!` has
+            -- type `a ↔ b`. Both `a = b` and `a ↔ b` behave the same way in this function.
             isRflProofCore type proof.appArg!
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem

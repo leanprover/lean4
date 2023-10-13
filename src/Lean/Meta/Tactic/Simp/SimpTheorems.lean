@@ -112,8 +112,8 @@ mutual
           isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.isAppOfArity ``propext 3 then
           -- `propext` is applied to `Iff` proofs during preprocessing
-          if let some n := proof.appArg!.getAppFn.constName? then
-            -- Check if the proof of `a ↔ b` is a `rfl` theorem or an application of a `rfl` theorem
+          if let some n := proof.appArg!.constName? then
+            -- Check if the proof of `a ↔ b` is a `rfl` theorem.
             isRflTheorem n
           else
             -- small hack: we don't need the exact type: `type` is `a = b`, and `proof.appArg!` has

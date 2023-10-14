@@ -176,6 +176,9 @@ end ReExport
 
 /-- Makes names from other namespaces visible without writing the namespace prefix.
 
+Names that are made available with `open` are visible within the current `section` or `namespace`
+block. The `open` command can be used in few different ways:
+
 * `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
 * `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
   `Some.Namespace.Ident.def2` in scope.
@@ -184,10 +187,9 @@ end ReExport
 * `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
 * `open scoped Namespace1 Namespace2` opens scoped notations, instances, and attributes from
   `Namespace1` and `Namespace2`, does **not** bring anything else in scope.
+* `open <any of the open shapes above> in` makes the names opened visible only in the next command
+  or expression.
 
-Names that are made available with `open` are visible within the current `section` or `namespace`
-block. If the `in` keyword is used, then the names are available only in the next command or
-expression.
 
 
 ## Examples

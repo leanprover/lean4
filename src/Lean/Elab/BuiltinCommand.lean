@@ -146,22 +146,18 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 ## Examples
 
 ```lean
-namespace Ident.Path
-  def I (a : α) : α := a
-  def K (a : α) : β → α := fun _ => a
-  def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
-end Ident.Path
+namespace Morning.Sky
+  def star := "venus"
+end Morning.Sky
 
 namespace ReExport
-  export Ident.Path (I K)
-  -- `I` and `K` are now in scope
-  #check I
-  #check K
+  export Morning.Sky (star)
+  -- `star` is now in scope
+  #check star
 end ReExport
 
--- `I` and `K` are visible in `ReExport`
-#check ReExport.I
-#check ReExport.K
+-- `star` is visible in `ReExport`
+#check ReExport.star
 ```
 -/
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do

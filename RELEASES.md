@@ -10,6 +10,8 @@ Please check the [releases](https://github.com/leanprover/lean4/releases) page f
 v4.3.0 (development in progress)
 ---------
 
+* [isDefEq cache for terms not containing metavariables.](https://github.com/leanprover/lean4/pull/2644).
+
 * [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
 
 * `IO.Process.output` no longer inherits the standard input of the caller.

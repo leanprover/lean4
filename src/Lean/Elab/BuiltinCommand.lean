@@ -185,15 +185,18 @@ block. The `open` command can be used in few different ways:
 * `open Some.Namespace.Path` makes all names in `Some.Namespace.Path` available without the prefix,
   so that `Some.Namespace.Path.x` and `Some.Namespace.Path.y` can be referred to by writing only `x`
   and `y`.
-* `open Some.Namespace.Path (def1 def2)` only brings `Some.Namespace.Path.def1` and
-  `Some.Namespace.Path.def2` in scope.
-* `open Namespace renaming def1 → def1', def2 → def2'` brings `def1` and `def2` in scope under the
-  name `def1'` and `def2'` respectively.
-* `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
-* `open scoped Namespace1 Namespace2` opens scoped notations, instances, and attributes from
-  `Namespace1` and `Namespace2`, does **not** bring anything else in scope.
-* `open <any of the open shapes above> in` makes the names opened visible only in the next command
-  or expression.
+* `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and
+  `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would
+  be unaffected.
+* `open Some.Namespace.Path renaming def1 → def1', def2 → def2'` same as `open Some.Namespace.Path
+  (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.
+* `open Some.Namespace.Path hiding def1 def2` opens everything in `Some.Namespace.Path` except
+  `def1` and `def2`.
+* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` opens scoped notations, instances, and
+  attributes from `Some.Namespace.Path1` and `Some.Namespace.Path2`, does **not** bring anything
+  else in scope.
+* `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
+  command or expression.
 
 
 

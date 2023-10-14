@@ -183,9 +183,9 @@ names in scope.
 Names that are made available with `open` are visible within the current `section` or `namespace`
 block. The `open` command can be used in few different ways:
 
-* `open Some.Namespace.Path` makes all names in `Some.Namespace.Path` available without the prefix,
-  so that `Some.Namespace.Path.x` and `Some.Namespace.Path.y` can be referred to by writing only `x`
-  and `y`.
+* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all names in `Some.Namespace.Path1` and
+  `Some.Namespace.Path2` available without the prefix, so that `Some.Namespace.Path1.x` and
+  `Some.Namespace.Path2.y` can be referred to by writing only `x` and `y`.
 * `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and
   `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would
   be unaffected.

@@ -174,7 +174,7 @@ end ReExport
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 
-/-- Brings some definitions in scope.
+/-- Makes names from other namespaces visible without writing the namespace prefix.
 
 * `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
 * `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
@@ -184,6 +184,10 @@ end ReExport
 * `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
 * `open scoped Namespace1 Namespace2` opens scoped notations, instances, and attributes from
   `Namespace1` and `Namespace2`, does **not** bring anything else in scope.
+
+Names that are made available with `open` are visible within the current `section` or `namespace`
+block. If the `in` keyword is used, then the names are available only in the next command or
+expression.
 
 
 ## Examples
@@ -201,6 +205,10 @@ section
 
   theorem SKx_eq_K : S K x = I := rfl
 end
+
+-- open everything under `Ident.Path` only for the next command (the next `theorem`, here)
+open Ident.Path in
+theorem SKx_eq_K' : S K x = I := rfl
 
 section
   -- open only `S` and `K` under `Ident.Path`

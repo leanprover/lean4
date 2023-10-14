@@ -176,12 +176,17 @@ end ReExport
 
 /-- Makes names from other namespaces visible without writing the namespace prefix.
 
+This command only makes *public* names visible, *i.e.* it does not bring `protected` and `private`
+names in scope.
+
 Names that are made available with `open` are visible within the current `section` or `namespace`
 block. The `open` command can be used in few different ways:
 
-* `open Some.Namespace.Ident` brings all definitions in `Some.Namespace.Ident` in scope.
-* `open Some.Namespace.Ident (def1 def2)` only brings `Some.Namespace.Ident.def1` and
-  `Some.Namespace.Ident.def2` in scope.
+* `open Some.Namespace.Path` makes all names in `Some.Namespace.Path` available without the prefix,
+  so that `Some.Namespace.Path.x` and `Some.Namespace.Path.y` can be referred to by writing only `x`
+  and `y`.
+* `open Some.Namespace.Path (def1 def2)` only brings `Some.Namespace.Path.def1` and
+  `Some.Namespace.Path.def2` in scope.
 * `open Namespace renaming def1 → def1', def2 → def2'` brings `def1` and `def2` in scope under the
   name `def1'` and `def2'` respectively.
 * `open Namespace hiding def1 def2` opens everything in `Namespace` except `def1` and `def2`.
@@ -353,8 +358,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 /-- Declares a list of typed variables.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-When a definition mentions a variable, Lean will add it as an argument of the definition. This
-process is also able to infer typeclass parameters.
+When a definition mentions a variable, Lean will add it as an argument of the definition. The
+`variable` command is also able to add typeclass parameters.
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be explicit, implicit, or instance implicit (in which case they can be anonymous). This can be

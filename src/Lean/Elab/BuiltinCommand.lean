@@ -192,12 +192,13 @@ block. The `open` command can be used in few different ways:
   (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.
 * `open Some.Namespace.Path hiding def1 def2` opens everything in `Some.Namespace.Path` except
   `def1` and `def2`.
-* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` opens scoped notations, instances, and
-  attributes from `Some.Namespace.Path1` and `Some.Namespace.Path2`, does **not** bring anything
-  else in scope.
+* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` opens [scoped instances], notations, and
+  attributes from `Namespace1` and `Namespace2`, but it does **not** make any other name available.
 * `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
   command or expression.
 
+[scoped instance]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html#scoped-instances
+(Scoped instances in Theorem Proving in Lean)
 
 
 ## Examples

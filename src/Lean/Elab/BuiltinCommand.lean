@@ -195,6 +195,7 @@ block. The `open` command can be used in few different ways:
 ## Examples
 
 ```lean
+/-- SKI combinators https://en.wikipedia.org/wiki/SKI_combinator_calculus -/
 namespace Ident.Path
   def I (a : α) : α := a
   def K (a : α) : β → α := fun _ => a

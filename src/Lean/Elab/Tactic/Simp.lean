@@ -119,14 +119,14 @@ private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Synta
   let (levelParams, proof, type) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
-    let type ← instantiateMVars <|← inferType e
+    let type ← inferType e
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return (r.paramNames, r.expr, type)
+      return (r.paramNames, r.expr, none)
     else
-      return (#[], e, type)
+      return (#[], e, some (← instantiateMVars type))
   thms.add id levelParams proof (post := post) (inv := inv) (type := type)
 
 structure ElabSimpArgsResult where

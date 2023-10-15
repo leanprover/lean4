@@ -462,8 +462,6 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
     let simpThms ← mkSimpTheorems id levelParams proof post inv prio type
     return simpThms.foldl addSimpTheoremEntry s
 
-def test := 0
-
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
   if let some eqns ← getEqnsFor? declName then
     let mut d := d

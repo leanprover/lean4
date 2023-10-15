@@ -109,8 +109,9 @@ mutual
         else if proof.isAppOfArity ``Eq.symm 4 then
           -- `Eq.symm` of rfl theorem is a rfl theorem
           isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
-        else if proof.isApp && proof.getAppFn.isConst then
+        else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
+          -- A constant which is a `rfl` theorem is a `rfl` theorem
           isRflTheorem proof.getAppFn.constName!
         else
           return false

@@ -1,0 +1,24 @@
+dsimpIff.lean:48:22: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:55:23: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:62:23: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:74:30: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:85:33: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:89:33: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:93:34: error: unsolved goals
+a : Prop
+⊢ a
+dsimpIff.lean:97:41: error: unsolved goals
+a : Prop
+⊢ a

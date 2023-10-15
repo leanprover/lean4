@@ -321,9 +321,9 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError "invalid 'simp', proposition expected{indentExpr type}"
 
-private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) : MetaM SimpTheorem := do
+private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (type : Option Expr := none) : MetaM SimpTheorem := do
   assert! origin != .fvar ⟨.anonymous⟩
-  let type ← instantiateMVars (← inferType e)
+  let type ← instantiateMVars <|← match type with | some type => pure type | none => inferType e
   withNewMCtxDepth do
     let (_, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let type ← whnfR type
@@ -443,24 +443,26 @@ def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
     let us ← simpThm.levelParams.mapM fun _ => mkFreshLevelMVar
     return simpThm.proof.instantiateLevelParamsArray simpThm.levelParams us
 
-private def preprocessProof (val : Expr) (inv : Bool) : MetaM (Array Expr) := do
-  let type ← inferType val
+private def preprocessProof (val : Expr) (inv : Bool) (type : Option Expr := none) : MetaM (Array (Expr × Expr)) := do
+  let type ← match type with | some type => pure type | none => inferType val
   checkTypeIsProp type
   let ps ← preprocess val type inv (isGlobal := false)
-  return ps.toArray.map fun (val, _) => val
+  return ps.toArray
 
 /-- Auxiliary method for creating simp theorems from a proof term `val`. -/
-def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) :=
+def mkSimpTheorems (id : Origin) (levelParams : Array Name) (proof : Expr) (post := true) (inv := false) (prio : Nat := eval_prio default) (type : Option Expr := none) : MetaM (Array SimpTheorem) :=
   withReducible do
-    (← preprocessProof proof inv).mapM fun val => mkSimpTheoremCore id val levelParams val post prio
+    (← preprocessProof proof inv type).mapM fun (val, type) => mkSimpTheoremCore id val levelParams val post prio type
 
 /-- Auxiliary method for adding a local simp theorem to a `SimpTheorems` datastructure. -/
-def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr) (inv := false) (post := true) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
+def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name) (proof : Expr) (inv := false) (post := true) (prio : Nat := eval_prio default) (type : Option Expr := none) : MetaM SimpTheorems := do
   if proof.isConst then
     s.addConst proof.constName! post inv prio
   else
-    let simpThms ← mkSimpTheorems id levelParams proof post inv prio
+    let simpThms ← mkSimpTheorems id levelParams proof post inv prio type
     return simpThms.foldl addSimpTheoremEntry s
+
+def test := 0
 
 def SimpTheorems.addDeclToUnfold (d : SimpTheorems) (declName : Name) : MetaM SimpTheorems := do
   if let some eqns ← getEqnsFor? declName then

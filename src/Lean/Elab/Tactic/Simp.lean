@@ -116,17 +116,18 @@ private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (id : Origin) (e
     thms.add id #[] e (post := post) (inv := inv)
 
 private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
-  let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
+  let (levelParams, proof, type) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
+    let type ← instantiateMVars <|← inferType e
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return (r.paramNames, r.expr)
+      return (r.paramNames, r.expr, type)
     else
-      return (#[], e)
-  thms.add id levelParams proof (post := post) (inv := inv)
+      return (#[], e, type)
+  thms.add id levelParams proof (post := post) (inv := inv) (type := type)
 
 structure ElabSimpArgsResult where
   ctx     : Simp.Context

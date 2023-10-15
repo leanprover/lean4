@@ -51,10 +51,10 @@ needed to bootstrap Lean.
 -/
 
 protected def mod : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a % b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b,  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 protected def div : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a / b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
 
 def modn : Fin n → Nat → Fin n
   | ⟨a, h⟩, m => ⟨(a % m) % n, mlt h⟩

@@ -50,9 +50,26 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
   let r := mkProj structName idx e
   let eType ← inferType e
   if (← isProp eType) then
-    let rType ← inferType r
-    if !(← isProp rType) then
-      throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
+    let eType ← whnf eType
+    let failed {α} : Unit → MetaM α := fun _ =>
+      throwError "invalid projection{indentExpr r}"
+    matchConstStruct eType.getAppFn failed fun structVal structLvls ctorVal => do
+      let structParams := eType.getAppArgs
+      if structVal.numParams != structParams.size then failed ()
+      let mut ctorType ← inferType (mkAppN (.const ctorVal.name structLvls) structParams)
+      for i in [:idx] do
+        let Expr.forallE _ dom body _ ← whnf ctorType | failed ()
+        if body.hasLooseBVars then
+          if !(← isProp dom) then
+            throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType
+              }\nbut the projected value has a type depending on the non-proposition{indentExpr dom}"
+          ctorType := body.instantiate1 <| mkProj structName i e
+        else
+          ctorType := body
+      let Expr.forallE _ rType _ _ ← whnf ctorType | failed ()
+      if !(← isProp rType) then
+        throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType
+          }\nbut the projected value is not, it has type{indentExpr rType}"
   return r
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=

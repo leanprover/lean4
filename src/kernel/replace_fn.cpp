@@ -73,7 +73,9 @@ class replace_rec_fn {
                 return *r;
             shared = true;
         }
-        check_system("replace");
+        // as this function is used by pure functions such as `lean_expr_instantiate`,
+        // we cannot throw a non-fatal exception here
+        check_system("replace", /* do_check_interrupted */ false);
 
         if (optional<expr> r = m_f(e, offset)) {
             return save_result(e, offset, *r, shared);

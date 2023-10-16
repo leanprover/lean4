@@ -61,7 +61,9 @@ class expr_eq_fn {
     eq_cache & m_cache;
 
     static void check_system() {
-        ::lean::check_system("expression equality test");
+        // as this function is used by the pure `Expr.equal`,
+        // we cannot throw a non-fatal exception here
+        ::lean::check_system("expression equality test", /* do_check_interrupted */ false);
     }
 
     bool apply(expr const & a, expr const & b) {

@@ -132,16 +132,52 @@ jobs:
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
             # exclude seriously slow/problematic tests (laketests crash)
             CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
-          - name: macOS
-            os: macos-latest
+          - name: macOS 11
+            os: macos-11
             release: true
             shell: bash -euxo pipefail {0}
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
             binary-check: otool -L
             tar: gtar  # https://github.com/actions/runner-images/issues/2619
-          - name: macOS aarch64
-            os: macos-latest
+          - name: macOS 11 aarch64
+            os: macos-11
+            release: true
+            cross: true
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS 12
+            os: macos-12
+            release: true
+            shell: bash -euxo pipefail {0}
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS 12 aarch64
+            os: macos-12
+            release: true
+            cross: true
+            shell: bash -euxo pipefail {0}
+            CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS 13
+            os: macos-13
+            release: true
+            shell: bash -euxo pipefail {0}
+            llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
+            prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
+            binary-check: otool -L
+            tar: gtar  # https://github.com/actions/runner-images/issues/2619
+          - name: macOS 13 aarch64
+            os: macos-13
             release: true
             cross: true
             shell: bash -euxo pipefail {0}

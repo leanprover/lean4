@@ -60,11 +60,7 @@ template<bool CompareBinderInfo>
 class expr_eq_fn {
     eq_cache & m_cache;
 
-    static void check_system() {
-        // as this function is used by the pure `Expr.equal`,
-        // we cannot throw a non-fatal exception here
-        ::lean::check_system("expression equality test", /* do_check_interrupted */ false);
-    }
+    static void check_system() { ::lean::check_system("expression equality test"); }
 
     bool apply(expr const & a, expr const & b) {
         if (is_eqp(a, b))          return true;

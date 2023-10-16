@@ -9,7 +9,7 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 
 /--
-  Collect unassigned metavariables occuring in the given expression.
+  Collect unassigned metavariables occurring in the given expression.
 
   Remark: if `e` contains `?m` and there is a `t` assigned to `?m`, we
   collect unassigned metavariables occurring in `t`.
@@ -28,7 +28,7 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
     | none   => pure ()
     | some d => collectMVars (mkMVar d.mvarIdPending)
 
-/-- Return metavariables in occuring the given expression. See `collectMVars` -/
+/-- Return metavariables in occurring the given expression. See `collectMVars` -/
 def getMVars (e : Expr) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVars e).run {}
   pure s.result

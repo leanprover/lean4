@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "kernel/local_ctx.h"
+#include "runtime/interrupt.h"
 
 namespace lean {
 /** \brief Base class for all kernel exceptions. */
@@ -145,21 +146,6 @@ an `kernel_exception` or `exception`. Then, convert result into `Except KernelEx
 where `T` is the type of the lean objected represented by `A`.
 We use the constructor `KernelException.other <msg>` to handle C++ `exception` objects which
 are not `kernel_exception`.
-```
-inductive KernelException
-0  | unknownConstant  (env : Environment) (name : Name)
-1  | alreadyDeclared  (env : Environment) (name : Name)
-2  | declTypeMismatch (env : Environment) (decl : Declaration) (givenType : Expr)
-3  | declHasMVars     (env : Environment) (name : Name) (expr : Expr)
-4  | declHasFVars     (env : Environment) (name : Name) (expr : Expr)
-5  | funExpected      (env : Environment) (lctx : LocalContext) (expr : Expr)
-6  | typeExpected     (env : Environment) (lctx : LocalContext) (expr : Expr)
-7  | letTypeMismatch  (env : Environment) (lctx : LocalContext) (name : Name) (givenType : Expr) (expectedType : Expr)
-8  | exprTypeMismatch (env : Environment) (lctx : LocalContext) (expr : Expr) (expectedType : Expr)
-9  | appTypeMismatch  (env : Environment) (lctx : LocalContext) (app : Expr) (funType : Expr) (argType : Expr)
-10 | invalidProj      (env : Environment) (lctx : LocalContext) (proj : Expr)
-11 | other            (msg : String)
-```
 */
 template<typename A>
 object * catch_kernel_exceptions(std::function<A()> const & f) {
@@ -211,6 +197,9 @@ object * catch_kernel_exceptions(std::function<A()> const & f) {
     } catch (stack_space_exception & ex) {
         // 14 | deepRecursion
         return mk_cnstr(0, box(14)).steal();
+    } catch (interrupted & ex) {
+        // 15 | interrupted
+        return mk_cnstr(0, box(15)).steal();
     }
 }
 }

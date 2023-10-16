@@ -369,11 +369,39 @@ private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List
   let gs ← getUnsolvedGoals
   let g ← if let `(binderIdent| $tag:ident) := tag then
     let tag := tag.getId
-    let some g ← findTag? gs tag | throwError "tag not found"
+    let some g ← findTag? gs tag | notFound gs tag
     pure g
   else
     getMainGoal
   return (g, gs.erase g)
+
+where
+  -- When the case tag is not found, construct a message that tells
+  -- the user what they could have written
+  notFound (available : List MVarId) (tag : Name) := do
+    let firstLine := m!"Case tag {showTagName tag} not found."
+    -- We must filter out the anonymous name because there may be an
+    -- anonymous goal, but users shouldn't be mistakenly encouraged
+    -- to write `case anonymous`
+    match (← available.mapM getUserName).filter (· ≠ Name.anonymous) with
+    | [] =>
+      throwError "{firstLine}\n\nThere are no cases to select."
+    | [availableName] =>
+      throwError "{firstLine}\n\nThe only available case tag is {showTagName availableName}."
+    | availableNames =>
+      throwError "Case tag {showTagName tag} not found.\n\nAvailable tags:{commaList <| availableNames.map showTagName}"
+
+  getUserName (mv : MVarId) := do return (← mv.getDecl).userName
+
+  showTagName (tagName : Name) : MessageData := m!"'{tagName}'"
+
+  -- Construct a comma-separated list that renders one per line,
+  -- indented, if it's too long
+  commaList (items : List MessageData) : MessageData :=
+    let sep := MessageData.ofFormat "," ++ Format.line
+    .group <| .nest 2 <|
+    .ofFormat .line ++ .joinSep items sep
+
 
 @[builtin_tactic «case»] def evalCase : Tactic
   | stx@`(tactic| case $[$tag $hs*]|* =>%$arr $tac:tacticSeq) =>

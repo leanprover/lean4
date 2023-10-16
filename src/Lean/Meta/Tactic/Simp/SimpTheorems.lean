@@ -18,7 +18,7 @@ what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
   /-- A global declaration in the environment. -/
-  | decl (declName : Name)
+  | decl (declName : Name) (inv := false)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension
@@ -42,7 +42,7 @@ inductive Origin where
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
-  | .decl declName => declName
+  | .decl declName _ => declName
   | .fvar fvarId => fvarId.name
   | .stx id _ => id
   | .other name => name
@@ -51,7 +51,7 @@ instance : BEq Origin := ⟨(·.key == ·.key)⟩
 instance : Hashable Origin := ⟨(hash ·.key)⟩
 
 /-
-Note: we want to use iota reduction when indexing instaces. Otherwise,
+Note: we want to use iota reduction when indexing instances. Otherwise,
 we cannot use simp theorems such as
 ```
 @[simp] theorem liftOn_mk (a : α) (f : α → γ) (h : ∀ a₁ a₂, r a₁ a₂ → f a₁ = f a₂) :
@@ -136,7 +136,7 @@ instance : ToFormat SimpTheorem where
     name ++ prio ++ perm
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n => mkConstWithLevelParams n
+  | .decl n inv => do let r ← mkConstWithLevelParams n; if inv then return m!"← {r}" else return r
   | .fvar n => return mkFVar n
   | .stx _ ref => return ref
   | .other n => return n
@@ -318,7 +318,7 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore (.decl declName) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
+        r := r.push <| (← mkSimpTheoremCore (.decl declName inv) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
       return r
     else
       return #[← mkSimpTheoremCore (.decl declName) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
@@ -403,7 +403,7 @@ def getSimpTheorems : CoreM SimpTheorems :=
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName) }
+  let s := { s with erased := s.erased.erase (.decl declName inv) }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
   return simpThms.foldl addSimpTheoremEntry s
 

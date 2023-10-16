@@ -36,7 +36,7 @@ private def mkAuxLemma (e : Expr) : M Expr := do
   let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
   /- We turn on zeta-expansion to make sure we don't need to perform an expensive `check` step to
-     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expasion step.
+     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expansion step.
      It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
   mkAuxTheoremFor lemmaName e (zeta := true)
 

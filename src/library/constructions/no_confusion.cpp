@@ -39,7 +39,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
     expr ind_type            = instantiate_type_lparams(ind_info, ilvls);
     /* All inductive datatype parameters and indices are arguments */
     buffer<expr> args;
-    ind_type = to_telescope(lctx, ngen, ind_type, args, some(mk_implicit_binder_info()));
+    ind_type = to_telescope(env, lctx, ngen, ind_type, args, some(mk_implicit_binder_info()));
     ind_type = type_checker(env, lctx).whnf(ind_type);
     if (!is_sort(ind_type) || args.size() < nparams)
         throw_corrupted(n);

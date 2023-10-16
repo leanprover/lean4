@@ -12,7 +12,7 @@ export LEAN_ABORT_ON_PANIC=1
 # LEAN_OPTS: don't use native code (except for primitives) since it is from the previous stage
 # MORE_DEPS: rebuild the stdlib whenever the compiler has changed
 LEANMAKE_OPTS=\
-	LEAN="${CMAKE_CROSSCOMPILING_EMULATOR} ${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	LEAN="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
 	LEANC="${CMAKE_BINARY_DIR}/leanc.sh"\
 	OUT="${LIB}"\
 	LIB_OUT="${LIB}/lean"\
@@ -21,7 +21,7 @@ LEANMAKE_OPTS=\
 	LEAN_OPTS+="${LEAN_EXTRA_MAKE_OPTS} -DwarningAsError=true"\
 	LEANC_OPTS+="${LEANC_OPTS}"\
 	LEAN_AR="${CMAKE_AR}"\
-	MORE_DEPS+="${PREV_STAGE}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}"\
+	MORE_DEPS+="${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"\
 	${EXTRA_LEANMAKE_OPTS}\
 	CMAKE_LIKE_OUTPUT=1
 
@@ -52,15 +52,15 @@ leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRAR
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake bin lib PKG=Lake BIN_NAME=lake${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="../${LIB}" LIB_OUT="../${LIB}/lean" OLEAN_OUT="../${LIB}/lean"
+	+"${LEAN_BIN}/leanmake" -C lake bin lib PKG=Lake BIN_NAME=lake${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="../${LIB}" LIB_OUT="../${LIB}/lean" OLEAN_OUT="../${LIB}/lean"
 
 ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} $(LEAN_SHELL)
 	@echo "[    ] Building $@"
 # on Windows, must remove file before writing a new one (since the old one may be in use)
 	@rm -f $@
-	"${CMAKE_BINARY_DIR}/leanc.sh" $(LEAN_SHELL) -lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
+	"${CMAKE_BINARY_DIR}/leanc.sh" $(LEAN_SHELL) ${CMAKE_EXE_LINKER_FLAGS_MAKE} ${LEAN_EXE_LINKER_FLAGS} ${LEANC_OPTS} -o $@
 
 lean: ${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}
 
 Leanc:
-	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='-lleanshared ${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}"
+	+"${LEAN_BIN}/leanmake" bin PKG=Leanc BIN_NAME=leanc${CMAKE_EXECUTABLE_SUFFIX} $(LEANMAKE_OPTS) LINK_OPTS='${CMAKE_EXE_LINKER_FLAGS_MAKE_MAKE}' OUT="${CMAKE_BINARY_DIR}" OLEAN_OUT="${CMAKE_BINARY_DIR}"

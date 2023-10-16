@@ -103,7 +103,7 @@ private def isNoSpecType (env : Environment) (type : Expr) : Bool :=
 *Note*: `fixedNeutral` must have forward dependencies.
 
 The code specializer consider a `fixedNeutral` parameter during code specialization
-only if it contains forward dependecies that are tagged as `.user`, `.fixedHO`, or `.fixedInst`.
+only if it contains forward dependencies that are tagged as `.user`, `.fixedHO`, or `.fixedInst`.
 The motivation is to minimize the number of code specializations that have little or no impact on
 performance. For example, let's consider the function.
 ```

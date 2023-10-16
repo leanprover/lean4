@@ -31,6 +31,8 @@ of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
 @[inline] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
   unless (← depTrace.checkUpToDate info traceFile) do
+    if (← getNoBuild) then
+      IO.Process.exit noBuildCode.toUInt8
     build
     depTrace.writeToFile traceFile
 
@@ -69,6 +71,8 @@ def buildFileUnlessUpToDate (file : FilePath)
   if (← depTrace.checkUpToDate file traceFile) then
     fetchFileTrace file
   else
+    if (← getNoBuild) then
+      IO.Process.exit noBuildCode.toUInt8
     build
     depTrace.writeToFile traceFile
     return .mk (← cacheFileHash file) (← getMTime file)

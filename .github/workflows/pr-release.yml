@@ -81,6 +81,7 @@ jobs:
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.
       - name: Cleanup workspace
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
           sudo rm -rf *
 
@@ -94,6 +95,7 @@ jobs:
           fetch-depth: 0
 
       - name: Check if branch exists
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: check_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
@@ -119,5 +121,6 @@ jobs:
           fi
 
       - name: Push changes
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}

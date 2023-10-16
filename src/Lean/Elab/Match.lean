@@ -121,7 +121,7 @@ where
         This transformation was added to address issue #1155, and avoid an unnecessary dependency.
         In issue #1155, `discrType` was of the form `let _discr := OfNat.ofNat ... 0 ?m; ...`, and not removing
         the unnecessary `let-expr` was introducing an artificial dependency to `?m`.
-        TODO: make sure that even when this kind of artificial dependecy occurs we catch it before sending
+        TODO: make sure that even when this kind of artificial dependency occurs we catch it before sending
         the term to the kernel.
       -/
       let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
@@ -593,7 +593,7 @@ abbrev TopSortM := StateRefT TopSort.State TermElabM
 /--
   Topological sort. We need it because inaccessible patterns may contain pattern variables that are declared later.
   That is, processing patterns from left to right to do not guarantee that the pattern variables are collected in the
-  "right" order. "Right" here means pattern `x` must occur befor pattern `y` if `y`s type depends on `x`.
+  "right" order. "Right" here means pattern `x` must occur before pattern `y` if `y`s type depends on `x`.
 -/
 private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) := do
   let (_, s) ← patternVars.mapM visit |>.run {}
@@ -1037,7 +1037,7 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
        | _ => pure ()
      ```
      If `synthesizeSyntheticMVarsNoPostponing`, the example above fails at `x.fst` because
-     the type of `x` is only available after we proces the last argument of `List.forM`.
+     the type of `x` is only available after we process the last argument of `List.forM`.
 
      We apply pending default types to make sure we can process examples such as
      ```

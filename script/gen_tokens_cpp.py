@@ -7,7 +7,7 @@
 # Author: Leonardo de Moura
 #
 # Given a text file containing id and token strings,
-# this script generates .h and .cpp files for initialing/finalizing theses tokens
+# this script generates .h and .cpp files for initialing/finalizing these tokens
 # as C++ name objects.
 #
 # This script is used to generate src/frontends/lean/tokens.cpp and src/frontends/lean/tokens.h

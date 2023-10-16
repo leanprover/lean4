@@ -65,9 +65,10 @@ end IO
 namespace Lean.Server
 
 structure DocumentMeta where
-  uri     : Lsp.DocumentUri
-  version : Nat
-  text    : FileMap
+  uri                 : Lsp.DocumentUri
+  version             : Nat
+  text                : FileMap
+  dependencyBuildMode : Lsp.DependencyBuildMode
   deriving Inhabited
 
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where

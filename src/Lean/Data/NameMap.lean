@@ -46,6 +46,13 @@ def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
 instance : ForIn m NameSet Name :=
   inferInstanceAs (ForIn _ (RBTree ..) ..)
 
+/-- The union of two `NameSet`s. -/
+def append (s t : NameSet) : NameSet :=
+  s.mergeBy (fun _ _ _ => .unit) t
+
+instance : Append NameSet where
+  append := NameSet.append
+
 end NameSet
 
 def NameSSet := SSet Name

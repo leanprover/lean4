@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Log
+import Lake.Util.Exit
 import Lake.Util.Task
 import Lake.Util.Error
 import Lake.Util.OptionIO
@@ -15,10 +16,15 @@ import Lake.Build.Topological
 open System
 namespace Lake
 
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
+
 /-- Configuration options for a Lake build. -/
 structure BuildConfig where
   oldMode : Bool := false
   trustHash : Bool := true
+  /-- Early exit if a target has to be rebuilt. -/
+  noBuild : Bool := false
 
 /-- A Lake context with a build configuration and additional build data. -/
 structure BuildContext extends BuildConfig, Context where
@@ -40,6 +46,9 @@ abbrev BuildT := ReaderT BuildContext
 
 @[inline] def getTrustHash [Monad m] : BuildT m Bool :=
   (·.trustHash) <$> getBuildConfig
+
+@[inline] def getNoBuild [Monad m] : BuildT m Bool :=
+  (·.noBuild) <$> getBuildConfig
 
 /-- The monad for the Lake build manager. -/
 abbrev SchedulerM := BuildT <| LogT BaseIO

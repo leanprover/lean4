@@ -319,7 +319,7 @@ builtin_initialize unfoldEqnExt : EnvExtension UnfoldEqnExtState ←
   ```
   declName x_1 ... x_n = body[x_1, ..., x_n]
   ```
-  The proof is constracted using the automatically generated equational theorems.
+  The proof is constructed using the automatically generated equational theorems.
   We basically keep splitting the `match` and `if-then-else` expressions in the right hand side
   until one of the equational theorems is applicable.
 -/

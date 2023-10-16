@@ -91,6 +91,32 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   extraDepTargets : Array Name := #[]
 
   /--
+  A post-`lake update` hook. The monadic action is run after a successful
+  `lake update` execution on this package or one of its downstream dependents.
+  Defaults to `none`.
+
+  As an example, Mathlib can use this feature to synchronize the Lean toolchain
+  and run `cache get`:
+
+  ```
+  package mathlib where
+    postUpdate? := some do
+      let some pkg ← findPackage? `mathlib
+        | error "mathlib is missing from workspace"
+      let wsToolchainFile := (← getRootPackage).dir / "lean-toolchain"
+      let mathlibToolchain ← IO.FS.readFile <| pkg.dir / "lean-toolchain"
+      IO.FS.writeFile wsToolchainFile mathlibToolchain
+      let some exe := pkg.findLeanExe? `cache
+        | error s!"{pkg.name}: cache is missing from the package"
+      let exeFile ← runBuild (exe.build >>= (·.await))
+      let exitCode ← env exeFile.toString #["get"]
+      if exitCode ≠ 0 then
+        error s!"{pkg.name}: failed to fetch cache"
+  ```
+  -/
+  postUpdate? : Option (LakeT LogIO PUnit) := none
+
+  /--
   Whether to compile each of the package's module into a native shared library
   that is loaded whenever the module is imported. This speeds up evaluation of
   metaprograms and enables the interpreter to run functions marked `@[extern]`.
@@ -183,8 +209,6 @@ structure Package where
   leanOpts : Options
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
-  /-- The Git tag of this package. -/
-  gitTag? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
@@ -265,18 +289,13 @@ namespace Package
 @[inline] def extraDepTargets (self : Package) : Array Name :=
   self.config.extraDepTargets
 
+/-- The package's `postUpdate?` configuration. -/
+@[inline] def postUpdate? (self : Package) :=
+  self.config.postUpdate?
+
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo?
-
-/--
-The package's URL × tag release.
-Tries `releaseRepo?` first and then falls back to `remoteUrl?`.
--/
-def release? (self : Package) : Option (String × String) := do
-  let url ← self.releaseRepo? <|> self.remoteUrl?
-  let tag ← self.gitTag?
-  return (url, tag)
 
 /-- The package's `buildArchive?` configuration. -/
 @[inline] def buildArchive? (self : Package) : Option String :=

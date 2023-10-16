@@ -69,6 +69,13 @@ Finally, when we want to use new language features in the library, we need to
 update the stage 0 compiler, which can be done via `make -C stageN update-stage0`.
 `make update-stage0` without `-C` defaults to stage1.
 
+Updates to `stage0` should be their own commits in the Git history. In
+other words, before running `make update-stage0`, please commit your
+work. Then, commit the updated `stage0` compiler code with the commit message:
+```
+chore: update stage0
+```
+
 ## Further Bootstrapping Complications
 
 As written above, changes in meta code in the current stage usually will only

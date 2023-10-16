@@ -70,11 +70,11 @@ structure ConstantVal where
   name : Name
   levelParams : List Name
   type : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure AxiomVal extends ConstantVal where
   isUnsafe : Bool
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_axiom_val]
 def mkAxiomValEx (name : Name) (levelParams : List Name) (type : Expr) (isUnsafe : Bool) : AxiomVal := {
@@ -119,7 +119,7 @@ structure TheoremVal extends ConstantVal where
     List of all (including this one) declarations in the same mutual block.
     See comment at `DefinitionVal.all`. -/
   all : List Name := [name]
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 /-- Value for an opaque constant declaration `opaque x : t := e` -/
 structure OpaqueVal extends ConstantVal where
@@ -129,7 +129,7 @@ structure OpaqueVal extends ConstantVal where
     List of all (including this one) declarations in the same mutual block.
     See comment at `DefinitionVal.all`. -/
   all : List Name := [name]
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_opaque_val]
 def mkOpaqueValEx (name : Name) (levelParams : List Name) (type : Expr) (value : Expr) (isUnsafe : Bool) (all : List Name) : OpaqueVal := {
@@ -272,7 +272,7 @@ structure ConstructorVal extends ConstantVal where
   /-- Number of fields (i.e., arity - nparams) -/
   numFields : Nat
   isUnsafe : Bool
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_constructor_val]
 def mkConstructorValEx (name : Name) (levelParams : List Name) (type : Expr) (induct : Name) (cidx numParams numFields : Nat) (isUnsafe : Bool) : ConstructorVal := {
@@ -296,7 +296,7 @@ structure RecursorRule where
   nfields : Nat
   /-- Right hand side of the reduction rule -/
   rhs : Expr
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 structure RecursorVal extends ConstantVal where
   /-- List of all inductive datatypes in the mutual declaration that generated this recursor -/
@@ -322,7 +322,7 @@ structure RecursorVal extends ConstantVal where
   -/
   k : Bool
   isUnsafe : Bool
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
@@ -440,6 +440,10 @@ def isCtor : ConstantInfo → Bool
 def isInductive : ConstantInfo → Bool
   | inductInfo _ => true
   | _            => false
+
+def inductiveVal! : ConstantInfo → InductiveVal
+  | .inductInfo val => val
+  | _ => panic! "Expected a `ConstantInfo.inductInfo`."
 
 /--
   List of all (including this one) declarations in the same mutual block.

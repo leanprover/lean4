@@ -112,7 +112,7 @@ class BindAsync (n : Type u → Type v) (k : Type u → Type u) where
 export BindAsync (bindAsync)
 
 class SeqAsync (n : outParam $ Type u → Type v) (k : Type u → Type u) where
-  /-- Combine two (a)synchronous tasks, applying the result of the second one ot the first one. -/
+  /-- Combine two (a)synchronous tasks, applying the result of the second one to the first one. -/
   seqAsync {α β : Type u} : k (α → β) → k α → n (k β)
 
 export SeqAsync (seqAsync)

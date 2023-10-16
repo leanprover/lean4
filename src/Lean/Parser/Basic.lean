@@ -1183,7 +1183,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
     -- error with an unexpected number of nodes.
     s.shrinkStack startSize |>.pushSyntax Syntax.missing
   else
-    -- parser succeded with incorrect number of nodes
+    -- parser succeeded with incorrect number of nodes
     invalidLongestMatchParser s
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
@@ -1715,8 +1715,8 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   After processing the leading parser, we chain with parsers from `trailingTable`/`trailingParsers` that have precedence
   at least `c.prec` where `c` is the `ParsingContext`. Recall that `c.prec` is set by `categoryParser`.
 
-  Note that in the original Pratt's algorith, precedences are only checked before calling trailing parsers. In our
-  implementation, leading *and* trailing parsers check the precendece. We claim our algorithm is more flexible,
+  Note that in the original Pratt's algorithm, precedences are only checked before calling trailing parsers. In our
+  implementation, leading *and* trailing parsers check the precedence. We claim our algorithm is more flexible,
   modular and easier to understand.
 
   `antiquotParser` should be a `mkAntiquot` parser (or always fail) and is tried before all other parsers.

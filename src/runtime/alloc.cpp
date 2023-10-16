@@ -467,7 +467,7 @@ void finalize_alloc() {
 LEAN_THREAD_VALUE(uint64_t, g_heartbeat, 0);
 #endif
 
-/* Helper function for increasing hearbeat even when LEAN_SMALL_ALLOCATOR is not defined */
+/* Helper function for increasing heartbeat even when LEAN_SMALL_ALLOCATOR is not defined */
 extern "C" LEAN_EXPORT void lean_inc_heartbeat() {
 #ifdef LEAN_SMALL_ALLOCATOR
     if (g_heap)

@@ -24,7 +24,7 @@ functionality is purpose-specific to showing the contents of infoview popups.
 For use in standard LSP go-to-definition (see `Lean.Server.FileWorker.locationLinksOfInfo`),
 all the elaborator information we need for similar tasks is already fully recoverable via
 the `InfoTree` structure (see `Lean.Elab.InfoTree.visitM`).
-There we use this as a convienience wrapper for queried nodes (e.g. the return value of
+There we use this as a convenience wrapper for queried nodes (e.g. the return value of
 `Lean.Elab.InfoTree.hoverableInfoAt?`). It also includes the children info nodes
 as additional context (this is unused in the RPC case, as delaboration has no notion of child nodes).
 

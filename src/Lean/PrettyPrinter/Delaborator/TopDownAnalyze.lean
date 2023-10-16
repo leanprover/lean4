@@ -351,7 +351,7 @@ abbrev AnalyzeAppM := ReaderT App.Context (StateT App.State AnalyzeM)
 mutual
 
   partial def analyze (parentIsApp : Bool := false) : AnalyzeM Unit := do
-    checkMaxHeartbeats "Delaborator.topDownAnalyze"
+    checkSystem "Delaborator.topDownAnalyze"
     trace[pp.analyze] "{(← read).knowsType}.{(← read).knowsLevel}"
     let e ← getExpr
     let opts ← getOptions

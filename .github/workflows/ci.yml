@@ -168,6 +168,15 @@ jobs:
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+          - name: Web Assembly
+            os: ubuntu-latest
+            # Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
+            CMAKE_OPTIONS: -DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX="" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+            wasm: true
+            cross: true
+            shell: bash -euxo pipefail {0}
+            # Just a few selected test because wasm is slow
+            CTEST_OPTIONS: -R "leantest_1007\.lean|leantest_Format\.lean|leanruntest\_1037.lean|leanruntest_ac_rfl\.lean"
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -192,7 +201,7 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && !matrix.wasm
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -204,6 +213,17 @@ jobs:
         run: |
           brew install ccache tree zstd coreutils gmp
         if: matrix.os == 'macos-latest'
+      - name: Setup emsdk
+        uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: 3.1.44
+          actions-cache-folder: emsdk
+        if: matrix.wasm
+      - name: Install 32bit c libs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib ccache
+        if: matrix.wasm
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -280,7 +300,7 @@ jobs:
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
           ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: ${{ !matrix.cross }}
+        if: matrix.wasm || !matrix.cross
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
         if: ${{ !matrix.cross }}

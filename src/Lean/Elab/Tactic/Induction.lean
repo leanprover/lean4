@@ -395,7 +395,7 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
     return (fvarIds.size, mvarId')
 
 /--
-Given `inductionAlts` of the fom
+Given `inductionAlts` of the form
 ```
 syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
 ```

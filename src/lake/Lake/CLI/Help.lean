@@ -33,7 +33,7 @@ COMMANDS:
   build <targets>...    build targets
   update                update dependencies and save them to the manifest
   upload <tag>          upload build artifacts to a GitHub release
-  clean                 remove build outputs
+  clean                 cleanup generated files
   script                manage and run workspace scripts
   scripts               shorthand for `lake script list`
   run <script>          shorthand for `lake script run`
@@ -135,13 +135,14 @@ Packs the root package's `buildDir` into a `tar.gz` archive using `tar` and
 then uploads the asset to the pre-existing GitHub release `tag` using `gh`."
 
 def helpClean :=
-"Remove build outputs
+"Cleanup generated files
 
 USAGE:
   lake clean [<package>...]
 
-If no package is specified, deletes the build directories of every package in
-the workspace. Otherwise, just deletes those of the specified packages."
+Deletes the Lake outputs (i.e., the build directory and compiled configuration)
+of the specified packages(s). If no package is specified, deletes the outputs
+of all packages in the workspace."
 
 def helpScriptCli :=
 "Manage Lake scripts

@@ -1,0 +1,2 @@
+dsimpViaConst.lean:36:30-36:35: error: dsimp made no progress
+dsimpViaConst.lean:47:32-47:37: error: dsimp made no progress

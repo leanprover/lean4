@@ -240,7 +240,7 @@ partial def delabFor : Name → Delab
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
 partial def delab : Delab := do
-  checkSystem "delab"
+  checkMaxHeartbeats "delab"
   let e ← getExpr
 
   -- no need to hide atomic proofs

@@ -85,7 +85,7 @@ example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
 example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
   rw (config := {occs := .neg [1]}) [w]
   -- Again, the rejected first occurrence nevertheless instantiates the metavariables.
-  -- Argubly the state here should be `[f 1, 0, f 1, 0] = [0, 0, 0, 0]`,
+  -- Arguably the state here should be `[f 1, 0, f 1, 0] = [0, 0, 0, 0]`,
   -- but for now if `[f 1, f 2, 0, f 2] = [0, 0, 0, 0]`
   trace_state
   rw [w, w]

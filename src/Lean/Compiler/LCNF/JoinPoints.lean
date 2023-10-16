@@ -342,7 +342,7 @@ def mergeJpContextIfNecessary (jp : FVarId) : ExtendM Unit := do
 
 /--
 We call this whenever we enter a new local function. It clears both the
-current join point and the list of candidates since we cant lift join
+current join point and the list of candidates since we can't lift join
 points outside of functions as explained in `mergeJpContextIfNecessary`.
 -/
 def withNewFunScope (decl : FunDecl) (x : ExtendM α): ExtendM α := do

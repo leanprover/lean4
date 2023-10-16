@@ -16,7 +16,13 @@ def n2 : Name "hello" := ⟨"hello"⟩
 def n3 : Name "hello" := Name.mk "hello"
 
 open Lean in
-#eval id (α := CoreM Unit) do modifyEnv fun env => { env with header.mainModule := `foo } -- change module name to test `private`
+#eval id (α := CoreM Unit) do
+  modifyEnv fun env => env.setMainModule `foo -- change module name to test `private`
+
+open Lean in
+#eval id (α := CoreM Unit) do
+  -- this implementation is no longer allowed because of a private constructor
+  modifyEnv fun env => { env with header.mainModule := `foo }
 
 #check a -- Error
 

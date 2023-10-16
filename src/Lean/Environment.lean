@@ -117,6 +117,9 @@ declared by users are stored in an environment extension. Users can declare new 
 using meta-programming.
 -/
 structure Environment where
+  /-- The constructor of `Environment` is private to protect against modification
+  that bypasses the kernel. -/
+  private mk ::
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -149,7 +152,7 @@ structure Environment where
 
 namespace Environment
 
-def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 /--
@@ -227,6 +230,7 @@ inductive KernelException where
   | deterministicTimeout
   | excessiveMemory
   | deepRecursion
+  | interrupted
 
 namespace Environment
 
@@ -792,7 +796,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
 @[export lean_import_modules]
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
-  let imports := imports
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
@@ -849,7 +852,7 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, _        => env
 
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   let env := registerNamePrefixes env cinfo.name
   env.addAux cinfo
 

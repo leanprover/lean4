@@ -7,9 +7,9 @@ import Lean.Meta.Tactic.Injection
 
 namespace Lean.Meta
 
-/-- Convert heterogeneous equality into a homegeneous one -/
+/-- Convert heterogeneous equality into a homogeneous one -/
 private def heqToEq' (mvarId : MVarId) (eqDecl : LocalDecl) : MetaM MVarId := do
-  /- Convert heterogeneous equality into a homegeneous one -/
+  /- Convert heterogeneous equality into a homogeneous one -/
   let prf    ← mkEqOfHEq (mkFVar eqDecl.fvarId)
   let aEqb   ← whnf (← inferType prf)
   let mvarId ← mvarId.assert eqDecl.userName aEqb prf
@@ -30,7 +30,7 @@ structure UnifyEqResult where
      - Normalize `a` and `b` using the current reducibility setting.
      - If `a` (`b`) is a free variable not occurring in `b` (`a`), replace it everywhere.
      - If `a` and `b` are distinct constructors, return `none` to indicate that the goal has been closed.
-     - If `a` and `b` are the same contructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
+     - If `a` and `b` are the same constructor, apply `injection`, the result contains the number of new equalities introduced in the goal.
      - It also tries to apply the given `acyclic` method to try to close the goal.
        Remark: It is a parameter because `simp` uses `unifyEq?`, and `acyclic` depends on `simp`.
 -/

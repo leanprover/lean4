@@ -564,7 +564,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
                  Example: suppose we have
                    `?m t1 t2 t3`
                  That is, `f := ?m` and `args := #[t1, t2, t3]`
-                 Morever, `?m` is delayed assigned
+                 Moreover, `?m` is delayed assigned
                    `?m #[x, y] := f x y`
                  where, `fvars := #[x, y]` and `newVal := f x y`.
                  After abstracting `newVal`, we have `f (Expr.bvar 0) (Expr.bvar 1)`.

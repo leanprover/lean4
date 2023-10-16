@@ -471,7 +471,7 @@ structure Decl where
   of this kind. See `DefinitionSafety`.
   `partial` and `unsafe` functions may not be terminating, but Lean
   functions terminate, and some static analyzers exploit this
-  fact. So, we use the following semantics. Suppose whe hav a (large) natural
+  fact. So, we use the following semantics. Suppose we have a (large) natural
   number `C`. We consider a nondeterministic model for computation of Lean expressions as
   follows:
   Each call to a partial/unsafe function uses up one "recursion token".
@@ -490,7 +490,7 @@ structure Decl where
   safe : Bool := true
   /--
   We store the inline attribute at LCNF declarations to make sure we can set them for
-  auxliary declarations created during compilation.
+  auxiliary declarations created during compilation.
   -/
   inlineAttr? : Option InlineAttributeKind
   deriving Inhabited, BEq

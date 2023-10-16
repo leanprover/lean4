@@ -13,7 +13,7 @@ namespace Lean.Compiler.LCNF
 # Function arity reduction
 
 This module finds "used" parameters in a declaration, and then
-create an auxliary declaration that contains only used parameters.
+create an auxiliary declaration that contains only used parameters.
 For example:
 ```
 def f (x y : Nat) : Nat :=

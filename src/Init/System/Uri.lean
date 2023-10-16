@@ -20,7 +20,7 @@ namespace UriEscape
 @[inline] def letterF : UInt8 := 'F'.toNat.toUInt8
 
 /-- Decode %HH escapings in the given string. Note that sometimes a consecutive
-sequence of multiple escapings can represet a utf-8 encoded sequence for
+sequence of multiple escapings can represent a utf-8 encoded sequence for
 a single unicode code point and these will also be decoded correctly. -/
 def decodeUri (uri : String) : String := Id.run do
   let mut decoded : ByteArray := ByteArray.empty
@@ -78,7 +78,7 @@ def escapeUri (uri: String) : String :=
 
 /-- Replaces all %HH Uri escapings in the given string with their
 corresponding unicode code points.  Note that sometimes a consecutive
-sequence of multiple escapings can represet a utf-8 encoded sequence for
+sequence of multiple escapings can represent a utf-8 encoded sequence for
 a single unicode code point and these will also be decoded correctly. -/
 def unescapeUri (s: String) : String :=
   UriEscape.decodeUri s

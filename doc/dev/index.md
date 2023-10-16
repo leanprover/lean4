@@ -64,3 +64,10 @@ simply by pushing a tag to your fork of the Lean 4 github repository
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
 (You must use a tag name that does not start with a numeral, or contain `_`).
+
+### `ccache`
+
+Lean's build process uses [`ccache`](https://ccache.dev/) if it is
+installed to speed up recompilation of the generated C code. Without
+`ccache`, you'll likely spend more time than necessary waiting on
+rebuilds - it's a good idea to make sure it's installed.

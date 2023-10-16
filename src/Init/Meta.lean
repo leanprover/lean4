@@ -480,7 +480,7 @@ structure Module where
   1- A proper extensible tactic feature that does not rely on the macro system.
 
   2- Typed macros that know the syntax categories they're working in. Then, we would be able to select which
-     syntatic categories are expanded by `expandMacros`.
+     syntactic categories are expanded by `expandMacros`.
 -/
 partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k => k != `Lean.Parser.Term.byTactic) : MacroM Syntax :=
   withRef stx do

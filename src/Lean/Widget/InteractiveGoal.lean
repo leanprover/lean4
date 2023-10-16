@@ -17,8 +17,10 @@ open Server
 as `h₁ h₂ : α`. We call this a 'hypothesis bundle'. We use `none` instead of `some false` for
 booleans to save space in the json encoding. -/
 structure InteractiveHypothesisBundle where
-  /-- The user-friendly name for each hypothesis. -/
-  names : Array Name
+  /-- The user-friendly name for each hypothesis.
+  Note that these are not `Name`s: they are pretty-printed
+  and do not remember the macro scopes. -/
+  names : Array String
   /-- The ids for each variable. Should have the same length as `names`. -/
   fvarIds : Array FVarId
   type : CodeWithInfos
@@ -77,8 +79,7 @@ def InteractiveGoalCore.pretty (g : InteractiveGoalCore) (userName? : Option Str
     ret := addLine ret
     let names := hyp.names
         |>.toList
-        |>.filter (not ∘ Name.isAnonymous)
-        |>.map toString
+        |>.filter (· != toString Name.anonymous)
         |> " ".intercalate
     match names with
     | "" =>
@@ -114,7 +115,7 @@ instance : EmptyCollection InteractiveGoals := ⟨{goals := #[]}⟩
 open Meta in
 /-- Extend an array of hypothesis bundles with another bundle. -/
 def addInteractiveHypothesisBundle (hyps : Array InteractiveHypothesisBundle)
-    (ids : Array (Name × FVarId)) (type : Expr) (value? : Option Expr := none) :
+    (ids : Array (String × FVarId)) (type : Expr) (value? : Option Expr := none) :
     MetaM (Array InteractiveHypothesisBundle) := do
   if ids.size == 0 then
     throwError "Can only add a nonzero number of ids as an InteractiveHypothesisBundle."
@@ -145,7 +146,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
   let ppImplDetailHyps := pp.implementationDetailHyps.get (← getOptions)
   let showLetValues := pp.showLetValues.get (← getOptions)
   withGoalCtx mvarId fun lctx mvarDecl => do
-    let pushPending (ids : Array (Name × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
+    let pushPending (ids : Array (String × FVarId)) (type? : Option Expr) (hyps : Array InteractiveHypothesisBundle)
         : MetaM (Array InteractiveHypothesisBundle) :=
       if ids.isEmpty then
         pure hyps
@@ -153,7 +154,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         match type? with
         | none      => pure hyps
         | some type => addInteractiveHypothesisBundle hyps ids type
-    let mut varNames : Array (Name × FVarId) := #[]
+    let mut varNames : Array (String × FVarId) := #[]
     let mut prevType? : Option Expr := none
     let mut hyps : Array InteractiveHypothesisBundle := #[]
     for localDecl in lctx do
@@ -162,7 +163,10 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
       else
         match localDecl with
         | LocalDecl.cdecl _index fvarId varName type _ _ =>
-          let varName := varName.simpMacroScopes
+          -- We rely on the fact that `withGoalCtx` runs `LocalContext.sanitizeNames`,
+          -- so the `userName`s of local hypotheses are already pretty-printed
+          -- and it suffices to simply `toString` them.
+          let varName := toString varName
           let type ← instantiateMVars type
           if prevType? == none || prevType? == some type then
             varNames := varNames.push (varName, fvarId)
@@ -171,7 +175,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             varNames := #[(varName, fvarId)]
           prevType? := some type
         | LocalDecl.ldecl _index fvarId varName type val _ _ => do
-          let varName := varName.simpMacroScopes
+          let varName := toString varName
           hyps ← pushPending varNames prevType? hyps
           let type ← instantiateMVars type
           let val? ← if showLetValues then pure (some (← instantiateMVars val)) else pure none

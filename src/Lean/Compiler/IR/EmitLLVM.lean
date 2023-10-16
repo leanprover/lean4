@@ -1044,7 +1044,7 @@ mutual
 partial def emitCase (builder : LLVM.Builder llvmctx)
     (x : VarId) (xType : IRType) (alts : Array Alt) : M llvmctx Unit := do
   let oldBB ← LLVM.getInsertBlock builder
-  -- NOTE: In this context, 'Zext' versus 'Sext' have a meaninful semantic difference.
+  -- NOTE: In this context, 'Zext' versus 'Sext' have a meaningful semantic difference.
   --       We perform a zero extend so that one-bit tags of `0/-1` actually extend to `0/1`
   --       in 64-bit space.
   let tag ← emitTag builder x xType

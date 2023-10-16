@@ -136,7 +136,7 @@ structure Alt where
   /-- `Syntax` object for providing position information -/
   ref       : Syntax
   /--
-  Orginal alternative index. Alternatives can be split, this index is the original
+  Original alternative index. Alternatives can be split, this index is the original
   position of the alternative that generated this one.
   -/
   idx       : Nat

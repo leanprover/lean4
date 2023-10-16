@@ -131,7 +131,7 @@ instance : Inhabited (DiscrTree α s) where
     ```
     Decidable -> Eq -> * -> * -> * -> [Nat.decEq]
     ```
-    to the discrimination tree IF we ignored the implict `Nat` argument.
+    to the discrimination tree IF we ignored the implicit `Nat` argument.
     This would be BAD since **ALL** decidable equality instances would be in the same path.
     So, we index implicit arguments if they are types.
     This setting seems sensible for simplification theorems such as:
@@ -503,7 +503,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array 
           we want `isDefEq` to throw an exception whenever it tries to assign
           a read-only metavariable.
           This feature is useful for type class resolution where
-          we may want to notify the caller that the TC problem may be solveable
+          we may want to notify the caller that the TC problem may be solvable
           later after it assigns `?m`.
           The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
           That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (Add ?m)`

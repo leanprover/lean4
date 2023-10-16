@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.OrdHashSet
+import Lake.Util.List
 import Lean.Elab.ParseImportsFast
 import Lake.Build.Common
 
@@ -58,7 +59,17 @@ Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
 -/
 def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
-  let contents ← IO.FS.readFile mod.leanFile
+  let callstack : CallStack BuildKey ← EquipT.lift <| CycleT.readCallStack
+  let contents ← liftM <| tryCatch (IO.FS.readFile mod.leanFile) fun err =>
+    -- filter out only modules from build key, and remove adjacent duplicates (squeeze),
+    -- since Lake visits multiple nested facets of the same module.
+    let callstack := callstack.filterMap (fun bk =>
+      match bk with
+      | .moduleFacet mod .. => .some s!"'{mod.toString}'"
+      | _ => .none
+    ) |> List.squeeze
+    let breadcrumb := String.intercalate " ▸ " callstack.reverse
+    error s!"{breadcrumb}: {err}"
   let imports ← Lean.parseImports' contents mod.leanFile.toString
   let mods ← imports.foldlM (init := OrdModuleSet.empty) fun set imp =>
     findModule? imp.module <&> fun | some mod => set.insert mod | none => set

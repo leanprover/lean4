@@ -105,7 +105,7 @@ abbrev Ctor2JpCasesAlt := FVarIdMap (NameMap JpCasesAlt)
 
 open Internalize in
 /--
-Construct an auxiliary join point for a particular alternative in a join-point that satifies `isJpCases?`.
+Construct an auxiliary join point for a particular alternative in a join-point that satisfies `isJpCases?`.
 - `decls` is the prefix (before the `cases`). See `isJpCases?`.
 - `params` are the parameters of the main join point that satisfies `isJpCases?`.
 - `targetParamIdx` is the index of the parameter that we are expanding to `fields`
@@ -149,7 +149,7 @@ private def mkJmpArgsAtJp (params : Array Param) (targetParamIdx : Nat) (fields 
 
 /--
 Try to optimize `jpCases` join points.
-We say a join point is a `jpCases` when it satifies the predicate `isJpCases`.
+We say a join point is a `jpCases` when it satisfies the predicate `isJpCases`.
 If we have a jump to `jpCases` with a constructor, then we can optimize the code by creating an new join point for
 the constructor.
 Example: suppose we have

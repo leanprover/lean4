@@ -54,7 +54,7 @@ def run (x : M α) (s : State := {}) : MetaM (α × State) :=
   the argument we are trying to recurse on, and it contains loose bound variables.
 
   We use this test to decide whether we should process a matcher-application as a regular
-  applicaton or not. That is, whether we should push the `below` argument should be affected by the matcher or not.
+  application or not. That is, whether we should push the `below` argument should be affected by the matcher or not.
   If `e` does not contain an application of the form `recFnName .. t ..`, then we know
   the recursion doesn't depend on any pattern variable in this matcher.
 -/

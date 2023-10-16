@@ -199,7 +199,7 @@ instance [MetaEval α] : MetaEval (CoreM α) where
 protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
   controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
 
-@[inline] def checkInterrupted : CoreM Unit := do
+def checkInterrupted : CoreM Unit := do
   if (← IO.checkCanceled) then
     -- should never be visible to users!
     throw <| Exception.error .missing "elaboration interrupted"

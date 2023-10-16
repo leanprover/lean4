@@ -11,16 +11,42 @@ namespace Lean.Meta
 
 namespace DiscrTree
 /--
-Discrimination tree key. See `DiscrTree`
+(Imperfect) Discrimination tree key. See `DiscrTree`.
+The parameter `simpleReduce` controls how aggressive the term is reduced.
 -/
 inductive Key (simpleReduce : Bool) where
-  | const : Name → Nat → Key simpleReduce
-  | fvar  : FVarId → Nat → Key simpleReduce
-  | lit   : Literal → Key simpleReduce
-  | star  : Key simpleReduce
-  | other : Key simpleReduce
-  | arrow : Key simpleReduce
-  | proj  : Name → Nat → Nat → Key simpleReduce
+  /-- A constant application with name `declName` and `arity` arguments. -/
+  | const (declName : Name) (arity : Nat)
+  /--
+  Free variables (and arity). Thus, an entry in the discrimination tree
+  may reference hypotheses from the local context.
+  -/
+  | fvar (fvarId : FVarId) (arity : Nat)
+  /-- Literal. -/
+  | lit (litVal : Literal)
+  /--
+  Star or wildcard. We use them to represent metavariables and terms
+  we want to ignore. We ignore implicit arguments and proofs.
+  -/
+  | star
+  /--
+  Other terms. We use to represent other kinds of terms
+  (e.g., nested lambda, forall, sort, etc).
+  -/
+  | other
+  /-- Arrow (aka non dependent arrows). -/
+  | arrow
+  /-- Projection (applications). -/
+  | proj (structName : Name) (projIdx : Nat) (arity : Nat)
+  /--
+  Ground terms.
+  We use to implement the `ground p` pattern annotation.
+  When the `DiscrTree` is trying to match a term `e` with key the `.ground`,
+  it succeeds if `e` does not contain free or meta variables.
+  Note that, in the pattern `ground p`, the term `p` is ignored.
+  We can also view `ground` as a variant of `star` that matches all ground terms.
+  -/
+  | ground : Key simpleReduce
   deriving Inhabited, BEq, Repr
 
 protected def Key.hash : Key s → UInt64
@@ -30,6 +56,7 @@ protected def Key.hash : Key s → UInt64
   | Key.star        => 7883
   | Key.other       => 2411
   | Key.arrow       => 17
+  | Key.ground      => 11
   | Key.proj s i a  =>  mixHash (hash a) $ mixHash (hash s) (hash i)
 
 instance : Hashable (Key s) := ⟨Key.hash⟩

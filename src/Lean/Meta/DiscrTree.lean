@@ -48,14 +48,19 @@ namespace Lean.Meta.DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
+/--
+Auxiliary function used to implement `Key.lt`.
+Note that the `DiscrTree` implementation assumes that the `.star` key is the smallest one, and `.ground` key is the biggest.
+-/
 def Key.ctorIdx : Key s → Nat
-  | .star     => 0
-  | .other    => 1
-  | .lit ..   => 2
-  | .fvar ..  => 3
-  | .const .. => 4
-  | .arrow    => 5
-  | .proj ..  => 6
+  | .star      => 0
+  | .other     => 1
+  | .lit ..    => 2
+  | .fvar ..   => 3
+  | .const ..  => 4
+  | .arrow     => 5
+  | .proj ..   => 6
+  | .ground .. => 7
 
 def Key.lt : Key s → Key s → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
@@ -69,6 +74,7 @@ instance (a b : Key s) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt
 
 def Key.format : Key s → Format
   | .star                   => "*"
+  | .ground                 => "*g"
   | .other                  => "◾"
   | .lit (Literal.natVal v) => Std.format v
   | .lit (Literal.strVal v) => repr v
@@ -247,6 +253,12 @@ def mkNoindexAnnotation (e : Expr) : Expr :=
 def hasNoindexAnnotation (e : Expr) : Bool :=
   annotation? `noindex e |>.isSome
 
+def mkGroundAnnotation (e : Expr) : Expr :=
+  mkAnnotation `ground e
+
+def hasGroundAnnotation (e : Expr) : Bool :=
+  annotation? `ground e |>.isSome
+
 /--
 Reduction procedure for the discrimination tree indexing.
 The parameter `simpleReduce` controls how aggressive the term is reduced.
@@ -328,6 +340,10 @@ def reduceDT (e : Expr) (root : Bool) (simpleReduce : Bool) : MetaM Expr :=
 private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
+  else if hasGroundAnnotation e then
+    if root then
+      throwError "`ground` pattern modifier cannot be use in root terms{indentExpr e}"
+    return (.ground, todo)
   else
     let e ← reduceDT e root (simpleReduce := s)
     let fn := e.getAppFn
@@ -539,7 +555,7 @@ private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key s × Array 
 private def getStarResult (d : DiscrTree α s) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
-  | none                  => result
+  | none              => result
   | some (.node vs _) => result ++ vs
 
 private abbrev findKey (cs : Array (Key s × Trie α s)) (k : Key s) : Option (Key s × Trie α s) :=
@@ -555,14 +571,24 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
     else
       let e     := todo.back
       let todo  := todo.pop
-      let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
       let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
+        let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
         if first.1 == .star then
           getMatchLoop todo first.2 result
+        else
+          return result
+      let visitGround (result : Array α) : MetaM (Array α) := do
+        let last  := cs.back /- Recall that `Key.ground` is the maximal key -/
+        if last.1 == .ground then
+          let e ← instantiateMVars e /- TODO(Leo): check whether this is perf bottleneck. -/
+          if e.hasFVar || e.hasExprMVar then
+            return result
+          else
+            getMatchLoop todo last.2 result
         else
           return result
       let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
@@ -570,6 +596,7 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
         | none   => return result
         | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
+      let result ← visitGround result
       match k with
       | .star  => return result
       /-
@@ -666,6 +693,18 @@ where
             process 0 todo first.2 result
           else
             return result
+        let visitGround (result : Array α) : MetaM (Array α) := do
+          let last := cs.back
+          if last.1 == .ground then
+            let e ← instantiateMVars e /- TODO(Leo): check whether this is perf bottleneck. -/
+            if e.hasFVar || e.hasExprMVar then
+              return result
+            else
+              process 0 todo last.2 result
+          else
+            return result
+        let visitStarAndGround (result : Array α) : MetaM (Array α) := do
+           visitGround (← visitStar result)
         let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
           match findKey cs k with
           | none   => return result
@@ -673,7 +712,7 @@ where
         match k with
         | .star  => cs.foldlM (init := result) fun result ⟨k, c⟩ => process k.arity todo c result
         -- See comment a `getMatch` regarding non-dependent arrows vs dependent arrows
-        | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStar result))
-        | _      => visitNonStar k args (← visitStar result)
+        | .arrow => visitNonStar .other #[] (← visitNonStar k args (← visitStarAndGround result))
+        | _      => visitNonStar k args (← visitStarAndGround result)
 
 end Lean.Meta.DiscrTree

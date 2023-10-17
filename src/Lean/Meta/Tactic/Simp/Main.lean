@@ -32,8 +32,14 @@ def Config.updateArith (c : Config) : CoreM Config := do
 
 def Result.getProof (r : Result) : MetaM Expr := do
   match r.proof? with
-  | some p => return p
-  | none   => mkEqRefl r.expr
+  | some p => do
+    trace[debug] "getProof: {r} ==> {p}"
+    pure p
+  | none   => do
+    let x ← mkEqRefl r.expr
+    trace[debug] "getProof: {r} ==> {x}"
+    pure x
+
 
 /--
   Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
@@ -44,30 +50,57 @@ def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
   | some p => return p
   | none   =>
     if (← isDefEq source r.expr) then
+      trace[debug] "getProof': defeq: {r} ==> {← mkEqRefl r.expr}"
       mkEqRefl r.expr
     else
+      let x ← mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
+      trace[debug] "getProof': not defeq: {r} ==> {x}"
       /- `source` and `r.expr` must be definitionally equal, but
          are not definitionally equal at `TransparencyMode.reducible` -/
-      mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
+      pure x
 
 def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
   match r.proof? with
-  | none   => return { expr := mkApp r.expr a, proof? := none }
-  | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
+  | none   => do
+    let x := { expr := mkApp r.expr a, proof? := none }
+    trace[debug] "mkCongrFun: ({r}, {a}) ==> {x}"
+    return x
+  | some h => do
+    let x := { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
+    trace[debug] "mkCongrFun: ({r}, {a}) ==> {x}"
+    return x
 
 def mkCongr (r₁ r₂ : Result) : MetaM Result :=
   let e := mkApp r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
-  | none,     none   => return { expr := e, proof? := none }
-  | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
-  | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
-  | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
+  | none,     none   => do
+    let x := { expr := e, proof? := none }
+    trace[debug] "mkCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x
+  | some h,  none    => do
+    let x := { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
+    trace[debug] "mkCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x
+  | none,    some h  => do
+    let x := { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
+    trace[debug] "mkCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x
+  | some h₁, some h₂ => do
+    let x := { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
+    trace[debug] "mkCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x
 
 private def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
   let e := src.updateForallE! r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
-  | none,     none   => return { expr := e, proof? := none }
-  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
+  | none,     none   => do
+    let x := { expr := e, proof? := none }
+    trace[debug] "mkImpCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x
+  | _,        _      => do
+    let x := { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) }
+    trace[debug] "mkImpCongr: ({r₁}, {r₂}) ==> {x}"
+    pure x -- TODO specialize if bottleneck
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
@@ -412,10 +445,15 @@ where
         let r ← simp s
         let eNew := e.updateProj! r.expr
         match r.proof? with
-        | none => return { expr := eNew }
-        | some h =>
+        | none => do
+          let x := { expr := eNew }
+          trace[debug] "simpProj: {e} ==> {r} ==> {x}"
+          pure x
+        | some h => do
           let hNew ← mkEqNDRec motive (← mkEqRefl e) h
-          return { expr := eNew, proof? := some hNew }
+          let x := { expr := eNew, proof? := some hNew }
+          trace[debug] "simpProj: {e} ==> {r} ==> {x}"
+          pure x
       else
         return { expr := (← dsimp e) }
 
@@ -445,11 +483,16 @@ where
     else
       let args := e.getAppArgs
       let eNew := mkAppN fNew.expr args
-      if fNew.proof?.isNone then return { expr := eNew }
+      if fNew.proof?.isNone then
+        let x := { expr := eNew }
+        trace[debug] "visitFn: {e} ==> {fNew} ==> {x}"
+        return x
       let mut proof ← fNew.getProof
       for arg in args do
         proof ← Meta.mkCongrFun proof arg
-      return { expr := eNew, proof? := proof }
+      let x := { expr := eNew, proof? := proof }
+      trace[debug] "visitFn: {e} ==> {fNew} ==> {x}"
+      return x
 
   mkCongrSimp? (f : Expr) : M (Option CongrTheorem) := do
     if f.isConst then if (← isMatcher f.constName!) then
@@ -517,7 +560,10 @@ where
       equal using `TransparencyMode.reducible` (`Nat.pred` is not reducible).
       Thus, we decided to return here only if the auto generated congruence theorem does not introduce casts.
     -/
-    if !hasProof && !hasCast then return some { expr := mkAppN f argsNew }
+    --!! behavior change
+    if !hasProof && !hasCast then
+      trace[debug] "tryAutoCongrTheorem?: hasProof == hasCast == false; {e} ==> {{ expr := mkAppN f argsNew : Result}}"
+      return some { expr := mkAppN f argsNew }
     let mut proof := cgrThm.proof
     let mut type  := cgrThm.type
     let mut j := 0 -- index at argResults
@@ -544,6 +590,7 @@ where
         type := type.bindingBody!
       | CongrArgKind.eq =>
         let argResult := argResults[j]!
+        trace[debug] "tryAutoCongrTheorem?: in CongrArgKind.eq"
         let argProof ← argResult.getProof' arg
         j := j + 1
         proof := mkApp2 proof argResult.expr argProof
@@ -553,8 +600,10 @@ where
     let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
     let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
     if hasProof then
+      trace[debug] "tryAutoCongrTheorem?: hasProof == {hasProof}; {e} ==> {{ expr := rhs, proof? := proof : Result}}"
       return some { expr := rhs, proof? := proof }
     else
+      trace[debug] "tryAutoCongrTheorem?: hasProof == {hasProof}; {e} ==> {{ expr := rhs : Result}}"
       /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
       return some { expr := rhs }
 
@@ -597,6 +646,7 @@ where
 
            Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
         -/
+        trace[debug] "processCongrHypothesis: {proof} ==> {r} ==> {r.proof?.isSome} || {(xs.size > 0 && lhs != r.expr)}"
         return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
 
   /-- Try to rewrite `e` children using the given congruence theorem -/
@@ -692,11 +742,16 @@ where
       let r ← simp e
       let eNew ← mkLambdaFVars xs r.expr
       match r.proof? with
-      | none   => return { expr := eNew }
+      | none   => do
+        let x := { expr := eNew }
+        trace[debug] "simpLambda: {e} ==> {r} ==> {x}"
+        return x
       | some h =>
         let p ← xs.foldrM (init := h) fun x h => do
           mkFunExt (← mkLambdaFVars #[x] h)
-        return { expr := eNew, proof? := p }
+        let x := { expr := eNew, proof? := p }
+        trace[debug] "simpLambda: {e} ==> {r} ==> {x}"
+        return x
 
   simpArrow (e : Expr) : M Result := do
     trace[Debug.Meta.Tactic.simp] "arrow {e}"
@@ -712,7 +767,10 @@ where
         withSimpTheorems s do
           let rq ← simp q
           match rq.proof? with
-          | none    => mkImpCongr e rp rq
+          | none    => do
+            let x ← mkImpCongr e rp rq
+            trace[debug] "simpArrow: {e} ==> {rq} ==> {x}"
+            return x
           | some hq =>
             let hq ← mkLambdaFVars #[h] hq
             /-
@@ -727,9 +785,15 @@ where
               problem.
              -/
             if rq.expr.containsFVar h.fvarId! then
-              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
+              do
+              let x := { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
+              trace[debug] "simpArrow: {e} ==> {rq}, true ==> {x}"
+              return x
             else
-              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
+              do
+              let x := { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
+              trace[debug] "simpArrow: {e} ==> {rq}, false ==> {x}"
+              return x
     else
       mkImpCongr e rp (← simp q)
 
@@ -777,8 +841,14 @@ where
         let rb ← simp b
         let eNew ← mkForallFVars #[x] rb.expr
         match rb.proof? with
-        | none   => return { expr := eNew }
-        | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+        | none   => do
+          let x := { expr := eNew }
+          trace[debug] "simpForall: {e} ==> {rb} ==> {x}"
+          return x
+        | some h => do
+          let x := { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+          trace[debug] "simpForall: {e} ==> {rb} ==> {x}"
+          return x
     else
       return { expr := (← dsimp e) }
 
@@ -795,24 +865,32 @@ where
           let bx := b.instantiate1 x
           let rbx ← simp bx
           let hb? ← match rbx.proof? with
-            | none => pure none
-            | some h => pure (some (← mkLambdaFVars #[x] h))
+            | none => do
+              trace[debug] "simpLet: {e} ==> {rbx} ==> none"
+              pure none
+            | some h => do
+              trace[debug] "simpLet: {e} ==> {rbx} ==> {(some (← mkLambdaFVars #[x] h))}"
+              pure (some (← mkLambdaFVars #[x] h))
           let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
-          match rv.proof?, hb? with
-          | none,   none   => return { expr := e' }
-          | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
-          | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+          let x ← match rv.proof?, hb? with
+            | none,   none   => do pure { expr := e' }
+            | some h, none   => do pure { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+            | _,      some h => do pure { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+          trace[debug] "simpLet₂: {e} ==> {rv} ==> {x}"
+          return x
       | SimpLetCase.nondepDepVar =>
         let v' ← dsimp v
         withLocalDeclD n t fun x => do
           let bx := b.instantiate1 x
           let rbx ← simp bx
           let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
-          match rbx.proof? with
-          | none => return { expr := e' }
-          | some h =>
+          let x ← match rbx.proof? with
+          | none => pure { expr := e' }
+          | some h => do
             let h ← mkLambdaFVars #[x] h
-            return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+            pure { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+          trace[debug] "simpLet₃: {e} ==> {rbx} ==> {x}"
+          return x
 
   cacheResult (cfg : Config) (r : Result) : M Result := do
     if cfg.memoize then

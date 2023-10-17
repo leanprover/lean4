@@ -13,11 +13,13 @@ import Lean.Meta.Tactic.LinearArith.Simp
 namespace Lean.Meta.Simp
 
 def mkEqTrans (r₁ r₂ : Result) : MetaM Result := do
-  match r₁.proof? with
-  | none => return r₂
+  let x ← match r₁.proof? with
+  | none => do pure r₂
   | some p₁ => match r₂.proof? with
-    | none    => return { r₂ with proof? := r₁.proof? }
-    | some p₂ => return { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
+    | none    => do pure { r₂ with proof? := r₁.proof? }
+    | some p₂ => do pure { r₂ with proof? := (← Meta.mkEqTrans p₁ p₂) }
+  trace[debug] "mkEqTrans: ({r₁},{r₂}) ==> {x}"
+  return x
 
 def synthesizeArgs (thmId : Origin) (xs : Array Expr) (bis : Array BinderInfo) (discharge? : Expr → SimpM (Option Expr)) : SimpM Bool := do
   for x in xs, bi in bis do
@@ -72,6 +74,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification"
           return none
         pure <| some proof
+      trace[debug] "tryTheoremCore: {← ppSimpTheorem thm} ==> {proof?}"
       let rhs := (← instantiateMVars type).appArg!
       if e == rhs then
         return none
@@ -103,18 +106,20 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none, .. } =>
+  | some r@{ expr := eNew, proof? := none, .. } => do
+    trace[debug] "trySimpTheoremCore₂: {← ppSimpTheorem thm} ==> {r}"
     if (← hasAssignableMVar eNew) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
     return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof, .. } =>
+  | some r@{ expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
       proof ← mkCongrFun proof extraArg
     if (← hasAssignableMVar eNew) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
+    trace[debug] "trySimpTheoremCore₂: {← ppSimpTheorem thm} ==> {r} ==> {{ expr := mkAppN eNew extraArgs, proof? := some proof : Result}}"
     return some { expr := mkAppN eNew extraArgs, proof? := some proof }
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=

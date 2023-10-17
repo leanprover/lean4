@@ -122,6 +122,7 @@ private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Synta
     let type ← inferType e
     let e ← instantiateMVars e
     let e := e.eta
+    trace[debug] "addSimpTheorem: type: {type}\nexpr: {e}\ne.hasMVar == {e.hasMVar}\ntype.hasMVar == {type.hasMVar}"
     if e.hasMVar then
       let r ← abstractMVars e
       return (r.paramNames, r.expr, none)

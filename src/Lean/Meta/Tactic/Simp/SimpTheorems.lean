@@ -323,7 +323,9 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
 
 private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (type : Option Expr := none) : MetaM SimpTheorem := do
   assert! origin != .fvar ⟨.anonymous⟩
-  let type ← instantiateMVars <|← match type with | some type => pure type | none => inferType e
+  let t ← instantiateMVars <|← match type with | some type => pure type | none => inferType e
+  trace[debug] "mkSimpTheoremCore: type: {type} ==> {t}"
+  let type := t
   withNewMCtxDepth do
     let (_, _, type) ← withReducible <| forallMetaTelescopeReducing type
     let type ← whnfR type
@@ -444,7 +446,9 @@ def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
     return simpThm.proof.instantiateLevelParamsArray simpThm.levelParams us
 
 private def preprocessProof (val : Expr) (inv : Bool) (type : Option Expr := none) : MetaM (Array (Expr × Expr)) := do
-  let type ← match type with | some type => pure type | none => inferType val
+  let t ← match type with | some type => pure type | none => inferType val
+  trace[debug] "preProcessProof: type: {type} ==> {t}"
+  let type := t
   checkTypeIsProp type
   let ps ← preprocess val type inv (isGlobal := false)
   return ps.toArray

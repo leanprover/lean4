@@ -17,6 +17,9 @@ structure Result where
   dischargeDepth : Nat := 0
   deriving Inhabited
 
+instance : ToMessageData Result where
+  toMessageData r := m!"[{r.proof?} : {r.expr}]"
+
 abbrev Cache := ExprMap Result
 
 abbrev CongrCache := ExprMap (Option CongrTheorem)

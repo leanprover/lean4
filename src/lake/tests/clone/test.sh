@@ -11,9 +11,12 @@ fi
 
 ./clean.sh
 
+# Test Lake's management of a single Git-cloned dependency.
+
 mkdir hello
 pushd hello
 $LAKE init hello
+git checkout -b master
 git config user.name test
 git config user.email test@example.com
 git add --all

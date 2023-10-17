@@ -10,6 +10,9 @@ Please check the [releases](https://github.com/leanprover/lean4/releases) page f
 v4.3.0 (development in progress)
 ---------
 
+v4.2.0
+---------
+
 * [isDefEq cache for terms not containing metavariables.](https://github.com/leanprover/lean4/pull/2644).
 * [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
 * Make [`Environment.mk`](https://github.com/leanprover/lean4/pull/2604) and [`Environment.add`](https://github.com/leanprover/lean4/pull/2642) private, and add [`replay`](https://github.com/leanprover/lean4/pull/2617) as a safer alternative.
@@ -20,10 +23,6 @@ v4.3.0 (development in progress)
 * [Show path of failed import in Lake](https://github.com/leanprover/lean4/pull/2616).
 * [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
 * **Lake:** Add `postUpdate?` package configuration option. Used by a package to specify some code which should be run after a successful `lake update` of the package or one of its downstream dependencies. ([lake#185](https://github.com/leanprover/lake/issues/185))
-
-v4.2.0
----------
-
 * Improvements to Lake startup time ([#2572](https://github.com/leanprover/lean4/pull/2572), [#2573](https://github.com/leanprover/lean4/pull/2573))
 * `refine e` now replaces the main goal with metavariables which were created during elaboration of `e` and no longer captures pre-existing metavariables that occur in `e` ([#2502](https://github.com/leanprover/lean4/pull/2502)).
   * This is accomplished via changes to `withCollectingNewGoalsFrom`, which also affects `elabTermWithHoles`, `refine'`, `calc` (tactic), and `specialize`. Likewise, all of these now only include newly-created metavariables in their output.

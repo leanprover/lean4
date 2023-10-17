@@ -175,8 +175,7 @@ structure State where
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
-def checkSystem : SynthM Unit := do
-  Core.checkInterrupted
+def checkMaxHeartbeats : SynthM Unit := do
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
@@ -553,7 +552,7 @@ def resume : SynthM Unit := do
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
 
 def step : SynthM Bool := do
-  checkSystem
+  checkMaxHeartbeats
   let s ← get
   if !s.resumeStack.isEmpty then
     resume

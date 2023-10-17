@@ -11,7 +11,8 @@ fi
 
 ./clean.sh
 
-# tests issues:
+# Test the functionality of Lake's dependency resolution
+# in many edge cases with a full tree of dependencies.
 # https://github.com/leanprover/lake/issues/70
 # https://github.com/leanprover/lake/issues/84
 # https://github.com/leanprover/lake/issues/85

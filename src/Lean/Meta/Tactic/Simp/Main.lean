@@ -268,7 +268,7 @@ where
       e
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
-  checkSystem "simp"
+  checkMaxHeartbeats "simp"
   let cfg ← getConfig
   if (← isProof e) then
     return { expr := e }

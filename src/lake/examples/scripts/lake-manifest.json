@@ -1,4 +1,0 @@
-{"version": 5,
- "packagesDir": "lake-packages",
- "packages":
- [{"path": {"opts": {}, "name": "dep", "inherited": false, "dir": ".\\dep"}}]}

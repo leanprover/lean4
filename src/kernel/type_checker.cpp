@@ -1007,15 +1007,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     lbool r = quick_is_def_eq(t, s, use_hash);
     if (r != l_undef) return r == l_true;
     
-    // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
-    // we fully reduce `t` and check whether result is `s`.
-    // TODO: add metadata to control whether this optimization is used or not.
-    if (!has_fvar(t) && is_constant(s, *g_bool_true)) {
-        if (is_constant(whnf(t), *g_bool_true)) {
-            return true;
-        }
-    }
-
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
       without using `whnf` when reducing projections.

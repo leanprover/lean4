@@ -20,7 +20,6 @@ Defines the configuration of a Lake package.  Has many forms:
 package «pkg-name»
 package «pkg-name» { /- config opts -/ }
 package «pkg-name» where /- config opts -/
-package «pkg-name» : PackageConfig := /- config -/
 ```
 
 There can only be one `package` declaration per Lake configuration file.
@@ -32,4 +31,4 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attr ← `(Term.attrInstance| «package»)
   let ty := mkCIdentFrom (← getRef) ``PackageConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkConfigStructDecl packageDeclName doc? attrs ty sig
+  mkConfigDecl packageDeclName doc? attrs ty sig

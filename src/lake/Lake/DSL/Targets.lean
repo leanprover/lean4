@@ -153,7 +153,6 @@ Has many forms:
 lean_lib «target-name»
 lean_lib «target-name» { /- config opts -/ }
 lean_lib «target-name» where /- config opts -/
-lean_lib «target-name» := /- config -/
 ```
 -/
 scoped macro (name := leanLibDecl)
@@ -162,7 +161,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attr ← `(Term.attrInstance| lean_lib)
   let ty := mkCIdentFrom (← getRef) ``LeanLibConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkConfigStructDecl none doc? attrs ty sig
+  mkConfigDecl none doc? attrs ty sig
 
 /--
 Define a new Lean binary executable target for the package.
@@ -173,7 +172,6 @@ Has many forms:
 lean_exe «target-name»
 lean_exe «target-name» { /- config opts -/ }
 lean_exe «target-name» where /- config opts -/
-lean_exe «target-name» := /- config -/
 ```
 -/
 scoped macro (name := leanExeDecl)
@@ -182,7 +180,7 @@ doc?:optional(docComment) attrs?:optional(Term.attributes)
   let attr ← `(Term.attrInstance| lean_exe)
   let ty := mkCIdentFrom (← getRef) ``LeanExeConfig
   let attrs := #[attr] ++ expandAttrs attrs?
-  mkConfigStructDecl none doc? attrs ty sig
+  mkConfigDecl none doc? attrs ty sig
 
 
 --------------------------------------------------------------------------------

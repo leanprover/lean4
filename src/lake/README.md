@@ -194,9 +194,8 @@ A Lean library target defines a set of Lean modules available to `import` and ho
 **Syntax**
 
 ```lean
-lean_lib «target-name» {
+lean_lib «target-name» where
   -- configuration options go here
-}
 ```
 
 **Configuration Options**
@@ -217,9 +216,8 @@ A Lean executable target builds a binary executable from a Lean module with a `m
 **Syntax**
 
 ```lean
-lean_exe «target-name» {
+lean_exe «target-name» where
   -- configuration options go here
-}
 ```
 
 **Configuration Options**

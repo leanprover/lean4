@@ -10,11 +10,12 @@ Please check the [releases](https://github.com/leanprover/lean4/releases) page f
 v4.3.0 (development in progress)
 ---------
 
+* [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
+
 v4.2.0
 ---------
 
 * [isDefEq cache for terms not containing metavariables.](https://github.com/leanprover/lean4/pull/2644).
-* [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
 * Make [`Environment.mk`](https://github.com/leanprover/lean4/pull/2604) and [`Environment.add`](https://github.com/leanprover/lean4/pull/2642) private, and add [`replay`](https://github.com/leanprover/lean4/pull/2617) as a safer alternative.
 * `IO.Process.output` no longer inherits the standard input of the caller.
 * [Do not inhibit caching](https://github.com/leanprover/lean4/pull/2612) of default-level `match` reduction.

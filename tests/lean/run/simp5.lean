@@ -9,6 +9,6 @@ theorem ex1 (a b c : α) : f (f a b) c = a := by
 #print ex1
 
 theorem ex2 (p : Nat → Bool) (x : Nat) (h : p x = true) : (if p x then 1 else 2) = 1 := by
-  simp [h]
+  simp [h,]
 
 #print ex2

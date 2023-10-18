@@ -116,19 +116,25 @@ private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (id : Origin) (e
     thms.add id #[] e (post := post) (inv := inv)
 
 private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
-  let (levelParams, proof, type) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
+  let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
     let type ← inferType e
     let e ← instantiateMVars e
     let e := e.eta
-    trace[debug] "addSimpTheorem: type: {type}\nexpr: {e}\ne.hasMVar == {e.hasMVar}\ntype.hasMVar == {type.hasMVar}"
+    trace[debug] "addSimpTheorem: type: {type}\nexpr: {e}\ne.hasMVar == {e.hasMVar}\ntype.hasMVar == {(← instantiateMVars type).hasMVar}"
     if e.hasMVar then
       let r ← abstractMVars e
-      return (r.paramNames, r.expr, none)
+      return (r.paramNames, r.expr)
     else
-      return (#[], e, some (← instantiateMVars type))
-  thms.add id levelParams proof (post := post) (inv := inv) (type := type)
+      let type ← instantiateMVars type
+      --!! might add a type hint too often?
+      trace[debug] "addSimpTheorem₂: type.hasMVar == {type.hasMVar}\ntype == ← inferType e: {type == (← inferType e)}"
+      if ← (pure !type.hasMVar) <&&> return type != (← inferType e) then
+        return (#[], ← mkExpectedTypeHint e type)
+      else
+        return (#[], e)
+  thms.add id levelParams proof (post := post) (inv := inv)
 
 structure ElabSimpArgsResult where
   ctx     : Simp.Context

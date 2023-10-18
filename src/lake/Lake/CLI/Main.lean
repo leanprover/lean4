@@ -59,6 +59,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
+    |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=

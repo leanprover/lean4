@@ -3,8 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Gabriel Ebner
 -/
-import Lean.Data.Json
 import Lake.Util.Log
+import Lake.Util.Name
 
 open System Lean
 
@@ -14,18 +14,6 @@ to create, modify, serialize, and deserialize it.
 -/
 
 namespace Lake
-
-instance [ToJson α] : ToJson (NameMap α) where
-  toJson m := Json.obj <| m.fold (fun n k v => n.insert compare k.toString (toJson v)) .leaf
-
-instance [FromJson α] : FromJson (NameMap α) where
-  fromJson? j := do
-    (← j.getObj?).foldM (init := {}) fun m k v =>
-      let k := k.toName
-      if k.isAnonymous then
-        throw "expected name"
-      else
-        return m.insert k (← fromJson? v)
 
 /-- Current version of the manifest format. -/
 def Manifest.version : Nat := 6

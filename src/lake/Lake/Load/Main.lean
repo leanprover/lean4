@@ -101,14 +101,14 @@ def Workspace.updateAndMaterialize (ws : Workspace)
     unless toUpdate.isEmpty do
       for entry in (← Manifest.loadOrEmpty ws.manifestFile) do
         unless entry.inherited || toUpdate.contains entry.name do
-          let dep ← entry.materialize ws.dir ws.relPkgsDir
+          let dep ← entry.materialize ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
           modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
     buildAcyclic (·.1.name) (ws.root, FilePath.mk ".") fun (pkg, relPkgDir) resolve => do
       let inherited := pkg.name != ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
       -- Materialize this package's dependencies first
       let deps ← deps.mapM fun dep => fetchOrCreate dep.name do
-        dep.materialize inherited ws.dir ws.relPkgsDir relPkgDir
+        dep.materialize inherited ws.dir ws.relPkgsDir relPkgDir ws.lakeEnv.pkgUrlMap
       -- Load dependency packages and materialize their locked dependencies
       let deps ← deps.mapM fun dep => do
         if let .some pkg := (← getThe (NameMap Package)).find? dep.name then
@@ -122,7 +122,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
           for entry in (← Manifest.loadOrEmpty depPkg.manifestFile) do
             unless (← getThe (OrdNameMap MaterializedDep)).contains entry.name do
               let entry := entry.setInherited.inDirectory dep.relPkgDir
-              let dep ← entry.materialize ws.dir ws.relPkgsDir
+              let dep ← entry.materialize ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
               modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
           modifyThe (NameMap Package) (·.insert dep.name depPkg)
           return (depPkg, dep.relPkgDir)
@@ -176,7 +176,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
           | _, _ => warnOutOfDate "source kind (git/path)"
       let depPkgs ← deps.mapM fun dep => fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then
-          let result ← entry.materialize ws.dir relPkgsDir
+          let result ← entry.materialize ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
           -- Union manifest and configuration options (preferring manifest)
           let opts := entry.opts.mergeBy (fun _ e _ => e) dep.opts
           loadDepPackage ws.dir result pkg.leanOpts opts reconfigure

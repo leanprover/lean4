@@ -26,6 +26,11 @@ test "`$LAKE env env ELAN_TOOLCHAIN=foo $LAKE env printenv ELAN_TOOLCHAIN`" = fo
 test "`LEAN_AR=foo $LAKE env printenv LEAN_AR`" = foo
 test "`LEAN_CC=foo $LAKE env printenv LEAN_CC`" = foo
 
+# Test `LAKE_PKG_URL_MAP` setting and errors
+test "`LAKE_PKG_URL_MAP='{"a":"a"}' $LAKE env printenv LAKE_PKG_URL_MAP`" = '{"a":"a"}'
+(LAKE_PKG_URL_MAP=foo $LAKE env 2>&1 || true) | grep invalid
+(LAKE_PKG_URL_MAP=0 $LAKE env 2>&1 || true) | grep invalid
+
 # Test that the platform-specific shared library search path is set
 if [ "$OS" = Windows_NT ]; then
 $LAKE env which libleanshared.dll # DLL in `bin` directory is in `PATH`

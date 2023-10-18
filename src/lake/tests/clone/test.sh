@@ -23,22 +23,23 @@ git add --all
 git commit -m "initial commit"
 popd
 
-HELLO_URL="file://$(pwd)/hello"
+HELLO_MAP="{\"hello\" : \"file://$(pwd)/hello\"}"
 
 cd test
 
-$LAKE -R -Kurl="$HELLO_URL" update
+# test that `LAKE_PKG_URL_MAP` properly overwrites the config-specified Git URL
+LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update | grep "file://"
 # test that a second `lake update` is a no-op (with URLs)
 # see https://github.com/leanprover/lean4/commit/6176fdba9e5a888225a23e5d558a005e0d1eb2f6#r125905901
-$LAKE -R -Kurl="$HELLO_URL" update | diff - /dev/null
+LAKE_PKG_URL_MAP=$HELLO_MAP $LAKE update | diff - /dev/null
 rm -rf lake-packages
 
 # Test that Lake produces no warnings on a `lake build` after a `lake update`
 # See https://github.com/leanprover/lean4/issues/2427
 
-$LAKE -R update
+$LAKE update
 # test that a second `lake update` is a no-op (with file paths)
-$LAKE -R update | diff - /dev/null
+$LAKE update | diff - /dev/null
 test -d lake-packages/hello
 # test that Lake produces no warnings
 $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
@@ -58,13 +59,10 @@ $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null
 # See https://github.com/leanprover/lake/issues/104
 
 TEST_URL=https://example.com/hello.git
-MANIFEST=lake-manifest.json
+TEST_MAP="{\"hello\" : \"$TEST_URL\"}"
 
-cat $MANIFEST
-sed_i "s,\\.\\.[^\"]*,$TEST_URL," $MANIFEST
-cat $MANIFEST
 # set invalid remote
 git -C lake-packages/hello remote set-url origin $TEST_URL
 # build should succeed (do nothing) despite the invalid remote because
 # the remote should not be fetched; Lake should also not produce any warnings
-$LAKE build -R -Kurl=$TEST_URL 3>&1 1>&2 2>&3 | diff - /dev/null
+LAKE_PKG_URL_MAP=$TEST_MAP $LAKE build 3>&1 1>&2 2>&3 | diff - /dev/null

@@ -118,7 +118,36 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
-/-- Declares a list of type universes.
+/-- Declares one or more universe variable(s).
+
+Type universes are used in `Type u` and `Sort u` types. While Lean mostly handles universes
+automatically, explicitely declaring some eases the process of writing signatures and type
+definitions by giving us more control and factoring type universe declarations.
+
+```lean
+/-- Explicit type-universe parameter. -/
+def id₁.{u} (α : Type u) (a : α) := a
+
+/-- Implicit type-universe parameter, equivalent to `id₁`.
+  Requires option `autoImplicit true`, which is the default. -/
+def id₂ (α : Type u) (a : α) := a
+
+/-- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/
+universe u
+def id₃ (α : Type u) (a : α) := a
+```
+
+On a more technical note, using a universe variable only in the right-hand side of a definition
+causes an error if the universe has not been declared previously.
+
+```lean
+def L₁.{u} := List (Type u)
+
+-- def L₂ := List (Type u) -- error: `unknown universe level 'u'`
+
+universe u
+universe L₃ := List (Type u)
+```
 
 ## Examples
 

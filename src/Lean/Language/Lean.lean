@@ -19,10 +19,15 @@ def pushOpt (a? : Option α) (as : Array α) : Array α :=
   | some a => as.push a
   | none   => as
 
-register_builtin_option server.stderrAsMessages : Bool := {
-  defValue := true
+register_builtin_option stderrAsMessages : Bool := {
+  defValue := false
   group    := "server"
   descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
+}
+
+register_builtin_option showPartialSyntaxErrors : Bool := {
+  defValue := false
+  descr    := "show elaboration errors from partial syntax trees (i.e. after parser recovery)"
 }
 
 /-! The hierarchy of Lean snapshot types -/
@@ -203,30 +208,30 @@ where
       -- TODO: do tactic snapshots, reuse old state for them
       let _ ← old?.map (·.data.sig) |> getOrCancel
       let sig ← SnapshotTask.ofIO (stx.getRange?.getD ⟨parserState.pos, parserState.pos⟩) do
-        let cmdState ← doElab stx cmdState beginPos scope
+        let cmdState ← doElab stx cmdState msgLog.hasErrors beginPos scope
         return {
-          msgLog := cmdState.messages
-          infoTree? := some cmdState.infoState.trees[0]!
+          msgLog := .empty
           -- TODO
           tacs := #[]
           finished := .pure {
-            msgLog := .empty
-            cmdState := { cmdState with messages := .empty }
+            msgLog := cmdState.messages
+            infoTree? := some cmdState.infoState.trees[0]!
+            cmdState
           }
         }
 
-      return .mk (data := {
+      let next? ← if Parser.isTerminalCommand stx then pure none
+        -- for now, wait on "command finished" snapshot before parsing next command
+        else some <$> sig.bindIO fun sig => do
+          sig.finished.bindIO fun finished =>
+            parseCmd none parserState finished.cmdState
+      return .mk (next? := next?) {
         msgLog
         stx
         parserState
         stopPos
         sig
-      }) (next? :=
-          if Parser.isTerminalCommand stx then none
-          -- for now, wait on "command finished" snapshot before parsing next command
-          else some (← sig.bindIO fun sig => do
-            sig.finished.bindIO fun finished =>
-              parseCmd none parserState finished.cmdState))
+      }
 
   doImport stx := do
     let (headerEnv, msgLog) ← Elab.processHeader stx ctx.opts .empty ictx
@@ -250,28 +255,31 @@ where
       )].toPArray'
     }}
 
-  doElab stx cmdState beginPos scope := do
+  doElab stx cmdState hasParseError beginPos scope := do
     let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
     let cmdCtx : Elab.Command.Context := { ictx with
       cmdPos       := beginPos
       tacticCache? := none
     }
-    let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := server.stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
+    let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) <| liftM (m := BaseIO) do
       Elab.Command.catchExceptions
         (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
         cmdCtx cmdStateRef
-    let mut postCmdState ← cmdStateRef.get
+    let postCmdState ← cmdStateRef.get
+    let mut msgs := postCmdState.messages
+    -- `stx.hasMissing` should imply `initMsgs.hasErrors`, but the latter should be cheaper to check in general
+    if !showPartialSyntaxErrors.get postCmdState.scopes[0]!.opts && hasParseError && stx.hasMissing then
+      -- discard elaboration errors, except for a few important and unlikely misleading ones, on parse error
+      msgs := ⟨msgs.msgs.filter fun msg =>
+        msg.data.hasTag (fun tag => tag == `Elab.synthPlaceholder || tag == `Tactic.unsolvedGoals || (`_traceMsg).isSuffixOf tag)⟩
     if !output.isEmpty then
-      postCmdState := {
-        postCmdState with
-        messages := postCmdState.messages.add {
-          fileName := ictx.fileName
-          severity := MessageSeverity.information
-          pos      := ictx.fileMap.toPosition beginPos
-          data     := output
-        }
+      msgs := msgs.add {
+        fileName := ictx.fileName
+        severity := MessageSeverity.information
+        pos      := ictx.fileMap.toPosition beginPos
+        data     := output
       }
-    return postCmdState
+    return { postCmdState with messages := msgs }
 
 partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
   let snap ← snap.success?

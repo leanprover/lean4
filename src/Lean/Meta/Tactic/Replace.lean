@@ -84,11 +84,15 @@ where
 
 /--
   Replace type of the local declaration with id `fvarId` with one with the same user-facing name, but with type `typeNew`.
-  This method assumes `eqProof` is a proof that type of `fvarId` is equal to `typeNew`.
-  This tactic actually adds a new declaration and (try to) clear the old one.
+  This method assumes `eqProof` is a proof that the type of `fvarId` is equal to `typeNew`.
+  This tactic actually adds a new declaration and (tries to) clear the old one.
   If the old one cannot be cleared, then at least its user-facing name becomes inaccessible.
-  Remark: the new declaration is added immediately after `fvarId`.
-  `typeNew` must be well-formed at `fvarId`, but `eqProof` may contain variables declared after `fvarId`. -/
+
+  The new local declaration is inserted at the soonest point after `fvarId` at which it is
+  well-formed. That is, if `typeNew` involves declarations which occur later than `fvarId` in the
+  local context, the new local declaration will be inserted immediately after the latest-occurring
+  one. Otherwise, it will be inserted immediately after `fvarId`.
+  -/
 abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof
 

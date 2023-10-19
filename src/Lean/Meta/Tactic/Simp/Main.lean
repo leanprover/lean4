@@ -7,6 +7,7 @@ import Lean.Meta.Transform
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Match.Value
 
 namespace Lean.Meta
 namespace Simp
@@ -145,15 +146,59 @@ where
       let f := e.getAppFn
       f.isConst && isMatcherCore env f.constName!
 
+/--
+Auxiliary function for implementing `ctx.config.ground`: evaluate ground terms eagerly.
+We currently use `whnf` to implement this feature, but we want to stop ground evaluation at symbols marked with the `-` modifier.
+For example, `simp (config := { ground := true }) [-f]` should not unfold `f` even if the goal contains a ground term such as `f 2`.
+-/
+private def canUnfoldAtSimpGround (erased : SimpTheoremsArray) (_ : Meta.Config) (info : ConstantInfo) : CoreM Bool := do
+  return !erased.isErased (.decl info.name)
+
+/--
+Try to unfold `e`.
+-/
 private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let f := e.getAppFn
   if !f.isConst then
     return none
   let fName := f.constName!
-  if (← isProjectionFn fName) then
-    return none -- should be reduced by `reduceProjFn?`
   let ctx ← read
-  if ctx.config.autoUnfold then
+  -- TODO: remove `rec` after we switch to new code generator
+  let rec unfoldGround? : SimpM (Option Expr) := do
+      unless ctx.config.ground do return none
+      -- We are assuming that assigned metavariables are going to be instantiated by the main simp loop.
+      if e.hasExprMVar || e.hasFVar then return none
+      if ctx.simpTheorems.isErased (.decl fName) then return none
+      -- TODO: check whether we need more filters
+      if (← isType e) then return none -- we don't unfold types
+      if (← isProof e) then return none -- we don't unfold proofs
+      if (← isInstance fName) then return none -- we don't unfold instances
+      -- TODO: we must have a notion of `simp` value, or more general solution for Lean
+      if Meta.isMatchValue e || isOfNatNatLit e then return none
+      if e.isConst then
+        -- We don't unfold constants that take arguments
+        -- TODO: add support for skipping partial applications too.
+        if let .forallE .. ← whnfD (← inferType e) then
+          return none
+      /-
+      We are currently using `whnf` with a custom `canUnfold?` predicate to reduce ground terms.
+      This can be inefficient, and produce proofs that are too expensive to type check in the Kernel. Some reasons:
+      - Functions defined by Well-founded recursion are expensive to reduce here and in the kernel.
+      - The kernel does not know we may have controlled reduction using `canUnfold?`.
+
+      It would be great to reduce the ground term using a to-be-implemented `cbv` tactic which produces a
+      proof that can be efficiently checked by the kernel.
+      -/
+      let eNew ← withDefault <|
+        withTheReader Meta.Context (fun c => { c with canUnfold? := canUnfoldAtSimpGround ctx.simpTheorems }) <| whnf e
+      if eNew == e then return none
+      trace[Meta.Tactic.simp.ground] "{e}\n---->\n{eNew}"
+      return some eNew
+  if let some eNew ← unfoldGround? then
+    return some eNew
+  else if (← isProjectionFn fName) then
+    return none -- should be reduced by `reduceProjFn?`
+  else if ctx.config.autoUnfold then
     if ctx.simpTheorems.isErased (.decl fName) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then

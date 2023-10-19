@@ -1261,6 +1261,10 @@ structure Config where
   /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will fail if they do not make progress. -/
   failIfUnchanged   : Bool := true
+  /-- If `ground := true`, then ground terms are reduced. A term is ground when
+  it does not contain free or meta variables. Reduction is interrupted at a function application `f ...`
+  if `f` is marked to not be unfolded. -/
+  ground            : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`
@@ -1276,6 +1280,7 @@ def neutralConfig : Simp.Config := {
   decide            := false
   arith             := false
   autoUnfold        := false
+  ground            := false
 }
 
 end Simp

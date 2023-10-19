@@ -62,9 +62,12 @@ private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : 
   mvarId.withContext do
     let localDecl ← fvarId.getDecl
     let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
-    -- `typeNew` may contain variables that occur after `fvarId`.
-    -- Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the position we are inserting it.
-    let (_, localDecl') ← findMaxFVar typeNew |>.run localDecl
+    /- `typeNew` may contain variables that occur after `fvarId`.
+        Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the
+        position we are inserting it.
+        We must `instantiateMVars` first to ensure that there is no mvar in `typeNew` which is
+        assigned to some later-occurring fvar. -/
+    let (_, localDecl') ← findMaxFVar (← instantiateMVars typeNew) |>.run localDecl
     let result ← mvarId.assertAfter localDecl'.fvarId localDecl.userName typeNew typeNewPr
     (do let mvarIdNew ← result.mvarId.clear fvarId
         pure { result with mvarId := mvarIdNew })

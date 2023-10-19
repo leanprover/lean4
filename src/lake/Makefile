@@ -21,15 +21,18 @@ test-examples: $(addsuffix .test, $(EXAMPLES))
 
 test-bootstrapped: test-boostrapped-hello
 
-clean: clean-tests clean-examples clean-build
+clean: clean-tests clean-examples clean-bootstrap
+
+clean-all: clean clean-build
 
 clean-tests: $(addsuffix .clean, $(TESTS))
 
 clean-examples:  $(addsuffix .clean, $(EXAMPLES))
 
 .PHONY:
-	all test test-ci test-tests test-examples\
-	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
+	all test test-ci test-tests test-examples test-bootstrap\
+	clean clean-all clean-tests clean-examples clean-build clean-bootstrap\
+	time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
 	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS) $(EXAMPLES))
 
 #-------------------------------------------------------------------------------
@@ -40,10 +43,10 @@ build:
 	./build.sh
 
 time-build:
-	./time.sh
+	./time-build.sh
 
 clean-build:
-	./clean.sh
+	./clean-build.sh
 
 check-lake:
 	$(LAKE) self-check
@@ -56,13 +59,13 @@ tests/%.test:
 	cd tests/$* && ./test.sh
 
 tests/%.clean:
-	cd tests/$* && ./clean.sh
+	cd tests/$* && ./clean.sh || true
 
 examples/%.test:
 	cd examples/$* && ./test.sh
 
 examples/%.clean:
-	cd examples/$* && ./clean.sh
+	cd examples/$* && ./clean.sh || true
 
 test-bootstrap:
 	cd examples/bootstrap && ./test.sh

@@ -1,5 +1,2 @@
-/build
-/lakefile.olean
-
 /Foo.lean
 /Foo/Test.lean

@@ -30,6 +30,9 @@ lib.makeOverridable (
   pluginDeps ? [],
   # `overrideAttrs` for `buildMod`
   overrideBuildModAttrs ? null,
+  # If `modHasDependencies` is `true`, the module will be built inside source directory,
+  #   otherwise will be built inside a new directory containing corresponding .lean file of certain component.
+  modHasDependencies ? false,
   debug ? false, leanFlags ? [], leancFlags ? [], linkFlags ? [], executableName ? lib.toLower name, libName ? name,
   srcTarget ? "..#stage0", srcArgs ? "(\${args[*]})", lean-final ? lean-final' }@args:
 with builtins; let
@@ -148,7 +151,7 @@ with builtins; let
     buildInputs = [ lean ];
     leanPath = relpath + ".lean";
     # should be either single .lean file or directory directly containing .lean file plus dependencies
-    src = copyToStoreSafe srcRoot ("/" + leanPath);
+    src = if modHasDependencies then srcRoot else copyToStoreSafe srcRoot ("/" + leanPath);
     outputs = [ "out" "ilean" "c" ];
     oleanPath = relpath + ".olean";
     ileanPath = relpath + ".ilean";

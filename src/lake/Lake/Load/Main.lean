@@ -131,13 +131,13 @@ def Workspace.updateAndMaterialize (ws : Workspace)
   match res with
   | (.ok root, deps) =>
     let ws : Workspace ← {ws with root}.finalize
-    LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
-      if let some postUpdate := pkg.postUpdate? then
-        logInfo s!"{pkg.name}: running post-update hook"
-        postUpdate
     let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
     let manifest := deps.foldl (·.addPackage ·.manifestEntry) manifest
     manifest.saveToFile ws.manifestFile
+    LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
+      unless pkg.postUpdateHooks.isEmpty do
+        logInfo s!"{pkg.name}: running post-update hooks"
+        pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
     return ws
   | (.error cycle, _) =>
     let cycle := cycle.map (s!"  {·}")

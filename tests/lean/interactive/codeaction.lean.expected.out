@@ -2,11 +2,11 @@
  "kind": "quickfix",
  "edit":
  {"documentChanges":
-  [{"textDocument": {"version": 0, "uri": "file://codeaction.lean"},
+  [{"textDocument": {"version": 1, "uri": "file://codeaction.lean"},
     "edits":
     [{"range":
-      {"start": {"line": 29, "character": 4},
-       "end": {"line": 29, "character": 4}},
+      {"start": {"line": 30, "character": 4},
+       "end": {"line": 30, "character": 4}},
       "newText": "hello!!!"}]}],
   "changes": {},
   "changeAnnotations": {}}}
@@ -18,5 +18,5 @@
   "params":
   {"textDocument": {"uri": "file://codeaction.lean"},
    "range":
-   {"start": {"line": 29, "character": 4}, "end": {"line": 29, "character": 4}},
+   {"start": {"line": 30, "character": 4}, "end": {"line": 30, "character": 4}},
    "context": {"diagnostics": []}}}}

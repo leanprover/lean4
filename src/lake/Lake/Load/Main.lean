@@ -21,10 +21,11 @@ The main definitions for loading a workspace and resolving dependencies.
 -/
 
 namespace Lake
+deriving instance TypeName for Dependency
 
 /-- Load the tagged `Dependency` definitions from a package configuration environment. -/
 def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
-  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts Dependency ``Dependency)
+  (packageDepAttr.getAllEntries env).mapM (evalConstCheck Dependency · env opts)
 
 /--
 Elaborate a dependency's configuration file into a `Package`.

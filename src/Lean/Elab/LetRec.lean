@@ -41,7 +41,7 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         throwErrorAt declId "'let rec' expressions must be named"
       let shortDeclName := declId.getId
       let currDeclName? ← getDeclName?
-      let declName := currDeclName?.getD Name.anonymous ++ shortDeclName
+      let declName := mkPrivateName (← getEnv) <| currDeclName?.getD Name.anonymous ++ shortDeclName
       checkNotAlreadyDeclared declName
       applyAttributesAt declName attrs AttributeApplicationTime.beforeElaboration
       addDocString' declName docStr?

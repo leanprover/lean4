@@ -14,6 +14,9 @@ initialize packageAttr : OrderedTagAttribute ←
 initialize packageDepAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `package_dep "mark a definition as a Lake package dependency"
 
+initialize postUpdateAttr : OrderedTagAttribute ←
+  registerOrderedTagAttribute `post_update "mark a definition as a Lake package post-update hook"
+
 initialize scriptAttr : OrderedTagAttribute ←
   registerOrderedTagAttribute `script "mark a definition as a Lake script"
 

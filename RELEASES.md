@@ -11,6 +11,11 @@ v4.3.0 (development in progress)
 ---------
 
 * [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
+* **Lake:** Changed `postUpdate?` configuration option to a `post_update` declaration. See the `post_update` syntax docstring for more information on the new syntax.
+
+* [Lake: A manifest is automatically created on workspace load if one does not exists.](https://github.com/leanprover/lean4/pull/2680).
+
+* **Lake:** The `:=` syntax for configuration declarations (i.e., `package`, `lean_lib`, and `lean_exe`) has been deprecated. For example, `package foo := {...}` is deprecated.
 
 v4.2.0
 ---------

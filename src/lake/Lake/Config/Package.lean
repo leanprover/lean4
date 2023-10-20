@@ -91,32 +91,6 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   extraDepTargets : Array Name := #[]
 
   /--
-  A post-`lake update` hook. The monadic action is run after a successful
-  `lake update` execution on this package or one of its downstream dependents.
-  Defaults to `none`.
-
-  As an example, Mathlib can use this feature to synchronize the Lean toolchain
-  and run `cache get`:
-
-  ```
-  package mathlib where
-    postUpdate? := some do
-      let some pkg ← findPackage? `mathlib
-        | error "mathlib is missing from workspace"
-      let wsToolchainFile := (← getRootPackage).dir / "lean-toolchain"
-      let mathlibToolchain ← IO.FS.readFile <| pkg.dir / "lean-toolchain"
-      IO.FS.writeFile wsToolchainFile mathlibToolchain
-      let some exe := pkg.findLeanExe? `cache
-        | error s!"{pkg.name}: cache is missing from the package"
-      let exeFile ← runBuild (exe.build >>= (·.await))
-      let exitCode ← env exeFile.toString #["get"]
-      if exitCode ≠ 0 then
-        error s!"{pkg.name}: failed to fetch cache"
-  ```
-  -/
-  postUpdate? : Option (LakeT LogIO PUnit) := none
-
-  /--
   Whether to compile each of the package's module into a native shared library
   that is loaded whenever the module is imported. This speeds up evaluation of
   metaprograms and enables the interpreter to run functions marked `@[extern]`.
@@ -197,6 +171,9 @@ deriving Inhabited
 /-! # Package -/
 --------------------------------------------------------------------------------
 
+
+declare_opaque_type OpaquePostUpdateHook (pkg : Name)
+
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
   /-- The path to the package's directory. -/
@@ -231,6 +208,8 @@ structure Package where
   (i.e., on a bare `lake run` of the package).
   -/
   defaultScripts : Array Script := #[]
+  /-- Post-`lake update` hooks for the package. -/
+  postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
@@ -263,6 +242,22 @@ instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 /-- The package's name. -/
 abbrev NPackage.name (_ : NPackage n) := n
 
+/--
+The type of a post-update hooks monad.
+`IO` equipped with logging ability and information about the Lake configuration.
+-/
+abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
+
+structure PostUpdateHook (pkgName : Name) where
+  fn : PostUpdateFn pkgName
+  deriving Inhabited
+
+hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
+
+structure PostUpdateHookDecl where
+  pkg : Name
+  fn : PostUpdateFn pkg
+
 namespace Package
 
 /-- The package's direct dependencies. -/
@@ -288,10 +283,6 @@ namespace Package
 /-- The package's `extraDepTargets` configuration. -/
 @[inline] def extraDepTargets (self : Package) : Array Name :=
   self.config.extraDepTargets
-
-/-- The package's `postUpdate?` configuration. -/
-@[inline] def postUpdate? (self : Package) :=
-  self.config.postUpdate?
 
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=

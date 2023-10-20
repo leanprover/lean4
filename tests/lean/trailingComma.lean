@@ -14,4 +14,4 @@ theorem rewrite_comma (x y z: Nat) (h₁ : 0 + x = y) (h₂ : 0 + y = z) : x = z
   exact rfl
 
 theorem simp_comma (x: Nat) : x = x := by
-  simp
+  simp [zeroAdd,]

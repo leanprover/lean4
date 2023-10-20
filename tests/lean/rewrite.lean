@@ -34,7 +34,7 @@ subst y;
 exact rfl
 
 theorem ex4 (x y z) (h₁ : 0 + x = y) (h₂ : 0 + y = z) : x = z := by
-rewrite [appendAssoc,] at *; -- Error
+rewrite [appendAssoc] at *; -- Error
 done
 
 theorem ex5 (m n k : Nat) (h : 0 + n = m) (h : k = m) : k = n := by

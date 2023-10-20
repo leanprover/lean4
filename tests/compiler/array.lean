@@ -11,7 +11,3 @@ def main : IO Unit := do
   IO.println (f #[2, 3, 4])
   IO.println (g #[2, 3, 4])
   IO.println (h [2, 3, 4])
-
-  -- Trailing comma
-  --IO.println (g #[5, 6, 7,])
-  IO.println (h [5, 6, 7,])

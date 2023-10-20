@@ -159,7 +159,7 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem bne_self_eq_false' [DecidableEq α] (a : α) : (a != a) = false := by simp [bne]
 
 @[simp] theorem Nat.le_zero_eq (a : Nat) : (a ≤ 0) = (a = 0) :=
-  propext ⟨fun h => Nat.le_antisymm h (Nat.zero_le ..), fun h => by simp [h]⟩
+  propext ⟨fun h => Nat.le_antisymm h (Nat.zero_le ..), fun h => by rw [h]; decide⟩
 
 @[simp] theorem decide_False : decide False = false := rfl
 @[simp] theorem decide_True : decide True = true := rfl

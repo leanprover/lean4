@@ -629,7 +629,7 @@ protected theorem sub_lt_sub_left : ∀ {k m n : Nat}, k < m → k < n → m - n
 @[simp] protected theorem zero_sub (n : Nat) : 0 - n = 0 := by
   induction n with
   | zero => rfl
-  | succ n ih => simp [ih, Nat.sub_succ]
+  | succ n ih => simp only [ih, Nat.sub_succ]; decide
 
 protected theorem sub_self_add (n m : Nat) : n - (n + m) = 0 := by
   show (n + 0) - (n + m) = 0

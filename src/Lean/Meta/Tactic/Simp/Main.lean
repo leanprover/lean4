@@ -723,7 +723,41 @@ where
     if e.isArrow then
       simpArrow e
     else if (← isProp e) then
-      withLocalDecl e.bindingName! e.bindingInfo! e.bindingDomain! fun x => withNewLemmas #[x] do
+      /- The forall is a proposition. -/
+      let domain := e.bindingDomain!
+      if (← isProp domain) then
+        /-
+        The domain of the forall is also a proposition, and we can use `forall_prop_domain_congr`
+        IF we can simplify the domain.
+        -/
+        let rd ← simp domain
+        if let some h₁ := rd.proof? then
+          /- Using
+          ```
+          theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}
+              (h₁ : p₁ = p₂)
+              (h₂ : ∀ a : p₂, q₁ (h₁.substr a) = q₂ a)
+              : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a)
+          ```
+          Remark: we should consider whether we want to add congruence lemma support for arbitrary `forall`-expressions.
+          Then, the theroem above can be marked as `@[congr]` and the following code deleted.
+          -/
+          let p₁ := domain
+          let p₂ := rd.expr
+          let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
+          let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
+            let prop := mkSort levelZero
+            let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
+            let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
+            let rb ← simp q_h₁_substr_a
+            let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
+            let q₂ ← mkLambdaFVars #[a] rb.expr
+            let result ← mkForallFVars #[a] rb.expr
+            let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
+            return { expr := result, proof? := proof }
+          return result
+      let domain ← dsimp domain
+      withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
         let b := e.bindingBody!.instantiate1 x
         let rb ← simp b
         let eNew ← mkForallFVars #[x] rb.expr

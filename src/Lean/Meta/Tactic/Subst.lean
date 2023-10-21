@@ -52,9 +52,9 @@ def substCore (mvarId : MVarId) (hFVarId : FVarId) (symm := false) (fvarSubst : 
           if clearH then
             let mvarId ← mvarId.clear hFVarId
             let mvarId ← mvarId.clear aFVarId
-            pure ({}, mvarId)
+            pure (fvarSubst, mvarId)
           else
-            pure ({}, mvarId)
+            pure (fvarSubst, mvarId)
         else
           mvarId.withContext do
             let mvarDecl   ← mvarId.getDecl

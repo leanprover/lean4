@@ -96,7 +96,8 @@ def pushLetValue      (p : Pos) := p.push 1
 def pushLetBody       (p : Pos) := p.push 2
 def pushAppFn         (p : Pos) := p.push 0
 def pushAppArg        (p : Pos) := p.push 1
-def pushProj          (p : Pos) := p.push 0
+def pushProjExpr      (p : Pos) := p.push 0
+def pushProjMotive    (p : Pos) := p.push 1
 
 def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
   p.asNat * (maxChildren ^ numArgs)

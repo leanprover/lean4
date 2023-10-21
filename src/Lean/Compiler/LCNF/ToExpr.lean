@@ -25,7 +25,7 @@ where
     | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
     | .app f a => .app (go o f) (go o a)
     | .mdata k b => .mdata k (go o b)
-    | .proj s i b => .proj s i (go o b)
+    | .proj s i b m => .proj s i (go o b) (go o m)
     | .forallE n d b bi => .forallE n (go o d) (go (o+1) b) bi
     | .lam n d b bi => .lam n (go o d) (go (o+1) b) bi
     | .letE n t v b nd => .letE n (go o t) (go o v) (go (o+1) b) nd

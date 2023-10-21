@@ -122,7 +122,7 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
     )
     return args.foldl (init := ∅) (· ++ ·)
   | .forallE .., _ => piDiff before after
-  | .lam n₀ d₀ b₀ i₀, .lam n₁ d₁ b₁ i₁=>
+  | .lam n₀ d₀ b₀ i₀, .lam n₁ d₁ b₁ i₁ =>
     if n₀ != n₁ || i₀ != i₁ then
       return ExprDiff.withChange before after
     let δd ← exprDiffCore ⟨d₀, before.pos.pushBindingDomain⟩ ⟨d₁, after.pos.pushBindingDomain⟩
@@ -130,11 +130,11 @@ partial def exprDiffCore (before after : SubExpr) : MetaM ExprDiff := do
       return ← exprDiffCore ⟨b₀, before.pos.pushBindingBody⟩ ⟨b₁, after.pos.pushBindingBody⟩
     else
       return δd ++ ExprDiff.withChangePos before.pos.pushBindingBody after.pos.pushBindingBody
-  | .proj n₀ i₀ e₀, .proj n₁ i₁ e₁ =>
-    if n₀ != n₁ || i₀ != i₁ then
+  | .proj n₀ i₀ e₀ m₀, .proj n₁ i₁ e₁ m₁ =>
+    if n₀ != n₁ || i₀ != i₁ || m₀ != m₁ then
       return ExprDiff.withChange before after
     else
-      exprDiffCore ⟨e₀, before.pos.pushProj⟩ ⟨e₁, after.pos.pushProj⟩
+      exprDiffCore ⟨e₀, before.pos.pushProjExpr⟩ ⟨e₁, after.pos.pushProjExpr⟩
   | _, _ => return ExprDiff.withChange before after
   where
     piDiff (before after : SubExpr) : MetaM ExprDiff := do

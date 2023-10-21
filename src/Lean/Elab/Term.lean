@@ -681,7 +681,7 @@ partial def visit (e : Expr) : M Unit := do
     | .letE _ t v b _    => visit t; visit v; visit b
     | .app f a           => visit f; visit a
     | .mdata _ b         => visit b
-    | .proj _ _ b        => visit b
+    | .proj _ _ b m      => visit b; visit m
     | .fvar fvarId ..    =>
       match (← fvarId.getDecl) with
       | .cdecl .. => return ()

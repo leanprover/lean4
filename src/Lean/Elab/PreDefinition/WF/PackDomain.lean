@@ -10,16 +10,21 @@ namespace Lean.Elab.WF
 open Meta
 
 /--
-  Given a (dependent) tuple `t` (using `PSigma`) of the given arity.
+  Given a (dependent) tuple `t : type` (using `PSigma`) of the given arity.
   Return an array containing its "elements".
-  Example: `mkTupleElems a 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
+  Example: `mkTupleElems a _ 4` returns `#[a.1, a.2.1, a.2.2.1, a.2.2.2]`.
   -/
-private def mkTupleElems (t : Expr) (arity : Nat) : Array Expr := Id.run do
+private def mkTupleElems (t type : Expr) (arity : Nat) : Array Expr := Id.run do
   let mut result := #[]
   let mut t := t
+  let mut type := type
   for _ in [:arity - 1] do
-    result := result.push (mkProj ``PSigma 0 t)
-    t := mkProj ``PSigma 1 t
+    let .app (.app _PSigma α) (.lam _ _ β _) := type | unreachable!
+    let t1 := .proj ``PSigma 0 t (.lam `t type α .default)
+    result := result.push t1
+    let t1' := .proj ``PSigma 0 (.bvar 0) (.lam `t type α .default)
+    t := .proj ``PSigma 1 t (.lam `t type (β.instantiate1 t1') .default)
+    type := β.instantiate1 t1
   result.push t
 
 /-- Create a unary application by packing the given arguments using `PSigma.mk` -/
@@ -75,9 +80,9 @@ partial def packDomain (fixedPrefix : Nat) (preDefs : Array PreDefinition) : Met
         for x in xs.pop.reverse do
           d ← mkAppOptM ``PSigma #[some (← inferType x), some (← mkLambdaFVars #[x] d)]
         withLocalDeclD (← mkFreshUserName `_x) d fun tuple => do
-          let elems := mkTupleElems tuple xs.size
+          let elems := mkTupleElems tuple d xs.size
           let codomain := bodyType.replaceFVars xs elems
-          let preDefNew:= { preDef with
+          let preDefNew := { preDef with
             declName := preDef.declName ++ `_unary
             type := (← mkForallFVars (ys.push tuple) codomain)
           }
@@ -140,7 +145,7 @@ where
           | Expr.letE n t v b _  =>
             withLetDecl n (← visit t) (← visit v) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.proj n i s .. => return mkProj n i (← visit s)
+          | Expr.proj n i s m  => return mkProj n i (← visit s) (← visit m)
           | Expr.mdata d b     => return mkMData d (← visit b)
           | Expr.app ..        => visitApp e
           | Expr.const ..      => visitApp e

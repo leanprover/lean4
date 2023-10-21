@@ -95,7 +95,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         proj_args.push_back(c);
         expr proj_type = lctx.mk_pi(proj_args, result_type);
         proj_type      = infer_implicit_params(proj_type, nparams, implicit_infer_kind::RelaxedImplicit);
-        expr proj_val  = mk_proj(n, i, c);
+        expr proj_val  = mk_proj(n, i, c, lctx.mk_lambda(c, result_type));
         proj_val = lctx.mk_lambda(proj_args, proj_val);
         declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
                                                            reducibility_hints::mk_abbreviation());

@@ -213,7 +213,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | Expr.lam n₁ d₁ b₁ _, Expr.lam _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
   | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE _  t₂ v₂ b₂ _ =>
     isPerm t₁ t₂ <&&> isPerm v₁ v₂ <&&> withLetDecl n₁ t₁ v₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.proj _ i₁ b₁, Expr.proj _ i₂ b₂ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
+  | Expr.proj _ i₁ b₁ _, Expr.proj _ i₂ b₂ _ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
   | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
@@ -282,8 +282,8 @@ where
     let e    ← mkEqFalse e
     return [(e, type)]
   else if let some (type₁, type₂) := type.and? then
-    let e₁ := mkProj ``And 0 e
-    let e₂ := mkProj ``And 1 e
+    let e₁ := mkApp3 (.const ``And.left []) type₁ type₂ e
+    let e₂ := mkApp3 (.const ``And.right []) type₁ type₂ e
     return (← go e₁ type₁) ++ (← go e₂ type₂)
   else
     if inv then

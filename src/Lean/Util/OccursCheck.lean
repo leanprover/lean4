@@ -37,7 +37,7 @@ where
     else
       modify fun s => s.insert e
       match e with
-      | Expr.proj _ _ s      => visit s
+      | Expr.proj _ _ s m    => visit s; visit m
       | Expr.forallE _ d b _ => visit d; visit b
       | Expr.lam _ d b _     => visit d; visit b
       | Expr.letE _ t v b _  => visit t; visit v; visit b

@@ -195,7 +195,7 @@ where
       | .lit .. | .const .. | .sort .. | .mvar .. | .bvar .. => e
       | .app f a => e.updateApp! (goApp f) (go a) |>.headBeta
       | .mdata _ b => e.updateMData! (go b)
-      | .proj _ _ b => e.updateProj! (go b)
+      | .proj _ _ b m => e.updateProj! (go b) (go m)
       | .forallE _ d b _ => e.updateForallE! (go d) (go b)
       | .lam _ d b _ => e.updateLambdaE! (go d) (go b)
       | .letE .. => unreachable! -- Valid LCNF does not contain `let`-declarations

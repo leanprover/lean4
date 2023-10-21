@@ -1488,7 +1488,7 @@ class csimp_fn {
         if (is_eqp(proj_expr(e), new_arg))
             return e;
         else
-            return update_proj(e, new_arg);
+            return update_proj(e, new_arg, proj_motive(e));
     }
 
     expr reduce_cases_cnstr(buffer<expr> const & args, inductive_val const & I_val, expr const & major, bool is_let_val) {

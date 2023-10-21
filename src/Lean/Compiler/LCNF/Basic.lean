@@ -122,7 +122,7 @@ def LetValue.toExpr (e : LetValue) : Expr :=
   | .value (.natVal val) => .lit (.natVal val)
   | .value (.strVal val) => .lit (.strVal val)
   | .erased => erasedExpr
-  | .proj n i s => .proj n i (.fvar s)
+  | .proj n i s => .proj n i (.fvar s) erasedExpr
   | .const n us as => mkAppN (.const n us) (as.map Arg.toExpr)
   | .fvar fvarId as => mkAppN (.fvar fvarId) (as.map Arg.toExpr)
 

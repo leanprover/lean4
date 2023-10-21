@@ -161,7 +161,7 @@ mutual
 
   partial def inferProjType (structName : Name) (idx : Nat) (s : FVarId) : InferTypeM Expr := do
     let failed {α} : Unit → InferTypeM α := fun _ =>
-      throwError "invalid projection{indentExpr (mkProj structName idx (mkFVar s))}"
+      throwError "invalid projection{indentExpr (mkProj structName idx (mkFVar s) erasedExpr)}"
     let structType := (← getType s).headBeta
     if structType.isErased then
       /- TODO: after we erase universe variables, we can just extract a better type using just `structName` and `idx`. -/

@@ -272,6 +272,10 @@ def Exception.isMaxHeartbeat (ex : Exception) : Bool :=
 def mkArrow (d b : Expr) : CoreM Expr :=
   return Lean.mkForall (← mkFreshUserName `x) BinderInfo.default d b
 
+/-- Creates the expression `fun _ : d => b` -/
+def mkConstLambda (d b : Expr) : CoreM Expr :=
+  return Lean.mkLambda (← mkFreshUserName `x) BinderInfo.default d b
+
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do

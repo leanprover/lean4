@@ -89,7 +89,8 @@ class replace_rec_fn {
             }
             case expr_kind::Proj: {
                 expr new_e = apply(proj_expr(e), offset);
-                return save_result(e, offset, update_proj(e, new_e), shared);
+                expr new_m = apply(proj_motive(e), offset);
+                return save_result(e, offset, update_proj(e, new_e, new_m), shared);
             }
             case expr_kind::App: {
                 expr new_f = apply(app_fn(e), offset);

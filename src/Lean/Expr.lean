@@ -459,7 +459,7 @@ inductive Expr where
   .proj `Prod 0 a
   ```
   -/
-  | proj (typeName : Name) (idx : Nat) (struct : Expr)
+  | proj (typeName : Name) (idx : Nat) (struct motive : Expr)
 with
   @[computed_field, extern "lean_expr_data"]
   data : @& Expr → Data
@@ -471,10 +471,15 @@ with
     | .mdata _m e =>
       let d := e.data.approxDepth.toUInt32+1
       mkData (mixHash d.toUInt64 <| e.data.hash) e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
-    | .proj s i e =>
-      let d := e.data.approxDepth.toUInt32+1
-      mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) e.data.hash)
-          e.data.looseBVarRange.toNat d e.data.hasFVar e.data.hasExprMVar e.data.hasLevelMVar e.data.hasLevelParam
+    | .proj s i e m =>
+      let d := (max e.data.approxDepth.toUInt32 m.data.approxDepth.toUInt32) + 1
+      mkData (mixHash d.toUInt64 <| mixHash (hash s) <| mixHash (hash i) <| mixHash e.data.hash m.data.hash)
+        (max e.data.looseBVarRange.toNat m.data.looseBVarRange.toNat)
+        d
+        (e.data.hasFVar || m.data.hasFVar)
+        (e.data.hasExprMVar || m.data.hasExprMVar)
+        (e.data.hasLevelMVar || m.data.hasLevelMVar)
+        (e.data.hasLevelParam || m.data.hasLevelParam)
     | .app f a => mkAppData f.data a.data
     | .lam _ t b _ =>
       let d := (max t.data.approxDepth.toUInt32 b.data.approxDepth.toUInt32) + 1
@@ -635,7 +640,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId
@@ -647,10 +652,10 @@ def mkMData (m : MData) (e : Expr) : Expr :=
   .mdata m e
 
 /--
-`.proj structName idx struct` is now the preferred form.
+`.proj structName idx struct motive` is now the preferred form.
 -/
-def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
-  .proj structName idx struct
+def mkProj (structName : Name) (idx : Nat) (struct motive : Expr) : Expr :=
+  .proj structName idx struct motive
 
 /--
 `.app f a` is now the preferred form.
@@ -733,7 +738,7 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_let] def mkLetEx (n : Name) (t v b : Expr) : Expr := mkLet n t v b
 @[export lean_expr_mk_lit] def mkLitEx : Literal → Expr := mkLit
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
-@[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
+@[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr → Expr := mkProj
 
 /-- `mkAppN f #[a₀, ..., aₙ]` ==> `f a₀ a₁ .. aₙ`-/
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
@@ -1111,12 +1116,16 @@ def mdataExpr! : Expr → Expr
   | _         => panic! "mdata expression expected"
 
 def projExpr! : Expr → Expr
-  | proj _ _ e => e
-  | _          => panic! "proj expression expected"
+  | proj _ _ e _ => e
+  | _            => panic! "proj expression expected"
+
+def projMotive! : Expr → Expr
+  | proj _ _ _ m => m
+  | _            => panic! "proj expression expected"
 
 def projIdx! : Expr → Nat
-  | proj _ i _ => i
-  | _          => panic! "proj expression expected"
+  | proj _ i _ _ => i
+  | _            => panic! "proj expression expected"
 
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
@@ -1450,7 +1459,7 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
     | Expr.mdata _ e         => visit e
     | Expr.letE _ t v b _    => visit t || visit v || visit b
     | Expr.app f a           => visit f || visit a
-    | Expr.proj _ _ e        => visit e
+    | Expr.proj _ _ e m      => visit e || visit m
     | Expr.fvar fvarId       => p fvarId
     | _                      => false
   visit e
@@ -1514,16 +1523,16 @@ def updateMData! (e : Expr) (newExpr : Expr) : Expr :=
   | mdata d _ => mkMData d newExpr
   | _         => panic! "mdata expected"
 
-@[inline] private unsafe def updateProj!Impl (e : Expr) (newExpr : Expr) : Expr :=
+@[inline] private unsafe def updateProj!Impl (e : Expr) (newExpr newMotive : Expr) : Expr :=
   match e with
-  | proj s i a => if ptrEq a newExpr then e else mkProj s i newExpr
-  | _          => panic! "proj expected"
+  | proj s i a m => if ptrEq a newExpr && ptrEq m newMotive then e else mkProj s i newExpr newMotive
+  | _            => panic! "proj expected"
 
 @[implemented_by updateProj!Impl]
-def updateProj! (e : Expr) (newExpr : Expr) : Expr :=
+def updateProj! (e : Expr) (newExpr newMotive : Expr) : Expr :=
   match e with
-  | proj s i _ => mkProj s i newExpr
-  | _          => panic! "proj expected"
+  | proj s i _ _ => mkProj s i newExpr newMotive
+  | _            => panic! "proj expected"
 
 @[inline] private unsafe def updateForall!Impl (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody : Expr) : Expr :=
   match e with

@@ -88,7 +88,7 @@ class simp_app_args_fn {
 
     expr visit_proj(expr const & e) {
         expr arg = ensure_simple_arg(proj_expr(e));
-        return update_proj(e, arg);
+        return update_proj(e, arg, proj_motive(e));
     }
 
     expr visit_app(expr const & e) {

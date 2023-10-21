@@ -114,12 +114,11 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   Create the `i`th projection `major`. It tries to use the auto-generated projection functions if available. Otherwise falls back
   to `Expr.proj`.
 -/
-def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (major : Expr) : CoreM Expr := do
-  match getStructureInfo? (← getEnv) ctorVal.induct with
-  | none => return mkProj ctorVal.induct i major
-  | some info => match info.getProjFn? i with
-    | none => return mkProj ctorVal.induct i major
-    | some projFn => return mkApp (mkAppN (mkConst projFn us) params) major
+def mkProjFn? (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) (i : Nat) (major : Expr) : CoreM (Option Expr) := do
+  if let some info := getStructureInfo? (← getEnv) ctorVal.induct then
+    if let some projFn := info.getProjFn? i then
+      return mkApp (mkAppN (mkConst projFn us) params) major
+  return none
 
 /--
   If `major` is not a constructor application, and its type is a structure `C ...`, then return `C.mk major.1 ... major.n`
@@ -150,8 +149,22 @@ private def toCtorWhenStructure (inductName : Name) (major : Expr) : MetaM Expr 
         let ctorInfo ← getConstInfoCtor ctorName
         let params := majorType.getAppArgs.shrink ctorInfo.numParams
         let mut result := mkAppN (mkConst ctorName us) params
+        let needsPrimProjs (_ : Unit) : MetaM Expr := do
+          let type := ctorInfo.type.instantiateLevelParams ctorInfo.levelParams us
+          forallBoundedTelescope type params.size fun xs type => do
+            let mut type := type.replaceFVars xs params
+            let mut result := result
+            for i in [:ctorInfo.numFields] do
+              let proj ← match (← mkProjFn? ctorInfo us params i major) with
+              | some proj => pure proj
+              | none =>
+                pure <| mkProj ctorInfo.induct i major (← mkConstLambda majorType type.bindingDomain!)
+              type := type.bindingBody!.instantiate1 proj
+              result := mkApp result proj
+            return result
         for i in [:ctorInfo.numFields] do
-          result := mkApp result (← mkProjFn ctorInfo us params i major)
+          let some proj ← mkProjFn? ctorInfo us params i major | return (← needsPrimProjs ())
+          result := mkApp result proj
         return result
     | _ => return major
 
@@ -257,7 +270,7 @@ mutual
   partial def getStuckMVar? (e : Expr) : MetaM (Option MVarId) := do
     match e with
     | .mdata _ e  => getStuckMVar? e
-    | .proj _ _ e => getStuckMVar? (← whnf e)
+    | .proj _ _ e _ => getStuckMVar? (← whnf e)
     | .mvar .. =>
       let e ← instantiateMVars e
       match e with
@@ -298,7 +311,7 @@ mutual
               if let some mvarId ← getStuckMVar? arg then
                 return some mvarId
           return none
-      | .proj _ _ e => getStuckMVar? (← whnf e)
+      | .proj _ _ e _ => getStuckMVar? (← whnf e)
       | _ => return none
     | _ => return none
 end
@@ -471,8 +484,8 @@ def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
 /-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   match e with
-  | Expr.proj _ i c => project? c i
-  | _               => return none
+  | Expr.proj _ i c _ => project? c i
+  | _                 => return none
 
 /--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
@@ -546,7 +559,7 @@ where
                   else
                     return e
                 | _ => return e
-      | Expr.proj _ i c =>
+      | Expr.proj _ i c _ =>
         if simpleReduceOnly then
           return e
         else
@@ -594,7 +607,7 @@ where
     | Expr.letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | Expr.lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | Expr.app f a .. => return mkApp (← go f) (← go a)
-    | Expr.proj _ _ s => return e.updateProj! (← go s)
+    | Expr.proj _ _ s m => return e.updateProj! (← go s) m
     | Expr.mdata _ b  =>
       if let some m := smartUnfoldingMatch? e then
         goMatch m

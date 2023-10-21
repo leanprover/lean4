@@ -18,10 +18,12 @@ expr replace_visitor::visit_constant(expr const & e) { lean_assert(is_constant(e
 expr replace_visitor::visit_meta(expr const & e) { lean_assert(is_mvar(e)); return e; }
 expr replace_visitor::visit_fvar(expr const & e) { lean_assert(is_fvar(e)); return e; }
 expr replace_visitor::visit_mdata(expr const & e) {
+    lean_assert(is_mdata(e));
     return update_mdata(e, visit(mdata_expr(e)));
 }
 expr replace_visitor::visit_proj(expr const & e) {
-    return update_proj(e, visit(proj_expr(e)));
+    lean_assert(is_proj(e));
+    return update_proj(e, visit(proj_expr(e)), visit(proj_motive(e)));
 }
 expr replace_visitor::visit_app(expr const & e) {
     lean_assert(is_app(e));

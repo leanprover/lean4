@@ -37,7 +37,7 @@ partial def reduce (e : Expr) (explicitOnly skipTypes skipProofs := true) : Meta
             return mkAppN f args
         | Expr.lam ..        => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
         | Expr.forallE ..    => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-        | Expr.proj n i s .. => return mkProj n i (← visit s)
+        | Expr.proj n i s m  => return mkProj n i (← visit s) m
         | _                  => return e
   visit e |>.run
 

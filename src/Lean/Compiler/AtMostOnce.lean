@@ -37,7 +37,7 @@ def visit (x : FVarId) : Expr → Visitor
   | Expr.forallE _ d b _ => visit x d >> visit x b
   | Expr.letE _ t v b _  => visit x t >> visit x v >> visit x b
   | Expr.mdata _ e       => visit x e
-  | Expr.proj _ _ e      => visit x e
+  | Expr.proj _ _ e m    => visit x e >> visit x m
   | _                    => skip
 
 end atMostOnce

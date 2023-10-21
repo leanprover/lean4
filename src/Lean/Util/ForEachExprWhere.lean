@@ -71,7 +71,7 @@ where
       | .letE _ t v b _    => go t; go v; go b
       | .app f a           => go f; go a
       | .mdata _ b         => go b
-      | .proj _ _ b        => go b
+      | .proj _ _ b m      => go b; go m
       | _                  => return ()
 
 end ForEachExprWhere

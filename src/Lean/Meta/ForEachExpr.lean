@@ -64,7 +64,7 @@ partial def forEachExpr'
         | .letE ..      => visitLet visit e
         | .app f a      => visit f; visit a
         | .mdata _ b    => visit b
-        | .proj _ _ b   => visit b
+        | .proj _ _ b m => visit b; visit m
         | _             => return ()
   visit input |>.run
 

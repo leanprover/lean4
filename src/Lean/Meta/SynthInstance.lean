@@ -124,7 +124,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
     | Expr.mdata _ b       => return e.updateMData! (← normExpr b)
-    | Expr.proj _ _ b      => return e.updateProj! (← normExpr b)
+    | Expr.proj _ _ b m    => return e.updateProj! (← normExpr b) (← normExpr m)
     | Expr.mvar mvarId     =>
       if !(← mvarId.isAssignable) then
         return e

@@ -630,7 +630,7 @@ function.
 -/
 @[builtin_delab proj]
 def delabProj : Delab := do
-  let Expr.proj _ idx _ ← getExpr | unreachable!
+  let Expr.proj _ idx _ _ ← getExpr | unreachable!
   let e ← withProj delab
   -- not perfectly authentic: elaborates to the `idx`-th named projection
   -- function (e.g. `e.1` is `Prod.fst e`), which unfolds to the actual

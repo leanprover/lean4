@@ -24,7 +24,7 @@ def visit (g : Expr → m Bool) (e : Expr) : MonadCacheT Expr Unit m Unit :=
       | Expr.letE _ t v b _    => do visit g t; visit g v; visit g b
       | Expr.app f a           => do visit g f; visit g a
       | Expr.mdata _ b         => visit g b
-      | Expr.proj _ _ b        => visit g b
+      | Expr.proj _ _ b m      => do visit g b; visit g m
       | _                      => pure ()
 
 end ForEachExpr

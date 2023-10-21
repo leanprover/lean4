@@ -337,7 +337,7 @@ where
     | none =>
       let s := e.projExpr!
       let motive? ← withLocalDeclD `s (← inferType s) fun s => do
-        let p := e.updateProj! s
+        let p := e.updateProj! s e.projMotive!
         if (← dependsOn (← inferType p) s.fvarId!) then
           return none
         else
@@ -348,7 +348,7 @@ where
             return some motive
       if let some motive := motive? then
         let r ← simp s
-        let eNew := e.updateProj! r.expr
+        let eNew := e.updateProj! r.expr e.projMotive!
         match r.proof? with
         | none => return { expr := eNew }
         | some h =>

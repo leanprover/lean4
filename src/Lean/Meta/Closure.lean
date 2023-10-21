@@ -187,7 +187,7 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
   match e with
-  | Expr.proj _ _ s      => return e.updateProj! (← collect s)
+  | Expr.proj _ _ s m    => return e.updateProj! (← collect s) (← collect m)
   | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
   | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
   | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)

@@ -346,7 +346,7 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
           return (.star, todo)
       let nargs := e.getAppNumArgs
       push (.const c nargs) nargs todo
-    | .proj s i a =>
+    | .proj s i a _ =>
       /-
       If `s` is a class, then `a` is an instance. Thus, we annotate `a` with `no_index` since we do not
       index instances. This should only happen if users mark a class projection function as `[reducible]`.

@@ -60,7 +60,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
         | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
         | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
         | Expr.mdata _ b       => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b      => visitPost (e.updateProj! (← visit b))
+        | Expr.proj _ _ b m    => visitPost (e.updateProj! (← visit b) (← visit m))
         | _                    => visitPost e
   visit input |>.run
 
@@ -121,7 +121,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | Expr.letE ..       => visitLet #[] e
         | Expr.app ..        => visitApp e
         | Expr.mdata _ b     => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b    => visitPost (e.updateProj! (← visit b))
+        | Expr.proj _ _ b m  => visitPost (e.updateProj! (← visit b) (← visit m))
         | _                  => visitPost e
   visit input |>.run
 

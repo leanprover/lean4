@@ -420,14 +420,14 @@ where
     if let some arg := (← get).cache.find? e then
       return arg
     let r : Arg ← match e with
-      | .app ..      => visitApp e
-      | .const ..    => visitApp e
-      | .proj s i e  => visitProj s i e
-      | .mdata d e   => visitMData d e
-      | .lam ..      => visitLambda e
-      | .letE ..     => visitLet e #[]
-      | .lit lit     => visitLit lit
-      | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
+      | .app ..       => visitApp e
+      | .const ..     => visitApp e
+      | .proj s i e _ => visitProj s i e
+      | .mdata d e    => visitMData d e
+      | .lam ..       => visitLambda e
+      | .letE ..      => visitLet e #[]
+      | .lit lit      => visitLit lit
+      | .fvar fvarId  => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
     modify fun s => { s with cache := s.cache.insert e r }
     return r

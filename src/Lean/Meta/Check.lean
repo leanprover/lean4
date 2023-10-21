@@ -143,6 +143,30 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
+def checkProj (structName : Name) (idx : Nat) (e motive : Expr) : MetaM Unit := do
+  let failed {α} : Unit → MetaM α := fun _ =>
+    throwError "invalid projection{indentExpr (mkProj structName idx e motive)}"
+  let structType ← inferType e
+  let structType ← whnf structType
+  structType.withApp fun f args => do
+    matchConstInduct f failed fun ival us => do
+      let [ctor] := ival.ctors | failed ()
+      let ctorInfo ← getConstInfoCtor ctor
+      unless idx < ctorInfo.numFields do failed ()
+      let params := args[:ival.numParams].toArray
+      forallBoundedTelescope ctorInfo.type ival.numParams fun paramFVars type => do
+        let type := type.replaceFVars paramFVars params
+        forallTelescope type fun fields type => do
+          type.withApp fun _ paramsIndices => do
+            let indices := paramsIndices[ival.numParams:].toArray
+            let mk := mkAppN (mkAppN (.const ctor us) params) fields
+            let fieldType ← inferType fields[idx]!
+            let expected := mkApp (mkAppN motive indices) mk
+            unless (← isDefEq fieldType expected) do
+              throwError "invalid projection{indentExpr (.app (mkProj structName idx e motive) (motive))
+                }\nfield type{indentExpr fieldType
+                }\nis not definitionally equal to expected type{indentExpr expected.headBeta}"
+
 private partial def checkAux (e : Expr) : MetaM Unit := do
   check e |>.run
 where
@@ -155,7 +179,7 @@ where
       | .const c lvls    => checkConstant c lvls
       | .app f a         => check f; check a; checkApp f a
       | .mdata _ e       => check e
-      | .proj _ _ e      => check e
+      | .proj s i e m    => check e; check m; checkProj s i e m
       | _                => return ()
 
   checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=

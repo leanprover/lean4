@@ -1007,7 +1007,7 @@ class specialize_fn {
         case expr_kind::Proj:  {
             optional<expr> new_s = get_closed(proj_expr(e));
             if (!new_s) return none_expr();
-            return some_expr(update_proj(e, *new_s));
+            return some_expr(update_proj(e, *new_s, proj_motive(e)));
         }
         case expr_kind::Pi: case expr_kind::Lambda: {
             optional<expr> dom  = get_closed(binding_domain(e));

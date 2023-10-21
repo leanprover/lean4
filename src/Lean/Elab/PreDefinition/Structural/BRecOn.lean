@@ -118,7 +118,7 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
         loop below b
       else
         return mkMData d (← loop below b)
-    | Expr.proj n i e    => return mkProj n i (← loop below e)
+    | Expr.proj n i e m  => return mkProj n i (← loop below e) (← loop below m)
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do

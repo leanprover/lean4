@@ -55,19 +55,19 @@ partial def visit (e : Expr) : M Expr := do
         let localDecl ← match localDecl.value? with
            | some value => let value ← visit value; pure <| localDecl.setValue value
            | none       => pure localDecl
-        lctx :=lctx.modifyLocalDecl xFVarId fun _ => localDecl
+        lctx := lctx.modifyLocalDecl xFVarId fun _ => localDecl
       withLCtx lctx localInstances k
     checkCache { val := e : ExprStructEq } fun _ => do
       if (← isNonTrivialProof e) then
         mkAuxLemma e
       else match e with
-        | .lam ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
-        | .letE ..     => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
-        | .forallE ..  => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
-        | .mdata _ b   => return e.updateMData! (← visit b)
-        | .proj _ _ b  => return e.updateProj! (← visit b)
-        | .app ..      => e.withApp fun f args => return mkAppN f (← args.mapM visit)
-        | _            => pure e
+        | .lam ..       => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | .letE ..      => lambdaLetTelescope e fun xs b => visitBinders xs do mkLambdaFVars xs (← visit b) (usedLetOnly := false)
+        | .forallE ..   => forallTelescope e fun xs b => visitBinders xs do mkForallFVars xs (← visit b)
+        | .mdata _ b    => return e.updateMData! (← visit b)
+        | .proj _ _ b m => return e.updateProj! (← visit b) (← visit m)
+        | .app ..       => e.withApp fun f args => return mkAppN f (← args.mapM visit)
+        | _             => pure e
 
 end AbstractNestedProofs
 

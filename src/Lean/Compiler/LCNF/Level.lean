@@ -70,7 +70,7 @@ partial def normExpr (e : Expr) : M Expr := do
     | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
     | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
     | .mdata _ b       => return e.updateMData! (← normExpr b)
-    | .proj _ _ b      => return e.updateProj! (← normExpr b)
+    | .proj _ _ b m    => return e.updateProj! (← normExpr b) (← normExpr m)
     | .mvar _          => unreachable!
     | _                => return e
 

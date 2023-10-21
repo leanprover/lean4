@@ -43,7 +43,8 @@ open Lean.Meta
 
 def tst : MetaM Unit :=
   withLocalDeclD `a (mkConst ``A) fun a => do
-    let e := mkProj ``A 1 a
+    let .forallE x d b bi ← inferType (mkConst ``A.a') | unreachable!
+    let e := mkProj ``A 1 a (.lam x d b bi)
     IO.println (← Meta.ppExpr (← inferType e))
 
 #eval tst

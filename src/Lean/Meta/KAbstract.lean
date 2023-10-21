@@ -32,7 +32,7 @@ def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr :=
         match e with
         | .app f a         => return e.updateApp! (← visit f offset) (← visit a offset)
         | .mdata _ b       => return e.updateMData! (← visit b offset)
-        | .proj _ _ b      => return e.updateProj! (← visit b offset)
+        | .proj _ _ b m    => return e.updateProj! (← visit b offset) (← visit m offset)
         | .letE _ t v b _  => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
         | .lam _ d b _     => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
         | .forallE _ d b _ => return e.updateForallE! (← visit d offset) (← visit b (offset+1))

@@ -65,7 +65,7 @@ def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr
   | Expr.letE ..       => traverseLetWithPos      visit p e
   | Expr.app ..        => Expr.traverseAppWithPos visit p e
   | Expr.mdata _ b     => e.updateMData! <$> visit p b
-  | Expr.proj _ _ b    => e.updateProj! <$> visit p.pushProj b
+  | Expr.proj _ _ b m  => return e.updateProj! (← visit p.pushProjExpr b) (← visit p.pushProjMotive m)
   | _                  => pure e
 
 /-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run

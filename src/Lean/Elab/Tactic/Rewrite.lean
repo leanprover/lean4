@@ -19,13 +19,15 @@ def rewriteTarget (stx : Syntax) (symm : Bool) (config : Rewrite.Config := {}) :
     replaceMainGoal (mvarId' :: r.mvarIds)
 
 def rewriteLocalDecl (stx : Syntax) (symm : Bool) (fvarId : FVarId) (config : Rewrite.Config := {}) :
-    TacticM Unit := do
-  Term.withSynthesize <| withMainContext do
+    TacticM Unit := withMainContext do
+  -- Note: we cannot execute `replaceLocalDecl` inside `Term.withSynthesize`.
+  -- See issues #2711 and #2727.
+  let rwResult ← Term.withSynthesize <| withMainContext do
     let e ← elabTerm stx none true
     let localDecl ← fvarId.getDecl
-    let rwResult ← (← getMainGoal).rewrite localDecl.type e symm (config := config)
-    let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
-    replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
+    (← getMainGoal).rewrite localDecl.type e symm (config := config)
+  let replaceResult ← (← getMainGoal).replaceLocalDecl fvarId rwResult.eNew rwResult.eqProof
+  replaceMainGoal (replaceResult.mvarId :: rwResult.mvarIds)
 
 def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) → (term : Syntax) → TacticM Unit) : TacticM Unit := do
   let lbrak := rwRulesSeqStx[0]

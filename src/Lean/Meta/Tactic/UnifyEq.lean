@@ -53,8 +53,13 @@ def unifyEq? (mvarId : MVarId) (eqFVarId : FVarId) (subst : FVarSubst := {})
         /- Remark: we use `let rec` here because otherwise the compiler would generate an insane amount of code.
           We can remove the `rec` after we fix the eagerly inlining issue in the compiler. -/
         let rec substEq (symm : Bool) := do
-          /- Remark: `substCore` fails if the equation is of the form `x = x` -/
-          if let some (subst, mvarId) ← observing? (substCore mvarId eqFVarId symm subst) then
+          /-
+          Remark: `substCore` fails if the equation is of the form `x = x`
+          We use `(tryToSkip := true)` to ensure we avoid unnecessary `Eq.rec`s in user code.
+          Recall that `Eq.rec`s can negatively affect term reduction performance in the kernel and elaborator.
+          See issue https://github.com/leanprover/lean4/issues/2552 for an example.
+          -/
+          if let some (subst, mvarId) ← observing? (substCore mvarId eqFVarId symm subst (tryToSkip := true)) then
             return some { mvarId, subst }
           else if (← isDefEq a b) then
             /- Skip equality -/

@@ -95,8 +95,6 @@ structure Config where
     Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
    -/
   transparency       : TransparencyMode := TransparencyMode.default
-  /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
-  zetaNonDep         : Bool := true
   /--
   When `trackZeta = true`, we track all free variables that have been zeta-expanded.
   That is, suppose the local context contains

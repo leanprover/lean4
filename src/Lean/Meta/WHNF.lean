@@ -306,8 +306,55 @@ end
 /-! # Weak Head Normal Form auxiliary combinators -/
 -- ===========================
 
+/--
+Configuration for projection reduction. See `whnfCore`.
+-/
+inductive ProjReductionKind where
+  /-- Projections `s.i` are not reduced at `whnfCore`. -/
+  | no
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnfCore` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations).
+  -/
+  | yes
+  /--
+  Projections `s.i` are reduced at `whnfCore`, and `whnf` is used at `s` during the process.
+  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
+  -/
+  | yesWithDelta
+  deriving DecidableEq, Inhabited, Repr
+
+/--
+Configuration options for `whnfEasyCases` and `whnfCore`.
+-/
+structure WhnfCoreConfig where
+  /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
+  iota : Bool := true
+  /-- If `true`, reduce terms such as `(fun x => t[x]) a` into `t[a]` -/
+  beta : Bool := true
+  /-- Control projection reduction at `whnfCore`. -/
+  proj : ProjReductionKind := .yesWithDelta
+  /--
+  Zeta reduction.
+  It includes two kinds of reduction:
+  - `let x := v; e[x]` reduces to `e[v]`.
+  - Given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
+
+  We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
+  Recall that
+  ```
+  fun x : BitVec 5 => let n := 5; fun y : BitVec n => x = y
+  ```
+  is type correct, but
+  ```
+  fun x : BitVec 5 => (fun n => fun y : BitVec n => x = y) 5
+  ```
+  is not.
+  -/
+  zeta : Bool := true
+
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
+@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
   match e with
   | .forallE ..    => return e
   | .lam ..        => return e
@@ -318,22 +365,19 @@ end
   | .const ..      => k e
   | .app ..        => k e
   | .proj ..       => k e
-  | .mdata _ e     => whnfEasyCases e k
+  | .mdata _ e     => whnfEasyCases e k config
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
     | .cdecl .. => return e
-    | .ldecl (value := v) (nonDep := nonDep) .. =>
-      let cfg ← getConfig
-      if nonDep && !cfg.zetaNonDep then
-        return e
-      else
-        if cfg.trackZeta then
-          modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
-        whnfEasyCases v k
+    | .ldecl (value := v) .. =>
+      unless config.zeta do return e
+      if (← getConfig).trackZeta then
+        modify fun s => { s with zetaFVarIds := s.zetaFVarIds.insert fvarId }
+      whnfEasyCases v k config
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
-    | some v => whnfEasyCases v k
+    | some v => whnfEasyCases v k config
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
@@ -506,51 +550,47 @@ then delta reduction is used to reduce `s` (i.e., `whnf` is used), otherwise `wh
 If `simpleReduceOnly`, then `iota` and projection reduction are not performed.
 Note that the value of `deltaAtProj` is irrelevant if `simpleReduceOnly = true`.
 -/
-partial def whnfCore (e : Expr) (deltaAtProj : Bool := true) (simpleReduceOnly := false) : MetaM Expr :=
+partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr :=
-    whnfEasyCases e fun e => do
+    whnfEasyCases e (config := config) fun e => do
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => go <| b.instantiate1 v
+      | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
         let f := f.getAppFn
         let f' ← go f
-        if f'.isLambda then
+        if config.beta && f'.isLambda then
           let revArgs := e.getAppRevArgs
           go <| f'.betaRev revArgs
         else if let some eNew ← whnfDelayedAssigned? f' e then
           go eNew
         else
           let e := if f == f' then e else e.updateFn f'
-          if simpleReduceOnly then
-            return e
-          else
-            match (← reduceMatcher? e) with
-            | .reduced eNew => go eNew
-            | .partialApp   => pure e
-            | .stuck _      => pure e
-            | .notMatcher   =>
-              matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-                match cinfo with
-                | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
-                | .quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
-                | c@(.defnInfo _) => do
-                  if (← isAuxDef c.name) then
-                    deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                  else
-                    return e
-                | _ => return e
+          unless config.iota do return e
+          match (← reduceMatcher? e) with
+          | .reduced eNew => go eNew
+          | .partialApp   => pure e
+          | .stuck _      => pure e
+          | .notMatcher   =>
+            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
+              match cinfo with
+              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) go
+              | .quotInfo rec   => reduceQuotRec rec lvls e.getAppArgs (fun _ => return e) go
+              | c@(.defnInfo _) => do
+                if (← isAuxDef c.name) then
+                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+                else
+                  return e
+              | _ => return e
       | .proj _ i c =>
-        if simpleReduceOnly then
-          return e
-        else
-          let c ← if deltaAtProj then whnf c else whnfCore c
-          match (← projectCore? c i) with
-          | some e => go e
-          | none => return e
+        if config.proj == .no then return e
+        let c ← if config.proj == .yesWithDelta then whnf c else go c
+        match (← projectCore? c i) with
+        | some e => go e
+        | none => return e
       | _ => unreachable!
 
 /--

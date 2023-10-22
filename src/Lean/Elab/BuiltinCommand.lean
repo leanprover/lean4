@@ -121,8 +121,9 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 /-- Declares one or more universe variable(s).
 
 Type universes are used in `Type u` and `Sort u` types. While Lean mostly handles universes
-automatically, explicitly declaring some eases the process of writing signatures and type
-definitions by giving us more control and factoring type universe declarations.
+automatically, declaring them explicitly can provide more control when writing signatures. The
+`universe` keyword allows using the declared universes in a collection of definitions, and Lean will
+ensure that these definitions use them consistently.
 
 ```lean
 /-- Explicit type-universe parameter. -/

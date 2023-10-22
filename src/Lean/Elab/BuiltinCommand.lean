@@ -210,12 +210,10 @@ end ReExport
 Names that are made available with `open` are visible within the current `section` or `namespace`
 block. The `open` command can be used in few different ways:
 
-* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all names in `Some.Namespace.Path1` and
-  `Some.Namespace.Path2` available without the prefix, so that `Some.Namespace.Path1.x` and
-  `Some.Namespace.Path2.y` can be referred to by writing only `x` and `y`.
-
-  This command only makes *public* names visible, *i.e.* it does not bring `protected` names in
-  scope.
+* `open Some.Namespace.Path1 Some.Namespace.Path2` makes all non-protected names in
+  `Some.Namespace.Path1` and `Some.Namespace.Path2` available without the prefix, so that
+  `Some.Namespace.Path1.x` and `Some.Namespace.Path2.y` can be referred to by writing only `x` and
+  `y`.
 
 * `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and
   `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would

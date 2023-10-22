@@ -403,9 +403,9 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 /-- Declares a list of typed variables.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-This is useful in particular when writing many definitions that have parameters in common (see below
-for an example). When a definition mentions a variable, Lean will add it as an argument of the
-definition. The `variable` command is also able to add typeclass parameters.
+When a definition mentions a variable, Lean will add it as an argument of the definition. The
+`variable` command is also able to add typeclass parameters. This is useful in particular when
+writing many definitions that have parameters in common (see below for an example).
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be explicit, implicit, or instance implicit (in which case they can be anonymous). This can be

@@ -121,7 +121,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 /-- Declares one or more universe variable(s).
 
 Type universes are used in `Type u` and `Sort u` types. While Lean mostly handles universes
-automatically, explicitely declaring some eases the process of writing signatures and type
+automatically, explicitly declaring some eases the process of writing signatures and type
 definitions by giving us more control and factoring type universe declarations.
 
 ```lean
@@ -206,24 +206,35 @@ end ReExport
 
 /-- Makes names from other namespaces visible without writing the namespace prefix.
 
-This command only makes *public* names visible, *i.e.* it does not bring `protected` and `private`
-names in scope.
-
 Names that are made available with `open` are visible within the current `section` or `namespace`
 block. The `open` command can be used in few different ways:
 
 * `open Some.Namespace.Path1 Some.Namespace.Path2` makes all names in `Some.Namespace.Path1` and
   `Some.Namespace.Path2` available without the prefix, so that `Some.Namespace.Path1.x` and
   `Some.Namespace.Path2.y` can be referred to by writing only `x` and `y`.
+
+  This command only makes *public* names visible, *i.e.* it does not bring `protected` names in
+  scope.
+
 * `open Some.Namespace.Path (def1 def2)` only makes `Some.Namespace.Path.def1` and
   `Some.Namespace.Path.def2` available without the full prefix, so `Some.Namespace.Path.def3` would
   be unaffected.
+
+  This works even if `def1` and `def2` are `protected`.
+
 * `open Some.Namespace.Path renaming def1 → def1', def2 → def2'` same as `open Some.Namespace.Path
   (def1 def2)` but `def1`/`def2`'s names are changed to `def1'`/`def2'`.
+
+  This works even if `def1` and `def2` are `protected`.
+
 * `open Some.Namespace.Path hiding def1 def2` opens everything in `Some.Namespace.Path` except
   `def1` and `def2`.
+
+  Only makes public names visible.
+
 * `open scoped Some.Namespace.Path1 Some.Namespace.Path2` opens [scoped instances], notations, and
   attributes from `Namespace1` and `Namespace2`, but it does **not** make any other name available.
+
 * `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
   command or expression.
 
@@ -392,8 +403,9 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
 /-- Declares a list of typed variables.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
-When a definition mentions a variable, Lean will add it as an argument of the definition. The
-`variable` command is also able to add typeclass parameters.
+This is useful in particular when writing many definitions that have parameters in common (see below
+for an example). When a definition mentions a variable, Lean will add it as an argument of the
+definition. The `variable` command is also able to add typeclass parameters.
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be explicit, implicit, or instance implicit (in which case they can be anonymous). This can be
@@ -424,6 +436,36 @@ section
   -- eqComm.{u} {α : Type u} {a : α} [instBEq : BEq α] {b : α} : Prop
 end
 ```
+
+The following shows a typical use of `variable` to factor out definition arguments.
+
+```lean
+structure Logger (Src : Type) where
+  trace : List (Src × String)
+
+namespace Logger
+  variable {Src : Type}
+
+  def empty : Logger Src where
+    trace := []
+
+  variable (log : Logger Src)
+
+  def len :=
+    log.trace.length
+  def mapSrc (f : Src → Src') :=
+    log.trace.map fun (src, str) => (f src, str)
+
+  variable (src : Src) [BEq Src]
+
+  def filterSrc :=
+    log.trace.filterMap
+      fun (src', str') => if src' == src then some str' else none
+  def lenSrc :=
+    log.filterSrc src |>.length
+end Logger
+```
+
 -/
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
   | `(variable $binders*) => do

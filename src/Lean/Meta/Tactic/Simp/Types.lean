@@ -80,8 +80,8 @@ def post (e : Expr) : M Step := do
 def discharge? (e : Expr) : M (Option Expr) := do
   (← read).discharge? e
 
-def getConfig : M Config :=
-  return (← readThe Context).config
+def getConfig : SimpM Config :=
+  return (← read).config
 
 @[inline] def withParent (parent : Expr) (f : M α) : M α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f

@@ -61,7 +61,7 @@ If we use `iota`, then the lhs is reduced to `f a`.
 See comment at `DiscrTree`.
 -/
 
-abbrev SimpTheoremKey := DiscrTree.Key (simpleReduce := true)
+abbrev SimpTheoremKey := DiscrTree.Key
 
 /--
   The fields `levelParams` and `proof` are used to encode the proof of the simp theorem.
@@ -151,7 +151,7 @@ def ppSimpTheorem [Monad m] [MonadLiftT IO m] [MonadEnv m] [MonadError m] (s : S
 instance : BEq SimpTheorem where
   beq e₁ e₂ := e₁.proof == e₂.proof
 
-abbrev SimpTheoremTree := DiscrTree SimpTheorem (simpleReduce := true)
+abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
@@ -162,11 +162,14 @@ structure SimpTheorems where
   toUnfoldThms : PHashMap Name (Array Name) := {}
   deriving Inhabited
 
+/-- Configuration for the discrimination tree. -/
+def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
+
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then
-    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := d.post.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := d.pre.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
@@ -218,7 +221,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
-  let lhs ← DiscrTree.reduceDT lhs (root := true) (simpleReduce := true)
+  let lhs ← DiscrTree.reduceDT lhs (root := true) simpDtConfig
   if lhs == rhs && lhs.isFVar then
     throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
@@ -305,7 +308,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs simpDtConfig, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 

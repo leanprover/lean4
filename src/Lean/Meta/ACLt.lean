@@ -60,8 +60,8 @@ where
       -- Drawback: cost.
       return e
     else match mode with
-      | .reduce => DiscrTree.reduce e (simpleReduce := false)
-      | .reduceSimpleOnly => DiscrTree.reduce e (simpleReduce := true)
+      | .reduce => DiscrTree.reduce e {}
+      | .reduceSimpleOnly => DiscrTree.reduce e { iota := false, proj := .no }
       | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do

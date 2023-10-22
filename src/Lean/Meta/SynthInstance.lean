@@ -194,7 +194,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
-      let result ← globalInstances.getUnify type
+      let result ← globalInstances.getUnify type tcDtConfig
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority

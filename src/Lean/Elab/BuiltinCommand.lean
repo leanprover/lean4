@@ -208,9 +208,8 @@ end ReExport
 /-- Makes names from other namespaces visible without writing the namespace prefix.
 
 Names that are made available with `open` are visible within the current `section` or `namespace`
-block. This makes refering to (type) definitions and theorems easier, but note that it can also make
-[scoped instances], notations, and attributes from a different namespace available.
-
+block. This makes referring to (type) definitions and theorems easier, but note that it can also
+make [scoped instances], notations, and attributes from a different namespace available.
 
 The `open` command can be used in a few different ways:
 

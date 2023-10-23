@@ -1,3 +1,4 @@
-rm -rf build Foo/build Bar/build
-rm -rf lakefile.olean Foo/lakefile.olean Bar/lakefile.olean
-rm -rf lake-packages lake-manifest.json
+rm -rf build foo/build bar/build
+rm -f lakefile.olean foo/lakefile.olean bar/lakefile.olean
+rm -f lake-manifest.json foo/lake-manifest.json bar/lake-manifest.json
+rm -rf lake-packages

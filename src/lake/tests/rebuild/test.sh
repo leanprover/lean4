@@ -5,7 +5,7 @@ LAKE=${LAKE:-../../build/bin/lake}
 
 ./clean.sh
 
-# Tests that Lake rebulds C files and relinks executables on changes
+# Tests that Lake rebuilds C files and relinks executables on changes
 # See https://github.com/leanprover/lake/issues/75
 
 # The exact issue is no longer applicable as Lake now always rebuilds C files

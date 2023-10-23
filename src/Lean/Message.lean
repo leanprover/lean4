@@ -185,7 +185,7 @@ def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 /-- Wrap the given message in square brackets `[]`. -/
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
-/-- Append the given list of messages with the given separarator. -/
+/-- Append the given list of messages with the given separator. -/
 def joinSep : List MessageData → MessageData → MessageData
   | [],    _   => Format.nil
   | [a],   _   => a
@@ -328,6 +328,8 @@ instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageDa
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
+instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
+  ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
 syntax:max "m!" interpolatedStr(term) : term

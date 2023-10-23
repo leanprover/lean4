@@ -32,7 +32,7 @@ def _root_.Lean.MVarId.revert (mvarId : MVarId) (fvarIds : Array FVarId) (preser
         toRevertNew := toRevertNew.push x
     let tag ← mvarId.getTag
     -- TODO: the following code can be optimized because `MetavarContext.revert` will compute `collectDeps` again.
-    -- We should factor out the relevat part
+    -- We should factor out the relevant part
 
     -- Set metavariable kind to natural to make sure `revert` will assign it.
     mvarId.setKind .natural

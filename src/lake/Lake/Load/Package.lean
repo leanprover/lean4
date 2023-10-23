@@ -69,7 +69,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   let opts := self.leanOpts
   let strName := self.name.toString (escape := false)
 
-  -- Load Script, Facet, & Target Configurations
+  -- Load Script, Facet, Target, and Hook Configurations
   let scripts ← mkTagMap env scriptAttr fun scriptName => do
     let name := strName ++ "/" ++ scriptName.toString (escape := false)
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn scriptName
@@ -98,12 +98,21 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
         error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
     | .error e => error e
   let defaultTargets := defaultTargetAttr.getAllEntries env
+  let postUpdateHooks ← postUpdateAttr.getAllEntries env |>.mapM fun name =>
+    match evalConstCheck env opts PostUpdateHookDecl ``PostUpdateHookDecl name with
+    | .ok decl =>
+      if h : decl.pkg = self.config.name then
+        return OpaquePostUpdateHook.mk ⟨h ▸ decl.fn⟩
+      else
+        error s!"post-update hook was defined in `{decl.pkg}`, but was registered in `{self.name}`"
+    | .error e => error e
 
   -- Fill in the Package
   return {self with
     opaqueDeps := deps.map (.mk ·)
     leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts
+    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts,
+    postUpdateHooks
   }
 
 /--

@@ -38,13 +38,13 @@ File processing and requests+notifications against a file should be concurrent f
 
 To achieve these goals, elaboration is executed in a chain of tasks, where each task corresponds to
 the elaboration of one command. When the elaboration of one command is done, the next task is spawned.
-On didChange notifications, we search for the task in which the change occured. If we stumble across
+On didChange notifications, we search for the task in which the change occurred. If we stumble across
 a task that has not yet finished before finding the task we're looking for, we terminate it
-and start the elaboration there, otherwise we start the elaboration at the task where the change occured.
+and start the elaboration there, otherwise we start the elaboration at the task where the change occurred.
 
 Requests iterate over tasks until they find the command that they need to answer the request.
 In order to not block the main thread, this is done in a request task.
-If a task that the request task waits for is terminated, a change occured somewhere before the
+If a task that the request task waits for is terminated, a change occurred somewhere before the
 command that the request is looking for and the request sends a "content changed" error.
 -/
 
@@ -104,7 +104,7 @@ section Elab
     -- TODO(MH): check for interrupt with increased precision
     cancelTk.check
     /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
-      while prefering newer versions over old ones. The former is necessary because we do
+      while preferring newer versions over old ones. The former is necessary because we do
       not explicitly clear older diagnostics, while the latter is necessary because we do
       not guarantee that diagnostics are emitted in order. Specifically, it may happen that
       we interrupted this elaboration task right at this point and a newer elaboration task
@@ -112,7 +112,7 @@ section Elab
       the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
       because we cannot guarantee that no further diagnostics are emitted after clearing
       them. -/
-    -- NOTE(WN): this is *not* redundent even if there are no new diagnostics in this snapshot
+    -- NOTE(WN): this is *not* redundant even if there are no new diagnostics in this snapshot
     -- because empty diagnostics clear existing error/information squiggles. Therefore we always
     -- want to publish in case there was previously a message at this position.
     publishDiagnostics m snap.diagnostics.toArray ctx.hOut
@@ -159,7 +159,9 @@ section Initialization
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files. -/
   partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let args := #["print-paths"] ++ imports.map (toString ·.module)
+    let mut args := #["print-paths"] ++ imports.map (toString ·.module)
+    if m.dependencyBuildMode matches .never then
+      args := args.push "--no-build"
     let cmdStr := " ".intercalate (toString lakePath :: args.toList)
     let lakeProc ← Process.spawn {
       stdin  := Process.Stdio.null
@@ -187,6 +189,8 @@ section Initialization
       paths.loadDynlibPaths.forM loadDynlib
       paths.srcPath.mapM realPathNormalized
     | 2 => pure []  -- no lakefile.lean
+    -- error from `--no-build`
+    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{stdout}"
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
@@ -333,7 +337,7 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText⟩
+      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -472,14 +476,14 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let i ← maybeTee "fwIn.txt" false i
   let o ← maybeTee "fwOut.txt" true o
   let initParams ← i.readLspRequestAs "initialize" InitializeParams
-  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" DidOpenTextDocumentParams
+  let ⟨_, param⟩ ← i.readLspNotificationAs "textDocument/didOpen" LeanDidOpenTextDocumentParams
   let doc := param.textDocument
   /- NOTE(WN): `toFileMap` marks line beginnings as immediately following
     "\n", which should be enough to handle both LF and CRLF correctly.
     This is because LSP always refers to characters by (line, column),
     so if we get the line number correct it shouldn't matter that there
     is a CR there. -/
-  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap⟩
+  let meta : DocumentMeta := ⟨doc.uri, doc.version, doc.text.toFileMap, param.dependencyBuildMode?.getD .always⟩
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try

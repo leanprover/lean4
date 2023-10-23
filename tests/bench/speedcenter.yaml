@@ -348,7 +348,7 @@ run:
         # Enable:   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_active: null
         
-        # Enable:   Drop page cache, directoy entries and inodes before every benchmarking run.
+        # Enable:   Drop page cache, directory entries and inodes before every benchmarking run.
         drop_fs_caches_active: null
         
         # Enable:   Adds random environment variables.
@@ -409,7 +409,7 @@ run:
         #   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_misc: !!map {}
         
-        #   Drop page cache, directoy entries and inodes before every benchmarking run.
+        #   Drop page cache, directory entries and inodes before every benchmarking run.
         drop_fs_caches_misc:
             
             # Free dentries and inodes

@@ -16,7 +16,7 @@ def mkLam1 : MetaM Expr :=
   /- The following `withLocalDecl` extends the local context with `(x : Nat)`, and executes the lambda
      with an expression `x`. -/
   withLocalDecl `x BinderInfo.default (mkConst `Nat) fun x =>
-  /- Similiar to the method above, but sets `BinderInfo.default`. -/
+  /- Similar to the method above, but sets `BinderInfo.default`. -/
   withLocalDeclD `y (mkConst `Nat) fun y => do
     -- Double backticks instruct Lean to resolve the names at compilation time
     let b ← mkAppM ``HAdd.hAdd #[x, y] -- `x + y`

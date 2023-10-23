@@ -638,9 +638,12 @@ structure Output where
   stdout   : String
   stderr   : String
 
-/-- Run process to completion and capture output. -/
+/--
+Run process to completion and capture output.
+The process does not inherit the standard input of the caller.
+-/
 def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped }
+  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait

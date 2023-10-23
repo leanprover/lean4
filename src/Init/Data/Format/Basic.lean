@@ -315,7 +315,7 @@ class ToFormat (α : Type u) where
 
 export ToFormat (format)
 
--- note: must take precendence over the above instance to avoid premature formatting
+-- note: must take precedence over the above instance to avoid premature formatting
 instance : ToFormat Format where
   format f := f
 

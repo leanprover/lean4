@@ -164,6 +164,7 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Build & Run
 
+* `postUpdate?`: A post-`lake update` hook. The monadic action is run after a successful `lake update` execution on this package or one of its downstream dependents. Defaults to `none`. See the option's docstring for a complete example.
 * `precompileModules`:  Whether to compile each module into a native shared library that is loaded whenever the module is imported. This speeds up the evaluation of metaprograms and enables the interpreter to run functions marked `@[extern]`. Defaults to `false`.
 * `moreServerArgs`:  Additional arguments to pass to the Lean language server (i.e., `lean --server`) launched by `lake serve`.
 * `buildType`: The `BuildType` of targets in the package (see [`CMAKE_BUILD_TYPE`](https://stackoverflow.com/a/59314670)). One of `debug`, `relWithDebInfo`, `minSizeRel`, or `release`. Defaults to `release`.
@@ -193,9 +194,8 @@ A Lean library target defines a set of Lean modules available to `import` and ho
 **Syntax**
 
 ```lean
-lean_lib «target-name» {
+lean_lib «target-name» where
   -- configuration options go here
-}
 ```
 
 **Configuration Options**
@@ -216,9 +216,8 @@ A Lean executable target builds a binary executable from a Lean module with a `m
 **Syntax**
 
 ```lean
-lean_exe «target-name» {
+lean_exe «target-name» where
   -- configuration options go here
-}
 ```
 
 **Configuration Options**

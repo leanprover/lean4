@@ -151,7 +151,7 @@ private def processSkipInaccessible (p : Problem) : Problem := Id.run do
   { p with alts := alts, vars := xs }
 
 /--
-If contraint is of the form `e ≋ x` where `x` is a free variable, reorient it
+If constraint is of the form `e ≋ x` where `x` is a free variable, reorient it
 as `x ≋ e` If
 - `x` is an `alt`-local declaration
 - `e` is not a free variable.
@@ -254,7 +254,7 @@ private def processAsPattern (p : Problem) : MetaM Problem := withGoalOf p do
     match alt.patterns with
     | .as fvarId p h :: ps =>
       /- We used to use `checkAndReplaceFVarId` here, but `x` and `fvarId` may have different types
-        when dependent types are beind used. Let's consider the repro for issue #471
+        when dependent types are being used. Let's consider the repro for issue #471
         ```
         inductive vec : Nat → Type
         | nil : vec 0
@@ -413,7 +413,7 @@ private def processConstructor (p : Problem) : MetaM (Array Problem) := do
          p.mvarId.cases x.fvarId!
        catch ex =>
          if p.alts.isEmpty then
-           /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is bettern than a "stuck" error message. -/
+           /- If we have no alternatives and dependent pattern matching fails, then a "missing cases" error is better than a "stuck" error message. -/
            return none
          else
            throwCasesException p ex

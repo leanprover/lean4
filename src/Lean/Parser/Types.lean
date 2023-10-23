@@ -31,7 +31,7 @@ def minPrec  : Nat := eval_prec min
 
 abbrev Token := String
 
-abbrev TokenTable := Trie Token
+abbrev TokenTable := Lean.Data.Trie Token
 
 abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 

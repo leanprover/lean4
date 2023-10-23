@@ -39,7 +39,7 @@ You are set up!
 
 ## Create a Lean Project
 
-*If your goal is to contribute to [mathlib4](https://github.com/leanprover-community/mathlib4) or use it as a depdency, please see its readme for specific instructions on how to do that.*
+*If your goal is to contribute to [mathlib4](https://github.com/leanprover-community/mathlib4) or use it as a dependency, please see its readme for specific instructions on how to do that.*
 
 You can now create a Lean project in a new folder. Run `lake init foo` from "View > Terminal" to create a package, followed by `lake build` to get an executable version of your Lean program.
 On Linux/macOS, you first have to follow the instructions printed by the Lean installation or log out and in again for the Lean executables to be available in you terminal.

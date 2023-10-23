@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Lean.Data.Lsp.Basic
+import Lean.Data.Lsp.TextSync
 import Lean.Server.Rpc.Basic
 
 /-! This file contains Lean-specific extensions to LSP. See the structures below for which
@@ -12,6 +13,22 @@ additional requests and notifications are supported. -/
 
 namespace Lean.Lsp
 open Json
+
+/--
+  Controls when dependencies are built on `textDocument/didOpen` notifications.
+-/
+inductive DependencyBuildMode where
+  /-- Always build dependencies. -/
+  | always
+  /-- Build dependencies once, but then do not build them again on import changes / crashes. Used for `didOpen` notifications that are explicitly intended for manually triggering the build. -/
+  | once
+  /--  Never build dependencies. -/
+  | never
+  deriving FromJson, ToJson, Inhabited
+
+structure LeanDidOpenTextDocumentParams extends DidOpenTextDocumentParams where
+  dependencyBuildMode? : Option DependencyBuildMode := none -- `none`: Compatibility with clients pre-build-mode
+  deriving FromJson, ToJson
 
 /-- `textDocument/waitForDiagnostics` client->server request.
 

@@ -501,7 +501,7 @@ def homogenize (c₁ c₂ : CodeBlock) : TermElabM (CodeBlock × CodeBlock) := d
 
 /--
 Extending code blocks with variable declarations: `let x : t := v` and `let x : t ← v`.
-We remove `x` from the collection of updated varibles.
+We remove `x` from the collection of updated variables.
 Remark: `stx` is the syntax for the declaration (e.g., `letDecl`), and `xs` are the variables
 declared by it. It is an array because we have let-declarations that declare multiple variables.
 Example: `let (x, y) := t`

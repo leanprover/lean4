@@ -7,12 +7,37 @@ only an expectation that breaking changes will be documented in this file.
 This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status of each version.
 
-v4.2.0 (development in progress)
+v4.3.0 (development in progress)
 ---------
 
+* **Lake:** Changed `postUpdate?` configuration option to a `post_update` declaration. See the `post_update` syntax docstring for more information on the new syntax.
+
+* [Lake: A manifest is automatically created on workspace load if one does not exists.](https://github.com/leanprover/lean4/pull/2680).
+
+* **Lake:** The `:=` syntax for configuration declarations (i.e., `package`, `lean_lib`, and `lean_exe`) has been deprecated. For example, `package foo := {...}` is deprecated.
+
+v4.2.0
+---------
+
+* [isDefEq cache for terms not containing metavariables.](https://github.com/leanprover/lean4/pull/2644).
+* [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
+* Make [`Environment.mk`](https://github.com/leanprover/lean4/pull/2604) and [`Environment.add`](https://github.com/leanprover/lean4/pull/2642) private, and add [`replay`](https://github.com/leanprover/lean4/pull/2617) as a safer alternative.
+* `IO.Process.output` no longer inherits the standard input of the caller.
+* [Do not inhibit caching](https://github.com/leanprover/lean4/pull/2612) of default-level `match` reduction.
+* [List the valid case tags](https://github.com/leanprover/lean4/pull/2629) when the user writes an invalid one.
+* The derive handler for `DecidableEq` [now handles](https://github.com/leanprover/lean4/pull/2591) mutual inductive types.
+* [Show path of failed import in Lake](https://github.com/leanprover/lean4/pull/2616).
+* [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
+* **Lake:** Add `postUpdate?` package configuration option. Used by a package to specify some code which should be run after a successful `lake update` of the package or one of its downstream dependencies. ([lake#185](https://github.com/leanprover/lake/issues/185))
+* Improvements to Lake startup time ([#2572](https://github.com/leanprover/lean4/pull/2572), [#2573](https://github.com/leanprover/lean4/pull/2573))
+* `refine e` now replaces the main goal with metavariables which were created during elaboration of `e` and no longer captures pre-existing metavariables that occur in `e` ([#2502](https://github.com/leanprover/lean4/pull/2502)).
+  * This is accomplished via changes to `withCollectingNewGoalsFrom`, which also affects `elabTermWithHoles`, `refine'`, `calc` (tactic), and `specialize`. Likewise, all of these now only include newly-created metavariables in their output.
+  * Previously, both newly-created and pre-existing metavariables occurring in `e` were returned inconsistently in different edge cases, causing duplicated goals in the infoview (issue [#2495](https://github.com/leanprover/lean4/issues/2495)), erroneously closed goals (issue [#2434](https://github.com/leanprover/lean4/issues/2434)), and unintuitive behavior due to `refine e` capturing previously-created goals appearing unexpectedly in `e` (no issue; see PR).
 
 v4.1.0
 ---------
+
+* The error positioning on missing tokens has been [improved](https://github.com/leanprover/lean4/pull/2393). In particular, this should make it easier to spot errors in incomplete tactic proofs.
 
 * After elaborating a configuration file, Lake will now cache the configuration to a `lakefile.olean`. Subsequent runs of Lake will import this OLean instead of elaborating the configuration file. This provides a significant performance improvement (benchmarks indicate that using the OLean cuts Lake's startup time in half), but there are some important details to keep in mind:
   + Lake will regenerate this OLean after each modification to the `lakefile.lean` or `lean-toolchain`. You can also force a reconfigure by passing the new `--reconfigure` / `-R` option to `lake`.
@@ -41,7 +66,7 @@ v4.0.0
 
 * [`dsimp` / `simp` / `simp_all` now fail by default if they make no progress](https://github.com/leanprover/lean4/pull/2336).
 
-  This can be overriden with the `(config := { failIfUnchanged := false })` option.
+  This can be overridden with the `(config := { failIfUnchanged := false })` option.
   This change was made to ease manual use of `simp` (with complicated goals it can be hard to tell if it was effective)
   and to allow easier flow control in tactics internally using `simp`.
   See the [summary discussion](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/simp.20fails.20if.20no.20progress/near/380153295)
@@ -140,7 +165,7 @@ v4.0.0
 
 * New [code generator](https://github.com/leanprover/lean4/tree/master/src/Lean/Compiler/LCNF) project has started.
 
-* Remove description argument frome `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
+* Remove description argument from `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
 
 * [Additional concurrency primitives](https://github.com/leanprover/lean4/pull/1555).
 
@@ -660,7 +685,7 @@ v4.0.0-m5 (07 August 2022)
   `Foo : {Foo : Type u} → List Foo → Type`.
 
 
-* Fix syntax hightlighting for recursive declarations. Example
+* Fix syntax highlighting for recursive declarations. Example
   ```lean
   inductive List (α : Type u) where
     | nil : List α  -- `List` is not highlighted as a variable anymore
@@ -969,7 +994,7 @@ For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now no
 
 * Various improvements to go-to-definition & find-all-references accuracy.
 
-* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [whishlist](https://github.com/leanprover/lean4/issues/988)).
+* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [wishlist](https://github.com/leanprover/lean4/issues/988)).
 
 * Rename option `autoBoundImplicitLocal` => `autoImplicit`.
 

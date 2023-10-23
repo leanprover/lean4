@@ -83,7 +83,7 @@ structure CodeActionParams extends WorkDoneProgressParams, PartialResultParams w
   context      : CodeActionContext := {}
   deriving FromJson, ToJson
 
-/-- If the code action is disabled, this type gives the reson why. -/
+/-- If the code action is disabled, this type gives the reason why. -/
 structure CodeActionDisabled where
   reason : String
   deriving FromJson, ToJson

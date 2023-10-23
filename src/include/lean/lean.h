@@ -126,7 +126,7 @@ x
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
 
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsibility of the caller
    to decrement the RC.
    This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
 
@@ -1014,6 +1014,11 @@ static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_ar
   if ((c & 0x80) == 0) return c;
   return lean_string_utf8_get_fast_cold(str, idx, lean_string_size(s), c);
 }
+static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
+  char const * str = lean_string_cstr(s);
+  size_t idx = lean_unbox(i);
+  return str[idx];
+}
 
 LEAN_SHARED lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_SHARED lean_obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c);
@@ -1307,8 +1312,8 @@ LEAN_SHARED lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 
 /* Integers */
 
-#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))
-#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : -(1 << 30))
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (INT_MAX >> 1))
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : (INT_MIN >> 1))
 LEAN_SHARED lean_object * lean_int_big_neg(lean_object * a);
 LEAN_SHARED lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);

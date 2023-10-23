@@ -553,7 +553,7 @@ def mkNumeral (type : Expr) (n : Nat) : MetaM Expr := do
 /--
   Return `a op b`, where `op` has name `opName` and is implemented using the typeclass `className`.
   This method assumes `a` and `b` have the same type, and typeclass `className` is heterogeneous.
-  Examples of supported clases: `HAdd`, `HSub`, `HMul`.
+  Examples of supported classes: `HAdd`, `HSub`, `HMul`.
   We use heterogeneous operators to ensure we have a uniform representation.
   -/
 private def mkBinaryOp (className : Name) (opName : Name) (a b : Expr) : MetaM Expr := do
@@ -574,7 +574,7 @@ def mkMul (a b : Expr) : MetaM Expr := mkBinaryOp ``HMul ``HMul.hMul a b
 /--
   Return `a r b`, where `r` has name `rName` and is implemented using the typeclass `className`.
   This method assumes `a` and `b` have the same type.
-  Examples of supported clases: `LE` and `LT`.
+  Examples of supported classes: `LE` and `LT`.
   We use heterogeneous operators to ensure we have a uniform representation.
   -/
 private def mkBinaryRel (className : Name) (rName : Name) (a b : Expr) : MetaM Expr := do

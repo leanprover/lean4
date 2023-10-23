@@ -228,7 +228,7 @@ where
       type
 
 /--
-  Reorder contructor arguments to improve the effectiveness of the `fixedIndicesToParams` method.
+  Reorder constructor arguments to improve the effectiveness of the `fixedIndicesToParams` method.
 
   The idea is quite simple. Given a constructor type of the form
   ```
@@ -267,7 +267,7 @@ private def reorderCtorArgs (ctorType : Expr) : MetaM Expr := do
       let r ← mkForallFVars (bsPrefix ++ as) type
       /- `r` already contains the resulting type.
          To be able to produce more better error messages, we copy the first `bsPrefix.size` binder names from `C` to `r`.
-         This is important when some of contructor parameters were inferred using the auto-bound implicit feature.
+         This is important when some of constructor parameters were inferred using the auto-bound implicit feature.
          For example, in the following declaration.
          ```
           inductive Member : α → List α → Type u
@@ -549,7 +549,7 @@ private def checkResultingUniverses (views : Array InductiveView) (numParams : N
               /- Special case:
                  The constructor parameter `v` is at unverse level `?v+k` and
                  the resulting inductive universe level is `u'+k`, where `u'` is a parameter (or zero).
-                 Thus, `?v := u'` is the only choice for satisfying the universe contraint `?v+k <= u'+k`.
+                 Thus, `?v := u'` is the only choice for satisfying the universe constraint `?v+k <= u'+k`.
                  Note that, we still generate an error for cases where there is more than one of satisfying the constraint.
                  Examples:
                  -----------------------------------------------------------

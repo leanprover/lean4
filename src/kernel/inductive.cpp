@@ -614,7 +614,6 @@ public:
             d_idx++;
         }
         /* First, populate the field m_minors */
-        unsigned minor_idx = 1;
         d_idx = 0;
         for (inductive_type const & ind_type : m_ind_types) {
             name ind_type_name = ind_type.get_name();
@@ -666,7 +665,6 @@ public:
                 name minor_name = cnstr_name.replace_prefix(ind_type_name, name());
                 expr minor      = mk_local_decl(minor_name, minor_ty);
                 m_rec_infos[d_idx].m_minors.push_back(minor);
-                minor_idx++;
             }
             d_idx++;
         }
@@ -1093,7 +1091,7 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     /* This function is only called if we have created auxiliary inductive types when eliminating
        the nested inductives. */
     lean_assert(length(all_names) > ntypes);
-    /* Remark: we use the `main_name` to declarate the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
+    /* Remark: we use the `main_name` to declare the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
        This is a little bit asymmetrical if `d` is a mutual declaration, but it makes sure we have simple names. */
     buffer<name>   old_rec_names;
     name_map<name> rec_map;

@@ -46,7 +46,7 @@ def mkCalcTrans (result resultType step stepType : Expr) : MetaM (Expr × Expr) 
 /--
 Adds a type annotation to a hole that occurs immediately at the beginning of the term.
 This is so that coercions can trigger when elaborating the term.
-See https://github.com/leanprover/lean4/issues/2040 for futher rationale.
+See https://github.com/leanprover/lean4/issues/2040 for further rationale.
 
 - `_ < 3` is annotated
 - `(_) < 3` is not, because it occurs after an atom
@@ -68,6 +68,7 @@ where
     | _ => set false; return t
 
 def getCalcFirstStep (step0 : TSyntax ``calcFirstStep) : TermElabM (TSyntax ``calcStep) :=
+  withRef step0 do
   match step0  with
   | `(calcFirstStep| $term:term) =>
     `(calcStep| $term = _ := rfl)

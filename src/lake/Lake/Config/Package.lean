@@ -171,6 +171,9 @@ deriving Inhabited
 /-! # Package -/
 --------------------------------------------------------------------------------
 
+
+declare_opaque_type OpaquePostUpdateHook (pkg : Name)
+
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
   /-- The path to the package's directory. -/
@@ -183,8 +186,6 @@ structure Package where
   leanOpts : Options
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
-  /-- The Git tag of this package. -/
-  gitTag? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
@@ -207,6 +208,8 @@ structure Package where
   (i.e., on a bare `lake run` of the package).
   -/
   defaultScripts : Array Script := #[]
+  /-- Post-`lake update` hooks for the package. -/
+  postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
@@ -239,6 +242,22 @@ instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 /-- The package's name. -/
 abbrev NPackage.name (_ : NPackage n) := n
 
+/--
+The type of a post-update hooks monad.
+`IO` equipped with logging ability and information about the Lake configuration.
+-/
+abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
+
+structure PostUpdateHook (pkgName : Name) where
+  fn : PostUpdateFn pkgName
+  deriving Inhabited
+
+hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
+
+structure PostUpdateHookDecl where
+  pkg : Name
+  fn : PostUpdateFn pkg
+
 namespace Package
 
 /-- The package's direct dependencies. -/
@@ -268,15 +287,6 @@ namespace Package
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo?
-
-/--
-The package's URL × tag release.
-Tries `releaseRepo?` first and then falls back to `remoteUrl?`.
--/
-def release? (self : Package) : Option (String × String) := do
-  let url ← self.releaseRepo? <|> self.remoteUrl?
-  let tag ← self.gitTag?
-  return (url, tag)
 
 /-- The package's `buildArchive?` configuration. -/
 @[inline] def buildArchive? (self : Package) : Option String :=

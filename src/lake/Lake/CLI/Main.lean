@@ -38,6 +38,7 @@ structure LakeOptions where
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
+  noBuild : Bool := false
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -74,6 +75,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
 def LakeOptions.mkBuildConfig (opts : LakeOptions) : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
+  noBuild := opts.noBuild
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -153,6 +155,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+| "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--dir"         => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"        => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})

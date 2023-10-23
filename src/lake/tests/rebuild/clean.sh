@@ -1,2 +1,2 @@
-rm -rf build lakefile.olean
-rm -rf Foo
+rm -rf build lakefile.olean lake-manifest.json
+rm -rf Foo Foo.lean

@@ -31,7 +31,7 @@ def isUIntPatLit (v : Expr) : Bool :=
   isUIntPatLit? v |>.isSome
 
 /--
-  The frontend expands uint numerals occurring in patterns into `UInt*.mk ..` contructor applications.
+  The frontend expands uint numerals occurring in patterns into `UInt*.mk ..` constructor applications.
   This method convert them back into `UInt*.ofNat ..` applications.
 -/
 def foldPatValue (v : Expr) : Expr :=

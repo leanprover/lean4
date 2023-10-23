@@ -22,7 +22,7 @@ antiquotations, and if references to globals are prefixed with `_root_.`
 (which is not allowed to refer to a local variable)
 `Unhygienic` can also be seen as a model implementation of `MonadQuotation`
 (since it is completely hygienic as long as it is "run" only once and can
-assume that there are no other implentations in use, as is the case for the
+assume that there are no other implementations in use, as is the case for the
 elaboration monads that carry their macro scope state through the entire
 processing of a file). It uses the state monad to query and allocate the
 next macro scope, and uses the reader monad to store the stack of scopes

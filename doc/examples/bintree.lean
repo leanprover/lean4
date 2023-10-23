@@ -5,7 +5,7 @@ If the type of keys can be totally ordered -- that is, it supports a well-behave
 then maps can be implemented with binary search trees (BSTs). Insert and lookup operations on BSTs take time
 proportional to the height of the tree. If the tree is balanced, the operations therefore take logarithmic time.
 
-This example is based on a similar example found in the ["Sofware Foundations"](https://softwarefoundations.cis.upenn.edu/vfa-current/SearchTree.html)
+This example is based on a similar example found in the ["Software Foundations"](https://softwarefoundations.cis.upenn.edu/vfa-current/SearchTree.html)
 book (volume 3).
 -/
 
@@ -81,9 +81,9 @@ def Tree.toList (t : Tree β) : List (Nat × β) :=
       |>.toList
 
 /-!
-The implemention of `Tree.toList` is inefficient because of how it uses the `++` operator.
+The implementation of `Tree.toList` is inefficient because of how it uses the `++` operator.
 On a balanced tree its running time is linearithmic, because it does a linear number of
-concatentations at each level of the tree. On an unbalanced tree it's quadratic time.
+concatenations at each level of the tree. On an unbalanced tree it's quadratic time.
 Here's a tail-recursive implementation than runs in linear time, regardless of whether the tree is balanced:
 -/
 def Tree.toListTR (t : Tree β) : List (Nat × β) :=
@@ -114,9 +114,9 @@ concatenating all goals produced by `tac'`. In this theorem, we use it to apply
 
 The `simp` parameters `toListTR.go` and `toList` instruct the simplifier to try to reduce
 and/or apply auto generated equation theorems for these two functions.
-The parameter `*` intructs the simplifier to use any equation in a goal as rewriting rules.
+The parameter `*` instructs the simplifier to use any equation in a goal as rewriting rules.
 In this particular case, `simp` uses the induction hypotheses as rewriting rules.
-Finally, the parameter `List.append_assoc` intructs the simplifier to use the
+Finally, the parameter `List.append_assoc` instructs the simplifier to use the
 `List.append_assoc` theorem as a rewriting rule.
 -/
 theorem Tree.toList_eq_toListTR (t : Tree β)
@@ -186,7 +186,7 @@ local macro "have_eq " lhs:term:max rhs:term:max : tactic =>
 The `by_cases' e` is just the regular `by_cases` followed by `simp` using all
 hypotheses in the current goal as rewriting rules.
 Recall that the `by_cases` tactic creates two goals. One where we have `h : e` and
-another one containing `h : ¬ e`. The simplier uses the `h` to rewrite `e` to `True`
+another one containing `h : ¬ e`. The simplifier uses the `h` to rewrite `e` to `True`
 in the first subgoal, and `e` to `False` in the second. This is particularly
 useful if `e` is the condition of an `if`-statement.
 -/

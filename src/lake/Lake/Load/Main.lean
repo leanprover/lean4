@@ -38,8 +38,51 @@ def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
   return {
     dir, config, configEnv, leanOpts
     remoteUrl? := dep.remoteUrl?
-    gitTag? := dep.gitTag?
   }
+
+/--
+Load a `Workspace` for a Lake package by elaborating its configuration file.
+Does not resolve dependencies.
+-/
+def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
+  Lean.searchPathRef.set config.env.leanSearchPath
+  let configEnv ← importConfigFile config.rootDir config.rootDir
+    config.configOpts config.leanOpts config.configFile config.reconfigure
+  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
+  let root := {
+    configEnv, leanOpts := config.leanOpts
+    dir := config.rootDir, config := pkgConfig
+  }
+  return {
+    root, lakeEnv := config.env
+    moduleFacetConfigs := initModuleFacetConfigs
+    packageFacetConfigs := initPackageFacetConfigs
+    libraryFacetConfigs := initLibraryFacetConfigs
+  }
+
+/--
+Finalize the workspace's root and its transitive dependencies
+and add them to the workspace.
+-/
+def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
+  have : MonadStore Name Package (StateT Workspace LogIO) := {
+    fetch? := fun name => return (← get).findPackage? name
+    store := fun _ pkg => modify (·.addPackage pkg)
+  }
+  let (res, ws) ← EStateT.run ws do
+    buildTop (·.name) ws.root fun pkg load => do
+      let depPkgs ← pkg.deps.mapM load
+      set <| ← IO.ofExcept <| (← get).addFacetsFromEnv pkg.configEnv pkg.leanOpts
+      let pkg ← pkg.finalize depPkgs
+      return pkg
+  match res with
+  | Except.ok root =>
+    return {ws with root}
+  | Except.error cycle => do
+    let cycle := cycle.map (s!"  {·}")
+    error <|
+      s!"oops! dependency load cycle detected (this likely indicates a bug in Lake):\n" ++
+      "\n".intercalate cycle
 
 /--
 Rebuild the workspace's Lake manifest and materialize missing dependencies.
@@ -51,8 +94,8 @@ root dependencies. Otherwise, only update the root dependencies specified.
 
 If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
 -/
-def buildUpdatedManifest (ws : Workspace)
-(toUpdate : NameSet := {}) (reconfigure := true) : LogIO (Workspace × Manifest) := do
+def Workspace.updateAndMaterialize (ws : Workspace)
+(toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
   let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
     unless toUpdate.isEmpty do
@@ -87,59 +130,18 @@ def buildUpdatedManifest (ws : Workspace)
       return {pkg with opaqueDeps := ← deps.mapM (.mk <$> resolve ·)}
   match res with
   | (.ok root, deps) =>
-    let manifest : Manifest := {packagesDir? := ws.relPkgsDir}
-    let manifest := deps.foldl (fun m d => m.addPackage d.manifestEntry) manifest
-    return ({ws with root}, manifest)
+    let ws : Workspace ← {ws with root}.finalize
+    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
+    let manifest := deps.foldl (·.addPackage ·.manifestEntry) manifest
+    manifest.saveToFile ws.manifestFile
+    LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
+      unless pkg.postUpdateHooks.isEmpty do
+        logInfo s!"{pkg.name}: running post-update hooks"
+        pkg.postUpdateHooks.forM fun hook => hook.get.fn pkg
+    return ws
   | (.error cycle, _) =>
     let cycle := cycle.map (s!"  {·}")
     error s!"dependency cycle detected:\n{"\n".intercalate cycle}"
-
-/--
-Load a `Workspace` for a Lake package by elaborating its configuration file.
-Does not resolve dependencies.
--/
-def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
-  Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← importConfigFile config.rootDir config.rootDir
-    config.configOpts config.leanOpts config.configFile config.reconfigure
-  let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
-  let repo := GitRepo.mk config.rootDir
-  let root := {
-    configEnv, leanOpts := config.leanOpts
-    dir := config.rootDir, config := pkgConfig
-    remoteUrl? := ← repo.getFilteredRemoteUrl?
-    gitTag? := ← repo.findTag?
-  }
-  return {
-    root, lakeEnv := config.env
-    moduleFacetConfigs := initModuleFacetConfigs
-    packageFacetConfigs := initPackageFacetConfigs
-    libraryFacetConfigs := initLibraryFacetConfigs
-  }
-
-/--
-Finalize the workspace's root and its transitive dependencies
-and add them to the workspace.
--/
-def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
-  have : MonadStore Name Package (StateT Workspace LogIO) := {
-    fetch? := fun name => return (← get).findPackage? name
-    store := fun _ pkg => modify (·.addPackage pkg)
-  }
-  let (res, ws) ← EStateT.run ws do
-    buildTop (·.name) ws.root fun pkg load => do
-      let depPkgs ← pkg.deps.mapM load
-      set <| ← IO.ofExcept <| (← get).addFacetsFromEnv pkg.configEnv pkg.leanOpts
-      let pkg ← pkg.finalize depPkgs
-      return pkg
-  match res with
-  | Except.ok root =>
-    return {ws with root}
-  | Except.error cycle => do
-    let cycle := cycle.map (s!"  {·}")
-    error <|
-      s!"oops! dependency load cycle detected (this likely indicates a bug in Lake):\n" ++
-      "\n".intercalate cycle
 
 /--
 Resolving a workspace's dependencies using a manifest,
@@ -204,15 +206,16 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   if updateDeps then
-    let (ws, manifest) ← buildUpdatedManifest ws {} rc
-    manifest.saveToFile ws.manifestFile
-    ws.finalize
+    ws.updateAndMaterialize {} rc
+  else if let some manifest ← Manifest.load? ws.manifestFile then
+    ws.materializeDeps manifest rc
   else
-    ws.materializeDeps (← Manifest.loadOrEmpty ws.manifestFile) rc
+    ws.updateAndMaterialize {} rc
+
 
 /-- Updates the manifest for the loaded Lake workspace (see `buildUpdatedManifest`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
-  let (ws, manifest) ← buildUpdatedManifest ws toUpdate rc
-  manifest.saveToFile ws.manifestFile
+  discard <| ws.updateAndMaterialize toUpdate rc
+

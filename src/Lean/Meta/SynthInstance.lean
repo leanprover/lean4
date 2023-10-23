@@ -601,7 +601,7 @@ it contains a regular parameter X that depends on an `out` parameter Y.
 
 Then, we execute type class resolution as usual.
 If it succeeds, and metavariables ?m_i have been assigned, we try to unify
-the original type `C a_1 ... a_n` witht the normalized one.
+the original type `C a_1 ... a_n` with the normalized one.
 -/
 
 private def preprocess (type : Expr) : MetaM Expr :=
@@ -697,7 +697,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           trace[Meta.synthInstance] "result {result}"
           if (← assignOutParams result) then
             let result ← instantiateMVars result
-            /- We use `check` to propogate universe constraints implied by the `result`.
+            /- We use `check` to propagate universe constraints implied by the `result`.
                Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
                but these assignments are discarded by `withNewMCtxDepth`.
 

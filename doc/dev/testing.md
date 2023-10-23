@@ -111,7 +111,7 @@ First, we must install [meld](http://meldmerge.org/). On Ubuntu, we can do it by
 sudo apt-get install meld
 ```
 
-Now, suppose `bad_class.lean` test is broken. We can see the problem by going to `test/lean` directory and
+Now, suppose `bad_class.lean` test is broken. We can see the problem by going to `tests/lean` directory and
 executing
 
 ```

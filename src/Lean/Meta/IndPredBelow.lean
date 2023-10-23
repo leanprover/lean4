@@ -456,14 +456,14 @@ where
   /--
     this function changes the type of the pattern from the original type to the `below` version thereof.
     Most of the cases don't apply. In order to change the type and the pattern to be type correct, we don't
-    simply recursively change all occurrences, but rather, we recursively change occurences of the constructor.
+    simply recursively change all occurrences, but rather, we recursively change occurrences of the constructor.
     As such there are only a few cases:
     - the pattern is a constructor from the original type. Here we need to:
       - replace the constructor
       - copy original recursive patterns and convert them to below and reintroduce them in the correct position
       - turn original recursive patterns inaccessible
       - introduce free variables as needed.
-    - it is an `as` pattern. Here the contstructor could be hidden inside of it.
+    - it is an `as` pattern. Here the constructor could be hidden inside of it.
     - it is a variable. Here you we need to introduce a fresh variable of a different type.
   -/
   convertToBelow (indName : Name)
@@ -571,10 +571,13 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
     else pure none
   | _, _ => pure none
 
+/-- Generates the auxiliary lemmas `below` and `brecOn` for a recursive inductive predicate.
+The current generator doesn't support nested predicates, but pattern-matching on them still works
+thanks to well-founded recursion. -/
 def mkBelow (declName : Name) : MetaM Unit := do
   if (← isInductivePredicate declName) then
     let x ← getConstInfoInduct declName
-    if x.isRec then
+    if x.isRec && !x.isNested then
       let ctx ← IndPredBelow.mkContext declName
       let decl ← IndPredBelow.mkBelowDecl ctx
       addDecl decl
@@ -585,7 +588,7 @@ def mkBelow (declName : Name) : MetaM Unit := do
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
           addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
-    else trace[Meta.IndPredBelow] "Not recursive"
+    else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"
 
 builtin_initialize

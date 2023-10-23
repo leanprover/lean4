@@ -144,9 +144,9 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
         return none
 
 /--
-Reture a WHNF configuration for retrieving `[simp]` from the discrimination tree.
+Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
 If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
-disabled them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
+disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
 -/
 def getDtConfig (cfg : Config) : WhnfCoreConfig :=
   match cfg.beta, cfg.zeta with

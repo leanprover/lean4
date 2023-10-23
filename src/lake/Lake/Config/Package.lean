@@ -180,6 +180,8 @@ structure Package where
   dir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
+  /-- The package's configuration file (e.g., `lakefile.lean`). -/
+  configFile : FilePath
   /-- The elaboration environment of the package's configuration file. -/
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
@@ -373,7 +375,13 @@ def isBuildableModule (mod : Name) (self : Package) : Bool :=
   self.leanLibConfigs.any (fun lib => lib.isBuildableModule mod) ||
   self.leanExeConfigs.any (fun exe => exe.root == mod)
 
-/-- Remove the package's build outputs (i.e., delete its build directory). -/
+/--
+Remove the package's Lake outputs
+(i.e., delete its build directory and compiled configuration).
+-/
 def clean (self : Package) : IO PUnit := do
   if (← self.buildDir.pathExists) then
     IO.FS.removeDirAll self.buildDir
+  let configOLean := self.configFile.withExtension "olean"
+  if (← configOLean.pathExists) then
+    IO.FS.removeFile configOLean

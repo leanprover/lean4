@@ -33,10 +33,11 @@ The resulting package does not yet include any dependencies.
 def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
 (leanOpts : Options) (lakeOpts : NameMap String) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
-  let configEnv ← importConfigFile wsDir dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
+  let configFile := dir / defaultConfigFile
+  let configEnv ← importConfigFile wsDir dir lakeOpts leanOpts configFile reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
-    dir, config, configEnv, leanOpts
+    dir, config, configFile, configEnv, leanOpts
     remoteUrl? := dep.remoteUrl?
   }
 
@@ -50,8 +51,8 @@ def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let root := {
-    configEnv, leanOpts := config.leanOpts
-    dir := config.rootDir, config := pkgConfig
+    dir := config.rootDir, config := pkgConfig,
+    configFile := config.configFile, configEnv, leanOpts := config.leanOpts
   }
   return {
     root, lakeEnv := config.env

@@ -249,7 +249,7 @@ def hasNoindexAnnotation (e : Expr) : Bool :=
 
 /--
 Reduction procedure for the discrimination tree indexing.
-The parameter `config` controls how aggressive the term is reduced.
+The parameter `config` controls how aggressively the term is reduced.
 The parameter at type `DiscrTree` controls this value.
 See comment at `DiscrTree`.
 -/

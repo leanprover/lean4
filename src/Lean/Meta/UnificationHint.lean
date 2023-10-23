@@ -26,7 +26,7 @@ structure UnificationHints where
 instance : ToFormat UnificationHints where
   format h := format h.discrTree
 
-def UnificationHints.config : WhnfCoreConfig := {}
+def UnificationHints.config : WhnfCoreConfig := { iota := false, proj := .no }
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
   { hints with discrTree := hints.discrTree.insertCore e.keys e.val config }

@@ -208,7 +208,11 @@ end ReExport
 /-- Makes names from other namespaces visible without writing the namespace prefix.
 
 Names that are made available with `open` are visible within the current `section` or `namespace`
-block. The `open` command can be used in few different ways:
+block. This makes refering to (type) definitions and theorems easier, but note that it can also make
+[scoped instances], notations, and attributes from a different namespace available.
+
+
+The `open` command can be used in a few different ways:
 
 * `open Some.Namespace.Path1 Some.Namespace.Path2` makes all non-protected names in
   `Some.Namespace.Path1` and `Some.Namespace.Path2` available without the prefix, so that
@@ -229,8 +233,9 @@ block. The `open` command can be used in few different ways:
 
   This works even if `def1` and `def2` are `protected`.
 
-* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` opens [scoped instances], notations, and
-  attributes from `Namespace1` and `Namespace2`, but it does **not** make any other name available.
+* `open scoped Some.Namespace.Path1 Some.Namespace.Path2` **only** opens [scoped instances],
+  notations, and attributes from `Namespace1` and `Namespace2`; does **not** make any other name
+  available.
 
 * `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
   command or expression.

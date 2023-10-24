@@ -285,7 +285,7 @@ instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
 theorem usize_size_gt_zero : USize.size > 0 :=
-  Nat.pos_pow_of_pos System.Platform.numBits (Nat.zero_lt_succ _)
+  Nat.zero_lt_succ ..
 
 @[extern "lean_usize_of_nat"]
 def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat' n usize_size_gt_zero⟩

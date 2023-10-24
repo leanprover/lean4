@@ -1774,7 +1774,7 @@ instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b) := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
-def UInt8.size : Nat := 256
+abbrev UInt8.size : Nat := 256
 
 /--
 The type of unsigned 8-bit integers. This type has special support in the
@@ -1813,7 +1813,7 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
 /-- The size of type `UInt16`, that is, `2^16 = 65536`. -/
-def UInt16.size : Nat := 65536
+abbrev UInt16.size : Nat := 65536
 
 /--
 The type of unsigned 16-bit integers. This type has special support in the
@@ -1852,7 +1852,7 @@ instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
 
 /-- The size of type `UInt32`, that is, `2^32 = 4294967296`. -/
-def UInt32.size : Nat := 4294967296
+abbrev UInt32.size : Nat := 4294967296
 
 /--
 The type of unsigned 32-bit integers. This type has special support in the
@@ -1929,7 +1929,7 @@ instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 
 /-- The size of type `UInt64`, that is, `2^64 = 18446744073709551616`. -/
-def UInt64.size : Nat := 18446744073709551616
+abbrev UInt64.size : Nat := 18446744073709551616
 /--
 The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
@@ -1969,11 +1969,26 @@ instance : Inhabited UInt64 where
 /--
 The size of type `UInt16`, that is, `2^System.Platform.numBits`, which may
 be either `2^32` or `2^64` depending on the platform's architecture.
+
+Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
+Lean unifier can solve contraints such as `?m + 1 = USize.size`. Recall that
+`numBits` does not reduce to a numeral in the Lean kernel since it is platform
+specific. Without this trick, the following definition would be rejected by the
+Lean type checker.
+```
+def one: Fin USize.size := 1
+```
+Because Lean would fail to synthesize instance `OfNat (Fin USize.size) 1`.
+Recall that the `OfNat` instance for `Fin` is
+```
+instance : OfNat (Fin (n+1)) i where
+  ofNat := Fin.ofNat i
+```
 -/
-def USize.size : Nat := hPow 2 System.Platform.numBits
+abbrev USize.size : Nat := Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
+  show Or (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 4294967296) (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)

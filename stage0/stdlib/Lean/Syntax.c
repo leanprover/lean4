@@ -6663,47 +6663,34 @@ return x_13;
 }
 else
 {
-uint8_t x_14; 
-x_14 = lean_nat_dec_le(x_11, x_11);
-if (x_14 == 0)
-{
-uint8_t x_15; 
+size_t x_14; size_t x_15; uint8_t x_16; 
+x_14 = 0;
+x_15 = lean_usize_of_nat(x_11);
 lean_dec(x_11);
+x_16 = l_Array_anyMUnsafe_any___at_Lean_Syntax_isAntiquots___spec__1(x_10, x_14, x_15);
 lean_dec(x_10);
-x_15 = 1;
-return x_15;
+if (x_16 == 0)
+{
+uint8_t x_17; 
+x_17 = 1;
+return x_17;
 }
 else
 {
-size_t x_16; size_t x_17; uint8_t x_18; 
-x_16 = 0;
-x_17 = lean_usize_of_nat(x_11);
-lean_dec(x_11);
-x_18 = l_Array_anyMUnsafe_any___at_Lean_Syntax_isAntiquots___spec__1(x_10, x_16, x_17);
-lean_dec(x_10);
-if (x_18 == 0)
+uint8_t x_18; 
+x_18 = 0;
+return x_18;
+}
+}
+}
+}
+}
+else
 {
 uint8_t x_19; 
+lean_dec(x_1);
 x_19 = 1;
 return x_19;
-}
-else
-{
-uint8_t x_20; 
-x_20 = 0;
-return x_20;
-}
-}
-}
-}
-}
-}
-else
-{
-uint8_t x_21; 
-lean_dec(x_1);
-x_21 = 1;
-return x_21;
 }
 }
 }

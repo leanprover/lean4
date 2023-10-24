@@ -29,7 +29,7 @@ lean_object* l_Lean_RBNode_fold___at_Lean_RBMap_size___spec__1___rarg(lean_objec
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lean_Expr_mdata___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_ToExpr_mkLambdaM(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_FVarId_toExpr___boxed(lean_object*, lean_object*, lean_object*);
@@ -291,17 +291,20 @@ return x_43;
 }
 case 11:
 {
-lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
+lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
 x_44 = lean_ctor_get(x_3, 0);
 lean_inc(x_44);
 x_45 = lean_ctor_get(x_3, 1);
 lean_inc(x_45);
 x_46 = lean_ctor_get(x_3, 2);
 lean_inc(x_46);
+x_47 = lean_ctor_get(x_3, 3);
+lean_inc(x_47);
 lean_dec(x_3);
-x_47 = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(x_1, x_2, x_46);
-x_48 = l_Lean_Expr_proj___override(x_44, x_45, x_47);
-return x_48;
+x_48 = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(x_1, x_2, x_46);
+x_49 = l___private_Lean_Compiler_LCNF_ToExpr_0__Lean_Expr_abstract_x27_go(x_1, x_2, x_47);
+x_50 = l_Lean_Expr_proj___override(x_44, x_45, x_48, x_49);
+return x_50;
 }
 default: 
 {

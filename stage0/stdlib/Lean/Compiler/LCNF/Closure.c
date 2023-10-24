@@ -1034,16 +1034,67 @@ return x_57;
 }
 case 11:
 {
-lean_object* x_58; lean_object* x_59; 
+lean_object* x_58; lean_object* x_59; lean_object* x_60; 
 x_58 = lean_ctor_get(x_1, 2);
 lean_inc(x_58);
+x_59 = lean_ctor_get(x_1, 3);
+lean_inc(x_59);
 lean_dec(x_1);
-x_59 = l_Lean_ForEachExprWhere_visit_go___at_Lean_Compiler_LCNF_Closure_collectType___spec__2(x_2, x_3, x_58, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-return x_59;
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+lean_inc(x_5);
+lean_inc(x_3);
+lean_inc(x_2);
+x_60 = l_Lean_ForEachExprWhere_visit_go___at_Lean_Compiler_LCNF_Closure_collectType___spec__2(x_2, x_3, x_58, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+if (lean_obj_tag(x_60) == 0)
+{
+lean_object* x_61; lean_object* x_62; 
+x_61 = lean_ctor_get(x_60, 1);
+lean_inc(x_61);
+lean_dec(x_60);
+x_62 = l_Lean_ForEachExprWhere_visit_go___at_Lean_Compiler_LCNF_Closure_collectType___spec__2(x_2, x_3, x_59, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_61);
+return x_62;
+}
+else
+{
+uint8_t x_63; 
+lean_dec(x_59);
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_3);
+lean_dec(x_2);
+x_63 = !lean_is_exclusive(x_60);
+if (x_63 == 0)
+{
+return x_60;
+}
+else
+{
+lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+x_64 = lean_ctor_get(x_60, 0);
+x_65 = lean_ctor_get(x_60, 1);
+lean_inc(x_65);
+lean_inc(x_64);
+lean_dec(x_60);
+x_66 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_66, 0, x_64);
+lean_ctor_set(x_66, 1, x_65);
+return x_66;
+}
+}
 }
 default: 
 {
-lean_object* x_60; lean_object* x_61; 
+lean_object* x_67; lean_object* x_68; 
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -1054,11 +1105,11 @@ lean_dec(x_5);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_60 = lean_box(0);
-x_61 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_61, 0, x_60);
-lean_ctor_set(x_61, 1, x_12);
-return x_61;
+x_67 = lean_box(0);
+x_68 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_68, 0, x_67);
+lean_ctor_set(x_68, 1, x_12);
+return x_68;
 }
 }
 }

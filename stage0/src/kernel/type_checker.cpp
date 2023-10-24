@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 namespace lean {
 static name * g_kernel_fresh = nullptr;
 static expr * g_dont_care    = nullptr;
+static name * g_self         = nullptr;
 static name * g_bool_true    = nullptr;
 static expr * g_nat_zero     = nullptr;
 static expr * g_nat_succ     = nullptr;
@@ -30,6 +31,7 @@ static expr * g_nat_add      = nullptr;
 static expr * g_nat_sub      = nullptr;
 static expr * g_nat_mul      = nullptr;
 static expr * g_nat_pow      = nullptr;
+static expr * g_nat_gcd      = nullptr;
 static expr * g_nat_mod      = nullptr;
 static expr * g_nat_div      = nullptr;
 static expr * g_nat_beq      = nullptr;
@@ -239,44 +241,54 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     unsigned idx = proj_idx(e).get_small_value();
     buffer<expr> args;
     expr const & I = get_app_args(type, args);
-    if (!is_constant(I))
-        throw invalid_proj_exception(env(), m_lctx, e);
-    name const & I_name  = const_name(I);
-    if (I_name != proj_sname(e))
-        throw invalid_proj_exception(env(), m_lctx, e);
+    name const & I_name  = proj_sname(e);
     constant_info I_info = env().get(I_name);
     if (!I_info.is_inductive())
         throw invalid_proj_exception(env(), m_lctx, e);
-    inductive_val I_val = I_info.to_inductive_val();
-    if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams() + I_val.get_nindices())
+    inductive_val const & I_val = I_info.to_inductive_val();
+    if (args.size() != I_val.get_nparams() + I_val.get_nindices())
         throw invalid_proj_exception(env(), m_lctx, e);
 
-    constant_info c_info = env().get(head(I_val.get_cnstrs()));
-    expr r = instantiate_type_lparams(c_info, const_levels(I));
-    for (unsigned i = 0; i < I_val.get_nparams(); i++) {
-        lean_assert(i < args.size());
-        r = whnf(r);
-        if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-        r = instantiate(binding_body(r), args[i]);
-    }
-    bool is_prop_type = is_prop(type);
-    for (unsigned i = 0; i < idx; i++) {
-        r = whnf(r);
-        if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-        if (has_loose_bvars(binding_body(r))) {
-            if (is_prop_type && !is_prop(binding_domain(r)))
-                throw invalid_proj_exception(env(), m_lctx, e);
-            r = instantiate(binding_body(r), mk_proj(I_name, i, proj_expr(e)));
-        } else {
-            r = binding_body(r);
+    expr result = mk_app(proj_motive(e), I_val.get_nindices(), args.data() + I_val.get_nparams());
+    result = mk_app(result, proj_expr(e));
+    result = cheap_beta_reduce(result);
+
+    if (!infer_only) {
+        if (!is_const(I, I_name) || length(I_val.get_cnstrs()) != 1)
+            throw invalid_proj_exception(env(), m_lctx, e);
+        if (is_prop(type) && !is_prop(result))
+            throw invalid_proj_exception(env(), m_lctx, e);
+        name const & c_name = head(I_val.get_cnstrs());
+        constant_info c_info = env().get(c_name);
+        expr r = whnf(instantiate_type_lparams(c_info, const_levels(I)));
+        expr mk = mk_const(c_name, const_levels(I));
+        for (unsigned i = 0; i < I_val.get_nparams(); i++) {
+            lean_assert(i < args.size());
+            if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
+            mk = mk_app(mk, args[i]);
+            r = whnf(instantiate(binding_body(r), args[i]));
         }
+        expr out_type;
+        for (unsigned i = 0; i <= idx; i++) {
+            if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
+            out_type = binding_domain(r);
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(r), out_type, binding_info(r));
+            mk = mk_app(mk, fvar);
+            r = whnf(instantiate(binding_body(r), fvar));
+        }
+        while (is_pi(r)) {
+            expr fvar = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(r), binding_domain(r), binding_info(r));
+            mk = mk_app(mk, fvar);
+            r = whnf(instantiate(binding_body(r), fvar));
+        }
+        buffer<expr> r_args;
+        get_app_args_at_most(r, I_val.get_nindices(), r_args);
+        lean_assert(r_args.size() == I_val.get_nindices());
+        expr motive_mk = mk_app(mk_app(proj_motive(e), r_args.size(), r_args.data()), mk);
+        if (!is_def_eq(motive_mk, out_type)) throw invalid_proj_exception(env(), m_lctx, e);
     }
-    r = whnf(r);
-    if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
-    r = binding_domain(r);
-    if (is_prop_type && !is_prop(r))
-        throw invalid_proj_exception(env(), m_lctx, e);
-    return r;
+
+    return result;
 }
 
 /** \brief Return type of expression \c e, if \c infer_only is false, then it also check whether \c e is type correct or not.
@@ -603,6 +615,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
         if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
         if (f == *g_nat_pow) return reduce_bin_nat_op(nat_pow, e);
+        if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
         if (f == *g_nat_beq) return reduce_bin_nat_pred(nat_eq, e);
@@ -769,15 +782,25 @@ bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
     if (!is_constant(f)) return false;
     constant_info f_info = env().get(const_name(f));
     if (!f_info.is_constructor()) return false;
-    constructor_val f_val = f_info.to_constructor_val();
+    constructor_val const & f_val = f_info.to_constructor_val();
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
     if (!is_structure_like(env(), f_val.get_induct())) return false;
-    if (!is_def_eq(infer_type(t), infer_type(s))) return false;
+    expr t_type = infer_type(t);
+    if (!is_def_eq(t_type, infer_type(s))) return false;
     buffer<expr> s_args;
     get_app_args(s, s_args);
+    expr type = instantiate_type_lparams(f_info, const_levels(f));
+    for (unsigned i = 0; i < f_val.get_nparams(); i++) {
+        lean_assert(is_pi(type));
+        type = binding_body(type);
+    }
+    type = instantiate_rev(type, f_val.get_nparams(), s_args.data());
+    expr var = m_lctx.mk_local_decl(m_st->m_ngen, *g_self, t_type);
     for (unsigned i = f_val.get_nparams(); i < s_args.size(); i++) {
-        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t);
+        lean_assert(is_pi(type));
+        expr proj = mk_proj(f_val.get_induct(), i - f_val.get_nparams(), t, m_lctx.mk_lambda(var, binding_domain(type)));
         if (!is_def_eq(proj, s_args[i])) return false;
+        type = instantiate(binding_body(type), update_proj(proj, var, proj_motive(proj)));
     }
     return true;
 }
@@ -862,7 +885,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
         /* If `s_n` is a projection application, we try to unfold it instead.
-           We added this extra test to address a perfomance issue at defeq tests such as
+           We added this extra test to address a performance issue at defeq tests such as
            ```lean
            expensive_term =?= instFoo.1 a
            ```
@@ -1003,6 +1026,8 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     check_system("is_definitionally_equal");
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
+    if (r != l_undef) return r == l_true;
+
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.
@@ -1011,7 +1036,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
             return true;
         }
     }
-    if (r != l_undef) return r == l_true;
 
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
@@ -1137,6 +1161,8 @@ void initialize_type_checker() {
     mark_persistent(g_dont_care->raw());
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
+    g_self         = new name("self");
+    mark_persistent(g_self->raw());
     g_bool_true    = new name{"Bool", "true"};
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
     mark_persistent(g_nat_zero->raw());
@@ -1150,6 +1176,8 @@ void initialize_type_checker() {
     mark_persistent(g_nat_mul->raw());
     g_nat_pow      = new expr(mk_constant(name{"Nat", "pow"}));
     mark_persistent(g_nat_pow->raw());
+    g_nat_gcd      = new expr(mk_constant(name{"Nat", "gcd"}));
+    mark_persistent(g_nat_gcd->raw());
     g_nat_div      = new expr(mk_constant(name{"Nat", "div"}));
     mark_persistent(g_nat_div->raw());
     g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
@@ -1170,12 +1198,14 @@ void initialize_type_checker() {
 void finalize_type_checker() {
     delete g_dont_care;
     delete g_kernel_fresh;
+    delete g_self;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_add;
     delete g_nat_sub;
     delete g_nat_mul;
     delete g_nat_pow;
+    delete g_nat_gcd;
     delete g_nat_div;
     delete g_nat_mod;
     delete g_nat_beq;

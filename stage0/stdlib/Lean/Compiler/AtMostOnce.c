@@ -509,10 +509,40 @@ goto _start;
 }
 case 11:
 {
-lean_object* x_71; 
+lean_object* x_71; lean_object* x_72; lean_object* x_73; uint8_t x_74; 
 x_71 = lean_ctor_get(x_2, 2);
-x_2 = x_71;
+x_72 = lean_ctor_get(x_2, 3);
+x_73 = l_Lean_Compiler_atMostOnce_visit(x_1, x_71, x_3);
+x_74 = lean_ctor_get_uint8(x_73, 1);
+if (x_74 == 0)
+{
+uint8_t x_75; 
+x_75 = !lean_is_exclusive(x_73);
+if (x_75 == 0)
+{
+uint8_t x_76; 
+x_76 = 0;
+lean_ctor_set_uint8(x_73, 1, x_76);
+return x_73;
+}
+else
+{
+uint8_t x_77; uint8_t x_78; lean_object* x_79; 
+x_77 = lean_ctor_get_uint8(x_73, 0);
+lean_dec(x_73);
+x_78 = 0;
+x_79 = lean_alloc_ctor(0, 0, 2);
+lean_ctor_set_uint8(x_79, 0, x_77);
+lean_ctor_set_uint8(x_79, 1, x_78);
+return x_79;
+}
+}
+else
+{
+x_2 = x_72;
+x_3 = x_73;
 goto _start;
+}
 }
 default: 
 {

@@ -81,7 +81,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normParam___rarg___lambda__1(lean_
 static lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normFVarImp___closed__2;
 extern lean_object* l_Lean_Compiler_LCNF_erasedExpr;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_mkLetDeclErased(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normExpr___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
@@ -4033,32 +4033,54 @@ return x_3;
 }
 case 11:
 {
-lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; size_t x_72; size_t x_73; uint8_t x_74; 
+lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; size_t x_74; size_t x_75; uint8_t x_76; 
 x_68 = lean_ctor_get(x_3, 0);
 lean_inc(x_68);
 x_69 = lean_ctor_get(x_3, 1);
 lean_inc(x_69);
 x_70 = lean_ctor_get(x_3, 2);
 lean_inc(x_70);
+x_71 = lean_ctor_get(x_3, 3);
+lean_inc(x_71);
 lean_inc(x_70);
-x_71 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go(x_1, x_2, x_70);
-x_72 = lean_ptr_addr(x_70);
+lean_inc(x_1);
+x_72 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go(x_1, x_2, x_70);
+lean_inc(x_71);
+x_73 = l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_normExprImp_go(x_1, x_2, x_71);
+x_74 = lean_ptr_addr(x_70);
 lean_dec(x_70);
-x_73 = lean_ptr_addr(x_71);
-x_74 = lean_usize_dec_eq(x_72, x_73);
-if (x_74 == 0)
+x_75 = lean_ptr_addr(x_72);
+x_76 = lean_usize_dec_eq(x_74, x_75);
+if (x_76 == 0)
 {
-lean_object* x_75; 
+lean_object* x_77; 
+lean_dec(x_71);
 lean_dec(x_3);
-x_75 = l_Lean_Expr_proj___override(x_68, x_69, x_71);
-return x_75;
+x_77 = l_Lean_Expr_proj___override(x_68, x_69, x_72, x_73);
+return x_77;
 }
 else
 {
+size_t x_78; size_t x_79; uint8_t x_80; 
+x_78 = lean_ptr_addr(x_71);
 lean_dec(x_71);
+x_79 = lean_ptr_addr(x_73);
+x_80 = lean_usize_dec_eq(x_78, x_79);
+if (x_80 == 0)
+{
+lean_object* x_81; 
+lean_dec(x_3);
+x_81 = l_Lean_Expr_proj___override(x_68, x_69, x_72, x_73);
+return x_81;
+}
+else
+{
+lean_dec(x_73);
+lean_dec(x_72);
 lean_dec(x_69);
 lean_dec(x_68);
 return x_3;
+}
 }
 }
 default: 

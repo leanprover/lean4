@@ -291,76 +291,49 @@ x_10 = l_Lean_IR_IRType_isScalar(x_9);
 lean_dec(x_9);
 if (x_10 == 0)
 {
-uint8_t x_11; 
-x_11 = lean_nat_dec_le(x_4, x_4);
-if (x_11 == 0)
-{
-lean_object* x_12; uint8_t x_13; 
+size_t x_11; size_t x_12; uint8_t x_13; 
+x_11 = 0;
+x_12 = lean_usize_of_nat(x_4);
+x_13 = l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_requiresBoxedVersion___spec__1(x_3, x_11, x_12);
 lean_dec(x_3);
-x_12 = l_Lean_IR_Decl_name(x_2);
-x_13 = l_Lean_isExtern(x_1, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; uint8_t x_15; 
-x_14 = l_Lean_closureMaxArgs;
-x_15 = lean_nat_dec_lt(x_14, x_4);
+x_14 = l_Lean_IR_Decl_name(x_2);
+x_15 = l_Lean_isExtern(x_1, x_14);
+if (x_15 == 0)
+{
+lean_object* x_16; uint8_t x_17; 
+x_16 = l_Lean_closureMaxArgs;
+x_17 = lean_nat_dec_lt(x_16, x_4);
 lean_dec(x_4);
-return x_15;
+return x_17;
 }
 else
 {
-uint8_t x_16; 
+uint8_t x_18; 
 lean_dec(x_4);
-x_16 = 1;
-return x_16;
-}
-}
-else
-{
-size_t x_17; size_t x_18; uint8_t x_19; 
-x_17 = 0;
-x_18 = lean_usize_of_nat(x_4);
-x_19 = l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_requiresBoxedVersion___spec__1(x_3, x_17, x_18);
-lean_dec(x_3);
-if (x_19 == 0)
-{
-lean_object* x_20; uint8_t x_21; 
-x_20 = l_Lean_IR_Decl_name(x_2);
-x_21 = l_Lean_isExtern(x_1, x_20);
-if (x_21 == 0)
-{
-lean_object* x_22; uint8_t x_23; 
-x_22 = l_Lean_closureMaxArgs;
-x_23 = lean_nat_dec_lt(x_22, x_4);
-lean_dec(x_4);
-return x_23;
-}
-else
-{
-uint8_t x_24; 
-lean_dec(x_4);
-x_24 = 1;
-return x_24;
+x_18 = 1;
+return x_18;
 }
 }
 else
 {
-uint8_t x_25; 
+uint8_t x_19; 
 lean_dec(x_4);
 lean_dec(x_1);
-x_25 = 1;
-return x_25;
-}
+x_19 = 1;
+return x_19;
 }
 }
 else
 {
-uint8_t x_26; 
+uint8_t x_20; 
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_1);
-x_26 = 1;
-return x_26;
+x_20 = 1;
+return x_20;
 }
 }
 }
@@ -1035,35 +1008,23 @@ goto block_14;
 }
 else
 {
-uint8_t x_21; 
-x_21 = lean_nat_dec_le(x_2, x_2);
-if (x_21 == 0)
+size_t x_21; size_t x_22; uint8_t x_23; 
+x_21 = 0;
+x_22 = lean_usize_of_nat(x_2);
+x_23 = l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(x_1, x_21, x_22);
+if (x_23 == 0)
 {
-lean_object* x_22; 
-x_22 = lean_box(0);
-x_3 = x_22;
+lean_object* x_24; 
+x_24 = lean_box(0);
+x_3 = x_24;
 goto block_14;
 }
 else
 {
-size_t x_23; size_t x_24; uint8_t x_25; 
-x_23 = 0;
-x_24 = lean_usize_of_nat(x_2);
-x_25 = l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(x_1, x_23, x_24);
-if (x_25 == 0)
-{
-lean_object* x_26; 
-x_26 = lean_box(0);
-x_3 = x_26;
-goto block_14;
-}
-else
-{
-lean_object* x_27; 
+lean_object* x_25; 
 lean_dec(x_2);
-x_27 = lean_box(7);
-return x_27;
-}
+x_25 = lean_box(7);
+return x_25;
 }
 }
 }

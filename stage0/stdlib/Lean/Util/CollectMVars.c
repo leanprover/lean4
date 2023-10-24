@@ -586,12 +586,15 @@ return x_27;
 }
 case 11:
 {
-lean_object* x_28; lean_object* x_29; 
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_28 = lean_ctor_get(x_1, 2);
 lean_inc(x_28);
+x_29 = lean_ctor_get(x_1, 3);
+lean_inc(x_29);
 lean_dec(x_1);
-x_29 = l_Lean_CollectMVars_visit(x_28, x_2);
-return x_29;
+x_30 = l_Lean_CollectMVars_visit(x_28, x_2);
+x_31 = l_Lean_CollectMVars_visit(x_29, x_30);
+return x_31;
 }
 default: 
 {

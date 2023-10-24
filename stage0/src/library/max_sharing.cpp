@@ -70,7 +70,8 @@ struct max_sharing_fn::imp {
         }
         case expr_kind::Proj: {
             expr new_e = apply(proj_expr(a));
-            res = update_proj(a, new_e);
+            expr new_m = apply(proj_motive(a));
+            res = update_proj(a, new_e, new_m);
             break;
         }
         case expr_kind::App: {

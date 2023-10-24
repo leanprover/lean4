@@ -117,4 +117,6 @@ def tar (name : String) (dir : FilePath) (file : FilePath)
   proc {
     cmd := "tar"
     args := args ++ #["-f", file.toString, "-C", dir.toString, "."]
+    -- don't pack `._` files on MacOS
+    env := if Platform.isOSX then #[("COPYFILE_DISABLE", "true")] else #[]
   }

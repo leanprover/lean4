@@ -101,6 +101,17 @@ private def addDeclToUnfoldOrTheorem (thms : Meta.SimpTheorems) (id : Origin) (e
         return thms.addDeclToUnfoldCore declName
       else
         thms.addDeclToUnfold declName
+  else if e.isFVar then
+    let fvarId := e.fvarId!
+    let decl ← fvarId.getDecl
+    if (← isProp decl.type) then
+      thms.add id #[] e (post := post) (inv := inv)
+    else if !decl.isLet then
+      throwError "invalid argument, variable is not a proposition or let-declaration"
+    else if inv then
+      throwError "invalid '←' modifier, '{e}' is a let-declaration name to be unfolded"
+    else
+      return thms.addLetDeclToUnfold fvarId
   else
     thms.add id #[] e (post := post) (inv := inv)
 
@@ -237,6 +248,10 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
   else
     let ctx := r.ctx
     let mut simpTheorems := ctx.simpTheorems
+    /-
+    When using `zeta := false`, we do not expand let-declarations when using `[*]`.
+    Users must explicitly include it in the list.
+    -/
     let hs ← getPropHyps
     for h in hs do
       unless simpTheorems.isErased (.fvar h) do

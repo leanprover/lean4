@@ -119,8 +119,8 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
 
-private def reduceFVar (cfg : Config) (e : Expr) : MetaM Expr := do
-  if cfg.zeta then
+private def reduceFVar (cfg : Config) (thms : SimpTheoremsArray) (e : Expr) : MetaM Expr := do
+  if cfg.zeta || thms.isLetDeclToUnfold e.fvarId! then
     match (← getFVarLocalDecl e).value? with
     | some v => return v
     | none   => return e
@@ -254,8 +254,8 @@ private partial def dsimp (e : Expr) : M Expr := do
       if r.expr != e then
         return .visit r.expr
     let mut eNew ← reduce e
-    if cfg.zeta && eNew.isFVar then
-      eNew ← reduceFVar cfg eNew
+    if eNew.isFVar then
+      eNew ← reduceFVar cfg (← getSimpTheorems) eNew
     if eNew != e then return .visit eNew else return .done e
   transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
 
@@ -363,7 +363,7 @@ where
     | Expr.sort ..     => return { expr := e }
     | Expr.lit ..      => simpLit e
     | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
-    | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) e) }
+    | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
   simpLit (e : Expr) : M Result := do
     match e.natLit? with

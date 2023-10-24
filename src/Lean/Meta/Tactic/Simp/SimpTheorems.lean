@@ -157,6 +157,10 @@ structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
   lemmaNames   : PHashSet Origin := {}
+  /--
+  Constants (and let-declaration `FVarId`) to unfold.
+  When `zeta := false`, the simplifier will expand a let-declaration if it is in this set.
+  -/
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}
   toUnfoldThms : PHashMap Name (Array Name) := {}
@@ -177,9 +181,16 @@ where
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }
 
+def SimpTheorems.addLetDeclToUnfold (d : SimpTheorems) (fvarId : FVarId) : SimpTheorems :=
+  -- A small hack that relies on the fact that constants and `FVarId` names should be disjoint.
+  { d with toUnfold := d.toUnfold.insert fvarId.name }
+
 /-- Return `true` if `declName` is tagged to be unfolded using `unfoldDefinition?` (i.e., without using equational theorems). -/
 def SimpTheorems.isDeclToUnfold (d : SimpTheorems) (declName : Name) : Bool :=
   d.toUnfold.contains declName
+
+def SimpTheorems.isLetDeclToUnfold (d : SimpTheorems) (fvarId : FVarId) : Bool :=
+  d.toUnfold.contains fvarId.name -- See comment at `addLetDeclToUnfold`
 
 def SimpTheorems.isLemma (d : SimpTheorems) (thmId : Origin) : Bool :=
   d.lemmaNames.contains thmId
@@ -469,6 +480,9 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Origin) 
 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
+
+def SimpTheoremsArray.isLetDeclToUnfold (thmsArray : SimpTheoremsArray) (fvarId : FVarId) : Bool :=
+thmsArray.any fun thms => thms.isLetDeclToUnfold fvarId
 
 macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   "register_simp_attr" id:ident : command => do

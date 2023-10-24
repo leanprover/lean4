@@ -118,24 +118,44 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 @[builtin_command_elab choice] def elabChoice : CommandElab := fun stx =>
   elabChoiceAux stx.getArgs 0
 
-/-- Declares one or more universe variable(s).
+/-- Declares one or more universe variables.
 
-Type universes are used in `Type u` and `Sort u` types. While Lean mostly handles universes
-automatically, declaring them explicitly can provide more control when writing signatures. The
-`universe` keyword allows using the declared universes in a collection of definitions, and Lean will
-ensure that these definitions use them consistently.
+`Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as
+*universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a
+universe at level `u` can only classify universes that are at levels lower than `u`. For more
+details on type universes, please refer to [Theorem Proving in Lean][tpil universes].
+
+The universe variable allows a single declaration to be used an any required level. While Lean
+mostly handles universe levels automatically, declaring them explicitly can provide more control
+when writing signatures. The universe keyword allows the declared universe variables to be used in a
+collection of definitions, and Lean will ensure that these definitions use them consistently.
+
+[tpil universes]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects
+(Type universes on Theorem Proving in Lean)
 
 ```lean
-/-- Explicit type-universe parameter. -/
+/- Explicit type-universe parameter. -/
 def id₁.{u} (α : Type u) (a : α) := a
 
-/-- Implicit type-universe parameter, equivalent to `id₁`.
+/- Implicit type-universe parameter, equivalent to `id₁`.
   Requires option `autoImplicit true`, which is the default. -/
 def id₂ (α : Type u) (a : α) := a
 
-/-- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/
+/- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/
 universe u
 def id₃ (α : Type u) (a : α) := a
+
+/- A more involved example: `WitnessPair` stores a `Sort v` and a `Sort v'`, meaning it must be in a
+  universe above both `v` and `v'`, meaning it must be at least at level `(max v v') + 1`.
+
+  So `WitnessPair` is (at least) in `Sort ((max v v') + 1)`, which is the same as `Type (max v v')`.
+-/
+universe v v'
+structure WitnessPair : Type (max v v') where
+  α : Sort v
+  val : α
+  α' : Sort v'
+  val' : α'
 ```
 
 On a more technical note, using a universe variable only in the right-hand side of a definition

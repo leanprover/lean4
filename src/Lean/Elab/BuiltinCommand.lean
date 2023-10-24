@@ -481,12 +481,12 @@ namespace Logger
 
   def len :=
     log.trace.length
-  def mapSrc (f : Src → Src') :=
-    log.trace.map fun (src, str) => (f src, str)
+  #check len
+  -- Logger.len {Src : Type} (log : Logger Src) : Nat
 
   variable (src : Src) [BEq Src]
 
-  -- at this point all of `Src`, `log`, `src`, and the `BEq` instance can become arguments
+  -- at this point all of `log`, `src`, `Src` and the `BEq` instance can all become arguments
 
   def filterSrc :=
     log.trace.filterMap

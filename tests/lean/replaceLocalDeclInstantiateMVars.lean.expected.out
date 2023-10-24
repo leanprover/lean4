@@ -1,0 +1,4 @@
+replaceLocalDeclInstantiateMVars.lean:54:18-57:44: error: unsolved goals
+h₂ : Nat
+h₁ : h₂ = h₂
+⊢ True

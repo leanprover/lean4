@@ -458,7 +458,7 @@ section
 end
 ```
 
-The following shows a typical use of `variable` to factor out definition arguments.
+The following shows a typical use of `variable` to factor out definition arguments:
 
 ```lean
 variable (Src : Type)

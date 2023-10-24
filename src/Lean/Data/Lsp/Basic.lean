@@ -244,16 +244,7 @@ instance : Append WorkspaceEdit where
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
   { documentChanges := #[DocumentChange.edit e]}
 
-def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
-  /- [note], there is a bug in vscode where not including the version will cause an error,
-  even though the version field is not used to validate the change.
-
-  References:
-  - [a fix in the wild](https://github.com/stylelint/vscode-stylelint/pull/330/files).
-    Note that the version field needs to be present, even if the value is `undefined`.
-  - [angry comment](https://github.com/tsqllint/tsqllint-vscode-extension/blob/727026fce9f8c6a33d113373666d0776f8f6c23c/server/src/server.ts#L70)
-  -/
-  let doc := {uri, version? := some 0}
+def ofTextEdit (doc : VersionedTextDocumentIdentifier) (te : TextEdit) : WorkspaceEdit :=
   ofTextDocumentEdit { textDocument := doc, edits := #[te]}
 
 end WorkspaceEdit

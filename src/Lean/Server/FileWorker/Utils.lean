@@ -56,6 +56,12 @@ structure EditableDocument where
 
 namespace EditableDocument
 
+/-- Construct a VersionedTextDocumentIdentifier from an EditableDocument --/
+def versionedIdentifier (ed : EditableDocument) : Lsp.VersionedTextDocumentIdentifier := {
+  uri := ed.meta.uri
+  version? := some ed.meta.version
+}
+
 end EditableDocument
 
 structure RpcSession where

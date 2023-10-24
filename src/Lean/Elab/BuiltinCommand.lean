@@ -461,14 +461,21 @@ end
 The following shows a typical use of `variable` to factor out definition arguments.
 
 ```lean
-structure Logger (Src : Type) where
+variable (Src : Type)
+
+structure Logger where
   trace : List (Src × String)
+#check Logger
+-- Logger (Src : Type) : Type
 
 namespace Logger
-  variable {Src : Type}
+  -- switch `Src : Type` to be implicit until the `end Logger`
+  variable {Src}
 
   def empty : Logger Src where
     trace := []
+  #check empty
+  -- Logger.empty {Src : Type} : Logger Src
 
   variable (log : Logger Src)
 
@@ -479,11 +486,18 @@ namespace Logger
 
   variable (src : Src) [BEq Src]
 
+  -- at this point all of `Src`, `log`, `src`, and the `BEq` instance can become arguments
+
   def filterSrc :=
     log.trace.filterMap
       fun (src', str') => if src' == src then some str' else none
+  #check filterSrc
+  -- Logger.filterSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : List String
+
   def lenSrc :=
     log.filterSrc src |>.length
+  #check lenSrc
+  -- Logger.lenSrc {Src : Type} (log : Logger Src) (src : Src) [inst✝ : BEq Src] : Nat
 end Logger
 ```
 

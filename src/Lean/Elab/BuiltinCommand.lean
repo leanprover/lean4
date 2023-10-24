@@ -123,12 +123,15 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 `Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as
 *universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a
 universe at level `u` can only classify universes that are at levels lower than `u`. For more
-details on type universes, please refer to [Theorem Proving in Lean][tpil universes].
+details on type universes, please refer to [the relevant chapter of Theorem Proving in Lean][tpil
+universes].
 
-The universe variable allows a single declaration to be used an any required level. While Lean
-mostly handles universe levels automatically, declaring them explicitly can provide more control
-when writing signatures. The universe keyword allows the declared universe variables to be used in a
-collection of definitions, and Lean will ensure that these definitions use them consistently.
+Just as type arguments allow polymorphic definitions to be used at many different types, universe
+parameters, represented by universe variables, allow a definition to be used at any required level.
+While Lean mostly handles universe levels automatically, declaring them explicitly can provide more
+control when writing signatures. The universe keyword allows the declared universe variables to be
+used in a collection of definitions, and Lean will ensure that these definitions use them
+consistently.
 
 [tpil universes]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#types-as-objects
 (Type universes on Theorem Proving in Lean)

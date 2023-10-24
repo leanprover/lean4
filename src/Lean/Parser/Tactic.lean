@@ -38,7 +38,7 @@ example (n : Nat) : n = n := by
   | i+1 => simp
 ```
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/induction_and_recursion.html
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html
 -/
 @[builtin_tactic_parser] def «match» := leading_parser:leadPrec
   "match " >> optional Term.generalizingParam >>

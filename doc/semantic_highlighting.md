@@ -4,7 +4,7 @@ Semantic Highlighting
 The Lean language server provides semantic highlighting information to editors. In order to benefit from this in VSCode, you may need to activate the "Editor > Semantic Highlighting" option in the preferences (this is translates to `"editor.semanticHighlighting.enabled": true,`
 in `settings.json`). The default option here is to let your color theme decides whether it activates semantic highlighting (the default themes Dark+ and Light+ do activate it for instance).
 
-However this may be insufficient if your color theme does not distinguish enough syntax categories or distinguishes them very subtly. For instance the default Light+ theme uses color `#001080` for variables. This is awfully close to `#000000` that is used as the default text color. This makes it very easy to miss an accidental use of [auto bound implicit arguments](https://leanprover.github.io/lean4/doc/autobound.html). For instance in
+However this may be insufficient if your color theme does not distinguish enough syntax categories or distinguishes them very subtly. For instance the default Light+ theme uses color `#001080` for variables. This is awfully close to `#000000` that is used as the default text color. This makes it very easy to miss an accidental use of [auto bound implicit arguments](https://lean-lang.org/lean4/doc/autobound.html). For instance in
 ```lean
 def my_id (n : nat) := n
 ```

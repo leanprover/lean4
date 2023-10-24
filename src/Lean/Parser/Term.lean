@@ -18,6 +18,11 @@ def commentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 @[combinator_formatter commentBody]
 def commentBody.formatter := PrettyPrinter.Formatter.visitAtom Name.anonymous
 
+/-- A `docComment` parses a "documentation comment" like `/-- foo -/`. This is not treated like
+a regular comment (that is, as whitespace); it is parsed and forms part of the syntax tree structure.
+
+A `docComment` node contains a `/--` atom and then the remainder of the comment, `foo -/` in this
+example. Use `TSyntax.getDocString` to extract the body text from a doc string syntax node. -/
 def docComment := leading_parser
   ppDedent $ "/--" >> ppSpace >> commentBody >> ppLine
 end Command
@@ -34,10 +39,28 @@ builtin_initialize
 
 namespace Tactic
 
+/-- `sepByIndentSemicolon(p)` parses a sequence of `p` optionally followed by `;`,
+similar to `manyIndent(p ";"?)`, except that if two occurrences of `p` occur on the same line,
+the `;` is mandatory. This is used by tactic parsing, so that
+```
+example := by
+  skip
+  skip
+```
+is legal, but `by skip skip` is not - it must be written as `by skip; skip`. -/
 @[run_builtin_parser_attribute_hooks]
 def sepByIndentSemicolon (p : Parser) : Parser :=
   sepByIndent p "; " (allowTrailingSep := true)
 
+/-- `sepBy1IndentSemicolon(p)` parses a (nonempty) sequence of `p` optionally followed by `;`,
+similar to `many1Indent(p ";"?)`, except that if two occurrences of `p` occur on the same line,
+the `;` is mandatory. This is used by tactic parsing, so that
+```
+example := by
+  skip
+  skip
+```
+is legal, but `by skip skip` is not - it must be written as `by skip; skip`. -/
 @[run_builtin_parser_attribute_hooks]
 def sepBy1IndentSemicolon (p : Parser) : Parser :=
   sepBy1Indent p "; " (allowTrailingSep := true)
@@ -117,6 +140,8 @@ def optSemicolon (p : Parser) : Parser :=
 /-- A placeholder term, to be synthesized by unification. -/
 @[builtin_term_parser] def hole := leading_parser
   "_"
+/-- Parses a "synthetic hole", that is, `?foo` or `?_`.
+This syntax is used to construct named metavariables. -/
 @[builtin_term_parser] def syntheticHole := leading_parser
   "?" >> (ident <|> hole)
 def binderIdent : Parser  := ident <|> hole
@@ -165,6 +190,8 @@ def optIdent : Parser :=
 def fromTerm   := leading_parser
   "from " >> termParser
 def showRhs := fromTerm <|> byTactic'
+/-- A `sufficesDecl` represents everything that comes after the `suffices` keyword:
+an optional `x :`, then a term `ty`, then `from val` or `by tac`. -/
 def sufficesDecl := leading_parser
   (atomic (group (binderIdent >> " : ")) <|> hygieneInfo) >> termParser >> ppSpace >> showRhs
 @[builtin_term_parser] def «suffices» := leading_parser:leadPrec
@@ -251,6 +278,12 @@ and solved by typeclass inference of the specified class.
 -/
 def instBinder := ppGroup <| leading_parser
   "[" >> withoutPosition (optIdent >> termParser) >> "]"
+/-- A `bracketedBinder` matches any kind of binder group that uses some kind of brackets:
+* An explicit binder like `(x y : A)`
+* An implicit binder like `{x y : A}`
+* A strict implicit binder, `⦃y z : A⦄` or its ASCII alternative `{{y z : A}}`
+* An instance binder `[A]` or `[x : A]` (multiple variables are not allowed here)
+-/
 def bracketedBinder (requireType := false) :=
   withAntiquot (mkAntiquot "bracketedBinder" decl_name% (isPseudoKind := true)) <|
     explicitBinder requireType <|> strictImplicitBinder requireType <|>
@@ -297,6 +330,8 @@ instance : Coe (TSyntax ``matchAltExpr) (TSyntax ``matchAlt) where
 def matchAlts (rhsParser : Parser := termParser) : Parser :=
   leading_parser withPosition $ many1Indent (ppLine >> matchAlt rhsParser)
 
+/-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
+`match h1 : e1, e2, h3 : e3 with ...`. -/
 def matchDiscr := leading_parser
   optional (atomic (ident >> " : ")) >> termParser
 
@@ -419,9 +454,13 @@ def letPatDecl  := leading_parser (withAnonymousAntiquot := false)
 -/
 def letEqnsDecl := leading_parser (withAnonymousAntiquot := false)
   letIdLhs >> (" := " <|> matchAlts)
--- Remark: we disable anonymous antiquotations here to make sure
--- anonymous antiquotations (e.g., `$x`) are not `letDecl`
+/-- `letDecl` matches the body of a let declaration `let f x1 x2 := e`,
+`let pat := e` (where `pat` is an arbitrary term) or `let f | pat1 => e1 | pat2 => e2 ...`
+(a pattern matching declaration), except for the `let` keyword itself.
+`let rec` declarations are not handled here. -/
 def letDecl     := leading_parser (withAnonymousAntiquot := false)
+  -- Remark: we disable anonymous antiquotations here to make sure
+  -- anonymous antiquotations (e.g., `$x`) are not `letDecl`
   notFollowedBy (nonReservedSymbol "rec") "rec" >>
   (letIdDecl <|> letPatDecl <|> letEqnsDecl)
 /--
@@ -472,6 +511,9 @@ def haveIdDecl   := leading_parser (withAnonymousAntiquot := false)
   atomic (haveIdLhs >> " := ") >> termParser
 def haveEqnsDecl := leading_parser (withAnonymousAntiquot := false)
   haveIdLhs >> matchAlts
+/-- `haveDecl` matches the body of a have declaration: `have := e`, `have f x1 x2 := e`,
+`have pat := e` (where `pat` is an arbitrary term) or `have f | pat1 => e1 | pat2 => e2 ...`
+(a pattern matching declaration), except for the `have` keyword itself. -/
 def haveDecl     := leading_parser (withAnonymousAntiquot := false)
   haveIdDecl <|> (ppSpace >> letPatDecl) <|> haveEqnsDecl
 @[builtin_term_parser] def «have» := leading_parser:leadPrec
@@ -479,13 +521,17 @@ def haveDecl     := leading_parser (withAnonymousAntiquot := false)
 
 def «scoped» := leading_parser "scoped "
 def «local»  := leading_parser "local "
+/-- `attrKind` matches `("scoped" <|> "local")?`, used before an attribute like `@[local simp]`. -/
 def attrKind := leading_parser optional («scoped» <|> «local»)
 def attrInstance     := ppGroup $ leading_parser attrKind >> attrParser
 
 def attributes       := leading_parser
   "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "] "
+/-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
+a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
 def letRecDecl       := leading_parser
   optional Command.docComment >> optional «attributes» >> letDecl
+/-- `letRecDecls` matches `letRecDecl,+`, a comma-separated list of let-rec declarations (see `letRecDecl`). -/
 def letRecDecls      := leading_parser
   sepBy1 letRecDecl ", "
 @[builtin_term_parser]

@@ -416,13 +416,16 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
   /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
      we increase it to `TransparencyMode.instances`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
      and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
-     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occuring in the target.
+     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occurring in the target.
 
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
-  let mut transparency ← getTransparency
-  if transparency == TransparencyMode.reducible then
-    transparency := TransparencyMode.instances
-  withTransparency transparency <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+  if (← getTransparency) matches .instances | .reducible then
+    -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
+    withTransparency .instances <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+      whnf e
+  else
+    -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
+    -- In the future, we want to work on better reduction strategies that do not require caching.
     whnf e
 
 def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
@@ -820,6 +823,8 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
       else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
       else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
       else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
+      else if fn == ``Nat.pow then reduceBinNatOp Nat.pow a1 a2
+      else if fn == ``Nat.gcd then reduceBinNatOp Nat.gcd a1 a2
       else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
       else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
       else return none
@@ -871,8 +876,8 @@ partial def whnfImp (e : Expr) : MetaM Expr :=
         | some v => cache useCache e v
         | none   =>
           match (← unfoldDefinition? e') with
-          | some e => whnfImp e
-          | none   => cache useCache e e'
+          | some e'' => cache useCache e (← whnfImp e'')
+          | none => cache useCache e e'
 
 /-- If `e` is a projection function that satisfies `p`, then reduce it -/
 def reduceProjOf? (e : Expr) (p : Name → Bool) : MetaM (Option Expr) := do

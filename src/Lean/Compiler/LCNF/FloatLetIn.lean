@@ -187,7 +187,7 @@ Will:
     | n => x * y
     | m => z
     ```
-    If we are at `y` `x` is alreayd marked to be floated into `n` as well.
+    If we are at `y` `x` is already marked to be floated into `n` as well.
   - if there hasn't be a decision yet, that is they are marked with `.unknown` we float
     them into the same arm as the current value:
     ```
@@ -211,7 +211,7 @@ Will:
     When we visit `a` `x` is now marked as getting moved into `n` but since it also occurs
     in `a` which wants to be moved somewhere else we will instead decide to not move `x`
     at all.
-  - if they are meant to be floated somewhere else decide that they wont get floated:
+  - if they are meant to be floated somewhere else decide that they won't get floated:
     ```
     let x := ...
     let y := x + z
@@ -234,7 +234,7 @@ where
       modify fun s => { s with decision := s.decision.insert fvar arm }
 
 /--
-Iterate throgh `decl`, pushing local declarations that are only used in one
+Iterate through `decl`, pushing local declarations that are only used in one
 control flow arm into said arm in order to avoid useless computations.
 -/
 partial def floatLetIn (decl : Decl) : CompilerM Decl := do

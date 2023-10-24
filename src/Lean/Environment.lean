@@ -33,6 +33,8 @@ structure Import where
   runtimeOnly : Bool := false
   deriving Repr, Inhabited
 
+instance : Coe Name Import := ⟨({module := ·})⟩
+
 instance : ToString Import := ⟨fun imp => toString imp.module ++ if imp.runtimeOnly then " (runtime)" else ""⟩
 
 /--
@@ -115,6 +117,9 @@ declared by users are stored in an environment extension. Users can declare new 
 using meta-programming.
 -/
 structure Environment where
+  /-- The constructor of `Environment` is private to protect against modification
+  that bypasses the kernel. -/
+  private mk ::
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -147,7 +152,7 @@ structure Environment where
 
 namespace Environment
 
-def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 /--
@@ -249,20 +254,20 @@ structure EnvExtensionInterface where
   ext          : Type → Type
   inhabitedExt : Inhabited σ → Inhabited (ext σ)
   registerExt  (mkInitial : IO σ) : IO (ext σ)
-  setState     (e : ext σ) (env : Environment) : σ → Environment
-  modifyState  (e : ext σ) (env : Environment) : (σ → σ) → Environment
-  getState     [Inhabited σ] (e : ext σ) (env : Environment) : σ
+  setState     (e : ext σ) (exts : Array EnvExtensionState) : σ → Array EnvExtensionState
+  modifyState  (e : ext σ) (exts : Array EnvExtensionState) : (σ → σ) → Array EnvExtensionState
+  getState     [Inhabited σ] (e : ext σ) (exts : Array EnvExtensionState) : σ
   mkInitialExtStates : IO (Array EnvExtensionState)
-  ensureExtensionsSize : Environment → IO Environment
+  ensureExtensionsSize : Array EnvExtensionState → IO (Array EnvExtensionState)
 
 instance : Inhabited EnvExtensionInterface where
   default := {
     ext                  := id
     inhabitedExt         := id
-    ensureExtensionsSize := fun env => pure env
+    ensureExtensionsSize := fun exts => pure exts
     registerExt          := fun mk => mk
-    setState             := fun _ env _ => env
-    modifyState          := fun _ env _ => env
+    setState             := fun _ exts _ => exts
+    modifyState          := fun _ exts _ => exts
     getState             := fun ext _ => ext
     mkInitialExtStates   := pure #[]
   }
@@ -284,41 +289,40 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (Ext EnvExtensionSta
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
-partial def ensureExtensionsArraySize (env : Environment) : IO Environment := do
-  loop env.extensions.size env
+partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+  loop exts.size exts
 where
-  loop (i : Nat) (env : Environment) : IO Environment := do
+  loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
     if i < envExtensions.size then
       let s ← envExtensions[i]!.mkInitial
-      let env := { env with extensions := env.extensions.push s }
-      loop (i + 1) env
+      let exts := exts.push s
+      loop (i + 1) exts
     else
-      return env
+      return exts
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environment :=
-  if h : ext.idx < env.extensions.size then
-    { env with extensions := env.extensions.set ⟨ext.idx, h⟩ (unsafeCast s) }
+unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
+  if h : ext.idx < exts.size then
+    exts.set ⟨ext.idx, h⟩ (unsafeCast s)
   else
-    have : Inhabited Environment := ⟨env⟩
+    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (env : Environment) (f : σ → σ) : Environment :=
-  if ext.idx < env.extensions.size then
-    { env with
-      extensions := env.extensions.modify ext.idx fun s =>
-        let s : σ := unsafeCast s
-        let s : σ := f s
-        unsafeCast s }
+@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+  if ext.idx < exts.size then
+    exts.modify ext.idx fun s =>
+      let s : σ := unsafeCast s
+      let s : σ := f s
+      unsafeCast s
   else
-    have : Inhabited Environment := ⟨env⟩
+    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (env : Environment) : σ :=
-  if h : ext.idx < env.extensions.size then
-    let s : EnvExtensionState := env.extensions.get ⟨ext.idx, h⟩
+unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (exts : Array EnvExtensionState) : σ :=
+  if h : ext.idx < exts.size then
+    let s : EnvExtensionState := exts.get ⟨ext.idx, h⟩
     unsafeCast s
   else
     panic! invalidExtMsg
@@ -357,14 +361,22 @@ opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
-private def ensureExtensionsArraySize (env : Environment) : IO Environment :=
-  EnvExtensionInterfaceImp.ensureExtensionsSize env
+private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
+  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.extensions
+  return { env with extensions := exts }
 
 namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := EnvExtensionInterfaceImp.setState ext env s
-def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := EnvExtensionInterfaceImp.modifyState ext env f
-def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ := EnvExtensionInterfaceImp.getState ext env
+
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
+  { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+
+def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
+  { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
+
+def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
+  EnvExtensionInterfaceImp.getState ext env.extensions
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -657,7 +669,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
 Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
-private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do
@@ -731,75 +743,78 @@ def throwAlreadyImported (s : ImportState) (const2ModIdx : HashMap Name ModuleId
   let constModName := s.moduleNames[const2ModIdx[cname].get!.toNat]!
   throw <| IO.userError s!"import {modName} failed, environment already contains '{cname}' from {constModName}"
 
+abbrev ImportStateM := StateRefT ImportState IO
+
+@[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := {}) : IO (α × ImportState) :=
+  x.run s
+
+partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
+  for i in imports do
+    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
+      continue
+    modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
+    let mFile ← findOLean i.module
+    unless (← mFile.pathExists) do
+      throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
+    let (mod, region) ← readModuleData mFile
+    importModulesCore mod.imports
+    modify fun s => { s with
+      moduleData  := s.moduleData.push mod
+      regions     := s.regions.push region
+      moduleNames := s.moduleNames.push i.module
+    }
+
+def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+  let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
+    numConsts + mod.constants.size + mod.extraConstNames.size
+  let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
+  let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
+  for h:modIdx in [0:s.moduleData.size] do
+    let mod := s.moduleData[modIdx]'h.upper
+    for cname in mod.constNames, cinfo in mod.constants do
+      match constantMap.insert' cname cinfo with
+      | (constantMap', replaced) =>
+        constantMap := constantMap'
+        if replaced then
+          throwAlreadyImported s const2ModIdx modIdx cname
+      const2ModIdx := const2ModIdx.insert cname modIdx
+    for cname in mod.extraConstNames do
+      const2ModIdx := const2ModIdx.insert cname modIdx
+  let constants : ConstMap := SMap.fromHashMap constantMap false
+  let exts ← mkInitialExtensionStates
+  let env : Environment := {
+    const2ModIdx    := const2ModIdx
+    constants       := constants
+    extraConstNames := {}
+    extensions      := exts
+    header          := {
+      quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
+      trustLevel   := trustLevel
+      imports      := imports
+      regions      := s.regions
+      moduleNames  := s.moduleNames
+      moduleData   := s.moduleData
+    }
+  }
+  let env ← setImportedEntries env s.moduleData
+  let env ← finalizePersistentExtensions env s.moduleData opts
+  pure env
+
 @[export lean_import_modules]
-partial def importModules (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
-    let (_, s) ← importMods imports |>.run {}
-    let mut numConsts := 0
-    for mod in s.moduleData do
-      numConsts := numConsts + mod.constants.size + mod.extraConstNames.size
-    let mut modIdx : Nat := 0
-    let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
-    let mut constantMap : HashMap Name ConstantInfo := mkHashMap (capacity := numConsts)
-    for mod in s.moduleData do
-      for cname in mod.constNames, cinfo in mod.constants do
-        match constantMap.insert' cname cinfo with
-        | (constantMap', replaced) =>
-          constantMap := constantMap'
-          if replaced then
-            throwAlreadyImported s const2ModIdx modIdx cname
-        const2ModIdx := const2ModIdx.insert cname modIdx
-      for cname in mod.extraConstNames do
-        const2ModIdx := const2ModIdx.insert cname modIdx
-      modIdx := modIdx + 1
-    let constants : ConstMap := SMap.fromHashMap constantMap false
-    let exts ← mkInitialExtensionStates
-    let env : Environment := {
-      const2ModIdx    := const2ModIdx
-      constants       := constants
-      extraConstNames := {}
-      extensions      := exts
-      header          := {
-        quotInit     := !imports.isEmpty -- We assume `core.lean` initializes quotient module
-        trustLevel   := trustLevel
-        imports      := imports.toArray
-        regions      := s.regions
-        moduleNames  := s.moduleNames
-        moduleData   := s.moduleData
-      }
-    }
-    let env ← setImportedEntries env s.moduleData
-    let env ← finalizePersistentExtensions env s.moduleData opts
-    pure env
-where
-  importMods : List Import → StateRefT ImportState IO Unit
-  | []    => pure ()
-  | i::is => do
-    if i.runtimeOnly || (← get).moduleNameSet.contains i.module then
-      importMods is
-    else do
-      modify fun s => { s with moduleNameSet := s.moduleNameSet.insert i.module }
-      let mFile ← findOLean i.module
-      unless (← mFile.pathExists) do
-        throw <| IO.userError s!"object file '{mFile}' of module {i.module} does not exist"
-      let (mod, region) ← readModuleData mFile
-      importMods mod.imports.toList
-      modify fun s => { s with
-        moduleData  := s.moduleData.push mod
-        regions     := s.regions.push region
-        moduleNames := s.moduleNames.push i.module
-      }
-      importMods is
+    let (_, s) ← importModulesCore imports |>.run
+    finalizeImport s imports opts trustLevel
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
   environment object or imported objects may exist after `act` finishes. -/
-unsafe def withImportModules {α : Type} (imports : List Import) (opts : Options) (trustLevel : UInt32 := 0) (x : Environment → IO α) : IO α := do
+unsafe def withImportModules {α : Type} (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) (act : Environment → IO α) : IO α := do
   let env ← importModules imports opts trustLevel
-  try x env finally env.freeRegions
+  try act env finally env.freeRegions
 
 /--
 Environment extension for tracking all `namespace` declared by users.
@@ -843,7 +858,7 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, _        => env
 
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   let env := registerNamePrefixes env cinfo.name
   env.addAux cinfo
 

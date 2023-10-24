@@ -28,7 +28,7 @@ class ComputeTrace.{u,v,w} (i : Type u) (m : outParam $ Type v → Type w) (t : 
   /--  Compute the trace of some target info using information from the monadic context. -/
   computeTrace : i → m t
 
-def computeTrace [ComputeTrace i m t] [MonadLiftT m n] (info : i) : n t :=
+@[inline] def computeTrace [ComputeTrace i m t] [MonadLiftT m n] (info : i) : n t :=
   liftM <| ComputeTrace.computeTrace info
 
 class NilTrace.{u} (t : Type u) where
@@ -45,9 +45,6 @@ class MixTrace.{u} (t : Type u) where
 
 export MixTrace (mixTrace)
 
-def mixTraceM [MixTrace t] [Pure m] (t1 t2 : t) : m t :=
-  pure <| mixTrace t1 t2
-
 section
 variable [MixTrace t] [NilTrace t]
 
@@ -59,13 +56,13 @@ def mixTraceArray (traces : Array t) : t :=
 
 variable [ComputeTrace i m t]
 
-def computeListTrace [MonadLiftT m n] [Monad n] (artifacts : List i) : n t :=
-  mixTraceList <$> artifacts.mapM computeTrace
+@[specialize] def computeListTrace [MonadLiftT m n] [Monad n] (artifacts : List i) : n t :=
+  artifacts.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
 instance [Monad m] : ComputeTrace (List i) m t := ⟨computeListTrace⟩
 
-def computeArrayTrace [MonadLiftT m n] [Monad n] (artifacts : Array i) : n t :=
-  mixTraceArray <$> artifacts.mapM computeTrace
+@[specialize] def computeArrayTrace [MonadLiftT m n] [Monad n] (artifacts : Array i) : n t :=
+  artifacts.foldlM (fun ts t => return mixTrace ts (← computeTrace t)) nilTrace
 
 instance [Monad m] : ComputeTrace (Array i) m t := ⟨computeArrayTrace⟩
 end
@@ -84,31 +81,31 @@ structure Hash where
 
 namespace Hash
 
-def ofNat (n : Nat) :=
+@[inline] def ofNat (n : Nat) :=
   mk n.toUInt64
 
-def loadFromFile (hashFile : FilePath) : IO (Option Hash) :=
-  return (← IO.FS.readFile hashFile).toNat?.map ofNat
+def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
+  (·.toNat?.map ofNat) <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 
 def nil : Hash :=
   mk <| 1723 -- same as Name.anonymous
 
 instance : NilTrace Hash := ⟨nil⟩
 
-def mix (h1 h2 : Hash) : Hash :=
+@[inline] def mix (h1 h2 : Hash) : Hash :=
   mk <| mixHash h1.val h2.val
 
 instance : MixTrace Hash := ⟨mix⟩
 
-protected def toString (self : Hash) : String :=
+@[inline] protected def toString (self : Hash) : String :=
   toString self.val
 
 instance : ToString Hash := ⟨Hash.toString⟩
 
-def ofString (str : String) :=
+@[inline] def ofString (str : String) :=
   mix nil <| mk <| hash str -- same as Name.mkSimple
 
-def ofByteArray (bytes : ByteArray) : Hash :=
+@[inline] def ofByteArray (bytes : ByteArray) : Hash :=
   ⟨hash bytes⟩
 
 end Hash
@@ -118,10 +115,10 @@ class ComputeHash (α : Type u) (m : outParam $ Type → Type v)  where
 
 instance [ComputeHash α m] : ComputeTrace α m Hash := ⟨ComputeHash.computeHash⟩
 
-def pureHash [ComputeHash α Id] (a : α) : Hash :=
+@[inline] def pureHash [ComputeHash α Id] (a : α) : Hash :=
   ComputeHash.computeHash a
 
-def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
+@[inline] def computeHash [ComputeHash α m] [MonadLiftT m n] (a : α) : n Hash :=
   liftM <| ComputeHash.computeHash a
 
 instance : ComputeHash String Id := ⟨Hash.ofString⟩
@@ -131,14 +128,8 @@ def computeFileHash (file : FilePath) : IO Hash :=
 
 instance : ComputeHash FilePath IO := ⟨computeFileHash⟩
 
-/--
-  A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
-  to normalize `\r\n` sequences to `\n` for cross-platform compatibility. -/
-structure TextFilePath where
-  path : FilePath
-
 /-- This is the same as `String.replace text "\r\n" "\n"`, but more efficient. -/
-partial def crlf2lf (text : String) : String :=
+@[inline] partial def crlf2lf (text : String) : String :=
   go "" 0 0
 where
   go (acc : String) (accStop pos : String.Pos) : String :=
@@ -154,14 +145,26 @@ where
       else
         go acc accStop pos'
 
-instance : ComputeHash TextFilePath IO where
-  computeHash file := do
-    let text ← IO.FS.readFile file.path
-    let text := crlf2lf text
-    return Hash.ofString text
+def computeTextFileHash (file : FilePath) : IO Hash := do
+  let text ← IO.FS.readFile file
+  let text := crlf2lf text
+  return Hash.ofString text
 
-instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m where
-  computeHash ar := ar.foldlM (fun b a => Hash.mix b <$> computeHash a) Hash.nil
+/--
+  A wrapper around `FilePath` that adjusts its `ComputeHash` implementation
+  to normalize `\r\n` sequences to `\n` for cross-platform compatibility. -/
+structure TextFilePath where
+  path : FilePath
+
+instance : Coe TextFilePath FilePath := ⟨(·.path)⟩
+
+instance : ComputeHash TextFilePath IO where
+  computeHash file := computeTextFileHash file
+
+@[specialize] def computeArrayHash [ComputeHash α m] [Monad m] (xs : Array α) : m Hash :=
+  xs.foldlM (fun h a => return h.mix (← computeHash a)) .nil
+
+instance [ComputeHash α m] [Monad m] : ComputeHash (Array α) m := ⟨computeArrayHash⟩
 
 --------------------------------------------------------------------------------
 /-! # Modification Time (MTime) Trace -/
@@ -196,15 +199,11 @@ class GetMTime (α) where
 export GetMTime (getMTime)
 instance [GetMTime α] : ComputeTrace α IO MTime := ⟨getMTime⟩
 
-def getFileMTime (file : FilePath) : IO MTime :=
+@[inline] def getFileMTime (file : FilePath) : IO MTime :=
   return (← file.metadata).modified
 
 instance : GetMTime FilePath := ⟨getFileMTime⟩
 instance : GetMTime TextFilePath := ⟨(getFileMTime ·.path)⟩
-
-/-- Check if the info's `MTIme` is at least `depMTime`. -/
-def checkIfNewer [GetMTime i] (info : i) (depMTime : MTime) : BaseIO Bool :=
-  (do pure ((← getMTime info) >= depMTime : Bool)).catchExceptions fun _ => pure false
 
 --------------------------------------------------------------------------------
 /-! # Lake Build Trace (Hash + MTIme) -/
@@ -218,34 +217,22 @@ structure BuildTrace where
 
 namespace BuildTrace
 
-def withHash (hash : Hash) (self : BuildTrace) : BuildTrace :=
-  {self with hash}
-
-def withoutHash (self : BuildTrace) : BuildTrace :=
-  {self with hash := Hash.nil}
-
-def withMTime (mtime : MTime) (self : BuildTrace) : BuildTrace :=
-  {self with mtime}
-
-def withoutMTime (self : BuildTrace) : BuildTrace :=
-  {self with mtime := 0}
-
-def fromHash (hash : Hash) : BuildTrace :=
+@[inline] def ofHash (hash : Hash) : BuildTrace :=
   mk hash 0
 
-instance : Coe Hash BuildTrace := ⟨fromHash⟩
+instance : Coe Hash BuildTrace := ⟨ofHash⟩
 
-def fromMTime (mtime : MTime) : BuildTrace :=
+@[inline] def ofMTime (mtime : MTime) : BuildTrace :=
   mk Hash.nil mtime
 
-instance : Coe MTime BuildTrace := ⟨fromMTime⟩
+instance : Coe MTime BuildTrace := ⟨ofMTime⟩
 
 def nil : BuildTrace :=
   mk Hash.nil 0
 
 instance : NilTrace BuildTrace := ⟨nil⟩
 
-def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace :=
+@[specialize] def compute [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] (info : i) : IO BuildTrace :=
   return mk (← computeHash info) (← getMTime info)
 
 instance [ComputeHash i m] [MonadLiftT m IO] [GetMTime i] : ComputeTrace i IO BuildTrace := ⟨compute⟩
@@ -256,35 +243,35 @@ def mix (t1 t2 : BuildTrace) : BuildTrace :=
 instance : MixTrace BuildTrace := ⟨mix⟩
 
 /--
-Check the build trace against the given target info and hash
-to see if the target is up-to-date.
+Check if the info is up-to-date using a hash.
+That is, check that info exists and its input hash matches this trace's hash.
 -/
-def checkAgainstHash [CheckExists i]
+@[inline] def checkAgainstHash [CheckExists i]
 (info : i) (hash : Hash) (self : BuildTrace) : BaseIO Bool :=
   pure (hash == self.hash) <&&> checkExists info
 
 /--
-Check the build trace against the given target info and its modification time
-to see if the target is up-to-date.
+Check if the info is up-to-date using modification time.
+That is, check if the info is newer than this input trace's modification time.
 -/
-def checkAgainstTime [CheckExists i] [GetMTime i]
+@[inline] def checkAgainstTime [GetMTime i]
 (info : i) (self : BuildTrace) : BaseIO Bool :=
-  checkIfNewer info self.mtime
+  EIO.catchExceptions (h := fun _ => pure false) do
+    return self.mtime < (← getMTime info)
 
 /--
-Check the build trace against the given target info and its trace file
-to see if the target is up-to-date.
+Check if the info is up-to-date using a trace file.
+If the file exists, match its hash to this trace's hash.
+If not, check if the info is newer than this trace's modification time.
 -/
-def checkAgainstFile [CheckExists i] [GetMTime i]
+@[inline] def checkAgainstFile [CheckExists i] [GetMTime i]
 (info : i) (traceFile : FilePath) (self : BuildTrace) : BaseIO Bool := do
-  let act : IO _ := do
-    if let some hash ← Hash.loadFromFile traceFile then
-      self.checkAgainstHash info hash
-    else
-      return self.mtime < (← getMTime info)
-  act.catchExceptions fun _ => pure false
+  if let some hash ← Hash.load? traceFile then
+    self.checkAgainstHash info hash
+  else
+    self.checkAgainstTime info
 
-def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
+@[inline] def writeToFile (traceFile : FilePath) (self : BuildTrace) : IO PUnit :=
   IO.FS.writeFile traceFile self.hash.toString
 
 end BuildTrace

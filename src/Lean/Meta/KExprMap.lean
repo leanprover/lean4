@@ -9,7 +9,7 @@ import Lean.Meta.Basic
 namespace Lean.Meta
 
 /--
-  A mapping that indentifies definitionally equal expressions.
+  A mapping that identifies definitionally equal expressions.
   We implement it as a mapping from `HeadIndex` to `AssocList Expr α`.
 
   Remark: this map may be quite inefficient if there are many `HeadIndex` collisions.

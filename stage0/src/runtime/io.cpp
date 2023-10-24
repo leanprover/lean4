@@ -659,8 +659,16 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_dir(b_obj_arg p, obj_arg) {
     }
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to) {
-    if (std::rename(string_cstr(from), string_cstr(to)) == 0) {
+extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean_object * /* w */) {
+#ifdef LEAN_WINDOWS
+    // Note: On windows, std::rename gives an error if the `to` file already exists,
+    // so we have to call the underlying windows API directly to get behavior consistent
+    // with the unix-like OSs
+    bool ok = MoveFileEx(string_cstr(from), string_cstr(to), MOVEFILE_REPLACE_EXISTING) != 0;
+#else
+    bool ok = std::rename(string_cstr(from), string_cstr(to)) == 0;
+#endif
+    if (ok) {
         return io_result_mk_ok(box(0));
     } else {
         std::ostringstream s;

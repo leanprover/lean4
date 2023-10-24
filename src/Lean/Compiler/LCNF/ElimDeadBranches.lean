@@ -26,7 +26,7 @@ inductive Value where
   -/
   | top
   /--
-  A certian consructor with a certain sets of parameters is possible.
+  A certain constructor with a certain sets of parameters is possible.
   -/
   | ctor (i : Name) (vs : Array Value)
   /--
@@ -531,7 +531,7 @@ partial def inferMain : InterpM Unit := do
     return ()
 
 /--
-Use the information produced by the abstract interpeter to:
+Use the information produced by the abstract interpreter to:
 - Eliminate branches that we know cannot be hit
 - Eliminate values that we know have to be constants.
 -/

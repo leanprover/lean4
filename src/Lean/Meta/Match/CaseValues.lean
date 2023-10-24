@@ -75,7 +75,7 @@ structure CaseValuesSubgoal where
   The type of `x` must have decidable equality.
 
   Remark: the last subgoal is for the "else" catchall case, and its `subst` is `{}`.
-  Remark: the fiels `newHs` has size 1 forall but the last subgoal.
+  Remark: the field `newHs` has size 1 forall but the last subgoal.
 
   If `substNewEqs = true`, then the new `h_i` equality hypotheses are substituted in the first `n` cases.
 -/

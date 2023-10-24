@@ -193,11 +193,8 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 @[inherit_doc depsFacet] abbrev deps  (self : Module) :=
   self.facet depsFacet
 
-@[inherit_doc leanBinFacet] abbrev leanBin  (self : Module) :=
-  self.facet leanBinFacet
-
-@[inherit_doc importBinFacet] abbrev importBin (self : Module) :=
-  self.facet importBinFacet
+@[inherit_doc leanArtsFacet] abbrev leanArts  (self : Module) :=
+  self.facet leanArtsFacet
 
 @[inherit_doc oleanFacet] abbrev olean (self : Module) :=
   self.facet oleanFacet
@@ -240,9 +237,9 @@ abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
 abbrev LeanLib.modules (self : LeanLib) : BuildInfo :=
   self.facet modulesFacet
 
-@[inherit_doc leanFacet]
-abbrev LeanLib.lean (self : LeanLib) : BuildInfo :=
-  self.facet leanFacet
+@[inherit_doc leanArtsFacet]
+abbrev LeanLib.leanArts (self : LeanLib) : BuildInfo :=
+  self.facet leanArtsFacet
 
 @[inherit_doc staticFacet]
 abbrev LeanLib.static (self : LeanLib) : BuildInfo :=

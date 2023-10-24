@@ -83,7 +83,7 @@ In practice, this means we use `stop` to refer to the most recently defined vari
 
 A value `Expr.val` carries a concrete representation of an integer.
 
-A lambda `Expr.lam` creates a function. In the scope of a function ot type `Ty.fn a ty`, there is a
+A lambda `Expr.lam` creates a function. In the scope of a function of type `Ty.fn a ty`, there is a
 new local variable of type `a`.
 
 A function application `Expr.app` produces a value of type `ty` given a function from `a` to `ty` and a value of type `a`.
@@ -139,7 +139,7 @@ def add : Expr ctx (Ty.fn Ty.int (Ty.fn Ty.int Ty.int)) :=
 More interestingly, a factorial function fact (e.g. `fun x => if (x == 0) then 1 else (fact (x-1) * x)`), can be written as.
 Note that this is a recursive (non-terminating) definition. For every input value, the interpreter terminates, but the
 definition itself is non-terminating. We use two tricks to make sure Lean accepts it. First, we use the auxiliary constructor
-`Expr.delay` to delay its unfolding. Second, we add the annotation `decreasing_by sorry` which can be viwed as
+`Expr.delay` to delay its unfolding. Second, we add the annotation `decreasing_by sorry` which can be viewed as
 "trust me, this recursive definition makes sense". Recall that `sorry` is an unsound axiom in Lean.
 -/
 

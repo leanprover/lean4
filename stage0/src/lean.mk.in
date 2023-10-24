@@ -105,6 +105,8 @@ $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Linking $@"
 endif
+# on Windows, must remove binary before writing a new one (since the old one may be in use)
+	@rm -f $@
 ifdef PROFILE
 	\time -f "%U %S" $(LEANC) -o "$@" $^ $(LEANC_OPTS) $(LINK_OPTS) 2>&1 > /dev/null | awk '{ printf "C linking %fs\n", $$1 + $$2 }' > /dev/stderr
 else

@@ -1,0 +1,6 @@
+1971.lean:14:7-16:7: error: unexpected token 'theorem'; expected term
+1971.lean:22:6-24:3: error: unexpected token 'def'; expected ':=', 'where' or '|'
+1971.lean:30:9-30:13: error: unexpected token 'def'; expected term
+1971.lean:34:9-36:7: error: unexpected token 'example'; expected identifier
+1971.lean:39:17-41:7: error: unexpected token 'example'; expected 'false', 'true', numeral or string literal
+1971.lean:45:11: error: unterminated string literal

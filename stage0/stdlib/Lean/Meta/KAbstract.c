@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.KAbstract
-// Imports: Init Lean.Data.Occurrences Lean.HeadIndex Lean.Meta.Basic
+// Imports: Init Lean.HeadIndex Lean.Meta.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -39,9 +39,9 @@ uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 static lean_object* l_Lean_Meta_kabstract___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_kabstract___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32_(lean_object*, lean_object*);
+uint8_t l_Lean_Meta_Occurrences_contains(lean_object*, lean_object*);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14366_(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Occurrences_contains(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
@@ -1293,7 +1293,7 @@ lean_object* x_513; lean_object* x_514; uint8_t x_515;
 x_513 = lean_ctor_get(x_511, 1);
 x_514 = lean_ctor_get(x_511, 0);
 lean_dec(x_514);
-x_515 = l_Lean_Occurrences_contains(x_2, x_507);
+x_515 = l_Lean_Meta_Occurrences_contains(x_2, x_507);
 lean_dec(x_507);
 if (x_515 == 0)
 {
@@ -2457,7 +2457,7 @@ lean_object* x_748; uint8_t x_749;
 x_748 = lean_ctor_get(x_511, 1);
 lean_inc(x_748);
 lean_dec(x_511);
-x_749 = l_Lean_Occurrences_contains(x_2, x_507);
+x_749 = l_Lean_Meta_Occurrences_contains(x_2, x_507);
 lean_dec(x_507);
 if (x_749 == 0)
 {
@@ -5886,7 +5886,7 @@ else
 {
 lean_object* x_33; uint8_t x_34; 
 x_33 = lean_box(0);
-x_34 = l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32_(x_3, x_33);
+x_34 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14366_(x_3, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -6062,7 +6062,7 @@ else
 {
 lean_object* x_78; uint8_t x_79; 
 x_78 = lean_box(0);
-x_79 = l___private_Lean_Data_Occurrences_0__Lean_beqOccurrences____x40_Lean_Data_Occurrences___hyg_32_(x_3, x_78);
+x_79 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14366_(x_3, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 
@@ -6166,7 +6166,6 @@ return x_9;
 }
 }
 lean_object* initialize_Init(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Data_Occurrences(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_HeadIndex(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -6175,9 +6174,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Data_Occurrences(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_HeadIndex(builtin, lean_io_mk_world());

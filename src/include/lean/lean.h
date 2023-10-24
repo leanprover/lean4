@@ -126,7 +126,7 @@ x
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
 
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsibility of the caller
    to decrement the RC.
    This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
 
@@ -296,9 +296,9 @@ LEAN_SHARED void lean_set_panic_messages(bool flag);
 LEAN_SHARED lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
 LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic(char const * msg);
-LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_out_of_memory();
-LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_unreachable();
-LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_rc_overflow();
+LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_out_of_memory(void);
+LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_unreachable(void);
+LEAN_SHARED __attribute__((noreturn)) void lean_internal_panic_rc_overflow(void);
 
 static inline size_t lean_align(size_t v, size_t a) {
     return (v / a)*a + a * (v % a != 0);
@@ -313,7 +313,7 @@ static inline unsigned lean_get_slot_idx(unsigned sz) {
 LEAN_SHARED void * lean_alloc_small(unsigned sz, unsigned slot_idx);
 LEAN_SHARED void lean_free_small(void * p);
 LEAN_SHARED unsigned lean_small_mem_size(void * p);
-LEAN_SHARED void lean_inc_heartbeat();
+LEAN_SHARED void lean_inc_heartbeat(void);
 
 #ifndef __cplusplus
 void * malloc(size_t);  // avoid including big `stdlib.h`
@@ -1014,6 +1014,11 @@ static inline uint32_t lean_string_utf8_get_fast(b_lean_obj_arg s, b_lean_obj_ar
   if ((c & 0x80) == 0) return c;
   return lean_string_utf8_get_fast_cold(str, idx, lean_string_size(s), c);
 }
+static inline uint8_t lean_string_get_byte_fast(b_lean_obj_arg s, b_lean_obj_arg i) {
+  char const * str = lean_string_cstr(s);
+  size_t idx = lean_unbox(i);
+  return str[idx];
+}
 
 LEAN_SHARED lean_obj_res lean_string_utf8_next(b_lean_obj_arg s, b_lean_obj_arg i);
 LEAN_SHARED lean_obj_res lean_string_utf8_next_fast_cold(size_t i, unsigned char c);
@@ -1078,9 +1083,9 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Tasks */
 
-LEAN_SHARED void lean_init_task_manager();
+LEAN_SHARED void lean_init_task_manager(void);
 LEAN_SHARED void lean_init_task_manager_using(unsigned num_workers);
-LEAN_SHARED void lean_finalize_task_manager();
+LEAN_SHARED void lean_finalize_task_manager(void);
 
 LEAN_SHARED lean_obj_res lean_task_spawn_core(lean_obj_arg c, unsigned prio, bool keep_alive);
 /* Run a closure `Unit -> A` as a `Task A` */
@@ -1103,7 +1108,7 @@ static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
 }
 
 /* primitive for implementing `IO.checkCanceled : IO Bool` */
-LEAN_SHARED bool lean_io_check_canceled_core();
+LEAN_SHARED bool lean_io_check_canceled_core(void);
 /* primitive for implementing `IO.cancel : Task a -> IO Unit` */
 LEAN_SHARED void lean_io_cancel_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.hasFinished : Task a -> IO Unit` */
@@ -1307,8 +1312,8 @@ LEAN_SHARED lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 
 /* Integers */
 
-#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))
-#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : -(1 << 30))
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (INT_MAX >> 1))
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : (INT_MIN >> 1))
 LEAN_SHARED lean_object * lean_int_big_neg(lean_object * a);
 LEAN_SHARED lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
@@ -1827,7 +1832,7 @@ static inline bool lean_io_result_is_error(b_lean_obj_arg r) { return lean_ptr_t
 static inline b_lean_obj_res lean_io_result_get_value(b_lean_obj_arg r) { assert(lean_io_result_is_ok(r)); return lean_ctor_get(r, 0); }
 static inline b_lean_obj_res lean_io_result_get_error(b_lean_obj_arg r) { assert(lean_io_result_is_error(r)); return lean_ctor_get(r, 0); }
 LEAN_SHARED void lean_io_result_show_error(b_lean_obj_arg r);
-LEAN_SHARED void lean_io_mark_end_initialization();
+LEAN_SHARED void lean_io_mark_end_initialization(void);
 static inline lean_obj_res lean_io_result_mk_ok(lean_obj_arg a) {
     lean_object * r = lean_alloc_ctor(0, 2, 0);
     lean_ctor_set(r, 0, a);

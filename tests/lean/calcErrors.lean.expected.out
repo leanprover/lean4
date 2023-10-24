@@ -1,18 +1,19 @@
-calcErrors.lean:3:30-3:33: error: type mismatch
+calcErrors.lean:7:30-7:33: error: type mismatch
   rfl
 has type
   b + b = b + b : Prop
 but is expected to have type
   b + b = 0 + c + b : Prop
-calcErrors.lean:7:8-7:29: error: invalid 'calc' step, left-hand-side is
+calcErrors.lean:13:8-13:29: error: invalid 'calc' step, left-hand-side is
   0 + c + b : Nat
 previous right-hand-side is
   b + b : Nat
-calcErrors.lean:15:8-15:11: error: invalid 'calc' step, relation expected
+calcErrors.lean:24:8-24:11: error: invalid 'calc' step, relation expected
   p a
-calcErrors.lean:20:8-20:13: error: invalid 'calc' step, failed to synthesize `Trans` instance
+calcErrors.lean:31:8-31:13: error: invalid 'calc' step, failed to synthesize `Trans` instance
   Trans p p ?m
-calcErrors.lean:27:7-27:12: error: invalid 'calc' step, left-hand-side is
+calcErrors.lean:41:7-41:12: error: invalid 'calc' step, left-hand-side is
   γ : Sort u_1
 previous right-hand-side is
   b : β
+calcErrors.lean:61:18-61:19: error: unexpected token '['; expected command

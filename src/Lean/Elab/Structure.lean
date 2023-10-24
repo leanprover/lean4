@@ -321,7 +321,7 @@ private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := 
 
 abbrev FieldMap := NameMap Expr -- Map from field name to expression representing the field
 
-/-- Reduce projetions of the structures in `structNames` -/
+/-- Reduce projections of the structures in `structNames` -/
 private def reduceProjs (e : Expr) (structNames : NameSet) : MetaM Expr :=
   let reduce (e : Expr) : MetaM TransformStep := do
     match (← reduceProjOf? e structNames.contains) with

@@ -11,20 +11,14 @@ open System
 
 namespace Lake
 
-def mkBuildContext (ws : Workspace) (oldMode : Bool) : IO BuildContext := do
-  let lean := ws.lakeEnv.lean
-  let leanTrace := Hash.ofString lean.githash
+def mkBuildContext (ws : Workspace) (config : BuildConfig) : IO BuildContext := do
   return {
-    opaqueWs := ws, leanTrace, oldMode
+    opaqueWs := ws,
+    toBuildConfig := config,
     startedBuilds := ← IO.mkRef 0
-    finishedBuilds := ← IO.mkRef 0
+    finishedBuilds := ← IO.mkRef 0,
+    leanTrace := Hash.ofString ws.lakeEnv.lean.githash
   }
-
-@[inline] def getLeanTrace : BuildM BuildTrace :=
-  (·.leanTrace) <$> readThe BuildContext
-
-@[inline] def getIsOldMode : BuildM Bool :=
-  (·.oldMode) <$> readThe BuildContext
 
 def failOnBuildCycle [ToString k] : Except (List k) α → BuildM α
 | Except.ok a => pure a
@@ -84,7 +78,7 @@ where
       | e => throw e
 
 /-- The name of the Lake build lock file name (i.e., `lake.lock`). -/
-@[noinline] def lockFileName : String :=
+def lockFileName : String :=
   "lake.lock"
 
 /-- The workspace's build lock file. -/
@@ -92,10 +86,10 @@ where
   self.root.buildDir / lockFileName
 
 /-- Run the given build function in the Workspace's context. -/
-@[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (oldMode := false) : LogIO α := do
-  let ctx ← mkBuildContext ws oldMode
+@[inline] def Workspace.runBuild (ws : Workspace) (build : BuildM α) (config : BuildConfig := {}) : LogIO α := do
+  let ctx ← mkBuildContext ws config
   /-
-  TODO: 
+  TODO:
   The lock file has been temporarily disabled (by lean4#2445)
   until we have an API for catching `Ctrl-C` during a build.
   Absent this, the lock file was too disruptive for users.
@@ -104,5 +98,5 @@ where
   build.run ctx
 
 /-- Run the given build function in the Lake monad's workspace. -/
-@[inline] def runBuild (build : BuildM α) (oldMode := false) : LakeT LogIO α := do
-  (← getWorkspace).runBuild build oldMode
+@[inline] def runBuild (build : BuildM α) (config : BuildConfig := {}) : LakeT LogIO α := do
+  (← getWorkspace).runBuild build config

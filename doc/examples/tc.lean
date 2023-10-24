@@ -38,7 +38,7 @@ theorem HasType.det (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t�
   cases h₁ <;> cases h₂ <;> rfl
 
 /-!
-The inductive type `Maybe p` has two contructors: `found a h` and `unknown`.
+The inductive type `Maybe p` has two constructors: `found a h` and `unknown`.
 The former contains an element `a : α` and a proof that `a` satisfies the predicate `p`.
 The constructor `unknown` is used to encode "failure".
 -/

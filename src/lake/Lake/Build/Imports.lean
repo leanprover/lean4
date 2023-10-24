@@ -38,7 +38,7 @@ def recBuildImports (imports : Array Module)
       precompileImports := precompileImports.appendArray (← mod.transImports.fetch) |>.insert mod
     else
       precompileImports := precompileImports.appendArray (← mod.precompileImports.fetch)
-    modJobs := modJobs.push <| ← mod.leanBin.fetch
+    modJobs := modJobs.push <| ← mod.leanArts.fetch
   let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
   let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.dynlib.fetch))
   let precompileJobs ← precompileImports.toArray.mapM (·.dynlib.fetch)

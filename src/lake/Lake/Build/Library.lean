@@ -45,10 +45,10 @@ protected def LeanLib.recBuildLean
 (self : LeanLib) : IndexBuildM (BuildJob Unit) := do
   let mods ← self.modules.fetch
   mods.foldlM (init := BuildJob.nil) fun job mod => do
-    job.mix <| ← mod.leanBin.fetch
+    job.mix <| ← mod.leanArts.fetch
 
-/-- The `LibraryFacetConfig` for the builtin `leanFacet`. -/
-def LeanLib.leanFacetConfig : LibraryFacetConfig leanFacet :=
+/-- The `LibraryFacetConfig` for the builtin `leanArtsFacet`. -/
+def LeanLib.leanArtsFacetConfig : LibraryFacetConfig leanArtsFacet :=
   mkFacetJobConfigSmall LeanLib.recBuildLean
 
 protected def LeanLib.recBuildStatic
@@ -71,7 +71,7 @@ protected def LeanLib.recBuildShared
     mod.nativeFacets.mapM fun facet => fetch <| mod.facet facet.name
   let pkgs := mods.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
   let externJobs ← pkgs.concatMapM (·.externLibs.mapM (·.shared.fetch))
-  buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.linkArgs
+  buildLeanSharedLib self.sharedLibFile (oJobs ++ externJobs) self.weakLinkArgs self.linkArgs
 
 /-- The `LibraryFacetConfig` for the builtin `sharedFacet`. -/
 def LeanLib.sharedFacetConfig : LibraryFacetConfig sharedFacet :=
@@ -96,7 +96,7 @@ the initial set of Lake library facets (e.g., `lean`, `static`, and `shared`).
 def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
   DNameMap.empty
   |>.insert modulesFacet modulesFacetConfig
-  |>.insert leanFacet leanFacetConfig
+  |>.insert leanArtsFacet leanArtsFacetConfig
   |>.insert staticFacet staticFacetConfig
   |>.insert sharedFacet sharedFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig

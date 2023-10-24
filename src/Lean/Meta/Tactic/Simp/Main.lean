@@ -7,6 +7,7 @@ import Lean.Meta.Transform
 import Lean.Meta.Tactic.Replace
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Rewrite
+import Lean.Meta.Match.Value
 
 namespace Lean.Meta
 namespace Simp
@@ -66,7 +67,7 @@ private def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
   let e := src.updateForallE! r₁.expr r₂.expr
   match r₁.proof?, r₂.proof? with
   | none,     none   => return { expr := e, proof? := none }
-  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bootleneck
+  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
 
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
@@ -98,7 +99,10 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           and invoke `unfoldDefinition?`.
           Recall that `unfoldDefinition?` has support for unfolding this kind of projection when transparency mode is `.instances`.
           -/
-          withReducibleAndInstances <| unfoldDefinition? e
+          let e? ← withReducibleAndInstances <| unfoldDefinition? e
+          if e?.isSome then
+            recordSimpTheorem (.decl cinfo.name)
+          return e?
         else
           /-
           Recall that class projections are **not** marked with `[reducible]` because we want them to be
@@ -142,15 +146,59 @@ where
       let f := e.getAppFn
       f.isConst && isMatcherCore env f.constName!
 
+/--
+Auxiliary function for implementing `ctx.config.ground`: evaluate ground terms eagerly.
+We currently use `whnf` to implement this feature, but we want to stop ground evaluation at symbols marked with the `-` modifier.
+For example, `simp (config := { ground := true }) [-f]` should not unfold `f` even if the goal contains a ground term such as `f 2`.
+-/
+private def canUnfoldAtSimpGround (erased : SimpTheoremsArray) (_ : Meta.Config) (info : ConstantInfo) : CoreM Bool := do
+  return !erased.isErased (.decl info.name)
+
+/--
+Try to unfold `e`.
+-/
 private def unfold? (e : Expr) : SimpM (Option Expr) := do
   let f := e.getAppFn
   if !f.isConst then
     return none
   let fName := f.constName!
-  if (← isProjectionFn fName) then
-    return none -- should be reduced by `reduceProjFn?`
   let ctx ← read
-  if ctx.config.autoUnfold then
+  -- TODO: remove `rec` after we switch to new code generator
+  let rec unfoldGround? : SimpM (Option Expr) := do
+      unless ctx.config.ground do return none
+      -- We are assuming that assigned metavariables are going to be instantiated by the main simp loop.
+      if e.hasExprMVar || e.hasFVar then return none
+      if ctx.simpTheorems.isErased (.decl fName) then return none
+      -- TODO: check whether we need more filters
+      if (← isType e) then return none -- we don't unfold types
+      if (← isProof e) then return none -- we don't unfold proofs
+      if (← isInstance fName) then return none -- we don't unfold instances
+      -- TODO: we must have a notion of `simp` value, or more general solution for Lean
+      if Meta.isMatchValue e || isOfNatNatLit e then return none
+      if e.isConst then
+        -- We don't unfold constants that take arguments
+        -- TODO: add support for skipping partial applications too.
+        if let .forallE .. ← whnfD (← inferType e) then
+          return none
+      /-
+      We are currently using `whnf` with a custom `canUnfold?` predicate to reduce ground terms.
+      This can be inefficient, and produce proofs that are too expensive to type check in the Kernel. Some reasons:
+      - Functions defined by Well-founded recursion are expensive to reduce here and in the kernel.
+      - The kernel does not know we may have controlled reduction using `canUnfold?`.
+
+      It would be great to reduce the ground term using a to-be-implemented `cbv` tactic which produces a
+      proof that can be efficiently checked by the kernel.
+      -/
+      let eNew ← withDefault <|
+        withTheReader Meta.Context (fun c => { c with canUnfold? := canUnfoldAtSimpGround ctx.simpTheorems }) <| whnf e
+      if eNew == e then return none
+      trace[Meta.Tactic.simp.ground] "{e}\n---->\n{eNew}"
+      return some eNew
+  if let some eNew ← unfoldGround? then
+    return some eNew
+  else if (← isProjectionFn fName) then
+    return none -- should be reduced by `reduceProjFn?`
+  else if ctx.config.autoUnfold then
     if ctx.simpTheorems.isErased (.decl fName) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then
@@ -675,7 +723,41 @@ where
     if e.isArrow then
       simpArrow e
     else if (← isProp e) then
-      withLocalDecl e.bindingName! e.bindingInfo! e.bindingDomain! fun x => withNewLemmas #[x] do
+      /- The forall is a proposition. -/
+      let domain := e.bindingDomain!
+      if (← isProp domain) then
+        /-
+        The domain of the forall is also a proposition, and we can use `forall_prop_domain_congr`
+        IF we can simplify the domain.
+        -/
+        let rd ← simp domain
+        if let some h₁ := rd.proof? then
+          /- Using
+          ```
+          theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}
+              (h₁ : p₁ = p₂)
+              (h₂ : ∀ a : p₂, q₁ (h₁.substr a) = q₂ a)
+              : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a)
+          ```
+          Remark: we should consider whether we want to add congruence lemma support for arbitrary `forall`-expressions.
+          Then, the theroem above can be marked as `@[congr]` and the following code deleted.
+          -/
+          let p₁ := domain
+          let p₂ := rd.expr
+          let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
+          let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
+            let prop := mkSort levelZero
+            let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
+            let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
+            let rb ← simp q_h₁_substr_a
+            let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
+            let q₂ ← mkLambdaFVars #[a] rb.expr
+            let result ← mkForallFVars #[a] rb.expr
+            let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
+            return { expr := result, proof? := proof }
+          return result
+      let domain ← dsimp domain
+      withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
         let b := e.bindingBody!.instantiate1 x
         let rb ← simp b
         let eNew ← mkForallFVars #[x] rb.expr
@@ -992,7 +1074,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId r.expr
         replaced := replaced.push fvarId
     if simplifyTarget then
-      match (← simpTarget mvarIdNew ctx discharge?) with
+      match (← simpTarget mvarIdNew ctx discharge? (usedSimps := usedSimps)) with
       | (none, usedSimps') => return (none, usedSimps')
       | (some mvarIdNew', usedSimps') => mvarIdNew := mvarIdNew'; usedSimps := usedSimps'
     let (fvarIdsNew, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert

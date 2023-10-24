@@ -43,3 +43,8 @@ def OrderedTagAttribute.hasTag (attr : OrderedTagAttribute) (env : Environment) 
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
   | none        => (attr.ext.getState env).contains decl
+
+/-- Get all tagged declaration names, both those imported and those in the current module. -/
+def OrderedTagAttribute.getAllEntries (attr : OrderedTagAttribute) (env : Environment) : Array Name :=
+  let s := attr.ext.toEnvExtension.getState env
+  s.importedEntries.concatMap id ++ s.state

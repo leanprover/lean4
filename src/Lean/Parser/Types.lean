@@ -31,7 +31,7 @@ def minPrec  : Nat := eval_prec min
 
 abbrev Token := String
 
-abbrev TokenTable := Trie Token
+abbrev TokenTable := Lean.Data.Trie Token
 
 abbrev SyntaxNodeKindSet := PersistentHashMap SyntaxNodeKind Unit
 
@@ -73,6 +73,10 @@ structure ParserContextCore extends InputContext, ParserModuleContext, Cacheable
 structure ParserContext extends ParserContextCore where private mk ::
 
 structure Error where
+  /--
+    If not `missing`, used for lazily calculating `unexpected` message and range in `mkErrorMessage`.
+    Otherwise, `ParserState.pos` is used as an empty range. -/
+  unexpectedTk : Syntax := .missing
   unexpected : String := ""
   expected : List String := []
   deriving Inhabited, BEq
@@ -98,7 +102,9 @@ instance : ToString Error where
 
 def merge (e₁ e₂ : Error) : Error :=
   match e₂ with
-  | { unexpected := u, .. } => { unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
+  -- We expect errors to be merged to be about the same token, so unconditionally copy second `unexpectedTk`
+  | { unexpectedTk, unexpected := u, .. } =>
+    { unexpectedTk, unexpected := if u == "" then e₁.unexpected else u, expected := e₁.expected ++ e₂.expected }
 
 end Error
 
@@ -195,6 +201,7 @@ structure ParserState where
 
 namespace ParserState
 
+@[inline]
 def hasError (s : ParserState) : Bool :=
   s.errorMsg != none
 
@@ -259,34 +266,52 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err⟩
 
-def setError (s : ParserState) (msg : String) : ParserState :=
+@[inline]
+def setError (s : ParserState) (e : Error) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack, lhsPrec, pos, cache, some e⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+  s.setError { expected := [msg] } |>.pushSyntax .missing
 
 def mkUnexpectedError (s : ParserState) (msg : String) (expected : List String := []) (pushMissing := true) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, pos, cache, _⟩ => ⟨if pushMissing then stack.push .missing else stack, lhsPrec, pos, cache, some { unexpected := msg, expected := expected }⟩
+  let s := s.setError { unexpected := msg, expected }
+  if pushMissing then s.pushSyntax .missing else s
 
 def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
   s.mkUnexpectedError "unexpected end of input" expected
 
-def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
-  match s,  initStackSz? with
-  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
-  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz |>.push Syntax.missing, lhsPrec, pos, cache, some { expected := [ msg ] }⟩
+def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState := Id.run do
+  let mut s := s.setPos pos
+  if let some sz := initStackSz? then
+    s := s.shrinkStack sz
+  s := s.setError { expected := ex }
+  s.pushSyntax .missing
 
-def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
-  match s, initStackSz? with
-  | ⟨stack, lhsPrec, _, cache, _⟩, none    => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { expected := ex }⟩
-  | ⟨stack, lhsPrec, _, cache, _⟩, some sz => ⟨stack.shrink sz |>.push Syntax.missing, lhsPrec, pos, cache, some { expected := ex }⟩
+def mkErrorAt (s : ParserState) (msg : String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState :=
+  s.mkErrorsAt [msg] pos initStackSz?
+
+/--
+  Reports given 'expected' messages at range of top stack element (assumed to be a single token).
+  Replaces the element with `missing` and resets position to the token position.
+  `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
+-- We use `0` as a cheap default to save an allocation; we're unlikely to do enough backtracking at that
+-- position to be significant.
+def mkUnexpectedTokenErrors (s : ParserState) (ex : List String) (iniPos : String.Pos := 0) : ParserState :=
+  let tk := s.stxStack.back
+  let s := s.setPos (if iniPos > 0 then iniPos else tk.getPos?.get!)
+  let s := s.setError { unexpectedTk := tk, expected := ex }
+  s.popSyntax.pushSyntax .missing
+
+/--
+  Reports given 'expected' message at range of top stack element (assumed to be a single token).
+  Replaces the element with `missing` and resets position to the token position.
+  `iniPos` can be specified to avoid this position lookup but still must be identical to the token position. -/
+def mkUnexpectedTokenError (s : ParserState) (msg : String) (iniPos : String.Pos := 0) : ParserState :=
+  s.mkUnexpectedTokenErrors [msg] iniPos
 
 def mkUnexpectedErrorAt (s : ParserState) (msg : String) (pos : String.Pos) : ParserState :=
-  match s with
-  | ⟨stack, lhsPrec, _, cache, _⟩ => ⟨stack.push Syntax.missing, lhsPrec, pos, cache, some { unexpected := msg }⟩
+  s.setPos pos |>.mkUnexpectedError msg
 
 end ParserState
 

@@ -54,3 +54,53 @@ exact h₁ h₃
 
 example (α : Type) (p : Prop) (a b c : α) (h : p → a = b) : a = c := by
   rw [h _]  -- should manifest goal `⊢ p`, like `rw [h]` would
+
+/-!
+Testing the `occs` configuration argument.
+-/
+
+variable (f : Nat → Nat) (w : ∀ n, f n = 0)
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  rw (config := {occs := .pos [2]}) [w]
+  -- Because the metavariables are instantiated after finding the first occurrence,
+  -- even though this is rejected, with the current behaviour this rewrites the second `f 1`,
+  -- rather than the first `f 2`.
+  -- Arguably this behaviour should be changed.
+  trace_state
+  rw [w, w]
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  rw (config := {occs := .all}) [w]
+  trace_state -- expecting [0, f 2, 0, f 2] = [0, 0, 0, 0]
+  rw [w]
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  rw (config := {occs := .pos [1, 2]}) [w]
+  trace_state -- expecting [0, f 2, 0, f 2] = [0, 0, 0, 0]
+  -- After the first rewrite, the argument of `w` have been instantiated as `1`,
+  -- so the second eligible rewrite is the second `f 1`.
+  rw [w]
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  rw (config := {occs := .neg [1]}) [w]
+  -- Again, the rejected first occurrence nevertheless instantiates the metavariables.
+  -- Arguably the state here should be `[f 1, 0, f 1, 0] = [0, 0, 0, 0]`,
+  -- but for now if `[f 1, f 2, 0, f 2] = [0, 0, 0, 0]`
+  trace_state
+  rw [w, w]
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  -- Arguably should succeed giving `[f 1, f 2, 0, f 2] = [0, 0, 0, 0]`
+  -- but currently fails.
+  fail_if_success rw (config := {occs := .neg [1, 2]}) [w]
+  trace_state
+  rw [w, w]
+
+example : [f 1, f 2, f 1, f 2] = [0, 0, 0, 0] := by
+  rw (config := {occs := .neg [1, 3]}) [w]
+  -- Arguably should give `[f 1, 0, f 1, f 2] = [0, 0, 0, 0]`
+  -- but currently gives `[f 1, f 2, 0, f 2] = [0, 0, 0, 0]`
+  trace_state
+  rw [w, w]
+

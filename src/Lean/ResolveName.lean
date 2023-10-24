@@ -55,7 +55,7 @@ def getRevAliases (env : Environment) (e : Name) : List Name :=
 /-! # Global name resolution -/
 namespace ResolveName
 
-/-- Check whether `ns ++ id` is a valid namepace name and/or there are aliases names `ns ++ id`. -/
+/-- Check whether `ns ++ id` is a valid namespace name and/or there are aliases names `ns ++ id`. -/
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
@@ -160,7 +160,7 @@ Given a name `id` try to find namespaces it may refer to. The resolution procedu
    then we include `s_1 . ... . s_i ++ n` in the result if it is the name of an existing namespace.
    We search "backwards", and include at most one of the in the list of resulting namespaces.
 
-2- If `id` is the extact name of an existing namespace, then include `id`
+2- If `id` is the exact name of an existing namespace, then include `id`
 
 3- Finally, for each command `open N`, include in the result `N ++ n` if it is the name of an existing namespace.
    We only consider simple `open` commands. -/
@@ -253,7 +253,7 @@ def resolveGlobalConstNoOverloadCore [Monad m] [MonadResolveName m] [MonadEnv m]
   | _   => throwError s!"ambiguous identifier '{mkConst n}', possible interpretations: {cs.map mkConst}"
 
 /-- Interpret the syntax `n` as an identifier for a global constant, and return a list of resolved
-constant names that it could be refering to based on the currently open namespaces.
+constant names that it could be referring to based on the currently open namespaces.
 This should be used instead of `resolveGlobalConstCore` for identifiers taken from syntax
 because `Syntax` objects may have names that have already been resolved.
 

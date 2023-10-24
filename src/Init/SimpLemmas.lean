@@ -41,6 +41,12 @@ theorem implies_congr_ctx {p₁ p₂ q₁ q₂ : Prop} (h₁ : p₁ = p₂) (h�
 theorem forall_congr {α : Sort u} {p q : α → Prop} (h : ∀ a, p a = q a) : (∀ a, p a) = (∀ a, q a) :=
   (funext h : p = q) ▸ rfl
 
+theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}
+    (h₁ : p₁ = p₂)
+    (h₂ : ∀ a : p₂, q₁ (h₁.substr a) = q₂ a)
+    : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a) := by
+  subst h₁; simp [← h₂]
+
 theorem let_congr {α : Sort u} {β : Sort v} {a a' : α} {b b' : α → β}
     (h₁ : a = a') (h₂ : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a'; b' x) :=
   h₁ ▸ (funext h₂ : b = b') ▸ rfl

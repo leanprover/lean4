@@ -11,4 +11,4 @@ the following command executes a simple set of examples
 
 % bin/lean examples/ex.lean
 
-For more information on Lean and supported editors, please see https://leanprover.github.io/documentation/.
+For more information on Lean and supported editors, please see https://lean-lang.org/documentation/.

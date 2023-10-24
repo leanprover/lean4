@@ -3,7 +3,6 @@ Copyright (c) 2020 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
-import Lean.Data.Occurrences
 import Lean.HeadIndex
 import Lean.Meta.Basic
 
@@ -12,7 +11,14 @@ namespace Lean.Meta
 /--
 Abstract occurrences of `p` in `e`. We detect subterms equivalent to `p` using key-matching.
 That is, only perform `isDefEq` tests when the head symbol of substerm is equivalent to head symbol of `p`.
-By default, all occurrences are abstracted, but this behavior can be controlled using the `occs` parameter.
+
+By default, all occurrences are abstracted,
+but this behavior can be controlled using the `occs` parameter.
+
+All matches of `p` in `e` are considered for occurrences,
+but at the first match (whether included in the occurrences or not)
+metavariables appearing in `p` (or `e`) may become instantiated,
+affecting the possibility of subsequent matches.
 -/
 def kabstract (e : Expr) (p : Expr) (occs : Occurrences := .all) : MetaM Expr := do
   let e ← instantiateMVars e

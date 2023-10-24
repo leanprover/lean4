@@ -46,5 +46,5 @@ instance : Alternative OptionIO where
     | some a => h (some a) <&> ((a, ·))
     | none => h none *> failure
 
-def asTask (self : OptionIO α) (prio := Task.Priority.dedicated) : BaseIO (Task (Option α)) :=
+@[inline] def asTask (self : OptionIO α) (prio := Task.Priority.dedicated) : BaseIO (Task (Option α)) :=
   self.toBaseIO.asTask prio

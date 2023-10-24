@@ -119,7 +119,7 @@ def XMLdecl : Parsec Unit := do
 def Comment : Parsec String :=
   let notDash := Char.toString <$> satisfy (λ c => c ≠ '-')
   skipString "<!--" *>
-  Array.foldl String.append "" <$> many (notDash <|> (do
+  Array.foldl String.append "" <$> many (attempt <| notDash <|> (do
     let d ← pchar '-'
     let c ← notDash
     pure $ d.toString ++ c))
@@ -408,7 +408,7 @@ def Attribute : Parsec (String × String) := do
 protected def elementPrefix : Parsec (Array Content → Element) := do
   skipChar '<'
   let name ← Name
-  let attributes ← many (S *> Attribute)
+  let attributes ← many (attempt <| S *> Attribute)
   optional S *> pure ()
   return Element.Element name (RBMap.fromList attributes.toList compare)
 

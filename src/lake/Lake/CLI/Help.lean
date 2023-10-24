@@ -23,7 +23,9 @@ OPTIONS:
   --lean=cmd            specify the `lean` command used by Lake
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
+  --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
+  --reconfigure, -R     elaborate configuration files instead of using OLeans
 
 COMMANDS:
   new <name> <temp>     create a Lean package in a new directory
@@ -79,20 +81,23 @@ The optional `@` and `+` markers can be used to disambiguate packages
 and modules from other kinds of targets (i.e., executables and libraries).
 
 LIBRARY FACETS:         build the library's ...
-  lean (default)        Lean binaries (*.olean, *.ilean files)
-  static                static binary (*.a file)
-  shared                shared binary (*.so, *.dll, or *.dylib file)
+  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  static                static artifact (*.a file)
+  shared                shared artifact (*.so, *.dll, or *.dylib file)
 
 MODULE FACETS:          build the module's ...
-  deps                  transitive local imports & shared library dependencies
-  bin (default)         Lean binaries (*.olean, *.ilean files) and *.c file
-  o                     *.o object file (of its C file)
+  deps                  dependencies (e.g., imports, shared libraries, etc.)
+  leanArts (default)    Lean artifacts (*.olean, *.ilean, *.c files)
+  olean                 OLean (binary blob of Lean data for importers)
+  ilean                 ILean (binary blob of metadata for the Lean LSP server)
+  c                     compiled C file
+  o                     compiled object file (of its C file)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...
   a                     default facet of target `a`
   @a                    default target(s) of package `a`
-  +A                    olean and .ilean files of module `A`
+  +A                    Lean artifacts of module `A`
   a/b                   default facet of target `b` of package `a`
   a/+A:c                C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
@@ -105,6 +110,8 @@ def helpUpdate :=
 
 USAGE:
   lake update [<package>...]
+
+ALIAS: lake upgrade
 
 Updates the Lake package manifest (i.e., `lake-manifest.json`),
 downloading and upgrading packages as needed. For each new (transitive) git
@@ -155,6 +162,8 @@ def helpScriptList :=
 USAGE:
   lake script list
 
+ALIAS: lake scripts
+
 This command prints the list of all available scripts in the workspace."
 
 def helpScriptRun :=
@@ -163,8 +172,10 @@ def helpScriptRun :=
 USAGE:
   lake script run [[<package>/]<script>] [<args>...]
 
-This command runs the given `script` from `package`, passing `args` to it.
-Defaults to the root package.
+ALIAS: lake run
+
+This command runs the `script` of the workspace (or the specific `package`),
+passing `args` to it.
 
 A bare `lake run` command will run the default script(s) of the root package
 (with no arguments)."
@@ -175,7 +186,7 @@ def helpScriptDoc :=
 USAGE:
   lake script doc [<package>/]<script>
 
-Print the docstring of `script` in `package`. Defaults to the root package."
+Print the docstring of `script` in the workspace or the specific `package`."
 
 def helpServe :=
 "Start the Lean language server
@@ -220,28 +231,30 @@ def helpExe :=
 USAGE:
   lake exe <exe-target> [<args>...]
 
+ALIAS: lake exec
+
 Looks for the executable target in the workspace (see `lake help build` to
 learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
 def helpScript : (cmd : String) → String
-| "list"      => helpScriptList
-| "run"       => helpScriptRun
-| "doc"       => helpScriptDoc
-| _           => helpScriptCli
+| "list"                => helpScriptList
+| "run"                 => helpScriptRun
+| "doc"                 => helpScriptDoc
+| _                     => helpScriptCli
 
 def help : (cmd : String) → String
-| "new"       => helpNew
-| "init"      => helpInit
-| "build"     => helpBuild
-| "update"    => helpUpdate
-| "upload"    => helpUpload
-| "clean"     => helpClean
-| "script"    => helpScriptCli
-| "scripts"   => helpScriptList
-| "run"       => helpScriptRun
-| "serve"     => helpServe
-| "env"       => helpEnv
-| "exe"       => helpExe
-| _           => usage
+| "new"                 => helpNew
+| "init"                => helpInit
+| "build"               => helpBuild
+| "update" | "upgrade"  => helpUpdate
+| "upload"              => helpUpload
+| "clean"               => helpClean
+| "script"              => helpScriptCli
+| "scripts"             => helpScriptList
+| "run"                 => helpScriptRun
+| "serve"               => helpServe
+| "env"                 => helpEnv
+| "exe" | "exec"        => helpExe
+| _                     => usage

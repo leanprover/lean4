@@ -185,7 +185,7 @@ def bracket (l : String) (f : MessageData) (r : String) : MessageData := group (
 def paren (f : MessageData) : MessageData := bracket "(" f ")"
 /-- Wrap the given message in square brackets `[]`. -/
 def sbracket (f : MessageData) : MessageData := bracket "[" f "]"
-/-- Append the given list of messages with the given separarator. -/
+/-- Append the given list of messages with the given separator. -/
 def joinSep : List MessageData → MessageData → MessageData
   | [],    _   => Format.nil
   | [a],   _   => a
@@ -208,13 +208,15 @@ end MessageData
 /-- A `Message` is a richly formatted piece of information emitted by Lean.
 They are rendered by client editors in the infoview and in diagnostic windows. -/
 structure Message where
-  fileName : String
-  pos      : Position
-  endPos   : Option Position := none
-  severity : MessageSeverity := MessageSeverity.error
-  caption  : String          := ""
+  fileName      : String
+  pos           : Position
+  endPos        : Option Position := none
+  /-- If `true`, report range as given; see `msgToInteractiveDiagnostic`. -/
+  keepFullRange : Bool := false
+  severity      : MessageSeverity := MessageSeverity.error
+  caption       : String          := ""
   /-- The content of the message. -/
-  data     : MessageData
+  data          : MessageData
   deriving Inhabited
 
 namespace Message
@@ -326,6 +328,8 @@ instance [ToMessageData α] : ToMessageData (List α)  := ⟨fun as => MessageDa
 instance [ToMessageData α] : ToMessageData (Array α) := ⟨fun as => toMessageData as.toList⟩
 instance [ToMessageData α] : ToMessageData (Subarray α) := ⟨fun as => toMessageData as.toArray.toList⟩
 instance [ToMessageData α] : ToMessageData (Option α) := ⟨fun | none => "none" | some e => "some (" ++ toMessageData e ++ ")"⟩
+instance [ToMessageData α] [ToMessageData β] : ToMessageData (α × β) :=
+  ⟨fun (a, b) => .paren <| toMessageData a ++ "," ++ Format.line ++ toMessageData b⟩
 instance : ToMessageData (Option Expr) := ⟨fun | none => "<not-available>" | some e => toMessageData e⟩
 
 syntax:max "m!" interpolatedStr(term) : term

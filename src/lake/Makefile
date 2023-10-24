@@ -4,7 +4,7 @@ LAKE ?= ./build/bin/lake
 # Suite Targets
 #-------------------------------------------------------------------------------
 
-TESTS := $(addprefix test/, $(shell ls test))
+TESTS := $(addprefix tests/, $(shell ls tests))
 EXAMPLES := $(addprefix examples/, $(filter-out bootstrap, $(shell ls examples)))
 
 default: build
@@ -21,16 +21,19 @@ test-examples: $(addsuffix .test, $(EXAMPLES))
 
 test-bootstrapped: test-boostrapped-hello
 
-clean: clean-tests clean-examples clean-build
+clean: clean-tests clean-examples clean-bootstrap
+
+clean-all: clean clean-build
 
 clean-tests: $(addsuffix .clean, $(TESTS))
 
 clean-examples:  $(addsuffix .clean, $(EXAMPLES))
 
 .PHONY:
-	all test test-ci test-tests test-examples\
-	test-bootstrap time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
-	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS))
+	all test test-ci test-tests test-examples test-bootstrap\
+	clean clean-all clean-tests clean-examples clean-build clean-bootstrap\
+	time-bootstrap check-bootstrap test-bootstrapped test-boostrapped-hello\
+	$(addsuffix .clean, $(TESTS) $(EXAMPLES)) $(addsuffix .test, $(TESTS) $(EXAMPLES))
 
 #-------------------------------------------------------------------------------
 # Build Targets
@@ -40,10 +43,10 @@ build:
 	./build.sh
 
 time-build:
-	./time.sh
+	./time-build.sh
 
 clean-build:
-	./clean.sh
+	./clean-build.sh
 
 check-lake:
 	$(LAKE) self-check
@@ -52,17 +55,17 @@ check-lake:
 # Test / Example Targets
 #-------------------------------------------------------------------------------
 
-test/%.test:
-	cd test/$* && ./test.sh
+tests/%.test:
+	cd tests/$* && ./test.sh
 
-test/%.clean:
-	cd test/$* && ./clean.sh
+tests/%.clean:
+	cd tests/$* && ./clean.sh || true
 
 examples/%.test:
 	cd examples/$* && ./test.sh
 
 examples/%.clean:
-	cd examples/$* && ./clean.sh
+	cd examples/$* && ./clean.sh || true
 
 test-bootstrap:
 	cd examples/bootstrap && ./test.sh

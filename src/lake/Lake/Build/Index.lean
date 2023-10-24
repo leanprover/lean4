@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+import Lake.Build.Targets
 import Lake.Build.Executable
 import Lake.Build.Topological
 
@@ -103,6 +104,9 @@ export BuildInfo (build)
 
 @[inline] protected def LeanExe.build (self : LeanExe) : BuildM (BuildJob FilePath) :=
   self.exe.build
+
+@[inline] protected def LeanExeConfig.build (self : LeanExeConfig) : BuildM (BuildJob FilePath) := do
+  (← self.get).build
 
 @[inline] protected def LeanExe.fetch (self : LeanExe) : IndexBuildM (BuildJob FilePath) :=
   self.exe.fetch

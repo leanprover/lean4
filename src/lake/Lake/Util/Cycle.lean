@@ -15,6 +15,11 @@ abbrev Cycle κ := CallStack κ
 /-- A transformer that equips a monad with a `CallStack` to detect cycles. -/
 abbrev CycleT κ m := ReaderT (CallStack κ) <| ExceptT (Cycle κ) m
 
+/-- Read the call stack from a CycleT.
+  this specialized version exists to be used in e.g. `BuildM`. -/
+def CycleT.readCallStack [Pure m] : CycleT κ m (CallStack κ) :=
+  fun callStack => ExceptT.mk <| pure (Except.ok callStack)
+
 /--
 Add `key` to the monad's `CallStack` before invoking `act`.
 If adding `key` produces a cycle, the cyclic call stack is thrown.

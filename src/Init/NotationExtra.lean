@@ -92,7 +92,7 @@ end
 syntax calcFirstStep := ppIndent(colGe term (" := " term)?)
 -- enforce indentation of calc steps so we know when to stop parsing them
 syntax calcStep := ppIndent(colGe term " := " term)
-syntax calcSteps := ppLine withPosition(calcFirstStep) withPosition((ppLine calcStep)*)
+syntax calcSteps := ppLine withPosition(calcFirstStep) withPosition((ppLine linebreak calcStep)*)
 
 /-- Step-wise reasoning over transitive relations.
 ```
@@ -127,7 +127,7 @@ calc abc
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
 syntax (name := calc) "calc" calcSteps : term
 
@@ -166,7 +166,7 @@ leave a subgoal proving `z = z'`.
 
 See [Theorem Proving in Lean 4][tpil4] for more information.
 
-[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
+[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#calculational-proofs
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 

@@ -155,7 +155,9 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
         if (fd == -1) {
             return io_result_mk_error((sstream() << "failed to open '" << olean_fn << "': " << strerror(errno)).str());
         }
+#ifdef LEAN_MMAP
         buffer = static_cast<char *>(mmap(base_addr, size, PROT_READ, MAP_PRIVATE, fd, 0));
+#endif
         close(fd);
         free_data = [=]() {
             if (buffer != MAP_FAILED) {
@@ -163,11 +165,13 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
             }
         };
 #endif
-        if (buffer == base_addr) {
+        if (buffer && buffer == base_addr) {
             buffer += header_size;
             is_mmap = true;
         } else {
+#ifdef LEAN_MMAP
             free_data();
+#endif
             buffer = static_cast<char *>(malloc(size - header_size));
             free_data = [=]() {
                 free(buffer);

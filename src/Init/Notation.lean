@@ -86,14 +86,14 @@ namespace Parser.Syntax
 
 /-! DSL for specifying parser precedences and priorities -/
 
-/-- Addition of precedences. This is normally used only for offseting, e.g. `max + 1`. -/
+/-- Addition of precedences. This is normally used only for offsetting, e.g. `max + 1`. -/
 syntax:65 (name := addPrec) prec " + " prec:66 : prec
-/-- Subtraction of precedences. This is normally used only for offseting, e.g. `max - 1`. -/
+/-- Subtraction of precedences. This is normally used only for offsetting, e.g. `max - 1`. -/
 syntax:65 (name := subPrec) prec " - " prec:66 : prec
 
-/-- Addition of priorities. This is normally used only for offseting, e.g. `default + 1`. -/
+/-- Addition of priorities. This is normally used only for offsetting, e.g. `default + 1`. -/
 syntax:65 (name := addPrio) prio " + " prio:66 : prio
-/-- Subtraction of priorities. This is normally used only for offseting, e.g. `default - 1`. -/
+/-- Subtraction of priorities. This is normally used only for offsetting, e.g. `default - 1`. -/
 syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Parser.Syntax

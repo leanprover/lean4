@@ -171,8 +171,8 @@ deriving Inhabited
 /-! # Package -/
 --------------------------------------------------------------------------------
 
-abbrev DNameMap α := DRBMap Name α Name.quickCmp
-@[inline] def DNameMap.empty : DNameMap α := DRBMap.empty
+
+declare_opaque_type OpaquePostUpdateHook (pkg : Name)
 
 /-- A Lake package -- its location plus its configuration. -/
 structure Package where
@@ -186,14 +186,12 @@ structure Package where
   leanOpts : Options
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
-  /-- The Git tag of this package. -/
-  gitTag? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
   opaqueDeps : Array OpaquePackage := #[]
   /-- Lean library configurations for the package. -/
-  leanLibConfigs : NameMap LeanLibConfig := {}
+  leanLibConfigs : OrdNameMap LeanLibConfig := {}
   /-- Lean binary executable configurations for the package. -/
-  leanExeConfigs : NameMap LeanExeConfig := {}
+  leanExeConfigs : OrdNameMap LeanExeConfig := {}
   /-- External library targets for the package. -/
   externLibConfigs : DNameMap (ExternLibConfig config.name) := {}
   /-- (Opaque references to) targets defined in the package. -/
@@ -210,6 +208,8 @@ structure Package where
   (i.e., on a bare `lake run` of the package).
   -/
   defaultScripts : Array Script := #[]
+  /-- Post-`lake update` hooks for the package. -/
+  postUpdateHooks : Array (OpaquePostUpdateHook config.name) := #[]
 
 instance : Nonempty Package :=
   have : Inhabited Environment := Classical.inhabited_of_nonempty inferInstance
@@ -242,25 +242,38 @@ instance : CoeDep Package pkg (NPackage pkg.name) := ⟨⟨pkg, rfl⟩⟩
 /-- The package's name. -/
 abbrev NPackage.name (_ : NPackage n) := n
 
+/--
+The type of a post-update hooks monad.
+`IO` equipped with logging ability and information about the Lake configuration.
+-/
+abbrev PostUpdateFn (pkgName : Name) := NPackage pkgName → LakeT LogIO PUnit
+
+structure PostUpdateHook (pkgName : Name) where
+  fn : PostUpdateFn pkgName
+  deriving Inhabited
+
+hydrate_opaque_type OpaquePostUpdateHook PostUpdateHook name
+
+structure PostUpdateHookDecl where
+  pkg : Name
+  fn : PostUpdateFn pkg
+
 namespace Package
 
 /-- The package's direct dependencies. -/
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
-/--
-The path for storing the package's remote dependencies relative to `dir`.
-Either its `packagesDir` configuration or `defaultPackagesDir`.
--/
-def relPkgsDir (self : Package) : FilePath :=
-  self.config.packagesDir.getD defaultPackagesDir
+/-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
+@[inline] def relPkgsDir (self : Package) : FilePath :=
+  self.config.packagesDir
 
 /-- The package's `dir` joined with its `relPkgsDir` -/
-def pkgsDir (self : Package) : FilePath :=
+@[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
 /-- The package's JSON manifest of remote dependencies. -/
-def manifestFile (self : Package) : FilePath :=
+@[inline] def manifestFile (self : Package) : FilePath :=
   self.dir / self.config.manifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
@@ -274,15 +287,6 @@ def manifestFile (self : Package) : FilePath :=
 /-- The package's `releaseRepo?` configuration. -/
 @[inline] def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo?
-
-/--
-The package's URL × tag release.
-Tries `releaseRepo?` first and then falls back to `remoteUrl?`.
--/
-def release? (self : Package) : Option (String × String) := do
-  let url ← self.releaseRepo? <|> self.remoteUrl?
-  let tag ← self.gitTag?
-  return (url, tag)
 
 /-- The package's `buildArchive?` configuration. -/
 @[inline] def buildArchive? (self : Package) : Option String :=
@@ -324,9 +328,17 @@ def release? (self : Package) : Option (String × String) := do
 @[inline] def moreLeancArgs (self : Package) : Array String :=
   self.config.moreLeancArgs
 
+/-- The package's `weakLeancArgs` configuration. -/
+@[inline] def weakLeancArgs (self : Package) : Array String :=
+  self.config.weakLeancArgs
+
 /-- The package's `moreLinkArgs` configuration. -/
 @[inline] def moreLinkArgs (self : Package) : Array String :=
   self.config.moreLinkArgs
+
+/-- The package's `weakLinkArgs` configuration. -/
+@[inline] def weakLinkArgs (self : Package) : Array String :=
+  self.config.weakLinkArgs
 
 /-- The package's `dir` joined with its `srcDir` configuration. -/
 @[inline] def srcDir (self : Package) : FilePath :=
@@ -354,12 +366,12 @@ def release? (self : Package) : Option (String × String) := do
 
 /-- Whether the given module is considered local to the package. -/
 def isLocalModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun _ lib => lib.isLocalModule mod)
+  self.leanLibConfigs.any (fun lib => lib.isLocalModule mod)
 
 /-- Whether the given module is in the package (i.e., can build it). -/
 def isBuildableModule (mod : Name) (self : Package) : Bool :=
-  self.leanLibConfigs.any (fun _ lib => lib.isBuildableModule mod) ||
-  self.leanExeConfigs.any (fun _ exe => exe.root == mod)
+  self.leanLibConfigs.any (fun lib => lib.isBuildableModule mod) ||
+  self.leanExeConfigs.any (fun exe => exe.root == mod)
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 def clean (self : Package) : IO PUnit := do

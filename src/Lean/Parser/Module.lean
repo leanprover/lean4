@@ -32,9 +32,30 @@ structure ModuleParserState where
   recovering : Bool       := false
   deriving Inhabited
 
-private def mkErrorMessage (c : InputContext) (pos : String.Pos) (errorMsg : String) : Message :=
-  let pos := c.fileMap.toPosition pos
-  { fileName := c.fileName, pos := pos, data := errorMsg }
+private def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Error) : Message := Id.run do
+  let mut pos := s.pos
+  let mut endPos? := none
+  let mut e := e
+  unless e.unexpectedTk.isMissing do
+    -- calculate error parts too costly to do eagerly
+    if let some r := e.unexpectedTk.getRange? then
+      pos := r.start
+      endPos? := some r.stop
+    let unexpected := match e.unexpectedTk with
+      | .ident .. => "unexpected identifier"
+      | .atom _ v => s!"unexpected token '{v}'"
+      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+    e := { e with unexpected }
+    -- if there is an unexpected token, include preceding whitespace as well as the expected token could
+    -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
+    if let .original (trailing := trailing) .. := s.stxStack.back.getTailInfo then
+      if trailing.stopPos == pos then
+        pos := trailing.startPos
+  { fileName := c.fileName
+    pos := c.fileMap.toPosition pos
+    endPos := c.fileMap.toPosition <$> endPos?
+    keepFullRange := true
+    data := toString e }
 
 def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
@@ -44,7 +65,7 @@ def parseHeader (inputCtx : InputContext) : IO (Syntax × ModuleParserState × M
   let stx := if s.stxStack.isEmpty then .missing else s.stxStack.back
   match s.errorMsg with
   | some errorMsg =>
-    let msg := mkErrorMessage inputCtx s.pos (toString errorMsg)
+    let msg := mkErrorMessage inputCtx s errorMsg
     pure (stx, { pos := s.pos, recovering := true }, { : MessageLog }.add msg)
   | none =>
     pure (stx, { pos := s.pos }, {})
@@ -96,7 +117,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
           We claim a syntactically incorrect command containing no token or identifier is irrelevant for intellisense and should be ignored. -/
       let ignore := s.stxStack.isEmpty || s.stxStack.back.getPos?.isNone
       unless recovering && ignore do
-        messages := messages.add <| mkErrorMessage inputCtx s.pos (toString errorMsg)
+        messages := messages.add <| mkErrorMessage inputCtx s errorMsg
       recovering := true
       if ignore then
         continue

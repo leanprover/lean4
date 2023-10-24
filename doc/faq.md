@@ -27,7 +27,7 @@ It is a good place to interact with other Lean users.
 ### Should I use Lean to teach a course?
 
 Lean has been used to teach courses on logic, type theory and programming languages at CMU and the University of Washington.
-The lecture notes for the CMU course [Logic and Proof](https://leanprover.github.io/logic_and_proof) are available online,
+The lecture notes for the CMU course [Logic and Proof](https://lean-lang.org/logic_and_proof) are available online,
 but they are for Lean 3.
 If you decide to teach a course using Lean, we suggest you prepare all material before the beginning of the course, and
 make sure that Lean attends all your needs. You should not expect we will fix bugs and/or add features needed for your course.
@@ -47,7 +47,7 @@ We expect similar independent checkers will be built for Lean 4.
 
 We use [GitHub](https://github.com/leanprover/lean4/issues) to track bugs and new features.
 Bug reports are always welcome, but nitpicking issues are not (e.g., the error message is confusing).
-See also our [contribution guidelines](../CONTRIBUTING.md).
+See also our [contribution guidelines](https://github.com/leanprover/lean4/blob/master/CONTRIBUTING.md).
 
 ### Is it Lean, LEAN, or L∃∀N?
 

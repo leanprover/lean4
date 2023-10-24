@@ -240,7 +240,6 @@ LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Server_FileWorker_lo
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleCompletion___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_isIdOrAtom_x3f(lean_object*);
 static lean_object* l_List_forIn_loop___at_Lean_Server_FileWorker_handleSemanticTokens___spec__1___lambda__1___closed__1;
-lean_object* l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleDocumentSymbol_toDocumentSymbols___lambda__3___closed__9;
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Server_FileWorker_getInteractiveGoals___spec__2___boxed__const__1;
@@ -458,6 +457,7 @@ lean_object* l_Lean_Syntax_reprint(lean_object*);
 lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker_RequestHandling___hyg_12954____spec__21___lambda__2___closed__2;
+lean_object* l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_noHighlightKinds___closed__13;
 static lean_object* l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_FileWorker_handleWaitForDiagnostics___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -18433,7 +18433,7 @@ if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 
 x_27 = l_List_findSomeM_x3f___at_Lean_Server_FileWorker_handleHover___spec__1___closed__4;
-x_28 = l_panic___at_Lean_Elab_InfoTree_smallestInfo_x3f___spec__1(x_27);
+x_28 = l_panic___at_Lean_Parser_ParserState_mkUnexpectedTokenErrors___spec__1(x_27);
 x_13 = x_28;
 goto block_24;
 }

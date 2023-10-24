@@ -202,19 +202,19 @@ can be either separated by newlines or `;`.
 syntax (name := paren) "(" withoutPosition(tacticSeq) ")" : tactic
 
 /--
-`with_reducible tacs` excutes `tacs` using the reducible transparency setting.
+`with_reducible tacs` executes `tacs` using the reducible transparency setting.
 In this setting only definitions tagged as `[reducible]` are unfolded.
 -/
 syntax (name := withReducible) "with_reducible " tacticSeq : tactic
 
 /--
-`with_reducible_and_instances tacs` excutes `tacs` using the `.instances` transparency setting.
+`with_reducible_and_instances tacs` executes `tacs` using the `.instances` transparency setting.
 In this setting only definitions tagged as `[reducible]` or type class instances are unfolded.
 -/
 syntax (name := withReducibleAndInstances) "with_reducible_and_instances " tacticSeq : tactic
 
 /--
-`with_unfolding_all tacs` excutes `tacs` using the `.all` transparency setting.
+`with_unfolding_all tacs` executes `tacs` using the `.all` transparency setting.
 In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
@@ -350,6 +350,15 @@ This provides a convenient way to unfold `e`.
 - `rewrite [e] at l` rewrites `e` at location(s) `l`, where `l` is either `*` or a
   list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
   can also be used, to signify the target of the goal.
+
+Using `rw (config := {occs := .pos L}) [e]`,
+where `L : List Nat`, you can control which "occurrences" are rewritten.
+(This option applies to each rule, so usually this will only be used with a single rule.)
+Occurrences count from `1`.
+At the first occurrence, whether allowed or not,
+arguments of the rewrite rule `e` may be instantiated,
+restricting which later rewrites can be found.
+`{occs := .neg L}` allows skipping specified occurrences.
 -/
 syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
 
@@ -429,7 +438,7 @@ syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
-are simplified multiple times until no simplication is applicable.
+are simplified multiple times until no simplification is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
 syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
@@ -518,7 +527,7 @@ macro "let' " d:letDecl : tactic => `(tactic| refine_lift' let $d:letDecl; ?_)
 /--
 The left hand side of an induction arm, `| foo a b c` or `| @foo a b c`
 where `foo` is a constructor of the inductive type and `a b c` are the arguments
-to the contstructor.
+to the constructor.
 -/
 syntax inductionAltLHS := "| " (("@"? ident) <|> hole) (ident <|> hole)*
 /--

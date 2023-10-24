@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lake.Util.Log
+import Lake.Util.Exit
 import Lake.Util.Task
 import Lake.Util.Error
 import Lake.Util.OptionIO
@@ -15,15 +16,39 @@ import Lake.Build.Topological
 open System
 namespace Lake
 
-/-- A Lake context with some additional caching for builds. -/
-structure BuildContext extends Context where
-  leanTrace : BuildTrace
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
+
+/-- Configuration options for a Lake build. -/
+structure BuildConfig where
   oldMode : Bool := false
+  trustHash : Bool := true
+  /-- Early exit if a target has to be rebuilt. -/
+  noBuild : Bool := false
+
+/-- A Lake context with a build configuration and additional build data. -/
+structure BuildContext extends BuildConfig, Context where
+  leanTrace : BuildTrace
   startedBuilds : IO.Ref Nat
   finishedBuilds : IO.Ref Nat
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 abbrev BuildT := ReaderT BuildContext
+
+@[inline] def getLeanTrace [Monad m] : BuildT m BuildTrace :=
+  (·.leanTrace) <$> readThe BuildContext
+
+@[inline] def getBuildConfig [Monad m] : BuildT m BuildConfig :=
+  (·.toBuildConfig) <$> readThe BuildContext
+
+@[inline] def getIsOldMode [Monad m] : BuildT m Bool :=
+  (·.oldMode) <$> getBuildConfig
+
+@[inline] def getTrustHash [Monad m] : BuildT m Bool :=
+  (·.trustHash) <$> getBuildConfig
+
+@[inline] def getNoBuild [Monad m] : BuildT m Bool :=
+  (·.noBuild) <$> getBuildConfig
 
 /-- The monad for the Lake build manager. -/
 abbrev SchedulerM := BuildT <| LogT BaseIO

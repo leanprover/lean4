@@ -1261,7 +1261,7 @@ def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
 - When we elaborate choice nodes (and overloaded identifiers), we track multiple results using the `observing x` combinator.
   The `observing x` executes `x` and returns a `TermElabResult`.
 
-`observing `x does not check for synthetic sorry's, just an exception. Thus, it may think `x` worked when it didn't
+`observing x` does not check for synthetic sorry's, just an exception. Thus, it may think `x` worked when it didn't
 if a synthetic sorry was introduced. We decided that checking for synthetic sorrys at `observing` is not a good solution
 because it would not be clear to decide what the "main" error message for the alternative is. When the result contains
 a synthetic `sorry`, it is not clear which error message corresponds to the `sorry`. Moreover, while executing `x`, many

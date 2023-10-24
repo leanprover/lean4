@@ -26,6 +26,8 @@ A package `Script` is a `ScriptFn` definition that is
 indexed by a `String` key and can be be run by `lake run <key> [-- <args>]`.
 -/
 structure Script where
+  /-- The full name of the `Script` (e.g., `pkg/script`). -/
+  name : String
   fn : ScriptFn
   doc? : Option String
   deriving Inhabited

@@ -4,9 +4,9 @@ f 1 fun x => x : Nat
 0 : Nat
 f 1 fun x => x : Nat
 id.{u} {α : Sort u} (a : α) : α
-precissues.lean:15:10: error: expected command
+precissues.lean:15:10-15:14: error: unexpected token 'have'; expected command
 id.{u} {α : Sort u} (a : α) : α
-precissues.lean:17:10: error: expected command
+precissues.lean:17:10-17:13: error: unexpected token 'let'; expected command
 1 : Nat
 id
   (let_fun this := True.intro;
@@ -27,4 +27,4 @@ p ∧ ¬q : Prop
 id ¬p : Prop
 Nat → ∀ (a : Nat), a = a : Prop
 id.{u} {α : Sort u} (a : α) : α
-precissues.lean:41:10: error: expected command
+precissues.lean:41:10-41:14: error: unexpected token 'foo!'; expected command

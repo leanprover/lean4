@@ -32,8 +32,8 @@ Release builds for all supported platforms are available at <https://github.com/
 Instead of downloading these and setting up the paths manually, however, it is recommended to use the Lean version manager [`elan`](https://github.com/leanprover/elan) instead:
 ```sh
 $ elan self update  # in case you haven't updated elan in a while
-# download & activate latest Lean 4 nightly release (https://github.com/leanprover/lean4-nightly/releases)
-$ elan default leanprover/lean4:nightly
+# download & activate latest Lean 4 stable release (https://github.com/leanprover/lean4/releases)
+$ elan default leanprover/lean4:stable
 ```
 
 ## `lake`

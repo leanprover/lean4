@@ -9,11 +9,11 @@
 123000.000000
 -8.534000
 scientific.lean:14:6-14:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)
-scientific.lean:14:7: error: expected command
+scientific.lean:14:7-14:10: error: unexpected token; expected command
 scientific.lean:15:6-15:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)
-scientific.lean:15:7: error: expected command
+scientific.lean:15:7-15:12: error: unexpected token; expected command
 scientific.lean:16:6-16:7: error: invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)
-scientific.lean:16:7: error: expected command
+scientific.lean:16:7-16:16: error: unexpected token; expected command
 scientific.lean:19:6-19:7: error: unknown identifier 'e'
 scientific.lean:19:0-19:9: error: cannot evaluate code because '_eval._lambda_1' uses 'sorry' and/or contains errors
 scientific.lean:20:9: error: missing exponent digits in scientific literal

@@ -37,7 +37,8 @@ private def lensCoord (g : Expr → M Expr) : Nat → Expr → M Expr
   | 0, e@(Expr.letE _ y a b _)  => return e.updateLet! (← g y) a b
   | 1, e@(Expr.letE _ y a b _)  => return e.updateLet! y (← g a) b
   | 2,   (Expr.letE n y a b _)  => withLetDecl n y a fun x => do mkLetFVars #[x] <|← g <| b.instantiateRev #[x]
-  | 0, e@(Expr.proj _ _ b)      => e.updateProj! <$> g b
+  | 0, e@(Expr.proj _ _ b m)    => return e.updateProj! (← g b) m
+  | 1, e@(Expr.proj _ _ b m)    => return e.updateProj! b (← g m)
   | n, e@(Expr.mdata _ a)       => e.updateMData! <$> lensCoord g n a
   | 3, _                        => throwError "Lensing on types is not supported"
   | c, e                        => throwError "Invalid coordinate {c} for {e}"
@@ -66,7 +67,8 @@ private def viewCoordAux (k : Array Expr → Expr → M α) (fvars: Array Expr) 
   | 0, (Expr.letE _ y _ _ _)  => k fvars y
   | 1, (Expr.letE _ _ a _ _)  => k fvars a
   | 2, (Expr.letE n y a b _)  => withLetDecl n (y.instantiateRev fvars) (a.instantiateRev fvars) fun x => k (fvars.push x) b
-  | 0, (Expr.proj _ _ b)      => k fvars b
+  | 0, (Expr.proj _ _ b _)    => k fvars b
+  | 1, (Expr.proj _ _ _ m)    => k fvars m
   | n, (Expr.mdata _ a)       => viewCoordAux k fvars n a
   | c, e                      => throwError "Invalid coordinate {c} for {e}"
 
@@ -132,7 +134,8 @@ private def viewCoordRaw: Expr → Nat → M Expr
   | (Expr.letE _ y _ _ _) , 0 => pure y
   | (Expr.letE _ _ a _ _) , 1 => pure a
   | (Expr.letE _ _ _ b _) , 2 => pure b
-  | (Expr.proj _ _ b)     , 0 => pure b
+  | (Expr.proj _ _ b _)   , 0 => pure b
+  | (Expr.proj _ _ _ m)   , 1 => pure m
   | (Expr.mdata _ a)      , n => viewCoordRaw a n
   | e                     , c => throwError "Bad coordinate {c} for {e}"
 

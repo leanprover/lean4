@@ -601,7 +601,7 @@ private partial def topSort (patternVars : Array Expr) : TermElabM (Array Expr) 
 where
   visit (e : Expr) : TopSortM Unit := do
     match e with
-    | Expr.proj _ _ e      => visit e
+    | Expr.proj _ _ e m    => visit e; visit m
     | Expr.forallE _ d b _ => visit d; visit b
     | Expr.lam _ d b _     => visit d; visit b
     | Expr.letE _ t v b _  => visit t; visit v; visit b
@@ -638,7 +638,7 @@ where
     | .lam n d b bi      => withLocalDecl n bi (← go d) fun x => do mkLambdaFVars #[x] (← go (b.instantiate1 x))
     | .letE n t v b ..  => withLetDecl n (← go t) (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | .app f a          => return mkApp (← go f) (← go a)
-    | .proj _ _ b       => return p.updateProj! (← go b)
+    | .proj _ _ b m     => return p.updateProj! (← go b) (← go m)
     | .mdata k b        =>
       if inaccessible? p |>.isSome then
         return mkMData k (← withReader (fun _ => false) (go b))

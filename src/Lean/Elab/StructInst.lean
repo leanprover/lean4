@@ -773,10 +773,10 @@ partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   | .lam ..       => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
   | .forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
   | .letE ..      => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
-  | .proj _ i b   =>
+  | .proj _ i b m =>
     match (← Meta.project? b i) with
     | some r => reduce structNames r
-    | none   => return e.updateProj! (← reduce structNames b)
+    | none   => return e.updateProj! (← reduce structNames b) (← reduce structNames m)
   | .app f .. =>
     match (← reduceProjOf? e structNames.contains) with
     | some r => reduce structNames r

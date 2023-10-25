@@ -1715,7 +1715,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Tactic_match_docString___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://leanprover.github.io/theorem_proving_in_lean4/induction_and_recursion.html\n", 405);
+x_1 = lean_mk_string_from_bytes("`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n", 398);
 return x_1;
 }
 }

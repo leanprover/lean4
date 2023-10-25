@@ -28,7 +28,7 @@ unsafe def findM? (p : Expr → Bool) (e : Expr) : OptionT FindM Expr :=
       | .mdata _ b       => visit b
       | .letE _ t v b _  => visit t <|> visit v <|> visit b
       | .app f a         => visit f <|> visit a
-      | .proj _ _ b      => visit b
+      | .proj _ _ b m    => visit b <|> visit m
       | _                => failure
   visit e
 
@@ -48,7 +48,7 @@ def find? (p : Expr → Bool) (e : Expr) : Option Expr :=
     | .mdata _ b       => find? p b
     | .letE _ t v b _  => find? p t <|> find? p v <|> find? p b
     | .app f a         => find? p f <|> find? p a
-    | .proj _ _ b      => find? p b
+    | .proj _ _ b m    => find? p b <|> find? p m
     | _                => none
 
 /-- Return true if `e` occurs in `t` -/
@@ -85,7 +85,7 @@ where
         | .mdata _ b       => visit b
         | .letE _ t v b _  => visit t <|> visit v <|> visit b
         | .app ..          => visitApp e
-        | .proj _ _ b      => visit b
+        | .proj _ _ b m    => visit b <|> visit m
         | _                => failure
 
 unsafe def findUnsafe? (p : Expr → FindStep) (e : Expr) : Option Expr :=

@@ -21,7 +21,7 @@ unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declN
     | .forallE _ d b _   => cache e (← containsUnsafe d <||> containsUnsafe b)
     | .letE _ t v b _    => cache e (← containsUnsafe t <||> containsUnsafe v <||> containsUnsafe b)
     | .mdata _ b         => cache e (← containsUnsafe b)
-    | .proj _ _ b        => cache e (← containsUnsafe b)
+    | .proj _ _ b m      => cache e (← containsUnsafe b <||> containsUnsafe m)
     | _                  => return false
 where
   cache (e : Expr) (r : Bool) : StateM (HasConstCache declName) Bool := do

@@ -289,7 +289,7 @@ private partial def whnfAux (e : Expr) : MetaM Expr := do
   let e ← whnfI e -- Must reduce instances too, otherwise it will not be able to reduce `(Nat.rec ... ... (OfNat.ofNat 0))`
   let f := e.getAppFn
   match f with
-  | .proj _ _ s => return mkAppN (f.updateProj! (← whnfAux s)) e.getAppArgs
+  | .proj _ _ s m => return mkAppN (f.updateProj! (← whnfAux s) m) e.getAppArgs
   | _ => return e
 
 /-- Apply `whnfR` to lhs, return `none` if `lhs` was not modified -/

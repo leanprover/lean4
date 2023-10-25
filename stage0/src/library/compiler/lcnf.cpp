@@ -481,7 +481,7 @@ public:
 
     expr visit_proj(expr const & e, bool root) {
         expr v = visit(proj_expr(e), false);
-        expr r = update_proj(e, v);
+        expr r = update_proj(e, v, proj_motive(e));
         return mk_let_decl(r, root);
     }
 

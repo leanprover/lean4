@@ -79,7 +79,7 @@ inductive Expr
 | letE    : Name → Expr → Expr → Expr → Expr          -- let expressions
 | lit     : Literal → Expr                            -- literals
 | mdata   : MData → Expr → Expr                       -- metadata
-| proj    : Name → Nat → Expr → Expr                  -- projection
+| proj    : Name → Nat → Expr → Expr → Expr           -- projection
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
@@ -87,7 +87,7 @@ class expr : public object_ref {
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
-    friend expr mk_proj(name const & s, nat const & idx, expr const & e);
+    friend expr mk_proj(name const & s, nat const & idx, expr const & e, expr const & type);
     friend expr mk_bvar(nat const & idx);
     friend expr mk_mvar(name const & n);
     friend expr mk_fvar(name const & n);
@@ -167,8 +167,8 @@ bool is_default_var_name(name const & n);
 // Constructors
 expr mk_lit(literal const & lit);
 expr mk_mdata(kvmap const & d, expr const & e);
-expr mk_proj(name const & s, nat const & idx, expr const & e);
-inline expr mk_proj(name const & s, unsigned idx, expr const & e) { return mk_proj(s, nat(idx), e); }
+expr mk_proj(name const & s, nat const & idx, expr const & e, expr const & motive);
+inline expr mk_proj(name const & s, unsigned idx, expr const & e, expr const & motive) { return mk_proj(s, nat(idx), e, motive); }
 expr mk_bvar(nat const & idx);
 inline expr mk_bvar(unsigned idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
@@ -195,6 +195,7 @@ inline expr mk_binding(expr_kind k, name const & n, expr const & t, expr const &
     return k == expr_kind::Pi ? mk_pi(n, t, e, bi) : mk_lambda(n, t, e, bi);
 }
 expr mk_arrow(expr const & t, expr const & e);
+expr mk_const_lambda(expr const & t, expr const & e, binder_info bi = mk_binder_info());
 expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
 expr mk_sort(level const & l);
 expr mk_Prop();
@@ -212,6 +213,7 @@ inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_md
 inline name const &    proj_sname(expr const & e)            { lean_assert(is_proj(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
 inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 1)); }
 inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
+inline expr const &    proj_motive(expr const & e)           { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 3)); }
 inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
 inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
 inline name const &    fvar_name_core(object * o)            { lean_assert(is_fvar_core(o)); return static_cast<name const &>(cnstr_get_ref(o, 0)); }
@@ -244,7 +246,7 @@ expr update_sort(expr const & e, level const & new_level);
 expr update_const(expr const & e, levels const & new_levels);
 expr update_let(expr const & e, expr const & new_type, expr const & new_value, expr const & new_body);
 expr update_mdata(expr const & e, expr const & new_e);
-expr update_proj(expr const & e, expr const & new_e);
+expr update_proj(expr const & e, expr const & new_e, expr const & new_motive);
 // =======================================
 
 

@@ -47,13 +47,42 @@ private def ensureArgType (f : Expr) (arg : Expr) (expectedType : Expr) : TermEl
     | ex => throw ex
 
 private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
-  let r := mkProj structName idx e
-  let eType ← inferType e
-  if (← isProp eType) then
-    let rType ← inferType r
-    if !(← isProp rType) then
-      throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType}\nbut the projected value is not, it has type{indentExpr rType}"
-  return r
+  let failed {α} : Unit → MetaM α := fun _ => do
+    throwError "invalid projection{indentExpr (mkProj structName idx e (← mkFreshExprMVar none))}"
+  let eType ← whnf (← inferType e)
+  eType.withApp fun f args => do
+    matchConstInduct f failed fun ival us => do
+      let [ctor] := ival.ctors | failed ()
+      let ctorInfo ← getConstInfoCtor ctor
+      unless idx < ctorInfo.numFields do failed ()
+      let propType ← isProp eType
+      let params := args[:ival.numParams].toArray
+      let type := ctorInfo.type.instantiateLevelParams ctorInfo.levelParams us
+      forallBoundedTelescope type ival.numParams fun paramFVars type => do
+        withLocalDeclD (← mkFreshUserName `t) eType fun t => do
+          let mut type := type.replaceFVars paramFVars params
+          for i in [:idx] do
+            let Expr.forallE x dom body _ ← whnf type | failed ()
+            type ← (do
+              unless body.hasLooseBVars do return body
+              if propType then
+                if !(← isProp dom) then
+                  -- reduce betas to try to eliminate spurious dependencies like `(fun x => True) #0`
+                  let body ← Core.transform body fun e =>
+                    pure <| if e.isHeadBetaTarget then .visit e.headBeta else .continue
+                  unless body.hasLooseBVars do return body
+                  withLocalDeclD x dom fun v => do
+                    throwError "invalid projection, the expression{indentExpr e
+                      }\nis a proposition and has type{indentExpr eType
+                      }\nbut the projected value has type{indentExpr (body.instantiate1 v)
+                      }\n depending on the non-proposition {v} of type{indentExpr dom}"
+              return body.instantiate1 <| mkProj structName i t (← mkLambdaFVars #[t] dom))
+          let Expr.forallE _ rType _ _ ← whnf type | failed ()
+          if propType then
+            if !(← isProp rType) then
+              throwError "invalid projection, the expression{indentExpr e}\nis a proposition and has type{indentExpr eType
+                }\nbut the projected value is not, it has type{indentExpr rType}"
+          return mkProj structName idx e (← mkLambdaFVars #[t] rType)
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do

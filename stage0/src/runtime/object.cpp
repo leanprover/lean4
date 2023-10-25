@@ -725,7 +725,7 @@ class task_manager {
         mark_mt(v);
         t->m_value = v;
         /* After the task has been finished and we propagated
-           dependecies, we can release `m_imp` and keep just the value */
+           dependencies, we can release `m_imp` and keep just the value */
         free_task_imp(t->m_imp);
         t->m_imp   = nullptr;
         m_task_finished_cv.notify_all();

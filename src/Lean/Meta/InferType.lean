@@ -39,7 +39,7 @@ where
       | .lam _ d b _     => return e.updateLambdaE! (← visit d offset) (← visit b (offset+1))
       | .letE _ t v b _  => return e.updateLet! (← visit t offset) (← visit v offset) (← visit b (offset+1))
       | .mdata _ b       => return e.updateMData! (← visit b offset)
-      | .proj _ _ b      => return e.updateProj! (← visit b offset)
+      | .proj _ _ b m    => return e.updateProj! (← visit b offset) (← visit m offset)
       | .app .. =>
         e.withAppRev fun f revArgs => do
         let fNew    ← visit f offset
@@ -93,31 +93,17 @@ private def inferConstType (c : Name) (us : List Level) : MetaM Expr := do
   else
     throwIncorrectNumberOfLevels c us
 
-private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Expr := do
+private def inferProjType (structName : Name) (idx : Nat) (e motive : Expr) : MetaM Expr := do
   let failed {α} : Unit → MetaM α := fun _ =>
-    throwError "invalid projection{indentExpr (mkProj structName idx e)}"
+    throwError "invalid projection{indentExpr (mkProj structName idx e motive)}"
   let structType ← inferType e
   let structType ← whnf structType
-  matchConstStruct structType.getAppFn failed fun structVal structLvls ctorVal =>
-    let n := structVal.numParams
-    let structParams := structType.getAppArgs
-    if n != structParams.size then
-      failed ()
-    else do
-      let mut ctorType ← inferAppType (mkConst ctorVal.name structLvls) structParams
-      for i in [:idx] do
-        ctorType ← whnf ctorType
-        match ctorType with
-        | Expr.forallE _ _ body _ =>
-          if body.hasLooseBVars then
-            ctorType := body.instantiate1 <| mkProj structName i e
-          else
-            ctorType := body
-        | _ => failed ()
-      ctorType ← whnf ctorType
-      match ctorType with
-      | Expr.forallE _ d _ _ => return d.consumeTypeAnnotations
-      | _                    => failed ()
+  matchConstInduct structType.getAppFn failed fun ival _ => do
+    unless ival.ctors.length == 1 do failed ()
+    let args :=
+      if ival.numIndices == 0 then #[e]
+      else structType.getAppArgs[ival.numParams:].toArray.push e
+    return (motive.betaRev args).consumeTypeAnnotations
 
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
   throwError "type expected{indentExpr type}"
@@ -179,7 +165,7 @@ def inferTypeImp (e : Expr) : MetaM Expr :=
     match e with
     | .const c []    => inferConstType c []
     | .const c us    => checkInferTypeCache e (inferConstType c us)
-    | .proj n i s    => checkInferTypeCache e (inferProjType n i s)
+    | .proj n i s m  => checkInferTypeCache e (inferProjType n i s m)
     | .app f ..      => checkInferTypeCache e (inferAppType f.getAppFn e.getAppArgs)
     | .mvar mvarId   => inferMVarType mvarId
     | .fvar fvarId   => inferFVarType fvarId

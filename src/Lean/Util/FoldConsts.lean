@@ -39,7 +39,7 @@ unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (
       | Expr.mdata _ b         => visit b acc
       | Expr.letE _ t v b _    => visit b (← visit v (← visit t acc))
       | Expr.app f a           => visit a (← visit f acc)
-      | Expr.proj _ _ b        => visit b acc
+      | Expr.proj _ _ b m      => visit m (← visit b acc)
       | Expr.const c _         =>
         let s ← get
         if s.visitedConsts.contains c then

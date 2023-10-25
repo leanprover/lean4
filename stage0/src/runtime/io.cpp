@@ -20,7 +20,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 // Linux include files
 #include <unistd.h> // NOLINT
 #include <sys/mman.h>
+#ifndef LEAN_EMSCRIPTEN
 #include <sys/random.h>
+#endif
 #endif
 #ifndef LEAN_WINDOWS
 #include <csignal>
@@ -433,7 +435,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_random_bytes (size_t nbytes, obj_arg 
 #else
     #if defined(LEAN_EMSCRIPTEN)
         // `Crypto.getRandomValues` documents `dest` should be at most 65536 bytes.
-        size_t read_sz = std::min(remain, 65536);
+        size_t read_sz = std::min(remain, static_cast<size_t>(65536));
     #else
         size_t read_sz = remain;
     #endif
@@ -621,7 +623,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
     cnstr_set(mdata, 0, timespec_to_obj(st.st_atimespec));
     cnstr_set(mdata, 1, timespec_to_obj(st.st_mtimespec));
 #elif defined(LEAN_WINDOWS)
-    // TOOD: sub-second precision on Windows
+    // TODO: sub-second precision on Windows
     cnstr_set(mdata, 0, timespec_to_obj(timespec { st.st_atime, 0 }));
     cnstr_set(mdata, 1, timespec_to_obj(timespec { st.st_mtime, 0 }));
 #else
@@ -688,11 +690,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {
 
 extern "C" LEAN_EXPORT obj_res lean_io_app_path(obj_arg) {
 #if defined(LEAN_WINDOWS)
-    HMODULE hModule = GetModuleHandleW(NULL);
-    WCHAR path[MAX_PATH];
-    GetModuleFileNameW(hModule, path, MAX_PATH);
-    std::wstring pathwstr(path);
-    std::string pathstr(pathwstr.begin(), pathwstr.end());
+    HMODULE hModule = GetModuleHandle(NULL);
+    char path[MAX_PATH];
+    GetModuleFileName(hModule, path, MAX_PATH);
+    std::string pathstr(path);
     // Hack for making sure disk is lower case
     // TODO(Leo): more robust solution
     if (pathstr.size() >= 2 && pathstr[1] == ':') {

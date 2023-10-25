@@ -1268,49 +1268,59 @@ return x_52;
 }
 case 11:
 {
-lean_object* x_53; lean_object* x_54; lean_object* x_55; 
-lean_dec(x_6);
-lean_dec(x_1);
+lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
 x_53 = lean_ctor_get(x_7, 1);
 lean_inc(x_53);
 lean_dec(x_7);
 x_54 = lean_ctor_get(x_2, 2);
 lean_inc(x_54);
+x_55 = lean_ctor_get(x_2, 3);
+lean_inc(x_55);
 lean_dec(x_2);
-x_55 = l_Lean_occursCheck_visit___rarg(x_3, x_4, x_5, x_54, x_53);
-return x_55;
+lean_inc(x_5);
+lean_inc(x_4);
+lean_inc(x_3);
+x_56 = l_Lean_occursCheck_visit___rarg(x_3, x_4, x_5, x_54, x_53);
+x_57 = lean_alloc_closure((void*)(l_Lean_occursCheck_visit___rarg___lambda__2), 6, 5);
+lean_closure_set(x_57, 0, x_1);
+lean_closure_set(x_57, 1, x_3);
+lean_closure_set(x_57, 2, x_4);
+lean_closure_set(x_57, 3, x_5);
+lean_closure_set(x_57, 4, x_55);
+x_58 = lean_apply_4(x_6, lean_box(0), lean_box(0), x_56, x_57);
+return x_58;
 }
 default: 
 {
-uint8_t x_56; 
+uint8_t x_59; 
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_56 = !lean_is_exclusive(x_7);
-if (x_56 == 0)
+x_59 = !lean_is_exclusive(x_7);
+if (x_59 == 0)
 {
-lean_object* x_57; lean_object* x_58; lean_object* x_59; 
-x_57 = lean_ctor_get(x_7, 0);
-lean_dec(x_57);
-x_58 = l_Lean_occursCheck_visitMVar___rarg___lambda__1___closed__1;
-lean_ctor_set(x_7, 0, x_58);
-x_59 = lean_apply_2(x_1, lean_box(0), x_7);
-return x_59;
+lean_object* x_60; lean_object* x_61; lean_object* x_62; 
+x_60 = lean_ctor_get(x_7, 0);
+lean_dec(x_60);
+x_61 = l_Lean_occursCheck_visitMVar___rarg___lambda__1___closed__1;
+lean_ctor_set(x_7, 0, x_61);
+x_62 = lean_apply_2(x_1, lean_box(0), x_7);
+return x_62;
 }
 else
 {
-lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; 
-x_60 = lean_ctor_get(x_7, 1);
-lean_inc(x_60);
+lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+x_63 = lean_ctor_get(x_7, 1);
+lean_inc(x_63);
 lean_dec(x_7);
-x_61 = l_Lean_occursCheck_visitMVar___rarg___lambda__1___closed__1;
-x_62 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_62, 0, x_61);
-lean_ctor_set(x_62, 1, x_60);
-x_63 = lean_apply_2(x_1, lean_box(0), x_62);
-return x_63;
+x_64 = l_Lean_occursCheck_visitMVar___rarg___lambda__1___closed__1;
+x_65 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_65, 0, x_64);
+lean_ctor_set(x_65, 1, x_63);
+x_66 = lean_apply_2(x_1, lean_box(0), x_65);
+return x_66;
 }
 }
 }

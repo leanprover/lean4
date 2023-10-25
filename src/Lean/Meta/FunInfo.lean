@@ -27,7 +27,7 @@ private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
     | .forallE _ d b _ => whenHasVar e deps (visit b ∘ visit d)
     | .lam _ d b _     => whenHasVar e deps (visit b ∘ visit d)
     | .letE _ t v b _  => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
-    | .proj _ _ e      => visit e deps
+    | .proj _ _ s m    => whenHasVar e deps (visit m ∘ visit s)
     | .mdata _ e       => visit e deps
     | .fvar ..         =>
       match fvars.indexOf? e with

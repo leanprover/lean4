@@ -23,7 +23,7 @@ mutual
     else main e { s with visitedExpr := s.visitedExpr.insert e }
 
   partial def main : Expr → Visitor
-    | Expr.proj _ _ e      => visit e
+    | Expr.proj _ _ e m    => visit m ∘ visit e
     | Expr.forallE _ d b _ => visit b ∘ visit d
     | Expr.lam _ d b _     => visit b ∘ visit d
     | Expr.letE _ t v b _  => visit b ∘ visit v ∘ visit t

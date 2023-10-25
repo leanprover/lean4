@@ -65,7 +65,7 @@ unsafe def replaceUnsafeM (f? : Expr → Option Expr) (e : Expr) : ReplaceM Expr
         | Expr.mdata _ b         => cache e <| e.updateMData! (← visit b)
         | Expr.letE _ t v b _    => cache e <| e.updateLet! (← visit t) (← visit v) (← visit b)
         | Expr.app f a           => cache e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b        => cache e <| e.updateProj! (← visit b)
+        | Expr.proj _ _ b m      => cache e <| e.updateProj! (← visit b) (← visit m)
         | e                      => pure e
   visit e
 
@@ -88,7 +88,7 @@ def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
     | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
     | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
     | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
-    | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
+    | .proj _ _ b m    => let b := replaceNoCache f? b; let m := replaceNoCache f? m; e.updateProj! b m
     | e                => e
 
 @[implemented_by ReplaceImpl.replaceUnsafe]

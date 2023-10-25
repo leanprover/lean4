@@ -23,7 +23,7 @@ mutual
     | .letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
     | .app f a         => visit p a ∘ visit p f
     | .mdata _ b       => visit p b
-    | .proj _ _ e      => visit p e
+    | .proj _ _ e m    => visit p m ∘ visit p e
     | _                    => id
 
   partial def visitLevel (p : LMVarId → Bool) (l : Level) : Visitor := fun s =>

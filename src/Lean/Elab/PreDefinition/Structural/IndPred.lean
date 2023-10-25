@@ -24,7 +24,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
       withLetDecl n (← loop type) (← loop val) fun x => do
         mkLetFVars #[x] (← loop (body.instantiate1 x))
     | Expr.mdata d e     => return mkMData d (← loop e)
-    | Expr.proj n i e    => return mkProj n i (← loop e)
+    | Expr.proj n i e m  => return mkProj n i (← loop e) (← loop m)
     | Expr.app _ _ =>
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do

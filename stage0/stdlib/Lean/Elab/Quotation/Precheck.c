@@ -1090,34 +1090,21 @@ return x_8;
 }
 else
 {
-uint8_t x_9; 
-x_9 = lean_nat_dec_le(x_5, x_5);
-if (x_9 == 0)
-{
-uint8_t x_10; 
+size_t x_9; size_t x_10; uint8_t x_11; 
+x_9 = 0;
+x_10 = lean_usize_of_nat(x_5);
 lean_dec(x_5);
+x_11 = l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Quotation_precheck_hasQuotedIdent___spec__1(x_4, x_9, x_10);
 lean_dec(x_4);
-x_10 = 0;
-return x_10;
-}
-else
-{
-size_t x_11; size_t x_12; uint8_t x_13; 
-x_11 = 0;
-x_12 = lean_usize_of_nat(x_5);
-lean_dec(x_5);
-x_13 = l_Array_anyMUnsafe_any___at_Lean_Elab_Term_Quotation_precheck_hasQuotedIdent___spec__1(x_4, x_11, x_12);
-lean_dec(x_4);
-return x_13;
-}
+return x_11;
 }
 }
 else
 {
-uint8_t x_14; 
+uint8_t x_12; 
 lean_dec(x_1);
-x_14 = 0;
-return x_14;
+x_12 = 0;
+return x_12;
 }
 }
 }

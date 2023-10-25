@@ -294,7 +294,7 @@ class erase_irrelevant_fn {
                 unsigned i = 0;
                 buffer<expr> fields;
                 while (is_lambda(minor)) {
-                    expr v = mk_proj(I_name, i, major);
+                    expr v = mk_proj(I_name, i, major, mk_enf_neutral());
                     expr t = instantiate_rev(binding_domain(minor), fields.size(), fields.data());
                     name n = next_name();
                     expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
@@ -418,7 +418,7 @@ class erase_irrelevant_fn {
             else
                 return visit(proj_expr(e));
         } else {
-            return update_proj(e, visit(proj_expr(e)));
+            return update_proj(e, visit(proj_expr(e)), mk_enf_neutral());
         }
     }
 

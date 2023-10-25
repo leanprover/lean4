@@ -758,7 +758,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
           | .letE n t v b _  => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
           | .app ..        => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
           | .mdata _ b     => visit b e
-          | .proj _ _ b    => visit b e
+          | .proj _ _ b m  => visit b e; visit m e
           | .sort u        => visitLevel u (← read)
           | .const _ us    => us.forM (visitLevel · (← read))
           | _              => pure ()

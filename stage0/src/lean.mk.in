@@ -12,7 +12,7 @@ endif
 
 LEAN = lean
 LEANC = leanc
-LEAN_AR = ar
+LEAN_AR = @CMAKE_AR@
 OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp

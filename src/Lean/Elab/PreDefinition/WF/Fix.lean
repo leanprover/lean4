@@ -76,7 +76,7 @@ where
         withRef stx <| loop F b
       else
         return mkMData d (← loop F b)
-    | Expr.proj n i e => return mkProj n i (← loop F e)
+    | Expr.proj n i e m => return mkProj n i (← loop F e) (← loop F m)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>
       match (← matchMatcherApp? e) with
@@ -171,8 +171,8 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
     let u ← getLevel α
     let v ← getLevel type
     let motive ← mkLambdaFVars #[x] type
-    let rel := mkProj ``WellFoundedRelation 0 wfRel
-    let wf  := mkProj ``WellFoundedRelation 1 wfRel
+    let rel := mkApp2 (.const ``WellFoundedRelation.rel [u]) α wfRel
+    let wf  := mkApp2 (.const ``WellFoundedRelation.wf [u]) α wfRel
     let varName ← x.fvarId!.getUserName -- See comment below.
     return (mkApp4 (mkConst ``WellFounded.fix [u, v]) α motive rel wf, varName)
   forallBoundedTelescope (← whnf (← inferType wfFix)).bindingDomain! (some 2) fun xs _ => do

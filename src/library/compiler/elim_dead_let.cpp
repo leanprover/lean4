@@ -85,7 +85,7 @@ class elim_dead_let_fn {
     }
 
     expr visit_proj(expr const & e) {
-        return update_proj(e, visit(proj_expr(e)));
+        return update_proj(e, visit(proj_expr(e)), proj_motive(e));
     }
 
     expr visit_mdata(expr const & e) {

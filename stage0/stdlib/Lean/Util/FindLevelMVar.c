@@ -290,12 +290,16 @@ return x_27;
 }
 case 11:
 {
-lean_object* x_28; lean_object* x_29; 
+lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_28 = lean_ctor_get(x_2, 2);
 lean_inc(x_28);
+x_29 = lean_ctor_get(x_2, 3);
+lean_inc(x_29);
 lean_dec(x_2);
-x_29 = l_Lean_FindLevelMVar_visit(x_1, x_28, x_3);
-return x_29;
+lean_inc(x_1);
+x_30 = l_Lean_FindLevelMVar_visit(x_1, x_28, x_3);
+x_31 = l_Lean_FindLevelMVar_visit(x_1, x_29, x_30);
+return x_31;
 }
 default: 
 {

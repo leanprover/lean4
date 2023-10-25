@@ -59,31 +59,45 @@ where
     if ctorVal.numParams + ctorVal.numFields != b.getAppNumArgs then
       trace[Meta.isDefEq.eta.struct] "failed, insufficient number of arguments at{indentExpr b}"
       return false
-    else
-      if !isStructureLike (← getEnv) ctorVal.induct then
-        trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
-        return false
-      else if (← isDefEq (← inferType a) (← inferType b)) then
-        checkpointDefEq do
-          let args := b.getAppArgs
-          let params := args[:ctorVal.numParams].toArray
-          for i in [ctorVal.numParams : args.size] do
-            let j := i - ctorVal.numParams
-            let proj ← mkProjFn ctorVal us params j a
-            if ← isProof proj then
-              unless ← isAbstractedUnassignedMVar args[i]! do
-                -- Skip expensive unification problem that is likely solved
-                -- using proof irrelevance.  We already know that `proj` and
-                -- `args[i]!` have the same type, so they're defeq in any case.
-                -- See comment at `isAbstractedUnassignedMVar`.
-                continue
-            trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{j}], {proj} =?= {args[i]!}"
-            unless (← isDefEq proj args[i]!) do
-              trace[Meta.isDefEq.eta.struct] "failed, unexpect arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr args[i]!}"
-              return false
+    if !isStructureLike (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+      return false
+    let bType ← inferType b
+    if !(← isDefEq (← inferType a) bType) then
+      return false
+    checkpointDefEq do
+      let args := b.getAppArgs
+      let params := args[:ctorVal.numParams].toArray
+      let checkOne i proj : MetaM Bool := do
+        let e := args[ctorVal.numParams + i]!
+        if ← isProof proj then
+          unless ← isAbstractedUnassignedMVar e do
+            -- Skip expensive unification problem that is likely solved
+            -- using proof irrelevance.  We already know that `proj` and
+            -- `e` have the same type, so they're defeq in any case.
+            -- See comment at `isAbstractedUnassignedMVar`.
+            return true
+        trace[Meta.isDefEq.eta.struct] "{a} =?= {b} @ [{i}], {proj} =?= {e}"
+        unless (← isDefEq proj e) do
+          trace[Meta.isDefEq.eta.struct] "failed, unexpected arg #{i}, projection{indentExpr proj}\nis not defeq to{indentExpr e}"
+          return false
+        return true
+      let needsPrimProjs (_ : Unit) : MetaM Bool := do
+        let type := ctorVal.type.instantiateLevelParams ctorVal.levelParams us
+        forallBoundedTelescope type params.size fun xs type => do
+          let mut type := type.replaceFVars xs params
+          for i in [:ctorVal.numFields] do
+            let proj ← match (← mkProjFn? ctorVal us params i a) with
+            | some proj => pure proj
+            | none =>
+              pure <| mkProj ctorVal.induct i a (← mkConstLambda bType type.bindingDomain!)
+            if !(← checkOne i proj) then return false
+            type := type.bindingBody!.instantiate1 proj
           return true
-      else
-        return false
+      for i in [:ctorVal.numFields] do
+        let some proj ← mkProjFn? ctorVal us params i a | return (← needsPrimProjs ())
+        if !(← checkOne i proj) then return false
+      return true
 
 /--
   Try to solve `a := (fun x => t) =?= b` by eta-expanding `b`,
@@ -439,7 +453,7 @@ where
         | Expr.letE _ t v b _    => visit t; visit v; visit b
         | Expr.app f a           => visit f; visit a
         | Expr.mdata _ b         => visit b
-        | Expr.proj _ _ b        => visit b
+        | Expr.proj _ _ b m      => visit b; visit m
         | Expr.fvar fvarId       =>
           let localDecl ← fvarId.getDecl
           if localDecl.isLet && localDecl.index > (← read) then
@@ -834,7 +848,7 @@ mutual
     else checkCache e fun _ =>
       match e with
       | Expr.mdata _ b       => return e.updateMData! (← check b)
-      | Expr.proj _ _ s      => return e.updateProj! (← check s)
+      | Expr.proj _ _ s m    => return e.updateProj! (← check s) (← check m)
       | Expr.lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
       | Expr.forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
       | Expr.letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
@@ -890,7 +904,7 @@ partial def check
       true
     else match e with
     | Expr.mdata _ b       => visit b
-    | Expr.proj _ _ s      => visit s
+    | Expr.proj _ _ s m    => visit s && visit m
     | Expr.app f a         => visit f && visit a
     | Expr.lam _ d b _     => visit d && visit b
     | Expr.forallE _ d b _ => visit d && visit b
@@ -1683,9 +1697,9 @@ private def isDefEqOnFailure (t s : Expr) : MetaM Bool := do
     tryUnificationHints t s <||> tryUnificationHints s t
 
 private def isDefEqProj : Expr → Expr → MetaM Bool
-  | Expr.proj m i t, Expr.proj n j s => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
-  | Expr.proj structName 0 s, v => isDefEqSingleton structName s v
-  | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
+  | Expr.proj m i t _, Expr.proj n j s _ => pure (i == j && m == n) <&&> Meta.isExprDefEqAux t s
+  | Expr.proj structName 0 s _, v => isDefEqSingleton structName s v
+  | v, Expr.proj structName 0 s _ => isDefEqSingleton structName s v
   | _, _ => pure false
 where
   /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
@@ -1841,12 +1855,12 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
   | .permanent => modifyDefEqPermCache fun c => c.update mode key result
   | .transient =>
     /-
-    We must ensure that all assigned metavariables in the key are replaced by their current assignments.
-    Otherwise, the key is invalid after the assignment is "backtracked".
-    See issue #1870 for an example.
-    -/
-    let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
-    modifyDefEqTransientCache fun c => c.update mode key result
+  We must ensure that all assigned metavariables in the key are replaced by their current assignments.
+  Otherwise, the key is invalid after the assignment is "backtracked".
+  See issue #1870 for an example.
+  -/
+  let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
+  modifyDefEqTransientCache fun c => c.update mode key result
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do

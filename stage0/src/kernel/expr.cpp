@@ -122,8 +122,10 @@ expr mk_lit(literal const & l) { return expr(lean_expr_mk_lit(l.to_obj_arg())); 
 extern "C" object * lean_expr_mk_mdata(obj_arg m, obj_arg e);
 expr mk_mdata(kvmap const & m, expr const & e) { return expr(lean_expr_mk_mdata(m.to_obj_arg(), e.to_obj_arg())); }
 
-extern "C" object * lean_expr_mk_proj(obj_arg s, obj_arg idx, obj_arg e);
-expr mk_proj(name const & s, nat const & idx, expr const & e) { return expr(lean_expr_mk_proj(s.to_obj_arg(), idx.to_obj_arg(), e.to_obj_arg())); }
+extern "C" object * lean_expr_mk_proj(obj_arg s, obj_arg idx, obj_arg e, obj_arg motive);
+expr mk_proj(name const & s, nat const & idx, expr const & e, expr const & motive) {
+    return expr(lean_expr_mk_proj(s.to_obj_arg(), idx.to_obj_arg(), e.to_obj_arg(), motive.to_obj_arg()));
+}
 
 extern "C" object * lean_expr_mk_bvar(obj_arg idx);
 expr mk_bvar(nat const & idx) { return expr(lean_expr_mk_bvar(idx.to_obj_arg())); }
@@ -156,6 +158,9 @@ expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi) {
 static name * g_default_name = nullptr;
 expr mk_arrow(expr const & t, expr const & e) {
     return mk_pi(*g_default_name, t, e, mk_binder_info());
+}
+expr mk_const_lambda(expr const & t, expr const & e, binder_info bi) {
+    return mk_lambda(*g_default_name, t, e, bi);
 }
 
 extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b);
@@ -281,9 +286,9 @@ expr update_mdata(expr const & e, expr const & t) {
         return e;
 }
 
-expr update_proj(expr const & e, expr const & t) {
-    if (!is_eqp(proj_expr(e), t))
-        return mk_proj(proj_sname(e), proj_idx(e), t);
+expr update_proj(expr const & e, expr const & new_e, expr const & new_motive) {
+    if (!is_eqp(proj_expr(e), new_e) || !is_eqp(proj_motive(e), new_motive))
+        return mk_proj(proj_sname(e), proj_idx(e), new_e, new_motive);
     else
         return e;
 }

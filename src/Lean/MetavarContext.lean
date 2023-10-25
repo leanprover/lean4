@@ -427,7 +427,7 @@ def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .bvar _          => return false
   | .lit _           => return false
   | .mdata _ e       => pure e.hasMVar <&&> hasAssignedMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignedMVar e
+  | .proj _ _ e m    => (pure e.hasMVar <&&> hasAssignedMVar e) <||> (pure m.hasMVar <&&> hasAssignedMVar m)
   | .mvar mvarId     => mvarId.isAssigned <||> mvarId.isDelayedAssigned
 
 /-- Return true iff the given level contains a metavariable that can be assigned. -/
@@ -451,7 +451,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .bvar _          => return false
   | .lit _           => return false
   | .mdata _ e       => pure e.hasMVar <&&> hasAssignableMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignableMVar e
+  | .proj _ _ e m    => (pure e.hasMVar <&&> hasAssignableMVar e) <||> (pure m.hasMVar <&&> hasAssignableMVar m)
   | .mvar mvarId     => mvarId.isAssignable
 
 /--
@@ -518,7 +518,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
   if !e.hasMVar then
     pure e
   else checkCache { val := e : ExprStructEq } fun _ => do match e with
-    | .proj _ _ s      => return e.updateProj! (← instantiateExprMVars s)
+    | .proj _ _ s m    => return e.updateProj! (← instantiateExprMVars s) (← instantiateExprMVars m)
     | .forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
     | .lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
     | .letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
@@ -657,7 +657,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | .app f a .. => visitApp f <||> visit a
       | e => visit e,
     visitMain : Expr → M Bool
-      | .proj _ _ s      => visit s
+      | .proj _ _ s m    => visit s <||> visit m
       | .forallE _ d b _ => visit d <||> visit b
       | .lam _ d b _     => visit d <||> visit b
       | .letE _ t v b _  => visit t <||> visit v <||> visit b
@@ -1015,7 +1015,7 @@ mutual
 
   private partial def elim (xs : Array Expr) (e : Expr) : M Expr :=
     match e with
-    | .proj _ _ s      => return e.updateProj! (← visit xs s)
+    | .proj _ _ s m    => return e.updateProj! (← visit xs s) (← visit xs m)
     | .forallE _ d b _ => return e.updateForallE! (← visit xs d) (← visit xs b)
     | .lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
     | .letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
@@ -1247,7 +1247,7 @@ def mkBinding (isLambda : Bool) (xs : Array Expr) (e : Expr) (usedOnly : Bool :=
   - All metavariables `?m` in `e` have a local context which is a subprefix of `lctx` or are assigned, and the assignment is well-formed. -/
 partial def isWellFormed [Monad m] [MonadMCtx m] (lctx : LocalContext) : Expr → m Bool
   | .mdata _ e           => isWellFormed lctx e
-  | .proj _ _ e          => isWellFormed lctx e
+  | e@(.proj _ _ s m)    => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx s <&&> isWellFormed lctx m)
   | e@(.app f a)         => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx f <&&> isWellFormed lctx a)
   | e@(.lam _ d b _)     => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx d <&&> isWellFormed lctx b)
   | e@(.forallE _ d b _) => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx d <&&> isWellFormed lctx b)
@@ -1324,7 +1324,7 @@ partial def main (e : Expr) : M Expr :=
   else
     checkCache { val := e : ExprStructEq } fun _ => do
       match e with
-      | .proj _ _ s      => return e.updateProj! (← main s)
+      | .proj _ _ s m    => return e.updateProj! (← main s) (← main m)
       | .forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
       | .lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
       | .letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)

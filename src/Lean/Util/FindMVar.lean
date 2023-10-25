@@ -16,7 +16,7 @@ mutual
     if s.isSome || !e.hasMVar then s else main p e s
 
   partial def main (p : MVarId → Bool) : Expr → Visitor
-    | Expr.proj _ _ e      => visit p e
+    | Expr.proj _ _ e m    => visit p m ∘ visit p e
     | Expr.forallE _ d b _ => visit p b ∘ visit p d
     | Expr.lam _ d b _     => visit p b ∘ visit p d
     | Expr.letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t

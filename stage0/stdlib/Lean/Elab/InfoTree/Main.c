@@ -79,6 +79,7 @@ static lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__10;
 static lean_object* l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_mapMAux___at_Lean_Elab_withSaveInfoContext___spec__2(lean_object*);
 lean_object* l_Lean_PersistentArray_push___rarg(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28;
 static lean_object* l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_withMacroExpansionInfo___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2025,22 +2026,36 @@ return x_3;
 static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__17() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__16;
+x_2 = lean_alloc_ctor(0, 4, 0);
+lean_ctor_set(x_2, 0, x_1);
+lean_ctor_set(x_2, 1, x_1);
+lean_ctor_set(x_2, 2, x_1);
+lean_ctor_set(x_2, 3, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__18() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__4;
 x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__6;
 x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__13;
-x_4 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__16;
-x_5 = lean_alloc_ctor(0, 6, 0);
+x_4 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__17;
+x_5 = lean_alloc_ctor(0, 7, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
 lean_ctor_set(x_5, 2, x_3);
 lean_ctor_set(x_5, 3, x_1);
 lean_ctor_set(x_5, 4, x_1);
 lean_ctor_set(x_5, 5, x_4);
+lean_ctor_set(x_5, 6, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__18() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__19() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -2049,23 +2064,23 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__19() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__18;
+x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__19;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21() {
 _start:
 {
 size_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = 5;
-x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__19;
-x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__18;
+x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__19;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = lean_alloc_ctor(0, 4, sizeof(size_t)*1);
 lean_ctor_set(x_5, 0, x_2);
@@ -2076,7 +2091,7 @@ lean_ctor_set_usize(x_5, 4, x_1);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__22() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2086,7 +2101,7 @@ x_3 = lean_nat_add(x_1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__22() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__23() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2098,18 +2113,18 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__23() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__24() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__22;
+x_1 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__23;
 x_2 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2, 0, x_1);
 lean_ctor_set(x_2, 1, x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__24() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__25() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
@@ -2121,13 +2136,13 @@ lean_ctor_set(x_3, 1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__25() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26() {
 _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 1;
-x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__24;
-x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__25;
+x_3 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -2135,7 +2150,7 @@ lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27() {
 _start:
 {
 lean_object* x_1; 
@@ -2143,7 +2158,7 @@ x_1 = lean_mk_string_from_bytes("<InfoTree>", 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27() {
+static lean_object* _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28() {
 _start:
 {
 lean_object* x_1; 
@@ -2173,8 +2188,8 @@ x_13 = lean_ctor_get(x_1, 4);
 x_14 = lean_ctor_get(x_1, 5);
 x_15 = lean_ctor_get(x_1, 6);
 x_16 = lean_box(0);
-x_17 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__17;
-x_18 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_17 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__18;
+x_18 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 lean_inc(x_11);
 x_19 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_19, 0, x_11);
@@ -2182,9 +2197,9 @@ lean_ctor_set(x_19, 1, x_17);
 lean_ctor_set(x_19, 2, x_16);
 lean_ctor_set(x_19, 3, x_18);
 x_20 = l_Lean_Core_getMaxHeartbeats(x_12);
-x_21 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
-x_22 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__23;
-x_23 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__25;
+x_21 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__22;
+x_22 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__24;
+x_23 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26;
 lean_inc(x_15);
 lean_inc(x_10);
 x_24 = lean_alloc_ctor(0, 7, 0);
@@ -2201,7 +2216,7 @@ lean_inc(x_26);
 x_27 = lean_ctor_get(x_25, 1);
 lean_inc(x_27);
 lean_dec(x_25);
-x_28 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26;
+x_28 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27;
 x_29 = l_Lean_Elab_ContextInfo_saveNoFileMap___rarg___lambda__1___closed__3;
 x_30 = lean_unsigned_to_nat(1000u);
 x_31 = lean_box(0);
@@ -2355,7 +2370,7 @@ x_67 = lean_ctor_get(x_50, 0);
 lean_inc(x_67);
 lean_dec(x_50);
 x_68 = l_Nat_repr(x_67);
-x_69 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27;
+x_69 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28;
 x_70 = lean_string_append(x_69, x_68);
 lean_dec(x_68);
 x_71 = lean_alloc_ctor(18, 1, 0);
@@ -2373,7 +2388,7 @@ x_73 = lean_ctor_get(x_50, 0);
 lean_inc(x_73);
 lean_dec(x_50);
 x_74 = l_Nat_repr(x_73);
-x_75 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27;
+x_75 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28;
 x_76 = lean_string_append(x_75, x_74);
 lean_dec(x_74);
 x_77 = lean_alloc_ctor(18, 1, 0);
@@ -4288,7 +4303,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Elab_ContextInfo_ppGoals___closed__1;
-x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_2 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -5825,7 +5840,7 @@ if (x_2 == 0)
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_ctor_get(x_1, 1);
 lean_dec(x_3);
-x_4 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_4 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 lean_ctor_set(x_1, 1, x_4);
 return x_1;
 }
@@ -5836,7 +5851,7 @@ x_5 = lean_ctor_get_uint8(x_1, sizeof(void*)*2);
 x_6 = lean_ctor_get(x_1, 0);
 lean_inc(x_6);
 lean_dec(x_1);
-x_7 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_7 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 x_8 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_8, 0, x_6);
 lean_ctor_set(x_8, 1, x_7);
@@ -6041,7 +6056,7 @@ return x_9;
 else
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__20;
+x_10 = l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__21;
 x_11 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_11, 0, x_2);
 lean_ctor_set(x_11, 1, x_10);
@@ -8663,7 +8678,7 @@ static lean_object* _init_l_Lean_Elab_assignInfoHoleId___rarg___lambda__2___clos
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4300.0 ).isNone\n  ", 62);
+x_1 = lean_mk_string_from_bytes("( __do_lift._@.Lean.Elab.InfoTree.Main._hyg.4305.0 ).isNone\n  ", 62);
 return x_1;
 }
 }
@@ -9376,6 +9391,8 @@ l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26 = _init_l_Lean_Elab_Context
 lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__26);
 l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27 = _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27();
 lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__27);
+l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28 = _init_l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28();
+lean_mark_persistent(l_Lean_Elab_ContextInfo_runMetaM___rarg___closed__28);
 l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1 = _init_l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1();
 lean_mark_persistent(l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__1);
 l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__2 = _init_l___private_Lean_Elab_InfoTree_Main_0__Lean_Elab_formatStxRange_fmtPos___closed__2();

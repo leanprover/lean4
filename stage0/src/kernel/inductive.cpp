@@ -95,17 +95,27 @@ optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, unsi
     return some(mk_app(mk_constant(*cnstr_name, const_levels(d)), args));
 }
 
+static name * g_default_name = nullptr;
 expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e) {
     buffer<expr> args;
     expr const & I = get_app_args(e_type, args);
     if (!is_constant(I)) return e;
     auto ctor_name = get_first_cnstr(env, const_name(I));
     if (!ctor_name) return e;
-    constructor_val ctor_val = env.get(*ctor_name).to_constructor_val();
+    constant_info ctor_info = env.get(*ctor_name);
+    constructor_val const & ctor_val = ctor_info.to_constructor_val();
     args.shrink(ctor_val.get_nparams());
     expr result = mk_app(mk_constant(*ctor_name, const_levels(I)), args);
+    expr type = instantiate_type_lparams(ctor_info, const_levels(I));
+    for (unsigned i = 0; i < args.size(); i++) {
+        lean_assert(is_pi(type));
+        type = binding_body(type);
+    }
+    type = instantiate(type, args.size(), args.data());
     for (unsigned i = 0; i < ctor_val.get_nfields(); i++) {
-        result = mk_app(result, mk_proj(const_name(I), nat(i), e));
+        lean_assert(is_pi(type) && !has_loose_bvars(binding_body(type)));
+        result = mk_app(result, mk_proj(const_name(I), nat(i), e, mk_const_lambda(e_type, binding_domain(type))));
+        type = binding_body(type);
     }
     return result;
 }
@@ -614,7 +624,6 @@ public:
             d_idx++;
         }
         /* First, populate the field m_minors */
-        unsigned minor_idx = 1;
         d_idx = 0;
         for (inductive_type const & ind_type : m_ind_types) {
             name ind_type_name = ind_type.get_name();
@@ -666,7 +675,6 @@ public:
                 name minor_name = cnstr_name.replace_prefix(ind_type_name, name());
                 expr minor      = mk_local_decl(minor_name, minor_ty);
                 m_rec_infos[d_idx].m_minors.push_back(minor);
-                minor_idx++;
             }
             d_idx++;
         }
@@ -1093,7 +1101,7 @@ static pair<names, name_map<name>> mk_aux_rec_name_map(environment const & aux_e
     /* This function is only called if we have created auxiliary inductive types when eliminating
        the nested inductives. */
     lean_assert(length(all_names) > ntypes);
-    /* Remark: we use the `main_name` to declarate the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
+    /* Remark: we use the `main_name` to declare the auxiliary recursors as: <main_name>.rec_1, <main_name>.rec_2, ...
        This is a little bit asymmetrical if `d` is a mutual declaration, but it makes sure we have simple names. */
     buffer<name>   old_rec_names;
     name_map<name> rec_map;

@@ -7,7 +7,7 @@ else
   TAIL=tail
 fi
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 INIT_REQ=$'Content-Length: 46\r\n\r\n{"jsonrpc":"2.0","method":"initialize","id":1}'
 INITD_NOT=$'Content-Length: 40\r\n\r\n{"jsonrpc":"2.0","method":"initialized"}'
@@ -24,7 +24,7 @@ echo "does not compile" > lakefile.lean
 # ---
 
 MSGS="$INIT_REQ$INITD_NOT$SD_REQ$EXIT_NOT"
-echo -n "$MSGS" | ${LAKE:-../../build/bin/lake} serve >/dev/null
+echo -n "$MSGS" | ${LAKE:-../../.lake/build/bin/lake} serve >/dev/null
 echo "tested 49"
 
 # ---

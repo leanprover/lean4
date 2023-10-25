@@ -64,7 +64,7 @@ option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared librari
 option(USE_GMP "USE_GMP" ON)
 
 # development-specific options
-option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
+option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
@@ -93,8 +93,9 @@ if ("${RUNTIME_STATS}" MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
 
-if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_IGNORE_OLEAN_VERSION")
+if ("${CHECK_OLEAN_VERSION}" MATCHES "ON")
+  set(USE_GITHASH ON)
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_CHECK_OLEAN_VERSION")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")

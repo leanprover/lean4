@@ -48,12 +48,14 @@ def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
 
 namespace ReducibilityHints
 
+/-- `a.lt b` means that `b` is "more reducible" than `a`,
+so we will prefer unfolding `b` instead of `a`. -/
 def lt : ReducibilityHints → ReducibilityHints → Bool
-  | .abbrev,     .abbrev     => false
-  | .abbrev,     _           => true
+  | _,           .opaque     => false
+  | .abbrev,     _           => false
+  | .opaque,     _           => true
+  | _,           .abbrev     => true
   | .regular d₁, .regular d₂ => d₁ < d₂
-  | .regular _,  .opaque     => true
-  | _,           _           => false
 
 def isAbbrev : ReducibilityHints → Bool
   | .abbrev => true

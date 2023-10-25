@@ -1276,9 +1276,9 @@ private def unfoldDefEq (tInfo sInfo : ConstantInfo) (t s : Expr) : MetaM LBool 
     /- If `t` and `s` do not contain metavariables,
        we simulate strategy used in the kernel. -/
     if tInfo.hints.lt sInfo.hints then
-      unfold t (unfoldComparingHeadsDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
-    else if sInfo.hints.lt tInfo.hints then
       unfold s (unfoldComparingHeadsDefEq tInfo sInfo t s) fun s => isDefEqRight sInfo.name t s
+    else if sInfo.hints.lt tInfo.hints then
+      unfold t (unfoldComparingHeadsDefEq tInfo sInfo t s) fun t => isDefEqLeft tInfo.name t s
     else
       unfoldComparingHeadsDefEq tInfo sInfo t s
   else

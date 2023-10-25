@@ -16,17 +16,17 @@ $(OUT_DIR):
 
 ifneq ($(OS),Windows_NT)
 # Add shared library paths to loader path (no Windows equivalent)
-LINK_FLAGS=-Wl,-rpath,$(LEAN_LIBDIR) -Wl,-rpath,$(PWD)/lib/build/lib
+LINK_FLAGS=-Wl,-rpath,$(LEAN_LIBDIR) -Wl,-rpath,$(PWD)/lib/.lake/build/lib
 endif
 
 $(OUT_DIR)/main: main.c lake | $(OUT_DIR)
 # Add library paths for Lake package and for Lean itself
-	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/build/lib -lRFFI -lleanshared $(LINK_FLAGS)
+	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(LEAN_LIBDIR) -L lib/.lake/build/lib -lRFFI -lleanshared $(LINK_FLAGS)
 
 run: $(OUT_DIR)/main
 ifeq ($(OS),Windows_NT)
 # Add shared library paths to loader path dynamically
-	env PATH="lib/build/lib:$(shell cygpath $(LEAN_SYSROOT))/bin:$(PATH)" $(OUT_DIR)/main
+	env PATH="lib/.lake/build/lib:$(shell cygpath $(LEAN_SYSROOT))/bin:$(PATH)" $(OUT_DIR)/main
 else
 	$(OUT_DIR)/main
 endif
@@ -52,7 +52,7 @@ LEAN_SHLIB=$(LEAN_LIBDIR)/libleanshared.$(SHLIB_EXT)
 endif
 
 $(OUT_DIR)/main-local: main.c lake | $(OUT_DIR)
-	cp -f $(LEAN_SHLIB) lib/build/lib/$(SHLIB_PREFIX)RFFI.$(SHLIB_EXT) $(OUT_DIR)
+	cp -f $(LEAN_SHLIB) lib/.lake/build/lib/$(SHLIB_PREFIX)RFFI.$(SHLIB_EXT) $(OUT_DIR)
 	cc -o $@ $< -I $(LEAN_SYSROOT)/include -L $(OUT_DIR) -lRFFI -lleanshared $(LINK_FLAGS_LOCAL)
 
 run-local: $(OUT_DIR)/main-local

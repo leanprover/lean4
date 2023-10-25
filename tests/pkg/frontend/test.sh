@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rm -rf build
+rm -rf .lake/build
 lake build
 
 # Check that we can compile a file which shares with the executable

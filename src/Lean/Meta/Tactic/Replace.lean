@@ -92,6 +92,10 @@ where
   well-formed. That is, if `typeNew` involves declarations which occur later than `fvarId` in the
   local context, the new local declaration will be inserted immediately after the latest-occurring
   one. Otherwise, it will be inserted immediately after `fvarId`.
+
+  Note: `replaceLocalDecl` should not be used when unassigned pending mvars might be present in
+  `typeNew`, as these may later be synthesized to fvars which occur after `fvarId` (by e.g.
+  `Term.withSynthesize` or `Term.synthesizeSyntheticMVars`) .
   -/
 abbrev _root_.Lean.MVarId.replaceLocalDecl (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
   replaceLocalDeclCore mvarId fvarId typeNew eqProof

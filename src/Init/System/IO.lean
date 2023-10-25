@@ -329,6 +329,17 @@ namespace Handle
 
 @[extern "lean_io_prim_handle_mk"] opaque mk (fn : @& FilePath) (mode : FS.Mode) : IO Handle
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
+/-- Rewinds the read/write cursor to the beginning of the handle. -/
+@[extern "lean_io_prim_handle_rewind"] opaque rewind (h : @& Handle) : IO Unit
+/--
+Truncates the handle to the read/write cursor.
+
+Does not automatically flush. Usually this is fine because the read/write
+cursor includes buffered writes. However, the combination of buffered writes,
+then `rewind`, then `truncate`, then close may lead to a file with content.
+If unsure, flush before truncating.
+-/
+@[extern "lean_io_prim_handle_truncate"] opaque truncate (h : @& Handle) : IO Unit
 /--
 Read up to the given number of bytes from the handle.
 If the returned array is empty, an end-of-file marker has been reached.

@@ -310,6 +310,30 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_flush(b_obj_arg h, obj_arg /*
     }
 }
 
+/* Handle.rewind : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_rewind(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+    if (!std::fseek(fp, 0, SEEK_SET)) {
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
+/* Handle.truncate : (@& Handle) → IO Unit */
+extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_truncate(b_obj_arg h, obj_arg /* w */) {
+    FILE * fp = io_get_handle(h);
+#ifdef LEAN_WINDOWS
+    if (!_chsize_s(_fileno(fp), _ftelli64(fp))) {
+#else
+    if (!ftruncate(fileno(fp), ftello(fp))) {
+#endif
+        return io_result_mk_ok(box(0));
+    } else {
+        return io_result_mk_error(decode_io_error(errno, nullptr));
+    }
+}
+
 /* Handle.read : (@& Handle) → USize → IO ByteArray */
 extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_read(b_obj_arg h, usize nbytes, obj_arg /* w */) {
     FILE * fp = io_get_handle(h);

@@ -11,6 +11,8 @@ of each version.
 v4.4.0 (development in progress)
 ---------
 
+* By default, `simp` will no longer try to use Decidable instances to rewrite terms. In particular, not all decidable goals will be closed by `simp`, and the `decide` tactic may be useful in such cases. The `decide` simp configuration option can be used to locally restore the old `simp` behavior, as in `simp (config := {decide := true})`; this includes using Decidable instances to verify side goals such as numeric inequalities.
+
 v4.3.0
 ---------
 

@@ -196,6 +196,7 @@ LEAN_EXPORT lean_object* l_EStateM_throw(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_ReaderT_instMonadExceptOfReaderT___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instMonadEStateM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_getModify___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_USize_size___closed__3;
 LEAN_EXPORT lean_object* l_EStateM_instMonadEStateM(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHAnd___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unsafeCast___rarg___boxed(lean_object*);
@@ -595,6 +596,7 @@ LEAN_EXPORT lean_object* l_Array_mkArray1(lean_object*);
 static lean_object* l_Lean_Syntax_getKind___closed__2;
 LEAN_EXPORT lean_object* l_instLTFin(lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedState___closed__1;
+static lean_object* l_USize_size___closed__2;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___rarg(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Monad_map___default(lean_object*);
@@ -3003,11 +3005,31 @@ x_3 = lean_nat_pow(x_1, x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_USize_size___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_USize_size___closed__1;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_sub(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_USize_size___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_USize_size___closed__2;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
 static lean_object* _init_l_USize_size() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_USize_size___closed__1;
+x_1 = l_USize_size___closed__3;
 return x_1;
 }
 }
@@ -7671,7 +7693,7 @@ _start:
 {
 uint64_t x_3; lean_object* x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_hash___override(x_1);
-x_4 = l_UInt64_size;
+x_4 = l_UInt64_size___closed__1;
 x_5 = lean_nat_dec_lt(x_2, x_4);
 if (x_5 == 0)
 {
@@ -12199,6 +12221,10 @@ l_instInhabitedUInt64___closed__1 = _init_l_instInhabitedUInt64___closed__1();
 l_instInhabitedUInt64 = _init_l_instInhabitedUInt64();
 l_USize_size___closed__1 = _init_l_USize_size___closed__1();
 lean_mark_persistent(l_USize_size___closed__1);
+l_USize_size___closed__2 = _init_l_USize_size___closed__2();
+lean_mark_persistent(l_USize_size___closed__2);
+l_USize_size___closed__3 = _init_l_USize_size___closed__3();
+lean_mark_persistent(l_USize_size___closed__3);
 l_USize_size = _init_l_USize_size();
 lean_mark_persistent(l_USize_size);
 l_instInhabitedUSize___closed__1 = _init_l_instInhabitedUSize___closed__1();

@@ -95,7 +95,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AbstractNestedProofs_visit___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalDecl_value_x3f(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_mkAuxName___at___private_Lean_Meta_AbstractNestedProofs_0__Lean_Meta_AbstractNestedProofs_mkAuxLemma___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -222,34 +221,17 @@ return x_24;
 }
 else
 {
-uint8_t x_25; 
-x_25 = lean_nat_dec_le(x_19, x_19);
-if (x_25 == 0)
-{
-uint8_t x_26; lean_object* x_27; lean_object* x_28; 
+size_t x_25; size_t x_26; uint8_t x_27; lean_object* x_28; lean_object* x_29; 
+x_25 = 0;
+x_26 = lean_usize_of_nat(x_19);
 lean_dec(x_19);
+x_27 = l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___spec__1(x_2, x_25, x_26);
 lean_dec(x_2);
-x_26 = 0;
-x_27 = lean_box(x_26);
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_8);
-return x_28;
-}
-else
-{
-size_t x_29; size_t x_30; uint8_t x_31; lean_object* x_32; lean_object* x_33; 
-x_29 = 0;
-x_30 = lean_usize_of_nat(x_19);
-lean_dec(x_19);
-x_31 = l_Array_anyMUnsafe_any___at_Lean_Meta_AbstractNestedProofs_isNonTrivialProof___spec__1(x_2, x_29, x_30);
-lean_dec(x_2);
-x_32 = lean_box(x_31);
-x_33 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_33, 0, x_32);
-lean_ctor_set(x_33, 1, x_8);
-return x_33;
-}
+x_28 = lean_box(x_27);
+x_29 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_29, 0, x_28);
+lean_ctor_set(x_29, 1, x_8);
+return x_29;
 }
 }
 }

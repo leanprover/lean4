@@ -27,7 +27,6 @@ static lean_object* l_Lean_IR_EmitC_emitFnDeclAux___lambda__3___closed__4;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldM_loop___at_Lean_IR_EmitC_emitSimpleExternalCall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitAllocCtor___closed__1;
-extern lean_object* l_UInt32_size;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitDecl(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitInc___closed__5;
@@ -8984,7 +8983,7 @@ return x_9;
 else
 {
 lean_object* x_10; uint8_t x_11; 
-x_10 = l_UInt32_size;
+x_10 = lean_cstr_to_nat("4294967296");
 x_11 = lean_nat_dec_lt(x_2, x_10);
 if (x_11 == 0)
 {

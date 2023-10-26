@@ -46,7 +46,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_buildLeanBoolTrue_x3f___boxed(lean_o
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_emitLLVM___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_toCName___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Lean_IR_LLVM_size__tType___boxed(lean_object*, lean_object*);
-extern lean_object* l_UInt32_size;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitLLVM_callUnboxForType___closed__5;
 static lean_object* l_Lean_IR_EmitLLVM_toCName___rarg___closed__1;
@@ -12720,7 +12719,7 @@ else
 {
 lean_object* x_47; uint8_t x_48; 
 lean_dec(x_3);
-x_47 = l_UInt32_size;
+x_47 = lean_cstr_to_nat("4294967296");
 x_48 = lean_nat_dec_lt(x_4, x_47);
 if (x_48 == 0)
 {
@@ -25874,46 +25873,27 @@ return x_10;
 }
 else
 {
-uint8_t x_11; 
-x_11 = lean_nat_dec_le(x_2, x_2);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
+size_t x_11; size_t x_12; uint8_t x_13; 
+x_11 = 0;
+x_12 = lean_usize_of_nat(x_2);
 lean_dec(x_2);
-x_12 = l_Lean_IR_instInhabitedAlt;
-x_13 = l_Array_back___rarg(x_12, x_1);
-x_14 = lean_array_pop(x_1);
-x_15 = l_Lean_IR_AltCore_body(x_13);
-lean_dec(x_13);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-x_17 = lean_array_push(x_14, x_16);
-return x_17;
-}
-else
+x_13 = l_Array_anyMUnsafe_any___at_Lean_IR_ensureHasDefault___spec__1(x_1, x_11, x_12);
+if (x_13 == 0)
 {
-size_t x_18; size_t x_19; uint8_t x_20; 
-x_18 = 0;
-x_19 = lean_usize_of_nat(x_2);
-lean_dec(x_2);
-x_20 = l_Array_anyMUnsafe_any___at_Lean_IR_ensureHasDefault___spec__1(x_1, x_18, x_19);
-if (x_20 == 0)
-{
-lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_21 = l_Lean_IR_instInhabitedAlt;
-x_22 = l_Array_back___rarg(x_21, x_1);
-x_23 = lean_array_pop(x_1);
-x_24 = l_Lean_IR_AltCore_body(x_22);
-lean_dec(x_22);
-x_25 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_25, 0, x_24);
-x_26 = lean_array_push(x_23, x_25);
-return x_26;
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
+x_14 = l_Lean_IR_instInhabitedAlt;
+x_15 = l_Array_back___rarg(x_14, x_1);
+x_16 = lean_array_pop(x_1);
+x_17 = l_Lean_IR_AltCore_body(x_15);
+lean_dec(x_15);
+x_18 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_18, 0, x_17);
+x_19 = lean_array_push(x_16, x_18);
+return x_19;
 }
 else
 {
 return x_1;
-}
 }
 }
 }

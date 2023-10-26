@@ -209,7 +209,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_GetUnfoldableConst_0__Lean_Meta_c
 _start:
 {
 uint8_t x_6; lean_object* x_7; 
-x_6 = lean_ctor_get_uint8(x_1, 5);
+x_6 = lean_ctor_get_uint8(x_1, 9);
 x_7 = lean_box(x_6);
 switch (lean_obj_tag(x_7)) {
 case 0:

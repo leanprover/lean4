@@ -9,7 +9,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 2)
+set(LEAN_VERSION_MINOR 3)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -318,7 +318,7 @@ if(LLVM AND ${STAGE} GREATER 0)
     # - Recall that the host's copy of LLVM binaries and libraries is at
     #   `llvm-host`, and the target's copy of LLVM binaries and libraries is at
     #   `llvm`.
-    # - In an ideal world, we would run the target's `llvm/bin/llvm-config` and get the corrct link options for the target
+    # - In an ideal world, we would run the target's `llvm/bin/llvm-config` and get the correct link options for the target
     #   (e.g. `-Lllvm/lib/libLLVM`.)
     # - However, the target's `llvm/bin/llvm-config` has a different target
     #   triple from the host, and thus cannot be run on the host.
@@ -513,7 +513,7 @@ else()
   endif()
 endif()
 
-# Build the compiler using the bootstraped C sources for stage0, and use
+# Build the compiler using the bootstrapped C sources for stage0, and use
 # the LLVM build for stage1 and further.
 if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")

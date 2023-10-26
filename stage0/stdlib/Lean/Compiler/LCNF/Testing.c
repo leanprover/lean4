@@ -503,34 +503,21 @@ return x_26;
 }
 else
 {
-uint8_t x_27; 
-x_27 = lean_nat_dec_le(x_23, x_23);
-if (x_27 == 0)
-{
-uint8_t x_28; 
+size_t x_27; size_t x_28; uint8_t x_29; 
+x_27 = 0;
+x_28 = lean_usize_of_nat(x_23);
 lean_dec(x_23);
+x_29 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Code_containsConst___spec__1(x_1, x_22, x_27, x_28);
 lean_dec(x_22);
-x_28 = 0;
-return x_28;
-}
-else
-{
-size_t x_29; size_t x_30; uint8_t x_31; 
-x_29 = 0;
-x_30 = lean_usize_of_nat(x_23);
-lean_dec(x_23);
-x_31 = l_Array_anyMUnsafe_any___at_Lean_Compiler_LCNF_Code_containsConst___spec__1(x_1, x_22, x_29, x_30);
-lean_dec(x_22);
-return x_31;
-}
+return x_29;
 }
 }
 default: 
 {
-uint8_t x_32; 
+uint8_t x_30; 
 lean_dec(x_2);
-x_32 = 0;
-return x_32;
+x_30 = 0;
+return x_30;
 }
 }
 }

@@ -96,8 +96,8 @@ s!"import Lake
 open Lake DSL
 
 def moreServerArgs := #[
-  "-Dpp.unicode.fun=true", -- pretty-prints `fun a ↦ b`
-  "-Dpp.proofs.withType=false"
+  \"-Dpp.unicode.fun=true\", -- pretty-prints `fun a ↦ b`
+  \"-Dpp.proofs.withType=false\"
 ]
 
 -- These settings only apply during `lake build`, but not in VSCode editor.
@@ -109,7 +109,7 @@ def moreLeanArgs := moreServerArgs
 -- or inconsistent behavior may result
 def weakLeanArgs : Array String :=
   if get_config? CI |>.isSome then
-    #["-DwarningAsError=true"]
+    #[\"-DwarningAsError=true\"]
   else
     #[]
 

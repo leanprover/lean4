@@ -2506,13 +2506,22 @@ is not observable from lean code. Arrays perform best when unshared; as long
 as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
+
+From the point of proofs `Array α` is just a wrapper around `List α`.
 -/
 structure Array (α : Type u) where
-  /-- Convert a `List α` into an `Array α`. This function is overridden
-  to `List.toArray` and is O(n) in the length of the list. -/
+  /--
+  Converts a `List α` into an `Array α`.
+
+  At runtime, this constructor is implemented by `List.toArray` and is O(n) in the length of the
+  list.
+  -/
   mk ::
-  /-- Convert an `Array α` into a `List α`. This function is overridden
-  to `Array.toList` and is O(n) in the length of the list. -/
+  /--
+  Converts a `Array α` into an `List α`.
+
+  At runtime, this projection is implemented by `Array.toList` and is O(n) in the length of the
+  array. -/
   data : List α
 
 attribute [extern "lean_array_data"] Array.data
@@ -2660,12 +2669,9 @@ def List.redLength : List α → Nat
   | nil       => 0
   | cons _ as => as.redLength.succ
 
-/--
-Convert a `List α` into an `Array α`. This is O(n) in the length of the list.
-
-This function is exported to C, where it is called by `Array.mk`
-(the constructor) to implement this functionality.
--/
+/-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
+-- This function is exported to C, where it is called by `Array.mk`
+-- (the constructor) to implement this functionality.
 @[inline, match_pattern, export lean_list_to_array]
 def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)

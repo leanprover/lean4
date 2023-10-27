@@ -482,7 +482,7 @@ theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ :
     have ih := join_le_right (erase σ₁ x) σ₂
     split
     next y w h =>
-      split <;> simp [*]
+      split <;> simp (config := { zeta := true }) [*]
       next => apply cons_le_of_eq ih h
     next h => assumption
 termination_by _ σ₁ _ => σ₁.length

@@ -7,7 +7,7 @@ example (n : Nat) : False := by
   let g := f n
   have : g + n = n := by
     fail_if_success simp (config := { zeta := false }) [Nat.zero_add] -- Should not succeed
-    simp
+    simp [g]
   sorry
 
 example (h : a = b) : (fun x => a + x) 0 = b := by

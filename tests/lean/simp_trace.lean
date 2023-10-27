@@ -45,6 +45,7 @@ def g (x : Nat) : Nat := Id.run <| do
   let x := x
   return x
 
+-- unsure if the regression here is important.
 example : g x = x := by
   simp [g, bind, pure]
   rfl

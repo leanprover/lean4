@@ -13,16 +13,17 @@ theorem ex2 (x z : Nat) (h : f (f x) = x) (h' : z = x) : (let y := f (f x); y) =
   trace_state
   simp [h']
 
+-- not sure if it should be worrying that this is slightly different.
 #print ex2 -- uses let_val_congr
 
 theorem ex3 (x z : Nat) : (let α := Nat; (fun x : α => 0 + x)) = id := by
   simp (config := { zeta := false, failIfUnchanged := false })
   trace_state -- should not simplify let body since `fun α : Nat => fun x : α => 0 + x` is not type correct
-  simp [id]
+  simp (config := { zeta := true }) [id]
 
 theorem ex4 (p : Prop) (h : p) : (let n := 10; fun x : { z : Nat // z < n } => x = x) = fun z => p := by
   simp (config := { zeta := false })
   trace_state
-  simp [h]
+  simp (config := {zeta := true}) [h]
 
 #print ex4 -- uses let_body_congr

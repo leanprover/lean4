@@ -1,6 +1,6 @@
 # Development Workflow
 
-If you want to make changes to Lean itself, start by [building Lean](../make/index.html) from a clean checkout to make sure that everything is set up correctly.
+If you want to make changes to Lean itself, start by [building Lean](../make/index.md) from a clean checkout to make sure that everything is set up correctly.
 After that, read on below to find out how to set up your editor for changing the Lean source code, followed by further sections of the development manual where applicable such as on the [test suite](testing.md) and [commit convention](commit_convention.md).
 
 If you are planning to make any changes that may affect the compilation of Lean itself, e.g. changes to the parser, elaborator, or compiler, you should first read about the [bootstrapping pipeline](bootstrap.md).

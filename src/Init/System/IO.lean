@@ -328,6 +328,29 @@ namespace FS
 namespace Handle
 
 @[extern "lean_io_prim_handle_mk"] opaque mk (fn : @& FilePath) (mode : FS.Mode) : IO Handle
+
+/--
+Acquires an exclusive or shared lock on the handle.
+Will block to wait for the lock if necessary.
+
+**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
+will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+-/
+@[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
+/--
+Tries to acquire an exclusive or shared lock on the handle.
+Will NOT block for the lock, but instead return `false`.
+
+**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
+will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+-/
+@[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool
+/--
+Releases any previously acquired lock on the handle.
+Will succeed even if no lock has been acquired.
+-/
+@[extern "lean_io_prim_handle_unlock"] opaque unlock (h : @& Handle) : IO Unit
+
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
 /-- Rewinds the read/write cursor to the beginning of the handle. -/
 @[extern "lean_io_prim_handle_rewind"] opaque rewind (h : @& Handle) : IO Unit

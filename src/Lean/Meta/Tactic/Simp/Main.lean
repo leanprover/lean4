@@ -1123,7 +1123,7 @@ def dsimpGoal (mvarId : MVarId) (ctx : Simp.Context) (simplifyTarget : Bool := t
       if targetNew.consumeMData.isConstOf ``True then
         mvarIdNew.assign (mkConst ``True.intro)
         return (none, usedSimps)
-      if let some (_, lhs, rhs) := targetNew.eq? then
+      if let some (_, lhs, rhs) := targetNew.consumeMData.eq? then
         if (← withReducible <| isDefEq lhs rhs) then
           mvarIdNew.assign (← mkEqRefl lhs)
           return (none, usedSimps)

@@ -1219,7 +1219,7 @@ inductive EtaStructMode where
 namespace DSimp
 
 structure Config where
-  zeta              : Bool := true
+  zeta              : Bool := false
   beta              : Bool := true
   eta               : Bool := true
   etaStruct         : EtaStructMode := .all
@@ -1244,7 +1244,7 @@ structure Config where
   contextual        : Bool := false
   memoize           : Bool := true
   singlePass        : Bool := false
-  zeta              : Bool := true
+  zeta              : Bool := false
   beta              : Bool := true
   eta               : Bool := true
   etaStruct         : EtaStructMode := .all

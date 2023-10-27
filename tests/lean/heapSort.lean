@@ -91,9 +91,12 @@ def insert {lt} (self : BinaryHeap α lt) (x : α) : BinaryHeap α lt where
   arr := let n := self.size;
     heapifyUp lt (self.1.push x) ⟨n, by rw [Array.size_push]; apply Nat.lt_succ_self⟩
 
+-- I can see why `zeta := false` would make proving things such as this difficult.
+-- Is it possible to differentiate `let` expressions created "within" a proof
+-- as opposed to external ones? (such as the ones here)
 @[simp] theorem size_insert {lt} (self : BinaryHeap α lt) (x : α) :
   (self.insert x).size = self.size + 1 := by
-  simp [insert, size, size_heapifyUp]
+  simp (config := { zeta := true }) [insert, size, size_heapifyUp]
 
 /-- `O(1)`. Get the maximum element in a `BinaryHeap`. -/
 def max {lt} (self : BinaryHeap α lt) : Option α := self.1.get? 0
@@ -108,7 +111,7 @@ def popMaxAux {lt} (self : BinaryHeap α lt) : {a' : BinaryHeap α lt // a'.size
     if hn0 : 0 < n then
       let a := self.1.swap ⟨0, h0⟩ ⟨n, hn⟩ |>.pop
       ⟨⟨heapifyDown lt a ⟨0, sorry⟩⟩,
-        by simp [size]⟩
+        by simp [size, a]⟩
     else
       ⟨⟨self.1.pop⟩, by simp [size]⟩
 
@@ -133,7 +136,7 @@ def insertExtractMax {lt} (self : BinaryHeap α lt) (x : α) : α × BinaryHeap 
   | some m =>
     if lt x m then
       let a := self.1.set ⟨0, size_pos_of_max e⟩ x
-      (m, ⟨heapifyDown lt a ⟨0, by simp; exact size_pos_of_max e⟩⟩)
+      (m, ⟨heapifyDown lt a ⟨0, by simp [a]; exact size_pos_of_max e⟩⟩)
     else (x, self)
 
 /-- `O(log n)`. Equivalent to `(self.max, self.popMax.insert x)`. -/
@@ -142,7 +145,7 @@ def replaceMax {lt} (self : BinaryHeap α lt) (x : α) : Option α × BinaryHeap
   | none => (none, ⟨self.1.push x⟩)
   | some m =>
     let a := self.1.set ⟨0, size_pos_of_max e⟩ x
-    (some m, ⟨heapifyDown lt a ⟨0, by simp; exact size_pos_of_max e⟩⟩)
+    (some m, ⟨heapifyDown lt a ⟨0, by simp [a]; exact size_pos_of_max e⟩⟩)
 
 /-- `O(log n)`. Replace the value at index `i` by `x`. Assumes that `x ≤ self.get i`. -/
 def decreaseKey {lt} (self : BinaryHeap α lt) (i : Fin self.size) (x : α) : BinaryHeap α lt where

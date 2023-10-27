@@ -28,7 +28,7 @@ theorem eq_findSomeM_findM [Monad m] [LawfulMonad m] (p : α → m Bool) (xss : 
   induction xss with simp [List.findSomeM?]
   | cons xs xss ih =>
     rw [← ih, ← eq_findM]
-    induction xs with simp
+    induction xs with simp (config := {zeta := true})
     | cons x xs ih =>
       apply byCases_Bool_bind <;> simp [ih]
 
@@ -41,7 +41,8 @@ theorem eq_findSomeM_findM' [Monad m] [LawfulMonad m] (p : α → m Bool) (xss :
         return none)
     =
     xss.findSomeM? (fun xs => xs.findM? p) := by
-  induction xss <;> simp [List.findSomeM?]
+  -- changing `zeta` back to true still retains breakage
+  induction xss <;> simp (config := {zeta := true}) [List.findSomeM?]
   rename List α => xs
   rename _ = _  => ih
   rw [← ih, ← eq_findM]

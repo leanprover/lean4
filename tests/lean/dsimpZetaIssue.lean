@@ -4,10 +4,10 @@ example : let x := 0; x + 5 = 5 := by
   simp
 
 example : let x := 0; x + 5 = 5 := by
-  dsimp
+  dsimp (config := { zeta := true })
 
 example : let x := 0; x + y = y := by
-  dsimp
+  dsimp (config := { zeta := true })
   trace_state
   rw [Nat.zero_add]
 

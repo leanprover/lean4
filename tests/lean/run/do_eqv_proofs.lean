@@ -5,7 +5,7 @@ theorem ex1 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) 
         pure x)
     =
     (ma >>= fun x => if b then mb x else pure x) := by
-  cases b <;> simp
+  cases b <;> simp (config := {zeta := true})
 
 attribute [simp] map_eq_pure_bind seq_eq_bind_map
 
@@ -19,4 +19,4 @@ theorem ex2 [Monad m] [LawfulMonad m] (b : Bool) (ma : m α) (mb : α → m α) 
       (do ma >>= set
           if b then get >>= fun x => mb x >>= set
           get) a)  := by
-  cases b <;> simp
+  cases b <;> simp (config := {zeta := true})

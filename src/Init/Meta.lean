@@ -1230,6 +1230,9 @@ structure Config where
   /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will fail if they do not make progress. -/
   failIfUnchanged   : Bool := true
+  /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
+  will unfold even partial applications of `f` when we request `f` to be unfolded. -/
+  unfoldPartialApp  : Bool := false
   deriving Inhabited, BEq, Repr
 
 end DSimp
@@ -1265,6 +1268,9 @@ structure Config where
   it does not contain free or meta variables. Reduction is interrupted at a function application `f ...`
   if `f` is marked to not be unfolded. -/
   ground            : Bool := false
+  /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
+  will unfold even partial applications of `f` when we request `f` to be unfolded. -/
+  unfoldPartialApp  : Bool := false
   deriving Inhabited, BEq, Repr
 
 -- Configuration object for `simp_all`

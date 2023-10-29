@@ -6,6 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 Additional goodies for writing macros
 -/
 prelude
+import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
 
@@ -216,11 +217,6 @@ instance : DecidableEq Name :=
   fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
 
 end Name
-
-structure NameGenerator where
-  namePrefix : Name := `_uniq
-  idx        : Nat  := 1
-  deriving Inhabited
 
 namespace NameGenerator
 
@@ -451,11 +447,6 @@ end Syntax
   match (← getRef).getHead? with
   | none => x
   | some ref => withRef ref x
-
-/-- Syntax objects for a Lean module. -/
-structure Module where
-  header   : Syntax
-  commands : Array Syntax
 
 /--
   Expand macros in the given syntax.
@@ -1203,99 +1194,7 @@ end TSyntax
 
 namespace Meta
 
-inductive TransparencyMode where
-  | all | default | reducible | instances
-  deriving Inhabited, BEq, Repr
-
-inductive EtaStructMode where
-  /-- Enable eta for structure and classes. -/
-  | all
-  /-- Enable eta only for structures that are not classes. -/
-  | notClasses
-  /-- Disable eta for structures and classes. -/
-  | none
-  deriving Inhabited, BEq, Repr
-
-namespace DSimp
-
-structure Config where
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := false
-  autoUnfold        : Bool := false
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will unfold even partial applications of `f` when we request `f` to be unfolded. -/
-  unfoldPartialApp  : Bool := false
-  deriving Inhabited, BEq, Repr
-
-end DSimp
-
-namespace Simp
-
-def defaultMaxSteps := 100000
-
-structure Config where
-  maxSteps          : Nat  := defaultMaxSteps
-  maxDischargeDepth : Nat  := 2
-  contextual        : Bool := false
-  memoize           : Bool := true
-  singlePass        : Bool := false
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := true
-  arith             : Bool := false
-  autoUnfold        : Bool := false
-  /--
-    If `dsimp := true`, then switches to `dsimp` on dependent arguments where there is no congruence theorem that allows
-    `simp` to visit them. If `dsimp := false`, then argument is not visited.
-  -/
-  dsimp             : Bool := true
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  /-- If `ground := true`, then ground terms are reduced. A term is ground when
-  it does not contain free or meta variables. Reduction is interrupted at a function application `f ...`
-  if `f` is marked to not be unfolded. -/
-  ground            : Bool := false
-  /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will unfold even partial applications of `f` when we request `f` to be unfolded. -/
-  unfoldPartialApp  : Bool := false
-  deriving Inhabited, BEq, Repr
-
--- Configuration object for `simp_all`
-structure ConfigCtx extends Config where
-  contextual := true
-
-def neutralConfig : Simp.Config := {
-  zeta              := false
-  beta              := false
-  eta               := false
-  iota              := false
-  proj              := false
-  decide            := false
-  arith             := false
-  autoUnfold        := false
-  ground            := false
-}
-
-end Simp
-
-inductive Occurrences where
-  | all
-  | pos (idxs : List Nat)
-  | neg (idxs : List Nat)
-  deriving Inhabited, BEq
+deriving instance Repr for TransparencyMode, EtaStructMode, DSimp.Config, Simp.Config
 
 def Occurrences.contains : Occurrences → Nat → Bool
   | all,      _   => true

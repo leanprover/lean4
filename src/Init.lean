@@ -17,6 +17,7 @@ import Init.System
 import Init.Util
 import Init.Dynamic
 import Init.ShareCommon
+import Init.MetaTypes
 import Init.Meta
 import Init.NotationExtra
 import Init.SimpLemmas

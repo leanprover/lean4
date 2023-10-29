@@ -410,14 +410,15 @@ where
         | none =>
           let some fieldInfo := getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
-            let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
+              let fieldMap := fieldMap.insert fieldName fieldFVar
+              let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               addDocString' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }
-              copy (i+1) infos (fieldMap.insert fieldName fieldFVar) expandedStructNames
+              copy (i+1) infos fieldMap expandedStructNames
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then

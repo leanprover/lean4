@@ -150,32 +150,37 @@ expr type_checker::infer_pi(expr const & _e, bool infer_only) {
 }
 
 expr type_checker::infer_app(expr const & e, bool infer_only) {
-    if (!infer_only) {
-        expr f_type = ensure_pi_core(infer_type_core(app_fn(e), infer_only), e);
-        expr a_type = infer_type_core(app_arg(e), infer_only);
-        expr d_type = binding_domain(f_type);
-        if (!is_def_eq(a_type, d_type)) {
-            throw app_type_mismatch_exception(env(), m_lctx, e, f_type, a_type);
-        }
-        return instantiate(binding_body(f_type), app_arg(e));
-    } else {
-        buffer<expr> args;
-        expr const & f = get_app_args(e, args);
-        expr f_type    = infer_type_core(f, true);
-        unsigned j        = 0;
-        unsigned nargs    = args.size();
-        for (unsigned i = 0; i < nargs; i++) {
-            if (is_pi(f_type)) {
-                f_type = binding_body(f_type);
-            } else {
-                f_type = instantiate_rev(f_type, i-j, args.data()+j);
-                f_type = ensure_pi_core(f_type, e);
-                f_type = binding_body(f_type);
-                j = i;
+    buffer<expr> args;
+    expr const & f = get_app_args(e, args);
+    expr f_type    = infer_type_core(f, infer_only);
+    unsigned j     = 0;
+    unsigned nargs = args.size();
+    for (unsigned i = 0; i < nargs; i++) {
+        if (is_pi(f_type)) {
+            if (!infer_only) {
+                expr d_type = instantiate_rev(binding_domain(f_type), i-j, args.data()+j);
+                expr a_type = infer_type_core(args[i], infer_only);
+                if (!is_def_eq(a_type, d_type)) {
+                    f_type = instantiate_rev(f_type, i-j, args.data()+j);
+                    throw app_type_mismatch_exception(env(), m_lctx, mk_app(f, i+1, args.data()), f_type, a_type);
+                }
             }
+            f_type = binding_body(f_type);
+        } else {
+            f_type = instantiate_rev(f_type, i-j, args.data()+j);
+            f_type = ensure_pi_core(f_type, e);
+            if (!infer_only) {
+                expr a_type = infer_type_core(args[i], infer_only);
+                expr d_type = binding_domain(f_type);
+                if (!is_def_eq(a_type, d_type)) {
+                    throw app_type_mismatch_exception(env(), m_lctx, mk_app(f, i+1, args.data()), f_type, a_type);
+                }
+            }
+            f_type = binding_body(f_type);
+            j = i;
         }
-        return instantiate_rev(f_type, nargs-j, args.data()+j);
     }
+    return instantiate_rev(f_type, nargs-j, args.data()+j);
 }
 
 static void mark_used(unsigned n, expr const * fvars, expr const & b, bool * used) {
@@ -1006,7 +1011,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
     if (r != l_undef) return r == l_true;
-    
+
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.

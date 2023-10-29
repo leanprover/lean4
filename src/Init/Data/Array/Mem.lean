@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Init.Data.Array.Basic
@@ -20,32 +20,26 @@ theorem List.sizeOf_get_lt [SizeOf α] (as : List α) (i : Fin as.length) : size
 
 namespace Array
 
-instance [DecidableEq α] : Membership α (Array α) where
-  mem a as := as.contains a
+/-- `a ∈ as` is a predicate which asserts that `a` is in the array `a s`. -/
+-- NB: This is defined as a structure rather than a plain def so that a lemma
+-- like `sizeOf_lt_of_mem` will not apply with no actual arrays around.
+structure Mem (a : α) (as : Array α) : Prop where
+  val : a ∈ as.data
+
+instance : Membership α (Array α) where
+  mem a as := Mem a as
 
 theorem sizeOf_get_lt [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
-  cases as; rename_i as
-  simp [get]
-  have ih := List.sizeOf_get_lt as i
-  exact Nat.lt_trans ih (by simp_arith)
+  cases as with | _ as =>
+  exact Nat.lt_trans (List.sizeOf_get_lt as i) (by simp_arith)
 
-theorem sizeOf_lt_of_mem [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
-  simp [Membership.mem, contains, any, Id.run, BEq.beq, anyM] at h
-  let rec aux (j : Nat) (h : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = true) : sizeOf a < sizeOf as := by
-    unfold anyM.loop at h
-    split at h
-    · simp [Bind.bind, pure] at h; split at h
-      next he => subst a; apply sizeOf_get_lt
-      next => have ih := aux (j+1) h; assumption
-    · contradiction
-  apply aux 0 h
-termination_by aux j _ => as.size - j
+theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
+  cases as with | _ as =>
+  exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp_arith)
 
 @[simp] theorem sizeOf_get [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
-  cases as
-  simp [get]
-  apply Nat.lt_trans (List.sizeOf_get ..)
-  simp_arith
+  cases as with | _ as =>
+  exact Nat.lt_trans (List.sizeOf_get ..) (by simp_arith)
 
 /-- This tactic, added to the `decreasing_trivial` toolbox, proves that
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions
@@ -56,5 +50,18 @@ macro "array_get_dec" : tactic =>
     | apply Nat.lt_trans (sizeOf_get ..); simp_arith)
 
 macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_get_dec)
+
+/-- This tactic, added to the `decreasing_trivial` toolbox, proves that `sizeOf a < sizeOf arr`
+provided that `a ∈ arr` which is useful for well founded recursions over a nested inductive like
+`inductive T | mk : Array T → T`. -/
+-- NB: This is analogue to tactic `sizeOf_list_dec`
+macro "array_mem_dec" : tactic =>
+  `(tactic| first
+    | apply Array.sizeOf_lt_of_mem; assumption; done
+    | apply Nat.lt_trans (Array.sizeOf_lt_of_mem ?h)
+      case' h => assumption
+      simp_arith)
+
+macro_rules | `(tactic| decreasing_trivial) => `(tactic| array_mem_dec)
 
 end Array

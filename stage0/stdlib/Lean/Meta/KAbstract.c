@@ -34,6 +34,7 @@ uint8_t l_Lean_Expr_hasLooseBVars(lean_object*);
 lean_object* l_Lean_Expr_toHeadIndex(lean_object*);
 lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
+uint8_t l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14517_(lean_object*, lean_object*);
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_HeadIndex_0__Lean_beqHeadIndex____x40_Lean_HeadIndex___hyg_67_(lean_object*, lean_object*);
 uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
@@ -44,7 +45,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
-uint8_t l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14417_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_kabstract_visit(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
 _start:
 {
@@ -5886,7 +5886,7 @@ else
 {
 lean_object* x_33; uint8_t x_34; 
 x_33 = lean_box(0);
-x_34 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14417_(x_3, x_33);
+x_34 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14517_(x_3, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 
@@ -6062,7 +6062,7 @@ else
 {
 lean_object* x_78; uint8_t x_79; 
 x_78 = lean_box(0);
-x_79 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14417_(x_3, x_78);
+x_79 = l___private_Init_Meta_0__Lean_Meta_beqOccurrences____x40_Init_Meta___hyg_14517_(x_3, x_78);
 if (x_79 == 0)
 {
 lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; lean_object* x_87; 

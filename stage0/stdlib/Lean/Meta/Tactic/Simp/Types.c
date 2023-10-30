@@ -206,7 +206,7 @@ lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 5, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 6, x_5);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 7, x_4);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 8, x_4);
-lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 9, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 9, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 10, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 11, x_3);
 lean_ctor_set_uint8(x_6, sizeof(void*)*2 + 12, x_4);

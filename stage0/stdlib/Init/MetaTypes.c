@@ -993,7 +993,7 @@ static uint8_t _init_l_Lean_Meta_Simp_Config_decide___default() {
 _start:
 {
 uint8_t x_1; 
-x_1 = 1;
+x_1 = 0;
 return x_1;
 }
 }

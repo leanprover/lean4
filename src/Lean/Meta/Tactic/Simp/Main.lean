@@ -606,13 +606,11 @@ where
         try
           if (← processCongrHypothesis x) then
             modified := true
-        catch ex =>
+        catch _ =>
           trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          if ex.isMaxRecDepth then
-            -- Recall that `processCongrHypothesis` invokes `simp` recursively.
-            throw ex
-          else
-            return none
+          -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
+          -- does not catch runtime exceptions by default.
+          return none
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
@@ -810,21 +808,23 @@ where
 
 def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Result × UsedSimps) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withSimpConfig ctx do
+  withSimpConfig ctx do withCatchingRuntimeEx do
     try
-      let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
-      trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-      return (r, s.usedTheorems)
+      withoutCatchingRuntimeEx do
+        let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
+        trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+        return (r, s.usedTheorems)
     catch ex =>
-      if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
+      if ex.isRuntime then throwNestedTacticEx `simp ex else throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Expr × UsedSimps) := do
-  withSimpConfig ctx do
+  withSimpConfig ctx do withCatchingRuntimeEx do
     try
-      let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
-      pure (r, s.usedTheorems)
+      withoutCatchingRuntimeEx do
+        let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
+        pure (r, s.usedTheorems)
     catch ex =>
-      if ex.isMaxHeartbeat then throwNestedTacticEx `dsimp ex else throw ex
+      if ex.isRuntime then throwNestedTacticEx `dsimp ex else throw ex
 
 /--
   Return true if `e` is of the form `(x : α) → ... → s = t → ... → False`

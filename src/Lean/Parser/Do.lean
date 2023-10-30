@@ -174,8 +174,15 @@ is highlighted when hovering over `return`.
 -/
 @[builtin_doElem_parser] def doReturn    := leading_parser:leadPrec
   withPosition ("return" >> optional (ppSpace >> checkLineEq >> termParser))
+/--
+`dbg_trace e` prints `e` (which can be an interpolated string literal) to stderr.
+It should only be used for debugging.
+-/
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
+/--
+`assert! cond` panics if `cond` evaluates to `false`.
+-/
 @[builtin_doElem_parser] def doAssert    := leading_parser:leadPrec
   "assert! " >> termParser
 

@@ -45,14 +45,18 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
         let symm := !rule[0].isNone
         let term := rule[1]
         let processId (id : Syntax) : TacticM Unit := do
-          -- Try to get equation theorems for `id` first
-          let declName ← try resolveGlobalConstNoOverload id catch _ => return (← x symm term)
-          let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
-          let rec go : List Name →  TacticM Unit
-            | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
-            | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
-          go eqThms.toList
-          discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
+          -- See if we can interpret `id` as a hypothesis first.
+          if (← optional <| getFVarId id).isSome then
+            x symm term
+          else
+            -- Try to get equation theorems for `id`.
+            let declName ← try resolveGlobalConstNoOverload id catch _ => return (← x symm term)
+            let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
+            let rec go : List Name →  TacticM Unit
+              | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
+              | eqThm::eqThms => (x symm (mkIdentFrom id eqThm)) <|> go eqThms
+            go eqThms.toList
+            discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with
         | `($id:ident)  => processId id
         | `(@$id:ident) => processId id

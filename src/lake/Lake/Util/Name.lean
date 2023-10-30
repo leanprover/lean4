@@ -22,6 +22,12 @@ instance : ForIn m (NameMap α) (Name × α) where
 
 instance : Coe (RBMap Name α Name.quickCmp) (NameMap α) := ⟨id⟩
 
+/-- A sorting name name (NB: `Lean.NameMap` sorts by `Name.hash` first) -/
+abbrev SortedNameMap α := RBMap Name α Name.cmp
+@[inline] def SortedNameMap.empty : SortedNameMap α := RBMap.empty
+@[inline] def mkSortedNameMap (α : Type) : SortedNameMap α := RBMap.empty
+
+/-- An insertion-order-preserving name map -/
 abbrev OrdNameMap α := RBArray Name α Name.quickCmp
 @[inline] def OrdNameMap.empty : OrdNameMap α := RBArray.empty
 @[inline] def mkOrdNameMap (α : Type) : OrdNameMap α := RBArray.empty

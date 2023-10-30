@@ -96,13 +96,13 @@ If `reconfigure`, elaborate configuration files while updating, do not use OLean
 -/
 def Workspace.updateAndMaterialize (ws : Workspace)
 (toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
-  let res ← StateT.run (s := mkOrdNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
+  let res ← StateT.run (s := mkSortedNameMap MaterializedDep) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
     unless toUpdate.isEmpty do
       for entry in (← Manifest.loadOrEmpty ws.manifestFile) do
         unless entry.inherited || toUpdate.contains entry.name do
           let dep ← entry.materialize ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
-          modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
+          modifyThe (SortedNameMap MaterializedDep) (·.insert entry.name dep)
     buildAcyclic (·.1.name) (ws.root, FilePath.mk ".") fun (pkg, relPkgDir) resolve => do
       let inherited := pkg.name != ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
@@ -120,10 +120,10 @@ def Workspace.updateAndMaterialize (ws : Workspace)
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           for entry in (← Manifest.loadOrEmpty depPkg.manifestFile) do
-            unless (← getThe (OrdNameMap MaterializedDep)).contains entry.name do
+            unless (← getThe (SortedNameMap MaterializedDep)).contains entry.name do
               let entry := entry.setInherited.inDirectory dep.relPkgDir
               let dep ← entry.materialize ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
-              modifyThe (OrdNameMap MaterializedDep) (·.insert entry.name dep)
+              modifyThe (SortedNameMap MaterializedDep) (·.insert entry.name dep)
           modifyThe (NameMap Package) (·.insert dep.name depPkg)
           return (depPkg, dep.relPkgDir)
       -- Resolve dependencies's dependencies recursively
@@ -132,7 +132,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
   | (.ok root, deps) =>
     let ws : Workspace ← {ws with root}.finalize
     let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
-    let manifest := deps.foldl (·.addPackage ·.manifestEntry) manifest
+    let manifest := deps.fold (fun m _ e => m.addPackage e.manifestEntry) manifest
     manifest.saveToFile ws.manifestFile
     LakeT.run ⟨ws⟩ <| ws.packages.forM fun pkg => do
       unless pkg.postUpdateHooks.isEmpty do
@@ -218,4 +218,3 @@ def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   discard <| ws.updateAndMaterialize toUpdate rc
-

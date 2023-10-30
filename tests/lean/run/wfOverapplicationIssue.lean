@@ -1,4 +1,4 @@
-theorem Array.sizeOf_lt_of_mem' [DecidableEq α] [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
+theorem Array.sizeOf_lt_of_mem' [DecidableEq α] [SizeOf α] {as : Array α} (h : as.contains a) : sizeOf a < sizeOf as := by
   simp [Membership.mem, contains, any, Id.run, BEq.beq, anyM] at h
   let rec aux (j : Nat) : anyM.loop (m := Id) (fun b => decide (a = b)) as as.size (Nat.le_refl ..) j = true → sizeOf a < sizeOf as := by
     unfold anyM.loop

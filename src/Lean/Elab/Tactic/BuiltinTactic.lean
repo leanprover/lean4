@@ -232,7 +232,10 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | some msg => withRef stx[0] <| addRawTrace msg
 
 @[builtin_tactic Lean.Parser.Tactic.assumption] def evalAssumption : Tactic := fun _ =>
-  liftMetaTactic fun mvarId => do mvarId.assumption; pure []
+  -- The `withAssignableSyntheticOpaque` is needed here to accommodate
+  -- `assumption` after `refine`.
+  -- See https://github.com/leanprover/lean4/issues/2361
+  liftMetaTactic fun mvarId => withAssignableSyntheticOpaque do mvarId.assumption; pure []
 
 @[builtin_tactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.contradiction; pure []

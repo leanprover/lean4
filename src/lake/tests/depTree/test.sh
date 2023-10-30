@@ -129,14 +129,13 @@ sed_i 's/third commit/fourth commit/' A.lean
 git commit -am 'fourth commit in a'
 popd
 pushd d
-# d: no require c
-sed_i '/require c/d' lakefile.lean
 # d: b@1 -> b@2 => a@1 -> a@3
 $LAKE update b -v
 # test 119: pickup a@3 and not a@4
 grep 'third commit in a' lake-packages/a/A.lean
 # test the removal of `c` from the manifest
 grep "\"c\"" lake-manifest.json
+sed_i '/require c/d' lakefile.lean
 $LAKE update c -v
-! grep "\"c\"" lake-manifest.json
+grep "\"c\"" lake-manifest.json && false || true
 popd

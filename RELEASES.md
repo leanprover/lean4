@@ -5,7 +5,11 @@ There is not yet a strong guarantee of backwards compatibility between versions,
 only an expectation that breaking changes will be documented in this file.
 
 This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
-Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status of each version.
+Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
+of each version.
+
+v4.4.0 (development in progress)
+---------
 
 v4.3.0
 ---------

@@ -269,13 +269,15 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
   -/
   withoutRecover <| elabTerm stx none mayPostpone
 
+/--
+Elaborate `id`, if the result is a free variable `x`, return `some x`, otherwise throw exception.
+-/
 def getFVarId (id : Syntax) : TacticM FVarId := withRef id do
   -- use apply-like elaboration to suppress insertion of implicit arguments
-  let e ← withMainContext do
-    elabTermForApply id (mayPostpone := false)
-  match e with
-  | Expr.fvar fvarId => return fvarId
-  | _                => throwError "unexpected term '{e}'; expected single reference to variable"
+  let e ← withMainContext do elabTermForApply id (mayPostpone := false)
+  let .fvar fvarId := e
+    | throwError "unexpected term '{e}'; expected single reference to variable"
+  return fvarId
 
 def getFVarIds (ids : Array Syntax) : TacticM (Array FVarId) := do
   withMainContext do ids.mapM getFVarId

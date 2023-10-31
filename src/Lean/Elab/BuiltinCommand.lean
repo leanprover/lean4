@@ -147,18 +147,6 @@ def id₂ (α : Type u) (a : α) := a
 /- Explicit standalone universe variable declaration, equivalent to `id₁` and `id₂`. -/
 universe u
 def id₃ (α : Type u) (a : α) := a
-
-/- A more involved example: `WitnessPair` stores a `Sort v` and a `Sort v'`, meaning it must be in a
-  universe above both `v` and `v'`, meaning it must be at least at level `(max v v') + 1`.
-
-  So `WitnessPair` is (at least) in `Sort ((max v v') + 1)`, which is the same as `Type (max v v')`.
--/
-universe v v'
-structure WitnessPair : Type (max v v') where
-  α : Sort v
-  val : α
-  α' : Sort v'
-  val' : α'
 ```
 
 On a more technical note, using a universe variable only in the right-hand side of a definition

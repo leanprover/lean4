@@ -45,20 +45,23 @@ def withRWRulesSeq (token : Syntax) (rwRulesSeqStx : Syntax) (x : (symm : Bool) 
       withRef rule do
         let symm := !rule[0].isNone
         let term := rule[1]
-        let processId (id : Syntax) : TacticM Unit := do
+        let processId (id : TSyntax `ident) : TacticM Unit := do
           -- See if we can interpret `id` as a hypothesis first.
           if let some _ ← withMainContext <| Term.isLocalIdent? id then
             x symm term
           else
-            -- Try to get equation theorems for `id`.
             let declName ← try realizeGlobalConstNoOverload id catch _ => return (← x symm term)
-            let some eqThms ← getEqnsFor? declName (nonRec := true) | x symm term
-            let rec go : List Name →  TacticM Unit
-              | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
-              -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
-              -- See test: `rwPrioritizesLCtxOverEnv.lean`
-              | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
-            go eqThms.toList
+            if let some eqThms ← getEqnsFor? declName (nonRec := true) then
+              -- Try to get equation theorems for `id`.
+              let rec go : List Name →  TacticM Unit
+                | [] => throwError "failed to rewrite using equation theorems for '{declName}'"
+                -- Remark: we prefix `eqThm` with `_root_` to ensure it is resolved correctly.
+                -- See test: `rwPrioritizesLCtxOverEnv.lean`
+                | eqThm::eqThms => (x symm (mkIdentFrom id (`_root_ ++ eqThm))) <|> go eqThms
+              go eqThms.toList
+            else
+              -- Treat identifier as `@id`. We use this approach in `simp`. See issue #2736
+              x symm (← `(@$id))
             discard <| Term.addTermInfo id (← mkConstWithFreshMVarLevels declName) (lctx? := ← getLCtx)
         match term with
         | `($id:ident)  => processId id

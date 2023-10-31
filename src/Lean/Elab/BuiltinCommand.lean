@@ -416,7 +416,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   else
     return #[binder]
 
-/-- Declares a list of typed variables.
+/-- Declares one or more typed variables, or modifies whether already-declared variables are
+implicit.
 
 Introduces variables that can be used in definitions within the same `namespace` or `section` block.
 When a definition mentions a variable, Lean will add it as an argument of the definition. The
@@ -424,8 +425,18 @@ When a definition mentions a variable, Lean will add it as an argument of the de
 writing many definitions that have parameters in common (see below for an example).
 
 Variable declarations have the same flexibility as regular function paramaters. In particular they
-can be explicit, implicit, or instance implicit (in which case they can be anonymous). This can be
-changed, for instance one can turn explicit variable `x` into an implicit one with `variable {x}`.
+can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
+can be anonymous). This can be changed, for instance one can turn explicit variable `x` into an
+implicit one with `variable {x}`.
+
+See [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed
+discussion.
+
+[tpil vars]: https://lean-lang.org/theorem_proving_in_lean4/dependent_type_theory.html#variables-and-sections
+(Variables and Sections on Theorem Proving in Lean)
+[tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html
+(Type classes on Theorem Proving in Lean)
+[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo (Documentation for the BinderInfo type)
 
 ## Examples
 

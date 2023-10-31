@@ -182,8 +182,12 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
   | Except.ok env   => setEnv env
   | Except.error ex => throwError (ex.toMessageData (← getOptions))
 
-/-- Adds aliases to the current namespace, pointing at names that are defined in some other
-namespace.
+/-- Adds names from other namespaces to the current namespace.
+
+The command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`
+
+- visible in the current namespace without prefix `Some.Namespace`, like `open`, and
+- visible from outside current namespace `N` as `N.name₁` and `N.name₂`.
 
 ## Examples
 

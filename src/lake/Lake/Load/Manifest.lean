@@ -27,6 +27,20 @@ inductive PackageEntryV6
     (inputRev? : Option String) (subDir? : Option FilePath)
 deriving FromJson, ToJson, Inhabited
 
+/-- Set `/` as the path separator, even on Windows. -/
+def normalizePath (path : FilePath) : FilePath :=
+  if System.Platform.isWindows then
+    path.toString.map fun c => if c = '\\' then '/' else c
+  else
+    path.toString
+
+/--
+Use `/` and instead of `\\` in file paths
+when serializing the manifest on Windows.
+-/
+local instance : ToJson FilePath where
+  toJson path := toJson <| normalizePath path
+
 /-- An entry for a package stored in the manifest. -/
 inductive PackageEntry
   /--

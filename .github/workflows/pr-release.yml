@@ -112,6 +112,10 @@ jobs:
           fi
 
           if [[ -n "$MESSAGE "]]; then
+            MESSAGE="$MESSAGE ($(date "+%Y-%m-%d %H:%M:%S"))"
+
+            echo "Posting message to the comments: $MESSAGE"
+
             # Use GitHub API to check if a comment already exists
             existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
@@ -140,6 +144,8 @@ jobs:
                 -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
                 "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
             fi
+
+            exit 1
           fi
 
       # We next automatically create a Mathlib branch using this toolchain.
@@ -157,7 +163,7 @@ jobs:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}
           ref: nightly-testing
-          fetch-depth: 0 # This ensures we check out all tags and branchs.
+          fetch-depth: 0 # This ensures we check out all tags and branches.
 
       - name: Check if branch exists
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -169,8 +175,7 @@ jobs:
           if git branch -r | grep -q "nightly-testing-${MOST_RECENT_NIGHTLY}"; then
             BASE=nightly-testing-${MOST_RECENT_NIGHTLY}
           else
-            # Possibly it would be better just to fail at this point; there is no guarantee this branch is usable.
-            # For now let's be optimistic; we can switch to a more conservative approach if there are still too many spurious failures.
+            echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' branch at Mathlib. Falling back to 'nightly-testing'."
             BASE=nightly-testing
           fi
 

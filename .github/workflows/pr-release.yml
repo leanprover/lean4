@@ -77,6 +77,14 @@ jobs:
           number: ${{ steps.workflow-info.outputs.pullRequestNumber }}
           labels: toolchain-available
 
+      # Next, determine the most recent nightly release in this PR's history.
+      - name: Find most recent nightly
+        id: most-recent-nightly-tag
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
+          git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
+          echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
+
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.
@@ -91,8 +99,8 @@ jobs:
         with:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}
-          ref: nightly-testing # This is more likely than `master` to work with the base of this PR.
-          fetch-depth: 0
+          ref: nightly-testing
+          fetch-depth: 0 # This ensures we check out all tags and branchs.
 
       - name: Check if branch exists
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -100,6 +108,18 @@ jobs:
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
+
+          if git branch -r | grep -q "nightly-testing-${MOST_RECENT_NIGHTLY}"; then
+            BASE=nightly-testing-${MOST_RECENT_NIGHTLY}
+          else
+            # Possibly it would be better just to fail at this point; there is no guarantee this branch is usable.
+            # For now let's be optimistic; we can switch to a more conservative approach if there are still too many spurious failures.
+            BASE=nightly-testing
+          fi
+
+          echo "Using base branch: $BASE"
+
+          git checkout $BASE
 
           EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} | wc -l)
           echo "Branch exists: $EXISTS"
@@ -112,11 +132,8 @@ jobs:
           else
             echo "Branch already exists, pushing an empty commit."
             git checkout lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
-            # The Mathlib `nightly-testing` branch may have moved since this branch was created, so merge their changes.
-            # If the base of this Lean4 PR becomes significantly older than the nightly being used by `nightly-testing`
-            # this will cause breakages rather than fixing them!
-            # Without cumbersome requirements that Lean4 PRs are based off nightlies, I'm not sure there is a perfect solution here.
-            git merge nightly-testing --strategy-option ours --no-commit --allow-unrelated-histories
+            # The Mathlib `nightly-testing` or `nightly-testing-YYYY-MM-DD` branch may have moved since this branch was created, so merge their changes.
+            git merge $BASE --strategy-option ours --no-commit --allow-unrelated-histories
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

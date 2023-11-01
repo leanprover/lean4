@@ -216,7 +216,7 @@ jobs:
           brew install ccache tree zstd coreutils gmp
         if: matrix.os == 'macos-latest'
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v11
+        uses: mymindstorm/setup-emsdk@v12
         with:
           version: 3.1.44
           actions-cache-folder: emsdk

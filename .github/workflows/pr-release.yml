@@ -85,6 +85,63 @@ jobs:
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
 
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v1.0.1
+
+      # Check that the most recently nightly coincides with 'git merge-base HEAD master'
+      - name: Check merge-base and nightly-testing-YYYY-MM-DD
+        run: |
+          NIGHTLY_SHA=$(git rev-list -n 1 nightly-$MOST_RECENT_NIGHTLY)
+          MERGE_BASE_SHA=$(git merge-base master HEAD)
+          if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
+            echo "Most recent nightly tag agrees with the merge base. That's promising!"
+
+            if git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY | wc -l; then
+              echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
+              MESSAGE=""
+            else
+              echo "but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. It may be necessary to rebase onto 'nightly' tomorrow."
+            fi
+
+          else
+            echo "The most recently nightly tag has SHA: $NIGHTLY_SHA"
+            echo "but 'git merge-base master HEAD' reported: $MERGE_BASE_SHA"
+
+            MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
+          fi
+
+          if [[ -n "$MESSAGE "]]; then
+            # Use GitHub API to check if a comment already exists
+            existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                                    -H "Accept: application/vnd.github.v3+json" \
+                                    "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
+                                    | jq '.[] | select(.body | startswith("- ❗ Mathlib") or startswith("- ✅ Mathlib") or startswith("- ❌ Mathlib") or startswith("- 💥 Mathlib") or startswith("- 🟡 Mathlib"))')
+            existing_comment_id=$(echo "$existing_comment" | jq -r .id)
+            existing_comment_body=$(echo "$existing_comment" | jq -r .body)
+
+            # Append new result to the existing comment or post a new comment
+            if [ -z "$existing_comment_id" ]; then
+              # Post new comment with a bullet point
+              echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+              curl -L -s \
+                -X POST \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
+                "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+            else
+              # Append new result to the existing comment
+              echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+              curl -L -s \
+                -X PATCH \
+                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
+                "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
+            fi
+          fi
+
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.

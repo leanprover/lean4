@@ -8,7 +8,7 @@ def Set.pred (p : α → Prop) : Set α := p
 notation "{" a "|" p "}" => Set.pred (fun a => p)
 
 theorem ex1 : (1, 3) ∈ { (n, m) | n < 2 ∧ m < 5 } := by
-  simp [Set.in, Set.pred]
+  simp (config := { decide := true }) [Set.in, Set.pred]
 
 def Set.union (s₁ s₂ : Set α) : Set α :=
   { a | a ∈ s₁ ∨ a ∈ s₂ }

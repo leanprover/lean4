@@ -36,7 +36,6 @@ $LAKE resolve-deps
 # Test update produces the expected V7 manifest
 $LAKE update
 sed_i "s/$REV/0538596b94a0510f55dc820cabd3bde41ad93c3e/g" lake-manifest.json
-sed_i 's/\\\\/\//g' lake-manifest.json # normalize Windows paths
 diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json
 
 # Test successful loading of a V6 manifest
@@ -47,5 +46,4 @@ $LAKE resolve-deps
 # Test update produces the expected V7 manifest
 $LAKE update
 sed_i "s/$REV/0538596b94a0510f55dc820cabd3bde41ad93c3e/g" lake-manifest.json
-sed_i 's/\\\\/\//g' lake-manifest.json # normalize Windows paths
 diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json

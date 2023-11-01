@@ -174,7 +174,7 @@ Resolving a workspace's dependencies using a manifest,
 downloading and/or updating them as necessary.
 -/
 def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigure := false) : LogIO Workspace := do
-  if !manifest.packages.isEmpty && manifest.packagesDir? != some ws.relPkgsDir then
+  if !manifest.packages.isEmpty && manifest.packagesDir? != some (normalizePath ws.relPkgsDir) then
     logWarning <|
       "manifest out of date: packages directory changed; " ++
       "use `lake update` to rebuild the manifest (warning: this will update ALL workspace dependencies)"

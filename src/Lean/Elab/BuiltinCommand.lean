@@ -135,6 +135,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   for idStx in ids do
     let id := idStx.getId
     let declName ← resolveNameUsingNamespaces nss idStx
+    if (← getInfoState).enabled then
+      addConstInfo idStx declName
     aliases := aliases.push (currNamespace ++ id, declName)
   modify fun s => { s with env := aliases.foldl (init := s.env) fun env p => addAlias env p.1 p.2 }
 

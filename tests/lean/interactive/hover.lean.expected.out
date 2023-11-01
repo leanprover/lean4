@@ -583,3 +583,48 @@
  {"start": {"line": 274, "character": 13},
   "end": {"line": 274, "character": 15}},
  "contents": {"value": "```lean\n_e : 1 = x\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 280, "character": 13}}
+{"range":
+ {"start": {"line": 280, "character": 13},
+  "end": {"line": 280, "character": 16}},
+ "contents":
+ {"value":
+  "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\n`[]` is the empty list. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 282, "character": 13}}
+{"range":
+ {"start": {"line": 282, "character": 11},
+  "end": {"line": 282, "character": 15}},
+ "contents":
+ {"value":
+  "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nIf `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the\nlist whose first element is `a` and with `l` as the rest of the list. \n***\n*import Init.Prelude*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 284, "character": 18}}
+{"range":
+ {"start": {"line": 284, "character": 17},
+  "end": {"line": 284, "character": 20}},
+ "contents":
+ {"value":
+  "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) (a✝ : List α) : List β\n```\n***\n`O(|l|)`. `map f l` applies `f` to each element of the list.\n* `map f [a, b, c] = [f a, f b, f c]`\n\n***\n*import Init.Data.List.Basic*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 287, "character": 26}}
+{"range":
+ {"start": {"line": 287, "character": 25},
+  "end": {"line": 287, "character": 29}},
+ "contents":
+ {"value":
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} (a✝ : List α) (a✝¹ : List β) : List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "kind": "markdown"}}
+{"textDocument": {"uri": "file://hover.lean"},
+ "position": {"line": 287, "character": 19}}
+{"range":
+ {"start": {"line": 287, "character": 19},
+  "end": {"line": 287, "character": 22}},
+ "contents":
+ {"value":
+  "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} (a✝ : List α) (a✝¹ : List β) : List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
+  "kind": "markdown"}}

@@ -1102,6 +1102,20 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_link_modules(size_t ctx,
 #endif
 }
 
+extern "C" LEAN_EXPORT lean_object *lean_llvm_target_machine_pointer_size(size_t ctx,
+    size_t target_machine, lean_object * /* w */) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    auto layout = LLVMCreateTargetDataLayout(lean_to_TargetMachine(target_machine));
+    uint64_t pointer_size = LLVMPointerSize(layout);
+    LLVMDisposeTargetData(layout);
+    return lean_io_result_mk_ok(lean_box_uint64(pointer_size));
+#endif  // LEAN_LLVM
+}
+
 extern "C" LEAN_EXPORT lean_object *lean_llvm_create_target_machine(size_t ctx,
     size_t target, lean_object *tripleStr, lean_object *cpuStr,
     lean_object *featuresStr, lean_object * /* w */) {

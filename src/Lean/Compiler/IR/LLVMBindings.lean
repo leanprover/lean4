@@ -296,6 +296,9 @@ opaque getTargetFromTriple (triple : @&String) : BaseIO (Target ctx)
 @[extern "lean_llvm_create_target_machine"]
 opaque createTargetMachine (target : Target ctx) (tripleStr : @&String) (cpu : @&String) (features : @&String) : BaseIO (TargetMachine ctx)
 
+@[extern "lean_llvm_target_machine_pointer_size"]
+opaque targetMachinePointerSize (targetMachine : TargetMachine ctx) : BaseIO UInt64
+
 @[extern "lean_llvm_target_machine_emit_to_file"]
 opaque targetMachineEmitToFile (targetMachine : TargetMachine ctx) (module : Module ctx) (filepath : @&String) (codegenType : LLVM.CodegenFileType) : BaseIO Unit
 
@@ -441,4 +444,25 @@ def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 
 def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
+
+-- Helper to add a function if it does not exist, and to return the function handle if it does.
+def getOrAddFunction (m : LLVM.Module ctx) (name : String) (type : LLVM.LLVMType ctx) : BaseIO (LLVM.Value ctx) :=  do
+  match (← LLVM.getNamedFunction m name) with
+  | some fn => return fn
+  | none =>
+    /-
+    By the evidence shown in: https://github.com/leanprover/lean4/issues/2373#issuecomment-1658743284
+    this is how clang implements `-fstack-clash-protection` in the LLVM IR, we want this feature
+    for robust stack overflow detection.
+    -/
+    let fn ← LLVM.addFunction m name type
+    let attr ← LLVM.createStringAttribute "probe-stack" "inline-asm"
+    LLVM.addAttributeAtIndex fn LLVM.AttributeIndex.AttributeFunctionIndex attr
+    return fn
+
+def getOrAddGlobal (m : LLVM.Module ctx) (name : String) (type : LLVM.LLVMType ctx) : BaseIO (LLVM.Value ctx) :=  do
+  match (← LLVM.getNamedGlobal m name) with
+  | .some fn => return fn
+  | .none => LLVM.addGlobal m name type
+
 end LLVM

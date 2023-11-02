@@ -86,10 +86,12 @@ jobs:
           echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
 
       - name: 'Setup jq'
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: dcarbone/install-jq-action@v1.0.1
 
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
           NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           MERGE_BASE_SHA=$(git merge-base master HEAD)
@@ -158,7 +160,8 @@ jobs:
 
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
-        uses: actions/checkout@v2
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/checkout@v3
         with:
           repository: leanprover-community/mathlib4
           token: ${{ secrets.MATHLIB4_BOT }}

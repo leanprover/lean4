@@ -91,7 +91,7 @@ jobs:
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD
         run: |
-          NIGHTLY_SHA=$(git rev-list -n 1 nightly/nightly-$MOST_RECENT_NIGHTLY)
+          NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           MERGE_BASE_SHA=$(git merge-base master HEAD)
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "Most recent nightly tag agrees with the merge base. That's promising!"

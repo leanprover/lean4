@@ -78,6 +78,8 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   name : Name
 
   /--
+  **This field is deprecated.**
+
   The path of a package's manifest file, which stores the exact versions
   of its resolved dependencies.
 

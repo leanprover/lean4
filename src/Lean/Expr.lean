@@ -402,22 +402,12 @@ inductive Expr where
   /--
   Let-expressions.
 
-  **IMPORTANT**: The `nonDep` flag is for "local" use only. That is, a module should not "trust" its value for any purpose.
-  In the intended use-case, the compiler will set this flag, and be responsible for maintaining it.
-  Other modules may not preserve its value while applying transformations.
-
-  Given an environment, a metavariable context, and a local context,
-  we say a let-expression `let x : t := v; e` is non-dependent when it is equivalent
-  to `(fun x : t => e) v`. Here is an example of a dependent let-expression
-  `let n : Nat := 2; fun (a : Array Nat n) (b : Array Nat 2) => a = b` is type correct,
-  but `(fun (n : Nat) (a : Array Nat n) (b : Array Nat 2) => a = b) 2` is not.
-
   The let-expression `let x : Nat := 2; Nat.succ x` is represented as
   ```
-  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0)) true
+  Expr.letE `x (.const `Nat []) (.lit (.natVal 2)) (.app (.const `Nat.succ []) (.bvar 0))
   ```
   -/
-  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr) (nonDep : Bool)
+  | letE (declName : Name) (type : Expr) (value : Expr) (body : Expr)
 
   /--
   Natural number and string literal values.
@@ -494,7 +484,7 @@ with
         (t.data.hasExprMVar || b.data.hasExprMVar)
         (t.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || b.data.hasLevelParam)
-    | .letE _ t v b _ =>
+    | .letE _ t v b =>
       let d := (max (max t.data.approxDepth.toUInt32 v.data.approxDepth.toUInt32) b.data.approxDepth.toUInt32) + 1
       mkDataForLet (mixHash d.toUInt64 <| mixHash t.data.hash <| mixHash v.data.hash b.data.hash)
         (max (max t.data.looseBVarRange.toNat v.data.looseBVarRange.toNat) (b.data.looseBVarRange.toNat - 1))
@@ -679,10 +669,10 @@ def mkSimpleThunk (type : Expr) : Expr :=
   mkLambda `_ BinderInfo.default (mkConst `Unit) type
 
 /--
-`.letE x t v b nonDep` is now the preferred form.
+`.letE x t v b` is now the preferred form.
 -/
-def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
-  .letE x t v b nonDep
+def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) : Expr :=
+  .letE x t v b
 
 def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
 def mkApp2 (f a b : Expr) := mkAppB f a b
@@ -1308,7 +1298,7 @@ partial def betaRev (f : Expr) (revArgs : Array Expr) (useZeta := false) (preser
         else
           let n := sz - (i + 1)
           mkAppRevRange (b.instantiateRange n sz revArgs) 0 n revArgs
-      | Expr.letE _ _ v b _ =>
+      | Expr.letE _ _ v b =>
         if useZeta && i < sz then
           go (b.instantiate1 v) i
         else
@@ -1340,10 +1330,10 @@ that zeta-reduction (aka let-expansion) is going to be used.
 See `isHeadBetaTarget`.
 -/
 def isHeadBetaTargetFn (useZeta : Bool) : Expr → Bool
-  | Expr.lam ..         => true
-  | Expr.letE _ _ _ b _ => useZeta && isHeadBetaTargetFn useZeta b
-  | Expr.mdata _ b      => isHeadBetaTargetFn useZeta b
-  | _                   => false
+  | Expr.lam ..       => true
+  | Expr.letE _ _ _ b => useZeta && isHeadBetaTargetFn useZeta b
+  | Expr.mdata _ b    => isHeadBetaTargetFn useZeta b
+  | _                 => false
 
 /-- `(fun x => e) a` ==> `e[x/a]`. -/
 def headBeta (e : Expr) : Expr :=
@@ -1445,14 +1435,14 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else
     match e with
-    | Expr.forallE _ d b _   => visit d || visit b
-    | Expr.lam _ d b _       => visit d || visit b
-    | Expr.mdata _ e         => visit e
-    | Expr.letE _ t v b _    => visit t || visit v || visit b
-    | Expr.app f a           => visit f || visit a
-    | Expr.proj _ _ e        => visit e
-    | Expr.fvar fvarId       => p fvarId
-    | _                      => false
+    | .forallE _ d b _ => visit d || visit b
+    | .lam _ d b _     => visit d || visit b
+    | .mdata _ e       => visit e
+    | .letE _ t v b    => visit t || visit v || visit b
+    | .app f a         => visit f || visit a
+    | .proj _ _ e      => visit e
+    | .fvar fvarId     => p fvarId
+    | _                => false
   visit e
 
 /-- Return `true` if `e` contains the given free variable. -/
@@ -1567,18 +1557,18 @@ def updateLambda! (e : Expr) (newBinfo : BinderInfo) (newDomain : Expr) (newBody
 
 @[inline] private unsafe def updateLet!Impl (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
   match e with
-  | letE n t v b nonDep =>
+  | letE n t v b =>
     if ptrEq t newType && ptrEq v newVal && ptrEq b newBody then
       e
     else
-      letE n newType newVal newBody nonDep
+      letE n newType newVal newBody
   | _              => panic! "let expression expected"
 
 @[implemented_by updateLet!Impl]
 def updateLet! (e : Expr) (newType : Expr) (newVal : Expr) (newBody : Expr) : Expr :=
   match e with
-  | letE n _ _ _ c => letE n newType newVal newBody c
-  | _              => panic! "let expression expected"
+  | letE n _ _ _ => letE n newType newVal newBody
+  | _            => panic! "let expression expected"
 
 def updateFn : Expr → Expr → Expr
   | e@(app f a), g => e.updateApp! (updateFn f g) a

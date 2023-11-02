@@ -45,7 +45,7 @@ extern "C" object * lean_mk_empty_local_ctx(object*);
 extern "C" object * lean_local_ctx_num_indices(object*);
 extern "C" uint8 lean_local_ctx_is_empty(object*);
 extern "C" object * lean_local_ctx_mk_local_decl(object * lctx, object * name, object * user_name, object * expr, uint8 bi);
-extern "C" object * lean_local_ctx_mk_let_decl(object * lctx, object * name, object * user_name, object * type, object * value, uint8 non_dep);
+extern "C" object * lean_local_ctx_mk_let_decl(object * lctx, object * name, object * user_name, object * type, object * value);
 extern "C" object * lean_local_ctx_find(object * lctx, object * name);
 extern "C" object * lean_local_ctx_erase(object * lctx, object * name);
 
@@ -58,7 +58,7 @@ bool local_ctx::empty() const {
 
 local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const & type, expr const & value) {
     unsigned idx = unbox(lean_local_ctx_num_indices(to_obj_arg()));
-    m_obj = lean_local_ctx_mk_let_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg(), false);
+    m_obj = lean_local_ctx_mk_let_decl(raw(), n.to_obj_arg(), un.to_obj_arg(), type.to_obj_arg(), value.to_obj_arg());
     return local_decl(idx, n, un, type, value);
 }
 

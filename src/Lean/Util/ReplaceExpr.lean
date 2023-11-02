@@ -60,13 +60,13 @@ unsafe def replaceUnsafeM (f? : Expr → Option Expr) (e : Expr) : ReplaceM Expr
     else match f? e with
       | some eNew => cache e eNew
       | none      => match e with
-        | Expr.forallE _ d b _   => cache e <| e.updateForallE! (← visit d) (← visit b)
-        | Expr.lam _ d b _       => cache e <| e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b         => cache e <| e.updateMData! (← visit b)
-        | Expr.letE _ t v b _    => cache e <| e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a           => cache e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b        => cache e <| e.updateProj! (← visit b)
-        | e                      => pure e
+        | .forallE _ d b _ => cache e <| e.updateForallE! (← visit d) (← visit b)
+        | .lam _ d b _     => cache e <| e.updateLambdaE! (← visit d) (← visit b)
+        | .mdata _ b       => cache e <| e.updateMData! (← visit b)
+        | .letE _ t v b    => cache e <| e.updateLet! (← visit t) (← visit v) (← visit b)
+        | .app f a         => cache e <| e.updateApp! (← visit f) (← visit a)
+        | .proj _ _ b      => cache e <| e.updateProj! (← visit b)
+        | e                => pure e
   visit e
 
 @[inline]
@@ -86,7 +86,7 @@ def replaceNoCache (f? : Expr → Option Expr) (e : Expr) : Expr :=
     | .forallE _ d b _ => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateForallE! d b
     | .lam _ d b _     => let d := replaceNoCache f? d; let b := replaceNoCache f? b; e.updateLambdaE! d b
     | .mdata _ b       => let b := replaceNoCache f? b; e.updateMData! b
-    | .letE _ t v b _  => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
+    | .letE _ t v b    => let t := replaceNoCache f? t; let v := replaceNoCache f? v; let b := replaceNoCache f? b; e.updateLet! t v b
     | .app f a         => let f := replaceNoCache f? f; let a := replaceNoCache f? a; e.updateApp! f a
     | .proj _ _ b      => let b := replaceNoCache f? b; e.updateProj! b
     | e                => e

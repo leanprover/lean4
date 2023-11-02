@@ -160,7 +160,7 @@ def _root_.Lean.MVarId.changeLocalDecl (mvarId : MVarId) (fvarId : FVarId) (type
       pure mvarId
     match target with
     | .forallE n d b c => do check d; finalize (mkForall n c typeNew b)
-    | .letE n t v b _  => do check t; finalize (mkLet n typeNew v b)
+    | .letE n t v b    => do check t; finalize (mkLet n typeNew v b)
     | _ => throwTacticEx `changeHypothesis mvarId "unexpected auxiliary target"
 
 @[deprecated MVarId.changeLocalDecl]

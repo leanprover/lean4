@@ -334,7 +334,7 @@ def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (a
     | .erased | .type .. => pure .erased
   let letDecl ← LCNF.mkLetDecl binderName type' value'
   modify fun s => { s with
-    lctx := s.lctx.mkLetDecl letDecl.fvarId binderName type value false
+    lctx := s.lctx.mkLetDecl letDecl.fvarId binderName type value
     seq := s.seq.push <| .let letDecl
   }
   return letDecl
@@ -713,7 +713,7 @@ where
       /-
       We use eta-reduction to make sure we avoid the overhead introduced by
       the implicit lambda feature when declaring instances.
-      Example: `fun {α} => ReaderT.pure
+      Example: `fun {α} => ReaderT.pure`
       -/
       visit b
     else
@@ -727,7 +727,7 @@ where
 
   visitMData (mdata : MData) (e : Expr) : M Arg := do
     if let some (.app (.lam n t b ..) v) := letFunAnnotation? (.mdata mdata e) then
-      visitLet (.letE n t v b (nonDep := true)) #[]
+      visitLet (.letE n t v b) #[]
     else
       visit e
 
@@ -738,7 +738,7 @@ where
 
   visitLet (e : Expr) (xs : Array Expr) : M Arg := do
     match e with
-    | .letE binderName type value body _ =>
+    | .letE binderName type value body =>
       let type := type.instantiateRev xs
       let value := value.instantiateRev xs
       if (← (liftMetaM <| Meta.isProp type) <||> isTypeFormerType type) then

@@ -55,13 +55,13 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
       | .continue e? =>
         let e := e?.getD e
         match e with
-        | Expr.forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
-        | Expr.lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
-        | Expr.letE _ t v b _  => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
-        | Expr.app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
-        | Expr.mdata _ b       => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b      => visitPost (e.updateProj! (← visit b))
-        | _                    => visitPost e
+        | .forallE _ d b _ => visitPost (e.updateForallE! (← visit d) (← visit b))
+        | .lam _ d b _     => visitPost (e.updateLambdaE! (← visit d) (← visit b))
+        | .letE _ t v b    => visitPost (e.updateLet! (← visit t) (← visit v) (← visit b))
+        | .app ..          => e.withApp fun f args => do visitPost (mkAppN (← visit f) (← args.mapM visit))
+        | .mdata _ b       => visitPost (e.updateMData! (← visit b))
+        | .proj _ _ b      => visitPost (e.updateProj! (← visit b))
+        | _                => visitPost e
   visit input |>.run
 
 def betaReduce (e : Expr) : CoreM Expr :=
@@ -103,7 +103,7 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
         | e => visitPost (← mkForallFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
       let rec visitLet (fvars : Array Expr) (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match e with
-        | Expr.letE n t v b _ =>
+        | .letE n t v b =>
           withLetDecl n (← visit (t.instantiateRev fvars)) (← visit (v.instantiateRev fvars)) fun x =>
             visitLet (fvars.push x) b
         | e => visitPost (← mkLetFVars (usedLetOnly := usedLetOnly) fvars (← visit (e.instantiateRev fvars)))
@@ -116,13 +116,13 @@ partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m]
       | .continue e? =>
         let e := e?.getD e
         match e with
-        | Expr.forallE ..    => visitForall #[] e
-        | Expr.lam ..        => visitLambda #[] e
-        | Expr.letE ..       => visitLet #[] e
-        | Expr.app ..        => visitApp e
-        | Expr.mdata _ b     => visitPost (e.updateMData! (← visit b))
-        | Expr.proj _ _ b    => visitPost (e.updateProj! (← visit b))
-        | _                  => visitPost e
+        | .forallE .. => visitForall #[] e
+        | .lam ..     => visitLambda #[] e
+        | .letE ..    => visitLet #[] e
+        | .app ..     => visitApp e
+        | .mdata _ b  => visitPost (e.updateMData! (← visit b))
+        | .proj _ _ b => visitPost (e.updateProj! (← visit b))
+        | _           => visitPost e
   visit input |>.run
 
 def zetaReduce (e : Expr) : MetaM Expr := do

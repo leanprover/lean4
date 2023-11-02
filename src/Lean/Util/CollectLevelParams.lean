@@ -44,7 +44,7 @@ mutual
     | .proj _ _ s      => visitExpr s
     | .forallE _ d b _ => visitExpr b ∘ visitExpr d
     | .lam _ d b _     => visitExpr b ∘ visitExpr d
-    | .letE _ t v b _  => visitExpr b ∘ visitExpr v ∘ visitExpr t
+    | .letE _ t v b    => visitExpr b ∘ visitExpr v ∘ visitExpr t
     | .app f a         => visitExpr a ∘ visitExpr f
     | .mdata _ b       => visitExpr b
     | .const _ us      => visitLevels us

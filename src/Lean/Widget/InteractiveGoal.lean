@@ -95,7 +95,7 @@ def InteractiveGoalCore.pretty (g : InteractiveGoalCore) (userName? : Option Str
 where
   addLine (fmt : Format) : Format :=
     if fmt.isNil then fmt else fmt ++ Format.line
-  
+
 def InteractiveGoal.pretty (g : InteractiveGoal) : Format :=
   g.toInteractiveGoalCore.pretty g.userName? g.goalPrefix
 
@@ -162,7 +162,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
         continue
       else
         match localDecl with
-        | LocalDecl.cdecl _index fvarId varName type _ _ =>
+        | .cdecl _index fvarId varName type _ _ =>
           -- We rely on the fact that `withGoalCtx` runs `LocalContext.sanitizeNames`,
           -- so the `userName`s of local hypotheses are already pretty-printed
           -- and it suffices to simply `toString` them.
@@ -174,7 +174,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
             hyps ← pushPending varNames prevType? hyps
             varNames := #[(varName, fvarId)]
           prevType? := some type
-        | LocalDecl.ldecl _index fvarId varName type val _ _ => do
+        | .ldecl _index fvarId varName type val _ => do
           let varName := toString varName
           hyps ← pushPending varNames prevType? hyps
           let type ← instantiateMVars type

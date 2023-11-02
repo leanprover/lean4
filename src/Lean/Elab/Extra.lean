@@ -210,11 +210,11 @@ private structure AnalyzeResult where
   hasUncomparable : Bool := false -- `true` if there are two types `α` and `β` where we don't have coercions in any direction.
 
 private def isUnknown : Expr → Bool
-  | .mvar ..        => true
-  | .app f _        => isUnknown f
-  | .letE _ _ _ b _ => isUnknown b
-  | .mdata _ b      => isUnknown b
-  | _               => false
+  | .mvar ..      => true
+  | .app f _      => isUnknown f
+  | .letE _ _ _ b => isUnknown b
+  | .mdata _ b    => isUnknown b
+  | _             => false
 
 private def analyze (t : Tree) (expectedType? : Option Expr) : TermElabM AnalyzeResult := do
   let max? ←

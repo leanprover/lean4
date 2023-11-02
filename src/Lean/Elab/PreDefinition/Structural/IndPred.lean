@@ -14,18 +14,18 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
   let maxDepth := IndPredBelow.maxBackwardChainingDepth.get (← getOptions)
   let rec loop (e : Expr) : M Expr := do
     match e with
-    | Expr.lam n d b c =>
+    | .lam n d b c =>
       withLocalDecl n c (← loop d) fun x => do
         mkLambdaFVars #[x] (← loop (b.instantiate1 x))
-    | Expr.forallE n d b c =>
+    | .forallE n d b c =>
       withLocalDecl n c (← loop d) fun x => do
         mkForallFVars #[x] (← loop (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
+    | .letE n type val body =>
       withLetDecl n (← loop type) (← loop val) fun x => do
         mkLetFVars #[x] (← loop (body.instantiate1 x))
-    | Expr.mdata d e     => return mkMData d (← loop e)
-    | Expr.proj n i e    => return mkProj n i (← loop e)
-    | Expr.app _ _ =>
+    | .mdata d e     => return mkMData d (← loop e)
+    | .proj n i e    => return mkProj n i (← loop e)
+    | .app _ _ =>
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
           if f.isConstOf recFnName then

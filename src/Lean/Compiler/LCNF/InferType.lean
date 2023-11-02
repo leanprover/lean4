@@ -221,7 +221,7 @@ mutual
       match e with
       | .lam n d b bi =>
         withLocalDecl n (d.instantiateRev all) bi fun fvar => go b (fvars.push fvar) (all.push fvar)
-      | .letE n t _ b _ =>
+      | .letE n t _ b =>
         withLocalDecl n (t.instantiateRev all) .default fun fvar => go b fvars (all.push fvar)
       | e =>
         let type ← inferType (e.instantiateRev all)

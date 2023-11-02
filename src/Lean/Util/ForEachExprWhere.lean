@@ -66,13 +66,13 @@ where
         unless (← checked e) do
           f e
       match e with
-      | .forallE _ d b _   => go d; go b
-      | .lam _ d b _       => go d; go b
-      | .letE _ t v b _    => go t; go v; go b
-      | .app f a           => go f; go a
-      | .mdata _ b         => go b
-      | .proj _ _ b        => go b
-      | _                  => return ()
+      | .forallE _ d b _ => go d; go b
+      | .lam _ d b _     => go d; go b
+      | .letE _ t v b    => go t; go v; go b
+      | .app f a         => go f; go a
+      | .mdata _ b       => go b
+      | .proj _ _ b      => go b
+      | _                => return ()
 
 end ForEachExprWhere
 

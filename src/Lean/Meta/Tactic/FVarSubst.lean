@@ -67,8 +67,8 @@ end FVarSubst
 end Meta
 
 def LocalDecl.applyFVarSubst (s : Meta.FVarSubst) : LocalDecl → LocalDecl
-  | LocalDecl.cdecl i id n t bi k   => LocalDecl.cdecl i id n (s.apply t) bi k
-  | LocalDecl.ldecl i id n t v nd k => LocalDecl.ldecl i id n (s.apply t) (s.apply v) nd k
+  | .cdecl i id n t bi k => .cdecl i id n (s.apply t) bi k
+  | .ldecl i id n t v k  => .ldecl i id n (s.apply t) (s.apply v) k
 
 abbrev Expr.applyFVarSubst (s : Meta.FVarSubst) (e : Expr) : Expr :=
   s.apply e

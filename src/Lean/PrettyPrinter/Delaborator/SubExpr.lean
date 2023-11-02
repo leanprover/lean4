@@ -64,15 +64,15 @@ def withMDataExpr (x : m α) : m α := do
   withTheReader SubExpr (fun ctx => { ctx with expr := e }) x
 
 def withLetVarType (x : m α) : m α := do
-  let Expr.letE _ t _ _ _ ← getExpr | unreachable!
+  let .letE _ t _ _ ← getExpr | unreachable!
   descend t 0 x
 
 def withLetValue (x : m α) : m α := do
-  let Expr.letE _ _ v _ _ ← getExpr | unreachable!
+  let .letE _ _ v _ ← getExpr | unreachable!
   descend v 1 x
 
 def withLetBody (x : m α) : m α := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
+  let .letE n t v b ← getExpr | unreachable!
   Meta.withLetDecl n t v fun fvar =>
     let b := b.instantiate1 fvar
     descend b 2 x

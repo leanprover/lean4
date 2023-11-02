@@ -518,7 +518,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
     | .cdecl _ _ userName type bi k =>
       let toProcess ← pushLocalDecl toProcess fvarId userName type bi k
       mkClosureForAux toProcess
-    | .ldecl _ _ userName type val _ k =>
+    | .ldecl _ _ userName type val k =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl. See comment at src/Lean/Meta/Closure.lean -/
@@ -529,7 +529,7 @@ private partial def mkClosureForAux (toProcess : Array FVarId) : StateRefT Closu
         let type ← preprocess type
         let val  ← preprocess val
         modify fun s => { s with
-          newLetDecls   := s.newLetDecls.push <| .ldecl default fvarId userName type val false k,
+          newLetDecls   := s.newLetDecls.push <| .ldecl default fvarId userName type val k,
           /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of fvarId
              at `newLocalDecls` and `localDecls` -/
           newLocalDecls := s.newLocalDecls.map (·.replaceFVarId fvarId val)
@@ -755,13 +755,13 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
         checkCache { val := e : ExprStructEq } fun _ => do
           match e with
           | .forallE n d b c | .lam n d b c => visit d e; withLocalDecl n c d fun x => visit (b.instantiate1 x) e
-          | .letE n t v b _  => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
-          | .app ..        => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
-          | .mdata _ b     => visit b e
-          | .proj _ _ b    => visit b e
-          | .sort u        => visitLevel u (← read)
-          | .const _ us    => us.forM (visitLevel · (← read))
-          | _              => pure ()
+          | .letE n t v b => visit t e; visit v e; withLetDecl n t v fun x => visit (b.instantiate1 x) e
+          | .app ..       => e.withApp fun f args => do visit f e; args.forM fun arg => visit arg e
+          | .mdata _ b    => visit b e
+          | .proj _ _ b   => visit b e
+          | .sort u       => visitLevel u (← read)
+          | .const _ us   => us.forM (visitLevel · (← read))
+          | _             => pure ()
       visit preDef.value preDef.value |>.run {}
     for preDef in preDefs do
       checkPreDef preDef

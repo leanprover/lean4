@@ -20,11 +20,11 @@ mutual
     | .const _ ls      => ls.foldr (init := id) fun l acc => visitLevel p l ∘ acc
     | .forallE _ d b _ => visit p b ∘ visit p d
     | .lam _ d b _     => visit p b ∘ visit p d
-    | .letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
+    | .letE _ t v b    => visit p b ∘ visit p v ∘ visit p t
     | .app f a         => visit p a ∘ visit p f
     | .mdata _ b       => visit p b
     | .proj _ _ e      => visit p e
-    | _                    => id
+    | _                => id
 
   partial def visitLevel (p : LMVarId → Bool) (l : Level) : Visitor := fun s =>
     if s.isSome || !l.hasMVar then s else mainLevel p l s

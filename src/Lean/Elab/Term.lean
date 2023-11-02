@@ -676,17 +676,17 @@ abbrev M := MonadCacheT Expr Unit (OptionT MetaM)
 partial def visit (e : Expr) : M Unit := do
   checkCache e fun _ => do
     match e with
-    | .forallE _ d b _   => visit d; visit b
-    | .lam _ d b _       => visit d; visit b
-    | .letE _ t v b _    => visit t; visit v; visit b
-    | .app f a           => visit f; visit a
-    | .mdata _ b         => visit b
-    | .proj _ _ b        => visit b
-    | .fvar fvarId ..    =>
+    | .forallE _ d b _ => visit d; visit b
+    | .lam _ d b _     => visit d; visit b
+    | .letE _ t v b    => visit t; visit v; visit b
+    | .app f a         => visit f; visit a
+    | .mdata _ b       => visit b
+    | .proj _ _ b      => visit b
+    | .fvar fvarId ..  =>
       match (← fvarId.getDecl) with
       | .cdecl .. => return ()
       | .ldecl (value := v) .. => visit v
-    | .mvar mvarId ..    =>
+    | .mvar mvarId ..  =>
       let e' ← instantiateMVars e
       if e' != e then
         visit e'

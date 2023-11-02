@@ -119,24 +119,24 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
 def getExprKind : DelabM Name := do
   let e ← getExpr
   pure $ match e with
-  | Expr.bvar _          => `bvar
-  | Expr.fvar _          => `fvar
-  | Expr.mvar _          => `mvar
-  | Expr.sort _          => `sort
-  | Expr.const c _       =>
+  | .bvar _     => `bvar
+  | .fvar _     => `fvar
+  | .mvar _     => `mvar
+  | .sort _     => `sort
+  | .const c _  =>
     -- we identify constants as "nullary applications" to reduce special casing
     `app ++ c
-  | Expr.app fn _        => match fn.getAppFn with
-    | Expr.const c _   => `app ++ c
-    | _                => `app
-  | Expr.lam _ _ _ _     => `lam
-  | Expr.forallE _ _ _ _ => `forallE
-  | Expr.letE _ _ _ _ _  => `letE
-  | Expr.lit _           => `lit
-  | Expr.mdata m _       => match m.entries with
+  | .app fn _   => match fn.getAppFn with
+    | .const c _ => `app ++ c
+    | _          => `app
+  | .lam ..     => `lam
+  | .forallE .. => `forallE
+  | .letE ..    => `letE
+  | .lit _      => `lit
+  | .mdata m _  => match m.entries with
     | [(key, _)] => `mdata ++ key
     | _   => `mdata
-  | Expr.proj _ _ _      => `proj
+  | .proj ..    => `proj
 
 def getOptionsAtCurrPos : DelabM Options := do
   let ctx ← read

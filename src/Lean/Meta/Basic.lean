@@ -1095,7 +1095,7 @@ where
       let lctx := lctx.mkLocalDecl fvarId n d bi
       let fvar := mkFVar fvarId
       process consumeLet lctx (fvars.push fvar) j b
-    | true, .letE n t v b _ => do
+    | true, .letE n t v b => do
       let t := t.instantiateRevRange j fvars.size fvars
       let v := v.instantiateRevRange j fvars.size fvars
       let fvarId ← mkFreshFVarId
@@ -1265,7 +1265,7 @@ def withInstImplicitAsImplict (xs : Array Expr) (k : MetaM α) : MetaM α := do
 private def withLetDeclImp (n : Name) (type : Expr) (val : Expr) (k : Expr → MetaM α) (kind : LocalDeclKind) : MetaM α := do
   let fvarId ← mkFreshFVarId
   let ctx ← read
-  let lctx := ctx.lctx.mkLetDecl fvarId n type val (nonDep := false) kind
+  let lctx := ctx.lctx.mkLetDecl fvarId n type val kind
   let fvar := mkFVar fvarId
   withReader (fun ctx => { ctx with lctx := lctx }) do
     withNewFVar n fvar type k

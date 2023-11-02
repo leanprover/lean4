@@ -765,8 +765,8 @@ def mkMatcher (input : MkMatcherInput) : MetaM MatcherResult := withCleanLCtxFor
   let mkMatcher (type val : Expr) (minors : Array (Expr × Nat)) (s : State) : MetaM MatcherResult := do
     trace[Meta.Match.debug] "matcher value: {val}\ntype: {type}"
     trace[Meta.Match.debug] "minors num params: {minors.map (·.2)}"
-    /- The option `bootstrap.gen_matcher_code` is a helper hack. It is useful, for example,
-       for compiling `src/Init/Data/Int`. It is needed because the compiler uses `Int.decLt`
+    /- The option `bootstrap.genMatcherCode` is a helper hack. It is useful, for example,
+       for compiling `Init.Data.Int`. It is needed because the compiler uses `Int.decLt`
        for generating code for `Int.casesOn` applications, but `Int.casesOn` is used to
        give the reference implementation for
        ```

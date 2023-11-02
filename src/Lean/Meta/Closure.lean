@@ -187,15 +187,15 @@ def pushToProcess (elem : ToProcessElement) : ClosureM Unit :=
 partial def collectExprAux (e : Expr) : ClosureM Expr := do
   let collect (e : Expr) := visitExpr collectExprAux e
   match e with
-  | Expr.proj _ _ s      => return e.updateProj! (← collect s)
-  | Expr.forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
-  | Expr.lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
-  | Expr.letE _ t v b _  => return e.updateLet! (← collect t) (← collect v) (← collect b)
-  | Expr.app f a         => return e.updateApp! (← collect f) (← collect a)
-  | Expr.mdata _ b       => return e.updateMData! (← collect b)
-  | Expr.sort u          => return e.updateSort! (← collectLevel u)
-  | Expr.const _ us      => return e.updateConst! (← us.mapM collectLevel)
-  | Expr.mvar mvarId     =>
+  | .proj _ _ s      => return e.updateProj! (← collect s)
+  | .forallE _ d b _ => return e.updateForallE! (← collect d) (← collect b)
+  | .lam _ d b _     => return e.updateLambdaE! (← collect d) (← collect b)
+  | .letE _ t v b    => return e.updateLet! (← collect t) (← collect v) (← collect b)
+  | .app f a         => return e.updateApp! (← collect f) (← collect a)
+  | .mdata _ b       => return e.updateMData! (← collect b)
+  | .sort u          => return e.updateSort! (← collectLevel u)
+  | .const _ us      => return e.updateConst! (← us.mapM collectLevel)
+  | .mvar mvarId     =>
     let mvarDecl ← mvarId.getDecl
     let type ← preprocess mvarDecl.type
     let type ← collect type
@@ -206,7 +206,7 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
       exprMVarArgs          := s.exprMVarArgs.push e
     }
     return mkFVar newFVarId
-  | Expr.fvar fvarId =>
+  | .fvar fvarId =>
     match (← read).zeta, (← fvarId.getValue?) with
     | true, some value => collect (← preprocess value)
     | _,    _          =>
@@ -258,7 +258,7 @@ partial def process : ClosureM Unit := do
       pushLocalDecl newFVarId userName type bi
       pushFVarArg (mkFVar fvarId)
       process
-    | .ldecl _ _ userName type val _ _ =>
+    | .ldecl _ _ userName type val _ =>
       let zetaFVarIds ← getZetaFVarIds
       if !zetaFVarIds.contains fvarId then
         /- Non-dependent let-decl
@@ -275,7 +275,7 @@ partial def process : ClosureM Unit := do
         /- Dependent let-decl -/
         let type ← collectExpr type
         let val  ← collectExpr val
-        modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val false .default }
+        modify fun s => { s with newLetDecls := s.newLetDecls.push <| .ldecl default newFVarId userName type val .default }
         /- We don't want to interleave let and lambda declarations in our closure. So, we expand any occurrences of newFVarId
            at `newLocalDecls` -/
         modify fun s => { s with newLocalDecls := s.newLocalDecls.map (·.replaceFVarId newFVarId val) }
@@ -293,11 +293,11 @@ partial def process : ClosureM Unit := do
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | .ldecl _ _ n ty val nonDep _ =>
+    | .ldecl _ _ n ty val _ =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b
       else
         b.lowerLooseBVars 1 1
 

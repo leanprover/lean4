@@ -28,7 +28,7 @@ where
     | .proj s i b => .proj s i (go o b)
     | .forallE n d b bi => .forallE n (go o d) (go (o+1) b) bi
     | .lam n d b bi => .lam n (go o d) (go (o+1) b) bi
-    | .letE n t v b nd => .letE n (go o t) (go o v) (go (o+1) b) nd
+    | .letE n t v b => .letE n (go o t) (go o v) (go (o+1) b)
 
 abbrev ToExprM := ReaderT Nat $ StateM LevelMap
 
@@ -87,12 +87,12 @@ partial def Code.toExprM (code : Code) : ToExprM Expr := do
     let type ← abstractM decl.type
     let value ← abstractM decl.value.toExpr
     let body ← withFVar decl.fvarId k.toExprM
-    return .letE decl.binderName type value body true
+    return .letE decl.binderName type value body
   | .fun decl k | .jp decl k =>
     let type ← abstractM decl.type
     let value ← decl.toExprM
     let body ← withFVar decl.fvarId k.toExprM
-    return .letE decl.binderName type value body true
+    return .letE decl.binderName type value body
   | .return fvarId => fvarId.toExprM
   | .jmp fvarId args => return mkAppN (← fvarId.toExprM) (← args.mapM Arg.toExprM)
   | .unreach type => return mkApp (mkConst ``lcUnreachable) (← abstractM type)

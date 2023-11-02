@@ -55,10 +55,10 @@ def headNumArgs (e : Expr) : Nat :=
   go e 0
 where
   go : Expr → Nat → Nat
-  | app f _, n        => go f (n + 1)
-  | letE _ _ _ b _, n => go b n
-  | mdata _ e, n      => go e n
-  | _, n              => n
+  | app f _,      n => go f (n + 1)
+  | letE _ _ _ b, n => go b n
+  | mdata _ e,    n => go e n
+  | _,            n => n
 
 /--
   Quick version that may fail if it "hits" a loose bound variable.
@@ -69,18 +69,18 @@ where
   ```
 -/
 private def toHeadIndexQuick? : Expr → Option HeadIndex
-  | mvar mvarId             => HeadIndex.mvar mvarId
-  | fvar fvarId             => HeadIndex.fvar fvarId
-  | const constName _       => HeadIndex.const constName
-  | proj structName idx _   => HeadIndex.proj structName idx
-  | sort _                  => HeadIndex.sort
-  | lam ..                  => HeadIndex.lam
-  | forallE ..              => HeadIndex.forallE
-  | lit v                   => HeadIndex.lit v
-  | app f _                 => toHeadIndexQuick? f
-  | letE _ _ _ b _          => toHeadIndexQuick? b
-  | mdata _ e               => toHeadIndexQuick? e
-  | _                       => none
+  | mvar mvarId           => HeadIndex.mvar mvarId
+  | fvar fvarId           => HeadIndex.fvar fvarId
+  | const constName _     => HeadIndex.const constName
+  | proj structName idx _ => HeadIndex.proj structName idx
+  | sort _                => HeadIndex.sort
+  | lam ..                => HeadIndex.lam
+  | forallE ..            => HeadIndex.forallE
+  | lit v                 => HeadIndex.lit v
+  | app f _               => toHeadIndexQuick? f
+  | letE _ _ _ b          => toHeadIndexQuick? b
+  | mdata _ e             => toHeadIndexQuick? e
+  | _                     => none
 
 /--
   Slower version of `toHeadIndexQuick?` that "expands" let-declarations to make
@@ -89,18 +89,18 @@ private def toHeadIndexQuick? : Expr → Option HeadIndex
   since `toHeadIndexQuick?` succeeds most of the time.
 -/
 private partial def toHeadIndexSlow : Expr → HeadIndex
-  | mvar mvarId             => HeadIndex.mvar mvarId
-  | fvar fvarId             => HeadIndex.fvar fvarId
-  | const constName _       => HeadIndex.const constName
-  | proj structName idx _   => HeadIndex.proj structName idx
-  | sort _                  => HeadIndex.sort
-  | lam ..                  => HeadIndex.lam
-  | forallE ..              => HeadIndex.forallE
-  | lit v                   => HeadIndex.lit v
-  | app f _                 => toHeadIndexSlow f
-  | letE _ _ v b _          => toHeadIndexSlow (b.instantiate1 v)
-  | mdata _ e               => toHeadIndexSlow e
-  | _                       => panic! "unexpected expression kind"
+  | mvar mvarId           => HeadIndex.mvar mvarId
+  | fvar fvarId           => HeadIndex.fvar fvarId
+  | const constName _     => HeadIndex.const constName
+  | proj structName idx _ => HeadIndex.proj structName idx
+  | sort _                => HeadIndex.sort
+  | lam ..                => HeadIndex.lam
+  | forallE ..            => HeadIndex.forallE
+  | lit v                 => HeadIndex.lit v
+  | app f _               => toHeadIndexSlow f
+  | letE _ _ v b          => toHeadIndexSlow (b.instantiate1 v)
+  | mdata _ e             => toHeadIndexSlow e
+  | _                     => panic! "unexpected expression kind"
 
 /--
 Convert the given expression into a `HeadIndex`.

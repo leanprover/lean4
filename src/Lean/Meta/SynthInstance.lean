@@ -117,15 +117,15 @@ partial def normExpr (e : Expr) : M Expr := do
   if !e.hasMVar then
     pure e
   else match e with
-    | Expr.const _ us      => return e.updateConst! (← us.mapM normLevel)
-    | Expr.sort u          => return e.updateSort! (← normLevel u)
-    | Expr.app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
-    | Expr.letE _ t v b _  => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
-    | Expr.forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
-    | Expr.lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
-    | Expr.mdata _ b       => return e.updateMData! (← normExpr b)
-    | Expr.proj _ _ b      => return e.updateProj! (← normExpr b)
-    | Expr.mvar mvarId     =>
+    | .const _ us      => return e.updateConst! (← us.mapM normLevel)
+    | .sort u          => return e.updateSort! (← normLevel u)
+    | .app f a         => return e.updateApp! (← normExpr f) (← normExpr a)
+    | .letE _ t v b    => return e.updateLet! (← normExpr t) (← normExpr v) (← normExpr b)
+    | .forallE _ d b _ => return e.updateForallE! (← normExpr d) (← normExpr b)
+    | .lam _ d b _     => return e.updateLambdaE! (← normExpr d) (← normExpr b)
+    | .mdata _ b       => return e.updateMData! (← normExpr b)
+    | .proj _ _ b      => return e.updateProj! (← normExpr b)
+    | .mvar mvarId     =>
       if !(← mvarId.isAssignable) then
         return e
       else

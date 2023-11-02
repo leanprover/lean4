@@ -65,7 +65,7 @@ def LCtx.toLocalContext (lctx : LCtx) : LocalContext := Id.run do
   for (_, param) in lctx.params.toArray do
     result := result.addDecl (.cdecl 0 param.fvarId param.binderName param.type .default .default)
   for (_, decl) in lctx.letDecls.toArray do
-    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value.toExpr true .default)
+    result := result.addDecl (.ldecl 0 decl.fvarId decl.binderName decl.type decl.value.toExpr .default)
   for (_, decl) in lctx.funDecls.toArray do
     result := result.addDecl (.cdecl 0 decl.fvarId decl.binderName decl.type .default .default)
   return result

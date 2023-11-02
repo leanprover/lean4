@@ -226,7 +226,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s@(Expr.mvar ..), t@(Expr.mvar ..) => isDefEq s t
   | Expr.forallE n₁ d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
   | Expr.lam n₁ d₁ b₁ _, Expr.lam _ d₂ b₂ _ => isPerm d₁ d₂ <&&> withLocalDeclD n₁ d₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
-  | Expr.letE n₁ t₁ v₁ b₁ _, Expr.letE _  t₂ v₂ b₂ _ =>
+  | Expr.letE n₁ t₁ v₁ b₁, Expr.letE _  t₂ v₂ b₂ =>
     isPerm t₁ t₂ <&&> isPerm v₁ v₂ <&&> withLetDecl n₁ t₁ v₁ fun x => isPerm (b₁.instantiate1 x) (b₂.instantiate1 x)
   | Expr.proj _ i₁ b₁, Expr.proj _ i₂ b₂ => pure (i₁ == i₂) <&&> isPerm b₁ b₂
   | s, t => return s == t

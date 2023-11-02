@@ -434,13 +434,13 @@ where
     let rec visit (e : Expr) : MonadCacheT Expr Unit (ReaderT Nat (StateRefT FVarIdHashSet MetaM)) Unit :=
       checkCache e fun _ => do
         match e with
-        | Expr.forallE _ d b _   => visit d; visit b
-        | Expr.lam _ d b _       => visit d; visit b
-        | Expr.letE _ t v b _    => visit t; visit v; visit b
-        | Expr.app f a           => visit f; visit a
-        | Expr.mdata _ b         => visit b
-        | Expr.proj _ _ b        => visit b
-        | Expr.fvar fvarId       =>
+        | .forallE _ d b _ => visit d; visit b
+        | .lam _ d b _     => visit d; visit b
+        | .letE _ t v b    => visit t; visit v; visit b
+        | .app f a         => visit f; visit a
+        | .mdata _ b       => visit b
+        | .proj _ _ b      => visit b
+        | .fvar fvarId     =>
           let localDecl ← fvarId.getDecl
           if localDecl.isLet && localDecl.index > (← read) then
             modify fun s => s.insert localDecl.fvarId
@@ -833,18 +833,18 @@ mutual
       return e
     else checkCache e fun _ =>
       match e with
-      | Expr.mdata _ b       => return e.updateMData! (← check b)
-      | Expr.proj _ _ s      => return e.updateProj! (← check s)
-      | Expr.lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
-      | Expr.forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
-      | Expr.letE _ t v b _  => return e.updateLet! (← check t) (← check v) (← check b)
-      | Expr.bvar ..         => return e
-      | Expr.sort ..         => return e
-      | Expr.const ..        => return e
-      | Expr.lit ..          => return e
-      | Expr.fvar ..         => checkFVar e
-      | Expr.mvar ..         => checkMVar e
-      | Expr.app ..          =>
+      | .mdata _ b       => return e.updateMData! (← check b)
+      | .proj _ _ s      => return e.updateProj! (← check s)
+      | .lam _ d b _     => return e.updateLambdaE! (← check d) (← check b)
+      | .forallE _ d b _ => return e.updateForallE! (← check d) (← check b)
+      | .letE _ t v b    => return e.updateLet! (← check t) (← check v) (← check b)
+      | .bvar ..         => return e
+      | .sort ..         => return e
+      | .const ..        => return e
+      | .lit ..          => return e
+      | .fvar ..         => checkFVar e
+      | .mvar ..         => checkMVar e
+      | .app ..          =>
         try
           checkApp e
         catch ex => match ex with
@@ -889,17 +889,17 @@ partial def check
     if !e.hasExprMVar && !e.hasFVar then
       true
     else match e with
-    | Expr.mdata _ b       => visit b
-    | Expr.proj _ _ s      => visit s
-    | Expr.app f a         => visit f && visit a
-    | Expr.lam _ d b _     => visit d && visit b
-    | Expr.forallE _ d b _ => visit d && visit b
-    | Expr.letE _ t v b _  => visit t && visit v && visit b
-    | Expr.bvar ..         => true
-    | Expr.sort ..         => true
-    | Expr.const ..        => true
-    | Expr.lit ..          => true
-    | Expr.fvar fvarId ..  =>
+    | .mdata _ b       => visit b
+    | .proj _ _ s      => visit s
+    | .app f a         => visit f && visit a
+    | .lam _ d b _     => visit d && visit b
+    | .forallE _ d b _ => visit d && visit b
+    | .letE _ t v b    => visit t && visit v && visit b
+    | .bvar ..         => true
+    | .sort ..         => true
+    | .const ..        => true
+    | .lit ..          => true
+    | .fvar fvarId ..  =>
       if mvarDecl.lctx.contains fvarId then true
       else match lctx.find? fvarId with
         | some (LocalDecl.ldecl ..) => false -- need expensive CheckAssignment.check
@@ -1493,8 +1493,8 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
 
 /-- Remove unnecessary let-decls -/
 private def consumeLet : Expr → Expr
-  | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-  | e                       => e
+  | e@(.letE _ _ _ b) => if b.hasLooseBVars then e else consumeLet b
+  | e                 => e
 
 mutual
 

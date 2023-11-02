@@ -28,13 +28,13 @@ where
   -/
   visit (e : Expr) : MetaM Expr := do
     match e with
-    | Expr.lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
-    | Expr.forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
-    | Expr.letE n type val body _ =>
+    | .lam ..     => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← visit b)
+    | .forallE .. => forallTelescope e fun xs b => do mkForallFVars xs (← visit b)
+    | .letE n type val body =>
       withLetDecl n type (← visit val) fun x => do mkLetFVars #[x] (← visit (body.instantiate1 x))
-    | Expr.mdata d b     => return mkMData d (← visit b)
-    | Expr.proj n i s    => return mkProj n i (← visit s)
-    | Expr.app .. =>
+    | .mdata d b     => return mkMData d (← visit b)
+    | .proj n i s    => return mkProj n i (← visit s)
+    | .app .. =>
       let processApp (e : Expr) : MetaM Expr :=
         e.withApp fun f args =>
           return mkAppN (← visit f) (← args.mapM visit)

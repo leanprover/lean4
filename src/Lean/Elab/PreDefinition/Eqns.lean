@@ -22,8 +22,8 @@ structure EqnInfoCore where
   deriving Inhabited
 
 partial def expand : Expr → Expr
-  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b      => expand b
+  | .letE _ _ v b => expand (b.instantiate1 v)
+  | .mdata _ b    => expand b
   | e => e
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do

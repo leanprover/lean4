@@ -70,18 +70,18 @@ partial def abstractExprMVars (e : Expr) : M Expr := do
     return e
   else
     match e with
-    | e@(Expr.lit _)           => return e
-    | e@(Expr.bvar _)          => return e
-    | e@(Expr.fvar _)          => return e
-    | e@(Expr.sort u)          => return e.updateSort! (← abstractLevelMVars u)
-    | e@(Expr.const _ us)      => return e.updateConst! (← us.mapM abstractLevelMVars)
-    | e@(Expr.proj _ _ s)      => return e.updateProj! (← abstractExprMVars s)
-    | e@(Expr.app f a)         => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
-    | e@(Expr.mdata _ b)       => return e.updateMData! (← abstractExprMVars b)
-    | e@(Expr.lam _ d b _)     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
-    | e@(Expr.forallE _ d b _) => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
-    | e@(Expr.letE _ t v b _)  => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
-    | e@(Expr.mvar mvarId)     =>
+    | .lit _           => return e
+    | .bvar _          => return e
+    | .fvar _          => return e
+    | .sort u          => return e.updateSort! (← abstractLevelMVars u)
+    | .const _ us      => return e.updateConst! (← us.mapM abstractLevelMVars)
+    | .proj _ _ s      => return e.updateProj! (← abstractExprMVars s)
+    | .app f a         => return e.updateApp! (← abstractExprMVars f) (← abstractExprMVars a)
+    | .mdata _ b       => return e.updateMData! (← abstractExprMVars b)
+    | .lam _ d b _     => return e.updateLambdaE! (← abstractExprMVars d) (← abstractExprMVars b)
+    | .forallE _ d b _ => return e.updateForallE! (← abstractExprMVars d) (← abstractExprMVars b)
+    | .letE _ t v b    => return e.updateLet! (← abstractExprMVars t) (← abstractExprMVars v) (← abstractExprMVars b)
+    | .mvar mvarId     =>
       let decl := (← getMCtx).getDecl mvarId
       if decl.depth != (← getMCtx).depth then
         return e

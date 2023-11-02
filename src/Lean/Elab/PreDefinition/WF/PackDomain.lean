@@ -131,20 +131,20 @@ where
       visit (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := do
         checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
           match e with
-          | Expr.lam n d b c =>
+          | .lam n d b c =>
             withLocalDecl n c (← visit d) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.forallE n d b c =>
+          | .forallE n d b c =>
             withLocalDecl n c (← visit d) fun x => do
               mkForallFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.letE n t v b _  =>
+          | .letE n t v b =>
             withLetDecl n (← visit t) (← visit v) fun x => do
               mkLambdaFVars (usedLetOnly := false) #[x] (← visit (b.instantiate1 x))
-          | Expr.proj n i s .. => return mkProj n i (← visit s)
-          | Expr.mdata d b     => return mkMData d (← visit b)
-          | Expr.app ..        => visitApp e
-          | Expr.const ..      => visitApp e
-          | e                  => return e,
+          | .proj n i s .. => return mkProj n i (← visit s)
+          | .mdata d b     => return mkMData d (← visit b)
+          | .app ..        => visitApp e
+          | .const ..      => visitApp e
+          | e              => return e,
       visitApp (e : Expr) : MonadCacheT ExprStructEq Expr MetaM Expr := e.withApp fun f args => do
         let args ← args.mapM visit
         if let some funIdx := isAppOfPreDef? f then

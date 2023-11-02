@@ -768,7 +768,7 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    let Expr.letE n t v b _ := e | unreachable!
+    let .letE n t v b := e | unreachable!
     if (← getConfig).zeta then
       return { expr := b.instantiate1 v }
     else

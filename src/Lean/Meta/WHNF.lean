@@ -557,9 +557,9 @@ where
     whnfEasyCases e (config := config) fun e => do
       trace[Meta.whnf] e
       match e with
-      | .const ..  => pure e
-      | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
-      | .app f ..       =>
+      | .const ..     => pure e
+      | .letE _ _ v b => if config.zeta then go <| b.instantiate1 v else return e
+      | .app f ..     =>
         let f := f.getAppFn
         let f' ← go f
         if config.beta && f'.isLambda then
@@ -628,7 +628,7 @@ partial def smartUnfoldingReduce? (e : Expr) : MetaM (Option Expr) :=
 where
   go (e : Expr) : OptionT MetaM Expr := do
     match e with
-    | .letE n t v b _ => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
+    | .letE n t v b => withLetDecl n t (← go v) fun x => do mkLetFVars #[x] (← go (b.instantiate1 x))
     | .lam .. => lambdaTelescope e fun xs b => do mkLambdaFVars xs (← go b)
     | .app f a .. => return mkApp (← go f) (← go a)
     | .proj _ _ s => return e.updateProj! (← go s)

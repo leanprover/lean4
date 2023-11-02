@@ -50,7 +50,7 @@ A `cdecl` is a local variable, a `ldecl` is a let-bound free variable with a `va
 -/
 inductive LocalDecl where
   | cdecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (bi : BinderInfo) (kind : LocalDeclKind)
-  | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) (kind : LocalDeclKind)
+  | ldecl (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (kind : LocalDeclKind)
   deriving Inhabited
 
 @[export lean_mk_local_decl]
@@ -58,7 +58,7 @@ def mkLocalDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr
   .cdecl index fvarId userName type bi .default
 @[export lean_mk_let_decl]
 def mkLetDeclEx (index : Nat) (fvarId : FVarId) (userName : Name) (type : Expr) (val : Expr) : LocalDecl :=
-  .ldecl index fvarId userName type val false .default
+  .ldecl index fvarId userName type val .default
 @[export lean_local_decl_binder_info]
 def LocalDecl.binderInfoEx : LocalDecl → BinderInfo
   | .cdecl _ _ _ _ bi _ => bi
@@ -75,7 +75,7 @@ def index : LocalDecl → Nat
 
 def setIndex : LocalDecl → Nat → LocalDecl
   | cdecl _  id n t bi k,   idx => cdecl idx id n t bi k
-  | ldecl _  id n t v nd k, idx => ldecl idx id n t v nd k
+  | ldecl _  id n t v k, idx => ldecl idx id n t v k
 
 def fvarId : LocalDecl → FVarId
   | cdecl (fvarId := id) .. => id
@@ -90,8 +90,8 @@ def type : LocalDecl → Expr
   | ldecl (type := t) .. => t
 
 def setType : LocalDecl → Expr → LocalDecl
-  | cdecl idx id n _ bi k, t   => cdecl idx id n t bi k
-  | ldecl idx id n _ v nd k, t => ldecl idx id n t v nd k
+  | cdecl idx id n _ bi k, t => cdecl idx id n t bi k
+  | ldecl idx id n _ v k, t  => ldecl idx id n t v k
 
 def binderInfo : LocalDecl → BinderInfo
   | cdecl (bi := bi) .. => bi
@@ -123,12 +123,12 @@ def hasValue : LocalDecl → Bool
   | ldecl .. => true
 
 def setValue : LocalDecl → Expr → LocalDecl
-  | ldecl idx id n t _ nd k, v => ldecl idx id n t v nd k
-  | d, _                       => d
+  | ldecl idx id n t _ k, v => ldecl idx id n t v k
+  | d, _                    => d
 
 def setUserName : LocalDecl → Name → LocalDecl
-  | cdecl index id _ type bi k,     userName => cdecl index id userName type bi k
-  | ldecl index id _ type val nd k, userName => ldecl index id userName type val nd k
+  | cdecl index id _ type bi k,  userName => cdecl index id userName type bi k
+  | ldecl index id _ type val k, userName => ldecl index id userName type val k
 
 def setBinderInfo : LocalDecl → BinderInfo → LocalDecl
   | cdecl index id n type _ k,  bi => cdecl index id n type bi k
@@ -183,16 +183,16 @@ private def mkLocalDeclExported (lctx : LocalContext) (fvarId : FVarId) (userNam
   mkLocalDecl lctx fvarId userName type bi
 
 /-- Low level API for let declarations. Do not use directly.-/
-def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep := false) (kind : LocalDeclKind := default) : LocalContext :=
+def mkLetDecl (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (kind : LocalDeclKind := default) : LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
     let idx  := decls.size
-    let decl := LocalDecl.ldecl idx fvarId userName type value nonDep kind
+    let decl := LocalDecl.ldecl idx fvarId userName type value kind
     { fvarIdToDecl := map.insert fvarId decl, decls := decls.push decl }
 
 @[export lean_local_ctx_mk_let_decl]
-private def mkLetDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) (nonDep : Bool) : LocalContext :=
-  mkLetDecl lctx fvarId userName type value nonDep
+private def mkLetDeclExported (lctx : LocalContext) (fvarId : FVarId) (userName : Name) (type : Expr) (value : Expr) : LocalContext :=
+  mkLetDecl lctx fvarId userName type value
 
 /-- Low level API for adding a local declaration.
 Do not use directly. -/
@@ -397,11 +397,11 @@ def isSubPrefixOf (lctx₁ lctx₂ : LocalContext) (exceptFVars : Array Expr := 
         Lean.mkLambda n bi ty b
       else
         Lean.mkForall n bi ty b
-    | some (.ldecl _ _ n ty val nonDep _) =>
+    | some (.ldecl _ _ n ty val _) =>
       if b.hasLooseBVar 0 then
         let ty  := ty.abstractRange i xs
         let val := val.abstractRange i xs
-        mkLet n ty val b nonDep
+        mkLet n ty val b
       else
         b.lowerLooseBVars 1 1
     | none => panic! "unknown free variable"
@@ -466,7 +466,7 @@ def LocalDecl.replaceFVarId (fvarId : FVarId) (e : Expr) (d : LocalDecl) : Local
   if d.fvarId == fvarId then d
   else match d with
     | .cdecl idx id n type bi k => .cdecl idx id n (type.replaceFVarId fvarId e) bi k
-    | .ldecl idx id n type val nonDep k => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) nonDep k
+    | .ldecl idx id n type val k => .ldecl idx id n (type.replaceFVarId fvarId e) (val.replaceFVarId fvarId e) k
 
 def LocalContext.replaceFVarId (fvarId : FVarId) (e : Expr) (lctx : LocalContext) : LocalContext :=
   let lctx := lctx.erase fvarId

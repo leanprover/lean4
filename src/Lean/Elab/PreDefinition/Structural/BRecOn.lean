@@ -104,22 +104,22 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     if !(← containsRecFn e) then
       return e
     match e with
-    | Expr.lam n d b c =>
+    | .lam n d b c =>
       withLocalDecl n c (← loop below d) fun x => do
         mkLambdaFVars #[x] (← loop below (b.instantiate1 x))
-    | Expr.forallE n d b c =>
+    | .forallE n d b c =>
       withLocalDecl n c (← loop below d) fun x => do
         mkForallFVars #[x] (← loop below (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
+    | .letE n type val body =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b     =>
+    | .mdata d b     =>
       if let some _ := getRecAppSyntax? e then
         loop below b
       else
         return mkMData d (← loop below b)
-    | Expr.proj n i e    => return mkProj n i (← loop below e)
-    | Expr.app _ _ =>
+    | .proj n i e    => return mkProj n i (← loop below e)
+    | .app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do
           if f.isConstOf recFnName then

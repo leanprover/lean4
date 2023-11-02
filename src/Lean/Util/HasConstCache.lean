@@ -15,14 +15,14 @@ unsafe def HasConstCache.containsUnsafe (e : Expr) : StateM (HasConstCache declN
     return r
   else
     match e with
-    | .const n ..        => return n == declName
-    | .app f a           => cache e (← containsUnsafe f <||> containsUnsafe a)
-    | .lam _ d b _       => cache e (← containsUnsafe d <||> containsUnsafe b)
-    | .forallE _ d b _   => cache e (← containsUnsafe d <||> containsUnsafe b)
-    | .letE _ t v b _    => cache e (← containsUnsafe t <||> containsUnsafe v <||> containsUnsafe b)
-    | .mdata _ b         => cache e (← containsUnsafe b)
-    | .proj _ _ b        => cache e (← containsUnsafe b)
-    | _                  => return false
+    | .const n ..      => return n == declName
+    | .app f a         => cache e (← containsUnsafe f <||> containsUnsafe a)
+    | .lam _ d b _     => cache e (← containsUnsafe d <||> containsUnsafe b)
+    | .forallE _ d b _ => cache e (← containsUnsafe d <||> containsUnsafe b)
+    | .letE _ t v b    => cache e (← containsUnsafe t <||> containsUnsafe v <||> containsUnsafe b)
+    | .mdata _ b       => cache e (← containsUnsafe b)
+    | .proj _ _ b      => cache e (← containsUnsafe b)
+    | _                => return false
 where
   cache (e : Expr) (r : Bool) : StateM (HasConstCache declName) Bool := do
     modify fun ⟨cache⟩ => ⟨cache.insert (beq := ⟨ptrEq⟩) e r |>.1⟩

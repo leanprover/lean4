@@ -45,7 +45,7 @@ def traverseForallWithPos
 def traverseLetWithPos
   (f : Pos → Expr → M Expr) (p : Pos) (e : Expr) : M Expr := visit #[] p e
   where visit fvars (p : Pos)
-    | Expr.letE n t v b _ => do
+    | .letE n t v b => do
       let type ← f p.pushLetVarType <| t.instantiateRev fvars
       let value ← f p.pushLetValue <| v.instantiateRev fvars
       withLetDecl n type value fun x =>
@@ -60,13 +60,13 @@ def traverseLetWithPos
 track the subexpression position. -/
 def traverseChildrenWithPos (visit : Pos → Expr → M Expr) (p : Pos) (e: Expr) : M Expr :=
   match e with
-  | Expr.forallE ..    => traverseForallWithPos   visit p e
-  | Expr.lam ..        => traverseLambdaWithPos   visit p e
-  | Expr.letE ..       => traverseLetWithPos      visit p e
-  | Expr.app ..        => Expr.traverseAppWithPos visit p e
-  | Expr.mdata _ b     => e.updateMData! <$> visit p b
-  | Expr.proj _ _ b    => e.updateProj! <$> visit p.pushProj b
-  | _                  => pure e
+  | .forallE .. => traverseForallWithPos   visit p e
+  | .lam ..     => traverseLambdaWithPos   visit p e
+  | .letE ..    => traverseLetWithPos      visit p e
+  | .app ..     => Expr.traverseAppWithPos visit p e
+  | .mdata _ b  => e.updateMData! <$> visit p b
+  | .proj _ _ b => e.updateProj! <$> visit p.pushProj b
+  | _           => pure e
 
 /-- Given an expression `fun (x₁ : α₁) ... (xₙ : αₙ) => b`, will run
 `f` on each of the variable types `αᵢ` and `b` with the correct MetaM context,

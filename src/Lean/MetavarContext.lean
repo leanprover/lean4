@@ -420,7 +420,7 @@ def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .const _ lvls    => lvls.anyM hasAssignedLevelMVar
   | .sort lvl        => hasAssignedLevelMVar lvl
   | .app f a         => (pure f.hasMVar <&&> hasAssignedMVar f) <||> (pure a.hasMVar <&&> hasAssignedMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignedMVar t) <||> (pure v.hasMVar <&&> hasAssignedMVar v) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
+  | .letE _ t v b    => (pure t.hasMVar <&&> hasAssignedMVar t) <||> (pure v.hasMVar <&&> hasAssignedMVar v) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
   | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
   | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignedMVar d) <||> (pure b.hasMVar <&&> hasAssignedMVar b)
   | .fvar _          => return false
@@ -444,7 +444,7 @@ def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .const _ lvls    => lvls.anyM hasAssignableLevelMVar
   | .sort lvl        => hasAssignableLevelMVar lvl
   | .app f a         => (pure f.hasMVar <&&> hasAssignableMVar f) <||> (pure a.hasMVar <&&> hasAssignableMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
+  | .letE _ t v b    => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
   | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
   | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
   | .fvar _          => return false
@@ -521,7 +521,7 @@ partial def instantiateExprMVars [Monad m] [MonadMCtx m] [STWorld ω m] [MonadLi
     | .proj _ _ s      => return e.updateProj! (← instantiateExprMVars s)
     | .forallE _ d b _ => return e.updateForallE! (← instantiateExprMVars d) (← instantiateExprMVars b)
     | .lam _ d b _     => return e.updateLambdaE! (← instantiateExprMVars d) (← instantiateExprMVars b)
-    | .letE _ t v b _  => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
+    | .letE _ t v b    => return e.updateLet! (← instantiateExprMVars t) (← instantiateExprMVars v) (← instantiateExprMVars b)
     | .const _ lvls    => return e.updateConst! (← lvls.mapM instantiateLevelMVars)
     | .sort lvl        => return e.updateSort! (← instantiateLevelMVars lvl)
     | .mdata _ b       => return e.updateMData! (← instantiateExprMVars b)
@@ -607,10 +607,10 @@ def instantiateLCtxMVars [Monad m] [MonadMCtx m] (lctx : LocalContext) : m Local
      | .cdecl _ fvarId userName type bi k =>
        let type ← instantiateMVars type
        return lctx.mkLocalDecl fvarId userName type bi k
-     | .ldecl _ fvarId userName type value nonDep k =>
+     | .ldecl _ fvarId userName type value k =>
        let type ← instantiateMVars type
        let value ← instantiateMVars value
-       return lctx.mkLetDecl fvarId userName type value nonDep k
+       return lctx.mkLetDecl fvarId userName type value k
 
 def instantiateMVarDeclMVars [Monad m] [MonadMCtx m] (mvarId : MVarId) : m Unit := do
   let mvarDecl     := (← getMCtx).getDecl mvarId
@@ -622,8 +622,8 @@ def instantiateLocalDeclMVars [Monad m] [MonadMCtx m] (localDecl : LocalDecl) : 
   match localDecl with
   | .cdecl idx id n type bi k =>
     return .cdecl idx id n (← instantiateMVars type) bi k
-  | .ldecl idx id n type val nonDep k =>
-    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) nonDep k
+  | .ldecl idx id n type val k =>
+    return .ldecl idx id n (← instantiateMVars type) (← instantiateMVars val) k
 
 namespace DependsOn
 
@@ -660,7 +660,7 @@ private def shouldVisit (e : Expr) : M Bool := do
       | .proj _ _ s      => visit s
       | .forallE _ d b _ => visit d <||> visit b
       | .lam _ d b _     => visit d <||> visit b
-      | .letE _ t v b _  => visit t <||> visit v <||> visit b
+      | .letE _ t v b    => visit t <||> visit v <||> visit b
       | .mdata _ b       => visit b
       | e@(.app ..)      => do
         let f := e.getAppFn
@@ -1018,7 +1018,7 @@ mutual
     | .proj _ _ s      => return e.updateProj! (← visit xs s)
     | .forallE _ d b _ => return e.updateForallE! (← visit xs d) (← visit xs b)
     | .lam _ d b _     => return e.updateLambdaE! (← visit xs d) (← visit xs b)
-    | .letE _ t v b _  => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
+    | .letE _ t v b    => return e.updateLet! (← visit xs t) (← visit xs v) (← visit xs b)
     | .mdata _ b       => return e.updateMData! (← visit xs b)
     | .app ..          => e.withApp fun f args => elimApp xs f args
     | .mvar _          => elimApp xs e #[]
@@ -1042,11 +1042,11 @@ mutual
           let type := type.headBeta
           let type ← abstractRangeAux xs i type
           return Lean.mkForall n bi type e
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
+        | LocalDecl.ldecl _ _ n type value _ =>
           let type := type.headBeta
           let type  ← abstractRangeAux xs i type
           let value ← abstractRangeAux xs i value
-          let e := mkLet n type value e nonDep
+          let e := mkLet n type value e
           match kind with
           | MetavarKind.syntheticOpaque =>
             -- See "Gruesome details" section in the beginning of the file
@@ -1194,11 +1194,11 @@ partial def revert (xs : Array Expr) (mvarId : MVarId) : M (Expr × Array Expr) 
               return (Lean.mkForall n bi type e, num + 1)
           else
             return (e.lowerLooseBVars 1 1, num)
-        | LocalDecl.ldecl _ _ n type value nonDep _ =>
+        | LocalDecl.ldecl _ _ n type value _ =>
           if !usedLetOnly || e.hasLooseBVar 0 then
             let type  ← abstractRange xs i type
             let value ← abstractRange xs i value
-            return (mkLet n type value e nonDep, num + 1)
+            return (mkLet n type value e, num + 1)
           else
             return (e.lowerLooseBVars 1 1, num)
       else
@@ -1251,7 +1251,7 @@ partial def isWellFormed [Monad m] [MonadMCtx m] (lctx : LocalContext) : Expr �
   | e@(.app f a)         => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx f <&&> isWellFormed lctx a)
   | e@(.lam _ d b _)     => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx d <&&> isWellFormed lctx b)
   | e@(.forallE _ d b _) => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx d <&&> isWellFormed lctx b)
-  | e@(.letE _ t v b _)  => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx t <&&> isWellFormed lctx v <&&> isWellFormed lctx b)
+  | e@(.letE _ t v b)    => pure (!e.hasExprMVar && !e.hasFVar) <||> (isWellFormed lctx t <&&> isWellFormed lctx v <&&> isWellFormed lctx b)
   | .const ..            => return true
   | .bvar ..             => return true
   | .sort ..             => return true
@@ -1327,7 +1327,7 @@ partial def main (e : Expr) : M Expr :=
       | .proj _ _ s      => return e.updateProj! (← main s)
       | .forallE _ d b _ => return e.updateForallE! (← main d) (← main b)
       | .lam _ d b _     => return e.updateLambdaE! (← main d) (← main b)
-      | .letE _ t v b _  => return e.updateLet! (← main t) (← main v) (← main b)
+      | .letE _ t v b    => return e.updateLet! (← main t) (← main v) (← main b)
       | .app ..          => e.withApp fun f args => visitApp f args
       | .mdata _ b       => return e.updateMData! (← main b)
       | .const _ us      => return e.updateConst! (← us.mapM visitLevel)

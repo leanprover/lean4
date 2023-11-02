@@ -62,23 +62,23 @@ where
     if !(← containsRecFn e) then
       return e
     match e with
-    | Expr.lam n d b c =>
+    | .lam n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkLambdaFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.forallE n d b c =>
+    | .forallE n d b c =>
       withLocalDecl n c (← loop F d) fun x => do
         mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
+    | .letE n type val body =>
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b =>
+    | .mdata d b =>
       if let some stx := getRecAppSyntax? e then
         withRef stx <| loop F b
       else
         return mkMData d (← loop F b)
-    | Expr.proj n i e => return mkProj n i (← loop F e)
-    | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
-    | Expr.app .. =>
+    | .proj n i e => return mkProj n i (← loop F e)
+    | .const .. => if e.isConstOf recFnName then processRec F e else return e
+    | .app .. =>
       match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then

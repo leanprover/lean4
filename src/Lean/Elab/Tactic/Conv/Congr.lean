@@ -114,7 +114,7 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
 
 def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
   match lhs with
-  | .letE n t v b _ =>
+  | .letE n t v b =>
     let u₁ ← getLevel t
     let f := mkLambda n .default t b
     unless (← isTypeCorrect f) do

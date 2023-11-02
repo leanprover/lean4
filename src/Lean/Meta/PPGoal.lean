@@ -74,7 +74,7 @@ def ppGoal (mvarId : MVarId) : MetaM Format := do
           else do
             let fmt ← pushPending varNames prevType? fmt
             return ([varName], some type, fmt)
-        | .ldecl _ _ varName type val _ _ => do
+        | .ldecl _ _ varName type val _ => do
           let varName := varName.simpMacroScopes
           let fmt ← pushPending varNames prevType? fmt
           let fmt  := addLine fmt

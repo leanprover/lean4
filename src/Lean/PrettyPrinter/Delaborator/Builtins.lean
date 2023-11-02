@@ -578,7 +578,7 @@ def delabForall : Delab := do
 
 @[builtin_delab letE]
 def delabLetE : Delab := do
-  let Expr.letE n t v b _ ← getExpr | unreachable!
+  let .letE n t v b ← getExpr | unreachable!
   let n ← getUnusedName n b
   let stxV ← descend v 1 delab
   let stxB ← withLetDecl n t v fun fvar =>
@@ -732,7 +732,7 @@ partial def delabDoElems : DelabM (List Syntax) := do
             prependAndRec `(doElem|let _ ← $ma:term)
       | _ => failure
   else if e.isLet then
-    let Expr.letE n t v b _ ← getExpr | unreachable!
+    let .letE n t v b ← getExpr | unreachable!
     let n ← getUnusedName n b
     let stxT ← descend t 0 delab
     let stxV ← descend v 1 delab

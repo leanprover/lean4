@@ -36,7 +36,7 @@ def visitForall (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
 /-- Given a sequence of let binders `let (x₁ : α₁ := v₁) ... in b`, runs `f` on each `αᵢ`, `vᵢ` and `b`. -/
 def visitLet (f : Expr → m Unit) (e : Expr) : m Unit := visit #[] e
   where visit (fvars : Array Expr) : Expr → m Unit
-    | Expr.letE n d v b _ => do
+    | .letE n d v b => do
       let d := d.instantiateRev fvars
       let v := v.instantiateRev fvars
       f d

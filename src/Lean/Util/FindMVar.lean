@@ -16,14 +16,14 @@ mutual
     if s.isSome || !e.hasMVar then s else main p e s
 
   partial def main (p : MVarId → Bool) : Expr → Visitor
-    | Expr.proj _ _ e      => visit p e
-    | Expr.forallE _ d b _ => visit p b ∘ visit p d
-    | Expr.lam _ d b _     => visit p b ∘ visit p d
-    | Expr.letE _ t v b _  => visit p b ∘ visit p v ∘ visit p t
-    | Expr.app f a         => visit p a ∘ visit p f
-    | Expr.mdata _ b       => visit p b
-    | Expr.mvar mvarId     => fun s => if s.isNone && p mvarId then some mvarId else s
-    | _                    => id
+    | .proj _ _ e      => visit p e
+    | .forallE _ d b _ => visit p b ∘ visit p d
+    | .lam _ d b _     => visit p b ∘ visit p d
+    | .letE _ t v b    => visit p b ∘ visit p v ∘ visit p t
+    | .app f a         => visit p a ∘ visit p f
+    | .mdata _ b       => visit p b
+    | .mvar mvarId     => fun s => if s.isNone && p mvarId then some mvarId else s
+    | _                => id
 end
 
 end FindMVar

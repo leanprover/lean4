@@ -34,20 +34,20 @@ unsafe def fold {α : Type} (f : Name → α → α) (size : USize) (e : Expr) (
       pure acc
     else
       match e with
-      | Expr.forallE _ d b _   => visit b (← visit d acc)
-      | Expr.lam _ d b _       => visit b (← visit d acc)
-      | Expr.mdata _ b         => visit b acc
-      | Expr.letE _ t v b _    => visit b (← visit v (← visit t acc))
-      | Expr.app f a           => visit a (← visit f acc)
-      | Expr.proj _ _ b        => visit b acc
-      | Expr.const c _         =>
+      | .forallE _ d b _ => visit b (← visit d acc)
+      | .lam _ d b _     => visit b (← visit d acc)
+      | .mdata _ b       => visit b acc
+      | .letE _ t v b    => visit b (← visit v (← visit t acc))
+      | .app f a         => visit a (← visit f acc)
+      | .proj _ _ b      => visit b acc
+      | .const c _       =>
         let s ← get
         if s.visitedConsts.contains c then
           pure acc
         else do
           modify fun s => { s with visitedConsts := s.visitedConsts.insert c };
           pure $ f c acc
-      | _                      => pure acc
+      | _                => pure acc
   visit e acc
 
 unsafe def initCache : State :=

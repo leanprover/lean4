@@ -43,15 +43,15 @@ unsafe def replaceUnsafeM (f? : Level → Option Level) (size : USize) (e : Expr
     if ptrAddrUnsafe (c.keys.uget i lcProof) == h then
       pure <| c.results.uget i lcProof
     else match e with
-        | Expr.forallE _ d b _   => cache i e <| e.updateForallE! (← visit d) (← visit b)
-        | Expr.lam _ d b _       => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
-        | Expr.mdata _ b         => cache i e <| e.updateMData! (← visit b)
-        | Expr.letE _ t v b _    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
-        | Expr.app f a           => cache i e <| e.updateApp! (← visit f) (← visit a)
-        | Expr.proj _ _ b        => cache i e <| e.updateProj! (← visit b)
-        | Expr.sort u            => cache i e <| e.updateSort! (u.replace f?)
-        | Expr.const _ us        => cache i e <| e.updateConst! (us.map (Level.replace f?))
-        | e                      => pure e
+        | .forallE _ d b _ => cache i e <| e.updateForallE! (← visit d) (← visit b)
+        | .lam _ d b _     => cache i e <| e.updateLambdaE! (← visit d) (← visit b)
+        | .mdata _ b       => cache i e <| e.updateMData! (← visit b)
+        | .letE _ t v b    => cache i e <| e.updateLet! (← visit t) (← visit v) (← visit b)
+        | .app f a         => cache i e <| e.updateApp! (← visit f) (← visit a)
+        | .proj _ _ b      => cache i e <| e.updateProj! (← visit b)
+        | .sort u          => cache i e <| e.updateSort! (u.replace f?)
+        | .const _ us      => cache i e <| e.updateConst! (us.map (Level.replace f?))
+        | e                => pure e
   visit e
 
 unsafe def initCache : State :=
@@ -65,15 +65,15 @@ end ReplaceLevelImpl
 
 @[implemented_by ReplaceLevelImpl.replaceUnsafe]
 partial def replaceLevel (f? : Level → Option Level) : Expr → Expr
-  | e@(Expr.forallE _ d b _)   => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
-  | e@(Expr.lam _ d b _)       => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
-  | e@(Expr.mdata _ b)         => let b := replaceLevel f? b; e.updateMData! b
-  | e@(Expr.letE _ t v b _)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
-  | e@(Expr.app f a)           => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
-  | e@(Expr.proj _ _ b)        => let b := replaceLevel f? b; e.updateProj! b
-  | e@(Expr.sort u)            => e.updateSort! (u.replace f?)
-  | e@(Expr.const _ us)        => e.updateConst! (us.map (Level.replace f?))
-  | e                          => e
+  | e@(.forallE _ d b _) => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateForallE! d b
+  | e@(.lam _ d b _)     => let d := replaceLevel f? d; let b := replaceLevel f? b; e.updateLambdaE! d b
+  | e@(.mdata _ b)       => let b := replaceLevel f? b; e.updateMData! b
+  | e@(.letE _ t v b)    => let t := replaceLevel f? t; let v := replaceLevel f? v; let b := replaceLevel f? b; e.updateLet! t v b
+  | e@(.app f a)         => let f := replaceLevel f? f; let a := replaceLevel f? a; e.updateApp! f a
+  | e@(.proj _ _ b)      => let b := replaceLevel f? b; e.updateProj! b
+  | e@(.sort u)          => e.updateSort! (u.replace f?)
+  | e@(.const _ us)      => e.updateConst! (us.map (Level.replace f?))
+  | e                    => e
 
 end Expr
 end Lean

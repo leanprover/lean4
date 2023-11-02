@@ -24,7 +24,7 @@ namespace Lean.Meta
           let newVal  ← mkLambdaFVars fvars newMVar
           mvarId.assign newVal
           return (fvars, newMVar.mvarId!)
-    | i+1, .letE n type val body _ =>
+    | i+1, .letE n type val body =>
       let type   := type.instantiateRevRange j fvars.size fvars
       let type   := type.headBeta
       let val    := val.instantiateRevRange j fvars.size fvars
@@ -171,7 +171,7 @@ abbrev intro1P (mvarId : MVarId) : MetaM (FVarId × MVarId) :=
 
 private def getIntrosSize : Expr → Nat
   | .forallE _ _ b _ => getIntrosSize b + 1
-  | .letE _ _ _ b _  => getIntrosSize b + 1
+  | .letE _ _ _ b    => getIntrosSize b + 1
   | .mdata _ b       => getIntrosSize b
   | _                => 0
 

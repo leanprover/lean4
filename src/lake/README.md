@@ -154,7 +154,6 @@ Lake provides a large assortment of configuration options for packages.
 ### Layout
 
 * `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `.lake/packages`.
-* `manifestFile`: The path of a package's manifest file, which stores the exact versions of its resolved dependencies. Defaults to `lake-manifest.json`.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `leanLibDir`: The build subdirectory to which Lake should output the package's binary Lean libraries (e.g., `.olean`, `.ilean` files). Defaults to `lib`.

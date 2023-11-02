@@ -18,7 +18,7 @@ $LAKE print-paths Test --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
 $LAKE build +Test:o --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
-test ! -f build/ir/Test.o
+test ! -f build/ir/Test.c.o
 $LAKE build +Test:o
-test -f build/ir/Test.o
+test -f build/ir/Test.c.o
 $LAKE build +Test:o --no-build

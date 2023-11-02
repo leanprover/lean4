@@ -12,6 +12,7 @@ import Lake.Config.Dependency
 import Lake.Config.Script
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
+import Lake.Load.Config
 
 open System Lean
 
@@ -51,9 +52,6 @@ def stringToLegalOrSimpleName (s : String) : Name :=
 /-! # Defaults -/
 --------------------------------------------------------------------------------
 
-/-- The default setting for a `PackageConfig`'s `manifestFile` option. -/
-def defaultManifestFile := "lake-manifest.json"
-
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
 
@@ -85,7 +83,7 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
   -/
-  manifestFile := defaultManifestFile
+  manifestFile : Option FilePath := none
 
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
@@ -178,12 +176,18 @@ declare_opaque_type OpaquePostUpdateHook (pkg : Name)
 structure Package where
   /-- The path to the package's directory. -/
   dir : FilePath
+  /-- The path to the package's directory relative to the workspace. -/
+  relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
   /-- The elaboration environment of the package's configuration file. -/
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
   leanOpts : Options
+  /-- The path to the package's configuration file. -/
+  configFile : FilePath
+  /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
+  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
@@ -280,9 +284,9 @@ namespace Package
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
-/-- The package's JSON manifest of remote dependencies. -/
+/-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=
-  self.dir / self.config.manifestFile
+  self.dir / self.relManifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=

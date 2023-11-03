@@ -18,7 +18,7 @@ open Meta
 private def getFixedPrefix (declName : Name) (xs : Array Expr) (value : Expr) : MetaM Nat := do
   let numFixedRef ← IO.mkRef xs.size
   forEachExpr' value fun e => do
-    if e.isAppOf declName then
+    if e.isRecAppOf declName then
       let args := e.getAppArgs
       numFixedRef.modify fun numFixed => if args.size < numFixed then args.size else numFixed
       for arg in args, x in xs do

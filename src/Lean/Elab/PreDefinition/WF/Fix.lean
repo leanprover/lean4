@@ -50,8 +50,8 @@ where
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
-    if e.isAppOf recFnName then
-      processRec F e
+    if e.isRecAppOf recFnName then
+      e.withRecAppRef <| processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
@@ -71,11 +71,7 @@ where
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop F type) (← loop F val) fun x => do
         mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b =>
-      if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop F b
-      else
-        return mkMData d (← loop F b)
+    | Expr.mdata d b => return mkMData d (← loop F b)
     | Expr.proj n i e => return mkProj n i (← loop F e)
     | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
     | Expr.app .. =>

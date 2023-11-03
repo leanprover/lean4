@@ -60,7 +60,7 @@ def getFixedPrefix (preDefs : Array PreDefinition) : TermElabM Nat :=
     for val in vals do
       if (← resultRef.get) == 0 then return 0
       forEachExpr' val fun e => do
-        if preDefs.any fun preDef => e.isAppOf preDef.declName then
+        if preDefs.any fun preDef => e.isRecAppOf preDef.declName then
           let args := e.getAppArgs
           resultRef.modify (min args.size ·)
           for arg in args, x in xs do

@@ -12,9 +12,14 @@ private def recAppKey := `_recApp
 /--
   We store the syntax at recursive applications to be able to generate better error messages
   when performing well-founded and structural recursion.
+
+  We store it around the function, not the whole expression, so that the metadata
+  does not get into the way of `e.withApp` and friends.
 -/
 def mkRecAppWithSyntax (e : Expr) (stx : Syntax) : Expr :=
-  mkMData (KVMap.empty.insert recAppKey (DataValue.ofSyntax stx)) e
+  e.withApp fun f as =>
+    let f' := mkMData (KVMap.empty.insert recAppKey (DataValue.ofSyntax stx)) f
+    mkAppN f' as
 
 /--
   Retrieve (if available) the syntax object attached to a recursive application.
@@ -26,5 +31,25 @@ def getRecAppSyntax? (e : Expr) : Option Syntax :=
     | some (DataValue.ofSyntax stx) => some stx
     | _ => none
   | _                => none
+
+/--
+  Checks if the `MData` is for a recursive applciation.
+-/
+def MData.isRecApp (d : MData) : Bool :=
+  d.contains recAppKey
+
+
+/-- Given `f a₀ a₁ ... aₙ`, returns true if `f` is a constant with name `n` (possibly
+wrapped with the RecApp marker) -/
+def Expr.isRecAppOf (e : Expr) (n : Name) : Bool :=
+  match e.getAppFn with
+  | .const c _ => c == n
+  | .mdata m (.const c _) => c == n && m.isRecApp
+  | _           => false
+
+def Expr.withRecAppRef {m} [Monad m] [MonadRef m] {α} (e : Expr) (k : m α) : m α :=
+  match getRecAppSyntax? e.getAppFn with
+  | .some s => withRef s k
+  | .none => k
 
 end Lean

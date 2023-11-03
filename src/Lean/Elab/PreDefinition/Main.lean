@@ -76,8 +76,10 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     let value ← Core.transform preDef.value fun e => do
       if e.isApp && e.getAppFn.isLambda && e.getAppArgs.all fun arg => arg.getRecAppFn.isConst && preDefs.any fun preDef => preDef.declName == arg.getRecAppFn.constName! then
         return .visit e.headBeta
-      else
-        return .continue
+      else match e with
+      -- TODO (make pretty)
+      | .mdata m (.app f b) => if m.isRecApp then return .visit (.app (.mdata m f) b) else return .continue
+      | _ => return .continue
     return { preDef with value }
 
 private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do

@@ -626,7 +626,7 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
         if m.isRecApp then
           some (c.withApp fun f as => mkAppN (.mdata m f) as)
         else
-          none
+          some (.mdata m c)
       | _ => none
     | .fvar fvarId => match r.find? fvarId with
       | some c => some c

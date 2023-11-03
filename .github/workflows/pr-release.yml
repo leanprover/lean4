@@ -94,21 +94,23 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
           NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
-          MERGE_BASE_SHA=$(git merge-base master HEAD)
+          echo "SHA of most recent nightly: $NIGHTLY_SHA"
+          MERGE_BASE_SHA=$(git merge-base origin/master HEAD)
+          echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
-            echo "Most recent nightly tag agrees with the merge base. That's promising!"
+            echo "Most recent nightly tag agrees with the merge base."
 
             if git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY | wc -l; then
               echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
               MESSAGE=""
             else
-              echo "but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
+              echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
               MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. It may be necessary to rebase onto 'nightly' tomorrow."
             fi
 
           else
-            echo "The most recently nightly tag has SHA: $NIGHTLY_SHA"
-            echo "but 'git merge-base master HEAD' reported: $MERGE_BASE_SHA"
+            echo "The most recently nightly tag on this branch has SHA: $NIGHTLY_SHA"
+            echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
 
             MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
           fi

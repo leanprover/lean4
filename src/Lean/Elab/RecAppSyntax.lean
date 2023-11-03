@@ -55,7 +55,7 @@ Otherwise return the input expression.
 def Expr.getRecAppFn (e: Expr) : Expr :=
   match e with
   | .app f _ => f.getRecAppFn
-  | .mdata m b => if m.isRecApp then b.getRecAppFn else e
+  | .mdata m b => if m.isRecApp then b else e
   | _         => e
 
 def Expr.withRecAppRef {m} [Monad m] [MonadRef m] {α} (e : Expr) (k : m α) : m α :=

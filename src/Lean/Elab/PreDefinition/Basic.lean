@@ -181,7 +181,7 @@ private def containsRecFn (recFnName : Name) (e : Expr) : Bool :=
 def ensureNoRecFn (recFnName : Name) (e : Expr) : MetaM Expr := do
   if containsRecFn recFnName e then
     Meta.forEachExpr e fun e => do
-      if e.isAppOf recFnName then
+      if e.isRecAppOf recFnName then
         throwError "unexpected occurrence of recursive application{indentExpr e}"
     pure e
   else

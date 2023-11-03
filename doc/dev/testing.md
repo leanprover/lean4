@@ -24,6 +24,8 @@ to run stage1 tests with a 300 second timeout run this:
 cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
+Note that `ctest` will not pick up new test files; run `make` in
+`build/release/stage1` to update the list of tests.
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary

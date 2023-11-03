@@ -4,13 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
+import Lean.Elab.RecAppSyntax
 
 namespace Lean.Elab.Structural
 open Meta
 
 private def shouldBetaReduce (e : Expr) (recFnName : Name) : Bool :=
   if e.isHeadBetaTarget then
-    e.getAppFn.find? (·.isConstOf recFnName) |>.isSome
+    (IgnoringRecApp.getAppFn e).find? (·.isConstOf recFnName) |>.isSome
   else
     false
 

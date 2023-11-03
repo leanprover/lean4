@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Basic
 import Lean.Meta.ForEachExpr
+import Lean.Elab.RecAppSyntax
 
 namespace Lean.Elab.Structural
 
@@ -60,7 +61,8 @@ def run (x : M α) (s : State := {}) : MetaM (α × State) :=
 -/
 def recArgHasLooseBVarsAt (recFnName : Name) (recArgPos : Nat) (e : Expr) : Bool :=
   let app?   := e.find? fun e =>
-     e.isAppOf recFnName && e.getAppNumArgs > recArgPos && (e.getArg! recArgPos).hasLooseBVars
+    IgnoringRecApp.withApp e fun f as =>
+      f.isConstOf recFnName && as.size > recArgPos && (as.get! recArgPos).hasLooseBVars
   app?.isSome
 
 end Lean.Elab.Structural

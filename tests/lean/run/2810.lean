@@ -14,6 +14,13 @@ def f2 (n : Nat) : Nat :=
   | 0 => 0
   | n + 1 => (fun n' =>(f2) n') n
 
+-- structural recursion
+def f3 (n : Nat) : Nat :=
+  match n with
+  | 0 => 0
+  | n + 1 => (f3) n
+termination_by f3 n => n
+
 -- Same with rewrite
 
 theorem f_zero (n : Nat) : f n = 0 := by

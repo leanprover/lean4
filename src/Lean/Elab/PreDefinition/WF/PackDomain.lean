@@ -123,6 +123,8 @@ where
       let f := e.getRecAppFn
       let args := e.getAppArgs
       let fNew := mkConst preDefsNew[funIdx]!.declName f.constLevels!
+      let fNew := match e.getAppFn with |.mdata b _ => .mdata b fNew | _ => fNew
+      -- ^ TODO: This calls for nicer abstraction
       let fNew := mkAppN fNew args[:fixedPrefix]
       let Expr.forallE _ d .. ← inferType fNew | unreachable!
       let argNew ← mkUnaryArg d args[fixedPrefix:]

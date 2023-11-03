@@ -28,7 +28,7 @@ private partial def replaceIndPredRecApps (recFnName : Name) (recArgInfo : RecAr
     | Expr.app _ _ =>
       let processApp (e : Expr) : M Expr := do
         e.withApp fun f args => do
-          if f.isConstOf recFnName then
+          if f.isRecAppOf recFnName then
             let ty ← inferType e
             let main ← mkFreshExprSyntheticOpaqueMVar ty
             if (← IndPredBelow.backwardsChaining main.mvarId! maxDepth) then

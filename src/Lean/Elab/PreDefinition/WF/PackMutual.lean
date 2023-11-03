@@ -97,7 +97,7 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefValues : Arra
 private partial def post (fixedPrefix : Nat) (preDefs : Array PreDefinition) (domain : Expr) (newFn : Name) (e : Expr) : MetaM TransformStep := do
   if e.getAppNumArgs != fixedPrefix + 1 then
     return TransformStep.done e
-  let f := e.getAppFn
+  let f := e.getRecAppFn
   if !f.isConst then
     return TransformStep.done e
   let declName := f.constName!

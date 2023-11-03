@@ -47,6 +47,17 @@ def Expr.isRecAppOf (e : Expr) (n : Name) : Bool :=
   | .mdata m (.const c _) => c == n && m.isRecApp
   | _           => false
 
+/--
+If the given expression is a sequence of
+function applications `f a₁ .. aₙ` (possibly wrapped with the RecApp marker) return `f`.
+Otherwise return the input expression.
+-/
+def Expr.getRecAppFn (e: Expr) : Expr :=
+  match e with
+  | .app f _ => f.getRecAppFn
+  | .mdata m b => if m.isRecApp then b.getRecAppFn else e
+  | _         => e
+
 def Expr.withRecAppRef {m} [Monad m] [MonadRef m] {α} (e : Expr) (k : m α) : m α :=
   match getRecAppSyntax? e.getAppFn with
   | .some s => withRef s k

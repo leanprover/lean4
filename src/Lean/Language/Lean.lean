@@ -293,6 +293,6 @@ where goCmd snap :=
 
 end Lean
 
-def Lean : Language where
+abbrev Lean : Language where
   process := Lean.processLean
   getFinalEnv? := Lean.getFinalEnv?

@@ -152,9 +152,9 @@ instance (lang : Language) : ToSnapshotTree lang.InitialSnapshot := lang.instToS
 
 /-- Returns a function for processing a language using incremental snapshots. -/
 partial def Language.mkIncrementalProcessor (lang : Language) :
-    ProcessingContext → BaseIO (Parser.InputContext → BaseIO SnapshotTree) := fun ctx => do
+    ProcessingContext → BaseIO (Parser.InputContext → BaseIO lang.InitialSnapshot) := fun ctx => do
   let oldRef ← IO.mkRef none
   return fun doc => do
     let snap ← lang.process ctx (← oldRef.get) doc
     oldRef.set (some snap)
-    return toSnapshotTree snap
+    return snap

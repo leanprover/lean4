@@ -14,9 +14,9 @@ import Lean.Data.Json.FromToJson
 
 import Lean.Util.Paths
 import Lean.LoadDynlib
+import Lean.Language.Basic
 
 import Lean.Server.Utils
-import Lean.Server.Snapshots
 import Lean.Server.AsyncList
 import Lean.Server.References
 
@@ -59,8 +59,8 @@ structure WorkerContext where
   hIn              : FS.Stream
   hOut             : FS.Stream
   hLog             : FS.Stream
-  headerTask       : Task (Except Error (Snapshot × SearchPath))
   initParams       : InitializeParams
+  processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
   clientHasWidgets : Bool
 
 /-! # Asynchronous snapshot elaboration -/
@@ -73,73 +73,46 @@ section Elab
 
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
-      (snaps : Array Snapshot) : IO Unit := do
-    let trees := snaps.map fun snap => snap.infoTree
+      (trees : Array Elab.InfoTree) : IO Unit := do
     let references := findModuleRefs m.text trees (localVars := true)
     let param := { version := m.version, references : LeanIleanInfoParams }
     hOut.writeLspNotification { method, param }
 
-  private def publishIleanInfoUpdate : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+  private def publishIleanInfoUpdate : DocumentMeta → FS.Stream → Array Elab.InfoTree → IO Unit :=
     publishIleanInfo "$/lean/ileanInfoUpdate"
 
-  private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Snapshot → IO Unit :=
+  private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Elab.InfoTree → IO Unit :=
     publishIleanInfo "$/lean/ileanInfoFinal"
 
-  /-- Elaborates the next command after `parentSnap` and emits diagnostics into `hOut`. -/
-  private def nextCmdSnap (ctx : WorkerContext) (m : DocumentMeta) (cancelTk : CancelToken)
-      : AsyncElabM (Option Snapshot) := do
-    cancelTk.check
-    let s ← get
-    let .some lastSnap := s.snaps.back? | panic! "empty snapshots"
-    if lastSnap.isAtEnd then
-      publishDiagnostics m lastSnap.diagnostics.toArray ctx.hOut
+  private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
+      (cancelTk : CancelToken) : IO Unit := do
+    discard <| go snaps #[] #[] fun _ itrees => do
       publishProgressDone m ctx.hOut
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      publishIleanInfoFinal m ctx.hOut s.snaps
-      return none
-    publishProgressAtPos m lastSnap.endPos ctx.hOut
-    let snap ← compileNextCmd m.mkInputContext lastSnap ctx.clientHasWidgets
-    set { s with snaps := s.snaps.push snap }
-    -- TODO(MH): check for interrupt with increased precision
-    cancelTk.check
-    /- NOTE(MH): This relies on the client discarding old diagnostics upon receiving new ones
-      while preferring newer versions over old ones. The former is necessary because we do
-      not explicitly clear older diagnostics, while the latter is necessary because we do
-      not guarantee that diagnostics are emitted in order. Specifically, it may happen that
-      we interrupted this elaboration task right at this point and a newer elaboration task
-      emits diagnostics, after which we emit old diagnostics because we did not yet detect
-      the interrupt. Explicitly clearing diagnostics is difficult for a similar reason,
-      because we cannot guarantee that no further diagnostics are emitted after clearing
-      them. -/
-    -- NOTE(WN): this is *not* redundant even if there are no new diagnostics in this snapshot
-    -- because empty diagnostics clear existing error/information squiggles. Therefore we always
-    -- want to publish in case there was previously a message at this position.
-    publishDiagnostics m snap.diagnostics.toArray ctx.hOut
-    publishIleanInfoUpdate m ctx.hOut #[snap]
-    return some snap
-
-  /-- Elaborates all commands after the last snap (at least the header snap is assumed to exist), emitting the diagnostics into `hOut`. -/
-  def unfoldCmdSnaps (m : DocumentMeta) (snaps : Array Snapshot) (cancelTk : CancelToken) (startAfterMs : UInt32)
-      : ReaderT WorkerContext IO (AsyncList ElabTaskError Snapshot) := do
-    let ctx ← read
-    let some headerSnap := snaps[0]? | panic! "empty snapshots"
-    if headerSnap.msgLog.hasErrors then
-      -- Treat header processing errors as fatal so users aren't swamped with
-      -- followup errors
-      publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
-      publishIleanInfoFinal m ctx.hOut #[headerSnap]
-      return AsyncList.ofList [headerSnap]
-    else
-      -- This will overwrite existing ilean info for the file since this has a
-      -- higher version number.
-      publishIleanInfoUpdate m ctx.hOut snaps
-      return AsyncList.ofList snaps.toList ++ AsyncList.delayed (← EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
-        IO.sleep startAfterMs
-        AsyncList.unfoldAsync (nextCmdSnap ctx m cancelTk) { snaps })
+      publishIleanInfoFinal m ctx.hOut itrees
+      return .pure <| .ok ()
+  where
+    go node diags itrees cont := do
+      if (← cancelTk.ref.get) then
+        return .pure <| .ok ()
+      let diags := diags ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
+      publishDiagnostics m diags ctx.hOut
+      let itrees := match node.element.infoTree? with
+        | some itree => itrees.push itree
+        | none       => itrees
+      publishIleanInfoUpdate m ctx.hOut itrees
+      goSeq cont diags itrees node.children.toList
+    goSeq cont diags itrees
+      | [] => cont diags itrees
+      | t::ts => do
+        publishProgressAtPos m t.range.start ctx.hOut
+        IO.bindTask t.task fun node =>
+          go node diags itrees fun diags itrees =>
+            goSeq cont diags itrees ts
 end Elab
 
--- Pending requests are tracked so they can be cancelled
+-- Pending requests are tracked so they can be canceled
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
 structure WorkerState where
@@ -150,6 +123,7 @@ structure WorkerState where
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
   rpcSessions     : RBMap UInt64 (IO.Ref RpcSession) compare
+  reportCancelTk  : CancelToken
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -193,83 +167,30 @@ section Initialization
     | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{stdout}"
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
-      : IO (Syntax × Task (Except Error (Snapshot × SearchPath))) := do
-    -- parsing should not take long, do synchronously
-    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
-    (headerStx, ·) <$> EIO.asTask do
-      let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
-      let lakePath ← match (← IO.getEnv "LAKE") with
-        | some path => pure <| System.FilePath.mk path
-        | none =>
-          let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-            | some path => pure <| System.FilePath.mk path / "bin" / "lake"
-            | _         => pure <| (← appDir) / "lake"
-          pure <| lakePath.withExtension System.FilePath.exeExtension
-      let (headerEnv, msgLog) ← try
-        if let some path := System.Uri.fileUriToPath? m.uri then
-          -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
-          -- NOTE: lake does not exist in stage 0 (yet?)
-          if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
-            let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx) hOut
-            srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
-        Elab.processHeader headerStx opts msgLog m.mkInputContext
-      catch e =>  -- should be from `lake print-paths`
-        let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-        pure (← mkEmptyEnvironment, msgs)
-      let mut headerEnv := headerEnv
-      try
-        if let some path := System.Uri.fileUriToPath? m.uri then
-          headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
-      catch _ => pure ()
-      let cmdState := Elab.Command.mkState headerEnv msgLog opts
-      let cmdState := { cmdState with infoState := {
-        enabled := true
-        trees := #[Elab.InfoTree.context ({
-          env     := headerEnv
-          fileMap := m.text
-          ngen    := { namePrefix := `_worker }
-        }) (Elab.InfoTree.node
-            (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
-            (headerStx[1].getArgs.toList.map (fun importStx =>
-              Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-                elaborator := `import
-                stx := importStx
-              }) #[].toPArray'
-            )).toPArray'
-        )].toPArray'
-      }}
-      let headerSnap := {
-        beginPos := 0
-        stx := headerStx
-        mpState := headerParserState
-        cmdState := cmdState
-        interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
-        tacticCache := (← IO.mkRef {})
-      }
-      publishDiagnostics m headerSnap.diagnostics.toArray hOut
-      return (headerSnap, srcSearchPath)
-
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
-    let (headerStx, headerTask) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
-    let cancelTk ← CancelToken.new
+    let mut mainModuleName := Name.anonymous
+    try
+      if let some path := System.Uri.fileUriToPath? meta.uri then
+        mainModuleName ← moduleNameOfFileName path none
+    catch _ => pure ()
+    let processor ← Language.Lean.mkIncrementalProcessor { opts, mainModuleName }
+    let initSnap ← processor meta.mkInputContext
     let ctx :=
       { hIn  := i
         hOut := o
         hLog := e
-        headerTask
         initParams
+        processor
         clientHasWidgets
       }
-    let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
-      | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx (startAfterMs := 0)
-      | Except.error e   => throw (e : ElabTaskError))
-    let doc : EditableDocument := { meta, cmdSnaps := AsyncList.delayed cmdSnaps, cancelTk }
+    let doc : EditableDocument := { meta, initSnap }
+    let reportCancelTk ← CancelToken.new
+    reportSnapshots ctx doc.meta (Language.ToSnapshotTree.toSnapshotTree doc.initSnap) reportCancelTk
     return (ctx,
-    { doc             := doc
-      initHeaderStx   := headerStx
+    { doc, reportCancelTk
+      initHeaderStx   := initSnap.stx
       pendingRequests := RBMap.empty
       rpcSessions     := RBMap.empty
     })
@@ -282,49 +203,11 @@ section Updates
   /-- Given the new document, updates editable doc state. -/
   def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
-    let oldDoc := (←get).doc
-    oldDoc.cancelTk.set
-    let initHeaderStx := (← get).initHeaderStx
-    let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
-    let cancelTk ← CancelToken.new
-    let headSnapTask := oldDoc.cmdSnaps.waitHead?
-    let newSnaps ← if initHeaderStx != newHeaderStx then
-      EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
-        IO.sleep ctx.initParams.editDelay.toUInt32
-        cancelTk.check
-        IO.Process.exit 2
-    else EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
-      -- There is always at least one snapshot absent exceptions
-      let some headSnap ← MonadExcept.ofExcept headSnap?? | panic! "empty snapshots"
-      let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
-      let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
-      -- Ignore exceptions, we are only interested in the successful snapshots
-      let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
-      -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
-      -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
-      if h : validSnaps.length ≤ 1 then
-        validSnaps := [newHeaderSnap]
-      else
-        /- When at least one valid non-header snap exists, it may happen that a change does not fall
-           within the syntactic range of that last snap but still modifies it by appending tokens.
-           We check for this here. We do not currently handle crazy grammars in which an appended
-           token can merge two or more previous commands into one. To do so would require reparsing
-           the entire file. -/
-        have : validSnaps.length ≥ 2 := Nat.gt_of_not_le h
-        let mut lastSnap := validSnaps.getLast (by subst ·; simp at h)
-        let preLastSnap :=
-          have : 0 < validSnaps.length := Nat.lt_of_lt_of_le (by decide) this
-          have : validSnaps.length - 2 < validSnaps.length := Nat.sub_lt this (by decide)
-          validSnaps[validSnaps.length - 2]
-        let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
-        if newLastStx != lastSnap.stx then
-          validSnaps := validSnaps.dropLast
-      -- wait for a bit, giving the initial `cancelTk.check` in `nextCmdSnap` time to trigger
-      -- before kicking off any expensive elaboration (TODO: make expensive elaboration cancelable)
-      unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
-        (startAfterMs := ctx.initParams.editDelay.toUInt32)
-    modify fun st => { st with doc := { meta := newMeta, cmdSnaps := AsyncList.delayed newSnaps, cancelTk } }
+    (← get).reportCancelTk.set
+    let initSnap ← ctx.processor newMeta.mkInputContext
+    let reportCancelTk ← CancelToken.new
+    reportSnapshots ctx newMeta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
+    modify fun st => { st with doc := { meta := newMeta, initSnap }, reportCancelTk }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -412,8 +295,8 @@ section MessageHandling
       return
 
     -- we assume that every request requires at least the header snapshot or the search path
-    let t ← IO.bindTask ctx.headerTask fun x => do
-     let (_, srcSearchPath) ← IO.ofExcept x
+    let t ← IO.bindTask (.pure "") fun _ => do
+     let srcSearchPath := ∅
      let rc : RequestContext :=
        { rpcSessions := st.rpcSessions
          srcSearchPath
@@ -463,8 +346,6 @@ section MainLoop
       handleRequest id method (toJson params)
       mainLoop
     | Message.notification "exit" none =>
-      let doc := st.doc
-      doc.cancelTk.set
       return ()
     | Message.notification method (some params) =>
       handleNotification method (toJson params)

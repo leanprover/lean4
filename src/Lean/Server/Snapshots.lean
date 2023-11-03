@@ -26,11 +26,6 @@ builtin_initialize dummyTacticCache : IO.Ref Tactic.Cache ← IO.mkRef {}
 
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
-  /-- Where the command which produced this snapshot begins. Note that
-  neighbouring snapshots are *not* necessarily attached beginning-to-end,
-  since inputs outside the grammar advance the parser but do not produce
-  snapshots. -/
-  beginPos : String.Pos
   stx : Syntax
   mpState : Parser.ModuleParserState
   cmdState : Command.State
@@ -38,7 +33,6 @@ structure Snapshot where
   from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
   as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
   interactiveDiags : PersistentArray Widget.InteractiveDiagnostic
-  tacticCache : IO.Ref Tactic.Cache
 
 namespace Snapshot
 
@@ -66,10 +60,10 @@ open Command in
 /-- Use the command state in the given snapshot to run a `CommandElabM`.-/
 def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α) : EIO Exception α := do
   let ctx : Command.Context := {
-    cmdPos := snap.beginPos,
+    cmdPos := snap.stx.getPos? |>.getD 0,
     fileName := meta.uri,
     fileMap := meta.text,
-    tacticCache? := snap.tacticCache,
+    tacticCache? := none
   }
   c.run ctx |>.run' snap.cmdState
 
@@ -82,77 +76,5 @@ def runTermElabM (snap : Snapshot) (meta : DocumentMeta) (c : TermElabM α) : EI
   snap.runCommandElabM meta <| Command.liftTermElabM c
 
 end Snapshot
-
-/-- Parses the next command occurring after the given snapshot
-without elaborating it. -/
-def parseNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) : IO Syntax := do
-  let cmdState := snap.cmdState
-  let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  let (cmdStx, _, _) :=
-    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
-  return cmdStx
-
-/-- Compiles the next command occurring after the given snapshot. If there is no next command
-(file ended), `Snapshot.isAtEnd` will hold of the return value. -/
--- NOTE: This code is really very similar to Elab.Frontend. But generalizing it
--- over "store snapshots"/"don't store snapshots" would likely result in confusing
--- isServer? conditionals and not be worth it due to how short it is.
-def compileNextCmd (inputCtx : Parser.InputContext) (snap : Snapshot) (hasWidgets : Bool) : IO Snapshot := do
-  let cmdState := snap.cmdState
-  let scope := cmdState.scopes.head!
-  let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
-  let (cmdStx, cmdParserState, msgLog) :=
-    Parser.parseCommand inputCtx pmctx snap.mpState snap.msgLog
-  let cmdPos := cmdStx.getPos?.get!
-  let cmdStateRef ← IO.mkRef { snap.cmdState with messages := msgLog }
-  /- The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel` has exclusive
-      access to the cache, we create a fresh reference here. Before this change, the
-      following `snap.tacticCache.modify` would reset the tactic post cache while another snapshot was still using it. -/
-  let tacticCacheNew ← IO.mkRef (← snap.tacticCache.get)
-  let cmdCtx : Elab.Command.Context := {
-    cmdPos       := snap.endPos
-    fileName     := inputCtx.fileName
-    fileMap      := inputCtx.fileMap
-    tacticCache? := some tacticCacheNew
-  }
-  let (output, _) ← IO.FS.withIsolatedStreams (isolateStderr := Language.Lean.stderrAsMessages.get? scope.opts |>.getD true) <| liftM (m := BaseIO) do
-    Elab.Command.catchExceptions
-      (getResetInfoTrees *> Elab.Command.elabCommandTopLevel cmdStx)
-      cmdCtx cmdStateRef
-  let postNew := (← tacticCacheNew.get).post
-  snap.tacticCache.modify fun _ => { pre := postNew, post := {} }
-  let mut postCmdState ← cmdStateRef.get
-  if !output.isEmpty then
-    postCmdState := {
-      postCmdState with
-      messages := postCmdState.messages.add {
-        fileName := inputCtx.fileName
-        severity := MessageSeverity.information
-        pos      := inputCtx.fileMap.toPosition snap.endPos
-        data     := output
-      }
-    }
-  let postCmdSnap : Snapshot := {
-    beginPos := cmdPos
-    stx := cmdStx
-    mpState := cmdParserState
-    cmdState := postCmdState
-    interactiveDiags := ← withNewInteractiveDiags postCmdState.messages
-    tacticCache := (← IO.mkRef {})
-  }
-  return postCmdSnap
-
-where
-  /-- Compute the current interactive diagnostics log by finding a "diff" relative to the parent
-  snapshot. We need to do this because unlike the `MessageLog` itself, interactive diags are not
-  part of the command state. -/
-  withNewInteractiveDiags (msgLog : MessageLog) : IO (PersistentArray Widget.InteractiveDiagnostic) := do
-    let newMsgCount := msgLog.msgs.size - snap.msgLog.msgs.size
-    let mut ret := snap.interactiveDiags
-    for i in List.iota newMsgCount do
-      let newMsg := msgLog.msgs.get! (msgLog.msgs.size - i)
-      ret := ret.push (← Widget.msgToInteractiveDiagnostic inputCtx.fileMap newMsg hasWidgets)
-    return ret
 
 end Lean.Server.Snapshots

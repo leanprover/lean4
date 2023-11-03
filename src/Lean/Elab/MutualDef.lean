@@ -620,6 +620,14 @@ def insertReplacementForLetRecs (r : Replacement) (letRecClosures : List LetRecC
 
 def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
   e.replace fun e => match e with
+    | .mdata m (.fvar fvarId) =>
+      match r.find? fvarId with
+      | some c =>
+        if m.isRecApp then
+          some (c.withApp fun f as => mkAppN (.mdata m f) as)
+        else
+          none
+      | _ => none
     | .fvar fvarId => match r.find? fvarId with
       | some c => some c
       | _      => none

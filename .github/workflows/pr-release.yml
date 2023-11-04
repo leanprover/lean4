@@ -100,7 +100,9 @@ jobs:
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "Most recent nightly tag agrees with the merge base."
 
-            if git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY | wc -l; then
+            REMOTE_BRANCHES=$(git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY)
+
+            if [[ -n "$REMOTE_BRANCHES" ]]; then
               echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
               MESSAGE=""
             else
@@ -115,10 +117,9 @@ jobs:
             MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
           fi
 
-          if [[ -n "$MESSAGE "]]; then
-            MESSAGE="$MESSAGE ($(date "+%Y-%m-%d %H:%M:%S"))"
+          if [[ -n "$MESSAGE" ]]; then
 
-            echo "Posting message to the comments: $MESSAGE"
+            echo "Checking existing messages"
 
             # Use GitHub API to check if a comment already exists
             existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
@@ -128,25 +129,33 @@ jobs:
             existing_comment_id=$(echo "$existing_comment" | jq -r .id)
             existing_comment_body=$(echo "$existing_comment" | jq -r .body)
 
-            # Append new result to the existing comment or post a new comment
-            if [ -z "$existing_comment_id" ]; then
-              # Post new comment with a bullet point
-              echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
-              curl -L -s \
-                -X POST \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
-                "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+            if [[ "$existing_comment_body" != *"$MESSAGE"* ]]; then
+              MESSAGE="$MESSAGE ($(date "+%Y-%m-%d %H:%M:%S"))"
+
+              echo "Posting message to the comments: $MESSAGE"
+
+              # Append new result to the existing comment or post a new comment
+              if [ -z "$existing_comment_id" ]; then
+                # Post new comment with a bullet point
+                echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+                curl -L -s \
+                  -X POST \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
+                  "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+              else
+                # Append new result to the existing comment
+                echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
+                curl -L -s \
+                  -X PATCH \
+                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Accept: application/vnd.github.v3+json" \
+                  -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
+                  "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
+              fi
             else
-              # Append new result to the existing comment
-              echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
-              curl -L -s \
-                -X PATCH \
-                -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Accept: application/vnd.github.v3+json" \
-                -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
-                "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"
+              echo "The message already exists in the comment body."
             fi
 
             exit 1

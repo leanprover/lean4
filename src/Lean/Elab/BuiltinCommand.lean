@@ -427,7 +427,8 @@ writing many definitions that have parameters in common (see below for an exampl
 Variable declarations have the same flexibility as regular function paramaters. In particular they
 can be [explicit, implicit][binder docs], or [instance implicit][tpil classes] (in which case they
 can be anonymous). This can be changed, for instance one can turn explicit variable `x` into an
-implicit one with `variable {x}`.
+implicit one with `variable {x}`. Note that currently, you should avoid changing how variables are
+bound and declare new variables at the same time; see [issue 2789] for more on this topic.
 
 See [*Variables and Sections* from Theorem Proving in Lean][tpil vars] for a more detailed
 discussion.
@@ -436,7 +437,10 @@ discussion.
 (Variables and Sections on Theorem Proving in Lean)
 [tpil classes]: https://lean-lang.org/theorem_proving_in_lean4/type_classes.html
 (Type classes on Theorem Proving in Lean)
-[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo (Documentation for the BinderInfo type)
+[binder docs]: https://leanprover-community.github.io/mathlib4_docs/Lean/Expr.html#Lean.BinderInfo
+(Documentation for the BinderInfo type)
+[issue 2789]: https://github.com/leanprover/lean4/issues/2789
+(Issue 2789 on github)
 
 ## Examples
 

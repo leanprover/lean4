@@ -28,6 +28,7 @@ ctest -j 4 --output-on-failure --timeout 300
 ```
 Useful `ctest` flags are `-R <name of test>` to run a single test, and
 `--rerun-failed` to run all tests that failed during the last run.
+You can also pass `ctest` flags via `make test ARGS="--rerun-failed"`.
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary

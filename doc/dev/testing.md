@@ -5,7 +5,6 @@ After [building Lean](../make/index.md) you can run all the tests using
 cd build/release
 make test ARGS=-j4
 ```
-
 Change the 4 to the maximum number of parallel tests you want to
 allow. The best choice is the number of CPU cores on your machine as
 the tests are mostly CPU bound.  You can find the number of processors
@@ -13,9 +12,12 @@ on linux using `nproc` and on Windows it is the `NUMBER_OF_PROCESSORS`
 environment variable.
 
 You can run tests after [building a specific stage](bootstrap.md) by
-adding the `-C stageN` argument. The default when run as above is stage 1.  The
-Lean tests will automatically use that stage's corresponding Lean
+adding the `-C stageN` argument. The default when run as above is stage 1. The
+Lean tests will automatically use (but not build) that stage's corresponding Lean
 executables
+
+Runnign `make test` will not pick up new test files; run `make -C stageN` in
+to update the list of tests.
 
 You can also use `ctest` directly if you are in the right folder.  So
 to run stage1 tests with a 300 second timeout run this:
@@ -24,8 +26,8 @@ to run stage1 tests with a 300 second timeout run this:
 cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
-Note that `ctest` will not pick up new test files; run `make` in
-`build/release/stage1` to update the list of tests.
+Useful `ctest` flags are `-R <name of test>` to run a single test, and
+`--rerun-failed` to run all tests that failed during the last run.
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary

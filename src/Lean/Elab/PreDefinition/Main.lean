@@ -8,6 +8,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Elab.PreDefinition.Preprocess
 
 namespace Lean.Elab
 open Meta
@@ -125,6 +126,9 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
       addAndCompilePartial preDefs
     else
       try
+        let preDefsNames := preDefs.map (·.declName)
+        let preDefs ← preDefs.mapM fun preDef =>
+          return { preDef with value := (← PreDefinition.preprocess preDef.value preDefsNames) }
         let mut wf? := none
         let mut decrTactic? := none
         if let some wf := terminationBy.find? (preDefs.map (·.declName)) then

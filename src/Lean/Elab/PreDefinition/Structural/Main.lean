@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FindRecArg
-import Lean.Elab.PreDefinition.Structural.Preprocess
 import Lean.Elab.PreDefinition.Structural.BRecOn
 import Lean.Elab.PreDefinition.Structural.IndPred
 import Lean.Elab.PreDefinition.Structural.Eqns
@@ -60,7 +59,6 @@ private def elimRecursion (preDef : PreDefinition) : M (Nat × PreDefinition) :=
   trace[Elab.definition.structural] "{preDef.declName} := {preDef.value}"
   withoutModifyingEnv do lambdaTelescope preDef.value fun xs value => do
     addAsAxiom preDef
-    let value ← preprocess value preDef.declName
     trace[Elab.definition.structural] "{preDef.declName} {xs} :=\n{value}"
     let numFixed ← getFixedPrefix preDef.declName xs value
     trace[Elab.definition.structural] "numFixed: {numFixed}"

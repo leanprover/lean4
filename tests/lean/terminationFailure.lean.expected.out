@@ -9,7 +9,7 @@ f (x : Nat) : Nat
 f.g (a✝ : Nat) : Nat
 1
 2
-terminationFailure.lean:20:4-20:5: error: fail to show termination for
+terminationFailure.lean:24:9-24:12: error: fail to show termination for
   h
 with errors
 argument #1 was not used for structural recursion

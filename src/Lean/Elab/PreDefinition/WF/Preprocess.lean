@@ -24,9 +24,12 @@ Preprocesses the expessions to improve the effectiveness of `wfRecursion`.
 def preprocess (e : Expr) : CoreM Expr :=
   Core.transform e
     (post := fun e =>
-      if e.isApp && e.getAppFn.isMData && e.getAppFn.mdata!.isRecApp then
-        return .visit (e.withApp fun f as => .mdata f.mdata! (mkAppN (f.mdataExpr!) as))
-      else
-        return .continue)
+      match e with
+      | .app (.mdata m f) a =>
+        if m.isRecApp then
+          return .done (.mdata m (.app f a))
+        else
+          return .done e
+      | _ => return .done e)
 
 end Lean.Elab.WF

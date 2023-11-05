@@ -1110,10 +1110,6 @@ def mdataExpr! : Expr → Expr
   | mdata _ e => e
   | _         => panic! "mdata expression expected"
 
-def mdata! : Expr → MData
-  | mdata m _ => m
-  | _         => panic! "mdata expression expected"
-
 def projExpr! : Expr → Expr
   | proj _ _ e => e
   | _          => panic! "proj expression expected"

@@ -57,6 +57,20 @@ def appendParentTag (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Arr
             mvarIdNew.setTag (appendTag parentTag currTag)
 
 /--
+Discharge goals of the form `optParam P p`.
+-/
+def synthDefaultParams (mvarId : MVarId) (tacticName : Name) (newMVars : Array Expr) (allowFailures : Bool) : MetaM Unit := do
+  for mvar in newMVars do
+    unless (← mvar.mvarId!.isAssigned) do
+      let mvarType ← inferType mvar
+      try
+        if let some defValue := mvarType.getOptParamDefault? then
+          unless (← isDefEq mvar defValue) do
+            throwTacticEx tacticName mvarId "failed to use default value for optional parameter"
+      catch e =>
+          unless allowFailures do throw e
+
+/--
 If `synthAssignedInstances` is `true`, then `apply` will synthesize instance implicit arguments
 even if they have assigned by `isDefEq`, and then check whether the synthesized value matches the
 one inferred. The `congr` tactic sets this flag to false.
@@ -64,7 +78,8 @@ one inferred. The `congr` tactic sets this flag to false.
 def postprocessAppMVars (tacticName : Name) (mvarId : MVarId) (newMVars : Array Expr) (binderInfos : Array BinderInfo)
     (synthAssignedInstances := true) (allowSynthFailures := false) : MetaM Unit := do
   synthAppInstances tacticName mvarId newMVars binderInfos synthAssignedInstances allowSynthFailures
-  -- TODO: default and auto params
+  synthDefaultParams mvarId tacticName newMVars allowSynthFailures
+  -- Auto params should not be handled here. The require us to use the tactic interpreter that is in `TacticM`
   appendParentTag mvarId newMVars binderInfos
 
 private def dependsOnOthers (mvar : Expr) (otherMVars : Array Expr) : MetaM Bool :=

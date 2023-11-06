@@ -122,7 +122,7 @@ jobs:
             echo "Checking existing messages"
 
             # Use GitHub API to check if a comment already exists
-            existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
                                     | jq '.[] | select(.body | startswith("- ❗ Mathlib") or startswith("- ✅ Mathlib") or startswith("- ❌ Mathlib") or startswith("- 💥 Mathlib") or startswith("- 🟡 Mathlib"))')
@@ -135,12 +135,13 @@ jobs:
               echo "Posting message to the comments: $MESSAGE"
 
               # Append new result to the existing comment or post a new comment
+              # It's essential we use the MATHLIB4_BOT token here, so that Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
                 # Post new comment with a bullet point
                 echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X POST \
-                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
@@ -149,7 +150,7 @@ jobs:
                 echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X PATCH \
-                  -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg existing "$existing_comment_body" --arg message "$MESSAGE" '{"body":($existing + "\n" + $message)}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/comments/$existing_comment_id"

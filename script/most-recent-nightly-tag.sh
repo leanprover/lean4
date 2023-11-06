@@ -10,7 +10,7 @@ tag_prefix="nightly-"
 git fetch $remote_name --tags > /dev/null
 
 # Get the most recent commit that has a matching tag
-tag_name=$(git tag --list "${tag_prefix}*" | sort -V | tail -n 1 | sed "s/^$tag_prefix//")
+tag_name=$(git tag --merged HEAD --list "${tag_prefix}*" | sort -rV | head -n 1 | sed "s/^$tag_prefix//")
 
 if [ -z "$tag_name" ]; then
     exit 1

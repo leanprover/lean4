@@ -92,7 +92,9 @@ jobs:
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        id: ready
         run: |
+          echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git merge-base origin/master HEAD)
@@ -158,21 +160,22 @@ jobs:
             else
               echo "The message already exists in the comment body."
             fi
-
-            exit 1
+            echo "::set-output name=mathlib_ready::false"
+          else
+            echo "::set-output name=mathlib_ready::true"
           fi
 
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.
       - name: Cleanup workspace
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
         run: |
           sudo rm -rf *
 
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
         uses: actions/checkout@v3
         with:
           repository: leanprover-community/mathlib4
@@ -181,7 +184,7 @@ jobs:
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
       - name: Check if branch exists
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
         id: check_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
@@ -215,6 +218,6 @@ jobs:
           fi
 
       - name: Push changes
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}

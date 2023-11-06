@@ -351,6 +351,9 @@ term `e` against each pattern `p` of a match alternative. When all patterns
 of an alternative match, the `match` term evaluates to the value of the
 corresponding right-hand side `f` with the pattern variables bound to the
 respective matched values.
+If used as `match h : e, ... with | p, ... => f | ...`, `h : e = p` is available
+within `f`.
+
 When not constructing a proof, `match` does not automatically substitute variables
 matched on in dependent variables' types. Use `match (generalizing := true) ...` to
 enforce this.

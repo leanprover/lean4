@@ -16,7 +16,10 @@ adding the `-C stageN` argument. The default when run as above is stage 1. The
 Lean tests will automatically use (but not build) that stage's corresponding Lean
 executables
 
-Runnign `make test` will not pick up new test files; run `make -C stageN` in
+Runnign `make test` will not pick up new test files; run
+```bash
+cmake build/release/stage1
+```
 to update the list of tests.
 
 You can also use `ctest` directly if you are in the right folder.  So

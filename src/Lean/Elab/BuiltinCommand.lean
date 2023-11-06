@@ -120,6 +120,8 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 /-- Declares one or more universe variables.
 
+`universe u v`
+
 `Prop`, `Type`, `Type u` and `Sort u` are types that classify other types, also known as
 *universes*. In `Type u` and `Sort u`, the variable `u` stands for the universe's *level*, and a
 universe at level `u` can only classify universes that are at levels lower than `u`. For more

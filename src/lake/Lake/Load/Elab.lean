@@ -86,6 +86,10 @@ toolchain). Otherwise, elaborate the configuration and save it to the OLean.
 def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
   let olean := configFile.withExtension "olean"
+  let useElab := do
+    let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
+    Lean.writeModule env olean
+    return env
   let useOLean ← id do
     if reconfigure then return false
     let .ok oleanMTime ← getMTime olean |>.toBaseIO | return false
@@ -104,6 +108,46 @@ def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
        on top of it like the elaborator would. Thus the non-shared, part of the
        `Environment` is very small. -/
     let (mod, _) ← readModuleData olean
+    for (extName, ents) in mod.entries do
+      /- Below, we pass module environment extension entries to
+         `PersistentEnvExtension.addEntryFn` - but for an extension of
+         non-erased type `PersistentEnvExtension α β σ`, the former are of type
+         `α` while `addEntryFn` expects `β`s (the type-erased
+         `persistentEnvExtensionsRef` ought to be `unsafe` to prevent this from
+         simply compiling but it isn't right now). Fortunately, all extensions
+         used in simpe lakefiles have `α = β`, which we verify here with a
+         simple whitelist grouped by type. -/
+      unless ents.isEmpty || extName ∈ [
+        -- `OrderedTagAttribute`
+        `Lake.defaultTargetAttr,
+        `Lake.leanExeAttr,
+        `Lake.leanLibAttr,
+        `Lake.packageAttr,
+        `Lake.packageDepAttr,
+        `Lake.targetAttr,
+        -- `EnumAttributes`
+        `Lean.Compiler.inlineAttrs,
+        `Lean.reducibilityAttrs,
+        -- `PersistentEnvExtension Decl Decl`
+        `Lean.Compiler.LCNF.baseExt,
+        `Lean.Compiler.LCNF.monoExt,
+        -- `SimplePersistentEnvExtension`
+        `Lean.Compiler.LCNF.specExtension,
+        `Lean.Compiler.LCNF.Specialize.specCacheExt,
+        `Lean.Compiler.LCNF.UnreachableBranches.functionSummariesExt,
+        `Lean.Compiler.specExtension,
+        `Lean.declRangeExt,
+        `Lean.docStringExt,
+        `Lean.IR.declMapExt,
+        `Lean.IR.UnreachableBranches.functionSummariesExt,
+        `Lean.Meta.Match.Extension.extension,
+        `Lean.namespacesExt,
+        -- `SimpleScopedEnvExtension`
+        `Lean.Meta.globalInstanceExtension,
+        `Lean.Meta.instanceExtension,
+        `Lean.Meta.simpExtension] do
+        return (← useElab)
+
     let mut env ← importModulesUsingCache mod.imports leanOpts 1024
     -- Apply constants (does not go through the kernel, so order is irrelevant)
     env := mod.constants.foldl add env
@@ -117,7 +161,4 @@ def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
         for ent in ents do
           env := extDescrs[entryIdx]!.addEntry env ent
     return env
-  else
-    let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
-    Lean.writeModule env olean
-    return env
+  else useElab

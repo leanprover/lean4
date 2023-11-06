@@ -83,19 +83,22 @@ def structuralRecursion (preDefs : Array PreDefinition) : TermElabM Unit :=
   else do
     let ((recArgPos, preDefNonRec), state) ← run <| elimRecursion preDefs[0]!
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec
-    let preDef ← eraseRecAppSyntax preDefs[0]!
+    let mut preDef ← eraseRecAppSyntax preDefs[0]!
     state.addMatchers.forM liftM
+    mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
+      m!"structural recursion failed, produced type incorrect term{indentD msg}"
+    -- We create the `_unsafe_rec` before we abstract nested proofs.
+    -- Reason: the nested proofs may be referring to the _unsafe_rec.
+    addAndCompilePartialRec #[preDef]
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
+        preDef ← abstractNestedProofs preDef
         /-
         Don't save predefinition info for equation generator
         for theorems and definitions that are propositions.
         See issue #2327
         -/
         registerEqnsInfo preDef recArgPos
-    mapError (addNonRec preDefNonRec (applyAttrAfterCompilation := false)) fun msg =>
-      m!"structural recursion failed, produced type incorrect term{indentD msg}"
-    addAndCompilePartialRec #[preDef]
     addSmartUnfoldingDef preDef recArgPos
     applyAttributesOf #[preDefNonRec] AttributeApplicationTime.afterCompilation
 

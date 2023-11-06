@@ -160,7 +160,7 @@ def L₁.{u} := List (Type u)
 -- def L₂ := List (Type u) -- error: `unknown universe level 'u'`
 
 universe u
-universe L₃ := List (Type u)
+def L₃ := List (Type u)
 ```
 
 ## Examples

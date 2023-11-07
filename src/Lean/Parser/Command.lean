@@ -52,8 +52,13 @@ def terminationByElement   := leading_parser
 def terminationBy          := leading_parser
   ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
 
+def derecursifyWith := leading_parser
+  ppDedent ppLine >> "derecursify_with " >> termParser
+
 def terminationSuffix :=
-  optional (terminationBy <|> terminationByCore) >> optional decreasingBy
+  optional derecursifyWith >>
+  optional (terminationBy <|> terminationByCore) >>
+  optional decreasingBy
 
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|

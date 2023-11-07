@@ -192,7 +192,9 @@ def getTerminationHints (stx : Syntax) : TerminationHints :=
   let k := decl.getKind
   if k == ``Parser.Command.def || k == ``Parser.Command.abbrev || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
     let args := decl.getArgs
-    { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
+    { derecursifyWith? := args[args.size - 3]!.getOptional?,
+      terminationBy? := args[args.size - 2]!.getOptional?,
+      decreasingBy? := args[args.size - 1]!.getOptional? }
   else
     {}
 
@@ -332,7 +334,7 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual»]
 def elabMutual : CommandElab := fun stx => do
-  let hints := { terminationBy? := stx[3].getOptional?, decreasingBy? := stx[4].getOptional? }
+  let hints := { terminationBy? := stx[4].getOptional?, decreasingBy? := stx[5].getOptional? }
   if isMutualInductive stx then
     if let some bad := hints.terminationBy? then
       throwErrorAt bad "invalid 'termination_by' in mutually inductive datatype declaration"

@@ -8,12 +8,14 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural
 import Lean.Elab.PreDefinition.WF.Main
 import Lean.Elab.PreDefinition.MkInhabitant
+import Lean.Elab.Eval
 
 namespace Lean.Elab
 open Meta
 open Term
 
 structure TerminationHints where
+  derecursifyWith? : Option Syntax := none
   terminationBy? : Option Syntax := none
   decreasingBy? : Option Syntax := none
   deriving Inhabited
@@ -68,6 +70,10 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
   else
     return preDef
 
+/-- Code that turns a predefinition into non-recursive definitions and adds them to the environment
+-/
+def Derecursifier := Array PreDefinition → TermElabM Unit
+
 /--
   Letrec declarations produce terms of the form `(fun .. => ..) d` where `d` is a (partial) application of an auxiliary declaration for a letrec declaration.
   This method beta-reduces them to make sure they can be eliminated by the well-founded recursion module. -/
@@ -93,6 +99,9 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
       addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
+
+@[implemented_by Term.evalTerm]
+opaque evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α
 
 def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
@@ -125,24 +134,28 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
       addAndCompilePartial preDefs
     else
       try
-        let mut wf? := none
-        let mut decrTactic? := none
-        if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
-          wf? := some wf
-          terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
-        if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
-          decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
-        if wf?.isSome || decrTactic?.isSome then
-          wfRecursion preDefs wf? decrTactic?
+        if let some s := hints.derecursifyWith? then
+          let derec ← evalTerm Derecursifier (mkConst ``Derecursifier) s[1]
+          derec preDefs
         else
-          withRef (preDefs[0]!.ref) <| mapError
-            (orelseMergeErrors
-              (structuralRecursion preDefs)
-              (wfRecursion preDefs none none))
-            (fun msg =>
-              let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-              m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+          let mut wf? := none
+          let mut decrTactic? := none
+          if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
+            wf? := some wf
+            terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
+          if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
+            decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
+            decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
+          if wf?.isSome || decrTactic?.isSome then
+            wfRecursion preDefs wf? decrTactic?
+          else
+            withRef (preDefs[0]!.ref) <| mapError
+              (orelseMergeErrors
+                (structuralRecursion preDefs)
+                (wfRecursion preDefs none none))
+              (fun msg =>
+                let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+                m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
       catch ex =>
         hasErrors := true
         logException ex

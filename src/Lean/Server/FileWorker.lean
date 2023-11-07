@@ -213,7 +213,8 @@ section Initialization
           if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
             let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx) hOut
             srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
-        Elab.processHeader headerStx opts msgLog m.mkInputContext
+        -- allow `headerEnv` to be leaked, which would live until the end of the process anyway
+        Elab.processHeader (leakEnv := true) headerStx opts msgLog m.mkInputContext
       catch e =>  -- should be from `lake print-paths`
         let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
         pure (← mkEmptyEnvironment, msgs)

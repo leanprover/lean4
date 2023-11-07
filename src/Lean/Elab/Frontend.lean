@@ -102,7 +102,8 @@ def runFrontend
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header opts messages inputCtx trustLevel
+  -- allow `env` to be leaked, which would live until the end of the process anyway
+  let (env, messages) ← processHeader (leakEnv := true) header opts messages inputCtx trustLevel
   let env := env.setMainModule mainModuleName
   let mut commandState := Command.mkState env messages opts
 

@@ -48,6 +48,12 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: import Lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Lean.lean
+- attributes:
     description: tests/compiler
     tags: [deterministic, slow]
   run_config:

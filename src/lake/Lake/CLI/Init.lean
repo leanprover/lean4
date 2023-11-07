@@ -17,9 +17,7 @@ open Git System
 def defaultExeRoot : Name := `Main
 
 def gitignoreContents :=
-s!"/{defaultBuildDir}
-/{defaultConfigFile.withExtension "olean"}
-/{defaultPackagesDir}/*
+s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=

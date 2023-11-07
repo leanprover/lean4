@@ -30,10 +30,11 @@ def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array 
 Elaborate a dependency's configuration file into a `Package`.
 The resulting package does not yet include any dependencies.
 -/
-def loadDepPackage (wsDir : FilePath) (dep : MaterializedDep)
+def MaterializedDep.loadPackage (dep : MaterializedDep) (wsDir : FilePath)
 (leanOpts : Options) (lakeOpts : NameMap String) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
-  let configEnv ← importConfigFile wsDir dir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
+  let lakeDir := dir / defaultLakeDir
+  let configEnv ← importConfigFile wsDir dir lakeDir lakeOpts leanOpts (dir / defaultConfigFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir, config, configEnv, leanOpts
@@ -46,7 +47,8 @@ Does not resolve dependencies.
 -/
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
-  let configEnv ← importConfigFile config.rootDir config.rootDir
+  let configEnv ← importConfigFile
+    config.rootDir config.rootDir (config.rootDir / defaultLakeDir)
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let root := {
@@ -115,7 +117,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
           return (pkg, dep.relPkgDir)
         else
           -- Load the package
-          let depPkg ← loadDepPackage ws.dir dep pkg.leanOpts dep.opts reconfigure
+          let depPkg ← dep.loadPackage ws.dir pkg.leanOpts dep.opts reconfigure
           if depPkg.name ≠ dep.name then
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
@@ -131,7 +133,11 @@ def Workspace.updateAndMaterialize (ws : Workspace)
   match res with
   | (.ok root, deps) =>
     let ws : Workspace ← {ws with root}.finalize
-    let manifest : Manifest := {name? := ws.root.name, packagesDir? := ws.relPkgsDir}
+    let manifest : Manifest := {
+      name? := ws.root.name
+      lakeDir? := ws.relLakeDir
+      packagesDir? := ws.relPkgsDir
+    }
     let manifest := ws.packages.foldl (init := manifest) fun manifest pkg =>
       match deps.find? pkg.name with
       | some dep => manifest.addPackage dep.manifestEntry
@@ -182,7 +188,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
           let result ← entry.materialize ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
           -- Union manifest and configuration options (preferring manifest)
           let opts := entry.opts.mergeBy (fun _ e _ => e) dep.opts
-          loadDepPackage ws.dir result pkg.leanOpts opts reconfigure
+          result.loadPackage ws.dir pkg.leanOpts opts reconfigure
         else if topLevel then
           error <|
             s!"dependency '{dep.name}' not in manifest; " ++
@@ -221,4 +227,3 @@ def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   discard <| ws.updateAndMaterialize toUpdate rc
-

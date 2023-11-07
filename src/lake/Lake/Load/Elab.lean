@@ -83,9 +83,11 @@ Import the OLean for the configuration file if `reconfigure` is not set
 and an up-to-date one exists (i.e., one newer than the configuration and the
 toolchain). Otherwise, elaborate the configuration and save it to the OLean.
 -/
-def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
+def importConfigFile (wsDir pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
-  let olean := configFile.withExtension "olean"
+  let some configName := FilePath.mk <$> configFile.fileName
+    | error "invalid configuration file name"
+  let olean := lakeDir / configName.withExtension "olean"
   let useOLean ← id do
     if reconfigure then return false
     let .ok oleanMTime ← getMTime olean |>.toBaseIO | return false
@@ -118,6 +120,7 @@ def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
           env := extDescrs[entryIdx]!.addEntry env ent
     return env
   else
+    IO.FS.createDirAll lakeDir
     let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
     Lean.writeModule env olean
     return env

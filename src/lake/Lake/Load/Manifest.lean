@@ -54,6 +54,7 @@ end PackageEntry
 /-- Manifest data structure that is serialized to the file. -/
 structure Manifest where
   name? : Option Name := none
+  lakeDir? : Option FilePath := none
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
 
@@ -72,11 +73,12 @@ instance : ForIn m Manifest PackageEntry where
   forIn self init f := self.packages.forIn init f
 
 protected def toJson (self : Manifest) : Json :=
-  Json.mkObj <| .join [
-    [("version", version)],
-    Json.opt "name" self.name?,
-    [("packagesDir", toJson self.packagesDir?)],
-    [("packages", toJson self.packages)]
+  Json.mkObj [
+    ("version", version),
+    ("name", toJson self.name?),
+    ("lakeDir", toJson self.lakeDir?),
+    ("packagesDir", toJson self.packagesDir?),
+    ("packages", toJson self.packages)
   ]
 
 instance : ToJson Manifest := ⟨Manifest.toJson⟩

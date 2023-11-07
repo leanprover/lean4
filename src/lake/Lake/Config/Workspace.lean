@@ -46,6 +46,14 @@ namespace Workspace
 @[inline] def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
+/-- The path to the workspace' Lake directory relative to `dir`. -/
+@[inline] def relLakeDir (self : Workspace) : FilePath :=
+  self.root.relLakeDir
+
+/-- The the full path to the workspace's Lake directory (e.g., `.lake`). -/
+@[inline] def lakeDir (self : Workspace) : FilePath :=
+  self.root.lakeDir
+
 /-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] def relPkgsDir (self : Workspace) : FilePath :=
   self.root.relPkgsDir

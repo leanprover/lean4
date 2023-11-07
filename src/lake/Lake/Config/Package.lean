@@ -115,9 +115,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The directory to which Lake should output the package's build results.
-  Defaults to `defaultBuildDir` (i.e., `build`).
+  Defaults to `defaultLakeDir / defaultBuildDir` (i.e., `.lake/build`).
   -/
-  buildDir : FilePath := defaultBuildDir
+  buildDir : FilePath := defaultLakeDir / defaultBuildDir
 
   /--
   The build subdirectory to which Lake should output the package's
@@ -264,11 +264,19 @@ namespace Package
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
+/-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
+@[inline] def relLakeDir (_ : Package) : FilePath :=
+  defaultLakeDir
+
+/-- The full path to the package's Lake directory (i.e, `dir` joined with `relLakeDir`). -/
+@[inline] def lakeDir (self : Package) : FilePath :=
+  self.dir / self.relLakeDir
+
 /-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
 @[inline] def relPkgsDir (self : Package) : FilePath :=
   self.config.packagesDir
 
-/-- The package's `dir` joined with its `relPkgsDir` -/
+/-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
@@ -296,9 +304,9 @@ namespace Package
 @[inline] def buildArchive (self : Package) : String :=
   nameToArchive self.buildArchive?
 
-/-- The package's `buildDir` joined with its `buildArchive` configuration. -/
+/-- The package's `lakeDir` joined with its `buildArchive` configuration. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
-  self.buildDir / self.buildArchive
+  self.lakeDir / self.buildArchive
 
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=

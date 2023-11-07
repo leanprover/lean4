@@ -10,35 +10,23 @@ import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.Script
+import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
-import Lake.Load.Config
+import Lake.Util.Platform
 
 open System Lean
 
 namespace Lake
 
-/-- A string descriptor of the `System.Platform` OS (`windows`, `macOS`, or `linux`). -/
-def osDescriptor : String :=
-  if Platform.isWindows then
-    "windows"
-  else if Platform.isOSX then
-    "macOS"
-  else
-    "linux"
-
 /--
-A `tar.gz` file name suffix encoding the the current Platform.
-(i.e, `osDescriptor` joined with `System.Platform.numBits`).
+Platform-specific archive file with an optional name prefix
+(i.e., `{name}-{platformDescriptor}.tar.gz`).
 -/
-def archiveSuffix :=
-  s!"{osDescriptor}-{Platform.numBits}.tar.gz"
-
-/-- If `name?`, `{name}-{archiveSuffix}`, otherwise just `archiveSuffix`. -/
 def nameToArchive (name? : Option String) : String :=
   match name? with
-  | none => archiveSuffix
-  | some name => s!"{name}-{archiveSuffix}"
+  | none => s!"{platformDescriptor}.tar.gz"
+  | some name => s!"{name}-{platformDescriptor}.tar.gz"
 
 /--
 First tries to convert a string into a legal name.

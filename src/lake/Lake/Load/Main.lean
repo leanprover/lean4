@@ -34,7 +34,7 @@ def MaterializedDep.loadPackage (dep : MaterializedDep)
 (wsDir : FilePath) (leanOpts : Options) (reconfigure : Bool) : LogIO Package := do
   let dir := wsDir / dep.relPkgDir
   let lakeDir := dir / defaultLakeDir
-  let configEnv ← importConfigFile wsDir dir lakeDir dep.configOpts leanOpts (dir / dep.configFile) reconfigure
+  let configEnv ← importConfigFile dir lakeDir dep.configOpts leanOpts (dir / dep.configFile) reconfigure
   let config ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv leanOpts
   return {
     dir
@@ -51,7 +51,7 @@ Does not resolve dependencies.
 def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.env.leanSearchPath
   let configEnv ← importConfigFile
-    config.rootDir config.rootDir (config.rootDir / defaultLakeDir)
+    config.rootDir (config.rootDir / defaultLakeDir)
     config.configOpts config.leanOpts config.configFile config.reconfigure
   let pkgConfig ← IO.ofExcept <| PackageConfig.loadFromEnv configEnv config.leanOpts
   let root := {

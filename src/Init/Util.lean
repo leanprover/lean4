@@ -96,11 +96,10 @@ macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 def Runtime.markMultiThreaded (a : α) : α := a
 
 /--
-  Marks given value and its object graph closure as multi-threaded if currently
-  marked single-threaded. This will remove reference counter updates but prevent
-  the closure from being deallocated until the end of the process! It can still
-  be useful to do eagerly when the value will be marked persistent later anyway
-  and there is available time budget to mark it now or it would be unnecessarily
-  marked multi-threaded in between. -/
+  Marks given value and its object graph closure as persistent. This will remove
+  reference counter updates but prevent the closure from being deallocated until
+  the end of the process! It can still be useful to do eagerly when the value
+  will be marked persistent later anyway and there is available time budget to
+  mark it now or it would be unnecessarily marked multi-threaded in between. -/
 @[extern "lean_runtime_mark_persistent"]
 def Runtime.markPersistent (a : α) : α := a

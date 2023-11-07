@@ -100,8 +100,12 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-@[implemented_by Term.evalTerm]
-opaque evalTerm (α) (type : Expr) (value : Syntax) (safety := DefinitionSafety.safe) : TermElabM α
+
+unsafe def evalDerecursifierImpl (value : Syntax) : TermElabM Derecursifier :=
+  evalTerm Derecursifier (mkConst ``Derecursifier) value
+
+@[implemented_by evalDerecursifierImpl]
+opaque evalDerecursifier (value : Syntax)  : TermElabM Derecursifier
 
 def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
@@ -135,7 +139,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
     else
       try
         if let some s := hints.derecursifyWith? then
-          let derec ← evalTerm Derecursifier (mkConst ``Derecursifier) s[1]
+          let derec ← evalDerecursifier s[1]
           derec preDefs
         else
           let mut wf? := none

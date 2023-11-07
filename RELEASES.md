@@ -15,6 +15,7 @@ v4.4.0 (development in progress)
 * **Lake:** Moved the default build directory (e.g., `build`), default packages directory (e.g., `lake-packages`), and the compiled configuration (e.g., `lakefile.olean`) into a new dedicated directory for Lake outputs, `.lake`. The cloud release build archives are also stored here, fixing [#2713](https://github.com/leanprover/lean4/issues/2713).
 * **Lake:** Update manifest format to version 7 (see [lean4#2801](https://github.com/leanprover/lean4/pull/2801) for details on the changes).
 * **Lake:** Deprecate the `manifestFile` field of a package configuration.
+* **Lake:** There is now a more rigorous check on `lakefile.olean` compatibility (see [#2842](https://github.com/leanprover/lean4/pull/2842) for more details).
 
 v4.3.0
 ---------

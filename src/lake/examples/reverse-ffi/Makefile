@@ -1,3 +1,5 @@
+LAKE ?= lake
+
 .PHONY: all run run-local lake
 
 all: run run-local
@@ -5,7 +7,7 @@ all: run run-local
 # Link C binary against Lake package dynamic library
 
 lake:
-	lake --dir=lib build
+	$(LAKE) --dir=lib build
 
 OUT_DIR = out
 LEAN_SYSROOT ?= $(shell lean --print-prefix)

@@ -6910,7 +6910,7 @@ static lean_object* _init_l_Lean_TagDeclarationExtension_tag___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor? declName |>.isNone -- See comment at `TagDeclarationExtension`\n  ", 86);
+x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor\? declName |>.isNone -- See comment at `TagDeclarationExtension`\n  ", 86);
 return x_1;
 }
 }
@@ -7367,7 +7367,7 @@ static lean_object* _init_l_Lean_MapDeclarationExtension_insert___rarg___closed_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`\n  ", 86);
+x_1 = lean_mk_string_from_bytes("env.getModuleIdxFor\? declName |>.isNone -- See comment at `MapDeclarationExtension`\n  ", 86);
 return x_1;
 }
 }

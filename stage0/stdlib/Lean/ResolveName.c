@@ -3319,7 +3319,7 @@ static lean_object* _init_l_Lean_ResolveName_resolveNamespaceUsingScope_x3f___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.ResolveName.resolveNamespaceUsingScope?", 44);
+x_1 = lean_mk_string_from_bytes("Lean.ResolveName.resolveNamespaceUsingScope\?", 44);
 return x_1;
 }
 }

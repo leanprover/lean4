@@ -3834,7 +3834,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fullRange?", 10);
+x_1 = lean_mk_string_from_bytes("fullRange\?", 10);
 return x_1;
 }
 }
@@ -3882,7 +3882,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("severity?", 9);
+x_1 = lean_mk_string_from_bytes("severity\?", 9);
 return x_1;
 }
 }
@@ -3930,7 +3930,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("code?", 5);
+x_1 = lean_mk_string_from_bytes("code\?", 5);
 return x_1;
 }
 }
@@ -3978,7 +3978,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("source?", 7);
+x_1 = lean_mk_string_from_bytes("source\?", 7);
 return x_1;
 }
 }
@@ -4046,7 +4046,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("tags?", 5);
+x_1 = lean_mk_string_from_bytes("tags\?", 5);
 return x_1;
 }
 }
@@ -4094,7 +4094,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("relatedInformation?", 19);
+x_1 = lean_mk_string_from_bytes("relatedInformation\?", 19);
 return x_1;
 }
 }
@@ -4142,7 +4142,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("data?", 5);
+x_1 = lean_mk_string_from_bytes("data\?", 5);
 return x_1;
 }
 }
@@ -6045,7 +6045,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("version?", 8);
+x_1 = lean_mk_string_from_bytes("version\?", 8);
 return x_1;
 }
 }

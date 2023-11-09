@@ -5719,7 +5719,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_Specialize_specializeApp_x3f___la
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Specialize.specializeApp?", 44);
+x_1 = lean_mk_string_from_bytes("Lean.Compiler.LCNF.Specialize.specializeApp\?", 44);
 return x_1;
 }
 }

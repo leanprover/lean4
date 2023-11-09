@@ -11143,7 +11143,7 @@ static lean_object* _init_l_Lean_Parser_Term_syntheticHole___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("?", 1);
+x_1 = lean_mk_string_from_bytes("\?", 1);
 return x_1;
 }
 }
@@ -11232,7 +11232,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_syntheticHole_docStrin
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("Parses a \"synthetic hole\", that is, `?foo` or `?_`.\nThis syntax is used to construct named metavariables. ", 106);
+x_1 = lean_mk_string_from_bytes("Parses a \"synthetic hole\", that is, `\?foo` or `\?_`.\nThis syntax is used to construct named metavariables. ", 106);
 return x_1;
 }
 }
@@ -46788,7 +46788,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_withDeclName_docString
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("* `with_decl_name% id e` elaborates `e` in a context while changing the effective\n  declaration name to `id`.\n* `with_decl_name% ?id e` does the same, but resolves `id` as a new definition name\n  (appending the current namespaces).\n", 232);
+x_1 = lean_mk_string_from_bytes("* `with_decl_name% id e` elaborates `e` in a context while changing the effective\n  declaration name to `id`.\n* `with_decl_name% \?id e` does the same, but resolves `id` as a new definition name\n  (appending the current namespaces).\n", 232);
 return x_1;
 }
 }

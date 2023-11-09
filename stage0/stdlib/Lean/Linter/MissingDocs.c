@@ -2571,8 +2571,6 @@ else
 lean_object* x_44; lean_object* x_45; 
 x_44 = lean_box(0);
 x_45 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_1231____lambda__1(x_8, x_15, x_1, x_44, x_4, x_5, x_16);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_8);
 return x_45;
 }
@@ -2583,8 +2581,6 @@ lean_object* x_46; lean_object* x_47;
 lean_dec(x_29);
 x_46 = lean_box(0);
 x_47 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_1231____lambda__1(x_8, x_15, x_1, x_46, x_4, x_5, x_16);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_8);
 return x_47;
 }
@@ -3549,8 +3545,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_1231____lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_8;

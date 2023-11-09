@@ -502,7 +502,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("insertReplaceSupport?", 21);
+x_1 = lean_mk_string_from_bytes("insertReplaceSupport\?", 21);
 return x_1;
 }
 }
@@ -842,7 +842,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("completionItem?", 15);
+x_1 = lean_mk_string_from_bytes("completionItem\?", 15);
 return x_1;
 }
 }
@@ -1284,7 +1284,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("completion?", 11);
+x_1 = lean_mk_string_from_bytes("completion\?", 11);
 return x_1;
 }
 }
@@ -1332,7 +1332,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeAction?", 11);
+x_1 = lean_mk_string_from_bytes("codeAction\?", 11);
 return x_1;
 }
 }
@@ -1922,7 +1922,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("showDocument?", 13);
+x_1 = lean_mk_string_from_bytes("showDocument\?", 13);
 return x_1;
 }
 }
@@ -2155,7 +2155,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("groupsOnLabel?", 14);
+x_1 = lean_mk_string_from_bytes("groupsOnLabel\?", 14);
 return x_1;
 }
 }
@@ -2519,7 +2519,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("documentChanges?", 16);
+x_1 = lean_mk_string_from_bytes("documentChanges\?", 16);
 return x_1;
 }
 }
@@ -2567,7 +2567,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("changeAnnotationSupport?", 24);
+x_1 = lean_mk_string_from_bytes("changeAnnotationSupport\?", 24);
 return x_1;
 }
 }
@@ -2615,7 +2615,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resourceOperations?", 19);
+x_1 = lean_mk_string_from_bytes("resourceOperations\?", 19);
 return x_1;
 }
 }
@@ -3083,7 +3083,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspaceEdit?", 14);
+x_1 = lean_mk_string_from_bytes("workspaceEdit\?", 14);
 return x_1;
 }
 }
@@ -3683,7 +3683,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocument?", 13);
+x_1 = lean_mk_string_from_bytes("textDocument\?", 13);
 return x_1;
 }
 }
@@ -3731,7 +3731,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("window?", 7);
+x_1 = lean_mk_string_from_bytes("window\?", 7);
 return x_1;
 }
 }
@@ -3779,7 +3779,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("workspace?", 10);
+x_1 = lean_mk_string_from_bytes("workspace\?", 10);
 return x_1;
 }
 }
@@ -4812,7 +4812,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textDocumentSync?", 17);
+x_1 = lean_mk_string_from_bytes("textDocumentSync\?", 17);
 return x_1;
 }
 }
@@ -4860,7 +4860,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("completionProvider?", 19);
+x_1 = lean_mk_string_from_bytes("completionProvider\?", 19);
 return x_1;
 }
 }
@@ -5268,7 +5268,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("semanticTokensProvider?", 23);
+x_1 = lean_mk_string_from_bytes("semanticTokensProvider\?", 23);
 return x_1;
 }
 }
@@ -5316,7 +5316,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Capabilities_0__Lean_Lsp_fro
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("codeActionProvider?", 19);
+x_1 = lean_mk_string_from_bytes("codeActionProvider\?", 19);
 return x_1;
 }
 }

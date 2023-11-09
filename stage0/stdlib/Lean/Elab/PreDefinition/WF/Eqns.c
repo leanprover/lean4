@@ -4028,7 +4028,7 @@ static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Eqns_0__Lean_El
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.tryToFoldLHS?", 69);
+x_1 = lean_mk_string_from_bytes("_private.Lean.Elab.PreDefinition.WF.Eqns.0.Lean.Elab.WF.tryToFoldLHS\?", 69);
 return x_1;
 }
 }

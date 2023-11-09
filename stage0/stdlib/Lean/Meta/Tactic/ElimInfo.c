@@ -691,7 +691,7 @@ static lean_object* _init_l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_rep
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("declName?", 9);
+x_1 = lean_mk_string_from_bytes("declName\?", 9);
 return x_1;
 }
 }

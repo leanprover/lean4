@@ -97,6 +97,10 @@ def insert : KVMap → Name → DataValue → KVMap
 def contains (m : KVMap) (n : Name) : Bool :=
   (m.find n).isSome
 
+/-- Erase an entry from the map -/
+def erase : KVMap → Name → KVMap
+  | ⟨m⟩, k => ⟨m.filter fun a => a.1 ≠ k⟩
+
 def getString (m : KVMap) (k : Name) (defVal := "") : String :=
   match m.find k with
   | some (DataValue.ofString v) => v
@@ -145,6 +149,30 @@ def setName (m : KVMap) (k : Name) (v : Name) : KVMap :=
 def setSyntax (m : KVMap) (k : Name) (v : Syntax) : KVMap :=
   m.insert k (DataValue.ofSyntax v)
 
+/-- Update a `String` entry based on its current value. -/
+def updateString (m : KVMap) (k : Name) (f : String → String) : KVMap :=
+  m.insert k <| DataValue.ofString <| f <| m.getString k
+
+/-- Update a `Nat` entry based on its current value. -/
+def updateNat (m : KVMap) (k : Name) (f : Nat → Nat) : KVMap :=
+  m.insert k <| DataValue.ofNat <| f <| m.getNat k
+
+/-- Update an `Int` entry based on its current value. -/
+def updateInt (m : KVMap) (k : Name) (f : Int → Int) : KVMap :=
+  m.insert k <| DataValue.ofInt <| f <| m.getInt k
+
+/-- Update a `Bool` entry based on its current value. -/
+def updateBool (m : KVMap) (k : Name) (f : Bool → Bool) : KVMap :=
+  m.insert k <| DataValue.ofBool <| f <| m.getBool k
+
+/-- Update a `Name` entry based on its current value. -/
+def updateName (m : KVMap) (k : Name) (f : Name → Name) : KVMap :=
+  m.insert k <| DataValue.ofName <| f <| m.getName k
+
+/-- Update a `Syntax` entry based on its current value. -/
+def updateSyntax (m : KVMap) (k : Name) (f : Syntax → Syntax) : KVMap :=
+  m.insert k <| DataValue.ofSyntax <| f <| m.getSyntax k
+
 @[inline] protected def forIn.{w, w'} {δ : Type w} {m : Type w → Type w'} [Monad m]
   (kv : KVMap) (init : δ) (f : Name × DataValue → δ → m (ForInStep δ)) : m δ :=
   kv.entries.forIn init f
@@ -180,6 +208,11 @@ class Value (α : Type) where
 
 @[inline] def set {α : Type} [Value α] (m : KVMap) (k : Name) (v : α) : KVMap :=
   m.insert k (Value.toDataValue v)
+
+@[inline] def update {α : Type} [Value α] (m : KVMap) (k : Name) (f : Option α → Option α) : KVMap :=
+  match f (m.get? k) with
+  | some a => m.set k a
+  | none => m.erase k
 
 instance : Value DataValue where
   toDataValue  := id

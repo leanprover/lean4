@@ -310,12 +310,14 @@ protected def upload : CliM PUnit := do
   noArgsRem do
     liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
-protected def printPaths : CliM PUnit := do
+protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
-  printPaths loadConfig (← takeArgs) buildConfig opts.verbosity
+  let filePath ← takeArg "file path"
+  let imports ← takeArgs
+  setupFile loadConfig filePath imports buildConfig opts.verbosity
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -389,7 +391,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
-| "print-paths"         => lake.printPaths
+| "setup-file"          => lake.setupFile
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list

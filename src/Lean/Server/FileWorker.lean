@@ -12,7 +12,7 @@ import Lean.Environment
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Util.Paths
+import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
 
 import Lean.Server.Utils
@@ -155,11 +155,13 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-  /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
+  /-- Use `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
-  source files. -/
-  partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let mut args := #["print-paths"] ++ imports.map (toString ·.module)
+  source files and the options for the file. -/
+  partial def lakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO (SearchPath × Options) := do
+    let some filePath := System.Uri.fileUriToPath? m.uri
+      | return ([], Options.empty) -- untitled files have no search path and no associated `moreServerArgs`
+    let mut args := #["setup-file", filePath.toString] ++ imports.map (toString ·.module)
     if m.dependencyBuildMode matches .never then
       args := args.push "--no-build"
     let cmdStr := " ".intercalate (toString lakePath :: args.toList)
@@ -183,12 +185,13 @@ section Initialization
     let stderr ← IO.ofExcept stderr.get
     match (← lakeProc.wait) with
     | 0 =>
-      let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
+      let Except.ok (info : FileSetupInfo) ← pure (Json.parse stdout >>= fromJson?)
         | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      initSearchPath (← getBuildDir) paths.oleanPath
-      paths.loadDynlibPaths.forM loadDynlib
-      paths.srcPath.mapM realPathNormalized
-    | 2 => pure []  -- no lakefile.lean
+      initSearchPath (← getBuildDir) info.paths.oleanPath
+      info.paths.loadDynlibPaths.forM loadDynlib
+      let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
+      return (pkgSearchPath, info.setupOptions.toOptions)
+    | 2 => pure ([], Options.empty)  -- no lakefile.lean
     -- error from `--no-build`
     | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{stdout}"
     | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
@@ -198,6 +201,7 @@ section Initialization
     -- parsing should not take long, do synchronously
     let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
     (headerStx, ·) <$> EIO.asTask do
+      let mut opts := opts
       let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
       let lakePath ← match (← IO.getEnv "LAKE") with
         | some path => pure <| System.FilePath.mk path
@@ -211,8 +215,10 @@ section Initialization
           -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
           -- NOTE: lake does not exist in stage 0 (yet?)
           if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
-            let pkgSearchPath ← lakeSetupSearchPath lakePath m (Lean.Elab.headerToImports headerStx) hOut
+            let (pkgSearchPath, fileOptions) ← lakeSetupFile lakePath m (Lean.Elab.headerToImports headerStx) hOut
             srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
+            -- file options take priority
+            opts := opts.mergeBy (fun _ _ fileOpt => fileOpt) fileOptions
         -- allow `headerEnv` to be leaked, which would live until the end of the process anyway
         Elab.processHeader (leakEnv := true) headerStx opts msgLog m.mkInputContext
       catch e =>  -- should be from `lake print-paths`

@@ -9,7 +9,7 @@ import Lake.Util.MainM
 import Lean.Util.FileSetupInfo
 
 namespace Lake
-open Lean (Json toJson fromJson? LeanPaths ServerOptions searchModuleNameOfFileName FileSetupInfo)
+open Lean
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2

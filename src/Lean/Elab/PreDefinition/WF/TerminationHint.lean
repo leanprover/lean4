@@ -54,7 +54,6 @@ def TerminationHint.markAsUsed (t : TerminationHint) (clique : Array Name) : Ter
     for declName in clique do
       if m.contains declName then
         let m := m.erase declName
-        let m := m.erase declName
         if m.isEmpty then
           return TerminationHint.none
         else

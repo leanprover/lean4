@@ -62,8 +62,23 @@ def readMessage : IpcM JsonRpc.Message := do
 def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
   (←stdout).readLspRequestAs expectedMethod α
 
-def readResponseAs (expectedID : RequestID) (α) [FromJson α] : IpcM (Response α) := do
-  (←stdout).readLspResponseAs expectedID α
+/--
+  Reads response, discarding notifications in between. This function is meant
+  purely for testing where we use `collectDiagnostics` explicitly if we do care
+  about such notifications. -/
+partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
+    IpcM (Response α) := do
+  let m ← (←stdout).readLspMessage
+  match m with
+  | Message.response id result =>
+    if id == expectedID then
+      match fromJson? result with
+      | Except.ok v => pure ⟨expectedID, v⟩
+      | Except.error inner => throw $ userError s!"Unexpected result '{result.compress}'\n{inner}"
+    else
+      throw $ userError s!"Expected id {expectedID}, got id {id}"
+  | .notification .. => readResponseAs expectedID α
+  | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
 
 def waitForExit : IpcM UInt32 := do
   (←read).wait

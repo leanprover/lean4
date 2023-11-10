@@ -1,8 +1,8 @@
-{"textDocument": {"uri": "file://completion7.lean"},
+{"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 6, "character": 10}}
 {"items": [{"label": "And", "kind": 22, "detail": "Type 1"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion7.lean"},
+{"textDocument": {"uri": "file:///completion7.lean"},
  "position": {"line": 8, "character": 11}}
 {"items":
  [{"label": "left", "kind": 5, "detail": "And → Type"},

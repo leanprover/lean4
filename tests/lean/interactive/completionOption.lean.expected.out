@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 1, "character": 17}}
 {"items":
  [{"textEdit":
@@ -71,7 +71,7 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 4, "character": 20}}
 {"items":
  [{"textEdit":
@@ -98,7 +98,7 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 7, "character": 23}}
 {"items":
  [{"textEdit":
@@ -150,7 +150,7 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 10, "character": 27}}
 {"items":
  [{"textEdit":
@@ -202,7 +202,7 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 13, "character": 17}}
 {"items":
  [{"textEdit":
@@ -275,7 +275,7 @@
    "detail":
    "(false), enable/disable tracing for the given module and submodules"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completionOption.lean"},
+{"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 16, "character": 18}}
 {"items":
  [{"textEdit":

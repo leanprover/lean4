@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 3, "character": 8}}
 {"range":
  {"start": {"line": 3, "character": 8}, "end": {"line": 3, "character": 18}},
@@ -6,7 +6,7 @@
  {"value":
   "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 7, "character": 8}}
 {"range":
  {"start": {"line": 7, "character": 8}, "end": {"line": 7, "character": 18}},
@@ -14,7 +14,7 @@
  {"value":
   "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 12, "character": 4}}
 {"range":
  {"start": {"line": 12, "character": 4}, "end": {"line": 12, "character": 12}},
@@ -22,17 +22,17 @@
  {"value":
   "```lean\nNat.zero : Nat\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 2}}
 {"range":
  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 23}},
  "contents": {"value": "My tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 8}}
 {"range":
  {"start": {"line": 21, "character": 2}, "end": {"line": 21, "character": 23}},
  "contents": {"value": "My tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 21, "character": 13}}
 {"range":
  {"start": {"line": 21, "character": 13}, "end": {"line": 21, "character": 23}},
@@ -40,7 +40,7 @@
  {"value":
   "```lean\nTrue.intro : True\n```\n***\n`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 28, "character": 6}}
 {"range":
  {"start": {"line": 28, "character": 6}, "end": {"line": 28, "character": 12}},
@@ -48,7 +48,7 @@
  {"value":
   "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n***\n*import Init.Notation*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 28, "character": 32}}
 {"range":
  {"start": {"line": 28, "character": 32}, "end": {"line": 28, "character": 36}},
@@ -56,7 +56,7 @@
  {"value":
   "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 31, "character": 6}}
 {"range":
  {"start": {"line": 31, "character": 6}, "end": {"line": 31, "character": 12}},
@@ -64,7 +64,7 @@
  {"value":
   "```lean\nLean.Parser.Category.tactic : Lean.Parser.Category\n```\n***\n`tactic` is the builtin syntax category for tactics. These appear after\n`by` in proofs, and they are programs that take in the proof context\n(the hypotheses in scope plus the type of the term to synthesize) and construct\na term of the expected type. For example, `simp` is a tactic, used in:\n```\nexample : 2 + 2 = 4 := by simp\n```\n\n***\n*import Init.Notation*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 31, "character": 24}}
 {"range":
  {"start": {"line": 31, "character": 23}, "end": {"line": 31, "character": 27}},
@@ -72,49 +72,49 @@
  {"value":
   "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 36, "character": 2}}
 {"range":
  {"start": {"line": 36, "character": 2}, "end": {"line": 36, "character": 23}},
  "contents": {"value": "My tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 44, "character": 2}}
 {"range":
  {"start": {"line": 44, "character": 2}, "end": {"line": 44, "character": 23}},
  "contents": {"value": "My tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 49, "character": 16}}
 {"range":
  {"start": {"line": 49, "character": 15}, "end": {"line": 49, "character": 21}},
  "contents":
  {"value": "```lean\nmyNota : Lean.ParserDescr\n```\n***\nMy notation ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 52, "character": 7}}
 {"range":
  {"start": {"line": 52, "character": 7}, "end": {"line": 52, "character": 15}},
  "contents":
  {"value": "```lean\n1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 59, "character": 7}}
 {"range":
  {"start": {"line": 59, "character": 7}, "end": {"line": 59, "character": 15}},
  "contents":
  {"value": "```lean\nNat\n```\n***\nMy notation ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 69, "character": 7}}
 {"range":
  {"start": {"line": 69, "character": 7}, "end": {"line": 69, "character": 16}},
  "contents":
  {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 21}}
 {"range":
  {"start": {"line": 73, "character": 18}, "end": {"line": 73, "character": 25}},
  "contents":
  {"value": "```lean\nmyInfix : Lean.TrailingParserDescr\n```",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 39}}
 {"range":
  {"start": {"line": 73, "character": 38}, "end": {"line": 73, "character": 45}},
@@ -122,7 +122,7 @@
  {"value":
   "```lean\nNat.add (a✝a✝¹ : Nat) : Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 77, "character": 10}}
 {"range":
  {"start": {"line": 77, "character": 7}, "end": {"line": 77, "character": 14}},
@@ -130,7 +130,7 @@
  {"value":
   "```lean\nNat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 82, "character": 7}}
 {"range":
  {"start": {"line": 82, "character": 7}, "end": {"line": 82, "character": 8}},
@@ -138,7 +138,7 @@
  {"value":
   "```lean\nNat : Type\n```\n***\nThe type of natural numbers, starting at zero. It is defined as an\ninductive type freely generated by \"zero is a natural number\" and\n\"the successor of a natural number is a natural number\".\n\nYou can prove a theorem `P n` about `n : Nat` by `induction n`, which will\nexpect a proof of the theorem for `P 0`, and a proof of `P (succ i)` assuming\na proof of `P i`. The same method also works to define functions by recursion\non natural numbers: induction and recursion are two expressions of the same\noperation from lean's point of view.\n\n```\nopen Nat\nexample (n : Nat) : n < succ n := by\n  induction n with\n  | zero =>\n    show 0 < 1\n    decide\n  | succ i ih => -- ih : i < succ i\n    show succ i < succ (succ i)\n    exact Nat.succ_lt_succ ih\n```\n\nThis type is special-cased by both the kernel and the compiler:\n* The type of expressions contains \"`Nat` literals\" as a primitive constructor,\n  and the kernel knows how to reduce zero/succ expressions to nat literals.\n* If implemented naively, this type would represent a numeral `n` in unary as a\n  linked list with `n` links, which is horribly inefficient. Instead, the\n  runtime itself has a special representation for `Nat` which stores numbers up\n  to 2^63 directly and larger numbers use an arbitrary precision \"bignum\"\n  library (usually [GMP](https://gmplib.org/)).\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 87, "character": 14}}
 {"range":
  {"start": {"line": 87, "character": 14}, "end": {"line": 87, "character": 36}},
@@ -146,7 +146,7 @@
  {"value":
   "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 89, "character": 30}}
 {"range":
  {"start": {"line": 89, "character": 29}, "end": {"line": 89, "character": 34}},
@@ -154,17 +154,17 @@
  {"value":
   "```lean\nLean.Parser.Term.doSeq : Lean.Parser.Parser\n```\n***\nA `doSeq` is a sequence of `doElem`, the main argument after the `do` keyword and other\ndo elements that take blocks. It can either have the form `\"{\" (doElem \";\"?)* \"}\"` or\n`many1Indent (doElem \";\"?)`, where `many1Indent` ensures that all the items are at\nthe same or higher indentation level as the first line. \n***\n*import Lean.Parser.Do*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 92, "character": 2}}
 {"range":
  {"start": {"line": 92, "character": 0}, "end": {"line": 92, "character": 7}},
  "contents": {"value": "My command ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 99, "character": 2}}
 {"range":
  {"start": {"line": 99, "character": 0}, "end": {"line": 99, "character": 7}},
  "contents": {"value": "My command ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 102, "character": 16}}
 {"range":
  {"start": {"line": 102, "character": 16},
@@ -173,7 +173,7 @@
  {"value":
   "```lean\nLean.Parser.ppSpace : Lean.Parser.Parser\n```\n***\nNo-op parser that advises the pretty printer to emit a space/soft line break. \n***\n*import Lean.Parser.Extra*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 102, "character": 24}}
 {"range":
  {"start": {"line": 102, "character": 24},
@@ -182,7 +182,7 @@
  {"value":
   "```lean\nLean.ParserDescr.sepBy1 (p : Lean.ParserDescr) (sep : String) (psep : Lean.ParserDescr)\n  (allowTrailingSep : Bool := false) : Lean.ParserDescr\n```\n***\n`sepBy1` is just like `sepBy`, except it takes 1 or more instead of\n0 or more occurrences of `p`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 102, "character": 31}}
 {"range":
  {"start": {"line": 102, "character": 31},
@@ -191,12 +191,12 @@
  {"value":
   "```lean\nLean.Parser.Category.term : Lean.Parser.Category\n```\n***\n`term` is the builtin syntax category for terms. A term denotes an expression\nin lean's type theory, for example `2 + 2` is a term. The difference between\n`Term` and `Expr` is that the former is a kind of syntax, while the latter is\nthe result of elaboration. For example `by simp` is also a `Term`, but it elaborates\nto different `Expr`s depending on the context. \n***\n*import Init.Notation*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 111, "character": 2}}
 {"range":
  {"start": {"line": 111, "character": 0}, "end": {"line": 111, "character": 8}},
  "contents": {"value": "My ultimate command ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 115, "character": 10}}
 {"range":
  {"start": {"line": 115, "character": 8},
@@ -205,7 +205,7 @@
  {"value":
   "Structure instance. `{ x := e, ... }` assigns `e` to field `x`, which may be\ninherited. If `e` is itself a variable called `x`, it can be elided:\n`fun y => { x := 1, y }`.\nA *structure update* of an existing value can be given via `with`:\n`{ point with x := 1 }`.\nThe structure type can be specified if not inferable:\n`{ x := 1, y := 2 : Point }`.\n",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 119, "character": 8}}
 {"range":
  {"start": {"line": 119, "character": 8},
@@ -214,84 +214,84 @@
  {"value":
   "```lean\nid.{u} {α : Sort u} (a : α) : α\n```\n***\nThe identity function. `id` takes an implicit argument `α : Sort u`\n(a type in any universe), and an argument `a : α`, and returns `a`.\n\nAlthough this may look like a useless function, one application of the identity\nfunction is to explicitly put a type on an expression. If `e` has type `T`,\nand `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean\nknows that this expression has type `T'` rather than `T`. This can make a\ndifference for typeclass inference, since `T` and `T'` may have different\ntypeclass instances on them. `show T' from e` is sugar for an `@id T' e`\nexpression.\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 119, "character": 10}}
 {"range":
  {"start": {"line": 119, "character": 8},
   "end": {"line": 119, "character": 21}},
  "contents": {"value": "```lean\nTrue\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 126, "character": 2}}
 {"range":
  {"start": {"line": 126, "character": 2}, "end": {"line": 126, "character": 3}},
  "contents": {"value": "```lean\nn : Id ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 133, "character": 9}}
 {"range":
  {"start": {"line": 133, "character": 7},
   "end": {"line": 133, "character": 17}},
  "contents": {"value": "```lean\nfoo : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 138, "character": 7}}
 {"range":
  {"start": {"line": 138, "character": 7},
   "end": {"line": 138, "character": 10}},
  "contents": {"value": "```lean\nBar.foo : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 141, "character": 9}}
 {"range":
  {"start": {"line": 141, "character": 7},
   "end": {"line": 141, "character": 17}},
  "contents": {"value": "```lean\n_root_.foo : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 144, "character": 4}}
 {"range":
  {"start": {"line": 144, "character": 4}, "end": {"line": 144, "character": 7}},
  "contents": {"value": "```lean\nBar.bar : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 147, "character": 10}}
 {"range":
  {"start": {"line": 147, "character": 10},
   "end": {"line": 147, "character": 13}},
  "contents": {"value": "```lean\nBar.Foo : Type\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 147, "character": 17}}
 {"range":
  {"start": {"line": 147, "character": 17},
   "end": {"line": 147, "character": 19}},
  "contents":
  {"value": "```lean\nBar.Foo.mk (hi : ℕ) : Foo\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 150, "character": 2}}
 {"range":
  {"start": {"line": 150, "character": 2}, "end": {"line": 150, "character": 4}},
  "contents":
  {"value": "```lean\nBar.Foo.hi (self : Foo) : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 153, "character": 10}}
 {"range":
  {"start": {"line": 153, "character": 10},
   "end": {"line": 153, "character": 13}},
  "contents": {"value": "```lean\nBar.Bar : Type\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 155, "character": 4}}
 {"range":
  {"start": {"line": 155, "character": 4}, "end": {"line": 155, "character": 6}},
  "contents": {"value": "```lean\nBar.Bar.mk : Bar\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 158, "character": 2}}
 {"range":
  {"start": {"line": 158, "character": 0}, "end": {"line": 158, "character": 8}},
  "contents":
  {"value": "```lean\nBar.instToStringNat : ToString ℕ\n```",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 160, "character": 9}}
 {"range":
  {"start": {"line": 160, "character": 9},
   "end": {"line": 160, "character": 10}},
  "contents": {"value": "```lean\nBar.f : ToString ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 163, "character": 10}}
 {"range":
  {"start": {"line": 163, "character": 10},
@@ -299,26 +299,26 @@
  "contents":
  {"value": "A type universe. `Type ≡ Type 0`, `Type u ≡ Sort (u + 1)`. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 166, "character": 4}}
 {"range":
  {"start": {"line": 166, "character": 4},
   "end": {"line": 166, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 166, "character": 8}}
 {"range":
  {"start": {"line": 166, "character": 4},
   "end": {"line": 166, "character": 11}},
  "contents": {"value": "```lean\nBar.foo.bar : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 173, "character": 6}}
 {"range":
  {"start": {"line": 173, "character": 6}, "end": {"line": 173, "character": 7}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 176, "character": 4}}
-[{"targetUri": "file://hover.lean",
+[{"targetUri": "file:///hover.lean",
   "targetSelectionRange":
   {"start": {"line": 173, "character": 6},
    "end": {"line": 173, "character": 7}},
@@ -328,26 +328,26 @@
   "originSelectionRange":
   {"start": {"line": 176, "character": 4},
    "end": {"line": 176, "character": 5}}}]
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 176, "character": 4}}
 {"range":
  {"start": {"line": 176, "character": 4}, "end": {"line": 176, "character": 5}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 180, "character": 12}}
 {"range":
  {"start": {"line": 180, "character": 11},
   "end": {"line": 180, "character": 33}},
  "contents":
  {"value": "enable the 'unused variables' linter", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 183, "character": 8}}
 {"range":
  {"start": {"line": 183, "character": 8}, "end": {"line": 183, "character": 9}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 186, "character": 8}}
-[{"targetUri": "file://hover.lean",
+[{"targetUri": "file:///hover.lean",
   "targetSelectionRange":
   {"start": {"line": 183, "character": 8},
    "end": {"line": 183, "character": 9}},
@@ -357,18 +357,18 @@
   "originSelectionRange":
   {"start": {"line": 186, "character": 8},
    "end": {"line": 186, "character": 9}}}]
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 186, "character": 8}}
 {"range":
  {"start": {"line": 186, "character": 8}, "end": {"line": 186, "character": 9}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 191, "character": 25}}
 {"range":
  {"start": {"line": 191, "character": 25},
   "end": {"line": 191, "character": 26}},
  "contents": {"value": "```lean\nn : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 194, "character": 2}}
 {"range":
  {"start": {"line": 194, "character": 0}, "end": {"line": 194, "character": 9}},
@@ -376,7 +376,7 @@
  {"value":
   "`declModifiers` is the collection of modifiers on a declaration:\n* a doc comment `/-- ... -/`\n* a list of attributes `@[attr1, attr2]`\n* a visibility specifier, `private` or `protected`\n* `noncomputable`\n* `unsafe`\n* `partial` or `nonrec`\n\nAll modifiers are optional, and have to come in the listed order.\n\n`nestedDeclModifiers` is the same as `declModifiers`, but attributes are printed\non the same line as the declaration. It is used for declarations nested inside other syntax,\nsuch as inductive constructors, structure projections, and `let rec` / `where` definitions. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 200, "character": 2}}
 {"range":
  {"start": {"line": 200, "character": 2},
@@ -385,7 +385,7 @@
  {"value":
   "`· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 203, "character": 28}}
 {"range":
  {"start": {"line": 203, "character": 27},
@@ -394,12 +394,12 @@
  {"value":
   "```lean\nId ℕ\n```\n***\nParentheses, used for grouping expressions (e.g., `a * (b + c)`).\nCan also be used for creating simple functions when combined with `·`. Here are some examples:\n  - `(· + 1)` is shorthand for `fun x => x + 1`\n  - `(· + ·)` is shorthand for `fun x y => x + y`\n  - `(f · a b)` is shorthand for `fun x => f x a b`\n  - `(h (· + 1) ·)` is shorthand for `fun x => h (fun y => y + 1) x`\n  - also applies to other parentheses-like notations such as `(·, 1)`\n",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 206, "character": 8}}
 {"range":
  {"start": {"line": 206, "character": 8}, "end": {"line": 206, "character": 9}},
  "contents": {"value": "```lean\n?m\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 206, "character": 10}}
 {"range":
  {"start": {"line": 206, "character": 8},
@@ -408,48 +408,48 @@
  {"value":
   "```lean\n?m x✝¹ x✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 215, "character": 28}}
 {"range":
  {"start": {"line": 215, "character": 28},
   "end": {"line": 215, "character": 29}},
  "contents": {"value": "```lean\nx : α\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 217, "character": 28}}
 {"range":
  {"start": {"line": 217, "character": 28},
   "end": {"line": 217, "character": 29}},
  "contents": {"value": "```lean\nα\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 219, "character": 31}}
 {"range":
  {"start": {"line": 219, "character": 31},
   "end": {"line": 219, "character": 32}},
  "contents": {"value": "```lean\nx : α\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 222, "character": 22}}
 {"range":
  {"start": {"line": 222, "character": 22},
   "end": {"line": 222, "character": 32}},
  "contents": {"value": "my_intro tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 222, "character": 31}}
 {"range":
  {"start": {"line": 222, "character": 31},
   "end": {"line": 222, "character": 32}},
  "contents": {"value": "```lean\nα\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 229, "character": 22}}
 {"range":
  {"start": {"line": 229, "character": 22},
   "end": {"line": 229, "character": 32}},
  "contents": {"value": "my_intro tactic ", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 232, "character": 8}}
 {"range":
  {"start": {"line": 232, "character": 8}, "end": {"line": 232, "character": 9}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 235, "character": 4}}
 {"range":
  {"start": {"line": 235, "character": 4}, "end": {"line": 235, "character": 8}},
@@ -457,7 +457,7 @@
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 4}}
 {"range":
  {"start": {"line": 238, "character": 4}, "end": {"line": 238, "character": 8}},
@@ -465,24 +465,24 @@
  {"value":
   "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 238, "character": 9}}
 {"range":
  {"start": {"line": 238, "character": 9},
   "end": {"line": 238, "character": 10}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 242, "character": 8}}
 {"range":
  {"start": {"line": 242, "character": 8}, "end": {"line": 242, "character": 9}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 244, "character": 12}}
 {"range":
  {"start": {"line": 244, "character": 12},
   "end": {"line": 244, "character": 13}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 246, "character": 4}}
 {"range":
  {"start": {"line": 246, "character": 4}, "end": {"line": 246, "character": 8}},
@@ -490,7 +490,7 @@
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 249, "character": 9}}
 {"range":
  {"start": {"line": 249, "character": 9},
@@ -499,13 +499,13 @@
  {"value":
   "```lean\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 249, "character": 11}}
 {"range":
  {"start": {"line": 249, "character": 11},
   "end": {"line": 249, "character": 13}},
  "contents": {"value": "```lean\nih : True\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 254, "character": 6}}
 {"range":
  {"start": {"line": 254, "character": 4}, "end": {"line": 254, "character": 9}},
@@ -513,7 +513,7 @@
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 254, "character": 15}}
 {"range":
  {"start": {"line": 254, "character": 13},
@@ -522,7 +522,7 @@
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 6}}
 {"range":
  {"start": {"line": 257, "character": 4}, "end": {"line": 257, "character": 9}},
@@ -530,7 +530,7 @@
  {"value":
   "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 257, "character": 17}}
 {"range":
  {"start": {"line": 257, "character": 15},
@@ -539,7 +539,7 @@
  {"value":
   "```lean\nNat.succ (n : ℕ) : ℕ\n```\n***\nThe successor function on natural numbers, `succ n = n + 1`.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 27}}
 {"range":
  {"start": {"line": 260, "character": 27},
@@ -548,7 +548,7 @@
  {"value":
   "```lean\nInhabited.mk.{u} {α : Sort u} (default : α) : Inhabited α\n```\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 260, "character": 28}}
 {"range":
  {"start": {"line": 260, "character": 28},
@@ -557,7 +557,7 @@
  {"value":
   "```lean\nNat.zero : ℕ\n```\n***\n`Nat.zero`, normally written `0 : Nat`, is the smallest natural number.\nThis is one of the two constructors of `Nat`. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 266, "character": 2}}
 {"range":
  {"start": {"line": 266, "character": 2}, "end": {"line": 266, "character": 3}},
@@ -565,25 +565,25 @@
  {"value":
   "```lean\nlet x :=\n  match 0 with\n  | x => 0;\nℕ\n```\n***\nA placeholder term, to be synthesized by unification. ",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 269, "character": 4}}
 {"range":
  {"start": {"line": 269, "character": 4}, "end": {"line": 269, "character": 8}},
  "contents":
  {"value": "```lean\nauto (o : ℕ := by exact 1) : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 274, "character": 22}}
 {"range":
  {"start": {"line": 274, "character": 22},
   "end": {"line": 274, "character": 23}},
  "contents": {"value": "```lean\nx : ℕ\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 274, "character": 13}}
 {"range":
  {"start": {"line": 274, "character": 13},
   "end": {"line": 274, "character": 15}},
  "contents": {"value": "```lean\n_e : 1 = x\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 280, "character": 13}}
 {"range":
  {"start": {"line": 280, "character": 13},
@@ -592,7 +592,7 @@
  {"value":
   "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\n`[]` is the empty list. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 282, "character": 13}}
 {"range":
  {"start": {"line": 282, "character": 11},
@@ -601,7 +601,7 @@
  {"value":
   "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nIf `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the\nlist whose first element is `a` and with `l` as the rest of the list. \n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 284, "character": 18}}
 {"range":
  {"start": {"line": 284, "character": 17},
@@ -610,7 +610,7 @@
  {"value":
   "```lean\nList.map.{u, v} {α : Type u} {β : Type v} (f : α → β) (a✝ : List α) : List β\n```\n***\n`O(|l|)`. `map f l` applies `f` to each element of the list.\n* `map f [a, b, c] = [f a, f b, f c]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 287, "character": 26}}
 {"range":
  {"start": {"line": 287, "character": 25},
@@ -619,7 +619,7 @@
  {"value":
   "```lean\nList.zip.{u, v} {α : Type u} {β : Type v} (a✝ : List α) (a✝¹ : List β) : List (α × β)\n```\n***\n`O(min |xs| |ys|)`. Combines the two lists into a list of pairs, with one element from each list.\nThe longer list is truncated to match the shorter list.\n* `zip [x₁, x₂, x₃] [y₁, y₂, y₃, y₄] = [(x₁, y₁), (x₂, y₂), (x₃, y₃)]`\n\n***\n*import Init.Data.List.Basic*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://hover.lean"},
+{"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 287, "character": 19}}
 {"range":
  {"start": {"line": 287, "character": 19},

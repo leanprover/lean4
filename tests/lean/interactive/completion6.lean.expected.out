@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completion6.lean"},
+{"textDocument": {"uri": "file:///completion6.lean"},
  "position": {"line": 12, "character": 15}}
 {"items":
  [{"label": "b1", "kind": 5, "detail": "C → String"},
@@ -7,7 +7,7 @@
   {"label": "f3", "kind": 5, "detail": "D → Bool"},
   {"label": "toC", "kind": 5, "detail": "D → C"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion6.lean"},
+{"textDocument": {"uri": "file:///completion6.lean"},
  "position": {"line": 21, "character": 4}}
 {"items":
  [{"label": "b1", "kind": 5, "detail": "C → String"},

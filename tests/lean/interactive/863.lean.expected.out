@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://863.lean"},
+{"textDocument": {"uri": "file:///863.lean"},
  "position": {"line": 9, "character": 12}}
 {"items":
  [{"label": "getRef", "kind": 5, "detail": "[self : MonadRef] → Type"},
@@ -6,7 +6,7 @@
    "kind": 5,
    "detail": "[self : MonadRef] → Type"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://863.lean"},
+{"textDocument": {"uri": "file:///863.lean"},
  "position": {"line": 13, "character": 12}}
 {"items":
  [{"label": "getRef", "kind": 5, "detail": "[self : MonadRef] → Type"},

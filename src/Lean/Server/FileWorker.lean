@@ -84,32 +84,54 @@ section Elab
   private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Elab.InfoTree → IO Unit :=
     publishIleanInfo "$/lean/ileanInfoFinal"
 
+  private structure ReportSnapshotsState where
+    hasBlocked := false
+    diagnostics : Array Lsp.Diagnostic := #[]
+    infoTrees : Array Elab.InfoTree := #[]
+
+  /--
+    Reports status of a snapshot tree incrementally to the user: progress,
+    diagnostics, .ilean reference information.
+
+    Debouncing: we only report information
+    * when first blocking, i.e. not before skipping over any unchanged snapshots
+    * afterwards, each time new information is found in a snapshot
+    * at the very end, if we never blocked (e.g. emptying a file should make
+      sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
       (cancelTk : CancelToken) : IO Unit := do
-    discard <| go snaps #[] #[] fun _ itrees => do
+    discard <| go snaps { : ReportSnapshotsState } fun st => do
       publishProgressDone m ctx.hOut
+      unless st.hasBlocked do
+        publishDiagnostics m st.diagnostics ctx.hOut
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      publishIleanInfoFinal m ctx.hOut itrees
+      publishIleanInfoFinal m ctx.hOut st.infoTrees
       return .pure <| .ok ()
   where
-    go node diags itrees cont := do
+    go node st cont := do
       if (← cancelTk.ref.get) then
         return .pure <| .ok ()
-      let diags := diags ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
-      publishDiagnostics m diags ctx.hOut
-      let itrees := match node.element.infoTree? with
-        | some itree => itrees.push itree
-        | none       => itrees
-      publishIleanInfoUpdate m ctx.hOut itrees
-      goSeq cont diags itrees node.children.toList
-    goSeq cont diags itrees
-      | [] => cont diags itrees
+      let diagnostics := st.diagnostics ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
+      if st.hasBlocked && !node.element.msgLog.isEmpty then
+        publishDiagnostics m diagnostics ctx.hOut
+      let infoTrees := match node.element.infoTree? with
+        | some itree => st.infoTrees.push itree
+        | none       => st.infoTrees
+      if st.hasBlocked && node.element.infoTree?.isSome then
+        publishIleanInfoUpdate m ctx.hOut infoTrees
+      goSeq { st with diagnostics, infoTrees } cont node.children.toList
+    goSeq st cont
+      | [] => cont st
       | t::ts => do
-        publishProgressAtPos m t.range.start ctx.hOut
+        let mut st := st
+        unless (← IO.hasFinished t.task) do
+          publishProgressAtPos m t.range.start ctx.hOut
+          if !st.hasBlocked then
+            publishDiagnostics m st.diagnostics ctx.hOut
+            st := { st with hasBlocked := true }
         IO.bindTask t.task fun node =>
-          go node diags itrees fun diags itrees =>
-            goSeq cont diags itrees ts
+          go node st (goSeq · cont ts)
 end Elab
 
 -- Pending requests are tracked so they can be canceled

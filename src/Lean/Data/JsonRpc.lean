@@ -305,7 +305,7 @@ section
         throw $ userError s!"Expected method '{expectedMethod}', got method '{method}'"
     | _ => throw $ userError s!"Expected JSON-RPC notification, got: '{(toJson m).compress}'"
 
-  partial def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
+  def readResponseAs (h : FS.Stream) (nBytes : Nat) (expectedID : RequestID) (α) [FromJson α] : IO (Response α) := do
     let m ← h.readMessage nBytes
     match m with
     | Message.response id result =>
@@ -315,7 +315,6 @@ section
         | Except.error inner => throw $ userError s!"Unexpected result '{result.compress}'\n{inner}"
       else
         throw $ userError s!"Expected id {expectedID}, got id {id}"
-    | Message.notification .. => readResponseAs h nBytes expectedID α
     | _ => throw $ userError s!"Expected JSON-RPC response, got: '{(toJson m).compress}'"
 end
 

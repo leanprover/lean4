@@ -139,7 +139,7 @@ class CoeTC (α : Sort u) (β : Sort v) where
   coe : α → β
 attribute [coe_decl] CoeTC.coe
 
-instance [Coe β γ] [CoeTC α β] : CoeTC α γ where coe a := Coe.coe (CoeTC.coe a : β)
+instance [CoeTC α β] [Coe β γ] : CoeTC α γ where coe a := Coe.coe (CoeTC.coe a : β)
 instance [Coe α β] : CoeTC α β where coe a := Coe.coe a
 instance : CoeTC α α where coe a := a
 
@@ -162,7 +162,7 @@ class CoeOTC (α : Sort u) (β : Sort v) where
   coe : α → β
 attribute [coe_decl] CoeOTC.coe
 
-instance [CoeOut α β] [CoeOTC β γ] : CoeOTC α γ where coe a := CoeOTC.coe (CoeOut.coe a : β)
+instance [CoeOTC β γ] [CoeOut α β] : CoeOTC α γ where coe a := CoeOTC.coe (CoeOut.coe a : β)
 instance [CoeTC α β] : CoeOTC α β where coe a := CoeTC.coe a
 instance : CoeOTC α α where coe a := a
 

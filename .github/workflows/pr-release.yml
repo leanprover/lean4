@@ -32,7 +32,9 @@ jobs:
           token: ${{ secrets.PR_RELEASES_TOKEN }}
           # Since `workflow_run` runs on master, we need to specify which commit to check out,
           # so that we tag the PR.
-          ref: ${{ steps.workflow-info.outputs.targetCommitSha }}
+          # It's important that we use `sourceHeadSha` here, not `targetCommitSha`
+          # as we *don't* want the synthetic merge with master.
+          ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           # We need a full checkout, so that we can push the PR commits to the `lean4-pr-releases` repo.
           fetch-depth: 0
 
@@ -115,6 +117,7 @@ jobs:
           else
             echo "The most recently nightly tag on this branch has SHA: $NIGHTLY_SHA"
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
+            git log -10
 
             MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
           fi

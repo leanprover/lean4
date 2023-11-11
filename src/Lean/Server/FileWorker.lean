@@ -94,8 +94,8 @@ section Elab
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
-      (cancelTk : CancelToken) : IO Unit := do
-    discard <| go snaps { : ReportSnapshotsState } fun st => do
+      (cancelTk : CancelToken) : IO (Task Unit) := do
+    Task.map (fun _ => ()) <$> go snaps { : ReportSnapshotsState } fun st => do
       publishProgressDone m ctx.hOut
       unless st.hasBlocked do
         publishDiagnostics m st.diagnostics ctx.hOut
@@ -202,9 +202,9 @@ section Initialization
         processor
         clientHasWidgets
       }
-    let doc : EditableDocument := { meta, initSnap }
     let reportCancelTk ← CancelToken.new
-    reportSnapshots ctx doc.meta (Language.ToSnapshotTree.toSnapshotTree doc.initSnap) reportCancelTk
+    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
+    let doc : EditableDocument := { meta, initSnap, reporter }
     return (ctx,
     { doc, reportCancelTk
       initHeaderStx   := initSnap.stx
@@ -218,13 +218,13 @@ section Updates
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document, updates editable doc state. -/
-  def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
+  def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
     (← get).reportCancelTk.set
-    let initSnap ← ctx.processor newMeta.mkInputContext
+    let initSnap ← ctx.processor meta.mkInputContext
     let reportCancelTk ← CancelToken.new
-    reportSnapshots ctx newMeta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
-    modify fun st => { st with doc := { meta := newMeta, initSnap }, reportCancelTk }
+    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
+    modify fun st => { st with doc := { meta, initSnap, reporter }, reportCancelTk }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

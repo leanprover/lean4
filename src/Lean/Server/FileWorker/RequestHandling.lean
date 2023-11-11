@@ -604,8 +604,7 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
   let t ← RequestM.asTask waitLoop
   RequestM.bindTask t fun doc? => do
     let doc ← liftExcept doc?
-    let t₁ := doc.cmdSnaps.waitAll
-    return t₁.map fun _ => pure WaitForDiagnostics.mk
+    return doc.reporter.map fun _ => pure WaitForDiagnostics.mk
 
 builtin_initialize
   registerLspRequestHandler "textDocument/waitForDiagnostics"   WaitForDiagnosticsParams   WaitForDiagnostics      handleWaitForDiagnostics

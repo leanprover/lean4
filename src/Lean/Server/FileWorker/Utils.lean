@@ -42,23 +42,13 @@ def set (tk : CancelToken) : IO Unit :=
 
 end CancelToken
 
-/-- A document editable in the sense that we track the environment
-and parser state after each command so that edits can be applied
-without recompiling code appearing earlier in the file. -/
-structure EditableDocument where
-  meta       : DocumentMeta
-  /-- State snapshots after header and each command. -/
-  -- TODO: generalize to other languages by moving request handlers into `Language`
-  initSnap : Language.Lean.InitialSnapshot
-
-namespace EditableDocument
-
-partial def cmdSnaps (doc : EditableDocument) : AsyncList ElabTaskError Snapshot := Id.run do
-  let some headerParsed := doc.initSnap.success? | return .nil
+private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
+    AsyncList ElabTaskError Snapshot := Id.run do
+  let some headerParsed := initSnap.success? | return .nil
   .delayed <| headerParsed.next.task.bind fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
-      stx := doc.initSnap.stx
+      stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
       interactiveDiags := .empty  -- TODO
@@ -75,7 +65,15 @@ where go cmdParsed :=
         | some next => .delayed <| next.task.bind go
         | none => .nil)
 
-end EditableDocument
+/-- A document editable in the sense that we track the environment
+and parser state after each command so that edits can be applied
+without recompiling code appearing earlier in the file. -/
+structure EditableDocument where
+  meta       : DocumentMeta
+  /-- State snapshots after header and each command. -/
+  -- TODO: generalize to other languages by moving request handlers into `Language`
+  initSnap : Language.Lean.InitialSnapshot
+  cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
 
 structure RpcSession where
   objects         : RpcObjectStore

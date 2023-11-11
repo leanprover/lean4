@@ -806,6 +806,12 @@ decidability instance instead of the proposition, which has no code).
 
 If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
 evaluating the decidability instance to `isTrue h` and returning `h`.
+
+Because `Decidable` carries data,
+when writing `@[simp]` lemmas which include a `Decidable` instance on the LHS,
+it is best to use `{_ : Decidable p}` rather than `[Decidable p]`
+so that non-canonical instances can be found via unification rather than
+typeclass search.
 -/
 class inductive Decidable (p : Prop) where
   /-- Prove that `p` is decidable by supplying a proof of `¬p` -/

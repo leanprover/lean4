@@ -1,0 +1,2 @@
+(fun x => x) Nat : Type
+Nat : Type

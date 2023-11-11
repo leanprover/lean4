@@ -291,6 +291,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
     catch _ => pure ()
   withOptions (fun _ => opts) do
     let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
+    let e ← if getPPBeta opts then Core.betaReduce e else pure e
     let optionsPerPos ←
       if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
         topDownAnalyze e

@@ -45,9 +45,6 @@ def env (s : Snapshot) : Environment :=
 def msgLog (s : Snapshot) : MessageLog :=
   s.cmdState.messages
 
-def diagnostics (s : Snapshot) : PersistentArray Lsp.Diagnostic :=
-  s.interactiveDiags.map fun d => d.toDiagnostic
-
 def infoTree (s : Snapshot) : InfoTree :=
   -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
   assert! s.cmdState.infoState.trees.size == 1

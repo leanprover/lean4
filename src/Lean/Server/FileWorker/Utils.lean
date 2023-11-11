@@ -57,7 +57,12 @@ partial def cmdSnaps (doc : EditableDocument) : AsyncList ElabTaskError Snapshot
   let some headerParsed := doc.initSnap.success? | return .nil
   .delayed <| headerParsed.next.task.bind fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
-    headerSuccess.next.task.bind go
+    return .pure <| .ok <| .cons {
+      stx := doc.initSnap.stx
+      mpState := headerParsed.parserState
+      cmdState := headerSuccess.cmdState
+      interactiveDiags := .empty  -- TODO
+    } <| .delayed <| headerSuccess.next.task.bind go
 where go cmdParsed :=
   cmdParsed.data.sig.task.bind fun sig =>
     sig.finished.task.map fun finished =>

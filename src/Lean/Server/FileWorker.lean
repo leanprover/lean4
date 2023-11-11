@@ -66,11 +66,6 @@ structure WorkerContext where
 /-! # Asynchronous snapshot elaboration -/
 
 section Elab
-  structure AsyncElabState where
-    snaps : Array Snapshot
-
-  abbrev AsyncElabM := StateT AsyncElabState <| EIO ElabTaskError
-
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
       (trees : Array Elab.InfoTree) : IO Unit := do

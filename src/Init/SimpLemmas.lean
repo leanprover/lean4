@@ -143,9 +143,9 @@ theorem Bool.or_assoc (a b c : Bool) : (a || b || c) = (a || (b || c)) := by
 @[simp] theorem Bool.not_eq_true (b : Bool) : (¬(b = true)) = (b = false) := by cases b <;> decide
 @[simp] theorem Bool.not_eq_false (b : Bool) : (¬(b = false)) = (b = true) := by cases b <;> decide
 
-@[simp] theorem decide_eq_true_eq [Decidable p] : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
-@[simp] theorem decide_not [h : Decidable p] : decide (¬ p) = !decide p := by cases h <;> rfl
-@[simp] theorem not_decide_eq_true [h : Decidable p] : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
+@[simp] theorem decide_eq_true_eq {_ : Decidable p} : (decide p = true) = p := propext <| Iff.intro of_decide_eq_true decide_eq_true
+@[simp] theorem decide_not {h : Decidable p} : decide (¬ p) = !decide p := by cases h <;> rfl
+@[simp] theorem not_decide_eq_true {h : Decidable p} : ((!decide p) = true) = ¬ p := by cases h <;> simp [decide, *]
 
 @[simp] theorem heq_eq_eq {α : Sort u} (a b : α) : HEq a b = (a = b) := propext <| Iff.intro eq_of_heq heq_of_eq
 

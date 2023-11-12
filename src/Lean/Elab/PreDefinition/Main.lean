@@ -72,7 +72,7 @@ private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM
 
 /-- Code that turns a predefinition into non-recursive definitions and adds them to the environment
 -/
-def Derecursifier := Array PreDefinition → TermElabM Unit
+def Derecursifier := Array PreDefinition → Option WF.TerminationWF → Option Syntax → TermElabM Unit
 
 /--
   Letrec declarations produce terms of the form `(fun .. => ..) d` where `d` is a (partial) application of an auxiliary declaration for a letrec declaration.
@@ -138,28 +138,27 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
       addAndCompilePartial preDefs
     else
       try
+        let mut wf? := none
+        let mut decrTactic? := none
+        if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
+          wf? := some wf
+          terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
+        if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
+          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
+          decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
         if let some s := hints.derecursifyWith? then
           let derec ← evalDerecursifier s[1]
-          derec preDefs
+          derec preDefs wf? decrTactic?
+        else if wf?.isSome || decrTactic?.isSome then
+          wfRecursion preDefs wf? decrTactic?
         else
-          let mut wf? := none
-          let mut decrTactic? := none
-          if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
-            wf? := some wf
-            terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
-          if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-            decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
-            decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
-          if wf?.isSome || decrTactic?.isSome then
-            wfRecursion preDefs wf? decrTactic?
-          else
-            withRef (preDefs[0]!.ref) <| mapError
-              (orelseMergeErrors
-                (structuralRecursion preDefs)
-                (wfRecursion preDefs none none))
-              (fun msg =>
-                let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
-                m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
+          withRef (preDefs[0]!.ref) <| mapError
+            (orelseMergeErrors
+              (structuralRecursion preDefs)
+              (wfRecursion preDefs none none))
+            (fun msg =>
+              let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
+              m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
       catch ex =>
         hasErrors := true
         logException ex

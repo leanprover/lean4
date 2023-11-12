@@ -448,7 +448,7 @@ def elabOp : TermElab := fun stx expectedType? => do
 
   - `binrel% R x y` elaborates `R x y` using the `binop%/...` expression trees in both `x` and `y`.
     It is similar to how `binop% R x y` elaborates but with a significant difference:
-    it does not use the expected type when computing the types of the operads.
+    it does not use the expected type when computing the types of the operands.
   - `binrel_no_prop% R x y` elaborates `R x y` like `binrel% R x y`, but if the resulting type for `x` and `y`
     is `Prop` they are coerced to `Bool`.
     This is used for relations such as `==` which do not support `Prop`, but we still want

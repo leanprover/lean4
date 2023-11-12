@@ -334,7 +334,11 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual»]
 def elabMutual : CommandElab := fun stx => do
-  let hints := { terminationBy? := stx[4].getOptional?, decreasingBy? := stx[5].getOptional? }
+  let hints := {
+      derecursifyWith? := stx[3].getOptional?
+      terminationBy? := stx[4].getOptional?
+      decreasingBy? := stx[5].getOptional?
+  }
   if isMutualInductive stx then
     if let some bad := hints.terminationBy? then
       throwErrorAt bad "invalid 'termination_by' in mutually inductive datatype declaration"

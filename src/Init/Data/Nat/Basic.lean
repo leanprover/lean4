@@ -10,6 +10,27 @@ universe u
 
 namespace Nat
 
+/-- Compiled version of `Nat.rec` so that we can define `Nat.recAux` to be defeq to `Nat.rec`.
+This is working around the fact that the compiler does not currently support recursors. -/
+private def recCompiled {motive : Nat → Sort u} (zero : motive zero) (succ : (n : Nat) → motive n → motive (Nat.succ n)) : (t : Nat) → motive t
+  | .zero => zero
+  | .succ n => succ n (recCompiled zero succ n)
+
+@[csimp]
+private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
+  funext fun _ => funext fun _ => funext fun succ => funext fun t =>
+    Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
+
+/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`. -/
+@[elab_as_elim]
+protected abbrev recAux {motive : Nat → Sort u} (zero : motive 0) (succ : (n : Nat) → motive n → motive (n + 1)) (t : Nat) : motive t :=
+  Nat.rec zero succ t
+
+/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`. -/
+@[elab_as_elim]
+protected abbrev casesAuxOn {motive : Nat → Sort u} (t : Nat) (zero : motive 0) (succ : (n : Nat) → motive (n + 1)) : motive t :=
+  Nat.casesOn t zero succ
+
 /--
 `Nat.fold` evaluates `f` on the numbers up to `n` exclusive, in increasing order:
 * `Nat.fold f 3 init = init |> f 0 |> f 1 |> f 2`

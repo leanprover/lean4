@@ -266,7 +266,7 @@ class CoeFun (α : Sort u) (γ : outParam (α → Sort v)) where
   coe : (f : α) → γ f
 attribute [coe_decl] CoeFun.coe
 
-instance [CoeFun α fun _ => β] : CoeOut α β where coe a := CoeFun.coe a
+instance [CoeFun α fun _ => β] : CoeOTC α β where coe a := CoeFun.coe a
 
 /--
 `CoeSort α β` is a coercion to a sort. `β` must be a universe, and this is

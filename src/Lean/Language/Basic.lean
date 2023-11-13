@@ -140,9 +140,14 @@ structure ProcessingContext where
   mainModuleName : Name
   opts : Options
 
+/-- Definition of a language processor that can be driven by the cmdline or language server. -/
 structure Language where
+  /--
+    Type of snapshot returned by `process`. It can be converted to a graph of
+    homogeneous snapshot types via `ToSnapshotTree`.  -/
   InitialSnapshot : Type
   [instToSnapshotTree : ToSnapshotTree InitialSnapshot]
+  /-- Processes input into snapshots, potentially reusing information from a previous run. -/
   process : ProcessingContext → (old? : Option InitialSnapshot) → Parser.InputContext → BaseIO InitialSnapshot
   -- TODO: is this the right interface for other languages as well?
   /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/

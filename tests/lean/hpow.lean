@@ -1,7 +1,7 @@
 import Lean.Data.Rat
 
 /-!
-Test the `rightact%` elaborator for `HPow.hPow`, added to address #2220
+Test the `rightact%` elaborator for `HPow.hPow`, added to address #2854
 -/
 
 open Lean

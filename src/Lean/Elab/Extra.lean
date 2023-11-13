@@ -95,7 +95,7 @@ Here are brief descriptions of each of the operator types:
 - `rightact% f a b` elaborates `f a b` as a right action (the `b` operand "acts upon" the `a` operand).
   Only `a` participates in the protocol since `b` can have an unrelated type.
   This is used by `HPow` since, for example, there are both `Real -> Nat -> Real` and `Real -> Real -> Real`
-  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2220)
+  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2854)
 - There are also `binrel%` and `binrel_no_prop%` (see the docstring for `elabBinRelCore`).
 
 The elaborator works as follows:

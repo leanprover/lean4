@@ -607,7 +607,4 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
   | .some solution =>
      buildTermWF (preDefs.map (·.declName)) varNamess solution
   | .none =>
-    logWarning ("Could not find a lexicographic ordering for which the function definition" ++
-      " terminates.")
-    -- Continue with the first allowed measure, so that the user sees some failing goals.
-    buildTermWF (preDefs.map (·.declName)) varNamess (measures.extract 0 1)
+    throwError "failed to prove termination, use `termination_by` to specify a well-founded relation"

@@ -46,6 +46,12 @@ instance : ToJson ServerOptionValue where
     | (b : Bool)   => b
     | (n : Nat)    => n
 
+/-- Formats the server option value as a CLI flag argument. -/
+def ServerOptionValue.asCliFlagValue : (v : ServerOptionValue) → String
+  | (s : String) => s!"\"{s}\""
+  | (b : Bool)   => toString b
+  | (n : Nat)    => toString n
+
 /-- Options that are used by the server as if they were passed using `-D`. -/
 structure ServerOptions where
   values : RBMap Name ServerOptionValue Name.cmp

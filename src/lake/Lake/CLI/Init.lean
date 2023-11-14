@@ -99,10 +99,7 @@ def moreServerOptions : Array ServerOption := #[
 ]
 
 -- These settings only apply during `lake build`, but not in VSCode editor.
-def moreLeanArgs := #[
-  \"-Dpp.unicode.fun=true\", -- pretty-prints `fun a ↦ b`
-  \"-Dpp.proofs.withType=false\"
-]
+def moreLeanArgs := moreServerOptions.map ServerOption.asCliArg
 
 -- These are additional settings which do not affect the lake hash,
 -- so they can be enabled in CI and disabled locally or vice versa.

@@ -88,6 +88,10 @@ structure ServerOption where
   value : Lean.ServerOptionValue
   deriving Inhabited, Repr
 
+/-- Formats the server option as a CLI argument using the `-D` flag. -/
+def ServerOption.asCliArg (o : ServerOption) : String :=
+  s!"-D{o.name}={o.value.asCliFlagValue}"
+
 /-- Configuration options common to targets that build modules. -/
 structure LeanConfig where
   /--

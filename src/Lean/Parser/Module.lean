@@ -11,7 +11,7 @@ namespace Parser
 
 namespace Module
 def «prelude»  := leading_parser "prelude"
-def «import»   := leading_parser "import " >> optional "runtime" >> ident
+def «import»   := leading_parser "import " >> optional "runtime" >> ident >> optional (checkNoWsBefore >> "." >> checkNoWsBefore >> ident)
 def header     := leading_parser optional («prelude» >> ppLine) >> many («import» >> ppLine) >> ppLine
 /--
   Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that

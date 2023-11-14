@@ -665,7 +665,7 @@ def loadReferences : IO References := do
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
-  let srcSearchPath ← initSrcSearchPath (← getBuildDir)
+  let srcSearchPath ← initSrcSearchPath
   let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i

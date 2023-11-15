@@ -33,7 +33,7 @@ namespace SearchPath
 `ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
 not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  let pkg := mod.getRoot.toString
+  let pkg := mod.getRoot.toString (escape := false)
   let root? ← sp.findM? fun p =>
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
@@ -94,7 +94,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
   if let some fname ← sp.findWithExt "olean" mod then
     return fname
   else
-    let pkg := FilePath.mk mod.getRoot.toString
+    let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
       if ← (dir / pkg).isDir then

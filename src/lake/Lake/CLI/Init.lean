@@ -169,7 +169,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
     if tmp = .exe || rootExists then
       pure (root, rootFile, rootExists)
     else
-      let root := toUpperCamelCase (toUpperCamelCaseString name |>.toName)
+      let root := toUpperCamelCase pkgName
       let rootFile := Lean.modToFilePath dir root "lean"
       pure (root, rootFile, ← rootFile.pathExists)
 

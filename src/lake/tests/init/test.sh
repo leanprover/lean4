@@ -24,12 +24,19 @@ $LAKE -d hello-world build
 hello-world/.lake/build/bin/hello-world
 test -f hello-world/Hello/World/Basic.lean
 
-# Test creating packages with a `-` (i.e., a non-Lean name)
+# Test creating packages with a `-` (i.e., a non-identifier package name)
 # https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/lake.20new.20lean-data
 
 $LAKE new lean-data
 $LAKE -d lean-data build
 lean-data/.lake/build/bin/lean-data
+
+# Test creating packages starting with digits (i.e., a non-identifier library name)
+# https://github.com/leanprover/lean4/issues/2865
+
+$LAKE new 123-hello
+$LAKE -d 123-hello build
+123-hello/.lake/build/bin/123-hello
 
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128

@@ -62,7 +62,7 @@ Use user-given parameter names if present; use x1...xn otherwise.
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
 -/
-def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : TermElabM (Array Name):= do
+def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
   lambdaTelescope preDef.value fun xs _ => do
     let xs := xs.extract fixedPrefixSize xs.size
     let mut ns := #[]
@@ -281,28 +281,21 @@ structure SavedLocalCtxt where
   savedLocalContext : LocalContext
   savedLocalInstances : LocalInstances
   savedTermContext : Term.Context
+  savedTermState : Term.SavedState
 
 def SavedLocalCtxt.create : TermElabM SavedLocalCtxt := do
   let savedState ← saveState
   let savedLocalContext ← getLCtx
   let savedLocalInstances ← getLocalInstances
   let savedTermContext ← readThe Term.Context
-  return { savedState, savedLocalContext, savedLocalInstances, savedTermContext }
-
+  let savedTermState ← saveState
+  return { savedLocalContext, savedLocalInstances, savedTermState, savedTermContext }
 
 def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : TermElabM α) :
-    TermElabM α := withoutModifyingState $ do
-  restoreState slc.savedState
+    MetaM α := withoutModifyingState $ do
   withLCtx slc.savedLocalContext slc.savedLocalInstances do
-  withTheReader Term.Context (fun _ => slc.savedTermContext) do
-  k
-
-def SavedLocalCtxt.within {α} (slc : SavedLocalCtxt) (k : TermElabM α) :
-    TermElabM (SavedLocalCtxt × α) :=
-  slc.run do
-    let x ← k
-    let slc' ← SavedLocalCtxt.create
-    pure (slc', x)
+  slc.savedTermState.meta.restore
+  k slc.savedTermContext |>.run' slc.savedTermState.elab
 
 
 /-- A `RecCallContext` focuses on a single recursive call in a unary predefinition,
@@ -358,21 +351,22 @@ def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (a
 call site.
 -/
 def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (arities : Array Nat)
-    : TermElabM (Array RecCallContext) := withoutModifyingState do
-  addAsAxiom unaryPreDef
-  lambdaTelescope unaryPreDef.value fun xs body => do
-    unless xs.size == fixedPrefixSize + 1 do
-      -- Maybe cleaner to have lambdaBoundedTelescope?
-      throwError "Unexpected number of lambdas in unary pre-definition"
-    -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
-    let param := xs[fixedPrefixSize]!
-    withRecApps unaryPreDef.declName fixedPrefixSize body param fun param args => do
-      unless args.size ≥ fixedPrefixSize + 1 do
-        throwError "Insufficient arguments in recursive call"
-      let arg := args[fixedPrefixSize]!
-      let (caller, params) ← unpackArg arities param
-      let (callee, args) ← unpackArg arities arg
-      RecCallContext.create caller params callee args
+    : MetaM (Array RecCallContext) := withoutModifyingState do
+  Lean.Elab.Term.TermElabM.run' do
+    addAsAxiom unaryPreDef
+    lambdaTelescope unaryPreDef.value fun xs body => do
+      unless xs.size == fixedPrefixSize + 1 do
+        -- Maybe cleaner to have lambdaBoundedTelescope?
+        throwError "Unexpected number of lambdas in unary pre-definition"
+      -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
+      let param := xs[fixedPrefixSize]!
+      withRecApps unaryPreDef.declName fixedPrefixSize body param fun param args => do
+        unless args.size ≥ fixedPrefixSize + 1 do
+          throwError "Insufficient arguments in recursive call"
+        let arg := args[fixedPrefixSize]!
+        let (caller, params) ← unpackArg arities param
+        let (callee, args) ← unpackArg arities arg
+        RecCallContext.create caller params callee args
 
 inductive GuessLexRel | lt | eq | le | no_idea
 deriving Repr, DecidableEq
@@ -389,7 +383,7 @@ def GuessLexRel.toNatRel : GuessLexRel → Expr
   | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable! -- TODO: keep it partial or refactor?
 
-def mkSizeOf (e : Expr) : TermElabM Expr := do
+def mkSizeOf (e : Expr) : MetaM Expr := do
   let ty ← inferType e
   let lvl ← getLevel ty
   let inst ← synthInstance (mkAppN (mkConst ``SizeOf [lvl]) #[ty])
@@ -400,7 +394,7 @@ def mkSizeOf (e : Expr) : TermElabM Expr := do
 -- For a given recursive call and choice of paramter index,
 -- try to prove requality, < or ≤
 def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx argIdx : Nat) :
-    TermElabM GuessLexRel := do
+    MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
     let arg := rcc.args[argIdx]!
@@ -452,8 +446,7 @@ def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallContext) :
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)
   return { decrTactic?, rcc, cache }
 
-def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) :
-    TermElabM GuessLexRel := do
+def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) : MetaM GuessLexRel := do
   -- Check the cache first
   if let Option.some res := (← rc.cache.get)[paramIdx]![argIdx]! then
     return res
@@ -480,7 +473,7 @@ inductive MutualMeasure where
   | func : Nat → MutualMeasure
 
 -- Evaluate a call at a given measure
-def inspectCall (rc : RecCallCache) : MutualMeasure → TermElabM GuessLexRel
+def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
   | .args argIdxs => do
     let paramIdx := argIdxs[rc.rcc.caller]!
     let argIdx := argIdxs[rc.rcc.callee]!
@@ -587,13 +580,24 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     -- None found, we have to give up
     return .none
 
+
+-- Does this really not yet exist? Should it?
+partial def mkTupleSyntax : Array Syntax → MetaM Syntax
+  | #[]  => `(())
+  | #[e] => return e
+  | es   => do
+    let e : TSyntax `term := ⟨es[0]!⟩
+    let es : Syntax.TSepArray `term "," :=
+      ⟨(Syntax.SepArray.ofElems (sep := ",") es[1:]).1⟩
+    `(term|($e, $es,*))
+
 def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
-    (measures : Array MutualMeasure) : TermElabM TerminationWF := do
+    (measures : Array MutualMeasure) : MetaM TerminationWF := do
   -- logInfo <| m!"Solution: {solution}"
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
-    let body := ← Lean.Elab.Term.Quotation.mkTuple (← measures.mapM fun
+    let body ← mkTupleSyntax (← measures.mapM fun
       | .args varIdxs =>
           let v := vars.get! (varIdxs[funIdx]!)
           `(sizeOf $v)
@@ -618,14 +622,14 @@ open Lean.Elab.WF.GuessLex
 
 def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
-    TermElabM TerminationWF := do
+    MetaM TerminationWF := do
   try
-    let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize)
+    let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
     let arities := varNamess.map (·.size)
     trace[Elab.definition.wf] "varNames is: {varNamess}"
 
     -- Collect all recursive calls and extract their context
-    let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+    let recCalls ←collectRecCalls unaryPreDef fixedPrefixSize arities
     let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
     let callMatrix := rcs.map (inspectCall ·)
 
@@ -645,7 +649,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     let measures : Array MutualMeasure :=
       arg_measures.map .args ++ (List.range varNamess.size).toArray.map .func
 
-    match ← solve measures callMatrix with
+    match ← liftMetaM <| solve measures callMatrix with
     | .some solution => do
       let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
       return wf

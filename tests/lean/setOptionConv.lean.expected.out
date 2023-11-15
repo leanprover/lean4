@@ -1,0 +1,8 @@
+⊢ (fun x => x + 0) = fun x => x
+⊢ (fun (x : Nat) => x + 0) = fun (x : Nat) => x
+⊢ (fun (x : Nat) => x + 0) = fun (x : Nat) => x
+⊢ (fun (x : Nat) => x + 0) = fun (x : Nat) => x
+| (fun x => x + 0) = fun x => x
+| (fun (x : Nat) => x + 0) = fun (x : Nat) => x
+| (fun (x : Nat) => x + 0) = fun (x : Nat) => x
+| (fun (x : Nat) => x + 0) = fun (x : Nat) => x

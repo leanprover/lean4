@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.KAbstract
 import Lean.Meta.Check
+import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
@@ -106,10 +107,65 @@ where
       throwError "failed to add argument to `casesOn` application, argument type was not refined by `casesOn`"
     return altsNew
 
-/-- Similar `CasesOnApp.addArg`, but returns `none` on failure. -/
+/-- Similar to `CasesOnApp.addArg`, but returns `none` on failure. -/
 def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM (Option CasesOnApp) :=
   try
     return some (← c.addArg arg checkIfRefined)
+  catch _ =>
+    return none
+
+/--
+  Given a `casesOn` application `c` of the form
+  ```
+  casesOn As (fun is x => motive[i, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
+  ```
+  and a type `e : B[is, major]`, for every alternative `i`, construct the type
+  ```
+  B[C_i[ys_i]]
+  ```
+  with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
+
+  This is similar to `CasesOnApp.addArg` when you only have a type to transform, not a concrete value.
+-/
+def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
+  lambdaTelescope c.motive fun motiveArgs _motiveBody => do
+    trace[Elab.definition.wf] "CasesOnApp.transform: {indentExpr e}"
+    unless motiveArgs.size == c.indices.size + 1 do
+      throwError "failed to transfer argument through `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
+    let discrs := c.indices ++ #[c.major]
+    let mut eAbst := e
+    for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
+      eAbst ← kabstract eAbst discr
+      eAbst := eAbst.instantiate1 motiveArg
+    -- Up to this point, this is cargo-culted from `CasesOn.App.addArg`
+    -- Let's create something Prop-typed that mentions `e`, by writing `e = e`.
+    let eEq ← mkEq eAbst eAbst
+    let motive ← mkLambdaFVars motiveArgs eEq
+    let us := if c.propOnly then c.us else levelZero :: c.us.tail!
+    -- Now instantiate the casesOn wth this synthetic motive
+    let aux := mkAppN (mkConst c.declName us) c.params
+    let aux := mkApp aux motive
+    let aux := mkAppN aux discrs
+    check aux
+    let auxType ← inferType aux
+    -- The type of the remaining arguments will mention `e` instantiated for each arg
+    -- so extract them
+    let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
+    let altAuxTys ← altAuxs.mapM (inferType ·)
+    (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+      let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
+      unless fvs.size = altNumParams do
+        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+      -- extract type from our synthetic equality
+      let body := body.getArg! 2
+      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+      Expr.abstractM body fvs
+
+/-- A non-failing version of `transform` -/
+def CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
+    MetaM (Option (Array Expr)) :=
+  try
+    return some (← c.transform e)
   catch _ =>
     return none
 

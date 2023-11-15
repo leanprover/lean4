@@ -17,6 +17,7 @@ import Lean.Elab.PreDefinition.WF.TerminationHint
 
 
 /-!
+
 This module implements heuristics to finding lexicographic termination measures
 for well-founded recursion. The goal is to try all lexicographic measures and
 find one for which all proof obligations go through with the given or default
@@ -77,19 +78,17 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : TermElabM (A
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
   - expression `e : B[discrs]`,
-  returns the expressions `B[C_1[ys_1]])  ... B[C_n[ys_n]]`.
-  (with `ys_i` as loose bound variable, ready to be `.instantiate`d)
+  returns the expressions `B[C_1[ys_1]])  ... B[C_n[ys_n]]`,
+  with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
   Cf. `MatcherApp.addArg`.
 -/
-def _root_.Lean.Meta.MatcherApp.transform {m}
-    -- TODO: Do we really need all these type classes?
-    [MonadControlT MetaM m] [MonadLiftT MetaM m] [Monad m] [MonadOptions m] [MonadTrace m]
-    [MonadLiftT IO m] [MonadError m] [AddMessageContext m]
-    (matcherApp : MatcherApp) (e : Expr) (k : Expr → Expr → m Unit) : m Unit :=
+def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
+    MetaM (Array Expr) :=
   lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
+    trace[Elab.definition.wf] "MatcherApp.transform {indentExpr e}"
     unless motiveArgs.size == matcherApp.discrs.size do
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
-      throwError "unexpected matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
+      throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
 
     let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i eAbst => do
       let motiveArg := motiveArgs[i]!
@@ -107,22 +106,27 @@ def _root_.Lean.Meta.MatcherApp.transform {m}
     let aux := mkApp aux motive
     let aux := mkAppN aux matcherApp.discrs
     unless (← isTypeCorrect aux) do
-      throwError "failed to add argument to matcher application, type error when constructing the new motive"
+      throwError "failed to transfer argument through matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
     let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
     let altAuxTys ← altAuxs.mapM (inferType ·)
-    (Array.zip matcherApp.alts altAuxTys).forM fun (alt, altAuxTy) => do
-    let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
-    trace[Elab.definition.wf] "alt fvs: {fvs}"
-    let body := body.getArg! 2
-    -- and abstract over the parameters of the alternative again
-    let body ← Expr.abstractM body fvs
-    -- Go under the lambdas of the alt
-    -- (TODO: Use bounded lambdaTelescope)
-    lambdaTelescope alt fun xs altBody => do
-      let body := body.instantiateRev (xs.extract 0 fvs.size)
-      trace[Elab.definition.wf] "CasesOnApp.transform result {indentExpr body}"
-      k body altBody
+    (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+      let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
+      unless fvs.size = altNumParams do
+        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+      -- extract type from our synthetic equality
+      let body := body.getArg! 2
+      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+      Expr.abstractM body fvs
+
+/-- A non-failing version of `transform` -/
+def _root_.Lean.Meta.MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) :
+    MetaM (Option (Array Expr)) :=
+  try
+    return some (← matcherApp.transform e)
+  catch _ =>
+    return none
+
 
 /--
   Given a `casesOn` application `c` of the form
@@ -133,16 +137,14 @@ def _root_.Lean.Meta.MatcherApp.transform {m}
   ```
   B[C_i[ys_i]]
   ```
-  (with `ys_i` as loose bound variable, ready to be `.instantiate`d)
+  with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
 -/
-def _root_.Lean.Meta.CasesOnApp.transform {m}
-  -- TODO: Do we really need all these type classes?
-  [MonadControlT MetaM m] [MonadLiftT MetaM m] [Monad m] [MonadOptions m] [MonadTrace m]
-  [MonadLiftT IO m] [MonadError m] [AddMessageContext m]
-    (c : CasesOnApp) (e : Expr) (k : Expr → Expr → m Unit) : m Unit :=
+def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
+    MetaM (Array Expr) :=
   lambdaTelescope c.motive fun motiveArgs _motiveBody => do
+    trace[Elab.definition.wf] "CasesOnApp.transform: {indentExpr e}"
     unless motiveArgs.size == c.indices.size + 1 do
-      throwError "failed to add argument to `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
+      throwError "failed to transfer argument through `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
     let discrs := c.indices ++ #[c.major]
     let mut eAbst := e
     for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
@@ -163,18 +165,22 @@ def _root_.Lean.Meta.CasesOnApp.transform {m}
     -- so extract them
     let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
     let altAuxTys ← altAuxs.mapM (inferType ·)
-    (Array.zip c.alts altAuxTys).forM fun (alt, altAuxTy) => do
+    (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
       let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
-      trace[Elab.definition.wf] "alt fvs: {fvs}"
+      unless fvs.size = altNumParams do
+        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+      -- extract type from our synthetic equality
       let body := body.getArg! 2
-      -- and abstract over the parameters of the alternative again
-      let body ← Expr.abstractM body fvs
-      -- Go under the lambdas of the alt
-      -- (TODO: Use bounded lambdaTelescope)
-      lambdaTelescope alt fun xs altBody => do
-        let body := body.instantiateRev (xs.extract 0 fvs.size)
-        trace[Elab.definition.wf] "CasesOnApp.transform result {indentExpr body}"
-        k body altBody
+      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+      Expr.abstractM body fvs
+
+/-- A non-failing version of `transform` -/
+def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
+    MetaM (Option (Array Expr)) :=
+  try
+    return some (← c.transform e)
+  catch _ =>
+    return none
 
 @[reducible]
 def M (recFnName : Name) (α β : Type) : Type :=
@@ -235,16 +241,34 @@ where
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp scrut e
         else
-          matcherApp.transform scrut fun scrut' altBody => do
-            loop scrut' altBody
+          if let some altScruts ← matcherApp.transform? scrut then
+            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altScruts)).forM
+              fun (alt, altNumParam, altScrut) =>
+                lambdaTelescope alt fun xs altBody => do
+                  unless altNumParam ≤ xs.size do
+                    throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                  let altScrut := altScrut.instantiateRev xs[:altNumParam]
+                  trace[Elab.definition.wf] "MatcherApp.transform result {indentExpr altScrut}"
+                  loop altScrut altBody
+          else
+            processApp scrut e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp scrut e
         else
-          casesOnApp.transform scrut fun scrut' altBody => do
-            loop scrut' altBody
+          if let some altScruts ← casesOnApp.transform? scrut then
+          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altScruts)).forM
+            fun (alt, altNumParam, altScrut) =>
+              lambdaTelescope alt fun xs altBody => do
+                unless altNumParam ≤ xs.size do
+                  throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let altScrut := altScrut.instantiateRev xs[:altNumParam]
+                trace[Elab.definition.wf] "CasesOnApp.transform result {indentExpr altScrut}"
+                loop altScrut altBody
+          else
+            processApp scrut e
       | none => processApp scrut e
     | e => do
       let _ ← ensureNoRecFn recFnName e
@@ -593,35 +617,40 @@ namespace Lean.Elab.WF
 open Lean.Elab.WF.GuessLex
 
 def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
-    (fixedPrefixSize : Nat )(decrTactic? : Option Syntax) :
+    (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
     TermElabM TerminationWF := do
-  let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize)
-  let arities := varNamess.map (·.size)
-  trace[Elab.definition.wf] "varNames is: {varNamess}"
+  try
+    let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize)
+    let arities := varNamess.map (·.size)
+    trace[Elab.definition.wf] "varNames is: {varNamess}"
 
-  -- Collect all recursive calls and extract their context
-  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
-  let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
-  let callMatrix := rcs.map (inspectCall ·)
+    -- Collect all recursive calls and extract their context
+    let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+    let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
+    let callMatrix := rcs.map (inspectCall ·)
 
-  let forbiddenArgs ← preDefs.mapM fun preDef =>
-    getForbiddenByTrivialSizeOf fixedPrefixSize preDef
+    let forbiddenArgs ← preDefs.mapM fun preDef =>
+      getForbiddenByTrivialSizeOf fixedPrefixSize preDef
 
-  -- Enumerate all meausures.
-  -- (With many functions with multiple arguments, this can explode a bit.
-  -- We could interleave enumerating measure with early pruning based on the recCalls,
-  -- once that becomes a problem. Until then, a use can always use an explicit
-  -- `terminating_by` annotatin.)
-  let some arg_measures := generateCombinations? forbiddenArgs arities
-    | throwError "Too many combinations"
+    -- Enumerate all meausures.
+    -- (With many functions with multiple arguments, this can explode a bit.
+    -- We could interleave enumerating measure with early pruning based on the recCalls,
+    -- once that becomes a problem. Until then, a use can always use an explicit
+    -- `terminating_by` annotatin.)
+    let some arg_measures := generateCombinations? forbiddenArgs arities
+      | throwError "Too many combinations"
 
-  -- The list of measures, including the measures that order functions.
-  -- The function ordering measures should come last
-  let measures : Array MutualMeasure :=
-    arg_measures.map .args ++ (List.range varNamess.size).toArray.map .func
+    -- The list of measures, including the measures that order functions.
+    -- The function ordering measures should come last
+    let measures : Array MutualMeasure :=
+      arg_measures.map .args ++ (List.range varNamess.size).toArray.map .func
 
-  match ← solve measures callMatrix with
-  | .some solution =>
-     buildTermWF (preDefs.map (·.declName)) varNamess solution
-  | .none =>
+    match ← solve measures callMatrix with
+    | .some solution => do
+      let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
+      return wf
+    | .none => throwError "Cannot find a decreasing lexicographic order"
+  catch _ =>
+    -- Hide all errors from guessing lexicographic orderings, as before
+    -- TODO: surface unexpected errors, maybe surface detailed explanation like Isabelle
     throwError "failed to prove termination, use `termination_by` to specify a well-founded relation"

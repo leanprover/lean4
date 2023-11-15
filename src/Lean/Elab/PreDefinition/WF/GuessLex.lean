@@ -52,7 +52,7 @@ The following optimizations are applied to make this feasible:
    and it adds more signal to the output.
 
 4. Instead of traversing the whole function body over and over, we traverse it once and store
-   the arguments (in unpacked form) and the local `TermElabM` state at each recursive call
+   the arguments (in unpacked form) and the local `MetaM` state at each recursive call
    (see `collectRecCalls`), which we then re-use for the possibly many proof attempts.
 
 The logic here is based on “Finding Lexicographic Orders for Termination Proofs in Isabelle/HOL”
@@ -202,7 +202,7 @@ def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
 -- Q: Is it really not possible to add this to the `where` clause?
 @[reducible]
 def M (recFnName : Name) (α β : Type) : Type :=
-  StateRefT (Array α) (StateRefT (HasConstCache recFnName) TermElabM) β
+  StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
 
 /--
 Traverses the given expression `e`, and invokes the continuation `k`
@@ -212,7 +212,7 @@ The expression `scrut` is passed along, and refined when going under a matcher
 or `casesOn` application.
 -/
 partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (scrut : Expr) (e : Expr)
-    (k : Expr → Array Expr → TermElabM α) : TermElabM (Array α) := do
+    (k : Expr → Array Expr → MetaM α) : MetaM (Array α) := do
   trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
   let (_, as) ← loop scrut e |>.run #[] |>.run' {}
   return as
@@ -299,28 +299,25 @@ where
       let _ ← ensureNoRecFn recFnName e
 
 /--
-A `SavedLocalCtxt` captures the state and local context of a `TermElabM`, to be continued later.
+A `SavedLocalCtxt` captures the state and local context of a `MetaM`, to be continued later.
 -/
--- Q: Sensible? If so, can be moved near `TermElabM.saveState`?
+-- Q: Sensible?
 structure SavedLocalCtxt where
   savedLocalContext : LocalContext
   savedLocalInstances : LocalInstances
-  savedTermContext : Term.Context
-  savedTermState : Term.SavedState
+  savedState : Meta.SavedState
 
-def SavedLocalCtxt.create : TermElabM SavedLocalCtxt := do
+def SavedLocalCtxt.create : MetaM SavedLocalCtxt := do
   let savedLocalContext ← getLCtx
   let savedLocalInstances ← getLocalInstances
-  let savedTermContext ← readThe Term.Context
-  let savedTermState ← saveState
-  return { savedLocalContext, savedLocalInstances, savedTermState, savedTermContext }
+  let savedState ← saveState
+  return { savedLocalContext, savedLocalInstances, savedState }
 
-def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : TermElabM α) :
+def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : MetaM α) :
     MetaM α := withoutModifyingState $ do
   withLCtx slc.savedLocalContext slc.savedLocalInstances do
-  slc.savedTermState.meta.restore
-  k slc.savedTermContext |>.run' slc.savedTermState.elab
-
+    slc.savedState.restore
+    k
 
 /-- A `RecCallContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
@@ -336,7 +333,7 @@ structure RecCallContext where
   ctxt : SavedLocalCtxt
 
 def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
-    TermElabM RecCallContext := do
+    MetaM RecCallContext := do
   return { caller, params, callee, args, ctxt := (← SavedLocalCtxt.create) }
 
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
@@ -377,21 +374,20 @@ call site.
 -/
 def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (arities : Array Nat)
     : MetaM (Array RecCallContext) := withoutModifyingState do
-  Lean.Elab.Term.TermElabM.run' do
-    addAsAxiom unaryPreDef
-    lambdaTelescope unaryPreDef.value fun xs body => do
-      unless xs.size == fixedPrefixSize + 1 do
-        -- Maybe cleaner to have lambdaBoundedTelescope?
-        throwError "Unexpected number of lambdas in unary pre-definition"
-      -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
-      let param := xs[fixedPrefixSize]!
-      withRecApps unaryPreDef.declName fixedPrefixSize param body fun param args => do
-        unless args.size ≥ fixedPrefixSize + 1 do
-          throwError "Insufficient arguments in recursive call"
-        let arg := args[fixedPrefixSize]!
-        let (caller, params) ← unpackArg arities param
-        let (callee, args) ← unpackArg arities arg
-        RecCallContext.create caller params callee args
+  addAsAxiom unaryPreDef
+  lambdaTelescope unaryPreDef.value fun xs body => do
+    unless xs.size == fixedPrefixSize + 1 do
+      -- Maybe cleaner to have lambdaBoundedTelescope?
+      throwError "Unexpected number of lambdas in unary pre-definition"
+    -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
+    let param := xs[fixedPrefixSize]!
+    withRecApps unaryPreDef.declName fixedPrefixSize param body fun param args => do
+      unless args.size ≥ fixedPrefixSize + 1 do
+        throwError "Insufficient arguments in recursive call"
+      let arg := args[fixedPrefixSize]!
+      let (caller, params) ← unpackArg arities param
+      let (callee, args) ← unpackArg arities arg
+      RecCallContext.create caller params callee args
 
 inductive GuessLexRel | lt | eq | le | no_idea
 deriving Repr, DecidableEq
@@ -439,21 +435,23 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
         if rel = .eq then
           MVarId.refl mvarId
         else do
-           match decrTactic? with
-          | none =>
-            let remainingGoals ← Tactic.run mvarId do
-              Tactic.evalTactic (← `(tactic| decreasing_tactic))
-            remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
-            let _expr ← instantiateMVars mvar
-            -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
-            pure ()
-          | some decrTactic => Term.withoutErrToSorry do
-            -- make info from `runTactic` available
-            pushInfoTree (.hole mvarId)
-            Term.runTactic mvarId decrTactic
-            let _expr ← instantiateMVars mvar
-            -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
-            pure ()
+          -- Q: Can I enter TermElabM like this? Is this even needed?
+          Lean.Elab.Term.TermElabM.run' do
+            match decrTactic? with
+            | none =>
+              let remainingGoals ← Tactic.run mvarId do
+                Tactic.evalTactic (← `(tactic| decreasing_tactic))
+              remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
+              let _expr ← instantiateMVars mvar
+              -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
+              pure ()
+            | some decrTactic => Term.withoutErrToSorry do
+              -- make info from `runTactic` available
+              pushInfoTree (.hole mvarId)
+              Term.runTactic mvarId decrTactic
+              let _expr ← instantiateMVars mvar
+              -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
+              pure ()
         return rel
       catch _e =>
         -- trace[Elab.definition.wf] "Did not find {repr rel} proof of {goalsToMessageData [mvarId]}"

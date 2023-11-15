@@ -17,37 +17,47 @@ import Lean.Elab.PreDefinition.WF.TerminationHint
 
 
 /-!
+This module finds lexicographic termination arguments for well-founded recursion.
 
-This module implements heuristics to finding lexicographic termination measures
-for well-founded recursion. The goal is to try all lexicographic measures and
-find one for which all proof obligations go through with the given or default
-`decreasing_by` tatic.
+Starting with basic measures (`sizeOf xᵢ` for all parameters `xᵢ`), it tries all combinations
+until it finds one where all proof obligations go through with the given tactic (`decerasing_by`),
+if given, or the default `decreasing_tactic`.
 
-The crucial optimiziation is to look at each argument of each recursive call _once_,
-try to prove `<` and (if that fails `≤`), and then look at that table to pick a suitable
-measure. The next-crucial optimization is to fill that table lazily.
+For mutual recursion, a single measure is not just one parameter, but one from each recursive
+function. Enumerating these can lead to a combinatoric explosion, so we bound
+the nubmer of measures tried.
 
-This way, we run the (likely expensive) tactics as few times as possible, while still being
-able to consider a possibly large number of combinations.
+In addition to measures derived from `sizeOf xᵢ`, it also considers measures
+that assign an order to the functions themselves. This way we can support mutual
+function definitions where no arguments decrease from one function to another.
 
-
-In the case of mutual recursion, a single measure is not just one argument position, but
-one argument from each recursive function. Enumerating these can lead to a combinatoric explosion,
-so we bound the nubmer of measures tried.
-
-In addition to measures derived from `sizeOf x` where `x` is an argument, it also considers
-measures that order the functions. This way we can support mutual function definitions where
-no arguments decrease from one function to another.
 
 The result of this module is a `TerminationWF`, which is then passed on to `wfRecursion`; this
 design is crucial so that whatever we infer in this module could also be written manually by the
 user. It would be bad if there are function definitions that can only be processed with the
 guessed lexicographic order.
 
+The following optimizations are applied to make this feasible:
+
+1. The crucial optimiziation is to look at each argument of each recursive call
+   _once_, try to prove `<` and (if that fails `≤`), and then look at that table to
+   pick a suitable measure.
+
+2. The next-crucial optimization is to fill that table lazily.  This way, we run the (likely
+   expensive) tactics as few times as possible, while still being able to consider a possibly
+   large number of combinations.
+
+3. Before we even try to prove `<`, we check if the arguments are equal (`=`). No well-founded
+   measure will relate equal terms, likely this check is faster than firing up the tactic engine,
+   and it adds more signal to the output.
+
+4. Instead of traversing the whole function body over and over, we traverse it once and store
+   the arguments (in unpacked form) and the local `TermElabM` state at each recursive call
+   (see `collectRecCalls`), which we then re-use for the possibly many proof attempts.
+
 The logic here is based on “Finding Lexicographic Orders for Termination Proofs in Isabelle/HOL”
 by Lukas Bulwahn, Alexander Krauss, and Tobias Nipkow, 10.1007/978-3-540-74591-4_5
 <https://www21.in.tum.de/~nipkow/pubs/tphols07.pdf>.
-
 -/
 
 set_option autoImplicit false
@@ -62,6 +72,8 @@ Use user-given parameter names if present; use x1...xn otherwise.
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
 -/
+-- TODO: Maybe the eta-expansion handling `fun foo : … | n -> ` should try to use
+-- a nicer name than simply `x`?
 def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
   lambdaTelescope preDef.value fun xs _ => do
     let xs := xs.extract fixedPrefixSize xs.size
@@ -75,6 +87,7 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
         ns := ns.push n
     return ns
 
+
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
   - expression `e : B[discrs]`,
@@ -82,6 +95,7 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
   Cf. `MatcherApp.addArg`.
 -/
+-- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
     MetaM (Array Expr) :=
   lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
@@ -120,6 +134,7 @@ def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
       Expr.abstractM body fvs
 
 /-- A non-failing version of `transform` -/
+-- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try
@@ -139,6 +154,7 @@ def _root_.Lean.Meta.MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) 
   ```
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
 -/
+-- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
     MetaM (Array Expr) :=
   lambdaTelescope c.motive fun motiveArgs _motiveBody => do
@@ -175,6 +191,7 @@ def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
       Expr.abstractM body fvs
 
 /-- A non-failing version of `transform` -/
+-- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try
@@ -182,11 +199,19 @@ def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
   catch _ =>
     return none
 
+-- Q: Is it really not possible to add this to the `where` clause?
 @[reducible]
 def M (recFnName : Name) (α β : Type) : Type :=
   StateRefT (Array α) (StateRefT (HasConstCache recFnName) TermElabM) β
 
-partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (e : Expr) (scrut : Expr)
+/--
+Traverses the given expression `e`, and invokes the continuation `k`
+at every saturated call to `recFnName`.
+
+The expression `scrut` is passed along, and refined when going under a matcher
+or `casesOn` application.
+-/
+partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (scrut : Expr) (e : Expr)
     (k : Expr → Array Expr → TermElabM α) : TermElabM (Array α) := do
   trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
   let (_, as) ← loop scrut e |>.run #[] |>.run' {}
@@ -273,18 +298,17 @@ where
     | e => do
       let _ ← ensureNoRecFn recFnName e
 
-/-- A `SavedLocalCtxt` captures the local context (e.g. of a recursive call),
-so that it can be resumed later.
+/--
+A `SavedLocalCtxt` captures the state and local context of a `TermElabM`, to be continued later.
 -/
+-- Q: Sensible? If so, can be moved near `TermElabM.saveState`?
 structure SavedLocalCtxt where
-  savedState : Term.SavedState
   savedLocalContext : LocalContext
   savedLocalInstances : LocalInstances
   savedTermContext : Term.Context
   savedTermState : Term.SavedState
 
 def SavedLocalCtxt.create : TermElabM SavedLocalCtxt := do
-  let savedState ← saveState
   let savedLocalContext ← getLCtx
   let savedLocalInstances ← getLocalInstances
   let savedTermContext ← readThe Term.Context
@@ -299,8 +323,7 @@ def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : TermElabM α) :
 
 
 /-- A `RecCallContext` focuses on a single recursive call in a unary predefinition,
-and runs the given action in the context of that call.
--/
+and runs the given action in the context of that call.  -/
 structure RecCallContext where
   --- Function index of caller
   caller : Nat
@@ -312,10 +335,16 @@ structure RecCallContext where
   args : Array Expr
   ctxt : SavedLocalCtxt
 
+def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
+    TermElabM RecCallContext := do
+  return { caller, params, callee, args, ctxt := (← SavedLocalCtxt.create) }
+
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.
-Cf. `packMutual`
--/
+
+We expect precisely the expressions produced by `packMutual`, with manifest
+`PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
+rather than using projectinos. -/
 def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
     m (Nat × Array Expr) := do
   -- count PSum injections to find out which function is doing the call
@@ -343,10 +372,6 @@ def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
   args := args.push e
   return (funidx, args)
 
-def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
-    TermElabM RecCallContext := do
-  return { caller, params, callee, args, ctxt := (← SavedLocalCtxt.create) }
-
 /-- Traverse a unary PreDefinition, and returns a `WithRecCall` closure for each recursive
 call site.
 -/
@@ -360,7 +385,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
         throwError "Unexpected number of lambdas in unary pre-definition"
       -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
       let param := xs[fixedPrefixSize]!
-      withRecApps unaryPreDef.declName fixedPrefixSize body param fun param args => do
+      withRecApps unaryPreDef.declName fixedPrefixSize param body fun param args => do
         unless args.size ≥ fixedPrefixSize + 1 do
           throwError "Insufficient arguments in recursive call"
         let arg := args[fixedPrefixSize]!

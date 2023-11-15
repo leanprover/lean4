@@ -82,7 +82,7 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
       let n ← xs[i]!.fvarId!.getUserName
       if n.hasMacroScopes then
       -- TODO: Prettier code to generate x1...xn
-        ns := ns.push (← mkFreshUserName (.mkSimple ("x" ++ (repr (i+1)).pretty)))
+        ns := ns.push (← mkFreshUserName (.mkSimple s!"x{i+1}"))
       else
         ns := ns.push n
     return ns
@@ -199,9 +199,7 @@ def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
   catch _ =>
     return none
 
--- Q: Is it really not possible to add this to the `where` clause?
-@[reducible]
-def M (recFnName : Name) (α β : Type) : Type :=
+abbrev M (recFnName : Name) (α β : Type) : Type :=
   StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
 
 /--
@@ -302,6 +300,7 @@ where
 A `SavedLocalCtxt` captures the state and local context of a `MetaM`, to be continued later.
 -/
 -- Q: Sensible?
+-- See InfoTrees, similar stuff
 structure SavedLocalCtxt where
   savedLocalContext : LocalContext
   savedLocalInstances : LocalInstances
@@ -322,13 +321,13 @@ def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : MetaM α) :
 /-- A `RecCallContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
 structure RecCallContext where
-  --- Function index of caller
+  /-- Function index of caller -/
   caller : Nat
-  --- Parameters of caller
+  /-- Parameters of caller -/
   params : Array Expr
-  --- Function index of callee
+  /-- Function index of callee -/
   callee : Nat
-  --- Arguments to callee
+  /-- Arguments to callee -/
   args : Array Expr
   ctxt : SavedLocalCtxt
 
@@ -605,6 +604,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
 
 
 -- Does this really not yet exist? Should it?
+-- Yes!
 partial def mkTupleSyntax : Array Syntax → MetaM Syntax
   | #[]  => `(())
   | #[e] => return e
@@ -623,7 +623,8 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
     let body ← mkTupleSyntax (← measures.mapM fun
       | .args varIdxs =>
           let v := vars.get! (varIdxs[funIdx]!)
-          `(sizeOf $v)
+          let sizeOfIdent := mkIdent ``sizeOf
+          `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
     let declName := declNames[funIdx]!

@@ -172,13 +172,13 @@ jobs:
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.
       - name: Cleanup workspace
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           sudo rm -rf *
 
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         uses: actions/checkout@v3
         with:
           repository: leanprover-community/mathlib4
@@ -187,7 +187,7 @@ jobs:
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
       - name: Check if branch exists
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         id: check_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
@@ -221,6 +221,6 @@ jobs:
           fi
 
       - name: Push changes
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && ${{ steps.ready.outputs.mathlib_ready == 'true' }}
+        if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}

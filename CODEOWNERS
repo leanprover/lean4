@@ -1,0 +1,18 @@
+# Code Owners
+#
+# Documents responsible people per component.
+# Listed persons will automatically be asked by GitHub to review a PR touching these paths.
+# If multiple names are listed, a review by any of them is considered sufficient by default.
+
+/.github/ @Kha @semorrison
+/RELEASES.md @semorrison
+/src/ @leodemoura @Kha
+/src/Init/IO.lean @joehendrix
+/src/kernel/ @leodemoura
+/src/lake/ @tydeu
+/src/Lean/Compiler/ @leodemoura
+/src/Lean/Elab/Tactic/ @semorrison
+/src/Lean/Meta/Tactic/ @leodemoura
+/src/Lean/Parser/ @Kha
+/src/Lean/PrettyPrinter/ @Kha
+/src/Lean/Server/ @mhuisi

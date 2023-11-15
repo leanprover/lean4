@@ -264,7 +264,6 @@ def reorderAlts (alts : Array Alt) (altsSyntax : Array Syntax) : Array Alt := Id
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
-  checkAltNames alts altsSyntax
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
@@ -276,6 +275,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (alts
   else go
 where
   go := do
+    checkAltNames alts altsSyntax
     let alts := reorderAlts alts altsSyntax
     let hasAlts := altsSyntax.size > 0
     let mut usedWildcard := false

@@ -172,15 +172,16 @@ jobs:
             os: ubuntu-latest
             # Use 32bit on stage0 and stage1 to keep oleans compatible
             CMAKE_OPTIONS: -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF
+            cmultilib: true
             release: true
             cross: true
             shell: bash -euxo pipefail {0}
-            CTEST_OPTIONS: -E 'leancomptest|leanpkgtest|leanlaketest'
           - name: Web Assembly
             os: ubuntu-latest
             # Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
             CMAKE_OPTIONS: -DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX="" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
             wasm: true
+            cmultilib: true
             release: true
             cross: true
             shell: bash -euxo pipefail {0}
@@ -212,7 +213,7 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest' && !matrix.wasm
+        if: matrix.os == 'ubuntu-latest' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -234,7 +235,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib ccache
-        if: matrix.wasm
+        if: matrix.cmultilib
       - name: Cache
         uses: actions/cache@v3
         with:

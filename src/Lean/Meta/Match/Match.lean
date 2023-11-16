@@ -992,16 +992,16 @@ def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Exp
     unless (← isTypeCorrect aux) do
       throwError "failed to transfer argument through matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
+    let (altAuxs, _, _) ← forallMetaTelescope auxType
     let altAuxTys ← altAuxs.mapM (inferType ·)
     (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
-      unless fvs.size = altNumParams do
-        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-      -- extract type from our synthetic equality
-      let body := body.getArg! 2
-      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-      Expr.abstractM body fvs
+      forallTelescope altAuxTy fun fvs body => do
+        unless fvs.size = altNumParams do
+          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+        -- extract type from our synthetic equality
+        let body := body.getArg! 2
+        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+        Expr.abstractM body fvs
 
 /-- A non-failing version of `MatcherApp.transform` -/
 def MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) :

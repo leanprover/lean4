@@ -11,8 +11,10 @@
 /src/kernel/ @leodemoura
 /src/lake/ @tydeu
 /src/Lean/Compiler/ @leodemoura
+/src/Lean/Data/Lsp/ @mhuisi
 /src/Lean/Elab/Tactic/ @semorrison
 /src/Lean/Meta/Tactic/ @leodemoura
 /src/Lean/Parser/ @Kha
 /src/Lean/PrettyPrinter/ @Kha
 /src/Lean/Server/ @mhuisi
+/src/runtime/io.cpp @joehendrix

@@ -51,13 +51,17 @@ def CasesOnApp.toExpr (c : CasesOnApp) : Expr :=
 /--
   Given a `casesOn` application `c` of the form
   ```
-  casesOn As (fun is x => motive[i, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
+  casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
   ```
   and an expression `e : B[is, major]`, construct the term
   ```
-  casesOn As (fun is x => B[is, x] → motive[i, xs]) is major (fun ys_1 (y : B[C_1[ys_1]]) => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n (y : B[C_n[ys_n]]) => (alt_n : motive (C_n[ys_n]) e remaining
+  casesOn As (fun is x => B[is, x] → motive[i, xs]) is major (fun ys_1 (y : B[_, C_1[ys_1]]) => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n (y : B[_, C_n[ys_n]]) => (alt_n : motive (C_n[ys_n]) e remaining
   ```
   We use `kabstract` to abstract the `is` and `major` from `B[is, major]`.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  the argument provided by `fix` to refine the termination argument, which may mention `major`.
+  See there for how to use this function.
 -/
 def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM CasesOnApp := do
   lambdaTelescope c.motive fun motiveArgs motiveBody => do
@@ -117,15 +121,20 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
 /--
   Given a `casesOn` application `c` of the form
   ```
-  casesOn As (fun is x => motive[i, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
+  casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
   ```
-  and a type `e : B[is, major]`, for every alternative `i`, construct the type
+  and an expression `B[is, major]`, for every alternative `i`, construct the type
   ```
-  B[C_i[ys_i]]
+  B[_, C_i[ys_i]]
   ```
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
 
-  This is similar to `CasesOnApp.addArg` when you only have a type to transform, not a concrete value.
+  This is similar to `CasesOnApp.addArg` when you only have an expression to
+  refined, and not a type with a value.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' paramter, which may mention `major`.
+  See there for how to use this function.
 -/
 def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope c.motive fun motiveArgs _motiveBody => do
@@ -137,7 +146,8 @@ def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
     for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
       eAbst ← kabstract eAbst discr
       eAbst := eAbst.instantiate1 motiveArg
-    -- Let's create something Prop-typed that mentions `e`, by writing `e = e`.
+    -- Let's create something that’s a `Sort` and mentions `e`, by writing `e = e`,
+    -- so that we can use it as a motive
     let eEq ← mkEq eAbst eAbst
     let motive ← mkLambdaFVars motiveArgs eEq
     let us := if c.propOnly then c.us else levelZero :: c.us.tail!

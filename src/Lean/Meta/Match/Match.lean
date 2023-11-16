@@ -910,11 +910,17 @@ private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
   - expression `e : B[discrs]`,
   Construct the term
-  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`, and
+  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
+
   We use `kabstract` to abstract the discriminants from `B[discrs]`.
+
   This method assumes
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  the argument provided by `fix` to refine the termination argument, which may mention `major`.
+  See there for how to use this function.
 -/
 def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
@@ -961,11 +967,20 @@ def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option Matc
 
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - expression `e : B[discrs]`,
-  returns the expressions `B[C_1[ys_1]])  ... B[C_n[ys_n]]`,
+  - a type `B[discrs]`,
+  returns the types `B[C_1[ys_1]] ... B[C_n[ys_n]]`,
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
 
-  This is similar to `MatcherApp.addArg` when you only have a type to transform, not a concrete value.
+  This method assumes
+  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
+  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+  This is similar to `MatcherApp.addArg` when you only have an expression to
+  refined, and not a type with a value.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' paramter, which may mention `major`.
+  See there for how to use this function.
 -/
 def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
@@ -979,6 +994,8 @@ def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Exp
       let discr     := matcherApp.discrs[i]!
       let eTypeAbst ← kabstract eAbst discr
       return eTypeAbst.instantiate1 motiveArg
+    -- Let's create something that’s a `Sort` and mentions `e`, by writing `e = e`,
+    -- so that we can use it as a motive
     let eEq ← mkEq eAbst eAbst
 
     let matcherLevels ← match matcherApp.uElimPos? with

@@ -63,9 +63,12 @@ def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init <name> [<template>]
+  lake init [<name>] [<template>]
 
-{templateHelp}"
+{templateHelp}
+
+You can create a package with current directory's name via `lake init .`
+or a bare `lake init`."
 
 def helpBuild :=
 "Build targets

@@ -91,15 +91,12 @@ Is true if either the package or the library have `precompileModules` set.
 The arguments to pass to `lean --server` when running the Lean language server.
 `serverOptions` is the the accumulation of:
 - the package's `leanOptions`
-- the library's `leanOptions`
 - the package's `moreServerOptions`
+- the library's `leanOptions`
 - the library's `moreServerOptions`
 -/
 @[inline] def serverOptions (self : LeanLib) : Array LeanOption :=
-  self.pkg.leanOptions
-    ++ self.config.leanOptions
-    ++ self.pkg.moreServerOptions
-    ++ self.config.moreServerOptions
+  self.pkg.moreServerOptions ++ self.config.moreServerOptions
 
 /--
 The build type for modules of this library.
@@ -119,15 +116,12 @@ then the default (which is C for now).
 The arguments to pass to `lean` when compiling the library's Lean files.
 `leanArgs` is the accumulation of:
 - the package's `leanOptions`
-- the library's `leanOptions`
 - the package's `moreLeanArgs`
+- the library's `leanOptions`
 - the library's `moreLeanArgs`
 -/
 @[inline] def leanArgs (self : LeanLib) : Array String :=
-  self.pkg.leanOptions.map (·.asCliArg)
-    ++ self.config.leanOptions.map (·.asCliArg)
-    ++ self.pkg.moreLeanArgs
-    ++ self.config.moreLeanArgs
+  self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
 
 /--
 The arguments to weakly pass to `lean` when compiling the library's Lean files.

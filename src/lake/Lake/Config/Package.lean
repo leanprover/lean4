@@ -324,7 +324,7 @@ namespace Package
   self.config.moreGlobalServerArgs
 
 /-- The package's `moreServerOptions` configuration. -/
-@[inline] def moreServerOptions (self : Package) : Array ServerOption :=
+@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
   self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
@@ -334,6 +334,10 @@ namespace Package
 /-- The package's `backend` configuration. -/
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
+
+/-- The package's `leanOptions` configuration. -/
+@[inline] def leanOptions (self : Package) : Array LeanOption :=
+  self.config.leanOptions
 
 /-- The package's `moreLeanArgs` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=

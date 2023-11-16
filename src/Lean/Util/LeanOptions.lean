@@ -3,83 +3,83 @@ import Lean.Util.Paths
 namespace Lean
 
 /-- Restriction of `DataValue` that covers exactly those cases that Lean is able to handle when passed via the `-D` flag. -/
-inductive ServerOptionValue where
+inductive LeanOptionValue where
   | ofString (s : String)
   | ofBool   (b : Bool)
   | ofNat    (n : Nat)
   deriving Inhabited, Repr
 
-def ServerOptionValue.ofDataValue? : DataValue → Option ServerOptionValue
+def LeanOptionValue.ofDataValue? : DataValue → Option LeanOptionValue
   | .ofString s => some (.ofString s)
   | .ofBool b   => some (.ofBool b)
   | .ofNat n    => some (.ofNat n)
   | _           => none
 
-def ServerOptionValue.toDataValue : ServerOptionValue → DataValue
+def LeanOptionValue.toDataValue : LeanOptionValue → DataValue
   | .ofString s => .ofString s
   | .ofBool b   => .ofBool b
   | .ofNat n    => .ofNat n
 
-instance : KVMap.Value ServerOptionValue where
-  toDataValue  := ServerOptionValue.toDataValue
-  ofDataValue? := ServerOptionValue.ofDataValue?
+instance : KVMap.Value LeanOptionValue where
+  toDataValue  := LeanOptionValue.toDataValue
+  ofDataValue? := LeanOptionValue.ofDataValue?
 
-instance : Coe String ServerOptionValue where
-  coe := ServerOptionValue.ofString
+instance : Coe String LeanOptionValue where
+  coe := LeanOptionValue.ofString
 
-instance : Coe Bool ServerOptionValue where
-  coe := ServerOptionValue.ofBool
+instance : Coe Bool LeanOptionValue where
+  coe := LeanOptionValue.ofBool
 
-instance : Coe Nat ServerOptionValue where
-  coe := ServerOptionValue.ofNat
+instance : Coe Nat LeanOptionValue where
+  coe := LeanOptionValue.ofNat
 
-instance : FromJson ServerOptionValue where
+instance : FromJson LeanOptionValue where
   fromJson?
     | (s : String) => Except.ok s
     | (b : Bool)   => Except.ok b
     | (n : Nat)    => Except.ok n
-    | _ => Except.error "invalid ServerOptionValue type"
+    | _ => Except.error "invalid LeanOptionValue type"
 
-instance : ToJson ServerOptionValue where
+instance : ToJson LeanOptionValue where
   toJson
     | (s : String) => s
     | (b : Bool)   => b
     | (n : Nat)    => n
 
-/-- Formats the server option value as a CLI flag argument. -/
-def ServerOptionValue.asCliFlagValue : (v : ServerOptionValue) → String
+/-- Formats the lean option value as a CLI flag argument. -/
+def LeanOptionValue.asCliFlagValue : (v : LeanOptionValue) → String
   | (s : String) => s!"\"{s}\""
   | (b : Bool)   => toString b
   | (n : Nat)    => toString n
 
-/-- Options that are used by the server as if they were passed using `-D`. -/
-structure ServerOptions where
-  values : RBMap Name ServerOptionValue Name.cmp
+/-- Options that are used by Lean as if they were passed using `-D`. -/
+structure LeanOptions where
+  values : RBMap Name LeanOptionValue Name.cmp
   deriving Inhabited, Repr
 
-def ServerOptions.toOptions (serverOptions : ServerOptions) : Options := Id.run do
+def LeanOptions.toOptions (leanOptions : LeanOptions) : Options := Id.run do
   let mut options := KVMap.empty
-  for ⟨name, optionValue⟩ in serverOptions.values do
+  for ⟨name, optionValue⟩ in leanOptions.values do
     options := options.insert name optionValue.toDataValue
   return options
 
-def ServerOptions.fromOptions? (options : Options) : Option ServerOptions := do
+def LeanOptions.fromOptions? (options : Options) : Option LeanOptions := do
   let mut values := RBMap.empty
   for ⟨name, dataValue⟩ in options do
-    let optionValue ← ServerOptionValue.ofDataValue? dataValue
+    let optionValue ← LeanOptionValue.ofDataValue? dataValue
     values := values.insert name optionValue
   return ⟨values⟩
 
-instance : FromJson ServerOptions where
+instance : FromJson LeanOptions where
   fromJson?
     | Json.obj obj => do
       let values ← obj.foldM (init := RBMap.empty) fun acc k v => do
         let optionValue ← fromJson? v
         return acc.insert k.toName optionValue
       return ⟨values⟩
-    | _ => Except.error "invalid ServerOptions type"
+    | _ => Except.error "invalid LeanOptions type"
 
-instance : ToJson ServerOptions where
+instance : ToJson LeanOptions where
   toJson options :=
     Json.obj <| options.values.fold (init := RBNode.leaf) fun acc k v =>
       acc.insert (cmp := compare) k.toString (toJson v)

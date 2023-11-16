@@ -42,14 +42,12 @@ def setupFile (loadConfig : LoadConfig) (path : FilePath) (imports : List String
       loadDynlibPaths := dynlibs
       : LeanPaths
     }
-    let setupOptions : ServerOptions ← do
+    let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath
         | pure ⟨∅⟩
-      let some (pkg, module) := ws.packages.findSome? fun pkg => do
-          pure (pkg, ← pkg.findModule? moduleName)
+      let some module := ws.findModule? moduleName
         | pure ⟨∅⟩
-      let options := pkg.config.moreServerOptions ++ module.lib.config.moreServerOptions
-        |>.map fun opt => ⟨opt.name, opt.value⟩
+      let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
       pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
     IO.println <| Json.compress <| toJson {
       paths,

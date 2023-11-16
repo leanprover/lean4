@@ -1,9 +1,9 @@
-import Lean.Util.ServerOptions
+import Lean.Util.LeanOptions
 
 /--
 Information shared between Lake and Lean when calling `lake setup-file`.
 -/
 structure Lean.FileSetupInfo where
   paths        : LeanPaths
-  setupOptions : ServerOptions
+  setupOptions : LeanOptions
   deriving FromJson, ToJson

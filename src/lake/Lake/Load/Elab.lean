@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
+import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
 import Lake.Util.Platform
@@ -96,21 +97,50 @@ def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environmen
   `Environment` is very small.
   -/
   let (mod, _) ← readModuleData olean
-  let mut env ← importModulesUsingCache mod.imports leanOpts 1024
+  let env ← importModulesUsingCache mod.imports leanOpts 1024
   -- Apply constants (does not go through the kernel, so order is irrelevant)
-  env := mod.constants.foldl addToEnv env
+  let env := mod.constants.foldl addToEnv env
   /-
-  Apply extension entries (`PersistentEnvExtension.addEntryFn` is pure and
-  does not have access to the whole environment, so no dependency worries
-  here either)
+  Below, we pass module environment extension entries to
+  `PersistentEnvExtension.addEntryFn` - but for an extension of
+  non-erased type `PersistentEnvExtension α β σ`, the former are of type
+  `α` while `addEntryFn` expects `β`s (the type-erased
+  `persistentEnvExtensionsRef` ought to be `unsafe` to prevent this from
+  simply compiling but it isn't right now). Fortunately, all extensions
+  relevant for workspace loading, which we filter for here, have `α = β`;
+  entries for any other extensions can safely be ignored.
   -/
   let extDescrs ← persistentEnvExtensionsRef.get
   let extNameIdx ← mkExtNameMap 0
-  for (extName, ents) in mod.entries do
-    if let some entryIdx := extNameIdx.find? extName then
-      for ent in ents do
-        env := extDescrs[entryIdx]!.addEntry env ent
+  let env := mod.entries.foldl (init := env) fun env (extName, ents) =>
+    if lakeExts.contains extName then
+      match extNameIdx.find? extName with
+      | some entryIdx => ents.foldl extDescrs[entryIdx]!.addEntry env
+      | none => env
+    else
+      env
   return env
+where
+  lakeExts :=
+    NameSet.empty
+    -- Lake Persistent Extensions
+    |>.insert ``packageAttr
+    |>.insert ``packageDepAttr
+    |>.insert ``postUpdateAttr
+    |>.insert ``scriptAttr
+    |>.insert ``defaultScriptAttr
+    |>.insert ``leanLibAttr
+    |>.insert ``leanExeAttr
+    |>.insert ``externLibAttr
+    |>.insert ``targetAttr
+    |>.insert ``defaultTargetAttr
+    |>.insert ``moduleFacetAttr
+    |>.insert ``packageFacetAttr
+    |>.insert ``libraryFacetAttr
+    -- Docstring Extension (e.g., for scripts)
+    |>.insert `Lean.docStringExt
+    -- IR Extension (for constant evaluation)
+    |>.insert ``IR.declMapExt
 
 instance : ToJson Hash := ⟨(toJson ·.val)⟩
 instance : FromJson Hash := ⟨((⟨·⟩) <$> fromJson? ·)⟩

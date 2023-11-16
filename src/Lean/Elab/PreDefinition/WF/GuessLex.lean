@@ -122,16 +122,16 @@ def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
     unless (← isTypeCorrect aux) do
       throwError "failed to transfer argument through matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
+    let (altAuxs, _, _) ← forallMetaTelescope auxType
     let altAuxTys ← altAuxs.mapM (inferType ·)
     (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
-      unless fvs.size = altNumParams do
-        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-      -- extract type from our synthetic equality
-      let body := body.getArg! 2
-      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-      Expr.abstractM body fvs
+      forallTelescope altAuxTy fun fvs body => do
+        unless fvs.size = altNumParams do
+          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+        -- extract type from our synthetic equality
+        let body := body.getArg! 2
+        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+        Expr.abstractM body fvs
 
 /-- A non-failing version of `transform` -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
@@ -166,7 +166,6 @@ def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
     for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
       eAbst ← kabstract eAbst discr
       eAbst := eAbst.instantiate1 motiveArg
-    -- Up to this point, this is cargo-culted from `CasesOn.App.addArg`
     -- Let's create something Prop-typed that mentions `e`, by writing `e = e`.
     let eEq ← mkEq eAbst eAbst
     let motive ← mkLambdaFVars motiveArgs eEq
@@ -179,16 +178,16 @@ def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
     let auxType ← inferType aux
     -- The type of the remaining arguments will mention `e` instantiated for each arg
     -- so extract them
-    let (altAuxs, _, _) ← Lean.Meta.forallMetaTelescope auxType
+    let (altAuxs, _, _) ← forallMetaTelescope auxType
     let altAuxTys ← altAuxs.mapM (inferType ·)
     (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      let (fvs, _, body) ← Lean.Meta.forallMetaTelescope altAuxTy
-      unless fvs.size = altNumParams do
-        throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-      -- extract type from our synthetic equality
-      let body := body.getArg! 2
-      -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-      Expr.abstractM body fvs
+      forallTelescope altAuxTy fun fvs body => do
+        unless fvs.size = altNumParams do
+          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+        -- extract type from our synthetic equality
+        let body := body.getArg! 2
+        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+        Expr.abstractM body fvs
 
 /-- A non-failing version of `transform` -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
@@ -434,7 +433,6 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
         if rel = .eq then
           MVarId.refl mvarId
         else do
-          -- Q: Can I enter TermElabM like this? Is this even needed?
           Lean.Elab.Term.TermElabM.run' do
             match decrTactic? with
             | none =>

@@ -17,6 +17,7 @@ OUT = build
 OLEAN_OUT = $(OUT)
 TEMP_OUT = $(OUT)/temp
 C_OUT = $(TEMP_OUT)
+BC_OUT = $(TEMP_OUT)
 BIN_OUT = $(OUT)/bin
 LIB_OUT = $(OUT)/lib
 BIN_NAME = $(PKG)
@@ -39,6 +40,8 @@ endif
 SHELL = /usr/bin/env bash -euo pipefail
 
 .PHONY: all bin lib depends clean
+# Disable all default make rules
+.SUFFIXES:
 
 all: $(OBJS)
 
@@ -68,37 +71,41 @@ endif
 ifndef LLVM
 	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" $<
 # create the .c file atomically
-	@mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
+	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
 else
 	$(LEAN) $(LEAN_OPTS) -o "$@" -i "$(OLEAN_OUT)/$*.ilean" --c="$(TEMP_OUT)/$*.c.tmp" --bc="$(TEMP_OUT)/$*.bc.tmp" $<
-	@mv "$(TEMP_OUT)/$*.c.tmp" "$(TEMP_OUT)/$*.c"
-	@mv "$(TEMP_OUT)/$*.bc.tmp" "$(TEMP_OUT)/$*.bc"
-	@mv "$(TEMP_OUT)/$*.bc.tmp.o" "$(TEMP_OUT)/$*.o"
+	@mv "$(TEMP_OUT)/$*.c.tmp" "$(C_OUT)/$*.c"
+	@mv "$(TEMP_OUT)/$*.bc.tmp" "$(BC_OUT)/$*.bc"
 endif
 
 $(OLEAN_OUT)/%.ilean: $(OLEAN_OUT)/%.olean
 	@
 
 ifndef C_ONLY
-$(TEMP_OUT)/%.c: $(OLEAN_OUT)/%.olean
+$(C_OUT)/%.c: $(OLEAN_OUT)/%.olean
+	@
+
+$(BC_OUT)/%.bc: $(OLEAN_OUT)/%.olean
 	@
 endif
 
 ifdef LLVM
-# currently built as part of `--bc`
-$(TEMP_OUT)/%.o: $(OLEAN_OUT)/%.olean
-	@
+$(TEMP_OUT)/%.o: $(BC_OUT)/%.bc
 else
 $(TEMP_OUT)/%.o: $(C_OUT)/%.c
+endif
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p "$(@D)"
 ifdef PROFILE
+ifdef LLVM
+	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "LLVM bitcode compilation %fs\n", $$1 + $$2 }' > /dev/stderr
+else
 	\time -f "%U %S" $(LEANC) -c -o $@ $< $(LEANC_OPTS) 2>&1 > /dev/null | awk '{ printf "C compilation %fs\n", $$1 + $$2 }' > /dev/stderr
+endif
 else
 	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
-endif
 endif
 
 $(BIN_OUT)/$(BIN_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(BIN_OUT)
@@ -120,7 +127,11 @@ $(LIB_OUT)/$(STATIC_LIB_NAME): $(addprefix $(TEMP_OUT)/,$(REL_OS)) | $(LIB_OUT)
 clean:
 	rm -rf $(OUT)
 
-.PRECIOUS: $(TEMP_OUT)/%.c
+ifdef LLVM
+.PRECIOUS: $(C_OUT)/%.c $(BC_OUT)/%.bc
+else
+.PRECIOUS: $(C_OUT)/%.c
+endif
 
 ifndef C_ONLY
 include $(DEPS)

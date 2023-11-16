@@ -718,7 +718,7 @@ static lean_object* _init_l_term_____x5b___x5d___x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term__[_]_?", 11);
+x_1 = lean_mk_string_from_bytes("term__[_]_\?", 11);
 return x_1;
 }
 }
@@ -934,7 +934,7 @@ static lean_object* _init_l_term_____x5b___x5d___x3f___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("?", 1);
+x_1 = lean_mk_string_from_bytes("\?", 1);
 return x_1;
 }
 }
@@ -1034,7 +1034,7 @@ static lean_object* _init_l___aux__Init__Util______macroRules__term_____x5b___x5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem?", 8);
+x_1 = lean_mk_string_from_bytes("getElem\?", 8);
 return x_1;
 }
 }

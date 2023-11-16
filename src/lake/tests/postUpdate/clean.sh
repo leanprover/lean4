@@ -1,2 +1,2 @@
-rm -rf dep/build dep/lakefile.olean dep/toolchain dep/lake-manifest.json
-rm -f lake-manifest.json lakefile.olean lake-manifest.json toolchain
+rm -rf dep/.lake dep/toolchain dep/lake-manifest.json
+rm -rf .lake lake-manifest.json toolchain

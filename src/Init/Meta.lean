@@ -65,6 +65,15 @@ def toolchain :=
 @[extern "lean_internal_is_stage0"]
 opaque Internal.isStage0 (u : Unit) : Bool
 
+/--
+This function can be used to detect whether the compiler has support for
+generating LLVM instead of C. It is used by lake instead of the --features
+flag in order to avoid having to run a compiler for this every time on startup.
+See #2572.
+-/
+@[extern "lean_internal_has_llvm_backend"]
+opaque Internal.hasLLVMBackend (u : Unit) : Bool
+
 /-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
   0x391 ≤ c.val && c.val ≤ 0x3dd
@@ -1252,14 +1261,14 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true`.
+/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
 This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, decide := true }
 
 /-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
@@ -1267,10 +1276,10 @@ partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
 
 /-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, decide := true }
 
 /-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

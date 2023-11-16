@@ -1142,7 +1142,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonLe
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dependencyBuildMode?", 20);
+x_1 = lean_mk_string_from_bytes("dependencyBuildMode\?", 20);
 return x_1;
 }
 }

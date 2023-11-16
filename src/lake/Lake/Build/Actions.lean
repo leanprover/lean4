@@ -1,17 +1,21 @@
 /-
 Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
+Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone, Siddharth Bhat
 -/
 import Lake.Util.Proc
 import Lake.Util.NativeLib
 import Lake.Build.Context
 
+/-! # Common Build Actions
+Low level actions to build common Lean artfiacts via the Lean toolchain.
+-/
+
 namespace Lake
 open System
 
 def compileLeanModule (name : String) (leanFile : FilePath)
-(oleanFile? ileanFile? cFile? : Option FilePath)
+(oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
 (leanPath : SearchPath := []) (rootDir : FilePath := ".")
 (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
 (leanArgs : Array String := #[]) (lean : FilePath := "lean")
@@ -28,6 +32,9 @@ def compileLeanModule (name : String) (leanFile : FilePath)
   if let some cFile := cFile? then
     createParentDirs cFile
     args := args ++ #["-c", cFile.toString]
+  if let some bcFile := bcFile? then
+    createParentDirs bcFile
+    args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
     args := args.push s!"--load-dynlib={dynlib}"
   proc {
@@ -92,6 +99,7 @@ def download (name : String) (url : String) (file : FilePath) : LogIO PUnit := d
 /-- Unpack an archive `file` using `tar` into the directory `dir`. -/
 def untar (name : String) (file : FilePath) (dir : FilePath) (gzip := true) : LogIO PUnit := do
   logVerbose s!"Unpacking {name}"
+  IO.FS.createDirAll dir
   let mut opts := "-x"
   if (← getIsVerbose) then
     opts := opts.push 'v'

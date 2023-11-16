@@ -51,7 +51,6 @@ extern uint8_t l_instInhabitedBool;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Testing_assertSize___spec__1(size_t, size_t, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertSize___lambda__1___closed__3;
-uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_5757_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Code_containsConst_goLetValue___boxed(lean_object*, lean_object*);
@@ -113,6 +112,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Testing_0__Lean_Compiler
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_getDecls___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_assert(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_TestM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_5796_(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_Testing_assertIsAtFixPoint___lambda__1___closed__1;
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_Testing_SimpleAssertionM_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2893,7 +2893,7 @@ else
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = lean_array_fget(x_4, x_6);
 x_11 = lean_array_fget(x_5, x_6);
-x_12 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_5757_(x_10, x_11);
+x_12 = l___private_Lean_Compiler_LCNF_Basic_0__Lean_Compiler_LCNF_beqDecl____x40_Lean_Compiler_LCNF_Basic___hyg_5796_(x_10, x_11);
 if (x_12 == 0)
 {
 uint8_t x_13; 

@@ -765,7 +765,17 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
       moduleNames := s.moduleNames.push i.module
     }
 
-def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+/--
+  Construct environment from `importModulesCore` results.
+
+  If `leakEnv` is true, we mark the environment as persistent, which means it
+  will not be freed. We set this when the object would survive until the end of
+  the process anyway. In exchange, RC updates are avoided, which is especially
+  important when they would be atomic because the environment is shared across
+  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
+  as such). -/
+def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
@@ -783,7 +793,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       const2ModIdx := const2ModIdx.insert cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
-  let env : Environment := {
+  let mut env : Environment := {
     const2ModIdx    := const2ModIdx
     constants       := constants
     extraConstNames := {}
@@ -797,18 +807,35 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       moduleData   := s.moduleData
     }
   }
-  let env ← setImportedEntries env s.moduleData
-  let env ← finalizePersistentExtensions env s.moduleData opts
+  env ← setImportedEntries env s.moduleData
+  if leakEnv then
+    /- Mark persistent a first time before `finalizePersistenExtensions`, which
+       avoids costly MT markings when e.g. an interpreter closure (which
+       contains the environment) is put in an `IO.Ref`. This can happen in e.g.
+       initializers of user environment extensions and is wasteful because the
+       environment is marked persistent immediately afterwards anyway when the
+       constructed extension including the closure is ultimately stored in the
+       initialized constant. We have seen significant savings in `open Mathlib`
+       timings, where we have both a big environment and interpreted environment
+       extensions, from this. There is no significant extra cost to calling
+       `markPersistent` multiple times like this. -/
+    env := Runtime.markPersistent env
+  env ← finalizePersistentExtensions env s.moduleData opts
+  if leakEnv then
+    /- Ensure the final environment including environment extension states is
+       marked persistent as documented. -/
+    env := Runtime.markPersistent env
   pure env
 
 @[export lean_import_modules]
-def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
+def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the

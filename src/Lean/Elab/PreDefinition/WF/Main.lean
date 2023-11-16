@@ -107,10 +107,13 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     withEnableInfoTree false do
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
     addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
+  -- We create the `_unsafe_rec` before we abstract nested proofs.
+  -- Reason: the nested proofs may be referring to the _unsafe_rec.
+  addAndCompilePartialRec preDefs
+  let preDefs ← preDefs.mapM (abstractNestedProofs ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-  addAndCompilePartialRec preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

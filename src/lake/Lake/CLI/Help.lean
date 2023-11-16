@@ -13,6 +13,20 @@ uiVersionString ++ "
 USAGE:
   lake [OPTIONS] <COMMAND>
 
+COMMANDS:
+  new <name> <temp>     create a Lean package in a new directory
+  init <name> <temp>    create a Lean package in the current directory
+  build <targets>...    build targets
+  exe <exe> <args>...   build an exe and run it in Lake's environment
+  clean                 remove build outputs
+  env <cmd> <args>...   execute a command in Lake's environment
+  update                update dependencies and save them to the manifest
+  upload <tag>          upload build artifacts to a GitHub release
+  script                manage and run workspace scripts
+  scripts               shorthand for `lake script list`
+  run <script>          shorthand for `lake script run`
+  serve                 start the Lean language server
+
 OPTIONS:
   --version             print version and exit
   --help, -h            print help of the program or a command and exit
@@ -26,20 +40,6 @@ OPTIONS:
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update manifest before building
   --reconfigure, -R     elaborate configuration files instead of using OLeans
-
-COMMANDS:
-  new <name> <temp>     create a Lean package in a new directory
-  init <name> <temp>    create a Lean package in the current directory
-  build <targets>...    build targets
-  update                update dependencies and save them to the manifest
-  upload <tag>          upload build artifacts to a GitHub release
-  clean                 remove build outputs
-  script                manage and run workspace scripts
-  scripts               shorthand for `lake script list`
-  run <script>          shorthand for `lake script run`
-  serve                 start the Lean language server
-  env <cmd> <args>...   execute a command in Lake's environment
-  exe <exe> <args>...   build an exe and run it in Lake's environment
 
 See `lake help <command>` for more information on a specific command."
 
@@ -91,7 +91,10 @@ MODULE FACETS:          build the module's ...
   olean                 OLean (binary blob of Lean data for importers)
   ilean                 ILean (binary blob of metadata for the Lean LSP server)
   c                     compiled C file
-  o                     compiled object file (of its C file)
+  bc                    compiled LLVM bitcode file
+  c.o                   compiled object file (of its C file)
+  bc.o                  compiled object file (of its LLVM bitcode file)
+  o                     compiled object file (of its configured backend)
   dynlib                shared library (e.g., for `--load-dynlib`)
 
 TARGET EXAMPLES:        build the ...

@@ -292,5 +292,5 @@ def maze1 := ┌───┐
 def foo : can_escape maze1 := by
   apply step_west
   set_option trace.Meta.debug true in
-  simp
+  simp (config := { decide := true })
   out

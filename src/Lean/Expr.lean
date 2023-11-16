@@ -1333,6 +1333,14 @@ def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
 
 /--
+Count the number of lambdas at the head of the given expression.
+-/
+def getNumHeadLambdas : Expr → Nat
+  | .lam _ _ b _ => getNumHeadLambdas b + 1
+  | .mdata _ b => getNumHeadLambdas b
+  | _ => 0
+
+/--
 Return true if the given expression is the function of an expression that is target for (head) beta reduction.
 If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
 that zeta-reduction (aka let-expansion) is going to be used.

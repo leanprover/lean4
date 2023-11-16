@@ -168,14 +168,24 @@ jobs:
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
             prepare-llvm: EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*
+          - name: Linux 32bit
+            os: ubuntu-latest
+            # Use 32bit on stage0 and stage1 to keep oleans compatible
+            CMAKE_OPTIONS: -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86
+            cmultilib: true
+            release: true
+            cross: true
+            shell: bash -euxo pipefail {0}
           - name: Web Assembly
             os: ubuntu-latest
             # Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-            CMAKE_OPTIONS: -DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX="" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+            CMAKE_OPTIONS: -DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX="" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32
             wasm: true
+            cmultilib: true
+            release: true
             cross: true
             shell: bash -euxo pipefail {0}
-            # Just a few selected test because wasm is slow
+            # Just a few selected tests because wasm is slow
             CTEST_OPTIONS: -R "leantest_1007\.lean|leantest_Format\.lean|leanruntest\_1037.lean|leanruntest_ac_rfl\.lean"
       # complete all jobs
       fail-fast: false
@@ -203,7 +213,7 @@ jobs:
         uses: cachix/install-nix-action@v18
         with:
           install_url: https://releases.nixos.org/nix/nix-2.12.0/install
-        if: matrix.os == 'ubuntu-latest' && !matrix.wasm
+        if: matrix.os == 'ubuntu-latest' && !matrix.cmultilib
       - name: Install MSYS2
         uses: msys2/setup-msys2@v2
         with:
@@ -216,7 +226,7 @@ jobs:
           brew install ccache tree zstd coreutils gmp
         if: matrix.os == 'macos-latest'
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v11
+        uses: mymindstorm/setup-emsdk@v12
         with:
           version: 3.1.44
           actions-cache-folder: emsdk
@@ -225,7 +235,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib ccache
-        if: matrix.wasm
+        if: matrix.cmultilib
       - name: Cache
         uses: actions/cache@v3
         with:
@@ -396,7 +406,7 @@ jobs:
           git fetch nightly --tags
           git tag ${{ needs.set-nightly.outputs.nightly }}
           git push nightly ${{ needs.set-nightly.outputs.nightly }}
-          git push origin refs/tags/${{ needs.set-nightly.outputs.nightly }}:refs/heads/nightly
+          git push -f origin refs/tags/${{ needs.set-nightly.outputs.nightly }}:refs/heads/nightly
           last_tag=$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show $last_tag:RELEASES.md > old.md

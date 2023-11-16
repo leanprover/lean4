@@ -202,7 +202,6 @@ static lean_object* l_Lean_Parser_withCacheFn___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Parser_Types_0__Lean_Parser_beqCacheableParserContext____x40_Lean_Parser_Types___hyg_235____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_instHashableParserCacheKey___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_shrinkStack(lean_object*, lean_object*);
-uint8_t l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3111____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Parser_Error_toString___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_withCacheFn___lambda__2___closed__3;
 static lean_object* l_Lean_Parser_SyntaxStack_back___closed__3;
@@ -213,6 +212,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_withFn(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_FirstTokens_toStr___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_setPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_FirstTokens_instToStringFirstTokens;
+uint8_t l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3119____spec__1(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_SyntaxNodeKindSet_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Parser_info___default___elambda__2___boxed(lean_object*);
@@ -1397,7 +1397,7 @@ return x_12;
 else
 {
 uint8_t x_13; 
-x_13 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3111____spec__1(x_5, x_8);
+x_13 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3119____spec__1(x_5, x_8);
 lean_dec(x_8);
 lean_dec(x_5);
 return x_13;
@@ -1700,7 +1700,7 @@ x_5 = lean_ctor_get(x_1, 2);
 lean_inc(x_5);
 lean_dec(x_1);
 x_6 = lean_box(0);
-x_7 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3111____spec__1(x_5, x_6);
+x_7 = l_List_beq___at___private_Init_Meta_0__Lean_Syntax_beqPreresolved____x40_Init_Meta___hyg_3119____spec__1(x_5, x_6);
 if (x_4 == 0)
 {
 lean_object* x_8; 
@@ -4159,7 +4159,7 @@ static lean_object* _init_l_Lean_Parser_FirstTokens_toStr___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("?", 1);
+x_1 = lean_mk_string_from_bytes("\?", 1);
 return x_1;
 }
 }

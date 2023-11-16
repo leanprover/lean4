@@ -1541,15 +1541,6 @@ end EmitLLVM
 def getLeanHBcPath : IO System.FilePath := do
   return (← getLibDir (← getBuildDir)) / "lean.h.bc"
 
-def optimizeLLVMModule (mod : LLVM.Module ctx) : IO Unit := do
-  let pm  ← LLVM.createPassManager
-  let pmb ← LLVM.createPassManagerBuilder
-  pmb.setOptLevel 3
-  pmb.populateModulePassManager pm
-  LLVM.runPassManager pm mod
-  LLVM.disposePassManager pm
-  LLVM.disposePassManagerBuilder pmb
-
 /-- Get the names of all global symbols in the module -/
 partial def getModuleGlobals (mod : LLVM.Module llvmctx) : IO (Array (LLVM.Value llvmctx)) := do
   let rec go (v : LLVM.Value llvmctx) (acc : Array (LLVM.Value llvmctx)) : IO (Array (LLVM.Value llvmctx)) := do
@@ -1568,7 +1559,7 @@ partial def getModuleFunctions (mod : LLVM.Module llvmctx) : IO (Array (LLVM.Val
 `emitLLVM` is the entrypoint for the lean shell to code generate LLVM.
 -/
 @[export lean_ir_emit_llvm]
-def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr? : Option String) : IO Unit := do
+def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit := do
   LLVM.llvmInitializeTargetInfo
   let llvmctx ← LLVM.createContext
   let module ← LLVM.createModule llvmctx modName.toString
@@ -1601,17 +1592,7 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) (tripleStr
            let some fn ← LLVM.getNamedFunction emitLLVMCtx.llvmmodule name
               | throw <| IO.Error.userError s!"ERROR: linked module must have function from runtime module: '{name}'"
            LLVM.setLinkage fn LLVM.Linkage.internal
-
-         optimizeLLVMModule emitLLVMCtx.llvmmodule
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
-         let tripleStr := tripleStr?.getD (← LLVM.getDefaultTargetTriple)
-         let target ← LLVM.getTargetFromTriple tripleStr
-         let cpu := "generic"
-         let features := ""
-         let targetMachine ← LLVM.createTargetMachine target tripleStr cpu features
-         let codegenType := LLVM.CodegenFileType.ObjectFile
-         LLVM.targetMachineEmitToFile targetMachine emitLLVMCtx.llvmmodule (filepath ++ ".o") codegenType
          LLVM.disposeModule emitLLVMCtx.llvmmodule
-         LLVM.disposeTargetMachine targetMachine
   | .error err => throw (IO.Error.userError err)
 end Lean.IR

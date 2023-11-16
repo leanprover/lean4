@@ -54,7 +54,7 @@ $ cd hello
 Either way, Lake will create the following template directory structure and initialize a Git repository for the package.
 
 ```
-build/         # Lake build outputs
+.lake/         # Lake output directory
 Hello/         # library source files; accessible via `import Hello.*`
   Basic.lean   # an example library module file
   ...          # additional files should be added here
@@ -110,12 +110,12 @@ lean_exe «hello» where
   supportInterpreter := true
 ```
 
-The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `build/bin`. The command `lake clean` deletes `build`.
+The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `.lake/build/bin`. The command `lake clean` deletes `build`.
 
 ```
 $ lake build
 ...
-$ ./build/bin/hello
+$ ./.lake/build/bin/hello
 Hello, world!
 ```
 
@@ -153,8 +153,7 @@ Lake provides a large assortment of configuration options for packages.
 
 ### Layout
 
-* `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `lake-packages`.
-* `manifestFile`: The path of a package's manifest file, which stores the exact versions of its resolved dependencies. Defaults to `lake-manifest.json`.
+* `packagesDir`: The directory to which Lake should download remote dependencies. Defaults to `.lake/packages`.
 * `srcDir`: The directory containing the package's Lean source files. Defaults to the package's directory. (This will be passed to `lean` as the `-R` option.)
 * `buildDir`: The directory to which Lake should output the package's build results. Defaults to `build`.
 * `leanLibDir`: The build subdirectory to which Lake should output the package's binary Lean libraries (e.g., `.olean`, `.ilean` files). Defaults to `lib`.
@@ -380,7 +379,7 @@ Otherwise, there is a pre-packaged `build.sh` shell script that can be used to b
 $ ./build.sh -j4
 ```
 
-After building, the `lake` binary will be located at `build/bin/lake` and the library's `.olean` files will be located in `build/lib`.
+After building, the `lake` binary will be located at `.lake/build/bin/lake` and the library's `.olean` files will be located in `.lake/build/lib`.
 
 ### Building with Nix Flakes
 
@@ -390,6 +389,6 @@ Lake is built as part of the main Lean 4 flake at the repository root.
 
 The `lake` executable needs to know where to find the Lean library files (e.g., `.olean`, `.ilean`) for the modules used in the package configuration file (and their source files for go-to-definition support in the editor). Lake will intelligently setup an initial search path based on the location of its own executable and `lean`.
 
-Specifically, if Lake is co-located with `lean` (i.e., there is `lean` executable in the same directory as itself), it will assume it was installed with Lean and that both Lean and Lake are located under their shared sysroot. In particular, their binaries are located in `<sysroot>/bin`, their Lean libraries in `<sysroot>/lib/lean`, Lean's source files in `<sysroot>/src/lean`, and Lake's source files in `<sysroot>/src/lean/lake`. Otherwise, it will run `lean --print-prefix` to find Lean's sysroot and assume that Lean's files are located as aforementioned, but that `lake` is at `<lake-home>/build/bin/lake` with its Lean libraries at `<lake-home>/build/lib` and its sources directly in `<lake-home>`.
+Specifically, if Lake is co-located with `lean` (i.e., there is `lean` executable in the same directory as itself), it will assume it was installed with Lean and that both Lean and Lake are located under their shared sysroot. In particular, their binaries are located in `<sysroot>/bin`, their Lean libraries in `<sysroot>/lib/lean`, Lean's source files in `<sysroot>/src/lean`, and Lake's source files in `<sysroot>/src/lean/lake`. Otherwise, it will run `lean --print-prefix` to find Lean's sysroot and assume that Lean's files are located as aforementioned, but that `lake` is at `<lake-home>/.lake/build/bin/lake` with its Lean libraries at `<lake-home>/.lake/build/lib` and its sources directly in `<lake-home>`.
 
 This search path can be augmented by including other directories of Lean libraries in the `LEAN_PATH` environment variable (and their sources in `LEAN_SRC_PATH`). This can allow the user to correct Lake's search when the files for Lean (or Lake itself) are in non-standard locations. However, such directories will *not* take precedence over the initial search path. This is important during development, as this prevents the Lake version used to build Lake from using the Lake version being built's Lean libraries (instead of its own) to elaborate Lake's `lakefile.lean` (which can lead to all kinds of errors).

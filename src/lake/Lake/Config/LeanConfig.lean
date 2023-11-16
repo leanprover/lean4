@@ -34,10 +34,44 @@ inductive BuildType
   | release
 deriving Inhabited, Repr, DecidableEq, Ord
 
+/--
+Ordering on build types. The ordering is used to determine
+the *minimum* build version that is necessary for a build.
+-/
 instance : LT BuildType := ltOfOrd
 instance : LE BuildType := leOfOrd
 instance : Min BuildType := minOfLe
 instance : Max BuildType := maxOfLe
+
+/--
+Compiler backend with which to compile Lean.
+-/
+inductive Backend
+  /--
+  Force the C backend.
+  -/
+  | c
+  /--
+  Force the LLVM backend.
+  -/
+  | llvm
+  /--
+  Use the default backend. Can be overridden by more specific configuration.
+  -/
+  | default
+deriving Inhabited, Repr, DecidableEq
+
+/--
+If the left backend is default, choose the right one.
+Otherwise, keep the left one.
+This is used to implement preferential choice of backends,
+where the library config can refine the package config.
+Formally, a left absorbing monoid on {`C`, `LLVM`} with `Default` as the unit.
+-/
+def Backend.orPreferLeft : Backend → Backend → Backend
+| .default, b => b
+| b, _ => b
+
 
 /-- The arguments to pass to `leanc` based on the build type. -/
 def BuildType.leancArgs : BuildType → Array String
@@ -100,4 +134,10 @@ structure LeanConfig where
   They come *before* `moreLinkArgs`.
   -/
   weakLinkArgs : Array String := #[]
+
+  /--
+    Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
+    Defaults to `C`.
+  -/
+  backend : Backend := .default
 deriving Inhabited, Repr

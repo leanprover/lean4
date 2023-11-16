@@ -62,7 +62,7 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
   for preDef in preDefs do
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
-def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition :=
+def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
   if preDef.kind.isTheorem || preDef.kind.isExample then
     pure preDef
   else do

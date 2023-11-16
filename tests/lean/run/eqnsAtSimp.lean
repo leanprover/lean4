@@ -15,5 +15,5 @@ decreasing_by
 
 theorem isEven_double (x : Nat) : isEven (2 * x) = true := by
   induction x with
-  | zero => simp
+  | zero => simp [isEven]
   | succ x ih => simp [Nat.mul_succ, Nat.add_succ, isEven, isOdd, ih]

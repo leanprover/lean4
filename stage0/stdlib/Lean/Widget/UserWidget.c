@@ -5941,7 +5941,7 @@ static lean_object* _init_l___private_Lean_Widget_UserWidget_0__Lean_Widget_from
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range?", 6);
+x_1 = lean_mk_string_from_bytes("range\?", 6);
 return x_1;
 }
 }

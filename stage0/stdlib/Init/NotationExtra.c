@@ -2700,7 +2700,7 @@ static lean_object* _init_l_Lean_unifConstraint___closed__6() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes(" =?= ", 5);
+x_1 = lean_mk_string_from_bytes(" =\?= ", 5);
 return x_1;
 }
 }
@@ -9647,7 +9647,7 @@ static lean_object* _init_l_unexpandGetElem_x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term__[_]_?", 11);
+x_1 = lean_mk_string_from_bytes("term__[_]_\?", 11);
 return x_1;
 }
 }
@@ -9665,7 +9665,7 @@ static lean_object* _init_l_unexpandGetElem_x3f___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("?", 1);
+x_1 = lean_mk_string_from_bytes("\?", 1);
 return x_1;
 }
 }

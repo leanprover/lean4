@@ -6812,7 +6812,7 @@ static lean_object* _init_l_Array_mapIdxM_map___at_Lean_Elab_Deriving_FromToJson
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("fromJson?", 9);
+x_1 = lean_mk_string_from_bytes("fromJson\?", 9);
 return x_1;
 }
 }
@@ -9205,7 +9205,7 @@ static lean_object* _init_l_Array_mapMUnsafe_map___at_Lean_Elab_Deriving_FromToJ
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getObjValAs?", 12);
+x_1 = lean_mk_string_from_bytes("getObjValAs\?", 12);
 return x_1;
 }
 }

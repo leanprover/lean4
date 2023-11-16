@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 # Test the functionality of `lake env`
 # Also test https://github.com/leanprover/lake/issues/179

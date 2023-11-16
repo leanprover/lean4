@@ -1328,7 +1328,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("triggerCharacters?", 18);
+x_1 = lean_mk_string_from_bytes("triggerCharacters\?", 18);
 return x_1;
 }
 }
@@ -1392,7 +1392,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("allCommitCharacters?", 20);
+x_1 = lean_mk_string_from_bytes("allCommitCharacters\?", 20);
 return x_1;
 }
 }
@@ -5401,7 +5401,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("detail?", 7);
+x_1 = lean_mk_string_from_bytes("detail\?", 7);
 return x_1;
 }
 }
@@ -5457,7 +5457,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("documentation?", 14);
+x_1 = lean_mk_string_from_bytes("documentation\?", 14);
 return x_1;
 }
 }
@@ -5513,7 +5513,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("kind?", 5);
+x_1 = lean_mk_string_from_bytes("kind\?", 5);
 return x_1;
 }
 }
@@ -5569,7 +5569,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("textEdit?", 9);
+x_1 = lean_mk_string_from_bytes("textEdit\?", 9);
 return x_1;
 }
 }
@@ -7035,7 +7035,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("range?", 6);
+x_1 = lean_mk_string_from_bytes("range\?", 6);
 return x_1;
 }
 }
@@ -16983,7 +16983,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_LanguageFeatures_0__Lean_Lsp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("resultId?", 9);
+x_1 = lean_mk_string_from_bytes("resultId\?", 9);
 return x_1;
 }
 }

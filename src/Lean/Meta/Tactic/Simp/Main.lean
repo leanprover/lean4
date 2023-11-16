@@ -194,6 +194,23 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       if eNew == e then return none
       trace[Meta.Tactic.simp.ground] "{e}\n---->\n{eNew}"
       return some eNew
+  let rec unfoldDeclToUnfold? : SimpM (Option Expr) := do
+    let options ← getOptions
+    let cfg ← getConfig
+    -- Support for issue #2042
+    if cfg.unfoldPartialApp -- If we are unfolding partial applications, ignore issue #2042
+       -- When smart unfolding is enabled, and `f` supports it, we don't need to worry about issue #2042
+       || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
+      withDefault <| unfoldDefinition? e
+    else
+      -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
+      -- Thus, we must check whether the arity of the function >= number of arguments.
+      let some cinfo := (← getEnv).find? fName | return none
+      let some value := cinfo.value? | return none
+      let arity := value.getNumHeadLambdas
+      -- Partially applied function, return `none`. See issue #2042
+      if arity > e.getAppNumArgs then return none
+      withDefault <| unfoldDefinition? e
   if let some eNew ← unfoldGround? then
     return some eNew
   else if (← isProjectionFn fName) then
@@ -210,7 +227,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     else
       return none
   else if ctx.isDeclToUnfold fName then
-    withDefault <| unfoldDefinition? e
+    unfoldDeclToUnfold?
   else
     return none
 
@@ -352,18 +369,18 @@ where
 
   simpStep (e : Expr) : M Result := do
     match e with
-    | Expr.mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
-    | Expr.proj ..     => simpProj e
-    | Expr.app ..      => simpApp e
-    | Expr.lam ..      => simpLambda e
-    | Expr.forallE ..  => simpForall e
-    | Expr.letE ..     => simpLet e
-    | Expr.const ..    => simpConst e
-    | Expr.bvar ..     => unreachable!
-    | Expr.sort ..     => return { expr := e }
-    | Expr.lit ..      => simpLit e
-    | Expr.mvar ..     => return { expr := (← instantiateMVars e) }
-    | Expr.fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
+    | .mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
+    | .proj ..     => simpProj e
+    | .app ..      => simpApp e
+    | .lam ..      => simpLambda e
+    | .forallE ..  => simpForall e
+    | .letE ..     => simpLet e
+    | .const ..    => simpConst e
+    | .bvar ..     => unreachable!
+    | .sort ..     => return { expr := e }
+    | .lit ..      => simpLit e
+    | .mvar ..     => return { expr := (← instantiateMVars e) }
+    | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
   simpLit (e : Expr) : M Result := do
     match e.natLit? with
@@ -606,13 +623,11 @@ where
         try
           if (← processCongrHypothesis x) then
             modified := true
-        catch ex =>
+        catch _ =>
           trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          if ex.isMaxRecDepth then
-            -- Recall that `processCongrHypothesis` invokes `simp` recursively.
-            throw ex
-          else
-            return none
+          -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
+          -- does not catch runtime exceptions by default.
+          return none
       unless modified do
         trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
         return none
@@ -768,7 +783,7 @@ where
       return { expr := (← dsimp e) }
 
   simpLet (e : Expr) : M Result := do
-    let Expr.letE n t v b _ := e | unreachable!
+    let .letE n t v b _ := e | unreachable!
     if (← getConfig).zeta then
       return { expr := b.instantiate1 v }
     else
@@ -810,21 +825,23 @@ where
 
 def main (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Result × UsedSimps) := do
   let ctx := { ctx with config := (← ctx.config.updateArith) }
-  withSimpConfig ctx do
+  withSimpConfig ctx do withCatchingRuntimeEx do
     try
-      let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
-      trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-      return (r, s.usedTheorems)
+      withoutCatchingRuntimeEx do
+        let (r, s) ← simp e methods ctx |>.run { usedTheorems := usedSimps }
+        trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
+        return (r, s.usedTheorems)
     catch ex =>
-      if ex.isMaxHeartbeat then throwNestedTacticEx `simp ex else throw ex
+      if ex.isRuntime then throwNestedTacticEx `simp ex else throw ex
 
 def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods : Methods := {}) : MetaM (Expr × UsedSimps) := do
-  withSimpConfig ctx do
+  withSimpConfig ctx do withCatchingRuntimeEx do
     try
-      let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
-      pure (r, s.usedTheorems)
+      withoutCatchingRuntimeEx do
+        let (r, s) ← dsimp e methods ctx |>.run { usedTheorems := usedSimps }
+        pure (r, s.usedTheorems)
     catch ex =>
-      if ex.isMaxHeartbeat then throwNestedTacticEx `dsimp ex else throw ex
+      if ex.isRuntime then throwNestedTacticEx `dsimp ex else throw ex
 
 /--
   Return true if `e` is of the form `(x : α) → ... → s = t → ... → False`

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Leonardo de Moura, Kyle Miller, Sebastian Ullrich
 -/
 import Lean.Elab.App
 import Lean.Elab.BuiltinNotation
@@ -79,13 +79,30 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 namespace Op
 /-!
 
-The elaborator for `binop%`, `binop_lazy%`, and `unop%` terms.
+The elaborator for expression trees of `binop%`, `binop_lazy%`, `leftact%`, `rightact%`, and `unop%` terms.
 
-It works as follows:
+At a high level, the elaborator tries to solve for a type that each of the operands in the expression tree
+can be coerced to, while taking into account the expected type for the entire expression tree.
+Once this type is computed (and if it exists), it inserts coercions where needed.
+
+Here are brief descriptions of each of the operator types:
+- `binop% f a b` elaborates `f a b` as a binary operator with two operands `a` and `b`,
+  and each operand participates in the protocol.
+- `binop_lazy% f a b` is like `binop%` but elaborates as `f a (fun () => b)`.
+- `unop% f a` elaborates `f a` as a unary operator with one operand `a`, which participates in the protocol.
+- `leftact% f a b` elaborates `f a b` as a left action (the `a` operand "acts upon" the `b` operand).
+  Only `b` participates in the protocol since `a` can have an unrelated type, for example scalar multiplication of vectors.
+- `rightact% f a b` elaborates `f a b` as a right action (the `b` operand "acts upon" the `a` operand).
+  Only `a` participates in the protocol since `b` can have an unrelated type.
+  This is used by `HPow` since, for example, there are both `Real -> Nat -> Real` and `Real -> Real -> Real`
+  exponentiation functions, and we prefer the former in the case of `x ^ 2`, but `binop%` would choose the latter. (#2220)
+- There are also `binrel%` and `binrel_no_prop%` (see the docstring for `elabBinRelCore`).
+
+The elaborator works as follows:
 
 1- Expand macros.
-2- Convert `Syntax` object corresponding to the `binop%` (`binop_lazy%` and `unop%`) term into a `Tree`.
-   The `toTree` method visits nested `binop%` (`binop_lazy%` and `unop%`) terms and parentheses.
+2- Convert `Syntax` object corresponding to the `binop%/...` term into a `Tree`.
+   The `toTree` method visits nested `binop%/...` terms and parentheses.
 3- Synthesize pending metavariables without applying default instances and using the
    `(mayPostpone := true)`.
 4- Tries to compute a maximal type for the tree computed at step 2.
@@ -117,17 +134,28 @@ coercions inside of a `HAdd` instance.
 
 Remarks:
 
-In the new `binop%` and related elaborators the decision whether a coercion will be inserted or not
-is made at `binop%` elaboration time. This was not the case in the old elaborator.
-For example, an instance, such as `HAdd Int ?m ?n`, could be created when executing
-the `binop%` elaborator, and only resolved much later. We try to minimize this problem
-by synthesizing pending metavariables at step 3.
+* In the new `binop%` and related elaborators the decision whether a coercion will be inserted or not
+  is made at `binop%` elaboration time. This was not the case in the old elaborator.
+  For example, an instance, such as `HAdd Int ?m ?n`, could be created when executing
+  the `binop%` elaborator, and only resolved much later. We try to minimize this problem
+  by synthesizing pending metavariables at step 3.
 
-For types containing heterogeneous operators (e.g., matrix multiplication), step 4 will fail
-and we will skip coercion insertion. For example, `x : Matrix Real 5 4` and `y : Matrix Real 4 8`,
-there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, but
-`x * y` is elaborated successfully and has type `Matrix Real 5 8`.
+* For types containing heterogeneous operators (e.g., matrix multiplication), step 4 will fail
+  and we will skip coercion insertion. For example, `x : Matrix Real 5 4` and `y : Matrix Real 4 8`,
+  there is no coercion `Matrix Real 5 4` from `Matrix Real 4 8` and vice-versa, but
+  `x * y` is elaborated successfully and has type `Matrix Real 5 8`.
+
+* The `leftact%` and `rightact%` elaborators are to handle binary operations where only one of
+  the arguments participates in the protocol. For example, in `2 ^ n + y` with `n : Nat` and `y : Real`,
+  we do not want to coerce `n` to be a real as well, but we do want to elaborate `2 : Real`.
 -/
+
+private inductive BinOpKind where
+  | regular   -- `binop%`
+  | lazy      -- `binop_lazy%`
+  | leftact   -- `leftact%`
+  | rightact  -- `rightact%`
+deriving BEq
 
 private inductive Tree where
   /--
@@ -137,9 +165,9 @@ private inductive Tree where
   -/
   | term (ref : Syntax) (infoTrees : PersistentArray InfoTree) (val : Expr)
   /--
-  `ref` is the original syntax that expanded into `binop%`.
+  `ref` is the original syntax that expanded into `binop%/...`.
   -/
-  | binop (ref : Syntax) (lazy : Bool) (f : Expr) (lhs rhs : Tree)
+  | binop (ref : Syntax) (kind : BinOpKind) (f : Expr) (lhs rhs : Tree)
   /--
   `ref` is the original syntax that expanded into `unop%`.
   -/
@@ -164,9 +192,11 @@ private partial def toTree (s : Syntax) : TermElabM Tree := do
 where
   go (s : Syntax) := do
     match s with
-    | `(binop% $f $lhs $rhs) => processBinOp (lazy := false) s f lhs rhs
-    | `(binop_lazy% $f $lhs $rhs) => processBinOp (lazy := true) s f lhs rhs
+    | `(binop% $f $lhs $rhs) => processBinOp s .regular f lhs rhs
+    | `(binop_lazy% $f $lhs $rhs) => processBinOp s .lazy f lhs rhs
     | `(unop% $f $arg) => processUnOp s f arg
+    | `(leftact% $f $lhs $rhs) => processBinOp s .leftact f lhs rhs
+    | `(rightact% $f $lhs $rhs) => processBinOp s .rightact f lhs rhs
     | `(($e)) =>
       if hasCDot e then
         processLeaf s
@@ -181,9 +211,12 @@ where
             return .macroExpansion macroName s s' (← go s')
         | none => processLeaf s
 
-  processBinOp (ref : Syntax) (f lhs rhs : Syntax) (lazy : Bool) := do
+  processBinOp (ref : Syntax) (kind : BinOpKind) (f lhs rhs : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
-    return .binop (lazy := lazy) ref f (← go lhs) (← go rhs)
+    -- treat corresponding argument as leaf for `leftact/rightact`
+    let lhs ← if kind == .leftact then processLeaf lhs else go lhs
+    let rhs ← if kind == .rightact then processLeaf rhs else go rhs
+    return .binop ref kind f lhs rhs
 
   processUnOp (ref : Syntax) (f arg : Syntax) := do
     let some f ← resolveId? f | throwUnknownConstant f.getId
@@ -229,6 +262,8 @@ where
      unless (← get).hasUncomparable do
        match t with
        | .macroExpansion _ _ _ nested => go nested
+       | .binop _ .leftact  _ _ rhs => go rhs
+       | .binop _ .rightact _ lhs _ => go lhs
        | .binop _ _ _ lhs rhs => go lhs; go rhs
        | .unop _ _ arg => go arg
        | .term _ _ val =>
@@ -259,9 +294,9 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   match t with
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
-  | .binop ref lazy f lhs rhs =>
+  | .binop ref kind f lhs rhs =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp lazy f (← toExprCore lhs) (← toExprCore rhs)
+      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
     withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
       mkUnOp f (← toExprCore arg)
@@ -347,7 +382,11 @@ mutual
   where
     go (t : Tree) (f? : Option Expr) (lhs : Bool) (isPred : Bool) : TermElabM Tree := do
       match t with
-      | .binop ref lazy f lhs rhs =>
+      | .binop ref .leftact f lhs rhs =>
+        return .binop ref .leftact f lhs (← go rhs none false false)
+      | .binop ref .rightact f lhs rhs =>
+        return .binop ref .rightact f (← go lhs none false false) rhs
+      | .binop ref kind f lhs rhs =>
         /-
           We only keep applying coercions to `maxType` if `f` is predicate or
           `f` has a homogenous instance with `maxType`. See `hasHomogeneousInstance` for additional details.
@@ -355,10 +394,10 @@ mutual
           Remark: We assume `binrel%` elaborator is only used with homogenous predicates.
         -/
         if (← pure isPred <||> hasHomogeneousInstance f maxType) then
-          return .binop ref lazy f (← go lhs f true false) (← go rhs f false false)
+          return .binop ref kind f (← go lhs f true false) (← go rhs f false false)
         else
           let r ← withRef ref do
-            mkBinOp lazy f (← toExpr lhs none) (← toExpr rhs none)
+            mkBinOp (kind == .lazy) f (← toExpr lhs none) (← toExpr rhs none)
           let infoTrees ← getResetInfoTrees
           return .term ref infoTrees r
       | .unop ref f arg =>
@@ -396,22 +435,24 @@ end
 def elabOp : TermElab := fun stx expectedType? => do
   toExpr (← toTree stx) expectedType?
 
-@[builtin_term_elab binop]
-def elabBinOp : TermElab := elabOp
-
-@[builtin_term_elab binop_lazy]
-def elabBinOpLazy : TermElab := elabOp
-
-@[builtin_term_elab unop]
-def elabUnOp : TermElab := elabOp
+@[builtin_term_elab binop] def elabBinOp : TermElab := elabOp
+@[builtin_term_elab binop_lazy] def elabBinOpLazy : TermElab := elabOp
+@[builtin_term_elab leftact] def elabLeftact : TermElab := elabOp
+@[builtin_term_elab rightact] def elabRightact : TermElab := elabOp
+@[builtin_term_elab unop] def elabUnOp : TermElab := elabOp
 
 /--
-  Elaboration functionf for `binrel%` and `binrel_no_prop%` notations.
+  Elaboration functions for `binrel%` and `binrel_no_prop%` notations.
   We use the infrastructure for `binop%` to make sure we propagate information between the left and right hand sides
   of a binary relation.
 
-  Recall that the `binrel_no_prop%` notation is used for relations such as `==` which do not support `Prop`, but
-  we still want to be able to write `(5 > 2) == (2 > 1)`.
+  - `binrel% R x y` elaborates `R x y` using the `binop%/...` expression trees in both `x` and `y`.
+    It is similar to how `binop% R x y` elaborates but with a significant difference:
+    it does not use the expected type when computing the types of the operads.
+  - `binrel_no_prop% R x y` elaborates `R x y` like `binrel% R x y`, but if the resulting type for `x` and `y`
+    is `Prop` they are coerced to `Bool`.
+    This is used for relations such as `==` which do not support `Prop`, but we still want
+    to be able to write `(5 > 2) == (2 > 1)` for example.
 -/
 def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr :=  do
   match (← resolveId? stx[1]) with
@@ -448,7 +489,7 @@ def elabBinRelCore (noProp : Bool) (stx : Syntax) (expectedType? : Option Expr) 
     -/
     let lhs ← withRef stx[2] <| toTree stx[2]
     let rhs ← withRef stx[3] <| toTree stx[3]
-    let tree := .binop (lazy := false) stx f lhs rhs
+    let tree := .binop stx .regular f lhs rhs
     let r ← analyze tree none
     trace[Elab.binrel] "hasUncomparable: {r.hasUncomparable}, maxType: {r.max?}"
     if r.hasUncomparable || r.max?.isNone then

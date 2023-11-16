@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 if [ "$OS" = Windows_NT ]; then
 LIB_PREFIX=
@@ -28,53 +28,53 @@ $LAKE build foo:print_name | grep -m1 foo
 
 # Test the module `deps` facet
 $LAKE build Foo:deps
-test -f ./build/lib/Foo/Bar.olean
-test ! -f ./build/lib/Foo.olean
+test -f ./.lake/build/lib/Foo/Bar.olean
+test ! -f ./.lake/build/lib/Foo.olean
 
 # Test the module specifier
-test ! -f ./build/lib/Foo/Baz.olean
+test ! -f ./.lake/build/lib/Foo/Baz.olean
 $LAKE build +Foo.Baz
-test -f ./build/lib/Foo/Baz.olean
+test -f ./.lake/build/lib/Foo/Baz.olean
 
-# Test `o` specifier
-test ! -f ./build/ir/Bar.o
+# Test `.c.o` specifier
+test ! -f ./.lake/build/ir/Bar.c.o
 $LAKE build Bar:o
-test -f ./build/ir/Bar.o
+test -f ./.lake/build/ir/Bar.c.o
 
 # Test default targets
-test ! -f ./build/bin/c
-test ! -f ./build/lib/Foo.olean
-test ! -f ./build/lib/${LIB_PREFIX}Foo.a
-test ! -f ./build/meow.txt
+test ! -f ./.lake/build/bin/c
+test ! -f ./.lake/build/lib/Foo.olean
+test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+test ! -f ./.lake/build/meow.txt
 $LAKE build targets/
-./build/bin/c
-test -f ./build/lib/Foo.olean
-test -f ./build/lib/${LIB_PREFIX}Foo.a
-cat ./build/meow.txt | grep -m1 Meow!
+./.lake/build/bin/c
+test -f ./.lake/build/lib/Foo.olean
+test -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
+cat ./.lake/build/meow.txt | grep -m1 Meow!
 
 # Test shared lib facets
-test ! -f ./build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test ! -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 $LAKE build foo:shared bar
-test -f ./build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
-test -f ./build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 
 # Test dynlib facet
-test ! -f ./build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
 $LAKE build Foo:dynlib
-test -f ./build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
 
 # Test library `extraDepTargets`
-test ! -f ./build/caw.txt
-test ! -f ./build/lib/Baz.olean
+test ! -f ./.lake/build/caw.txt
+test ! -f ./.lake/build/lib/Baz.olean
 $LAKE build baz
-test -f ./build/lib/Baz.olean
-cat ./build/caw.txt | grep -m1 Caw!
+test -f ./.lake/build/lib/Baz.olean
+cat ./.lake/build/caw.txt | grep -m1 Caw!
 
 # Test executable build
 $LAKE build a b
-./build/bin/a
-./build/bin/b
+./.lake/build/bin/a
+./.lake/build/bin/b
 
 # Test repeat build works
 $LAKE build bark | grep -m1 Bark!

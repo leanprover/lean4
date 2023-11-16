@@ -210,10 +210,10 @@ def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
 
 /--
 Attempt to detect a specified Lake's executable's home by assuming
-the executable is located at `<lake-home>/build/bin/lake`.
+the executable is located at `<lake-home>/.lake/build/bin/lake`.
 -/
 def lakePackageHome? (lake : FilePath) : Option FilePath := do
-  (← (← lake.parent).parent).parent
+  (← (← (← lake.parent).parent).parent).parent
 
 /--
 Attempt to detect Lean's installation by first checking the
@@ -233,9 +233,9 @@ first checking the `LAKE_HOME` environment variable
 and then by trying the `lakePackageHome?` of the running executable.
 
 It assumes that the Lake installation is organized the same way it is built.
-That is, with its binary located at `<lake-home>/build/bin/lake` and its static
-library and `.olean` files in `<lake-home>/build/lib`, and its source files
-located directly in `<lake-home>`.
+That is, with its binary located at `<lake-home>/.lake/build/bin/lake` and its
+static library and `.olean` files in `<lake-home>/.lake/build/lib`, and
+its source files located directly in `<lake-home>`.
 -/
 def findLakeInstall? : BaseIO (Option LakeInstall) := do
   if let some home ← IO.getEnv "LAKE_HOME" then

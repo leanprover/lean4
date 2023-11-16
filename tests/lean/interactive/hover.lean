@@ -275,3 +275,17 @@ example : 1 = 1 := by
   generalize _e : 1 = x
            --^ textDocument/hover
   exact Eq.refl x
+
+namespace Foo
+
+export List (nil)
+           --^ textDocument/hover
+open List (cons)
+           --^ textDocument/hover
+open List hiding map
+                --^ textDocument/hover
+                        --v textDocument/hover
+open List renaming zip → zip'
+                 --^ textDocument/hover
+
+end Foo

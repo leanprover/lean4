@@ -131,7 +131,7 @@ universes].
 Just as type arguments allow polymorphic definitions to be used at many different types, universe
 parameters, represented by universe variables, allow a definition to be used at any required level.
 While Lean mostly handles universe levels automatically, declaring them explicitly can provide more
-control when writing signatures. The universe keyword allows the declared universe variables to be
+control when writing signatures. The `universe` keyword allows the declared universe variables to be
 used in a collection of definitions, and Lean will ensure that these definitions use them
 consistently.
 
@@ -189,7 +189,7 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 The command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:
 
 - visible in the current namespace without prefix `Some.Namespace`, like `open`, and
-- visible from outside current namespace `N` as `N.name₁` and `N.name₂`.
+- visible from outside the current namespace `N` as `N.name₁` and `N.name₂`.
 
 ## Examples
 
@@ -250,7 +250,7 @@ The `open` command can be used in a few different ways:
   This works even if `def1` and `def2` are `protected`.
 
 * `open scoped Some.Namespace.Path1 Some.Namespace.Path2` **only** opens [scoped instances],
-  notations, and attributes from `Namespace1` and `Namespace2`; does **not** make any other name
+  notations, and attributes from `Namespace1` and `Namespace2`; it does **not** make any other name
   available.
 
 * `open <any of the open shapes above> in` makes the names `open`-ed visible only in the next
@@ -264,35 +264,36 @@ The `open` command can be used in a few different ways:
 
 ```lean
 /-- SKI combinators https://en.wikipedia.org/wiki/SKI_combinator_calculus -/
-namespace Ident.Path
+namespace Combinator.Calculus
   def I (a : α) : α := a
   def K (a : α) : β → α := fun _ => a
   def S (x : α → β → γ) (y : α → β) (z : α) : γ := x z (y z)
-end Ident.Path
+end Combinator.Calculus
 
 section
-  -- open everything under `Ident.Path`, *i.e.* `I`, `K` and `S` here
-  open Ident.Path
+  -- open everything under `Combinator.Calculus`, *i.e.* `I`, `K` and `S`,
+  -- until the section ends
+  open Combinator.Calculus
 
   theorem SKx_eq_K : S K x = I := rfl
 end
 
--- open everything under `Ident.Path` only for the next command (the next `theorem`, here)
-open Ident.Path in
+-- open everything under `Combinator.Calculus` only for the next command (the next `theorem`, here)
+open Combinator.Calculus in
 theorem SKx_eq_K' : S K x = I := rfl
 
 section
-  -- open only `S` and `K` under `Ident.Path`
-  open Ident.Path (S K)
+  -- open only `S` and `K` under `Combinator.Calculus`
+  open Combinator.Calculus (S K)
 
   theorem SKxy_eq_y : S K x y = y := rfl
 
   -- `I` is not in scope, we have to use its full path
-  theorem SKxy_eq_Iy : S K x y = Ident.Path.I y := rfl
+  theorem SKxy_eq_Iy : S K x y = Combinator.Calculus.I y := rfl
 end
 
 section
-  open Ident.Path
+  open Combinator.Calculus
     renaming
       I → identity,
       K → konstant
@@ -302,7 +303,7 @@ section
 end
 
 section
-  open Ident.Path
+  open Combinator.Calculus
     hiding S
 
   #check I

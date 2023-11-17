@@ -11,6 +11,8 @@ of each version.
 v4.4.0 (development in progress)
 ---------
 
+* [Allow trailing comma in tuples, lists, and tactics](https://github.com/leanprover/lean4/pull/2643).
+
 v4.3.0
 ---------
 

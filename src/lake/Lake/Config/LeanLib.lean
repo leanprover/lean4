@@ -96,7 +96,7 @@ The arguments to pass to `lean --server` when running the Lean language server.
 - the library's `moreServerOptions`
 -/
 @[inline] def serverOptions (self : LeanLib) : Array LeanOption :=
-  self.pkg.moreServerOptions ++ self.config.moreServerOptions
+  self.pkg.moreServerOptions ++ self.config.leanOptions ++ self.config.moreServerOptions
 
 /--
 The build type for modules of this library.
@@ -112,6 +112,7 @@ then the default (which is C for now).
 -/
 @[inline] def backend (self : LeanLib) : Backend :=
   Backend.orPreferLeft self.config.backend self.pkg.backend
+
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
 `leanArgs` is the accumulation of:
@@ -121,7 +122,7 @@ The arguments to pass to `lean` when compiling the library's Lean files.
 - the library's `moreLeanArgs`
 -/
 @[inline] def leanArgs (self : LeanLib) : Array String :=
-  self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
+  self.pkg.moreLeanArgs ++ self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
 
 /--
 The arguments to weakly pass to `lean` when compiling the library's Lean files.

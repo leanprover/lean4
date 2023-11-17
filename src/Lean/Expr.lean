@@ -655,7 +655,7 @@ def mkProj (structName : Name) (idx : Nat) (struct : Expr) : Expr :=
 /--
 `.app f a` is now the preferred form.
 -/
-def mkApp (f a : Expr) : Expr :=
+@[match_pattern] def mkApp (f a : Expr) : Expr :=
   .app f a
 
 /--
@@ -684,16 +684,16 @@ def mkSimpleThunk (type : Expr) : Expr :=
 def mkLet (x : Name) (t : Expr) (v : Expr) (b : Expr) (nonDep : Bool := false) : Expr :=
   .letE x t v b nonDep
 
-def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
-def mkApp2 (f a b : Expr) := mkAppB f a b
-def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
-def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
-def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
-def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
-def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
-def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
-def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
-def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
+@[match_pattern] def mkAppB (f a b : Expr) := mkApp (mkApp f a) b
+@[match_pattern] def mkApp2 (f a b : Expr) := mkAppB f a b
+@[match_pattern] def mkApp3 (f a b c : Expr) := mkApp (mkAppB f a b) c
+@[match_pattern] def mkApp4 (f a b c d : Expr) := mkAppB (mkAppB f a b) c d
+@[match_pattern] def mkApp5 (f a b c d e : Expr) := mkApp (mkApp4 f a b c d) e
+@[match_pattern] def mkApp6 (f a b c d e₁ e₂ : Expr) := mkAppB (mkApp4 f a b c d) e₁ e₂
+@[match_pattern] def mkApp7 (f a b c d e₁ e₂ e₃ : Expr) := mkApp3 (mkApp4 f a b c d) e₁ e₂ e₃
+@[match_pattern] def mkApp8 (f a b c d e₁ e₂ e₃ e₄ : Expr) := mkApp4 (mkApp4 f a b c d) e₁ e₂ e₃ e₄
+@[match_pattern] def mkApp9 (f a b c d e₁ e₂ e₃ e₄ e₅ : Expr) := mkApp5 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅
+@[match_pattern] def mkApp10 (f a b c d e₁ e₂ e₃ e₄ e₅ e₆ : Expr) := mkApp6 (mkApp4 f a b c d) e₁ e₂ e₃ e₄ e₅ e₆
 
 /--
 `.lit l` is now the preferred form.
@@ -735,9 +735,29 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
 
-/-- `mkAppN f #[a₀, ..., aₙ]` ==> `f a₀ a₁ .. aₙ`-/
+/-- `mkAppN f #[a₀, ..., aₙ]` constructs the application `f a₀ a₁ ... aₙ`.
+
+As an optimization, there is a macro to expand the syntax `mkAppN f #[a₀, ..., aₙ]`
+to the syntax `Expr.app (... (Expr.app (Expr.app f a₀) a₁) ...) aₙ`, which ensures the array
+is not allocated at runtime.
+
+This macro enables `mkAppN` to be used for match patterns when there is an explicit array.
+Example:
+```lean
+/-- Returns `n` if `e` is an equality for the `Fin n` type. -/
+def finEq? (e : Expr) : Option Expr :=
+  match e with
+  | mkAppN (.const ``Eq _) #[.app (.const ``Fin _) n, _, _] => some n
+  | _ => none
+```
+In this example, the pattern can also be written as `mkApp3 (.const ``Eq _) (.app (.const ``Fin _) n) _ _`.
+-/
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
+
+@[inherit_doc mkAppN]
+macro_rules
+  | `(mkAppN $f #[$xs,*]) => show MacroM Term from xs.getElems.foldlM (fun x e => `(Expr.app $x $e)) f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
   if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e

@@ -159,16 +159,16 @@ def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
     let auxType ← inferType aux
     -- The type of the remaining arguments will mention `e` instantiated for each arg
     -- so extract them
-    let (altAuxs, _, _) ← forallMetaTelescope auxType
-    let altAuxTys ← altAuxs.mapM (inferType ·)
-    (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      forallTelescope altAuxTy fun fvs body => do
-        unless fvs.size = altNumParams do
-          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-        -- extract type from our synthetic equality
-        let body := body.getArg! 2
-        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-        Expr.abstractM body fvs
+    forallTelescope auxType fun altAuxs _ => do
+      let altAuxTys ← altAuxs.mapM (inferType ·)
+      (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+        forallTelescope altAuxTy fun fvs body => do
+          unless fvs.size = altNumParams do
+            throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+          -- extract type from our synthetic equality
+          let body := body.getArg! 2
+          -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+          Expr.abstractM body fvs
 
 /-- A non-failing version of `CasesOnApp.transform` -/
 def CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :

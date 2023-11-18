@@ -93,7 +93,8 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
   - expression `e : B[discrs]`,
   returns the expressions `B[C_1[ys_1]])  ... B[C_n[ys_n]]`,
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
-  Cf. `MatcherApp.addArg`.
+
+  This is similar to `MatcherApp.addArg` when you only have a type to transform, not a concrete value.
 -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
@@ -122,18 +123,18 @@ def _root_.Lean.Meta.MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) :
     unless (← isTypeCorrect aux) do
       throwError "failed to transfer argument through matcher application, type error when constructing the new motive"
     let auxType ← inferType aux
-    let (altAuxs, _, _) ← forallMetaTelescope auxType
-    let altAuxTys ← altAuxs.mapM (inferType ·)
-    (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      forallTelescope altAuxTy fun fvs body => do
-        unless fvs.size = altNumParams do
-          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-        -- extract type from our synthetic equality
-        let body := body.getArg! 2
-        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-        Expr.abstractM body fvs
+    forallTelescope auxType fun altAuxs _ => do
+      let altAuxTys ← altAuxs.mapM (inferType ·)
+      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+        forallTelescope altAuxTy fun fvs body => do
+          unless fvs.size = altNumParams do
+            throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+          -- extract type from our synthetic equality
+          let body := body.getArg! 2
+          -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+          Expr.abstractM body fvs
 
-/-- A non-failing version of `transform` -/
+/-- A non-failing version of `MatcherApp.transform` -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
@@ -153,6 +154,8 @@ def _root_.Lean.Meta.MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) 
   B[C_i[ys_i]]
   ```
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
+
+  This is similar to `CasesOnApp.addArg` when you only have a type to transform, not a concrete value.
 -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
@@ -178,18 +181,18 @@ def _root_.Lean.Meta.CasesOnApp.transform (c : CasesOnApp) (e : Expr) :
     let auxType ← inferType aux
     -- The type of the remaining arguments will mention `e` instantiated for each arg
     -- so extract them
-    let (altAuxs, _, _) ← forallMetaTelescope auxType
-    let altAuxTys ← altAuxs.mapM (inferType ·)
-    (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-      forallTelescope altAuxTy fun fvs body => do
-        unless fvs.size = altNumParams do
-          throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
-        -- extract type from our synthetic equality
-        let body := body.getArg! 2
-        -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-        Expr.abstractM body fvs
+    forallTelescope auxType fun altAuxs _ => do
+      let altAuxTys ← altAuxs.mapM (inferType ·)
+      (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+        forallTelescope altAuxTy fun fvs body => do
+          unless fvs.size = altNumParams do
+            throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+          -- extract type from our synthetic equality
+          let body := body.getArg! 2
+          -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+          Expr.abstractM body fvs
 
-/-- A non-failing version of `transform` -/
+/-- A non-failing version of `CasesOnApp.transform` -/
 -- PR'ed at https://github.com/leanprover/lean4/pull/2882
 def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
@@ -600,17 +603,11 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     -- None found, we have to give up
     return .none
 
-
--- Does this really not yet exist? Should it?
--- Yes!
-partial def mkTupleSyntax : Array Syntax → MetaM Syntax
+-- TODO: Move to appropriate place
+def mkTupleSyntax : Array Term → MetaM Term
   | #[]  => `(())
   | #[e] => return e
-  | es   => do
-    let e : TSyntax `term := ⟨es[0]!⟩
-    let es : Syntax.TSepArray `term "," :=
-      ⟨(Syntax.SepArray.ofElems (sep := ",") es[1:]).1⟩
-    `(term|($e, $es,*))
+  | es   => `(($(es[0]!), $(es[1:]),*))
 
 def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
     (measures : Array MutualMeasure) : MetaM TerminationWF := do

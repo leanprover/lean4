@@ -47,7 +47,7 @@ Runs the given `atLocal` and `atTarget` methods on each of the locations selecte
 * If `loc` is `*`, runs at the target first and then the hypotheses in reverse order.
   If all tactic applications fail, `withLocation` with call `failed` with the main goal mvar.
   If the tactic application closes the main goal, `withLocation` will then fail with `no goals to be solved`
-  when it reaches the first hypothesis.
+  upon reaching the first hypothesis.
 -/
 def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget : TacticM Unit) (failed : MVarId → TacticM Unit) : TacticM Unit := do
   match loc with

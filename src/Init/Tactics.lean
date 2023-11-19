@@ -250,7 +250,7 @@ macro:1 x:tactic tk:" <;> " y:tactic:2 : tactic => `(tactic|
     all_goals $y:tactic)
 
 /-- `eq_refl` is equivalent to `exact rfl`, but has a few optimizations. -/
-syntax (name := refl) "eq_refl" : tactic
+syntax (name := eqRefl) "eq_refl" : tactic
 
 /--
 `rfl` tries to close the current goal using reflexivity.

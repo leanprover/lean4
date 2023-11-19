@@ -8896,7 +8896,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* 
 x_1 = l_Lean_Parser_Tactic_simp___closed__12;
 x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__7;
 x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__6;
-x_4 = 0;
+x_4 = 1;
 x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);
@@ -9096,7 +9096,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* 
 x_1 = l_Lean_Parser_Tactic_simp___closed__11;
 x_2 = l_Lean_Parser_Tactic_rwRuleSeq___closed__7;
 x_3 = l_Lean_Parser_Tactic_rwRuleSeq___closed__6;
-x_4 = 0;
+x_4 = 1;
 x_5 = lean_alloc_ctor(10, 3, 1);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

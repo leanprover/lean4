@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_moduleNameOfFileName___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findSysroot___lambda__1(lean_object*, lean_object*, lean_object*);
 uint8_t l_String_endsWith(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_609_(lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___lambda__3___closed__1;
 LEAN_EXPORT lean_object* lean_init_search_path(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -127,7 +128,6 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* lean_io_current_dir(lean_object*);
 static uint8_t l_Lean_getLibDir___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_608_(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -420,7 +420,7 @@ _start:
 {
 lean_object* x_5; uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_5 = l_Lean_Name_getRoot(x_3);
-x_6 = 1;
+x_6 = 0;
 x_7 = l_Lean_Name_toString(x_5, x_6);
 x_8 = l_List_findM_x3f___at_Lean_SearchPath_findWithExt___spec__1(x_2, x_7, x_1, x_4);
 x_9 = lean_ctor_get(x_8, 0);
@@ -1010,7 +1010,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_608_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_609_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -1690,7 +1690,7 @@ lean_inc(x_10);
 lean_dec(x_8);
 x_11 = l_Lean_Name_getRoot(x_1);
 lean_dec(x_1);
-x_12 = 1;
+x_12 = 0;
 x_13 = l_Lean_Name_toString(x_11, x_12);
 x_14 = l_Lean_findOLean___closed__2;
 x_15 = lean_string_append(x_14, x_13);
@@ -2484,7 +2484,7 @@ l_List_forIn_loop___at_Lean_SearchPath_findAllWithExt___spec__3___closed__1 = _i
 lean_mark_persistent(l_List_forIn_loop___at_Lean_SearchPath_findAllWithExt___spec__3___closed__1);
 l_Lean_SearchPath_findAllWithExt___closed__1 = _init_l_Lean_SearchPath_findAllWithExt___closed__1();
 lean_mark_persistent(l_Lean_SearchPath_findAllWithExt___closed__1);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Path___hyg_608_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Path___hyg_609_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_searchPathRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_searchPathRef);

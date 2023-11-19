@@ -28,7 +28,7 @@ class mpz {
     mpz_t m_val;
     mpz(__mpz_struct const * v) { mpz_init_set(m_val, v); }
 #else
-    bool        m_sign;
+    size_t      m_sign; // bool, but ensure no padding
     size_t      m_size;
     mpn_digit * m_digits;
     void allocate(size_t s);

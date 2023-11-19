@@ -56,7 +56,7 @@ If we enable `iota`, then the lhs is reduced to `f a`.
 Note that when retrieving terms, we may also disable `beta` and `zeta` reduction.
 See issue https://github.com/leanprover/lean4/issues/2669
 
-- During type class resolution, we often want to reduce types using even `iota` and projection reductionn.
+- During type class resolution, we often want to reduce types using even `iota` and projection reduction.
 Example:
 ```
 inductive Ty where

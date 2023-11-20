@@ -51,13 +51,13 @@ private partial def mkNewCoDomain (preDefsOriginal : Array PreDefinition) (preDe
       let casesOn := mkAppN casesOn xTypeArgs -- parameters
       let casesOn := mkApp casesOn (← mkLambdaFVars #[x] (mkSort u)) -- motive
       let casesOn := mkApp casesOn x -- major
-      let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x =>
-        mkLambdaFVars #[x] (preDefTypes[i]!.bindingBody!.instantiate1 x)
+      let minor1 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[0]! fun x => do
+        mkLambdaFVars #[x] ((← whnf preDefTypes[i]!).bindingBody!.instantiate1 x)
       let minor2 ← withLocalDeclD (← mkFreshUserName `_x) xTypeArgs[1]! fun x => do
         mkLambdaFVars #[x] (← go x (i+1))
       return mkApp2 casesOn minor1 minor2
     else
-      return preDefTypes[i]!.bindingBody!.instantiate1 x
+      return (← whnf preDefTypes[i]!).bindingBody!.instantiate1 x
   go x 0
 
 /--
@@ -174,7 +174,7 @@ where
 def packMutual (fixedPrefix : Nat) (preDefsOriginal : Array PreDefinition) (preDefs : Array PreDefinition) : MetaM PreDefinition := do
   if preDefs.size == 1 then return preDefs[0]!
   withFixedPrefix fixedPrefix preDefs fun ys types vals => do
-    let domains := types.map fun type => type.bindingDomain!
+    let domains ← types.mapM fun type => do pure (← whnf type).bindingDomain!
     let domain ← mkNewDomain domains
     withLocalDeclD (← mkFreshUserName `_x) domain fun x => do
       let codomain ← mkNewCoDomain preDefsOriginal types x

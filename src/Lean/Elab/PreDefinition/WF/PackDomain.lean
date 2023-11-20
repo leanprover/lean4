@@ -124,7 +124,8 @@ where
       let args := e.getAppArgs
       let fNew := mkConst preDefsNew[funIdx]!.declName f.constLevels!
       let fNew := mkAppN fNew args[:fixedPrefix]
-      let Expr.forallE _ d .. ← inferType fNew | unreachable!
+      let Expr.forallE _ d .. ← whnf (← inferType fNew) | unreachable!
+      -- NB: Use whnf in case the type is not a manifest forall, but a definition around it
       let argNew ← mkUnaryArg d args[fixedPrefix:]
       return mkApp fNew argNew
     let rec

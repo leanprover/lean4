@@ -200,7 +200,7 @@ def packMutual (fixedPrefix : Nat) (preDefsOriginal : Array PreDefinition) (preD
       let newFn := preDefs[0]!.declName ++ `_mutual
       let preDefNew := { preDefs[0]! with declName := newFn, type, value }
       addAsAxiom preDefNew
-      let value ← transform value (constIsApp := true) (post := post fixedPrefix preDefs domain newFn)
+      let value ← transform value (skipConstInApp := true) (post := post fixedPrefix preDefs domain newFn)
       let value ← mkLambdaFVars (ys.push x) value
       return { preDefNew with value }
 

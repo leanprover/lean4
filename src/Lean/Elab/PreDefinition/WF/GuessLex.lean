@@ -201,6 +201,7 @@ def _root_.Lean.Meta.CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
   catch _ =>
     return none
 
+/-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
   StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
 
@@ -308,12 +309,14 @@ structure SavedLocalCtxt where
   savedLocalInstances : LocalInstances
   savedState : Meta.SavedState
 
+/-- Capture the `MetaM` state including local context. -/
 def SavedLocalCtxt.create : MetaM SavedLocalCtxt := do
   let savedLocalContext ← getLCtx
   let savedLocalInstances ← getLocalInstances
   let savedState ← saveState
   return { savedLocalContext, savedLocalInstances, savedState }
 
+/-- Run a `MetaM` action in the saved state. -/
 def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : MetaM α) :
     MetaM α := withoutModifyingState $ do
   withLCtx slc.savedLocalContext slc.savedLocalInstances do
@@ -333,6 +336,7 @@ structure RecCallContext where
   args : Array Expr
   ctxt : SavedLocalCtxt
 
+/-- Store the current recursive call and its context. -/
 def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
     MetaM RecCallContext := do
   return { caller, params, callee, args, ctxt := (← SavedLocalCtxt.create) }
@@ -390,6 +394,8 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
       let (callee, args) ← unpackArg arities arg
       RecCallContext.create caller params callee args
 
+/-- A `GuessLexRel` described how a recursive call affects a measure; whether it
+decreases strictly, non-strictly, is equal, or else.  -/
 inductive GuessLexRel | lt | eq | le | no_idea
 deriving Repr, DecidableEq
 
@@ -399,12 +405,14 @@ instance : ToFormat GuessLexRel where
          | .le => "≤"
          | .no_idea => "?"
 
+/-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly.  -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
   | lt => mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``instLTNat]
   | eq => mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat]
   | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable! -- TODO: keep it partial or refactor?
 
+/-- Given an expression `e`, produce `sizeOf e` with a suitable instance -/
 def mkSizeOf (e : Expr) : MetaM Expr := do
   let ty ← inferType e
   let lvl ← getLevel ty
@@ -413,8 +421,10 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
   check res
   return res
 
--- For a given recursive call and choice of paramter index,
--- try to prove requality, < or ≤
+/--
+For a given recursive call, and a choice of parameter and argument index,
+try to prove requality, < or ≤.
+-/
 def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx argIdx : Nat) :
     MetaM GuessLexRel := do
   rcc.ctxt.run do
@@ -458,17 +468,19 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
         continue
     return .no_idea
 
--- A cache for `evalRecCall`
+/- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
   decrTactic? : Option Syntax
   rcc : RecCallContext
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
+/-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
 def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallContext) :
     BaseIO RecCallCache := do
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)
   return { decrTactic?, rcc, cache }
 
+/-- Run `evalRecCall` and cache there result -/
 def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) : MetaM GuessLexRel := do
   -- Check the cache first
   if let Option.some res := (← rc.cache.get)[paramIdx]![argIdx]! then
@@ -478,6 +490,7 @@ def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) : MetaM GuessLe
     rc.cache.modify (·.modify paramIdx (·.set! argIdx res))
     return res
 
+/-- Pretty-print the cache entries -/
 def RecCallCache.pretty (rc : RecCallCache) : IO Format := do
   let mut r := Format.nil
   let d ← rc.cache.get
@@ -491,11 +504,12 @@ def RecCallCache.pretty (rc : RecCallCache) : IO Format := do
 /-- The measures that we order lexicographically can be comparing arguments,
 or numbering the functions -/
 inductive MutualMeasure where
+  /-- For every function, the given argument index -/
   | args : Array Nat → MutualMeasure
-  --- The given function index is assigned 1, the rest 0
+  /-- The given function index is assigned 1, the rest 0 -/
   | func : Nat → MutualMeasure
 
--- Evaluate a call at a given measure
+/-- Evaluate a recursive call at a given `MutualMeasure` -/
 def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
   | .args argIdxs => do
     let paramIdx := argIdxs[rc.rcc.caller]!
@@ -510,11 +524,11 @@ def inspectCall (rc : RecCallCache) : MutualMeasure → MetaM GuessLexRel
       return .eq
 
 /--
-  Given a predefinition with value `fun (x_₁ ... xₙ) (y_₁ : α₁)... (yₘ : αₘ) => ...`,
-  where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff `sizeOf yᵢ` reduces to a literal.
-  This is the case for types such as `Prop`, `Type u`, etc.
-  This arguments should not be considered when guessing a well-founded relation.
-  See `generateCombinations?`
+Given a predefinition with value `fun (x_₁ ... xₙ) (y_₁ : α₁)... (yₘ : αₘ) => ...`,
+where `n = fixedPrefixSize`, return an array `A` s.t. `i ∈ A` iff `sizeOf yᵢ` reduces to a literal.
+This is the case for types such as `Prop`, `Type u`, etc.
+These arguments should not be considered when guessing a well-founded relation.
+See `generateCombinations?`
 -/
 def getForbiddenByTrivialSizeOf (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Nat) :=
   lambdaTelescope preDef.value fun xs _ => do
@@ -529,10 +543,12 @@ def getForbiddenByTrivialSizeOf (fixedPrefixSize : Nat) (preDef : PreDefinition)
     return result
 
 
--- Generate all combination of arguments, skipping those that are forbidden.
--- Sorts the uniform combinations ([0,0,0], [1,1,1]) to the front; they
--- are commonly most useful to try first, when the mutually recursive functions have similar
--- argument structures
+/--
+Generate all combination of arguments, skipping those that are forbidden.
+
+Sorts the uniform combinations ([0,0,0], [1,1,1]) to the front; they are commonly most useful to
+try first, when the mutually recursive functions have similar argument structures
+-/
 partial def generateCombinations? (forbiddenArgs : Array (Array Nat)) (numArgs : Array Nat)
     (threshold : Nat := 32) : Option (Array (Array Nat)) :=
   (do goUniform 0; go 0 #[]) |>.run #[] |>.2
@@ -565,7 +581,8 @@ where
         failure
 
 
-/-- The core logic of guessing the lexicographic order
+/--
+The core logic of guessing the lexicographic order
 Given a matrix that for each call and measure indicates whether that measure is
 decreasing, equal, less-or-equal or unknown, It finds a sequence of measures
 that is lexicographically decreasing.
@@ -604,11 +621,18 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     return .none
 
 -- TODO: Move to appropriate place
+/--
+Create Tuple syntax.
+-/
 def mkTupleSyntax : Array Term → MetaM Term
   | #[]  => `(())
   | #[e] => return e
   | es   => `(($(es[0]!), $(es[1:]),*))
 
+/--
+Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
+combination of these measures.
+-/
 def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
     (measures : Array MutualMeasure) : MetaM TerminationWF := do
   -- logInfo <| m!"Solution: {solution}"
@@ -639,6 +663,12 @@ namespace Lean.Elab.WF
 
 open Lean.Elab.WF.GuessLex
 
+/--
+Main entry point of this module:
+
+Try to find a lexicographic ordering of the arguments for which the recursive definition
+terminates. See the module doc string for a high-level overview.
+-/
 def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
     MetaM TerminationWF := do

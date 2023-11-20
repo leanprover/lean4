@@ -669,6 +669,63 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
+/-- Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
+If this is a valid start to a raw string (`r##...#"`),
+returns the parser state after the `"` along with the number of `#`'s -/
+partial def rawStrLitStart (c : ParserContext) (s : ParserState) : Option (ParserState × Nat) :=
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then none
+  else
+    let curr := input.get' i h
+    if curr == 'r' then
+      loop (s.next' input i h) 0
+    else
+      none
+where
+  loop (s : ParserState) (num : Nat) : Option (ParserState × Nat) :=
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then none
+    else
+      let curr := input.get' i h
+      if curr == '#' then
+        loop (s.next' input i h) (num + 1)
+      else if curr == '"' then
+        some (s.next' input i h, num)
+      else
+        none
+
+/-- Parses a raw string literal after `rawStrLitStart` succeeds.
+The `startPos` is the start of the raw string (at the `r`).
+The number of hashes is `num`.
+The parser state is assumed to be immediately after the first `"`.
+If `closing?` is `some closingNum` then we are currently looking at `"##...#` with `closingNum` hashes. -/
+partial def rawStrLitFnAux (startPos : String.Pos) (num : Nat) (closing? : Option Nat) : ParserFn := fun c s =>
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then s.mkUnexpectedErrorAt "unterminated raw string literal" startPos
+  else
+    let curr := input.get' i h
+    let s    := s.setPos (input.next' i h)
+    if let some closingNum := closing? then
+      if curr == '#' then
+        if closingNum + 1 == num then
+          mkNodeToken strLitKind startPos c s
+        else
+          rawStrLitFnAux startPos num (some <| closingNum + 1) c s
+      else if curr == '\"' then
+        rawStrLitFnAux startPos num (some 0) c s
+      else
+        rawStrLitFnAux startPos num none c s
+    else if curr == '\"' then
+      if num == 0 then
+        mkNodeToken strLitKind startPos c s
+      else
+        rawStrLitFnAux startPos num (some 0) c s
+    else
+      rawStrLitFnAux startPos num none c s
+
 def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
   let s     := takeWhileFn (fun c => c.isDigit) c s
   let input := c.input
@@ -862,6 +919,8 @@ private def tokenFnAux : ParserFn := fun c s =>
     numberFnAux c s
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
+  else if let some (s, num) := rawStrLitStart c s then
+    rawStrLitFnAux i num none c s
   else
     let tk := c.tokens.matchPrefix input i
     identFnAux i tk .anonymous c s

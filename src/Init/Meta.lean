@@ -800,8 +800,19 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
   else
     decodeStrLitAux s i (acc.push c)
 
+partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : Option String := do
+  let c := s.get i
+  let i := s.next i
+  if c == '#' then
+    decodeRawStrLitAux s i (num + 1)
+  else
+    s.extract i ⟨s.utf8ByteSize - (num + 1)⟩
+
 def decodeStrLit (s : String) : Option String :=
-  decodeStrLitAux s ⟨1⟩ ""
+  if s.get 0 == 'r' then
+    decodeRawStrLitAux s ⟨1⟩ 0
+  else
+    decodeStrLitAux s ⟨1⟩ ""
 
 def isStrLit? (stx : Syntax) : Option String :=
   match isLit? strLitKind stx with

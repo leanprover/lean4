@@ -93,6 +93,8 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefValues : Arra
 /--
   Pass the first `n` arguments of `e` to the continuation, and apply the result to the
   remaining arguments. If `e` does not have enough arguments, it is eta-expanded as needed.
+
+  Unlike `Meta.etaExpand` does not use `withDefault`.
 -/
 def withAppN (n : Nat) (e : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr := do
   let args := e.getAppArgs
@@ -100,13 +102,12 @@ def withAppN (n : Nat) (e : Expr) (k : Array Expr → MetaM Expr) : MetaM Expr :
     let e' ← k args[:n]
     return mkAppN e' args[n:]
   else
-    withDefault do -- TODO: Copied from `etaExpand`. Needed? Harmful?
-      let missing := n - args.size
-      forallBoundedTelescope (← inferType e) missing fun xs _ => do
-        if xs.size < missing then
-          throwError "Failed to eta-expand partial application"
-        let e' ← k (args ++ xs)
-        mkLambdaFVars xs e'
+    let missing := n - args.size
+    forallBoundedTelescope (← inferType e) missing fun xs _ => do
+      if xs.size < missing then
+        throwError "Failed to eta-expand partial application"
+      let e' ← k (args ++ xs)
+      mkLambdaFVars xs e'
 
 /--
   Auxiliary function for replacing nested `preDefs` recursive calls in `e` with the new function `newFn`.

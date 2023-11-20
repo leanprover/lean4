@@ -12,6 +12,7 @@
 /src/lake/ @tydeu
 /src/Lean/Compiler/ @leodemoura
 /src/Lean/Data/Lsp/ @mhuisi
+/src/Lean/Elab/Deriving/ @semorrison
 /src/Lean/Elab/Tactic/ @semorrison
 /src/Lean/Meta/Tactic/ @leodemoura
 /src/Lean/Parser/ @Kha

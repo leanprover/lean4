@@ -125,7 +125,7 @@ section Elab
     let ctx ← read
     let some headerSnap := snaps[0]? | panic! "empty snapshots"
     if headerSnap.msgLog.hasErrors then
-      -- Treat header processing errors as fatal so users aren't swamped with
+      -- Treats header processing errors as fatal so users aren't swamped with
       -- followup errors
       publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
       publishIleanInfoFinal m ctx.hOut #[headerSnap]
@@ -182,7 +182,7 @@ section Initialization
       args
     }
     let lakeProc ← Process.spawn spawnArgs
-    -- progress notification: report latest stderr line
+    -- progress notification: reports latest stderr line
     let rec processStderr (acc : String) : IO String := do
       let line ← lakeProc.stderr.getLine
       if line == "" then
@@ -196,8 +196,8 @@ section Initialization
     let exitCode ← lakeProc.wait
     return ⟨spawnArgs, exitCode, stdout, stderr⟩
 
-  /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
-  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
+  /-- Uses `lake print-paths` to compile dependencies on the fly and adds them to `LEAN_PATH`.
+  Compilation progress is reported to `hOut` via LSP notifications. Returns the search path for
   source files. -/
   partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
     let result ← runLakePrintPaths lakePath m imports hOut
@@ -235,7 +235,7 @@ section Initialization
     let (headerEnv, msgLog, srcSearchPath) ←
       match ← EIO.toIO' <| setupSrcSearchPath m hOut headerStx with
       | .ok srcSearchPath =>
-        -- allow `headerEnv` to be leaked, which would live until the end of the process anyway
+        -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
         let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) headerStx opts MessageLog.empty m.mkInputContext
         pure (headerEnv, msgLog, srcSearchPath)
       | .error e =>
@@ -328,7 +328,7 @@ section Updates
 
   def determineValidSnapshots (oldDoc : EditableDocument) (newMeta : DocumentMeta) (newHeaderSnap : Snapshot) : IO (List Snapshot) := do
     let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
-    -- Ignore exceptions, we are only interested in the successful snapshots
+    -- Ignores exceptions, we are only interested in the successful snapshots
     let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
     oldDoc.cmdSnaps.cancel
     -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
@@ -470,18 +470,15 @@ section MessageHandling
       ctx.hOut.writeLspResponse ⟨id, completions⟩
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
-    | some task => IO.mapTask (t := task) fun
-      | Except.error err => throw err
-      | Except.ok ⟨availableImports, lastRequestTimestampMs⟩ => do
-        let mut availableImports := availableImports
-        let mut lastRequestTimestampMs := lastRequestTimestampMs
-        let timestampNowMs ← IO.monoMsNow
-        if timestampNowMs - lastRequestTimestampMs >= 10000 then
-          availableImports ← ImportCompletion.collectAvailableImports
-        lastRequestTimestampMs := timestampNowMs
-        let completions := ImportCompletion.find text st.currHeaderStx params availableImports
-        ctx.hOut.writeLspResponse ⟨id, completions⟩
-        pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+    | some task => IO.mapTask (t := task) fun result => do
+      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
+      let timestampNowMs ← IO.monoMsNow
+      if timestampNowMs - lastRequestTimestampMs >= 10000 then
+        availableImports ← ImportCompletion.collectAvailableImports
+      lastRequestTimestampMs := timestampNowMs
+      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do

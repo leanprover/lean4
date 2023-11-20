@@ -104,7 +104,7 @@ def collectAvailableImportsFromSrcSearchPath : IO AvailableImports :=
     for p in srcSearchPath do
       if ! (← p.isDir) then
         continue
-      System.FilePath.forEachModuleIn p fun mod => do
+      Lean.forEachModuleInDir p fun mod => do
         set <| (← get).push mod
 
 def collectAvailableImports : IO AvailableImports := do

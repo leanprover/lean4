@@ -10,19 +10,19 @@ with a directory `A/`. `import A` resolves to `path/A.olean`.
 -/
 import Lean.Data.Name
 
-partial def System.FilePath.forEachModuleIn [Monad m] [MonadLiftT IO m]
+namespace Lean
+open System
+
+partial def forEachModuleInDir [Monad m] [MonadLiftT IO m]
     (dir : FilePath) (f : Lean.Name → m PUnit) (ext := "lean") : m PUnit := do
   for entry in (← dir.readDir) do
     if (← liftM (m := IO) <| entry.path.isDir) then
       let n := Lean.Name.mkSimple entry.fileName
       let r := FilePath.withExtension entry.fileName ext
       if (← liftM (m := IO) r.pathExists) then f n
-      forEachModuleIn entry.path (f <| n ++ ·)
+      forEachModuleInDir entry.path (f <| n ++ ·)
     else if entry.path.extension == some ext then
       f <| Lean.Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
-
-namespace Lean
-open System
 
 def realPathNormalized (p : FilePath) : IO FilePath :=
   return (← IO.FS.realPath p).normalize

@@ -34,6 +34,6 @@ def «matches» (m : Name) : (self : Glob) → Bool
 (dir : FilePath) (f : Name → m PUnit) : (self : Glob) → m PUnit
 | one n => f n
 | submodules n =>
-  Lean.modToFilePath dir n "" |>.forEachModuleIn  (f <| n ++ ·)
+  Lean.forEachModuleInDir (Lean.modToFilePath dir n "") (f <| n ++ ·)
 | andSubmodules n =>
-  f n *> (Lean.modToFilePath dir n "" |>.forEachModuleIn (f <| n ++ ·))
+  f n *> Lean.forEachModuleInDir (Lean.modToFilePath dir n "") (f <| n ++ ·)

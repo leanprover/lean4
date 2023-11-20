@@ -218,7 +218,7 @@ section Initialization
     let some path := System.Uri.fileUriToPath? m.uri
       | return ← initSrcSearchPath
 
-    -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
+    -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
     -- NOTE: lake does not exist in stage 0 (yet?)
     if path.fileName == "lakefile.lean" then
       return ← initSrcSearchPath
@@ -233,12 +233,12 @@ section Initialization
 
   def buildHeaderEnv (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (headerStx : Syntax) : IO (Environment × MessageLog × SearchPath) := do
     let (headerEnv, msgLog, srcSearchPath) ←
-      try
-        let srcSearchPath ← setupSrcSearchPath m hOut headerStx
+      match ← EIO.toIO' <| setupSrcSearchPath m hOut headerStx with
+      | .ok srcSearchPath =>
         -- allow `headerEnv` to be leaked, which would live until the end of the process anyway
         let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) headerStx opts MessageLog.empty m.mkInputContext
         pure (headerEnv, msgLog, srcSearchPath)
-      catch e =>  -- should be from `lake print-paths`
+      | .error e =>
         let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
         pure (← mkEmptyEnvironment, msgs, ← initSrcSearchPath)
 

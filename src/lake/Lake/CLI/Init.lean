@@ -142,19 +142,21 @@ def InitTemplate.parse? : String → Option InitTemplate
 | "math" => some .math
 | _ => none
 
-def InitTemplate.configFileContents (pkgName root : String) : InitTemplate → String
-| .std => stdConfigFileContents pkgName root pkgName.toLower
-| .lib => libConfigFileContents pkgName root
-| .exe => exeConfigFileContents pkgName root
-| .math => mathConfigFileContents pkgName root
+def escapeIdent (id : String) : String :=
+  Lean.idBeginEscape.toString ++ id ++ Lean.idEndEscape.toString
 
 def escapeName! : Name → String
-| .anonymous        => "[anonymous]"
-| .str .anonymous s => escape s
-| .str n s          => escapeName! n ++ "." ++ escape s
+| .anonymous        => unreachable!
+| .str .anonymous s => escapeIdent s
+| .str n s          => escapeName! n ++ "." ++ escapeIdent s
 | _                 => unreachable!
-where
-  escape s :=  Lean.idBeginEscape.toString ++ s ++ Lean.idEndEscape.toString
+
+def InitTemplate.configFileContents (pkgName : Name) (root : String) : InitTemplate → String
+| .std => stdConfigFileContents (escapeName! pkgName) root
+  (escapeIdent <| pkgName.toStringWithSep "-" false).toLower
+| .lib => libConfigFileContents (escapeName! pkgName) root
+| .exe => exeConfigFileContents (escapeName! pkgName) root
+| .math => mathConfigFileContents (escapeName! pkgName) root
 
 /-- Initialize a new Lake package in the given directory with the given name. -/
 def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
@@ -178,12 +180,13 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
   if (← configFile.pathExists) then
     error  "package already initialized"
   let rootNameStr := escapeName! root
-  let contents := tmp.configFileContents (escapeName! pkgName) rootNameStr
+  let contents := tmp.configFileContents pkgName rootNameStr
   IO.FS.writeFile configFile contents
 
   -- write example code if the files do not already exist
   if tmp = .exe then
     unless (← rootFile.pathExists) do
+      createParentDirs rootFile
       IO.FS.writeFile rootFile exeFileContents
   else
     unless rootExists do

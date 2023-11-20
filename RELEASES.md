@@ -13,6 +13,12 @@ v4.4.0 (development in progress)
 
 * [Allow trailing comma in tuples, lists, and tactics](https://github.com/leanprover/lean4/pull/2643).
 
+* `lake init .` and a bare `lake init` and will now use the current directory as the package name. [#2890](https://github.com/leanprover/lean4/pull/2890)
+* `lake new` and `lake init` will now produce errors on invalid package names such as `..`, `foo/bar`, `Init`, `Lean`, `Lake`, and `Main`. See issue [#2637](https://github.com/leanprover/lean4/issue/2637) and PR [#2890](https://github.com/leanprover/lean4/pull/2890).
+* `lean_lib` no longer converts its name to upper camel case (e.g., `lean_lib bar` will include modules named `bar.*` rather than `Bar.*`). See issue [#2567](https://github.com/leanprover/lean4/issue/2567) and PR [#2889](https://github.com/leanprover/lean4/pull/2889).
+* Lean and Lake now properly support non-identifier library names (e.g., `lake new 123-hello` and `import «123Hello»` now work correctly). See issue [#2865](https://github.com/leanprover/lean4/issue/2865) and PR [#2889](https://github.com/leanprover/lean4/pull/2888).
+* Lake now filters the environment extensions loaded from a compiled configuration (`lakefile.olean`) to include only those relevant to Lake's workspace loading process. This resolves segmentation faults caused by environment extension type mismatches (e.g., when defining custom elaborators via `elab` in configurations). See issue [#2632](https://github.com/leanprover/lean4/issue/2632) and PR [#2896](https://github.com/leanprover/lean4/pull/2896).
+
 v4.3.0
 ---------
 

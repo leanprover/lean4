@@ -77,7 +77,7 @@ namespace Meta
 
   If `skipConstInApp := true`, then for an expression `mkAppN (.const f) args`, the subexpression
   `.const f` is not visited again. Put differently: every `.const f` is visited once, with its
-  arguments.
+  arguments if present, on its own otherwise.
  -/
 partial def transform {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] [MonadTrace m] [MonadRef m] [MonadOptions m] [AddMessageContext m]
     (input : Expr)

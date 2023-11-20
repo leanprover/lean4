@@ -20,8 +20,8 @@ lake script run llvm-bitcode-gen/hasLLVMBackend | grep "true"
 # If we have the LLVM backend in the Lean toolchain, then we expect this to
 # print `true`, as this queries the same flag that Lake queries to check the presence
 # of the LLVM toolchian.
-./build/bin/llvm-bitcode-gen | grep 'true'
+./.lake/build/bin/llvm-bitcode-gen | grep 'true'
 
 # If we have the LLVM backend, check that lake builds bitcode artefacts.
-test -f build/ir/LlvmBitcodeGen.bc
-test -f build/ir/Main.bc
+test -f .lake/build/ir/LlvmBitcodeGen.bc
+test -f .lake/build/ir/Main.bc

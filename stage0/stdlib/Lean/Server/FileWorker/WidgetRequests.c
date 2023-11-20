@@ -3936,7 +3936,7 @@ static lean_object* _init_l___private_Lean_Server_FileWorker_WidgetRequests_0__L
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("lineRange?", 10);
+x_1 = lean_mk_string_from_bytes("lineRange\?", 10);
 return x_1;
 }
 }

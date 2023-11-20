@@ -1,0 +1,18 @@
+@HPow.hPow Int Nat Int Int.instHPowIntNat (@OfNat.ofNat Int 3 (@instOfNatInt 3))
+  (@OfNat.ofNat Nat 2 (instOfNatNat 2)) : Int
+@HAdd.hAdd Int Int Int (@instHAdd Int Int.instAddInt) (@OfNat.ofNat Int 1 (@instOfNatInt 1))
+  (@HPow.hPow Int Nat Int Int.instHPowIntNat (@OfNat.ofNat Int 3 (@instOfNatInt 3))
+    (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int
+@HAdd.hAdd Int Int Int (@instHAdd Int Int.instAddInt) (@OfNat.ofNat Int 1 (@instOfNatInt 1))
+  (@HPow.hPow Int Nat Int Int.instHPowIntNat (@OfNat.ofNat Int 3 (@instOfNatInt 3))
+    (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int
+@HPow.hPow Int Nat Int Int.instHPowIntNat (@OfNat.ofNat Int 3 (@instOfNatInt 3))
+  (@OfNat.ofNat Nat 2 (instOfNatNat 2)) : Int
+2220.lean:25:19-25:24: error: failed to synthesize instance
+  HPow Nat Nat Int
+@HAdd.hAdd Int Int Int (@instHAdd Int Int.instAddInt) (@OfNat.ofNat Int 1 (@instOfNatInt 1))
+  (@HPow.hPow Nat Nat Int ?m (@OfNat.ofNat Nat 3 (instOfNatNat 3)) (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int
+2220.lean:26:12-26:17: error: failed to synthesize instance
+  HPow Nat Nat Int
+@HAdd.hAdd Int Int Int (@instHAdd Int Int.instAddInt) (@OfNat.ofNat Int 1 (@instOfNatInt 1))
+  (@HPow.hPow Nat Nat Int ?m (@OfNat.ofNat Nat 3 (instOfNatNat 3)) (@OfNat.ofNat Nat 2 (instOfNatNat 2))) : Int

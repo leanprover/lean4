@@ -450,11 +450,11 @@ inductive Expr where
   The type of `struct` must be an structure-like inductive type. That is, it has only one
   constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
   check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-  is valid (i.e., it is smaller than the numbef of constructor fields).
+  is valid (i.e., it is smaller than the number of constructor fields).
   When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
   applications.
 
-  Example, given `a : Nat x Bool`, `a.1` is represented as
+  Example, given `a : Nat × Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a
   ```
@@ -1331,6 +1331,14 @@ lambda expression. See docstring for `betaRev` for examples.
 -/
 def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
+
+/--
+Count the number of lambdas at the head of the given expression.
+-/
+def getNumHeadLambdas : Expr → Nat
+  | .lam _ _ b _ => getNumHeadLambdas b + 1
+  | .mdata _ b => getNumHeadLambdas b
+  | _ => 0
 
 /--
 Return true if the given expression is the function of an expression that is target for (head) beta reduction.

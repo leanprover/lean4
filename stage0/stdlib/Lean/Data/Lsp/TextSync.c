@@ -895,7 +895,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("documentSelector?", 17);
+x_1 = lean_mk_string_from_bytes("documentSelector\?", 17);
 return x_1;
 }
 }
@@ -2802,7 +2802,7 @@ static lean_object* _init_l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJso
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("save?", 5);
+x_1 = lean_mk_string_from_bytes("save\?", 5);
 return x_1;
 }
 }

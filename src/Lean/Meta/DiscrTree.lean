@@ -30,7 +30,7 @@ namespace Lean.Meta.DiscrTree
   Recall that projections from classes are **NOT** reducible.
   For example, the expressions `Add.add α (ringAdd ?α ?s) ?x ?x`
   and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
-  respctively
+  respectively
   ```
   ⟨Add.add, 4⟩, *, *, *, *
   ⟨Add.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩

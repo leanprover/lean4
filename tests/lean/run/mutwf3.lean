@@ -20,7 +20,7 @@ termination_by'
       | PSum.inr <| PSum.inr ⟨_, _, n⟩ => (n, 0))
     (Prod.lex sizeOfWFRel sizeOfWFRel)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
+  simp_wf
   first
   | apply Prod.Lex.left
     apply Nat.lt_succ_self

@@ -1,4 +1,3 @@
-/build
-/lakefile.olean
-produced.out
-result*
+.lake
+lake-manifest.json
+*produced.out

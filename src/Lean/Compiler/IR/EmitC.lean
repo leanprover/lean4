@@ -472,6 +472,7 @@ def quoteString (s : String) : String :=
       else if c == '\t' then "\\t"
       else if c == '\\' then "\\\\"
       else if c == '\"' then "\\\""
+      else if c == '?' then "\\?" -- avoid trigraphs
       else if c.toNat <= 31 then
         "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
       -- TODO(Leo): we should use `\unnnn` for escaping unicode characters.

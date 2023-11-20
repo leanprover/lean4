@@ -165,7 +165,24 @@ def resolveTargetBaseSpec
       else
         throw <| CliError.unknownModule mod
     else
-      resolveTargetInPackage ws pkg targetSpec facet
+      resolveTargetInPackage ws pkg (stringToLegalOrSimpleName targetSpec) facet
+  | _ =>
+    throw <| CliError.invalidTargetSpec spec '/'
+
+def parseExeTargetSpec (ws : Workspace) (spec : String) : Except CliError LeanExe := do
+  match spec.splitOn "/" with
+  | [targetSpec] =>
+    let targetName := stringToLegalOrSimpleName targetSpec
+    match ws.findLeanExe? targetName with
+    | some exe => return exe
+    | none => throw <| CliError.unknownExe spec
+  | [pkgSpec, targetSpec] =>
+    let pkgSpec := if pkgSpec.startsWith "@" then pkgSpec.drop 1 else pkgSpec
+    let pkg ← parsePackageSpec ws pkgSpec
+    let targetName := stringToLegalOrSimpleName targetSpec
+    match pkg.findLeanExe? targetName with
+    | some exe => return exe
+    | none => throw <| CliError.unknownExe spec
   | _ =>
     throw <| CliError.invalidTargetSpec spec '/'
 

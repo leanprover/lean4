@@ -364,14 +364,14 @@ protected def env : CliM PUnit := do
     exit 0
 
 protected def exe : CliM PUnit := do
-  let exeName ← takeArg "executable name"
+  let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws
-  let buildConfig := mkBuildConfig opts
-  exit <| ← (exe exeName args.toArray buildConfig).run ctx
+  let exe ← parseExeTargetSpec ws exeSpec
+  let exeFile ← ws.runBuild (exe.build >>= (·.await)) <| mkBuildConfig opts
+  exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption

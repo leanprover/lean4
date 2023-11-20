@@ -53,7 +53,7 @@ PR Submission:
 **Descriptive Title and Summary**: The PR title should briefly explain the purpose of the PR. The summary should give more detailed information on what changes are made and why. Links to Zulip threads are not acceptable as a summary. You are responsible for summarizing the discussion, and getting support for it.
 
 **Follow the commit convention**: Pull requests are squash merged, and the
-commit message is taken from the pull request title and body, so make sure they adhere to the [commit convention](https://github.com/leanprover/lean4/blob/master/doc/dev/commit_convention.md). Put questions and extra information, which should not be part of the final commit message, into a first comment rather than the Pull Request title.
+commit message is taken from the pull request title and body, so make sure they adhere to the [commit convention](https://github.com/leanprover/lean4/blob/master/doc/dev/commit_convention.md). Put questions and extra information, which should not be part of the final commit message, into a first comment rather than the Pull Request description.
 Because the change will be squashed, there is no need to polish the commit messages and history on the branch.
 
 **Link to Relevant Issues**: Reference any issues that your PR addresses to provide context.

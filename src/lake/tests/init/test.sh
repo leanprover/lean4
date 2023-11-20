@@ -3,6 +3,12 @@ set -euxo pipefail
 
 ./clean.sh
 
+if [ "`uname`" = Darwin ]; then
+  sed_i() { sed -i '' "$@"; }
+else
+  sed_i() { sed -i "$@"; }
+fi
+
 LAKE1=${LAKE:-../../../.lake/build/bin/lake}
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
@@ -33,6 +39,14 @@ $LAKE1 init .
 $LAKE1 build
 .lake/build/bin/hello
 popd
+
+# Test math template
+
+$LAKE new qed math
+# Remove the require, since we do not wish to download mathlib during tests
+sed_i '/^require.*/{N;d;}' qed/lakefile.lean
+$LAKE -d qed build Qed
+test -f qed/.lake/build/lib/Qed.olean
 
 # Test creating packages with uppercase names
 # https://github.com/leanprover/lean4/issues/2540

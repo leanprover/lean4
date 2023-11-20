@@ -435,14 +435,14 @@ non-dependent hypotheses. It has many variants:
   other hypotheses.
 -/
 syntax (name := simp) "simp" (config)? (discharger)? (&" only")?
-  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? (location)? : tactic
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 /--
 `simp_all` is a stronger version of `simp [*] at *` where the hypotheses and target
 are simplified multiple times until no simplification is applicable.
 Only non-dependent propositional hypotheses are considered.
 -/
 syntax (name := simpAll) "simp_all" (config)? (discharger)? (&" only")?
-  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? : tactic
 
 /--
 The `dsimp` tactic is the definitional simplifier. It is similar to `simp` but only
@@ -450,7 +450,7 @@ applies theorems that hold by reflexivity. Thus, the result is guaranteed to be
 definitionally equal to the input.
 -/
 syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
-  (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? (location)? : tactic
+  (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....

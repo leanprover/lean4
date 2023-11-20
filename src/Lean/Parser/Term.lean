@@ -164,7 +164,7 @@ do not yield the right result.
   "(" >> (withoutPosition (withoutForbidden (termParser >> " :" >> optional (ppSpace >> termParser)))) >> ")"
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
-  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", "))) >> ")"
+  "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:
@@ -184,7 +184,7 @@ are turned into a new anonymous constructor application. For example,
 `⟨a, b, c⟩ : α × (β × γ)` is equivalent to `⟨a, ⟨b, c⟩⟩`.
 -/
 @[builtin_term_parser] def anonymousCtor := leading_parser
-  "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", ")) >> "⟩"
+  "⟨" >> withoutPosition (withoutForbidden (sepBy termParser ", " (allowTrailingSep := true))) >> "⟩"
 def optIdent : Parser :=
   optional (atomic (ident >> " : "))
 def fromTerm   := leading_parser

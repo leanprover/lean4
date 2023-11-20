@@ -24,15 +24,15 @@ where
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
-        `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+        `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
-        `(if h : $a = $b then
+        `(if h : @$a = @$b then
            by subst h; exact $(← mkSameCtorRhs todo):term
           else
            isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
-        `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
+        `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)
       else
         return rhs
 

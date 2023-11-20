@@ -27,13 +27,11 @@ structure LeanLibConfig extends LeanConfig where
 
   /--
   The root module(s) of the library.
-
   Submodules of these roots (e.g., `Lib.Foo` of `Lib`) are considered
-  part of the package.
-
-  Defaults to a single root of the library's upper camel case name.
+  part of the library.
+  Defaults to a single root of the target's name.
   -/
-  roots : Array Name := #[toUpperCamelCase name]
+  roots : Array Name := #[name]
 
   /--
   An `Array` of module `Glob`s to build for the library.
@@ -48,9 +46,9 @@ structure LeanLibConfig extends LeanConfig where
   /--
   The name of the library.
   Used as a base for the file names of its static and dynamic binaries.
-  Defaults to the upper camel case name of the target.
+  Defaults to the name of the target.
   -/
-  libName := toUpperCamelCase name |>.toString (escape := false)
+  libName := name.toString (escape := false)
 
   /-- An `Array` of target names to build before the library's modules. -/
   extraDepTargets : Array Name := #[]

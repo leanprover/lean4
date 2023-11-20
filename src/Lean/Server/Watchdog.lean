@@ -386,7 +386,7 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
 
-def handlePrepareRename (p : TextDocumentPositionParams) : ServerM (Option Range) := do
+def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
   -- This just checks that the cursor is over a renameable identifier
   if let some path := System.Uri.fileUriToPath? p.textDocument.uri then
     let srcSearchPath := (← read).srcSearchPath
@@ -534,7 +534,7 @@ section MessageHandling
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
-      | "textDocument/prepareRename" => handle TextDocumentPositionParams (Option Range) handlePrepareRename
+      | "textDocument/prepareRename" => handle PrepareRenameParams (Option Range) handlePrepareRename
       | "textDocument/rename" => handle RenameParams WorkspaceEdit handleRename
       | _ => forwardRequestToWorker id method params
 

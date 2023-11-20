@@ -82,6 +82,9 @@ def findRange? (self : RefInfo) (pos : Lsp.Position) (includeStop := false) : Op
   none
 where
   contains (range : Lsp.Range) (pos : Lsp.Position) : Bool :=
+    -- Note: includeStop is used here to toggle between closed-interval and half-open-interval
+    -- behavior for the range. Closed-interval behavior matches the expectation of VSCode
+    -- when selecting an identifier at a cursor position, see #767.
     range.start <= pos && (if includeStop then pos <= range.end else pos < range.end)
 
 def contains (self : RefInfo) (pos : Lsp.Position) (includeStop := false) : Bool := Id.run do

@@ -359,5 +359,8 @@ structure RenameParams extends TextDocumentPositionParams where
   newName : String
   deriving FromJson, ToJson
 
+structure PrepareRenameParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

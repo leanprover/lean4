@@ -6,7 +6,7 @@ requests, make sure the pull request title and description follow this
 convention, as the squash-merge commit will inherit title and body from the
 pull request.
 
-This conventoin is based on the one from AngularJS project([doc][angularjs-doc],
+This convention is based on the one from the AngularJS project ([doc][angularjs-doc],
 [commits][angularjs-git]).
 
 

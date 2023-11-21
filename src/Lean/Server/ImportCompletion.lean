@@ -110,7 +110,7 @@ def collectAvailableImportsFromSrcSearchPath : IO AvailableImports :=
       if ! (← p.isDir) then
         continue
       Lean.forEachModuleInDir p fun mod => do
-        set <| (← get).push mod
+        modify (·.push mod)
 
 def collectAvailableImports : IO AvailableImports := do
   match ← ImportCompletion.collectAvailableImportsFromLake with

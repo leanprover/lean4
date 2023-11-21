@@ -29,7 +29,7 @@ static lean_object* l_Lean_instAppendName___closed__1;
 LEAN_EXPORT lean_object* l_Array_set___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_seqRight___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_appendCore_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_instPowNat;
+LEAN_EXPORT lean_object* l_instPowNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNullNode(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadFunctorReaderT(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
@@ -366,6 +366,7 @@ static lean_object* l_Lean_strLitKind___closed__2;
 LEAN_EXPORT lean_object* l_instDecidableEqUSize___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMulNat;
 LEAN_EXPORT lean_object* l_Lean_Syntax_getHeadInfo___boxed(lean_object*);
+static lean_object* l_instNatPowNat___closed__1;
 LEAN_EXPORT lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_numLitKind___closed__1;
 LEAN_EXPORT lean_object* l_instOfNatNat(lean_object*);
@@ -468,6 +469,7 @@ LEAN_EXPORT lean_object* l_UInt64_val___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_charLitKind;
 static lean_object* l_Lean_PrettyPrinter_instMonadQuotationUnexpandM___closed__5;
 LEAN_EXPORT lean_object* l_readThe(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instNatPowNat;
 LEAN_EXPORT lean_object* l_unsafeCast(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_orElse___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static uint32_t l_Char_utf8Size___closed__6;
@@ -490,6 +492,7 @@ LEAN_EXPORT lean_object* l_String_endPos___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_object*);
 static uint32_t l_instInhabitedUInt32___closed__1;
 LEAN_EXPORT lean_object* l_maxOfLe___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instPowNat___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHXor(lean_object*);
 static lean_object* l_Array_empty___closed__1;
 LEAN_EXPORT lean_object* l_absurd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -499,6 +502,7 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Macro_instMonadRefMacroM___spe
 LEAN_EXPORT lean_object* l_Nat_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_instMonadExceptOfEStateM___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_instPow(lean_object*);
 LEAN_EXPORT lean_object* l_readThe___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_dite___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_withIncRecDepth___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -518,6 +522,7 @@ LEAN_EXPORT lean_object* l_Monad_seqLeft___default___rarg(lean_object*, lean_obj
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_instOfNatNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_sequenceMap(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_instPow___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_EStateM_nonBacktrackable___closed__3;
 static lean_object* l_System_Platform_numBits___closed__1;
 uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
@@ -539,7 +544,6 @@ LEAN_EXPORT lean_object* l_instInhabitedOption(lean_object*);
 LEAN_EXPORT lean_object* l_instHAddPosChar___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfReaderT(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_decEq___boxed(lean_object*, lean_object*);
-static lean_object* l_instPowNat___closed__1;
 LEAN_EXPORT lean_object* l_List_lengthTRAux(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_add___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadReaderT(lean_object*, lean_object*);
@@ -1944,6 +1948,38 @@ x_3 = lean_alloc_closure((void*)(l_instHPow___rarg), 3, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_instPowNat___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instPowNat(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instPowNat___rarg), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_instPow___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_apply_2(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_instPow(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_instPow___rarg), 3, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_instHAppend___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -2134,7 +2170,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-static lean_object* _init_l_instPowNat___closed__1() {
+static lean_object* _init_l_instNatPowNat___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -2142,11 +2178,11 @@ x_1 = lean_alloc_closure((void*)(l_Nat_pow___boxed), 2, 0);
 return x_1;
 }
 }
-static lean_object* _init_l_instPowNat() {
+static lean_object* _init_l_instNatPowNat() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_instPowNat___closed__1;
+x_1 = l_instNatPowNat___closed__1;
 return x_1;
 }
 }
@@ -12177,10 +12213,10 @@ l_instMulNat___closed__1 = _init_l_instMulNat___closed__1();
 lean_mark_persistent(l_instMulNat___closed__1);
 l_instMulNat = _init_l_instMulNat();
 lean_mark_persistent(l_instMulNat);
-l_instPowNat___closed__1 = _init_l_instPowNat___closed__1();
-lean_mark_persistent(l_instPowNat___closed__1);
-l_instPowNat = _init_l_instPowNat();
-lean_mark_persistent(l_instPowNat);
+l_instNatPowNat___closed__1 = _init_l_instNatPowNat___closed__1();
+lean_mark_persistent(l_instNatPowNat___closed__1);
+l_instNatPowNat = _init_l_instNatPowNat();
+lean_mark_persistent(l_instNatPowNat);
 l_instBEqNat___closed__1 = _init_l_instBEqNat___closed__1();
 lean_mark_persistent(l_instBEqNat___closed__1);
 l_instBEqNat = _init_l_instBEqNat();

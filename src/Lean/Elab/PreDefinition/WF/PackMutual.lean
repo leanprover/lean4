@@ -95,7 +95,7 @@ private partial def packValues (x : Expr) (codomain : Expr) (preDefValues : Arra
   See: `packMutual`
 -/
 private partial def post (fixedPrefix : Nat) (preDefs : Array PreDefinition) (domain : Expr) (newFn : Name) (e : Expr) : MetaM TransformStep := do
-  if e.getAppNumArgs != fixedPrefix + 1 then
+  if e.getAppNumArgs < fixedPrefix + 1 then
     return TransformStep.done e
   let f := e.getAppFn
   if !f.isConst then
@@ -105,7 +105,8 @@ private partial def post (fixedPrefix : Nat) (preDefs : Array PreDefinition) (do
   if let some fidx := preDefs.findIdx? (·.declName == declName) then
     let args := e.getAppArgs
     let fixedArgs := args[:fixedPrefix]
-    let arg  := args.back
+    let arg  := args[fixedPrefix]!
+    let remaining := args[fixedPrefix+1:]
     let rec mkNewArg (i : Nat) (type : Expr) : MetaM Expr := do
       if i == preDefs.size - 1 then
         return arg
@@ -117,7 +118,8 @@ private partial def post (fixedPrefix : Nat) (preDefs : Array PreDefinition) (do
           else
             let r ← mkNewArg (i+1) args[1]!
             return mkApp3 (mkConst ``PSum.inr f.constLevels!) args[0]! args[1]! r
-    return TransformStep.done <| mkApp (mkAppN (mkConst newFn us) fixedArgs) (← mkNewArg 0 domain)
+    return TransformStep.done <|
+      mkAppN (mkApp (mkAppN (mkConst newFn us) fixedArgs) (← mkNewArg 0 domain)) remaining
   return TransformStep.done e
 
 partial def withFixedPrefix (fixedPrefix : Nat) (preDefs : Array PreDefinition) (k : Array Expr → Array Expr → Array Expr → MetaM α) : MetaM α :=

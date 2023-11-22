@@ -45,10 +45,6 @@ structure State where
 
 abbrev SimpM := ReaderT Context $ StateRefT State MetaM
 
-instance : MonadBacktrack SavedState SimpM where
-  saveState      := Meta.saveState
-  restoreState s := s.restore
-
 inductive Step where
   | visit : Result → Step
   | done  : Result → Step

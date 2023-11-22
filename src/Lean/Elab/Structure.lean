@@ -476,11 +476,16 @@ where
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
-      let parentType ← Term.elabType parentStx
+      let mut isFlat := !parentStx[0].isNone
+      let parentType ← Term.elabType parentStx[1]
       let parentStructName ← getStructureName parentType
-      if let some existingFieldName ← findExistingField? infos parentStructName then
-        if structureDiamondWarning.get (← getOptions) then
-          logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
+      -- If `flat` was not specified but the fields overlap, behave as though it were specified.
+      if not isFlat then
+        if let some existingFieldName ← findExistingField? infos parentStructName then
+          if structureDiamondWarning.get (← getOptions) then
+            logWarning s!"field '{existingFieldName}' from '{parentStructName}' has already been declared"
+          isFlat := true
+      if isFlat then
         copyNewFieldsFrom view.declName infos parentType fun infos => go (i+1) infos (copiedParents.push parentType)
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else

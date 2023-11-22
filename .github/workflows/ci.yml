@@ -133,7 +133,7 @@ jobs:
             # exclude seriously slow/problematic tests (laketests crash)
             CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
           - name: macOS
-            os: macos-latest
+            os: macos-11
             release: true
             shell: bash -euxo pipefail {0}
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
@@ -141,7 +141,7 @@ jobs:
             binary-check: otool -L
             tar: gtar  # https://github.com/actions/runner-images/issues/2619
           - name: macOS aarch64
-            os: macos-latest
+            os: macos-11
             release: true
             cross: true
             shell: bash -euxo pipefail {0}

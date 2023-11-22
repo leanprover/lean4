@@ -224,7 +224,7 @@ jobs:
       - name: Install Brew Packages
         run: |
           brew install ccache tree zstd coreutils gmp
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-11'
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:

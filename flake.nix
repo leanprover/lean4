@@ -4,6 +4,7 @@
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nix.url = "github:NixOS/nix";
+  inputs.nix.inputs.nixpkgs.follows = "nixpkgs";
   inputs.lean4-mode = {
     url = "github:leanprover/lean4-mode";
     flake = false;

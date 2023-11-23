@@ -926,7 +926,9 @@ or derive `i < arr.size` from some other proposition that we are checking in the
 return `t` or `e` depending on whether `c` is true or false. The explicit argument
 `c : Prop` does not have any actual computational content, but there is an additional
 `[Decidable c]` argument synthesized by typeclass inference which actually
-determines how to evaluate `c` to true or false.
+determines how to evaluate `c` to true or false. Write `if h : c then t else e`
+instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
+that `c` is true/false.
 
 Because lean uses a strict (call-by-value) evaluation strategy, the signature of this
 function is problematic in that it would require `t` and `e` to be evaluated before

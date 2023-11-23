@@ -74,6 +74,7 @@ structure ServerCapabilities where
   declarationProvider       : Bool                           := false
   typeDefinitionProvider    : Bool                           := false
   referencesProvider        : Bool                           := false
+  renameProvider?           : Option RenameOptions           := none
   workspaceSymbolProvider   : Bool                           := false
   foldingRangeProvider      : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none

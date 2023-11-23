@@ -3,4 +3,4 @@
 with errors
 structural recursion cannot be used
 
-failed to prove termination, use `termination_by` to specify a well-founded relation
+well-founded recursion cannot be used, 'foo.a' does not take any (non-fixed) arguments

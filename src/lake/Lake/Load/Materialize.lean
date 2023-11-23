@@ -74,15 +74,31 @@ def materializeGitRepo (name : String) (repo : GitRepo)
 structure MaterializedDep where
   /-- Path to the materialized package relative to the workspace's root directory. -/
   relPkgDir : FilePath
+  /--
+  URL for the materialized package.
+  Used as the endpoint from which to fetch cloud releases for the package.
+  -/
   remoteUrl? : Option String
+  /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
+  /-- The configuration-specified dependency. -/
+  configDep : Dependency
   deriving Inhabited
 
 @[inline] def MaterializedDep.name (self : MaterializedDep) :=
   self.manifestEntry.name
 
-@[inline] def MaterializedDep.opts (self : MaterializedDep) :=
-  self.manifestEntry.opts
+/-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
+@[inline] def MaterializedDep.manifestFile? (self : MaterializedDep) :=
+  self.manifestEntry.manifestFile?
+
+/-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
+@[inline] def MaterializedDep.configFile (self : MaterializedDep) :=
+  self.manifestEntry.configFile
+
+ /-- Lake configuration options for the dependency. -/
+@[inline] def MaterializedDep.configOpts (self : MaterializedDep) :=
+  self.configDep.opts
 
 /--
 Materializes a configuration dependency.
@@ -97,7 +113,8 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := none
-      manifestEntry := .path dep.name dep.opts inherited relPkgDir
+      manifestEntry := .path dep.name inherited defaultConfigFile none relPkgDir
+      configDep := dep
     }
   | .git url inputRev? subDir? => do
     let sname := dep.name.toString (escape := false)
@@ -110,22 +127,25 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
     return {
       relPkgDir
       remoteUrl? := Git.filterUrl? url
-      manifestEntry := .git dep.name dep.opts inherited url rev inputRev? subDir?
+      manifestEntry := .git dep.name inherited defaultConfigFile none url rev inputRev? subDir?
+      configDep := dep
     }
 
 /--
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
 def PackageEntry.materialize (manifestEntry : PackageEntry)
-(wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String) : LogIO MaterializedDep :=
+(configDep : Dependency) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
+: LogIO MaterializedDep :=
   match manifestEntry with
-  | .path _name _opts _inherited relPkgDir =>
+  | .path (dir := relPkgDir) .. =>
     return {
       relPkgDir
       remoteUrl? := none
       manifestEntry
+      configDep
     }
-  | .git name _opts _inherited url rev _inputRev? subDir? => do
+  | .git name (url := url) (rev := rev) (subDir? := subDir?) .. => do
     let sname := name.toString (escape := false)
     let relGitDir := relPkgsDir / sname
     let gitDir := wsDir / relGitDir
@@ -151,4 +171,5 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
       relPkgDir
       remoteUrl? := Git.filterUrl? url
       manifestEntry
+      configDep
     }

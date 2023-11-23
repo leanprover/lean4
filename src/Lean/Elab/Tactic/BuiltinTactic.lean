@@ -240,7 +240,7 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
 @[builtin_tactic Lean.Parser.Tactic.contradiction] def evalContradiction : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.contradiction; pure []
 
-@[builtin_tactic Lean.Parser.Tactic.refl] def evalRefl : Tactic := fun _ =>
+@[builtin_tactic Lean.Parser.Tactic.eqRefl] def evalRefl : Tactic := fun _ =>
   liftMetaTactic fun mvarId => do mvarId.refl; pure []
 
 @[builtin_tactic Lean.Parser.Tactic.intro] def evalIntro : Tactic := fun stx => do

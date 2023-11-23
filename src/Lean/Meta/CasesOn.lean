@@ -171,7 +171,7 @@ def CasesOnApp.refineThrough (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
           -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
           Expr.abstractM body fvs
 
-/-- A non-failing version of `CasesOnApp.transform` -/
+/-- A non-failing version of `CasesOnApp.refineThrough` -/
 def CasesOnApp.refineThrough? (c : CasesOnApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try

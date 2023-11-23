@@ -1023,7 +1023,7 @@ def MatcherApp.refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array
           -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
           Expr.abstractM body fvs
 
-/-- A non-failing version of `MatcherApp.transform` -/
+/-- A non-failing version of `MatcherApp.refineThrough` -/
 def MatcherApp.refineThrough? (matcherApp : MatcherApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try

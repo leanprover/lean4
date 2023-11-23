@@ -203,8 +203,10 @@ This happens automatically even without `flat`,
 if fields of the parent structure overlap with any previous fields. -/
 def flatTk               := leading_parser
   nonReservedSymbol "flat "
+def extendsItem          := leading_parser
+  optional flatTk >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 (optional flatTk >> termParser) ", "
+  " extends " >> sepBy1 extendsItem ", "
 def «structure»          := leading_parser
     (structureTk <|> classTk) >> declId >>
     ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>

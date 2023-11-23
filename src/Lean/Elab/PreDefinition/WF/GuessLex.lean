@@ -501,7 +501,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
 
 -- Question: Which module should have this?
 /--
-Create Tuple syntax.
+Create Tuple syntax (`()` if the array is empty, and just the value if its a singleton)
 -/
 def mkTupleSyntax : Array Term → MetaM Term
   | #[]  => `(())

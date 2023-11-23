@@ -149,14 +149,13 @@ where
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp scrut e
         else
-          if let some altScruts ← matcherApp.transform? scrut then
+          if let some altScruts ← matcherApp.refineThrough? scrut then
             (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altScruts)).forM
               fun (alt, altNumParam, altScrut) =>
                 lambdaTelescope alt fun xs altBody => do
                   unless altNumParam ≤ xs.size do
                     throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
                   let altScrut := altScrut.instantiateRev xs[:altNumParam]
-                  trace[Elab.definition.wf] "MatcherApp.transform result {indentExpr altScrut}"
                   loop altScrut altBody
           else
             processApp scrut e
@@ -166,14 +165,13 @@ where
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
           processApp scrut e
         else
-          if let some altScruts ← casesOnApp.transform? scrut then
+          if let some altScruts ← casesOnApp.refineThrough? scrut then
           (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altScruts)).forM
             fun (alt, altNumParam, altScrut) =>
               lambdaTelescope alt fun xs altBody => do
                 unless altNumParam ≤ xs.size do
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altScrut := altScrut.instantiateRev xs[:altNumParam]
-                trace[Elab.definition.wf] "CasesOnApp.transform result {indentExpr altScrut}"
                 loop altScrut altBody
           else
             processApp scrut e

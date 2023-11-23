@@ -205,6 +205,9 @@ def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
 
+instance instOfNat (n : Nat) : OfNat Level n where
+  ofNat := ofNat n
+
 def addOffsetAux : Nat → Level → Level
   | 0,     u => u
   | (n+1), u => addOffsetAux n (mkLevelSucc u)

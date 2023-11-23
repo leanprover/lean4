@@ -50,7 +50,7 @@ def getBetterRef (ref : Syntax) (macroStack : MacroStack) : Syntax :=
 register_builtin_option pp.macroStack : Bool := {
   defValue := false
   group    := "pp"
-  descr    := "dispaly macro expansion stack"
+  descr    := "display macro expansion stack"
 }
 
 def addMacroStack {m} [Monad m] [MonadOptions m] (msgData : MessageData) (macroStack : MacroStack) : m MessageData := do

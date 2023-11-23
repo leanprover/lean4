@@ -644,7 +644,7 @@ static lean_object* _init_l_Lean_Elab_initFn____x40_Lean_Elab_Util___hyg_376____
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("dispaly macro expansion stack", 29);
+x_1 = lean_mk_string_from_bytes("display macro expansion stack", 29);
 return x_1;
 }
 }

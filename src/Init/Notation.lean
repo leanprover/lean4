@@ -461,41 +461,7 @@ expected type is known. So, `without_expected_type` is not effective in this cas
 -/
 macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 
-/--
-The syntax `[a, b, c]` is shorthand for `a :: b :: c :: []`, or
-`List.cons a (List.cons b (List.cons c List.nil))`. It allows conveniently constructing
-list literals.
-
-For lists of length at least 64, an alternative desugaring strategy is used
-which uses let bindings as intermediates as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
-Note that this changes the order of evaluation, although it should not be observable
-unless you use side effecting operations like `dbg_trace`.
--/
-syntax "[" withoutPosition(term,*) "]"  : term
-
-/--
-Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
-The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
-It uses binary partitioning to construct a tree of intermediate let bindings as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
--/
-syntax "%[" withoutPosition(term,* " | " term) "]" : term
-
 namespace Lean
-
-macro_rules
-  | `([ $elems,* ]) => do
-    -- NOTE: we do not have `TSepArray.getElems` yet at this point
-    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
-      match i, skip with
-      | 0,   _     => pure result
-      | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
-    if elems.elemsAndSeps.size < 64 then
-      expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
-    else
-      `(%[ $elems,* | List.nil ])
 
 /--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.

@@ -967,7 +967,7 @@ def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option Matc
 
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - a type `B[discrs]`,
+  - a type `B[discrs]` (which may not be a type, e.g. `n : Nat`),
   returns the types `B[C_1[ys_1]] ... B[C_n[ys_n]]`,
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
 
@@ -981,10 +981,12 @@ def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option Matc
   This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
   calls to refine the functions' paramter, which may mention `major`.
   See there for how to use this function.
+
+  It returns an open term, rather than following the idiom of applying a continuation,
+  so that `MatcherApp.refineThrough?` can reliably recognize failure from within this function
 -/
-def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
+def MatcherApp.refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
-    trace[Elab.definition.wf] "MatcherApp.transform {indentExpr e}"
     unless motiveArgs.size == matcherApp.discrs.size do
       -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
       throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
@@ -994,8 +996,9 @@ def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Exp
       let discr     := matcherApp.discrs[i]!
       let eTypeAbst ← kabstract eAbst discr
       return eTypeAbst.instantiate1 motiveArg
-    -- Let's create something that’s a `Sort` and mentions `e`, by writing `e = e`,
-    -- so that we can use it as a motive
+    -- Let's create something that’s a `Sort` and mentions `e`
+    -- (recall that `e` itself possibly isn't a type),
+    -- by writing `e = e`, so that we can use it as a motive
     let eEq ← mkEq eAbst eAbst
 
     let matcherLevels ← match matcherApp.uElimPos? with
@@ -1021,10 +1024,10 @@ def MatcherApp.transform (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Exp
           Expr.abstractM body fvs
 
 /-- A non-failing version of `MatcherApp.transform` -/
-def MatcherApp.transform? (matcherApp : MatcherApp) (e : Expr) :
+def MatcherApp.refineThrough? (matcherApp : MatcherApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try
-    return some (← matcherApp.transform e)
+    return some (← matcherApp.refineThrough e)
   catch _ =>
     return none
 

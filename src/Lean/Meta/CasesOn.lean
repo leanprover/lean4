@@ -123,10 +123,8 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
   ```
   casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
   ```
-  and an expression `B[is, major]`, for every alternative `i`, construct the type
-  ```
-  B[_, C_i[ys_i]]
-  ```
+  and an expression `B[is, major]` (which may not be a type, e.g. `n : Nat`)
+  for every alternative `i`, construct the type `B[_, C_i[ys_i]]`
   with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
 
   This is similar to `CasesOnApp.addArg` when you only have an expression to
@@ -135,10 +133,12 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
   This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
   calls to refine the functions' paramter, which may mention `major`.
   See there for how to use this function.
+
+  It returns an open term, rather than following the idiom of applying a continuation,
+  so that `CasesOn.refineThrough?` can reliably recognize failure from within this function.
 -/
-def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
+def CasesOnApp.refineThrough (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope c.motive fun motiveArgs _motiveBody => do
-    trace[Elab.definition.wf] "CasesOnApp.transform: {indentExpr e}"
     unless motiveArgs.size == c.indices.size + 1 do
       throwError "failed to transfer argument through `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
     let discrs := c.indices ++ #[c.major]
@@ -146,8 +146,9 @@ def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
     for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
       eAbst ← kabstract eAbst discr
       eAbst := eAbst.instantiate1 motiveArg
-    -- Let's create something that’s a `Sort` and mentions `e`, by writing `e = e`,
-    -- so that we can use it as a motive
+    -- Let's create something that’s a `Sort` and mentions `e`
+    -- (recall that `e` itself possibly isn't a type),
+    -- by writing `e = e`, so that we can use it as a motive
     let eEq ← mkEq eAbst eAbst
     let motive ← mkLambdaFVars motiveArgs eEq
     let us := if c.propOnly then c.us else levelZero :: c.us.tail!
@@ -171,10 +172,10 @@ def CasesOnApp.transform (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
           Expr.abstractM body fvs
 
 /-- A non-failing version of `CasesOnApp.transform` -/
-def CasesOnApp.transform? (c : CasesOnApp) (e : Expr) :
+def CasesOnApp.refineThrough? (c : CasesOnApp) (e : Expr) :
     MetaM (Option (Array Expr)) :=
   try
-    return some (← c.transform e)
+    return some (← c.refineThrough e)
   catch _ =>
     return none
 

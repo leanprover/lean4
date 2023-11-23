@@ -1999,6 +1999,16 @@ static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
     return lean_nat_sub(n, lean_box(1));
 }
 
+static inline lean_obj_res lean_runtime_mark_multi_threaded(lean_obj_arg a) {
+    lean_mark_mt(a);
+    return a;
+}
+
+static inline lean_obj_res lean_runtime_mark_persistent(lean_obj_arg a) {
+    lean_mark_persistent(a);
+    return a;
+}
+
 #ifdef __cplusplus
 }
 #endif

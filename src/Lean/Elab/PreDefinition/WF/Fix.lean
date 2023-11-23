@@ -20,7 +20,8 @@ open Meta
 private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   let remainingGoals ← Tactic.run mvarId do
     Tactic.evalTactic (← `(tactic| decreasing_tactic))
-  remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
+  unless remainingGoals.isEmpty do
+    Term.reportUnsolvedGoals remainingGoals
 
 private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp

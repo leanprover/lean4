@@ -72,16 +72,13 @@ Use user-given parameter names if present; use x1...xn otherwise.
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
 -/
--- TODO: Maybe the eta-expansion handling `fun foo : … | n -> ` should try to use
--- a nicer name than simply `x`?
 def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
   lambdaTelescope preDef.value fun xs _ => do
     let xs := xs.extract fixedPrefixSize xs.size
     let mut ns := #[]
-    for i in List.range xs.size do
-      let n ← xs[i]!.fvarId!.getUserName
+    for h : i in [:xs.size] do
+      let n ← (xs[i]'h.2).fvarId!.getUserName
       if n.hasMacroScopes then
-      -- TODO: Prettier code to generate x1...xn
         ns := ns.push (← mkFreshUserName (.mkSimple s!"x{i+1}"))
       else
         ns := ns.push n
@@ -125,7 +122,6 @@ where
   loop (scrut : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
       return
-    -- trace[Elab.definition.wf] "loop: {indentExpr scrut}{indentExpr e}"
     match e with
     | Expr.lam n d b c =>
       loop scrut d
@@ -291,14 +287,14 @@ instance : ToFormat GuessLexRel where
          | .le => "≤"
          | .no_idea => "?"
 
-/-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly.  -/
+/-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
   | lt => mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``instLTNat]
   | eq => mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat]
   | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
-  | no_idea => unreachable! -- TODO: keep it partial or refactor?
+  | no_idea => unreachable!
 
-/-- Given an expression `e`, produce `sizeOf e` with a suitable instance -/
+/-- Given an expression `e`, produce `sizeOf e` with a suitable instance. -/
 def mkSizeOf (e : Expr) : MetaM Expr := do
   let ty ← inferType e
   let lvl ← getLevel ty
@@ -309,7 +305,7 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 
 /--
 For a given recursive call, and a choice of parameter and argument index,
-try to prove requality, < or ≤.
+try to prove equality, < or ≤.
 -/
 def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx argIdx : Nat) :
     MetaM GuessLexRel := do
@@ -321,7 +317,7 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
     let param ← mkSizeOf rcc.params[paramIdx]!
     for rel in [GuessLexRel.eq, .lt, .le] do
       let goalExpr := mkAppN rel.toNatRel #[arg, param]
-      trace[Elab.definition.wf] "Goal (unchecked): {goalExpr}"
+      trace[Elab.definition.wf] "Goal for {rel}: {goalExpr}"
       check goalExpr
 
       let mvar ← mkFreshExprSyntheticOpaqueMVar goalExpr
@@ -338,19 +334,18 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
               let remainingGoals ← Tactic.run mvarId do
                 Tactic.evalTactic (← `(tactic| decreasing_tactic))
               remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
-              let _expr ← instantiateMVars mvar
-              -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
+              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
               pure ()
             | some decrTactic => Term.withoutErrToSorry do
               -- make info from `runTactic` available
               pushInfoTree (.hole mvarId)
               Term.runTactic mvarId decrTactic
-              let _expr ← instantiateMVars mvar
-              -- trace[Elab.definition.wf] "Found {repr rel} proof: {expr}"
+              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
               pure ()
+        trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel
       catch _e =>
-        -- trace[Elab.definition.wf] "Did not find {repr rel} proof of {goalsToMessageData [mvarId]}"
+        trace[Elab.definition.wf] "Did not find {rel} proof: {goalsToMessageData [mvarId]}"
         continue
     return .no_idea
 
@@ -380,9 +375,9 @@ def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) : MetaM GuessLe
 def RecCallCache.pretty (rc : RecCallCache) : IO Format := do
   let mut r := Format.nil
   let d ← rc.cache.get
-  for paramIdx in [:d.size] do
-    for argIdx in [:d[paramIdx]!.size] do
-      if let .some entry := d[paramIdx]![argIdx]! then
+  for h₁ : paramIdx in [:d.size] do
+    for h₂ : argIdx in [:(d[paramIdx]'h₁.2).size] do
+      if let .some entry := (d[paramIdx]'h₁.2)[argIdx]'h₂.2 then
         r := r ++
           f!"(Param {paramIdx}, arg {argIdx}): {entry}" ++ Format.line
   return r
@@ -506,7 +501,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     -- None found, we have to give up
     return .none
 
--- TODO: Move to appropriate place
+-- Question: Which module should have this?
 /--
 Create Tuple syntax.
 -/
@@ -521,7 +516,6 @@ combination of these measures.
 -/
 def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
     (measures : Array MutualMeasure) : MetaM TerminationWF := do
-  -- logInfo <| m!"Solution: {solution}"
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
@@ -534,12 +528,11 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
       )
     let declName := declNames[funIdx]!
 
-    -- TODO: Can we turn it into user-facing syntax? Maybe for a “try-this” feature?
     trace[Elab.definition.wf] "Using termination {declName}: {vars} => {body}"
     termByElements := termByElements.push
-      { ref := .missing -- is this the right function
+      { ref := .missing
         declName, vars, body,
-        implicit := true -- TODO, what is this?
+        implicit := true
       }
   return .ext termByElements
 
@@ -591,5 +584,5 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     | .none => throwError "Cannot find a decreasing lexicographic order"
   catch _ =>
     -- Hide all errors from guessing lexicographic orderings, as before
-    -- TODO: surface unexpected errors, maybe surface detailed explanation like Isabelle
+    -- Future work: explain the failure to the user, like  Isabelle does
     throwError "failed to prove termination, use `termination_by` to specify a well-founded relation"

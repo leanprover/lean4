@@ -460,6 +460,23 @@ where
 
 
 /--
+Enumerate all meausures we want to try: All arguments (resp. combinations thereof) and
+possible orderings of functions (if more than one)
+-/
+def generateMeasures (forbiddenArgs : Array (Array Nat)) (arities : Array Nat) :
+    MetaM (Array MutualMeasure) := do
+  let some arg_measures := generateCombinations? forbiddenArgs arities
+      | throwError "Too many combinations"
+
+  let func_measures :=
+    if arities.size > 1 then
+      (List.range arities.size).toArray
+    else
+      #[]
+
+  return arg_measures.map .args ++ func_measures.map .func
+
+/--
 The core logic of guessing the lexicographic order
 Given a matrix that for each call and measure indicates whether that measure is
 decreasing, equal, less-or-equal or unknown, It finds a sequence of measures
@@ -561,18 +578,9 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     let forbiddenArgs ← preDefs.mapM fun preDef =>
       getForbiddenByTrivialSizeOf fixedPrefixSize preDef
 
-    -- Enumerate all meausures.
-    -- (With many functions with multiple arguments, this can explode a bit.
-    -- We could interleave enumerating measure with early pruning based on the recCalls,
-    -- once that becomes a problem. Until then, a use can always use an explicit
-    -- `terminating_by` annotatin.)
-    let some arg_measures := generateCombinations? forbiddenArgs arities
-      | throwError "Too many combinations"
-
     -- The list of measures, including the measures that order functions.
-    -- The function ordering measures should come last
-    let measures : Array MutualMeasure :=
-      arg_measures.map .args ++ (List.range varNamess.size).toArray.map .func
+    -- The function ordering measures come last
+    let measures ← generateMeasures forbiddenArgs arities
 
     match ← liftMetaM <| solve measures callMatrix with
     | .some solution => do

@@ -180,32 +180,31 @@ where
       let _ ← ensureNoRecFn recFnName e
 
 /--
-A `SavedLocalCtxt` captures the state and local context of a `MetaM`, to be continued later.
+A `SavedLocalContext` captures the state and local context of a `MetaM`, to be continued later.
 -/
--- Q: Sensible?
--- See InfoTrees, similar stuff
-structure SavedLocalCtxt where
+structure SavedLocalContext where
   savedLocalContext : LocalContext
   savedLocalInstances : LocalInstances
   savedState : Meta.SavedState
 
 /-- Capture the `MetaM` state including local context. -/
-def SavedLocalCtxt.create : MetaM SavedLocalCtxt := do
+def SavedLocalContext.create : MetaM SavedLocalContext := do
   let savedLocalContext ← getLCtx
   let savedLocalInstances ← getLocalInstances
   let savedState ← saveState
   return { savedLocalContext, savedLocalInstances, savedState }
 
 /-- Run a `MetaM` action in the saved state. -/
-def SavedLocalCtxt.run {α} (slc : SavedLocalCtxt) (k : MetaM α) :
-    MetaM α := withoutModifyingState $ do
-  withLCtx slc.savedLocalContext slc.savedLocalInstances do
-    slc.savedState.restore
-    k
+def SavedLocalContext.run {α} (slc : SavedLocalContext) (k : MetaM α) :
+    MetaM α :=
+  withoutModifyingState $ do
+    withLCtx slc.savedLocalContext slc.savedLocalInstances do
+      slc.savedState.restore
+      k
 
-/-- A `RecCallContext` focuses on a single recursive call in a unary predefinition,
+/-- A `RecCallWithContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
-structure RecCallContext where
+structure RecCallWithContext where
   /-- Function index of caller -/
   caller : Nat
   /-- Parameters of caller -/
@@ -214,12 +213,12 @@ structure RecCallContext where
   callee : Nat
   /-- Arguments to callee -/
   args : Array Expr
-  ctxt : SavedLocalCtxt
+  ctxt : SavedLocalContext
 
 /-- Store the current recursive call and its context. -/
-def RecCallContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
-    MetaM RecCallContext := do
-  return { caller, params, callee, args, ctxt := (← SavedLocalCtxt.create) }
+def RecCallWithContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
+    MetaM RecCallWithContext := do
+  return { caller, params, callee, args, ctxt := (← SavedLocalContext.create) }
 
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.
@@ -258,7 +257,7 @@ def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
 call site.
 -/
 def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (arities : Array Nat)
-    : MetaM (Array RecCallContext) := withoutModifyingState do
+    : MetaM (Array RecCallWithContext) := withoutModifyingState do
   addAsAxiom unaryPreDef
   lambdaTelescope unaryPreDef.value fun xs body => do
     unless xs.size == fixedPrefixSize + 1 do
@@ -272,7 +271,7 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
       let arg := args[fixedPrefixSize]!
       let (caller, params) ← unpackArg arities param
       let (callee, args) ← unpackArg arities arg
-      RecCallContext.create caller params callee args
+      RecCallWithContext.create caller params callee args
 
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
 decreases strictly, non-strictly, is equal, or else.  -/
@@ -305,7 +304,7 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx argIdx : Nat) :
+def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
     MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
@@ -350,11 +349,11 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallContext) (paramIdx a
 /- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
   decrTactic? : Option Syntax
-  rcc : RecCallContext
+  rcc : RecCallWithContext
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallContext) :
+def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)
   return { decrTactic?, rcc, cache }

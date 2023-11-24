@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Lean.Data.RBMap
-
 import Lean.Environment
 
 import Lean.Data.Lsp
@@ -25,6 +24,7 @@ import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
+import Lean.Server.ImportCompletion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -125,7 +125,7 @@ section Elab
     let ctx ← read
     let some headerSnap := snaps[0]? | panic! "empty snapshots"
     if headerSnap.msgLog.hasErrors then
-      -- Treat header processing errors as fatal so users aren't swamped with
+      -- Treats header processing errors as fatal so users aren't swamped with
       -- followup errors
       publishProgressAtPos m headerSnap.beginPos ctx.hOut (kind := LeanFileProgressKind.fatalError)
       publishIleanInfoFinal m ctx.hOut #[headerSnap]
@@ -142,37 +142,47 @@ end Elab
 -- Pending requests are tracked so they can be cancelled
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
+structure AvailableImportsCache where
+  availableImports       : ImportCompletion.AvailableImports
+  lastRequestTimestampMs : Nat
+
 structure WorkerState where
-  doc             : EditableDocument
-  -- The initial header syntax tree. Changing the header requires restarting the worker process.
-  initHeaderStx   : Syntax
-  pendingRequests : PendingRequestMap
+  doc                : EditableDocument
+  -- The initial header syntax tree that the file worker was started with.
+  initHeaderStx      : Syntax
+  -- The current header syntax tree. Changing the header from `initHeaderStx` initiates a restart
+  -- that only completes after a while, so `currHeaderStx` tracks the modified syntax until then.
+  currHeaderStx      : Syntax
+  importCachingTask? : Option (Task (Except Error AvailableImportsCache))
+  pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions     : RBMap UInt64 (IO.Ref RpcSession) compare
+  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-  /-- Use `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
-  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
-  source files and the options for the file. -/
-  partial def lakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO (SearchPath × Options) := do
-    let some filePath := System.Uri.fileUriToPath? m.uri
-      | return ([], Options.empty) -- untitled files have no search path and no associated `moreServerArgs`
+
+  structure LakePrintPathsResult where
+    spawnArgs : Process.SpawnArgs
+    exitCode  : UInt32
+    stdout    : String
+    stderr    : String
+
+  partial def runLakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (filePath : System.FilePath) (imports : Array Import) (hOut : FS.Stream) : IO LakePrintPathsResult := do
     let mut args := #["setup-file", filePath.toString] ++ imports.map (toString ·.module)
     if m.dependencyBuildMode matches .never then
       args := args.push "--no-build"
-    let cmdStr := " ".intercalate (toString lakePath :: args.toList)
-    let lakeProc ← Process.spawn {
+    let spawnArgs : Process.SpawnArgs := {
       stdin  := Process.Stdio.null
       stdout := Process.Stdio.piped
       stderr := Process.Stdio.piped
       cmd    := lakePath.toString
       args
     }
-    -- progress notification: report latest stderr line
+    let lakeProc ← Process.spawn spawnArgs
+    -- progress notification: reports latest stderr line
     let rec processStderr (acc : String) : IO String := do
       let line ← lakeProc.stderr.getLine
       if line == "" then
@@ -183,69 +193,103 @@ section Initialization
     let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
     let stdout := String.trim (← lakeProc.stdout.readToEnd)
     let stderr ← IO.ofExcept stderr.get
-    match (← lakeProc.wait) with
+    let exitCode ← lakeProc.wait
+    return ⟨spawnArgs, exitCode, stdout, stderr⟩
+
+  /-- Use `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
+  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
+  source files and the options for the file. -/
+  partial def lakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO (SearchPath × Options) := do
+    let some filePath := System.Uri.fileUriToPath? m.uri
+      | return ([], Options.empty) -- untitled files have no search path and no associated options
+    let result ← runLakeSetupFile lakePath m filePath imports hOut
+    let cmdStr := " ".intercalate (toString result.spawnArgs.cmd :: result.spawnArgs.args.toList)
+    match result.exitCode with
     | 0 =>
-      let Except.ok (info : FileSetupInfo) ← pure (Json.parse stdout >>= fromJson?)
-        | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
+      let Except.ok (info : FileSetupInfo) ← pure (Json.parse result.stdout >>= fromJson?)
+        | throwServerError s!"invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
       initSearchPath (← getBuildDir) info.paths.oleanPath
       info.paths.loadDynlibPaths.forM loadDynlib
       let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
       return (pkgSearchPath, info.setupOptions.toOptions)
     | 2 => pure ([], Options.empty)  -- no lakefile.lean
     -- error from `--no-build`
-    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{stdout}"
-    | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
+    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{result.stdout}"
+    | _ => throwServerError s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
+
+  def setupSrcSearchPathAndObtainOptions (m : DocumentMeta) (hOut : FS.Stream) (headerStx : Syntax) : IO (SearchPath × Options) := do
+    let invalidLakeSetup := (← initSrcSearchPath, Options.empty)
+    let some path := System.Uri.fileUriToPath? m.uri
+      | return invalidLakeSetup
+
+    -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
+    -- NOTE: lake does not exist in stage 0 (yet?)
+    if path.fileName == "lakefile.lean" then
+      return invalidLakeSetup
+
+    let lakePath ← determineLakePath
+    if !(← System.FilePath.pathExists lakePath) then
+      return invalidLakeSetup
+
+    let imports := Lean.Elab.headerToImports headerStx
+    let (pkgSearchPath, options) ← lakeSetupFile lakePath m imports hOut
+    return (← initSrcSearchPath pkgSearchPath, options)
+
+  def buildHeaderEnv (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (headerStx : Syntax) : IO (Environment × MessageLog × SearchPath × Options) := do
+    let (headerEnv, msgLog, srcSearchPath) ←
+      match ← EIO.toIO' <| setupSrcSearchPathAndObtainOptions m hOut headerStx with
+      | .ok (srcSearchPath, fileOptions) =>
+        -- file options take priority
+        let opts := opts.mergeBy (fun _ _ fileOpt => fileOpt) fileOptions
+        -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
+        let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) headerStx opts MessageLog.empty m.mkInputContext
+        pure (headerEnv, msgLog, srcSearchPath, opts)
+      | .error e =>
+        let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
+        pure (← mkEmptyEnvironment, msgs, ← initSrcSearchPath, opts)
+
+    let mut headerEnv := headerEnv
+    try
+      if let some path := System.Uri.fileUriToPath? m.uri then
+        headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
+    catch _ =>
+      pure ()
+
+    return (headerEnv, msgLog, srcSearchPath)
+
+  def buildCommandState
+      (m : DocumentMeta)
+      (headerStx : Syntax)
+      (headerEnv : Environment)
+      (headerMsgLog : MessageLog)
+      (opts : Options)
+      : Elab.Command.State :=
+    let headerContextInfo : Elab.ContextInfo := {
+      env     := headerEnv
+      fileMap := m.text
+      ngen    := { namePrefix := `_worker }
+    }
+    let headerInfo := Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx }
+    let headerInfoNodes := headerStx[1].getArgs.toList.map fun importStx =>
+      Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+        elaborator := `import
+        stx := importStx
+      }) #[].toPArray'
+    let headerInfoTree := Elab.InfoTree.node headerInfo headerInfoNodes.toPArray'
+    let headerInfoState := {
+      enabled := true
+      trees := #[Elab.InfoTree.context headerContextInfo headerInfoTree].toPArray'
+    }
+    { Elab.Command.mkState headerEnv headerMsgLog opts with infoState := headerInfoState }
 
   def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
       : IO (Syntax × Task (Except Error (Snapshot × SearchPath))) := do
     -- parsing should not take long, do synchronously
-    let (headerStx, headerParserState, msgLog) ← Parser.parseHeader m.mkInputContext
+    let (headerStx, headerParserState, parseMsgLog) ← Parser.parseHeader m.mkInputContext
     (headerStx, ·) <$> EIO.asTask do
-      let mut opts := opts
-      let mut srcSearchPath ← initSrcSearchPath (← getBuildDir)
-      let lakePath ← match (← IO.getEnv "LAKE") with
-        | some path => pure <| System.FilePath.mk path
-        | none =>
-          let lakePath ← match (← IO.getEnv "LEAN_SYSROOT") with
-            | some path => pure <| System.FilePath.mk path / "bin" / "lake"
-            | _         => pure <| (← appDir) / "lake"
-          pure <| lakePath.withExtension System.FilePath.exeExtension
-      let (headerEnv, msgLog) ← try
-        if let some path := System.Uri.fileUriToPath? m.uri then
-          -- NOTE: we assume for now that `lakefile.lean` does not have any non-stdlib deps
-          -- NOTE: lake does not exist in stage 0 (yet?)
-          if path.fileName != "lakefile.lean" && (← System.FilePath.pathExists lakePath) then
-            let (pkgSearchPath, fileOptions) ← lakeSetupFile lakePath m (Lean.Elab.headerToImports headerStx) hOut
-            srcSearchPath ← initSrcSearchPath (← getBuildDir) pkgSearchPath
-            -- file options take priority
-            opts := opts.mergeBy (fun _ _ fileOpt => fileOpt) fileOptions
-        -- allow `headerEnv` to be leaked, which would live until the end of the process anyway
-        Elab.processHeader (leakEnv := true) headerStx opts msgLog m.mkInputContext
-      catch e =>  -- should be from `lake print-paths`
-        let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-        pure (← mkEmptyEnvironment, msgs)
-      let mut headerEnv := headerEnv
-      try
-        if let some path := System.Uri.fileUriToPath? m.uri then
-          headerEnv := headerEnv.setMainModule (← moduleNameOfFileName path none)
-      catch _ => pure ()
-      let cmdState := Elab.Command.mkState headerEnv msgLog opts
-      let cmdState := { cmdState with infoState := {
-        enabled := true
-        trees := #[Elab.InfoTree.context ({
-          env     := headerEnv
-          fileMap := m.text
-          ngen    := { namePrefix := `_worker }
-        }) (Elab.InfoTree.node
-            (Elab.Info.ofCommandInfo { elaborator := `header, stx := headerStx })
-            (headerStx[1].getArgs.toList.map (fun importStx =>
-              Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-                elaborator := `import
-                stx := importStx
-              }) #[].toPArray'
-            )).toPArray'
-        )].toPArray'
-      }}
+      let (headerEnv, envMsgLog, srcSearchPath, opts) ← buildHeaderEnv m hOut opts headerStx
+      let headerMsgLog := parseMsgLog.append envMsgLog
+      let cmdState := buildCommandState m headerStx headerEnv headerMsgLog opts
       let headerSnap := {
         beginPos := 0
         stx := headerStx
@@ -262,23 +306,25 @@ section Initialization
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let (headerStx, headerTask) ← compileHeader meta o opts (hasWidgets := clientHasWidgets)
     let cancelTk ← CancelToken.new
-    let ctx :=
-      { hIn  := i
-        hOut := o
-        hLog := e
-        headerTask
-        initParams
-        clientHasWidgets
-      }
+    let ctx := {
+      hIn  := i
+      hOut := o
+      hLog := e
+      headerTask
+      initParams
+      clientHasWidgets
+    }
     let cmdSnaps ← EIO.mapTask (t := headerTask) (match · with
       | Except.ok (s, _) => unfoldCmdSnaps meta #[s] cancelTk ctx (startAfterMs := 0)
       | Except.error e   => throw (e : ElabTaskError))
     let doc : EditableDocument := { meta, cmdSnaps := AsyncList.delayed cmdSnaps, cancelTk }
-    return (ctx,
-    { doc             := doc
-      initHeaderStx   := headerStx
-      pendingRequests := RBMap.empty
-      rpcSessions     := RBMap.empty
+    return (ctx, {
+      doc                := doc
+      initHeaderStx      := headerStx
+      currHeaderStx      := headerStx
+      importCachingTask? := none
+      pendingRequests    := RBMap.empty
+      rpcSessions        := RBMap.empty
     })
 end Initialization
 
@@ -286,53 +332,67 @@ section Updates
   def updatePendingRequests (map : PendingRequestMap → PendingRequestMap) : WorkerM Unit := do
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
-  /-- Given the new document, updates editable doc state. -/
-  def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
+  def determineValidSnapshots (oldDoc : EditableDocument) (newMeta : DocumentMeta) (newHeaderSnap : Snapshot) : IO (List Snapshot) := do
+    let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
+    -- Ignores exceptions, we are only interested in the successful snapshots
+    let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
+    oldDoc.cmdSnaps.cancel
+    -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
+    -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
+    let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
+    if h : validSnaps.length ≤ 1 then
+      validSnaps := [newHeaderSnap]
+    else
+      /- When at least one valid non-header snap exists, it may happen that a change does not fall
+          within the syntactic range of that last snap but still modifies it by appending tokens.
+          We check for this here. We do not currently handle crazy grammars in which an appended
+          token can merge two or more previous commands into one. To do so would require reparsing
+          the entire file. -/
+      have : validSnaps.length ≥ 2 := Nat.gt_of_not_le h
+      let mut lastSnap := validSnaps.getLast (by subst ·; simp at h)
+      let preLastSnap :=
+        have : 0 < validSnaps.length := Nat.lt_of_lt_of_le (by decide) this
+        have : validSnaps.length - 2 < validSnaps.length := Nat.sub_lt this (by decide)
+        validSnaps[validSnaps.length - 2]
+      let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
+      if newLastStx != lastSnap.stx then
+        validSnaps := validSnaps.dropLast
+    return validSnaps
+
+  def startNewSnapshotTasks (newMeta : DocumentMeta) : WorkerM (AsyncList ElabTaskError Snapshot × CancelToken) := do
     let ctx ← read
-    let oldDoc := (←get).doc
+    let oldDoc := (← get).doc
     oldDoc.cancelTk.set
     let initHeaderStx := (← get).initHeaderStx
     let (newHeaderStx, newMpState, _) ← Parser.parseHeader newMeta.mkInputContext
     let cancelTk ← CancelToken.new
-    let headSnapTask := oldDoc.cmdSnaps.waitHead?
-    let newSnaps ← if initHeaderStx != newHeaderStx then
-      EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
+
+    if initHeaderStx != newHeaderStx then
+      set { ← get with currHeaderStx := newHeaderStx }
+      let terminationTask ← EIO.asTask (ε := ElabTaskError) (prio := .dedicated) do
         IO.sleep ctx.initParams.editDelay.toUInt32
         cancelTk.check
         IO.Process.exit 2
-    else EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
+      return (AsyncList.delayed terminationTask, cancelTk)
+
+    let headSnapTask := oldDoc.cmdSnaps.waitHead?
+    let newSnapTasks ← EIO.mapTask (ε := ElabTaskError) (t := headSnapTask) (prio := .dedicated) fun headSnap?? => do
       -- There is always at least one snapshot absent exceptions
       let some headSnap ← MonadExcept.ofExcept headSnap?? | panic! "empty snapshots"
       let newHeaderSnap := { headSnap with stx := newHeaderStx, mpState := newMpState }
-      let changePos := oldDoc.meta.text.source.firstDiffPos newMeta.text.source
-      -- Ignore exceptions, we are only interested in the successful snapshots
-      let (cmdSnaps, _) ← oldDoc.cmdSnaps.getFinishedPrefix
-      oldDoc.cmdSnaps.cancel
-      -- NOTE(WN): we invalidate eagerly as `endPos` consumes input greedily. To re-elaborate only
-      -- when really necessary, we could do a whitespace-aware `Syntax` comparison instead.
-      let mut validSnaps ← pure (cmdSnaps.takeWhile (fun s => s.endPos < changePos))
-      if h : validSnaps.length ≤ 1 then
-        validSnaps := [newHeaderSnap]
-      else
-        /- When at least one valid non-header snap exists, it may happen that a change does not fall
-           within the syntactic range of that last snap but still modifies it by appending tokens.
-           We check for this here. We do not currently handle crazy grammars in which an appended
-           token can merge two or more previous commands into one. To do so would require reparsing
-           the entire file. -/
-        have : validSnaps.length ≥ 2 := Nat.gt_of_not_le h
-        let mut lastSnap := validSnaps.getLast (by subst ·; simp at h)
-        let preLastSnap :=
-          have : 0 < validSnaps.length := Nat.lt_of_lt_of_le (by decide) this
-          have : validSnaps.length - 2 < validSnaps.length := Nat.sub_lt this (by decide)
-          validSnaps[validSnaps.length - 2]
-        let newLastStx ← parseNextCmd newMeta.mkInputContext preLastSnap
-        if newLastStx != lastSnap.stx then
-          validSnaps := validSnaps.dropLast
+      let validSnaps ← determineValidSnapshots oldDoc newMeta newHeaderSnap
       -- wait for a bit, giving the initial `cancelTk.check` in `nextCmdSnap` time to trigger
       -- before kicking off any expensive elaboration (TODO: make expensive elaboration cancelable)
       unfoldCmdSnaps newMeta validSnaps.toArray cancelTk ctx
         (startAfterMs := ctx.initParams.editDelay.toUInt32)
-    modify fun st => { st with doc := { meta := newMeta, cmdSnaps := AsyncList.delayed newSnaps, cancelTk } }
+
+    return (AsyncList.delayed newSnapTasks, cancelTk)
+
+  /-- Given the new document, updates editable doc state. -/
+  def updateDocument (newMeta : DocumentMeta) : WorkerM Unit := do
+    let (newSnaps, cancelTk) ← startNewSnapshotTasks newMeta
+    modify fun st => { st with doc := { meta := newMeta, cmdSnaps := newSnaps, cancelTk } }
+
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -402,6 +462,30 @@ section MessageHandling
       : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
+  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
+      : WorkerM (Task (Except Error AvailableImportsCache)) := do
+    let ctx ← read
+    let st ← get
+    let text := st.doc.meta.text
+
+    match st.importCachingTask? with
+    | none => IO.asTask do
+      let availableImports ← ImportCompletion.collectAvailableImports
+      let lastRequestTimestampMs ← IO.monoMsNow
+      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
+    | some task => IO.mapTask (t := task) fun result => do
+      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
+      let timestampNowMs ← IO.monoMsNow
+      if timestampNowMs - lastRequestTimestampMs >= 10000 then
+        availableImports ← ImportCompletion.collectAvailableImports
+      lastRequestTimestampMs := timestampNowMs
+      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let ctx ← read
@@ -419,26 +503,33 @@ section MessageHandling
             message := toString e }
       return
 
+    if method == "textDocument/completion" then
+      let params ← parseParams CompletionParams params
+      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.currHeaderStx params then
+        let importCachingTask ← handleImportCompletionRequest id params
+        set <| { st with importCachingTask? := some importCachingTask }
+        return
+
     -- we assume that every request requires at least the header snapshot or the search path
     let t ← IO.bindTask ctx.headerTask fun x => do
-     let (_, srcSearchPath) ← IO.ofExcept x
-     let rc : RequestContext :=
-       { rpcSessions := st.rpcSessions
-         srcSearchPath
-         doc := st.doc
-         hLog := ctx.hLog
-         hOut := ctx.hOut
-         initParams := ctx.initParams }
-     let t? ← EIO.toIO' <| handleLspRequest method params rc
-     let t₁ ← match t? with
-       | Except.error e =>
-         IO.asTask do
-           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
-       | Except.ok t => (IO.mapTask · t) fun
-         | Except.ok resp =>
-           ctx.hOut.writeLspResponse ⟨id, resp⟩
-         | Except.error e =>
-           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+      let (_, srcSearchPath) ← IO.ofExcept x
+      let rc : RequestContext :=
+        { rpcSessions := st.rpcSessions
+          srcSearchPath
+          doc := st.doc
+          hLog := ctx.hLog
+          hOut := ctx.hOut
+          initParams := ctx.initParams }
+      let t? ← EIO.toIO' <| handleLspRequest method params rc
+      let t₁ ← match t? with
+        | Except.error e =>
+          IO.asTask do
+            ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+        | Except.ok t => (IO.mapTask · t) fun
+          | Except.ok resp =>
+            ctx.hOut.writeLspResponse ⟨id, resp⟩
+          | Except.error e =>
+            ctx.hOut.writeLspResponseError <| e.toLspResponseError id
     queueRequest id t
 end MessageHandling
 

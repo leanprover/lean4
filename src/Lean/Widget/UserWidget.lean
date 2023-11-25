@@ -7,6 +7,19 @@ Authors: E.W.Ayers, Wojciech Nawrocki
 import Lean.Elab.Eval
 import Lean.Server.Rpc.RequestHandling
 
+namespace Lean.Server
+open Elab Command in
+/-- Derive `Lean.Server.RpcEncodable` for a type.
+
+TODO: remove after update-stage0 -/
+elab "#mkrpcenc" n:ident : command => do
+  elabCommand <| ← `(
+    namespace $n
+    deriving instance Lean.Server.RpcEncodable for $n
+    end $n
+  )
+end Lean.Server
+
 namespace Lean.Widget
 open Meta Elab
 

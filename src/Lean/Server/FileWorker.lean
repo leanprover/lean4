@@ -164,13 +164,13 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 /- Worker initialization sequence. -/
 section Initialization
 
-  structure LakePrintPathsResult where
+  structure LakeSetupFileResult where
     spawnArgs : Process.SpawnArgs
     exitCode  : UInt32
     stdout    : String
     stderr    : String
 
-  partial def runLakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (filePath : System.FilePath) (imports : Array Import) (hOut : FS.Stream) : IO LakePrintPathsResult := do
+  partial def runLakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (filePath : System.FilePath) (imports : Array Import) (hOut : FS.Stream) : IO LakeSetupFileResult := do
     let mut args := #["setup-file", filePath.toString] ++ imports.map (toString ·.module)
     if m.dependencyBuildMode matches .never then
       args := args.push "--no-build"
@@ -199,32 +199,14 @@ section Initialization
   /-- Use `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
   Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
   source files and the options for the file. -/
-  partial def lakeSetupFile (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO (SearchPath × Options) := do
-    let some filePath := System.Uri.fileUriToPath? m.uri
-      | return ([], Options.empty) -- untitled files have no search path and no associated options
-    let result ← runLakeSetupFile lakePath m filePath imports hOut
-    let cmdStr := " ".intercalate (toString result.spawnArgs.cmd :: result.spawnArgs.args.toList)
-    match result.exitCode with
-    | 0 =>
-      let Except.ok (info : FileSetupInfo) ← pure (Json.parse result.stdout >>= fromJson?)
-        | throwServerError s!"invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
-      initSearchPath (← getBuildDir) info.paths.oleanPath
-      info.paths.loadDynlibPaths.forM loadDynlib
-      let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
-      return (pkgSearchPath, info.setupOptions.toOptions)
-    | 2 => pure ([], Options.empty)  -- no lakefile.lean
-    -- error from `--no-build`
-    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{result.stdout}"
-    | _ => throwServerError s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
-
-  def setupSrcSearchPathAndObtainOptions (m : DocumentMeta) (hOut : FS.Stream) (headerStx : Syntax) : IO (SearchPath × Options) := do
+  partial def setupFile (m : DocumentMeta) (hOut : FS.Stream) (headerStx : Syntax) : IO (SearchPath × Options) := do
     let invalidLakeSetup := (← initSrcSearchPath, Options.empty)
-    let some path := System.Uri.fileUriToPath? m.uri
+    let some filePath := System.Uri.fileUriToPath? m.uri
       | return invalidLakeSetup
 
     -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
     -- NOTE: lake does not exist in stage 0 (yet?)
-    if path.fileName == "lakefile.lean" then
+    if filePath.fileName == "lakefile.lean" then
       return invalidLakeSetup
 
     let lakePath ← determineLakePath
@@ -232,12 +214,25 @@ section Initialization
       return invalidLakeSetup
 
     let imports := Lean.Elab.headerToImports headerStx
-    let (pkgSearchPath, options) ← lakeSetupFile lakePath m imports hOut
-    return (← initSrcSearchPath pkgSearchPath, options)
+    let result ← runLakeSetupFile lakePath m filePath imports hOut
+    let cmdStr := " ".intercalate (toString result.spawnArgs.cmd :: result.spawnArgs.args.toList)
+
+    match result.exitCode with
+    | 0 =>
+      let Except.ok (info : FileSetupInfo) ← pure (Json.parse result.stdout >>= fromJson?)
+        | throwServerError s!"invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
+      initSearchPath (← getBuildDir) info.paths.oleanPath
+      info.paths.loadDynlibPaths.forM loadDynlib
+      let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
+      return (← initSrcSearchPath pkgSearchPath, info.setupOptions.toOptions)
+    | 2 => pure invalidLakeSetup -- no lakefile.lean
+    -- error from `--no-build`
+    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{result.stdout}"
+    | _ => throwServerError s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
 
   def buildHeaderEnv (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (headerStx : Syntax) : IO (Environment × MessageLog × SearchPath × Options) := do
-    let (headerEnv, msgLog, srcSearchPath) ←
-      match ← EIO.toIO' <| setupSrcSearchPathAndObtainOptions m hOut headerStx with
+    let (headerEnv, msgLog, srcSearchPath, opts) ←
+      match ← EIO.toIO' <| setupFile m hOut headerStx with
       | .ok (srcSearchPath, fileOptions) =>
         -- file options take priority
         let opts := opts.mergeBy (fun _ _ fileOpt => fileOpt) fileOptions
@@ -255,7 +250,7 @@ section Initialization
     catch _ =>
       pure ()
 
-    return (headerEnv, msgLog, srcSearchPath)
+    return (headerEnv, msgLog, srcSearchPath, opts)
 
   def buildCommandState
       (m : DocumentMeta)

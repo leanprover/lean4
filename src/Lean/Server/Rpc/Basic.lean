@@ -103,6 +103,12 @@ instance [RpcEncodable α] [RpcEncodable β] : RpcEncodable (α × β) where
     let (a, b) ← fromJson? j
     return (← rpcDecode a, ← rpcDecode b)
 
+instance [RpcEncodable α] : RpcEncodable (StateM RpcObjectStore α) where
+  rpcEncode fn := fn >>= rpcEncode
+  rpcDecode j := do
+    let a : α ← rpcDecode j
+    return return a
+
 /-- Marks fields to encode as opaque references in LSP packets. -/
 structure WithRpcRef (α : Type u) where
   val : α

@@ -39,6 +39,8 @@ structure Module where
   so your Lean module will not automatically be rebuilt
   when the `.js` file changes. -/
   javascript : String
+  /-- The hash is cached to avoid recomputing it whenever the `Module` is used. -/
+  javascriptHash : { x : UInt64 // x = hash javascript } := ⟨hash javascript, rfl⟩
 
 class ToModule (α : Type u) where
   toModule : α → Module
@@ -73,24 +75,23 @@ private def widgetModuleAttrImpl : AttributeImpl where
   add decl _stx _kind := Prod.fst <$> MetaM.run do
     let e ← mkAppM ``ToModule.toModule #[.const decl []]
     let mod ← evalModule e
-    let javascriptHash := hash mod.javascript
     let env ← getEnv
-    if let some (n, _) := moduleRegistry.getState env |>.find? javascriptHash then
+    if let some (n, _) := moduleRegistry.getState env |>.find? mod.javascriptHash then
       logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
-    setEnv <| moduleRegistry.addEntry env (javascriptHash, decl, e)
+    setEnv <| moduleRegistry.addEntry env (mod.javascriptHash, decl, e)
 
 builtin_initialize registerBuiltinAttribute widgetModuleAttrImpl
 
 /-! ## Retrieval of widget modules -/
 
 structure GetWidgetSourceParams where
-  /-- The hash of the sourcetext to retrieve. -/
-  hash: UInt64
+  /-- Hash of the JS module to retrieve. -/
+  hash : UInt64
   pos : Lean.Lsp.Position
   deriving ToJson, FromJson
 
 structure WidgetSource where
-  /-- Sourcetext of the code to run.-/
+  /-- Sourcetext of the JS module to run. -/
   sourcetext : String
   deriving Inhabited, ToJson, FromJson
 
@@ -109,21 +110,25 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
       else
         notFound
 
-/-! ## Saving panel widget info -/
 
-structure UserWidget where
-  id : Name
-  /-- Pretty name of widget to display to the user. -/
-  name : String
-  javascriptHash: UInt64
-  deriving Inhabited, ToJson, FromJson
+/-! ## Retrieving panel widget instances -/
 
-/--
-  Try to retrieve the `UserWidgetInfo` at a particular position.
--/
-def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List UserWidgetInfo :=
+#mkrpcenc WidgetInstance
+
+/-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
+`hash` must be `hash (toModule c).javascript`
+where `c` is some global constant annotated with `@[widget_module]`. -/
+def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
+    (hash : UInt64) (props : StateM Server.RpcObjectStore Json) (stx : Syntax) : m Unit := do
+  let env ← getEnv
+  let some (id, _) := moduleRegistry.getState env |>.find? hash
+    | throwError s!"No widget module with hash {hash} registered"
+  pushInfoLeaf <| .ofPanelWidgetInfo { id, javascriptHash := hash, props, stx }
+
+/-- Retrieve all the `PanelWidgetInfo`s at a particular position. -/
+def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List PanelWidgetInfo :=
   t.deepestNodes fun
-    | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
+    | _ctx, i@(Info.ofPanelWidgetInfo wi), _cs => do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         let trailSize := i.stx.getTrailingSize
         -- show info at EOF even if strictly outside token + trail
@@ -134,70 +139,77 @@ def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : Lis
         failure
     | _, _, _ => none
 
-/-- UserWidget accompanied by component props. -/
-structure UserWidgetInstance extends UserWidget where
-  /-- Arguments to be fed to the widget's main component. -/
-  props : Json
-  /-- The location of the widget instance in the Lean file. -/
+structure PanelWidgetInstance extends WidgetInstance where
+  /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
   range? : Option Lsp.Range
-  deriving ToJson, FromJson
+  /-- Deprecated. Kept for compatibility with older infoviews. -/
+  name? : Option String := none
+#mkrpcenc PanelWidgetInstance
 
 /-- Output of `getWidgets` RPC.-/
 structure GetWidgetsResponse where
-  widgets : Array UserWidgetInstance
-  deriving ToJson, FromJson
+  widgets : Array PanelWidgetInstance
+#mkrpcenc GetWidgetsResponse
 
 open Lean Server RequestM in
-/-- Get the `UserWidget`s present at a particular position. -/
+/-- Get the panel widgets present at a particular position. -/
 @[server_rpc_method]
 def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args
   withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
-    let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
-    let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
-      for (h, n, _) in moduleRegistry.getState env do
-        if n == w.widgetId then
-          return {
-            id := w.widgetId
-            name := toString w.widgetId
-            javascriptHash := h
-            props := w.props
-            range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx
-          }
-      throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}")
+    let ws ← ws.toArray.mapM (fun (wi : PanelWidgetInfo) => do
+      return { wi with
+        range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx
+        name? := toString wi.id
+      })
     return {widgets := ws}
 
-/-- Save a user-widget instance to the infotree.
-    The given `widgetId` should be the declaration name of the widget definition. -/
-def saveWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m] (widgetId : Name) (props : Json) (stx : Syntax):  m Unit := do
-  let info := Info.ofUserWidgetInfo {
-    widgetId := widgetId
-    props := props
-    stx := stx
-  }
-  pushInfoLeaf info
+/-! # Widget command -/
 
-/-!  # Widget command -/
+/-- Use `#widget <widget>` to display a panel widget,
+and `#widget <widget> with <props>` to display it with the given props.
+Useful for debugging widgets.
 
-/-- Use `#widget <widgetname> <props>` to display a widget. Useful for debugging widgets. -/
-syntax (name := widgetCmd) "#widget " ident ppSpace term : command
+The type of `<widget>` must implement `Widget.ToModule`,
+and the type of `<props>` must implement `Server.RpcEncodable`.
+In particular, `<props> : Json` works. -/
+syntax (name := widgetCmd) "#widget " ident (" with " term)? : command
 
-open Lean Lean.Meta Lean.Elab Lean.Elab.Term in
-private unsafe def evalJsonUnsafe (stx : Syntax) : TermElabM Json :=
-  Lean.Elab.Term.evalTerm Json (mkConst ``Json) stx
+private unsafe def evalStateMRpcObjectStoreJsonUnsafe (stx : Term) :
+    TermElabM (StateM Server.RpcObjectStore Json) := do
+  Lean.Elab.Term.evalTerm _
+    (← mkAppM ``StateM #[mkConst ``Server.RpcObjectStore, mkConst ``Json])
+    stx
 
-@[implemented_by evalJsonUnsafe]
-private opaque evalJson (stx : Syntax) : TermElabM Json
+@[implemented_by evalStateMRpcObjectStoreJsonUnsafe]
+private opaque evalStateMRpcObjectStoreJson (stx : Term) :
+    TermElabM (StateM Server.RpcObjectStore Json)
 
-open Elab Command in
+private unsafe def evalModule'Unsafe (stx : Term) : TermElabM Module := do
+  Lean.Elab.Term.evalTerm _ (mkConst ``Module) stx
 
+@[implemented_by evalModule'Unsafe]
+private opaque evalModule' (stx : Term) : TermElabM Module
+
+open Command in
+def elabWidgetCmdAux (stx : Syntax) (mod : Ident) (props : StateM Server.RpcObjectStore Json)
+    : CommandElabM Unit := do
+  let mod  ← runTermElabM fun _ => do
+    let mod : Term ← ``(ToModule.toModule $mod)
+    evalModule' mod
+  savePanelWidgetInfo mod.javascriptHash props stx
+
+open Command in
 @[command_elab widgetCmd] def elabWidgetCmd : CommandElab := fun
-  | stx@`(#widget $id:ident $props) => do
-    let props : Json ← runTermElabM fun _ => evalJson props
-    saveWidgetInfo id.getId props stx
+  | stx@`(#widget $mod) => elabWidgetCmdAux stx mod (pure Json.null)
+  | stx@`(#widget $mod with $props) => do
+    let props ← runTermElabM fun _ => do
+      let props : Term ← ``(Server.RpcEncodable.rpcEncode $props)
+      evalStateMRpcObjectStoreJson props
+    elabWidgetCmdAux stx mod props
   | _ => throwUnsupportedSyntax
 
 /-! ## Deprecated definitions -/
@@ -222,8 +234,6 @@ structure UserWidgetDefinition where
 instance : ToModule UserWidgetDefinition where
   toModule uwd := { uwd with }
 
-attribute [deprecated Module] UserWidgetDefinition
-
 private def widgetAttrImpl : AttributeImpl where
   name := `widget
   descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead."
@@ -231,5 +241,23 @@ private def widgetAttrImpl : AttributeImpl where
   add := widgetModuleAttrImpl.add
 
 builtin_initialize registerBuiltinAttribute widgetAttrImpl
+
+private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
+    (id : Name) : m UserWidgetDefinition := do
+  ofExcept <| (← getEnv).evalConstCheck UserWidgetDefinition (← getOptions) ``UserWidgetDefinition id
+
+@[implemented_by evalUserWidgetDefinitionUnsafe]
+private opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
+    (id : Name) : m UserWidgetDefinition
+
+/-- Save a user-widget instance to the infotree.
+    The given `widgetId` should be the declaration name of the widget definition. -/
+@[deprecated savePanelWidgetInfo] def saveWidgetInfo
+    [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] [MonadInfoTree m]
+    (widgetId : Name) (props : Json) (stx : Syntax) : m Unit := do
+  let uwd ← evalUserWidgetDefinition widgetId
+  savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
+
+attribute [deprecated Module] UserWidgetDefinition
 
 end Lean.Widget

@@ -108,7 +108,7 @@ def Info.stx : Info → Syntax
   | ofFieldInfo i          => i.stx
   | ofCompletionInfo i     => i.stx
   | ofCustomInfo i         => i.stx
-  | ofUserWidgetInfo i     => i.stx
+  | ofPanelWidgetInfo i    => i.stx
   | ofFVarAliasInfo _      => .missing
   | ofFieldRedeclInfo i    => i.stx
 

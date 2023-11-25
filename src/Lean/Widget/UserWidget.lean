@@ -61,7 +61,10 @@ private def widgetModuleAttrImpl : AttributeImpl where
     let e ← mkAppM ``ToModule.toModule #[.const decl []]
     let mod ← evalModule e
     let javascriptHash := hash mod.javascript
-    modifyEnv fun env => moduleRegistry.addEntry env (javascriptHash, decl, e)
+    let env ← getEnv
+    if let some (n, _) := moduleRegistry.getState env |>.find? javascriptHash then
+      logWarning m!"A widget module with the same hash(JS source code) was already registered at {Expr.const n []}."
+    setEnv <| moduleRegistry.addEntry env (javascriptHash, decl, e)
 
 builtin_initialize registerBuiltinAttribute widgetModuleAttrImpl
 

@@ -94,7 +94,7 @@ section Elab
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
-      (cancelTk : CancelToken) : IO (Task Unit) := do
+      : IO (Task Unit) := do
     Task.map (fun _ => ()) <$> go snaps { : ReportSnapshotsState } fun st => do
       publishProgressDone m ctx.hOut
       unless st.hasBlocked do
@@ -105,7 +105,7 @@ section Elab
       return .pure <| .ok ()
   where
     go node st cont := do
-      if (← cancelTk.ref.get) then
+      if (← IO.checkCanceled) then
         return .pure <| .ok ()
       let diagnostics := st.diagnostics ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
       if st.hasBlocked && !node.element.msgLog.isEmpty then
@@ -140,7 +140,6 @@ structure WorkerState where
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
   rpcSessions     : RBMap UInt64 (IO.Ref RpcSession) compare
-  reportCancelTk  : CancelToken
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
@@ -202,11 +201,10 @@ section Initialization
         processor
         clientHasWidgets
       }
-    let reportCancelTk ← CancelToken.new
-    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
+    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
     let doc : EditableDocument := { meta, initSnap, reporter }
     return (ctx,
-    { doc, reportCancelTk
+    { doc
       initHeaderStx   := initSnap.stx
       pendingRequests := RBMap.empty
       rpcSessions     := RBMap.empty
@@ -220,11 +218,9 @@ section Updates
   /-- Given the new document, updates editable doc state. -/
   def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
-    (← get).reportCancelTk.set
     let initSnap ← ctx.processor meta.mkInputContext
-    let reportCancelTk ← CancelToken.new
-    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap) reportCancelTk
-    modify fun st => { st with doc := { meta, initSnap, reporter }, reportCancelTk }
+    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
+    modify fun st => { st with doc := { meta, initSnap, reporter } }
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

@@ -74,6 +74,9 @@ structure EditableDocument where
   -- TODO: generalize to other languages by moving request handlers into `Language`
   initSnap : Language.Lean.InitialSnapshot
   cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
+  /--
+    Task reporting processing status back to client. We store it here for implementing
+    `waitForDiagnostics`. -/
   reporter : Task Unit
 
 structure RpcSession where

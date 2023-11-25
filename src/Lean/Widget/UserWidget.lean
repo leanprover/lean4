@@ -2,111 +2,105 @@
 Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Authors: E.W.Ayers
+Authors: E.W.Ayers, Wojciech Nawrocki
 -/
 import Lean.Elab.Eval
 import Lean.Server.Rpc.RequestHandling
 
-open Lean
-
 namespace Lean.Widget
+open Meta Elab
 
-/-- A custom piece of code that is run on the editor client.
+/-! ## Storage of widget modules -/
 
-The editor can use the `Lean.Widget.getWidgetSource` RPC method to
-get this object.
+/-- A widget module is a unit of source code that can execute in the infoview.
 
-See the [manual entry](doc/widgets.md) above this declaration for more information on
-how to use the widgets system.
+See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
+for more information on how to use the widgets system. -/
+structure Module where
+  /-- A JS [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
+  intended for use in user widgets.
 
--/
-structure WidgetSource where
-  /-- Sourcetext of the code to run.-/
-  sourcetext : String
-  deriving Inhabited, ToJson, FromJson
+  To initialize this field from an external JS file,
+  you may use `include_str "path"/"to"/"file.js"`.
+  However **beware** that this does not register a dependency with Lake,
+  so your Lean module will not automatically be rebuilt
+  when the `.js` file changes. -/
+  javascript : String
 
-/-- Use this structure and the `@[widget]` attribute to define your own widgets.
+class ToModule (α : Type u) where
+  toModule : α → Module
 
-```lean
-@[widget]
-def rubiks : UserWidgetDefinition :=
-  { name := "Rubiks cube app"
-    javascript := include_str ...
-  }
-```
--/
-structure UserWidgetDefinition where
-  /-- Pretty name of user widget to display to the user. -/
-  name : String
-  /-- An ESmodule that exports a react component to render. -/
-  javascript: String
-  deriving Inhabited, ToJson, FromJson
+instance : ToModule Module := ⟨id⟩
 
-structure UserWidget where
-  id : Name
-  /-- Pretty name of widget to display to the user.-/
-  name : String
-  javascriptHash: UInt64
-  deriving Inhabited, ToJson, FromJson
+/-- Every constant `c : α` marked with `@[widget_module]` is registered here.
+The registry maps `hash (toModule c).javascript` to ``(`c, `(@toModule α inst c))``
+where `inst : ToModule α` is synthesized during registration time
+and stored thereafter. -/
+private abbrev ModuleRegistry := SimplePersistentEnvExtension
+  (UInt64 × Name × Expr)
+  (RBMap UInt64 (Name × Expr) compare)
 
-private abbrev WidgetSourceRegistry := SimplePersistentEnvExtension
-    (UInt64 × Name)
-    (RBMap UInt64 Name compare)
-
--- Mapping widgetSourceId to hash of sourcetext
-builtin_initialize userWidgetRegistry : MapDeclarationExtension UserWidget ← mkMapDeclarationExtension
-builtin_initialize widgetSourceRegistry : WidgetSourceRegistry ←
+builtin_initialize moduleRegistry : ModuleRegistry ←
   registerSimplePersistentEnvExtension {
     addImportedFn := fun xss => xss.foldl (Array.foldl (fun s n => s.insert n.1 n.2)) ∅
     addEntryFn    := fun s n => s.insert n.1 n.2
     toArrayFn     := fun es => es.toArray
   }
 
-private unsafe def getUserWidgetDefinitionUnsafe
-  (decl : Name) : CoreM UserWidgetDefinition :=
-  evalConstCheck UserWidgetDefinition ``UserWidgetDefinition decl
+private unsafe def evalModuleUnsafe (e : Expr) : MetaM Module :=
+  evalExpr' Module ``Module e
 
-@[implemented_by getUserWidgetDefinitionUnsafe]
-private opaque getUserWidgetDefinition
-  (decl : Name) : CoreM UserWidgetDefinition
+@[implemented_by evalModuleUnsafe]
+private opaque evalModule (e : Expr) : MetaM Module
 
-private def attributeImpl : AttributeImpl where
-  name := `widget
-  descr := "Mark a string as static code that can be loaded by a widget handler."
+private def widgetModuleAttrImpl : AttributeImpl where
+  name := `widget_module
+  descr := "Registers a widget module. Its type must implement Lean.Widget.ToModule."
   applicationTime := AttributeApplicationTime.afterCompilation
-  add decl _stx _kind := do
-    let env ← getEnv
-    let defn ← getUserWidgetDefinition decl
-    let javascriptHash := hash defn.javascript
-    let env := userWidgetRegistry.insert env decl {id := decl, name := defn.name, javascriptHash}
-    let env := widgetSourceRegistry.addEntry env (javascriptHash, decl)
-    setEnv <| env
+  add decl _stx _kind := Prod.fst <$> MetaM.run do
+    let e ← mkAppM ``ToModule.toModule #[.const decl []]
+    let mod ← evalModule e
+    let javascriptHash := hash mod.javascript
+    modifyEnv fun env => moduleRegistry.addEntry env (javascriptHash, decl, e)
 
-builtin_initialize registerBuiltinAttribute attributeImpl
+builtin_initialize registerBuiltinAttribute widgetModuleAttrImpl
 
-/-- Input for `getWidgetSource` RPC. -/
+/-! ## Retrieval of widget modules -/
+
 structure GetWidgetSourceParams where
   /-- The hash of the sourcetext to retrieve. -/
   hash: UInt64
   pos : Lean.Lsp.Position
   deriving ToJson, FromJson
 
+structure WidgetSource where
+  /-- Sourcetext of the code to run.-/
+  sourcetext : String
+  deriving Inhabited, ToJson, FromJson
+
 open Server RequestM in
 @[server_rpc_method]
 def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
   let doc ← readDoc
   let pos := doc.meta.text.lspPosToUtf8Pos args.pos
-  let notFound := throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
+  let notFound := throwThe RequestError ⟨.invalidParams, s!"No widget module with hash {args.hash} registered"⟩
   withWaitFindSnap doc (notFoundX := notFound)
-    (fun s => s.endPos >= pos || (widgetSourceRegistry.getState s.env).contains args.hash)
+    (fun s => s.endPos >= pos || (moduleRegistry.getState s.env).contains args.hash)
     fun snap => do
-      if let some id := widgetSourceRegistry.getState snap.env |>.find? args.hash then
-        runCoreM snap do
-          return {sourcetext := (← getUserWidgetDefinition id).javascript}
+      if let some (_, e) := moduleRegistry.getState snap.env |>.find? args.hash then
+        runTermElabM snap do
+          return {sourcetext := (← evalModule e).javascript}
       else
         notFound
 
-open Lean Elab
+/-! ## Saving panel widget info -/
+
+structure UserWidget where
+  id : Name
+  /-- Pretty name of widget to display to the user. -/
+  name : String
+  javascriptHash: UInt64
+  deriving Inhabited, ToJson, FromJson
 
 /--
   Try to retrieve the `UserWidgetInfo` at a particular position.
@@ -148,13 +142,16 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
     let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do
-      let some widget := userWidgetRegistry.find? env w.widgetId
-        | throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}"
-      return {
-        widget with
-        props := w.props
-        range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx
-      })
+      for (h, n, _) in moduleRegistry.getState env do
+        if n == w.widgetId then
+          return {
+            id := w.widgetId
+            name := toString w.widgetId
+            javascriptHash := h
+            props := w.props
+            range? := String.Range.toLspRange filemap <$> Syntax.getRange? w.stx
+          }
+      throw <| RequestError.mk .invalidParams s!"No registered user-widget with id {w.widgetId}")
     return {widgets := ws}
 
 /-- Save a user-widget instance to the infotree.
@@ -186,5 +183,37 @@ open Elab Command in
     let props : Json ← runTermElabM fun _ => evalJson props
     saveWidgetInfo id.getId props stx
   | _ => throwUnsupportedSyntax
+
+/-! ## Deprecated definitions -/
+
+/-- Use this structure and the `@[widget]` attribute to define your own widgets.
+
+```lean
+@[widget]
+def rubiks : UserWidgetDefinition :=
+  { name := "Rubiks cube app"
+    javascript := include_str ...
+  }
+```
+-/
+structure UserWidgetDefinition where
+  /-- Pretty name of user widget to display to the user. -/
+  name : String
+  /-- An ESmodule that exports a react component to render. -/
+  javascript: String
+  deriving Inhabited, ToJson, FromJson
+
+instance : ToModule UserWidgetDefinition where
+  toModule uwd := { uwd with }
+
+attribute [deprecated Module] UserWidgetDefinition
+
+private def widgetAttrImpl : AttributeImpl where
+  name := `widget
+  descr := "The `@[widget]` attribute has been deprecated, use `@[widget_module]` instead."
+  applicationTime := AttributeApplicationTime.afterCompilation
+  add := widgetModuleAttrImpl.add
+
+builtin_initialize registerBuiltinAttribute widgetAttrImpl
 
 end Lean.Widget

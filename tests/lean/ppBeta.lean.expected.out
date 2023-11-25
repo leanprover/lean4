@@ -1,0 +1,7 @@
+(fun x => x) Nat : Type
+let_fun x := Nat;
+x : Type
+Nat : Type
+let_fun x := Nat;
+x : Type
+Nat : Type

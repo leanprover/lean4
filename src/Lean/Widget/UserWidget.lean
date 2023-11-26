@@ -200,14 +200,12 @@ def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
 #mkrpcenc WidgetInstance
 
 /-- Retrieve all the `PanelWidgetInfo`s at a particular position. -/
-def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List PanelWidgetInfo :=
+def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List PanelWidgetInfo :=
   t.deepestNodes fun
     | _ctx, i@(Info.ofPanelWidgetInfo wi), _cs => do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
-        let trailSize := i.stx.getTrailingSize
-        -- show info at EOF even if strictly outside token + trail
-        let atEOF := tailPos.byteIdx + trailSize == text.source.endPos.byteIdx
-        guard <| pos ≤ hoverPos ∧ (hoverPos.byteIdx < tailPos.byteIdx + trailSize || atEOF)
+        -- Does the widget's line range contain `hoverLine`?
+        guard <| (text.utf8PosToLspPos pos).line ≤ hoverLine ∧ hoverLine ≤ (text.utf8PosToLspPos tailPos).line
         return wi
       else
         failure
@@ -228,18 +226,20 @@ structure GetWidgetsResponse where
 open Lean Server RequestM in
 /-- Get the panel widgets present at a particular position. -/
 @[server_rpc_method]
-def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  let pos := filemap.lspPosToUtf8Pos args
-  withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
+  let nextLine := { line := pos.line + 1, character := 0 }
+  let t := doc.cmdSnaps.waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
+  mapTask t fun (snaps, _) => do
+    let some snap := snaps.getLast?
+      | return ⟨∅⟩
     /- Panels from the infotree. -/
-    let ws := widgetInfosAt? filemap snap.infoTree pos
+    let ws := widgetInfosAt? filemap snap.infoTree pos.line
     let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : PanelWidgetInfo) =>
       { wi with
         range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx
-        name? := toString wi.id
-      }
+        name? := toString wi.id }
     /- Panels from the environment. -/
     runTermElabM snap do
       let ws' ← evalPanelWidgets

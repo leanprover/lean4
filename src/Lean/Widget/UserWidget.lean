@@ -285,7 +285,7 @@ def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := d
 
 def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
   | `(widgetInstanceSpec| $mod:ident) => do
-    elabWidgetInstanceSpecAux mod (← ``(Json.null))
+    elabWidgetInstanceSpecAux mod (← ``(Json.mkObj []))
   | `(widgetInstanceSpec| $mod:ident with $props:term) => do
     elabWidgetInstanceSpecAux mod props
   | _ => throwUnsupportedSyntax

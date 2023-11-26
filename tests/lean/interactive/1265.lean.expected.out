@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://1265.lean"},
+{"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 0, "character": 51}}
 {"items":
  [{"label": "getHygieneInfo",
@@ -22,7 +22,7 @@
    {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
    "detail": "Lean.TSyntax ks → Lean.Syntax"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://1265.lean"},
+{"textDocument": {"uri": "file:///1265.lean"},
  "position": {"line": 2, "character": 53}}
 {"items":
  [{"label": "getHygieneInfo",

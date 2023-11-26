@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completion5.lean"},
+{"textDocument": {"uri": "file:///completion5.lean"},
  "position": {"line": 9, "character": 15}}
 {"items":
  [{"label": "b1", "kind": 5, "detail": "C → String"},

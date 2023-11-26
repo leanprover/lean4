@@ -101,6 +101,9 @@ def dynlibSuffix := "-1"
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.nativeLibDir / nameToSharedLib self.dynlibName
 
+@[inline] def serverOptions (self : Module) : Array LeanOption :=
+  self.lib.serverOptions
+
 @[inline] def buildType (self : Module) : BuildType :=
   self.lib.buildType
 

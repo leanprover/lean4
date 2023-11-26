@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 0, "character": 55}}
 {"range":
  {"start": {"line": 0, "character": 54}, "end": {"line": 0, "character": 58}},
@@ -6,12 +6,12 @@
  {"value":
   "```lean\nEq.symm.{u} {α : Sort u} {a b : α} (h : a = b) : b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 0, "character": 52}}
 {"range":
  {"start": {"line": 0, "character": 52}, "end": {"line": 0, "character": 53}},
  "contents": {"value": "```lean\nh : x = y\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 4, "character": 46}}
 {"range":
  {"start": {"line": 4, "character": 45}, "end": {"line": 4, "character": 49}},
@@ -19,7 +19,7 @@
  {"value":
   "```lean\nEq.symm.{u} {α : Sort u} {a b : α} (h : a = b) : b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 54}}
 {"range":
  {"start": {"line": 7, "character": 53}, "end": {"line": 7, "character": 60}},
@@ -27,7 +27,7 @@
  {"value":
   "```lean\nEq.symm.{u} {α : Sort u} {a b : α} (h : a = b) : b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 65}}
 {"range":
  {"start": {"line": 7, "character": 62}, "end": {"line": 7, "character": 69}},
@@ -35,12 +35,12 @@
  {"value":
   "```lean\nEq.symm.{u} {α : Sort u} {a b : α} (h : a = b) : b = a\n```\n***\nEquality is symmetric: if `a = b` then `b = a`.\n\nBecause this is in the `Eq` namespace, if you have a variable `h : a = b`,\n`h.symm` can be used as shorthand for `Eq.symm h` as a proof of `b = a`.\n\nFor more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)\n\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 70}}
 {"range":
  {"start": {"line": 7, "character": 70}, "end": {"line": 7, "character": 71}},
  "contents": {"value": "```lean\nh : x = y\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://lean3HoverIssue.lean"},
+{"textDocument": {"uri": "file:///lean3HoverIssue.lean"},
  "position": {"line": 7, "character": 72}}
 {"range":
  {"start": {"line": 7, "character": 72}, "end": {"line": 7, "character": 76}},

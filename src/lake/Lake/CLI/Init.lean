@@ -93,13 +93,10 @@ def mathConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
-def moreServerArgs := #[
-  \"-Dpp.unicode.fun=true\", -- pretty-prints `fun a ↦ b`
-  \"-Dpp.proofs.withType=false\"
+def leanOptions : Array LeanOption := #[
+  ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+  ⟨`pp.proofs.withType, false⟩
 ]
-
--- These settings only apply during `lake build`, but not in VSCode editor.
-def moreLeanArgs := moreServerArgs
 
 -- These are additional settings which do not affect the lake hash,
 -- so they can be enabled in CI and disabled locally or vice versa.
@@ -112,7 +109,7 @@ def weakLeanArgs : Array String :=
     #[]
 
 package {pkgName} where
-  moreServerArgs := moreServerArgs
+  leanOptions := leanOptions
   -- add any package configuration options here
 
 require mathlib from git
@@ -120,7 +117,6 @@ require mathlib from git
 
 @[default_target]
 lean_lib {libRoot} where
-  moreLeanArgs := moreLeanArgs
   weakLeanArgs := weakLeanArgs
   -- add any library configuration options here
 "

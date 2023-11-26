@@ -97,7 +97,7 @@ def collectAvailableImportsFromLake : IO (Option AvailableImports) := do
   let exitCode ← lakeProc.wait
   match exitCode with
   | 0 =>
-    let Except.ok (availableImports : AvailableImports) ← pure (Json.parse stdout >>= fromJson?)
+    let Except.ok (availableImports : AvailableImports) := Json.parse stdout >>= fromJson?
       | throw <| IO.userError  s!"invalid output from `lake available-imports`:\n{stdout}"
     return availableImports
   | _ =>

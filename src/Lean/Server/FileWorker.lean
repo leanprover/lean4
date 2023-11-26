@@ -11,7 +11,7 @@ import Lean.Environment
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Util.Paths
+import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
 
 import Lean.Server.Utils
@@ -22,6 +22,7 @@ import Lean.Server.References
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
+import Lean.Server.FileWorker.SetupFile
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
 import Lean.Server.ImportCompletion
@@ -163,84 +164,16 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-
-  structure LakePrintPathsResult where
-    spawnArgs : Process.SpawnArgs
-    exitCode  : UInt32
-    stdout    : String
-    stderr    : String
-
-  partial def runLakePrintPaths (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO LakePrintPathsResult := do
-    let mut args := #["print-paths"] ++ imports.map (toString ·.module)
-    if m.dependencyBuildMode matches .never then
-      args := args.push "--no-build"
-    let spawnArgs : Process.SpawnArgs := {
-      stdin  := Process.Stdio.null
-      stdout := Process.Stdio.piped
-      stderr := Process.Stdio.piped
-      cmd    := lakePath.toString
-      args
-    }
-    let lakeProc ← Process.spawn spawnArgs
-    -- progress notification: reports latest stderr line
-    let rec processStderr (acc : String) : IO String := do
-      let line ← lakeProc.stderr.getLine
-      if line == "" then
-        return acc
-      else
-        publishDiagnostics m #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }] hOut
-        processStderr (acc ++ line)
-    let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
-    let stdout := String.trim (← lakeProc.stdout.readToEnd)
-    let stderr ← IO.ofExcept stderr.get
-    let exitCode ← lakeProc.wait
-    return ⟨spawnArgs, exitCode, stdout, stderr⟩
-
-  /-- Uses `lake print-paths` to compile dependencies on the fly and adds them to `LEAN_PATH`.
-  Compilation progress is reported to `hOut` via LSP notifications. Returns the search path for
-  source files. -/
-  partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let result ← runLakePrintPaths lakePath m imports hOut
-    let cmdStr := " ".intercalate (toString result.spawnArgs.cmd :: result.spawnArgs.args.toList)
-    match result.exitCode with
-    | 0 =>
-      let Except.ok (paths : LeanPaths) ← pure (Json.parse result.stdout >>= fromJson?)
-        | throwServerError s!"invalid output from `{cmdStr}`:\n{result.stdout}\nstderr:\n{result.stderr}"
-      initSearchPath (← getBuildDir) paths.oleanPath
-      paths.loadDynlibPaths.forM loadDynlib
-      paths.srcPath.mapM realPathNormalized
-    | 2 => pure []  -- no lakefile.lean
-    -- error from `--no-build`
-    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{result.stdout}"
-    | _ => throwServerError s!"`{cmdStr}` failed:\n{result.stdout}\nstderr:\n{result.stderr}"
-
-  def setupSrcSearchPath (m : DocumentMeta) (hOut : FS.Stream) (headerStx : Syntax) : IO SearchPath := do
-    let some path := System.Uri.fileUriToPath? m.uri
-      | return ← initSrcSearchPath
-
-    -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
-    -- NOTE: lake does not exist in stage 0 (yet?)
-    if path.fileName == "lakefile.lean" then
-      return ← initSrcSearchPath
-
-    let lakePath ← determineLakePath
-    if !(← System.FilePath.pathExists lakePath) then
-      return ← initSrcSearchPath
-
-    let imports := Lean.Elab.headerToImports headerStx
-    let pkgSearchPath ← lakeSetupSearchPath lakePath m imports hOut
-    return ← initSrcSearchPath pkgSearchPath
-
-  def buildHeaderEnv (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (headerStx : Syntax) : IO (Environment × MessageLog × SearchPath) := do
-    let (headerEnv, msgLog, srcSearchPath) ←
-      match ← EIO.toIO' <| setupSrcSearchPath m hOut headerStx with
-      | .ok srcSearchPath =>
+  def buildHeaderEnv (m : DocumentMeta) (headerStx : Syntax) (fileSetupResult : FileSetupResult) : IO (Environment × MessageLog) := do
+    let (headerEnv, msgLog) ←
+      match fileSetupResult.kind with
+      | .success | .noLakefile =>
         -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
-        let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) headerStx opts MessageLog.empty m.mkInputContext
-        pure (headerEnv, msgLog, srcSearchPath)
-      | .error e =>
-        let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := e.toString }
-        pure (← mkEmptyEnvironment, msgs, ← initSrcSearchPath)
+        Elab.processHeader (leakEnv := true) headerStx fileSetupResult.fileOptions MessageLog.empty m.mkInputContext
+      | .importsOutOfDate =>
+        mkErrorEnvironment "Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor."
+      | .error msg =>
+        mkErrorEnvironment msg
 
     let mut headerEnv := headerEnv
     try
@@ -249,7 +182,12 @@ section Initialization
     catch _ =>
       pure ()
 
-    return (headerEnv, msgLog, srcSearchPath)
+    return (headerEnv, msgLog)
+
+  where
+    mkErrorEnvironment (errorMsg : String) : IO (Environment × MessageLog) := do
+      let msgs := MessageLog.empty.add { fileName := "<ignored>", pos := ⟨0, 0⟩, data := errorMsg }
+      return (← mkEmptyEnvironment, msgs)
 
   def buildCommandState
       (m : DocumentMeta)
@@ -276,24 +214,33 @@ section Initialization
     }
     { Elab.Command.mkState headerEnv headerMsgLog opts with infoState := headerInfoState }
 
-  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (opts : Options) (hasWidgets : Bool)
+  def compileHeader (m : DocumentMeta) (hOut : FS.Stream) (globalOptions : Options) (hasWidgets : Bool)
       : IO (Syntax × Task (Except Error (Snapshot × SearchPath))) := do
     -- parsing should not take long, do synchronously
     let (headerStx, headerParserState, parseMsgLog) ← Parser.parseHeader m.mkInputContext
     (headerStx, ·) <$> EIO.asTask do
-      let (headerEnv, envMsgLog, srcSearchPath) ← buildHeaderEnv m hOut opts headerStx
+      let imports := Lean.Elab.headerToImports headerStx
+      let fileSetupResult ← setupFile m imports fun stderrLine =>
+        let progressDiagnostic := {
+          range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+          severity? := DiagnosticSeverity.information
+          message   := stderrLine
+        }
+        publishDiagnostics m #[progressDiagnostic] hOut
+      let fileSetupResult := fileSetupResult.addGlobalOptions globalOptions
+      let (headerEnv, envMsgLog) ← buildHeaderEnv m headerStx fileSetupResult
       let headerMsgLog := parseMsgLog.append envMsgLog
-      let cmdState := buildCommandState m headerStx headerEnv headerMsgLog opts
+      let cmdState := buildCommandState m headerStx headerEnv headerMsgLog fileSetupResult.fileOptions
       let headerSnap := {
-        beginPos := 0
-        stx := headerStx
-        mpState := headerParserState
-        cmdState := cmdState
+        beginPos         := 0
+        stx              := headerStx
+        mpState          := headerParserState
+        cmdState         := cmdState
         interactiveDiags := ← cmdState.messages.msgs.mapM (Widget.msgToInteractiveDiagnostic m.text · hasWidgets)
-        tacticCache := (← IO.mkRef {})
+        tacticCache      := (← IO.mkRef {})
       }
       publishDiagnostics m headerSnap.diagnostics.toArray hOut
-      return (headerSnap, srcSearchPath)
+      return (headerSnap, fileSetupResult.srcSearchPath)
 
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do

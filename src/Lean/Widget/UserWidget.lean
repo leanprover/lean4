@@ -23,8 +23,6 @@ end Lean.Server
 namespace Lean.Widget
 open Meta Elab
 
-/-! ## Storage of widget modules -/
-
 /-- A widget module is a unit of source code that can execute in the infoview.
 
 See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
@@ -41,6 +39,20 @@ structure Module where
   javascript : String
   /-- The hash is cached to avoid recomputing it whenever the `Module` is used. -/
   javascriptHash : { x : UInt64 // x = hash javascript } := ⟨hash javascript, rfl⟩
+
+private unsafe def evalModuleUnsafe (e : Expr) : MetaM Module :=
+  evalExpr' Module ``Module e
+
+@[implemented_by evalModuleUnsafe]
+private opaque evalModule (e : Expr) : MetaM Module
+
+private unsafe def evalWidgetInstanceUnsafe (e : Expr) : MetaM WidgetInstance :=
+  evalExpr' WidgetInstance ``WidgetInstance e
+
+@[implemented_by evalWidgetInstanceUnsafe]
+private opaque evalWidgetInstance (e : Expr) : MetaM WidgetInstance
+
+/-! ## Storage of widget modules -/
 
 class ToModule (α : Type u) where
   toModule : α → Module
@@ -61,12 +73,6 @@ builtin_initialize moduleRegistry : ModuleRegistry ←
     addEntryFn    := fun s n => s.insert n.1 n.2
     toArrayFn     := fun es => es.toArray
   }
-
-private unsafe def evalModuleUnsafe (e : Expr) : MetaM Module :=
-  evalExpr' Module ``Module e
-
-@[implemented_by evalModuleUnsafe]
-private opaque evalModule (e : Expr) : MetaM Module
 
 private def widgetModuleAttrImpl : AttributeImpl where
   name := `widget_module
@@ -106,14 +112,78 @@ def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask Widge
     fun snap => do
       if let some (_, e) := moduleRegistry.getState snap.env |>.find? args.hash then
         runTermElabM snap do
-          return {sourcetext := (← evalModule e).javascript}
+          return { sourcetext := (← evalModule e).javascript }
       else
         notFound
 
+/-! ## Storage of panel widget instances -/
 
-/-! ## Retrieving panel widget instances -/
+inductive PanelWidgetsExtEntry where
+  | «global» (n : Name)
+  | «local» (wi : WidgetInstance)
 
-#mkrpcenc WidgetInstance
+/-- Keeps track of panel widget instances that should be displayed.
+
+Instances can be registered for display global
+(i.e., persisted in `.olean`s) and locally (not persisted)
+
+For globally displayed widgets
+we cannot store a `WidgetInstance` in the persistent state
+because it contains a `StateM` closure.
+Instead, we add a global constant of type `WidgetInstance`
+to the environment, and store its name in the extension.
+
+For locally displayed ones, we just store a `WidgetInstance`
+in the extension directly.
+This is okay because it is never persisted.
+
+The (persistent) entries are then of the form `(h, n)`
+where `h` is a hash stored in the `moduleRegistry`
+and `n` is the name of a `WidgetInstance` global constant.
+
+The extension state maps each `h` as above
+to a list of entries that can be either global or local ones.
+Each element of the state indicates that the widget module `h`
+should be displayed with the given `WidgetInstance` as its arguments.
+
+This is similar to a parametric attribute, except that:
+- parametric attributes map at most one parameter to one tagged declaration,
+  whereas we may display multiple instances of a single widget module; and
+- parametric attributes use the same type for local and global entries,
+  which we cannot do owing to the closure. -/
+private abbrev PanelWidgetsExt := SimpleScopedEnvExtension
+  (UInt64 × Name)
+  (RBMap UInt64 (List PanelWidgetsExtEntry) compare)
+
+builtin_initialize panelWidgetsExt : PanelWidgetsExt ←
+  registerSimpleScopedEnvExtension {
+    addEntry := fun s (h, n) => s.insert h (.global n :: s.findD h [])
+    initial  := .empty
+  }
+
+def evalPanelWidgets : MetaM (Array WidgetInstance) := do
+  let mut ret := #[]
+  for (_, l) in panelWidgetsExt.getState (← getEnv) do
+    for e in l do
+      match e with
+      | .global n =>
+        let wi ← evalWidgetInstance (mkConst n)
+        ret := ret.push wi
+      | .local wi => ret := ret.push wi
+  return ret
+
+def addPanelWidgetGlobal [Monad m] [MonadEnv m] [MonadResolveName m] (h : UInt64) (n : Name) : m Unit := do
+  panelWidgetsExt.add (h, n)
+
+def addPanelWidgetScoped [Monad m] [MonadEnv m] [MonadResolveName m] (h : UInt64) (n : Name) : m Unit := do
+  panelWidgetsExt.add (h, n) .scoped
+
+def addPanelWidgetLocal [Monad m] [MonadEnv m] (wi : WidgetInstance) : m Unit := do
+  modifyEnv fun env => panelWidgetsExt.modifyState env fun s =>
+    s.insert wi.javascriptHash (.local wi :: s.findD wi.javascriptHash [])
+
+def erasePanelWidget [Monad m] [MonadEnv m] (h : UInt64) : m Unit := do
+  modifyEnv fun env => panelWidgetsExt.modifyState env fun st => st.erase h
 
 /-- Save the data of a panel widget which will be displayed whenever the text cursor is on `stx`.
 `hash` must be `hash (toModule c).javascript`
@@ -124,6 +194,10 @@ def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
   let some (id, _) := moduleRegistry.getState env |>.find? hash
     | throwError s!"No widget module with hash {hash} registered"
   pushInfoLeaf <| .ofPanelWidgetInfo { id, javascriptHash := hash, props, stx }
+
+/-! ## Retrieving panel widget instances -/
+
+#mkrpcenc WidgetInstance
 
 /-- Retrieve all the `PanelWidgetInfo`s at a particular position. -/
 def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverPos : String.Pos) : List PanelWidgetInfo :=
@@ -159,15 +233,100 @@ def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsRes
   let filemap := doc.meta.text
   let pos := filemap.lspPosToUtf8Pos args
   withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
+    /- Panels from the infotree. -/
     let ws := widgetInfosAt? filemap snap.infoTree pos
-    let ws ← ws.toArray.mapM (fun (wi : PanelWidgetInfo) => do
-      return { wi with
+    let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : PanelWidgetInfo) =>
+      { wi with
         range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx
         name? := toString wi.id
-      })
-    return {widgets := ws}
+      }
+    /- Panels from the environment. -/
+    runTermElabM snap do
+      let ws' ← evalPanelWidgets
+      let ws' : Array PanelWidgetInstance := ws'.map fun wi =>
+        { wi with
+          range? := none
+          name? := toString wi.id }
+      return { widgets := ws ++ ws' }
 
-/-! # Widget command -/
+/-! ## `show_panel_widgets` command -/
+
+syntax widgetInstanceSpec := ident ("with " term)?
+
+syntax addWidgetSpec := Parser.Term.attrKind widgetInstanceSpec
+syntax eraseWidgetSpec := "-" ident
+syntax showWidgetSpec := addWidgetSpec <|> eraseWidgetSpec
+/-- Use `show_panel_widgets [<widget>]` to mark that `<widget>`
+should always be displayed, including in downstream modules.
+Use `show_panel_widgets [<widget> with <props>] to have it
+displayed with the provided `<props>`.
+
+The type of `<widget>` must implement `Widget.ToModule`,
+and the type of `<props>` must implement `Server.RpcEncodable`.
+In particular, `<props> : Json` works.
+
+Use `show_panel_widgets [local <widget> (with <props>)?]` to mark it
+for display in the current section, namespace, or file.
+
+Use `show_panel_widgets [scoped <widget> (with <props>)?]` to mark it
+for display when the current namespace is open.
+
+Use `show_panel_widgets [-<widget>]` to temporarily hide a previously shown widget
+in the current section, namespace, or file.
+Note that global erasure is not possible, i.e.,
+`-<widget>` has no effect on downstream modules -/
+syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
+
+def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := do
+  Term.elabTerm (expectedType? := mkConst ``WidgetInstance) <| ← `(
+    { id := $(quote mod.getId)
+      javascriptHash := (ToModule.toModule $mod).javascriptHash
+      props := Server.RpcEncodable.rpcEncode $props })
+
+def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
+  | `(widgetInstanceSpec| $mod:ident) => do
+    elabWidgetInstanceSpecAux mod (← ``(Json.null))
+  | `(widgetInstanceSpec| $mod:ident with $props:term) => do
+    elabWidgetInstanceSpecAux mod props
+  | _ => throwUnsupportedSyntax
+
+open Command in
+@[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab
+  | `(show_panel_widgets [ $ws ,*]) => liftTermElabM do
+    for w in ws.getElems do
+      match w with
+      | `(showWidgetSpec| - $mod:ident) =>
+        let mod : Term ← ``(ToModule.toModule $mod)
+        let mod : Expr ← Term.elabTerm (expectedType? := mkConst ``Module) mod
+        let mod : Module ← evalModule mod
+        erasePanelWidget mod.javascriptHash
+      | `(showWidgetSpec| $attr:attrKind $spec:widgetInstanceSpec) =>
+        let attr ← liftMacroM <| toAttributeKind attr
+        let wiExpr ← elabWidgetInstanceSpec spec
+        let wi ← evalWidgetInstance wiExpr
+        if let .local := attr then
+          addPanelWidgetLocal wi
+        else
+          let name ← mkFreshUserName (wi.id ++ `_instance)
+          let wiExpr ← instantiateMVars wiExpr
+          if wiExpr.hasMVar then
+            throwError "failed to compile expression, it contains metavariables{indentExpr wiExpr}"
+          addAndCompile <| Declaration.defnDecl {
+            name
+            levelParams := []
+            type := mkConst ``WidgetInstance
+            value := wiExpr
+            hints := .opaque
+            safety := .safe
+          }
+          if let .global := attr then
+            addPanelWidgetGlobal wi.javascriptHash name
+          else
+            addPanelWidgetScoped wi.javascriptHash name
+      | _ => throwUnsupportedSyntax
+  | _ => throwUnsupportedSyntax
+
+/-! ## `#widget` command -/
 
 /-- Use `#widget <widget>` to display a panel widget,
 and `#widget <widget> with <props>` to display it with the given props.
@@ -176,40 +335,14 @@ Useful for debugging widgets.
 The type of `<widget>` must implement `Widget.ToModule`,
 and the type of `<props>` must implement `Server.RpcEncodable`.
 In particular, `<props> : Json` works. -/
-syntax (name := widgetCmd) "#widget " ident (" with " term)? : command
-
-private unsafe def evalStateMRpcObjectStoreJsonUnsafe (stx : Term) :
-    TermElabM (StateM Server.RpcObjectStore Json) := do
-  Lean.Elab.Term.evalTerm _
-    (← mkAppM ``StateM #[mkConst ``Server.RpcObjectStore, mkConst ``Json])
-    stx
-
-@[implemented_by evalStateMRpcObjectStoreJsonUnsafe]
-private opaque evalStateMRpcObjectStoreJson (stx : Term) :
-    TermElabM (StateM Server.RpcObjectStore Json)
-
-private unsafe def evalModule'Unsafe (stx : Term) : TermElabM Module := do
-  Lean.Elab.Term.evalTerm _ (mkConst ``Module) stx
-
-@[implemented_by evalModule'Unsafe]
-private opaque evalModule' (stx : Term) : TermElabM Module
+syntax (name := widgetCmd) "#widget " widgetInstanceSpec : command
 
 open Command in
-def elabWidgetCmdAux (stx : Syntax) (mod : Ident) (props : StateM Server.RpcObjectStore Json)
-    : CommandElabM Unit := do
-  let mod  ← runTermElabM fun _ => do
-    let mod : Term ← ``(ToModule.toModule $mod)
-    evalModule' mod
-  savePanelWidgetInfo mod.javascriptHash props stx
-
-open Command in
-@[command_elab widgetCmd] def elabWidgetCmd : CommandElab := fun
-  | stx@`(#widget $mod) => elabWidgetCmdAux stx mod (pure Json.null)
-  | stx@`(#widget $mod with $props) => do
-    let props ← runTermElabM fun _ => do
-      let props : Term ← ``(Server.RpcEncodable.rpcEncode $props)
-      evalStateMRpcObjectStoreJson props
-    elabWidgetCmdAux stx mod props
+@[command_elab widgetCmd] def elabWidgetCmd : CommandElab
+  | stx@`(#widget $s) => liftTermElabM do
+    let wi : Expr ← elabWidgetInstanceSpec s
+    let wi : WidgetInstance ← evalWidgetInstance wi
+    savePanelWidgetInfo wi.javascriptHash wi.props stx
   | _ => throwUnsupportedSyntax
 
 /-! ## Deprecated definitions -/

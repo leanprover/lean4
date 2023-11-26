@@ -10,6 +10,7 @@ import Lean.MetavarContext
 import Lean.Environment
 import Lean.Data.Json
 import Lean.Server.Rpc.Basic
+import Lean.Widget.Types
 
 namespace Lean.Elab
 
@@ -96,28 +97,10 @@ structure CustomInfo where
   stx : Syntax
   value : Dynamic
 
-/-- An instance of a widget component:
-the identifier of a widget module and the hash of its JS source code
-together with props.
-
-See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
-for more information about widgets. -/
-structure WidgetInstance where
-  /-- Name of the `@[widget_module]`. -/
-  id : Name
-  /-- Hash of the JS source of the widget module. -/
-  javascriptHash : UInt64
-  /-- Arguments to be passed to the component's default exported function.
-
-  Props may contain RPC references,
-  so must be stored as a computation
-  with access to the RPC object store. -/
-  props : StateM Server.RpcObjectStore Json
-
 /-- Information about a panel widget associated with a syntactic span.
 A panel widget is a widget that can be displayed
 in the infoview alongside the goal state. -/
-structure PanelWidgetInfo extends WidgetInstance where
+structure PanelWidgetInfo extends Widget.WidgetInstance where
   stx : Syntax
 
 /--

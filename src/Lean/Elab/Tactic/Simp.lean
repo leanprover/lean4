@@ -264,7 +264,14 @@ register_builtin_option tactic.simp.trace : Bool := {
   descr    := "When tracing is enabled, calls to `simp` or `dsimp` will print an equivalent `simp only` call."
 }
 
-def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+/--
+If `stx` is the syntax of a `simp`, `simp_all` or `dsimp` tactic invocation, and
+`usedSimps` is the set of simp lemmas used by this invocation, then `mkSimpOnly`
+creates the syntax of an equivalent `simp only`, `simp_all only` or `dsimp only`
+invocation.
+-/
+def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
+  let isSimpAll := stx.isOfKind ``Parser.Tactic.simpAll
   let mut stx := stx
   if stx[3].isNone then
     stx := stx.setArg 3 (mkNullNode #[mkAtom "only"])
@@ -281,6 +288,12 @@ def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
         else
           (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident)))
     | .fvar fvarId => -- local hypotheses in the context
+      -- `simp_all` always uses all propositional hypotheses (and it can't use
+      -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would
+      -- be redundant. It would also be confusing since it suggests that only
+      -- `h` is used.
+      if isSimpAll then
+        continue
       if let some ldecl := lctx.find? fvarId then
         localsOrStar := localsOrStar.bind fun locals =>
           if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&
@@ -299,8 +312,10 @@ def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
   else
     args := args.push (← `(Parser.Tactic.simpStar| *))
   let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
-  stx := stx.setArg 4 (mkNullNode argsStx)
-  logInfoAt stx[0] m!"Try this: {stx}"
+  return stx.setArg 4 (mkNullNode argsStx)
+
+def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
+  logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"
 
 /--
 `simpLocation ctx discharge? varIdToLemmaId loc`

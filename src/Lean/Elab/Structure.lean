@@ -476,13 +476,8 @@ where
     if h : i < view.parents.size then
       let parentStx := view.parents.get ⟨i, h⟩
       withRef parentStx do
-      let mut (isFlat, parentStx) :=
-        if parentStx.isOfKind ``Parser.Command.extendsItem then
-          (!parentStx[0].isNone, parentStx[1])
-        else
-          -- hack for stage0 syntax from `class abbrev`
-          (false, parentStx)
-      let parentType ← Term.elabType parentStx
+      let mut isFlat := !parentStx[0].isNone
+      let parentType ← Term.elabType parentStx[1]
       let parentStructName ← getStructureName parentType
       -- If `flat` was not specified but the fields overlap, behave as though it were specified.
       if not isFlat then

@@ -89,7 +89,11 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    lean_always_assert(fclose(static_cast<FILE *>(h)) == 0);
+    // There is no sensible way to handle errors here; in particular, we should
+    // not panic as finalizing a handle that already is in an invalid state
+    // (broken pipe etc.) should work and not terminate the process. The same
+    // decision was made for `std::fs::File` in the Rust stdlib.
+    fclose(static_cast<FILE *>(h));
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {

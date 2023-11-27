@@ -283,7 +283,7 @@ def traceSimpCall (stx : Syntax) (usedSimps : UsedSimps) : MetaM Unit := do
     | .fvar fvarId => -- local hypotheses in the context
       if let some ldecl := lctx.find? fvarId then
         localsOrStar := localsOrStar.bind fun locals =>
-          if !ldecl.userName.isInaccessibleUserName &&
+          if !ldecl.userName.isInaccessibleUserName && !ldecl.userName.hasMacroScopes &&
               (lctx.findFromUserName? ldecl.userName).get!.fvarId == ldecl.fvarId then
             some (locals.push ldecl.userName)
           else

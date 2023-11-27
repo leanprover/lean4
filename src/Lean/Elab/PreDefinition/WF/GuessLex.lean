@@ -569,17 +569,21 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     let arities := varNamess.map (·.size)
     trace[Elab.definition.wf] "varNames is: {varNamess}"
 
-    -- Collect all recursive calls and extract their context
-    let recCalls ←collectRecCalls unaryPreDef fixedPrefixSize arities
-    let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
-    let callMatrix := rcs.map (inspectCall ·)
-
     let forbiddenArgs ← preDefs.mapM fun preDef =>
       getForbiddenByTrivialSizeOf fixedPrefixSize preDef
 
     -- The list of measures, including the measures that order functions.
     -- The function ordering measures come last
     let measures ← generateMeasures forbiddenArgs arities
+
+    -- If there is only one plausible measure, use that
+    if let #[solution] := measures then
+      return ← buildTermWF (preDefs.map (·.declName)) varNamess #[solution]
+
+    -- Collect all recursive calls and extract their context
+    let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+    let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
+    let callMatrix := rcs.map (inspectCall ·)
 
     match ← liftMetaM <| solve measures callMatrix with
     | .some solution => do

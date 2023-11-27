@@ -3,6 +3,9 @@ This files tests Lean's ability to guess the right lexicographic order.
 
 TODO: Once lean spits out the guessed order (probably guarded by an
 option), turn this on and check the output.
+
+When writing tests for GuesLex, keep in mind that it doesn't do anything
+when there is only one plausible measure (one function, only one varying argument).
 -/
 
 def ackermann (n m : Nat) := match n, m with
@@ -78,11 +81,12 @@ def blowup : Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat → Nat
 -- unpacking of packed n-ary arguments
 def confuseLex1 : Nat → @PSigma Nat (fun _ => Nat) → Nat
   | 0, _p => 0
-  | .succ n, ⟨x,y⟩ => confuseLex1 n ⟨x,y⟩
+  | .succ n, ⟨x,y⟩ => confuseLex1 n ⟨x, .succ y⟩
 
 def confuseLex2 : @PSigma Nat (fun _ => Nat) → Nat
-  | ⟨_y,0⟩ => 0
-  | ⟨y,.succ n⟩ => confuseLex2 ⟨y,n⟩
+  | ⟨_,0⟩ => 0
+  | ⟨0,_⟩ => 0
+  | ⟨.succ y,.succ n⟩ => confuseLex2 ⟨y,n⟩
 
 def dependent : (n : Nat) → (m : Fin n) → Nat
  | 0, i => Fin.elim0 i

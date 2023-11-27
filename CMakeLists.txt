@@ -11,7 +11,7 @@ foreach(var ${vars})
     list(APPEND STAGE0_ARGS "-D${CMAKE_MATCH_1}=${${var}}")
   elseif("${currentHelpString}" MATCHES "No help, variable specified on the command line." OR "${currentHelpString}" STREQUAL "")
     list(APPEND CL_ARGS "-D${var}=${${var}}")
-    if("${var}" STREQUAL "USE_GMP")
+    if("${var}" MATCHES "USE_GMP|CHECK_OLEAN_VERSION")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
@@ -35,6 +35,8 @@ ExternalProject_add(stage0
   SOURCE_SUBDIR src
   BINARY_DIR stage0
   # do not rebuild stage0 when git hash changes; it's not from this commit anyway
+  # (however, `CHECK_OLEAN_VERSION=ON` in CI will override this as we need to
+  # embed the githash into the stage 1 library built by stage 0)
   CMAKE_ARGS -DSTAGE=0 -DUSE_GITHASH=OFF ${PLATFORM_ARGS} ${STAGE0_ARGS}
   BUILD_ALWAYS ON  # cmake doesn't auto-detect changes without a download method
   INSTALL_COMMAND ""  # skip install

@@ -259,7 +259,8 @@ jobs:
           mkdir build
           cd build
           ulimit -c unlimited # coredumps
-          OPTIONS=()
+          # this also enables githash embedding into stage 1 library
+          OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"

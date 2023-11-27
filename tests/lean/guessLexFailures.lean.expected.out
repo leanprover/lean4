@@ -14,18 +14,4 @@ structural recursion cannot be used
 failed to prove termination, use `termination_by` to specify a well-founded relation
 guessLexFailures.lean:15:0-18:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation
 guessLexFailures.lean:25:0-27:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation
-guessLexFailures.lean:32:88-32:102: error: type mismatch
-  Fin.succ (f n)
-has type
-  Fin (Nat.succ (n + 1)) : Type
-but is expected to have type
-  Nat → Fin (n + 2) : Type
-guessLexFailures.lean:35:6-35:56: error: application type mismatch
-  Nat.casesOn n { val := 0, isLt := (_ : 0 < Nat.succ Nat.zero) } (Fin_succ_comp fun n => badCasesOn2 n (Nat.succ m))
-argument
-  Fin_succ_comp fun n => badCasesOn2 n (Nat.succ m)
-has type
-  (n : Nat) → Nat → Fin (n + 2) : Type
-but is expected to have type
-  (n : Nat) → Fin (Nat.succ n + 1) : Type
-guessLexFailures.lean:36:0-36:31: error: unused termination hint element
+guessLexFailures.lean:33:0-36:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation

@@ -1,8 +1,8 @@
-{"textDocument": {"version": 2, "uri": "file://unterminatedDocComment.lean"},
+{"textDocument": {"version": 2, "uri": "file:///unterminatedDocComment.lean"},
  "contentChanges":
  [{"text": "/",
    "range":
    {"start": {"line": 5, "character": 2}, "end": {"line": 5, "character": 3}}}]}
-{"version": 2, "uri": "file://unterminatedDocComment.lean", "diagnostics": []}
-{"version": 2, "uri": "file://unterminatedDocComment.lean", "diagnostics": []}
-{"version": 2, "uri": "file://unterminatedDocComment.lean", "diagnostics": []}
+{"version": 2, "uri": "file:///unterminatedDocComment.lean", "diagnostics": []}
+{"version": 2, "uri": "file:///unterminatedDocComment.lean", "diagnostics": []}
+{"version": 2, "uri": "file:///unterminatedDocComment.lean", "diagnostics": []}

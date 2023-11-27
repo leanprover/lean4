@@ -68,6 +68,11 @@ register_builtin_option pp.instantiateMVars : Bool := {
   group    := "pp"
   descr    := "(pretty printer) instantiate mvars before delaborating"
 }
+register_builtin_option pp.beta : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) apply beta-reduction when pretty printing"
+}
 register_builtin_option pp.structureInstances : Bool := {
   defValue := true
   group    := "pp"
@@ -152,11 +157,6 @@ register_builtin_option g_pp_locals_full_names : Bool := {
   group    := "pp"
   descr    := "(pretty printer) show full names of locals"
 }
-register_builtin_option g_pp_beta : Bool := {
-  defValue := false
-  group    := "pp"
-  descr    := "(pretty printer) apply beta-reduction when pretty printing"
-}
 register_builtin_option g_pp_goal_compact : Bool := {
   defValue := false
   group    := "pp"
@@ -196,6 +196,7 @@ def getPPUniverses (o : Options) : Bool := o.get pp.universes.name (getPPAll o)
 def getPPFullNames (o : Options) : Bool := o.get pp.fullNames.name (getPPAll o)
 def getPPPrivateNames (o : Options) : Bool := o.get pp.privateNames.name (getPPAll o)
 def getPPInstantiateMVars (o : Options) : Bool := o.get pp.instantiateMVars.name pp.instantiateMVars.defValue
+def getPPBeta (o : Options) : Bool := o.get pp.beta.name pp.beta.defValue
 def getPPSafeShadowing (o : Options) : Bool := o.get pp.safeShadowing.name pp.safeShadowing.defValue
 def getPPProofs (o : Options) : Bool := o.get pp.proofs.name (getPPAll o)
 def getPPProofsWithType (o : Options) : Bool := o.get pp.proofs.withType.name pp.proofs.withType.defValue

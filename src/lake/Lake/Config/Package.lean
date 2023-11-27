@@ -88,10 +88,19 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   precompileModules : Bool := false
 
   /--
+  **Deprecated in favor of `moreGlobalServerArgs`.**
   Additional arguments to pass to the Lean language server
-  (i.e., `lean --server`) launched by `lake server`.
+  (i.e., `lean --server`) launched by `lake serve`, both for this package and
+  also for any packages browsed from this one in the same session.
   -/
   moreServerArgs : Array String := #[]
+
+  /--
+  Additional arguments to pass to the Lean language server
+  (i.e., `lean --server`) launched by `lake serve`, both for this package and
+  also for any packages browsed from this one in the same session.
+  -/
+  moreGlobalServerArgs : Array String := moreServerArgs
 
   /--
   The directory containing the package's Lean source files.
@@ -310,9 +319,13 @@ namespace Package
 @[inline] def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
-/-- The package's `moreServerArgs` configuration. -/
-@[inline] def moreServerArgs (self : Package) : Array String :=
-  self.config.moreServerArgs
+/-- The package's `moreGlobalServerArgs` configuration. -/
+@[inline] def moreGlobalServerArgs (self : Package) : Array String :=
+  self.config.moreGlobalServerArgs
+
+/-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
+@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
+  self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
@@ -322,9 +335,13 @@ namespace Package
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
 
-/-- The package's `moreLeanArgs` configuration. -/
+/-- The package's `leanOptions` configuration. -/
+@[inline] def leanOptions (self : Package) : Array LeanOption :=
+  self.config.leanOptions
+
+/-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
-  self.config.moreLeanArgs
+  self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
 @[inline] def weakLeanArgs (self : Package) : Array String :=

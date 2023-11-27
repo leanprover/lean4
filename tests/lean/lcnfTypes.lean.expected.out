@@ -19,21 +19,20 @@ Lean.getConstInfo : {m : Type → Type} →
   [inst : Monad m] → [inst : Lean.MonadEnv m] → [inst : Lean.MonadError m] → Lean.Name → m Lean.ConstantInfo
 Lean.Meta.instMonadMetaM : Monad fun α =>
   Lean.Meta.Context →
-    ST.Ref PUnit Lean.Meta.State →
-      Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit α
+    ST.Ref ◾ Lean.Meta.State → Lean.Core.Context → ST.Ref ◾ Lean.Core.State → ◾ → EStateM.Result Lean.Exception ◾ α
 Lean.Meta.inferType : Lean.Expr →
   Lean.Meta.Context →
-    ST.Ref PUnit Lean.Meta.State →
-      Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+    ST.Ref ◾ Lean.Meta.State →
+      Lean.Core.Context → ST.Ref ◾ Lean.Core.State → ◾ → EStateM.Result Lean.Exception ◾ Lean.Expr
 Lean.Elab.Term.elabTerm : Lean.Syntax →
   Option Lean.Expr →
     Bool →
       Bool →
         Lean.Elab.Term.Context →
-          ST.Ref PUnit Lean.Elab.Term.State →
+          ST.Ref ◾ Lean.Elab.Term.State →
             Lean.Meta.Context →
-              ST.Ref PUnit Lean.Meta.State →
-                Lean.Core.Context → ST.Ref PUnit Lean.Core.State → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+              ST.Ref ◾ Lean.Meta.State →
+                Lean.Core.Context → ST.Ref ◾ Lean.Core.State → ◾ → EStateM.Result Lean.Exception ◾ Lean.Expr
 Nat.add : Nat → Nat → Nat
 Magma.mul : Magma → ◾ → ◾ → ◾
 weird1 : Bool → ◾
@@ -49,13 +48,13 @@ MonadControl.restoreM : ◾ → ◾ → MonadControl ◾ ◾ → ◾ → ◾ →
 Decidable.casesOn : ◾ → ◾ → Bool → (◾ → ◾) → (◾ → ◾) → ◾
 Lean.getConstInfo : ◾ → Monad ◾ → Lean.MonadEnv ◾ → Lean.MonadError ◾ → Lean.Name → ◾
 Lean.Meta.instMonadMetaM : Monad ◾
-Lean.Meta.inferType : Lean.Expr → Lean.Meta.Context → ◾ → Lean.Core.Context → ◾ → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+Lean.Meta.inferType : Lean.Expr → Lean.Meta.Context → ◾ → Lean.Core.Context → ◾ → ◾ → EStateM.Result Lean.Exception ◾ Lean.Expr
 Lean.Elab.Term.elabTerm : Lean.Syntax →
   Option Lean.Expr →
     Bool →
       Bool →
         Lean.Elab.Term.Context →
-          ◾ → Lean.Meta.Context → ◾ → Lean.Core.Context → ◾ → PUnit → EStateM.Result Lean.Exception PUnit Lean.Expr
+          ◾ → Lean.Meta.Context → ◾ → Lean.Core.Context → ◾ → ◾ → EStateM.Result Lean.Exception ◾ Lean.Expr
 Nat.add : Nat → Nat → Nat
 Fin.add : Nat → Nat → Nat → Nat
 Lean.HashSetBucket.update : ◾ → Array (List ◾) → USize → List ◾ → ◾ → Array (List ◾)

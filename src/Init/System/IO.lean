@@ -17,10 +17,8 @@ import Init.Data.Ord
 open System
 
 /-- Like <https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld>.
-    Makes sure we never reorder `IO` operations.
-
-    TODO: mark opaque -/
-def IO.RealWorld : Type := Unit
+    Makes sure we never reorder `IO` operations. -/
+opaque IO.RealWorld : Type := Unit
 
 /- TODO(Leo): mark it as an opaque definition. Reason: prevent
    functions defined in other modules from accessing `IO.RealWorld`.
@@ -82,7 +80,7 @@ abbrev IO : Type → Type := EIO Error
    the "extract closed terms" optimization. -/
 set_option compiler.extract_closed false in
 @[inline] unsafe def unsafeBaseIO (fn : BaseIO α) : α :=
-  match fn.run () with
+  match fn.run (unsafeCast ()) with
   | EStateM.Result.ok a _ => a
 
 @[inline] unsafe def unsafeEIO (fn : EIO ε α) : Except ε α :=

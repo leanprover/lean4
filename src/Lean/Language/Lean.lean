@@ -109,6 +109,15 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
 
 abbrev InitialSnapshot := HeaderParsedSnapshot
 
+/--
+  Adds unexpected exceptions from header processing to the message log as a last resort; standard
+  errors should already have been caught earlier. -/
+private def withHeaderExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
+  match (← act.toBaseIO) with
+  | .error e => return ex {
+    msgLog := MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data := e.toString } }
+  | .ok a => return a
+
 /-- Entry point of the Lean language processor. -/
 -- As a general note, for each processing function we pass in the previous
 -- state, if any, in order to reuse still-valid state. Thus the logic of
@@ -134,7 +143,7 @@ where
         -- ...go immediately to next snapshot
         return (← unchanged old success)
 
-    withFatalExceptions ({ · with stx := .missing, success? := none }) do
+    withHeaderExceptions ({ · with stx := .missing, success? := none }) do
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
       -- TODO: move into `parseHeader`; it should add the length of `peekToken`,
       -- which is the full extent the parser considered before stopping
@@ -164,9 +173,9 @@ where
         return .pure old
 
     SnapshotTask.ofIO ⟨0, ictx.input.endPos⟩ do
-    withFatalExceptions ({ · with success? := none }) do
+    withHeaderExceptions ({ · with success? := none }) do
     -- discard existing continuation if any, there is nothing to reuse
-    let _ ← old?.bind (·.success?) |>.map (·.next) |> getOrCancel
+    let _ ← old?.bind (·.success?) |>.map (·.next) |> getOrCancel?
     -- function copied from current implementation, see below
     -- TODO: we should do this at most once per process
     let cmdState ← doImport stx
@@ -183,7 +192,7 @@ where
         return .mk (data := old.data)
           (next? := (← old.data.sig.bindIO fun sig =>
             sig.finished.bindIO fun finished => do
-              parseCmd (← getOrCancel oldNext) old.data.parserState finished.cmdState))
+              parseCmd (← getOrCancel? oldNext) old.data.parserState finished.cmdState))
       else return old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot
@@ -206,7 +215,7 @@ where
 
       -- signature elaboration task; for now, does full elaboration
       -- TODO: do tactic snapshots, reuse old state for them
-      let _ ← old?.map (·.data.sig) |> getOrCancel
+      let _ ← old?.map (·.data.sig) |> getOrCancel?
       let sig ← SnapshotTask.ofIO (stx.getRange?.getD ⟨parserState.pos, parserState.pos⟩) do
         let cmdState ← doElab stx cmdState msgLog.hasErrors beginPos scope
         return {

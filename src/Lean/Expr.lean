@@ -60,7 +60,7 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also the Lean manual: https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments
+See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
@@ -300,8 +300,8 @@ inductive Expr where
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
   The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [here](https://en.wikipedia.org/wiki/De_Bruijn_index)
-  for additional information on de-Bruijn indexes.
+  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
   The `x` and `y` variables in the equality expression are constructed
@@ -319,11 +319,11 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These /free/ variable
+  The `fvar` constructor represent free variables. These *free* variable
   occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
   constructor and its binder exists in a local context only.
 
-  Note that Lean uses the /locally nameless approach/. See [here](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
@@ -361,7 +361,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  `Expr.app (.const `Nat.succ []) (.const .zero [])`
+  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as
@@ -387,15 +387,15 @@ inductive Expr where
 
   For example:
   - `forall x : Prop, x ∧ x`:
-  ```lean
-  Expr.forallE `x (.sort .zero)
-    (.app (.app (.const `And []) (.bvar 0)) (.bvar 0)) .default
-  ```
+    ```lean
+    Expr.forallE `x (.sort .zero)
+      (.app (.app (.const `And []) (.bvar 0)) (.bvar 0)) .default
+    ```
   - `Nat → Bool`:
-  ```lean
-  Expr.forallE `a (.const `Nat [])
-    (.const `Bool []) .default
-  ```
+    ```lean
+    Expr.forallE `a (.const `Nat [])
+      (.const `Bool []) .default
+    ```
   -/
   | forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 

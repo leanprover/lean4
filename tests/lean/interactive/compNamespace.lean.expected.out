@@ -1,21 +1,21 @@
-{"textDocument": {"uri": "file://compNamespace.lean"},
+{"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 5, "character": 12}}
 {"items": [{"label": "LongNamespaceExample", "kind": 9, "detail": "namespace"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://compNamespace.lean"},
+{"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 9, "character": 12}}
 {"items": [{"label": "LongNamespaceExample", "kind": 9, "detail": "namespace"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://compNamespace.lean"},
+{"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 13, "character": 11}}
 {"items": [{"label": "LongNamespaceExample", "kind": 9, "detail": "namespace"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://compNamespace.lean"},
+{"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 16, "character": 16}}
 {"items":
  [{"label": "Foo.LongNamespaceExample", "kind": 9, "detail": "namespace"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://compNamespace.lean"},
+{"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 20, "character": 12}}
 {"items": [{"label": "LongNamespaceExample", "kind": 9, "detail": "namespace"}],
  "isIncomplete": true}

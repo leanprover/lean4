@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://533.lean"},
+{"textDocument": {"uri": "file:///533.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
  [{"label": "F", "kind": 6, "detail": "Sort ?u"},

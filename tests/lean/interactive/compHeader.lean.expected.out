@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://compHeader.lean"},
+{"textDocument": {"uri": "file:///compHeader.lean"},
  "position": {"line": 2, "character": 22}}
 {"items":
  [{"label": "veryLongNam", "kind": 6, "detail": "Sort u_1"},

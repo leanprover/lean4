@@ -11,8 +11,8 @@ $LAKE -d foo build --update
 ./foo/.lake/build/bin/foo
 ./bar/.lake/build/bin/bar
 
-# Test print-paths works (i.e., does not error)
-$LAKE -d foo print-paths A B
+# Test setup-file works (i.e., does not error)
+$LAKE -d foo setup-file ./foo/Foo.lean A B
 
 # Test `lake clean`
 test -d a/.lake/build

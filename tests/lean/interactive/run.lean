@@ -42,7 +42,7 @@ def ident : Parsec Name := do
   return xs.foldl Name.mkStr $ head
 
 partial def main (args : List String) : IO Unit := do
-  let uri := s!"file://{args.head!}"
+  let uri := s!"file:///{args.head!}"
   Ipc.runWith (←IO.appPath) #["--server"] do
     let capabilities := {
       textDocument? := some {

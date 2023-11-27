@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completionAtPrint.lean"},
+{"textDocument": {"uri": "file:///completionAtPrint.lean"},
  "position": {"line": 2, "character": 25}}
 {"items":
  [{"label": "find?",

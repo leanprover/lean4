@@ -1,11 +1,11 @@
-{"textDocument": {"uri": "file://inWordCompletion.lean"},
+{"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 5, "character": 10}}
 {"items":
  [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},
   {"label": "gfacc", "kind": 3, "detail": "Nat → Nat"},
   {"label": "gfadc", "kind": 3, "detail": "Nat → Nat"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://inWordCompletion.lean"},
+{"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 13, "character": 14}}
 {"items":
  [{"label": "gfabc", "kind": 3, "detail": "Nat → Nat"},

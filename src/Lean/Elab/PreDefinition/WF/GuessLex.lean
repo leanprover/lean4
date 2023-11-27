@@ -515,7 +515,6 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
     -- None found, we have to give up
     return .none
 
--- Question: Which module should have this?
 /--
 Create Tuple syntax (`()` if the array is empty, and just the value if its a singleton)
 -/

@@ -32,9 +32,16 @@ abbrev OrdModuleSet := OrdHashSet Module
 abbrev ModuleMap (α) := RBMap Module α (·.name.quickCmp ·.name)
 @[inline] def ModuleMap.empty : ModuleMap α := RBMap.empty
 
-/-- Locate the named module in the library (if it is buildable and local to it). -/
+/--
+Locate the named, buildable module in the library
+(which implies it is local and importable).
+-/
 def LeanLib.findModule? (mod : Name) (self : LeanLib) : Option Module :=
   if self.isBuildableModule mod then some {lib := self, name := mod} else none
+
+/--  Locate the named, buildable, importable, local module in the package.  -/
+def Package.findModule? (mod : Name) (self : Package) : Option Module :=
+  self.leanLibs.findSomeRev? (·.findModule? mod)
 
 /-- Get an `Array` of the library's modules (as specified by its globs). -/
 def LeanLib.getModuleArray (self : LeanLib) : IO (Array Module) :=
@@ -100,6 +107,9 @@ def dynlibSuffix := "-1"
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
   self.pkg.nativeLibDir / nameToSharedLib self.dynlibName
+
+@[inline] def serverOptions (self : Module) : Array LeanOption :=
+  self.lib.serverOptions
 
 @[inline] def buildType (self : Module) : BuildType :=
   self.lib.buildType

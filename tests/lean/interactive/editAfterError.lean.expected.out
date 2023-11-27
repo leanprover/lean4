@@ -1,11 +1,11 @@
-{"textDocument": {"version": 2, "uri": "file://editAfterError.lean"},
+{"textDocument": {"version": 2, "uri": "file:///editAfterError.lean"},
  "contentChanges":
  [{"text": "s",
    "range":
    {"start": {"line": 1, "character": 10},
     "end": {"line": 1, "character": 11}}}]}
 {"version": 2,
- "uri": "file://editAfterError.lean",
+ "uri": "file:///editAfterError.lean",
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -23,7 +23,7 @@
    {"start": {"line": 1, "character": 7},
     "end": {"line": 1, "character": 11}}}]}
 {"version": 2,
- "uri": "file://editAfterError.lean",
+ "uri": "file:///editAfterError.lean",
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -41,7 +41,7 @@
    {"start": {"line": 1, "character": 7},
     "end": {"line": 1, "character": 11}}}]}
 {"version": 2,
- "uri": "file://editAfterError.lean",
+ "uri": "file:///editAfterError.lean",
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,

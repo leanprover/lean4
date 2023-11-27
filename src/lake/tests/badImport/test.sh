@@ -11,4 +11,4 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 # https://github.com/leanprover/lean4/issues/2415
 
 ($LAKE build +X 2>&1 && exit 1 || true) | grep -F "X.lean"
-($LAKE print-paths Lib.B 2>&1 && exit 1 || true) | grep -F "Lib.B"
+($LAKE setup-file ./X.lean Lib.B 2>&1 && exit 1 || true) | grep -F "Lib.B"

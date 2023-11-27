@@ -110,6 +110,8 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   -- Deprecation warnings
   unless self.config.manifestFile.isNone do
     logWarning s!"{self.name}: package configuration option `manifestFile` is deprecated"
+  unless self.config.moreServerArgs.isEmpty do
+    logWarning s!"{self.name}: package configuration option `moreServerArgs` is deprecated in favor of `moreServerOptions`"
 
   -- Fill in the Package
   return {self with

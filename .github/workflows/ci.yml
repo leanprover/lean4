@@ -368,8 +368,9 @@ jobs:
   # This can be made the “required” job, instead of listing each
   # matrix job separately
   all-done:
-    needs: build
     name: Build matrix complete
+    runs-on: ubuntu-latest
+    needs: build
     steps:
     - run: echo "Nothing to see here"
 

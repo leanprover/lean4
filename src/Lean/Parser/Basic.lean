@@ -669,32 +669,35 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
+local instance : Inhabited (ParserState → ParserState × Option Nat) := ⟨fun s => (s, none)⟩
+
 /-- Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
 If this is a valid start to a raw string (`r##...#"`),
-returns the parser state after the `"` along with the number of `#`'s -/
-partial def rawStrLitStart (c : ParserContext) (s : ParserState) : Option (ParserState × Nat) :=
+returns the parser state after the `"` along with the number of `#`'s.
+Otherwise, returns the initial parser state. -/
+partial def rawStrLitStart (c : ParserContext) (s : ParserState) : ParserState × Option Nat :=
   let input := c.input
   let i     := s.pos
-  if h : input.atEnd i then none
+  if h : input.atEnd i then (s, none)
   else
     let curr := input.get' i h
     if curr == 'r' then
-      loop (s.next' input i h) 0
+      loop i 0 (s.next' input i h)
     else
-      none
+      (s, none)
 where
-  loop (s : ParserState) (num : Nat) : Option (ParserState × Nat) :=
+  loop (init : String.Pos) (num : Nat) (s : ParserState) : ParserState × Option Nat :=
     let input := c.input
     let i     := s.pos
-    if h : input.atEnd i then none
+    if h : input.atEnd i then (s.setPos init, none)
     else
       let curr := input.get' i h
       if curr == '#' then
-        loop (s.next' input i h) (num + 1)
+        loop init (num + 1) (s.next' input i h)
       else if curr == '"' then
-        some (s.next' input i h, num)
+        (s.next' input i h, num)
       else
-        none
+        (s.setPos init, none)
 
 /-- Parses a raw string literal after `rawStrLitStart` succeeds.
 The `startPos` is the start of the raw string (at the `r`).
@@ -919,11 +922,12 @@ private def tokenFnAux : ParserFn := fun c s =>
     numberFnAux c s
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
-  else if let some (s, num) := rawStrLitStart c s then
-    rawStrLitFnAux i num none c s
   else
-    let tk := c.tokens.matchPrefix input i
-    identFnAux i tk .anonymous c s
+    match rawStrLitStart c s with
+    | (s, some num) => rawStrLitFnAux i num none c s
+    | (s, none) =>
+      let tk := c.tokens.matchPrefix input i
+      identFnAux i tk .anonymous c s
 
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`

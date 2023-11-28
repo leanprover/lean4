@@ -373,7 +373,7 @@ jobs:
     needs: build
     if: ${{ always() }}
     steps:
-    - if: contains(needs.*.result, "failure") ||  contains(needs.*.result, "cancelled")
+    - if: contains(needs.*.result, 'failure') ||  contains(needs.*.result, 'cancelled')
       uses: actions/github-script@v3
       with:
         script: |

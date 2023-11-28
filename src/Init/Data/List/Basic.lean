@@ -557,16 +557,22 @@ def takeWhile (p : α → Bool) : (xs : List α) → List α
 /--
 `O(|l|)`. Returns true if `p` is true for any element of `l`.
 * `any p [a, b, c] = p a || p b || p c`
+
+Short-circuits upon encountering the first `true`.
 -/
-@[inline] def any (l : List α) (p : α → Bool) : Bool :=
-  foldr (fun a r => p a || r) false l
+def any : List α -> (α → Bool) -> Bool
+  | [], _ => false
+  | h :: t, p => p h || any t p
 
 /--
 `O(|l|)`. Returns true if `p` is true for every element of `l`.
 * `all p [a, b, c] = p a && p b && p c`
+
+Short-circuits upon encountering the first `false`.
 -/
-@[inline] def all (l : List α) (p : α → Bool) : Bool :=
-  foldr (fun a r => p a && r) true l
+def all : List α -> (α → Bool) -> Bool
+  | [], _ => true
+  | h :: t, p => p h && all t p
 
 /--
 `O(|l|)`. Returns true if `true` is an element of the list of booleans `l`.

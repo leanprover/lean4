@@ -18,7 +18,7 @@ syntax (name := testExternCmd) "test_extern " term : command
         if ! (← evalExpr Bool (.const ``Bool []) r) then
           throwError
             ("native implementation did not agree with reference implementation!\n" ++
-            m!"Compare the outputs of:\n#eval {t}\n and\n#eval {t'}`")
+            m!"Compare the outputs of:\n#eval {t}\n and\n#eval {t'}")
       else
         throwError "test_extern: {f} does not have an @[extern] attribute"
     | _ => throwError "test_extern: expects a function application"

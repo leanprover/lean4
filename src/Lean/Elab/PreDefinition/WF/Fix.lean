@@ -35,12 +35,16 @@ private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Synt
     Term.runTactic mvarId decrTactic
   instantiateMVars mvar
 
+/-- Internal monad used by `replaceRecApps` -/
+abbrev M (recFnName : Name) : Type → Type :=
+  MonadCacheT ExprStructEq Expr (StateRefT (HasConstCache recFnName) TermElabM)
+
 private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "{F} : {← inferType F}"
-  loop F e |>.run' {}
+  loop F e |>.run |>.run' {}
 where
-  processRec (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processRec (F : Expr) (e : Expr) : M recFnName Expr := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
       loop F (← etaExpand e)
     else
@@ -50,72 +54,73 @@ where
       let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
-  processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
+  processApp (F : Expr) (e : Expr) : M recFnName Expr := do
     if e.isAppOf recFnName then
       processRec F e
     else
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
-  containsRecFn (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Bool := do
+  containsRecFn (e : Expr) : M recFnName Bool := do
     modifyGet (·.contains e)
 
-  loop (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
-    if !(← containsRecFn e) then
-      return e
-    match e with
-    | Expr.lam n d b c =>
-      withLocalDecl n c (← loop F d) fun x => do
-        mkLambdaFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.forallE n d b c =>
-      withLocalDecl n c (← loop F d) fun x => do
-        mkForallFVars #[x] (← loop F (b.instantiate1 x))
-    | Expr.letE n type val body _ =>
-      withLetDecl n (← loop F type) (← loop F val) fun x => do
-        mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b =>
-      if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop F b
-      else
-        return mkMData d (← loop F b)
-    | Expr.proj n i e => return mkProj n i (← loop F e)
-    | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
-    | Expr.app .. =>
-      match (← matchMatcherApp? e) with
-      | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp F e
-        else if let some matcherApp ← matcherApp.addArg? F then
-          if !(← Structural.refinedArgType matcherApp F) then
+  loop (F : Expr) (e : Expr) : M recFnName Expr :=
+    checkCache { val := e : ExprStructEq } fun _ => do
+      if !(← containsRecFn e) then
+        return e
+      match e with
+      | Expr.lam n d b c =>
+        withLocalDecl n c (← loop F d) fun x => do
+          mkLambdaFVars #[x] (← loop F (b.instantiate1 x))
+      | Expr.forallE n d b c =>
+        withLocalDecl n c (← loop F d) fun x => do
+          mkForallFVars #[x] (← loop F (b.instantiate1 x))
+      | Expr.letE n type val body _ =>
+        withLetDecl n (← loop F type) (← loop F val) fun x => do
+          mkLetFVars #[x] (← loop F (body.instantiate1 x)) (usedLetOnly := false)
+      | Expr.mdata d b =>
+        if let some stx := getRecAppSyntax? e then
+          withRef stx <| loop F b
+        else
+          return mkMData d (← loop F b)
+      | Expr.proj n i e => return mkProj n i (← loop F e)
+      | Expr.const .. => if e.isConstOf recFnName then processRec F e else return e
+      | Expr.app .. =>
+        match (← matchMatcherApp? e) with
+        | some matcherApp =>
+          if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
             processApp F e
+          else if let some matcherApp ← matcherApp.addArg? F then
+            if !(← Structural.refinedArgType matcherApp F) then
+              processApp F e
+            else
+              let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+                lambdaTelescope alt fun xs altBody => do
+                  unless xs.size >= numParams do
+                    throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                  let FAlt := xs[numParams - 1]!
+                  mkLambdaFVars xs (← loop FAlt altBody)
+              return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
           else
-            let altsNew ← (Array.zip matcherApp.alts matcherApp.altNumParams).mapM fun (alt, numParams) =>
+            processApp F e
+        | none =>
+        match (← toCasesOnApp? e) with
+        | some casesOnApp =>
+          if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
+            processApp F e
+          else if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
+            let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
               lambdaTelescope alt fun xs altBody => do
                 unless xs.size >= numParams do
-                  throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let FAlt := xs[numParams - 1]!
+                  throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let FAlt := xs[numParams]!
                 mkLambdaFVars xs (← loop FAlt altBody)
-            return { matcherApp with alts := altsNew, discrs := (← matcherApp.discrs.mapM (loop F)) }.toExpr
-        else
-          processApp F e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp F e
-        else if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
-          let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
-            lambdaTelescope alt fun xs altBody => do
-              unless xs.size >= numParams do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let FAlt := xs[numParams]!
-              mkLambdaFVars xs (← loop FAlt altBody)
-          return { casesOnApp with
-                   alts      := altsNew
-                   remaining := (← casesOnApp.remaining.mapM (loop F)) }.toExpr
-        else
-          processApp F e
-      | none => processApp F e
-    | e => ensureNoRecFn recFnName e
+            return { casesOnApp with
+                    alts      := altsNew
+                    remaining := (← casesOnApp.remaining.mapM (loop F)) }.toExpr
+          else
+            processApp F e
+        | none => processApp F e
+      | e => ensureNoRecFn recFnName e
 
 /-- Refine `F` over `PSum.casesOn` -/
 private partial def processSumCasesOn (x F val : Expr) (k : (x : Expr) → (F : Expr) → (val : Expr) → TermElabM Expr) : TermElabM Expr := do

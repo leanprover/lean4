@@ -85,8 +85,8 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
     return ns
 
 /-- Internal monad used by `withRecApps` -/
-abbrev M (recFnName : Name) (α β : Type) : Type :=
-  StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM) β
+abbrev M (recFnName : Name) (α : Type) : Type → Type :=
+  MonadCacheT ExprStructEq Unit (StateRefT (Array α) (StateRefT (HasConstCache recFnName) MetaM))
 
 /--
 Traverses the given expression `e`, and invokes the continuation `k`
@@ -98,7 +98,7 @@ or `casesOn` application.
 partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (scrut : Expr) (e : Expr)
     (k : Expr → Array Expr → MetaM α) : MetaM (Array α) := do
   trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
-  let (_, as) ← loop scrut e |>.run #[] |>.run' {}
+  let (_, as) ← loop scrut e |>.run |>.run #[] |>.run' {}
   return as
 where
   processRec (scrut : Expr) (e : Expr) : M recFnName α Unit := do
@@ -120,64 +120,65 @@ where
     modifyGetThe (HasConstCache recFnName) (·.contains e)
 
   loop (scrut : Expr) (e : Expr) : M recFnName α Unit := do
-    if !(← containsRecFn e) then
-      return
-    match e with
-    | Expr.lam n d b c =>
-      loop scrut d
-      withLocalDecl n c d fun x => do
-        loop scrut (b.instantiate1 x)
-    | Expr.forallE n d b c =>
-      loop scrut d
-      withLocalDecl n c d fun x => do
-        loop scrut (b.instantiate1 x)
-    | Expr.letE n type val body _ =>
-      loop scrut type
-      loop scrut val
-      withLetDecl n type val fun x => do
-        loop scrut (body.instantiate1 x)
-    | Expr.mdata _d b =>
-      if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop scrut b
-      else
-        loop scrut b
-    | Expr.proj _n _i e => loop scrut e
-    | Expr.const .. => if e.isConstOf recFnName then processRec scrut e
-    | Expr.app .. =>
-      match (← matchMatcherApp? e) with
-      | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp scrut e
+    checkCache { val := e : ExprStructEq } fun _ => do
+      if !(← containsRecFn e) then
+        return
+      match e with
+      | Expr.lam n d b c =>
+        loop scrut d
+        withLocalDecl n c d fun x => do
+          loop scrut (b.instantiate1 x)
+      | Expr.forallE n d b c =>
+        loop scrut d
+        withLocalDecl n c d fun x => do
+          loop scrut (b.instantiate1 x)
+      | Expr.letE n type val body _ =>
+        loop scrut type
+        loop scrut val
+        withLetDecl n type val fun x => do
+          loop scrut (body.instantiate1 x)
+      | Expr.mdata _d b =>
+        if let some stx := getRecAppSyntax? e then
+          withRef stx <| loop scrut b
         else
-          if let some altScruts ← matcherApp.refineThrough? scrut then
-            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altScruts)).forM
+          loop scrut b
+      | Expr.proj _n _i e => loop scrut e
+      | Expr.const .. => if e.isConstOf recFnName then processRec scrut e
+      | Expr.app .. =>
+        match (← matchMatcherApp? e) with
+        | some matcherApp =>
+          if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
+            processApp scrut e
+          else
+            if let some altScruts ← matcherApp.refineThrough? scrut then
+              (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altScruts)).forM
+                fun (alt, altNumParam, altScrut) =>
+                  lambdaTelescope alt fun xs altBody => do
+                    unless altNumParam ≤ xs.size do
+                      throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                    let altScrut := altScrut.instantiateRev xs[:altNumParam]
+                    loop altScrut altBody
+            else
+              processApp scrut e
+        | none =>
+        match (← toCasesOnApp? e) with
+        | some casesOnApp =>
+          if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
+            processApp scrut e
+          else
+            if let some altScruts ← casesOnApp.refineThrough? scrut then
+            (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altScruts)).forM
               fun (alt, altNumParam, altScrut) =>
                 lambdaTelescope alt fun xs altBody => do
                   unless altNumParam ≤ xs.size do
-                    throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
+                    throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                   let altScrut := altScrut.instantiateRev xs[:altNumParam]
                   loop altScrut altBody
-          else
-            processApp scrut e
-      | none =>
-      match (← toCasesOnApp? e) with
-      | some casesOnApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp scrut e
-        else
-          if let some altScruts ← casesOnApp.refineThrough? scrut then
-          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altScruts)).forM
-            fun (alt, altNumParam, altScrut) =>
-              lambdaTelescope alt fun xs altBody => do
-                unless altNumParam ≤ xs.size do
-                  throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let altScrut := altScrut.instantiateRev xs[:altNumParam]
-                loop altScrut altBody
-          else
-            processApp scrut e
-      | none => processApp scrut e
-    | e => do
-      let _ ← ensureNoRecFn recFnName e
+            else
+              processApp scrut e
+        | none => processApp scrut e
+      | e => do
+        let _ ← ensureNoRecFn recFnName e
 
 /--
 A `SavedLocalContext` captures the state and local context of a `MetaM`, to be continued later.

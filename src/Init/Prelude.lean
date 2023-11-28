@@ -66,6 +66,10 @@ example (b : Bool) : Function.const Bool 10 b = 10 :=
 @[inline] def Function.const {α : Sort u} (β : Sort v) (a : α) : β → α :=
   fun _ => a
 
+/-- The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
+This is an abbreviation for `(fun x => b) v`, so unlike with `let x := v; b`, the value of `x` is not accessible to `b`. -/
+def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+
 set_option checkBinderAnnotations false in
 /--
 `inferInstance` synthesizes a value of any target type by typeclass

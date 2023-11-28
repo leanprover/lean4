@@ -668,12 +668,11 @@ def elabLetDeclAux (id : Syntax) (binders : Array Syntax) (typeStx : Syntax) (va
       let body ← instantiateMVars body
       mkLetFVars #[x] body (usedLetOnly := usedLetOnly)
   else
-    let f ← withLocalDecl id.getId (kind := kind) .default type fun x => do
+    withLocalDecl id.getId (kind := kind) .default type fun x => do
       addLocalVarInfo id x
       let body ← elabTermEnsuringType body expectedType?
       let body ← instantiateMVars body
-      mkLambdaFVars #[x] body (usedLetOnly := false)
-    pure <| mkLetFunAnnotation (mkApp f val)
+      mkLetFun x val body
   if elabBodyFirst then
     forallBoundedTelescope type binders.size fun xs type => do
       -- the original `fvars` from above are gone, so add back info manually

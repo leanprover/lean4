@@ -6,7 +6,7 @@ on:
     types: [opened]
 
 jobs:
-  check-pr:
+  check-pr-title:
     runs-on: ubuntu-latest
     steps:
       - name: Check Commit Message

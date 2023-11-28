@@ -1,0 +1,17 @@
+name: Check PR title for commit convention
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title
+        uses: actions/github-script@v6
+        with:
+          script: |
+            if (!/^(feat|fix|doc|style|refactor|test|chore|perf): .*[^.]($|\n\n)/.test(context.payload.pull_request.title)) {
+              core.setFailed('PR title does not follow the Commit Convention (https://leanprover.github.io/lean4/doc/dev/commit_convention.html).');
+            }

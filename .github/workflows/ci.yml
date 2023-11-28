@@ -371,8 +371,13 @@ jobs:
     name: Build matrix complete
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ always() }}
     steps:
-    - run: echo "Nothing to see here"
+    - if: contains(needs.*.result, "failure") ||  contains(needs.*.result, "cancelled")
+      uses: actions/github-script@v3
+      with:
+        script: |
+            core.setFailed('Some jobs failed')
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

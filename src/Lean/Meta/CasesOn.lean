@@ -124,8 +124,7 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
   casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
   ```
   and an expression `B[is, major]` (which may not be a type, e.g. `n : Nat`)
-  for every alternative `i`, construct the type `B[_, C_i[ys_i]]`
-  with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `CasesOnApp.altNumParams`.
+  for every alternative `i`, construct the expression `fun ys_i => B[_, C_i[ys_i]]`
 
   This is similar to `CasesOnApp.addArg` when you only have an expression to
   refined, and not a type with a value.
@@ -133,9 +132,6 @@ def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := f
   This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
   calls to refine the functions' paramter, which may mention `major`.
   See there for how to use this function.
-
-  It returns an open term, rather than following the idiom of applying a continuation,
-  so that `CasesOn.refineThrough?` can reliably recognize failure from within this function.
 -/
 def CasesOnApp.refineThrough (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope c.motive fun motiveArgs _motiveBody => do
@@ -163,13 +159,13 @@ def CasesOnApp.refineThrough (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
       (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallTelescope altAuxTy fun fvs body => do
+        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
           unless fvs.size = altNumParams do
-            throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+            throwError "failed to transfer argument through `casesOn` application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality
           let body := body.getArg! 2
           -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-          Expr.abstractM body fvs
+          mkLambdaFVars fvs body
 
 /-- A non-failing version of `CasesOnApp.refineThrough` -/
 def CasesOnApp.refineThrough? (c : CasesOnApp) (e : Expr) :

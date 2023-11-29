@@ -21,8 +21,8 @@ jobs:
   configure:
     runs-on: ubuntu-latest
     outputs:
-      # Should we run a full CI? Yes unless we are on a pull request without the full-ci label
-      full: ${{ steps.set-full.outputs.full }}
+      # Should we run only a quick CI? Yes on a pull request without the full-ci label
+      quick: ${{ steps.set-quick.outputs.quick }}
       # Should we make a nightly release? If so, this output contains the lean version string, else it is empty
       nightly: ${{ steps.set-nightly.outputs.nightly }}
       # Should this be the CI for a tagged release?
@@ -43,15 +43,14 @@ jobs:
     if: github.event_name != 'label' || github.event.label.name == 'full-ci'
 
     steps:
-      - name: Run full CI?
-        id: set-full
+      - name: Run quick CI?
+        id: set_quick
         env:
-          full: ${{
-            github.event_name == 'pull_request' && ! contains( github.event.pull_request.labels.*.name, 'full-ci') ||
-            github.event_name == 'label' && github.event.label.name == 'full-ci'
+          quick: ${{
+            github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
            }}
         run: |
-          echo "full=${{env.full}}" >> $GITHUB_OUTPUT
+          echo "quick=${{env.quick}}" >> $GITHUB_OUTPUT
 
       - name: Checkout
         uses: actions/checkout@v3
@@ -216,7 +215,7 @@ jobs:
         # This now removes all entries from the matrix with quick: false if are
         # not running a full build
         exclude:
-          - quick: ${{ needs.configure.outputs.full && 'exclude-nothing' || 'true' }}
+          - quick: ${{ needs.configure.outputs.quick && 'true' || 'exclude-nothing' }}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -352,13 +351,13 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make -j4 stage2
-        if: needs.configure.outputs.full
+        if: !needs.configure.outputs.quick
       - name: Check Stage 3
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make -j4 check-stage3
-        if: needs.configure.outputs.full
+        if: !needs.configure.outputs.quick
       - name: Test Speedcenter Benchmarks
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid

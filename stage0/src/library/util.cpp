@@ -873,11 +873,7 @@ void initialize_library_util() {
     if (std::strlen(LEAN_SPECIAL_VERSION_DESC) > 0) {
         out << "-" << LEAN_SPECIAL_VERSION_DESC;
     }
-    if (std::strlen(LEAN_GITHASH) == 0) {
-        if (std::strcmp(LEAN_PACKAGE_VERSION, "NOT-FOUND") != 0) {
-            out << ", package " << LEAN_PACKAGE_VERSION;
-        }
-    } else {
+    if (std::strlen(LEAN_GITHASH) > 0) {
         out << ", commit " << std::string(LEAN_GITHASH).substr(0, 12);
     }
     g_version_string = new std::string(out.str());

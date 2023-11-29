@@ -24,7 +24,7 @@ jobs:
       # Should we run only a quick CI? Yes on a pull request without the full-ci label
       quick: ${{ steps.set-quick.outputs.quick }}
       # The build matrix, dynamically generated here
-      matrix: ${{ steps.set-matrix.output.result }}
+      matrix: ${{ steps.set-matrix.outputs.result }}
       # Should we make a nightly release? If so, this output contains the lean version string, else it is empty
       nightly: ${{ steps.set-nightly.outputs.nightly }}
       # Should this be the CI for a tagged release?

@@ -46,9 +46,10 @@ jobs:
       - name: Run full CI?
         id: set-full
         env:
-          full:
+          full: ${{
             github.event_name == 'pull_request' && ! contains( github.event.pull_request.labels.*.name, 'full-ci') ||
             github.event_name == 'label' && github.event.label.name == 'full-ci'
+           }}
         run: |
           echo "full=${{env.full}}" >> $GITHUB_OUTPUT
 

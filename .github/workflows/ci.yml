@@ -214,8 +214,8 @@ jobs:
             CTEST_OPTIONS: -R "leantest_1007\.lean|leantest_Format\.lean|leanruntest\_1037.lean|leanruntest_ac_rfl\.lean"
         # This now removes all entries from the matrix with quick: false if are
         # not running a full build
-        #exclude:
-        #  - quick: ${{ needs.configure.outputs.quick && 'true' || 'exclude-nothing' }}
+        exclude:
+          - quick: ${{ needs.configure.outputs.quick && true || false }}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

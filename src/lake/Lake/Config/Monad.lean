@@ -19,16 +19,22 @@ namespace Lake
 abbrev MonadLakeEnv (m : Type → Type u) :=
   MonadReaderOf Lake.Env m
 
+/-- A transformer to equip a monad with a `Lake.Env`. -/
+abbrev LakeEnvT := ReaderT Lake.Env
+
+@[inline] def LakeEnvT.run (env : Lake.Env) (self : LakeEnvT m α) : m α :=
+  ReaderT.run self env
+
 /-- A monad equipped with a (read-only) Lake `Workspace`. -/
 abbrev MonadWorkspace (m : Type → Type u) :=
   MonadReaderOf Workspace m
 
 /-- A monad equipped with a (read-only) Lake context. -/
 abbrev MonadLake (m : Type → Type u) :=
-  MonadReaderOf Context m
+  MonadReaderOf Lake.Context m
 
 /-- Make a `Lake.Context` from a `Workspace`. -/
-@[inline] def mkLakeContext (ws : Workspace) : Context where
+@[inline] def mkLakeContext (ws : Workspace) : Lake.Context where
   opaqueWs := ws
 
 instance [MonadWorkspace m] [Functor m] : MonadLake m where
@@ -109,12 +115,18 @@ def findExternLib? (name : Name) : m (Option ExternLib) :=
 end
 
 section
-variable [MonadLakeEnv m] [Functor m]
+variable [MonadLakeEnv m]
 
 /-! ## Environment Helpers -/
 
 @[inline] def getLakeEnv : m Lake.Env :=
   read
+
+variable [Functor m]
+
+/-- Get the `LAKE_PACKAGE_URL_MAP` for the Lake environment. Empty if none. -/
+@[inline] def getPkgUrlMap : m (NameMap String) :=
+  (·.pkgUrlMap) <$> getLakeEnv
 
 /-- Get the name of Elan toolchain for the Lake environment. Empty if none. -/
 @[inline] def getElanToolchain : m String :=

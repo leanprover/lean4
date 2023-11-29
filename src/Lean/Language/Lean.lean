@@ -86,6 +86,7 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
 
 structure HeaderProcessedSucessfully where
   cmdState : Command.State
+  srcSearchPath : SearchPath
   next : SnapshotTask CommandParsedSnapshot
 
 /-- State after the module header has been processed including imports. -/
@@ -109,13 +110,15 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
 
 abbrev InitialSnapshot := HeaderParsedSnapshot
 
+private def msglogOfHeaderError (data : MessageData) : MessageLog :=
+  MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data }
+
 /--
   Adds unexpected exceptions from header processing to the message log as a last resort; standard
   errors should already have been caught earlier. -/
 private def withHeaderExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
   match (← act.toBaseIO) with
-  | .error e => return ex {
-    msgLog := MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data := e.toString } }
+  | .error e => return ex { msgLog := msglogOfHeaderError e.toString }
   | .ok a => return a
 
 /-- Entry point of the Lean language processor. -/
@@ -176,13 +179,54 @@ where
     withHeaderExceptions ({ · with success? := none }) do
     -- discard existing continuation if any, there is nothing to reuse
     let _ ← old?.bind (·.success?) |>.map (·.next) |> getOrCancel?
-    -- function copied from current implementation, see below
     -- TODO: we should do this at most once per process
-    let cmdState ← doImport stx
+    let fileSetupResult ← if let some handler := ctx.fileSetupHandler? then
+      handler (Elab.headerToImports stx)
+    else
+      pure { kind := .success, srcSearchPath := ∅, fileOptions := .empty }
+    match fileSetupResult.kind with
+    | .importsOutOfDate =>
+      return {
+        msgLog := msglogOfHeaderError
+          "Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor."
+        success? := none
+      }
+    | .error msg =>
+      return {
+        msgLog := msglogOfHeaderError msg
+        success? := none
+      }
+    | _ => pure ()
+
+    let opts := ctx.opts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
+    let mut (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty ictx
+    headerEnv := headerEnv.setMainModule ctx.mainModuleName
+    let cmdState := Elab.Command.mkState headerEnv msgLog opts
+    let cmdState := { cmdState with infoState := {
+      enabled := true
+      trees := #[Elab.InfoTree.context ({
+        env     := headerEnv
+        fileMap := ictx.fileMap
+        ngen    := { namePrefix := `_import }
+      }) (Elab.InfoTree.node
+          (Elab.Info.ofCommandInfo { elaborator := `header, stx })
+          (stx[1].getArgs.toList.map (fun importStx =>
+            Elab.InfoTree.node (Elab.Info.ofCommandInfo {
+              elaborator := `import
+              stx := importStx
+            }) #[].toPArray'
+          )).toPArray'
+      )].toPArray'
+    }}
     return {
       msgLog := cmdState.messages
       infoTree? := cmdState.infoState.trees[0]!
-      success? := some { cmdState, next := (← parseCmd none parserState cmdState) } }
+      success? := some {
+        cmdState
+        srcSearchPath := fileSetupResult.srcSearchPath
+        next := (← parseCmd none parserState cmdState)
+      }
+    }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState) (cmdState : Command.State) :
       BaseIO (SnapshotTask CommandParsedSnapshot) := do
@@ -241,28 +285,6 @@ where
         stopPos
         sig
       }
-
-  doImport stx := do
-    let (headerEnv, msgLog) ← Elab.processHeader stx ctx.opts .empty ictx
-    let mut headerEnv := headerEnv
-    headerEnv := headerEnv.setMainModule ctx.mainModuleName
-    let cmdState := Elab.Command.mkState headerEnv msgLog ctx.opts
-    return { cmdState with infoState := {
-      enabled := true
-      trees := #[Elab.InfoTree.context ({
-        env     := headerEnv
-        fileMap := ictx.fileMap
-        ngen    := { namePrefix := `_import }
-      }) (Elab.InfoTree.node
-          (Elab.Info.ofCommandInfo { elaborator := `header, stx })
-          (stx[1].getArgs.toList.map (fun importStx =>
-            Elab.InfoTree.node (Elab.Info.ofCommandInfo {
-              elaborator := `import
-              stx := importStx
-            }) #[].toPArray'
-          )).toPArray'
-      )].toPArray'
-    }}
 
   doElab stx cmdState hasParseError beginPos scope := do
     let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }

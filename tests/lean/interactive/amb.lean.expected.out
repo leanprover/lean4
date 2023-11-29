@@ -1,10 +1,10 @@
-{"textDocument": {"uri": "file://amb.lean"},
+{"textDocument": {"uri": "file:///amb.lean"},
  "position": {"line": 17, "character": 19}}
 {"range":
  {"start": {"line": 17, "character": 19}, "end": {"line": 17, "character": 20}},
  "contents":
  {"value": "```lean\nFoo.f (n : Nat) : Bool\n```", "kind": "markdown"}}
-{"textDocument": {"uri": "file://amb.lean"},
+{"textDocument": {"uri": "file:///amb.lean"},
  "position": {"line": 19, "character": 19}}
 {"range":
  {"start": {"line": 19, "character": 19}, "end": {"line": 19, "character": 20}},

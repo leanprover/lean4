@@ -6,5 +6,5 @@ foo._unfold (n : Nat) :
     if n = 0 then 0
     else
       let x := n - 1;
-      let_fun this := (_ : True);
+      let_fun this := foo.proof_3;
       foo x

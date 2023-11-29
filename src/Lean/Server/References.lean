@@ -72,29 +72,41 @@ def merge (a : RefInfo) (b : RefInfo) : RefInfo :=
     usages := a.usages.append b.usages
   }
 
-def contains (self : RefInfo) (pos : Lsp.Position) : Bool := Id.run do
+def findRange? (self : RefInfo) (pos : Lsp.Position) (includeStop := false) : Option Range := do
   if let some range := self.definition then
     if contains range pos then
-      return true
+      return range
   for range in self.usages do
     if contains range pos then
-      return true
-  false
+      return range
+  none
 where
   contains (range : Lsp.Range) (pos : Lsp.Position) : Bool :=
-    range.start <= pos && pos < range.end
+    -- Note: includeStop is used here to toggle between closed-interval and half-open-interval
+    -- behavior for the range. Closed-interval behavior matches the expectation of VSCode
+    -- when selecting an identifier at a cursor position, see #767.
+    range.start <= pos && (if includeStop then pos <= range.end else pos < range.end)
+
+def contains (self : RefInfo) (pos : Lsp.Position) (includeStop := false) : Bool := Id.run do
+  (self.findRange? pos includeStop).isSome
 
 end Lean.Lsp.RefInfo
 
 namespace Lean.Lsp.ModuleRefs
 open Server
 
-def findAt (self : ModuleRefs) (pos : Lsp.Position) : Array RefIdent := Id.run do
+def findAt (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
   let mut result := #[]
   for (ident, info) in self.toList do
-    if info.contains pos then
+    if info.contains pos includeStop then
       result := result.push ident
   result
+
+def findRange? (self : ModuleRefs) (pos : Lsp.Position) (includeStop := false) : Option Range := do
+  for (_, info) in self.toList do
+    if let some range := info.findRange? pos includeStop then
+      return range
+  none
 
 end Lean.Lsp.ModuleRefs
 
@@ -270,10 +282,14 @@ def allRefs (self : References) : HashMap Name Lsp.ModuleRefs :=
   let ileanRefs := self.ileans.toList.foldl (init := HashMap.empty) fun m (name, _, refs) => m.insert name refs
   self.workers.toList.foldl (init := ileanRefs) fun m (name, _, refs) => m.insert name refs
 
-def findAt (self : References) (module : Name) (pos : Lsp.Position) : Array RefIdent := Id.run do
+def findAt (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Array RefIdent := Id.run do
   if let some refs := self.allRefs.find? module then
-    return refs.findAt pos
+    return refs.findAt pos includeStop
   #[]
+
+def findRange? (self : References) (module : Name) (pos : Lsp.Position) (includeStop := false) : Option Range := do
+  let refs ← self.allRefs.find? module
+  refs.findRange? pos includeStop
 
 def referringTo (self : References) (identModule : Name) (ident : RefIdent) (srcSearchPath : SearchPath)
     (includeDefinition : Bool := true) : IO (Array Location) := do

@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completion2.lean"},
+{"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 19, "character": 10}}
 {"items":
  [{"label": "ex2", "kind": 3, "detail": "a ≤ b → a + 2 ≤ b + 2"},
@@ -6,7 +6,7 @@
   {"label": "ax1", "kind": 3, "detail": "a ≤ b → a - a ≤ b - b"},
   {"label": "ex1", "kind": 3, "detail": "a ≤ b → a + a ≤ b + b"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion2.lean"},
+{"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 25, "character": 6}}
 {"items":
  [{"label": "ex2", "kind": 3, "detail": "a ≤ b → a + 2 ≤ b + 2"},
@@ -14,7 +14,7 @@
   {"label": "ax1", "kind": 3, "detail": "a ≤ b → a - a ≤ b - b"},
   {"label": "ex1", "kind": 3, "detail": "a ≤ b → a + a ≤ b + b"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion2.lean"},
+{"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 30, "character": 21}}
 {"items":
  [{"label": "ex2", "kind": 3, "detail": "a ≤ b → a + 2 ≤ b + 2"},
@@ -22,7 +22,7 @@
   {"label": "ax1", "kind": 3, "detail": "a ≤ b → a - a ≤ b - b"},
   {"label": "ex1", "kind": 3, "detail": "a ≤ b → a + a ≤ b + b"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion2.lean"},
+{"textDocument": {"uri": "file:///completion2.lean"},
  "position": {"line": 37, "character": 22}}
 {"items":
  [{"label": "ex2", "kind": 3, "detail": "a ≤ b → a + 2 ≤ b + 2"},

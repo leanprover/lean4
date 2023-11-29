@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://keywordCompletion.lean"},
+{"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 10}}
 {"items":
  [{"label": "bin", "kind": 21, "detail": "Type 1"},
@@ -7,7 +7,7 @@
   {"label": "binrel%", "kind": 14, "detail": "keyword"},
   {"label": "binrel_no_prop%", "kind": 14, "detail": "keyword"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://keywordCompletion.lean"},
+{"textDocument": {"uri": "file:///keywordCompletion.lean"},
  "position": {"line": 4, "character": 13}}
 {"items": [{"label": "binop_lazy%", "kind": 14, "detail": "keyword"}],
  "isIncomplete": true}

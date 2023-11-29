@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://fieldCompletion.lean"},
+{"textDocument": {"uri": "file:///fieldCompletion.lean"},
  "position": {"line": 5, "character": 3}}
 {"items": [{"label": "modifiers", "kind": 5, "detail": "field"}],
  "isIncomplete": true}

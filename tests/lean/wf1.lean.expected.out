@@ -1,4 +1,4 @@
-wf1.lean:1:4-1:5: error: fail to show termination for
+wf1.lean:3:12-3:19: error: fail to show termination for
   g
 with errors
 argument #1 was not used for structural recursion

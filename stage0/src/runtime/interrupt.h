@@ -24,7 +24,7 @@ public:
     scope_heartbeat(size_t curr);
 };
 
-/** \brief Threshold on the number of hearbeats. check_system will throw
+/** \brief Threshold on the number of heartbeats. check_system will throw
     an exception if a thread exceeds the limit. The default is unlimited.
     The limit is checked in the check_system API.
 
@@ -42,19 +42,19 @@ public:
 
 void check_heartbeat();
 
-struct scoped_interrupt_flag : flet<atomic_bool *> {
-    scoped_interrupt_flag(atomic_bool *); // NOLINT
-};
-
 /**
-   \brief Throw an interrupted exception if the (interrupt) flag is set.
+   \brief Throw an interrupted exception if the current task is marked cancelled.
 */
 void check_interrupted();
 
 /**
-   \brief Check system resources: stack, memory, hearbeat, interrupt flag.
+   \brief Check system resources: stack, memory, heartbeat, interrupt flag.
+
+   `do_check_interrupted` should only be set to `true` in places where a C++ exception
+   is caught and would not bring down the entire process as interruption
+   should not be a fatal error.
 */
-void check_system(char const * component_name);
+void check_system(char const * component_name, bool do_check_interrupted = false);
 
 constexpr unsigned g_small_sleep = 10;
 
@@ -65,42 +65,4 @@ constexpr unsigned g_small_sleep = 10;
 */
 void sleep_for(unsigned ms, unsigned step_ms = g_small_sleep);
 inline void sleep_for(chrono::milliseconds const & ms) { sleep_for(ms.count(), 10); }
-
-/**
-   \brief Thread that provides a method for setting its interrupt flag.
-*/
-class interruptible_thread {
-public:
-    template<typename Function>
-    interruptible_thread(Function && fun):
-        m_thread([&, fun]() {
-                save_stack_info(false);
-                scoped_interrupt_flag scope_int_flag(&m_flag);
-                fun();
-            })
-        {}
-
-    /**
-       \brief Return true iff an interrupt request has been made to the current thread.
-    */
-    bool interrupted() const;
-    /**
-       \brief Send a interrupt request to the current thread. Return
-       true iff the request has been successfully performed.
-    */
-    void request_interrupt();
-
-    void join();
-private:
-    atomic_bool m_flag;
-    lthread m_thread;
-};
-
-#if !defined(LEAN_MULTI_THREAD)
-inline void check_threadsafe() {
-    throw exception("Lean was compiled without support for multi-threading");
-}
-#else
-inline void check_threadsafe() {}
-#endif
 }

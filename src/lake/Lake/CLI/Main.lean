@@ -59,6 +59,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
+    |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -267,14 +268,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv)) opts.verbosity
+  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let name ← takeArg "package name"
+  let name := (← takeArg?).getD "."
   let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv)) opts.verbosity
+  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -309,12 +310,14 @@ protected def upload : CliM PUnit := do
   noArgsRem do
     liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
-protected def printPaths : CliM PUnit := do
+protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
-  printPaths loadConfig (← takeArgs) buildConfig opts.verbosity
+  let filePath ← takeArg "file path"
+  let imports ← takeArgs
+  setupFile loadConfig filePath imports buildConfig opts.verbosity
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -388,7 +391,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
-| "print-paths"         => lake.printPaths
+| "setup-file"          => lake.setupFile
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list

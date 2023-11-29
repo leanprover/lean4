@@ -46,7 +46,7 @@ structure Pass where
   Resulting phase.
   -/
   phaseOut : Phase := phase
-  phaseInv : phaseOut ≥ phase := by simp
+  phaseInv : phaseOut ≥ phase := by simp_arith
   /--
   The name of the `Pass`
   -/

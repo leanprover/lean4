@@ -37,6 +37,7 @@ inductive CliError
 | unknownLeanInstall
 | unknownLakeInstall
 | leanRevMismatch (expected actual : String)
+| invalidEnv (msg : String)
 deriving Inhabited, Repr
 
 namespace CliError
@@ -66,5 +67,6 @@ def toString : CliError → String
 | unknownLeanInstall      => "could not detect a Lean installation"
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"
+| invalidEnv msg          => msg
 
 instance : ToString CliError := ⟨toString⟩

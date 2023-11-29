@@ -26,8 +26,8 @@ theorem List.length_split_of_atLeast2 {as : List α} (h : as.atLeast2) : as.spli
   match as with
   | []  => simp at h
   | [_] => simp at h
-  | [_, _] => simp [split]
-  | [_, _, _] => simp [split]
+  | [_, _] => simp (config := { decide := true }) [split]
+  | [_, _, _] => simp (config := { decide := true }) [split]
   | a::b::c::d::as =>
     -- TODO: simplify using linear arith and more automation
     have : (c::d::as).atLeast2 := by simp_arith

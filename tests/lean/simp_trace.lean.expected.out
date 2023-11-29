@@ -19,8 +19,8 @@ Try this: simp only [g, Id.pure_eq]
       (let x := x;
       pure x)
 [Meta.Tactic.simp.rewrite] @Id.pure_eq:1000, pure x ==> x
-Try this: simp only [f1, modify, modifyGet, MonadStateOf.modifyGet, StateT.modifyGet, pure, f2, bind, StateT.bind, get,
-  getThe, MonadStateOf.get, StateT.get, set, StateT.set]
+Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modifyGet, MonadStateOf.modifyGet,
+  StateT.modifyGet, pure, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, set, StateT.set]
 [Meta.Tactic.simp.rewrite] unfold f1, f1 ==> modify fun x => g x
 [Meta.Tactic.simp.rewrite] unfold modify, modify fun x => g x ==> modifyGet fun s => (PUnit.unit, (fun x => g x) s)
 [Meta.Tactic.simp.rewrite] unfold StateT.modifyGet, StateT.modifyGet fun s =>

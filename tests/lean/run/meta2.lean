@@ -233,7 +233,7 @@ do print "----- tst14 -----";
    print stateM;
    let monad ← mkMonad stateM;
    let globalInsts ← getGlobalInstancesIndex;
-   let insts ← globalInsts.getUnify monad;
+   let insts ← globalInsts.getUnify monad {};
    print (insts.map (·.val));
    pure ()
 

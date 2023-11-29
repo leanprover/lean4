@@ -28,4 +28,4 @@ example (x y : Nat) : f x y > 0 := by
   | succ_succ x y ih => simp [f, ih]
 
 example (x y : Nat) : f x y > 0 := by
-  induction x, y <;> simp [f, *]
+  induction x, y <;> simp (config := { decide := true }) [f, *]

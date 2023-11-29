@@ -61,7 +61,7 @@ If we use `iota`, then the lhs is reduced to `f a`.
 See comment at `DiscrTree`.
 -/
 
-abbrev SimpTheoremKey := DiscrTree.Key (simpleReduce := true)
+abbrev SimpTheoremKey := DiscrTree.Key
 
 /--
   The fields `levelParams` and `proof` are used to encode the proof of the simp theorem.
@@ -151,22 +151,29 @@ def ppSimpTheorem [Monad m] [MonadLiftT IO m] [MonadEnv m] [MonadError m] (s : S
 instance : BEq SimpTheorem where
   beq e₁ e₂ := e₁.proof == e₂.proof
 
-abbrev SimpTheoremTree := DiscrTree SimpTheorem (simpleReduce := true)
+abbrev SimpTheoremTree := DiscrTree SimpTheorem
 
 structure SimpTheorems where
   pre          : SimpTheoremTree := DiscrTree.empty
   post         : SimpTheoremTree := DiscrTree.empty
   lemmaNames   : PHashSet Origin := {}
+  /--
+  Constants (and let-declaration `FVarId`) to unfold.
+  When `zeta := false`, the simplifier will expand a let-declaration if it is in this set.
+  -/
   toUnfold     : PHashSet Name := {}
   erased       : PHashSet Origin := {}
   toUnfoldThms : PHashMap Name (Array Name) := {}
   deriving Inhabited
 
+/-- Configuration for the discrimination tree. -/
+def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
+
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then
-    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := d.post.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := d.pre.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
@@ -174,9 +181,16 @@ where
 def SimpTheorems.addDeclToUnfoldCore (d : SimpTheorems) (declName : Name) : SimpTheorems :=
   { d with toUnfold := d.toUnfold.insert declName }
 
+def SimpTheorems.addLetDeclToUnfold (d : SimpTheorems) (fvarId : FVarId) : SimpTheorems :=
+  -- A small hack that relies on the fact that constants and `FVarId` names should be disjoint.
+  { d with toUnfold := d.toUnfold.insert fvarId.name }
+
 /-- Return `true` if `declName` is tagged to be unfolded using `unfoldDefinition?` (i.e., without using equational theorems). -/
 def SimpTheorems.isDeclToUnfold (d : SimpTheorems) (declName : Name) : Bool :=
   d.toUnfold.contains declName
+
+def SimpTheorems.isLetDeclToUnfold (d : SimpTheorems) (fvarId : FVarId) : Bool :=
+  d.toUnfold.contains fvarId.name -- See comment at `addLetDeclToUnfold`
 
 def SimpTheorems.isLemma (d : SimpTheorems) (thmId : Origin) : Bool :=
   d.lemmaNames.contains thmId
@@ -218,7 +232,7 @@ private partial def isPerm : Expr → Expr → MetaM Bool
   | s, t => return s == t
 
 private def checkBadRewrite (lhs rhs : Expr) : MetaM Unit := do
-  let lhs ← DiscrTree.reduceDT lhs (root := true) (simpleReduce := true)
+  let lhs ← DiscrTree.reduceDT lhs (root := true) simpDtConfig
   if lhs == rhs && lhs.isFVar then
     throwError "invalid `simp` theorem, equation is equivalent to{indentExpr (← mkEq lhs rhs)}"
 
@@ -305,7 +319,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
     let type ← whnfR type
     let (keys, perm) ←
       match type.eq? with
-      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs, ← isPerm lhs rhs)
+      | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs simpDtConfig, ← isPerm lhs rhs)
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
@@ -466,6 +480,9 @@ def SimpTheoremsArray.isErased (thmsArray : SimpTheoremsArray) (thmId : Origin) 
 
 def SimpTheoremsArray.isDeclToUnfold (thmsArray : SimpTheoremsArray) (declName : Name) : Bool :=
   thmsArray.any fun thms => thms.isDeclToUnfold declName
+
+def SimpTheoremsArray.isLetDeclToUnfold (thmsArray : SimpTheoremsArray) (fvarId : FVarId) : Bool :=
+thmsArray.any fun thms => thms.isLetDeclToUnfold fvarId
 
 macro (name := _root_.Lean.Parser.Command.registerSimpAttr) doc:(docComment)?
   "register_simp_attr" id:ident : command => do

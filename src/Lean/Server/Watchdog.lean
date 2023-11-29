@@ -352,7 +352,7 @@ def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
+      for ident in references.findAt module p.position (includeStop := true) do
         if let some definition ← references.definitionOf? ident srcSearchPath then
           definitions := definitions.push definition
   return definitions
@@ -363,7 +363,7 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
     let srcSearchPath := (← read).srcSearchPath
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
-      for ident in references.findAt module p.position do
+      for ident in references.findAt module p.position (includeStop := true) do
         let identRefs ← references.referringTo module ident srcSearchPath p.context.includeDeclaration
         result := result.append identRefs
   return result
@@ -385,6 +385,33 @@ def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInf
     |>.extract 0 100 -- max amount
     |>.map fun ((name, _), location) =>
       { name, kind := SymbolKind.constant, location }
+
+def handlePrepareRename (p : PrepareRenameParams) : ServerM (Option Range) := do
+  -- This just checks that the cursor is over a renameable identifier
+  if let some path := System.Uri.fileUriToPath? p.textDocument.uri then
+    let srcSearchPath := (← read).srcSearchPath
+    if let some module ← searchModuleNameOfFileName path srcSearchPath then
+      let references ← (← read).references.get
+      return references.findRange? module p.position (includeStop := true)
+  return none
+
+def handleRename (p : RenameParams) : ServerM Lsp.WorkspaceEdit := do
+  if (String.toName p.newName).isAnonymous then
+    throwServerError s!"Can't rename: `{p.newName}` is not an identifier"
+  let mut refs : HashMap DocumentUri (RBMap Lsp.Position Lsp.Position compare) := ∅
+  for { uri, range } in (← handleReference { p with context.includeDeclaration := true }) do
+    refs := refs.insert uri <| (refs.findD uri ∅).insert range.start range.end
+  -- We have to filter the list of changes to put the ranges in order and
+  -- remove any duplicates or overlapping ranges, or else the rename will not apply
+  let changes := refs.fold (init := ∅) fun changes uri map => Id.run do
+    let mut last := ⟨0, 0⟩
+    let mut arr := #[]
+    for (start, stop) in map do
+      if last ≤ start then
+        arr := arr.push { range := ⟨start, stop⟩, newText := p.newName }
+        last := stop
+    return changes.insert uri arr
+  return { changes? := some changes }
 
 end RequestHandling
 
@@ -507,6 +534,8 @@ section MessageHandling
     match method with
       | "textDocument/references" => handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" => handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
+      | "textDocument/prepareRename" => handle PrepareRenameParams (Option Range) handlePrepareRename
+      | "textDocument/rename" => handle RenameParams WorkspaceEdit handleRename
       | _ => forwardRequestToWorker id method params
 
   def handleNotification (method : String) (params : Json) : ServerM Unit := do
@@ -608,6 +637,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   definitionProvider := true
   typeDefinitionProvider := true
   referencesProvider := true
+  renameProvider? := some {
+    prepareProvider := true
+  }
   workspaceSymbolProvider := true
   documentHighlightProvider := true
   documentSymbolProvider := true
@@ -665,7 +697,7 @@ def loadReferences : IO References := do
 
 def initAndRunWatchdog (args : List String) (i o e : FS.Stream) : IO Unit := do
   let workerPath ← findWorkerPath
-  let srcSearchPath ← initSrcSearchPath (← getBuildDir)
+  let srcSearchPath ← initSrcSearchPath
   let references ← IO.mkRef (← loadReferences)
   let fileWorkersRef ← IO.mkRef (RBMap.empty : FileWorkerMap)
   let i ← maybeTee "wdIn.txt" false i

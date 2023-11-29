@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completionDocString.lean"},
+{"textDocument": {"uri": "file:///completionDocString.lean"},
  "position": {"line": 0, "character": 20}}
 {"items":
  [{"label": "insertAt",

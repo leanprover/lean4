@@ -99,7 +99,7 @@ def runFrontend
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   let lang := Language.Lean
-  let snap ← lang.process { mainModuleName, opts } none inputCtx
+  let snap ← lang.process { mainModuleName, opts, fileSetupHandler? := none } none inputCtx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then

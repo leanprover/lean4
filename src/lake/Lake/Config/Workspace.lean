@@ -46,6 +46,14 @@ namespace Workspace
 @[inline] def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
+/-- The path to the workspace' Lake directory relative to `dir`. -/
+@[inline] def relLakeDir (self : Workspace) : FilePath :=
+  self.root.relLakeDir
+
+/-- The the full path to the workspace's Lake directory (e.g., `.lake`). -/
+@[inline] def lakeDir (self : Workspace) : FilePath :=
+  self.root.lakeDir
+
 /-- The path to the workspace's remote packages directory relative to `dir`. -/
 @[inline] def relPkgsDir (self : Workspace) : FilePath :=
   self.root.relPkgsDir
@@ -176,7 +184,7 @@ The detected environment augmented with Lake's and the workspace's paths.
 These are the settings use by `lake env` / `Lake.env` to run executables.
 -/
 def augmentedEnvVars (self : Workspace) : Array (String × Option String) :=
-  let vars := self.lakeEnv.installVars ++ #[
+  let vars := self.lakeEnv.baseVars ++ #[
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     ("PATH", some self.augmentedPath.toString)

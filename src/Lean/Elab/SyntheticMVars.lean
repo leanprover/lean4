@@ -231,7 +231,7 @@ private def reportStuckSyntheticMVars (ignoreStuckTC := false) : TermElabM Unit 
   for mvarId in pendingMVars do
     reportStuckSyntheticMVar mvarId ignoreStuckTC
 
-private def getSomeSynthethicMVarsRef : TermElabM Syntax := do
+private def getSomeSyntheticMVarsRef : TermElabM Syntax := do
   for mvarId in (← get).pendingMVars do
     if let some decl ← getSyntheticMVarDecl? mvarId then
       if decl.stx.getPos?.isSome then
@@ -395,7 +395,7 @@ mutual
   -/
   partial def synthesizeSyntheticMVars (mayPostpone := true) (ignoreStuckTC := false) : TermElabM Unit := do
     let rec loop (_ : Unit) : TermElabM Unit := do
-      withRef (← getSomeSynthethicMVarsRef) <| withIncRecDepth do
+      withRef (← getSomeSyntheticMVarsRef) <| withIncRecDepth do
         unless (← get).pendingMVars.isEmpty do
           if ← synthesizeSyntheticMVarsStep (postponeOnError := false) (runTactics := false) then
             loop ()

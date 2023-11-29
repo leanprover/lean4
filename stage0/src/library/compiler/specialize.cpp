@@ -175,7 +175,7 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
     name_set S;
     spec_info_buffer d_infos;
     name_generator ngen;
-    /* Initialize d_infos and S */
+    /* Initialzie d_infos and S */
     for (comp_decl const & d : ds) {
         S.insert(d.fst());
         d_infos.push_back(pair<name, buffer<spec_arg_kind>>());

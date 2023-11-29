@@ -10,34 +10,23 @@ import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
 import Lake.Config.Dependency
 import Lake.Config.Script
+import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
+import Lake.Util.Platform
 
 open System Lean
 
 namespace Lake
 
-/-- A string descriptor of the `System.Platform` OS (`windows`, `macOS`, or `linux`). -/
-def osDescriptor : String :=
-  if Platform.isWindows then
-    "windows"
-  else if Platform.isOSX then
-    "macOS"
-  else
-    "linux"
-
 /--
-A `tar.gz` file name suffix encoding the the current Platform.
-(i.e, `osDescriptor` joined with `System.Platform.numBits`).
+Platform-specific archive file with an optional name prefix
+(i.e., `{name}-{platformDescriptor}.tar.gz`).
 -/
-def archiveSuffix :=
-  s!"{osDescriptor}-{Platform.numBits}.tar.gz"
-
-/-- If `name?`, `{name}-{archiveSuffix}`, otherwise just `archiveSuffix`. -/
 def nameToArchive (name? : Option String) : String :=
   match name? with
-  | none => archiveSuffix
-  | some name => s!"{name}-{archiveSuffix}"
+  | none => s!"{platformDescriptor}.tar.gz"
+  | some name => s!"{name}-{platformDescriptor}.tar.gz"
 
 /--
 First tries to convert a string into a legal name.
@@ -50,9 +39,6 @@ def stringToLegalOrSimpleName (s : String) : Name :=
 --------------------------------------------------------------------------------
 /-! # Defaults -/
 --------------------------------------------------------------------------------
-
-/-- The default setting for a `PackageConfig`'s `manifestFile` option. -/
-def defaultManifestFile := "lake-manifest.json"
 
 /-- The default setting for a `PackageConfig`'s `buildDir` option. -/
 def defaultBuildDir : FilePath := "build"
@@ -80,12 +66,14 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   name : Name
 
   /--
+  **This field is deprecated.**
+
   The path of a package's manifest file, which stores the exact versions
   of its resolved dependencies.
 
   Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
   -/
-  manifestFile := defaultManifestFile
+  manifestFile : Option FilePath := none
 
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
@@ -100,10 +88,19 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
   precompileModules : Bool := false
 
   /--
+  **Deprecated in favor of `moreGlobalServerArgs`.**
   Additional arguments to pass to the Lean language server
-  (i.e., `lean --server`) launched by `lake server`.
+  (i.e., `lean --server`) launched by `lake serve`, both for this package and
+  also for any packages browsed from this one in the same session.
   -/
   moreServerArgs : Array String := #[]
+
+  /--
+  Additional arguments to pass to the Lean language server
+  (i.e., `lean --server`) launched by `lake serve`, both for this package and
+  also for any packages browsed from this one in the same session.
+  -/
+  moreGlobalServerArgs : Array String := moreServerArgs
 
   /--
   The directory containing the package's Lean source files.
@@ -115,9 +112,9 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The directory to which Lake should output the package's build results.
-  Defaults to `defaultBuildDir` (i.e., `build`).
+  Defaults to `defaultLakeDir / defaultBuildDir` (i.e., `.lake/build`).
   -/
-  buildDir : FilePath := defaultBuildDir
+  buildDir : FilePath := defaultLakeDir / defaultBuildDir
 
   /--
   The build subdirectory to which Lake should output the package's
@@ -178,12 +175,18 @@ declare_opaque_type OpaquePostUpdateHook (pkg : Name)
 structure Package where
   /-- The path to the package's directory. -/
   dir : FilePath
+  /-- The path to the package's directory relative to the workspace. -/
+  relDir : FilePath
   /-- The package's user-defined configuration. -/
   config : PackageConfig
   /-- The elaboration environment of the package's configuration file. -/
   configEnv : Environment
   /-- The Lean `Options` the package configuration was elaborated with. -/
   leanOpts : Options
+  /-- The path to the package's configuration file. -/
+  configFile : FilePath
+  /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
+  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile
   /-- The URL to this package's Git remote. -/
   remoteUrl? : Option String := none
   /-- (Opaque references to) the package's direct dependencies. -/
@@ -264,17 +267,25 @@ namespace Package
 @[inline] def deps (self : Package) : Array Package  :=
   self.opaqueDeps.map (·.get)
 
+/-- The path to the package's Lake directory relative to `dir` (e.g., `.lake`). -/
+@[inline] def relLakeDir (_ : Package) : FilePath :=
+  defaultLakeDir
+
+/-- The full path to the package's Lake directory (i.e, `dir` joined with `relLakeDir`). -/
+@[inline] def lakeDir (self : Package) : FilePath :=
+  self.dir / self.relLakeDir
+
 /-- The path for storing the package's remote dependencies relative to `dir` (i.e., `packagesDir`). -/
 @[inline] def relPkgsDir (self : Package) : FilePath :=
   self.config.packagesDir
 
-/-- The package's `dir` joined with its `relPkgsDir` -/
+/-- The package's `dir` joined with its `relPkgsDir`. -/
 @[inline] def pkgsDir (self : Package) : FilePath :=
   self.dir / self.relPkgsDir
 
-/-- The package's JSON manifest of remote dependencies. -/
+/-- The path to the package's JSON manifest of remote dependencies. -/
 @[inline] def manifestFile (self : Package) : FilePath :=
-  self.dir / self.config.manifestFile
+  self.dir / self.relManifestFile
 
 /-- The package's `dir` joined with its `buildDir` configuration. -/
 @[inline] def buildDir (self : Package) : FilePath :=
@@ -296,9 +307,9 @@ namespace Package
 @[inline] def buildArchive (self : Package) : String :=
   nameToArchive self.buildArchive?
 
-/-- The package's `buildDir` joined with its `buildArchive` configuration. -/
+/-- The package's `lakeDir` joined with its `buildArchive` configuration. -/
 @[inline] def buildArchiveFile (self : Package) : FilePath :=
-  self.buildDir / self.buildArchive
+  self.lakeDir / self.buildArchive
 
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=
@@ -308,17 +319,29 @@ namespace Package
 @[inline] def precompileModules (self : Package) : Bool :=
   self.config.precompileModules
 
-/-- The package's `moreServerArgs` configuration. -/
-@[inline] def moreServerArgs (self : Package) : Array String :=
-  self.config.moreServerArgs
+/-- The package's `moreGlobalServerArgs` configuration. -/
+@[inline] def moreGlobalServerArgs (self : Package) : Array String :=
+  self.config.moreGlobalServerArgs
+
+/-- The package's `moreServerOptions` configuration appended to its `leanOptions` configuration. -/
+@[inline] def moreServerOptions (self : Package) : Array LeanOption :=
+  self.config.leanOptions ++ self.config.moreServerOptions
 
 /-- The package's `buildType` configuration. -/
 @[inline] def buildType (self : Package) : BuildType :=
   self.config.buildType
 
-/-- The package's `moreLeanArgs` configuration. -/
+/-- The package's `backend` configuration. -/
+@[inline] def backend (self : Package) : Backend :=
+  self.config.backend
+
+/-- The package's `leanOptions` configuration. -/
+@[inline] def leanOptions (self : Package) : Array LeanOption :=
+  self.config.leanOptions
+
+/-- The package's `moreLeanArgs` configuration appended to its `leanOptions` configuration. -/
 @[inline] def moreLeanArgs (self : Package) : Array String :=
-  self.config.moreLeanArgs
+  self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
 
 /-- The package's `weakLeanArgs` configuration. -/
 @[inline] def weakLeanArgs (self : Package) : Array String :=

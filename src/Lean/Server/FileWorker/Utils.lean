@@ -79,6 +79,16 @@ structure EditableDocument where
     `waitForDiagnostics`. -/
   reporter : Task Unit
 
+namespace EditableDocument
+
+/-- Construct a VersionedTextDocumentIdentifier from an EditableDocument --/
+def versionedIdentifier (ed : EditableDocument) : Lsp.VersionedTextDocumentIdentifier := {
+  uri := ed.meta.uri
+  version? := some ed.meta.version
+}
+
+end EditableDocument
+
 structure RpcSession where
   objects         : RpcObjectStore
   /-- The `IO.monoMsNow` time when the session expires. See `$/lean/rpc/keepAlive`. -/

@@ -18,7 +18,6 @@ LEAN_EXPORT lean_object* l_Lean_instToJsonRBMapString___rarg(lean_object*, lean_
 static lean_object* l_Lean_instFromJsonArray___rarg___closed__2;
 lean_object* l_Lean_Json_getObj_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonList___spec__1___rarg(lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l_UInt64_size;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonUInt64___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -41,6 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_instToJsonFilePath(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonString;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonJsonNumber;
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t);
+static lean_object* l_Lean_instFromJsonUInt64___closed__3;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFloat(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonRBMapString___boxed(lean_object*, lean_object*);
@@ -55,6 +55,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonOption(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonJsonNumber(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonBool(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_instToJsonName(lean_object*);
+static lean_object* l_Lean_instFromJsonUSize___closed__5;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonUSize___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonName___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonName(lean_object*);
@@ -121,6 +122,7 @@ lean_object* l_Lean_RBNode_insert___rarg(lean_object*, lean_object*, lean_object
 LEAN_EXPORT lean_object* l_Lean_instFromJsonInt;
 static lean_object* l_Lean_instFromJsonName___closed__1;
 LEAN_EXPORT lean_object* l_Lean_instFromJsonJson(lean_object*);
+extern lean_object* l_System_Platform_numBits;
 static lean_object* l_Lean_instToJsonJson___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instToJsonArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -129,6 +131,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonOption___rarg(lean_object*, lean_obj
 static double l_Lean_instFromJsonFloat___closed__6;
 lean_object* l_Lean_Syntax_decodeNatLitVal_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_instFromJsonList___spec__1(lean_object*);
+static lean_object* l_Lean_instFromJsonUSize___closed__4;
 LEAN_EXPORT lean_object* l_Lean_instToJsonArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_bignumFromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_Json_parseTagged___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
@@ -145,6 +148,7 @@ LEAN_EXPORT lean_object* l_Lean_instFromJsonUSize___lambda__1___boxed(lean_objec
 static lean_object* l_Lean_instFromJsonFloat___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Json_parseTagged(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonNat___closed__1;
+lean_object* lean_nat_pow(lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonName___closed__3;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonUInt64(lean_object*);
@@ -155,7 +159,7 @@ lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonRBMapString___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_toName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonList___rarg(lean_object*, lean_object*);
-extern lean_object* l_USize_size;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 static double l_Lean_instFromJsonFloat___closed__7;
 lean_object* l_Lean_Name_getString_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instFromJsonFilePath___boxed(lean_object*);
@@ -181,6 +185,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getNat_x3f___boxed(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Json_parseTagged___closed__4;
+lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_instFromJsonFloat___closed__2;
 static lean_object* l_Lean_instFromJsonOption___rarg___closed__1;
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -188,6 +193,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f(lean_object*);
 static lean_object* l_Lean_instToJsonProd___rarg___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonFloat(double);
+static lean_object* l_Lean_instFromJsonUSize___closed__3;
 lean_object* l_Nat_repr(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToJsonOption(lean_object*);
 lean_object* l_List_toArrayAux___rarg(lean_object*, lean_object*);
@@ -1459,16 +1465,46 @@ return x_5;
 static lean_object* _init_l_Lean_instFromJsonUSize___closed__1() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `USize`", 36);
-return x_1;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_unsigned_to_nat(2u);
+x_2 = l_System_Platform_numBits;
+x_3 = lean_nat_pow(x_1, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonUSize___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_instFromJsonUSize___closed__1;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_sub(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_instFromJsonUSize___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_instFromJsonUSize___closed__2;
+x_2 = lean_unsigned_to_nat(1u);
+x_3 = lean_nat_add(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_instFromJsonUSize___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `USize`", 36);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instFromJsonUSize___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_instFromJsonUSize___closed__4;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1504,7 +1540,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec(x_2);
-x_7 = l_USize_size;
+x_7 = l_Lean_instFromJsonUSize___closed__3;
 x_8 = lean_nat_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
@@ -1518,7 +1554,7 @@ else
 {
 lean_object* x_11; 
 lean_dec(x_6);
-x_11 = l_Lean_instFromJsonUSize___closed__2;
+x_11 = l_Lean_instFromJsonUSize___closed__5;
 return x_11;
 }
 }
@@ -1568,15 +1604,23 @@ static lean_object* _init_l_Lean_instFromJsonUInt64___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
+x_1 = lean_cstr_to_nat("18446744073709551616");
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_instFromJsonUInt64___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_from_bytes("value '{j}' is too large for `UInt64`", 37);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_instFromJsonUInt64___closed__3() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_instFromJsonUInt64___closed__1;
+x_1 = l_Lean_instFromJsonUInt64___closed__2;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -1612,7 +1656,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
 lean_dec(x_2);
-x_7 = l_UInt64_size;
+x_7 = l_Lean_instFromJsonUInt64___closed__1;
 x_8 = lean_nat_dec_le(x_7, x_6);
 if (x_8 == 0)
 {
@@ -1626,7 +1670,7 @@ else
 {
 lean_object* x_11; 
 lean_dec(x_6);
-x_11 = l_Lean_instFromJsonUInt64___closed__2;
+x_11 = l_Lean_instFromJsonUInt64___closed__3;
 return x_11;
 }
 }
@@ -2986,10 +3030,18 @@ l_Lean_instFromJsonUSize___closed__1 = _init_l_Lean_instFromJsonUSize___closed__
 lean_mark_persistent(l_Lean_instFromJsonUSize___closed__1);
 l_Lean_instFromJsonUSize___closed__2 = _init_l_Lean_instFromJsonUSize___closed__2();
 lean_mark_persistent(l_Lean_instFromJsonUSize___closed__2);
+l_Lean_instFromJsonUSize___closed__3 = _init_l_Lean_instFromJsonUSize___closed__3();
+lean_mark_persistent(l_Lean_instFromJsonUSize___closed__3);
+l_Lean_instFromJsonUSize___closed__4 = _init_l_Lean_instFromJsonUSize___closed__4();
+lean_mark_persistent(l_Lean_instFromJsonUSize___closed__4);
+l_Lean_instFromJsonUSize___closed__5 = _init_l_Lean_instFromJsonUSize___closed__5();
+lean_mark_persistent(l_Lean_instFromJsonUSize___closed__5);
 l_Lean_instFromJsonUInt64___closed__1 = _init_l_Lean_instFromJsonUInt64___closed__1();
 lean_mark_persistent(l_Lean_instFromJsonUInt64___closed__1);
 l_Lean_instFromJsonUInt64___closed__2 = _init_l_Lean_instFromJsonUInt64___closed__2();
 lean_mark_persistent(l_Lean_instFromJsonUInt64___closed__2);
+l_Lean_instFromJsonUInt64___closed__3 = _init_l_Lean_instFromJsonUInt64___closed__3();
+lean_mark_persistent(l_Lean_instFromJsonUInt64___closed__3);
 l_Lean_instFromJsonFloat___closed__1 = _init_l_Lean_instFromJsonFloat___closed__1();
 lean_mark_persistent(l_Lean_instFromJsonFloat___closed__1);
 l_Lean_instFromJsonFloat___closed__2 = _init_l_Lean_instFromJsonFloat___closed__2();

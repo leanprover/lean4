@@ -10,6 +10,12 @@ def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   logWarningAt stx (.tagged linterOption.name m!"{msg} [{linterOption.name}]")
 
+/-- If `linterOption` is true, print a linter warning message at the position determined by `stx`.
+-/
+def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
+    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
+  if linterOption.get (← getOptions) then logLint linterOption stx msg
+
 /-- Go upwards through the given `tree` starting from the smallest node that
 contains the given `range` and collect all `MacroExpansionInfo`s on the way up.
 The result is `some []` if no `MacroExpansionInfo` was found on the way and

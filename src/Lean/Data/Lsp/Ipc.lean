@@ -62,7 +62,10 @@ def readMessage : IpcM JsonRpc.Message := do
 def readRequestAs (expectedMethod : String) (α) [FromJson α] : IpcM (Request α) := do
   (←stdout).readLspRequestAs expectedMethod α
 
-/-- Reads response, discarding notifications in between (as this is purely for testing). -/
+/--
+  Reads response, discarding notifications in between. This function is meant
+  purely for testing where we use `collectDiagnostics` explicitly if we do care
+  about such notifications. -/
 partial def readResponseAs (expectedID : RequestID) (α) [FromJson α] :
     IpcM (Response α) := do
   let m ← (←stdout).readLspMessage

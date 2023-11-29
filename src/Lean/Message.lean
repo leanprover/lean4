@@ -370,6 +370,7 @@ def toMessageData (e : KernelException) (opts : Options) : MessageData :=
   | deterministicTimeout                => "(kernel) deterministic timeout"
   | excessiveMemory                     => "(kernel) excessive memory consumption detected"
   | deepRecursion                       => "(kernel) deep recursion detected"
+  | interrupted                         => "(kernel) interrupted"
 
 end KernelException
 end Lean

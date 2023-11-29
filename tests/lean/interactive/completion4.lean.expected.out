@@ -1,25 +1,25 @@
-{"textDocument": {"uri": "file://completion4.lean"},
+{"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 7, "character": 4}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "kind": 5, "detail": "S → Bool → IO Unit"},
   {"label": "pred", "kind": 5, "detail": "S → String → Bool"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion4.lean"},
+{"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 11, "character": 10}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "kind": 5, "detail": "S → Bool → IO Unit"},
   {"label": "pred", "kind": 5, "detail": "S → String → Bool"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion4.lean"},
+{"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 16, "character": 11}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat → IO Unit"},
   {"label": "fn2", "kind": 5, "detail": "S → Bool → IO Unit"},
   {"label": "pred", "kind": 5, "detail": "S → String → Bool"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion4.lean"},
+{"textDocument": {"uri": "file:///completion4.lean"},
  "position": {"line": 20, "character": 21}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat → IO Unit"},

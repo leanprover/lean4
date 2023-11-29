@@ -10,7 +10,7 @@ function pebkac() {
 [[ $# -gt 0 ]] || pebkac
 case $1 in
     --version)
-        # minimum version for `lake server` with fallback
+        # minimum version for `lake serve` with fallback
         echo 3.1.0
         ;;
     print-paths)

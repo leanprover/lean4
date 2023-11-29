@@ -1,0 +1,4 @@
+rwWithSynthesizeBug.lean:36:18-39:15: error: unsolved goals
+inst : Bar Nat := @Bar.mk Nat 0
+h : @w Nat (@f Nat inst 5)
+⊢ True

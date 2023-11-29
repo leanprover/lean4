@@ -1538,9 +1538,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
-    We might other annotations in the future that we should not preserve.
-    Perhaps, we should mark the annotation we do want to preserve ones
-    (e.g., hints for the pretty printer), and consume all other
+    We might have other annotations in the future that we should not preserve.
+    Perhaps, we should mark the annotations we do want to preserve
+    (e.g., hints for the pretty printer), and consume all others.
   -/
   if let some t := patternAnnotation? t then
     isDefEqQuick t s
@@ -1567,7 +1567,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
-       is not definitionally equal to `A`. We left the code here as a remainder of this issue. -/
+       is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/
 --    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
 --      let t ← instantiateMVars t
 --     isDefEqQuick t s
@@ -1597,7 +1597,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
            2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
               The motivation: avoid unassigned metavariables in goals.
-           3- Each pending tactic goal is represented as a metavariable. It is marked as `synthethicOpaque` to make it clear
+           3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.
            4- When we abstract a term containing metavariables, we often create new metavariables.
               Example: when abstracting `x` at `f ?m`, we obtain `fun x => f (?m' x)`. If `x` is in the scope of `?m`.
@@ -1692,14 +1692,14 @@ where
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     if isClass (← getEnv) structName then
       /-
-      We disable this feature is `structName` is a class. See issue #2011.
+      We disable this feature if `structName` is a class. See issue #2011.
       The example at issue #2011, the following weird
       instance was being generated for `Zero (f x)`
       ```
       (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
       ```
       where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
-      Note that this instance is definitinally equal to the expected nicer
+      Note that this instance is definitionally equal to the expected nicer
       instance `inst✝¹ x✝`.
       However, the nasty instance trigger nasty unification higher order
       constraints later.
@@ -1733,7 +1733,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
+    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
     if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
@@ -1743,7 +1743,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
   matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
@@ -1851,7 +1851,7 @@ private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Un
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
-  checkMaxHeartbeats "isDefEq"
+  checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
   /-

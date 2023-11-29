@@ -17,9 +17,7 @@ open Git System
 def defaultExeRoot : Name := `Main
 
 def gitignoreContents :=
-s!"/{defaultBuildDir}
-/{defaultConfigFile.withExtension "olean"}
-/{defaultPackagesDir}/*
+s!"/{defaultLakeDir}
 "
 
 def basicFileContents :=
@@ -95,7 +93,23 @@ def mathConfigFileContents (pkgName libRoot : String) :=
 s!"import Lake
 open Lake DSL
 
+def leanOptions : Array LeanOption := #[
+  ⟨`pp.unicode.fun, true⟩, -- pretty-prints `fun a ↦ b`
+  ⟨`pp.proofs.withType, false⟩
+]
+
+-- These are additional settings which do not affect the lake hash,
+-- so they can be enabled in CI and disabled locally or vice versa.
+-- Warning: Do not put any options here that actually change the olean files,
+-- or inconsistent behavior may result
+def weakLeanArgs : Array String :=
+  if get_config? CI |>.isSome then
+    #[\"-DwarningAsError=true\"]
+  else
+    #[]
+
 package {pkgName} where
+  leanOptions := leanOptions
   -- add any package configuration options here
 
 require mathlib from git
@@ -103,6 +117,7 @@ require mathlib from git
 
 @[default_target]
 lean_lib {libRoot} where
+  weakLeanArgs := weakLeanArgs
   -- add any library configuration options here
 "
 
@@ -150,7 +165,7 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
     if tmp = .exe || rootExists then
       pure (root, rootFile, rootExists)
     else
-      let root := toUpperCamelCase (toUpperCamelCaseString name |>.toName)
+      let root := toUpperCamelCase pkgName
       let rootFile := Lean.modToFilePath dir root "lean"
       pure (root, rootFile, ← rootFile.pathExists)
 
@@ -214,10 +229,28 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
     else
       logWarning "failed to initialize git repository"
 
-def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit :=
-  initPkg "." pkgName tmp env
+def validatePkgName (pkgName : String) : LogIO PUnit := do
+  if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
+    error "illegal package name"
+  if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
+    error "reserved package name"
 
-def new (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) : LogIO PUnit := do
-  let dirName := pkgName.map fun chr => if chr == '.' then '-' else chr
-  IO.FS.createDir dirName
+def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
+  let pkgName ← do
+    if pkgName == "." then
+      match (← IO.FS.realPath cwd).fileName with
+      | some dirName => pure dirName
+      | none => error "illegal package name"
+    else
+      pure pkgName
+  let pkgName := pkgName.trim
+  validatePkgName pkgName
+  IO.FS.createDirAll cwd
+  initPkg cwd pkgName tmp env
+
+def new (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
+  let pkgName := pkgName.trim
+  validatePkgName pkgName
+  let dirName := cwd / pkgName.map fun chr => if chr == '.' then '-' else chr
+  IO.FS.createDirAll dirName
   initPkg dirName pkgName tmp env

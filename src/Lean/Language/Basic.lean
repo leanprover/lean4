@@ -13,6 +13,32 @@ import Lean.Parser.Types
 
 set_option linter.missingDocs true
 
+-- early declarations for `fileSetupHandler?` below; as the field is used only by the worker, we
+-- leave them in that namespace
+namespace Lean.Server.FileWorker
+
+/-- Categorizes possible outcomes of running `lake setup-file`. -/
+inductive FileSetupResultKind where
+  /-- File configuration loaded and dependencies updated successfully. -/
+  | success
+  /-- No Lake project found, no setup was done. -/
+  | noLakefile
+  /-- Imports must be rebuilt but `--no-build` was specified. -/
+  | importsOutOfDate
+  /-- Other error during Lake invocation. -/
+  | error (msg : String)
+
+/-- Result of running `lake setup-file`. -/
+structure FileSetupResult where
+  /-- Kind of outcome. -/
+  kind          : FileSetupResultKind
+  /-- Search path from successful setup, or else empty. -/
+  srcSearchPath : SearchPath
+  /-- Additional options from successful setup, or else empty. -/
+  fileOptions   : Options
+
+end Lean.Server.FileWorker
+
 namespace Lean.Language
 
 /--
@@ -151,6 +177,10 @@ structure ProcessingContext where
   mainModuleName : Name
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
+  /--
+    Callback available in server mode for building imports and retrieving per-library options using
+    `lake setup-file`. -/
+  fileSetupHandler? : Option (Array Import → IO Server.FileWorker.FileSetupResult)
 
 end Language
 open Language

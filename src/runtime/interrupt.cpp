@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/memory.h"
+#include "lean/lean.h"
 
 namespace lean {
 LEAN_THREAD_VALUE(size_t, g_max_heartbeat, 0);
@@ -38,24 +39,17 @@ void check_heartbeat() {
         throw_heartbeat_exception();
 }
 
-LEAN_THREAD_VALUE(atomic_bool *, g_interrupt_flag, nullptr);
-
-scoped_interrupt_flag::scoped_interrupt_flag(atomic_bool * flag) : flet(g_interrupt_flag, flag) {}
-
-static bool interrupt_requested() {
-    return g_interrupt_flag && g_interrupt_flag->load();
-}
-
 void check_interrupted() {
-    if (interrupt_requested() && !std::uncaught_exception()) {
+    if (lean_io_check_canceled_core() && !std::uncaught_exception()) {
         throw interrupted();
     }
 }
 
-void check_system(char const * component_name) {
+void check_system(char const * component_name, bool do_check_interrupted) {
     check_stack(component_name);
     check_memory(component_name);
-    check_interrupted();
+    if (do_check_interrupted)
+        check_interrupted();
     check_heartbeat();
 }
 
@@ -72,17 +66,4 @@ void sleep_for(unsigned ms, unsigned step_ms) {
     this_thread::sleep_for(r);
     check_interrupted();
 }
-
-bool interruptible_thread::interrupted() const {
-    return m_flag.load();
-}
-
-void interruptible_thread::request_interrupt() {
-    m_flag.store(true);
-}
-
-void interruptible_thread::join() {
-    m_thread.join();
-}
-
 }

@@ -6,8 +6,7 @@ on:
     tags:
       - '*'
   pull_request:
-    branches:
-      - master
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,6 +33,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Install Nix
         uses: cachix/install-nix-action@v18
         with:

@@ -30,6 +30,7 @@ static expr * g_nat_add      = nullptr;
 static expr * g_nat_sub      = nullptr;
 static expr * g_nat_mul      = nullptr;
 static expr * g_nat_pow      = nullptr;
+static expr * g_nat_gcd      = nullptr;
 static expr * g_nat_mod      = nullptr;
 static expr * g_nat_div      = nullptr;
 static expr * g_nat_beq      = nullptr;
@@ -286,7 +287,7 @@ expr type_checker::infer_type_core(expr const & e, bool infer_only) {
         throw kernel_exception(env(), "type checker does not support loose bound variables, replace them with free variables before invoking it");
 
     lean_assert(!has_loose_bvars(e));
-    check_system("type checker");
+    check_system("type checker", /* do_check_interrupted */ true);
 
     auto it = m_st->m_infer_type[infer_only].find(e);
     if (it != m_st->m_infer_type[infer_only].end())
@@ -409,7 +410,7 @@ static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
     If `cheap == true`, then we don't perform delta-reduction when reducing major premise of recursors and projections.
     We also do not cache results. */
 expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
-    check_system("type checker: whnf");
+    check_system("type checker: whnf", /* do_check_interrupted */ true);
 
     // handle easy cases
     switch (e.kind()) {
@@ -603,6 +604,7 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_sub) return reduce_bin_nat_op(nat_sub, e);
         if (f == *g_nat_mul) return reduce_bin_nat_op(nat_mul, e);
         if (f == *g_nat_pow) return reduce_bin_nat_op(nat_pow, e);
+        if (f == *g_nat_gcd) return reduce_bin_nat_op(nat_gcd, e);
         if (f == *g_nat_mod) return reduce_bin_nat_op(nat_mod, e);
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
         if (f == *g_nat_beq) return reduce_bin_nat_pred(nat_eq, e);
@@ -862,7 +864,7 @@ auto type_checker::lazy_delta_reduction_step(expr & t_n, expr & s_n) -> reductio
         return reduction_status::DefUnknown;
     } else if (d_t && !d_s) {
         /* If `s_n` is a projection application, we try to unfold it instead.
-           We added this extra test to address a perfomance issue at defeq tests such as
+           We added this extra test to address a performance issue at defeq tests such as
            ```lean
            expensive_term =?= instFoo.1 a
            ```
@@ -1000,9 +1002,11 @@ bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
 }
 
 bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
-    check_system("is_definitionally_equal");
+    check_system("is_definitionally_equal", /* do_check_interrupted */ true);
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
+    if (r != l_undef) return r == l_true;
+    
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.
@@ -1011,7 +1015,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
             return true;
         }
     }
-    if (r != l_undef) return r == l_true;
 
     /*
       Apply whnf (without using delta-reduction or normalizer extensions), *and*
@@ -1150,6 +1153,8 @@ void initialize_type_checker() {
     mark_persistent(g_nat_mul->raw());
     g_nat_pow      = new expr(mk_constant(name{"Nat", "pow"}));
     mark_persistent(g_nat_pow->raw());
+    g_nat_gcd      = new expr(mk_constant(name{"Nat", "gcd"}));
+    mark_persistent(g_nat_gcd->raw());
     g_nat_div      = new expr(mk_constant(name{"Nat", "div"}));
     mark_persistent(g_nat_div->raw());
     g_nat_mod      = new expr(mk_constant(name{"Nat", "mod"}));
@@ -1176,6 +1181,7 @@ void finalize_type_checker() {
     delete g_nat_sub;
     delete g_nat_mul;
     delete g_nat_pow;
+    delete g_nat_gcd;
     delete g_nat_div;
     delete g_nat_mod;
     delete g_nat_beq;

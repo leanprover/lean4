@@ -44,7 +44,7 @@ example : f 'b' n = 2 := by
   simp[f]
 
 example : f 'c' n = 3 := by
-  simp[f]
+  simp (config := { decide := true }) [f]
 
 def g : String → Nat → Nat
  | "hello", _ => 1
@@ -58,7 +58,7 @@ example : g "world" n = 2 := by
   simp[g]
 
 example : g "abc" n = 3 := by
-  simp[g]
+  simp (config := { decide := true }) [g]
 
 def fn : Fin 8 → Nat → Nat
  | 2, _ => 1

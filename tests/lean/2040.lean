@@ -1,3 +1,8 @@
+/-! Unification across `calc` steps -/
+
+-- Tests were written when `^` was still using `binop%`
+macro_rules | `($x ^ $y) => `(binop% HPow.hPow $x $y)
+
 example (n : Nat) (a : Int) : a = 22 :=
   calc
     a = 2 ^ n := sorry -- error

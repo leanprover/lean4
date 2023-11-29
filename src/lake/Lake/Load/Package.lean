@@ -107,6 +107,12 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
         error s!"post-update hook was defined in `{decl.pkg}`, but was registered in `{self.name}`"
     | .error e => error e
 
+  -- Deprecation warnings
+  unless self.config.manifestFile.isNone do
+    logWarning s!"{self.name}: package configuration option `manifestFile` is deprecated"
+  unless self.config.moreServerArgs.isEmpty do
+    logWarning s!"{self.name}: package configuration option `moreServerArgs` is deprecated in favor of `moreServerOptions`"
+
   -- Fill in the Package
   return {self with
     opaqueDeps := deps.map (.mk ·)

@@ -1,0 +1,9 @@
+Int.ofNat n ^ 2 + m ^ 2 : Int
+n ^ 2 + 1 : Nat
+Int.ofNat n ^ 2 + 1 : Int
+Int.ofNat n ^ 2 + Int.ofNat 1 : Int
+q ^ n + 1 : Rat
+q ^ m + 1 : Rat
+q ^ Int.ofNat n + 1 : Rat
+12 * q + 1 ≤ 13 * q ^ 2 : Prop
+12 * q + 1 ≤ 13 * q ^ 2 : Prop

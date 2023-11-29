@@ -23,4 +23,4 @@ cd foo
 elan run leanprover/lean4:nightly-2022-06-30 lake build +Foo:olean | grep -m1 Foo.olean
 rm lean-toolchain
 sed_i 's/defaultTarget/default_target/g' lakefile.lean
-${LAKE:-../../../build/bin/lake} build -v | grep -m1 Foo.olean
+${LAKE:-../../../.lake/build/bin/lake} build -v | grep -m1 Foo.olean

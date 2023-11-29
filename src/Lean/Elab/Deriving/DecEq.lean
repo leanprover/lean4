@@ -24,15 +24,15 @@ where
     | [] => ``(isTrue rfl)
     | (a, b, recField, isProof) :: todo => withFreshMacroScope do
       let rhs ← if isProof then
-        `(have h : $a = $b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
+        `(have h : @$a = @$b := rfl; by subst h; exact $(← mkSameCtorRhs todo):term)
       else
-        `(if h : $a = $b then
+        `(if h : @$a = @$b then
            by subst h; exact $(← mkSameCtorRhs todo):term
           else
            isFalse (by intro n; injection n; apply h _; assumption))
       if let some auxFunName := recField then
         -- add local instance for `a = b` using the function being defined `auxFunName`
-        `(let inst := $(mkIdent auxFunName) $a $b; $rhs)
+        `(let inst := $(mkIdent auxFunName) @$a @$b; $rhs)
       else
         return rhs
 
@@ -113,7 +113,11 @@ def mkDecEq (declName : Name) : CommandElabM Bool := do
     return false -- nested inductive types are not supported yet
   else
     let cmds ← liftTermElabM <| mkDecEqCmds indVal
-    cmds.forM elabCommand
+    -- `cmds` can have a number of syntax nodes quadratic in the number of constructors
+    -- and thus create as many info tree nodes, which we never make use of but which can
+    -- significantly slow down e.g. the unused variables linter; avoid creating them
+    withEnableInfoTree false do
+      cmds.forM elabCommand
     return true
 
 partial def mkEnumOfNat (declName : Name) : MetaM Unit := do

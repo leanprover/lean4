@@ -17,6 +17,8 @@ Issue reports and fixes are welcome.
 
 * aarch64 Linux with glibc 2.27+
 * aarch64 (Apple Silicon) macOS
+* x86 (32-bit) Linux
+* Emscripten Web Assembly
 
 <!--
 ### Tier 3

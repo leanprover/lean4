@@ -92,7 +92,7 @@ def sortMVarIdsByIndex [MonadMCtx m] [Monad m] (mvarIds : List MVarId) : m (List
 def withCollectingNewGoalsFrom (k : TacticM Expr) (tagSuffix : Name) (allowNaturalHoles := false) : TacticM (Expr × List MVarId) :=
   /-
   When `allowNaturalHoles = true`, unassigned holes should become new metavariables, including `_`s.
-  Thus, we set `holesAsSynthethicOpaque` to true if it is not already set to `true`.
+  Thus, we set `holesAsSyntheticOpaque` to true if it is not already set to `true`.
   See issue #1681. We have the tactic
   ```
   `refine' (fun x => _)
@@ -246,7 +246,7 @@ def elabTermForApply (stx : Syntax) (mayPostpone := true) : TacticM Expr := do
 
     By disabling "error to sorry", we also limit ourselves to at most one error at `t[h']`.
 
-    By disabling "error to sorry", we also miss the opportunity to catch mistakes is tactic code such as
+    By disabling "error to sorry", we also miss the opportunity to catch mistakes in tactic code such as
       `first | apply nonsensical-term | assumption`
 
     This should not be a big problem for the `apply` tactic since we usually provide small terms there.
@@ -317,7 +317,7 @@ def evalApplyLikeTactic (tac : MVarId → Expr → MetaM (List MVarId)) (e : Syn
   withTransparency TransparencyMode.all <| evalTactic stx[1]
 
 /--
-  Elaborate `stx`. If it a free variable, return it. Otherwise, assert it, and return the free variable.
+  Elaborate `stx`. If it is a free variable, return it. Otherwise, assert it, and return the free variable.
   Note that, the main goal is updated when `Meta.assert` is used in the second case. -/
 def elabAsFVar (stx : Syntax) (userName? : Option Name := none) : TacticM FVarId :=
   withMainContext do

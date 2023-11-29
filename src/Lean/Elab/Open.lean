@@ -57,7 +57,7 @@ private def resolveNameUsingNamespacesCore (nss : List Name) (idStx : Syntax) : 
   else
     withRef idStx do throwError "ambiguous identifier '{idStx.getId}', possible interpretations: {result.map mkConst}"
 
-def elabOpenDecl [MonadResolveName m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
+def elabOpenDecl [MonadResolveName m] [MonadInfoTree m] (stx : TSyntax ``Parser.Command.openDecl) : m (List OpenDecl) := do
   StateRefT'.run' (s := { openDecls := (← getOpenDecls), currNamespace := (← getCurrNamespace) }) do
     match stx with
     | `(Parser.Command.openDecl| $nss*) =>
@@ -73,18 +73,25 @@ def elabOpenDecl [MonadResolveName m] (stx : TSyntax ``Parser.Command.openDecl) 
       let nss ← resolveNamespace ns
       for idStx in ids do
         let declName ← resolveNameUsingNamespacesCore nss idStx
+        if (← getInfoState).enabled then
+          addConstInfo idStx declName
         addOpenDecl (OpenDecl.explicit idStx.getId declName)
     | `(Parser.Command.openDecl| $ns hiding $ids*) =>
       let ns ← resolveUniqueNamespace ns
       activateScoped ns
       for id in ids do
-        let _ ← resolveId ns id
+        let declName ← resolveId ns id
+        if (← getInfoState).enabled then
+          addConstInfo id declName
       let ids := ids.map (·.getId) |>.toList
       addOpenDecl (OpenDecl.simple ns ids)
     | `(Parser.Command.openDecl| $ns renaming $[$froms -> $tos],*) =>
       let ns ← resolveUniqueNamespace ns
       for («from», to) in froms.zip tos do
         let declName ← resolveId ns «from»
+        if (← getInfoState).enabled then
+          addConstInfo «from» declName
+          addConstInfo to declName
         addOpenDecl (OpenDecl.explicit to.getId declName)
     | _ => throwUnsupportedSyntax
     return (← get).openDecls

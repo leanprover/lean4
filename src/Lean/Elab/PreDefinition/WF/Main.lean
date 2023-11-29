@@ -7,6 +7,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.PreDefinition.WF.PackDomain
 import Lean.Elab.PreDefinition.WF.PackMutual
+import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Eqns
@@ -79,6 +80,7 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize :
     return false
 
 def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
+  let preDefs ← preDefs.mapM fun preDef => return { preDef with value := (← preprocess preDef.value) }
   let (unaryPreDef, fixedPrefixSize) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
@@ -107,10 +109,13 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     withEnableInfoTree false do
       addNonRec preDefNonRec (applyAttrAfterCompilation := false)
     addNonRecPreDefs preDefs preDefNonRec fixedPrefixSize
+  -- We create the `_unsafe_rec` before we abstract nested proofs.
+  -- Reason: the nested proofs may be referring to the _unsafe_rec.
+  addAndCompilePartialRec preDefs
+  let preDefs ← preDefs.mapM (abstractNestedProofs ·)
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
   for preDef in preDefs do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
-  addAndCompilePartialRec preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf
 

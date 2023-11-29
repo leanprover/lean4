@@ -113,12 +113,12 @@ private partial def replaceRecApps (recFnName : Name) (recArgInfo : RecArgInfo) 
     | Expr.letE n type val body _ =>
       withLetDecl n (← loop below type) (← loop below val) fun x => do
         mkLetFVars #[x] (← loop below (body.instantiate1 x)) (usedLetOnly := false)
-    | Expr.mdata d b     =>
-      if let some _ := getRecAppSyntax? e then
-        loop below b
+    | Expr.mdata d b =>
+      if let some stx := getRecAppSyntax? e then
+        withRef stx <| loop below b
       else
         return mkMData d (← loop below b)
-    | Expr.proj n i e    => return mkProj n i (← loop below e)
+    | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
       let processApp (e : Expr) : StateRefT (HasConstCache recFnName) M Expr :=
         e.withApp fun f args => do

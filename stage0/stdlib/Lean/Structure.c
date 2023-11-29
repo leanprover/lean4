@@ -470,7 +470,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("subobject?", 10);
+x_1 = lean_mk_string_from_bytes("subobject\?", 10);
 return x_1;
 }
 }
@@ -515,7 +515,7 @@ static lean_object* _init_l___private_Lean_Structure_0__Lean_reprStructureFieldI
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("autoParam?", 10);
+x_1 = lean_mk_string_from_bytes("autoParam\?", 10);
 return x_1;
 }
 }
@@ -2889,24 +2889,12 @@ return x_6;
 }
 else
 {
-uint8_t x_7; 
-x_7 = lean_nat_dec_le(x_3, x_3);
-if (x_7 == 0)
-{
-uint8_t x_8; 
+size_t x_7; size_t x_8; uint8_t x_9; 
+x_7 = 0;
+x_8 = lean_usize_of_nat(x_3);
 lean_dec(x_3);
-x_8 = 0;
-return x_8;
-}
-else
-{
-size_t x_9; size_t x_10; uint8_t x_11; 
-x_9 = 0;
-x_10 = lean_usize_of_nat(x_3);
-lean_dec(x_3);
-x_11 = l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2(x_2, x_1, x_9, x_10);
-return x_11;
-}
+x_9 = l_Array_anyMUnsafe_any___at_Lean_findField_x3f___spec__2(x_2, x_1, x_7, x_8);
+return x_9;
 }
 }
 }

@@ -6,13 +6,12 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 import Init.System.IO
 import Lean.Data.RBMap
-
 import Lean.Environment
 
 import Lean.Data.Lsp
 import Lean.Data.Json.FromToJson
 
-import Lean.Util.Paths
+import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
 import Lean.Language.Basic
 
@@ -23,8 +22,10 @@ import Lean.Server.References
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
+import Lean.Server.FileWorker.SetupFile
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
+import Lean.Server.ImportCompletion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -132,57 +133,27 @@ end Elab
 -- Pending requests are tracked so they can be canceled
 abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
 
+structure AvailableImportsCache where
+  availableImports       : ImportCompletion.AvailableImports
+  lastRequestTimestampMs : Nat
+
 structure WorkerState where
-  doc             : EditableDocument
-  -- The initial header syntax tree. Changing the header requires restarting the worker process.
-  initHeaderStx   : Syntax
-  pendingRequests : PendingRequestMap
+  doc                : EditableDocument
+  -- The initial header syntax tree that the file worker was started with.
+  initHeaderStx      : Syntax
+  -- The current header syntax tree. Changing the header from `initHeaderStx` initiates a restart
+  -- that only completes after a while, so `currHeaderStx` tracks the modified syntax until then.
+  currHeaderStx      : Syntax
+  importCachingTask? : Option (Task (Except Error AvailableImportsCache))
+  pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions     : RBMap UInt64 (IO.Ref RpcSession) compare
+  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
 
 abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-  /-- Use `lake print-paths` to compile dependencies on the fly and add them to `LEAN_PATH`.
-  Compilation progress is reported to `hOut` via LSP notifications. Return the search path for
-  source files. -/
-  partial def lakeSetupSearchPath (lakePath : System.FilePath) (m : DocumentMeta) (imports : Array Import) (hOut : FS.Stream) : IO SearchPath := do
-    let mut args := #["print-paths"] ++ imports.map (toString ·.module)
-    if m.dependencyBuildMode matches .never then
-      args := args.push "--no-build"
-    let cmdStr := " ".intercalate (toString lakePath :: args.toList)
-    let lakeProc ← Process.spawn {
-      stdin  := Process.Stdio.null
-      stdout := Process.Stdio.piped
-      stderr := Process.Stdio.piped
-      cmd    := lakePath.toString
-      args
-    }
-    -- progress notification: report latest stderr line
-    let rec processStderr (acc : String) : IO String := do
-      let line ← lakeProc.stderr.getLine
-      if line == "" then
-        return acc
-      else
-        publishDiagnostics m #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.information, message := line }] hOut
-        processStderr (acc ++ line)
-    let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
-    let stdout := String.trim (← lakeProc.stdout.readToEnd)
-    let stderr ← IO.ofExcept stderr.get
-    match (← lakeProc.wait) with
-    | 0 =>
-      let Except.ok (paths : LeanPaths) ← pure (Json.parse stdout >>= fromJson?)
-        | throwServerError s!"invalid output from `{cmdStr}`:\n{stdout}\nstderr:\n{stderr}"
-      initSearchPath (← getBuildDir) paths.oleanPath
-      paths.loadDynlibPaths.forM loadDynlib
-      paths.srcPath.mapM realPathNormalized
-    | 2 => pure []  -- no lakefile.lean
-    -- error from `--no-build`
-    | 3 => throwServerError s!"Imports are out of date and must be rebuilt; use the \"Restart File\" command in your editor.\n\n{stdout}"
-    | _ => throwServerError s!"`{cmdStr}` failed:\n{stdout}\nstderr:\n{stderr}"
-
   def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
@@ -191,7 +162,18 @@ section Initialization
       if let some path := System.Uri.fileUriToPath? meta.uri then
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
-    let processor ← Language.Lean.mkIncrementalProcessor { opts, mainModuleName }
+    let processor ← Language.Lean.mkIncrementalProcessor {
+      opts, mainModuleName
+      fileSetupHandler? := some fun imports =>
+        setupFile meta imports fun stderrLine =>
+          let progressDiagnostic := {
+            range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+            severity? := DiagnosticSeverity.information
+            message   := stderrLine
+          }
+          -- TODO: should use a channel to the reporting thread instead of using `o` directly
+          publishDiagnostics meta #[progressDiagnostic] o
+    }
     let initSnap ← processor meta.mkInputContext
     let ctx :=
       { hIn  := i
@@ -205,9 +187,11 @@ section Initialization
     let doc : EditableDocument := { meta, initSnap, reporter }
     return (ctx,
     { doc
-      initHeaderStx   := initSnap.stx
-      pendingRequests := RBMap.empty
-      rpcSessions     := RBMap.empty
+      initHeaderStx      := initSnap.stx
+      currHeaderStx      := initSnap.stx
+      pendingRequests    := RBMap.empty
+      rpcSessions        := RBMap.empty
+      importCachingTask? := none
     })
 end Initialization
 
@@ -290,6 +274,30 @@ section MessageHandling
       : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
+  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
+      : WorkerM (Task (Except Error AvailableImportsCache)) := do
+    let ctx ← read
+    let st ← get
+    let text := st.doc.meta.text
+
+    match st.importCachingTask? with
+    | none => IO.asTask do
+      let availableImports ← ImportCompletion.collectAvailableImports
+      let lastRequestTimestampMs ← IO.monoMsNow
+      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
+    | some task => IO.mapTask (t := task) fun result => do
+      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
+      let timestampNowMs ← IO.monoMsNow
+      if timestampNowMs - lastRequestTimestampMs >= 10000 then
+        availableImports ← ImportCompletion.collectAvailableImports
+      lastRequestTimestampMs := timestampNowMs
+      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let ctx ← read
@@ -307,9 +315,19 @@ section MessageHandling
             message := toString e }
       return
 
-    -- we assume that every request requires at least the header snapshot or the search path
-    let t ← IO.bindTask (.pure "") fun _ => do
-     let srcSearchPath := ∅
+    if method == "textDocument/completion" then
+      let params ← parseParams CompletionParams params
+      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.currHeaderStx params then
+        let importCachingTask ← handleImportCompletionRequest id params
+        set <| { st with importCachingTask? := some importCachingTask }
+        return
+
+    -- we assume that any other request requires at least the the search path
+    -- TODO: move into language-specific request handling
+    let srcSearchPathTask :=
+      st.doc.initSnap.success?.map (·.next.task.map (·.success?.map (·.srcSearchPath) |>.getD ∅))
+      |>.getD (.pure ∅)
+    let t ← IO.bindTask srcSearchPathTask fun srcSearchPath => do
      let rc : RequestContext :=
        { rpcSessions := st.rpcSessions
          srcSearchPath

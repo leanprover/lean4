@@ -176,7 +176,7 @@ jobs:
                 "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
               }
             ];
-            console.log(`matrix: ${matrix}`)
+            console.log(`matrix:\n${JSON.stringify(matrix, null, 2)`)
             if (quick) {
               return matrix.filter((job) => job.quick)
             } else {

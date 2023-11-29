@@ -2507,7 +2507,7 @@ as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
 
-From the point of proofs `Array α` is just a wrapper around `List α`.
+From the point of view of proofs `Array α` is just a wrapper around `List α`.
 -/
 structure Array (α : Type u) where
   /--

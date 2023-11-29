@@ -369,24 +369,26 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make -j4 stage2
+        if: ${{ !needs.configure.outputs.quick }}
       - name: Check Stage 3
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make -j4 check-stage3
+        if: ${{ !needs.configure.outputs.quick }}
       - name: Test Speedcenter Benchmarks
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
           cd tests/bench
           nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: matrix.test-speedcenter
+        if: ${{ !needs.configure.outputs.quick }}
       - name: Check rebootstrap
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make update-stage0 && make -j4
-        if: matrix.name == 'Linux'
+        if: matrix.name == 'Linux' && !needs.configure.outputs.quick
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps

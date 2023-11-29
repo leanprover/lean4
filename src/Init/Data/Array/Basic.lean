@@ -468,6 +468,9 @@ def elem [BEq α] (a : α) (as : Array α) : Bool :=
     else
       (true, r)
 
+/-- Convert a `Array α` into an `List α`. This is O(n) in the size of the array.  -/
+-- This function is exported to C, where it is called by `Array.data`
+-- (the projection) to implement this functionality.
 @[export lean_array_to_list]
 def toList (as : Array α) : List α :=
   as.foldr List.cons []

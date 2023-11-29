@@ -30,6 +30,7 @@ LEAN_EXPORT lean_object* l_Lean_DataValue_getBoolEx___boxed(lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_307____closed__14;
 LEAN_EXPORT lean_object* l_Lean_KVMap_subset___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_307____closed__10;
+LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_KVMap_mergeBy___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Data_KVMap_0__Lean_reprDataValue____x40_Lean_Data_KVMap___hyg_307____closed__34;
 LEAN_EXPORT uint8_t l_Lean_KVMap_subsetAux(lean_object*, lean_object*);
 static lean_object* l_Lean_KVMap_instValueNat___closed__1;
@@ -231,6 +232,7 @@ uint8_t l_Lean_Syntax_structEq(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Data_KVMap_0__Lean_reprKVMap____x40_Lean_Data_KVMap___hyg_1034____spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_KVMap_findCore(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KVMap_instValueString___lambda__2(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_KVMap_mergeBy(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instCoeBoolDataValue(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_KVMap_instBEqKVMap;
 uint8_t lean_int_dec_eq(lean_object*, lean_object*);
@@ -3103,6 +3105,61 @@ uint8_t x_3; lean_object* x_4;
 x_3 = l_Lean_KVMap_subset(x_1, x_2);
 lean_dec(x_2);
 x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_KVMap_mergeBy___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_dec(x_1);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_4 = lean_ctor_get(x_2, 0);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_2, 1);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_4, 1);
+lean_inc(x_7);
+lean_dec(x_4);
+x_8 = l_Lean_KVMap_findCore(x_3, x_6);
+if (lean_obj_tag(x_8) == 0)
+{
+lean_object* x_9; 
+x_9 = l_Lean_KVMap_insertCore(x_3, x_6, x_7);
+x_2 = x_5;
+x_3 = x_9;
+goto _start;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_8, 0);
+lean_inc(x_11);
+lean_dec(x_8);
+lean_inc(x_1);
+lean_inc(x_6);
+x_12 = lean_apply_3(x_1, x_6, x_11, x_7);
+x_13 = l_Lean_KVMap_insertCore(x_3, x_6, x_12);
+x_2 = x_5;
+x_3 = x_13;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_KVMap_mergeBy(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_List_forIn_loop___at_Lean_KVMap_mergeBy___spec__1(x_1, x_3, x_2);
 return x_4;
 }
 }

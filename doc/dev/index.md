@@ -30,19 +30,14 @@ powershell -f elan-init.ps1 --default-toolchain none
 del elan-init.ps1
 ```
 
-You can use `elan toolchain link` to give a specific stage build
-directory a reference name, then use a `lean-toolchain` file to associate
-such a name to the current directory. We usually want to use `stage0`
-for editing files in `src` and `stage1` for everything else (e.g.
-tests).
+The `lean-toolchain` files in the Lean 4 repository are set up to use the `lean4-stage0`
+toolchain for editing files in `src` and the `lean4` toolchain for editing files in `tests`.
+
+Run the following commands to make `lean4` point at `stage1` and `lean4-stage0` point at `stage0`:
 ```bash
 # in the Lean rootdir
 elan toolchain link lean4 build/release/stage1
 elan toolchain link lean4-stage0 build/release/stage0
-# make `lean` etc. point to stage1 in the rootdir and subdirs
-echo lean4 > lean-toolchain
-# make `lean` etc. point to stage0 anywhere inside `src`
-echo lean4-stage0 > src/lean-toolchain
 ```
 
 You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch

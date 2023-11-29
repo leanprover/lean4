@@ -13,6 +13,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            if (!/^(feat|fix|doc|style|refactor|test|chore|perf): .*[^.]($|\n\n)/.test(context.payload.pull_request.title || context.payload.merge_group.head_commit.message)) {
+            const msg = if (context.payload.pull_request) { context.payload.pull_request.title }
+               else { context.payload.merge_group.head_commit.message };
+            if (!/^(feat|fix|doc|style|refactor|test|chore|perf): .*[^.]($|\n\n)/.test(msg)) {
               core.setFailed('PR title does not follow the Commit Convention (https://leanprover.github.io/lean4/doc/dev/commit_convention.html).');
             }

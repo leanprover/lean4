@@ -215,7 +215,7 @@ jobs:
         # This now removes all entries from the matrix with quick: false if are
         # not running a full build
         exclude:
-          - quick: ${{ needs.configure.outputs.quick && "no" || "exclude-nothing" }}
+          - quick: ${{ needs.configure.outputs.quick && 'no' || 'exclude-nothing' }}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

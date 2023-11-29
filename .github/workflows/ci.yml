@@ -285,7 +285,7 @@ jobs:
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
-          tree --du -h lean-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
+          tree --du -h lean-*-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
         run: |
           dir=$(echo lean-*)

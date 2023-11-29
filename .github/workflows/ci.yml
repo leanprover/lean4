@@ -237,10 +237,6 @@ jobs:
     strategy:
       matrix:
         include: ${{fromJson(needs.configure.outputs.matrix)}}
-        # This now removes all entries from the matrix with quick: false if are
-        # not running a full build
-        exclude:
-          - quick: ${{ needs.configure.outputs.quick && 'no' || 'exclude-nothing' }}
       # complete all jobs
       fail-fast: false
     runs-on: ${{ matrix.os }}

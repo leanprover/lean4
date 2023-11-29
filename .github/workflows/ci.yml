@@ -60,7 +60,7 @@ jobs:
         with:
           script: |
             const quick = ${{ steps.set-quick.outputs.quick }};
-            console.log(`quick: {quick}`)
+            console.log(`quick: ${quick}`)
             let matrix = [
               {
                 "name": "Linux LLVM",
@@ -176,7 +176,7 @@ jobs:
                 "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
               }
             ];
-            console.log(`matrix: {matrix}`)
+            console.log(`matrix: ${matrix}`)
             if (quick) {
               return matrix.filter((job) => job.quick)
             } else {

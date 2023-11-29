@@ -56,6 +56,7 @@ jobs:
             console.log(`quick: ${quick}`)
             let matrix = [
               {
+                // portable release build: use channel with older glibc (2.27)
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
@@ -64,6 +65,8 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
+                // reverse-ffi needs to be updated to link to LLVM libraries
                 "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
               },
@@ -76,6 +79,7 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
+                // foreign code may be linked against more recent glibc
                 "CTEST_OPTIONS": "-E 'foreign'"
               },
               {
@@ -90,13 +94,16 @@ jobs:
                 "os": "ubuntu-latest",
                 "quick": false,
                 "CMAKE_OPTIONS": "-DCMAKE_BUILD_TYPE=Debug",
+                // exclude seriously slow tests
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
               },
               {
                 "name": "Linux fsanitize",
                 "os": "ubuntu-latest",
                 "quick": false,
+                // turn off custom allocator & symbolic functions to make LSAN do its magic
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF",
+                // exclude seriously slow/problematic tests (laketests crash)
                 "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest'"
               },
               {
@@ -108,7 +115,7 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
-                "tar": "gtar"
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
               },
               {
                 "name": "macOS aarch64",
@@ -121,7 +128,7 @@ jobs:
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
                 "binary-check": "otool -L",
-                "tar": "gtar"
+                "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
               },
               {
                 "name": "Windows",
@@ -130,6 +137,7 @@ jobs:
                 "quick": false,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\" -DUSE_GMP=OFF",
+                // for reasons unknown, interactivetests are flaky on Windows
                 "CTEST_OPTIONS": "--repeat until-pass:2",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
@@ -149,6 +157,7 @@ jobs:
               {
                 "name": "Linux 32bit",
                 "os": "ubuntu-latest",
+                // Use 32bit on stage0 and stage1 to keep oleans compatible
                 "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86",
                 "cmultilib": true,
                 "release": true,
@@ -159,6 +168,7 @@ jobs:
               {
                 "name": "Web Assembly",
                 "os": "ubuntu-latest",
+                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
                 "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32",
                 "wasm": true,
                 "cmultilib": true,
@@ -166,6 +176,7 @@ jobs:
                 "quick": false,
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}",
+                // Just a few selected tests because wasm is slow
                 "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean\""
               }
             ];

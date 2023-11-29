@@ -71,7 +71,7 @@ jobs:
                 "name": "Linux release",
                 "os": "ubuntu-latest",
                 "release": true,
-                "quick": "yes",
+                "quick": true,
                 "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{}}\" --run \"bash -euxo pipefail {0}\"",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -83,7 +83,7 @@ jobs:
                 "os": "ubuntu-latest",
                 "check-stage3": true,
                 "test-speedcenter": true,
-                "quick": "yes"
+                "quick": false,
               },
               {
                 "name": "Linux Debug",
@@ -369,20 +369,20 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make -j4 stage2
-        if: ${{ !needs.configure.outputs.quick }}
+        if: matrix.test-speedcenter
       - name: Check Stage 3
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make -j4 check-stage3
-        if: ${{ !needs.configure.outputs.quick }}
+        if: matrix.test-speedcenter
       - name: Test Speedcenter Benchmarks
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
           export BUILD=$PWD/build PATH=$PWD/build/stage1/bin:$PATH
           cd tests/bench
           nix shell .#temci -c temci exec --config speedcenter.yaml --included_blocks fast --runs 1
-        if: ${{ !needs.configure.outputs.quick }}
+        if: matrix.test-speedcenter
       - name: Check rebootstrap
         run: |
           cd build

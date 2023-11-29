@@ -121,6 +121,8 @@ private def withHeaderExceptions (ex : Snapshot → α) (act : IO α) : BaseIO �
   | .error e => return ex { msgLog := msglogOfHeaderError e.toString }
   | .ok a => return a
 
+builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
+
 /-- Entry point of the Lean language processor. -/
 -- As a general note, for each processing function we pass in the previous
 -- state, if any, in order to reuse still-valid state. Thus the logic of
@@ -179,7 +181,6 @@ where
     withHeaderExceptions ({ · with success? := none }) do
     -- discard existing continuation if any, there is nothing to reuse
     let _ ← old?.bind (·.success?) |>.map (·.next) |> getOrCancel?
-    -- TODO: we should do this at most once per process
     let fileSetupResult ← if let some handler := ctx.fileSetupHandler? then
       handler (Elab.headerToImports stx)
     else
@@ -197,6 +198,15 @@ where
         success? := none
       }
     | _ => pure ()
+
+    if (← importsLoadedRef.modifyGet ((·, true))) then
+      -- As we never unload imports in the server, we should not run the code below twice in the
+      -- same process and instead ask the watchdog to restart the worker
+      IO.sleep 200  -- give user time to make further edits before restart
+      unless (← IO.checkCanceled) do
+        IO.Process.exit 2  -- signal restart request to watchdog
+      -- should not be visible to user as task is already canceled
+      return { msgLog := .empty, success? := none }
 
     let opts := ctx.opts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
     let mut (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty ictx

@@ -114,7 +114,7 @@ jobs:
           - name: Linux LLVM
             os: ubuntu-latest
             release: false
-            quick: false
+            quick: "no"
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
@@ -126,7 +126,7 @@ jobs:
           - name: Linux release
             os: ubuntu-latest
             release: true
-            quick: true # Run always, we always want PR releases
+            quick: "yes" # Run always, we always want PR releases
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
@@ -137,16 +137,16 @@ jobs:
             os: ubuntu-latest
             check-stage3: true
             test-speedcenter: true
-            quick: true # Run always, we always want speedcenter results
+            quick: "yes" # Run always, we always want speedcenter results
           - name: Linux Debug
             os: ubuntu-latest
-            quick: false
+            quick: "no"
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
             # exclude seriously slow tests
             CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
           - name: Linux fsanitize
             os: ubuntu-latest
-            quick: false
+            quick: "no"
             # turn off custom allocator & symbolic functions to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
             # exclude seriously slow/problematic tests (laketests crash)
@@ -154,7 +154,7 @@ jobs:
           - name: macOS
             os: macos-latest
             release: true
-            quick: false
+            quick: "no"
             shell: bash -euxo pipefail {0}
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
@@ -163,7 +163,7 @@ jobs:
           - name: macOS aarch64
             os: macos-latest
             release: true
-            quick: false
+            quick: "no"
             cross: true
             shell: bash -euxo pipefail {0}
             CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
@@ -174,7 +174,7 @@ jobs:
           - name: Windows
             os: windows-2022
             release: true
-            quick: false
+            quick: "no"
             shell: msys2 {0}
             CMAKE_OPTIONS: -G "Unix Makefiles" -DUSE_GMP=OFF
             # for reasons unknown, interactivetests are flaky on Windows
@@ -186,7 +186,7 @@ jobs:
             os: ubuntu-latest
             CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64
             release: true
-            quick: false
+            quick: "no"
             cross: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
@@ -197,7 +197,7 @@ jobs:
             CMAKE_OPTIONS: -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86
             cmultilib: true
             release: true
-            quick: false
+            quick: "no"
             cross: true
             shell: bash -euxo pipefail {0}
           - name: Web Assembly
@@ -207,7 +207,7 @@ jobs:
             wasm: true
             cmultilib: true
             release: true
-            quick: false
+            quick: "no"
             cross: true
             shell: bash -euxo pipefail {0}
             # Just a few selected tests because wasm is slow
@@ -215,7 +215,7 @@ jobs:
         # This now removes all entries from the matrix with quick: false if are
         # not running a full build
         exclude:
-          - quick: ${{ needs.configure.outputs.quick && true || false }}
+          - quick: ${{ needs.configure.outputs.quick && "no" || "exclude-nothing" }}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}

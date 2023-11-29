@@ -44,7 +44,7 @@ jobs:
 
     steps:
       - name: Run quick CI?
-        id: set_quick
+        id: set-quick
         env:
           quick: ${{
             github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
@@ -351,13 +351,13 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make -j4 stage2
-        if: !needs.configure.outputs.quick
+        if: ${{ !needs.configure.outputs.quick }}
       - name: Check Stage 3
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make -j4 check-stage3
-        if: !needs.configure.outputs.quick
+        if: ${{ !needs.configure.outputs.quick }}
       - name: Test Speedcenter Benchmarks
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid

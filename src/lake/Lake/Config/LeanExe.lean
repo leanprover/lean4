@@ -61,7 +61,7 @@ The file name of binary executable
 (i.e., `exeName` plus the platform's `exeExtension`).
 -/
 @[inline] def fileName (self : LeanExe) : FilePath :=
-  FilePath.withExtension self.config.exeName FilePath.exeExtension
+  FilePath.addExtension self.config.exeName FilePath.exeExtension
 
 /-- The path to the executable in the package's `binDir`. -/
 @[inline] def file (self : LeanExe) : FilePath :=

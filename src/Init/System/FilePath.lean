@@ -101,6 +101,9 @@ def withFileName (p : FilePath) (fname : String) : FilePath :=
   | none => ⟨fname⟩
   | some p => p / fname
 
+def addExtension (p : FilePath) (ext : String) : FilePath :=
+  p.withFileName (if ext.isEmpty then p.fileName else p.fileName ++ "." ++ ext)
+
 def withExtension (p : FilePath) (ext : String) : FilePath :=
   match p.fileStem with
   | none => p

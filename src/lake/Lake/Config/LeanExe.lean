@@ -89,8 +89,6 @@ That is, the package's `weakLinkArgs` plus the executable's  `weakLinkArgs`.
 
 end LeanExe
 
-/-- Locate the named module in the package (if it is buildable and local to it). -/
-def Package.findModule? (mod : Name) (self : Package) : Option Module :=
-  self.leanExes.findSome? (·.isRoot? mod) <|>
-  self.leanLibs.findSome? (·.findModule? mod)
-
+/-- Locate the named, buildable, but not necessarily importable, module in the package. -/
+def Package.findTargetModule? (mod : Name) (self : Package) : Option Module :=
+  self.leanExes.findSomeRev? (·.isRoot? mod) <|> self.findModule? mod

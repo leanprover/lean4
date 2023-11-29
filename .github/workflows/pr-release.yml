@@ -84,7 +84,6 @@ jobs:
         id: most-recent-nightly-tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
 
       - name: 'Setup jq'

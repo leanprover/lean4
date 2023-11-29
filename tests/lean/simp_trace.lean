@@ -134,3 +134,7 @@ example (P Q : Prop) (h : P ↔ Q) (p : P) : Q := by
 theorem my_thm' : a ↔ a ∧ a := my_thm.symm
 
 example (P : Prop) : P ∧ P ↔ P := by simp only [← my_thm']
+
+example {P : Prop} : P → P := by intro h; simp [*]
+
+example {P : Prop} : P → P := by intro; simp [*]

@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://matchStxCompletion.lean"},
+{"textDocument": {"uri": "file:///matchStxCompletion.lean"},
  "position": {"line": 8, "character": 9}}
 {"items":
  [{"label": "b1", "kind": 5, "detail": "C → String"},

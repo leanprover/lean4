@@ -19,13 +19,12 @@ structure LeanPaths where
   loadDynlibPaths : Array FilePath := #[]
   deriving ToJson, FromJson
 
-def initSrcSearchPath (_leanSysroot : FilePath) (sp : SearchPath := ∅) : IO SearchPath := do
-  let srcSearchPath :=
-    if let some p := (← IO.getEnv "LEAN_SRC_PATH") then
-      System.SearchPath.parse p
-    else []
+def initSrcSearchPath (pkgSearchPath : SearchPath := ∅) : IO SearchPath := do
+  let srcSearchPath := (← IO.getEnv "LEAN_SRC_PATH")
+    |>.map System.SearchPath.parse
+    |>.getD []
   let srcPath := (← IO.appDir) / ".." / "src" / "lean"
   -- `lake/` should come first since on case-insensitive file systems, Lean thinks that `src/` also contains `Lake/`
-  return srcSearchPath ++ sp ++ [srcPath / "lake", srcPath]
+  return srcSearchPath ++ pkgSearchPath ++ [srcPath / "lake", srcPath]
 
 end Lean

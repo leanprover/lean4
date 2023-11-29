@@ -1,22 +1,22 @@
-{"textDocument": {"uri": "file://match.lean"},
+{"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 6, "character": 11}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat"},
   {"label": "name", "kind": 5, "detail": "S → String"},
   {"label": "value", "kind": 5, "detail": "S → Bool"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://match.lean"},
+{"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 10, "character": 10}}
 {"items":
  [{"label": "fn1", "kind": 5, "detail": "S → Nat"},
   {"label": "name", "kind": 5, "detail": "S → String"},
   {"label": "value", "kind": 5, "detail": "S → Bool"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://match.lean"},
+{"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 14, "character": 2}}
 {"rendered": "```lean\nx : Nat\n⊢ 0 + x = x\n```",
  "goals": ["x : Nat\n⊢ 0 + x = x"]}
-{"textDocument": {"uri": "file://match.lean"},
+{"textDocument": {"uri": "file:///match.lean"},
  "position": {"line": 16, "character": 9}}
 {"rendered": "```lean\nx : Nat\n⊢ 0 + 0 = 0\n```",
  "goals": ["x : Nat\n⊢ 0 + 0 = 0"]}

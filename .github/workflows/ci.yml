@@ -132,7 +132,7 @@ jobs:
             # exclude seriously slow/problematic tests (laketests crash)
             CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
           - name: macOS
-            os: macos-11
+            os: macos-latest
             release: true
             shell: bash -euxo pipefail {0}
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
@@ -140,7 +140,7 @@ jobs:
             binary-check: otool -L
             tar: gtar  # https://github.com/actions/runner-images/issues/2619
           - name: macOS aarch64
-            os: macos-11
+            os: macos-latest
             release: true
             cross: true
             shell: bash -euxo pipefail {0}
@@ -223,7 +223,7 @@ jobs:
       - name: Install Brew Packages
         run: |
           brew install ccache tree zstd coreutils gmp
-        if: matrix.os == 'macos-11'
+        if: matrix.os == 'macos-latest'
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v12
         with:
@@ -259,7 +259,8 @@ jobs:
           mkdir build
           cd build
           ulimit -c unlimited # coredumps
-          OPTIONS=()
+          # this also enables githash embedding into stage 1 library
+          OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
@@ -362,6 +363,21 @@ jobs:
             ./build/stage1/lib/lean/libleanshared.so
             ./build/stage2/bin/lean
             ./build/stage2/lib/lean/libleanshared.so
+
+  # This job collects results from all the matrix jobs
+  # This can be made the “required” job, instead of listing each
+  # matrix job separately
+  all-done:
+    name: Build matrix complete
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ always() }}
+    steps:
+    - if: contains(needs.*.result, 'failure') ||  contains(needs.*.result, 'cancelled')
+      uses: actions/github-script@v3
+      with:
+        script: |
+            core.setFailed('Some jobs failed')
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

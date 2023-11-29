@@ -6,6 +6,7 @@ on:
     tags:
       - '*'
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
   merge_group:
   schedule:
     - cron: '0 7 * * *'  # 8AM CET/11PM PT
@@ -15,18 +16,49 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  set-nightly:
+
+  # This job determines various settings for the following CI runs; see the `outputs` for details
+  configure:
     runs-on: ubuntu-latest
     outputs:
-      nightly: ${{ steps.set.outputs.nightly }}
+      # Should we run a full CI? Yes unless we are on a pull request without the full-ci label
+      full: ${{ steps.set-full.outputs.full }}
+      # Should we make a nightly release? If so, this output contains the lean version string, else it is empty
+      nightly: ${{ steps.set-nightly.outputs.nightly }}
+      # Should this be the CI for a tagged release?
+      # Yes only if a tag is pushed to the `leanprover` repository, and the tag is "v" followed by a valid semver.
+      # It sets `set-release.outputs.RELEASE_TAG` to the tag
+      # and sets `set-release.outputs.{LEAN_VERSION_MAJOR,LEAN_VERSION_MINOR,LEAN_VERSION_PATCH,LEAN_SPECIAL_VERSION_DESC}`
+      # to the semver components parsed via regex.
+      LEAN_VERSION_MAJOR: ${{ steps.set-release.outputs.LEAN_VERSION_MAJOR }}
+      LEAN_VERSION_MINOR: ${{ steps.set-release.outputs.LEAN_VERSION_MINOR }}
+      LEAN_VERSION_PATCH: ${{ steps.set-release.outputs.LEAN_VERSION_PATCH }}
+      LEAN_SPECIAL_VERSION_DESC: ${{ steps.set-release.outputs.LEAN_SPECIAL_VERSION_DESC }}
+      RELEASE_TAG: ${{ steps.set-release.outputs.RELEASE_TAG }}
+
+    # Skip everything if a label other than `full-ci` was added
+    # (By skipping the configure job, all other jobs will be skipped as well)
+    # TODO: Double check that the pr release workflow will not be triggered
+    # TODO: Maybe we can trigger the PR release from this workflow instead? Might be cleaner.
+    if: github.event_name != 'label' || github.event.label.name == 'full-ci'
+
     steps:
+      - name: Run full CI?
+        id: set-full
+        env:
+          full:
+            github.event_name == 'pull_request' && ! contains( github.event.pull_request.labels.*.name, 'full-ci') ||
+            github.event_name == 'label' && github.event.label.name == 'full-ci'
+        run: |
+          echo "full=${{env.full}}" >> $GITHUB_OUTPUT
+
       - name: Checkout
         uses: actions/checkout@v3
         # don't schedule nightlies on forks
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
       - name: Set Nightly
         if: github.event_name == 'schedule' && github.repository == 'leanprover/lean4'
-        id: set
+        id: set-nightly
         run: |
           if [[ -n '${{ secrets.PUSH_NIGHTLY_TOKEN }}' ]]; then
             git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
@@ -38,26 +70,9 @@ jobs:
             fi
           fi
 
-  # This job determines if this CI build is for a tagged release.
-  # It only runs when a tag is pushed to the `leanprover` repository.
-  # It sets `set-release.outputs.RELEASE_TAG` to the tag, if the tag is "v" followed by a valid semver,
-  # and sets `set-release.outputs.{LEAN_VERSION_MAJOR,LEAN_VERSION_MINOR,LEAN_VERSION_PATCH,LEAN_SPECIAL_VERSION_DESC}`
-  # to the semver components parsed via regex.
-  set-release:
-    runs-on: ubuntu-latest
-    outputs:
-      LEAN_VERSION_MAJOR: ${{ steps.set.outputs.LEAN_VERSION_MAJOR }}
-      LEAN_VERSION_MINOR: ${{ steps.set.outputs.LEAN_VERSION_MINOR }}
-      LEAN_VERSION_PATCH: ${{ steps.set.outputs.LEAN_VERSION_PATCH }}
-      LEAN_SPECIAL_VERSION_DESC: ${{ steps.set.outputs.LEAN_SPECIAL_VERSION_DESC }}
-      RELEASE_TAG: ${{ steps.set.outputs.RELEASE_TAG }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4'
       - name: Check for official release
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4'
-        id: set
+        id: set-release
         run: |
           TAG_NAME=${GITHUB_REF##*/}
 
@@ -86,7 +101,7 @@ jobs:
           fi
 
   build:
-    needs: [set-nightly, set-release]
+    needs: [configure]
     if: github.event_name != 'schedule' || github.repository == 'leanprover/lean4'
     runs-on: ${{ matrix.os }}
     defaults:
@@ -99,6 +114,7 @@ jobs:
           - name: Linux LLVM
             os: ubuntu-latest
             release: false
+            quick: false
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
@@ -110,6 +126,7 @@ jobs:
           - name: Linux release
             os: ubuntu-latest
             release: true
+            quick: true # Run always, we always want PR releases
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{}}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst
             prepare-llvm: ../script/prepare-llvm-linux.sh lean-llvm*
@@ -120,13 +137,16 @@ jobs:
             os: ubuntu-latest
             check-stage3: true
             test-speedcenter: true
+            quick: true # Run always, we always want speedcenter results
           - name: Linux Debug
             os: ubuntu-latest
+            quick: false
             CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Debug
             # exclude seriously slow tests
             CTEST_OPTIONS: -E 'interactivetest|leanpkgtest|laketest|benchtest'
           - name: Linux fsanitize
             os: ubuntu-latest
+            quick: false
             # turn off custom allocator & symbolic functions to make LSAN do its magic
             CMAKE_OPTIONS: -DLEAN_EXTRA_CXX_FLAGS=-fsanitize=address,undefined -DLEANC_EXTRA_FLAGS='-fsanitize=address,undefined -fsanitize-link-c++-runtime' -DSMALL_ALLOCATOR=OFF -DBSYMBOLIC=OFF
             # exclude seriously slow/problematic tests (laketests crash)
@@ -134,6 +154,7 @@ jobs:
           - name: macOS
             os: macos-latest
             release: true
+            quick: false
             shell: bash -euxo pipefail {0}
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst
             prepare-llvm: ../script/prepare-llvm-macos.sh lean-llvm*
@@ -142,6 +163,7 @@ jobs:
           - name: macOS aarch64
             os: macos-latest
             release: true
+            quick: false
             cross: true
             shell: bash -euxo pipefail {0}
             CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64
@@ -152,6 +174,7 @@ jobs:
           - name: Windows
             os: windows-2022
             release: true
+            quick: false
             shell: msys2 {0}
             CMAKE_OPTIONS: -G "Unix Makefiles" -DUSE_GMP=OFF
             # for reasons unknown, interactivetests are flaky on Windows
@@ -163,6 +186,7 @@ jobs:
             os: ubuntu-latest
             CMAKE_OPTIONS: -DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-linux_aarch64
             release: true
+            quick: false
             cross: true
             shell: nix-shell --arg pkgsDist "import (fetchTarball \"channel:nixos-19.03\") {{ localSystem.config = \"aarch64-unknown-linux-gnu\"; }}" --run "bash -euxo pipefail {0}"
             llvm-url: https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst
@@ -173,6 +197,7 @@ jobs:
             CMAKE_OPTIONS: -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86
             cmultilib: true
             release: true
+            quick: false
             cross: true
             shell: bash -euxo pipefail {0}
           - name: Web Assembly
@@ -182,10 +207,15 @@ jobs:
             wasm: true
             cmultilib: true
             release: true
+            quick: false
             cross: true
             shell: bash -euxo pipefail {0}
             # Just a few selected tests because wasm is slow
             CTEST_OPTIONS: -R "leantest_1007\.lean|leantest_Format\.lean|leanruntest\_1037.lean|leanruntest_ac_rfl\.lean"
+        # This now removes all entries from the matrix with quick: false if are
+        # not running a full build
+        exclude:
+          - quick: ${{ needs.configure.outputs.full && 'exclude-nothing' || 'true' }}
       # complete all jobs
       fail-fast: false
     name: ${{ matrix.name }}
@@ -266,15 +296,15 @@ jobs:
             PREPARE="$(${{ matrix.prepare-llvm }})"
             eval "OPTIONS+=($PREPARE)"
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ needs.set-nightly.outputs.nightly }}' ]]; then
-            OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.set-nightly.outputs.nightly }})
+          if [[ -n '${{ matrix.release }}' && -n '${{ needs.configure.outputs.nightly }}' ]]; then
+            OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.nightly }})
           fi
-          if [[ -n '${{ matrix.release }}' && -n '${{ needs.set-release.outputs.RELEASE_TAG }}' ]]; then
-            OPTIONS+=(-DLEAN_VERSION_MAJOR=${{ needs.set-release.outputs.LEAN_VERSION_MAJOR }})
-            OPTIONS+=(-DLEAN_VERSION_MINOR=${{ needs.set-release.outputs.LEAN_VERSION_MINOR }})
-            OPTIONS+=(-DLEAN_VERSION_PATCH=${{ needs.set-release.outputs.LEAN_VERSION_PATCH }})
+          if [[ -n '${{ matrix.release }}' && -n '${{ needs.configure.outputs.RELEASE_TAG }}' ]]; then
+            OPTIONS+=(-DLEAN_VERSION_MAJOR=${{ needs.configure.outputs.LEAN_VERSION_MAJOR }})
+            OPTIONS+=(-DLEAN_VERSION_MINOR=${{ needs.configure.outputs.LEAN_VERSION_MINOR }})
+            OPTIONS+=(-DLEAN_VERSION_PATCH=${{ needs.configure.outputs.LEAN_VERSION_PATCH }})
             OPTIONS+=(-DLEAN_VERSION_IS_RELEASE=1)
-            OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.set-release.outputs.LEAN_SPECIAL_VERSION_DESC }})
+            OPTIONS+=(-DLEAN_SPECIAL_VERSION_DESC=${{ needs.configure.outputs.LEAN_SPECIAL_VERSION_DESC }})
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
@@ -291,7 +321,7 @@ jobs:
           dir=$(echo lean-*)
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
-          if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.set-nightly.outputs.nightly }}' || -n '${{ needs.set-release.outputs.RELEASE_TAG }}' ]]; then
+          if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.configure.outputs.nightly }}' || -n '${{ needs.configure.outputs.RELEASE_TAG }}' ]]; then
             ${{ matrix.tar || 'tar' }} cf - $dir | zstd -T0 --no-progress -19 -o pack/$dir.tar.zst
             zip -rq pack/$dir.zip $dir
           else
@@ -321,13 +351,13 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make -j4 stage2
-        if: matrix.build-stage2 || matrix.check-stage3
+        if: needs.configure.outputs.full
       - name: Check Stage 3
         run: |
           cd build
           ulimit -c unlimited # coredumps
           make -j4 check-stage3
-        if: matrix.check-stage3
+        if: needs.configure.outputs.full
       - name: Test Speedcenter Benchmarks
         run: |
           echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
@@ -387,8 +417,8 @@ jobs:
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
   release-nightly:
-    needs: [set-nightly, build]
-    if: needs.set-nightly.outputs.nightly
+    needs: [configure, build]
+    if: needs.configure.outputs.nightly
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -404,9 +434,9 @@ jobs:
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           git fetch nightly --tags
-          git tag ${{ needs.set-nightly.outputs.nightly }}
-          git push nightly ${{ needs.set-nightly.outputs.nightly }}
-          git push -f origin refs/tags/${{ needs.set-nightly.outputs.nightly }}:refs/heads/nightly
+          git tag ${{ needs.configure.outputs.nightly }}
+          git push nightly ${{ needs.configure.outputs.nightly }}
+          git push -f origin refs/tags/${{ needs.configure.outputs.nightly }}:refs/heads/nightly
           last_tag=$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
           git show $last_tag:RELEASES.md > old.md
@@ -421,7 +451,7 @@ jobs:
           prerelease: true
           files: artifacts/*/*
           fail_on_unmatched_files: true
-          tag_name: ${{ needs.set-nightly.outputs.nightly }}
+          tag_name: ${{ needs.configure.outputs.nightly }}
           repository: ${{ github.repository_owner }}/lean4-nightly
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_NIGHTLY_TOKEN }}

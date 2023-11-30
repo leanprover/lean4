@@ -77,11 +77,11 @@ $LAKE -d lean-data exe lean-data
 $LAKE new 123-hello
 $LAKE -d 123-hello exe 123-hello
 
-# Test creating packages both starting with a digit and containing a `.`
+# Test creating packages with components that contain `.`s
 # https://github.com/leanprover/lean4/issues/2999
 
-$LAKE new 123-hello.world
-$LAKE -d 123-hello-world exe 123-hello.world
+$LAKE new «A.B».«C.D»
+$LAKE -d «A-B»-«C-D» exe «A.B».«C.D»
 
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128

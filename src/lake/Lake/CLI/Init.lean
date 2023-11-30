@@ -238,6 +238,6 @@ def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePat
 def new (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let pkgName := pkgName.trim
   validatePkgName pkgName
-  let dirName := cwd / pkgName
+  let dirName := cwd / pkgName.map fun chr => if chr == '.' then '-' else chr
   IO.FS.createDirAll dirName
   initPkg dirName pkgName tmp env

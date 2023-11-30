@@ -374,7 +374,7 @@ jobs:
         if: (matrix.wasm || !matrix.cross) && !needs.configure.outputs.quick
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross }}
+        if: ${{ !matrix.cross && !needs.configure.outputs.quick }}
       - name: Build Stage 2
         run: |
           cd build

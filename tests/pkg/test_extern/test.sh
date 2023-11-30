@@ -16,6 +16,7 @@ verify_output() {
     sed 's#\\#/#g' |
     awk '/error: stdout:/, /error: external command/' |
     sed '/error: external command/d'}
+}
 
 lake build 2>&1 | verify_output > produced.txt
 

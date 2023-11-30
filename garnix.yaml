@@ -1,0 +1,5 @@
+builds:
+  include:
+  - packages.x86_64-linux.cacheRoots
+  - checks.x86_64-linux.lean
+  - devShell.x86_64-linux

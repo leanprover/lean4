@@ -77,7 +77,8 @@ $LAKE -d lean-data exe lean-data
 $LAKE new 123-hello
 $LAKE -d 123-hello exe 123-hello
 
-# Test creating packages containing a `.`
+# Test creating packages both starting with a digit and containing a `.`
+# https://github.com/leanprover/lean4/issues/2999
 
 $LAKE new 123-hello.world
 $LAKE -d 123-hello-world exe 123-hello.world

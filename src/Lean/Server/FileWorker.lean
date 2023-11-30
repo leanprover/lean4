@@ -57,8 +57,9 @@ open Snapshots
 open JsonRpc
 
 structure WorkerContext where
-  hIn              : FS.Stream
-  hOut             : FS.Stream
+  /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
+    discarded on read. -/
+  chanOut          : IO.Channel JsonRpc.Message
   hLog             : FS.Stream
   initParams       : InitializeParams
   processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
@@ -68,17 +69,19 @@ structure WorkerContext where
 
 section Elab
   -- Placed here instead of Lean.Server.Utils because of an import loop
-  private def publishIleanInfo (method : String) (m : DocumentMeta) (hOut : FS.Stream)
-      (trees : Array Elab.InfoTree) : IO Unit := do
+  private def mkIleanInfoNotification (method : String) (m : DocumentMeta)
+      (trees : Array Elab.InfoTree) : JsonRpc.Notification Lsp.LeanIleanInfoParams :=
     let references := findModuleRefs m.text trees (localVars := true)
-    let param := { version := m.version, references : LeanIleanInfoParams }
-    hOut.writeLspNotification { method, param }
+    let param := { version := m.version, references }
+    { method, param }
 
-  private def publishIleanInfoUpdate : DocumentMeta → FS.Stream → Array Elab.InfoTree → IO Unit :=
-    publishIleanInfo "$/lean/ileanInfoUpdate"
+  private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
+      JsonRpc.Notification Lsp.LeanIleanInfoParams :=
+    mkIleanInfoNotification "$/lean/ileanInfoUpdate"
 
-  private def publishIleanInfoFinal : DocumentMeta → FS.Stream → Array Elab.InfoTree → IO Unit :=
-    publishIleanInfo "$/lean/ileanInfoFinal"
+  private def mkIleanInfoFinalNotification : DocumentMeta → Array Elab.InfoTree →
+      JsonRpc.Notification Lsp.LeanIleanInfoParams :=
+    mkIleanInfoNotification "$/lean/ileanInfoFinal"
 
   private structure ReportSnapshotsState where
     hasBlocked := false
@@ -97,12 +100,12 @@ section Elab
   private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
       : IO (Task Unit) := do
     Task.map (fun _ => ()) <$> go snaps { : ReportSnapshotsState } fun st => do
-      publishProgressDone m ctx.hOut
+      ctx.chanOut.send <| mkFileProgressDoneNotification m
       unless st.hasBlocked do
-        publishDiagnostics m st.diagnostics ctx.hOut
+        ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      publishIleanInfoFinal m ctx.hOut st.infoTrees
+      ctx.chanOut.send <| mkIleanInfoFinalNotification m st.infoTrees
       return .pure <| .ok ()
   where
     go node st cont := do
@@ -110,21 +113,21 @@ section Elab
         return .pure <| .ok ()
       let diagnostics := st.diagnostics ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
       if st.hasBlocked && !node.element.msgLog.isEmpty then
-        publishDiagnostics m diagnostics ctx.hOut
+        ctx.chanOut.send <| mkPublishDiagnosticsNotification m diagnostics
       let infoTrees := match node.element.infoTree? with
         | some itree => st.infoTrees.push itree
         | none       => st.infoTrees
       if st.hasBlocked && node.element.infoTree?.isSome then
-        publishIleanInfoUpdate m ctx.hOut infoTrees
+        ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
       goSeq { st with diagnostics, infoTrees } cont node.children.toList
     goSeq st cont
       | [] => cont st
       | t::ts => do
         let mut st := st
         unless (← IO.hasFinished t.task) do
-          publishProgressAtPos m t.range.start ctx.hOut
+          ctx.chanOut.send <| mkFileProgressAtPosNotification m t.range.start
           if !st.hasBlocked then
-            publishDiagnostics m st.diagnostics ctx.hOut
+            ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
             st := { st with hasBlocked := true }
         IO.bindTask t.task fun node =>
           go node st (goSeq · cont ts)
@@ -154,7 +157,7 @@ abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /- Worker initialization sequence. -/
 section Initialization
-  def initializeWorker (meta : DocumentMeta) (i o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
+  def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
       : IO (WorkerContext × WorkerState) := do
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let mut mainModuleName := Name.anonymous
@@ -162,6 +165,7 @@ section Initialization
       if let some path := System.Uri.fileUriToPath? meta.uri then
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
+    let chanOut ← mkLspOutputChannel
     let processor ← Language.Lean.mkIncrementalProcessor {
       opts, mainModuleName
       fileSetupHandler? := some fun imports =>
@@ -171,18 +175,16 @@ section Initialization
             severity? := DiagnosticSeverity.information
             message   := stderrLine
           }
-          -- TODO: should use a channel to the reporting thread instead of using `o` directly
-          publishDiagnostics meta #[progressDiagnostic] o
+          chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
     }
     let initSnap ← processor meta.mkInputContext
-    let ctx :=
-      { hIn  := i
-        hOut := o
-        hLog := e
-        initParams
-        processor
-        clientHasWidgets
-      }
+    let ctx := {
+      chanOut
+      hLog := e
+      initParams
+      processor
+      clientHasWidgets
+    }
     let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
     let doc : EditableDocument := { meta, initSnap, reporter }
     return (ctx,
@@ -193,6 +195,32 @@ section Initialization
       rpcSessions        := RBMap.empty
       importCachingTask? := none
     })
+  where
+    /-- Creates an LSP message output channel along with a reader that sends out read messages on
+        the output FS stream after discarding outdated notifications. This is the only component of
+        the worker with access to the output stream, so we can synchronize messages from parallel
+        elaboration tasks here. -/
+    mkLspOutputChannel : IO (IO.Channel JsonRpc.Message) := do
+      let chanOut ← IO.Channel.new
+      -- most recent document version seen in notifications
+      let maxVersion ← IO.mkRef 0
+      let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
+        -- discard outdated notifications; note that in contrast to responses, notifications can
+        -- always be silently discarded
+        let version? : Option Nat := do
+          let doc ← match msg with
+            | .notification "textDocument/publishDiagnostics" (some <| .obj params) => some params
+            | .notification "$/lean/fileProgress" (some <| .obj params) =>
+              params.find compare "textDocument" |>.bind (·.getObj?.toOption)
+            | _ => none
+          doc.find compare "version" |>.bind (·.getNat?.toOption)
+        if let some version := version? then
+          if version < (← maxVersion.get) then
+            return
+          else
+            maxVersion.set version
+        o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
+      return chanOut
 end Initialization
 
 section Updates
@@ -285,7 +313,7 @@ section MessageHandling
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
       let completions := ImportCompletion.find text st.currHeaderStx params availableImports
-      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      ctx.chanOut.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
     | some task => IO.mapTask (t := task) fun result => do
@@ -295,7 +323,7 @@ section MessageHandling
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
       let completions := ImportCompletion.find text st.currHeaderStx params availableImports
-      ctx.hOut.writeLspResponse ⟨id, completions⟩
+      ctx.chanOut.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
   def handleRequest (id : RequestID) (method : String) (params : Json)
@@ -307,12 +335,9 @@ section MessageHandling
       try
         let ps ← parseParams RpcConnectParams params
         let resp ← handleRpcConnect ps
-        ctx.hOut.writeLspResponse ⟨id, resp⟩
+        ctx.chanOut.send <| .response id (toJson resp)
       catch e =>
-        ctx.hOut.writeLspResponseError
-          { id
-            code := ErrorCode.internalError
-            message := toString e }
+        ctx.chanOut.send <| .responseError id .internalError (toString e) none
       return
 
     if method == "textDocument/completion" then
@@ -333,26 +358,25 @@ section MessageHandling
          srcSearchPath
          doc := st.doc
          hLog := ctx.hLog
-         hOut := ctx.hOut
          initParams := ctx.initParams }
      let t? ← EIO.toIO' <| handleLspRequest method params rc
      let t₁ ← match t? with
        | Except.error e =>
          IO.asTask do
-           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+           ctx.chanOut.send <| e.toLspResponseError id
        | Except.ok t => (IO.mapTask · t) fun
          | Except.ok resp =>
-           ctx.hOut.writeLspResponse ⟨id, resp⟩
+           ctx.chanOut.send <| .response id (toJson resp)
          | Except.error e =>
-           ctx.hOut.writeLspResponseError <| e.toLspResponseError id
+           ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
 end MessageHandling
 
 section MainLoop
+  variable (hIn : FS.Stream) in
   partial def mainLoop : WorkerM Unit := do
-    let ctx ← read
     let mut st ← get
-    let msg ← ctx.hIn.readLspMessage
+    let msg ← hIn.readLspMessage
     let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
         : IO PendingRequestMap := do
       if (← hasFinished task) then
@@ -399,12 +423,15 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO UInt32 := do
   let e := e.withPrefix s!"[{param.textDocument.uri}] "
   let _ ← IO.setStderr e
   try
-    let (ctx, st) ← initializeWorker meta i o e initParams.param opts
-    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) mainLoop
+    let (ctx, st) ← initializeWorker meta o e initParams.param opts
+    let _ ← StateRefT'.run (s := st) <| ReaderT.run (r := ctx) (mainLoop i)
     return (0 : UInt32)
-  catch e =>
-    IO.eprintln e
-    publishDiagnostics meta #[{ range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩, severity? := DiagnosticSeverity.error, message := e.toString }] o
+  catch err =>
+    IO.eprintln err
+    e.writeLspMessage <| mkPublishDiagnosticsNotification meta #[{
+      range := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+      severity? := DiagnosticSeverity.error
+      message := err.toString }]
     return (1 : UInt32)
 
 @[export lean_server_worker_main]

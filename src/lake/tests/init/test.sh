@@ -77,6 +77,11 @@ $LAKE -d lean-data exe lean-data
 $LAKE new 123-hello
 $LAKE -d 123-hello exe 123-hello
 
+# Test creating packages containing a `.`
+
+$LAKE new 123-hello.world
+$LAKE -d 123-hello.world exe 123-hello.world
+
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128
 

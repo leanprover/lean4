@@ -344,10 +344,10 @@ jobs:
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
-          tree --du -h lean-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
+          tree --du -h lean-*-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
         run: |
-          dir=$(echo lean-*)
+          dir=$(echo lean-*-*)
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
           if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.configure.outputs.nightly }}' || -n '${{ needs.configure.outputs.RELEASE_TAG }}' ]]; then

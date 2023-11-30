@@ -36,16 +36,16 @@ instance : FromJson CompletionItemKind where
 
 structure InsertReplaceEdit where
   newText : String
-  insert : Range
+  insert  : Range
   replace : Range
   deriving FromJson, ToJson
 
 structure CompletionItem where
-  label : String
-  detail? : Option String := none
+  label          : String
+  detail?        : Option String := none
   documentation? : Option MarkupContent := none
-  kind? : Option CompletionItemKind := none
-  textEdit? : Option InsertReplaceEdit := none
+  kind?          : Option CompletionItemKind := none
+  textEdit?      : Option InsertReplaceEdit := none
   /-
   tags? : CompletionItemTag[]
   deprecated? : boolean
@@ -63,7 +63,7 @@ structure CompletionItem where
 
 structure CompletionList where
   isIncomplete : Bool
-  items : Array CompletionItem
+  items        : Array CompletionItem
   deriving FromJson, ToJson
 
 structure CompletionParams extends TextDocumentPositionParams where
@@ -74,7 +74,7 @@ structure Hover where
   /- NOTE we should also accept MarkedString/MarkedString[] here
   but they are deprecated, so maybe can get away without. -/
   contents : MarkupContent
-  range? : Option Range := none
+  range?   : Option Range := none
   deriving ToJson, FromJson
 
 structure HoverParams extends TextDocumentPositionParams
@@ -184,13 +184,13 @@ instance : ToJson SymbolKind where
    | SymbolKind.typeParameter => 26
 
 structure DocumentSymbolAux (Self : Type) where
-  name : String
-  detail? : Option String := none
-  kind : SymbolKind
+  name           : String
+  detail?        : Option String := none
+  kind           : SymbolKind
   -- tags? : Array SymbolTag
-  range : Range
+  range          : Range
   selectionRange : Range
-  children? : Option (Array Self) := none
+  children?      : Option (Array Self) := none
   deriving ToJson
 
 inductive DocumentSymbol where
@@ -218,10 +218,10 @@ instance : ToJson SymbolTag where
    | SymbolTag.deprecated => 1
 
 structure SymbolInformation where
-  name : String
-  kind : SymbolKind
-  tags : Array SymbolTag := #[]
-  location : Location
+  name           : String
+  kind           : SymbolKind
+  tags           : Array SymbolTag := #[]
+  location       : Location
   containerName? : Option String := none
   deriving ToJson
 
@@ -304,14 +304,14 @@ example {v : SemanticTokenModifier} : open SemanticTokenModifier in
   cases v <;> native_decide
 
 structure SemanticTokensLegend where
-  tokenTypes : Array String
+  tokenTypes     : Array String
   tokenModifiers : Array String
   deriving FromJson, ToJson
 
 structure SemanticTokensOptions where
   legend : SemanticTokensLegend
-  range : Bool
-  full : Bool /- | {
+  range  : Bool
+  full   : Bool /- | {
     delta?: boolean;
   } -/
   deriving FromJson, ToJson
@@ -322,12 +322,12 @@ structure SemanticTokensParams where
 
 structure SemanticTokensRangeParams where
   textDocument : TextDocumentIdentifier
-  range : Range
+  range        : Range
   deriving FromJson, ToJson
 
 structure SemanticTokens where
   resultId? : Option String := none
-  data : Array Nat
+  data      : Array Nat
   deriving FromJson, ToJson
 
 structure FoldingRangeParams where
@@ -343,12 +343,12 @@ instance : ToJson FoldingRangeKind where
   toJson
     | FoldingRangeKind.comment => "comment"
     | FoldingRangeKind.imports => "imports"
-    | FoldingRangeKind.region => "region"
+    | FoldingRangeKind.region  => "region"
 
 structure FoldingRange where
   startLine : Nat
-  endLine : Nat
-  kind? : Option FoldingRangeKind := none
+  endLine   : Nat
+  kind?     : Option FoldingRangeKind := none
   deriving ToJson
 
 structure RenameOptions where

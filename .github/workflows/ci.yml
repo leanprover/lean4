@@ -344,10 +344,10 @@ jobs:
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
-          tree --du -h lean-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
+          tree --du -h lean-*-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
       - name: Pack
         run: |
-          dir=$(echo lean-*)
+          dir=$(echo lean-*-*)
           mkdir pack
           # high-compression tar.zst + zip for release, fast tar.zst otherwise
           if [[ '${{ startsWith(github.ref, 'refs/tags/') && matrix.release }}' == true || -n '${{ needs.configure.outputs.nightly }}' || -n '${{ needs.configure.outputs.RELEASE_TAG }}' ]]; then
@@ -371,10 +371,10 @@ jobs:
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
           ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: matrix.wasm || !matrix.cross
+        if: (matrix.wasm || !matrix.cross) && !needs.configure.outputs.quick
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross }}
+        if: ${{ !matrix.cross && !needs.configure.outputs.quick }}
       - name: Build Stage 2
         run: |
           cd build

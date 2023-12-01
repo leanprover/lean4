@@ -18,4 +18,5 @@
 /src/Lean/Parser/ @Kha
 /src/Lean/PrettyPrinter/ @Kha
 /src/Lean/Server/ @mhuisi
+/src/Lean/Widget/ @Vtec234
 /src/runtime/io.cpp @joehendrix

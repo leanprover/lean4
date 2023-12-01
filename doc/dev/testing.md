@@ -124,8 +124,3 @@ outputs. `meld` can also be used to repair the problems.
 
 In Emacs, we can also execute `M-x lean4-diff-test-file` to check/diff the file of the current buffer.
 To mass-copy all `.produced.out` files to the respective `.expected.out` file, use `tests/lean/copy-produced`.
-When using the Nix setup, add `--keep-failed` to the `nix build` call and then call
-```sh
-tests/lean/copy-produced <build-dir>/source/tests/lean
-```
-instead where `<build-dir>` is the path printed out by `nix build`.

@@ -99,6 +99,10 @@ def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask
 def SnapshotTask.get (t : SnapshotTask α) : α :=
   t.task.get
 
+/-- Returns task result if already finished or else `none`. -/
+def SnapshotTask.get? (t : SnapshotTask α) : BaseIO (Option α) :=
+  return if (← IO.hasFinished t.task) then some t.task.get else none
+
 /--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
@@ -160,16 +164,6 @@ def getOrCancel? (t? : Option (SnapshotTask α)) : BaseIO (Option α) := do
     return t.get
   IO.cancel t.task
   return none
-
-/--
-  Checks whether reparsing `stx` in `newSource` should result in `stx` again. `stopPos` is the
-  furthest position the parser could have looked at for producing `stx`, which usually is the extent
-  of the subsequent token (if any) plus one. -/
-def unchangedParse (stx : Syntax) (stopPos : String.Pos) (newSource : String) : Bool :=
-  if let .original start .. := stx.getHeadInfo then
-    let oldSubstr := { start with stopPos }
-    oldSubstr == { oldSubstr with str := newSource }
-  else false
 
 /-- Metadata that does not change during the lifetime of the language processing process. -/
 structure ProcessingContext where

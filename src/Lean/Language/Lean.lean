@@ -67,8 +67,6 @@ instance : ToSnapshotTree CommandSignatureProcessedSnapshot where
 structure CommandParsedSnapshotData extends Snapshot where
   stx : Syntax
   parserState : Parser.ModuleParserState
-  /-- Furthest position the parser has looked at; used for incremental parsing. -/
-  stopPos : String.Pos
   sig : SnapshotTask CommandSignatureProcessedSnapshot
 deriving Nonempty
 inductive CommandParsedSnapshot where
@@ -97,12 +95,11 @@ instance : ToSnapshotTree HeaderProcessedSnapshot where
 
 structure HeaderParsedSucessfully where
   parserState : Parser.ModuleParserState
-  /-- Furthest position the parser has looked at; used for incremental parsing. -/
-  stopPos : String.Pos
   next : SnapshotTask HeaderProcessedSnapshot
 
 /-- State after the module header has been parsed. -/
 structure HeaderParsedSnapshot extends Snapshot where
+  ictx : Parser.InputContext
   stx : Syntax
   success? : Option HeaderParsedSucessfully
 instance : ToSnapshotTree HeaderParsedSnapshot where
@@ -135,6 +132,7 @@ partial def processLean
     BaseIO InitialSnapshot :=
   parseHeader old?
 where
+  firstDiffPos? := old?.map (·.ictx.input.firstDiffPos ictx.input)
   parseHeader (old? : Option HeaderParsedSnapshot) := do
     let unchanged old success :=
       -- when header syntax is unchanged, reuse import processing task as is
@@ -143,29 +141,27 @@ where
 
     -- fast path: if we have parsed the header sucessfully...
     if let some old@{ success? := some success, .. } := old? then
-      -- ...and the header syntax appears unchanged...
-      if unchangedParse old.stx success.stopPos ictx.input then
+      -- ...and the edit location is after the next command...
+      if let some nextCom ← (← success.next.get?).bind (·.success?) |>.bindM (·.next.get?) then
+        if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
         -- ...go immediately to next snapshot
         return (← unchanged old success)
+        -- (if there is no next command, we always reparse)
 
-    withHeaderExceptions ({ · with stx := .missing, success? := none }) do
+    withHeaderExceptions ({ · with ictx, stx := .missing, success? := none }) do
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
-      -- TODO: move into `parseHeader`; it should add the length of `peekToken`,
-      -- which is the full extent the parser considered before stopping
-      let stopPos := parserState.pos + (⟨1⟩ : String.Pos)
-
       if msgLog.hasErrors then
-        return { stx, msgLog, success? := none }
+        return { ictx, stx, msgLog, success? := none }
 
       -- semi-fast path: go to next snapshot if syntax tree is unchanged
-      if let some old@{ success? := some success, .. } := old? then
-        if old.stx == stx then
-          return (← unchanged old success)
-        success.next.cancel
+      -- TODO: would need adjusting all contained positions
+      --if let some old@{ success? := some success, .. } := old? then
+      --  if old.stx == stx then
+      --    return (← unchanged old success)
+      --  success.next.cancel
 
-      return { stx, msgLog, success? := some {
+      return { ictx, stx, msgLog, success? := some {
         parserState
-        stopPos
         next := (← processHeader none stx parserState) } }
 
   processHeader (old? : Option HeaderProcessedSnapshot) (stx : Syntax) (parserState : Parser.ModuleParserState) := do
@@ -251,8 +247,9 @@ where
 
     -- fast path, do not even start new task for this snapshot
     if let some old := old? then
-      if unchangedParse old.data.stx old.data.stopPos ictx.input then
-        return .pure (← unchanged old)
+      if let some nextCom ← old.next?.bindM (·.get?) then
+        if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
+          return .pure (← unchanged old)
 
     SnapshotTask.ofIO ⟨parserState.pos, ictx.input.endPos⟩ do
       let beginPos := parserState.pos
@@ -260,12 +257,10 @@ where
       let pmctx := { env := cmdState.env, options := scope.opts, currNamespace := scope.currNamespace, openDecls := scope.openDecls }
       let (stx, parserState, msgLog) := Parser.parseCommand ictx pmctx parserState .empty
 
-      -- TODO: move into `parseCommand`; it should add the length of `peekToken`,
-      -- which is the full extent the parser considered before stopping
-      let stopPos := parserState.pos + (⟨1⟩ : String.Pos)
-      if let some old := old? then
-        if old.data.stx == stx then
-          return (← unchanged old)
+      -- TODO: would need adjusting all contained positions
+      --if let some old := old? then
+      --  if old.data.stx == stx then
+      --    return (← unchanged old)
 
       -- signature elaboration task; for now, does full elaboration
       -- TODO: do tactic snapshots, reuse old state for them

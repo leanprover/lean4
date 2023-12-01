@@ -77,11 +77,6 @@ def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
   fileOptions   := Options.empty
 }
 
-def FileSetupResult.addGlobalOptions (result : FileSetupResult) (globalOptions : Options)
-    : FileSetupResult :=
-  let fileOptions := globalOptions.mergeBy (fun _ _ fileOpt => fileOpt) result.fileOptions
-  { result with fileOptions := fileOptions }
-
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for
 source files and the options for the file. -/

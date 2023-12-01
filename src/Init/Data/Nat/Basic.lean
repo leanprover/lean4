@@ -21,13 +21,15 @@ private theorem rec_eq_recCompiled : @Nat.rec = @Nat.recCompiled :=
   funext fun _ => funext fun _ => funext fun succ => funext fun t =>
     Nat.recOn t rfl (fun n ih => congrArg (succ n) ih)
 
-/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`. -/
-@[elab_as_elim]
+/-- Recursor identical to `Nat.rec` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
+Used as the default `Nat` eliminator by the `induction` tactic. -/
+@[elab_as_elim, induction_eliminator]
 protected abbrev recAux {motive : Nat → Sort u} (zero : motive 0) (succ : (n : Nat) → motive n → motive (n + 1)) (t : Nat) : motive t :=
   Nat.rec zero succ t
 
-/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`. -/
-@[elab_as_elim]
+/-- Recursor identical to `Nat.casesOn` but uses notations `0` for `Nat.zero` and `· + 1` for `Nat.succ`.
+Used as the default `Nat` eliminator by the `cases` tactic. -/
+@[elab_as_elim, cases_eliminator]
 protected abbrev casesAuxOn {motive : Nat → Sort u} (t : Nat) (zero : motive 0) (succ : (n : Nat) → motive (n + 1)) : motive t :=
   Nat.casesOn t zero succ
 
@@ -759,7 +761,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
   | zero => contradiction
   | succ a ih =>
     match Nat.eq_or_lt_of_le h with
-    | Or.inl h => injection h with h; subst h; rw [←Nat.add_one, Nat.add_sub_self_left]; decide
+    | Or.inl h => injection h with h; subst h; rw [Nat.add_sub_self_left]; decide
     | Or.inr h =>
       have : 0 < a - i := ih (Nat.lt_of_succ_lt_succ h)
       exact Nat.lt_of_lt_of_le this (Nat.sub_le_succ_sub _ _)
@@ -904,7 +906,7 @@ protected theorem sub_pos_of_lt (h : m < n) : 0 < n - m :=
 protected theorem sub_sub (n m k : Nat) : n - m - k = n - (m + k) := by
   induction k with
   | zero => simp
-  | succ k ih => rw [Nat.add_succ, Nat.sub_succ, Nat.sub_succ, ih]
+  | succ k ih => rw [Nat.add_succ, Nat.sub_succ, Nat.add_succ, Nat.sub_succ, ih]
 
 protected theorem sub_le_sub_left (h : n ≤ m) (k : Nat) : k - m ≤ k - n :=
   match m, le.dest h with

@@ -809,7 +809,7 @@ where
     rfl
 
   go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.data.drop i) = as.data := by
-    cases i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, go]
+    induction i <;> simp [getLit_eq, List.get_drop_eq_drop, toListLitAux, List.drop, *]
 
 def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : Nat) : Bool :=
   if h : i < as.size then

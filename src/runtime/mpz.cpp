@@ -327,7 +327,7 @@ void mpz::init_uint64(uint64 v) {
         allocate(1);
         m_digits[0] = v;
     } else {
-        static_assert(sizeof(uint64) == 2 * sizeof(unsigned));
+        static_assert(sizeof(uint64) == 2 * sizeof(unsigned), "unsigned should be half the size of an uint64");
         allocate(2);
         m_digits[0] = static_cast<mpn_digit>(v);
         m_digits[1] = static_cast<mpn_digit>(v >> 8*sizeof(mpn_digit));

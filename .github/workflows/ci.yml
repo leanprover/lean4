@@ -372,10 +372,10 @@ jobs:
           ulimit -c unlimited # coredumps
           # exclude nonreproducible test
           ctest -j4 --output-on-failure ${{ matrix.CTEST_OPTIONS }} < /dev/null
-        if: (matrix.wasm || !matrix.cross) && !needs.configure.outputs.quick
+        if: (matrix.wasm || !matrix.cross) && needs.configure.outputs.quick == 'false'
       - name: Check Test Binary
         run: ${{ matrix.binary-check }} tests/compiler/534.lean.out
-        if: ${{ !matrix.cross && !needs.configure.outputs.quick }}
+        if: ${{ !matrix.cross && needs.configure.outputs.quick == 'false' }}
       - name: Build Stage 2
         run: |
           cd build
@@ -400,7 +400,7 @@ jobs:
           cd build
           ulimit -c unlimited # coredumps
           make update-stage0 && make -j4
-        if: matrix.name == 'Linux' && !needs.configure.outputs.quick
+        if: matrix.name == 'Linux' && needs.configure.outputs.quick == 'false'
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps

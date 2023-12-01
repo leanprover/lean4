@@ -222,6 +222,38 @@ def RecCallWithContext.create (caller : Nat) (params : Array Expr) (callee : Nat
     MetaM RecCallWithContext := do
   return { caller, params, callee, args, ctxt := (← SavedLocalContext.create) }
 
+
+/-- The elaborator is prone to duplicate terms, including recursive calls, even if the user
+only wrote a single one. This duplication is wasteful if we run the tactics on duplicated
+calls, and confusing in the output of GuessLex. So prune the list of recursive calls,
+and remove those where another call exists that has the same goal and context that is no more
+specific.
+-/
+def filterSubsumed (rcs : Array RecCallWithContext ) :  Array RecCallWithContext := Id.run do
+  let mut to_delete := Array.mkArray rcs.size false
+  for h1 : i in [:rcs.size] do for h2 : j in [i+1:rcs.size] do
+    unless to_delete[i]! || to_delete[j]! do
+      let rci := rcs[i]'h1.2
+      let rcj := rcs[j]'h2.2
+      if rci.caller == rcj.caller && rci.callee == rcj.callee &&
+        rci.params == rcj.params && rci.args == rcj.args then
+        -- same goals; check contexts. Since FVars are always fresh,
+        -- it should suffice to check the array of fvars
+          let fvarsi := rci.ctxt.savedLocalContext.getFVarIds
+          let fvarsj := rcj.ctxt.savedLocalContext.getFVarIds
+          if fvarsi.isPrefixOf fvarsj then
+            -- rci is better
+            to_delete := to_delete.set! j true
+          else if fvarsj.isPrefixOf fvarsi then
+            -- rcj is better
+            to_delete := to_delete.set! j true
+  let mut rcs' := Array.mkEmpty rcs.size
+  for h : i in [:rcs.size] do
+    unless to_delete[i]! do
+      rcs' := rcs'.push (rcs[i]'h.2)
+  return rcs'
+
+
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.
 
@@ -584,6 +616,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
 
     -- Collect all recursive calls and extract their context
     let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+    let recCalls := filterSubsumed recCalls
     let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
     let callMatrix := rcs.map (inspectCall ·)
 

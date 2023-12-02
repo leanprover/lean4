@@ -142,11 +142,6 @@ structure AvailableImportsCache where
 
 structure WorkerState where
   doc                : EditableDocument
-  -- The initial header syntax tree that the file worker was started with.
-  initHeaderStx      : Syntax
-  -- The current header syntax tree. Changing the header from `initHeaderStx` initiates a restart
-  -- that only completes after a while, so `currHeaderStx` tracks the modified syntax until then.
-  currHeaderStx      : Syntax
   importCachingTask? : Option (Task (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
@@ -189,8 +184,6 @@ section Initialization
     let doc : EditableDocument := { meta, initSnap, reporter }
     return (ctx,
     { doc
-      initHeaderStx      := initSnap.stx
-      currHeaderStx      := initSnap.stx
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -312,7 +305,7 @@ section MessageHandling
     | none => IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
       ctx.chanOut.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -322,7 +315,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.currHeaderStx params availableImports
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
       ctx.chanOut.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -342,7 +335,7 @@ section MessageHandling
 
     if method == "textDocument/completion" then
       let params ← parseParams CompletionParams params
-      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.currHeaderStx params then
+      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
         let importCachingTask ← handleImportCompletionRequest id params
         set <| { st with importCachingTask? := some importCachingTask }
         return

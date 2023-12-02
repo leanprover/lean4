@@ -38,13 +38,13 @@ termination_by
   eval_add a => (sizeOf a, 0)
 Inferred termination argument:
 termination_by
-  VarNames.shadow1 x2 x2' => sizeOf x2'
+  shadow1 x2 x2' => sizeOf x2'
 Inferred termination argument:
 termination_by
-  VarNames.shadow2 some_n' x2 => sizeOf x2
+  shadow2 some_n' x2 => sizeOf x2
 Inferred termination argument:
 termination_by
-  VarNames.shadow3 sizeOf' x2 => sizeOf x2
+  shadow3 sizeOf' x2 => sizeOf x2
 Inferred termination argument:
 termination_by
-  VarNames.qualifiedSizeOf m x2 => SizeOf.sizeOf x2
+  qualifiedSizeOf m x2 => SizeOf.sizeOf x2

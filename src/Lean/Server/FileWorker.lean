@@ -350,7 +350,7 @@ section MessageHandling
     -- we assume that any other request requires at least the the search path
     -- TODO: move into language-specific request handling
     let srcSearchPathTask :=
-      st.doc.initSnap.success?.map (·.next.task.map (·.success?.map (·.srcSearchPath) |>.getD ∅))
+      st.doc.initSnap.success?.map (·.processed.task.map (·.success?.map (·.srcSearchPath) |>.getD ∅))
       |>.getD (.pure ∅)
     let t ← IO.bindTask srcSearchPathTask fun srcSearchPath => do
      let rc : RequestContext :=

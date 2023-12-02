@@ -151,7 +151,7 @@ structure HeaderParsedSucessfully where
   /-- Resulting parser state. -/
   parserState : Parser.ModuleParserState
   /-- Header processing task. -/
-  next : SnapshotTask HeaderProcessedSnapshot
+  processed : SnapshotTask HeaderProcessedSnapshot
 
 /-- State after the module header has been parsed. -/
 structure HeaderParsedSnapshot extends Snapshot where
@@ -162,7 +162,8 @@ structure HeaderParsedSnapshot extends Snapshot where
   /-- State after successful parsing. -/
   success? : Option HeaderParsedSucessfully
 instance : ToSnapshotTree HeaderParsedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |> pushOpt (s.success?.map (·.next.map toSnapshotTree))⟩
+  toSnapshotTree s := ⟨s.toSnapshot,
+    #[] |> pushOpt (s.success?.map (·.processed.map toSnapshotTree))⟩
 
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot
@@ -208,7 +209,7 @@ where
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing
       return { old with success? := some { success with
-        next := (← success.next.bindIO fun processed => do
+        processed := (← success.processed.bindIO fun processed => do
           if let some procSuccess := processed.success? then
             let oldCmd? ← getOrCancel? procSuccess.next
             return .pure { processed with success? := some { procSuccess with
@@ -216,13 +217,14 @@ where
           else
             return .pure processed) } }
 
-    -- fast path: if we have parsed the header sucessfully...
+    -- fast path: if we have parsed the header successfully...
     if let some old@{ success? := some success, .. } := old? then
-      -- ...and the edit location is after the next command...
-      if let some nextCom ← (← success.next.get?).bind (·.success?) |>.bindM (·.next.get?) then
-        if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
-          -- ...go immediately to next snapshot
-          return (← unchanged old success)
+      if let some processed ← success.processed.get? then
+        -- ...and the edit location is after the next command...
+        if let some nextCom ← processed.success? |>.bindM (·.next.get?) then
+          if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
+            -- ...go immediately to next snapshot
+            return (← unchanged old success)
 
     withHeaderExceptions ({ · with ictx, stx := .missing, success? := none }) do
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
@@ -235,13 +237,13 @@ where
       if let some old@{ success? := some success, .. } := old? then
         if firstDiffPos?.any (parserState.pos < ·) && old.stx == stx then
           return (← unchanged old success)
-        success.next.cancel
+        success.processed.cancel
 
       return {
         ictx, stx, msgLog
         success? := some {
           parserState
-          next := (← processHeader stx parserState)
+          processed := (← processHeader stx parserState)
         }
       }
 
@@ -401,7 +403,7 @@ where
 
 private partial def getFinalEnv? (snap : InitialSnapshot) : Option Environment := do
   let snap ← snap.success?
-  let snap ← snap.next.get.success?
+  let snap ← snap.processed.get.success?
   goCmd snap.next.get
 where goCmd snap :=
   if let some next := snap.next? then

@@ -45,7 +45,7 @@ end CancelToken
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList ElabTaskError Snapshot := Id.run do
   let some headerParsed := initSnap.success? | return .nil
-  .delayed <| headerParsed.next.task.bind fun headerProcessed => Id.run do
+  .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx

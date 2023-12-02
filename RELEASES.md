@@ -13,7 +13,7 @@ v4.4.0
 
 * [Rename request handler](https://github.com/leanprover/lean4/pull/2462).
 * [Import auto-completion](https://github.com/leanprover/lean4/pull/2904).
-* [`pp.beta`` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).
+* [`pp.beta` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).
 * [Per-package server options](https://github.com/leanprover/lean4/pull/2858).
 * [Embed and check githash in .olean](https://github.com/leanprover/lean4/pull/2766).
 * [Guess lexicographic order for well-founded recursion](https://github.com/leanprover/lean4/pull/2874).

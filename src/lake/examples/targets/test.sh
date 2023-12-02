@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -exo pipefail
 
+# Prevent MSYS2 from automatically transforming path-like targets
+[ "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
+
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 if [ "$OS" = Windows_NT ]; then
@@ -75,6 +78,10 @@ cat ./.lake/build/caw.txt | grep Caw!
 $LAKE build a b
 ./.lake/build/bin/a
 ./.lake/build/bin/b
+$LAKE exe @targets/a
+$LAKE exe targets/a
+$LAKE exe /b
+$LAKE exe b
 
 # Test repeat build works
 $LAKE build bark | grep Bark!

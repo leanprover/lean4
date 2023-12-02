@@ -1,0 +1,17 @@
+guessLexFailures.lean:11:12-11:46: error: fail to show termination for
+  nonTerminating
+with errors
+argument #1 was not used for structural recursion
+  failed to eliminate recursive application
+    nonTerminating (Nat.succ n) (Nat.succ m)
+
+argument #2 was not used for structural recursion
+  failed to eliminate recursive application
+    nonTerminating (Nat.succ n) (Nat.succ m)
+
+structural recursion cannot be used
+
+failed to prove termination, use `termination_by` to specify a well-founded relation
+guessLexFailures.lean:15:0-18:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation
+guessLexFailures.lean:25:0-27:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation
+guessLexFailures.lean:33:0-36:31: error: failed to prove termination, use `termination_by` to specify a well-founded relation

@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3;
 static lean_object* l_Lean_Meta_Simp_Context_congrTheorems___default___closed__2;
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Meta_Simp_State_congrCache___default___spec__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkHashMap___at_Lean_Meta_Simp_State_usedTheorems___default___spec__1(lean_object*);
@@ -41,9 +40,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_congrTheorems___default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_Meta_Simp_recordSimpTheorem___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_mkDefault___rarg(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2;
 lean_object* l_Lean_Meta_getSimpCongrTheorems___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_contains___at_Lean_Meta_Simp_recordSimpTheorem___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedMethods___closed__2;
@@ -60,8 +57,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Result_dischargeDepth___default;
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_Meta_Simp_recordSimpTheorem___spec__6(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_withParent(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedMethods___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_SavedState_restore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Methods_post___default(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Origin_key(lean_object*);
 uint8_t l_Lean_Meta_SimpTheoremsArray_isDeclToUnfold(lean_object*, lean_object*);
@@ -70,10 +65,8 @@ static lean_object* l_Lean_Meta_Simp_Context_mkDefault___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_mkDefault___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Context_simpTheorems___default___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_recordSimpTheorem___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedMethods___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_mkDefault(lean_object*, lean_object*);
@@ -81,7 +74,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpTheorems___boxed(lean_object*);
 extern lean_object* l_Lean_Meta_simpExtension;
 static lean_object* l_Lean_Meta_Simp_instInhabitedContext___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Methods_discharge_x3f___default(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_saveState___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpTheorems___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Context_congrTheorems___default___closed__5;
@@ -98,7 +90,6 @@ static lean_object* l_Lean_Meta_Simp_instInhabitedStep___closed__1;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_recordSimpTheorem(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_instInhabitedMethods___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Methods_post___default___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedContext;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instInhabitedMethods___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -131,7 +122,6 @@ lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpCongrTheorems___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_getSimpTheorems(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Context_parent_x3f___default;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -579,87 +569,6 @@ _start:
 lean_object* x_1; 
 x_1 = lean_unsigned_to_nat(0u);
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_Meta_saveState___rarg(x_4, x_5, x_6, x_7);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lean_Meta_SavedState_restore(x_1, x_4, x_5, x_6, x_7, x_8);
-return x_9;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1___boxed), 7, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2___boxed), 8, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1;
-x_2 = l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2;
-x_3 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3;
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
-_start:
-{
-lean_object* x_8; 
-x_8 = l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_8;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
-_start:
-{
-lean_object* x_9; 
-x_9 = l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_9;
 }
 }
 static lean_object* _init_l_Lean_Meta_Simp_instInhabitedStep___closed__1() {
@@ -2317,14 +2226,6 @@ l_Lean_Meta_Simp_State_usedTheorems___default = _init_l_Lean_Meta_Simp_State_use
 lean_mark_persistent(l_Lean_Meta_Simp_State_usedTheorems___default);
 l_Lean_Meta_Simp_State_numSteps___default = _init_l_Lean_Meta_Simp_State_numSteps___default();
 lean_mark_persistent(l_Lean_Meta_Simp_State_numSteps___default);
-l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1 = _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1();
-lean_mark_persistent(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__1);
-l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2 = _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2();
-lean_mark_persistent(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__2);
-l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3 = _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3();
-lean_mark_persistent(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM___closed__3);
-l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM = _init_l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM();
-lean_mark_persistent(l_Lean_Meta_Simp_instMonadBacktrackSavedStateSimpM);
 l_Lean_Meta_Simp_instInhabitedStep___closed__1 = _init_l_Lean_Meta_Simp_instInhabitedStep___closed__1();
 lean_mark_persistent(l_Lean_Meta_Simp_instInhabitedStep___closed__1);
 l_Lean_Meta_Simp_instInhabitedStep = _init_l_Lean_Meta_Simp_instInhabitedStep();

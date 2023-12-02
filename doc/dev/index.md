@@ -30,20 +30,14 @@ powershell -f elan-init.ps1 --default-toolchain none
 del elan-init.ps1
 ```
 
-You can use `elan toolchain link` to give a specific stage build
-directory a reference name, then use `elan override set` to associate
-such a name to the current directory. We usually want to use `stage0`
-for editing files in `src` and `stage1` for everything else (e.g.
-tests).
+The `lean-toolchain` files in the Lean 4 repository are set up to use the `lean4-stage0`
+toolchain for editing files in `src` and the `lean4` toolchain for editing files in `tests`.
+
+Run the following commands to make `lean4` point at `stage1` and `lean4-stage0` point at `stage0`:
 ```bash
 # in the Lean rootdir
 elan toolchain link lean4 build/release/stage1
 elan toolchain link lean4-stage0 build/release/stage0
-# make `lean` etc. point to stage1 in the rootdir and subdirs
-elan override set lean4
-cd src
-# make `lean` etc. point to stage0 anywhere inside `src`
-elan override set lean4-stage0
 ```
 
 You can also use the `+toolchain` shorthand (e.g. `lean +lean4-debug`) to switch
@@ -64,6 +58,15 @@ simply by pushing a tag to your fork of the Lean 4 github repository
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
 (You must use a tag name that does not start with a numeral, or contain `_`).
+
+### VS Code
+
+There is a `lean.code-workspace` file that correctly sets up VS Code with workspace roots for the stage0/stage1 setup described above as well as with other settings.
+You should always load it when working on Lean, such as by invoking
+```
+code lean.code-workspace
+```
+on the command line.
 
 ### `ccache`
 

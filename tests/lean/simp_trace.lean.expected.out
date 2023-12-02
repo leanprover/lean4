@@ -120,3 +120,7 @@ Try this: simp only [← h]
 Try this: simp only [← my_thm']
 [Meta.Tactic.simp.rewrite] ← @my_thm':1000, P ∧ P ==> P
 [Meta.Tactic.simp.rewrite] iff_self:1000, P ↔ P ==> True
+Try this: simp only [h]
+[Meta.Tactic.simp.rewrite] h:1000, P ==> True
+Try this: simp only [*]
+[Meta.Tactic.simp.rewrite] a✝:1000, P ==> True

@@ -214,7 +214,7 @@ where
   parseHeader (old? : Option HeaderParsedSnapshot) := do
     let unchanged old :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
-      -- parsing the first command
+      -- parsing the first command, synchronously if possible
       if let some success := old.success? then
         return { old with ictx, success? := some { success with
           processed := (← success.processed.bindIO (sync := true) fun processed => do
@@ -229,13 +229,14 @@ where
     -- fast path: if we have parsed the header successfully...
     if let some old := old? then
       if let some (some processed) ← old.processedSuccessfully.get? then
-        -- ...and the edit location is after the next command...
+        -- ...and the edit location is after the next command (see note [Incremental Parsing])...
         if let some nextCom ← processed.next.get? then
           if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
             -- ...go immediately to next snapshot
             return (← unchanged old)
 
     withHeaderExceptions ({ · with ictx, stx := .missing, success? := none }) do
+      -- parsing the header should be cheap enough to do synchronously
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
       if msgLog.hasErrors then
         return { ictx, stx, msgLog, success? := none }

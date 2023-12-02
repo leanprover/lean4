@@ -350,25 +350,24 @@ section MessageHandling
     -- we assume that any other request requires at least the the search path
     -- TODO: move into language-specific request handling
     let srcSearchPathTask :=
-      st.doc.initSnap.success?.map (·.processed.task.map (·.success?.map (·.srcSearchPath) |>.getD ∅))
-      |>.getD (.pure ∅)
-    let t ← IO.bindTask srcSearchPathTask fun srcSearchPath => do
-     let rc : RequestContext :=
-       { rpcSessions := st.rpcSessions
-         srcSearchPath
-         doc := st.doc
-         hLog := ctx.hLog
-         initParams := ctx.initParams }
-     let t? ← EIO.toIO' <| handleLspRequest method params rc
-     let t₁ ← match t? with
-       | Except.error e =>
-         IO.asTask do
-           ctx.chanOut.send <| e.toLspResponseError id
-       | Except.ok t => (IO.mapTask · t) fun
-         | Except.ok resp =>
-           ctx.chanOut.send <| .response id (toJson resp)
-         | Except.error e =>
-           ctx.chanOut.send <| e.toLspResponseError id
+      st.doc.initSnap.processedSuccessfully.map (·.map (·.srcSearchPath) |>.getD ∅)
+    let t ← IO.bindTask srcSearchPathTask.task fun srcSearchPath => do
+      let rc : RequestContext :=
+        { rpcSessions := st.rpcSessions
+          srcSearchPath
+          doc := st.doc
+          hLog := ctx.hLog
+          initParams := ctx.initParams }
+      let t? ← EIO.toIO' <| handleLspRequest method params rc
+      let t₁ ← match t? with
+        | Except.error e =>
+          IO.asTask do
+            ctx.chanOut.send <| e.toLspResponseError id
+        | Except.ok t => (IO.mapTask · t) fun
+          | Except.ok resp =>
+            ctx.chanOut.send <| .response id (toJson resp)
+          | Except.error e =>
+            ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
 end MessageHandling
 

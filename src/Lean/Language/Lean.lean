@@ -167,6 +167,11 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
     #[] |> pushOpt (s.success?.map (·.processed.map (sync := true) toSnapshotTree))⟩
 
+/-- Shortcut accessor to the final header state, if successful. -/
+def HeaderParsedSnapshot.processedSuccessfully (snap : HeaderParsedSnapshot) :
+    SnapshotTask (Option HeaderProcessedSucessfully) :=
+  snap.success?.bind (·.processed.map (sync := true) (·.success?)) |>.getD (.pure none)
+
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot
 
@@ -207,26 +212,28 @@ where
   firstDiffPos? := old?.map (·.ictx.input.firstDiffPos ictx.input)
 
   parseHeader (old? : Option HeaderParsedSnapshot) := do
-    let unchanged old success :=
+    let unchanged old :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
-      -- parsing
-      return { old with ictx, success? := some { success with
-        processed := (← success.processed.bindIO (sync := true) fun processed => do
-          if let some procSuccess := processed.success? then
-            let oldCmd? ← getOrCancel? procSuccess.next
-            return .pure { processed with success? := some { procSuccess with
-              next := (← parseCmd oldCmd? success.parserState procSuccess.cmdState) } }
-          else
-            return .pure processed) } }
+      -- parsing the first command
+      if let some success := old.success? then
+        return { old with ictx, success? := some { success with
+          processed := (← success.processed.bindIO (sync := true) fun processed => do
+            if let some procSuccess := processed.success? then
+              let oldCmd? ← getOrCancel? procSuccess.next
+              return .pure { processed with success? := some { procSuccess with
+                next := (← parseCmd oldCmd? success.parserState procSuccess.cmdState) } }
+            else
+              return .pure processed) } }
+      else return old
 
     -- fast path: if we have parsed the header successfully...
-    if let some old@{ success? := some success, .. } := old? then
-      if let some processed ← success.processed.get? then
+    if let some old := old? then
+      if let some (some processed) ← old.processedSuccessfully.get? then
         -- ...and the edit location is after the next command...
-        if let some nextCom ← processed.success? |>.bindM (·.next.get?) then
+        if let some nextCom ← processed.next.get? then
           if firstDiffPos?.any (nextCom.data.parserState.pos < ·) then
             -- ...go immediately to next snapshot
-            return (← unchanged old success)
+            return (← unchanged old)
 
     withHeaderExceptions ({ · with ictx, stx := .missing, success? := none }) do
       let (stx, parserState, msgLog) ← Parser.parseHeader ictx
@@ -236,10 +243,9 @@ where
       -- semi-fast path: go to next snapshot if syntax tree is unchanged AND we're still in front
       -- of the edit location
       -- TODO: dropping the second condition would require adjusting positions in the state
-      if let some old@{ success? := some success, .. } := old? then
+      if let some old := old? then
         if firstDiffPos?.any (parserState.pos < ·) && old.stx == stx then
-          return (← unchanged old success)
-        success.processed.cancel
+          return (← unchanged old)
 
       return {
         ictx, stx, msgLog

@@ -93,13 +93,14 @@ def runFrontend
     (fileName : String)
     (mainModuleName : Name)
     -- TODO: do we still want this in the driver?
-    (_trustLevel : UInt32 := 0)
+    (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   let lang := Language.Lean
-  let snap ← lang.process { mainModuleName, opts, fileSetupHandler? := none } none inputCtx
+  let ctx := { mainModuleName, opts, trustLevel, fileSetupHandler? := none }
+  let snap ← lang.process ctx none inputCtx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then

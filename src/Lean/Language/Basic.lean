@@ -171,6 +171,8 @@ structure ProcessingContext where
   mainModuleName : Name
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
+  /-- Kernel trust level. -/
+  trustLevel : UInt32 := 0
   /--
     Callback available in server mode for building imports and retrieving per-library options using
     `lake setup-file`. -/

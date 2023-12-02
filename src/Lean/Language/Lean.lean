@@ -210,7 +210,7 @@ where
     let unchanged old success :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing
-      return { old with success? := some { success with
+      return { old with ictx, success? := some { success with
         processed := (← success.processed.bindIO (sync := true) fun processed => do
           if let some procSuccess := processed.success? then
             let oldCmd? ← getOrCancel? procSuccess.next
@@ -286,6 +286,7 @@ where
 
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty ictx
+        ctx.trustLevel
 
       let headerEnv := headerEnv.setMainModule ctx.mainModuleName
       let cmdState := Elab.Command.mkState headerEnv msgLog opts

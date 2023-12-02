@@ -100,7 +100,7 @@ structure CommandSignatureProcessedSnapshot extends Snapshot where
   finished : SnapshotTask CommandFinishedSnapshot
 deriving Nonempty
 instance : ToSnapshotTree CommandSignatureProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[s.finished.map toSnapshotTree]⟩
+  toSnapshotTree s := ⟨s.toSnapshot, #[s.finished.map (sync := true) toSnapshotTree]⟩
 
 /-- State after a command has been parsed. -/
 structure CommandParsedSnapshotData extends Snapshot where
@@ -128,7 +128,8 @@ abbrev CommandParsedSnapshot.next? : CommandParsedSnapshot →
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
     go s := ⟨s.data.toSnapshot,
-      #[s.data.sig.map toSnapshotTree] |> pushOpt (s.next?.map (·.map go))⟩
+      #[s.data.sig.map (sync := true) toSnapshotTree] |>
+        pushOpt (s.next?.map (·.map (sync := true) go))⟩
 
 /-- State after successful importing. -/
 structure HeaderProcessedSucessfully where
@@ -144,7 +145,8 @@ structure HeaderProcessedSnapshot extends Snapshot where
   /-- State after successful importing. -/
   success? : Option HeaderProcessedSucessfully
 instance : ToSnapshotTree HeaderProcessedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[] |> pushOpt (s.success?.map (·.next.map toSnapshotTree))⟩
+  toSnapshotTree s := ⟨s.toSnapshot, #[] |>
+    pushOpt (s.success?.map (·.next.map (sync := true) toSnapshotTree))⟩
 
 /-- State after successfully parsing the module header. -/
 structure HeaderParsedSucessfully where
@@ -163,7 +165,7 @@ structure HeaderParsedSnapshot extends Snapshot where
   success? : Option HeaderParsedSucessfully
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
-    #[] |> pushOpt (s.success?.map (·.processed.map toSnapshotTree))⟩
+    #[] |> pushOpt (s.success?.map (·.processed.map (sync := true) toSnapshotTree))⟩
 
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot
@@ -209,7 +211,7 @@ where
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing
       return { old with success? := some { success with
-        processed := (← success.processed.bindIO fun processed => do
+        processed := (← success.processed.bindIO (sync := true) fun processed => do
           if let some procSuccess := processed.success? then
             let oldCmd? ← getOrCancel? procSuccess.next
             return .pure { processed with success? := some { procSuccess with
@@ -320,8 +322,8 @@ where
       -- when syntax is unchanged, reuse command processing task as is
       if let some oldNext := old.next? then
         return .mk (data := old.data)
-          (next? := (← old.data.sig.bindIO fun sig =>
-            sig.finished.bindIO fun finished => do
+          (next? := (← old.data.sig.bindIO (sync := true) fun sig =>
+            sig.finished.bindIO (sync := true) fun finished => do
               parseCmd (← getOrCancel? oldNext) old.data.parserState finished.cmdState))
       else return old  -- terminal command, we're done!
 

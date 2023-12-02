@@ -85,15 +85,15 @@ def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
   IO.cancel t.task
 
 /-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) : SnapshotTask β :=
-  { t with task := t.task.map f }
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (sync := false) : SnapshotTask β :=
+  { t with task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
   the second task is discarded. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (range : String.Range := t.range) : BaseIO (SnapshotTask β) :=
-  return { range, task := (← BaseIO.bindTask t.task fun a => (·.task) <$> (act a)) }
+    (range : String.Range := t.range) (sync := false) : BaseIO (SnapshotTask β) :=
+  return { range, task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a)) }
 
 /-- Synchronously waits on the result of the task. -/
 def SnapshotTask.get (t : SnapshotTask α) : α :=

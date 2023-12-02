@@ -4,6 +4,13 @@ mutual
  termination_by _ => n
 end
 
+mutual
+ def f (n : Nat) :=
+   if n == 0 then 0 else f (n / 2) + 1
+end
+termination_by n => n
+
+
 def g' (n : Nat) :=
   match n with
   | 0 => 1

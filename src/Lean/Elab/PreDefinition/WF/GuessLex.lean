@@ -66,23 +66,39 @@ open Lean Meta Elab
 
 namespace Lean.Elab.WF.GuessLex
 
+register_builtin_option showInferredTerminationBy : Bool := {
+  defValue := false
+  descr    := "In recursive definitions, show the inferred `termination_by` measure."
+}
+
 /--
 Given a predefinition, find good variable names for its parameters.
 Use user-given parameter names if present; use x1...xn otherwise.
+
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
+
+The names ought to accessible (no macro scopes) and still fresh wrt to the current environment,
+so that with `showInferredTerminationBy` we can print them to the user reliably.
+We do that by appending `'` as needed.
 -/
+partial
 def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
   lambdaTelescope preDef.value fun xs _ => do
     let xs := xs.extract fixedPrefixSize xs.size
-    let mut ns := #[]
+    let mut ns : Array Name := #[]
     for h : i in [:xs.size] do
       let n ← (xs[i]'h.2).fvarId!.getUserName
-      if n.hasMacroScopes then
-        ns := ns.push (← mkFreshUserName (.mkSimple s!"x{i+1}"))
-      else
-        ns := ns.push n
+      let n := if n.hasMacroScopes then .mkSimple s!"x{i+1}" else n
+      ns := ns.push (← freshen ns n)
     return ns
+  where
+    freshen  (ns : Array Name) (n : Name): MetaM Name := do
+      if !(ns.elem n) && (← resolveGlobalName n).isEmpty then
+        return n
+      else
+        freshen ns (n.appendAfter "'")
+
 
 /-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
@@ -535,21 +551,31 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
     let body ← mkTupleSyntax (← measures.mapM fun
-      | .args varIdxs =>
+      | .args varIdxs => do
           let v := vars.get! (varIdxs[funIdx]!)
-          let sizeOfIdent := mkIdent ``sizeOf
+          let sizeOfIdent := mkIdent (← unresolveNameGlobal ``sizeOf)
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
     let declName := declNames[funIdx]!
 
-    trace[Elab.definition.wf] "Using termination {declName}: {vars} => {body}"
     termByElements := termByElements.push
       { ref := .missing
         declName, vars, body,
         implicit := true
       }
   return .ext termByElements
+
+open Parser.Command in
+def delabTermWF : TerminationWF → MetaM Syntax
+  | .ext elements => do
+  let elementStxs ← elements.mapM fun element => do
+    let fn : Ident := mkIdent (← unresolveNameGlobal element.declName)
+    let body : Term := ⟨element.body⟩
+    let vars : Array Ident := element.vars.map TSyntax.mk
+    `(terminationByElement|$fn $vars* => $body)
+  `(terminationBy|termination_by $elementStxs*)
+  | .core _ => unreachable! -- we don't synthetize termination_by' syntax
 
 end Lean.Elab.WF.GuessLex
 
@@ -590,6 +616,10 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     match ← liftMetaM <| solve measures callMatrix with
     | .some solution => do
       let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
+
+      if showInferredTerminationBy.get (← getOptions) then
+        logInfo m!"Inferred termination argument:{← delabTermWF wf}"
+
       return wf
     | .none => throwError "Cannot find a decreasing lexicographic order"
   catch _ =>

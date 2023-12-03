@@ -17,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: nix -v --experimental-features "nix-command flakes" run .#ciShell -- bash -euxo pipefail {0}
+        shell: nix run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
         include:
@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
     name: ${{ matrix.name }}
     env:
-      NIX_BUILD_ARGS: -v --print-build-logs --fallback
+      NIX_BUILD_ARGS: --print-build-logs --fallback
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -41,8 +41,20 @@ jobs:
         with:
           extra-conf: |
             extra-sandbox-paths = /nix/var/cache/ccache?
-      - name: Set Up Actions Nix Cache
-        uses: DeterminateSystems/magic-nix-cache-action@main
+            auto-optimise-store = false
+      - name: Set Up Nix Cache
+        uses: actions/cache@v3
+        with:
+          path: nix-store-cache
+          key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
+          # fall back to (latest) previous cache
+          restore-keys: |
+            ${{ matrix.name }}-nix-store-cache
+      - name: Further Set Up Nix Cache
+        shell: bash -euxo pipefail {0}
+        run: |
+          # Nix seems to mutate the cache, so make a copy
+          cp -r nix-store-cache nix-store-cache-copy || true
       - name: Prepare CCache Cache
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
@@ -79,6 +91,10 @@ jobs:
       - name: Push to Cachix
         run: |
           [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
+      - name: Rebuild Nix Store Cache
+        run: |
+          rm -rf nix-store-cache || true
+          nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
       - name: Publish manual
         uses: peaceiris/actions-gh-pages@v3
         with:

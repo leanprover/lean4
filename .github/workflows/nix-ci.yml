@@ -37,26 +37,12 @@ jobs:
           # the default is to use a virtual merge commit between the PR and master: just use the PR
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Install Nix
-        uses: cachix/install-nix-action@v18
+        uses: DeterminateSystems/nix-installer-action@main
         with:
-          # https://github.com/NixOS/nix/issues/6572
-          install_url: https://releases.nixos.org/nix/nix-2.7.0/install
           extra_nix_config: |
             extra-sandbox-paths = /nix/var/cache/ccache
-            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
-      - name: Set Up Nix Cache
-        uses: actions/cache@v3
-        with:
-          path: nix-store-cache
-          key: ${{ matrix.name }}-nix-store-cache-${{ github.sha }}
-          # fall back to (latest) previous cache
-          restore-keys: |
-            ${{ matrix.name }}-nix-store-cache
-      - name: Further Set Up Nix Cache
-        shell: bash -euxo pipefail {0}
-        run: |
-          # Nix seems to mutate the cache, so make a copy
-          cp -r nix-store-cache nix-store-cache-copy || true
+      - name: Set Up Actions Nix Cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Prepare CCache Cache
         shell: bash -euxo pipefail {0}
         run: |
@@ -95,10 +81,6 @@ jobs:
       - name: Push to Cachix
         run: |
           [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
-      - name: Rebuild Nix Store Cache
-        run: |
-          rm -rf nix-store-cache || true
-          nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
       - name: Publish manual
         uses: peaceiris/actions-gh-pages@v3
         with:

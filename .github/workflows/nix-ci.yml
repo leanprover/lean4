@@ -40,11 +40,10 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
         with:
           extra-conf: |
-            extra-sandbox-paths = /nix/var/cache/ccache
+            extra-sandbox-paths = /nix/var/cache/ccache?
       - name: Set Up Actions Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@main
       - name: Prepare CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
@@ -57,7 +56,6 @@ jobs:
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
       - name: Further Set Up CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache

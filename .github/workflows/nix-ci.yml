@@ -41,6 +41,7 @@ jobs:
         with:
           extra-conf: |
             extra-sandbox-paths = /nix/var/cache/ccache?
+            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
             auto-optimise-store = false
       - name: Set Up Nix Cache
         uses: actions/cache@v3

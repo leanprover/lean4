@@ -39,7 +39,7 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
         with:
-          extra_nix_config: |
+          extra-conf: |
             extra-sandbox-paths = /nix/var/cache/ccache
       - name: Set Up Actions Nix Cache
         uses: DeterminateSystems/magic-nix-cache-action@main

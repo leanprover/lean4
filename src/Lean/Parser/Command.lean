@@ -37,7 +37,7 @@ We provide two kinds of hints to the termination checker:
 -/
 def terminationHintMany (p : Parser) := leading_parser
   atomic (lookahead (ident >> " => ")) >>
-  many1Indent (group (ppLine >> ppIndent (ident >> " => " >> p >> optional ";")))
+  many1Indent (group (ppLine >> ppIndent (ident >> " => " >> p >> patternIgnore (optional ";"))))
 def terminationHint1 (p : Parser) := leading_parser p
 def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
 
@@ -48,7 +48,7 @@ def decreasingBy := leading_parser
 
 def terminationByElement   := leading_parser
   ppLine >> (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
-  " => " >> termParser >> optional ";"
+  " => " >> termParser >> patternIgnore (optional ";")
 def terminationBy          := leading_parser
   ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
 

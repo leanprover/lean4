@@ -29,8 +29,8 @@ jobs:
                 run_id: context.payload.workflow_run.id,
             })
             return {
-              pr = reply.data.pull_requests[0].number,
-              sha = reply.data.pull_requests[0].head.sha,
+              pr:  reply.data.pull_requests[0].number,
+              sha: reply.data.pull_requests[0].head.sha,
             }
 
       - name: Download artifact from the previous workflow.

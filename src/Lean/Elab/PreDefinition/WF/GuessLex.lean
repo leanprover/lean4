@@ -611,7 +611,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
         wf.unexpand
 
       if showInferredTerminationBy.get (← getOptions) then
-        logInfo m!"Inferred termination argument: {wfStx}"
+        logInfo m!"Inferred termination argument:{wfStx}"
 
       return wf
     | .none => throwError "Cannot find a decreasing lexicographic order"

@@ -566,19 +566,6 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
       }
   return .ext termByElements
 
-open Parser.Command in
-def delabTermWF (preDefs : Array PreDefinition) : TerminationWF → MetaM Syntax
-  | .ext elements => do
-  withoutModifyingState do
-    preDefs.forM (addAsAxiom ·)
-    let elementStxs ← elements.mapM fun element => do
-      let fn : Ident := mkIdent (← unresolveNameGlobal element.declName)
-      let body : Term := ⟨element.body⟩
-      let vars : Array Ident := element.vars.map TSyntax.mk
-      `(terminationByElement|$fn $vars* => $body)
-    `(terminationBy|termination_by $elementStxs*)
-  | .core _ => unreachable! -- we don't synthetize termination_by' syntax
-
 end Lean.Elab.WF.GuessLex
 
 namespace Lean.Elab.WF
@@ -619,8 +606,12 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     | .some solution => do
       let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
 
+      let wfStx ← withoutModifyingState do
+        preDefs.forM (addAsAxiom ·)
+        wf.unexpand
+
       if showInferredTerminationBy.get (← getOptions) then
-        logInfo m!"Inferred termination argument:{← delabTermWF preDefs wf}"
+        logInfo m!"Inferred termination argument: {wfStx}"
 
       return wf
     | .none => throwError "Cannot find a decreasing lexicographic order"

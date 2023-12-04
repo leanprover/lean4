@@ -14,8 +14,6 @@ Platform-Specific Setup
 - [Windows (WSL)](wsl.md)
 - [macOS (homebrew)](osx-10.9.md)
 - Linux/macOS/WSL via [Nix](https://nixos.org/nix/): Call `nix-shell` in the project root. That's it.
-- There is also an [**experimental** setup based purely on Nix](nix.md) that works fundamentally differently from the
-  make/CMake setup described on this page.
 
 Generic Build Instructions
 --------------------------

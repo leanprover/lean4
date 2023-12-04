@@ -169,6 +169,7 @@ where
       let fail _ := do
         throwError "only trivial inductive applications supported in premises:{indentExpr t}"
 
+      let t ← whnf t
       t.withApp fun f args => do
         if let some name := f.constName? then
           if let some idx := ctx.typeInfos.findIdx?
@@ -190,6 +191,7 @@ where
       (domain : Expr)
       {α : Type} (k : Expr → MetaM α) : MetaM α := do
     forallTelescopeReducing domain fun xs t => do
+      let t ← whnf t
       t.withApp fun _ args => do
         let hApp := mkAppN binder xs
         let t := mkAppN vars.motives[indValIdx]! $ args[ctx.numParams:] ++ #[hApp]

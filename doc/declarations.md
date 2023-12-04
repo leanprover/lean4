@@ -483,7 +483,42 @@ def baz : Char → Nat
 | _   => 3
 ```
 
-If any of the terms ``tᵢ`` in the template above contain a recursive call to ``foo``, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
+The case where patterns are matched against an argument whose type is an inductive family is known as *dependent pattern matching*. This is more complicated, because the type of the function being defined can impose constraints on the patterns that are matched. In this case, the equation compiler will detect inconsistent cases and rule them out.
+
+```lean
+universe u
+
+inductive Vector (α : Type u) : Nat → Type u
+| nil  : Vector α 0
+| cons : α → Vector α n → Vector α (n+1)
+
+namespace Vector
+
+def head {α : Type} : Vector α (n+1) → α
+| cons h t => h
+
+def tail {α : Type} : Vector α (n+1) → Vector α n
+| cons h t => t
+
+def map {α β γ : Type} (f : α → β → γ) :
+  ∀ {n}, Vector α n → Vector β n → Vector γ n
+| 0,   nil,       nil       => nil
+| n+1, cons a va, cons b vb => cons (f a b) (map f va vb)
+
+end Vector
+```
+
+.. _recursive_functions:
+
+Recursive functions
+===================
+
+Lean has to ensure that a recursive function definition is terminating, and has two strategies for that.
+
+Structural recursion
+--------------------
+
+If the definition of a function contains recursive calls, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
 
 ```lean
 namespace Hide
@@ -504,7 +539,10 @@ example : append [(1 : Nat), 2, 3] [4, 5] = [1, 2, 3, 4, 5] => rfl
 end Hide
 ```
 
-If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then show that each recursive call is decreasing under the lexicographic order of the arguments with respect to ``sizeOf`` measure. If it fails, the error message provides information as to the goal that Lean tried to prove. Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
+Well-founed recursion
+---------------------
+
+If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
 
 ```lean
 namespace Hide
@@ -528,9 +566,29 @@ by rw [div]; rfl
 end Hide
 ```
 
+If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing.
+
+If Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
+
+If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition. It is fo the form
+```
+termination_by f a₁ … aₙ => e
+```
+where ``f`` is the function name (or ``_``), ``a₁ … aₙ``  are the parameters (or ``_``), and ``e`` is the expression that should be decreasing at each recursive call. The the type of `e` should be an instance of the class ``WellFoundedRelation``, which determins how to compare two values of that type.
+
+By default, Lean uses the tactic ``decreasing_tactic`` when proving that an argument is decreasing; see its documentation for how to globally extend it. You can also choose to use a different tactic for a given function definition with the clause
+```
+decreasing_by <tac>
+```
+which should come ``termination_by`, if present.
+
+
 Note that recursive definitions can in general require nested recursions, that is, recursion on different arguments of ``foo`` in the template above. The equation compiler handles this by abstracting later arguments, and recursively defining higher-order functions to meet the specification.
 
-The equation compiler also allows mutual recursive definitions, with a syntax similar to that of [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions). They are compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
+Mutual recursion
+----------------
+
+The equation compiler also allows mutual recursive definitions, with a syntax similar to that of [Mutual and Nested Inductive Definitions](#mutual-and-nested-inductive-definitions). Mutual definitions are always compiled using well-founded recursion, and so once again the defining equations hold only propositionally.
 
 ```lean
 mutual
@@ -587,30 +645,20 @@ def num_consts_lst : List Term → Nat
 end
 ```
 
-The case where patterns are matched against an argument whose type is an inductive family is known as *dependent pattern matching*. This is more complicated, because the type of the function being defined can impose constraints on the patterns that are matched. In this case, the equation compiler will detect inconsistent cases and rule them out.
-
-```lean
-universe u
-
-inductive Vector (α : Type u) : Nat → Type u
-| nil  : Vector α 0
-| cons : α → Vector α n → Vector α (n+1)
-
-namespace Vector
-
-def head {α : Type} : Vector α (n+1) → α
-| cons h t => h
-
-def tail {α : Type} : Vector α (n+1) → Vector α n
-| cons h t => t
-
-def map {α β γ : Type} (f : α → β → γ) :
-  ∀ {n}, Vector α n → Vector β n → Vector γ n
-| 0,   nil,       nil       => nil
-| n+1, cons a va, cons b vb => cons (f a b) (map f va vb)
-
-end Vector
+If an explicit termination argument (``termination_by``) or tactic (``decreasing_by``) is given for a mutual recursive function definition, these clauses must follow the ``mutual … end`` for all involved functions:
 ```
+mutual
+theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
+| _, odd_succ n h => h
+theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
+| _, even_succ n h => h
+end
+termination_by
+  even_of_odd_succ n h => h
+  odd_of_even_succ n h => h
+decreasing_by decreasing_tactic
+```
+
 
 .. _match_expressions:
 

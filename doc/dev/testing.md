@@ -12,7 +12,7 @@ on linux using `nproc` and on Windows it is the `NUMBER_OF_PROCESSORS`
 environment variable.
 
 You can run tests after [building a specific stage](bootstrap.md) by
-adding the `-C stageN` argument. The default when run as above is stage 1. The
+adding the `-C stageN` argument. The default when run as above is stage 1.  The
 Lean tests will automatically use that stage's corresponding Lean
 executables
 

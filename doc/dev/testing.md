@@ -13,7 +13,7 @@ environment variable.
 
 You can run tests after [building a specific stage](bootstrap.md) by
 adding the `-C stageN` argument. The default when run as above is stage 1. The
-Lean tests will automatically use (but not build) that stage's corresponding Lean
+Lean tests will automatically use that stage's corresponding Lean
 executables
 
 Runnign `make test` will not pick up new test files; run

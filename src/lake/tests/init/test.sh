@@ -81,7 +81,7 @@ $LAKE -d 123-hello exe 123-hello
 # https://github.com/leanprover/lean4/issues/2999
 
 $LAKE new «A.B».«C.D»
-$LAKE -d «A-B»-«C-D» exe «A.B».«C.D»
+$LAKE -d «A-B»-«C-D» exe «a.b-c.d»
 
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128

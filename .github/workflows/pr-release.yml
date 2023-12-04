@@ -44,10 +44,12 @@ jobs:
       - name: Push branch and tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          git clone --bare https://github.com/${{ github.repository_owner }}/lean4.git
-          git -C lean4.git fetch origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
-          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git init --bare lean4.git
+          git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
+          git -C lean4.git fetch -n origin master
+          git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
           git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
           git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
       - name: Delete existing release if present
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}

@@ -967,9 +967,8 @@ def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option Matc
 
 /-- Given
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
-  - a type `B[discrs]` (which may not be a type, e.g. `n : Nat`),
-  returns the types `B[C_1[ys_1]] ... B[C_n[ys_n]]`,
-  with `ys_i` as loose bound variables, ready to be `.instantiateRev`d; arity according to `matcherApp.altNumParams`.
+  - a expression `B[discrs]` (which may not be a type, e.g. `n : Nat`),
+  returns the expressions `fun ys_1 ... ys_i => B[C_1[ys_1]] ... B[C_n[ys_n]]`,
 
   This method assumes
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
@@ -981,9 +980,6 @@ def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option Matc
   This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
   calls to refine the functions' paramter, which may mention `major`.
   See there for how to use this function.
-
-  It returns an open term, rather than following the idiom of applying a continuation,
-  so that `MatcherApp.refineThrough?` can reliably recognize failure from within this function
 -/
 def MatcherApp.refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
   lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
@@ -1015,13 +1011,13 @@ def MatcherApp.refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array
     forallTelescope auxType fun altAuxs _ => do
       let altAuxTys ← altAuxs.mapM (inferType ·)
       (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
-        forallTelescope altAuxTy fun fvs body => do
+        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
           unless fvs.size = altNumParams do
             throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
           -- extract type from our synthetic equality
           let body := body.getArg! 2
           -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
-          Expr.abstractM body fvs
+          mkLambdaFVars fvs body
 
 /-- A non-failing version of `MatcherApp.refineThrough` -/
 def MatcherApp.refineThrough? (matcherApp : MatcherApp) (e : Expr) :

@@ -92,90 +92,92 @@ abbrev M (recFnName : Name) (α β : Type) : Type :=
 Traverses the given expression `e`, and invokes the continuation `k`
 at every saturated call to `recFnName`.
 
-The expression `scrut` is passed along, and refined when going under a matcher
+The expression `param` is passed along, and refined when going under a matcher
 or `casesOn` application.
 -/
-partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (scrut : Expr) (e : Expr)
+partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (param : Expr) (e : Expr)
     (k : Expr → Array Expr → MetaM α) : MetaM (Array α) := do
   trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
-  let (_, as) ← loop scrut e |>.run #[] |>.run' {}
+  let (_, as) ← loop param e |>.run #[] |>.run' {}
   return as
 where
-  processRec (scrut : Expr) (e : Expr) : M recFnName α Unit := do
+  processRec (param : Expr) (e : Expr) : M recFnName α Unit := do
     if e.getAppNumArgs < fixedPrefixSize + 1 then
-      loop scrut (← etaExpand e)
+      loop param (← etaExpand e)
     else
-      let a ← k scrut e.getAppArgs
+      let a ← k param e.getAppArgs
       modifyThe (Array α) (·.push a)
 
-  processApp (scrut : Expr) (e : Expr) : M recFnName α Unit := do
+  processApp (param : Expr) (e : Expr) : M recFnName α Unit := do
     e.withApp fun f args => do
-      args.forM (loop scrut)
+      args.forM (loop param)
       if f.isConstOf recFnName then
-        processRec scrut e
+        processRec param e
       else
-        loop scrut f
+        loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
     modifyGetThe (HasConstCache recFnName) (·.contains e)
 
-  loop (scrut : Expr) (e : Expr) : M recFnName α Unit := do
+  loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
       return
     match e with
     | Expr.lam n d b c =>
-      loop scrut d
+      loop param d
       withLocalDecl n c d fun x => do
-        loop scrut (b.instantiate1 x)
+        loop param (b.instantiate1 x)
     | Expr.forallE n d b c =>
-      loop scrut d
+      loop param d
       withLocalDecl n c d fun x => do
-        loop scrut (b.instantiate1 x)
+        loop param (b.instantiate1 x)
     | Expr.letE n type val body _ =>
-      loop scrut type
-      loop scrut val
+      loop param type
+      loop param val
       withLetDecl n type val fun x => do
-        loop scrut (body.instantiate1 x)
+        loop param (body.instantiate1 x)
     | Expr.mdata _d b =>
       if let some stx := getRecAppSyntax? e then
-        withRef stx <| loop scrut b
+        withRef stx <| loop param b
       else
-        loop scrut b
-    | Expr.proj _n _i e => loop scrut e
-    | Expr.const .. => if e.isConstOf recFnName then processRec scrut e
+        loop param b
+    | Expr.proj _n _i e => loop param e
+    | Expr.const .. => if e.isConstOf recFnName then processRec param e
     | Expr.app .. =>
       match (← matchMatcherApp? e) with
       | some matcherApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp scrut e
+          processApp param e
         else
-          if let some altScruts ← matcherApp.refineThrough? scrut then
-            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altScruts)).forM
-              fun (alt, altNumParam, altScrut) =>
-                lambdaTelescope alt fun xs altBody => do
-                  unless altNumParam ≤ xs.size do
-                    throwError "unexpected matcher application alternative{indentExpr alt}\nat application{indentExpr e}"
-                  let altScrut := altScrut.instantiateRev xs[:altNumParam]
-                  loop altScrut altBody
+          if let some altParams ← matcherApp.refineThrough? param then
+            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
+              fun (alt, altNumParam, altParam) =>
+                lambdaTelescope altParam fun xs altParam => do
+                  -- TODO: Use boundedLambdaTelescope
+                  unless altNumParam = xs.size do
+                    throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+                  let altBody := alt.beta xs
+                  loop altParam altBody
           else
-            processApp scrut e
+            processApp param e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
         if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp scrut e
+          processApp param e
         else
-          if let some altScruts ← casesOnApp.refineThrough? scrut then
-          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altScruts)).forM
-            fun (alt, altNumParam, altScrut) =>
-              lambdaTelescope alt fun xs altBody => do
-                unless altNumParam ≤ xs.size do
+          if let some altParams ← casesOnApp.refineThrough? param then
+          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altParams)).forM
+            fun (alt, altNumParam, altParam) =>
+              lambdaTelescope altParam fun xs altParam => do
+                -- TODO: Use boundedLambdaTelescope
+                unless altNumParam = xs.size do
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-                let altScrut := altScrut.instantiateRev xs[:altNumParam]
-                loop altScrut altBody
+                let altBody := alt.beta xs
+                loop altParam altBody
           else
-            processApp scrut e
-      | none => processApp scrut e
+            processApp param e
+      | none => processApp param e
     | e => do
       let _ ← ensureNoRecFn recFnName e
 

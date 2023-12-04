@@ -542,7 +542,7 @@ end Hide
 Well-founed recursion
 ---------------------
 
-If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
+If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
 
 ```lean
 namespace Hide
@@ -568,7 +568,7 @@ end Hide
 
 If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing.
 
-If Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
+Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
 
 If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition. It is fo the form
 ```

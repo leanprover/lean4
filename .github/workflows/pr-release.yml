@@ -24,19 +24,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sourceRunId: ${{ github.event.workflow_run.id }}
-      - name: Checkout
-        # Only proceed if the previous workflow had a pull request number.
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PR_RELEASES_TOKEN }}
-          # Since `workflow_run` runs on master, we need to specify which commit to check out,
-          # so that we tag the PR.
-          # It's important that we use `sourceHeadSha` here, not `targetCommitSha`
-          # as we *don't* want the synthetic merge with master.
-          ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
-          # We need a full checkout, so that we can push the PR commits to the `lean4-pr-releases` repo.
-          fetch-depth: 0
 
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -47,14 +34,19 @@ jobs:
           path: artifacts
           name: build-.*
           name_is_regexp: true
-      - name: Prepare release
+      - name: Push branch and tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git clone --depth 1 --bare https://github.com/${{ github.repository_owner }}/lean4.git
+          git -C lean4.git fetch origin ${{ steps.workflow-info.outputs.sourceheadsha }}
+          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} ${{ steps.workflow-info.outputs.sourceHeadSha }}
+          git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+      - name: Delete existing release if present
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
           # Try to delete any existing release for the current PR.
           gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} -y || true
-          git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
@@ -84,7 +76,7 @@ jobs:
         id: most-recent-nightly-tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
+          git ls-remote https://github.com/leanprover/lean4-nightly.git 'refs/tags/nightly-*' --sort version:refname |tail -n1| sed 's,.*refs/tags/nightly-,MOST_RECENT_NIGHTLY=,' >> $GITHUB_ENV
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -98,7 +90,7 @@ jobs:
           echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
-          MERGE_BASE_SHA=$(git merge-base origin/master HEAD)
+          MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master ${{ steps.workflow-info.outputs.sourceheadsha }})
           echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "Most recent nightly tag agrees with the merge base."

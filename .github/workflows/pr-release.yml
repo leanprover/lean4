@@ -117,7 +117,7 @@ jobs:
           else
             echo "The most recently nightly tag on this branch has SHA: $NIGHTLY_SHA"
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
-            git log -10
+            git -C lean4.git log -10 origin/master
 
             MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
           fi

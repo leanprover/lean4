@@ -28,13 +28,11 @@ jobs:
                 repo: context.repo.repo,
                 run_id: context.payload.workflow_run.id,
             })
-            return {
-              pr:  reply.data.pull_requests[0].number,
-              sha: reply.data.pull_requests[0].head.sha,
-            }
+            core.setOutput('pr',  reply.data.pull_requests[0].number)
+            core.setOutput('sha', reply.data.pull_requests[0].head.sha)
 
       - name: Download artifact from the previous workflow.
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         id: download-artifact
         uses: dawidd6/action-download-artifact@v2 # https://github.com/marketplace/actions/download-workflow-artifact
         with:
@@ -44,62 +42,62 @@ jobs:
           name_is_regexp: true
 
       - name: Push branch and tag
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         run: |
           git clone --depth 1 --bare https://github.com/${{ github.repository_owner }}/lean4.git
-          git -C lean4.git fetch origin ${{ steps.workflow-info.outputs.result.sha }}
+          git -C lean4.git fetch origin ${{ steps.workflow-info.outputs.sha }}
           git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
-          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.result.pr }} ${{ steps.workflow-info.outputs.sourceHeadSha }}
-          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.result.pr }}
+          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pr }} ${{ steps.workflow-info.outputs.sourceHeadSha }}
+          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pr }}
       - name: Delete existing release if present
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         run: |
           # Try to delete any existing release for the current PR.
-          gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.result.pr }} -y || true
+          gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pr }} -y || true
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         uses: softprops/action-gh-release@v1
         with:
-          name: Release for PR ${{ steps.workflow-info.outputs.result.pr }}
+          name: Release for PR ${{ steps.workflow-info.outputs.pr }}
           # There are coredumps files here as well, but all in deeper subdirectories.
           files: artifacts/*/*
           fail_on_unmatched_files: true
           draft: false
-          tag_name: pr-release-${{ steps.workflow-info.outputs.result.pr }}
+          tag_name: pr-release-${{ steps.workflow-info.outputs.pr }}
           repository: ${{ github.repository_owner }}/lean4-pr-releases
         env:
           # The token used here must have `workflow` privileges.
           GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
 
       - name: Add label
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          number: ${{ steps.workflow-info.outputs.result.pr }}
+          number: ${{ steps.workflow-info.outputs.pr }}
           labels: toolchain-available
 
       # Next, determine the most recent nightly release in this PR's history.
       - name: Find most recent nightly
         id: most-recent-nightly-tag
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         run: |
           git ls-remote https://github.com/leanprover/lean4-nightly.git 'refs/tags/nightly-*' --sort version:refname |tail -n1| sed 's,.*refs/tags/nightly-,MOST_RECENT_NIGHTLY=,' >> $GITHUB_ENV
 
       - name: 'Setup jq'
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         uses: dcarbone/install-jq-action@v1.0.1
 
       # Check that the most recently nightly coincides with 'git merge-base HEAD master'
       - name: Check merge-base and nightly-testing-YYYY-MM-DD
-        if: ${{ steps.workflow-info.outputs.result.pr != '' }}
+        if: ${{ steps.workflow-info.outputs.pr != '' }}
         id: ready
         run: |
           echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git -C lean4.git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
-          MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master ${{ steps.workflow-info.outputs.result.sha }})
+          MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master ${{ steps.workflow-info.outputs.sha }})
           echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "Most recent nightly tag agrees with the merge base."
@@ -129,7 +127,7 @@ jobs:
             # Use GitHub API to check if a comment already exists
             existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
-                                    "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.result.pr }}/comments" \
+                                    "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pr }}/comments" \
                                     | jq '.[] | select(.body | startswith("- ❗ Mathlib") or startswith("- ✅ Mathlib") or startswith("- ❌ Mathlib") or startswith("- 💥 Mathlib") or startswith("- 🟡 Mathlib"))')
             existing_comment_id=$(echo "$existing_comment" | jq -r .id)
             existing_comment_body=$(echo "$existing_comment" | jq -r .body)
@@ -143,16 +141,16 @@ jobs:
               # It's essential we use the MATHLIB4_BOT token here, so that Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
                 # Post new comment with a bullet point
-                echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.result.pr }}/comments"
+                echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pr }}/comments"
                 curl -L -s \
                   -X POST \
                   -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
-                  "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.result.pr }}/comments"
+                  "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pr }}/comments"
               else
                 # Append new result to the existing comment
-                echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.result.pr }}/comments"
+                echo "Appending to existing comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pr }}/comments"
                 curl -L -s \
                   -X PATCH \
                   -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
@@ -172,13 +170,13 @@ jobs:
       # Mathlib CI will be responsible for reporting back success or failure
       # to the PR comments asynchronously.
       - name: Cleanup workspace
-        if: steps.workflow-info.outputs.result.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
+        if: steps.workflow-info.outputs.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           sudo rm -rf *
 
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
-        if: steps.workflow-info.outputs.result.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
+        if: steps.workflow-info.outputs.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
         uses: actions/checkout@v3
         with:
           repository: leanprover-community/mathlib4
@@ -187,7 +185,7 @@ jobs:
           fetch-depth: 0 # This ensures we check out all tags and branches.
 
       - name: Check if branch exists
-        if: steps.workflow-info.outputs.result.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
+        if: steps.workflow-info.outputs.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
         id: check_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
@@ -204,23 +202,23 @@ jobs:
 
           git checkout $BASE
 
-          EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.result.pr }} | wc -l)
+          EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pr }} | wc -l)
           echo "Branch exists: $EXISTS"
           if [ "$EXISTS" = "0" ]; then
             echo "Branch does not exist, creating it."
-            git checkout -b lean-pr-testing-${{ steps.workflow-info.outputs.result.pr }}
-            echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.result.pr }}" > lean-toolchain
+            git checkout -b lean-pr-testing-${{ steps.workflow-info.outputs.pr }}
+            echo "leanprover/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pr }}" > lean-toolchain
             git add lean-toolchain
-            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/result.pr/${{ steps.workflow-info.outputs.result.pr }}"
+            git commit -m "Update lean-toolchain for testing https://github.com/leanprover/lean4/pr/${{ steps.workflow-info.outputs.pr }}"
           else
             echo "Branch already exists, pushing an empty commit."
-            git checkout lean-pr-testing-${{ steps.workflow-info.outputs.result.pr }}
+            git checkout lean-pr-testing-${{ steps.workflow-info.outputs.pr }}
             # The Mathlib `nightly-testing` or `nightly-testing-YYYY-MM-DD` branch may have moved since this branch was created, so merge their changes.
             git merge $BASE --strategy-option ours --no-commit --allow-unrelated-histories
-            git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.result.pr }}"
+            git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pr }}"
           fi
 
       - name: Push changes
-        if: steps.workflow-info.outputs.result.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
+        if: steps.workflow-info.outputs.pr != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
-          git push origin lean-pr-testing-${{ steps.workflow-info.outputs.result.pr }}
+          git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pr }}

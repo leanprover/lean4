@@ -29,7 +29,7 @@ jobs:
                 run_id: context.payload.workflow_run.id,
             })
             core.setOutput('pullRequestNumber', reply.data.pull_requests[0].number)
-            core.setOutput('sourceHeadSha',     reply.data.pull_requests[0].head.sourceHeadSha)
+            core.setOutput('sourceHeadSha',     reply.data.pull_requests[0].head.sha)
 
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}

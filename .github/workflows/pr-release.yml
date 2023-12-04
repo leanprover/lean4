@@ -34,6 +34,7 @@ jobs:
           path: artifacts
           name: build-.*
           name_is_regexp: true
+
       - name: Push branch and tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
@@ -88,7 +89,7 @@ jobs:
         id: ready
         run: |
           echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
-          NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
+          NIGHTLY_SHA=$(git -C lean4.git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master ${{ steps.workflow-info.outputs.sourceheadsha }})
           echo "SHA of merge-base: $MERGE_BASE_SHA"

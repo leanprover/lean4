@@ -65,40 +65,55 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   { ref := stx, kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
-def mkFreshInstanceName : CommandElabM Name := do
-  let s ← get
-  let idx := s.nextInstIdx
-  modify fun s => { s with nextInstIdx := s.nextInstIdx + 1 }
-  return Lean.Elab.mkFreshInstanceName s.env idx
+private partial def mkInstanceNameFromExpr (e : Expr) : MetaM String :=
+  Prod.snd <$> go e {} ""
+where
+  go (e : Expr) (visited : ExprSet) (acc : String) : MetaM (ExprSet × String) := do
+    if visited.contains e then
+      return (visited, acc)
+    else
+      let visited := visited.insert e
+      match e with
+      | .app .. =>
+        e.withApp fun f args => do
+          -- Visit only the explicit arguments to `f` and type arguments.
+          forallBoundedTelescope (← inferType f) args.size fun args' _ => do
+            let mut (visited, acc) ← go f visited acc
+            for arg in args, arg' in args' do
+              let bi ← arg'.fvarId!.getBinderInfo
+              let isTy ← Meta.isType arg
+              if bi == .default || isTy then
+                (visited, acc) ← go arg visited acc
+            return (visited, acc)
+      | .forallE n ty body bi =>
+        withLocalDecl n bi ty fun arg => do
+          let body := body.instantiate1 arg
+          let (visited, acc) ← go ty visited (acc ++ "Forall")
+          go body visited acc
+      | .sort .. =>
+        if e.isProp then return (visited, acc ++ "Prop")
+        else if e.isType then return (visited, acc ++ "Type")
+        else return (visited, acc ++ "Sort")
+      | .const name .. =>
+        return match name.eraseMacroScopes with
+                | .str _ str => (visited, acc ++ str.capitalize)
+                | _ => (visited, acc)
+      | _ => return (visited, acc)
 
 /--
   Generate a name for an instance with the given type.
   Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration. -/
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
-  try
-    let result ← runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
-      let type ← instantiateMVars (← Term.elabType type)
-      let ref ← IO.mkRef ""
-      Meta.forEachExpr type fun e => do
-        if e.isForall then ref.modify (· ++ "ForAll")
-        else if e.isProp then ref.modify (· ++ "Prop")
-        else if e.isType then ref.modify (· ++ "Type")
-        else if e.isSort then ref.modify (· ++ "Sort")
-        else if e.isConst then
-          match e.constName!.eraseMacroScopes with
-          | .str _ str =>
-              if str.front.isLower then
-                ref.modify (· ++ str.capitalize)
-              else
-                ref.modify (· ++ str)
-          | _ => pure ()
-      ref.get
-    set savedState
-    liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ result)
-  catch _ =>
-    set savedState
-    mkFreshInstanceName
+  let name ←
+    try
+      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
+        let type ← instantiateMVars (← Term.elabType type)
+        forallTelescope type fun _ type' => mkInstanceNameFromExpr type'
+    catch _ =>
+      pure s!"@{← getMainModule}"
+  set savedState
+  liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ name)
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

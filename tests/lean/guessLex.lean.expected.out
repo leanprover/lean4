@@ -1,0 +1,50 @@
+Inferred termination argument:
+termination_by
+  ackermann n m => (sizeOf n, sizeOf m)
+Inferred termination argument:
+termination_by
+  ackermann2 n m => (sizeOf m, sizeOf n)
+Inferred termination argument:
+termination_by
+  ackermannList n m => (sizeOf n, sizeOf m)
+Inferred termination argument:
+termination_by
+  foo2 x1 x2 => (sizeOf x2, sizeOf x1)
+Inferred termination argument:
+termination_by
+  even x1 => sizeOf x1
+  odd x1 => sizeOf x1
+Inferred termination argument:
+termination_by
+  evenWithFixed x1 => sizeOf x1
+  oddWithFixed x1 => sizeOf x1
+Inferred termination argument:
+termination_by
+  ping.pong x1 => (sizeOf x1, 0)
+  ping n => (sizeOf n, 1)
+Inferred termination argument:
+termination_by
+  hasForbiddenArg n _h m => (sizeOf m, sizeOf n)
+Inferred termination argument:
+termination_by
+  blowup x1 x2 x3 x4 x5 x6 x7 x8 =>
+  (sizeOf x8, sizeOf x7, sizeOf x6, sizeOf x5, sizeOf x4, sizeOf x3, sizeOf x2, sizeOf x1)
+Inferred termination argument:
+termination_by
+  dependent x1 x2 => (sizeOf x1, sizeOf x2)
+Inferred termination argument:
+termination_by
+  eval a => (sizeOf a, 1)
+  eval_add a => (sizeOf a, 0)
+Inferred termination argument:
+termination_by
+  shadow1 x2 x2' => sizeOf x2'
+Inferred termination argument:
+termination_by
+  shadow2 some_n' x2 => sizeOf x2
+Inferred termination argument:
+termination_by
+  shadow3 sizeOf' x2 => sizeOf x2
+Inferred termination argument:
+termination_by
+  qualifiedSizeOf m x2 => SizeOf.sizeOf x2

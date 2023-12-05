@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 import Lean.Meta.ForEachExpr
 import Lean.Elab.Command
 import Lean.Elab.DeclUtil
+import Lean.Meta.CollectFVars
 
 namespace Lean.Elab
 
@@ -65,40 +66,57 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   { ref := stx, kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
-private partial def mkInstanceNameFromExpr (e : Expr) : MetaM String :=
-  Prod.snd <$> go e {} ""
+private partial def mkInstanceNameFromExpr (binders : Array Expr) (e : Expr) : MetaM String := do
+  let mut (strings, s) ← go e (HashSet.insert {} "")
+  let fvars := (collectFVars {} e).fvarSet
+  for binder in binders do
+    -- Only mention binders that aren't implied by `e`. (These must be additional classes.)
+    unless fvars.contains binder.fvarId! do
+      let ty ← inferType binder
+      let (strings', s') ← go ty strings
+      (strings, s) := (strings', s ++ if s' == "" then "" else "Of" ++ s')
+  return s
 where
-  go (e : Expr) (visited : ExprSet) (acc : String) : MetaM (ExprSet × String) := do
-    if visited.contains e then
-      return (visited, acc)
-    else
-      let visited := visited.insert e
-      match e with
-      | .app .. =>
-        e.withApp fun f args => do
-          -- Visit only the explicit arguments to `f` and type arguments.
-          forallBoundedTelescope (← inferType f) args.size fun args' _ => do
-            let mut (visited, acc) ← go f visited acc
-            for arg in args, arg' in args' do
-              let bi ← arg'.fvarId!.getBinderInfo
-              let isTy ← Meta.isType arg
-              if bi == .default || isTy then
-                (visited, acc) ← go arg visited acc
-            return (visited, acc)
-      | .forallE n ty body bi =>
+  go (e : Expr) (strings : HashSet String) : MetaM (HashSet String × String) := do
+    let (strings', s) ← go' e strings
+    return (strings'.insert s, if strings.contains s then "" else s)
+  go' (e : Expr) (strings : HashSet String) : MetaM (HashSet String × String) := do
+    match e with
+    | .app .. =>
+      e.withApp fun f args => do
+        -- Visit only the explicit arguments to `f` and type arguments.
+        forallBoundedTelescope (← inferType f) args.size fun args' _ => do
+          let mut (strings, s) ← go f strings
+          for arg in args, arg' in args' do
+            let bi ← arg'.fvarId!.getBinderInfo
+            let isTy ← Meta.isType arg
+            if bi == .default || (isTy && !arg.isSort) then
+              let (strings', sarg) ← go arg strings
+              (strings, s) := (strings', s ++ sarg)
+          return (strings, s)
+    | .forallE n ty body bi =>
+      withLocalDecl n bi ty fun arg => do
+        let body := body.instantiate1 arg
+        let (strings, sty) ← go ty strings
+        let (strings, sbody) ← go body strings
+        return (strings, "Forall" ++ sty ++ sbody)
+    | .lam n ty body bi =>
+      if let some e := Expr.etaExpandedStrict? e then
+        go' e strings
+      else
         withLocalDecl n bi ty fun arg => do
           let body := body.instantiate1 arg
-          let (visited, acc) ← go ty visited (acc ++ "Forall")
-          go body visited acc
-      | .sort .. =>
-        if e.isProp then return (visited, acc ++ "Prop")
-        else if e.isType then return (visited, acc ++ "Type")
-        else return (visited, acc ++ "Sort")
-      | .const name .. =>
-        return match name.eraseMacroScopes with
-                | .str _ str => (visited, acc ++ str.capitalize)
-                | _ => (visited, acc)
-      | _ => return (visited, acc)
+          let (strings, sbody) ← go body strings
+          return (strings, "Fun" ++ sbody)
+    | .sort .. =>
+      if e.isProp then return (strings, "Prop")
+      else if e.isType then return (strings, "Type")
+      else return (strings, "Sort")
+    | .const name .. =>
+      return match name.eraseMacroScopes with
+              | .str _ str => (strings, str.capitalize)
+              | _ => (strings, "")
+    | _ => return (strings, "")
 
 /--
   Generate a name for an instance with the given type.
@@ -107,9 +125,9 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
   let savedState ← get
   let name ←
     try
-      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun _ => Term.withoutErrToSorry do
+      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutErrToSorry do
         let type ← instantiateMVars (← Term.elabType type)
-        forallTelescope type fun _ type' => mkInstanceNameFromExpr type'
+        forallTelescope type fun binds' type' => mkInstanceNameFromExpr (binds ++ binds') type'
     catch _ =>
       pure s!"@{← getMainModule}"
   set savedState

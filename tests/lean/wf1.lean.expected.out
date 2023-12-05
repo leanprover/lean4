@@ -11,4 +11,9 @@ argument #2 was not used for structural recursion
 
 structural recursion cannot be used
 
-failed to prove termination, use `termination_by` to specify a well-founded relation
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+           x y
+1) 3:12-19 ? ?
+Please use `termination_by` to specify a decreasing measure.

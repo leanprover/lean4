@@ -9,6 +9,9 @@ else
   sed_i() { sed -i "$@"; }
 fi
 
+# avoid issues with pathoological unicode arguments
+[ "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
+
 LAKE1=${LAKE:-../../../.lake/build/bin/lake}
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 

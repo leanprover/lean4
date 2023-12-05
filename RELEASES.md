@@ -33,12 +33,6 @@ v4.4.0
   package SomePackage where
     leanOptions := #[⟨`pp.unicode.fun, true⟩]
   ```
-  
-  A package configuration that does not intend to set `moreLeanArgs` can use `moreServerOptions` instead of `leanOptions`:
-  ```lean
-  package SomePackage where
-    moreServerOptions := #[⟨`pp.unicode.fun, true⟩]
-  ```
 * [Rename request handler](https://github.com/leanprover/lean4/pull/2462).
 * [Import auto-completion](https://github.com/leanprover/lean4/pull/2904).
 * [`pp.beta`` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).

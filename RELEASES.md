@@ -14,7 +14,31 @@ v4.5.0 (development in progress)
 v4.4.0
 ---------
 
-* [Rename request handler](https://github.com/leanprover/lean4/pull/2462).
+* Lake and the language server now support per-package server options using the `moreServerOptions` config field, as well as options that apply to both the language server and `lean` using the `leanOptions` config field. Setting these fields instead of `moreServerArgs` ensures that viewing files from a dependency uses the options for that dependency. Additionally, `moreServerArgs` is being deprecated in favor of the `moreGlobalServerArgs` field. See PR [#2858](https://github.com/leanprover/lean4/pull/2858).
+  
+  A Lakefile with the following deprecated package declaration:
+  ```lean
+  def moreServerArgs := #[
+    "-Dpp.unicode.fun=true"
+  ]
+  def moreLeanArgs := moreServerArgs
+  
+  package SomePackage where
+    moreServerArgs := moreServerArgs
+    moreLeanArgs := moreLeanArgs
+  ```
+  
+  ... can be updated to the following package declaration to use per-package options:
+  ```lean
+  package SomePackage where
+    leanOptions := ⟨`pp.unicode.fun, true⟩
+  ```
+  
+  A package configuration that does not intend to set `moreLeanArgs` can use `moreServerOptions` instead of `leanOptions`:
+  ```lean
+  package SomePackage where
+    moreServerOptions := ⟨`pp.unicode.fun, true⟩
+  ```
 * [Import auto-completion](https://github.com/leanprover/lean4/pull/2904).
 * [`pp.beta`` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).
 * [Per-package server options](https://github.com/leanprover/lean4/pull/2858).

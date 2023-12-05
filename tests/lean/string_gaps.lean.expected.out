@@ -14,7 +14,7 @@
 "ab"
 "ab"
 
-string_gaps.lean:46:0-49:10: error: <input>:1:4: expecting newline after carriage return
+string_gaps.lean:101:0-104:10: error: <input>:1:4: expecting newline after carriage return
 
-string_gaps.lean:51:0-54:10: error: <input>:1:3: invalid escape sequence
+string_gaps.lean:109:0-112:10: error: <input>:1:3: invalid escape sequence
 "this is line 1\n  line 2, indented\nline 3"

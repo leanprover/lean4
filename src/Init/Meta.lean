@@ -773,10 +773,12 @@ def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos)
   else
     none
 
-/-- Decode a valid string gap after the `\`.
+/--
+Decodes a valid string gap after the `\`.
 Note that this function matches `"\" whitespace+` rather than
 the more restrictive `"\" newline whitespace*` since this simplifies the implementation.
-Justification: this does not overlap with any other sequences beginning with `\`. -/
+Justification: this does not overlap with any other sequences beginning with `\`.
+-/
 def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
   guard <| (s.get i).isWhitespace
   s.nextWhile Char.isWhitespace (s.next i)

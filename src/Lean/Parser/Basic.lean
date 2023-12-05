@@ -564,10 +564,12 @@ def hexDigitFn : ParserFn := fun c s =>
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
-/-- Parses the whitespace after the `\` when there is a string gap.
+/--
+Parses the whitespace after the `\` when there is a string gap.
 Raises an error if the whitespace does not contain exactly one newline character.
-Processes `\r\n` as a newline. -/
-partial def stringGap (seenNewline afterCR : Bool) : ParserFn := fun c s =>
+Processes `\r\n` as a newline.
+-/
+partial def stringGapFn (seenNewline afterCR : Bool) : ParserFn := fun c s =>
   let i := s.pos
   if h : c.input.atEnd i then s -- let strLitFnAux handle the EOI error if !seenNewline
   else
@@ -577,22 +579,24 @@ partial def stringGap (seenNewline afterCR : Bool) : ParserFn := fun c s =>
         -- Having more than one newline in a string gap is visually confusing
         s.mkUnexpectedError "unexpected additional newline in string gap"
       else
-        stringGap true false c (s.next' c.input i h)
+        stringGapFn true false c (s.next' c.input i h)
     else if curr == '\r' then
-      stringGap seenNewline true c (s.next' c.input i h)
+      stringGapFn seenNewline true c (s.next' c.input i h)
     else if afterCR then
       s.mkUnexpectedError "expecting newline after carriage return"
     else if curr.isWhitespace then
-      stringGap seenNewline false c (s.next' c.input i h)
+      stringGapFn seenNewline false c (s.next' c.input i h)
     else if seenNewline then
       s
     else
       s.mkUnexpectedError "expecting newline in string gap"
 
-/-- Parse a string quotation after a `\`.
+/--
+Parses a string quotation after a `\`.
 - `isQuotable` determines which characters are valid escapes
 - `inString` enables features that are only valid within strings,
-  in particular `"\" newline whitespace*` gaps. -/
+  in particular `"\" newline whitespace*` gaps.
+-/
 def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
@@ -606,7 +610,7 @@ def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn :
     else if curr == 'u' then
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next' input i h)
     else if inString && (curr == '\n' || curr == '\r') then
-      stringGap false false c s
+      stringGapFn false false c s
     else
       s.mkUnexpectedError "invalid escape sequence"
 
@@ -616,7 +620,10 @@ def isQuotableCharDefault (c : Char) : Bool :=
 def quotedCharFn : ParserFn :=
   quotedCharCoreFn isQuotableCharDefault false
 
-/-- Like `quotedCharFn` but enables escapes that are only valid inside strings. In particular, gaps ("\" newline whitespace*). -/
+/--
+Like `quotedCharFn` but enables escapes that are only valid inside strings.
+In particular, string gaps (`"\" newline whitespace*`).
+-/
 def quotedStringFn : ParserFn :=
   quotedCharCoreFn isQuotableCharDefault true
 

@@ -81,7 +81,7 @@ $LAKE -d 123-hello exe 123-hello
 # https://github.com/leanprover/lean4/issues/2999
   
 # this fails on windows for unrelated reasons
-if [ "$OSTYPE" == "msys" ]; then
+if [ "$OSTYPE" != "msys" ]; then
   $LAKE new «A.B».«C.D»
   $LAKE -d «A-B»-«C-D» exe «a.b-c.d»
 fi

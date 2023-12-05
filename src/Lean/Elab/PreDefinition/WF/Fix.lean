@@ -165,8 +165,37 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
 
+/-
+Given an array of MVars, assign MVars with equal type and subsumed local context to each other.
+Returns those MVar that did not get assigned.
+-/
+def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) := do
+  let mut assigned := Array.mkArray mvars.size false
+  for h1 : i in [:mvars.size] do for h2 : j in [i+1:mvars.size] do
+    unless assigned[i]! || assigned[j]! do
+      let mvi := mvars[i]'h1.2
+      let mvj := mvars[j]'h2.2
+      let mvdecli ← mvi.getDecl
+      let mvdeclj ← mvj.getDecl
+      if mvdecli.type == mvdeclj.type then
+        -- same goals; check contexts.
+          if mvdecli.lctx.isSubPrefixOf mvdeclj.lctx then
+            -- mvi is better
+            mvj.assign (.mvar mvi)
+            assigned := assigned.set! j true
+          else if mvdeclj.lctx.isSubPrefixOf mvdecli.lctx then
+            -- mvj is better
+            mvi.assign (.mvar mvj)
+            assigned := assigned.set! j true
+  let mut mvars' := Array.mkEmpty mvars.size
+  for h : i in [:mvars.size] do
+    unless assigned[i]! do
+      mvars' := mvars'.push (mvars[i]'h.2)
+  return mvars'
+
 def solveDecreasingGoals (decrTactic? : Option Syntax) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
+  let goals ← assignSubsumed goals
   goals.forM fun goal => Lean.Elab.Term.TermElabM.run' <|
     match decrTactic? with
     | none => do

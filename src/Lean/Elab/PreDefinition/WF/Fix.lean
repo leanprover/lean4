@@ -186,7 +186,7 @@ def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) := do
           else if mvdeclj.lctx.isSubPrefixOf mvdecli.lctx then
             -- mvj is better
             mvi.assign (.mvar mvj)
-            assigned := assigned.set! j true
+            assigned := assigned.set! i true
   let mut mvars' := Array.mkEmpty mvars.size
   for h : i in [:mvars.size] do
     unless assigned[i]! do

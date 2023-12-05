@@ -31,7 +31,7 @@ v4.4.0
   ... can be updated to the following package declaration to use per-package options:
   ```lean
   package SomePackage where
-    leanOptions := ⟨`pp.unicode.fun, true⟩
+    leanOptions := #[⟨`pp.unicode.fun, true⟩]
   ```
   
   A package configuration that does not intend to set `moreLeanArgs` can use `moreServerOptions` instead of `leanOptions`:

@@ -122,7 +122,6 @@ The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
             x1 x2
 1) 89:19-32  ?  ?
-2) 89:19-32  _  _
 Please use `termination_by` to specify a decreasing measure.
 guessLexFailures.lean:100:0-103:31: error: Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:

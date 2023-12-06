@@ -8,6 +8,8 @@ When writing tests for GuesLex, keep in mind that it doesn't do anything
 when there is only one plausible measure (one function, only one varying argument).
 -/
 
+set_option showInferredTerminationBy true
+
 def ackermann (n m : Nat) := match n, m with
   | 0, m => m + 1
   | .succ n, 0 => ackermann n 1
@@ -95,7 +97,6 @@ def dependent : (n : Nat) → (m : Fin n) → Nat
  | .succ (.succ n), ⟨.succ m, h⟩ =>
   dependent (.succ (.succ n)) ⟨m, Nat.lt_of_le_of_lt (Nat.le_succ _) h⟩
 
-
 -- An example based on a real world problem, condensed by Leo
 inductive Expr where
   | add (a b : Expr)
@@ -111,3 +112,33 @@ def eval_add (a : Expr × Expr) : Nat :=
   match a with
   | (x, y) => eval x + eval y
 end
+
+namespace VarNames
+
+/-! Test that varnames are inferred nicely. -/
+
+def shadow1 (x2 : Nat) : Nat → Nat
+  | 0 => 0
+  | .succ n => shadow1 (x2 + 1) n
+decreasing_by decreasing_tactic
+
+
+def some_n : Nat := 1
+def shadow2 (some_n : Nat) : Nat → Nat
+  | 0 => 0
+  | .succ n => shadow2 (some_n + 1) n
+decreasing_by decreasing_tactic
+
+def shadow3 (sizeOf : Nat) : Nat → Nat
+  | 0 => 0
+  | .succ n => shadow3 (sizeOf + 1) n
+decreasing_by decreasing_tactic
+
+def sizeOf : Nat := 2 -- should cause sizeOf to be qualfied below
+
+def qualifiedSizeOf (m : Nat) : Nat → Nat
+  | 0 => 0
+  | .succ n => qualifiedSizeOf (m + 1) n
+decreasing_by decreasing_tactic
+
+end VarNames

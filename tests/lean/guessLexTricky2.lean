@@ -6,6 +6,8 @@ Isabelle/HOL” by Lukas Bulwahn, Alexander Krauss, and Tobias Nipkow,
 Works out of the box!
 -/
 
+set_option showInferredTerminationBy true
+
 mutual
 def pedal : Nat → Nat → Nat → Nat
   | 0, _m, c => c

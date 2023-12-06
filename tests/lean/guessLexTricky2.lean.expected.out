@@ -1,0 +1,4 @@
+Inferred termination argument:
+termination_by
+  pedal x1 x2 x3 => (sizeOf x1, sizeOf x2, 0)
+  coast x1 x2 x3 => (sizeOf x1, sizeOf x2, 1)

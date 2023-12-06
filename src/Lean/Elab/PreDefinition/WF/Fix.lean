@@ -17,25 +17,20 @@ import Lean.Elab.PreDefinition.Structural.BRecOn
 namespace Lean.Elab.WF
 open Meta
 
-private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
-  let remainingGoals ← Tactic.run mvarId do
-    Tactic.evalTactic (← `(tactic| decreasing_tactic))
-  unless remainingGoals.isEmpty do
-    Term.reportUnsolvedGoals remainingGoals
-
-private def mkDecreasingProof (decreasingProp : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
-  let mvar ← mkFreshExprSyntheticOpaqueMVar decreasingProp
+/-
+Creates a subgoal for a recursive call, as an unsolved `MVar`. The goal is cleaned up, and
+the current syntax reference is stored in the `MVar`’s type as a `RecApp` marker, for
+use by `solveDecreasingGoals` below.
+-/
+private def mkDecreasingProof (decreasingProp : Expr) : TermElabM Expr := do
+  -- We store the current Ref in the MVar as a RecApp annotation around the type
+  let ref ← getRef
+  let mvar ← mkFreshExprSyntheticOpaqueMVar (mkRecAppWithSyntax decreasingProp ref)
   let mvarId := mvar.mvarId!
-  let mvarId ← mvarId.cleanup
-  match decrTactic? with
-  | none => applyDefaultDecrTactic mvarId
-  | some decrTactic =>
-    -- make info from `runTactic` available
-    pushInfoTree (.hole mvarId)
-    Term.runTactic mvarId decrTactic
-  instantiateMVars mvar
+  let _mvarId ← mvarId.cleanup
+  return mvar
 
-private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) (F : Expr) (e : Expr) : TermElabM Expr := do
+private partial def replaceRecApps (recFnName : Name) (fixedPrefixSize : Nat) (F : Expr) (e : Expr) : TermElabM Expr := do
   trace[Elab.definition.wf] "replaceRecApps:{indentExpr e}"
   trace[Elab.definition.wf] "{F} : {← inferType F}"
   loop F e |>.run' {}
@@ -47,7 +42,7 @@ where
       let args := e.getAppArgs
       let r := mkApp F (← loop F args[fixedPrefixSize]!)
       let decreasingProp := (← whnf (← inferType r)).bindingDomain!
-      let r := mkApp r (← mkDecreasingProof decreasingProp decrTactic?)
+      let r := mkApp r (← mkDecreasingProof decreasingProp)
       return mkAppN r (← args[fixedPrefixSize+1:].toArray.mapM (loop F))
 
   processApp (F : Expr) (e : Expr) : StateRefT (HasConstCache recFnName) TermElabM Expr := do
@@ -164,6 +159,26 @@ private partial def processPSigmaCasesOn (x F val : Expr) (k : (F : Expr) → (v
   else
     k F val
 
+private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
+  let remainingGoals ← Tactic.run mvarId do
+    Tactic.evalTactic (← `(tactic| decreasing_tactic))
+  unless remainingGoals.isEmpty do
+    Term.reportUnsolvedGoals remainingGoals
+
+def solveDecreasingGoals (decrTactic? : Option Syntax) (value : Expr) : MetaM Expr := do
+  let goals ← getMVarsNoDelayed value
+  goals.forM fun goal => Lean.Elab.Term.TermElabM.run' <|
+    match decrTactic? with
+    | none => do
+      let some ref := getRecAppSyntax? (← goal.getType)
+        | throwError "MVar does not look like like a recursive call"
+        withRef ref <| applyDefaultDecrTactic goal
+    | some decrTactic => do
+      -- make info from `runTactic` available
+      pushInfoTree (.hole goal)
+      Term.runTactic goal decrTactic
+  instantiateMVars value
+
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
@@ -186,7 +201,8 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
       let F   := xs[1]!
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
-        processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size decrTactic?)
+        processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
+      let val ← solveDecreasingGoals decrTactic? val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

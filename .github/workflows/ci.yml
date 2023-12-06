@@ -321,6 +321,7 @@ jobs:
           ulimit -c unlimited # coredumps
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
+          OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"

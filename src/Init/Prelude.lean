@@ -52,7 +52,7 @@ and the representation is compact.
 @[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
-/-
+/--
 The constant function. If `a : α`, then `Function.const β a : β → α` is the
 "constant function with value `a`", that is, `Function.const β a b = a`.
 ```

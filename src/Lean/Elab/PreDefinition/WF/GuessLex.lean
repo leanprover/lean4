@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Data.Array
 
 
 /-!
@@ -232,29 +233,20 @@ calls, and confusing in the output of GuessLex. So prune the list of recursive c
 and remove those where another call exists that has the same goal and context that is no more
 specific.
 -/
-def filterSubsumed (rcs : Array RecCallWithContext ) :  Array RecCallWithContext := Id.run do
-  let mut to_delete := Array.mkArray rcs.size false
-  for h1 : i in [:rcs.size] do for h2 : j in [i+1:rcs.size] do
-    unless to_delete[i]! || to_delete[j]! do
-      let rci := rcs[i]'h1.2
-      let rcj := rcs[j]'h2.2
-      if rci.caller == rcj.caller && rci.callee == rcj.callee &&
-        rci.params == rcj.params && rci.args == rcj.args then
-        -- same goals; check contexts.
-          let lci := rci.ctxt.savedLocalContext
-          let lcj := rcj.ctxt.savedLocalContext
-          if lci.isSubPrefixOf lcj then
-            -- rci is better
-            to_delete := to_delete.set! j true
-          else if lcj.isSubPrefixOf lci then
-            -- rcj is better
-            to_delete := to_delete.set! j true
-  let mut rcs' := Array.mkEmpty rcs.size
-  for h : i in [:rcs.size] do
-    unless to_delete[i]! do
-      rcs' := rcs'.push (rcs[i]'h.2)
-  return rcs'
-
+def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext := Id.run do
+  rcs.filterPairsM fun rci rcj => do
+    if rci.caller == rcj.caller && rci.callee == rcj.callee &&
+      rci.params == rcj.params && rci.args == rcj.args then
+      -- same goals; check contexts.
+        let lci := rci.ctxt.savedLocalContext
+        let lcj := rcj.ctxt.savedLocalContext
+        if lci.isSubPrefixOf lcj then
+          -- rci is better
+          return (true, false)
+        else if lcj.isSubPrefixOf lci then
+          -- rcj is better
+          return (false, true)
+    return (true, true)
 
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.

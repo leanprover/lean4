@@ -183,7 +183,8 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
       let contents ← h.readToEnd; h.rewind
       let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
         | error "compiled configuration is invalid; run with `-R` to reconfigure"
-      let upToDate := trace.platform = platformDescriptor ∧
+      let upToDate :=
+        (← olean.pathExists) ∧ trace.platform = platformDescriptor ∧
         trace.leanHash = Lean.githash ∧ trace.configHash = configHash
       if upToDate then
         return .olean h

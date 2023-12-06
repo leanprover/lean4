@@ -283,7 +283,7 @@
 {"range":
  {"start": {"line": 158, "character": 0}, "end": {"line": 158, "character": 8}},
  "contents":
- {"value": "```lean\nBar.instToStringNat : ToString ℕ\n```",
+ {"value": "```lean\nBar.instToStringNat_ : ToString ℕ\n```",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 160, "character": 9}}

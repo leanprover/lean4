@@ -66,72 +66,109 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
   { ref := stx, kind := DefKind.theorem, modifiers,
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
-private partial def mkInstanceNameFromExpr (binders : Array Expr) (e : Expr) : MetaM String := do
-  let mut (strings, s) ← go e (HashSet.insert {} "")
+private abbrev MkInstM := StateRefT (HashSet String) MetaM
+
+/--
+Uses heuristics to generate an informative but terse name for an instance given its namespace, supplied binders, and class expression.
+It tries to make these relatively unique.
+-/
+private partial def mkInstanceNameFromExpr (binders : Array Expr) (e : Expr) : MkInstM String := do
+  visitNamespace (← getCurrNamespace)
+  let mut s ← go e
   let fvars := (collectFVars {} e).fvarSet
   for binder in binders do
-    -- Only mention binders that aren't implied by `e`. (These must be additional classes.)
+    -- Only mention binders that aren't implied by `e`. (Incidentally, for a valid instance these must be additional classes.)
     unless fvars.contains binder.fvarId! do
-      let ty ← inferType binder
-      let (strings', s') ← go ty strings
-      (strings, s) := (strings', s ++ if s' == "" then "" else "Of" ++ s')
-  return s
+      let s' ← go (← inferType binder)
+      s := if s'.isEmpty then s else s!"{s}Of{s'}"
+  return "inst" ++ s
 where
-  go (e : Expr) (strings : HashSet String) : MetaM (HashSet String × String) := do
-    let (strings', s) ← go' e strings
-    return (strings'.insert s, if strings.contains s then "" else s)
-  go' (e : Expr) (strings : HashSet String) : MetaM (HashSet String × String) := do
+  /--
+  Intitializes the seen strings from the parts of the current namespace.
+  The theory here is that the namespace parts correspond to types that the instance is about.
+  -/
+  visitNamespace (ns : Name) : MkInstM Unit :=
+    match ns with
+    | .str ns' s => modify (·.insert s) *> visitNamespace ns'
+    | .num ns' _ => visitNamespace ns'
+    | .anonymous => pure ()
+  /--
+  Generates a name for `e`, but returns "" if this expression generates a string that has already been generated.
+  This cuts down on unnecessary duplication, though it is potentially too severe.
+  -/
+  go (e : Expr) : MkInstM String := do
+    let strings ← get
+    let s ← go' e
+    modify (·.insert s)
+    return if strings.contains s then "" else s
+  /--
+  Core function that generates a name for `e`.
+  -/
+  go' (e : Expr) : MkInstM String := do
     match e with
     | .app .. =>
+      if let some e' ← getParentProjArg e then
+        return (← go' e')
       e.withApp fun f args => do
-        -- Visit only the explicit arguments to `f` and type arguments.
+        -- Visit only the explicit arguments to `f` and also its type arguments.
+        -- The reason we visit type arguments is so that, for example, `Decidable (a < b)` with `a b : Nat` has a chance to insert `Nat`.
         forallBoundedTelescope (← inferType f) args.size fun args' _ => do
-          let mut (strings, s) ← go f strings
+          let mut s ← go f
           for arg in args, arg' in args' do
-            let bi ← arg'.fvarId!.getBinderInfo
             let isTy ← Meta.isType arg
-            if bi == .default || (isTy && !arg.isSort) then
-              let (strings', sarg) ← go arg strings
-              (strings, s) := (strings', s ++ sarg)
-          return (strings, s)
+            if (← arg'.fvarId!.getBinderInfo) == .default || (isTy && !arg.isSort) then
+              s := s ++ (← go arg)
+          return s
     | .forallE n ty body bi =>
       withLocalDecl n bi ty fun arg => do
         let body := body.instantiate1 arg
-        let (strings, sty) ← go ty strings
-        let (strings, sbody) ← go body strings
-        return (strings, "Forall" ++ sty ++ sbody)
+        let sty ← go ty
+        let sbody ← go body
+        return "Forall" ++ sty ++ sbody
     | .lam n ty body bi =>
       if let some e := Expr.etaExpandedStrict? e then
-        go' e strings
+        go' e
       else
-        withLocalDecl n bi ty fun arg => do
-          let body := body.instantiate1 arg
-          let (strings, sbody) ← go body strings
-          return (strings, "Fun" ++ sbody)
+        withLocalDecl n bi ty fun arg => go (body.instantiate1 arg)
     | .sort .. =>
-      if e.isProp then return (strings, "Prop")
-      else if e.isType then return (strings, "Type")
-      else return (strings, "Sort")
+      if e.isProp then return "Prop"
+      else if e.isType then return "Type"
+      else return "Sort"
     | .const name .. =>
       return match name.eraseMacroScopes with
-              | .str _ str => (strings, str.capitalize)
-              | _ => (strings, "")
-    | _ => return (strings, "")
+              | .str _ str => str.capitalize
+              | _ => ""
+    | .mdata _ e' => go' e'
+    | _ => return ""
+  /--
+  If `e` is an application of a projection to a parent structure, returns the term being projected.
+  -/
+  getParentProjArg (e : Expr) : MetaM (Option Expr) := do
+    let .const c@(.str _ field) _ := e.getAppFn | return none
+    let some info := (← getEnv).getProjectionFnInfo? c | return none
+    if info.fromClass then return none
+    unless e.getAppNumArgs == info.numParams + 1 do return none
+    let some structName := (← getEnv).getProjectionStructureName? c | return none
+    if (isSubobjectField? (← getEnv) structName field).isNone then return none
+    return e.appArg!
 
 /--
-  Generate a name for an instance with the given type.
-  Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration. -/
+Generates a name for an instance with the given type.
+Note that we elaborate the type twice. Once for producing the name, and another when elaborating the declaration.
+-/
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
   let name ←
     try
       runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutErrToSorry do
         let type ← instantiateMVars (← Term.elabType type)
-        forallTelescope type fun binds' type' => mkInstanceNameFromExpr (binds ++ binds') type'
+        forallTelescope type fun binds' type' => do mkInstanceNameFromExpr (binds ++ binds') type' |>.run' {}
     catch _ =>
-      pure s!"@{← getMainModule}"
+      pure s!"inst"
   set savedState
-  liftMacroM <| mkUnusedBaseName <| Name.mkSimple ("inst" ++ name)
+  -- Add a suffix using the module root to prevent inter-project name conflicts
+  let root := if let .str _ s := (← getMainModule).getRoot then s.decapitalize else ""
+  liftMacroM <| mkUnusedBaseName <| Name.mkSimple s!"{name}_{root}"
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

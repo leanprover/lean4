@@ -31,7 +31,6 @@ In addition to measures derived from `sizeOf xᵢ`, it also considers measures
 that assign an order to the functions themselves. This way we can support mutual
 function definitions where no arguments decrease from one function to another.
 
-
 The result of this module is a `TerminationWF`, which is then passed on to `wfRecursion`; this
 design is crucial so that whatever we infer in this module could also be written manually by the
 user. It would be bad if there are function definitions that can only be processed with the
@@ -549,7 +548,7 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
         declName, vars, body,
         implicit := true
       }
-  return .ext termByElements
+  return termByElements
 
 end Lean.Elab.WF.GuessLex
 

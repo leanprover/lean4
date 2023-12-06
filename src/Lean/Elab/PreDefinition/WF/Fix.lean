@@ -13,6 +13,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
+import Lean.Data.Array
 
 namespace Lean.Elab.WF
 open Meta
@@ -164,35 +165,6 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
     Tactic.evalTactic (← `(tactic| decreasing_tactic))
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
-
-/-
-Given an array `a`, runs `f xᵢ xⱼ` for all `i < j`, removes those entries for which `f` returns
-`false` (and will subsequently skip pairs if one element is removed), and returns the array of
-remaining elements.
-
-This can be used to remove elements from an array where a “better” element, in some partial
-order, exists in the array.
--/
-def _root_.Array.filterPairsM {m} [Monad m] {α} (a : Array α) (f : α → α → m (Bool × Bool)) :
-    m (Array α) := do
-  let mut removed := Array.mkArray a.size false
-  let mut numRemoved := 0
-  for h1 : i in [:a.size] do for h2 : j in [i+1:a.size] do
-    unless removed[i]! || removed[j]! do
-      let xi := a[i]'h1.2
-      let xj := a[j]'h2.2
-      let (keepi, keepj) ← f xi xj
-      unless keepi do
-        numRemoved := numRemoved + 1
-        removed := removed.set! i true
-      unless keepj do
-        numRemoved := numRemoved + 1
-        removed := removed.set! j true
-  let mut a' := Array.mkEmpty numRemoved
-  for h : i in [:a.size] do
-    unless removed[i]! do
-      a' := a'.push (a[i]'h.2)
-  return a'
 
 /-
 Given an array of MVars, assign MVars with equal type and subsumed local context to each other.

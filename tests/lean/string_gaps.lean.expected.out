@@ -1,0 +1,20 @@
+"ab"
+"ab"
+"a b"
+"a b"
+"this is a string"
+"this is a string"
+"there are three spaces between the brackets <   >"
+"there are three spaces between the brackets <   >"
+"this is\n  a string with two space indent"
+"ab"
+"ab"
+"ab"
+"ab"
+"ab"
+"ab"
+
+string_gaps.lean:101:0-104:10: error: <input>:1:4: expecting newline after carriage return
+
+string_gaps.lean:109:0-112:10: error: <input>:1:3: invalid escape sequence
+"this is line 1\n  line 2, indented\nline 3"

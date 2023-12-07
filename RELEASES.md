@@ -11,6 +11,15 @@ of each version.
 v4.5.0 (development in progress)
 ---------
 
+* Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
+  These have the interpetation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
+  The following is equivalent to `"this is a string"`.
+  ```lean
+  "this is \
+     a string"
+  ```
+  [PR #2821](https://github.com/leanprover/lean4/pull/2821) and [RFC #2838](https://github.com/leanprover/lean4/issues/2838).
+
 v4.4.0
 ---------
 

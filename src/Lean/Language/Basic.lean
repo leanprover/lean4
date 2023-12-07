@@ -10,6 +10,7 @@ Authors: Sebastian Ullrich
 
 import Lean.Message
 import Lean.Parser.Types
+--import Lean.Server.FileWorker.Types
 
 set_option linter.missingDocs true
 
@@ -209,6 +210,7 @@ structure Language where
   -- TODO: is this the right interface for other languages as well?
   /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/
   getFinalEnv? : InitialSnapshot → Option Environment
+  --handleRequest (id : RequestID) (method : String) (params : Json) : WorkerM Unit
 
 namespace Language
 

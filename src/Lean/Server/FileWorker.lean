@@ -13,12 +13,13 @@ import Lean.Data.Json.FromToJson
 
 import Lean.Util.FileSetupInfo
 import Lean.LoadDynlib
-import Lean.Language.Basic
+import Lean.Language.HashLang
 
 import Lean.Server.Utils
 import Lean.Server.AsyncList
 import Lean.Server.References
 
+import Lean.Server.FileWorker.Types
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
@@ -55,15 +56,6 @@ open Lsp
 open IO
 open Snapshots
 open JsonRpc
-
-structure WorkerContext where
-  /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
-    discarded on read. -/
-  chanOut          : IO.Channel JsonRpc.Message
-  hLog             : FS.Stream
-  initParams       : InitializeParams
-  processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
-  clientHasWidgets : Bool
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -133,23 +125,6 @@ section Elab
           go node st (goSeq · cont ts)
 end Elab
 
--- Pending requests are tracked so they can be canceled
-abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
-
-structure AvailableImportsCache where
-  availableImports       : ImportCompletion.AvailableImports
-  lastRequestTimestampMs : Nat
-
-structure WorkerState where
-  doc                : EditableDocument
-  importCachingTask? : Option (Task (Except Error AvailableImportsCache))
-  pendingRequests    : PendingRequestMap
-  /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
-  to modify sessions. A single `Ref` ensures atomic transactions. -/
-  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
-
-abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
-
 /- Worker initialization sequence. -/
 section Initialization
   def initializeWorker (meta : DocumentMeta) (o e : FS.Stream) (initParams : InitializeParams) (opts : Options)
@@ -161,7 +136,7 @@ section Initialization
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
     let chanOut ← mkLspOutputChannel
-    let processor ← Language.Lean.mkIncrementalProcessor {
+    let processor ← Language.hashLang (default := .Lean) |>.mkIncrementalProcessor {
       opts, mainModuleName
       fileSetupHandler? := some fun imports =>
         setupFile meta imports fun stderrLine =>
@@ -333,6 +308,9 @@ section MessageHandling
         ctx.chanOut.send <| .responseError id .internalError (toString e) none
       return
 
+    Language.hashLang .Lean |>.handleRequest id method params st.doc.initSnap
+
+  def handleLeanRequest := do
     if method == "textDocument/completion" then
       let params ← parseParams CompletionParams params
       if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then

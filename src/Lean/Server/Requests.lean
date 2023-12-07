@@ -61,7 +61,7 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
 structure RequestContext where
   rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
-  doc           : FileWorker.EditableDocument
+  doc           : DocumentMeta
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
 
@@ -87,10 +87,6 @@ instance : MonadLift (EIO Exception) RequestM where
 namespace RequestM
 open FileWorker
 open Snapshots
-
-def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := do
-  let rc ← readThe RequestContext
-  return rc.doc
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := do
   let rc ← readThe RequestContext
@@ -120,52 +116,52 @@ def waitFindSnapAux (notFoundX abortedX : RequestM α) (x : Snapshot → Request
 /-- Create a task which waits for the first snapshot matching `p`, handles various errors,
 and if a matching snapshot was found executes `x` with it. If not found, the task executes
 `notFoundX`. -/
-def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+def withWaitFindSnap (cmdSnaps : IO.AsyncList ElabTaskError Snapshot) (p : Snapshot → Bool)
     (notFoundX : RequestM β)
     (x : Snapshot → RequestM β)
     (abortedX : RequestM β := throwThe RequestError .fileChanged)
     : RequestM (RequestTask β) := do
-  let findTask := doc.cmdSnaps.waitFind? p
+  let findTask := cmdSnaps.waitFind? p
   mapTask findTask <| waitFindSnapAux notFoundX abortedX x
 
 /-- See `withWaitFindSnap`. -/
-def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
+def bindWaitFindSnap (cmdSnaps : IO.AsyncList ElabTaskError Snapshot) (p : Snapshot → Bool)
     (notFoundX : RequestM (RequestTask β))
     (x : Snapshot → RequestM (RequestTask β))
     (abortedX : RequestM (RequestTask β) := throwThe RequestError .fileChanged)
     : RequestM (RequestTask β) := do
-  let findTask := doc.cmdSnaps.waitFind? p
+  let findTask := cmdSnaps.waitFind? p
   bindTask findTask <| waitFindSnapAux notFoundX abortedX x
 
 /-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
 If no such snapshot exists, the request fails with an error. -/
 def withWaitFindSnapAtPos
+    (cmdSnaps : IO.AsyncList ElabTaskError Snapshot)
     (lspPos : Lsp.Position)
     (f : Snapshots.Snapshot → RequestM α)
     : RequestM (RequestTask α) := do
-  let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
-  withWaitFindSnap doc (fun s => s.endPos >= pos)
+  let pos := (← read).doc.text.lspPosToUtf8Pos lspPos
+  withWaitFindSnap cmdSnaps (fun s => s.endPos >= pos)
     (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
     (x := f)
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do
   let rc ← readThe RequestContext
-  match ← snap.runCommandElabM rc.doc.meta (c.run rc) with
+  match ← snap.runCommandElabM rc.doc (c.run rc) with
   | .ok v => return v
   | .error e => throw e
 
 def runCoreM (snap : Snapshot) (c : RequestT CoreM α) : RequestM α := do
   let rc ← readThe RequestContext
-  match ← snap.runCoreM rc.doc.meta (c.run rc) with
+  match ← snap.runCoreM rc.doc (c.run rc) with
   | .ok v => return v
   | .error e => throw e
 
 open Elab.Term in
 def runTermElabM (snap : Snapshot) (c : RequestT TermElabM α) : RequestM α := do
   let rc ← readThe RequestContext
-  match ← snap.runTermElabM rc.doc.meta (c.run rc) with
+  match ← snap.runTermElabM rc.doc (c.run rc) with
   | .ok v => return v
   | .error e => throw e
 

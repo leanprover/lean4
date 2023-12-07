@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
-import Lean.Language.Lean
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
@@ -65,30 +64,6 @@ where go cmdParsed :=
       } (match cmdParsed.next? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)
-
-/-- A document editable in the sense that we track the environment
-and parser state after each command so that edits can be applied
-without recompiling code appearing earlier in the file. -/
-structure EditableDocument where
-  meta       : DocumentMeta
-  /-- State snapshots after header and each command. -/
-  -- TODO: generalize to other languages by moving request handlers into `Language`
-  initSnap : Language.Lean.InitialSnapshot
-  cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
-  /--
-    Task reporting processing status back to client. We store it here for implementing
-    `waitForDiagnostics`. -/
-  reporter : Task Unit
-
-namespace EditableDocument
-
-/-- Construct a VersionedTextDocumentIdentifier from an EditableDocument --/
-def versionedIdentifier (ed : EditableDocument) : Lsp.VersionedTextDocumentIdentifier := {
-  uri := ed.meta.uri
-  version? := some ed.meta.version
-}
-
-end EditableDocument
 
 structure RpcSession where
   objects         : RpcObjectStore

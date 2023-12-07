@@ -39,8 +39,7 @@ def handleRpcCall (p : Lsp.RpcCallParams) : RequestM (RequestTask Json) := do
   if let some proc := (← builtinRpcProcedures.get).find? p.method then
     proc.wrapper p.sessionId p.params
   else
-    let doc ← readDoc
-    let text := doc.meta.text
+    let text := (← read).doc.text
     let callPos := text.lspPosToUtf8Pos p.position
     let throwNotFound := throwThe RequestError
       { code := .methodNotFound

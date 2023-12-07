@@ -13,6 +13,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
+import Lean.Data.Array
 
 namespace Lean.Elab.WF
 open Meta
@@ -165,8 +166,29 @@ private def applyDefaultDecrTactic (mvarId : MVarId) : TermElabM Unit := do
   unless remainingGoals.isEmpty do
     Term.reportUnsolvedGoals remainingGoals
 
+/-
+Given an array of MVars, assign MVars with equal type and subsumed local context to each other.
+Returns those MVar that did not get assigned.
+-/
+def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) :=
+  mvars.filterPairsM fun mv₁ mv₂ => do
+    let mvdecl₁ ← mv₁.getDecl
+    let mvdecl₂ ← mv₂.getDecl
+    if mvdecl₁.type == mvdecl₂.type then
+      -- same goals; check contexts.
+        if mvdecl₁.lctx.isSubPrefixOf mvdecl₂.lctx then
+          -- mv₁ is better
+          mv₂.assign (.mvar mv₁)
+          return (true, false)
+        if mvdecl₂.lctx.isSubPrefixOf mvdecl₁.lctx then
+          -- mv₂ is better
+          mv₁.assign (.mvar mv₂)
+          return (false, true)
+    return (true, true)
+
 def solveDecreasingGoals (decrTactic? : Option Syntax) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
+  let goals ← assignSubsumed goals
   goals.forM fun goal => Lean.Elab.Term.TermElabM.run' <|
     match decrTactic? with
     | none => do

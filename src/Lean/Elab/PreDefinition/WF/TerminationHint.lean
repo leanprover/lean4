@@ -186,6 +186,17 @@ def expandTerminationBy (hint? : Option Syntax) (cliques : Array (Array Name)) :
   else
       return TerminationBy.core TerminationHint.none
 
+open Parser.Command in
+def TerminationWF.unexpand : TerminationWF → MetaM Syntax
+  | .ext elements => do
+    let elementStxs ← elements.mapM fun element => do
+      let fn : Ident := mkIdent (← unresolveNameGlobal element.declName)
+      let body : Term := ⟨element.body⟩
+      let vars : Array Ident := element.vars.map TSyntax.mk
+      `(terminationByElement|$fn $vars* => $body)
+    `(terminationBy|termination_by $elementStxs*)
+  | .core _ => unreachable! -- we don't synthetize termination_by' syntax
+
 def TerminationBy.markAsUsed (t : TerminationBy) (cliqueNames : Array Name) : TerminationBy :=
   match t with
   | core hint   => core (hint.markAsUsed cliqueNames)

@@ -378,8 +378,8 @@ def findDefinitions (p : TextDocumentPositionParams) : ServerM <| Array Location
     if let some module ← searchModuleNameOfFileName path srcSearchPath then
       let references ← (← read).references.get
       for ident in references.findAt module p.position (includeStop := true) do
-        if let some definition ← references.definitionOf? ident srcSearchPath then
-          definitions := definitions.push definition
+        if let some ⟨definitionLocation, _⟩ ← references.definitionOf? ident srcSearchPath then
+          definitions := definitions.push definitionLocation
   return definitions
 
 def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
@@ -391,8 +391,139 @@ def handleReference (p : ReferenceParams) : ServerM (Array Location) := do
       for ident in references.findAt module p.position (includeStop := true) do
         let identRefs ← references.referringTo module ident srcSearchPath
           p.context.includeDeclaration
-        result := result.append identRefs
+        result := result.append <| identRefs.map (·.location)
   return result
+
+private def callHierarchyItemOf? (refs : References) (ident : RefIdent) (srcSearchPath : SearchPath)
+    : IO (Option CallHierarchyItem) := do
+  let some ⟨definitionLocation, parentDecl?⟩ ← refs.definitionOf? ident srcSearchPath
+    | return none
+
+  match ident with
+  | .const definitionName =>
+    -- If we have a constant with a proper name, use it.
+    -- If `callHierarchyItemOf?` is used either on the name of a definition itself or e.g. an
+    -- `inductive` constructor, this is the right thing to do and using the parent decl is
+    -- the wrong thing to do.
+    return some {
+      name           := definitionName.toString
+      kind           := SymbolKind.constant
+      uri            := definitionLocation.uri
+      range          := definitionLocation.range,
+      selectionRange := definitionLocation.range
+    }
+  | _ =>
+    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+
+    return some {
+      name           := parentDeclName.toString
+      kind           := SymbolKind.constant
+      uri            := definitionLocation.uri
+      range          := parentDeclRange,
+      selectionRange := parentDeclSelectionRange
+    }
+
+def handlePrepareCallHierarchy (p : CallHierarchyPrepareParams)
+    : ServerM (Array CallHierarchyItem) := do
+  let some path := fileUriToPath? p.textDocument.uri
+    | return #[]
+
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← searchModuleNameOfFileName path srcSearchPath
+    | return #[]
+
+  let references ← (← read).references.get
+  let idents := references.findAt module p.position (includeStop := true)
+
+  let items ← idents.filterMapM fun ident => callHierarchyItemOf? references ident srcSearchPath
+  return items
+
+def handleCallHierarchyIncomingCalls (p : CallHierarchyIncomingCallsParams)
+    : ServerM (Array CallHierarchyIncomingCall) := do
+  let some path := fileUriToPath? p.item.uri
+    | return #[]
+
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← searchModuleNameOfFileName path srcSearchPath
+    | return #[]
+
+  let references ← (← read).references.get
+  let identRefs ← references.referringTo module (.const p.item.name.toName) srcSearchPath false
+
+  let incomingCalls := identRefs.filterMap fun ⟨location, parentDecl?⟩ => Id.run do
+
+    let some ⟨parentDeclName, parentDeclRange, parentDeclSelectionRange⟩ := parentDecl?
+      | return none
+    return some {
+      «from» := {
+        name           := parentDeclName.toString
+        kind           := SymbolKind.constant
+        uri            := location.uri
+        range          := parentDeclRange
+        selectionRange := parentDeclSelectionRange
+      }
+      fromRanges := #[location.range]
+    }
+
+  return collapseSameIncomingCalls incomingCalls
+
+where
+
+  collapseSameIncomingCalls (incomingCalls : Array CallHierarchyIncomingCall)
+      : Array CallHierarchyIncomingCall :=
+    let grouped := incomingCalls.groupByKey (·.«from»)
+    let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
+      «from» := group[0]!.«from»
+      fromRanges := group.concatMap (·.fromRanges)
+    }
+    collapsed
+
+def handleCallHierarchyOutgoingCalls (p : CallHierarchyOutgoingCallsParams)
+    : ServerM (Array CallHierarchyOutgoingCall) := do
+  let some path := fileUriToPath? p.item.uri
+    | return #[]
+
+  let srcSearchPath := (← read).srcSearchPath
+  let some module ← searchModuleNameOfFileName path srcSearchPath
+    | return #[]
+
+  let references ← (← read).references.get
+
+  let some refs := references.allRefs.find? module
+    | return #[]
+
+  let items ← refs.toArray.filterMapM fun ⟨ident, info⟩ => do
+    let outgoingUsages := info.usages.filter fun usage => Id.run do
+      let some parentDecl := usage.parentDecl?
+        | return false
+      return p.item.name.toName == parentDecl.name
+
+    let outgoingUsages := outgoingUsages.map (·.range)
+    if outgoingUsages.isEmpty then
+      return none
+
+    let some item ← callHierarchyItemOf? references ident srcSearchPath
+      | return none
+
+    -- filter local defs from outgoing calls
+    if item.name == p.item.name then
+      return none
+
+    return some ⟨item, outgoingUsages⟩
+
+  return collapseSameOutgoingCalls items
+
+where
+
+  collapseSameOutgoingCalls (outgoingCalls : Array CallHierarchyOutgoingCall)
+      : Array CallHierarchyOutgoingCall :=
+    let grouped := outgoingCalls.groupByKey (·.to)
+    let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
+      to := group[0]!.to
+      fromRanges := group.concatMap (·.fromRanges)
+    }
+    collapsed
 
 def handleWorkspaceSymbol (p : WorkspaceSymbolParams) : ServerM (Array SymbolInformation) := do
   if p.query.isEmpty then
@@ -566,6 +697,14 @@ section MessageHandling
         handle ReferenceParams (Array Location) handleReference
       | "workspace/symbol" =>
         handle WorkspaceSymbolParams (Array SymbolInformation) handleWorkspaceSymbol
+      | "textDocument/prepareCallHierarchy" =>
+        handle CallHierarchyPrepareParams (Array CallHierarchyItem) handlePrepareCallHierarchy
+      | "callHierarchy/incomingCalls" =>
+        handle CallHierarchyIncomingCallsParams (Array CallHierarchyIncomingCall)
+          handleCallHierarchyIncomingCalls
+      | "callHierarchy/outgoingCalls" =>
+        handle Lsp.CallHierarchyOutgoingCallsParams (Array CallHierarchyOutgoingCall)
+          handleCallHierarchyOutgoingCalls
       | "textDocument/prepareRename" =>
         handle PrepareRenameParams (Option Range) handlePrepareRename
       | "textDocument/rename" =>
@@ -683,6 +822,7 @@ def mkLeanServerCapabilities : ServerCapabilities := {
   definitionProvider := true
   typeDefinitionProvider := true
   referencesProvider := true
+  callHierarchyProvider := true
   renameProvider? := some {
     prepareProvider := true
   }

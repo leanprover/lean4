@@ -8,6 +8,7 @@ import Init.Data.String
 import Init.Data.Array
 import Lean.Data.Lsp.Basic
 import Lean.Data.Position
+import Lean.DeclarationRange
 
 /-! LSP uses UTF-16 for indexing, so we need to provide some primitives
 to interact with Lean strings using UTF-16 indices. -/
@@ -86,3 +87,8 @@ def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
 
 end FileMap
 end Lean
+
+def Lean.DeclarationRange.toLspRange (r : Lean.DeclarationRange) : Lsp.Range := {
+  start := ⟨r.pos.line - 1, r.charUtf16⟩
+  «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩
+}

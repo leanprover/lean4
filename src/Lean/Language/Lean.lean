@@ -175,17 +175,6 @@ def HeaderParsedSnapshot.processedSuccessfully (snap : HeaderParsedSnapshot) :
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot
 
-private def msglogOfHeaderError (data : MessageData) : MessageLog :=
-  MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data }
-
-/--
-  Adds unexpected exceptions from header processing to the message log as a last resort; standard
-  errors should already have been caught earlier. -/
-private def withHeaderExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
-  match (← act.toBaseIO) with
-  | .error e => return ex { msgLog := msglogOfHeaderError e.toString }
-  | .ok a => return a
-
 /-- Makes sure we load imports at most once per process as they cannot be unloaded. -/
 private builtin_initialize importsLoadedRef : IO.Ref Bool ← IO.mkRef false
 

@@ -199,6 +199,9 @@ structure ParserState where
   cache    : ParserCache
   errorMsg : Option Error := none
 
+def mkParserState (input : String) : ParserState :=
+  { cache := initCacheForInput input }
+
 namespace ParserState
 
 @[inline]
@@ -431,3 +434,28 @@ def ParserFn.run (p : ParserFn) (ictx : InputContext) (pmctx : ParserModuleConte
     toInputContext := ictx
     tokens
   } s
+
+def mkErrorMessage (c : InputContext) (s : ParserState) (e : Parser.Error) : Message := Id.run do
+  let mut pos := s.pos
+  let mut endPos? := none
+  let mut e := e
+  unless e.unexpectedTk.isMissing do
+    -- calculate error parts too costly to do eagerly
+    if let some r := e.unexpectedTk.getRange? then
+      pos := r.start
+      endPos? := some r.stop
+    let unexpected := match e.unexpectedTk with
+      | .ident .. => "unexpected identifier"
+      | .atom _ v => s!"unexpected token '{v}'"
+      | _         => "unexpected token"  -- TODO: categorize (custom?) literals as well?
+    e := { e with unexpected }
+    -- if there is an unexpected token, include preceding whitespace as well as the expected token could
+    -- be inserted at any of these places to fix the error; see tests/lean/1971.lean
+    if let .original (trailing := trailing) .. := s.stxStack.back.getTailInfo then
+      if trailing.stopPos == pos then
+        pos := trailing.startPos
+  { fileName := c.fileName
+    pos := c.fileMap.toPosition pos
+    endPos := c.fileMap.toPosition <$> endPos?
+    keepFullRange := true
+    data := toString e }

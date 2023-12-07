@@ -3,6 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
+import Lean.Language.HashLang
 import Lean.Language.Lean
 import Lean.Util.Profile
 import Lean.Server.References
@@ -97,8 +98,7 @@ def runFrontend
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
-  -- TODO: replace with `#lang` processing
-  let lang := Language.Lean
+  let lang := Language.hashLang (default := Language.Lean)
   let ctx := { mainModuleName, opts, trustLevel, fileSetupHandler? := none }
   let snap ← lang.process ctx none inputCtx
   let snaps := Language.toSnapshotTree snap

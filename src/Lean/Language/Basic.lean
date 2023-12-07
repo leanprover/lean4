@@ -178,6 +178,17 @@ structure ProcessingContext where
     `lake setup-file`. -/
   fileSetupHandler? : Option (Array Import → IO Server.FileWorker.FileSetupResult)
 
+def msglogOfHeaderError (data : MessageData) : MessageLog :=
+  MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data }
+
+/--
+  Adds unexpected exceptions from header processing to the message log as a last resort; standard
+  errors should already have been caught earlier. -/
+def withHeaderExceptions (ex : Snapshot → α) (act : IO α) : BaseIO α := do
+  match (← act.toBaseIO) with
+  | .error e => return ex { msgLog := msglogOfHeaderError e.toString }
+  | .ok a => return a
+
 end Language
 open Language
 
@@ -215,34 +226,3 @@ partial def mkIncrementalProcessor (lang : Language) (ctx : ProcessingContext) :
     let snap ← lang.process ctx (← oldRef.get) doc
     oldRef.set (some snap)
     return snap
-
-private structure LanguageErased where
-  process : ProcessingContext → (old? : Option NonScalar) → Parser.InputContext →
-    BaseIO NonScalar
-  getFinalEnv? : NonScalar → Option Environment
-  toSnapshotTree : NonScalar → SnapshotTree
-
-structure HashLangSnapshot extends Snapshot where
-  hashLang? : Option Ident
-  langErased : LanguageErased
-  nextErased : NonScalar
-instance : ToSnapshotTree HashLangSnapshot where
-  toSnapshotTree snap := .mk snap.toSnapshot #[.pure <| snap.langErased.toSnapshotTree snap.nextErased]
-
-unsafe def mkHashLangProcessor (default : Language) (ctx : ProcessingContext) :
-    BaseIO (Processor SnapshotTree) := do
-  let incr ← mkIncrementalProcessor {
-    InitialSnapshot := HashLangSnapshot
-    process := fun ctx old? ictx => do
-      if let some old := old? then
-        let nextErased ← old.langErased.process ctx old.nextErased ictx
-        return { old with nextErased }
-      let lang : Language := sorry
-      return {
-        hashLang? := sorry, msgLog := .empty
-        langErased := unsafeCast lang
-        nextErased := unsafeCast (← lang.process ctx none ictx)
-      }
-    getFinalEnv? := fun snap => snap.langErased.getFinalEnv? snap.nextErased
-  } ctx
-  return fun ictx => toSnapshotTree <$> incr ictx

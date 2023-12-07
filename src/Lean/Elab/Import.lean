@@ -8,13 +8,18 @@ import Lean.Data.Json
 
 namespace Lean.Elab
 
-def headerToImports (header : Syntax) : Array Import :=
-  let imports := if header[0].isNone then #[{ module := `Init : Import }] else #[]
-  imports ++ header[1].getArgs.map fun stx =>
-    -- `stx` is of the form `(Module.import "import" "runtime"? id)
-    let runtime := !stx[1].isNone
-    let id      := stx[2].getId
-    { module := id, runtimeOnly := runtime }
+open Lean.Parser.Module in
+def headerToImports : Syntax → Array Import
+  | `(header|
+      $[#lang $lang?]?
+      $[prelude%$prelude?]?
+      $imports*) =>
+    let preludeImports := if prelude?.isNone then #[{ module := `Init : Import }] else #[]
+    preludeImports ++ imports.map fun
+      | `(«import»| import $[runtime%$runtime?]? $mod) =>
+        { module := mod.getId, runtimeOnly := runtime?.isSome }
+      | _ => unreachable!
+  | _ => unreachable!
 
 def processHeader (header : Syntax) (opts : Options) (messages : MessageLog)
     (inputCtx : Parser.InputContext) (trustLevel : UInt32 := 0) (leakEnv := false)

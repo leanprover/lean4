@@ -1,4 +1,9 @@
 name: Update stage0
+
+# This action will update stage0 on master as soon as
+# src/stdlib_flags.h and stage0/src/stdlib_flags.h
+# are out of sync there. The update bypasses the merge queue to be quick.
+
 on:
   push:
     branches:
@@ -43,8 +48,6 @@ jobs:
       uses: cachix/cachix-action@v12
       with:
         name: lean4
-    - if: env.DOIT == 'yes'
-      run: nix build .#update-stage0-commit
     - if: env.DOIT == 'yes'
       run: nix run .#update-stage0-commit
     - if: env.DOIT == 'yes'

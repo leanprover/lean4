@@ -5,19 +5,20 @@ on:
       - 'master'
 
 concurrency:
+  group: stage0
   cancel-in-progress: true
 
 jobs:
   update-stage0:
-  runs-on: ubuntu-latest
-  steps:
-  - uses: actions/checkout@v3
-  - name: Install Nix
-    uses: DeterminateSystems/nix-installer-action@main
-  - name: Install Cachix
-    uses: cachix/cachix-action@v12
-    with:
-      name: lean4
-  - run: nix run .#update-stage0
-  - name: push code to master
-    run: git push origin HEAD:master
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Nix
+      uses: DeterminateSystems/nix-installer-action@main
+    - name: Install Cachix
+      uses: cachix/cachix-action@v12
+      with:
+        name: lean4
+    - run: nix run .#update-stage0
+    - name: push code to master
+      run: git push origin HEAD:master

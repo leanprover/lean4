@@ -1,5 +1,6 @@
 builds:
   include:
   - packages.x86_64-linux.cacheRoots
+  - packages.x86_64-linux.update-stage0
   - checks.x86_64-linux.lean
   - devShell.x86_64-linux

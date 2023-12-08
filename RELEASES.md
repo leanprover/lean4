@@ -11,6 +11,22 @@ of each version.
 v4.5.0 (development in progress)
 ---------
 
+* The low-level `termination_by'` clause is no longer supported.
+
+  Migration guide: Use `termination_by` instead, e.g.:
+  ```diff
+  -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
+  +termination_by go i _ => as.size - i
+  ```
+
+  If the well-founded relation you want to use is not the one that the
+  `WellFoundedRelation` type class would infer for your termination argument,
+  you can use `WellFounded.wrap` from the std libarary to explicitly give one:
+  ```diff
+  -termination_by' ⟨r, hwf⟩
+  +termination_by _ x => hwf.wrap x
+  ```
+
 v4.4.0
 ---------
 

@@ -186,22 +186,29 @@ def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) :=
           return (false, true)
     return (true, true)
 
-def solveDecreasingGoals (decrTactic? : Option Syntax) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (_decrTactics : Array (Option Syntax)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   goals.forM fun goal => Lean.Elab.Term.TermElabM.run' <|
+    -- TODO: Extract caller from goal. Tricky.
+    /-
     match decrTactic? with
     | none => do
+    -/
+    id do
       let some ref := getRecAppSyntax? (← goal.getType)
         | throwError "MVar does not look like like a recursive call"
         withRef ref <| applyDefaultDecrTactic goal
+    /-
     | some decrTactic => do
       -- make info from `runTactic` available
       pushInfoTree (.hole goal)
       Term.runTactic goal decrTactic
+    -/
   instantiateMVars value
 
-def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (decrTactic? : Option Syntax) : TermElabM Expr := do
+def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)
+    (decrTactics : Array (Option Syntax)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!
@@ -224,7 +231,7 @@ def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr) (dec
       let val := preDef.value.beta (prefixArgs.push x)
       let val ← processSumCasesOn x F val fun x F val => do
         processPSigmaCasesOn x F val (replaceRecApps preDef.declName prefixArgs.size)
-      let val ← solveDecreasingGoals decrTactic? val
+      let val ← solveDecreasingGoals decrTactics val
       mkLambdaFVars prefixArgs (mkApp wfFix (← mkLambdaFVars #[x, F] val))
 
 end Lean.Elab.WF

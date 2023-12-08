@@ -399,8 +399,9 @@ structure RecCallCache where mk'' ::
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallWithContext) :
+def RecCallCache.mk (decrTactics : Array (Option Syntax)) (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
+  let decrTactic? := decrTactics[rcc.caller]!
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)
   return { decrTactic?, rcc, cache }
 
@@ -694,8 +695,8 @@ Main entry point of this module:
 Try to find a lexicographic ordering of the arguments for which the recursive definition
 terminates. See the module doc string for a high-level overview.
 -/
-def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
-    (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
+def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
+    (fixedPrefixSize : Nat) :
     MetaM TerminationWF := do
   let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
@@ -715,7 +716,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
   let recCalls := filterSubsumed recCalls
-  let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
+  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasing_by?)) ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve measures callMatrix with

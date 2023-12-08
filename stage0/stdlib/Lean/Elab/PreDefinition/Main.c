@@ -105,6 +105,7 @@ lean_object* l_Lean_Elab_WF_expandTerminationBy(lean_object*, lean_object*, lean
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_addPreDefinitions___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Elab_addPreDefinitions___spec__20(lean_object*, size_t, size_t);
+lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__10(size_t, size_t, lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__2___closed__4;
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs(lean_object*);
@@ -253,7 +254,6 @@ LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at___private_Lean_Elab_PreD
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Elab_addPreDefinitions___spec__23___closed__1;
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT lean_object* l_panic___at___private_Lean_Elab_PreDefinition_Main_0__Lean_Elab_partitionPreDefs___spec__2(lean_object*);
-lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__11(size_t, size_t, lean_object*);
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_forallTelescopeReducingAuxAux___rarg(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7122,7 +7122,7 @@ x_8 = lean_array_uset(x_4, x_3, x_7);
 x_9 = lean_array_get_size(x_6);
 x_10 = lean_usize_of_nat(x_9);
 lean_dec(x_9);
-x_11 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__11(x_10, x_1, x_6);
+x_11 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__10(x_10, x_1, x_6);
 x_12 = 1;
 x_13 = lean_usize_add(x_3, x_12);
 x_14 = lean_array_uset(x_8, x_3, x_11);
@@ -10890,7 +10890,7 @@ size_t x_18; lean_object* x_19; lean_object* x_20;
 lean_dec(x_10);
 x_18 = lean_usize_of_nat(x_4);
 lean_inc(x_1);
-x_19 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__11(x_18, x_5, x_1);
+x_19 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__10(x_18, x_5, x_1);
 x_20 = l_Lean_Elab_WF_TerminationHint_find_x3f(x_7, x_19);
 if (lean_obj_tag(x_20) == 0)
 {
@@ -11422,7 +11422,7 @@ lean_dec(x_106);
 x_107 = lean_box(0);
 x_108 = lean_usize_of_nat(x_105);
 lean_inc(x_1);
-x_109 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__11(x_108, x_2, x_1);
+x_109 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__10(x_108, x_2, x_1);
 x_110 = l_Lean_Elab_WF_TerminationBy_find_x3f(x_5, x_109);
 if (lean_obj_tag(x_110) == 0)
 {
@@ -13433,7 +13433,7 @@ x_48 = lean_array_get_size(x_18);
 x_49 = lean_usize_of_nat(x_48);
 lean_dec(x_48);
 lean_inc(x_18);
-x_50 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__11(x_49, x_4, x_18);
+x_50 = l_Array_mapMUnsafe_map___at_Lean_Elab_WF_guessLex___spec__10(x_49, x_4, x_18);
 x_51 = lean_array_to_list(lean_box(0), x_50);
 x_52 = lean_box(0);
 x_53 = l_List_mapTR_loop___at_Lean_Meta_substCore___spec__6(x_51, x_52);

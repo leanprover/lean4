@@ -26,5 +26,5 @@ jobs:
         name: lean4
     - run: nix build .#update-stage0
     - run: nix run .#update-stage0
-    #- name: push code to master
-    #  run: git push origin HEAD:master
+    - run: git show --stat
+    - run: git push origin HEAD:master

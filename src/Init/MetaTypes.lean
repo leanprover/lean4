@@ -21,7 +21,14 @@ structure Module where
 namespace Meta
 
 inductive TransparencyMode where
-  | all | default | reducible | instances
+  /-- unfold all constants, even those tagged as `@[irreducible]`. -/
+  | all
+  /-- unfold all constants except those tagged as `@[irreducible]`. -/
+  | default
+  /-- unfold only constants tagged with the `@[reducible]` attribute. -/
+  | reducible
+  /-- unfold reducible constants and constants tagged with the `@[instance]` attribute. -/
+  | instances
   deriving Inhabited, BEq
 
 inductive EtaStructMode where

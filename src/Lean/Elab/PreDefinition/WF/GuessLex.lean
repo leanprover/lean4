@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Data.Array
 
 
 /-!
@@ -65,23 +66,39 @@ open Lean Meta Elab
 
 namespace Lean.Elab.WF.GuessLex
 
+register_builtin_option showInferredTerminationBy : Bool := {
+  defValue := false
+  descr    := "In recursive definitions, show the inferred `termination_by` measure."
+}
+
 /--
 Given a predefinition, find good variable names for its parameters.
 Use user-given parameter names if present; use x1...xn otherwise.
+
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
+
+The names ought to accessible (no macro scopes) and still fresh wrt to the current environment,
+so that with `showInferredTerminationBy` we can print them to the user reliably.
+We do that by appending `'` as needed.
 -/
+partial
 def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
   lambdaTelescope preDef.value fun xs _ => do
     let xs := xs.extract fixedPrefixSize xs.size
-    let mut ns := #[]
+    let mut ns : Array Name := #[]
     for h : i in [:xs.size] do
       let n ← (xs[i]'h.2).fvarId!.getUserName
-      if n.hasMacroScopes then
-        ns := ns.push (← mkFreshUserName (.mkSimple s!"x{i+1}"))
-      else
-        ns := ns.push n
+      let n := if n.hasMacroScopes then .mkSimple s!"x{i+1}" else n
+      ns := ns.push (← freshen ns n)
     return ns
+  where
+    freshen  (ns : Array Name) (n : Name): MetaM Name := do
+      if !(ns.elem n) && (← resolveGlobalName n).isEmpty then
+        return n
+      else
+        freshen ns (n.appendAfter "'")
+
 
 /-- Internal monad used by `withRecApps` -/
 abbrev M (recFnName : Name) (α β : Type) : Type :=
@@ -206,6 +223,8 @@ def SavedLocalContext.run {α} (slc : SavedLocalContext) (k : MetaM α) :
 /-- A `RecCallWithContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
 structure RecCallWithContext where
+  /-- Syntax location of reursive call -/
+  ref : Syntax
   /-- Function index of caller -/
   caller : Nat
   /-- Parameters of caller -/
@@ -217,9 +236,32 @@ structure RecCallWithContext where
   ctxt : SavedLocalContext
 
 /-- Store the current recursive call and its context. -/
-def RecCallWithContext.create (caller : Nat) (params : Array Expr) (callee : Nat) (args : Array Expr) :
-    MetaM RecCallWithContext := do
-  return { caller, params, callee, args, ctxt := (← SavedLocalContext.create) }
+def RecCallWithContext.create (ref : Syntax) (caller : Nat) (params : Array Expr) (callee : Nat)
+    (args : Array Expr) : MetaM RecCallWithContext := do
+  return { ref, caller, params, callee, args, ctxt := (← SavedLocalContext.create) }
+
+
+/--
+The elaborator is prone to duplicate terms, including recursive calls, even if the user
+only wrote a single one. This duplication is wasteful if we run the tactics on duplicated
+calls, and confusing in the output of GuessLex. So prune the list of recursive calls,
+and remove those where another call exists that has the same goal and context that is no more
+specific.
+-/
+def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext := Id.run do
+  rcs.filterPairsM fun rci rcj => do
+    if rci.caller == rcj.caller && rci.callee == rcj.callee &&
+      rci.params == rcj.params && rci.args == rcj.args then
+      -- same goals; check contexts.
+        let lci := rci.ctxt.savedLocalContext
+        let lcj := rcj.ctxt.savedLocalContext
+        if lci.isSubPrefixOf lcj then
+          -- rci is better
+          return (true, false)
+        else if lcj.isSubPrefixOf lci then
+          -- rcj is better
+          return (false, true)
+    return (true, true)
 
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.
@@ -272,18 +314,21 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
       let arg := args[fixedPrefixSize]!
       let (caller, params) ← unpackArg arities param
       let (callee, args) ← unpackArg arities arg
-      RecCallWithContext.create caller params callee args
+      RecCallWithContext.create (← getRef) caller params callee args
 
 /-- A `GuessLexRel` described how a recursive call affects a measure; whether it
 decreases strictly, non-strictly, is equal, or else.  -/
 inductive GuessLexRel | lt | eq | le | no_idea
 deriving Repr, DecidableEq
 
+instance : ToString GuessLexRel where
+  toString | .lt => "<"
+           | .eq => "="
+           | .le => "≤"
+           | .no_idea => "?"
+
 instance : ToFormat GuessLexRel where
-  format | .lt => "<"
-         | .eq => "="
-         | .le => "≤"
-         | .no_idea => "?"
+  format r := toString r
 
 /-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
@@ -369,16 +414,13 @@ def RecCallCache.eval (rc: RecCallCache) (paramIdx argIdx : Nat) : MetaM GuessLe
     rc.cache.modify (·.modify paramIdx (·.set! argIdx res))
     return res
 
-/-- Pretty-print the cache entries -/
-def RecCallCache.pretty (rc : RecCallCache) : IO Format := do
-  let mut r := Format.nil
-  let d ← rc.cache.get
-  for h₁ : paramIdx in [:d.size] do
-    for h₂ : argIdx in [:(d[paramIdx]'h₁.2).size] do
-      if let .some entry := (d[paramIdx]'h₁.2)[argIdx]'h₂.2 then
-        r := r ++
-          f!"(Param {paramIdx}, arg {argIdx}): {entry}" ++ Format.line
-  return r
+
+/-- Print a single cache entry as a string, without forcing it -/
+def RecCallCache.prettyEntry (rcc : RecCallCache) (paramIdx argIdx : Nat) : MetaM String := do
+  let cachedEntries ← rcc.cache.get
+  return match cachedEntries[paramIdx]![argIdx]! with
+  | .some rel => toString rel
+  | .none => "_"
 
 /-- The measures that we order lexicographically can be comparing arguments,
 or numbering the functions -/
@@ -534,21 +576,117 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
     let body ← mkTupleSyntax (← measures.mapM fun
-      | .args varIdxs =>
+      | .args varIdxs => do
           let v := vars.get! (varIdxs[funIdx]!)
-          let sizeOfIdent := mkIdent ``sizeOf
+          let sizeOfIdent := mkIdent (← unresolveNameGlobal ``sizeOf)
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
     let declName := declNames[funIdx]!
 
-    trace[Elab.definition.wf] "Using termination {declName}: {vars} => {body}"
     termByElements := termByElements.push
       { ref := .missing
         declName, vars, body,
         implicit := true
       }
   return termByElements
+
+
+/--
+Given a matrix (row-major) of strings, arranges them in tabular form.
+First column is left-aligned, others right-aligned.
+Single space as column separator.
+-/
+def formatTable : Array (Array String) → String := fun xss => Id.run do
+  let mut colWidths := xss[0]!.map (fun _ => 0)
+  for i in [:xss.size] do
+    for j in [:xss[i]!.size] do
+      if xss[i]![j]!.length > colWidths[j]! then
+        colWidths := colWidths.set! j xss[i]![j]!.length
+  let mut str := ""
+  for i in [:xss.size] do
+    for j in [:xss[i]!.size] do
+      let s := xss[i]![j]!
+      if j > 0 then -- right-align
+        for _ in [:colWidths[j]! - s.length] do
+          str := str ++ " "
+      str := str ++ s
+      if j = 0 then -- left-align
+        for _ in [:colWidths[j]! - s.length] do
+          str := str ++ " "
+      if j + 1 < xss[i]!.size then
+        str := str ++ " "
+    if i + 1 < xss.size then
+      str := str ++ "\n"
+  return str
+
+/-- Concise textual representation of the source location of a recursive call  -/
+def RecCallWithContext.posString (rcc : RecCallWithContext) : MetaM String := do
+  let fileMap ← getFileMap
+  let .some pos := rcc.ref.getPos? | return ""
+  let position := fileMap.toPosition pos
+  let endPosStr := match rcc.ref.getTailPos? with
+  | some endPos =>
+    let endPosition := fileMap.toPosition endPos
+    if endPosition.line = position.line then
+      s!"-{endPosition.column}"
+    else
+      s!"-{endPosition.line}:{endPosition.column}"
+  | none        => ""
+  return s!"{position.line}:{position.column}{endPosStr}"
+
+
+/-- Explain what we found out about the recursive calls (non-mutual case) -/
+def explainNonMutualFailure (varNames : Array Name) (rcs : Array RecCallCache) : MetaM Format := do
+  let header := varNames.map (·.eraseMacroScopes.toString)
+  let mut table : Array (Array String) := #[#[""] ++ header]
+  for i in [:rcs.size], rc in rcs do
+    let mut row := #[s!"{i+1}) {← rc.rcc.posString}"]
+    for argIdx in [:varNames.size] do
+      row := row.push (← rc.prettyEntry argIdx argIdx)
+    table := table.push row
+
+  return formatTable table
+
+/-- Explain what we found out about the recursive calls (mutual case) -/
+def explainMutualFailure (declNames : Array Name) (varNamess : Array (Array Name))
+    (rcs : Array RecCallCache) : MetaM Format := do
+  let mut r := Format.nil
+
+  for rc in rcs do
+    let caller := rc.rcc.caller
+    let callee := rc.rcc.callee
+    r := r ++ f!"Call from {declNames[caller]!} to {declNames[callee]!} " ++
+      f!"at {← rc.rcc.posString}:\n"
+
+    let header := varNamess[caller]!.map (·.eraseMacroScopes.toString)
+    let mut table : Array (Array String) := #[#[""] ++ header]
+    if caller = callee then
+      -- For self-calls, only the diagonal is interesting, so put it into one row
+      let mut row := #[""]
+      for argIdx in [:varNamess[caller]!.size] do
+        row := row.push (← rc.prettyEntry argIdx argIdx)
+      table := table.push row
+    else
+      for argIdx in [:varNamess[callee]!.size] do
+        let mut row := #[]
+        row := row.push varNamess[callee]![argIdx]!.eraseMacroScopes.toString
+        for paramIdx in [:varNamess[caller]!.size] do
+          row := row.push (← rc.prettyEntry paramIdx argIdx)
+        table := table.push row
+    r := r ++ formatTable table ++ "\n"
+
+  return r
+
+def explainFailure (declNames : Array Name) (varNamess : Array (Array Name))
+    (rcs : Array RecCallCache) : MetaM Format := do
+  let mut r : Format := "The arguments relate at each recursive call as follows:\n" ++
+    "(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)\n"
+  if declNames.size = 1 then
+    r := r ++ (← explainNonMutualFailure varNamess[0]! rcs)
+  else
+    r := r ++ (← explainMutualFailure declNames varNamess rcs)
+  return r
 
 end Lean.Elab.WF.GuessLex
 
@@ -565,33 +703,41 @@ terminates. See the module doc string for a high-level overview.
 def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
     MetaM TerminationWF := do
-  try
-    let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
-    let arities := varNamess.map (·.size)
-    trace[Elab.definition.wf] "varNames is: {varNamess}"
+  let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
+  let arities := varNamess.map (·.size)
+  trace[Elab.definition.wf] "varNames is: {varNamess}"
 
-    let forbiddenArgs ← preDefs.mapM fun preDef =>
-      getForbiddenByTrivialSizeOf fixedPrefixSize preDef
+  let forbiddenArgs ← preDefs.mapM fun preDef =>
+    getForbiddenByTrivialSizeOf fixedPrefixSize preDef
 
-    -- The list of measures, including the measures that order functions.
-    -- The function ordering measures come last
-    let measures ← generateMeasures forbiddenArgs arities
+  -- The list of measures, including the measures that order functions.
+  -- The function ordering measures come last
+  let measures ← generateMeasures forbiddenArgs arities
 
-    -- If there is only one plausible measure, use that
-    if let #[solution] := measures then
-      return ← buildTermWF (preDefs.map (·.declName)) varNamess #[solution]
+  -- If there is only one plausible measure, use that
+  if let #[solution] := measures then
+    return ← buildTermWF (preDefs.map (·.declName)) varNamess #[solution]
 
-    -- Collect all recursive calls and extract their context
-    let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
-    let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
-    let callMatrix := rcs.map (inspectCall ·)
+  -- Collect all recursive calls and extract their context
+  let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+  let recCalls := filterSubsumed recCalls
+  let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
+  let callMatrix := rcs.map (inspectCall ·)
 
-    match ← liftMetaM <| solve measures callMatrix with
-    | .some solution => do
-      let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
-      return wf
-    | .none => throwError "Cannot find a decreasing lexicographic order"
-  catch _ =>
-    -- Hide all errors from guessing lexicographic orderings, as before
-    -- Future work: explain the failure to the user, like  Isabelle does
-    throwError "failed to prove termination, use `termination_by` to specify a well-founded relation"
+  match ← liftMetaM <| solve measures callMatrix with
+  | .some solution => do
+    let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
+
+    let wfStx ← withoutModifyingState do
+      preDefs.forM (addAsAxiom ·)
+      wf.unexpand
+
+    if showInferredTerminationBy.get (← getOptions) then
+      logInfo m!"Inferred termination argument:{wfStx}"
+
+    return wf
+  | .none =>
+    let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs
+    Lean.throwError <| "Could not find a decreasing measure.\n" ++
+      explanation ++ "\n" ++
+      "Please use `termination_by` to specify a decreasing measure."

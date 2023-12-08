@@ -171,6 +171,17 @@ def expandTerminationBy? (hint? : Option Syntax) (cliques : Array (Array Name)) 
     withRef elseElemStx?.get! <| Macro.throwError s!"invalid `termination_by` syntax, unnecessary else-case"
   return ⟨result⟩
 
+open Parser.Command in
+def TerminationWF.unexpand : TerminationWF → MetaM Syntax
+  | .ext elements => do
+    let elementStxs ← elements.mapM fun element => do
+      let fn : Ident := mkIdent (← unresolveNameGlobal element.declName)
+      let body : Term := ⟨element.body⟩
+      let vars : Array Ident := element.vars.map TSyntax.mk
+      `(terminationByElement|$fn $vars* => $body)
+    `(terminationBy|termination_by $elementStxs*)
+  | .core _ => unreachable! -- we don't synthetize termination_by' syntax
+
 def TerminationBy.markAsUsed (t : TerminationBy) (cliqueNames : Array Name) : TerminationBy :=
   .mk <| t.cliques.map fun clique =>
     if cliqueNames.any fun name => clique.elements.any fun elem => elem.declName == name then

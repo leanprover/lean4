@@ -13,12 +13,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Set Up Nix Cache
+      uses: actions/cache@v3
+      with:
+        path: nix-store-cache
+        key: stage0-nix-store-cache-${{ github.sha }}
+        # fall back to (latest) previous cache
+        restore-keys: |
+          stage0-nix-store-cache
+    - name: Further Set Up Nix Cache
+      shell: bash -euxo pipefail {0}
+      run: |
+        # Nix seems to mutate the cache, so make a copy
+        cp -r nix-store-cache nix-store-cache-copy || true
+
     - name: Install Nix
       uses: DeterminateSystems/nix-installer-action@main
+      with:
+        extra-conf: |
+          substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
     - name: Install Cachix
       uses: cachix/cachix-action@v12
       with:
         name: lean4
+    - run: nix build .#update-stage0
+    - name: Rebuild Nix Store Cache
+      run: |
+        rm -rf nix-store-cache || true
+        nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
     - run: nix run .#update-stage0
-    - name: push code to master
-      run: git push origin HEAD:master
+    #- name: push code to master
+    #  run: git push origin HEAD:master

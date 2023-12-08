@@ -13,9 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+      with:
+        ssh-key: ${{secrets.STAGE0_SSH_KEY}}
     - name: Check if update is needed
       run: |
-        if diff -u src/stdlib_flags.h  stage0/src/stdlib_flags.h
+        if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
         then
           echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
           echo "DOIT=no" >> "$GITHUB_ENV"
@@ -43,6 +45,6 @@ jobs:
       run: git show --stat
     - name: Sanity check
       run: |
-        diff -u src/stdlib_flags.h  stage0/src/stdlib_flags.h || exit 1
+        diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
     - if: env.DOIT == 'yes'
       run: git push origin HEAD:master

@@ -33,8 +33,11 @@ jobs:
           git config --global user.email "<>"
     - if: env.DOIT == 'yes'
       uses: DeterminateSystems/nix-installer-action@main
-    - if: env.DOIT == 'yes'
-      uses: DeterminateSystems/magic-nix-cache-action@v2
+    # Would be nice, but does not work yet:
+    # https://github.com/DeterminateSystems/magic-nix-cache/issues/39
+    # This action does not run that often and building runs in a few minutes, so ok for now
+    #- if: env.DOIT == 'yes'
+    #  uses: DeterminateSystems/magic-nix-cache-action@v2
     - if: env.DOIT == 'yes'
       name: Install Cachix
       uses: cachix/cachix-action@v12

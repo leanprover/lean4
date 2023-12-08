@@ -19,7 +19,7 @@ jobs:
       uses: cachix/cachix-action@v12
       with:
         name: lean4
-    - run: nix build .#update-stage0
-    - run: nix run .#update-stage0
+    - run: nix build .#update-stage0-commit
+    - run: nix run .#update-stage0-commit
     - run: git show --stat
     - run: git push origin HEAD:master

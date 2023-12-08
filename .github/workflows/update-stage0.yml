@@ -13,12 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    # This action runs rarely, so the cache is only really useful when working
-    # on this action. But then it is really useful
     - uses: DeterminateSystems/nix-installer-action@main
-      with:
-        extra-conf: |
-          substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
     - uses: DeterminateSystems/magic-nix-cache-action@v2
     - name: Install Cachix
       uses: cachix/cachix-action@v12

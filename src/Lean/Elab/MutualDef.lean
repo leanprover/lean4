@@ -625,7 +625,9 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
       | _      => none
     | _ => none
 
-def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
+def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
+    (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
+    (terminations : Array WF.TerminationHints)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
@@ -637,7 +639,8 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       declName    := header.declName
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
-      type, value
+      type, value,
+      termination := terminations[i]!
     }
 
 def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : MetaM (Array PreDefinition) :=
@@ -655,7 +658,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
       modifiers   := { modifiers with attrs := c.toLift.attrs }
-      kind, type, value
+      kind, type, value,
+      termination := c.toLift.termination
     }
 
 def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
@@ -675,7 +679,9 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
 - `mainVals`:      The elaborated value for the top-level definitions
 - `letRecsToLift`: The let-rec's definitions that need to be lifted
 -/
-def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
+def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr)
+    (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
+    (terminations : Array WF.TerminationHints)
     : TermElabM (Array PreDefinition) := do
   -- Store in recFVarIds the fvarId of every function being defined by the mutual block.
   let letRecsToLift := letRecsToLift.toArray
@@ -701,7 +707,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } }
     let letRecKind     := getKindForLetRecs mainHeaders
     let letRecMods     := getModifiersForLetRecs mainHeaders
-    pushMain (← pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
+    pushMain (← pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals terminations
 
 end MutualClosure
 
@@ -766,7 +772,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -780,6 +786,7 @@ where
     let headers ← elabHeaders views
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
+    let terminations := views.map (WF.elabTerminationHints ·.termination)
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar
@@ -796,7 +803,7 @@ where
       let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
       checkLetRecsToLiftTypes funFVars letRecsToLift
       withUsed vars headers values letRecsToLift fun vars => do
-        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift terminations
         for preDef in preDefs do
           trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
         let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs
@@ -805,7 +812,7 @@ where
         for preDef in preDefs do
           trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
         checkForHiddenUnivLevels allUserLevelNames preDefs
-        addPreDefinitions preDefs hints
+        addPreDefinitions preDefs
         processDeriving headers
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -820,13 +827,13 @@ where
 end Term
 namespace Command
 
-def elabMutualDef (ds : Array Syntax) (hints : TerminationHints) : CommandElabM Unit := do
+def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let views ← ds.mapM fun d => do
     let modifiers ← elabModifiers d[0]
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     mkDefView modifiers d[1]
-  runTermElabM fun vars => Term.elabMutualDef vars views hints
+  runTermElabM fun vars => Term.elabMutualDef vars views
 
 end Command
 end Lean.Elab

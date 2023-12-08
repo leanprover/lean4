@@ -21,6 +21,7 @@ structure LetRecDeclView where
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
+  termination   : WF.TerminationHints
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -59,7 +60,9 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         pure decl[4]
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
-      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx : LetRecDeclView }
+      let termination := WF.elabTerminationHints ⟨decl[5]⟩
+      pure {
+        ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx, termination : LetRecDeclView }
     else
       throwUnsupportedSyntax
   return { decls, body := letRec[3] }
@@ -102,6 +105,7 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
     type           := view.type
     val            := values[i]!
     mvarId         := view.mvar.mvarId!
+    termination    := view.termination
     : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 

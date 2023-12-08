@@ -8,10 +8,12 @@ import Lean.Util.CollectLevelParams
 import Lean.Meta.AbstractNestedProofs
 import Lean.Elab.RecAppSyntax
 import Lean.Elab.DefView
+import Lean.Elab.PreDefinition.WF.TerminationHint
 
 namespace Lean.Elab
 open Meta
 open Term
+
 
 /--
   A (potentially recursive) definition.
@@ -25,6 +27,7 @@ structure PreDefinition where
   declName    : Name
   type        : Expr
   value       : Expr
+  termination : WF.TerminationHints
   deriving Inhabited
 
 def instantiateMVarsAtPreDecls (preDefs : Array PreDefinition) : TermElabM (Array PreDefinition) :=

@@ -36,6 +36,7 @@ structure DefView where
   type?         : Option Syntax
   value         : Syntax
   deriving?     : Option (Array Syntax) := none
+  termination   : TSyntax ``Parser.Termination.suffix
   deriving Inhabited
 
 def DefView.isInstance (view : DefView) : Bool :=
@@ -45,25 +46,25 @@ namespace Command
 open Meta
 
 def mkDefViewOfAbbrev (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal
+  -- leading_parser "abbrev " >> declId >> optDeclSig >> declVal >> Termination.suffix
   let (binders, type) := expandOptDeclSig stx[2]
   let modifiers       := modifiers.addAttribute { name := `inline }
   let modifiers       := modifiers.addAttribute { name := `reducible }
   { ref := stx, kind := DefKind.abbrev, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3] }
+    declId := stx[1], binders, type? := type, value := stx[3], termination := ⟨stx[4]⟩ }
 
 def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving
+  -- leading_parser "def " >> declId >> optDeclSig >> declVal >> optDefDeriving >> Termination.suffix
   let (binders, type) := expandOptDeclSig stx[2]
   let deriving? := if stx[4].isNone then none else some stx[4][1].getSepArgs
   { ref := stx, kind := DefKind.def, modifiers,
-    declId := stx[1], binders, type? := type, value := stx[3], deriving? }
+    declId := stx[1], binders, type? := type, value := stx[3], deriving?, termination := ⟨stx[5]⟩ }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "theorem " >> declId >> declSig >> declVal
+  -- leading_parser "theorem " >> declId >> declSig >> declVal >> Termination.suffix
   let (binders, type) := expandDeclSig stx[2]
   { ref := stx, kind := DefKind.theorem, modifiers,
-    declId := stx[1], binders, type? := some type, value := stx[3] }
+    declId := stx[1], binders, type? := some type, value := stx[3], termination := ⟨stx[4]⟩  }
 
 def mkFreshInstanceName : CommandElabM Name := do
   let s ← get
@@ -101,7 +102,7 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
     mkFreshInstanceName
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
-  -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal
+  -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal >> Termination.suffix
   let attrKind        ← liftMacroM <| toAttributeKind stx[0]
   let prio            ← liftMacroM <| expandOptNamedPrio stx[2]
   let attrStx         ← `(attr| instance $(quote prio):num)
@@ -114,7 +115,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
       pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
   return {
     ref := stx, kind := DefKind.def, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[5]
+    declId := declId, binders := binders, type? := type, value := stx[5], termination := ⟨stx[6]⟩
   }
 
 def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
@@ -127,16 +128,16 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
       pure <| mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := some type, value := val
+    declId := stx[1], binders := binders, type? := some type, value := val, termination := ⟨.missing⟩
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "example " >> declSig >> declVal
+  -- leading_parser "example " >> declSig >> declVal >> Termination.suffix
   let (binders, type) := expandOptDeclSig stx[1]
   let id              := mkIdentFrom stx `_example
   let declId          := mkNode ``Parser.Command.declId #[id, mkNullNode]
   { ref := stx, kind := DefKind.example, modifiers := modifiers,
-    declId := declId, binders := binders, type? := type, value := stx[2] }
+    declId := declId, binders := binders, type? := type, value := stx[2], termination := ⟨stx[3]⟩ }
 
 def isDefLike (stx : Syntax) : Bool :=
   let declKind := stx.getKind

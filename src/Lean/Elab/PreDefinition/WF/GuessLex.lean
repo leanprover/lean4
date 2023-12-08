@@ -570,8 +570,8 @@ def mkTupleSyntax : Array Term → MetaM Term
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
 combination of these measures.
 -/
-def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
-    (measures : Array MutualMeasure) : MetaM TerminationWF := do
+def buildTermWF (varNamess : Array (Array Name)) (measures : Array MutualMeasure) :
+    MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
@@ -582,13 +582,7 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
-    let declName := declNames[funIdx]!
-
-    termByElements := termByElements.push
-      { ref := .missing
-        declName, vars, body,
-        implicit := true
-      }
+    termByElements := termByElements.push { ref := .missing, vars, body }
   return termByElements
 
 
@@ -716,7 +710,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF (preDefs.map (·.declName)) varNamess #[solution]
+    return ← buildTermWF varNamess #[solution]
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -726,14 +720,17 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
+    let wf ← buildTermWF varNamess solution
 
+    /-
     let wfStx ← withoutModifyingState do
       preDefs.forM (addAsAxiom ·)
       wf.unexpand
+    -/
 
     if showInferredTerminationBy.get (← getOptions) then
-      logInfo m!"Inferred termination argument:{wfStx}"
+      logInfo m!"Inferred termination argument: TODO"
+      -- logInfo m!"Inferred termination argument:{wfStx}"
 
     return wf
   | .none =>

@@ -13,10 +13,8 @@ namespace Lean.Elab
 open Meta
 open Term
 
-structure TerminationHints where
-  terminationBy? : Option Syntax := none
-  decreasingBy? : Option Syntax := none
-  deriving Inhabited
+/-- All termination hints for a given clique -/
+def TerminationHints := Array (TSyntax ``Parser.Termination.suffix)
 
 private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
@@ -94,15 +92,12 @@ private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
     applyAttributesOf #[preDef] AttributeApplicationTime.afterTypeChecking
     applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
 
-def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints) : TermElabM Unit := withLCtx {} {} do
+def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLCtx {} {} do
   for preDef in preDefs do
     trace[Elab.definition.body] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
   let preDefs ← preDefs.mapM ensureNoUnassignedMVarsAtPreDef
   let preDefs ← betaReduceLetRecApps preDefs
   let cliques := partitionPreDefs preDefs
-  let mut terminationBy ← liftMacroM <| WF.expandTerminationBy? hints.terminationBy? (cliques.map fun ds => ds.map (·.declName))
-  let mut decreasingBy  ← liftMacroM <| WF.expandDecreasingBy? hints.decreasingBy? (cliques.map fun ds => ds.map (·.declName))
-  let mut hasErrors := false
   for preDefs in cliques do
     trace[Elab.definition.scc] "{preDefs.map (·.declName)}"
     if preDefs.size == 1 && isNonRecursive preDefs[0]! then
@@ -116,35 +111,30 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
         addNonRec preDef
       else
         addAndCompileNonRec preDef
+      -- TODO: Complain about possible termination hints
     else if preDefs.any (·.modifiers.isUnsafe) then
       addAndCompileUnsafe preDefs
+      -- TODO: Complain about possible termination hints
     else if preDefs.any (·.modifiers.isPartial) then
       for preDef in preDefs do
         if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
+      -- TODO: Complain about possible termination hints
     else
       try
-        let mut wf? := none
-        let mut decrTactic? := none
-        if let some wf := terminationBy.find? (preDefs.map (·.declName)) then
-          wf? := some wf
-          terminationBy := terminationBy.markAsUsed (preDefs.map (·.declName))
-        if let some { ref, value := decrTactic } := decreasingBy.find? (preDefs.map (·.declName)) then
-          decrTactic? := some (← withRef ref `(by $(⟨decrTactic⟩)))
-          decreasingBy := decreasingBy.markAsUsed (preDefs.map (·.declName))
-        if wf?.isSome || decrTactic?.isSome then
-          wfRecursion preDefs wf? decrTactic?
+        let hasHints := false -- TODO: Check if any predef has a termination hint
+        if hasHints then
+          wfRecursion preDefs
         else
           withRef (preDefs[0]!.ref) <| mapError
             (orelseMergeErrors
               (structuralRecursion preDefs)
-              (wfRecursion preDefs none none))
+              (wfRecursion preDefs))
             (fun msg =>
               let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
               m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")
       catch ex =>
-        hasErrors := true
         logException ex
         let s ← saveState
         try
@@ -159,9 +149,6 @@ def addPreDefinitions (preDefs : Array PreDefinition) (hints : TerminationHints)
           else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
             addAsAxioms preDefs
         catch _ => s.restore
-  unless hasErrors do
-    liftMacroM <| terminationBy.ensureAllUsed
-    liftMacroM <| decreasingBy.ensureAllUsed
 
 builtin_initialize
   registerTraceClass `Elab.definition.body

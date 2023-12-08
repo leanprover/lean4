@@ -3,58 +3,13 @@ Copyright (c) 2021 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import Lean.Parser.Command
+import Lean.Parser.Term
 
 set_option autoImplicit false
 
 namespace Lean.Elab.WF
 
-/-! # Support for `decreasing_by` -/
-
-structure DecreasingByTactic where
-  ref   : Syntax
-  value : Lean.TSyntax `Lean.Parser.Tactic.tacticSeq
-  deriving Inhabited
-
-inductive DecreasingBy where
-  | none
-  | one (val : DecreasingByTactic)
-  | many (map : NameMap DecreasingByTactic)
-  deriving Inhabited
-
-open Parser.Command in
-/--
-This function takes a user-specified `decreasing_by` clause (as `Sytnax`).
-If it is a `decreasingByMany` (a set of clauses guarded by the function name) then
-* checks that all mentioned names exist in the current declaration
-* check that at most one function from each clique is mentioned
-and sort the entries by function name.
--/
-def expandDecreasingBy? (decreasingBy? : Option Syntax) (cliques : Array (Array Name)) : MacroM DecreasingBy := do
-  let some decreasingBy := decreasingBy? | return DecreasingBy.none
-  let ref := decreasingBy
-  match decreasingBy with
-  | `(decreasingBy|decreasing_by $hint1:tacticSeq) =>
-    return DecreasingBy.one { ref, value := hint1 }
-  | `(decreasingBy|decreasing_by $hints:decreasingByMany) => do
-    let m ← hints.raw[0].getArgs.foldlM (init := {}) fun m arg => do
-      let arg : TSyntax `decreasingByElement := ⟨arg⟩ -- cannot use syntax pattern match with lookahead
-      let `(decreasingByElement| $declId:ident => $tac:tacticSeq) := arg | Macro.throwUnsupported
-      let declName? := cliques.findSome? fun clique => clique.findSome? fun declName =>
-        if declId.getId.isSuffixOf declName then some declName else none
-      match declName? with
-      | none => Macro.throwErrorAt declId s!"function '{declId.getId}' not found in current declaration"
-      | some declName => return m.insert declName { ref := arg, value := tac }
-    for clique in cliques do
-      let mut found? := Option.none
-      for declName in clique do
-        if let some { ref, .. } := m.find? declName then
-          if let some found := found? then
-            Macro.throwErrorAt ref s!"invalid termination hint element, '{declName}' and '{found}' are in the same clique"
-          found? := some declName
-    return DecreasingBy.many m
-  | _ => Macro.throwUnsupported
-
+/-
 def DecreasingBy.markAsUsed (t : DecreasingBy) (clique : Array Name) : DecreasingBy :=
   match t with
   | DecreasingBy.none   => DecreasingBy.none
@@ -80,48 +35,49 @@ def DecreasingBy.ensureAllUsed (t : DecreasingBy) : MacroM Unit := do
   | DecreasingBy.one v   => Macro.throwErrorAt v.ref "unused termination hint element"
   | DecreasingBy.many m  => m.forM fun _ v => Macro.throwErrorAt v.ref "unused termination hint element"
   | _ => pure ()
+-/
 
 /-! # Support for `termination_by` notation -/
 
 /-- A single `termination_by` clause -/
-structure TerminationByElement where
+structure TerminationBy where
   ref       : Syntax
-  declName  : Name
   vars      : TSyntaxArray [`ident, ``Lean.Parser.Term.hole]
   body      : Term
-  implicit  : Bool
   deriving Inhabited
 
-/-- `termination_by` clauses, grouped by clique -/
-structure TerminationByClique where
-  elements : Array TerminationByElement
-  used     : Bool := false
+/-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
+abbrev TerminationWF := Array TerminationBy
 
-/--
-A `termination_by` hint, as specified by the user
--/
-structure TerminationBy where
-  cliques : Array TerminationByClique
+
+/-- The termination annotations for a single function -/
+structure TerminationHints where
+  ref : Syntax
+  termination_by? : Option TerminationBy
+  decreasing_by?  : Option (TSyntax ``Lean.Parser.Tactic.tacticSeq)
   deriving Inhabited
 
-/--
-A `termination_by` hint, as applicable to a single clique
--/
-abbrev TerminationWF := Array TerminationByElement
+
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
+
+open Parser.Termination
+
+def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints := match stx with
+  | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) =>
+    { ref := stx
+      termination_by? := t?.map fun t => match t with
+        | `(terminationBy|termination_by $vars* => $body) => {ref := t, vars, body}
+        | _ => unreachable!
+      decreasing_by? := d?.map fun
+        | `(decreasingBy|decreasing_by $ts) => ts
+        | _ => unreachable!  }
+  | _ => unreachable!
+
+/-
 
 open Parser.Command in
 /--
-Expands the syntax for a `termination_by` clause, checking that
-* each function is mentioned once
-* each function mentioned actually occurs in the current declaration
-* if anything is specified, then all functions have a clause
-* the else-case (`_`) occurs only once, and only when needed
-
-NB:
-```
-def terminationByElement   := leading_parser ppLine >> (ident <|> hole) >> many (ident <|> hole) >> " => " >> termParser >> optional ";"
-def terminationBy          := leading_parser ppLine >> "termination_by " >> many1chIndent terminationByElement
-```
+Expands the syntax for a `termination_by` clause
 -/
 def expandTerminationBy? (hint? : Option Syntax) (cliques : Array (Array Name)) :
     MacroM TerminationBy := do
@@ -170,13 +126,17 @@ def expandTerminationBy? (hint? : Option Syntax) (cliques : Array (Array Name)) 
   if !usedElse && elseElemStx?.isSome then
     withRef elseElemStx?.get! <| Macro.throwError s!"invalid `termination_by` syntax, unnecessary else-case"
   return ⟨result⟩
+-/
 
-open Parser.Command in
+/-
+open Parser.Termination in
 def TerminationWF.unexpand (elements : TerminationWF) : MetaM Syntax := do
-  let elementStxs ← elements.mapM fun element => do
-    let fn : Ident := mkIdent (← unresolveNameGlobal element.declName)
-    `(terminationByElement|$fn $element.vars* => $element.body)
-  `(terminationBy|termination_by $elementStxs*)
+  let vars ← elements.map (·.vars)
+  let bodies ← elements.map (·.body)
+  `(terminationBy|termination_by $[$vars* => $bodies*]*)
+-/
+
+/-
 
 def TerminationBy.markAsUsed (t : TerminationBy) (cliqueNames : Array Name) : TerminationBy :=
   .mk <| t.cliques.map fun clique =>
@@ -209,5 +169,6 @@ def TerminationBy.ensureAllUsed (t : TerminationBy) : MacroM Unit := do
         unless reportedAllImplicit do
           reportedAllImplicit := true
           Macro.throwErrorAt clique.elements[0]!.ref "unused termination hint element"
+-/
 
 end Lean.Elab.WF

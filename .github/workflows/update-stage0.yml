@@ -22,6 +22,10 @@ jobs:
         else
           echo "DOIT=yes" >> "$GITHUB_ENV"
         fi
+    - name: Setup git user
+      run: |
+          git config --global user.name "Lean stage0 autoupdater"
+          git config --global user.email "<>"
     - if: env.DOIT == 'yes'
       uses: DeterminateSystems/nix-installer-action@main
     - if: env.DOIT == 'yes'

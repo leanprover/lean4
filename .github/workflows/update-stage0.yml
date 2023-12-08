@@ -52,7 +52,8 @@ jobs:
       run: nix run .#update-stage0-commit
     - if: env.DOIT == 'yes'
       run: git show --stat
-    - name: Sanity check
+    - if: env.DOIT == 'yes'
+      name: Sanity check # to avoid loops
       run: |
         diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
     - if: env.DOIT == 'yes'

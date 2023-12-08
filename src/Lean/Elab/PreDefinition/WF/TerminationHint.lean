@@ -62,7 +62,12 @@ def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
 
 open Parser.Termination
 
-def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints := match stx with
+def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints :=
+  -- TODO: Better understand if this is needed
+  if let ⟨.missing⟩ := stx then
+    { ref := stx, termination_by? := none, decreasing_by? := none }
+  else
+    match stx with
   | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) =>
     { ref := stx
       termination_by? := t?.map fun t => match t with
@@ -71,7 +76,7 @@ def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints := match st
       decreasing_by? := d?.map fun
         | `(decreasingBy|decreasing_by $ts) => ts
         | _ => unreachable!  }
-  | _ => unreachable!
+  | _ => panic! s!"Unexpected Termination.suffix syntax: {stx}"
 
 /-
 

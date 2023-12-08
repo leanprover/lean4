@@ -24,7 +24,7 @@ partial def interpolatedStrFn (p : ParserFn) : ParserFn := fun c s =>
         let s := mkNodeToken interpolatedStrLitKind startPos c s
         s.mkNode interpolatedStrKind stackSize
       else if curr == '\\' then
-        andthenFn (quotedCharCoreFn isQuotableCharForStrInterpolant) (parse startPos) c s
+        andthenFn (quotedCharCoreFn isQuotableCharForStrInterpolant true) (parse startPos) c s
       else if curr == '{' then
         let s := mkNodeToken interpolatedStrLitKind startPos c s
         let s := p c s

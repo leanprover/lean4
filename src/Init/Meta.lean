@@ -773,6 +773,16 @@ def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos)
   else
     none
 
+/--
+Decodes a valid string gap after the `\`.
+Note that this function matches `"\" whitespace+` rather than
+the more restrictive `"\" newline whitespace*` since this simplifies the implementation.
+Justification: this does not overlap with any other sequences beginning with `\`.
+-/
+def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
+  guard <| (s.get i).isWhitespace
+  s.nextWhile Char.isWhitespace (s.next i)
+
 partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
   let c := s.get i
   let i := s.next i
@@ -781,8 +791,12 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
   else if s.atEnd i then
     none
   else if c == '\\' then do
-    let (c, i) ← decodeQuotedChar s i
-    decodeStrLitAux s i (acc.push c)
+    if let some (c, i) := decodeQuotedChar s i then
+      decodeStrLitAux s i (acc.push c)
+    else if let some i := decodeStringGap s i then
+      decodeStrLitAux s i acc
+    else
+      none
   else
     decodeStrLitAux s i (acc.push c)
 
@@ -1162,8 +1176,12 @@ private partial def decodeInterpStrLit (s : String) : Option String :=
     else if s.atEnd i then
       none
     else if c == '\\' then do
-      let (c, i) ← decodeInterpStrQuotedChar s i
-      loop i (acc.push c)
+      if let some (c, i) := decodeInterpStrQuotedChar s i then
+        loop i (acc.push c)
+      else if let some i := decodeStringGap s i then
+        loop i acc
+      else
+        none
     else
       loop i (acc.push c)
   loop ⟨1⟩ ""

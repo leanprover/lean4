@@ -8356,7 +8356,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabMutual___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("invalid mutual block", 20);
+x_1 = lean_mk_string_from_bytes("invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs", 135);
 return x_1;
 }
 }
@@ -8623,7 +8623,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_unsigned_to_nat(351u);
-x_2 = lean_unsigned_to_nat(37u);
+x_2 = lean_unsigned_to_nat(152u);
 x_3 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -8637,7 +8637,7 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_obj
 x_1 = l___regBuiltin_Lean_Elab_Command_elabMutual_declRange___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
 x_3 = l___regBuiltin_Lean_Elab_Command_elabMutual_declRange___closed__2;
-x_4 = lean_unsigned_to_nat(37u);
+x_4 = lean_unsigned_to_nat(152u);
 x_5 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_5, 0, x_1);
 lean_ctor_set(x_5, 1, x_2);

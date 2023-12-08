@@ -11,13 +11,40 @@ of each version.
 v4.5.0 (development in progress)
 ---------
 
+* Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
+  These have the interpetation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
+  The following is equivalent to `"this is a string"`.
+  ```lean
+  "this is \
+     a string"
+  ```
+  [PR #2821](https://github.com/leanprover/lean4/pull/2821) and [RFC #2838](https://github.com/leanprover/lean4/issues/2838).
+
 v4.4.0
 ---------
 
+* Lake and the language server now support per-package server options using the `moreServerOptions` config field, as well as options that apply to both the language server and `lean` using the `leanOptions` config field. Setting either of these fields instead of `moreServerArgs` ensures that viewing files from a dependency uses the options for that dependency. Additionally, `moreServerArgs` is being deprecated in favor of the `moreGlobalServerArgs` field. See PR [#2858](https://github.com/leanprover/lean4/pull/2858).
+  
+  A Lakefile with the following deprecated package declaration:
+  ```lean
+  def moreServerArgs := #[
+    "-Dpp.unicode.fun=true"
+  ]
+  def moreLeanArgs := moreServerArgs
+  
+  package SomePackage where
+    moreServerArgs := moreServerArgs
+    moreLeanArgs := moreLeanArgs
+  ```
+  
+  ... can be updated to the following package declaration to use per-package options:
+  ```lean
+  package SomePackage where
+    leanOptions := #[⟨`pp.unicode.fun, true⟩]
+  ```
 * [Rename request handler](https://github.com/leanprover/lean4/pull/2462).
 * [Import auto-completion](https://github.com/leanprover/lean4/pull/2904).
 * [`pp.beta`` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).
-* [Per-package server options](https://github.com/leanprover/lean4/pull/2858).
 * [Embed and check githash in .olean](https://github.com/leanprover/lean4/pull/2766).
 * [Guess lexicographic order for well-founded recursion](https://github.com/leanprover/lean4/pull/2874).
 * [Allow trailing comma in tuples, lists, and tactics](https://github.com/leanprover/lean4/pull/2643).

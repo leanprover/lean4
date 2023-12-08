@@ -1,0 +1,5 @@
+Inferred termination argument:
+termination_by
+  prod x y z => (sizeOf y, 1, 0)
+  oprod x y z => (sizeOf y, 0, 1)
+  eprod x y z => (sizeOf y, 0, 0)

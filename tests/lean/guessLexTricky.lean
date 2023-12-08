@@ -12,6 +12,8 @@ gets smaller. This needs a backtracking proof search, it seems, which we build h
 (`search_lex`).
 -/
 
+set_option showInferredTerminationBy true
+
 macro_rules | `(tactic| decreasing_trivial) =>
               `(tactic| apply Nat.le_refl)
 macro_rules | `(tactic| decreasing_trivial) =>

@@ -123,7 +123,8 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
       -- TODO: Complain about possible termination hints
     else
       try
-        let hasHints := false -- TODO: Check if any predef has a termination hint
+        let hasHints := preDefs.any  fun preDef =>
+          preDef.termination.decreasing_by?.isSome || preDef.termination.termination_by?.isSome
         if hasHints then
           wfRecursion preDefs
         else

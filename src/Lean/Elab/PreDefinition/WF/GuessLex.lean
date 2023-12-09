@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
 
@@ -263,38 +264,6 @@ def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext 
           return (false, true)
     return (true, true)
 
-/-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
-return the function index that is called and the arguments individually.
-
-We expect precisely the expressions produced by `packMutual`, with manifest
-`PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
-rather than using projectinos. -/
-def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
-    m (Nat × Array Expr) := do
-  -- count PSum injections to find out which function is doing the call
-  let mut funidx := 0
-  let mut e := e
-  while funidx + 1 < arities.size do
-    if e.isAppOfArity ``PSum.inr 3 then
-      e := e.getArg! 2
-      funidx := funidx + 1
-    else if e.isAppOfArity ``PSum.inl 3 then
-      e := e.getArg! 2
-      break
-    else
-      throwError "Unexpected expression while unpacking mutual argument"
-
-  -- now unpack PSigmas
-  let arity := arities[funidx]!
-  let mut args := #[]
-  while args.size + 1 < arity do
-    if e.isAppOfArity ``PSigma.mk 4 then
-      args := args.push (e.getArg! 2)
-      e := e.getArg! 3
-    else
-      throwError "Unexpected expression while unpacking n-ary argument"
-  args := args.push e
-  return (funidx, args)
 
 /-- Traverse a unary PreDefinition, and returns a `WithRecCall` closure for each recursive
 call site.
@@ -382,8 +351,11 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
             | some decrTactic => Term.withoutErrToSorry do
               -- make info from `runTactic` available
               pushInfoTree (.hole mvarId)
-              Term.runTactic mvarId decrTactic
-              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
+              let decrTacticSeq := ⟨decrTactic⟩
+              -- runTactic uses `syntax[1]`, so looks like we have to wrap it again.
+              -- TODO: Fully understand what’s going on here
+              Term.runTactic mvarId (← `(tactic|($decrTacticSeq:tacticSeq)))
+              trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
               pure ()
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel

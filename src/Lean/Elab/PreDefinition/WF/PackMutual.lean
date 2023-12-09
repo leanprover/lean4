@@ -36,6 +36,47 @@ private def getCodomainsLevel (preDefsOriginal : Array PreDefinition) (preDefTyp
           throwError "invalid mutual definition, result types must be in the same universe level, resulting type for `{preDefsOriginal[0]!.declName}` is{indentExpr type₀} : {← inferType type₀}\nand for `{preDefsOriginal[i]!.declName}` is{indentExpr typeᵢ} : {← inferType typeᵢ}"
   return r
 
+def unpackMutualArg {m} [Monad m] [MonadError m] (numFuncs : Nat) (e : Expr) :
+    m (Nat × Expr) := do
+  let mut funidx := 0
+  let mut e := e
+  while funidx + 1 < numFuncs do
+    if e.isAppOfArity ``PSum.inr 3 then
+      e := e.getArg! 2
+      funidx := funidx + 1
+    else if e.isAppOfArity ``PSum.inl 3 then
+      e := e.getArg! 2
+      break
+    else
+      throwError "Unexpected expression while unpacking mutual argument"
+  return (funidx, e)
+
+def unpackPackedArg {m} [Monad m] [MonadError m] (arity : Nat) (e : Expr) :
+    m (Array Expr) := do
+  let mut e := e
+  let mut args := #[]
+  while args.size + 1 < arity do
+    if e.isAppOfArity ``PSigma.mk 4 then
+      args := args.push (e.getArg! 2)
+      e := e.getArg! 3
+    else
+      throwError "Unexpected expression while unpacking n-ary argument"
+  args := args.push e
+  return args
+
+/-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
+return the function index that is called and the arguments individually.
+
+We expect precisely the expressions produced by `packMutual`, with manifest
+`PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
+rather than using projectinos. -/
+def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
+    m (Nat × Array Expr) := do
+  let (funidx, e) ← unpackMutualArg arities.size e
+  let args ← unpackPackedArg arities[funidx]! e
+  return (funidx, args)
+
+
 /--
   Create the codomain for the new function that "combines" different `preDef` types
   See: `packMutual`

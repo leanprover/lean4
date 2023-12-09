@@ -13,6 +13,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.BRecOn
+import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
 namespace Lean.Elab.WF
@@ -186,25 +187,43 @@ def assignSubsumed (mvars : Array MVarId) : MetaM (Array MVarId) :=
           return (false, true)
     return (true, true)
 
-def solveDecreasingGoals (_decrTactics : Array (Option Syntax)) (value : Expr) : MetaM Expr := do
+/--
+The subgoals are of the form `rel arg param`, where `param` is the `PackMutual`'ed parameter
+of the current function, and thus we can peek at that to know which function is making the call.
+The close coupling with how arguments are packed and termination goals look like is not great,
+but it works for now.
+-/
+def groupGoalsByFunction (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array (Array MVarId)) := do
+  let mut r := mkArray numFuncs #[]
+  for goal in goals do
+    let (.mdata _ (.app _ param)) ← goal.getType
+        | throwError "MVar does not look like like a recursive call"
+    let (funidx, _) ← unpackMutualArg numFuncs param
+    r := r.modify funidx (·.push goal)
+  return r
+
+def solveDecreasingGoals (decrTactics : Array (Option Syntax)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
-  goals.forM fun goal => Lean.Elab.Term.TermElabM.run' <|
-    -- TODO: Extract caller from goal. Tricky.
-    /-
+  let goalss ← groupGoalsByFunction decrTactics.size goals
+  for goals in goalss, decrTactic? in decrTactics do
+    Lean.Elab.Term.TermElabM.run' do
     match decrTactic? with
     | none => do
-    -/
-    id do
-      let some ref := getRecAppSyntax? (← goal.getType)
-        | throwError "MVar does not look like like a recursive call"
+      for goal in goals do
+        let some ref := getRecAppSyntax? (← goal.getType)
+          | throwError "MVar does not look like like a recursive call"
         withRef ref <| applyDefaultDecrTactic goal
-    /-
     | some decrTactic => do
-      -- make info from `runTactic` available
-      pushInfoTree (.hole goal)
-      Term.runTactic goal decrTactic
-    -/
+      unless goals.isEmpty do -- unlikely to be empty
+        -- TODO: What is this pushInfo Tree
+        -- make info from `runTactic` available
+        -- pushInfoTree (.hole goal)
+        let remainingGoals ← Tactic.run goals[0]! do
+          Tactic.setGoals goals.toList
+          Tactic.evalTactic decrTactic
+        unless remainingGoals.isEmpty do
+          Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)

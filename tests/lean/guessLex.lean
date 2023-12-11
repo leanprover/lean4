@@ -1,9 +1,6 @@
 /-!
 This files tests Lean's ability to guess the right lexicographic order.
 
-TODO: Once lean spits out the guessed order (probably guarded by an
-option), turn this on and check the output.
-
 When writing tests for GuesLex, keep in mind that it doesn't do anything
 when there is only one plausible measure (one function, only one varying argument).
 -/

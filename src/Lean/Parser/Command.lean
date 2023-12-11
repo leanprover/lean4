@@ -197,8 +197,16 @@ def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
   "class "
+/-- Within an `extends` clause of a `structure` or `class`,
+the `flat` modifier forced the fields of a parent structure to be flattened into the current structure.
+This happens automatically even without `flat`,
+if fields of the parent structure overlap with any previous fields. -/
+def flatTk               := leading_parser
+  nonReservedSymbol "flat "
+def extendsItem          := leading_parser
+  optional flatTk >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 termParser ", "
+  " extends " >> sepBy1 extendsItem ", "
 def «structure»          := leading_parser
     (structureTk <|> classTk) >> declId >>
     ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>

@@ -17,7 +17,6 @@ termination_by _ => a.size - i
     fun z => f (x - 1) (y + 1) z + 1
   else
     (· + y)
-termination_by
-  f x y => x
+termination_by x y => x
 
 #check f._eq_1

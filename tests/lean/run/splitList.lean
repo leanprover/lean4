@@ -32,7 +32,7 @@ def len : List α → Nat
       have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
       have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
       len fst + len snd
-termination_by _ xs => xs.length
+termination_by xs => xs.length
 
 theorem len_nil : len ([] : List α) = 0 := by
  simp [len]
@@ -78,10 +78,11 @@ def len : List α → Nat
       len fst + len snd
 termination_by _ xs => xs.length
 decreasing_by
-  simp_wf
-  have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
-  subst h₂
-  simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+  all_goals
+    simp_wf
+    have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
+    subst h₂
+    simp_arith [eq_of_heq h₃] at this |- ; simp [this]
 
 theorem len_nil : len ([] : List α) = 0 := by
   simp [len]

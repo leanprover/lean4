@@ -114,7 +114,7 @@ because the difference between the first and third argument decreases.
 If omitted, a termination argument will be inferred.
 -/
 def terminationBy := leading_parser
-  ppDedent ppLine >> "termination_by" >> many (ppSpace >> (ident <|> "_")) >>
+  ppDedent ppLine >> checkColGe >> "termination_by" >> many (ppSpace >> (ident <|> "_")) >>
   " => " >> termParser
 
 /--
@@ -124,7 +124,7 @@ decreases at each recursive call.
 By default, the tactic `decreasing_tactic` is used.
 -/
 def decreasingBy := leading_parser
-  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeq
+  ppDedent ppLine >> checkColGe >> "decreasing_by " >> Tactic.tacticSeq
 
 /--
 Termination hints are `termination_by` and `decreasing_by`, in that order.
@@ -570,6 +570,7 @@ def attributes       := leading_parser
   "@[" >> withoutPosition (sepBy1 attrInstance ", ") >> "] "
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
+-- NB: Uses checkColGt, this is relative to the `withPosition` in `letrec` and `whereDecls`.
 def letRecDecl       := leading_parser
   optional Command.docComment >> optional «attributes» >> letDecl >> Termination.suffix
 /-- `letRecDecls` matches `letRecDecl,+`, a comma-separated list of let-rec declarations (see `letRecDecl`). -/

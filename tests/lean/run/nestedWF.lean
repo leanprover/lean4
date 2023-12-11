@@ -43,7 +43,6 @@ def g (t : Nat) : Nat := match t with
       | 0 => 0
       | m + 1 => g n
   | 0 => 0
-termination_by' sorry
 decreasing_by sorry
 
 theorem ex1 : g 0 = 0 := by

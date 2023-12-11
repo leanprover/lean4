@@ -46,6 +46,12 @@ structure TerminationBy where
   body      : Term
   deriving Inhabited
 
+open Parser.Termination in
+def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
+  -- TODO: Why can I not use $wf.vars below?
+  let vars : TSyntaxArray `ident := wf.vars.map (⟨·.raw⟩)
+  `(terminationBy|termination_by $vars* => $wf.body)
+
 /-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
 abbrev TerminationWF := Array TerminationBy
 
@@ -132,14 +138,6 @@ def expandTerminationBy? (hint? : Option Syntax) (cliques : Array (Array Name)) 
   if !usedElse && elseElemStx?.isSome then
     withRef elseElemStx?.get! <| Macro.throwError s!"invalid `termination_by` syntax, unnecessary else-case"
   return ⟨result⟩
--/
-
-/-
-open Parser.Termination in
-def TerminationWF.unexpand (elements : TerminationWF) : MetaM Syntax := do
-  let vars ← elements.map (·.vars)
-  let bodies ← elements.map (·.body)
-  `(terminationBy|termination_by $[$vars* => $bodies*]*)
 -/
 
 /-

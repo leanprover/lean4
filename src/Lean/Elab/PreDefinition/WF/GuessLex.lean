@@ -695,15 +695,9 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   | .some solution => do
     let wf ← buildTermWF varNamess solution
 
-    /-
-    let wfStx ← withoutModifyingState do
-      preDefs.forM (addAsAxiom ·)
-      wf.unexpand
-    -/
-
     if showInferredTerminationBy.get (← getOptions) then
-      logInfo m!"Inferred termination argument: TODO"
-      -- logInfo m!"Inferred termination argument:{wfStx}"
+      for preDef in preDefs, term in wf do
+        logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
 
     return wf
   | .none =>

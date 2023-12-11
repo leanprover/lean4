@@ -1,0 +1,60 @@
+name: Update stage0
+
+# This action will update stage0 on master as soon as
+# src/stdlib_flags.h and stage0/src/stdlib_flags.h
+# are out of sync there. The update bypasses the merge queue to be quick.
+
+on:
+  push:
+    branches:
+      - 'master'
+
+concurrency:
+  group: stage0
+  cancel-in-progress: true
+
+jobs:
+  update-stage0:
+    runs-on: ubuntu-latest
+    steps:
+    # This action should push to an otherwise protected branch, so it
+    # uses a deploy key with write permissions, as suggested at
+    # https://stackoverflow.com/a/76135647/946226
+    - uses: actions/checkout@v3
+      with:
+        ssh-key: ${{secrets.STAGE0_SSH_KEY}}
+    - name: Check if update is needed
+      run: |
+        if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
+        then
+          echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
+          echo "DOIT=no" >> "$GITHUB_ENV"
+        else
+          echo "DOIT=yes" >> "$GITHUB_ENV"
+        fi
+    - name: Setup git user
+      run: |
+          git config --global user.name "Lean stage0 autoupdater"
+          git config --global user.email "<>"
+    - if: env.DOIT == 'yes'
+      uses: DeterminateSystems/nix-installer-action@main
+    # Would be nice, but does not work yet:
+    # https://github.com/DeterminateSystems/magic-nix-cache/issues/39
+    # This action does not run that often and building runs in a few minutes, so ok for now
+    #- if: env.DOIT == 'yes'
+    #  uses: DeterminateSystems/magic-nix-cache-action@v2
+    - if: env.DOIT == 'yes'
+      name: Install Cachix
+      uses: cachix/cachix-action@v12
+      with:
+        name: lean4
+    - if: env.DOIT == 'yes'
+      run: nix run .#update-stage0-commit
+    - if: env.DOIT == 'yes'
+      run: git show --stat
+    - if: env.DOIT == 'yes'
+      name: Sanity check # to avoid loops
+      run: |
+        diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
+    - if: env.DOIT == 'yes'
+      run: git push origin HEAD:master

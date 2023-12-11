@@ -76,6 +76,9 @@ work. Then, commit the updated `stage0` compiler code with the commit message:
 chore: update stage0
 ```
 
+The lean4 github repository has automation to update stage0 on `master` once
+`src/stdlib_flags.h` and `stage0/src/stdlib_flags.h` are out of sync.
+
 ## Further Bootstrapping Complications
 
 As written above, changes in meta code in the current stage usually will only

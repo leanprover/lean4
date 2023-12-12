@@ -75,7 +75,7 @@ jobs:
         with:
           script: |
             await github.rest.issues.addLabels({
-              issue_number: steps.workflow-info.outputs.pullRequestNumber,
+              issue_number: ${{ steps.workflow-info.outputs.pullRequestNumber }},
               owner: context.repo.owner,
               repo: context.repo.repo,
               labels: ['toolchain-available']

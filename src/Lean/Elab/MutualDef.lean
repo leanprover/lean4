@@ -13,6 +13,7 @@ import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
+import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
@@ -228,7 +229,7 @@ def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    expandWhereDeclsOpt declVal[2] declVal[1]
+    expandWhereDeclsOpt declVal[3] declVal[1]
   else if declVal.isOfKind ``Parser.Command.declValEqns then
     expandMatchAltsWhereDecls declVal[0]
   else if declVal.isOfKind ``Parser.Command.whereStructInst then
@@ -237,6 +238,14 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "declaration body is missing"
   else
     Macro.throwErrorAt declVal "unexpected declaration body"
+
+private def declValToTerminationHint (declVal : Syntax) : WF.TerminationHints :=
+  if declVal.isOfKind ``Parser.Command.declValSimple then
+    WF.elabTerminationHints ⟨declVal[2]⟩
+  else if declVal.isOfKind ``Parser.Command.declValEqns then
+    WF.elabTerminationHints ⟨declVal[0][1]⟩
+  else
+    .none
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
@@ -786,7 +795,7 @@ where
     let headers ← elabHeaders views
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
-    let terminations := views.map (WF.elabTerminationHints ·.termination)
+    let terminations := views.map (declValToTerminationHint ·.value)
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar

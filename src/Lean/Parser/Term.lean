@@ -114,7 +114,7 @@ because the difference between the first and third argument decreases.
 If omitted, a termination argument will be inferred.
 -/
 def terminationBy := leading_parser
-  ppDedent ppLine >> checkColGe >> "termination_by" >> many (ppSpace >> (ident <|> "_")) >>
+  ppDedent ppLine >> "termination_by" >> many (ppSpace >> (ident <|> "_")) >>
   " => " >> termParser
 
 /--
@@ -124,7 +124,7 @@ decreases at each recursive call.
 By default, the tactic `decreasing_tactic` is used.
 -/
 def decreasingBy := leading_parser
-  ppDedent ppLine >> checkColGe >> "decreasing_by " >> Tactic.tacticSeq
+  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeq
 
 /--
 Termination hints are `termination_by` and `decreasing_by`, in that order.
@@ -587,7 +587,7 @@ def whereDecls := leading_parser
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser
-  matchAlts >> optional whereDecls
+  matchAlts >> Termination.suffix >> optional whereDecls
 
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec

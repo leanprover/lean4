@@ -75,7 +75,7 @@ def declSig          := leading_parser
 def optDeclSig       := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser
-  " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
+  " :=" >> ppHardLineUnlessUngrouped >> termParser >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructField := leading_parser
@@ -95,20 +95,20 @@ def declVal          :=
   withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
-  "abbrev " >> declId >> ppIndent optDeclSig >> declVal >> Termination.suffix
+  "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser
   "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> Termination.suffix
 def «theorem»        := leading_parser
-  "theorem " >> declId >> ppIndent declSig >> declVal >> Termination.suffix
+  "theorem " >> declId >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
   "opaque " >> declId >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space
   if we put `ppSpace` in the optional fragments. -/
 def «instance»       := leading_parser
   Term.attrKind >> "instance" >> optNamedPrio >>
-  optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> Termination.suffix
+  optional (ppSpace >> declId) >> ppIndent declSig >> declVal
 def «axiom»          := leading_parser
   "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/

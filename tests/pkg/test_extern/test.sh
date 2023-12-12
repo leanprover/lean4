@@ -21,13 +21,13 @@ verify_output() {
 lake build 2>&1 | verify_output > produced.txt
 
 # Compare the actual output with the expected output
-if diff -q produced.txt expected.txt > /dev/null; then
+if diff --strip-trailing-cr -q produced.txt expected.txt > /dev/null; then
     echo "Output matches expected output."
     rm produced.txt
     exit 0
 else
     echo "Output differs from expected output:"
-    diff produced.txt expected.txt
+    diff --strip-trailing-cr produced.txt expected.txt
     rm produced.txt
     exit 1
 fi

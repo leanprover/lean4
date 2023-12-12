@@ -38,7 +38,9 @@ scoped syntax (name := scriptDecl)
 @[macro scriptDecl]
 def expandScriptDecl : Macro
 | `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? do $seq $[$wds?]?) => do
-  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$wds?]?)
+  let foo : Option (TSyntax ``Termination.terminationBy) := none
+  let bar : Option (TSyntax ``Termination.decreasingBy) := none
+  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$foo]? $[$bar]? $[$wds?]?)
 | `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := $defn $[$wds?]?) => do
   let args ← expandOptSimpleBinder args?
   let attrs := #[← `(Term.attrInstance| «script»)] ++ expandAttrs attrs?

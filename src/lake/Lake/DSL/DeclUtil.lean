@@ -89,13 +89,16 @@ def mkConfigDecl (name? : Option Name)
 | `(structDeclSig| $id:ident where $fs;* $[$wds?]?) => do
   let fields ← fs.getElems.mapM expandDeclField
   let defn ← `({ name := $(quote id.getId), $fields,* })
-  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
+  let foo : Option (TSyntax ``Termination.terminationBy) := none
+  let bar : Option (TSyntax ``Termination.decreasingBy) := none
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$foo]? $[$bar]?  $[$wds?]?)
 | `(structDeclSig| $id:ident $[: $ty?]? :=%$defTk $defn $[$wds?]?) => do
   let notice ← withRef defTk `(#eval IO.eprintln s!" warning: {__dir__}: `:=` syntax for configurations has been deprecated")
   `($notice $[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
 | `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
   let fields ← fs.mapM expandDeclField
   let defn ← `({ name := $(quote id.getId), $fields,* })
-  let abbrevStx ← `(declaration|abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
-  `(command|$[$doc?]? @[$attrs,*] $abbrevStx)
+  let foo : Option (TSyntax ``Termination.terminationBy) := none
+  let bar : Option (TSyntax ``Termination.decreasingBy) := none
+  `(command|$[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$foo]? $[$bar]? $[$wds?]?)
 | stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

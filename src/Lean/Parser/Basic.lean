@@ -669,12 +669,17 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
+/--
+Enables `rawStrLitStart` being defined using `partial`.
+-/
 local instance : Inhabited (ParserState → ParserState × Option Nat) := ⟨fun s => (s, none)⟩
 
-/-- Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
-If this is a valid start to a raw string (`r##...#"`),
+/--
+Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
+If we are looking at a valid start to a raw string (`r##...#"`),
 returns the parser state after the `"` along with the number of `#`'s.
-Otherwise, returns the initial parser state. -/
+Otherwise, returns the initial parser state.
+-/
 partial def rawStrLitStart (c : ParserContext) (s : ParserState) : ParserState × Option Nat :=
   let input := c.input
   let i     := s.pos
@@ -699,11 +704,13 @@ where
       else
         (s.setPos init, none)
 
-/-- Parses a raw string literal after `rawStrLitStart` succeeds.
+/--
+Parses a raw string literal after `rawStrLitStart` succeeds.
 The `startPos` is the start of the raw string (at the `r`).
-The number of hashes is `num`.
+The number of leading `#`'s is `num`.
 The parser state is assumed to be immediately after the first `"`.
-If `closing?` is `some closingNum` then we are currently looking at `"##...#` with `closingNum` hashes. -/
+If `closing?` is `some closingNum` then we are currently looking at `"##...#` with `closingNum` hashes.
+-/
 partial def rawStrLitFnAux (startPos : String.Pos) (num : Nat) (closing? : Option Nat) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos

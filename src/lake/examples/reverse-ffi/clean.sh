@@ -1,1 +1,1 @@
-rm -rf out lib/build lib/lakefile.olean
+rm -rf out lib/.lake lib/lake-manifest.json

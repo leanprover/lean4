@@ -17,6 +17,9 @@ def toolchainFileName : FilePath := "lean-toolchain"
 /-- The default name of the Lake configuration file (i.e., `lakefile.lean`). -/
 def defaultConfigFile : FilePath := "lakefile.lean"
 
+/-- The default name of the Lake manifest file (i.e., `lake-manifest.json`). -/
+def defaultManifestFile := "lake-manifest.json"
+
 /-- Context for loading a Lake configuration. -/
 structure LoadConfig where
   /-- The Lake environment of the load process. -/

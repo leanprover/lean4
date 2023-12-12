@@ -806,6 +806,12 @@ decidability instance instead of the proposition, which has no code).
 
 If a proposition `p` is `Decidable`, then `(by decide : p)` will prove it by
 evaluating the decidability instance to `isTrue h` and returning `h`.
+
+Because `Decidable` carries data,
+when writing `@[simp]` lemmas which include a `Decidable` instance on the LHS,
+it is best to use `{_ : Decidable p}` rather than `[Decidable p]`
+so that non-canonical instances can be found via unification rather than
+typeclass search.
 -/
 class inductive Decidable (p : Prop) where
   /-- Prove that `p` is decidable by supplying a proof of `¬p` -/
@@ -920,7 +926,9 @@ or derive `i < arr.size` from some other proposition that we are checking in the
 return `t` or `e` depending on whether `c` is true or false. The explicit argument
 `c : Prop` does not have any actual computational content, but there is an additional
 `[Decidable c]` argument synthesized by typeclass inference which actually
-determines how to evaluate `c` to true or false.
+determines how to evaluate `c` to true or false. Write `if h : c then t else e`
+instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
+that `c` is true/false.
 
 Because lean uses a strict (call-by-value) evaluation strategy, the signature of this
 function is problematic in that it would require `t` and `e` to be evaluated before
@@ -1297,10 +1305,37 @@ class Mod (α : Type u) where
 The homogeneous version of `HPow`: `a ^ b : α` where `a : α`, `b : β`.
 (The right argument is not the same as the left since we often want this even
 in the homogeneous case.)
+
+Types can choose to subscribe to particular defaulting behavior by providing
+an instance to either `NatPow` or `HomogeneousPow`:
+- `NatPow` is for types whose exponents is preferentially a `Nat`.
+- `HomogeneousPow` is for types whose base and exponent are preferentially the same.
 -/
 class Pow (α : Type u) (β : Type v) where
   /-- `a ^ b` computes `a` to the power of `b`. See `HPow`. -/
   pow : α → β → α
+
+/-- The homogenous version of `Pow` where the exponent is a `Nat`.
+The purpose of this class is that it provides a default `Pow` instance,
+which can be used to specialize the exponent to `Nat` during elaboration.
+
+For example, if `x ^ 2` should preferentially elaborate with `2 : Nat` then `x`'s type should
+provide an instance for this class. -/
+class NatPow (α : Type u) where
+  /-- `a ^ n` computes `a` to the power of `n` where `n : Nat`. See `Pow`. -/
+  protected pow : α → Nat → α
+
+/-- The completely homogeneous version of `Pow` where the exponent has the same type as the base.
+The purpose of this class is that it provides a default `Pow` instance,
+which can be used to specialize the exponent to have the same type as the base's type during elaboration.
+This is to say, a type should provide an instance for this class in case `x ^ y` should be elaborated
+with both `x` and `y` having the same type.
+
+For example, the `Float` type provides an instance of this class, which causes expressions
+such as `(2.2 ^ 2.2 : Float)` to elaborate. -/
+class HomogeneousPow (α : Type u) where
+  /-- `a ^ b` computes `a` to the power of `b` where `a` and `b` both have the same type. -/
+  protected pow : α → α → α
 
 /-- The homogeneous version of `HAppend`: `a ++ b : α` where `a b : α`. -/
 class Append (α : Type u) where
@@ -1384,6 +1419,14 @@ instance [Mod α] : HMod α α α where
 @[default_instance]
 instance [Pow α β] : HPow α β α where
   hPow a b := Pow.pow a b
+
+@[default_instance]
+instance [NatPow α] : Pow α Nat where
+  pow a n := NatPow.pow a n
+
+@[default_instance]
+instance [HomogeneousPow α] : Pow α α where
+  pow a b := HomogeneousPow.pow a b
 
 @[default_instance]
 instance [Append α] : HAppend α α α where
@@ -1480,8 +1523,7 @@ protected def Nat.pow (m : @& Nat) : (@& Nat) → Nat
   | 0      => 1
   | succ n => Nat.mul (Nat.pow m n) m
 
-instance : Pow Nat Nat where
-  pow := Nat.pow
+instance : NatPow Nat := ⟨Nat.pow⟩
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1774,7 +1816,7 @@ instance Fin.decLt {n} (a b : Fin n) : Decidable (LT.lt a b) := Nat.decLt ..
 instance Fin.decLe {n} (a b : Fin n) : Decidable (LE.le a b) := Nat.decLe ..
 
 /-- The size of type `UInt8`, that is, `2^8 = 256`. -/
-def UInt8.size : Nat := 256
+abbrev UInt8.size : Nat := 256
 
 /--
 The type of unsigned 8-bit integers. This type has special support in the
@@ -1813,7 +1855,7 @@ instance : Inhabited UInt8 where
   default := UInt8.ofNatCore 0 (by decide)
 
 /-- The size of type `UInt16`, that is, `2^16 = 65536`. -/
-def UInt16.size : Nat := 65536
+abbrev UInt16.size : Nat := 65536
 
 /--
 The type of unsigned 16-bit integers. This type has special support in the
@@ -1852,7 +1894,7 @@ instance : Inhabited UInt16 where
   default := UInt16.ofNatCore 0 (by decide)
 
 /-- The size of type `UInt32`, that is, `2^32 = 4294967296`. -/
-def UInt32.size : Nat := 4294967296
+abbrev UInt32.size : Nat := 4294967296
 
 /--
 The type of unsigned 32-bit integers. This type has special support in the
@@ -1929,7 +1971,7 @@ instance : Max UInt32 := maxOfLe
 instance : Min UInt32 := minOfLe
 
 /-- The size of type `UInt64`, that is, `2^64 = 18446744073709551616`. -/
-def UInt64.size : Nat := 18446744073709551616
+abbrev UInt64.size : Nat := 18446744073709551616
 /--
 The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
@@ -1969,11 +2011,26 @@ instance : Inhabited UInt64 where
 /--
 The size of type `UInt16`, that is, `2^System.Platform.numBits`, which may
 be either `2^32` or `2^64` depending on the platform's architecture.
+
+Remark: we define `USize.size` using `(2^numBits - 1) + 1` to ensure the
+Lean unifier can solve contraints such as `?m + 1 = USize.size`. Recall that
+`numBits` does not reduce to a numeral in the Lean kernel since it is platform
+specific. Without this trick, the following definition would be rejected by the
+Lean type checker.
+```
+def one: Fin USize.size := 1
+```
+Because Lean would fail to synthesize instance `OfNat (Fin USize.size) 1`.
+Recall that the `OfNat` instance for `Fin` is
+```
+instance : OfNat (Fin (n+1)) i where
+  ofNat := Fin.ofNat i
+```
 -/
-def USize.size : Nat := hPow 2 System.Platform.numBits
+abbrev USize.size : Nat := Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)
 
 theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073709551616) :=
-  show Or (Eq (hPow 2 System.Platform.numBits) 4294967296) (Eq (hPow 2 System.Platform.numBits) 18446744073709551616) from
+  show Or (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 4294967296) (Eq (Nat.succ (Nat.sub (hPow 2 System.Platform.numBits) 1)) 18446744073709551616) from
   match System.Platform.numBits, System.Platform.numBits_eq with
   | _, Or.inl rfl => Or.inl (by decide)
   | _, Or.inr rfl => Or.inr (by decide)
@@ -2156,9 +2213,10 @@ returns `a` if `opt = some a` and `dflt` otherwise.
 This function is `@[macro_inline]`, so `dflt` will not be evaluated unless
 `opt` turns out to be `none`.
 -/
-@[macro_inline] def Option.getD : Option α → α → α
-  | some x, _ => x
-  | none,   e => e
+@[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
+  match opt with
+  | some x => x
+  | none => dflt
 
 /--
 Map a function over an `Option` by applying the function to the contained
@@ -2491,13 +2549,22 @@ is not observable from lean code. Arrays perform best when unshared; as long
 as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.
+
+From the point of view of proofs `Array α` is just a wrapper around `List α`.
 -/
 structure Array (α : Type u) where
-  /-- Convert a `List α` into an `Array α`. This function is overridden
-  to `List.toArray` and is O(n) in the length of the list. -/
+  /--
+  Converts a `List α` into an `Array α`.
+
+  At runtime, this constructor is implemented by `List.toArray` and is O(n) in the length of the
+  list.
+  -/
   mk ::
-  /-- Convert an `Array α` into a `List α`. This function is overridden
-  to `Array.toList` and is O(n) in the length of the list. -/
+  /--
+  Converts a `Array α` into an `List α`.
+
+  At runtime, this projection is implemented by `Array.toList` and is O(n) in the length of the
+  array. -/
   data : List α
 
 attribute [extern "lean_array_data"] Array.data
@@ -2645,12 +2712,9 @@ def List.redLength : List α → Nat
   | nil       => 0
   | cons _ as => as.redLength.succ
 
-/--
-Convert a `List α` into an `Array α`. This is O(n) in the length of the list.
-
-This function is exported to C, where it is called by `Array.mk`
-(the constructor) to implement this functionality.
--/
+/-- Convert a `List α` into an `Array α`. This is O(n) in the length of the list.  -/
+-- This function is exported to C, where it is called by `Array.mk`
+-- (the constructor) to implement this functionality.
 @[inline, match_pattern, export lean_list_to_array]
 def List.toArray (as : List α) : Array α :=
   as.toArrayAux (Array.mkEmpty as.redLength)

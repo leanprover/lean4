@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.Clear
 
 namespace Lean.Meta
 
-private partial def cleanupCore (mvarId : MVarId) : MetaM MVarId := do
+private partial def cleanupCore (mvarId : MVarId) (toPreserve : Array FVarId) (indirectProps : Bool) : MetaM MVarId := do
   mvarId.withContext do
     mvarId.checkNotAssigned `cleanup
     let used ← collectUsed |>.run' (false, {})
@@ -53,18 +53,23 @@ where
 
   collectUsed : StateRefT (Bool × FVarIdSet) MetaM FVarIdSet := do
     addUsedFVars (← instantiateMVars (← mvarId.getType))
-    collectProps
+    toPreserve.forM addUsedFVar
+    if indirectProps then collectProps
     return (← get).2
 
 /--
   Auxiliary tactic for cleaning the local context. It removes local declarations (aka hypotheses) that are *not* relevant.
   We say a variable `x` is "relevant" if
+  - It occurs in the `toPreserve` array, or
   - It occurs in the target type, or
   - There is a relevant variable `y` that depends on `x`, or
-  - The type of `x` is a proposition and it depends on a relevant variable `y`.
+  - If `indirectProps` is true, the type of `x` is a proposition and it depends on a relevant variable `y`.
+
+  By default, `toPreserve := #[]` and `indirectProps := true`. These settings are used in the mathlib tactic `extract_goal`
+  to give the user more control over which variables to include.
 -/
-abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) : MetaM MVarId := do
-  cleanupCore mvarId
+abbrev _root_.Lean.MVarId.cleanup (mvarId : MVarId) (toPreserve : Array FVarId := #[]) (indirectProps : Bool := true) : MetaM MVarId := do
+  cleanupCore mvarId toPreserve indirectProps
 
 @[deprecated MVarId.cleanup]
 abbrev cleanup (mvarId : MVarId) : MetaM MVarId := do

@@ -328,7 +328,41 @@ namespace FS
 namespace Handle
 
 @[extern "lean_io_prim_handle_mk"] opaque mk (fn : @& FilePath) (mode : FS.Mode) : IO Handle
+
+/--
+Acquires an exclusive or shared lock on the handle.
+Will block to wait for the lock if necessary.
+
+**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
+will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+-/
+@[extern "lean_io_prim_handle_lock"] opaque lock (h : @& Handle) (exclusive := true) : IO Unit
+/--
+Tries to acquire an exclusive or shared lock on the handle.
+Will NOT block for the lock, but instead return `false`.
+
+**NOTE:** Acquiring a exclusive lock while already possessing a shared lock
+will NOT reliably succeed (i.e., it works on Unix but not on Windows).
+-/
+@[extern "lean_io_prim_handle_try_lock"] opaque tryLock (h : @& Handle) (exclusive := true) : IO Bool
+/--
+Releases any previously acquired lock on the handle.
+Will succeed even if no lock has been acquired.
+-/
+@[extern "lean_io_prim_handle_unlock"] opaque unlock (h : @& Handle) : IO Unit
+
 @[extern "lean_io_prim_handle_flush"] opaque flush (h : @& Handle) : IO Unit
+/-- Rewinds the read/write cursor to the beginning of the handle. -/
+@[extern "lean_io_prim_handle_rewind"] opaque rewind (h : @& Handle) : IO Unit
+/--
+Truncates the handle to the read/write cursor.
+
+Does not automatically flush. Usually this is fine because the read/write
+cursor includes buffered writes. However, the combination of buffered writes,
+then `rewind`, then `truncate`, then close may lead to a file with content.
+If unsure, flush before truncating.
+-/
+@[extern "lean_io_prim_handle_truncate"] opaque truncate (h : @& Handle) : IO Unit
 /--
 Read up to the given number of bytes from the handle.
 If the returned array is empty, an end-of-file marker has been reached.
@@ -638,9 +672,12 @@ structure Output where
   stdout   : String
   stderr   : String
 
-/-- Run process to completion and capture output. -/
+/--
+Run process to completion and capture output.
+The process does not inherit the standard input of the caller.
+-/
 def output (args : SpawnArgs) : IO Output := do
-  let child ← spawn { args with stdout := Stdio.piped, stderr := Stdio.piped }
+  let child ← spawn { args with stdout := .piped, stderr := .piped, stdin := .null }
   let stdout ← IO.asTask child.stdout.readToEnd Task.Priority.dedicated
   let stderr ← child.stderr.readToEnd
   let exitCode ← child.wait

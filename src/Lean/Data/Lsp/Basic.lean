@@ -206,7 +206,7 @@ instance : FromJson DocumentChange where
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#workspaceEdit) -/
 structure WorkspaceEdit where
   /-- Changes to existing resources. -/
-  changes : RBMap DocumentUri TextEditBatch compare := ∅
+  changes? : Option (RBMap DocumentUri TextEditBatch compare) := none
   /-- Depending on the client capability
     `workspace.workspaceEdit.resourceOperations` document changes are either
     an array of `TextDocumentEdit`s to express changes to n different text
@@ -220,14 +220,14 @@ structure WorkspaceEdit where
     If a client neither supports `documentChanges` nor
     `workspace.workspaceEdit.resourceOperations` then only plain `TextEdit`s
     using the `changes` property are supported. -/
-  documentChanges : Array DocumentChange := ∅
+  documentChanges? : Option (Array DocumentChange) := none
   /-- A map of change annotations that can be referenced in
       `AnnotatedTextEdit`s or create, rename and delete file / folder
       operations.
 
       Whether clients honor this property depends on the client capability
       `workspace.changeAnnotationSupport`. -/
-  changeAnnotations : RBMap String ChangeAnnotation compare := ∅
+  changeAnnotations? : Option (RBMap String ChangeAnnotation compare) := none
   deriving ToJson, FromJson
 
 namespace WorkspaceEdit
@@ -236,24 +236,24 @@ instance : EmptyCollection WorkspaceEdit := ⟨{}⟩
 
 instance : Append WorkspaceEdit where
   append x y := {
-    changes           := x.changes.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y.changes
-    documentChanges   := x.documentChanges ++ y.documentChanges
-    changeAnnotations := x.changeAnnotations.mergeBy (fun _ _v₁ v₂ => v₂) y.changeAnnotations
+    changes?           :=
+      match x.changes?, y.changes? with
+      | v, none | none, v => v
+      | some x, some y => x.mergeBy (fun _ v₁ v₂ => v₁ ++ v₂) y
+    documentChanges?   :=
+      match x.documentChanges?, y.documentChanges? with
+      | v, none | none, v => v
+      | some x, some y => x ++ y
+    changeAnnotations? :=
+      match x.changeAnnotations?, y.changeAnnotations? with
+      | v, none | none, v => v
+      | some x, some y => x.mergeBy (fun _ _v₁ v₂ => v₂) y
   }
 
 def ofTextDocumentEdit (e : TextDocumentEdit) : WorkspaceEdit :=
-  { documentChanges := #[DocumentChange.edit e]}
+  { documentChanges? := #[DocumentChange.edit e]}
 
-def ofTextEdit (uri : DocumentUri) (te : TextEdit) : WorkspaceEdit :=
-  /- [note], there is a bug in vscode where not including the version will cause an error,
-  even though the version field is not used to validate the change.
-
-  References:
-  - [a fix in the wild](https://github.com/stylelint/vscode-stylelint/pull/330/files).
-    Note that the version field needs to be present, even if the value is `undefined`.
-  - [angry comment](https://github.com/tsqllint/tsqllint-vscode-extension/blob/727026fce9f8c6a33d113373666d0776f8f6c23c/server/src/server.ts#L70)
-  -/
-  let doc := {uri, version? := some 0}
+def ofTextEdit (doc : VersionedTextDocumentIdentifier) (te : TextEdit) : WorkspaceEdit :=
   ofTextDocumentEdit { textDocument := doc, edits := #[te]}
 
 end WorkspaceEdit

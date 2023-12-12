@@ -6,8 +6,7 @@ on:
     tags:
       - '*'
   pull_request:
-    branches:
-      - master
+  merge_group:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     defaults:
       run:
-        shell: nix -v --experimental-features "nix-command flakes" run .#ciShell -- bash -euxo pipefail {0}
+        shell: nix run .#ciShell -- bash -euxo pipefail {0}
     strategy:
       matrix:
         include:
@@ -30,18 +29,13 @@ jobs:
       fail-fast: false
     name: ${{ matrix.name }}
     env:
-      NIX_BUILD_ARGS: -v --print-build-logs --fallback
+      NIX_BUILD_ARGS: --print-build-logs --fallback
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Install Nix
-        uses: cachix/install-nix-action@v18
         with:
-          # https://github.com/NixOS/nix/issues/6572
-          install_url: https://releases.nixos.org/nix/nix-2.7.0/install
-          extra_nix_config: |
-            extra-sandbox-paths = /nix/var/cache/ccache
-            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org
+          # the default is to use a virtual merge commit between the PR and master: just use the PR
+          ref: ${{ github.event.pull_request.head.sha }}
       - name: Set Up Nix Cache
         uses: actions/cache@v3
         with:
@@ -55,8 +49,13 @@ jobs:
         run: |
           # Nix seems to mutate the cache, so make a copy
           cp -r nix-store-cache nix-store-cache-copy || true
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+        with:
+          extra-conf: |
+            extra-sandbox-paths = /nix/var/cache/ccache?
+            substituters = file://${{ github.workspace }}/nix-store-cache-copy?priority=10&trusted=true https://cache.nixos.org  
       - name: Prepare CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo mkdir -m0770 -p /nix/var/cache/ccache
           sudo chown -R $USER /nix/var/cache/ccache
@@ -69,7 +68,6 @@ jobs:
           restore-keys: |
             ${{ matrix.name }}-nix-ccache
       - name: Further Set Up CCache Cache
-        shell: bash -euxo pipefail {0}
         run: |
           sudo chown -R root:nixbld /nix/var/cache
           sudo chmod -R 770 /nix/var/cache

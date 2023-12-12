@@ -46,7 +46,7 @@ This can be set to
 - `implicit` --  `{x : α}`
 - `strict_implicit` -- `⦃x : α⦄`
 - `inst_implicit` -- `[x : α]`.
-- `aux_decl` -- Auxillary definitions are helper methods that
+- `aux_decl` -- Auxiliary definitions are helper methods that
   Lean generates. `aux_decl` is used for `_match`, `_fun_match`,
   `_let_match` and the self reference that appears in recursive pattern matching.
 
@@ -60,14 +60,14 @@ def bar ⦃x : Nat⦄ : Nat := x
 #check bar -- bar : ⦃x : Nat⦄ → Nat
 ```
 
-See also the Lean manual: https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments
+See also [the Lean manual](https://lean-lang.org/lean4/doc/expressions.html#implicit-arguments).
 -/
 inductive BinderInfo where
   /-- Default binder annotation, e.g. `(x : α)` -/
   | default
   /-- Implicit binder annotation, e.g., `{x : α}` -/
   | implicit
-  /-- Strict implict binder annotation, e.g., `{{ x : α  }}` -/
+  /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
   | strictImplicit
   /-- Local instance binder annotataion, e.g., `[Decidable α]` -/
   | instImplicit
@@ -300,8 +300,8 @@ inductive Expr where
   above it (i.e. introduced by a `lam`, `forallE`, or `letE`).
 
   The `deBruijnIndex` parameter is the *de-Bruijn* index for the bound
-  variable. See [here](https://en.wikipedia.org/wiki/De_Bruijn_index)
-  for additional information on de-Bruijn indexes.
+  variable. See [the Wikipedia page on de-Bruijn indices](https://en.wikipedia.org/wiki/De_Bruijn_index)
+  for additional information.
 
   For example, consider the expression `fun x : Nat => forall y : Nat, x = y`.
   The `x` and `y` variables in the equality expression are constructed
@@ -319,11 +319,11 @@ inductive Expr where
   | bvar (deBruijnIndex : Nat)
 
   /--
-  The `fvar` constructor represent free variables. These /free/ variable
+  The `fvar` constructor represent free variables. These *free* variable
   occurrences are not bound by an earlier `lam`, `forallE`, or `letE`
-  contructor and its binder exists in a local context only.
+  constructor and its binder exists in a local context only.
 
-  Note that Lean uses the /locally nameless approach/. See [here](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
+  Note that Lean uses the *locally nameless approach*. See [McBride and McKinna](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.365.2479&rep=rep1&type=pdf)
   for additional details.
 
   When "visiting" the body of a binding expression (i.e. `lam`, `forallE`, or `letE`),
@@ -361,7 +361,7 @@ inductive Expr where
   A function application.
 
   For example, the natural number one, i.e. `Nat.succ Nat.zero` is represented as
-  `Expr.app (.const `Nat.succ []) (.const .zero [])`
+  ``Expr.app (.const `Nat.succ []) (.const .zero [])``.
   Note that multiple arguments are represented using partial application.
 
   For example, the two argument application `f x y` is represented as
@@ -387,15 +387,15 @@ inductive Expr where
 
   For example:
   - `forall x : Prop, x ∧ x`:
-  ```lean
-  Expr.forallE `x (.sort .zero)
-    (.app (.app (.const `And []) (.bvar 0)) (.bvar 0)) .default
-  ```
+    ```lean
+    Expr.forallE `x (.sort .zero)
+      (.app (.app (.const `And []) (.bvar 0)) (.bvar 0)) .default
+    ```
   - `Nat → Bool`:
-  ```lean
-  Expr.forallE `a (.const `Nat [])
-    (.const `Bool []) .default
-  ```
+    ```lean
+    Expr.forallE `a (.const `Nat [])
+      (.const `Bool []) .default
+    ```
   -/
   | forallE (binderName : Name) (binderType : Expr) (body : Expr) (binderInfo : BinderInfo)
 
@@ -450,11 +450,11 @@ inductive Expr where
   The type of `struct` must be an structure-like inductive type. That is, it has only one
   constructor, is not recursive, and it is not an inductive predicate. The kernel and elaborators
   check whether the `typeName` matches the type of `struct`, and whether the (zero-based) index
-  is valid (i.e., it is smaller than the numbef of constructor fields).
+  is valid (i.e., it is smaller than the number of constructor fields).
   When exporting Lean developments to other systems, `proj` can be replaced with `typeName`.`rec`
   applications.
 
-  Example, given `a : Nat x Bool`, `a.1` is represented as
+  Example, given `a : Nat × Bool`, `a.1` is represented as
   ```
   .proj `Prod 0 a
   ```
@@ -774,8 +774,8 @@ instance : BEq Expr where
   beq := Expr.eqv
 
 /--
-Return true iff `a` and `b` are equal.
-Binder names and annotations are taking into account.
+Return `true` iff `a` and `b` are equal.
+Binder names and annotations are taken into account.
 -/
 @[extern "lean_expr_equal"]
 opaque equal (a : @& Expr) (b : @& Expr) : Bool
@@ -831,7 +831,7 @@ def isConst : Expr → Bool
   | _        => false
 
 /--
-Return `true` if the given expression is a constant of the give name.
+Return `true` if the given expression is a constant of the given name.
 Examples:
 - `` (.const `Nat []).isConstOf `Nat `` is `true`
 - `` (.const `Nat []).isConstOf `False `` is `false`
@@ -1333,6 +1333,14 @@ def beta (f : Expr) (args : Array Expr) : Expr :=
   betaRev f args.reverse
 
 /--
+Count the number of lambdas at the head of the given expression.
+-/
+def getNumHeadLambdas : Expr → Nat
+  | .lam _ _ b _ => getNumHeadLambdas b + 1
+  | .mdata _ b => getNumHeadLambdas b
+  | _ => 0
+
+/--
 Return true if the given expression is the function of an expression that is target for (head) beta reduction.
 If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
 that zeta-reduction (aka let-expansion) is going to be used.
@@ -1441,7 +1449,7 @@ partial def cleanupAnnotations (e : Expr) : Expr :=
   let e' := e.consumeMData.consumeTypeAnnotations
   if e' == e then e else cleanupAnnotations e'
 
-/-- Return true iff `e` contains a free variable which statisfies `p`. -/
+/-- Return true iff `e` contains a free variable which satisfies `p`. -/
 @[inline] def hasAnyFVar (e : Expr) (p : FVarId → Bool) : Bool :=
   let rec @[specialize] visit (e : Expr) := if !e.hasFVar then false else
     match e with
@@ -1754,21 +1762,21 @@ def isLHSGoal? (e : Expr) : Option Expr :=
 
 /--
 Polymorphic operation for generating unique/fresh free variable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshFVarId [Monad m] [MonadNameGenerator m] : m FVarId :=
   return { name := (← mkFreshId) }
 
 /--
 Polymorphic operation for generating unique/fresh metavariable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshMVarId [Monad m] [MonadNameGenerator m] : m MVarId :=
   return { name := (← mkFreshId) }
 
 /--
 Polymorphic operation for generating unique/fresh universe metavariable identifiers.
-It is available in any monad `m` that implements the inferface `MonadNameGenerator`.
+It is available in any monad `m` that implements the interface `MonadNameGenerator`.
 -/
 def mkFreshLMVarId [Monad m] [MonadNameGenerator m] : m LMVarId :=
   return { name := (← mkFreshId) }

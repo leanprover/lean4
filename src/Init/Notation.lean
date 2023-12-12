@@ -86,14 +86,14 @@ namespace Parser.Syntax
 
 /-! DSL for specifying parser precedences and priorities -/
 
-/-- Addition of precedences. This is normally used only for offseting, e.g. `max + 1`. -/
+/-- Addition of precedences. This is normally used only for offsetting, e.g. `max + 1`. -/
 syntax:65 (name := addPrec) prec " + " prec:66 : prec
-/-- Subtraction of precedences. This is normally used only for offseting, e.g. `max - 1`. -/
+/-- Subtraction of precedences. This is normally used only for offsetting, e.g. `max - 1`. -/
 syntax:65 (name := subPrec) prec " - " prec:66 : prec
 
-/-- Addition of priorities. This is normally used only for offseting, e.g. `default + 1`. -/
+/-- Addition of priorities. This is normally used only for offsetting, e.g. `default + 1`. -/
 syntax:65 (name := addPrio) prio " + " prio:66 : prio
-/-- Subtraction of priorities. This is normally used only for offseting, e.g. `default - 1`. -/
+/-- Subtraction of priorities. This is normally used only for offsetting, e.g. `default - 1`. -/
 syntax:65 (name := subPrio) prio " - " prio:66 : prio
 
 end Parser.Syntax
@@ -295,7 +295,8 @@ macro_rules | `($x - $y)   => `(binop% HSub.hSub $x $y)
 macro_rules | `($x * $y)   => `(binop% HMul.hMul $x $y)
 macro_rules | `($x / $y)   => `(binop% HDiv.hDiv $x $y)
 macro_rules | `($x % $y)   => `(binop% HMod.hMod $x $y)
-macro_rules | `($x ^ $y)   => `(binop% HPow.hPow $x $y)
+-- exponentiation should be considered a right action (#2220)
+macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 
@@ -460,41 +461,7 @@ expected type is known. So, `without_expected_type` is not effective in this cas
 -/
 macro "without_expected_type " x:term : term => `(let aux := $x; aux)
 
-/--
-The syntax `[a, b, c]` is shorthand for `a :: b :: c :: []`, or
-`List.cons a (List.cons b (List.cons c List.nil))`. It allows conveniently constructing
-list literals.
-
-For lists of length at least 64, an alternative desugaring strategy is used
-which uses let bindings as intermediates as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
-Note that this changes the order of evaluation, although it should not be observable
-unless you use side effecting operations like `dbg_trace`.
--/
-syntax "[" withoutPosition(term,*) "]"  : term
-
-/--
-Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
-The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
-It uses binary partitioning to construct a tree of intermediate let bindings as in
-`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
--/
-syntax "%[" withoutPosition(term,* " | " term) "]" : term
-
 namespace Lean
-
-macro_rules
-  | `([ $elems,* ]) => do
-    -- NOTE: we do not have `TSepArray.getElems` yet at this point
-    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
-      match i, skip with
-      | 0,   _     => pure result
-      | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
-    if elems.elemsAndSeps.size < 64 then
-      expandListLit elems.elemsAndSeps.size false (← ``(List.nil))
-    else
-      `(%[ $elems,* | List.nil ])
 
 /--
 Category for carrying raw syntax trees between macros; any content is printed as is by the pretty printer.

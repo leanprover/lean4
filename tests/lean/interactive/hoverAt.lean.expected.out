@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://hoverAt.lean"},
+{"textDocument": {"uri": "file:///hoverAt.lean"},
  "position": {"line": 8, "character": 18}}
 {"range":
  {"start": {"line": 8, "character": 17}, "end": {"line": 8, "character": 34}},

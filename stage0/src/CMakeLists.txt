@@ -9,7 +9,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 2)
+set(LEAN_VERSION_MINOR 5)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -57,16 +57,17 @@ option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
 option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
+option(MMAP                "MMAP" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 
 # development-specific options
-option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
+option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
-set(LEANC_CC              "cc"                         CACHE STRING "C compiler to use in `leanc`")
+set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
 
 if ("${LAZY_RC}" MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
@@ -84,37 +85,32 @@ else()
   set(NumBits 32)
 endif()
 
+if ("${MMAP}" MATCHES "ON")
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_MMAP")
+endif()
+
 if ("${RUNTIME_STATS}" MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
 
-if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_IGNORE_OLEAN_VERSION")
+if ("${CHECK_OLEAN_VERSION}" MATCHES "ON")
+  set(USE_GITHASH ON)
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_CHECK_OLEAN_VERSION")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set(MULTI_THREAD OFF)
     # TODO(WN): code size/performance tradeoffs
     # - we're using -O3; it's /okay/
-    # - -flto crashes at runtime
     # - -Oz produces quite slow code
     # - system libraries such as OpenGL are included in the JS but shouldn't be
     # - we need EMSCRIPTEN_KEEPALIVE annotations on exports to run meta-dce (-s MAIN_MODULE=2)
-    # - -fexceptions is a slow JS blob, remove when more runtimes support the WASM exceptions spec
 
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
-    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -s DISABLE_EXCEPTION_CATCHING=0 -s MAIN_MODULE=1 -fexceptions")
+    set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -fwasm-exceptions -pthread -flto")
+    string(APPEND LEANC_EXTRA_FLAGS " -pthread")
     string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
-endif()
-if (CMAKE_CROSSCOMPILING_EMULATOR)
-  # emscripten likes to quote "node"
-  string(REPLACE "\"" "" CMAKE_CROSSCOMPILING_EMULATOR ${CMAKE_CROSSCOMPILING_EMULATOR})
-  # HACK(WN): lazy compilation makes Node.js startup time a bad but tolerable ~4s
-  string(APPEND CMAKE_CROSSCOMPILING_EMULATOR " --wasm-lazy-compilation")
-else()
-  set(CMAKE_CROSSCOMPILING_EMULATOR)
 endif()
 
 # Added for CTest
@@ -323,7 +319,7 @@ if(LLVM AND ${STAGE} GREATER 0)
     # - Recall that the host's copy of LLVM binaries and libraries is at
     #   `llvm-host`, and the target's copy of LLVM binaries and libraries is at
     #   `llvm`.
-    # - In an ideal world, we would run the target's `llvm/bin/llvm-config` and get the corrct link options for the target
+    # - In an ideal world, we would run the target's `llvm/bin/llvm-config` and get the correct link options for the target
     #   (e.g. `-Lllvm/lib/libLLVM`.)
     # - However, the target's `llvm/bin/llvm-config` has a different target
     #   triple from the host, and thus cannot be run on the host.
@@ -339,7 +335,7 @@ endif()
 # get rid of unused parts of C++ stdlib
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-dead_strip")
-else()
+elseif(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,--gc-sections")
 endif()
 
@@ -355,18 +351,28 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
   string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
   string(APPEND LEANSHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_CXX_FLAGS " -ftls-model=initial-exec")
   string(APPEND LEANSHARED_LINKER_FLAGS " -install_name @rpath/libleanshared.dylib")
-  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
+  string(APPEND CMAKE_CXX_FLAGS " -fPIC")
+  string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+  # We do not use dynamic linking via leanshared for Emscripten to keep things
+  # simple. (And we are not interested in `Lake` anyway.) To use dynamic
+  # linking, we would probably have to set MAIN_MODULE=2 on `leanshared`,
+  # SIDE_MODULE=2 on `lean`, and set CMAKE_SHARED_LIBRARY_SUFFIX to ".js".
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,--whole-archive -lInit -lLean -lleancpp -lleanrt ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  string(APPEND CMAKE_EXE_LINKER_FLAGS " -lleanshared")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " -ldl")
 endif()
 
-if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
+if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND NOT(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten"))
   # export symbols for the interpreter (done via `LEAN_EXPORT` for Windows)
   string(APPEND LEAN_DYN_EXE_LINKER_FLAGS " -rdynamic")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
@@ -396,26 +402,17 @@ if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin"))
 endif()
 
 # Git HASH
-set(LEAN_PACKAGE_VERSION "NOT-FOUND")
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
   get_git_head_revision(GIT_REFSPEC GIT_SHA1)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")
-    if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-      file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-      message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-    endif()
   else()
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
   set(GIT_SHA1 "")
-  if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-    file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-    message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-  endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
@@ -442,12 +439,13 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
+# Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-# These are used in lean.mk (and libleanrt) and passed through by stdlib.make
-# They are not embedded into `leanc` since they are build profile/machine specific
 string(APPEND LEANC_OPTS " ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+# Do embed flag for finding system libraries in dev builds
 if(CMAKE_OSX_SYSROOT AND NOT LEAN_STANDALONE)
-  string(APPEND LEANC_OPTS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEANC_EXTRA_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()
 
 if(${STAGE} GREATER 1)
@@ -508,7 +506,7 @@ else()
   endif()
 endif()
 
-# Build the compiler using the bootstraped C sources for stage0, and use
+# Build the compiler using the bootstrapped C sources for stage0, and use
 # the LLVM build for stage1 and further.
 if (LLVM AND ${STAGE} GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")

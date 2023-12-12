@@ -16,14 +16,11 @@ def h (i j : Nat) : Nat :=
   | 0 => g i 0
   | Nat.succ j => g i j
 end
-termination_by'
- invImage
-    (fun
-      | PSum.inl n => (n, 0)
-      | PSum.inr n => (n, 1))
-    (Prod.lex sizeOfWFRel sizeOfWFRel)
+termination_by
+  g i j => (i + j, 0)
+  h i j => (i + j, 1)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
+  simp_wf
   first
   | apply Prod.Lex.left
     apply Nat.lt_succ_self

@@ -1,6 +1,6 @@
 set -ex
 
-LAKE=${LAKE:-../../build/bin/lake}
+LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 ./clean.sh
 $LAKE -d bar update

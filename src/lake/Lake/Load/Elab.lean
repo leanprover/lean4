@@ -5,8 +5,10 @@ Authors: Mac Malone
 -/
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
+import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
+import Lake.Util.Platform
 import Lake.Util.Log
 
 namespace Lake
@@ -14,29 +16,23 @@ open Lean System
 
 deriving instance BEq, Hashable for Import
 
-/- Cache for the import state of Lake configuration files. -/
-initialize importStateCache : IO.Ref (HashMap (Array Import) ImportState) ← IO.mkRef {}
+/- Cache for the imported header environment of Lake configuration files. -/
+initialize importEnvCache : IO.Ref (HashMap (Array Import) Environment) ← IO.mkRef {}
 
-/--
-Like `importModulesCore`, but fetch the
-resulting import state from the cache if possible. -/
-def importModulesUsingCache (imports : Array Import) : IO ImportState := do
-  match (← importStateCache.get).find? imports with
-  | none =>
-    let (_, s) ← importModulesCore imports |>.run
-    importStateCache.modify (·.insert imports s)
-    return s
-  | some s =>
-    return s
+/-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
+def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do
+  if let some env := (← importEnvCache.get).find? imports then
+    return env
+  let env ← importModules imports opts trustLevel
+  importEnvCache.modify (·.insert imports env)
+  return env
 
 /-- Like `Lean.Elab.processHeader`, but using `importEnvCache`. -/
 def processHeader (header : Syntax) (opts : Options)
 (inputCtx : Parser.InputContext) : StateT MessageLog IO Environment := do
   try
     let imports := Elab.headerToImports header
-    withImporting do
-      let s ← importModulesUsingCache imports
-      finalizeImport s imports opts 1024
+    importModulesUsingCache imports opts 1024
   catch e =>
     let pos := inputCtx.fileMap.toPosition <| header.getPos?.getD 0
     modify (·.add { fileName := inputCtx.fileName, data := toString e, pos })
@@ -78,31 +74,146 @@ def elabConfigFile (pkgDir : FilePath) (lakeOpts : NameMap String)
     return s.commandState.env
 
 /--
-Import the OLean for the configuration file if `reconfigure` is not set
-and an up-to-date one exists (i.e., one newer than the configuration and the
-toolchain). Otherwise, elaborate the configuration and save it to the OLean.
+`Lean.Environment.add` is now private, but exported as `lean_environment_add`.
+We call it here via `@[extern]` with a mock implementation.
 -/
-def importConfigFile (wsDir pkgDir : FilePath) (lakeOpts : NameMap String)
+@[extern "lean_environment_add"]
+private opaque addToEnv (env : Environment) (_ : ConstantInfo) : Environment
+
+/--
+Import a configuration `.olean` (e.g., `lakefile.olean`).
+Auxiliary definition for `importConfigFile`.
+-/
+def importConfigFileCore (olean : FilePath) (leanOpts : Options) : IO Environment := do
+  /-
+  We could import the olean together with its imports using one
+  `importModules` call, but that would mean we pay for a full
+  `finalizeImports` each time, which is linear in the number of imported
+  constants and extension entries (in fact, it is paid two more times: when
+  marking the `Environment` object as multi-threaded, and when releasing
+  it). As most lakefiles use the same set of imports, we instead construct
+  an `Environment` for it only once, and then apply the lakefile contents
+  on top of it like the elaborator would. Thus the non-shared part of the
+  `Environment` is very small.
+  -/
+  let (mod, _) ← readModuleData olean
+  let env ← importModulesUsingCache mod.imports leanOpts 1024
+  -- Apply constants (does not go through the kernel, so order is irrelevant)
+  let env := mod.constants.foldl addToEnv env
+  /-
+  Below, we pass module environment extension entries to
+  `PersistentEnvExtension.addEntryFn` - but for an extension of
+  non-erased type `PersistentEnvExtension α β σ`, the former are of type
+  `α` while `addEntryFn` expects `β`s (the type-erased
+  `persistentEnvExtensionsRef` ought to be `unsafe` to prevent this from
+  simply compiling but it isn't right now). Fortunately, all extensions
+  relevant for workspace loading, which we filter for here, have `α = β`;
+  entries for any other extensions can safely be ignored.
+  -/
+  let extDescrs ← persistentEnvExtensionsRef.get
+  let extNameIdx ← mkExtNameMap 0
+  let env := mod.entries.foldl (init := env) fun env (extName, ents) =>
+    if lakeExts.contains extName then
+      match extNameIdx.find? extName with
+      | some entryIdx => ents.foldl extDescrs[entryIdx]!.addEntry env
+      | none => env
+    else
+      env
+  return env
+where
+  lakeExts :=
+    NameSet.empty
+    -- Lake Persistent Extensions
+    |>.insert ``packageAttr
+    |>.insert ``packageDepAttr
+    |>.insert ``postUpdateAttr
+    |>.insert ``scriptAttr
+    |>.insert ``defaultScriptAttr
+    |>.insert ``leanLibAttr
+    |>.insert ``leanExeAttr
+    |>.insert ``externLibAttr
+    |>.insert ``targetAttr
+    |>.insert ``defaultTargetAttr
+    |>.insert ``moduleFacetAttr
+    |>.insert ``packageFacetAttr
+    |>.insert ``libraryFacetAttr
+    -- Docstring Extension (e.g., for scripts)
+    |>.insert `Lean.docStringExt
+    -- IR Extension (for constant evaluation)
+    |>.insert ``IR.declMapExt
+
+instance : ToJson Hash := ⟨(toJson ·.val)⟩
+instance : FromJson Hash := ⟨((⟨·⟩) <$> fromJson? ·)⟩
+
+structure ConfigTrace where
+  platform : String
+  leanHash : String
+  configHash : Hash
+  options : NameMap String
+  deriving ToJson, FromJson
+
+inductive ConfigLock
+| olean (h : IO.FS.Handle)
+| lean (h : IO.FS.Handle) (lakeOpts : NameMap String)
+
+/--
+Import the `.olean` for the configuration file if `reconfigure` is not set and
+an up-to-date one exists (i.e., one with matching configuration and on the same
+toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
+-/
+def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
 (leanOpts := Options.empty) (configFile := pkgDir / defaultConfigFile) (reconfigure := true) : LogIO Environment := do
-  let olean := configFile.withExtension "olean"
-  let useOLean ← id do
-    if reconfigure then return false
-    let .ok oleanMTime ← getMTime olean |>.toBaseIO | return false
-    unless oleanMTime > (← getMTime configFile) do return false
-    let toolchainFile := wsDir / toolchainFileName
-    let .ok toolchainMTime ← getMTime toolchainFile |>.toBaseIO | return true
-    return oleanMTime > toolchainMTime
-  if useOLean then
-    withImporting do
-    let (mod, region) ← readModuleData olean
-    let s ← importModulesUsingCache mod.imports
-    let s := {s with
-      moduleData  := s.moduleData.push mod
-      regions     := s.regions.push region
-      moduleNames := s.moduleNames.push configModuleName
-    }
-    finalizeImport s #[configModuleName] leanOpts 1024
-  else
+  let some configName := FilePath.mk <$> configFile.fileName
+    | error "invalid configuration file name"
+  let olean := lakeDir / configName.withExtension "olean"
+  let traceFile := lakeDir / configName.withExtension "olean.trace"
+  /-
+  Remark: To prevent race conditions between the `.olean` and its trace file
+  (i.e., one process writes a new configuration while another reads an old one
+  and vice versa), Lake takes opens a single handle on the trace file and
+  acquires a lock on it. The lock is held while the lock data is read and
+  the olean is either imported or a new one is written with new lock data.
+  -/
+  let configHash ← computeTextFileHash configFile
+  let configLock : ConfigLock ← id do
+    let validateTrace h : IO ConfigLock := id do
+      if reconfigure then
+        h.lock; return .lean h lakeOpts
+      h.lock (exclusive := false)
+      let contents ← h.readToEnd; h.rewind
+      let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
+        | error "compiled configuration is invalid; run with `-R` to reconfigure"
+      let upToDate := trace.platform = platformDescriptor ∧
+        trace.leanHash = Lean.githash ∧ trace.configHash = configHash
+      if upToDate then
+        return .olean h
+      else
+        -- Upgrade to an exclusive lock
+        let lockFile := lakeDir / configName.withExtension "olean.lock"
+        let hLock ← IO.FS.Handle.mk lockFile .write
+        hLock.lock; h.unlock; h.lock; hLock.unlock
+        return .lean h trace.options
+    if (← traceFile.pathExists) then
+      validateTrace <| ← IO.FS.Handle.mk traceFile .readWrite
+    else
+      IO.FS.createDirAll lakeDir
+      match (← IO.FS.Handle.mk traceFile .writeNew |>.toBaseIO) with
+      | .ok h =>
+        h.lock; return .lean h lakeOpts
+      | .error (.alreadyExists ..) =>
+        validateTrace <| ← IO.FS.Handle.mk traceFile .readWrite
+      | .error e => error e.toString
+  match configLock with
+  | .olean h =>
+    let env ← importConfigFileCore olean leanOpts
+    h.unlock
+    return env
+  | .lean h lakeOpts =>
     let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
     Lean.writeModule env olean
+    h.putStrLn <| Json.pretty <| toJson
+      {platform := platformDescriptor, leanHash := Lean.githash,
+        configHash, options := lakeOpts : ConfigTrace}
+    h.truncate
+    h.unlock
     return env

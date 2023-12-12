@@ -1,0 +1,13 @@
+Tactic is run (ideally only once)
+Tactic is run (ideally only twice)
+Tactic is run (ideally only twice)
+Tactic is run (ideally only once, in most general context)
+n : Nat
+⊢ (invImage (fun a => sizeOf a) instWellFoundedRelation).1 n (Nat.succ n)
+Tactic is run (ideally only twice, in most general context)
+Tactic is run (ideally only twice, in most general context)
+n : Nat
+⊢ sizeOf n < sizeOf (Nat.succ n)
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun x1 snd => sizeOf x1) instWellFoundedRelation).1 { fst := n, snd := m + 1 }
+    { fst := Nat.succ n, snd := m }

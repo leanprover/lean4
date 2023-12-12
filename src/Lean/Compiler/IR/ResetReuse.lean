@@ -9,7 +9,7 @@ import Lean.Compiler.IR.Format
 
 namespace Lean.IR.ResetReuse
 /-! Remark: the insertResetReuse transformation is applied before we have
-   inserted `inc/dec` instructions, and perfomed lower level optimizations
+   inserted `inc/dec` instructions, and performed lower level optimizations
    that introduce the instructions `release` and `set`. -/
 
 /-! Remark: the functions `S`, `D` and `R` defined here implement the

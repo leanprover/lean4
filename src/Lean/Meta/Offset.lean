@@ -113,7 +113,7 @@ private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
 def isDefEqOffset (s t : Expr) : MetaM LBool := do
   let ifNatExpr (x : MetaM LBool) : MetaM LBool := do
     let type ← inferType s
-    -- Remark: we use `withNewMCtxDepth` to make sure we don't assing metavariables when performing the `isDefEq` test
+    -- Remark: we use `withNewMCtxDepth` to make sure we don't assign metavariables when performing the `isDefEq` test
     if (← withNewMCtxDepth <| Meta.isExprDefEqAux type (mkConst ``Nat)) then
       x
     else

@@ -82,7 +82,7 @@ open Meta
     let type ← withSynthesize (mayPostpone := true) do
       let type ← elabType type
       if let some expectedType := expectedType? then
-        -- Recall that a similiar approach is used when elaborating applications
+        -- Recall that a similar approach is used when elaborating applications
         discard <| isDefEq expectedType type
       return type
     /-
@@ -252,8 +252,18 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
       try Term.resolveId? f catch _ => return none
     else
       return none
-  | `(fun $binders* => binop% $f $a $b) =>
+  | `(fun $binders* => binop% $f $a $b)
+  | `(fun $binders* => binop_lazy% $f $a $b)
+  | `(fun $binders* => leftact% $f $a $b)
+  | `(fun $binders* => rightact% $f $a $b)
+  | `(fun $binders* => binrel% $f $a $b)
+  | `(fun $binders* => binrel_no_prop% $f $a $b) =>
     if binders == #[a, b] then
+      try Term.resolveId? f catch _ => return none
+    else
+      return none
+  | `(fun $binders* => unop% $f $a) =>
+    if binders == #[a] then
       try Term.resolveId? f catch _ => return none
     else
       return none

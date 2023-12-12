@@ -1,4 +1,1 @@
-/build
-/lakefile.olean
-/lake-packages/*
 test*.log

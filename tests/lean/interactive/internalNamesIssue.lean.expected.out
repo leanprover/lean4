@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://internalNamesIssue.lean"},
+{"textDocument": {"uri": "file:///internalNamesIssue.lean"},
  "position": {"line": 9, "character": 11}}
 {"items":
  [{"label": "bla", "kind": 3, "detail": "Nat → Nat"},

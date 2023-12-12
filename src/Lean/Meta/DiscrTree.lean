@@ -30,7 +30,7 @@ namespace Lean.Meta.DiscrTree
   Recall that projections from classes are **NOT** reducible.
   For example, the expressions `Add.add α (ringAdd ?α ?s) ?x ?x`
   and `Add.add Nat Nat.hasAdd a b` generates paths with the following keys
-  respctively
+  respectively
   ```
   ⟨Add.add, 4⟩, *, *, *, *
   ⟨Add.add, 4⟩, *, *, ⟨a,0⟩, ⟨b,0⟩
@@ -48,7 +48,7 @@ namespace Lean.Meta.DiscrTree
   2- Distinguish partial applications `f a`, `f a b`, and `f a b c`.
 -/
 
-def Key.ctorIdx : Key s → Nat
+def Key.ctorIdx : Key → Nat
   | .star     => 0
   | .other    => 1
   | .lit ..   => 2
@@ -57,17 +57,17 @@ def Key.ctorIdx : Key s → Nat
   | .arrow    => 5
   | .proj ..  => 6
 
-def Key.lt : Key s → Key s → Bool
+def Key.lt : Key → Key → Bool
   | .lit v₁,        .lit v₂        => v₁ < v₂
   | .fvar n₁ a₁,    .fvar n₂ a₂    => Name.quickLt n₁.name n₂.name || (n₁ == n₂ && a₁ < a₂)
   | .const n₁ a₁,   .const n₂ a₂   => Name.quickLt n₁ n₂ || (n₁ == n₂ && a₁ < a₂)
   | .proj s₁ i₁ a₁, .proj s₂ i₂ a₂ => Name.quickLt s₁ s₂ || (s₁ == s₂ && i₁ < i₂) || (s₁ == s₂ && i₁ == i₂ && a₁ < a₂)
   | k₁,             k₂             => k₁.ctorIdx < k₂.ctorIdx
 
-instance : LT (Key s) := ⟨fun a b => Key.lt a b⟩
-instance (a b : Key s) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
+instance : LT Key := ⟨fun a b => Key.lt a b⟩
+instance (a b : Key) : Decidable (a < b) := inferInstanceAs (Decidable (Key.lt a b))
 
-def Key.format : Key s → Format
+def Key.format : Key → Format
   | .star                   => "*"
   | .other                  => "◾"
   | .lit (Literal.natVal v) => Std.format v
@@ -77,41 +77,41 @@ def Key.format : Key s → Format
   | .fvar k _               => Std.format k.name
   | .arrow                  => "→"
 
-instance : ToFormat (Key s) := ⟨Key.format⟩
+instance : ToFormat Key := ⟨Key.format⟩
 
-def Key.arity : (Key s) → Nat
+def Key.arity : Key → Nat
   | .const _ a  => a
   | .fvar _ a   => a
   | .arrow      => 2
   | .proj _ _ a => 1 + a
   | _           => 0
 
-instance : Inhabited (Trie α s) := ⟨.node #[] #[]⟩
+instance : Inhabited (Trie α) := ⟨.node #[] #[]⟩
 
-def empty : DiscrTree α s := { root := {} }
+def empty : DiscrTree α := { root := {} }
 
-partial def Trie.format [ToFormat α] : Trie α s → Format
+partial def Trie.format [ToFormat α] : Trie α → Format
   | .node vs cs => Format.group $ Format.paren $
     "node" ++ (if vs.isEmpty then Format.nil else " " ++ Std.format vs)
     ++ Format.join (cs.toList.map fun ⟨k, c⟩ => Format.line ++ Format.paren (Std.format k ++ " => " ++ format c))
 
-instance [ToFormat α] : ToFormat (Trie α s) := ⟨Trie.format⟩
+instance [ToFormat α] : ToFormat (Trie α) := ⟨Trie.format⟩
 
-partial def format [ToFormat α] (d : DiscrTree α s) : Format :=
+partial def format [ToFormat α] (d : DiscrTree α) : Format :=
   let (_, r) := d.root.foldl
     (fun (p : Bool × Format) k c =>
       (false, p.2 ++ (if p.1 then Format.nil else Format.line) ++ Format.paren (Std.format k ++ " => " ++ Std.format c)))
     (true, Format.nil)
   Format.group r
 
-instance [ToFormat α] : ToFormat (DiscrTree α s) := ⟨format⟩
+instance [ToFormat α] : ToFormat (DiscrTree α) := ⟨format⟩
 
 /-- The discrimination tree ignores implicit arguments and proofs.
    We use the following auxiliary id as a "mark". -/
 private def tmpMVarId : MVarId := { name := `_discr_tree_tmp }
 private def tmpStar := mkMVar tmpMVarId
 
-instance : Inhabited (DiscrTree α s) where
+instance : Inhabited (DiscrTree α) where
   default := {}
 
 /--
@@ -131,7 +131,7 @@ instance : Inhabited (DiscrTree α s) where
     ```
     Decidable -> Eq -> * -> * -> * -> [Nat.decEq]
     ```
-    to the discrimination tree IF we ignored the implict `Nat` argument.
+    to the discrimination tree IF we ignored the implicit `Nat` argument.
     This would be BAD since **ALL** decidable equality instances would be in the same path.
     So, we index implicit arguments if they are types.
     This setting seems sensible for simplification theorems such as:
@@ -249,16 +249,16 @@ def hasNoindexAnnotation (e : Expr) : Bool :=
 
 /--
 Reduction procedure for the discrimination tree indexing.
-The parameter `simpleReduce` controls how aggressive the term is reduced.
+The parameter `config` controls how aggressively the term is reduced.
 The parameter at type `DiscrTree` controls this value.
 See comment at `DiscrTree`.
 -/
-partial def reduce (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
-  let e ← whnfCore e (simpleReduceOnly := simpleReduce)
+partial def reduce (e : Expr) (config : WhnfCoreConfig) : MetaM Expr := do
+  let e ← whnfCore e config
   match (← unfoldDefinition? e) with
-  | some e => reduce e simpleReduce
+  | some e => reduce e config
   | none => match e.etaExpandedStrict? with
-    | some e => reduce e simpleReduce
+    | some e => reduce e config
     | none   => return e
 
 /--
@@ -307,31 +307,31 @@ private def elimLooseBVarsByBeta (e : Expr) : CoreM Expr :=
   Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
   is a bad key (see comment at `isBadKey`).
   We use this method instead of `reduce` for root terms at `pushArgs`. -/
-private partial def reduceUntilBadKey (e : Expr) (simpleReduce : Bool) : MetaM Expr := do
+private partial def reduceUntilBadKey (e : Expr) (config : WhnfCoreConfig) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
-  | some e => reduceUntilBadKey e simpleReduce
+  | some e => reduceUntilBadKey e config
   | none   => return e
 where
   step (e : Expr) := do
-    let e ← whnfCore e (simpleReduceOnly := simpleReduce)
+    let e ← whnfCore e config
     match (← unfoldDefinition? e) with
     | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-def reduceDT (e : Expr) (root : Bool) (simpleReduce : Bool) : MetaM Expr :=
-  if root then reduceUntilBadKey e simpleReduce else reduce e simpleReduce
+def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
+  if root then reduceUntilBadKey e config else reduce e config
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s × Array Expr) := do
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
-    let e ← reduceDT e root (simpleReduce := s)
+    let e ← reduceDT e root config
     let fn := e.getAppFn
-    let push (k : Key s) (nargs : Nat) (todo : Array Expr): MetaM (Key s × Array Expr) := do
+    let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
       let todo ← pushArgsAux info.paramInfo (nargs-1) e todo
       return (k, todo)
@@ -377,24 +377,24 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) : MetaM (Key s
     | _ =>
       return (.other, todo)
 
-partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array (Key s)) : MetaM (Array (Key s)) := do
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
     let e    := todo.back
     let todo := todo.pop
-    let (k, todo) ← pushArgs root todo e
-    mkPathAux false todo (keys.push k)
+    let (k, todo) ← pushArgs root todo e config
+    mkPathAux false todo (keys.push k) config
 
 private def initCapacity := 8
 
-def mkPath (e : Expr) : MetaM (Array (Key s)) := do
+def mkPath (e : Expr) (config : WhnfCoreConfig) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := .mkEmpty initCapacity
-    let keys : Array (Key s) := .mkEmpty initCapacity
-    mkPathAux (root := true) (todo.push e) keys
+    let keys : Array Key := .mkEmpty initCapacity
+    mkPathAux (root := true) (todo.push e) keys config
 
-private partial def createNodes (keys : Array (Key s)) (v : α) (i : Nat) : Trie α s :=
+private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
     let k := keys.get ⟨i, h⟩
     let c := createNodes keys v (i+1)
@@ -421,20 +421,20 @@ where
       vs.push v
 termination_by loop i => vs.size - i
 
-private partial def insertAux [BEq α] (keys : Array (Key s)) (v : α) : Nat → Trie α s → Trie α s
+private partial def insertAux [BEq α] (keys : Array Key) (v : α) (config : WhnfCoreConfig) : Nat → Trie α → Trie α
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys.get ⟨i, h⟩
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
-          (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
+          (fun ⟨_, s⟩ => let c := insertAux keys v config (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
           (k, default)
       .node vs c
     else
       .node (insertVal vs v) cs
 
-def insertCore [BEq α] (d : DiscrTree α s) (keys : Array (Key s)) (v : α) : DiscrTree α s :=
+def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) (config : WhnfCoreConfig) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!
@@ -443,15 +443,15 @@ def insertCore [BEq α] (d : DiscrTree α s) (keys : Array (Key s)) (v : α) : D
       let c := createNodes keys v 1
       { root := d.root.insert k c }
     | some c =>
-      let c := insertAux keys v 1 c
+      let c := insertAux keys v config 1 c
       { root := d.root.insert k c }
 
-def insert [BEq α] (d : DiscrTree α s) (e : Expr) (v : α) : MetaM (DiscrTree α s) := do
-  let keys ← mkPath e
-  return d.insertCore keys v
+def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e config
+  return d.insertCore keys v config
 
-private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array Expr) := do
-  let e ← reduceDT e root (simpleReduce := s)
+private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
+  let e ← reduceDT e root config
   unless root do
     -- See pushArgs
     if let some v := toNatLit? e then
@@ -503,7 +503,7 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array 
           we want `isDefEq` to throw an exception whenever it tries to assign
           a read-only metavariable.
           This feature is useful for type class resolution where
-          we may want to notify the caller that the TC problem may be solveable
+          we may want to notify the caller that the TC problem may be solvable
           later after it assigns `?m`.
           The method `DiscrTree.getUnify e` returns candidates `c` that may "unify" with `e`.
           That is, `isDefEq c e` may return true. Now, consider `DiscrTree.getUnify d (Add ?m)`
@@ -530,22 +530,22 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key s × Array 
   | _ =>
     return (.other, #[])
 
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key s × Array Expr) :=
-  getKeyArgs e (isMatch := true) (root := root)
+private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := true) (root := root) (config := config)
 
-private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key s × Array Expr) :=
-  getKeyArgs e (isMatch := false) (root := root)
+private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := false) (root := root) (config := config)
 
-private def getStarResult (d : DiscrTree α s) : Array α :=
+private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
   match d.root.find? .star with
   | none                  => result
   | some (.node vs _) => result ++ vs
 
-private abbrev findKey (cs : Array (Key s × Trie α s)) (k : Key s) : Option (Key s × Trie α s) :=
+private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
-private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : Array α) : MetaM (Array α) := do
+private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) := do
   match c with
   | .node vs cs =>
     if todo.isEmpty then
@@ -556,19 +556,19 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
       let e     := todo.back
       let todo  := todo.pop
       let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
-      let (k, args) ← getMatchKeyArgs e (root := false)
+      let (k, args) ← getMatchKeyArgs e (root := false) config
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
         if first.1 == .star then
-          getMatchLoop todo first.2 result
+          getMatchLoop todo first.2 result config
         else
           return result
-      let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+      let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
         | none   => return result
-        | some c => getMatchLoop (todo ++ args) c.2 result
+        | some c => getMatchLoop (todo ++ args) c.2 result config
       let result ← visitStar result
       match k with
       | .star  => return result
@@ -580,32 +580,32 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α s) (result : A
       | .arrow => visitNonStar .other #[] (← visitNonStar k args result)
       | _      => visitNonStar k args result
 
-private def getMatchRoot (d : DiscrTree α s) (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) :=
   match d.root.find? k with
   | none   => return result
-  | some c => getMatchLoop args c result
+  | some c => getMatchLoop args c result config
 
-private def getMatchCore (d : DiscrTree α s) (e : Expr) : MetaM (Key s × Array α) :=
+private def getMatchCore (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Array α) :=
   withReducible do
     let result := getStarResult d
-    let (k, args) ← getMatchKeyArgs e (root := true)
+    let (k, args) ← getMatchKeyArgs e (root := true) config
     match k with
     | .star  => return (k, result)
     /- See note about "dep-arrow vs arrow" at `getMatchLoop` -/
-    | .arrow => return (k, (← getMatchRoot d k args (← getMatchRoot d .other #[] result)))
-    | _      => return (k, (← getMatchRoot d k args result))
+    | .arrow => return (k, (← getMatchRoot d k args (← getMatchRoot d .other #[] result config) config))
+    | _      => return (k, (← getMatchRoot d k args result config))
 
 /--
   Find values that match `e` in `d`.
 -/
-def getMatch (d : DiscrTree α s) (e : Expr) : MetaM (Array α) :=
-  return (← getMatchCore d e).2
+def getMatch (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
+  return (← getMatchCore d e config).2
 
 /--
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
   We store the number of ignored arguments in the result.-/
-partial def getMatchWithExtra (d : DiscrTree α s) (e : Expr) : MetaM (Array (α × Nat)) := do
-  let (k, result) ← getMatchCore d e
+partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array (α × Nat)) := do
+  let (k, result) ← getMatchCore d e config
   let result := result.map (·, 0)
   if !e.isApp then
     return result
@@ -614,8 +614,8 @@ partial def getMatchWithExtra (d : DiscrTree α s) (e : Expr) : MetaM (Array (α
   else
     go e.appFn! 1 result
 where
-  mayMatchPrefix (k : Key s) : MetaM Bool :=
-    let cont (k : Key s) : MetaM Bool :=
+  mayMatchPrefix (k : Key) : MetaM Bool :=
+    let cont (k : Key) : MetaM Bool :=
       if d.root.find? k |>.isSome then
         return true
       else
@@ -627,15 +627,15 @@ where
     | _               => return false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
-    let result := result ++ (← getMatch d e).map (., numExtra)
+    let result := result ++ (← getMatchCore d e config).2.map (., numExtra)
     if e.isApp then
       go e.appFn! (numExtra + 1) result
     else
       return result
 
-partial def getUnify (d : DiscrTree α s) (e : Expr) : MetaM (Array α) :=
+partial def getUnify (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
   withReducible do
-    let (k, args) ← getUnifyKeyArgs e (root := true)
+    let (k, args) ← getUnifyKeyArgs e (root := true) config
     match k with
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
@@ -644,7 +644,7 @@ partial def getUnify (d : DiscrTree α s) (e : Expr) : MetaM (Array α) :=
       | none   => return result
       | some c => process 0 args c result
 where
-  process (skip : Nat) (todo : Array Expr) (c : Trie α s) (result : Array α) : MetaM (Array α) := do
+  process (skip : Nat) (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
     match skip, c with
     | skip+1, .node _  cs =>
       if cs.isEmpty then
@@ -659,14 +659,14 @@ where
       else
         let e     := todo.back
         let todo  := todo.pop
-        let (k, args) ← getUnifyKeyArgs e (root := false)
+        let (k, args) ← getUnifyKeyArgs e (root := false) config
         let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]!
           if first.1 == .star then
             process 0 todo first.2 result
           else
             return result
-        let visitNonStar (k : Key s) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
+        let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
           match findKey cs k with
           | none   => return result
           | some c => process 0 (todo ++ args) c.2 result

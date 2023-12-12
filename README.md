@@ -14,7 +14,7 @@ and have just begun regular [stable point releases](https://github.com/leanprove
 - [Manual](https://lean-lang.org/lean4/doc/)
 - [Release notes](RELEASES.md) starting at v4.0.0-m3
 - [Examples](https://lean-lang.org/lean4/doc/examples.html)
-- [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/doc/contributions.md)
+- [External Contribution Guidelines](CONTRIBUTING.md)
 - [FAQ](https://lean-lang.org/lean4/doc/faq.html)
 
 # Installation

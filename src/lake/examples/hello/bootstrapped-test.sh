@@ -1,3 +1,3 @@
 ./clean.sh
-${LAKE:-../bootstrap/build/bin/lake} build
-./build/bin/hello
+${LAKE:-../bootstrap/.lake/build/bin/lake} build
+./.lake/build/bin/hello

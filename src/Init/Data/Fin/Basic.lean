@@ -45,19 +45,19 @@ protected def sub : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a + (n - b)) % n, mlt h⟩
 
 /-!
-Remark: mod/div/modn/land/lor can be defined without using (% n), but
+Remark: land/lor can be defined without using (% n), but
 we are trying to minimize the number of Nat theorems
-needed to boostrap Lean.
+needed to bootstrap Lean.
 -/
 
 protected def mod : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a % b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a % b,  Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 protected def div : Fin n → Fin n → Fin n
-  | ⟨a, h⟩, ⟨b, _⟩ => ⟨(a / b) % n, mlt h⟩
+  | ⟨a, h⟩, ⟨b, _⟩ => ⟨a / b, Nat.lt_of_le_of_lt (Nat.div_le_self _ _) h⟩
 
 def modn : Fin n → Nat → Fin n
-  | ⟨a, h⟩, m => ⟨(a % m) % n, mlt h⟩
+  | ⟨a, h⟩, m => ⟨a % m, Nat.lt_of_le_of_lt (Nat.mod_le _ _) h⟩
 
 def land : Fin n → Fin n → Fin n
   | ⟨a, h⟩, ⟨b, _⟩ => ⟨(Nat.land a b) % n, mlt h⟩
@@ -110,7 +110,7 @@ theorem val_ne_of_ne {i j : Fin n} (h : i ≠ j) : val i ≠ val j :=
   fun h' => absurd (eq_of_val_eq h') h
 
 theorem modn_lt : ∀ {m : Nat} (i : Fin n), m > 0 → (modn i m).val < m
-  | _, ⟨_, _⟩, hp =>  Nat.lt_of_le_of_lt (mod_le _ _) (mod_lt _ hp)
+  | _, ⟨_, _⟩, hp =>  by simp [modn]; apply Nat.mod_lt; assumption
 
 theorem val_lt_of_le (i : Fin b) (h : b ≤ n) : i.val < n :=
   Nat.lt_of_lt_of_le i.isLt h

@@ -1,14 +1,13 @@
-* [ ] Put an X in this bracket to confirm you have read the
-  [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/doc/contributions.md).
+# Read and remove this section before submitting
 
-* Please put the link to your `RFC` or `bug` issue here.
-  PRs missing this link will be marked as `missing RFC`.
+* Ensure your PR follows the [External Contribution Guidelines](https://github.com/leanprover/lean4/blob/master/CONTRIBUTING.md).
+* Please make sure the PR has excellent documentation and tests. If we label it `missing documentation` or `missing tests` then it needs fixing!
+* Add the link to your `RFC` or `bug` issue below.
+* If the issue does not already have approval from a developer, submit the PR as draft.
+* Remove this section before submitting.
 
-* If that issue does not already have approval from a developer,
-  please be sure to open this PR in "Draft" mode.
+You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels yourself, by writing a comment containing one of these labels on its own line.
 
-* Please make sure the PR has excellent documentation and tests.
-  If we label it `missing documentation` or `missing tests` then it needs fixing!
+# Summary
 
-* You can manage the `awaiting-review`, `awaiting-author`, and `WIP` labels
-  yourself, by writing a comment containing one of these labels on its own line.
+Link to `RFC` or `bug` issue:

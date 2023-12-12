@@ -117,6 +117,9 @@ declared by users are stored in an environment extension. Users can declare new 
 using meta-programming.
 -/
 structure Environment where
+  /-- The constructor of `Environment` is private to protect against modification
+  that bypasses the kernel. -/
+  private mk ::
   /--
   Mapping from constant name to module (index) where constant has been declared.
   Recall that a Lean file has a header where previously compiled modules can be imported.
@@ -149,7 +152,7 @@ structure Environment where
 
 namespace Environment
 
-def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def addAux (env : Environment) (cinfo : ConstantInfo) : Environment :=
   { env with constants := env.constants.insert cinfo.name cinfo }
 
 /--
@@ -227,6 +230,7 @@ inductive KernelException where
   | deterministicTimeout
   | excessiveMemory
   | deepRecursion
+  | interrupted
 
 namespace Environment
 
@@ -251,20 +255,20 @@ structure EnvExtensionInterface where
   ext          : Type → Type
   inhabitedExt : Inhabited σ → Inhabited (ext σ)
   registerExt  (mkInitial : IO σ) : IO (ext σ)
-  setState     (e : ext σ) (env : Environment) : σ → Environment
-  modifyState  (e : ext σ) (env : Environment) : (σ → σ) → Environment
-  getState     [Inhabited σ] (e : ext σ) (env : Environment) : σ
+  setState     (e : ext σ) (exts : Array EnvExtensionState) : σ → Array EnvExtensionState
+  modifyState  (e : ext σ) (exts : Array EnvExtensionState) : (σ → σ) → Array EnvExtensionState
+  getState     [Inhabited σ] (e : ext σ) (exts : Array EnvExtensionState) : σ
   mkInitialExtStates : IO (Array EnvExtensionState)
-  ensureExtensionsSize : Environment → IO Environment
+  ensureExtensionsSize : Array EnvExtensionState → IO (Array EnvExtensionState)
 
 instance : Inhabited EnvExtensionInterface where
   default := {
     ext                  := id
     inhabitedExt         := id
-    ensureExtensionsSize := fun env => pure env
+    ensureExtensionsSize := fun exts => pure exts
     registerExt          := fun mk => mk
-    setState             := fun _ env _ => env
-    modifyState          := fun _ env _ => env
+    setState             := fun _ exts _ => exts
+    modifyState          := fun _ exts _ => exts
     getState             := fun ext _ => ext
     mkInitialExtStates   := pure #[]
   }
@@ -286,41 +290,40 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (Ext EnvExtensionSta
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
-partial def ensureExtensionsArraySize (env : Environment) : IO Environment := do
-  loop env.extensions.size env
+partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+  loop exts.size exts
 where
-  loop (i : Nat) (env : Environment) : IO Environment := do
+  loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
     if i < envExtensions.size then
       let s ← envExtensions[i]!.mkInitial
-      let env := { env with extensions := env.extensions.push s }
-      loop (i + 1) env
+      let exts := exts.push s
+      loop (i + 1) exts
     else
-      return env
+      return exts
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-unsafe def setState {σ} (ext : Ext σ) (env : Environment) (s : σ) : Environment :=
-  if h : ext.idx < env.extensions.size then
-    { env with extensions := env.extensions.set ⟨ext.idx, h⟩ (unsafeCast s) }
+unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
+  if h : ext.idx < exts.size then
+    exts.set ⟨ext.idx, h⟩ (unsafeCast s)
   else
-    have : Inhabited Environment := ⟨env⟩
+    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (env : Environment) (f : σ → σ) : Environment :=
-  if ext.idx < env.extensions.size then
-    { env with
-      extensions := env.extensions.modify ext.idx fun s =>
-        let s : σ := unsafeCast s
-        let s : σ := f s
-        unsafeCast s }
+@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+  if ext.idx < exts.size then
+    exts.modify ext.idx fun s =>
+      let s : σ := unsafeCast s
+      let s : σ := f s
+      unsafeCast s
   else
-    have : Inhabited Environment := ⟨env⟩
+    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (env : Environment) : σ :=
-  if h : ext.idx < env.extensions.size then
-    let s : EnvExtensionState := env.extensions.get ⟨ext.idx, h⟩
+unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (exts : Array EnvExtensionState) : σ :=
+  if h : ext.idx < exts.size then
+    let s : EnvExtensionState := exts.get ⟨ext.idx, h⟩
     unsafeCast s
   else
     panic! invalidExtMsg
@@ -359,14 +362,22 @@ opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
-private def ensureExtensionsArraySize (env : Environment) : IO Environment :=
-  EnvExtensionInterfaceImp.ensureExtensionsSize env
+private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
+  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.extensions
+  return { env with extensions := exts }
 
 namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment := EnvExtensionInterfaceImp.setState ext env s
-def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := EnvExtensionInterfaceImp.modifyState ext env f
-def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ := EnvExtensionInterfaceImp.getState ext env
+
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
+  { env with extensions := EnvExtensionInterfaceImp.setState ext env.extensions s }
+
+def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
+  { env with extensions := EnvExtensionInterfaceImp.modifyState ext env.extensions f }
+
+def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
+  EnvExtensionInterfaceImp.getState ext env.extensions
+
 end EnvExtension
 
 /-- Environment extensions can only be registered during initialization.
@@ -659,7 +670,7 @@ def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
 Construct a mapping from persistent extension name to entension index at the array of persistent extensions.
 We only consider extensions starting with index `>= startingAt`.
 -/
-private def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
+def mkExtNameMap (startingAt : Nat) : IO (HashMap Name Nat) := do
   let descrs ← persistentEnvExtensionsRef.get
   let mut result := {}
   for h : i in [startingAt : descrs.size] do
@@ -754,7 +765,17 @@ partial def importModulesCore (imports : Array Import) : ImportStateM Unit := do
       moduleNames := s.moduleNames.push i.module
     }
 
-def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := do
+/--
+  Construct environment from `importModulesCore` results.
+
+  If `leakEnv` is true, we mark the environment as persistent, which means it
+  will not be freed. We set this when the object would survive until the end of
+  the process anyway. In exchange, RC updates are avoided, which is especially
+  important when they would be atomic because the environment is shared across
+  threads (potentially, storing it in an `IO.Ref` is sufficient for marking it
+  as such). -/
+def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := do
   let numConsts := s.moduleData.foldl (init := 0) fun numConsts mod =>
     numConsts + mod.constants.size + mod.extraConstNames.size
   let mut const2ModIdx : HashMap Name ModuleIdx := mkHashMap (capacity := numConsts)
@@ -772,7 +793,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       const2ModIdx := const2ModIdx.insert cname modIdx
   let constants : ConstMap := SMap.fromHashMap constantMap false
   let exts ← mkInitialExtensionStates
-  let env : Environment := {
+  let mut env : Environment := {
     const2ModIdx    := const2ModIdx
     constants       := constants
     extraConstNames := {}
@@ -786,19 +807,35 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
       moduleData   := s.moduleData
     }
   }
-  let env ← setImportedEntries env s.moduleData
-  let env ← finalizePersistentExtensions env s.moduleData opts
+  env ← setImportedEntries env s.moduleData
+  if leakEnv then
+    /- Mark persistent a first time before `finalizePersistenExtensions`, which
+       avoids costly MT markings when e.g. an interpreter closure (which
+       contains the environment) is put in an `IO.Ref`. This can happen in e.g.
+       initializers of user environment extensions and is wasteful because the
+       environment is marked persistent immediately afterwards anyway when the
+       constructed extension including the closure is ultimately stored in the
+       initialized constant. We have seen significant savings in `open Mathlib`
+       timings, where we have both a big environment and interpreted environment
+       extensions, from this. There is no significant extra cost to calling
+       `markPersistent` multiple times like this. -/
+    env := Runtime.markPersistent env
+  env ← finalizePersistentExtensions env s.moduleData opts
+  if leakEnv then
+    /- Ensure the final environment including environment extension states is
+       marked persistent as documented. -/
+    env := Runtime.markPersistent env
   pure env
 
 @[export lean_import_modules]
-def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0) : IO Environment := profileitIO "import" opts do
-  let imports := imports
+def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
+    (leakEnv := false) : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
     let (_, s) ← importModulesCore imports |>.run
-    finalizeImport s imports opts trustLevel
+    finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 
 /--
   Create environment object from imports and free compacted regions after calling `act`. No live references to the
@@ -849,7 +886,7 @@ private def registerNamePrefixes : Environment → Name → Environment
   | env, _        => env
 
 @[export lean_environment_add]
-def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+private def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
   let env := registerNamePrefixes env cinfo.name
   env.addAux cinfo
 

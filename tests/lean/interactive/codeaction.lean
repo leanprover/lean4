@@ -1,10 +1,11 @@
 import Lean
 
-open Lean Server Lsp
+open Lean Server Lsp RequestM
 
 @[code_action_provider]
 def helloProvider : CodeActionProvider := fun params _snap => do
-  let td := params.textDocument
+  let doc ← readDoc
+  let vi := doc.versionedIdentifier
   let edit : TextEdit := {
       range := params.range,
       newText := "hello!!!"
@@ -12,7 +13,7 @@ def helloProvider : CodeActionProvider := fun params _snap => do
   let ca : CodeAction := {
     title := "hello world",
     kind? := "quickfix",
-    edit? := WorkspaceEdit.ofTextEdit td.uri edit
+    edit? := WorkspaceEdit.ofTextEdit vi edit
   }
   let longRunner : CodeAction := {
     title := "a long-running action",
@@ -22,7 +23,7 @@ def helloProvider : CodeActionProvider := fun params _snap => do
     let v? ← IO.getEnv "PWD"
     let v := v?.getD "none"
     return { longRunner with
-      edit? := WorkspaceEdit.ofTextEdit td.uri { range := params.range, newText := v}
+      edit? := WorkspaceEdit.ofTextEdit vi { range := params.range, newText := v}
     }
   return #[ca, {eager := longRunner, lazy? := lazyResult}]
 

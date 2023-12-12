@@ -1,4 +1,1 @@
-build
-lakefile.olean
-lake-packages
-lake-manifest.json
+/lake-manifest-1.json

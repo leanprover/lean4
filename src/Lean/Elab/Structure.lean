@@ -101,8 +101,9 @@ leading_parser try (declModifiers >> ident >> " :: ")
 private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (structDeclName : Name) : TermElabM StructCtorView := do
   let useDefault := do
     let declName := structDeclName ++ defaultCtorName
-    addAuxDeclarationRanges declName structStx[2] structStx[2]
-    pure { ref := structStx, modifiers := {}, name := defaultCtorName, declName }
+    let ref := structStx[1].mkSynthetic
+    addAuxDeclarationRanges declName ref ref
+    pure { ref, modifiers := {}, name := defaultCtorName, declName }
   if structStx[5].isNone then
     useDefault
   else
@@ -123,7 +124,7 @@ private def expandCtor (structStx : Syntax) (structModifiers : Modifiers) (struc
       let declName ← applyVisibility ctorModifiers.visibility declName
       addDocString' declName ctorModifiers.docString?
       addAuxDeclarationRanges declName ctor[1] ctor[1]
-      pure { ref := ctor, name, modifiers := ctorModifiers, declName }
+      pure { ref := ctor[1], name, modifiers := ctorModifiers, declName }
 
 def checkValidFieldModifier (modifiers : Modifiers) : TermElabM Unit := do
   if modifiers.isNoncomputable then
@@ -321,7 +322,7 @@ private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := 
 
 abbrev FieldMap := NameMap Expr -- Map from field name to expression representing the field
 
-/-- Reduce projetions of the structures in `structNames` -/
+/-- Reduce projections of the structures in `structNames` -/
 private def reduceProjs (e : Expr) (structNames : NameSet) : MetaM Expr :=
   let reduce (e : Expr) : MetaM TransformStep := do
     match (← reduceProjOf? e structNames.contains) with
@@ -410,14 +411,15 @@ where
         | none =>
           let some fieldInfo := getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           let addNewField : TermElabM α := do
-            let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
+              let fieldMap := fieldMap.insert fieldName fieldFVar
+              let value? ← copyDefaultValue? fieldMap expandedStructNames parentStructName fieldName
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               addDocString' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
               let infos := infos.push { name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
                                         kind := StructFieldKind.copiedField }
-              copy (i+1) infos (fieldMap.insert fieldName fieldFVar) expandedStructNames
+              copy (i+1) infos fieldMap expandedStructNames
           if fieldInfo.subobject?.isSome then
             let fieldParentStructName ← getStructureName fieldType
             if (← findExistingField? infos fieldParentStructName).isSome then
@@ -839,8 +841,8 @@ private def elabStructureView (view : StructView) : TermElabM Unit := do
           pure (info.isSubobject && decl.binderInfo.isInstImplicit)
         withSaveInfoContext do  -- save new env
           Term.addLocalVarInfo view.ref[1] (← mkConstWithLevelParams view.declName)
-          if let some _ := view.ctor.ref[1].getPos? (canonicalOnly := true) then
-            Term.addTermInfo' view.ctor.ref[1] (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
+          if let some _ := view.ctor.ref.getPos? (canonicalOnly := true) then
+            Term.addTermInfo' view.ctor.ref (← mkConstWithLevelParams view.ctor.declName) (isBinder := true)
           for field in view.fields do
             -- may not exist if overriding inherited field
             if (← getEnv).contains field.declName then

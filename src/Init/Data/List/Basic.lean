@@ -6,8 +6,47 @@ Author: Leonardo de Moura
 prelude
 import Init.SimpLemmas
 import Init.Data.Nat.Basic
+import Init.Data.Nat.Div
 set_option linter.missingDocs true -- keep it documented
 open Decidable List
+
+/--
+The syntax `[a, b, c]` is shorthand for `a :: b :: c :: []`, or
+`List.cons a (List.cons b (List.cons c List.nil))`. It allows conveniently constructing
+list literals.
+
+For lists of length at least 64, an alternative desugaring strategy is used
+which uses let bindings as intermediates as in
+`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
+Note that this changes the order of evaluation, although it should not be observable
+unless you use side effecting operations like `dbg_trace`.
+-/
+syntax "[" withoutPosition(term,*,?) "]"  : term
+
+/--
+Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
+The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.
+It uses binary partitioning to construct a tree of intermediate let bindings as in
+`let left := [d, e, f]; a :: b :: c :: left` to avoid creating very deep expressions.
+-/
+syntax "%[" withoutPosition(term,*,? " | " term) "]" : term
+
+namespace Lean
+
+macro_rules
+  | `([ $elems,* ]) => do
+    -- NOTE: we do not have `TSepArray.getElems` yet at this point
+    let rec expandListLit (i : Nat) (skip : Bool) (result : TSyntax `term) : MacroM Syntax := do
+      match i, skip with
+      | 0,   _     => pure result
+      | i+1, true  => expandListLit i false result
+      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
+    let size := elems.elemsAndSeps.size
+    if size < 64 then
+      expandListLit size (size % 2 == 0) (← ``(List.nil))
+    else
+      `(%[ $elems,* | List.nil ])
+end Lean
 
 universe u v w
 
@@ -356,7 +395,7 @@ inductive Mem (a : α) : List α → Prop
 instance : Membership α (List α) where
   mem := Mem
 
-theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
+theorem mem_of_elem_eq_true [BEq α] [LawfulBEq α] {a : α} {as : List α} : elem a as = true → a ∈ as := by
   match as with
   | [] => simp [elem]
   | a'::as =>
@@ -365,12 +404,12 @@ theorem mem_of_elem_eq_true [DecidableEq α] {a : α} {as : List α} : elem a as
     next h => intros; simp [BEq.beq] at h; subst h; apply Mem.head
     next _ => intro h; exact Mem.tail _ (mem_of_elem_eq_true h)
 
-theorem elem_eq_true_of_mem [DecidableEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
+theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h : a ∈ as) : elem a as = true := by
   induction h with
   | head _ => simp [elem]
   | tail _ _ ih => simp [elem]; split; rfl; assumption
 
-instance [DecidableEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
+instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
 theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
@@ -518,16 +557,22 @@ def takeWhile (p : α → Bool) : (xs : List α) → List α
 /--
 `O(|l|)`. Returns true if `p` is true for any element of `l`.
 * `any p [a, b, c] = p a || p b || p c`
+
+Short-circuits upon encountering the first `true`.
 -/
-@[inline] def any (l : List α) (p : α → Bool) : Bool :=
-  foldr (fun a r => p a || r) false l
+def any : List α -> (α → Bool) -> Bool
+  | [], _ => false
+  | h :: t, p => p h || any t p
 
 /--
 `O(|l|)`. Returns true if `p` is true for every element of `l`.
 * `all p [a, b, c] = p a && p b && p c`
+
+Short-circuits upon encountering the first `false`.
 -/
-@[inline] def all (l : List α) (p : α → Bool) : Bool :=
-  foldr (fun a r => p a && r) true l
+def all : List α -> (α → Bool) -> Bool
+  | [], _ => true
+  | h :: t, p => p h && all t p
 
 /--
 `O(|l|)`. Returns true if `true` is an element of the list of booleans `l`.

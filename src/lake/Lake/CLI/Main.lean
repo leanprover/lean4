@@ -38,6 +38,7 @@ structure LakeOptions where
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
+  noBuild : Bool := false
 
 /-- Get the Lean installation. Error if missing. -/
 def LakeOptions.getLeanInstall (opts : LakeOptions) : Except CliError LeanInstall :=
@@ -58,6 +59,7 @@ def LakeOptions.getInstall (opts : LakeOptions) : Except CliError (LeanInstall �
 /-- Compute the Lake environment based on `opts`. Error if an install is missing. -/
 def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
   Env.compute (← opts.getLakeInstall) (← opts.getLeanInstall) opts.elanInstall?
+    |>.adaptExcept fun msg => .invalidEnv msg
 
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
@@ -74,6 +76,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
 def LakeOptions.mkBuildConfig (opts : LakeOptions) : BuildConfig where
   oldMode := opts.oldMode
   trustHash := opts.trustHash
+  noBuild := opts.noBuild
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
 
@@ -153,6 +156,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+| "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--rehash"      => modifyThe LakeOptions ({· with trustHash := false})
 | "--dir"         => do let rootDir ← takeOptArg "--dir" "path"; modifyThe LakeOptions ({· with rootDir})
 | "--file"        => do let configFile ← takeOptArg "--file" "path"; modifyThe LakeOptions ({· with configFile})
@@ -264,14 +268,14 @@ protected def new : CliM PUnit := do
   let opts ← getThe LakeOptions
   let name ← takeArg "package name"
   let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv)) opts.verbosity
+  noArgsRem do MainM.runLogIO (new name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def init : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
-  let name ← takeArg "package name"
+  let name := (← takeArg?).getD "."
   let tmp ← parseTemplateSpec <| (← takeArg?).getD ""
-  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv)) opts.verbosity
+  noArgsRem do MainM.runLogIO (init name tmp (← opts.computeEnv) opts.rootDir) opts.verbosity
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
@@ -306,12 +310,14 @@ protected def upload : CliM PUnit := do
   noArgsRem do
     liftM <| uploadRelease ws.root tag |>.run (MonadLog.io opts.verbosity)
 
-protected def printPaths : CliM PUnit := do
+protected def setupFile : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
-  printPaths loadConfig (← takeArgs) buildConfig opts.verbosity
+  let filePath ← takeArg "file path"
+  let imports ← takeArgs
+  setupFile loadConfig filePath imports buildConfig opts.verbosity
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
@@ -360,14 +366,14 @@ protected def env : CliM PUnit := do
     exit 0
 
 protected def exe : CliM PUnit := do
-  let exeName ← takeArg "executable name"
+  let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
-  let ctx := mkLakeContext ws
-  let buildConfig := mkBuildConfig opts
-  exit <| ← (exe exeName args.toArray buildConfig).run ctx
+  let exe ← parseExeTargetSpec ws exeSpec
+  let exeFile ← ws.runBuild (exe.build >>= (·.await)) <| mkBuildConfig opts
+  exit <| ← (env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def selfCheck : CliM PUnit := do
   processOptions lakeOption
@@ -385,7 +391,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "upload"              => lake.upload
-| "print-paths"         => lake.printPaths
+| "setup-file"          => lake.setupFile
 | "clean"               => lake.clean
 | "script"              => lake.script
 | "scripts"             => lake.script.list

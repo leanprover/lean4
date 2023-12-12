@@ -42,11 +42,10 @@ static char g_path_sep     = ';';
 static constexpr char g_sep          = '\\';
 static char g_bad_sep      = '/';
 std::string get_exe_location() {
-    HMODULE hModule = GetModuleHandleW(NULL);
-    WCHAR path[MAX_PATH];
-    GetModuleFileNameW(hModule, path, MAX_PATH);
-    std::wstring pathstr(path);
-    return std::string(pathstr.begin(), pathstr.end());
+    HMODULE hModule = GetModuleHandle(NULL);
+    char path[MAX_PATH];
+    GetModuleFileName(hModule, path, MAX_PATH);
+    return std::string(path);
 }
 bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)

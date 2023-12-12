@@ -71,21 +71,13 @@ structure Config where
   constApprox        : Bool := false
   /--
     When the following flag is set,
-    `isDefEq` throws the exeption `Exeption.isDefEqStuck`
+    `isDefEq` throws the exception `Exeption.isDefEqStuck`
     whenever it encounters a constraint `?m ... =?= t` where
     `?m` is read only.
     This feature is useful for type class resolution where
-    we may want to notify the caller that the TC problem may be solveable
+    we may want to notify the caller that the TC problem may be solvable
     later after it assigns `?m`. -/
   isDefEqStuckEx     : Bool := false
-  /--
-    Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
-   -/
-  transparency       : TransparencyMode := TransparencyMode.default
-  /-- If zetaNonDep == false, then non dependent let-decls are not zeta expanded. -/
-  zetaNonDep         : Bool := true
-  /-- When `trackZeta == true`, we store zetaFVarIds all free variables that have been zeta-expanded. -/
-  trackZeta          : Bool := false
   /-- Enable/disable the unification hints feature. -/
   unificationHints   : Bool := true
   /-- Enables proof irrelevance at `isDefEq` -/
@@ -99,8 +91,24 @@ structure Config where
   assignSyntheticOpaque : Bool := false
   /-- Enable/Disable support for offset constraints such as `?x + 1 =?= e` -/
   offsetCnstrs          : Bool := true
+  /--
+    Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
+   -/
+  transparency       : TransparencyMode := TransparencyMode.default
+  /--
+  When `trackZeta = true`, we track all free variables that have been zeta-expanded.
+  That is, suppose the local context contains
+  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaFVarIds`.
+  We use `trackZeta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
+  When we find these declarations we set their `nonDep` flag with `true`.
+  To find these let-declarations in a given term `s`, we
+  1- Reset `State.zetaFVarIds`
+  2- Set `trackZeta := true`
+  3- Type-check `s`.
+  -/
+  trackZeta          : Bool := false
   /-- Eta for structures configuration mode. -/
-  etaStruct             : EtaStructMode := .all
+  etaStruct          : EtaStructMode := .all
 
 /--
   Function parameter information cache.
@@ -185,7 +193,7 @@ structure InfoCacheKey where
   /--
     `nargs? = some n` if the cached information was computed assuming the function has arity `n`.
     If `nargs? = none`, then the cache information consumed the arrow type as much as possible
-    unsing the current transparency setting.
+    using the current transparency setting.
   X-/
   nargs?       : Option Nat
   deriving Inhabited, BEq
@@ -202,10 +210,15 @@ abbrev FunInfoCache   := PersistentHashMap InfoCacheKey FunInfo
 abbrev WhnfCache      := PersistentExprStructMap Expr
 
 /--
-  A mapping `(s, t) ↦ isDefEq s t`.
+  A mapping `(s, t) ↦ isDefEq s t` per transparency level.
   TODO: consider more efficient representations (e.g., a proper set) and caching policies (e.g., imperfect cache).
   We should also investigate the impact on memory consumption. -/
-abbrev DefEqCache := PersistentHashMap (Expr × Expr) Bool
+structure DefEqCache where
+  reducible : PersistentHashMap (Expr × Expr) Bool := {}
+  instances : PersistentHashMap (Expr × Expr) Bool := {}
+  default   : PersistentHashMap (Expr × Expr) Bool := {}
+  all       : PersistentHashMap (Expr × Expr) Bool := {}
+  deriving Inhabited
 
 /--
   Cache datastructures for type inference, type class resolution, whnf, and definitional equality.
@@ -216,7 +229,8 @@ structure Cache where
   synthInstance  : SynthInstanceCache := {}
   whnfDefault    : WhnfCache := {} -- cache for closed terms and `TransparencyMode.default`
   whnfAll        : WhnfCache := {} -- cache for closed terms and `TransparencyMode.all`
-  defEq          : DefEqCache := {}
+  defEqTrans     : DefEqCache := {} -- transient cache for terms containing mvars or using nonstandard configuration options, it is frequently reset.
+  defEqPerm      : DefEqCache := {} -- permanent cache for terms not containing mvars and using standard configuration options
   deriving Inhabited
 
 /--
@@ -360,13 +374,19 @@ section Methods
 variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
-  modify fun ⟨mctx, cache, zetaFVarIds, postponed⟩ => ⟨mctx, f cache, zetaFVarIds, postponed⟩
+  modify fun { mctx, cache, zetaFVarIds, postponed } => { mctx, cache := f cache, zetaFVarIds, postponed }
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
-  modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
+  modifyCache fun ⟨ic, c1, c2, c3, c4, c5, c6⟩ => ⟨f ic, c1, c2, c3, c4, c5, c6⟩
 
-@[inline] def modifyDefEqCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
-  modifyCache fun ⟨c1, c2, c3, c4, c5, defeq⟩ => ⟨c1, c2, c3, c4, c5, f defeq⟩
+@[inline] def modifyDefEqTransientCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, defeqTrans, c6⟩ => ⟨c1, c2, c3, c4, c5, f defeqTrans, c6⟩
+
+@[inline] def modifyDefEqPermCache (f : DefEqCache → DefEqCache) : MetaM Unit :=
+  modifyCache fun ⟨c1, c2, c3, c4, c5, c6, defeqPerm⟩ => ⟨c1, c2, c3, c4, c5, c6, f defeqPerm⟩
+
+@[inline] def resetDefEqPermCaches : MetaM Unit :=
+  modifyDefEqPermCache fun _ => {}
 
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
@@ -517,7 +537,7 @@ def findMVarDecl? (mvarId : MVarId) : MetaM (Option MetavarDecl) :=
 
 /--
 Return `mvarId` declaration in the current metavariable context.
-Throw an exception if `mvarId` is not declarated in the current metavariable context.
+Throw an exception if `mvarId` is not declared in the current metavariable context.
 -/
 def _root_.Lean.MVarId.getDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   match (← mvarId.findDecl?) with
@@ -529,7 +549,7 @@ def getMVarDecl (mvarId : MVarId) : MetaM MetavarDecl := do
   mvarId.getDecl
 
 /--
-Return `mvarId` kind. Throw an exception if `mvarId` is not declarated in the current metavariable context.
+Return `mvarId` kind. Throw an exception if `mvarId` is not declared in the current metavariable context.
 -/
 def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
   return (← mvarId.getDecl).kind
@@ -538,7 +558,7 @@ def _root_.Lean.MVarId.getKind (mvarId : MVarId) : MetaM MetavarKind :=
 def getMVarDeclKind (mvarId : MVarId) : MetaM MetavarKind :=
   mvarId.getKind
 
-/-- Reture `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
+/-- Return `true` if `e` is a synthetic (or synthetic opaque) metavariable -/
 def isSyntheticMVar (e : Expr) : MetaM Bool := do
   if e.isMVar then
      return (← e.mvarId!.getKind) matches .synthetic | .syntheticOpaque
@@ -769,6 +789,9 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withConfig (f : Config → Config) : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with config := f ctx.config })
 
+/--
+Executes `x` tracking zeta reductions `Config.trackZeta := true`
+-/
 @[inline] def withTrackingZeta (x : n α) : n α :=
   withConfig (fun cfg => { cfg with trackZeta := true }) x
 
@@ -778,16 +801,16 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withConfig (fun config => { config with transparency := mode })
 
-/-- `withDefault x` excutes `x` using the default transparency setting. -/
+/-- `withDefault x` executes `x` using the default transparency setting. -/
 @[inline] def withDefault (x : n α) : n α :=
   withTransparency TransparencyMode.default x
 
-/-- `withReducible x` excutes `x` using the reducible transparency setting. In this setting only definitions tagged as `[reducible]` are unfolded. -/
+/-- `withReducible x` executes `x` using the reducible transparency setting. In this setting only definitions tagged as `[reducible]` are unfolded. -/
 @[inline] def withReducible (x : n α) : n α :=
   withTransparency TransparencyMode.reducible x
 
 /--
-`withReducibleAndInstances x` excutes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
+`withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
 or type class instances are unfolded.
 -/
 @[inline] def withReducibleAndInstances (x : n α) : n α :=
@@ -924,7 +947,7 @@ mutual
       dangling bound variables in the range `[j, fvars.size)`
     - if `reducing? == true` and `type` is not `forallE`, we use `whnf`.
     - when `type` is not a `forallE` nor it can't be reduced to one, we
-      excute the continuation `k`.
+      execute the continuation `k`.
 
     Here is an example that demonstrates the `reducing?`.
     Suppose we have
@@ -1048,7 +1071,7 @@ private def forallTelescopeReducingImp (type : Expr) (k : Array Expr → Expr �
 
 /--
   Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,
-  it reduces `A` and continues bulding the telescope if it is a `forall`. -/
+  it reduces `A` and continues building the telescope if it is a `forall`. -/
 def forallTelescopeReducing (type : Expr) (k : Array Expr → Expr → n α) : n α :=
   map2MetaM (fun k => forallTelescopeReducingImp type k) k
 
@@ -1599,9 +1622,9 @@ partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure :=
     but it was not effective. It is more important to cache aggressively inside of a single `isDefEq`
     call because some of the heuristics create many similar subproblems.
     See issue #1102 for an example that triggers an exponential blowup if we don't use this more
-    aggresive form of caching.
+    aggressive form of caching.
   -/
-  modifyDefEqCache fun _ => {}
+  modifyDefEqTransientCache fun _ => {}
   let postponed ← getResetPostponed
   try
     if (← x) then
@@ -1628,6 +1651,26 @@ def isLevelDefEq (u v : Level) : MetaM Bool :=
 /-- See `isDefEq`. -/
 def isExprDefEq (t s : Expr) : MetaM Bool :=
   withReader (fun ctx => { ctx with defEqCtx? := some { lhs := t, rhs := s, lctx := ctx.lctx, localInstances := ctx.localInstances } }) do
+    /-
+    The following `resetDefEqPermCaches` is a workaround. Without it the test suite fails, and we probably cannot compile complex libraries such as Mathlib.
+    TODO: investigate why we need this reset.
+    Some conjectures:
+    - It is not enough to check whether `t` and `s` do not contain metavariables. We would need to check the type
+      of all local variables `t` and `s` depend on. If the local variables contain metavariables, the result of `isDefEq` may change if these
+      variables are instantiated.
+    - Related to the previous one: the operation
+      ```lean
+      _root_.Lean.MVarId.replaceLocalDeclDefEq (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr)
+      ```
+      is probably being misused. We are probably using it to replace a `type` with `typeNew` where these two types
+      are definitionally equal IFF we can assign the metavariables in `type`.
+
+    Possible fix: always generate new `FVarId`s when update the type of local variables.
+    Drawback: this operation can be quite expensive, and we must evaluate whether it is worth doing to remove the following `reset`.
+
+    Remark: the kernel does *not* update the type of variables in the local context.
+    -/
+    resetDefEqPermCaches
     checkpointDefEq (mayPostpone := true) <| Meta.isExprDefEqAux t s
 
 /--

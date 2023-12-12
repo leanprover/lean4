@@ -6,6 +6,7 @@ Authors: Leonardo de Moura and Sebastian Ullrich
 Additional goodies for writing macros
 -/
 prelude
+import Init.MetaTypes
 import Init.Data.Array.Basic
 import Init.Data.Option.BasicAux
 
@@ -63,6 +64,15 @@ def toolchain :=
 
 @[extern "lean_internal_is_stage0"]
 opaque Internal.isStage0 (u : Unit) : Bool
+
+/--
+This function can be used to detect whether the compiler has support for
+generating LLVM instead of C. It is used by lake instead of the --features
+flag in order to avoid having to run a compiler for this every time on startup.
+See #2572.
+-/
+@[extern "lean_internal_has_llvm_backend"]
+opaque Internal.hasLLVMBackend (u : Unit) : Bool
 
 /-- Valid identifier names -/
 def isGreek (c : Char) : Bool :=
@@ -216,11 +226,6 @@ instance : DecidableEq Name :=
   fun a b => if h : a == b then .isTrue (by simp_all) else .isFalse (by simp_all)
 
 end Name
-
-structure NameGenerator where
-  namePrefix : Name := `_uniq
-  idx        : Nat  := 1
-  deriving Inhabited
 
 namespace NameGenerator
 
@@ -452,11 +457,6 @@ end Syntax
   | none => x
   | some ref => withRef ref x
 
-/-- Syntax objects for a Lean module. -/
-structure Module where
-  header   : Syntax
-  commands : Array Syntax
-
 /--
   Expand macros in the given syntax.
   A node with kind `k` is visited only if `p k` is true.
@@ -480,7 +480,7 @@ structure Module where
   1- A proper extensible tactic feature that does not rely on the macro system.
 
   2- Typed macros that know the syntax categories they're working in. Then, we would be able to select which
-     syntatic categories are expanded by `expandMacros`.
+     syntactic categories are expanded by `expandMacros`.
 -/
 partial def expandMacros (stx : Syntax) (p : SyntaxNodeKind → Bool := fun k => k != `Lean.Parser.Term.byTactic) : MacroM Syntax :=
   withRef stx do
@@ -773,6 +773,16 @@ def decodeQuotedChar (s : String) (i : String.Pos) : Option (Char × String.Pos)
   else
     none
 
+/--
+Decodes a valid string gap after the `\`.
+Note that this function matches `"\" whitespace+` rather than
+the more restrictive `"\" newline whitespace*` since this simplifies the implementation.
+Justification: this does not overlap with any other sequences beginning with `\`.
+-/
+def decodeStringGap (s : String) (i : String.Pos) : Option String.Pos := do
+  guard <| (s.get i).isWhitespace
+  s.nextWhile Char.isWhitespace (s.next i)
+
 partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Option String := do
   let c := s.get i
   let i := s.next i
@@ -781,8 +791,12 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
   else if s.atEnd i then
     none
   else if c == '\\' then do
-    let (c, i) ← decodeQuotedChar s i
-    decodeStrLitAux s i (acc.push c)
+    if let some (c, i) := decodeQuotedChar s i then
+      decodeStrLitAux s i (acc.push c)
+    else if let some i := decodeStringGap s i then
+      decodeStrLitAux s i acc
+    else
+      none
   else
     decodeStrLitAux s i (acc.push c)
 
@@ -1162,8 +1176,12 @@ private partial def decodeInterpStrLit (s : String) : Option String :=
     else if s.atEnd i then
       none
     else if c == '\\' then do
-      let (c, i) ← decodeInterpStrQuotedChar s i
-      loop i (acc.push c)
+      if let some (c, i) := decodeInterpStrQuotedChar s i then
+        loop i (acc.push c)
+      else if let some i := decodeStringGap s i then
+        loop i acc
+      else
+        none
     else
       loop i (acc.push c)
   loop ⟨1⟩ ""
@@ -1203,88 +1221,7 @@ end TSyntax
 
 namespace Meta
 
-inductive TransparencyMode where
-  | all | default | reducible | instances
-  deriving Inhabited, BEq, Repr
-
-inductive EtaStructMode where
-  /-- Enable eta for structure and classes. -/
-  | all
-  /-- Enable eta only for structures that are not classes. -/
-  | notClasses
-  /-- Disable eta for structures and classes. -/
-  | none
-  deriving Inhabited, BEq, Repr
-
-namespace DSimp
-
-structure Config where
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := false
-  autoUnfold        : Bool := false
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  deriving Inhabited, BEq, Repr
-
-end DSimp
-
-namespace Simp
-
-def defaultMaxSteps := 100000
-
-structure Config where
-  maxSteps          : Nat  := defaultMaxSteps
-  maxDischargeDepth : Nat  := 2
-  contextual        : Bool := false
-  memoize           : Bool := true
-  singlePass        : Bool := false
-  zeta              : Bool := true
-  beta              : Bool := true
-  eta               : Bool := true
-  etaStruct         : EtaStructMode := .all
-  iota              : Bool := true
-  proj              : Bool := true
-  decide            : Bool := true
-  arith             : Bool := false
-  autoUnfold        : Bool := false
-  /--
-    If `dsimp := true`, then switches to `dsimp` on dependent arguments where there is no congruence theorem that allows
-    `simp` to visit them. If `dsimp := false`, then argument is not visited.
-  -/
-  dsimp             : Bool := true
-  /-- If `failIfUnchanged := true`, then calls to `simp`, `dsimp`, or `simp_all`
-  will fail if they do not make progress. -/
-  failIfUnchanged   : Bool := true
-  deriving Inhabited, BEq, Repr
-
--- Configuration object for `simp_all`
-structure ConfigCtx extends Config where
-  contextual := true
-
-def neutralConfig : Simp.Config := {
-  zeta              := false
-  beta              := false
-  eta               := false
-  iota              := false
-  proj              := false
-  decide            := false
-  arith             := false
-  autoUnfold        := false
-}
-
-end Simp
-
-inductive Occurrences where
-  | all
-  | pos (idxs : List Nat)
-  | neg (idxs : List Nat)
-  deriving Inhabited, BEq
+deriving instance Repr for TransparencyMode, EtaStructMode, DSimp.Config, Simp.Config
 
 def Occurrences.contains : Occurrences → Nat → Bool
   | all,      _   => true
@@ -1342,14 +1279,14 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " fun (c : Lean.Meta.Simp.Config) => { c with autoUnfold := true }
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true`.
+/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
 This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true }
+declare_simp_like_tactic simpArith "simp_arith " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, decide := true }
 
 /-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " fun (c : Lean.Meta.Simp.Config) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
@@ -1357,10 +1294,10 @@ partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with autoUnfold := true }
 
 /-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true }
+declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, decide := true }
 
 /-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true }
+declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " fun (c : Lean.Meta.Simp.ConfigCtx) => { c with arith := true, autoUnfold := true, decide := true }
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

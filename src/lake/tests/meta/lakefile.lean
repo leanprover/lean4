@@ -3,7 +3,8 @@ open Lake DSL
 
 package test_meta
 
-#print "lorem"
+def test_run_io : Unit :=
+  run_io IO.println "impure"
 
 meta if get_config? baz |>.isSome then #print "baz"
 
@@ -14,4 +15,13 @@ else meta if get_config? env = some "bar" then do
   #print "bar"
   #print "2"
 
-#print "ipsum"
+script print_env do
+  IO.eprintln <| get_config? env |>.getD "none"
+  return 0
+
+elab "elab_str" : term => do
+  return Lean.toExpr "elabbed-string"
+
+script print_elab do
+  IO.eprintln elab_str
+  return 0

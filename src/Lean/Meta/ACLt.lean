@@ -38,7 +38,7 @@ mutual
 
   Recall that an AC-compatible ordering if it is monotonic, well-founded, and total.
   Both KBO and LPO are AC-compatible. KBO is faster, but we do not cache the weight of
-  each expression in Lean 4. Even if we did, we would need to have a weight where implicit instace arguments are ignored.
+  each expression in Lean 4. Even if we did, we would need to have a weight where implicit instance arguments are ignored.
   So, we use a LPO-like term ordering.
 
   Remark: this method is used to implement ordered rewriting. We ignore implicit instance
@@ -60,8 +60,8 @@ where
       -- Drawback: cost.
       return e
     else match mode with
-      | .reduce => DiscrTree.reduce e (simpleReduce := false)
-      | .reduceSimpleOnly => DiscrTree.reduce e (simpleReduce := true)
+      | .reduce => DiscrTree.reduce e {}
+      | .reduceSimpleOnly => DiscrTree.reduce e { iota := false, proj := .no }
       | .none => return e
 
   lt (a b : Expr) : MetaM Bool := do
@@ -120,7 +120,7 @@ where
     | .fvar id ..   => return Name.lt id.name b.fvarId!.name
     | .mvar id ..   => return Name.lt id.name b.mvarId!.name
     | .sort u ..    => return Level.normLt u b.sortLevel!
-    | .const n ..   => return Name.lt n b.constName! -- We igore the levels
+    | .const n ..   => return Name.lt n b.constName! -- We ignore the levels
     | .lit v ..     => return Literal.lt v b.litValue!
     -- Composite
     | .proj _ i e ..    => if i != b.projIdx! then return i < b.projIdx! else lt e b.projExpr!

@@ -175,7 +175,8 @@ structure State where
 
 abbrev SynthM := ReaderT Context $ StateRefT State MetaM
 
-def checkMaxHeartbeats : SynthM Unit := do
+def checkSystem : SynthM Unit := do
+  Core.checkInterrupted
   Core.checkMaxHeartbeatsCore "typeclass" `synthInstance.maxHeartbeats (← read).maxHeartbeats
 
 @[inline] def mapMetaM (f : forall {α}, MetaM α → MetaM α) {α} : SynthM α → SynthM α :=
@@ -194,7 +195,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
     | none   => throwError "type class instance expected{indentExpr type}"
     | some className =>
       let globalInstances ← getGlobalInstancesIndex
-      let result ← globalInstances.getUnify type
+      let result ← globalInstances.getUnify type tcDtConfig
       -- Using insertion sort because it is stable and the array `result` should be mostly sorted.
       -- Most instances have default priority.
       let result := result.insertionSort fun e₁ e₂ => e₁.priority < e₂.priority
@@ -552,7 +553,7 @@ def resume : SynthM Unit := do
       consume { key := cNode.key, mvar := cNode.mvar, subgoals := rest, mctx, size := cNode.size + answer.size }
 
 def step : SynthM Bool := do
-  checkMaxHeartbeats
+  checkSystem
   let s ← get
   if !s.resumeStack.isEmpty then
     resume
@@ -581,13 +582,16 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let action : SynthM (Option AbstractMVarsResult) := do
        newSubgoal (← getMCtx) key mvar Waiter.root
        synth
-     try
-       action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
-     catch ex =>
-       if ex.isMaxHeartbeat then
-         throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
-       else
-         throw ex
+     -- TODO: it would be nice to have a nice notation for the following idiom
+     withCatchingRuntimeEx
+       try
+         withoutCatchingRuntimeEx do
+           action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {}
+       catch ex =>
+         if ex.isRuntime then
+           throwError "failed to synthesize{indentExpr type}\n{ex.toMessageData}"
+         else
+           throw ex
 
 end SynthInstance
 
@@ -601,7 +605,7 @@ it contains a regular parameter X that depends on an `out` parameter Y.
 
 Then, we execute type class resolution as usual.
 If it succeeds, and metavariables ?m_i have been assigned, we try to unify
-the original type `C a_1 ... a_n` witht the normalized one.
+the original type `C a_1 ... a_n` with the normalized one.
 -/
 
 private def preprocess (type : Expr) : MetaM Expr :=
@@ -697,7 +701,7 @@ def synthInstance? (type : Expr) (maxResultSize? : Option Nat := none) : MetaM (
           trace[Meta.synthInstance] "result {result}"
           if (← assignOutParams result) then
             let result ← instantiateMVars result
-            /- We use `check` to propogate universe constraints implied by the `result`.
+            /- We use `check` to propagate universe constraints implied by the `result`.
                Recall that we use `allowLevelAssignments := true` which allows universe metavariables in the current depth to be assigned,
                but these assignments are discarded by `withNewMCtxDepth`.
 

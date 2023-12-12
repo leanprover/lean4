@@ -39,9 +39,14 @@ def expandOptLocation (stx : Syntax) : Location :=
 
 open Meta
 
-/-- Runs the given `atLocal` and `atTarget` methods on each of the locations selected by the given `loc`.
-If any of the selected tactic applications fail, it will call `failed` with the main goal mvar.
- -/
+/--
+Runs the given `atLocal` and `atTarget` methods on each of the locations selected by the given `loc`.
+* If `loc` is a list of locations, runs at each specified hypothesis (and finally the goal if `⊢` is included),
+  and fails if any of the tactic applications fail.
+* If `loc` is `*`, runs at the target first and then the hypotheses in reverse order.
+  If `atTarget` closes the main goal, `withLocation` does not run `atLocal`.
+  If all tactic applications fail, `withLocation` with call `failed` with the main goal mvar.
+-/
 def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget : TacticM Unit) (failed : MVarId → TacticM Unit) : TacticM Unit := do
   match loc with
   | Location.targets hyps type =>
@@ -49,10 +54,11 @@ def withLocation (loc : Location) (atLocal : FVarId → TacticM Unit) (atTarget 
       let fvarId ← getFVarId hyp
       atLocal fvarId
     if type then
-      atTarget
+      withMainContext atTarget
   | Location.wildcard =>
     let worked ← tryTactic <| withMainContext <| atTarget
-    withMainContext do
+    let g ← try getMainGoal catch _ => return () -- atTarget closed the goal
+    g.withContext do
       let mut worked := worked
       -- We must traverse backwards because the given `atLocal` may use the revert/intro idiom
       for fvarId in (← getLCtx).getFVarIds.reverse do

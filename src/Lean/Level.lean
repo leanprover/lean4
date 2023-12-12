@@ -191,7 +191,7 @@ def mvarId! : Level → LMVarId
   | mvar mvarId => mvarId
   | _           => panic! "metavariable expected"
 
-/-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occuring
+/-- If result is true, then forall assignments `A` which assigns all parameters and metavariables occurring
     in `l`, `l[A] != zero` -/
 def isNeverZero : Level → Bool
   | zero         => false
@@ -204,6 +204,9 @@ def isNeverZero : Level → Bool
 def ofNat : Nat → Level
   | 0   => levelZero
   | n+1 => mkLevelSucc (ofNat n)
+
+instance instOfNat (n : Nat) : OfNat Level n where
+  ofNat := ofNat n
 
 def addOffsetAux : Nat → Level → Level
   | 0,     u => u

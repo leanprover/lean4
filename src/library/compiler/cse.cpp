@@ -255,7 +255,7 @@ public:
                         expr const & fvar = m_fvars[k];
                         if (get_fvar_idx(fvar) > max_idx) {
                             m_fvars.insert(k, new_fvar);
-                            /* We need to save the pairs to replace the `target` on let-declarations that occurr after k */
+                            /* We need to save the pairs to replace the `target` on let-declarations that occur after k */
                             target_jmp_pairs.emplace_back(target, jmp);
                             break;
                         }

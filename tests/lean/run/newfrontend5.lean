@@ -44,7 +44,7 @@ The unification constraint is easily solved
 
 set_option pp.all true
 
--- The following test got stuck at universe contraints after if fixed the `decAux?` bug.
+-- The following test got stuck at universe constraints after if fixed the `decAux?` bug.
 -- #check let x := (fun f => (f, f)) @id; (x.1 (), x.2 true) -- works
 -- #check_failure let x := (fun f => (f, f)) id; (x.1 (), x.2 true) -- fails as expected
 

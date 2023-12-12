@@ -27,12 +27,26 @@ namespace Lake
 /--
 Build `info` unless it already exists and `depTrace` matches that
 of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
+Returns whether `info` was already up-to-date.
+-/
+@[inline] def buildUnlessUpToDate' [CheckExists ι] [GetMTime ι] (info : ι)
+(depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM Bool := do
+  if (← depTrace.checkUpToDate info traceFile) then
+    return true
+  else
+    if (← getNoBuild) then
+      IO.Process.exit noBuildCode.toUInt8
+    build
+    depTrace.writeToFile traceFile
+    return false
+
+/--
+Build `info` unless it already exists and `depTrace` matches that
+of the `traceFile`. If rebuilt, save the new `depTrace` to the `tracefile`.
 -/
 @[inline] def buildUnlessUpToDate [CheckExists ι] [GetMTime ι] (info : ι)
 (depTrace : BuildTrace) (traceFile : FilePath) (build : JobM PUnit) : JobM PUnit := do
-  unless (← depTrace.checkUpToDate info traceFile) do
-    build
-    depTrace.writeToFile traceFile
+  discard <| buildUnlessUpToDate' info depTrace traceFile build
 
 /-- Fetch the trace of a file that may have its hash already cached in a `.hash` file. -/
 def fetchFileTrace (file : FilePath) : BuildM BuildTrace := do
@@ -69,6 +83,8 @@ def buildFileUnlessUpToDate (file : FilePath)
   if (← depTrace.checkUpToDate file traceFile) then
     fetchFileTrace file
   else
+    if (← getNoBuild) then
+      IO.Process.exit noBuildCode.toUInt8
     build
     depTrace.writeToFile traceFile
     return .mk (← cacheFileHash file) (← getMTime file)

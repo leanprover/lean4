@@ -54,7 +54,7 @@ mutual
 
   theorem listStringLen_flatList (cs : List Foo) : listStringLen (flatList cs) = textLengthList cs := by
     match cs with
-    | [] => simp
+    | [] => simp [listStringLen]
     | f :: fs => simp [listStringLen_append, listStringLen_flatList fs, listStringLen_flat f]
 end
 

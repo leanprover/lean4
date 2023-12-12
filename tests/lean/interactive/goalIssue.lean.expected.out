@@ -1,8 +1,8 @@
-{"textDocument": {"uri": "file://goalIssue.lean"},
+{"textDocument": {"uri": "file:///goalIssue.lean"},
  "position": {"line": 2, "character": 12}}
 {"rendered": "```lean\nx : Nat\nthis : x + x = x + x\n⊢ 0 + x = x\n```",
  "goals": ["x : Nat\nthis : x + x = x + x\n⊢ 0 + x = x"]}
-{"textDocument": {"uri": "file://goalIssue.lean"},
+{"textDocument": {"uri": "file:///goalIssue.lean"},
  "position": {"line": 8, "character": 12}}
 {"rendered": "```lean\ncase zero\n⊢ 0 + Nat.zero = Nat.zero\n```",
  "goals": ["case zero\n⊢ 0 + Nat.zero = Nat.zero"]}

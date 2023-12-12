@@ -546,7 +546,7 @@ class specialize_fn {
                     /* Recall that `m_ctx.m_vars` contains all variables (lambda and let) the specialization
                        depends on, and `m_ctx.m_params` contains the ones that should be lambda abstracted. */
                     m_ctx.m_vars.push_back(x);
-                    /* Thus, a variable occuring outside of a binder is only lambda abstracted if it is not
+                    /* Thus, a variable occurring outside of a binder is only lambda abstracted if it is not
                        a let-variable. */
                     if (!v) m_ctx.m_params.push_back(x);
                 }
@@ -959,7 +959,7 @@ class specialize_fn {
            types, and it will fail to infer the type of `n`-applications if we do not have
            an entry in the environment.
 
-           Remark: we mark the axiom as `meta` to make sure it does not polute the environment
+           Remark: we mark the axiom as `meta` to make sure it does not pollute the environment
            regular definitions.
 
            We also considered the following cleaner solution: modify `csimp` to use a custom

@@ -240,7 +240,7 @@ partial def delabFor : Name → Delab
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
 partial def delab : Delab := do
-  checkMaxHeartbeats "delab"
+  checkSystem "delab"
   let e ← getExpr
 
   -- no need to hide atomic proofs
@@ -277,6 +277,17 @@ end Delaborator
 open SubExpr (Pos PosMap)
 open Delaborator (OptionsPerPos topDownAnalyze)
 
+/-- Custom version of `Lean.Core.betaReduce` to beta reduce expressions for the `pp.beta` option.
+We do not want to beta reduce the application in `let_fun` annotations. -/
+private partial def betaReduce' (e : Expr) : CoreM Expr :=
+  Core.transform e (pre := fun e => do
+    if isLetFun e then
+      return .done <| e.updateMData! (.app (← betaReduce' e.mdataExpr!.appFn!) (← betaReduce' e.mdataExpr!.appArg!))
+    else if e.isHeadBetaTarget then
+      return .visit e.headBeta
+    else
+      return .continue)
+
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delaborator.delab) : MetaM (Term × PosMap Elab.Info) := do
   /- Using `erasePatternAnnotations` here is a bit hackish, but we do it
      `Expr.mdata` affects the delaborator. TODO: should we fix that? -/
@@ -291,6 +302,7 @@ def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab := Delabor
     catch _ => pure ()
   withOptions (fun _ => opts) do
     let e ← if getPPInstantiateMVars opts then instantiateMVars e else pure e
+    let e ← if getPPBeta opts then betaReduce' e else pure e
     let optionsPerPos ←
       if !getPPAll opts && getPPAnalyze opts && optionsPerPos.isEmpty then
         topDownAnalyze e

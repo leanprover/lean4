@@ -1,10 +1,12 @@
 a : Nat
 
-prvCtor.lean:21:7-21:8: error: unknown identifier 'a'
-prvCtor.lean:23:25-23:27: error: overloaded, errors 
+prvCtor.lean:25:23-25:61: error: invalid {...} notation, constructor for `Lean.Environment` is marked as private
+prvCtor.lean:23:0-25:61: error: cannot evaluate code because '_eval._lambda_1' uses 'sorry' and/or contains errors
+prvCtor.lean:27:7-27:8: error: unknown identifier 'a'
+prvCtor.lean:29:25-29:27: error: overloaded, errors 
   failed to synthesize instance
     EmptyCollection (Name "hello")
   
   invalid {...} notation, constructor for `Name` is marked as private
-prvCtor.lean:25:25-25:34: error: invalid ⟨...⟩ notation, constructor for `Name` is marked as private
-prvCtor.lean:27:25-27:40: error: unknown constant 'Name.mk'
+prvCtor.lean:31:25-31:34: error: invalid ⟨...⟩ notation, constructor for `Name` is marked as private
+prvCtor.lean:33:25-33:40: error: unknown constant 'Name.mk'

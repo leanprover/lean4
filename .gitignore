@@ -2,6 +2,8 @@
 \#*
 .#*
 *.lock
+.lake
+lake-manifest.json
 build
 !/src/lake/Lake/Build
 GPATH

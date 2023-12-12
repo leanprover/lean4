@@ -11,15 +11,11 @@ mutual
     else
       n
 end
-termination_by'
-  invImage
-    (fun
-     | PSum.inl ⟨n, true⟩ => (n, 2)
-     | PSum.inl ⟨n, false⟩ => (n, 1)
-     | PSum.inr n => (n, 0))
-  $ Prod.lex sizeOfWFRel sizeOfWFRel
+termination_by
+  f n b => (n, if b then 2 else 1)
+  g n => (n, 0)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
+  simp_wf
   first
   | apply Prod.Lex.left
     apply Nat.pred_lt

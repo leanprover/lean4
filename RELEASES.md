@@ -5,14 +5,142 @@ There is not yet a strong guarantee of backwards compatibility between versions,
 only an expectation that breaking changes will be documented in this file.
 
 This file contains work-in-progress notes for the upcoming release, as well as previous stable releases.
-Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status of each version.
+Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
+of each version.
 
-v4.2.0 (development in progress)
+v4.5.0 (development in progress)
 ---------
 
+* Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
+  These have the interpetation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
+  The following is equivalent to `"this is a string"`.
+  ```lean
+  "this is \
+     a string"
+  ```
+  [PR #2821](https://github.com/leanprover/lean4/pull/2821) and [RFC #2838](https://github.com/leanprover/lean4/issues/2838).
+
+* The low-level `termination_by'` clause is no longer supported.
+
+  Migration guide: Use `termination_by` instead, e.g.:
+  ```diff
+  -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
+  +termination_by go i _ => as.size - i
+  ```
+
+  If the well-founded relation you want to use is not the one that the
+  `WellFoundedRelation` type class would infer for your termination argument,
+  you can use `WellFounded.wrap` from the std libarary to explicitly give one:
+  ```diff
+  -termination_by' ⟨r, hwf⟩
+  +termination_by _ x => hwf.wrap x
+  ```
+
+v4.4.0
+---------
+
+* Lake and the language server now support per-package server options using the `moreServerOptions` config field, as well as options that apply to both the language server and `lean` using the `leanOptions` config field. Setting either of these fields instead of `moreServerArgs` ensures that viewing files from a dependency uses the options for that dependency. Additionally, `moreServerArgs` is being deprecated in favor of the `moreGlobalServerArgs` field. See PR [#2858](https://github.com/leanprover/lean4/pull/2858).
+  
+  A Lakefile with the following deprecated package declaration:
+  ```lean
+  def moreServerArgs := #[
+    "-Dpp.unicode.fun=true"
+  ]
+  def moreLeanArgs := moreServerArgs
+  
+  package SomePackage where
+    moreServerArgs := moreServerArgs
+    moreLeanArgs := moreLeanArgs
+  ```
+  
+  ... can be updated to the following package declaration to use per-package options:
+  ```lean
+  package SomePackage where
+    leanOptions := #[⟨`pp.unicode.fun, true⟩]
+  ```
+* [Rename request handler](https://github.com/leanprover/lean4/pull/2462).
+* [Import auto-completion](https://github.com/leanprover/lean4/pull/2904).
+* [`pp.beta`` to apply beta reduction when pretty printing](https://github.com/leanprover/lean4/pull/2864).
+* [Embed and check githash in .olean](https://github.com/leanprover/lean4/pull/2766).
+* [Guess lexicographic order for well-founded recursion](https://github.com/leanprover/lean4/pull/2874).
+* [Allow trailing comma in tuples, lists, and tactics](https://github.com/leanprover/lean4/pull/2643).
+
+Bug fixes for [#2628](https://github.com/leanprover/lean4/issues/2628), [#2883](https://github.com/leanprover/lean4/issues/2883),
+[#2810](https://github.com/leanprover/lean4/issues/2810), [#2925](https://github.com/leanprover/lean4/issues/2925), and [#2914](https://github.com/leanprover/lean4/issues/2914).
+
+**Lake:**
+
+* `lake init .` and a bare `lake init` and will now use the current directory as the package name. [#2890](https://github.com/leanprover/lean4/pull/2890)
+* `lake new` and `lake init` will now produce errors on invalid package names such as `..`, `foo/bar`, `Init`, `Lean`, `Lake`, and `Main`. See issue [#2637](https://github.com/leanprover/lean4/issues/2637) and PR [#2890](https://github.com/leanprover/lean4/pull/2890).
+* `lean_lib` no longer converts its name to upper camel case (e.g., `lean_lib bar` will include modules named `bar.*` rather than `Bar.*`). See issue [#2567](https://github.com/leanprover/lean4/issues/2567) and PR [#2889](https://github.com/leanprover/lean4/pull/2889).
+* Lean and Lake now properly support non-identifier library names (e.g., `lake new 123-hello` and `import «123Hello»` now work correctly). See issue [#2865](https://github.com/leanprover/lean4/issues/2865) and PR [#2889](https://github.com/leanprover/lean4/pull/2888).
+* Lake now filters the environment extensions loaded from a compiled configuration (`lakefile.olean`) to include only those relevant to Lake's workspace loading process. This resolves segmentation faults caused by environment extension type mismatches (e.g., when defining custom elaborators via `elab` in configurations). See issue [#2632](https://github.com/leanprover/lean4/issues/2632) and PR [#2896](https://github.com/leanprover/lean4/pull/2896).
+* Cloud releases will now properly be re-unpacked if the build directory is removed. See PR [#2928](https://github.com/leanprover/lean4/pull/2928).
+* Lake's `math` template has been simplified. See PR [#2930](https://github.com/leanprover/lean4/pull/2930).
+* `lake exe <target>` now parses `target` like a build target (as the help text states it should) rather than as a basic name. For example, `lake exe @mathlib/runLinter` should now work. See PR [#2932](https://github.com/leanprover/lean4/pull/2932).
+* `lake new foo.bar [std]` now generates executables named `foo-bar` and `lake new foo.bar exe` properly creates `foo/bar.lean`. See PR [#2932](https://github.com/leanprover/lean4/pull/2932).
+* Later packages and libraries in the dependency tree are now preferred over earlier ones. That is, the later ones "shadow" the earlier ones. Such an ordering is more consistent with how declarations generally work in programming languages. This will break any package that relied on the previous ordering. See issue [#2548](https://github.com/leanprover/lean4/issues/2548) and PR [#2937](https://github.com/leanprover/lean4/pull/2937).
+* Executable roots are no longer mistakenly treated as importable. They will no longer be picked up by `findModule?`. See PR [#2937](https://github.com/leanprover/lean4/pull/2937).
+
+v4.3.0
+---------
+
+* `simp [f]` does not unfold partial applications of `f` anymore. See issue [#2042](https://github.com/leanprover/lean4/issues/2042).
+  To fix proofs affected by this change, use `unfold f` or `simp (config := { unfoldPartialApp := true }) [f]`.
+* By default, `simp` will no longer try to use Decidable instances to rewrite terms. In particular, not all decidable goals will be closed by `simp`, and the `decide` tactic may be useful in such cases. The `decide` simp configuration option can be used to locally restore the old `simp` behavior, as in `simp (config := {decide := true})`; this includes using Decidable instances to verify side goals such as numeric inequalities.
+
+* Many bug fixes:
+  * [Add left/right actions to term tree coercion elaborator and make `^`` a right action](https://github.com/leanprover/lean4/pull/2778)
+  * [Fix for #2775, don't catch max recursion depth errors](https://github.com/leanprover/lean4/pull/2790)
+  * [Reduction of `Decidable` instances very slow when using `cases` tactic](https://github.com/leanprover/lean4/issues/2552)
+  * [`simp` not rewriting in binder](https://github.com/leanprover/lean4/issues/1926)
+  * [`simp` unfolding `let` even with `zeta := false` option](https://github.com/leanprover/lean4/issues/2669)
+  * [`simp` (with beta/zeta disabled) and discrimination trees](https://github.com/leanprover/lean4/issues/2281)
+  * [unknown free variable introduced by `rw ... at h`](https://github.com/leanprover/lean4/issues/2711)
+  * [`dsimp` doesn't use `rfl` theorems which consist of an unapplied constant](https://github.com/leanprover/lean4/issues/2685)
+  * [`dsimp` does not close reflexive equality goals if they are wrapped in metadata](https://github.com/leanprover/lean4/issues/2514)
+  * [`rw [h]` uses `h` from the environment in preference to `h` from the local context](https://github.com/leanprover/lean4/issues/2729)
+  * [missing `withAssignableSyntheticOpaque` for `assumption` tactic](https://github.com/leanprover/lean4/issues/2361)
+  * [ignoring default value for field warning](https://github.com/leanprover/lean4/issues/2178)
+* [Cancel outstanding tasks on document edit in the language server](https://github.com/leanprover/lean4/pull/2648).
+* [Remove unnecessary `%` operations in `Fin.mod` and `Fin.div`](https://github.com/leanprover/lean4/pull/2688)
+* [Avoid `DecidableEq` in `Array.mem`](https://github.com/leanprover/lean4/pull/2774)
+* [Ensure `USize.size` unifies with `?m + 1`](https://github.com/leanprover/lean4/issues/1926)
+* [Improve compatibility with emacs eglot client](https://github.com/leanprover/lean4/pull/2721)
+
+**Lake:**
+
+* [Sensible defaults for `lake new MyProject math`](https://github.com/leanprover/lean4/pull/2770)
+* Changed `postUpdate?` configuration option to a `post_update` declaration. See the `post_update` syntax docstring for more information on the new syntax.
+* [A manifest is automatically created on workspace load if one does not exists.](https://github.com/leanprover/lean4/pull/2680).
+* The `:=` syntax for configuration declarations (i.e., `package`, `lean_lib`, and `lean_exe`) has been deprecated. For example, `package foo := {...}` is deprecated.
+* [support for overriding package URLs via `LAKE_PKG_URL_MAP`](https://github.com/leanprover/lean4/pull/2709)
+* Moved the default build directory (e.g., `build`), default packages directory (e.g., `lake-packages`), and the compiled configuration (e.g., `lakefile.olean`) into a new dedicated directory for Lake outputs, `.lake`. The cloud release build archives are also stored here, fixing [#2713](https://github.com/leanprover/lean4/issues/2713).
+* Update manifest format to version 7 (see [lean4#2801](https://github.com/leanprover/lean4/pull/2801) for details on the changes).
+* Deprecate the `manifestFile` field of a package configuration.
+* There is now a more rigorous check on `lakefile.olean` compatibility (see [#2842](https://github.com/leanprover/lean4/pull/2842) for more details).
+
+v4.2.0
+---------
+
+* [isDefEq cache for terms not containing metavariables.](https://github.com/leanprover/lean4/pull/2644).
+* Make [`Environment.mk`](https://github.com/leanprover/lean4/pull/2604) and [`Environment.add`](https://github.com/leanprover/lean4/pull/2642) private, and add [`replay`](https://github.com/leanprover/lean4/pull/2617) as a safer alternative.
+* `IO.Process.output` no longer inherits the standard input of the caller.
+* [Do not inhibit caching](https://github.com/leanprover/lean4/pull/2612) of default-level `match` reduction.
+* [List the valid case tags](https://github.com/leanprover/lean4/pull/2629) when the user writes an invalid one.
+* The derive handler for `DecidableEq` [now handles](https://github.com/leanprover/lean4/pull/2591) mutual inductive types.
+* [Show path of failed import in Lake](https://github.com/leanprover/lean4/pull/2616).
+* [Fix linker warnings on macOS](https://github.com/leanprover/lean4/pull/2598).
+* **Lake:** Add `postUpdate?` package configuration option. Used by a package to specify some code which should be run after a successful `lake update` of the package or one of its downstream dependencies. ([lake#185](https://github.com/leanprover/lake/issues/185))
+* Improvements to Lake startup time ([#2572](https://github.com/leanprover/lean4/pull/2572), [#2573](https://github.com/leanprover/lean4/pull/2573))
+* `refine e` now replaces the main goal with metavariables which were created during elaboration of `e` and no longer captures pre-existing metavariables that occur in `e` ([#2502](https://github.com/leanprover/lean4/pull/2502)).
+  * This is accomplished via changes to `withCollectingNewGoalsFrom`, which also affects `elabTermWithHoles`, `refine'`, `calc` (tactic), and `specialize`. Likewise, all of these now only include newly-created metavariables in their output.
+  * Previously, both newly-created and pre-existing metavariables occurring in `e` were returned inconsistently in different edge cases, causing duplicated goals in the infoview (issue [#2495](https://github.com/leanprover/lean4/issues/2495)), erroneously closed goals (issue [#2434](https://github.com/leanprover/lean4/issues/2434)), and unintuitive behavior due to `refine e` capturing previously-created goals appearing unexpectedly in `e` (no issue; see PR).
 
 v4.1.0
 ---------
+
+* The error positioning on missing tokens has been [improved](https://github.com/leanprover/lean4/pull/2393). In particular, this should make it easier to spot errors in incomplete tactic proofs.
 
 * After elaborating a configuration file, Lake will now cache the configuration to a `lakefile.olean`. Subsequent runs of Lake will import this OLean instead of elaborating the configuration file. This provides a significant performance improvement (benchmarks indicate that using the OLean cuts Lake's startup time in half), but there are some important details to keep in mind:
   + Lake will regenerate this OLean after each modification to the `lakefile.lean` or `lean-toolchain`. You can also force a reconfigure by passing the new `--reconfigure` / `-R` option to `lake`.
@@ -41,7 +169,7 @@ v4.0.0
 
 * [`dsimp` / `simp` / `simp_all` now fail by default if they make no progress](https://github.com/leanprover/lean4/pull/2336).
 
-  This can be overriden with the `(config := { failIfUnchanged := false })` option.
+  This can be overridden with the `(config := { failIfUnchanged := false })` option.
   This change was made to ease manual use of `simp` (with complicated goals it can be hard to tell if it was effective)
   and to allow easier flow control in tactics internally using `simp`.
   See the [summary discussion](https://leanprover.zulipchat.com/#narrow/stream/270676-lean4/topic/simp.20fails.20if.20no.20progress/near/380153295)
@@ -140,7 +268,7 @@ v4.0.0
 
 * New [code generator](https://github.com/leanprover/lean4/tree/master/src/Lean/Compiler/LCNF) project has started.
 
-* Remove description argument frome `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
+* Remove description argument from `register_simp_attr`. [PR #1566](https://github.com/leanprover/lean4/pull/1566).
 
 * [Additional concurrency primitives](https://github.com/leanprover/lean4/pull/1555).
 
@@ -660,7 +788,7 @@ v4.0.0-m5 (07 August 2022)
   `Foo : {Foo : Type u} → List Foo → Type`.
 
 
-* Fix syntax hightlighting for recursive declarations. Example
+* Fix syntax highlighting for recursive declarations. Example
   ```lean
   inductive List (α : Type u) where
     | nil : List α  -- `List` is not highlighted as a variable anymore
@@ -969,7 +1097,7 @@ For example, given `f : Nat → Nat` and `g : Nat → Nat`, `f.comp g` is now no
 
 * Various improvements to go-to-definition & find-all-references accuracy.
 
-* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [whishlist](https://github.com/leanprover/lean4/issues/988)).
+* Auto generated congruence lemmas with support for casts on proofs and `Decidable` instances (see [wishlist](https://github.com/leanprover/lean4/issues/988)).
 
 * Rename option `autoBoundImplicitLocal` => `autoImplicit`.
 

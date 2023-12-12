@@ -173,7 +173,7 @@ using namespace lean; // NOLINT
 extern "C" void *initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin,
                                                       lean_object *);
 extern "C" object *lean_ir_emit_llvm(object *env, object *mod_name,
-                                     object *filepath, object *target_triple, object *w);
+                                     object *filepath, object *w);
 
 static void display_header(std::ostream & out) {
     out << "Lean (version " << get_version_string() << ", " << LEAN_STR(LEAN_BUILD_TYPE) << ")\n";
@@ -199,7 +199,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --i=iname -i       create ilean file\n";
     std::cout << "  --c=fname -c       name of the C output file\n";
     std::cout << "  --bc=fname -b      name of the LLVM bitcode file\n";
-    std::cout << "  --target=target    target triple of object file produced by LLVM\n";
     std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --root=dir         set package root directory from which the module name of the input file is calculated\n"
               << "                     (default: current working directory)\n";
@@ -251,7 +250,6 @@ static struct option g_long_options[] = {
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
     {"bc",           optional_argument, 0, 'b'},
-    {"target",       optional_argument, 0, '3'},
     {"features",     optional_argument, 0, 'f'},
     {"exitOnPanic",  no_argument,       0, 'e'},
 #if defined(LEAN_MULTI_THREAD)
@@ -271,7 +269,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:c:C:qgvht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvht:012j:012rR:M:012T:012ap:e"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -489,7 +487,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     std::string native_output;
     optional<std::string> c_output;
     optional<std::string> llvm_output;
-    optional<std::string> target_triple;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
 
@@ -524,12 +521,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 c_output = optarg;
                 break;
             case 'b':
-                check_optarg("b");
+                check_optarg("bc");
                 llvm_output = optarg;
-                break;
-            case '3':
-                check_optarg("target");
-                target_triple = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -752,24 +745,13 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             out.close();
         }
 
-        // target triple is only used by the LLVM backend. Save users
-        // a great deal of pain by erroring out if they misuse flags.
-        if (target_triple && !llvm_output) {
-            std::cerr << "ERROR: '--target' must be used with '--bc' to enable LLVM backend. Quitting code generation.\n";
-            return 1;
-        }
-
         if (llvm_output && ok) {
-	        // marshal 'optional<string>' to 'lean_object*'
-            lean_object* const target_triple_lean =
-                target_triple ? mk_option_some(lean::string_ref(*target_triple).to_obj_arg()) : mk_option_none();
             initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false,
                     lean_io_mk_world());
             time_task _("LLVM code generation", opts);
             lean::consume_io_result(lean_ir_emit_llvm(
                         env.to_obj_arg(), (*main_module_name).to_obj_arg(),
                         lean::string_ref(*llvm_output).to_obj_arg(),
-                        target_triple_lean,
                         lean_io_mk_world()));
         }
 

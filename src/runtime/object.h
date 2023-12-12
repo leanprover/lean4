@@ -325,6 +325,7 @@ inline obj_res nat_add(b_obj_arg a1, b_obj_arg a2) { return lean_nat_add(a1, a2)
 inline obj_res nat_sub(b_obj_arg a1, b_obj_arg a2) { return lean_nat_sub(a1, a2); }
 inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) { return lean_nat_mul(a1, a2); }
 inline obj_res nat_pow(b_obj_arg a1, b_obj_arg a2) { return lean_nat_pow(a1, a2); }
+inline obj_res nat_gcd(b_obj_arg a1, b_obj_arg a2) { return lean_nat_gcd(a1, a2); }
 inline obj_res nat_div(b_obj_arg a1, b_obj_arg a2) { return lean_nat_div(a1, a2); }
 inline obj_res nat_mod(b_obj_arg a1, b_obj_arg a2) { return lean_nat_mod(a1, a2); }
 inline bool nat_eq(b_obj_arg a1, b_obj_arg a2) { return lean_nat_eq(a1, a2); }

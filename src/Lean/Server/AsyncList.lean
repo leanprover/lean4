@@ -83,7 +83,7 @@ partial def waitUntil (p : α → Bool) : AsyncList ε α → Task (List α × O
 def waitAll : AsyncList ε α → Task (List α × Option ε) :=
   waitUntil (fun _ => false)
 
-/-- Spawns a `Task` acting like `List.find?` but which will wait for tail evalution
+/-- Spawns a `Task` acting like `List.find?` but which will wait for tail evaluation
 when necessary to traverse the list. If the tail terminates before a matching element
 is found, the task throws the terminating value. -/
 partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (Option α))
@@ -111,6 +111,20 @@ partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε
 
 def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=
   as.waitFind? fun _ => true
+
+/-- Cancels all tasks in the list. -/
+partial def cancel : AsyncList ε α → BaseIO Unit
+  | cons _ tl => tl.cancel
+  | nil => pure ()
+  | delayed tl => do
+    -- mind the order: if we asked the task whether it is still running
+    -- *before* cancelling it, it could be the case that it finished
+    -- just in between and has enqueued a dependent task that we would
+    -- miss (recall that cancellation is inherited by dependent tasks)
+    IO.cancel tl
+    if (← hasFinished tl) then
+      if let .ok t := tl.get then
+        t.cancel
 
 end AsyncList
 

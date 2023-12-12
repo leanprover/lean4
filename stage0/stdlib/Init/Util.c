@@ -23,6 +23,7 @@ LEAN_EXPORT lean_object* l_term_____x5b___x5d___x3f;
 static lean_object* l_term_____x5b___x5d___x3f___closed__6;
 LEAN_EXPORT lean_object* l_dbgSleep___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__5;
+LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Util_0__outOfBounds(lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__2;
 LEAN_EXPORT lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -71,6 +72,7 @@ lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1___closed__2;
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__13;
 static lean_object* l___private_Init_Util_0__outOfBounds___rarg___closed__2;
+LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1___closed__6;
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1___closed__3;
 static lean_object* l___private_Init_Util_0__outOfBounds___rarg___closed__1;
@@ -80,6 +82,7 @@ static lean_object* l_term_____x5b___x5d___x21___closed__1;
 LEAN_EXPORT lean_object* l_getElem_x21___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMacroScope(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrEqList(lean_object*);
+lean_object* lean_runtime_mark_multi_threaded(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceVal___rarg(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x21___closed__3;
@@ -126,6 +129,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 static lean_object* l___private_Init_Util_0__outOfBounds___rarg___closed__3;
 LEAN_EXPORT lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x21__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_runtime_mark_persistent(lean_object*);
 LEAN_EXPORT lean_object* l_dbgTraceVal___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ptrAddrUnsafe___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Util______macroRules__term_____x5b___x5d___x3f__1___closed__3;
@@ -718,7 +722,7 @@ static lean_object* _init_l_term_____x5b___x5d___x3f___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("term__[_]_?", 11);
+x_1 = lean_mk_string_from_bytes("term__[_]_\?", 11);
 return x_1;
 }
 }
@@ -934,7 +938,7 @@ static lean_object* _init_l_term_____x5b___x5d___x3f___closed__22() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("?", 1);
+x_1 = lean_mk_string_from_bytes("\?", 1);
 return x_1;
 }
 }
@@ -1034,7 +1038,7 @@ static lean_object* _init_l___aux__Init__Util______macroRules__term_____x5b___x5
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("getElem?", 8);
+x_1 = lean_mk_string_from_bytes("getElem\?", 8);
 return x_1;
 }
 }
@@ -1380,6 +1384,22 @@ lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_3);
 return x_26;
 }
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_markMultiThreaded___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_runtime_mark_multi_threaded(x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_markPersistent___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_runtime_mark_persistent(x_2);
+return x_3;
 }
 }
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin, lean_object*);

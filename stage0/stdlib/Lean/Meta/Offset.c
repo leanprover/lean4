@@ -3327,7 +3327,7 @@ lean_object* x_8; lean_object* x_9; uint8_t x_10;
 x_8 = l_Lean_Meta_getConfig(x_3, x_4, x_5, x_6, x_7);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
-x_10 = lean_ctor_get_uint8(x_9, 11);
+x_10 = lean_ctor_get_uint8(x_9, 8);
 lean_dec(x_9);
 if (x_10 == 0)
 {

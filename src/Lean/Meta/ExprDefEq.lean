@@ -183,7 +183,7 @@ inductive DefEqArgsFirstPassResult where
   Succeeded. The array `postponedImplicit` contains the position
   of the implicit arguments for which def-eq has been postponed.
   `postponedHO` contains the higher order output parameters, and parameters
-  that depend on them. They should be processed after the implict ones.
+  that depend on them. They should be processed after the implicit ones.
   `postponedHO` is used to handle applications involving functions that
   contain higher order output parameters. Example:
   ```lean
@@ -192,7 +192,7 @@ inductive DefEqArgsFirstPassResult where
     {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
     (xs : cont) → (i : idx) → (h : dom xs i) → elem
   ```
-  The argumengs `dom` and `h` must be processed after all implicit arguments
+  The arguments `dom` and `h` must be processed after all implicit arguments
   otherwise higher-order unification problems are generated. See issue #1299,
   when trying to solve
   ```
@@ -629,7 +629,7 @@ where
      let f (x : _) := pure "hello"; f ()
      ```
      with expected type `IO String`.
-     In this example, the following unification contraint is generated.
+     In this example, the following unification constraint is generated.
      ```
      ?m () String =?= IO String
      ```
@@ -649,7 +649,7 @@ where
      a **potential** dependency on `x`. By using constant approximation here, we are just saying the type of `f`
      does **not** depend on `x`. We claim this is a reasonable approximation in practice. Moreover, it is expected
      by any functional programmer used to non-dependently type languages (e.g., Haskell).
-     We distinguish the two cases above by using the field `numScopeArgs` at `MetavarDecl`. This fiels tracks
+     We distinguish the two cases above by using the field `numScopeArgs` at `MetavarDecl`. This field tracks
      how many metavariable arguments are representing dependencies.
 -/
 
@@ -735,7 +735,7 @@ mutual
             throwCheckAssignmentFailure -- It is not a pattern, then we fail and fall back to FO unification
           else if mvarDecl.lctx.isSubPrefixOf ctx.mvarDecl.lctx ctx.fvars then
             /- The local context of `mvar` - free variables being abstracted is a subprefix of the metavariable being assigned.
-               We "substract" variables being abstracted because we use `elimMVarDeps` -/
+               We "subtract" variables being abstracted because we use `elimMVarDeps` -/
             pure mvar
           else if mvarDecl.depth != (← getMCtx).depth || mvarDecl.kind.isSyntheticOpaque then
             traceM `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx <| addAssignmentInfo (mkMVar mvarId)
@@ -1034,7 +1034,7 @@ private def assignConst (mvar : Expr) (numArgs : Nat) (v : Expr) : MetaM Bool :=
   ```
   ?m := fun y₁ ... y‌ⱼ => (fun y_{j+1} ... yₙ x₁ ... xᵢ => v)[a₁/y₁, .., aⱼ/yⱼ]
   ```
-  That is, after the longest prefix is found, we solve the contraint as the lhs was a pattern. See the definition of "pattern" above.
+  That is, after the longest prefix is found, we solve the constraint as the lhs was a pattern. See the definition of "pattern" above.
 -/
 private partial def processConstApprox (mvar : Expr) (args : Array Expr) (patternVarPrefix : Nat) (v : Expr) : MetaM Bool := do
   trace[Meta.isDefEq.constApprox] "{mvar} {args} := {v}"
@@ -1397,7 +1397,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   if tNew != t then return some tNew
   /-
     If `assignSyntheticOpaque` is true, we must follow the delayed assignment.
-    Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assingment
+    Recall a delayed assignment `mvarId [xs] := mvarIdPending` is morally an assignment
     `mvarId := fun xs => mvarIdPending` where `xs` are free variables in the scope of `mvarIdPending`,
     but not in the scope of `mvarId`. We can only perform the abstraction when `mvarIdPending` has been fully synthesized.
     That is, `instantiateMVars (mkMVar mvarIdPending)` does not contain any expression metavariables.
@@ -1411,7 +1411,7 @@ private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
     We also have the delayed assignment `?m [xs] := ?n`, where `xs` are variables in the scope of `?n`,
     and this delayed assignment is morally `?m := fun xs => ?n`.
     Thus, we can reduce `?m as =?= s[as]` to `?n =?= s[as/xs]`, and solve it using `?n`'s local context.
-    This is more precise than simplying droping the arguments `as`.
+    This is more precise than simply dropping the arguments `as`.
   -/
   unless (← getConfig).assignSyntheticOpaque do return none
   let tArgs := t.getAppArgs
@@ -1538,9 +1538,9 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
     However, pattern annotations (`inaccessible?` and `patternWithRef?`) must be consumed.
     The frontend relies on the fact that is must not be propagated by `isDefEq`.
     Thus, we consume it here. This is a bit hackish since it is very adhoc.
-    We might other annotations in the future that we should not preserve.
-    Perhaps, we should mark the annotation we do want to preserve ones
-    (e.g., hints for the pretty printer), and consume all other
+    We might have other annotations in the future that we should not preserve.
+    Perhaps, we should mark the annotations we do want to preserve
+    (e.g., hints for the pretty printer), and consume all others.
   -/
   if let some t := patternAnnotation? t then
     isDefEqQuick t s
@@ -1567,7 +1567,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
       isDefEqQuick t s
     /- Remark: we do not eagerly synthesize synthetic metavariables when the constraint is not stuck.
        Reason: we may fail to solve a constraint of the form `?x =?= A` when the synthesized instance
-       is not definitionally equal to `A`. We left the code here as a remainder of this issue. -/
+       is not definitionally equal to `A`. We left the code here as a reminder of this issue. -/
 --    else if (← isSynthetic tFn <&&> trySynthPending tFn) then
 --      let t ← instantiateMVars t
 --     isDefEqQuick t s
@@ -1597,7 +1597,7 @@ private partial def isDefEqQuickOther (t s : Expr) : MetaM LBool := do
            1- The elaborator has a pending list of things to do: Tactics, TC, etc.
            2- The elaborator only tries tactics after it tried to solve pending TC problems, delayed elaboratio, etc.
               The motivation: avoid unassigned metavariables in goals.
-           3- Each pending tactic goal is represented as a metavariable. It is marked as `synthethicOpaque` to make it clear
+           3- Each pending tactic goal is represented as a metavariable. It is marked as `syntheticOpaque` to make it clear
               that it should not be assigned by unification.
            4- When we abstract a term containing metavariables, we often create new metavariables.
               Example: when abstracting `x` at `f ?m`, we obtain `fun x => f (?m' x)`. If `x` is in the scope of `?m`.
@@ -1688,18 +1688,18 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
   | v, Expr.proj structName 0 s => isDefEqSingleton structName s v
   | _, _ => pure false
 where
-  /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve contraint as `?m ... =?= ⟨v⟩` -/
+  /-- If `structName` is a structure with a single field and `(?m ...).1 =?= v`, then solve constraint as `?m ... =?= ⟨v⟩` -/
   isDefEqSingleton (structName : Name) (s : Expr) (v : Expr) : MetaM Bool := do
     if isClass (← getEnv) structName then
       /-
-      We disable this feature is `structName` is a class. See issue #2011.
+      We disable this feature if `structName` is a class. See issue #2011.
       The example at issue #2011, the following weird
       instance was being generated for `Zero (f x)`
       ```
       (@Zero.mk (f x✝) ((@instZero I (fun i => f i) fun i => inst✝¹ i).1 x✝)
       ```
       where `inst✝¹` is the local instance `[∀ i, Zero (f i)]`
-      Note that this instance is definitinally equal to the expected nicer
+      Note that this instance is definitionally equal to the expected nicer
       instance `inst✝¹ x✝`.
       However, the nasty instance trigger nasty unification higher order
       constraints later.
@@ -1733,7 +1733,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   let tFn := t.getAppFn
   let sFn := s.getAppFn
   if tFn.isConst && sFn.isConst && tFn.constName! == sFn.constName! then
-    /- See comment at `tryHeuristic` explaining why we processe arguments before universe levels. -/
+    /- See comment at `tryHeuristic` explaining why we process arguments before universe levels. -/
     if (← checkpointDefEq (isDefEqArgs tFn t.getAppArgs s.getAppArgs <&&> isListLevelDefEqAux tFn.constLevels! sFn.constLevels!)) then
       return true
     else
@@ -1743,7 +1743,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
   else
     isDefEqOnFailure t s
 
-/-- Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. -/
+/-- Return `true` if the type of the given expression is an inductive datatype with a single constructor with no fields. -/
 private def isDefEqUnitLike (t : Expr) (s : Expr) : MetaM Bool := do
   let tType ← whnf (← inferType t)
   matchConstStruct tType.getAppFn (fun _ => return false) fun _ _ ctorVal => do
@@ -1792,27 +1792,66 @@ private def isExprDefEqExpensive (t : Expr) (s : Expr) : MetaM Bool := do
     if (← isDefEqUnitLike t s) then return true else
     isDefEqOnFailure t s
 
-private def mkCacheKey (t : Expr) (s : Expr) : Expr × Expr :=
-  if Expr.quickLt t s then (t, s) else (s, t)
+inductive DefEqCacheKind where
+  | transient -- problem has mvars or is using nonstandard configuration, we should use transient cache
+  | permanent -- problem does not have mvars and we are using standard config, we can use one persistent cache.
 
-private def getCachedResult (key : Expr × Expr) : MetaM LBool := do
-  match (← get).cache.defEq.find? key with
+private def getDefEqCacheKind (t s : Expr) : MetaM DefEqCacheKind := do
+  if t.hasMVar || s.hasMVar || (← read).canUnfold?.isSome then
+    return .transient
+  else
+    return .permanent
+
+/--
+Structure for storing defeq cache key information.
+-/
+structure DefEqCacheKeyInfo where
+  kind : DefEqCacheKind
+  key  : Expr × Expr
+
+private def mkCacheKey (t s : Expr) : MetaM DefEqCacheKeyInfo := do
+  let kind ← getDefEqCacheKind t s
+  let key := if Expr.quickLt t s then (t, s) else (s, t)
+  return { key, kind }
+
+private def getCachedResult (keyInfo : DefEqCacheKeyInfo) : MetaM LBool := do
+  let cache ← match keyInfo.kind with
+    | .transient => pure (← get).cache.defEqTrans
+    | .permanent => pure (← get).cache.defEqPerm
+  let cache := match (← getTransparency) with
+    | .reducible => cache.reducible
+    | .instances => cache.instances
+    | .default   => cache.default
+    | .all       => cache.all
+  match cache.find? keyInfo.key with
   | some val => return val.toLBool
   | none => return .undef
 
-private def cacheResult (key : Expr × Expr) (result : Bool) : MetaM Unit := do
-  /-
-  We must ensure that all assigned metavariables in the key are replaced by their current assingments.
-  Otherwise, the key is invalid after the assignment is "backtracked".
-  See issue #1870 for an example.
-  -/
-  let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
-  modifyDefEqCache fun c => c.insert key result
+def DefEqCache.update (cache : DefEqCache) (mode : TransparencyMode) (key : Expr × Expr) (result : Bool) : DefEqCache :=
+  match mode with
+  | .reducible => { cache with reducible := cache.reducible.insert key result }
+  | .instances => { cache with instances := cache.instances.insert key result }
+  | .default   => { cache with default   := cache.default.insert key result }
+  | .all       => { cache with all       := cache.all.insert key result }
+
+private def cacheResult (keyInfo : DefEqCacheKeyInfo) (result : Bool) : MetaM Unit := do
+  let mode ← getTransparency
+  let key := keyInfo.key
+  match keyInfo.kind with
+  | .permanent => modifyDefEqPermCache fun c => c.update mode key result
+  | .transient =>
+    /-
+    We must ensure that all assigned metavariables in the key are replaced by their current assignments.
+    Otherwise, the key is invalid after the assignment is "backtracked".
+    See issue #1870 for an example.
+    -/
+    let key := (← instantiateMVars key.1, ← instantiateMVars key.2)
+    modifyDefEqTransientCache fun c => c.update mode key result
 
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
   withTraceNodeBefore `Meta.isDefEq (return m!"{t} =?= {s}") do
-  checkMaxHeartbeats "isDefEq"
+  checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
   /-
@@ -1839,7 +1878,7 @@ partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecD
     let t ← instantiateMVars t
     let s ← instantiateMVars s
     let numPostponed ← getNumPostponed
-    let k := mkCacheKey t s
+    let k ← mkCacheKey t s
     match (← getCachedResult k) with
     | .true  =>
       trace[Meta.isDefEq.cache] "cache hit 'true' for {t} =?= {s}"

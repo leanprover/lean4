@@ -13,6 +13,17 @@ import Lean.Data.Name
 namespace Lean
 open System
 
+partial def forEachModuleInDir [Monad m] [MonadLiftT IO m]
+    (dir : FilePath) (f : Lean.Name → m PUnit) (ext := "lean") : m PUnit := do
+  for entry in (← dir.readDir) do
+    if (← liftM (m := IO) <| entry.path.isDir) then
+      let n := Lean.Name.mkSimple entry.fileName
+      let r := FilePath.withExtension entry.fileName ext
+      if (← liftM (m := IO) r.pathExists) then f n
+      forEachModuleInDir entry.path (f <| n ++ ·)
+    else if entry.path.extension == some ext then
+      f <| Lean.Name.mkSimple <| FilePath.withExtension entry.fileName "" |>.toString
+
 def realPathNormalized (p : FilePath) : IO FilePath :=
   return (← IO.FS.realPath p).normalize
 
@@ -33,7 +44,7 @@ namespace SearchPath
 `ext` (`lean` or `olean`) corresponding to `mod`. Otherwise, return `none`. Does
 not check whether the returned path exists. -/
 def findWithExt (sp : SearchPath) (ext : String) (mod : Name) : IO (Option FilePath) := do
-  let pkg := mod.getRoot.toString
+  let pkg := mod.getRoot.toString (escape := false)
   let root? ← sp.findM? fun p =>
     (p / pkg).isDir <||> ((p / pkg).withExtension ext).pathExists
   return root?.map (modToFilePath · mod ext)
@@ -94,7 +105,7 @@ partial def findOLean (mod : Name) : IO FilePath := do
   if let some fname ← sp.findWithExt "olean" mod then
     return fname
   else
-    let pkg := FilePath.mk mod.getRoot.toString
+    let pkg := FilePath.mk <| mod.getRoot.toString (escape := false)
     let mut msg := s!"unknown package '{pkg}'"
     let rec maybeThisOne dir := do
       if ← (dir / pkg).isDir then

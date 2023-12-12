@@ -647,7 +647,7 @@ private partial def elabStruct (s : Struct) (expectedType? : Option Expr) : Term
 namespace DefaultFields
 
 structure Context where
-  -- We must search for default values overriden in derived structures
+  -- We must search for default values overridden in derived structures
   structs : Array Struct := #[]
   allStructNames : Array Name := #[]
   /--

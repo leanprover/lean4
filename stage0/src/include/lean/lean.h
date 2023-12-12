@@ -126,7 +126,7 @@ x
    When this calling convention is used for an argument `x`, then it is safe to perform destructive updates to
    `x` if its RC is 1.
 
-2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsability of the caller
+2- "borrowed" calling convention if it doesn't consume/decrement the RC, and it is the responsibility of the caller
    to decrement the RC.
    This is roughly equivalent to `S const & a` in C++, where `S` is a smart pointer, and `a` is the argument.
 
@@ -1312,8 +1312,8 @@ LEAN_SHARED lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 
 /* Integers */
 
-#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (1 << 30))
-#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : -(1 << 30))
+#define LEAN_MAX_SMALL_INT (sizeof(void*) == 8 ? INT_MAX : (INT_MAX >> 1))
+#define LEAN_MIN_SMALL_INT (sizeof(void*) == 8 ? INT_MIN : (INT_MIN >> 1))
 LEAN_SHARED lean_object * lean_int_big_neg(lean_object * a);
 LEAN_SHARED lean_object * lean_int_big_add(lean_object * a1, lean_object * a2);
 LEAN_SHARED lean_object * lean_int_big_sub(lean_object * a1, lean_object * a2);
@@ -1997,6 +1997,16 @@ static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
 
 static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
     return lean_nat_sub(n, lean_box(1));
+}
+
+static inline lean_obj_res lean_runtime_mark_multi_threaded(lean_obj_arg a) {
+    lean_mark_mt(a);
+    return a;
+}
+
+static inline lean_obj_res lean_runtime_mark_persistent(lean_obj_arg a) {
+    lean_mark_persistent(a);
+    return a;
 }
 
 #ifdef __cplusplus

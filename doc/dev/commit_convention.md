@@ -1,9 +1,14 @@
 Git Commit Convention
 =====================
 
-We are using the following convention for writing git-commit messages.
-It is based on the one from AngularJS project([doc][angularjs-doc],
+We are using the following convention for writing git commit messages. For pull
+requests, make sure the pull request title and description follow this
+convention, as the squash-merge commit will inherit title and body from the
+pull request.
+
+This convention is based on the one from the AngularJS project ([doc][angularjs-doc],
 [commits][angularjs-git]).
+
 
 [angularjs-git]: https://github.com/angular/angular.js/commits/master
 [angularjs-doc]: https://docs.google.com/document/d/1QrDFcIiPjSLDn3EL15IJygNPiHORgU1_OOAqWjiDU5Y/edit#

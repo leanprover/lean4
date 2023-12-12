@@ -1,2 +1,2 @@
-rm -rf build lakefile.olean
-rm -f test.log
+rm -rf .lake lake-manifest.json
+rm -f test*.log

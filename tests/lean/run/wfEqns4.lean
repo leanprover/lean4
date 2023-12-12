@@ -18,15 +18,12 @@ mutual
     | a, b, 0 => b
     | a, b, n+1 => f n a b
 end
-termination_by'
-  invImage
-    (fun
-      | PSum.inl ⟨n, _, _⟩ => (n, 2)
-      | PSum.inr <| PSum.inl ⟨_, n, _⟩ => (n, 1)
-      | PSum.inr <| PSum.inr ⟨_, _, n⟩ => (n, 0))
-    (Prod.lex sizeOfWFRel sizeOfWFRel)
+termination_by
+  f n _ _ => (n, 2)
+  g _ n _ => (n, 1)
+  h _ _ n => (n, 0)
 decreasing_by
-  simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel, WellFoundedRelation.rel]
+  simp_wf
   first
   | apply Prod.Lex.left
     apply Nat.lt_succ_self

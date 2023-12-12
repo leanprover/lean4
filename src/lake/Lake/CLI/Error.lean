@@ -29,6 +29,8 @@ inductive CliError
 | nonCliFacet (type : String) (facet : Name)
 | invalidTargetSpec (spec : String) (tooMany : Char)
 | invalidFacet (target : Name) (facet : Name)
+/- Executable CLI Errors -/
+| unknownExe (spec : String)
 /- Script CLI Error -/
 | unknownScript (script : String)
 | missingScriptDoc (script : String)
@@ -37,6 +39,7 @@ inductive CliError
 | unknownLeanInstall
 | unknownLakeInstall
 | leanRevMismatch (expected actual : String)
+| invalidEnv (msg : String)
 deriving Inhabited, Repr
 
 namespace CliError
@@ -60,11 +63,13 @@ def toString : CliError → String
 | nonCliFacet t f         => s!"{t} facet `{f.toString false}` is not a buildable via `lake`"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
 | invalidFacet t f        => s!"invalid facet `{f.toString false}`; target {t.toString false} has no facets"
+| unknownExe s            => s!"unknown executable {s}"
 | unknownScript s         => s!"unknown script {s}"
 | missingScriptDoc s      => s!"no documentation provided for `{s}`"
 | invalidScriptSpec s     => s!"invalid script spec '{s}' (too many '/')"
 | unknownLeanInstall      => "could not detect a Lean installation"
 | unknownLakeInstall      => "could not detect the configuration of the Lake installation"
 | leanRevMismatch e a     => s!"expected Lean commit {e}, but got {if a.isEmpty then "nothing" else a}"
+| invalidEnv msg          => msg
 
 instance : ToString CliError := ⟨toString⟩

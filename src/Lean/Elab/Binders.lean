@@ -132,7 +132,7 @@ private def getBinderIds (ids : Syntax) : TermElabM (Array Syntax) :=
 
 /--
 Convert `stx` into an array of `BinderView`s.
-`stx` must be an indentifier, `_`, `explicitBinder`, `implicitBinder`, `strictImplicitBinder`, or `instBinder`.
+`stx` must be an identifier, `_`, `explicitBinder`, `implicitBinder`, `strictImplicitBinder`, or `instBinder`.
 -/
 private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
   let k := stx.getKind
@@ -233,7 +233,7 @@ def elabBindersEx (binders : Array Syntax) (k : Array (Syntax × Expr) → TermE
 
 /--
   Elaborate the given binders (i.e., `Syntax` objects for `bracketedBinder`),
-  update the local context, set of local instances, reset instance chache (if needed), and then
+  update the local context, set of local instances, reset instance cache (if needed), and then
   execute `k` with the updated context.
   The local context will only be included inside `k`.
 

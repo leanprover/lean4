@@ -36,7 +36,7 @@ private def mkAuxLemma (e : Expr) : M Expr := do
   let lemmaName ← mkAuxName (ctx.baseName ++ `proof) s.nextIdx
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
   /- We turn on zeta-expansion to make sure we don't need to perform an expensive `check` step to
-     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expasion step.
+     identify which let-decls can be abstracted. If we design a more efficient test, we can avoid the eager zeta expansion step.
      It a benchmark created by @selsam, The extra `check` step was a bottleneck. -/
   mkAuxTheoremFor lemmaName e (zeta := true)
 
@@ -72,7 +72,11 @@ partial def visit (e : Expr) : M Expr := do
 end AbstractNestedProofs
 
 /-- Replace proofs nested in `e` with new lemmas. The new lemmas have names of the form `mainDeclName.proof_<idx>` -/
-def abstractNestedProofs (mainDeclName : Name) (e : Expr) : MetaM Expr :=
-  AbstractNestedProofs.visit e |>.run { baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
+def abstractNestedProofs (mainDeclName : Name) (e : Expr) : MetaM Expr := do
+  if (← isProof e) then
+    -- `e` is a proof itself. So, we don't abstract nested proofs
+    return e
+  else
+    AbstractNestedProofs.visit e |>.run { baseName := mainDeclName } |>.run |>.run' { nextIdx := 1 }
 
 end Lean.Meta

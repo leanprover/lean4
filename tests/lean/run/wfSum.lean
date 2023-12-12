@@ -6,4 +6,4 @@ where
       go (i+1) (s + as.get ⟨i, h⟩)
     else
       s
-termination_by' measure (fun ⟨i, s⟩ => as.size - i)
+termination_by _ i s => as.size - i

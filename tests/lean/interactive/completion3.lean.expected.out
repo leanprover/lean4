@@ -1,25 +1,25 @@
-{"textDocument": {"uri": "file://completion3.lean"},
+{"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 7, "character": 9}}
 {"items":
  [{"label": "b", "kind": 5, "detail": "S → Bool"},
   {"label": "x", "kind": 5, "detail": "S → Nat"},
   {"label": "y", "kind": 5, "detail": "S → String"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion3.lean"},
+{"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 12, "character": 5}}
 {"items":
  [{"label": "b", "kind": 5, "detail": "S → Bool"},
   {"label": "x", "kind": 5, "detail": "S → Nat"},
   {"label": "y", "kind": 5, "detail": "S → String"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion3.lean"},
+{"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 16, "character": 5}}
 {"items":
  [{"label": "b", "kind": 5, "detail": "S → Bool"},
   {"label": "x", "kind": 5, "detail": "S → Nat"},
   {"label": "y", "kind": 5, "detail": "S → String"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion3.lean"},
+{"textDocument": {"uri": "file:///completion3.lean"},
  "position": {"line": 20, "character": 5}}
 {"items":
  [{"label": "x", "kind": 5, "detail": "S → Nat"},

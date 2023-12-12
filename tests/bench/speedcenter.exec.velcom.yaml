@@ -48,6 +48,12 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: import Lean
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Lean.lean
+- attributes:
     description: tests/compiler
     tags: [deterministic, slow]
   run_config:
@@ -104,6 +110,120 @@
     cmd: ./deriv.lean.out 10
   build_config:
     cmd: ./compile.sh deriv.lean
+- attributes:
+    description: lake build clean
+    tags: [slow]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      cd inundation
+      lake -flakefile-clean.lean clean
+      lake -flakefile-clean.lean build
+      "
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      cd inundation
+      cp lakefile.lean lakefile-clean.lean
+      lake -flakefile-clean.lean -Ktest=Clean run mkBuild
+      lake -flakefile-clean.lean build
+      "
+- attributes:
+    description: lake build no-op
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -flakefile-nop.lean build
+      "
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      cd inundation
+      cp lakefile.lean lakefile-nop.lean
+      lake -flakefile-nop.lean -Ktest=Nop run mkBuild
+      lake -flakefile-nop.lean build
+      "
+- attributes:
+    description: lake config elab
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation -flakefile-rc.lean -R run nop
+      "
+  build_config:
+    cmd: cp inundation/lakefile.lean inundation/lakefile-rc.lean
+- attributes:
+    description: lake config import
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation run nop
+      "
+  build_config:
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation run nop
+      "
+- attributes:
+    description: lake config tree
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation/test/tree run nop
+      "
+  build_config:
+    cmd: |
+      lake -dinundation run mkTree
+      lake -dinundation/test/tree update
+- attributes:
+    description: lake env
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake -dinundation env true
+      "
+  build_config:
+    cmd: lake -dinundation env true
+- attributes:
+    description: lake startup
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: |
+      bash -c "
+      set -ex
+      ulimit -s unlimited
+      lake self-check
+      "
 - attributes:
     description: liasolver
     tags: [fast, suite]
@@ -168,6 +288,12 @@
     cmd: ./rbmap_library.lean.out 2000000
   build_config:
     cmd: ./compile.sh rbmap_library.lean
+- attributes:
+    description: reduceMatch
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: lean reduceMatch.lean
 - attributes:
     description: unionfind
     tags: [fast, suite]

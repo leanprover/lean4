@@ -1,7 +1,7 @@
 {
   description = "Lean interactive theorem prover";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/23.05";
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nix.url = "github:NixOS/nix";
   inputs.lean4-mode = {

@@ -99,7 +99,7 @@ def «abbrev»         := leading_parser
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser
-  "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> Termination.suffix
+  "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
   "theorem " >> declId >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser

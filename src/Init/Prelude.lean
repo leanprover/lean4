@@ -914,6 +914,9 @@ is `Bool` valued instead of `Prop` valued, and it also does not have any
 axioms like being reflexive or agreeing with `=`. It is mainly intended for
 programming applications. See `LawfulBEq` for a version that requires that
 `==` and `=` coincide.
+
+Typically we prefer to put the "more variable" term on the left,
+and the "more constant" term on the right.
 -/
 class BEq (α : Type u) where
   /-- Boolean equality, notated as `a == b`. -/

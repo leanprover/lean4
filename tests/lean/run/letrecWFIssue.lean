@@ -16,6 +16,8 @@ def Tree.size : Tree α → Nat
       apply Nat.lt_succ_self
     sizeList l
   | Tree.leaf _ => 1
+-- use automatically synthesized size function, which is not quite the number of leaves
+termination_by t => sizeOf t
 where
   sizeList : TreeList α → Nat
   | TreeList.nil => 0
@@ -30,6 +32,3 @@ where
       apply Nat.le_add_left
     t.size + sizeList l
   termination_by l => sizeOf l
-
--- use automatically synthesized size function, which is not quite the number of leaves
-termination_by t => sizeOf t

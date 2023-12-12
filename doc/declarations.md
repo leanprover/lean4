@@ -539,7 +539,7 @@ example : append [(1 : Nat), 2, 3] [4, 5] = [1, 2, 3, 4, 5] => rfl
 end Hide
 ```
 
-Well-founed recursion
+Well-founded recursion
 ---------------------
 
 If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
@@ -570,17 +570,17 @@ If Lean cannot find a permutation of the arguments for which all recursive calls
 
 Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
 
-If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition. It is fo the form
+If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition. It is of the form
 ```
 termination_by f a₁ … aₙ => e
 ```
-where ``f`` is the function name (or ``_``), ``a₁ … aₙ``  are the parameters (or ``_``), and ``e`` is the expression that should be decreasing at each recursive call. The the type of `e` should be an instance of the class ``WellFoundedRelation``, which determins how to compare two values of that type.
+where ``f`` is the function name (or ``_``), ``a₁ … aₙ``  are the parameters (or ``_``), and ``e`` is the expression that should be decreasing at each recursive call. The the type of `e` should be an instance of the class ``WellFoundedRelation``, which determines how to compare two values of that type.
 
 By default, Lean uses the tactic ``decreasing_tactic`` when proving that an argument is decreasing; see its documentation for how to globally extend it. You can also choose to use a different tactic for a given function definition with the clause
 ```
 decreasing_by <tac>
 ```
-which should come ``termination_by`, if present.
+which should come after ``termination_by`, if present.
 
 
 Note that recursive definitions can in general require nested recursions, that is, recursion on different arguments of ``foo`` in the template above. The equation compiler handles this by abstracting later arguments, and recursively defining higher-order functions to meet the specification.

@@ -3,4 +3,4 @@ WellFounded.fix f.proof_1 fun n a =>
   if h : n = 0 then 1
   else
     let y := 42;
-    2 * a (n - 1) (_ : (measure id).1 (n - 1) n)
+    2 * a (n - 1) (_ : (invImage (fun a => sizeOf a) instWellFoundedRelation).1 (n - 1) n)

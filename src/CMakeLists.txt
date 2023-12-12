@@ -9,7 +9,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 4)
+set(LEAN_VERSION_MINOR 5)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -64,7 +64,7 @@ option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared librari
 option(USE_GMP "USE_GMP" ON)
 
 # development-specific options
-option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
+option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
 
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(LEANC_CC              ${CMAKE_C_COMPILER}          CACHE STRING "C compiler to use in `leanc`")
@@ -93,8 +93,9 @@ if ("${RUNTIME_STATS}" MATCHES "ON")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_RUNTIME_STATS")
 endif()
 
-if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))
-  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_IGNORE_OLEAN_VERSION")
+if ("${CHECK_OLEAN_VERSION}" MATCHES "ON")
+  set(USE_GITHASH ON)
+  string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_CHECK_OLEAN_VERSION")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
@@ -401,26 +402,17 @@ if(MULTI_THREAD AND NOT MSVC AND (NOT ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin"))
 endif()
 
 # Git HASH
-set(LEAN_PACKAGE_VERSION "NOT-FOUND")
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
   get_git_head_revision(GIT_REFSPEC GIT_SHA1)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")
-    if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-      file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-      message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-    endif()
   else()
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
   set(GIT_SHA1 "")
-  if(EXISTS "${LEAN_SOURCE_DIR}/bin/package_version")
-    file(STRINGS "${LEAN_SOURCE_DIR}/bin/package_version" LEAN_PACKAGE_VERSION)
-    message(STATUS "Package version detected: ${LEAN_PACKAGE_VERSION}")
-  endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
@@ -447,12 +439,13 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
+# Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-# These are used in lean.mk (and libleanrt) and passed through by stdlib.make
-# They are not embedded into `leanc` since they are build profile/machine specific
 string(APPEND LEANC_OPTS " ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+# Do embed flag for finding system libraries in dev builds
 if(CMAKE_OSX_SYSROOT AND NOT LEAN_STANDALONE)
-  string(APPEND LEANC_OPTS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEANC_EXTRA_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()
 
 if(${STAGE} GREATER 1)

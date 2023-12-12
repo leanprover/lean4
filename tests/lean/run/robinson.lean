@@ -18,7 +18,7 @@ abbrev P (c : Option Subst) u v := match c with
   | none => strangers u v
   | some f => act f u = act f v
 
-def rel : WellFoundedRelation (Term × Term) := measure (λ (u, v) => depth u + depth v)
+instance rel : WellFoundedRelation (Term × Term) := measure (λ (u, v) => depth u + depth v)
 
 theorem decr_left (l₁ r₁ l₂ r₂ : Term) :
   rel.rel (l₁, l₂) (Term.Cons l₁ r₁, Term.Cons l₂ r₂) := by
@@ -41,7 +41,7 @@ def robinson (u v : Term) : { f : Option Subst // P f u v } := match u, v with
   | .Var i, .Var j =>
     if i = j then ⟨ some id, sorry ⟩
     else ⟨ some λ n => if n = i then j else n, sorry ⟩
-termination_by' invImage (λ ⟨ u, v ⟩ => (u, v)) rel
+termination_by _ u v => (u, v)
 decreasing_by
   first
     | apply decr_left _ _ _ _

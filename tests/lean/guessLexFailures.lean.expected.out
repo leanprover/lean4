@@ -1,0 +1,149 @@
+guessLexFailures.lean:11:12-11:46: error: fail to show termination for
+  nonTerminating
+with errors
+argument #1 was not used for structural recursion
+  failed to eliminate recursive application
+    nonTerminating (Nat.succ n) (Nat.succ m)
+
+argument #2 was not used for structural recursion
+  failed to eliminate recursive application
+    nonTerminating (Nat.succ n) (Nat.succ m)
+
+structural recursion cannot be used
+
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            x1 x2
+1) 11:12-46  ?  ?
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:15:0-18:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            x1 x2
+1) 17:12-47  ?  ?
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:20:4-20:15: error: fail to show termination for
+  noArguments
+with errors
+structural recursion cannot be used
+
+well-founded recursion cannot be used, 'noArguments' does not take any (non-fixed) arguments
+guessLexFailures.lean:22:4-22:23: error: fail to show termination for
+  noNonFixedArguments
+with errors
+structural recursion cannot be used
+
+well-founded recursion cannot be used, 'noNonFixedArguments' does not take any (non-fixed) arguments
+guessLexFailures.lean:27:0-33:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+           x1 x2 x3
+1) 29:6-25  =  =  =
+2) 30:6-23  =  ?  <
+3) 31:6-23  <  _  _
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:37:0-43:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+           x1 x2 x3 x4
+1) 39:6-27  =  =  _  =
+2) 40:6-25  =  ?  _  <
+3) 41:6-25  <  _  _  _
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:48:0-54:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+           n m l
+1) 50:6-25 = = =
+2) 51:6-23 = ? <
+3) 52:6-23 < _ _
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:59:6-59:7: error: fail to show termination for
+  Mutual.f
+  Mutual.g
+  Mutual.h
+with errors
+structural recursion does not handle mutually recursive functions
+
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+Call from Mutual.f to Mutual.f at 61:8-33:
+ n m l
+ = = =
+Call from Mutual.f to Mutual.f at 62:8-31:
+ n m l
+ = ? <
+Call from Mutual.f to Mutual.g at 63:8-39:
+  n m l
+n < _ ?
+m ? _ ?
+H _ _ _
+l ? _ <
+Call from Mutual.g to Mutual.g at 68:8-35:
+ n m H l
+ ? _ _ =
+Call from Mutual.g to Mutual.g at 69:8-33:
+ n m H l
+ _ _ _ <
+Call from Mutual.g to Mutual.h at 70:8-27:
+   n m H l
+x1 _ _ _ ?
+x2 _ _ _ ?
+Call from Mutual.h to Mutual.f at 75:8-33:
+  x1 x2
+n  _  _
+m  _  _
+l  _  _
+Call from Mutual.h to Mutual.h at 76:8-27:
+ x1 x2
+  _  _
+Call from Mutual.h to Mutual.h at 77:8-27:
+ x1 x2
+  _  _
+
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:89:19-89:32: error: fail to show termination for
+  DuplicatedCall.f
+with errors
+argument #1 was not used for structural recursion
+  failed to eliminate recursive application
+    DuplicatedCall.f (n + 2) (m + 1)
+
+argument #2 was not used for structural recursion
+  failed to eliminate recursive application
+    DuplicatedCall.f (n + 2) (m + 1)
+
+structural recursion cannot be used
+
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            x1 x2
+1) 89:19-32  ?  ?
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:100:0-103:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+              n m
+1) 101:83-105 ? ?
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:113:14-113:31: error: failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+n✝ m n : Nat
+⊢ n < n✝
+guessLexFailures.lean:119:0-123:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n m
+1) 121:31-54 ? ?
+Please use `termination_by` to specify a decreasing measure.
+guessLexFailures.lean:131:14-131:31: error: failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+m n✝ n : Nat
+⊢ n < Nat.succ n✝

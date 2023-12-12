@@ -92,7 +92,7 @@ def leanPath (env : Env) : SearchPath :=
 
 /--
 The Lean source search path of the environment (i.e., `LEAN_SRC_PATH`).
-Combines the initial path of the environment with that of the Lake abd Lean
+Combines the initial path of the environment with that of the Lake and Lean
 installations.
 -/
 def leanSrcPath (env : Env) : SearchPath :=

@@ -9,12 +9,12 @@ set -euxo pipefail
 NO_BUILD_CODE=3
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 
-# Test `--no-build` for print-paths and module builds (`buildUnlessUpToDate`)
-$LAKE print-paths Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
+# Test `--no-build` for setup-file and module builds (`buildUnlessUpToDate`)
+$LAKE setup-file ./Irrelevant.lean Test --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]
 test ! -f .lake/build/lib/Test.olean
 $LAKE build Test
 test -f .lake/build/lib/Test.olean
-$LAKE print-paths Test --no-build
+$LAKE setup-file ./Irrelevant.lean Test --no-build
 
 # Test `--no-build` for file builds (`buildFileUnlessUpToDate`)
 $LAKE build +Test:o --no-build && exit 1 || [ $? = $NO_BUILD_CODE ]

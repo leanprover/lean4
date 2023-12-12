@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://anonHyp.lean"},
+{"textDocument": {"uri": "file:///anonHyp.lean"},
  "position": {"line": 2, "character": 4}}
 {"rendered":
  "```lean\ncase succ\nn✝ : Nat\nn_ih✝ : n✝ + 1 > 0\n⊢ Nat.succ n✝ + 1 > 0\n```",

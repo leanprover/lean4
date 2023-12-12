@@ -83,13 +83,13 @@ rec {
         # use same stage for retrieving dependencies
         lean-leanDeps = stage0;
         lean-final = self;
-        leanFlags = [ "-DwarningAsError=true" ];
       } ({
         src = src + "/src";
         roots = [ { mod = args.name; glob = "andSubmodules"; } ];
         fullSrc = src;
         srcPath = "$PWD/src:$PWD/src/lake";
         inherit debug;
+        leanFlags = [ "-DwarningAsError=true" ];
       } // args);
       Init' = build { name = "Init"; deps = []; };
       Lean' = build { name = "Lean"; deps = [ Init' ]; };

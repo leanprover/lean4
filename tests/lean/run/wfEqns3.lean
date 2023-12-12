@@ -10,7 +10,6 @@ def f (x : Nat) : Nat :=
     1
   else
    f (x - 1) * 2
-termination_by' measure id
 decreasing_by
   apply Nat.pred_lt
   exact h

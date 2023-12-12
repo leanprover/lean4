@@ -70,7 +70,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4_(lean_o
 LEAN_EXPORT lean_object* l_Lean_Meta_expandCoe___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_290____closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Coe___hyg_4____closed__3;
-lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_coerceMonadLift_x3f___closed__3;
@@ -491,7 +491,7 @@ lean_ctor_set_uint8(x_8, 9, x_10);
 x_11 = l_Lean_Meta_expandCoe___closed__1;
 x_12 = l_Lean_Meta_expandCoe___closed__2;
 x_13 = 0;
-x_14 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_11, x_12, x_13, x_2, x_3, x_4, x_5, x_6);
+x_14 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_11, x_12, x_13, x_13, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
@@ -570,7 +570,7 @@ lean_ctor_set(x_2, 0, x_35);
 x_36 = l_Lean_Meta_expandCoe___closed__1;
 x_37 = l_Lean_Meta_expandCoe___closed__2;
 x_38 = 0;
-x_39 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_36, x_37, x_38, x_2, x_3, x_4, x_5, x_6);
+x_39 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_36, x_37, x_38, x_38, x_2, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; 
@@ -682,7 +682,7 @@ lean_ctor_set(x_68, 5, x_53);
 x_69 = l_Lean_Meta_expandCoe___closed__1;
 x_70 = l_Lean_Meta_expandCoe___closed__2;
 x_71 = 0;
-x_72 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_69, x_70, x_71, x_68, x_3, x_4, x_5, x_6);
+x_72 = l_Lean_Meta_transform___at_Lean_Meta_zetaReduce___spec__1(x_1, x_69, x_70, x_71, x_71, x_68, x_3, x_4, x_5, x_6);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; 

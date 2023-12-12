@@ -28,32 +28,27 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
-/-
-A mutual block may be broken in different cliques,
-we identify them using an `ident` (an element of the clique).
-We provide two kinds of hints to the termination checker:
-1- A wellfounded relation (`p` is `termParser`)
-2- A tactic for proving the recursive applications are "decreasing" (`p` is `tacticSeq`)
+/--
+A decreasing_by clause can either be a single tactic (for all functions), or
+a list of tactics labeled with the function they apply to.
 -/
-def terminationHintMany (p : Parser) := leading_parser
-  atomic (lookahead (ident >> " => ")) >>
-  many1Indent (group (ppLine >> ppIndent (ident >> " => " >> p >> optional ";")))
-def terminationHint1 (p : Parser) := leading_parser p
-def terminationHint (p : Parser) := terminationHintMany p <|> terminationHint1 p
+def decreasingByElement := leading_parser
+  ppLine >> ppIndent (ident >> " => " >> Tactic.tacticSeq >> patternIgnore (optional ";"))
+def decreasingByMany := leading_parser
+  atomic (lookahead (ident >> " => ")) >> many1Indent decreasingByElement
+def decreasingBy1  := leading_parser Tactic.tacticSeq
 
-def terminationByCore := leading_parser
-  ppDedent ppLine >> "termination_by' " >> terminationHint termParser
 def decreasingBy := leading_parser
-  ppDedent ppLine >> "decreasing_by " >> terminationHint Tactic.tacticSeq
+  ppDedent ppLine >> "decreasing_by " >> (decreasingByMany <|> decreasingBy1)
 
 def terminationByElement   := leading_parser
   ppLine >> (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
-  " => " >> termParser >> optional ";"
+  " => " >> termParser >> patternIgnore (optional ";")
 def terminationBy          := leading_parser
   ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
 
 def terminationSuffix :=
-  optional (terminationBy <|> terminationByCore) >> optional decreasingBy
+  optional terminationBy >> optional decreasingBy
 
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|

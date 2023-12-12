@@ -1,6 +1,6 @@
 /-!
 Test that PackMutual isn't confused when a recursive call has more arguments than is packed
-into the unary argument, which can happen if the retturn type is a function type.
+into the unary argument, which can happen if the return type is a function type.
 -/
 
 mutual

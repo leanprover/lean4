@@ -1,4 +1,4 @@
-{"textDocument": {"uri": "file://completionPrefixIssue.lean"},
+{"textDocument": {"uri": "file:///completionPrefixIssue.lean"},
  "position": {"line": 1, "character": 64}}
 {"items":
  [{"label": "veryLongDefinitionName", "kind": 6, "detail": "Nat"},

@@ -5,7 +5,6 @@ After [building Lean](../make/index.md) you can run all the tests using
 cd build/release
 make test ARGS=-j4
 ```
-
 Change the 4 to the maximum number of parallel tests you want to
 allow. The best choice is the number of CPU cores on your machine as
 the tests are mostly CPU bound.  You can find the number of processors
@@ -17,6 +16,12 @@ adding the `-C stageN` argument. The default when run as above is stage 1.  The
 Lean tests will automatically use that stage's corresponding Lean
 executables
 
+Running `make test` will not pick up new test files; run
+```bash
+cmake build/release/stage1
+```
+to update the list of tests.
+
 You can also use `ctest` directly if you are in the right folder.  So
 to run stage1 tests with a 300 second timeout run this:
 
@@ -24,6 +29,9 @@ to run stage1 tests with a 300 second timeout run this:
 cd build/release/stage1
 ctest -j 4 --output-on-failure --timeout 300
 ```
+Useful `ctest` flags are `-R <name of test>` to run a single test, and
+`--rerun-failed` to run all tests that failed during the last run.
+You can also pass `ctest` flags via `make test ARGS="--rerun-failed"`.
 
 To get verbose output from ctest pass the `--verbose` command line
 option. Test output is normally suppressed and only summary
@@ -124,8 +132,3 @@ outputs. `meld` can also be used to repair the problems.
 
 In Emacs, we can also execute `M-x lean4-diff-test-file` to check/diff the file of the current buffer.
 To mass-copy all `.produced.out` files to the respective `.expected.out` file, use `tests/lean/copy-produced`.
-When using the Nix setup, add `--keep-failed` to the `nix build` call and then call
-```sh
-tests/lean/copy-produced <build-dir>/source/tests/lean
-```
-instead where `<build-dir>` is the path printed out by `nix build`.

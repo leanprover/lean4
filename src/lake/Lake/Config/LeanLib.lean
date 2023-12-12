@@ -88,6 +88,17 @@ Is true if either the package or the library have `precompileModules` set.
   self.config.nativeFacets
 
 /--
+The arguments to pass to `lean --server` when running the Lean language server.
+`serverOptions` is the the accumulation of:
+- the package's `leanOptions`
+- the package's `moreServerOptions`
+- the library's `leanOptions`
+- the library's `moreServerOptions`
+-/
+@[inline] def serverOptions (self : LeanLib) : Array LeanOption :=
+  self.pkg.moreServerOptions ++ self.config.leanOptions ++ self.config.moreServerOptions
+
+/--
 The build type for modules of this library.
 That is, the minimum of package's `buildType` and the library's  `buildType`.
 -/
@@ -101,12 +112,17 @@ then the default (which is C for now).
 -/
 @[inline] def backend (self : LeanLib) : Backend :=
   Backend.orPreferLeft self.config.backend self.pkg.backend
+
 /--
 The arguments to pass to `lean` when compiling the library's Lean files.
-That is, the package's `moreLeanArgs` plus the library's  `moreLeanArgs`.
+`leanArgs` is the accumulation of:
+- the package's `leanOptions`
+- the package's `moreLeanArgs`
+- the library's `leanOptions`
+- the library's `moreLeanArgs`
 -/
 @[inline] def leanArgs (self : LeanLib) : Array String :=
-  self.pkg.moreLeanArgs ++ self.config.moreLeanArgs
+  self.pkg.moreLeanArgs ++ self.config.leanOptions.map (·.asCliArg) ++ self.config.moreLeanArgs
 
 /--
 The arguments to weakly pass to `lean` when compiling the library's Lean files.

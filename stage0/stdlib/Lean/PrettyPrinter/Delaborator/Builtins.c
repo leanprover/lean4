@@ -4855,13 +4855,13 @@ goto _start;
 }
 else
 {
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_box(0);
-x_20 = l_Lean_RBNode_find___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__5(x_3, x_1);
-if (lean_obj_tag(x_20) == 0)
+lean_object* x_19; 
+x_19 = l_Lean_RBNode_find___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__5(x_3, x_1);
+if (lean_obj_tag(x_19) == 0)
 {
-lean_object* x_21; lean_object* x_22; 
-x_21 = l_Lean_KVMap_insertCore(x_19, x_14, x_15);
+lean_object* x_20; lean_object* x_21; lean_object* x_22; 
+x_20 = lean_box(0);
+x_21 = l_Lean_KVMap_insertCore(x_20, x_14, x_15);
 lean_inc(x_1);
 x_22 = l_Lean_RBNode_insert___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__2(x_3, x_1, x_21);
 x_2 = x_13;
@@ -4871,9 +4871,9 @@ goto _start;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_20, 0);
+x_24 = lean_ctor_get(x_19, 0);
 lean_inc(x_24);
-lean_dec(x_20);
+lean_dec(x_19);
 x_25 = l_Lean_KVMap_insertCore(x_24, x_14, x_15);
 lean_inc(x_1);
 x_26 = l_Lean_RBNode_insert___at_Lean_PrettyPrinter_Delaborator_TopDownAnalyze_annotateBoolAt___spec__2(x_3, x_1, x_25);

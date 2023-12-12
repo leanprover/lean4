@@ -1,4 +1,10 @@
 termination_by.lean:8:0-8:23: error: invalid 'termination_by' in mutually inductive datatype declaration
-termination_by.lean:13:1-13:24: error: invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword
-termination_by.lean:21:2-21:3: error: function 'h' not found in current declaration
-termination_by.lean:39:2-39:14: error: invalid termination hint element, 'Test.g' and 'Test.f' are in the same clique
+termination_by.lean:13:1-13:22: error: invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword
+termination_by.lean:20:15-20:21: error: function 'n' not found in current declaration
+termination_by.lean:28:2-28:11: error: function 'h'' not found in current declaration
+termination_by.lean:36:2-36:10: error: invalid `termination_by` syntax, unnecessary else-case
+termination_by.lean:47:3-47:16: error: invalid `termination_by` syntax, missing case for function 'isOdd'
+termination_by.lean:59:3-59:14: error: function 'isOd' not found in current declaration
+termination_by.lean:71:3-71:16: error: invalid `termination_by` syntax, `isEven` case has already been provided
+termination_by.lean:84:3-84:15: error: invalid `termination_by` syntax, the else-case (i.e., `_ ... => ...`) has already been specified
+termination_by.lean:102:2-102:10: error: invalid `termination_by` syntax, missing case for function 'Test.h'

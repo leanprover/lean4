@@ -4,7 +4,17 @@ terminationFailure.lean:7:2-7:3: error: fail to show termination for
 with errors
 structural recursion does not handle mutually recursive functions
 
-failed to prove termination, use `termination_by` to specify a well-founded relation
+Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+Call from f.g to f at 9:9-12:
+  x1
+x  =
+Call from f to f.g at 3:4-7:
+   x
+x1 =
+
+Please use `termination_by` to specify a decreasing measure.
 f (x : Nat) : Nat
 f.g (a✝ : Nat) : Nat
 1
@@ -18,6 +28,11 @@ argument #1 was not used for structural recursion
 
 structural recursion cannot be used
 
-failed to prove termination, use `termination_by` to specify a well-founded relation
+failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+x : Nat
+⊢ False
 h (x : Nat) : Foo
 Foo.a

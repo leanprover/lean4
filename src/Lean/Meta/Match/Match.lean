@@ -910,11 +910,17 @@ private partial def updateAlts (typeNew : Expr) (altNumParams : Array Nat) (alts
   - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
   - expression `e : B[discrs]`,
   Construct the term
-  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`, and
+  `match_i As (fun xs => B[xs] -> motive[xs]) discrs (fun ys_1 (y : B[C_1[ys_1]]) => alt_1) ... (fun ys_n (y : B[C_n[ys_n]]) => alt_n) e remaining`.
+
   We use `kabstract` to abstract the discriminants from `B[discrs]`.
+
   This method assumes
   - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  the argument provided by `fix` to refine the termination argument, which may mention `major`.
+  See there for how to use this function.
 -/
 def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do
@@ -951,10 +957,73 @@ def MatcherApp.addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
       remaining     := #[e] ++ matcherApp.remaining
     }
 
-/-- Similar `MatcherApp.addArg?`, but returns `none` on failure. -/
+/-- Similar to `MatcherApp.addArg`, but returns `none` on failure. -/
 def MatcherApp.addArg? (matcherApp : MatcherApp) (e : Expr) : MetaM (Option MatcherApp) :=
   try
     return some (← matcherApp.addArg e)
+  catch _ =>
+    return none
+
+
+/-- Given
+  - matcherApp `match_i As (fun xs => motive[xs]) discrs (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining`, and
+  - a expression `B[discrs]` (which may not be a type, e.g. `n : Nat`),
+  returns the expressions `fun ys_1 ... ys_i => B[C_1[ys_1]] ... B[C_n[ys_n]]`,
+
+  This method assumes
+  - the `matcherApp.motive` is a lambda abstraction where `xs.size == discrs.size`
+  - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
+
+  This is similar to `MatcherApp.addArg` when you only have an expression to
+  refined, and not a type with a value.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' paramter, which may mention `major`.
+  See there for how to use this function.
+-/
+def MatcherApp.refineThrough (matcherApp : MatcherApp) (e : Expr) : MetaM (Array Expr) :=
+  lambdaTelescope matcherApp.motive fun motiveArgs _motiveBody => do
+    unless motiveArgs.size == matcherApp.discrs.size do
+      -- This error can only happen if someone implemented a transformation that rewrites the motive created by `mkMatcher`.
+      throwError "failed to transfer argument through matcher application, motive must be lambda expression with #{matcherApp.discrs.size} arguments"
+
+    let eAbst ← matcherApp.discrs.size.foldRevM (init := e) fun i eAbst => do
+      let motiveArg := motiveArgs[i]!
+      let discr     := matcherApp.discrs[i]!
+      let eTypeAbst ← kabstract eAbst discr
+      return eTypeAbst.instantiate1 motiveArg
+    -- Let's create something that’s a `Sort` and mentions `e`
+    -- (recall that `e` itself possibly isn't a type),
+    -- by writing `e = e`, so that we can use it as a motive
+    let eEq ← mkEq eAbst eAbst
+
+    let matcherLevels ← match matcherApp.uElimPos? with
+      | none     => pure matcherApp.matcherLevels
+      | some pos =>
+        pure <| matcherApp.matcherLevels.set! pos levelZero
+    let motive ← mkLambdaFVars motiveArgs eEq
+    let aux := mkAppN (mkConst matcherApp.matcherName matcherLevels.toList) matcherApp.params
+    let aux := mkApp aux motive
+    let aux := mkAppN aux matcherApp.discrs
+    unless (← isTypeCorrect aux) do
+      throwError "failed to transfer argument through matcher application, type error when constructing the new motive"
+    let auxType ← inferType aux
+    forallTelescope auxType fun altAuxs _ => do
+      let altAuxTys ← altAuxs.mapM (inferType ·)
+      (Array.zip matcherApp.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+          unless fvs.size = altNumParams do
+            throwError "failed to transfer argument through matcher application, alt type must be telescope with #{altNumParams} arguments"
+          -- extract type from our synthetic equality
+          let body := body.getArg! 2
+          -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+          mkLambdaFVars fvs body
+
+/-- A non-failing version of `MatcherApp.refineThrough` -/
+def MatcherApp.refineThrough? (matcherApp : MatcherApp) (e : Expr) :
+    MetaM (Option (Array Expr)) :=
+  try
+    return some (← matcherApp.refineThrough e)
   catch _ =>
     return none
 

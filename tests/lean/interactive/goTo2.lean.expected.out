@@ -1,6 +1,6 @@
-{"textDocument": {"uri": "file://goTo2.lean"},
+{"textDocument": {"uri": "file:///goTo2.lean"},
  "position": {"line": 10, "character": 15}}
-[{"targetUri": "file://goTo2.lean",
+[{"targetUri": "file:///goTo2.lean",
   "targetSelectionRange":
   {"start": {"line": 1, "character": 0}, "end": {"line": 1, "character": 55}},
   "targetRange":
@@ -8,9 +8,9 @@
   "originSelectionRange":
   {"start": {"line": 10, "character": 11},
    "end": {"line": 10, "character": 20}}}]
-{"textDocument": {"uri": "file://goTo2.lean"},
+{"textDocument": {"uri": "file:///goTo2.lean"},
  "position": {"line": 10, "character": 27}}
-[{"targetUri": "file://goTo2.lean",
+[{"targetUri": "file:///goTo2.lean",
   "targetSelectionRange":
   {"start": {"line": 2, "character": 0}, "end": {"line": 2, "character": 55}},
   "targetRange":
@@ -18,9 +18,9 @@
   "originSelectionRange":
   {"start": {"line": 10, "character": 23},
    "end": {"line": 10, "character": 30}}}]
-{"textDocument": {"uri": "file://goTo2.lean"},
+{"textDocument": {"uri": "file:///goTo2.lean"},
  "position": {"line": 10, "character": 11}}
-[{"targetUri": "file://goTo2.lean",
+[{"targetUri": "file:///goTo2.lean",
   "targetSelectionRange":
   {"start": {"line": 14, "character": 4}, "end": {"line": 14, "character": 5}},
   "targetRange":

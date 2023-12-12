@@ -1,10 +1,10 @@
-{"textDocument": {"version": 2, "uri": "file://editCompletion.lean"},
+{"textDocument": {"version": 2, "uri": "file:///editCompletion.lean"},
  "contentChanges":
  [{"text": ".",
    "range":
    {"start": {"line": 3, "character": 21},
     "end": {"line": 3, "character": 22}}}]}
-{"textDocument": {"uri": "file://editCompletion.lean"},
+{"textDocument": {"uri": "file:///editCompletion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
  "isIncomplete": true}

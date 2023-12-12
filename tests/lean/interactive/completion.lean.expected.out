@@ -1,16 +1,16 @@
-{"textDocument": {"uri": "file://completion.lean"},
+{"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 3, "character": 22}}
 {"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion.lean"},
+{"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 5, "character": 23}}
 {"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion.lean"},
+{"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 7, "character": 28}}
 {"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
  "isIncomplete": true}
-{"textDocument": {"uri": "file://completion.lean"},
+{"textDocument": {"uri": "file:///completion.lean"},
  "position": {"line": 9, "character": 29}}
 {"items": [{"label": "foo", "kind": 5, "detail": "Foo → Nat"}],
  "isIncomplete": true}

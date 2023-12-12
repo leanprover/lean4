@@ -20,6 +20,11 @@ v4.5.0 (development in progress)
   ```
   [PR #2821](https://github.com/leanprover/lean4/pull/2821) and [RFC #2838](https://github.com/leanprover/lean4/issues/2838).
 
+* Add raw string literal syntax. For example, `r"\n"` is equivalent to `"\\n"`, with no escape processing.
+  To include double quote characters in a raw string one can add sufficiently many `#` characters before and after
+  the bounding `"`s, as in `r#"the "the" is in quotes"#` for `"the \"the\" is in quotes"`.
+  [PR #2929](https://github.com/leanprover/lean4/pull/2929) and [issue #1422](https://github.com/leanprover/lean4/issues/1422).
+
 * The low-level `termination_by'` clause is no longer supported.
 
   Migration guide: Use `termination_by` instead, e.g.:

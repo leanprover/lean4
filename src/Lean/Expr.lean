@@ -1654,20 +1654,22 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
   | _      => e
 
 /--
-Return true if `e` is a `let_fun` expression, an expression of the form `letFun v f`.
+Returns true if `e` is a `let_fun` expression, which is an expression of the form `letFun v f`.
 Ideally `f` is a lambda, but we do not require that here.
 Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
 -/
 def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
 
-/-- Recognizes a `let_fun` expression. For `let_fun n : t := v; b`, returns `some (n, t, v, b)`,
-which are the first four arguments to `Lean.Expr.letE`.
+/--
+Recognizes a `let_fun` expression.
+For `let_fun n : t := v; b`, returns `some (n, t, v, b)`, which are the first four arguments to `Lean.Expr.letE`.
 Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `none`.
 
 `let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
 They can be created using `Lean.Meta.mkLetFun`.
 
-If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name. -/
+If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
+-/
 def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
   match e with
   | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
@@ -1676,8 +1678,10 @@ def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
     | _ => some (.anonymous, t, v, .app f (.bvar 0))
   | _ => none
 
-/-- Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
-Returns those arguments in addition to the values returned by `letFun?`. -/
+/--
+Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
+Returns those arguments in addition to the values returned by `letFun?`.
+-/
 def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
   guard <| 4 ≤ e.getAppNumArgs
   guard <| e.isAppOf ``letFun

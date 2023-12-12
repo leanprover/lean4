@@ -21,8 +21,10 @@ structure EqnInfoCore where
   value       : Expr
   deriving Inhabited
 
-/-- Zeta reduces `let` and `let_fun` while consuming metadata.
-Returns true if progress was made. -/
+/--
+Zeta reduces `let` and `let_fun` while consuming metadata.
+Returns true if progress is made.
+-/
 partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
   match e with
   | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)

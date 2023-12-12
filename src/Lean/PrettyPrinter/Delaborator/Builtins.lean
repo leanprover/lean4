@@ -394,11 +394,13 @@ def delabAppMatch : Delab := whenPPOption getPPNotation <| whenPPOption getPPMat
         `(match $[$st.discrs:matchDiscr],* with $[| $pats,* => $st.rhss]*)
     return Syntax.mkApp stx st.moreArgs
 
-/-- Annotation key to use in hack for overapplied `let_fun` notation. -/
+/--
+Annotation key to use in hack for overapplied `let_fun` notation.
+-/
 def delabLetFunKey : Name := `_delabLetFun
 
 /--
-  Delaborate applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
+Delaborates applications of the form `letFun v (fun x => b)` as `let_fun x := v; b`.
 -/
 @[builtin_delab app.letFun]
 def delabLetFun : Delab := whenPPOption getPPNotation do

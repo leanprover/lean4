@@ -42,7 +42,7 @@ def set (tk : CancelToken) : IO Unit :=
 
 end CancelToken
 
--- TEMP: translate from new heterogeneous snapshot tree to old homegenous async list
+-- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
 private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList ElabTaskError Snapshot := Id.run do
   let some headerParsed := initSnap.success? | return .nil

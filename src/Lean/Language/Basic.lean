@@ -80,13 +80,21 @@ def SnapshotTask.pure (a : α) : SnapshotTask α where
 
 /--
   Explicitly cancels a tasks. Like with basic `Tasks`s, cancellation happens implicitly when the
-  last reference to the task is dropped. -/
+  last reference to the task is dropped *if* it is not an I/O task. -/
 def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
   IO.cancel t.task
 
 /-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (sync := false) : SnapshotTask β :=
-  { t with task := t.task.map (sync := sync) f }
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range : String.Range := t.range)
+    (sync := false) : SnapshotTask β :=
+  { range, task := t.task.map (sync := sync) f }
+
+/--
+  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
+  the second task is discarded. -/
+def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
+    (range : String.Range := t.range) (sync := false) : SnapshotTask β :=
+  { range, task := t.task.bind (sync := sync) (act · |>.task) }
 
 /--
   Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
@@ -153,17 +161,6 @@ where
     modify (·.push s.element)
     for t in s.children do
       go t.get
-
-/--
-  Returns the value of a snapshot task if it has already finished and otherwise cancels the task.
-  Tasks will be canceled implicitly when the last reference to them is dropped but being explicit
-  here doesn't hurt. -/
-def getOrCancel? (t? : Option (SnapshotTask α)) : BaseIO (Option α) := do
-  let some t := t? | return none
-  if (← IO.hasFinished t.task) then
-    return t.get
-  IO.cancel t.task
-  return none
 
 /-- Metadata that does not change during the lifetime of the language processing process. -/
 structure ProcessingContext where

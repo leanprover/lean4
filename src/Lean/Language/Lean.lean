@@ -131,6 +131,16 @@ partial instance : ToSnapshotTree CommandParsedSnapshot where
       #[s.data.sig.map (sync := true) toSnapshotTree] |>
         pushOpt (s.next?.map (·.map (sync := true) go))⟩
 
+/-- Cancels all significant computations from this snapshot onwards. -/
+partial def CommandParsedSnapshot.cancel (snap : CommandParsedSnapshot) : BaseIO Unit := do
+  -- This is the only relevant computation right now
+  -- TODO: cancel additional elaboration tasks if we add them without switching to implicit
+  -- cancellation
+  snap.data.sig.cancel
+  if let some next := snap.next? then
+    -- recurse on next command (which may have been spawned just before we cancelled above)
+    let _ ← IO.mapTask (sync := true) (·.cancel) next.task
+
 /-- State after successful importing. -/
 structure HeaderProcessedSucessfully where
   /-- The resulting initial elaboration state. -/
@@ -215,15 +225,17 @@ where
     let unchanged old :=
       -- when header syntax is unchanged, reuse import processing task as is and continue with
       -- parsing the first command, synchronously if possible
-      if let some success := old.success? then
-        return { old with ictx, success? := some { success with
-          processed := (← success.processed.bindIO (sync := true) fun processed => do
-            if let some procSuccess := processed.success? then
-              let oldCmd? ← getOrCancel? procSuccess.next
-              return .pure { processed with success? := some { procSuccess with
-                next := (← parseCmd oldCmd? success.parserState procSuccess.cmdState) } }
+      if let some oldSuccess := old.success? then
+        return { old with ictx, success? := some { oldSuccess with
+          processed := (← oldSuccess.processed.bindIO (sync := true) fun oldProcessed => do
+            if let some oldProcSuccess := oldProcessed.success? then
+              -- also wait on old command parse snapshot as parsing is cheap and may allow for
+              -- elaboration reuse
+              oldProcSuccess.next.bindIO (sync := true) fun oldCmd =>
+                return .pure { oldProcessed with success? := some { oldProcSuccess with
+                  next := (← parseCmd oldCmd oldSuccess.parserState oldProcSuccess.cmdState) } }
             else
-              return .pure processed) } }
+              return .pure oldProcessed) } }
       else return old
 
     -- fast path: if we have parsed the header successfully...
@@ -247,6 +259,12 @@ where
       if let some old := old? then
         if firstDiffPos?.any (parserState.pos < ·) && old.stx == stx then
           return (← unchanged old)
+        -- on first change, make sure to cancel all further old tasks
+        if let some oldSuccess := old.success? then
+          oldSuccess.processed.cancel
+          let _ ← BaseIO.mapTask (t := oldSuccess.processed.task) fun processed => do
+            if let some oldProcSuccess := processed.success? then
+              let _ ← BaseIO.mapTask (·.cancel) oldProcSuccess.next.task
 
       return {
         ictx, stx, msgLog
@@ -326,13 +344,26 @@ where
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) :
       BaseIO (SnapshotTask CommandParsedSnapshot) := do
+    -- check for cancellation, most likely during elaboration of previous command, before starting
+    -- processing of next command
+    if (← IO.checkCanceled) then
+      -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
+      -- (as no-one should look at this result in that case) but anything containing `Environment`
+      -- is not `Inhabited`
+      return .pure <| .mk (next? := none) {
+        msgLog := .empty, stx := .missing, parserState
+        sig := .pure { msgLog := .empty, finished := .pure { msgLog := .empty, cmdState } } }
+
     let unchanged old : BaseIO CommandParsedSnapshot :=
       -- when syntax is unchanged, reuse command processing task as is
       if let some oldNext := old.next? then
         return .mk (data := old.data)
-          (next? := (← old.data.sig.bindIO (sync := true) fun sig =>
-            sig.finished.bindIO (sync := true) fun finished => do
-              parseCmd (← getOrCancel? oldNext) old.data.parserState finished.cmdState))
+          (next? := (← old.data.sig.bindIO (sync := true) fun oldSig =>
+            oldSig.finished.bindIO (sync := true) fun oldFinished =>
+              -- also wait on old command parse snapshot as parsing is cheap and may allow for
+              -- elaboration reuse
+              oldNext.bindIO (sync := true) fun oldNext => do
+                parseCmd oldNext old.data.parserState oldFinished.cmdState))
       else return old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot
@@ -354,14 +385,14 @@ where
       if let some old := old? then
         if firstDiffPos?.any (parserState.pos < ·) && old.data.stx == stx then
           return (← unchanged old)
+        -- on first change, make sure to cancel all further old tasks
+        old.cancel
 
-      let _ ← old?.map (·.data.sig) |> getOrCancel?
       let sig ← processCmdSignature stx cmdState msgLog.hasErrors beginPos
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> sig.bindIO fun sig => do
-          sig.finished.bindIO fun finished =>
-            parseCmd none parserState finished.cmdState
+        else some <$> (sig.bind (·.finished)).bindIO fun finished =>
+          parseCmd none parserState finished.cmdState
       return .mk (next? := next?) {
         msgLog
         stx

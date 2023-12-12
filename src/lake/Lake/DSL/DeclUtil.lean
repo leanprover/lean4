@@ -86,19 +86,15 @@ def mkConfigDecl (name? : Option Name)
 | `(structDeclSig| $id:ident) =>
   `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty :=
     {name := $(quote id.getId)})
-| `(structDeclSig| $id:ident where $fs;* $[$wds?]?) => do
+| `(structDeclSig| $id:ident where $fs;* $[$wds?:whereDecls]?) => do
   let fields ← fs.getElems.mapM expandDeclField
   let defn ← `({ name := $(quote id.getId), $fields,* })
-  let foo : Option (TSyntax ``Termination.terminationBy) := none
-  let bar : Option (TSyntax ``Termination.decreasingBy) := none
-  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$foo]? $[$bar]?  $[$wds?]?)
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
 | `(structDeclSig| $id:ident $[: $ty?]? :=%$defTk $defn $[$wds?]?) => do
   let notice ← withRef defTk `(#eval IO.eprintln s!" warning: {__dir__}: `:=` syntax for configurations has been deprecated")
   `($notice $[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?]?)
-| `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?]?) => do
+| `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?:whereDecls]?) => do
   let fields ← fs.mapM expandDeclField
   let defn ← `({ name := $(quote id.getId), $fields,* })
-  let foo : Option (TSyntax ``Termination.terminationBy) := none
-  let bar : Option (TSyntax ``Termination.decreasingBy) := none
-  `(command|$[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$foo]? $[$bar]? $[$wds?]?)
+  `(command|$[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
 | stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

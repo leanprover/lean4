@@ -127,7 +127,7 @@ scoped macro (name := targetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"target " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$foo]? $[$bar]?  $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId

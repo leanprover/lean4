@@ -65,17 +65,12 @@ optional(docComment) optional(Term.attributes)
 "post_update " (ppSpace simpleBinder)? (declValSimple <|> declValDo) : command
 
 macro_rules
-| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?]?) =>
-  let foo : Option (TSyntax ``Termination.terminationBy) := none
-  let bar : Option (TSyntax ``Termination.decreasingBy) := none
-  `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$foo]? $[$bar]? $[$wds?]?)
-| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$foo]? $[$bar]? $[$wds?]?) => do
+| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? do $seq $[$wds?:whereDecls]?) =>
+  `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := do $seq $[$wds?:whereDecls]?)
+| `($[$doc?]? $[$attrs?]? post_update%$kw $[$pkg?]? := $defn $[$wds?:whereDecls]?) => do
   let pkg ← expandOptSimpleBinder pkg?
   let pkgName := mkIdentFrom pkg `_package.name
   let attr ← withRef kw `(Term.attrInstance| «post_update»)
   let attrs := #[attr] ++ expandAttrs attrs?
-  -- These parsers do not even exist, why is the quotation below expecting them?
-  let foo : Option (TSyntax `Lean.Parser.Command.terminationBy) := none
-  let bar : Option (TSyntax `Lean.Parser.Command.decreasingBy) := none
   `($[$doc?]? @[$attrs,*] def postUpdateHook : PostUpdateHookDecl :=
-    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?]? $[$foo]? $[$bar]?)
+    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?]?)

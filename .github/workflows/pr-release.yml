@@ -71,10 +71,15 @@ jobs:
 
       - name: Add label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v7
         with:
-          number: ${{ steps.workflow-info.outputs.pullRequestNumber }}
-          labels: toolchain-available
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: ${{ steps.workflow-info.outputs.pullRequestNumber }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['toolchain-available']
+            })
 
       # Next, determine the most recent nightly release in this PR's history.
       - name: Find most recent nightly

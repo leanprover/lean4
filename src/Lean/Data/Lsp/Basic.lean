@@ -78,6 +78,18 @@ structure Command where
   arguments? : Option (Array Json) := none
   deriving ToJson, FromJson
 
+/-- A snippet string is a template which allows to insert text
+and to control the editor cursor when insertion happens.
+
+A snippet can define tab stops and placeholders with `$1`, `$2`
+and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+the end of the snippet. Variables are defined with `$name` and
+`${name:default value}`. Also see
+[the full snippet syntax](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_creating-your-own-snippets). -/
+structure SnippetString where
+  value : String
+  deriving ToJson, FromJson
+
 /-- A textual edit applicable to a text document.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit) -/
@@ -87,6 +99,22 @@ structure TextEdit where
   range : Range
   /-- The string to be inserted. For delete operations use an empty string. -/
   newText : String
+  /-- If this field is present and the editor supports it,
+  `newText` is ignored
+  and an interactive snippet edit is performed instead.
+
+  *Note* that this is a Lean-specific extension to the LSP standard,
+  so `newText` should still be set to a correct value
+  as fallback in case the editor does not support this feature.
+
+  *Note* that a snippet edit can always be performed as a normal text edit.
+  In VSCode, this will happen when no matching editor is open or when a workspace edit
+  contains snippet edits for multiple files. In that case only those that match the active editor
+  will be performed as snippet edits and the others as normal text edits. -/
+  /- NOTE: Similar functionality may be added to LSP in the future:
+  see [issue #592](https://github.com/microsoft/language-server-protocol/issues/592).
+  If such an addition occurs, this field should be deprecated. -/
+  leanExtSnippet? : Option SnippetString := none
   /-- Identifier for annotated edit.
 
     `WorkspaceEdit` has a `changeAnnotations` field that maps these identifiers to a `ChangeAnnotation`.

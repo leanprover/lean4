@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - 'master'
+  workflow_dispatch:
 
 concurrency:
   group: stage0
@@ -23,16 +24,17 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
-    - name: Check if update is needed
+    - run: echo "DOIT=yes" >> "$GITHUB_ENV"
+    - name: Check if automatic update is needed
+      if: github.event_name == 'push'
       run: |
         if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
         then
           echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
           echo "DOIT=no" >> "$GITHUB_ENV"
-        else
-          echo "DOIT=yes" >> "$GITHUB_ENV"
         fi
     - name: Setup git user
+      if: env.DOIT == 'yes'
       run: |
           git config --global user.name "Lean stage0 autoupdater"
           git config --global user.email "<>"
@@ -52,9 +54,9 @@ jobs:
       run: nix run .#update-stage0-commit
     - if: env.DOIT == 'yes'
       run: git show --stat
-    - if: env.DOIT == 'yes'
+    - if: env.DOIT == 'yes' && github.event_name == 'push'
       name: Sanity check # to avoid loops
       run: |
         diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
     - if: env.DOIT == 'yes'
-      run: git push origin HEAD:master
+      run: git push origin

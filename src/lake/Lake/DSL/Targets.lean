@@ -93,7 +93,7 @@ scoped macro (name := libraryFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"library_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$foo]? $[$bar]? $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| library_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -211,13 +211,13 @@ scoped macro (name := externLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "extern_lib " spec:externLibDeclSpec : command => do
   match spec with
-  | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?]?) =>
+  | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?:whereDecls]?) =>
     let attr ← `(Term.attrInstance| extern_lib)
     let attrs := #[attr] ++ expandAttrs attrs?
     let pkgName := mkIdentFrom id `_package.name
     let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
     let name := Name.quoteFrom id id.getId
-    `(target $targetId $[$pkg?]? : FilePath := $defn $[$wds?]?
+    `(target $targetId $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
       $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl := {
         pkg := $pkgName
         name := $name

@@ -97,10 +97,11 @@ structure CustomInfo where
   stx : Syntax
   value : Dynamic
 
-/-- Information about a panel widget associated with a syntactic span.
+/-- Information about a user widget associated with a syntactic span.
+This must be a panel widget.
 A panel widget is a widget that can be displayed
 in the infoview alongside the goal state. -/
-structure PanelWidgetInfo extends Widget.WidgetInstance where
+structure UserWidgetInfo extends Widget.WidgetInstance where
   stx : Syntax
 
 /--
@@ -135,7 +136,7 @@ inductive Info where
   | ofOptionInfo (i : OptionInfo)
   | ofFieldInfo (i : FieldInfo)
   | ofCompletionInfo (i : CompletionInfo)
-  | ofPanelWidgetInfo (i : PanelWidgetInfo)
+  | ofUserWidgetInfo (i : UserWidgetInfo)
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)

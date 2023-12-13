@@ -141,8 +141,8 @@ def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : 
   let output ← ctx.ppSyntax info.lctx info.output
   return f!"Macro expansion\n{stx}\n===>\n{output}"
 
-def PanelWidgetInfo.format (info : PanelWidgetInfo) : Format :=
-  f!"PanelWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
+def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
+  f!"UserWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
 
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
   f!"FVarAlias {info.userName.eraseMacroScopes}"
@@ -158,7 +158,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofOptionInfo i         => i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
-  | ofPanelWidgetInfo i    => pure <| i.format
+  | ofUserWidgetInfo i     => pure <| i.format
   | ofCustomInfo i         => pure <| Std.ToFormat.format i
   | ofFVarAliasInfo i      => pure <| i.format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
@@ -171,7 +171,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofOptionInfo _         => none
   | ofFieldInfo _          => none
   | ofCompletionInfo _     => none
-  | ofPanelWidgetInfo _    => none
+  | ofUserWidgetInfo _     => none
   | ofCustomInfo _         => none
   | ofFVarAliasInfo _      => none
   | ofFieldRedeclInfo _    => none

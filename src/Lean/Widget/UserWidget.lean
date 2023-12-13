@@ -193,16 +193,16 @@ def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
   let env ← getEnv
   let some (id, _) := moduleRegistry.getState env |>.find? hash
     | throwError s!"No widget module with hash {hash} registered"
-  pushInfoLeaf <| .ofPanelWidgetInfo { id, javascriptHash := hash, props, stx }
+  pushInfoLeaf <| .ofUserWidgetInfo { id, javascriptHash := hash, props, stx }
 
 /-! ## Retrieving panel widget instances -/
 
 #mkrpcenc WidgetInstance
 
-/-- Retrieve all the `PanelWidgetInfo`s at a particular position. -/
-def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List PanelWidgetInfo :=
+/-- Retrieve all the `UserWidgetInfo`s that intersect a given line. -/
+def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List UserWidgetInfo :=
   t.deepestNodes fun
-    | _ctx, i@(Info.ofPanelWidgetInfo wi), _cs => do
+    | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
       if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
         -- Does the widget's line range contain `hoverLine`?
         guard <| (text.utf8PosToLspPos pos).line ≤ hoverLine ∧ hoverLine ≤ (text.utf8PosToLspPos tailPos).line
@@ -224,7 +224,7 @@ structure GetWidgetsResponse where
 #mkrpcenc GetWidgetsResponse
 
 open Lean Server RequestM in
-/-- Get the panel widgets present at a particular position. -/
+/-- Get the panel widgets present around a particular position. -/
 @[server_rpc_method]
 def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
@@ -236,7 +236,7 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
       | return ⟨∅⟩
     /- Panels from the infotree. -/
     let ws := widgetInfosAt? filemap snap.infoTree pos.line
-    let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : PanelWidgetInfo) =>
+    let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : UserWidgetInfo) =>
       { wi with
         range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx
         name? := toString wi.id }
@@ -258,23 +258,25 @@ syntax eraseWidgetSpec := "-" ident
 syntax showWidgetSpec := addWidgetSpec <|> eraseWidgetSpec
 /-- Use `show_panel_widgets [<widget>]` to mark that `<widget>`
 should always be displayed, including in downstream modules.
-Use `show_panel_widgets [<widget> with <props>] to have it
-displayed with the provided `<props>`.
 
 The type of `<widget>` must implement `Widget.ToModule`,
 and the type of `<props>` must implement `Server.RpcEncodable`.
 In particular, `<props> : Json` works.
 
+Use `show_panel_widgets [<widget> with <props>]`
+to specify the `<props>` that the widget should be given
+as arguments.
+
 Use `show_panel_widgets [local <widget> (with <props>)?]` to mark it
-for display in the current section, namespace, or file.
+for display in the current section, namespace, or file only.
 
 Use `show_panel_widgets [scoped <widget> (with <props>)?]` to mark it
-for display when the current namespace is open.
+for display only when the current namespace is open.
 
 Use `show_panel_widgets [-<widget>]` to temporarily hide a previously shown widget
 in the current section, namespace, or file.
-Note that global erasure is not possible, i.e.,
-`-<widget>` has no effect on downstream modules -/
+Note that persistent erasure is not possible, i.e.,
+`-<widget>` has no effect on downstream modules. -/
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
 
 def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := do

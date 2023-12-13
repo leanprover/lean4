@@ -111,16 +111,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
         addNonRec preDef
       else
         addAndCompileNonRec preDef
-      -- TODO: Complain about possible termination hints
+      preDef.termination.ensureNone "not recursive"
     else if preDefs.any (·.modifiers.isUnsafe) then
       addAndCompileUnsafe preDefs
-      -- TODO: Complain about possible termination hints
+      preDefs.forM (·.termination.ensureNone "unsafe")
     else if preDefs.any (·.modifiers.isPartial) then
       for preDef in preDefs do
         if preDef.modifiers.isPartial && !(← whnfD preDef.type).isForall then
           withRef preDef.ref <| throwError "invalid use of 'partial', '{preDef.declName}' is not a function{indentExpr preDef.type}"
       addAndCompilePartial preDefs
-      -- TODO: Complain about possible termination hints
+      preDefs.forM (·.termination.ensureNone "partial")
     else
       try
         let hasHints := preDefs.any  fun preDef =>

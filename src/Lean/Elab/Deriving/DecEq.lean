@@ -169,7 +169,7 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
       value, type
     }
 
-def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
+def mkDecEqEnum (declName : Name) : CommandElabM Bool := do
   liftTermElabM <| mkEnumOfNat declName
   liftTermElabM <| mkEnumOfNatThm declName
   let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
@@ -185,13 +185,16 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   )
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
+  return true
+
+def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
+  if (← isEnumType declName) then
+    mkDecEqEnum declName
+  else
+    mkDecEq declName
 
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← isEnumType declNames[0]!) then
-    mkDecEqEnum declNames[0]!
-    return true
-  else
-    mkDecEq declNames[0]!
+  declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
 
 builtin_initialize
   registerDerivingHandler `DecidableEq mkDecEqInstanceHandler

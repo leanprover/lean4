@@ -92,7 +92,6 @@ def runFrontend
     (opts : Options)
     (fileName : String)
     (mainModuleName : Name)
-    -- TODO: do we still want this in the driver?
     (trustLevel : UInt32 := 0)
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do

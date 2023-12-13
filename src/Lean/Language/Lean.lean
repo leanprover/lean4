@@ -206,9 +206,8 @@ General notes:
   state. As there is no cheap way to check whether the `Environment` is unchanged, i.e. *semantic*
   change detection is currently not possible, we must make sure to pass `none` as all follow-up
   "previous states" from the first *syntactic* change onwards.
-* We (try to remember to) cancel tasks that we cannot reuse proactively even though they are
-  auto-canceled when the last reference to them is dropped; but it is not always easy to ensure that
-  the last drop happens precisely where we expect it.
+* We must make sure to use `CommandParsedSnapshot.cancel` on such tasks when discarding them, i.e.
+  when not passing them along in `old?`.
 * Control flow up to finding the last still-valid snapshot (which should be quick) is synchronous so
   as not to report this "fast forwarding" to the user as well as to make sure the next run sees all
   fast-forwarded snapshots without having to wait on tasks.
@@ -256,6 +255,9 @@ where
       -- semi-fast path: go to next snapshot if syntax tree is unchanged AND we're still in front
       -- of the edit location
       -- TODO: dropping the second condition would require adjusting positions in the state
+      -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
+      -- only that whitespace changes, which is wasteful but still necessary because it may
+      -- influence the range of error messages such as from a trailing `exact`
       if let some old := old? then
         if firstDiffPos?.any (parserState.pos < ·) && old.stx == stx then
           return (← unchanged old)

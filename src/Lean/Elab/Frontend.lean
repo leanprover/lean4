@@ -98,8 +98,12 @@ def runFrontend
   let inputCtx := Parser.mkInputContext input fileName
   -- TODO: replace with `#lang` processing
   let lang := Language.Lean
-  let ctx := { mainModuleName, opts, trustLevel, fileSetupHandler? := none }
-  let snap ← lang.process ctx none inputCtx
+  let ctx := { inputCtx with
+    mainModuleName, opts, trustLevel
+    fileSetupHandler? := none
+    clientHasWidgets := false
+  }
+  let snap ← lang.process none ctx
   let snaps := Language.toSnapshotTree snap
   snaps.runAndReport opts
   if let some ileanFileName := ileanFileName? then
@@ -108,7 +112,7 @@ def runFrontend
     let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
-  let hasErrors := snaps.getAll.any (·.msgLog.hasErrors)
+  let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)
   -- TODO: remove default when reworking cmdline interface in Lean; currently the only case
   -- where we use the environment despite errors in the file is `--stats`
   let env := lang.getFinalEnv? snap |>.getD (← mkEmptyEnvironment)

@@ -10,6 +10,7 @@ Authors: Sebastian Ullrich
 
 import Lean.Message
 import Lean.Parser.Types
+import Lean.Widget.InteractiveDiagnostic
 
 set_option linter.missingDocs true
 
@@ -41,6 +42,21 @@ end Lean.Server.FileWorker
 
 namespace Lean.Language
 
+/-- `MessageLog` with caching of interactive diagnostics. -/
+structure Snapshot.Diagnostics where
+  /-- Non-interactive message log. -/
+  msgLog : MessageLog
+  /-- We cache interactive diagnostics in order not to invoke the pretty-printer again on messages
+    from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
+    as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
+  interactiveDiags : Array Widget.InteractiveDiagnostic
+deriving Inhabited
+
+/-- The empty set of diagnostics. -/
+def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
+  msgLog := .empty
+  interactiveDiags := #[]
+
 /--
   The base class of all snapshots: all the generic information the language server needs about a
   snapshot. -/
@@ -48,7 +64,7 @@ structure Snapshot where
   /--
     The messages produced by this step. The union of message logs of all finished snapshots is
     reported to the user. -/
-  msgLog : MessageLog
+  diagnostics : Snapshot.Diagnostics
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
   -- (`InfoTree` is quite Lean-specific at this point, but we want to make it more generic)
@@ -149,7 +165,8 @@ register_builtin_option printMessageEndPos : Bool := {
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
 partial def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) : IO Unit := do
-  s.element.msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+  s.element.diagnostics.msgLog.forM
+    (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
   for t in s.children do
     t.get.runAndReport opts
 
@@ -163,17 +180,38 @@ where
       go t.get
 
 /-- Metadata that does not change during the lifetime of the language processing process. -/
-structure ProcessingContext where
+structure ModuleProcessingContext where
   /-- Module name of the file being processed. -/
   mainModuleName : Name
   /-- Options provided outside of the file content, e.g. on the cmdline or in the lakefile. -/
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Whether to create interactive diagnostics. -/
+  clientHasWidgets : Bool
   /--
     Callback available in server mode for building imports and retrieving per-library options using
     `lake setup-file`. -/
   fileSetupHandler? : Option (Array Import → IO Server.FileWorker.FileSetupResult)
+
+/-- Context of an input processing invocation. -/
+structure ProcessingContext extends ModuleProcessingContext, Parser.InputContext
+
+/-- Monad holding all relevant data for processing. -/
+abbrev ProcessingM := ReaderT ProcessingContext BaseIO
+
+/--
+Creates snapshot message log from non-interactive message log, caching derived interactive
+diagnostics.
+-/
+def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
+    ProcessingM Snapshot.Diagnostics :=
+  return {
+    msgLog
+    interactiveDiags := (← msgLog.toList.toArray.mapM fun msg => do
+      let ctx ← read
+      Widget.msgToInteractiveDiagnostic ctx.fileMap msg ctx.clientHasWidgets)
+  }
 
 end Language
 open Language
@@ -190,8 +228,7 @@ structure Language where
     Processes input into snapshots, potentially reusing information from a previous run.
     Constructing the initial snapshot is assumed to be cheap enough that it can be done
     synchronously, which simplifies use of this function. -/
-  process : ProcessingContext → (old? : Option InitialSnapshot) → Parser.InputContext →
-    BaseIO InitialSnapshot
+  process : (old? : Option InitialSnapshot) → ProcessingM InitialSnapshot
   -- TODO: is this the right interface for other languages as well?
   /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/
   getFinalEnv? : InitialSnapshot → Option Environment
@@ -201,10 +238,10 @@ instance (lang : Language) : ToSnapshotTree lang.InitialSnapshot := lang.instToS
 /--
   Builds a function for processing a language using incremental snapshots by passing the previous
   snapshot to `Language.process` on subsequent invocations. -/
-partial def Language.mkIncrementalProcessor (lang : Language) (ctx: ProcessingContext) :
+partial def Language.mkIncrementalProcessor (lang : Language) (ctx : ModuleProcessingContext) :
     BaseIO (Parser.InputContext → BaseIO lang.InitialSnapshot) := do
   let oldRef ← IO.mkRef none
-  return fun doc => do
-    let snap ← lang.process ctx (← oldRef.get) doc
+  return fun ictx => do
+    let snap ← lang.process (← oldRef.get) { ctx, ictx with }
     oldRef.set (some snap)
     return snap

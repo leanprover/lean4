@@ -111,8 +111,9 @@ section Elab
     go node st cont := do
       if (← IO.checkCanceled) then
         return .pure <| .ok ()
-      let diagnostics := st.diagnostics ++ (← node.element.msgLog.toList.toArray.mapM (Widget.msgToInteractiveDiagnostic m.text · ctx.clientHasWidgets)).map (·.toDiagnostic)
-      if st.hasBlocked && !node.element.msgLog.isEmpty then
+      let diagnostics := st.diagnostics ++
+        node.element.diagnostics.interactiveDiags.map (·.toDiagnostic)
+      if st.hasBlocked && !node.element.diagnostics.msgLog.isEmpty then
         ctx.chanOut.send <| mkPublishDiagnosticsNotification m diagnostics
       let infoTrees := match node.element.infoTree? with
         | some itree => st.infoTrees.push itree
@@ -163,6 +164,7 @@ section Initialization
     let chanOut ← mkLspOutputChannel
     let processor ← Language.Lean.mkIncrementalProcessor {
       opts, mainModuleName
+      clientHasWidgets
       fileSetupHandler? := some fun imports =>
         setupFile meta imports fun stderrLine =>
           let progressDiagnostic := {

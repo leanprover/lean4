@@ -101,7 +101,7 @@ def getInteractiveDiagnostics (params : GetInteractiveDiagnosticsParams) : Reque
   let t := doc.cmdSnaps.waitUntil fun snap => rangeEnd.any (snap.endPos >= ·)
   pure <| t.map fun (snaps, _) =>
     let diags? := snaps.getLast?.map fun snap =>
-      snap.interactiveDiags.toArray.filter fun diag =>
+      snap.interactiveDiags.filter fun diag =>
         params.lineRange?.all fun ⟨s, e⟩ =>
           -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
           s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨

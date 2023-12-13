@@ -47,12 +47,14 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList ElabTaskError Snapshot := Id.run do
   let some headerParsed := initSnap.success? | return .nil
   .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
+    -- NOTE: this throws away interactive diagnostics of header errors but these are not interactive
+    -- anyway
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-      interactiveDiags := .empty  -- TODO
+      interactiveDiags := headerProcessed.diagnostics.interactiveDiags
     } <| .delayed <| headerSuccess.next.task.bind go
 where go cmdParsed :=
   cmdParsed.data.sig.task.bind fun sig =>
@@ -61,7 +63,8 @@ where go cmdParsed :=
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
         cmdState := finished.cmdState
-        interactiveDiags := .empty  -- TODO
+        interactiveDiags :=
+          cmdParsed.data.diagnostics.interactiveDiags ++ sig.diagnostics.interactiveDiags
       } (match cmdParsed.next? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)

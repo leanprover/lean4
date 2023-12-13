@@ -23,7 +23,7 @@ jobs:
         id: workflow-info
         with:
           script: |
-            // console.log(`context.payload: ${JSON.stringify(context.payload, null, 2)}`)
+            console.log(`context.payload: ${JSON.stringify(context.payload, null, 2)}`)
             core.setOutput('pullRequestNumber', context.payload.workflow_run.pull_requests[0].number)
             core.setOutput('sourceHeadSha',     context.payload.workflow_run.pull_requests[0].head.sha)
 

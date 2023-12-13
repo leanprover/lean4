@@ -1,3 +1,8 @@
+/-
+The derive handlers should manage both inductives and not ignore the second one,
+Fixes `#3057`
+-/
+
 mutual
   inductive Tree : Type :=
     | node : ListTree → Tree

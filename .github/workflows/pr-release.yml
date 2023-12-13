@@ -98,7 +98,7 @@ jobs:
         id: ready
         run: |
           echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
-          NIGHTLY_SHA=$(git ls-remote https://github.com/leanprover/lean4-nightly.git nightly-2023-12-04|cut -f1)
+          NIGHTLY_SHA=$(git ls-remote https://github.com/leanprover/lean4-nightly.git "nightly-$MOST_RECENT_NIGHTLY"|cut -f1)
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")
           echo "SHA of merge-base: $MERGE_BASE_SHA"

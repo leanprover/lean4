@@ -2,7 +2,9 @@ name: Update stage0
 
 # This action will update stage0 on master as soon as
 # src/stdlib_flags.h and stage0/src/stdlib_flags.h
-# are out of sync there. The update bypasses the merge queue to be quick.
+# are out of sync there, or when manually triggered.
+# The update bypasses the merge queue to be quick.
+# Also see <doc/dev/bootstrap.md>.
 
 on:
   push:
@@ -24,39 +26,39 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ssh-key: ${{secrets.STAGE0_SSH_KEY}}
-    - run: echo "DOIT=yes" >> "$GITHUB_ENV"
+    - run: echo "should_update_stage0=yes" >> "$GITHUB_ENV"
     - name: Check if automatic update is needed
       if: github.event_name == 'push'
       run: |
         if diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h
         then
           echo "src/stdlib_flags.h and stage0/src/stdlib_flags.h agree, nothing to do"
-          echo "DOIT=no" >> "$GITHUB_ENV"
+          echo "should_update_stage0=no" >> "$GITHUB_ENV"
         fi
     - name: Setup git user
-      if: env.DOIT == 'yes'
+      if: env.should_update_stage0 == 'yes'
       run: |
           git config --global user.name "Lean stage0 autoupdater"
           git config --global user.email "<>"
-    - if: env.DOIT == 'yes'
+    - if: env.should_update_stage0 == 'yes'
       uses: DeterminateSystems/nix-installer-action@main
     # Would be nice, but does not work yet:
     # https://github.com/DeterminateSystems/magic-nix-cache/issues/39
     # This action does not run that often and building runs in a few minutes, so ok for now
-    #- if: env.DOIT == 'yes'
+    #- if: env.should_update_stage0 == 'yes'
     #  uses: DeterminateSystems/magic-nix-cache-action@v2
-    - if: env.DOIT == 'yes'
+    - if: env.should_update_stage0 == 'yes'
       name: Install Cachix
       uses: cachix/cachix-action@v12
       with:
         name: lean4
-    - if: env.DOIT == 'yes'
+    - if: env.should_update_stage0 == 'yes'
       run: nix run .#update-stage0-commit
-    - if: env.DOIT == 'yes'
+    - if: env.should_update_stage0 == 'yes'
       run: git show --stat
-    - if: env.DOIT == 'yes' && github.event_name == 'push'
+    - if: env.should_update_stage0 == 'yes' && github.event_name == 'push'
       name: Sanity check # to avoid loops
       run: |
         diff -u src/stdlib_flags.h stage0/src/stdlib_flags.h || exit 1
-    - if: env.DOIT == 'yes'
+    - if: env.should_update_stage0 == 'yes'
       run: git push origin

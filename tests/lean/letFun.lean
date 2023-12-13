@@ -1,3 +1,5 @@
+import Lean.Elab.Command
+
 /-!
 # Tests for `let_fun x := v; b` notation
 -/
@@ -38,3 +40,26 @@ Checks that the type of a `let_fun` can depend on the value.
 -/
 #check let_fun n := 5
   (⟨[], Nat.zero_le n⟩ : { as : List Bool // as.length ≤ n })
+
+/-!
+Check that `let_fun` is reducible.
+-/
+#check (rfl : (let_fun n := 5; n) = 5)
+
+/-!
+Exercise `isDefEqQuick` for `let_fun`.
+-/
+#check (rfl : (let_fun _n := 5; 2) = 2)
+
+/-!
+Check that `let_fun` responds to WHNF's `zeta` option.
+-/
+
+open Lean Elab Term in
+elab "#whnfCore " z?:(&"noZeta")? t:term : command => Command.runTermElabM fun _ => do
+  let e ← withSynthesize <| Term.elabTerm t none
+  let e ← Meta.whnfCore e {zeta := z?.isNone}
+  logInfo m!"{e}"
+
+#whnfCore let_fun n := 5; n
+#whnfCore noZeta let_fun n := 5; n

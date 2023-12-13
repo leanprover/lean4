@@ -165,14 +165,17 @@ section Initialization
     let processor ← Language.Lean.mkIncrementalProcessor {
       opts, mainModuleName
       clientHasWidgets
-      fileSetupHandler? := some fun imports =>
-        setupFile meta imports fun stderrLine =>
+      fileSetupHandler? := some fun imports => do
+        let result ← setupFile meta imports fun stderrLine => do
           let progressDiagnostic := {
             range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
             severity? := DiagnosticSeverity.information
             message   := stderrLine
           }
           chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
+        -- clear progress notifications in the end
+        chanOut.send <| mkPublishDiagnosticsNotification meta #[]
+        return result
     }
     let initSnap ← processor meta.mkInputContext
     let ctx := {

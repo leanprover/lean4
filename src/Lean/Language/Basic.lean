@@ -228,7 +228,7 @@ structure Language where
     Processes input into snapshots, potentially reusing information from a previous run.
     Constructing the initial snapshot is assumed to be cheap enough that it can be done
     synchronously, which simplifies use of this function. -/
-  process : (old? : Option InitialSnapshot) → ProcessingM InitialSnapshot
+  process (old? : Option InitialSnapshot) : ProcessingM InitialSnapshot
   -- TODO: is this the right interface for other languages as well?
   /-- Gets final environment, if any, that is to be used for persisting, code generation, etc. -/
   getFinalEnv? : InitialSnapshot → Option Environment

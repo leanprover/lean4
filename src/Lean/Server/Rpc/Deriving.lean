@@ -43,12 +43,12 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
 
   let indName := mkIdent indVal.name
-  `(structure RpcEncodablePacket where
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    structure RpcEncodablePacket where
       $[($fieldIds : $fieldTys)]*
       deriving FromJson, ToJson
 
-    -- Workaround for https://github.com/leanprover/lean4/issues/2044
-    namespace $indName
     variable $encInstBinders* in
     instance : RpcEncodable (@$(mkCIdent indVal.name) $paramIds*) :=
       { rpcEncode := enc, rpcDecode := dec }
@@ -97,12 +97,12 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
   let typeId ← `(@$(mkIdent indVal.name) $paramIds*)
 
   let indName := mkIdent indVal.name
-  `(inductive RpcEncodablePacket where
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    inductive RpcEncodablePacket where
       $[$ctors:ctor]*
       deriving FromJson, ToJson
 
-    -- Workaround for https://github.com/leanprover/lean4/issues/2044
-    namespace $indName
     variable $encInstBinders* in
     partial instance : RpcEncodable $typeId :=
       { rpcEncode := enc, rpcDecode := dec }

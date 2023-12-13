@@ -68,10 +68,16 @@ example (b : Bool) : Function.const Bool 10 b = 10 :=
 
 /--
 The encoding of `let_fun x := v; b` is `letFun v (fun x => b)`.
-This is an abbreviation for `(fun x => b) v`, so the value of `x` is not accessible to `b`,
-unlike with `let x := v; b`.
+This is equal to `(fun x => b) v`, so the value of `x` is not accessible to `b`.
+This is in contrast to `let x := v; b`, where the value of `x` is accessible to `b`.
+
+There is special support for `letFun`.
+Both WHNF and `simp` are aware of `letFun` and can reduce it when zeta reduction is enable,
+despite the fact it is marked `irreducible`.
+For metaprogramming, the function `Lean.Expr.letFun?` can be used to recognize a `let_fun` expression
+to extract its parts as if it were a `let` expression.
 -/
-def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
+@[irreducible] def letFun {α : Sort u} {β : α → Sort v} (v : α) (f : (x : α) → β x) : β v := f v
 
 set_option checkBinderAnnotations false in
 /--

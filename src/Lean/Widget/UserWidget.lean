@@ -25,11 +25,21 @@ open Meta Elab
 
 /-- A widget module is a unit of source code that can execute in the infoview.
 
+Every module definition must either be annotated with `@[widget_module]`,
+or use a value of `javascript` identical to that of another definition
+annotated with `@[widget_module]`.
+This makes it possible for the infoview to load the module.
+
 See the [manual entry](https://lean-lang.org/lean4/doc/examples/widgets.lean.html)
 for more information on how to use the widgets system. -/
 structure Module where
   /-- A JS [module](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules)
   intended for use in user widgets.
+
+  The JS environment in which modules execute
+  provides a fixed set of libraries accessible via direct `import`,
+  notably [`@leanprover/infoview`](https://www.npmjs.com/package/@leanprover/infoview)
+  and [`react`](https://www.npmjs.com/package/react).
 
   To initialize this field from an external JS file,
   you may use `include_str "path"/"to"/"file.js"`.

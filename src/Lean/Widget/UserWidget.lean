@@ -214,8 +214,6 @@ def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List User
 structure PanelWidgetInstance extends WidgetInstance where
   /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
   range? : Option Lsp.Range
-  /-- Deprecated. Kept for compatibility with older infoviews. -/
-  name? : Option String := none
 #mkrpcenc PanelWidgetInstance
 
 /-- Output of `getWidgets` RPC.-/
@@ -237,16 +235,12 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
     /- Panels from the infotree. -/
     let ws := widgetInfosAt? filemap snap.infoTree pos.line
     let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : UserWidgetInfo) =>
-      { wi with
-        range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx
-        name? := toString wi.id }
+      { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx }
     /- Panels from the environment. -/
     runTermElabM snap do
       let ws' ← evalPanelWidgets
       let ws' : Array PanelWidgetInstance := ws'.map fun wi =>
-        { wi with
-          range? := none
-          name? := toString wi.id }
+        { wi with range? := none }
       return { widgets := ws ++ ws' }
 
 /-! ## `show_panel_widgets` command -/

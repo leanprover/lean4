@@ -3,7 +3,6 @@
    {"start": {"line": 12, "character": 0},
     "end": {"line": 12, "character": 19}},
    "props": {},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
 {"sourcetext":
@@ -13,7 +12,6 @@
    {"start": {"line": 19, "character": 0},
     "end": {"line": 19, "character": 63}},
    "props": {"name": "lean"},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
 {"sourcetext":
@@ -21,12 +19,10 @@
 {"widgets":
  [{"range": null,
    "props": {"name": "local"},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"},
   {"range": null,
    "props": {"name": "global"},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
 {"sourcetext":
@@ -36,12 +32,10 @@
 {"widgets":
  [{"range": null,
    "props": {"name": "scoped"},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"},
   {"range": null,
    "props": {"name": "global"},
-   "name": "helloWidget",
    "javascriptHash": "2874772427606622741",
    "id": "helloWidget"}]}
 {"sourcetext":

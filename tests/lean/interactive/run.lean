@@ -41,8 +41,7 @@ instance : FromJson Widget.PanelWidgetInstance where
     let javascriptHash ← j.getObjValAs? UInt64 "javascriptHash"
     let props ← j.getObjVal? "props"
     let range? ← j.getObjValAs? (Option Lsp.Range) "range"
-    let name? ← j.getObjValAs? (Option String) "name"
-    return { id, javascriptHash, props := pure props, range?, name? }
+    return { id, javascriptHash, props := pure props, range? }
 
 deriving instance FromJson for Widget.GetWidgetsResponse
 
@@ -54,7 +53,6 @@ def Lean.Widget.GetWidgetsResponse.debugJson (r : Widget.GetWidgetsResponse) : J
         ("javascriptHash", toJson w.javascriptHash),
         ("props", w.props.run' {}),
         ("range", toJson w.range?),
-        ("name", toJson w.name?),
       ])
     )
   ]

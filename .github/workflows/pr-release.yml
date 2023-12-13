@@ -16,27 +16,16 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'leanprover/lean4'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
-      - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+      - name: Set PR number and head commit
+        uses: actions/github-script@v7
         id: workflow-info
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          sourceRunId: ${{ github.event.workflow_run.id }}
-      - name: Checkout
-        # Only proceed if the previous workflow had a pull request number.
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PR_RELEASES_TOKEN }}
-          # Since `workflow_run` runs on master, we need to specify which commit to check out,
-          # so that we tag the PR.
-          # It's important that we use `sourceHeadSha` here, not `targetCommitSha`
-          # as we *don't* want the synthetic merge with master.
-          ref: ${{ steps.workflow-info.outputs.sourceHeadSha }}
-          # We need a full checkout, so that we can push the PR commits to the `lean4-pr-releases` repo.
-          fetch-depth: 0
+          script: |
+            // console.log(`context.payload: ${JSON.stringify(context.payload, null, 2)}`)
+            core.setOutput('pullRequestNumber', context.payload.workflow_run.pull_requests[0].number)
+            core.setOutput('sourceHeadSha',     context.payload.workflow_run.pull_requests[0].head.sha)
 
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -47,14 +36,22 @@ jobs:
           path: artifacts
           name: build-.*
           name_is_regexp: true
-      - name: Prepare release
+
+      - name: Push branch and tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git init --bare lean4.git
+          git -C lean4.git remote add origin https://github.com/${{ github.repository_owner }}/lean4.git
+          git -C lean4.git fetch -n origin master
+          git -C lean4.git fetch -n origin "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} "${{ steps.workflow-info.outputs.sourceHeadSha }}"
+          git -C lean4.git remote add pr-releases https://foo:'${{ secrets.PR_RELEASES_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-pr-releases.git
+          git -C lean4.git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
+      - name: Delete existing release if present
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        run: |
           # Try to delete any existing release for the current PR.
           gh release delete --repo ${{ github.repository_owner }}/lean4-pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }} -y || true
-          git tag -f pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
-          git push -f pr-releases pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}
         env:
           GH_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
       - name: Release
@@ -74,17 +71,22 @@ jobs:
 
       - name: Add label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: actions-ecosystem/action-add-labels@v1
+        uses: actions/github-script@v7
         with:
-          number: ${{ steps.workflow-info.outputs.pullRequestNumber }}
-          labels: toolchain-available
+          script: |
+            await github.rest.issues.addLabels({
+              issue_number: ${{ steps.workflow-info.outputs.pullRequestNumber }},
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['toolchain-available']
+            })
 
       # Next, determine the most recent nightly release in this PR's history.
       - name: Find most recent nightly
         id: most-recent-nightly-tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          echo "MOST_RECENT_NIGHTLY=$(script/most-recent-nightly-tag.sh)" >> $GITHUB_ENV
+          git ls-remote https://github.com/leanprover/lean4-nightly.git 'refs/tags/nightly-*' --sort version:refname |tail -n1| sed 's,.*refs/tags/nightly-,MOST_RECENT_NIGHTLY=,' >> $GITHUB_ENV
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -96,9 +98,9 @@ jobs:
         id: ready
         run: |
           echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
-          NIGHTLY_SHA=$(git rev-parse nightly-$MOST_RECENT_NIGHTLY^{commit})
+          NIGHTLY_SHA=$(git ls-remote https://github.com/leanprover/lean4-nightly.git nightly-2023-12-04|cut -f1)
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
-          MERGE_BASE_SHA=$(git merge-base origin/master HEAD)
+          MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")
           echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "Most recent nightly tag agrees with the merge base."
@@ -116,7 +118,7 @@ jobs:
           else
             echo "The most recently nightly tag on this branch has SHA: $NIGHTLY_SHA"
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
-            git log -10
+            git -C lean4.git log -10 origin/master
 
             MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
           fi
@@ -162,9 +164,9 @@ jobs:
             else
               echo "The message already exists in the comment body."
             fi
-            echo "::set-output name=mathlib_ready::false"
+            echo "mathlib_ready=false" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=mathlib_ready::true"
+            echo "mathlib_ready=true" >> $GITHUB_OUTPUT
           fi
 
       # We next automatically create a Mathlib branch using this toolchain.

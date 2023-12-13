@@ -226,7 +226,7 @@ protected def list : CliM PUnit := do
         IO.println script.name
 
 protected nonrec def run : CliM PUnit := do
-  processOptions lakeOption
+  processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then

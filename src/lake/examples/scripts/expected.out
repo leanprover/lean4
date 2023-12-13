@@ -3,6 +3,7 @@ scripts/dismiss
 scripts/greet
 Hello, world!
 Hello, me!
+Hello, --me!
 Display a greeting
 
 USAGE:

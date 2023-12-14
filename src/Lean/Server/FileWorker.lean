@@ -60,10 +60,16 @@ structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
   chanOut          : IO.Channel JsonRpc.Message
+  /--
+  Latest document version received by the client, used for filtering out notifications from
+  previous versions.
+  -/
+  maxDocVersion    : IO.Ref Nat
   hLog             : FS.Stream
   initParams       : InitializeParams
   processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
   clientHasWidgets : Bool
+  opts             : Options
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -88,29 +94,43 @@ section Elab
     diagnostics : Array Lsp.Diagnostic := #[]
     infoTrees : Array Elab.InfoTree := #[]
 
+  register_builtin_option server.reportDelayMs : Nat := {
+    defValue := 200
+    group := "server"
+    descr := "(server) time in milliseconds to wait before reporting progress and diagnostics on \
+      document edit in order to reduce flickering"
+  }
+
   /--
     Reports status of a snapshot tree incrementally to the user: progress,
     diagnostics, .ilean reference information.
 
     Debouncing: we only report information
-    * when first blocking, i.e. not before skipping over any unchanged snapshots
+    * after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
+    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trival
+      tasks
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
-  private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta) (snaps : Language.SnapshotTree)
-      : IO (Task Unit) := do
-    Task.map (fun _ => ()) <$> go snaps { : ReportSnapshotsState } fun st => do
+  private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta)
+      (snaps : Language.SnapshotTree) : BaseIO (Task Unit) := do
+    let t ← BaseIO.asTask do
+      IO.sleep (server.reportDelayMs.get ctx.opts).toUInt32
+    BaseIO.bindTask t fun _ =>
+      start
+  where
+    start := go snaps { : ReportSnapshotsState } fun st => do
+      -- callback at the end of reporting
       ctx.chanOut.send <| mkFileProgressDoneNotification m
       unless st.hasBlocked do
         ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
       ctx.chanOut.send <| mkIleanInfoFinalNotification m st.infoTrees
-      return .pure <| .ok ()
-  where
+      return .pure ()
     go node st cont := do
       if (← IO.checkCanceled) then
-        return .pure <| .ok ()
+        return .pure ()
       let diagnostics := st.diagnostics ++
         node.element.diagnostics.interactiveDiags.map (·.toDiagnostic)
       if st.hasBlocked && !node.element.diagnostics.msgLog.isEmpty then
@@ -130,7 +150,7 @@ section Elab
           if !st.hasBlocked then
             ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
             st := { st with hasBlocked := true }
-        IO.bindTask t.task fun node =>
+        BaseIO.bindTask t.task fun node =>
           go node st (goSeq · cont ts)
 end Elab
 
@@ -161,7 +181,8 @@ section Initialization
       if let some path := System.Uri.fileUriToPath? meta.uri then
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
-    let chanOut ← mkLspOutputChannel
+    let maxDocVersion ← IO.mkRef 0
+    let chanOut ← mkLspOutputChannel maxDocVersion
     let processor ← Language.Lean.mkIncrementalProcessor {
       opts, mainModuleName
       clientHasWidgets
@@ -185,6 +206,8 @@ section Initialization
       initParams
       processor
       clientHasWidgets
+      maxDocVersion
+      opts
     }
     let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
     let doc : EditableDocument := { meta, initSnap, reporter }
@@ -199,10 +222,9 @@ section Initialization
         the output FS stream after discarding outdated notifications. This is the only component of
         the worker with access to the output stream, so we can synchronize messages from parallel
         elaboration tasks here. -/
-    mkLspOutputChannel : IO (IO.Channel JsonRpc.Message) := do
+    mkLspOutputChannel maxDocVersion : IO (IO.Channel JsonRpc.Message) := do
       let chanOut ← IO.Channel.new
       -- most recent document version seen in notifications
-      let maxVersion ← IO.mkRef 0
       let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
         -- always be silently discarded
@@ -214,10 +236,10 @@ section Initialization
             | _ => none
           doc.find compare "version" |>.bind (·.getNat?.toOption)
         if let some version := version? then
-          if version < (← maxVersion.get) then
+          if version < (← maxDocVersion.get) then
             return
-          else
-            maxVersion.set version
+          -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
+          -- as that would allow outdated messages to be reported until the delay is over
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
       return chanOut
 end Initialization
@@ -232,6 +254,8 @@ section Updates
     let initSnap ← ctx.processor meta.mkInputContext
     let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
     modify fun st => { st with doc := { meta, initSnap, reporter } }
+    -- we assume versions are monotonous
+    ctx.maxDocVersion.set meta.version
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state

@@ -16,10 +16,12 @@ on:
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' # && github.repository == 'leanprover/lean4'
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
         uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        # This action is deprecated and archived, but it seems hard to find a better solution for getting the PR number
+        # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

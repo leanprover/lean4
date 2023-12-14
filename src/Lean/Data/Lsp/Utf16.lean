@@ -76,7 +76,7 @@ def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos :=
   text.source.codepointPosToUtf8PosFrom colPos chr
 
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
-  | ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToUtf16PosFrom col (text.positions.get! $ ln - 1)⟩
+  | ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToUtf16PosFrom col (text.positions.get? (ln - 1) |>.getD 0)⟩
 
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)

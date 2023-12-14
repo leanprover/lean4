@@ -348,6 +348,9 @@ where
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx opts .empty
         ctx.toInputContext ctx.trustLevel
+      let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
+      if msgLog.hasErrors then
+        return { diagnostics, success? := none }
 
       let headerEnv := headerEnv.setMainModule ctx.mainModuleName
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
@@ -368,7 +371,7 @@ where
         )].toPArray'
       }}
       return {
-        diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
+        diagnostics
         infoTree? := cmdState.infoState.trees[0]!
         success? := some {
           cmdState

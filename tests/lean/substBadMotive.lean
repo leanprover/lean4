@@ -13,7 +13,7 @@ namespace Ex3
 def heapifyDown (a : Array α) (i : Fin a.size) : Array α :=
   have : i < i := sorry
   heapifyDown a ⟨i.1, a.size_swap i i ▸ i.2⟩ -- Error, failed to compute motive, `subst` is not applicable here
-termination_by' measure fun i => i.1
+termination_by _ i => i.1
 decreasing_by assumption
 end Ex3
 
@@ -34,6 +34,6 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) : Arra
     heapifyDown lt a' ⟨j.1.1, a.size_swap i j ▸ j.1.2⟩ -- Error, failed to compute motive, `subst` is not applicable here
   else
     a
-termination_by' measure fun ⟨a, i⟩ => a.size - i.1
+termination_by _ a i => a.size - i.1
 decreasing_by assumption
 end Ex4

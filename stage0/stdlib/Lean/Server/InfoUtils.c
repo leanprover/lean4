@@ -5809,7 +5809,7 @@ x_12 = lean_box(0);
 x_13 = lean_box(0);
 if (lean_obj_tag(x_11) == 0)
 {
-x_14 = x_12;
+x_14 = x_13;
 goto block_37;
 }
 else
@@ -5825,9 +5825,9 @@ block_37:
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 lean_inc(x_14);
-x_15 = l_List_mapTR_loop___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__11(x_14, x_12);
+x_15 = l_List_mapTR_loop___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__11(x_14, x_13);
 x_16 = l_lexOrd___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__10;
-x_17 = l_List_maximum_x3f___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__12(x_16, x_13, x_15);
+x_17 = l_List_maximum_x3f___at_Lean_Elab_InfoTree_hoverableInfoAt_x3f___spec__12(x_16, x_12, x_15);
 x_18 = lean_alloc_closure((void*)(l_Lean_Elab_InfoTree_hoverableInfoAt_x3f___lambda__7___boxed), 2, 1);
 lean_closure_set(x_18, 0, x_17);
 x_19 = l_List_find_x3f___rarg(x_18, x_14);

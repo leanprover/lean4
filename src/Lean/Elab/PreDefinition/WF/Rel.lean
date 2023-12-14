@@ -34,10 +34,10 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
     let mut varNames ← xs.mapM fun x => x.fvarId!.getUserName
     if element.vars.size > varNames.size then
       throwErrorAt element.vars[varNames.size]! "too many variable names"
-    for i in [:element.vars.size] do
-      let varStx := element.vars[i]!
-      if varStx.isIdent then
-        varNames := varNames.set! (varNames.size - element.vars.size + i) varStx.getId
+    for h : i in [:element.vars.size] do
+      let varStx := element.vars[i]'h.2
+      if let `($ident:ident) := varStx then
+        varNames := varNames.set! (varNames.size - element.vars.size + i) ident.getId
     return varNames
   let mut mvarId := mvarId
   for localDecl in (← Term.getMVarDecl mvarId).lctx, varName in varNames[:prefixSize] do
@@ -60,25 +60,18 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
   trace[Elab.definition.wf] "elabWFRel start: {(← mkFreshTypeMVar).mvarId!}"
   withDeclName unaryPreDefName do
-  match wf with
-  | TerminationWF.core wfStx =>
-      let wfRel ← instantiateMVars (← withSynthesize <| elabTermEnsuringType wfStx expectedType)
-      let pendingMVarIds ← getMVars wfRel
-      discard <| logUnassignedUsingErrorInfos pendingMVarIds
-      k wfRel
-  | TerminationWF.ext elements =>
-    withRef (getRefFromElems elements) do
-      let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
-      let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
-      let (d, fMVarId) ← fMVarId.intro1
-      let subgoals ← unpackMutual preDefs fMVarId d
-      for (d, mvarId) in subgoals, element in elements, preDef in preDefs do
-        let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
-        mvarId.withContext do
-          let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
-          mvarId.assign value
-      let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
-      wfRelMVarId.assign wfRelVal
-      k (← instantiateMVars (mkMVar mainMVarId))
+  withRef (getRefFromElems wf) do
+    let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
+    let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
+    let (d, fMVarId) ← fMVarId.intro1
+    let subgoals ← unpackMutual preDefs fMVarId d
+    for (d, mvarId) in subgoals, element in wf, preDef in preDefs do
+      let mvarId ← unpackUnary preDef fixedPrefixSize mvarId d element
+      mvarId.withContext do
+        let value ← Term.withSynthesize <| elabTermEnsuringType element.body (← mvarId.getType)
+        mvarId.assign value
+    let wfRelVal ← synthInstance (← inferType (mkMVar wfRelMVarId))
+    wfRelMVarId.assign wfRelVal
+    k (← instantiateMVars (mkMVar mainMVarId))
 
 end Lean.Elab.WF

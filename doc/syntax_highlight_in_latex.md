@@ -67,6 +67,9 @@ theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f
 \end{document}
 ```
 
+If your version of `minted` is v2.7 or newer, but before v3.0,
+you will additionally need to follow the workaround described in https://github.com/gpoore/minted/issues/360.
+
 You can then compile `test.tex` by executing the following command:
 
 ```bash

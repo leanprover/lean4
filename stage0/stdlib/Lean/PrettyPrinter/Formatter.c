@@ -2997,42 +2997,42 @@ lean_inc(x_3);
 x_61 = l_Lean_PrettyPrinter_Formatter_fold(x_60, x_1, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_61) == 0)
 {
-lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; 
+lean_object* x_62; lean_object* x_63; 
 x_62 = lean_ctor_get(x_61, 1);
 lean_inc(x_62);
 lean_dec(x_61);
-x_63 = lean_ctor_get(x_3, 0);
-lean_inc(x_63);
-lean_dec(x_3);
-x_64 = l_Std_Format_getIndent(x_63);
-lean_dec(x_63);
-x_65 = lean_nat_to_int(x_64);
-x_66 = lean_st_ref_take(x_4, x_62);
+x_63 = lean_st_ref_take(x_4, x_62);
 if (lean_obj_tag(x_2) == 0)
 {
-lean_object* x_67; lean_object* x_68; 
-x_67 = lean_ctor_get(x_66, 0);
-lean_inc(x_67);
-x_68 = lean_ctor_get(x_66, 1);
-lean_inc(x_68);
+lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; 
+x_64 = lean_ctor_get(x_63, 0);
+lean_inc(x_64);
+x_65 = lean_ctor_get(x_63, 1);
+lean_inc(x_65);
+lean_dec(x_63);
+x_66 = lean_ctor_get(x_3, 0);
+lean_inc(x_66);
+lean_dec(x_3);
+x_67 = l_Std_Format_getIndent(x_66);
 lean_dec(x_66);
-x_8 = x_65;
-x_9 = x_67;
-x_10 = x_68;
+x_68 = lean_nat_to_int(x_67);
+x_8 = x_68;
+x_9 = x_64;
+x_10 = x_65;
 goto block_59;
 }
 else
 {
 lean_object* x_69; lean_object* x_70; lean_object* x_71; 
-lean_dec(x_65);
+lean_dec(x_3);
 x_69 = lean_ctor_get(x_2, 0);
 lean_inc(x_69);
 lean_dec(x_2);
-x_70 = lean_ctor_get(x_66, 0);
+x_70 = lean_ctor_get(x_63, 0);
 lean_inc(x_70);
-x_71 = lean_ctor_get(x_66, 1);
+x_71 = lean_ctor_get(x_63, 1);
 lean_inc(x_71);
-lean_dec(x_66);
+lean_dec(x_63);
 x_8 = x_69;
 x_9 = x_70;
 x_10 = x_71;

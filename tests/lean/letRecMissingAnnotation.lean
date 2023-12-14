@@ -5,4 +5,4 @@ def sum (as : Array Nat) : Nat :=
     else
       s
   go 0 0
-termination_by' measure (fun ⟨i, _⟩ => as.size - i)
+termination_by go i _ => as.size - i

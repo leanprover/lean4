@@ -208,8 +208,13 @@ compared to it.
 def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
-private def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics :=
-  let msgLog := MessageLog.empty.add { fileName := "<input>", pos := ⟨0, 0⟩, data := msg }
+private def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
+  let msgLog := MessageLog.empty.add {
+    fileName := "<input>"
+    pos := ⟨0, 0⟩
+    endPos := dbgTraceVal <| (← read).fileMap.toPosition (← read).fileMap.source.endPos
+    data := msg
+  }
   Snapshot.Diagnostics.ofMessageLog msgLog
 
 /--

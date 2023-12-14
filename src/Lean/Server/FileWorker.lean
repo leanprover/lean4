@@ -168,9 +168,10 @@ section Initialization
       fileSetupHandler? := some fun imports => do
         let result ← setupFile meta imports fun stderrLine => do
           let progressDiagnostic := {
-            range     := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
-            severity? := DiagnosticSeverity.information
-            message   := stderrLine
+            range      := ⟨⟨0, 0⟩, ⟨0, 0⟩⟩
+            fullRange? := some ⟨⟨0, 0⟩, meta.text.utf8PosToLspPos meta.text.source.endPos⟩
+            severity?  := DiagnosticSeverity.information
+            message    := stderrLine
           }
           chanOut.send <| mkPublishDiagnosticsNotification meta #[progressDiagnostic]
         -- clear progress notifications in the end

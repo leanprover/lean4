@@ -154,6 +154,7 @@ structure HeaderProcessedSucessfully where
 structure HeaderProcessedSnapshot extends Snapshot where
   /-- State after successful importing. -/
   success? : Option HeaderProcessedSucessfully
+  isFatal := success?.isNone
 instance : ToSnapshotTree HeaderProcessedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, #[] |>
     pushOpt (s.success?.map (·.next.map (sync := true) toSnapshotTree))⟩
@@ -173,6 +174,8 @@ structure HeaderParsedSnapshot extends Snapshot where
   stx : Syntax
   /-- State after successful parsing. -/
   success? : Option HeaderParsedSucessfully
+  isFatal := success?.isNone
+
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
     #[] |> pushOpt (s.success?.map (·.processed.map (sync := true) toSnapshotTree))⟩

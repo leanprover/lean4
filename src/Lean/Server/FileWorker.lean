@@ -93,6 +93,7 @@ section Elab
     hasBlocked := false
     diagnostics : Array Lsp.Diagnostic := #[]
     infoTrees : Array Elab.InfoTree := #[]
+    isFatal := false
 
   register_builtin_option server.reportDelayMs : Nat := {
     defValue := 200
@@ -121,7 +122,10 @@ section Elab
   where
     start := go snaps { : ReportSnapshotsState } fun st => do
       -- callback at the end of reporting
-      ctx.chanOut.send <| mkFileProgressDoneNotification m
+      if st.isFatal then
+        ctx.chanOut.send <| mkFileProgressAtPosNotification m 0 .fatalError
+      else
+        ctx.chanOut.send <| mkFileProgressDoneNotification m
       unless st.hasBlocked do
         ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
       -- This will overwrite existing ilean info for the file, in case something
@@ -140,7 +144,9 @@ section Elab
         | none       => st.infoTrees
       if st.hasBlocked && node.element.infoTree?.isSome then
         ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
-      goSeq { st with diagnostics, infoTrees } cont node.children.toList
+      -- we assume that only the last node in the tree sets `isFatal`
+      let st := { st with diagnostics, infoTrees, isFatal := node.element.isFatal }
+      goSeq st cont node.children.toList
     goSeq st cont
       | [] => cont st
       | t::ts => do

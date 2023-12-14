@@ -67,7 +67,11 @@ structure Snapshot where
   diagnostics : Snapshot.Diagnostics
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
-  -- (`InfoTree` is quite Lean-specific at this point, but we want to make it more generic)
+  /--
+  Whether it should be indicated to the user that a fatal error (which should be part of
+  `diagnostics`) occurred that prevents processing of the remainder of the file.
+  -/
+  isFatal := false
 deriving Inhabited
 
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/

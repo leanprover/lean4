@@ -62,21 +62,25 @@ end String
 namespace Lean
 namespace FileMap
 
-/-- Computes an UTF-8 offset into `text.source`
-from an LSP-style 0-indexed (ln, col) position. -/
-def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos :=
-  let colPos :=
-    if h : pos.line < text.positions.size then
-      text.positions.get ⟨pos.line, h⟩
+private def colPos (text : FileMap) (line : Nat) : String.Pos :=
+    if h : line < text.positions.size then
+      text.positions.get ⟨line, h⟩
     else if text.positions.isEmpty then
       0
     else
       text.positions.back
+
+/-- Computes an UTF-8 offset into `text.source`
+from an LSP-style 0-indexed (ln, col) position. -/
+def lspPosToUtf8Pos (text : FileMap) (pos : Lsp.Position) : String.Pos :=
+  let colPos := colPos text pos.line
   let chr := text.source.utf16PosToCodepointPosFrom pos.character colPos
   text.source.codepointPosToUtf8PosFrom colPos chr
 
 def leanPosToLspPos (text : FileMap) : Lean.Position → Lsp.Position
-  | ⟨ln, col⟩ => ⟨ln-1, text.source.codepointPosToUtf16PosFrom col (text.positions.get? (ln - 1) |>.getD 0)⟩
+  | ⟨line, col⟩ =>
+    let colPos := colPos text (line - 1)
+    ⟨line - 1, text.source.codepointPosToUtf16PosFrom col colPos⟩
 
 def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
   text.leanPosToLspPos (text.toPosition pos)

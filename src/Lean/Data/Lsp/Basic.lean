@@ -103,14 +103,12 @@ structure TextEdit where
   `newText` is ignored
   and an interactive snippet edit is performed instead.
 
-  *Note* that this is a Lean-specific extension to the LSP standard,
+  This is a Lean-specific extension to the LSP standard,
   so `newText` should still be set to a correct value
   as fallback in case the editor does not support this feature.
-
-  *Note* that a snippet edit can always be performed as a normal text edit.
-  In VSCode, this will happen when no matching editor is open or when a workspace edit
-  contains snippet edits for multiple files. In that case only those that match the active editor
-  will be performed as snippet edits and the others as normal text edits. -/
+  Even editors that support snippets may not always use them;
+  for instance, if the file is not already open,
+  VS Code will perform a normal text edit in the background instead. -/
   /- NOTE: Similar functionality may be added to LSP in the future:
   see [issue #592](https://github.com/microsoft/language-server-protocol/issues/592).
   If such an addition occurs, this field should be deprecated. -/

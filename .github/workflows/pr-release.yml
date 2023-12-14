@@ -27,6 +27,8 @@ jobs:
           # https://github.com/orgs/community/discussions/25220#discussioncomment-7551168
           gh pr view -R "${{ github.repository }}" "${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}" \
             --json number,headRefOid --jq '"pullRequestNumber=\(.number)\nsourceHeadSha=\(.headRefOid)"' > $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact

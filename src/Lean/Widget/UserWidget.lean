@@ -54,13 +54,13 @@ private unsafe def evalModuleUnsafe (e : Expr) : MetaM Module :=
   evalExpr' Module ``Module e
 
 @[implemented_by evalModuleUnsafe]
-private opaque evalModule (e : Expr) : MetaM Module
+opaque evalModule (e : Expr) : MetaM Module
 
 private unsafe def evalWidgetInstanceUnsafe (e : Expr) : MetaM WidgetInstance :=
   evalExpr' WidgetInstance ``WidgetInstance e
 
 @[implemented_by evalWidgetInstanceUnsafe]
-private opaque evalWidgetInstance (e : Expr) : MetaM WidgetInstance
+opaque evalWidgetInstance (e : Expr) : MetaM WidgetInstance
 
 /-! ## Storage of widget modules -/
 
@@ -257,6 +257,19 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResp
 
 syntax widgetInstanceSpec := ident ("with " term)?
 
+def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := do
+  Term.elabTerm (expectedType? := mkConst ``WidgetInstance) <| ← `(
+    { id := $(quote mod.getId)
+      javascriptHash := (ToModule.toModule $mod).javascriptHash
+      props := Server.RpcEncodable.rpcEncode $props })
+
+def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
+  | `(widgetInstanceSpec| $mod:ident) => do
+    elabWidgetInstanceSpecAux mod (← ``(Json.mkObj []))
+  | `(widgetInstanceSpec| $mod:ident with $props:term) => do
+    elabWidgetInstanceSpecAux mod props
+  | _ => throwUnsupportedSyntax
+
 syntax addWidgetSpec := Parser.Term.attrKind widgetInstanceSpec
 syntax eraseWidgetSpec := "-" ident
 syntax showWidgetSpec := addWidgetSpec <|> eraseWidgetSpec
@@ -282,19 +295,6 @@ in the current section, namespace, or file.
 Note that persistent erasure is not possible, i.e.,
 `-<widget>` has no effect on downstream modules. -/
 syntax (name := showPanelWidgetsCmd) "show_panel_widgets " "[" sepBy1(showWidgetSpec, ", ") "]" : command
-
-def elabWidgetInstanceSpecAux (mod : Ident) (props : Term) : TermElabM Expr := do
-  Term.elabTerm (expectedType? := mkConst ``WidgetInstance) <| ← `(
-    { id := $(quote mod.getId)
-      javascriptHash := (ToModule.toModule $mod).javascriptHash
-      props := Server.RpcEncodable.rpcEncode $props })
-
-def elabWidgetInstanceSpec : TSyntax ``widgetInstanceSpec → TermElabM Expr
-  | `(widgetInstanceSpec| $mod:ident) => do
-    elabWidgetInstanceSpecAux mod (← ``(Json.mkObj []))
-  | `(widgetInstanceSpec| $mod:ident with $props:term) => do
-    elabWidgetInstanceSpecAux mod props
-  | _ => throwUnsupportedSyntax
 
 open Command in
 @[command_elab showPanelWidgetsCmd] def elabShowPanelWidgetsCmd : CommandElab

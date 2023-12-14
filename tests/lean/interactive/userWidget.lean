@@ -1,5 +1,5 @@
 import Lean
-open Lean Widget
+open Lean
 
 @[widget_module]
 def helloWidget : Widget.Module where

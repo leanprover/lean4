@@ -18,17 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' # && github.repository == 'leanprover/lean4'
     steps:
-      - name: Retrieve PR number and head commit
+      - name: Retrieve information about the original workflow
+        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
         id: workflow-info
-        run: |
-          # It is surprising hard to reliably get the pull request number in workflow_run;
-          # the context often has an empty pull_requests array, e.g. with PRs from forks
-          # The trick below was suggested at
-          # https://github.com/orgs/community/discussions/25220#discussioncomment-7551168
-          gh pr view -R "${{ github.repository }}" "${{ github.event.workflow_run.head_repository.owner.login }}:${{ github.event.workflow_run.head_branch }}" \
-            --json number,headRefOid --jq '"pullRequestNumber=\(.number)\nsourceHeadSha=\(.headRefOid)"' > $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          sourceRunId: ${{ github.event.workflow_run.id }}
+
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact

@@ -23,23 +23,28 @@ jobs:
         id: workflow-info
         with:
           script: |
-            # strangely, the array context.payload.workflow_run.pull_requests is
-            # sometimes empty. So get the data via tha API
-            const run_id = context.payload.workflow_run.id
-            console.log(`Querying workflow run data for run_id ${run_id}.`)
-            const reply = await github.rest.actions.getWorkflowRun({
+            const run_id = context.payload.workflow_run.id;
+            console.log(`Querying workflow run data for run_id ${run_id}.`);
+            
+            github.rest.actions.getWorkflowRun({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 run_id: run_id
             })
-            if (reply.data.pull_requests) {
-              core.setOutput('pullRequestNumber', reply.data.pull_requests[0].number)
-              core.setOutput('sourceHeadSha',     reply.data.pull_requests[0].head.sha)
-            } else {
-              console.log("Odd, no pull-request-data in workflow data?")
-              console.log(`reply.data: ${JSON.stringify(reply.data, null, 2)}`)
-              core.setFailed("Unexpected result from github.rest.actions.getWorkflowRun")
-            }
+            .then(reply => {
+                if (reply.data.pull_requests && reply.data.pull_requests.length > 0) {
+                    core.setOutput('pullRequestNumber', reply.data.pull_requests[0].number);
+                    core.setOutput('sourceHeadSha', reply.data.pull_requests[0].head.sha);
+                } else {
+                    console.log("Odd, no pull-request-data in workflow data?");
+                    console.log(`reply.data: ${JSON.stringify(reply.data, null, 2)}`);
+                    core.setFailed("Unexpected result from github.rest.actions.getWorkflowRun");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                core.setFailed("Error querying workflow run data: " + error.message);
+            });
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact

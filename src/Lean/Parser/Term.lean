@@ -124,7 +124,7 @@ decreases at each recursive call.
 By default, the tactic `decreasing_tactic` is used.
 -/
 def decreasingBy := leading_parser
-  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeq
+  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
 
 /--
 Termination hints are `termination_by` and `decreasing_by`, in that order.

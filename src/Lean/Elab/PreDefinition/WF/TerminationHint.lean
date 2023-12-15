@@ -27,6 +27,12 @@ def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
 /-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
 abbrev TerminationWF := Array TerminationBy
 
+/-- A single `decreasing_by` clause -/
+structure DecreasingBy where
+  ref       : Syntax
+  tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
+  deriving Inhabited
+
 /-- The termination annotations for a single function.
 For `decreasing_by`, we store the whole `decreasing_by tacticSeq` expression, as this
 is what `Term.runTactic` expects.
@@ -34,7 +40,7 @@ is what `Term.runTactic` expects.
 structure TerminationHints where
   ref : Syntax
   termination_by? : Option TerminationBy
-  decreasing_by?  : Option (TSyntax ``Lean.Parser.Termination.decreasingBy)
+  decreasing_by?  : Option DecreasingBy
   deriving Inhabited
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
@@ -43,8 +49,8 @@ def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): CoreM Unit := do
   match hints.termination_by?, hints.decreasing_by? with
   | .none, .none => pure ()
-  | .none, .some stx =>
-    logErrorAt stx m!"unused `decreasing_by`, function is {reason}"
+  | .none, .some dec_by =>
+    logErrorAt dec_by.ref m!"unused `decreasing_by`, function is {reason}"
   | .some term_by, .none =>
     logErrorAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .some _, .some _ =>
@@ -64,7 +70,9 @@ def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints :=
       termination_by? := t?.map fun t => match t with
         | `(terminationBy|termination_by $vars* => $body) => {ref := t, vars, body}
         | _ => unreachable!
-      decreasing_by? := d? }
+      decreasing_by? := d?.map fun t => match t with
+        | `(decreasingBy|decreasing_by $tactic) => {ref := t, tactic}
+        | _ => unreachable! }
   | _ => panic! s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

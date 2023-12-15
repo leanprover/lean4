@@ -202,7 +202,7 @@ def groupGoalsByFunction (numFuncs : Nat) (goals : Array MVarId) : MetaM (Array 
     r := r.modify funidx (·.push goal)
   return r
 
-def solveDecreasingGoals (decrTactics : Array (Option Syntax)) (value : Expr) : MetaM Expr := do
+def solveDecreasingGoals (decrTactics : Array (Option DecreasingBy)) (value : Expr) : MetaM Expr := do
   let goals ← getMVarsNoDelayed value
   let goals ← assignSubsumed goals
   let goalss ← groupGoalsByFunction decrTactics.size goals
@@ -214,21 +214,20 @@ def solveDecreasingGoals (decrTactics : Array (Option Syntax)) (value : Expr) : 
         let some ref := getRecAppSyntax? (← goal.getType)
           | throwError "MVar does not look like like a recursive call"
         withRef ref <| applyDefaultDecrTactic goal
-    | some decrTactic => withRef decrTactic do
+    | some decrTactic => withRef decrTactic.ref do
       unless goals.isEmpty do -- unlikely to be empty
         -- make info from `runTactic` available
         goals.forM fun goal => pushInfoTree (.hole goal)
         let remainingGoals ← Tactic.run goals[0]! do
           Tactic.setGoals goals.toList
-          Tactic.withTacticInfoContext decrTactic do
-            Tactic.withTacticInfoContext decrTactic[0] do
-              Tactic.evalTactic decrTactic[1]
+          Tactic.withTacticInfoContext decrTactic.ref do
+            Tactic.evalTactic decrTactic.tactic
         unless remainingGoals.isEmpty do
           Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value
 
 def mkFix (preDef : PreDefinition) (prefixArgs : Array Expr) (wfRel : Expr)
-    (decrTactics : Array (Option Syntax)) : TermElabM Expr := do
+    (decrTactics : Array (Option DecreasingBy)) : TermElabM Expr := do
   let type ← instantiateForall preDef.type prefixArgs
   let (wfFix, varName) ← forallBoundedTelescope type (some 1) fun x type => do
     let x := x[0]!

@@ -319,7 +319,7 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
+def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
     MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
@@ -340,20 +340,18 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
         if rel = .eq then
           MVarId.refl mvarId
         else do
-          Lean.Elab.Term.TermElabM.run' do
-            match decrTactic? with
-            | none =>
-              let remainingGoals ← Tactic.run mvarId do
-                Tactic.evalTactic (← `(tactic| decreasing_tactic))
-              remainingGoals.forM fun _ => throwError "goal not solved"
-              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
-              pure ()
-            | some decrTactic => Term.withoutErrToSorry do
-              let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
-                Tactic.evalTactic decrTactic[1]
-              remainingGoals.forM fun _ => throwError "goal not solved"
-              -- trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
-              pure ()
+          Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
+            let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+              let tacticStx : Syntax ←
+                match decrTactic? with
+                | none => pure (← `(tactic| decreasing_tactic)).raw
+                | some decrTactic =>
+                  trace[Elab.definition.wf] "Using tactic {decrTactic.tactic.raw}"
+                  pure decrTactic.tactic.raw
+              Tactic.evalTactic tacticStx
+            remainingGoals.forM fun _ => throwError "goal not solved"
+            -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
+            pure ()
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel
       catch _e =>
@@ -363,12 +361,12 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
 
 /- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
-  decrTactic? : Option Syntax
+  decrTactic? : Option DecreasingBy
   rcc : RecCallWithContext
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactics : Array (Option (TSyntax ``Lean.Parser.Termination.decreasingBy)))
+def RecCallCache.mk (decrTactics : Array (Option DecreasingBy))
     (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
   let decrTactic? := decrTactics[rcc.caller]!

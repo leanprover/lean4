@@ -46,10 +46,6 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   else
     return none
 
-@[inline] protected def forM [Monad m] (f : α → m Unit) : Option α → m Unit
-  | some a => f a
-  | none => pure ()
-
 theorem map_id : (Option.map id : Option α → Option α) = id :=
   funext (fun o => match o with | none => rfl | some _ => rfl)
 

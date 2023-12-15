@@ -10,4 +10,4 @@
 
 ---
 
-Link to `RFC` or `bug` issue:
+Closes #0000 (`RFC` or `bug` issue number fixed by this PR, if any)

@@ -32,7 +32,7 @@ structure Snapshot where
   /-- We cache interactive diagnostics in order not to invoke the pretty-printer again on messages
   from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
   as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
-  interactiveDiags : PersistentArray Widget.InteractiveDiagnostic
+  interactiveDiags : Array Widget.InteractiveDiagnostic
 
 namespace Snapshot
 

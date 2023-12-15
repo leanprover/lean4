@@ -1,0 +1,3 @@
+simp_trace_backtrack.lean:7:8-7:26: warning: declaration uses 'sorry'
+Try this: simp only [Nat.succ_sub_succ_eq_sub]
+simp_trace_backtrack.lean:17:0-17:7: warning: declaration uses 'sorry'

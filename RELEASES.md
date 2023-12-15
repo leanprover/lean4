@@ -11,6 +11,31 @@ of each version.
 v4.5.0 (development in progress)
 ---------
 
+* Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
+  These have the interpetation of an empty string and allow a string to flow across multiple lines without introducing additional whitespace.
+  The following is equivalent to `"this is a string"`.
+  ```lean
+  "this is \
+     a string"
+  ```
+  [PR #2821](https://github.com/leanprover/lean4/pull/2821) and [RFC #2838](https://github.com/leanprover/lean4/issues/2838).
+
+* The low-level `termination_by'` clause is no longer supported.
+
+  Migration guide: Use `termination_by` instead, e.g.:
+  ```diff
+  -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
+  +termination_by go i _ => as.size - i
+  ```
+
+  If the well-founded relation you want to use is not the one that the
+  `WellFoundedRelation` type class would infer for your termination argument,
+  you can use `WellFounded.wrap` from the std libarary to explicitly give one:
+  ```diff
+  -termination_by' ⟨r, hwf⟩
+  +termination_by _ x => hwf.wrap x
+  ```
+
 v4.4.0
 ---------
 

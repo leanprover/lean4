@@ -714,6 +714,9 @@ class task_manager {
             resolve_core(t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
+            // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
+            // another thread could deactivate the task and empty `m_clousure` in
+            // between.
             object * c = t->m_imp->m_closure;
             lock.unlock();
             add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);

@@ -16,12 +16,9 @@ def h (i j : Nat) : Nat :=
   | 0 => g i 0
   | Nat.succ j => g i j
 end
-termination_by'
- invImage
-    (fun
-      | PSum.inl n => (n, 0)
-      | PSum.inr n => (n, 1))
-    (Prod.lex sizeOfWFRel sizeOfWFRel)
+termination_by
+  g i j => (i + j, 0)
+  h i j => (i + j, 1)
 decreasing_by
   simp_wf
   first

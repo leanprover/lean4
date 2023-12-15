@@ -9,7 +9,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 4)
+set(LEAN_VERSION_MINOR 5)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -439,12 +439,13 @@ include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR})  # version.h etc., "private" headers
 include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" headers
 
+# Use CMake profile C++ flags for building Lean libraries, but do not embed in `leanc`
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
-# These are used in lean.mk (and libleanrt) and passed through by stdlib.make
-# They are not embedded into `leanc` since they are build profile/machine specific
 string(APPEND LEANC_OPTS " ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
+
+# Do embed flag for finding system libraries in dev builds
 if(CMAKE_OSX_SYSROOT AND NOT LEAN_STANDALONE)
-  string(APPEND LEANC_OPTS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEANC_EXTRA_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()
 
 if(${STAGE} GREATER 1)

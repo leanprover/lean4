@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Data.Array
 
 
 /-!
@@ -30,7 +31,6 @@ the nubmer of measures tried.
 In addition to measures derived from `sizeOf xᵢ`, it also considers measures
 that assign an order to the functions themselves. This way we can support mutual
 function definitions where no arguments decrease from one function to another.
-
 
 The result of this module is a `TerminationWF`, which is then passed on to `wfRecursion`; this
 design is crucial so that whatever we infer in this module could also be written manually by the
@@ -239,6 +239,29 @@ structure RecCallWithContext where
 def RecCallWithContext.create (ref : Syntax) (caller : Nat) (params : Array Expr) (callee : Nat)
     (args : Array Expr) : MetaM RecCallWithContext := do
   return { ref, caller, params, callee, args, ctxt := (← SavedLocalContext.create) }
+
+
+/--
+The elaborator is prone to duplicate terms, including recursive calls, even if the user
+only wrote a single one. This duplication is wasteful if we run the tactics on duplicated
+calls, and confusing in the output of GuessLex. So prune the list of recursive calls,
+and remove those where another call exists that has the same goal and context that is no more
+specific.
+-/
+def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext := Id.run do
+  rcs.filterPairsM fun rci rcj => do
+    if rci.caller == rcj.caller && rci.callee == rcj.callee &&
+      rci.params == rcj.params && rci.args == rcj.args then
+      -- same goals; check contexts.
+        let lci := rci.ctxt.savedLocalContext
+        let lcj := rcj.ctxt.savedLocalContext
+        if lci.isSubPrefixOf lcj then
+          -- rci is better
+          return (true, false)
+        else if lcj.isSubPrefixOf lci then
+          -- rcj is better
+          return (false, true)
+    return (true, true)
 
 /-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
 return the function index that is called and the arguments individually.
@@ -566,7 +589,7 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
         declName, vars, body,
         implicit := true
       }
-  return .ext termByElements
+  return termByElements
 
 
 /--
@@ -697,6 +720,7 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
+  let recCalls := filterSubsumed recCalls
   let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
   let callMatrix := rcs.map (inspectCall ·)
 

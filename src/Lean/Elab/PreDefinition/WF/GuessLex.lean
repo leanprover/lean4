@@ -345,14 +345,14 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
             | none =>
               let remainingGoals ← Tactic.run mvarId do
                 Tactic.evalTactic (← `(tactic| decreasing_tactic))
-              remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
+              remainingGoals.forM fun _ => throwError "goal not solved"
               -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
               pure ()
             | some decrTactic => Term.withoutErrToSorry do
-              Term.runTactic (recover := false) mvarId decrTactic
-              trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
-              let mvars ← getMVars (mkMVar mvarId)
-              trace[Elab.definition.wf] "Still {mvars} left"
+              let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+                Tactic.evalTactic decrTactic[1]
+              remainingGoals.forM fun _ => throwError "goal not solved"
+              -- trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
               pure ()
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel

@@ -294,7 +294,7 @@ mutual
 
   The `tacticCode` syntax comprises the whole `by ...` expression.
   -/
-  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) (recover := true) : TermElabM Unit := withoutAutoBoundImplicit do
+  partial def runTactic (mvarId : MVarId) (tacticCode : Syntax) : TermElabM Unit := withoutAutoBoundImplicit do
     let code := tacticCode[1]
     instantiateMVarDeclMVars mvarId
     /-
@@ -313,12 +313,11 @@ mutual
     -/
     try
       let remainingGoals ← withInfoHole mvarId <| Tactic.run mvarId do
-        (if recover then id else Tactic.withoutRecover) do
-          withTacticInfoContext tacticCode do
-            -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
-            -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
-            withTacticInfoContext tacticCode[0] do
-              evalTactic code
+        withTacticInfoContext tacticCode do
+          -- also put an info node on the `by` keyword specifically -- the token may be `canonical` and thus shown in the info
+          -- view even though it is synthetic while a node like `tacticCode` never is (#1990)
+          withTacticInfoContext tacticCode[0] do
+            evalTactic code
         synthesizeSyntheticMVars (mayPostpone := false)
       unless remainingGoals.isEmpty do
         reportUnsolvedGoals remainingGoals

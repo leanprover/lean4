@@ -21,7 +21,7 @@ n m : Nat
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
-decreasing_by.lean:96:0-96:22: error: unsolved goals
+decreasing_by.lean:91:0-91:22: error: unsolved goals
 case a
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
@@ -30,23 +30,21 @@ n m : Nat
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
-decreasing_by.lean:105:0-105:22: error: unsolved goals
-case a
-n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (sizeOf n, sizeOf snd)) Prod.instWellFoundedRelationProd).1
-    { fst := n, snd := dec2 m } { fst := n, snd := m }
-
-n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (sizeOf n, sizeOf snd)) Prod.instWellFoundedRelationProd).1
-    { fst := dec1 n, snd := 100 } { fst := n, snd := m }
-decreasing_by.lean:115:0-118:17: error: unsolved goals
+decreasing_by.lean:99:0-100:22: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 99:29-43 = ?
+2) 99:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:110:0-113:17: error: unsolved goals
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
-decreasing_by.lean:126:0-130:17: error: Could not find a decreasing measure.
+decreasing_by.lean:121:0-125:17: error: Could not find a decreasing measure.
 The arguments relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
              n m
-1) 126:29-43 = ?
-2) 126:46-62 ? _
+1) 121:29-43 = ?
+2) 121:46-62 ? _
 Please use `termination_by` to specify a decreasing measure.

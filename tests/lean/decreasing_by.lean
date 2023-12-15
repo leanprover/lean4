@@ -76,7 +76,7 @@ end Ex4
 
 namespace Ex5
 -- Empty proof. Produces parse error and unsolved goals.
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by n m => (n, m)
 decreasing_by -- Error
 
@@ -86,9 +86,9 @@ namespace Ex6
 
 -- Incomplete tactic
 -- Unsolved goals reported
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by n m => (n, m)
-decreasing_by apply id
+decreasing_by apply id -- Error
 
 end Ex6
 
@@ -105,9 +105,9 @@ namespace Ex8
 
 -- tactic solving just one goal
 -- unsolved goals
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
 termination_by n m => (n, m)
-decreasing_by
+decreasing_by -- Error
   · simp_wf
     apply Prod.Lex.right
     apply dec2_lt

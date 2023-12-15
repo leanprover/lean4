@@ -355,7 +355,13 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
               -- runTactic uses `syntax[1]`, so looks like we have to wrap it again.
               -- TODO: Fully understand what’s going on here
               Term.runTactic mvarId (← `(tactic|($decrTacticSeq:tacticSeq)))
+              -- Some tactics, especially ·, log errors and admit the result,
+              -- even without errToSorry. Do not conside that as success here
+              if ← MonadLog.hasErrors then
+                throwError "Tactic execution had errors"
               trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
+              let mvars ← getMVars (mkMVar mvarId)
+              trace[Elab.definition.wf] "Still {mvars} left"
               pure ()
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel

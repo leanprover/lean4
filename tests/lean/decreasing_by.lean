@@ -74,10 +74,10 @@ decreasing_by all_goals
 end Ex4
 
 namespace Ex5
--- Empty proof. Produces parse error.
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
+-- Empty proof. Produces parse error and unsolved goals.
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 termination_by n m => (n, m)
-decreasing_by
+decreasing_by -- Error
 
 end Ex5
 
@@ -99,9 +99,32 @@ end Ex6
 namespace Ex7
 
 -- Incomplete tactic, no termination_by
--- Shows “unsolved goals”
--- TODO: Should give guess-lex output.
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
+-- Shows guess-lex matrix
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by apply id
 
 end Ex7
+
+namespace Ex8
+
+-- tactic solving just one goal
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
+termination_by n m => (n, m)
+decreasing_by
+  · simp_wf
+    apply Prod.Lex.right
+    apply dec2_lt
+
+end Ex8
+
+namespace Ex9
+
+-- Incomplete tactic, no termination_by
+-- Shows guess-lex matrix
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
+decreasing_by
+  · simp_wf
+    apply Prod.Lex.right
+    apply dec2_lt
+
+end Ex9

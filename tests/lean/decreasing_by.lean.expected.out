@@ -5,6 +5,13 @@ The arguments relate at each recursive call as follows:
 1) 35:29-43 = ?
 2) 35:46-62 ? _
 Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:65:0-72:19: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 65:29-43 = ?
+2) 65:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
 decreasing_by.lean:80:13-82:3: error: unexpected token 'end'; expected '{' or tactic
 decreasing_by.lean:78:0-80:13: error: unsolved goals
 n m : Nat
@@ -23,12 +30,21 @@ n m : Nat
 n m : Nat
 ⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
-decreasing_by.lean:104:0-105:22: error: unsolved goals
-case a
+decreasing_by.lean:103:0-104:22: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n m
+1) 103:29-43 = ?
+2) 103:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:111:0-116:17: error: unsolved goals
 n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (sizeOf n, sizeOf snd)) Prod.instWellFoundedRelationProd).1
-    { fst := n, snd := dec2 m } { fst := n, snd := m }
-
-n m : Nat
-⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (sizeOf n, sizeOf snd)) Prod.instWellFoundedRelationProd).1
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
     { fst := dec1 n, snd := 100 } { fst := n, snd := m }
+decreasing_by.lean:124:0-128:17: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n m
+1) 124:29-43 = ?
+2) 124:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.

@@ -60,10 +60,9 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         pure decl[4]
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
-      -- TODO: Is this right?
       let termination := WF.elabTerminationHints ⟨attrDeclStx[3]⟩
-      pure {
-        ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx, termination : LetRecDeclView }
+      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx,
+             termination : LetRecDeclView }
     else
       throwUnsupportedSyntax
   return { decls, body := letRec[3] }

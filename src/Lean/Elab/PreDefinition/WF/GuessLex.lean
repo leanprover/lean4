@@ -264,7 +264,6 @@ def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext 
           return (false, true)
     return (true, true)
 
-
 /-- Traverse a unary PreDefinition, and returns a `WithRecCall` closure for each recursive
 call site.
 -/

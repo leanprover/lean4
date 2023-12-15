@@ -636,7 +636,6 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
 
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
     (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
-    (terminations : Array WF.TerminationHints)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
@@ -648,8 +647,8 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
       declName    := header.declName
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
-      type, value,
-      termination := terminations[i]!
+      type, value
+      termination := declValToTerminationHint header.valueStx
     }
 
 def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : MetaM (Array PreDefinition) :=
@@ -690,7 +689,6 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
 -/
 def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr)
     (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
-    (terminations : Array WF.TerminationHints)
     : TermElabM (Array PreDefinition) := do
   -- Store in recFVarIds the fvarId of every function being defined by the mutual block.
   let letRecsToLift := letRecsToLift.toArray
@@ -716,7 +714,7 @@ def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mai
     let letRecClosures := letRecClosures.map fun c => { c with toLift := { c.toLift with type := r.apply c.toLift.type, val := r.apply c.toLift.val } }
     let letRecKind     := getKindForLetRecs mainHeaders
     let letRecMods     := getModifiersForLetRecs mainHeaders
-    pushMain (← pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals terminations
+    pushMain (← pushLetRecs #[] letRecClosures letRecKind letRecMods) sectionVars mainHeaders mainVals
 
 end MutualClosure
 
@@ -795,7 +793,6 @@ where
     let headers ← elabHeaders views
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
-    let terminations := views.map (declValToTerminationHint ·.value)
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar
@@ -812,7 +809,7 @@ where
       let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
       checkLetRecsToLiftTypes funFVars letRecsToLift
       withUsed vars headers values letRecsToLift fun vars => do
-        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift terminations
+        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
         for preDef in preDefs do
           trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
         let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamPreDecls preDefs

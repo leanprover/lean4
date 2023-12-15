@@ -757,7 +757,8 @@ def mkAppN (f : Expr) (args : Array Expr) : Expr :=
 
 @[inherit_doc mkAppN]
 macro_rules
-  | `(mkAppN $f #[$xs,*]) => show MacroM Term from xs.getElems.foldlM (fun x e => `(Expr.app $x $e)) f
+  | `(mkAppN $f #[$xs,*]) => show MacroM Term from
+    `(($f : Expr)) >>= xs.getElems.foldlM fun x e => `(Expr.app $x $e)
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
   if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e

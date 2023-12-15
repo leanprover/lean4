@@ -1,0 +1,6 @@
+Expr.const `And [] : Expr
+Expr.app (Expr.app (Expr.const `And []) (Expr.const `True [])) (Expr.const `False []) : Expr
+true
+some (Lean.Expr.const `And [], Lean.Expr.const `True [], Lean.Expr.const `False [])
+fun x x_1 => Expr.app x x_1 : Expr → Expr → Expr
+(Lean.Expr.app (Lean.Expr.app (Lean.Expr.const `And []) (Lean.Expr.const `True [])) (Lean.Expr.const `False []), "123")

@@ -1,7 +1,6 @@
 import Lean.Util.TestExtern
 
-instance : BEq ByteArray where
-  beq x y := x.data == y.data
+deriving instance DecidableEq for ByteArray
 
 test_extern Nat.add 12 37
 test_extern 4 + 5

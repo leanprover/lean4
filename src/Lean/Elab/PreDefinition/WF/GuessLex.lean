@@ -349,16 +349,7 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
               -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
               pure ()
             | some decrTactic => Term.withoutErrToSorry do
-              -- make info from `runTactic` available
-              pushInfoTree (.hole mvarId)
-              let decrTacticSeq := ⟨decrTactic⟩
-              -- runTactic uses `syntax[1]`, so looks like we have to wrap it again.
-              -- TODO: Fully understand what’s going on here
-              Term.runTactic mvarId (← `(tactic|($decrTacticSeq:tacticSeq)))
-              -- Some tactics, especially ·, log errors and admit the result,
-              -- even without errToSorry. Do not conside that as success here
-              if ← MonadLog.hasErrors then
-                throwError "Tactic execution had errors"
+              Term.runTactic (recover := false) mvarId decrTactic
               trace[Elab.definition.wf] "Found {rel} proof with {decrTactic}: {← instantiateMVars mvar}"
               let mvars ← getMVars (mkMVar mvarId)
               trace[Elab.definition.wf] "Still {mvars} left"
@@ -377,7 +368,8 @@ structure RecCallCache where mk'' ::
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactics : Array (Option Syntax)) (rcc : RecCallWithContext) :
+def RecCallCache.mk (decrTactics : Array (Option (TSyntax ``Lean.Parser.Termination.decreasingBy)))
+    (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
   let decrTactic? := decrTactics[rcc.caller]!
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)

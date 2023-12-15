@@ -214,14 +214,15 @@ def solveDecreasingGoals (decrTactics : Array (Option Syntax)) (value : Expr) : 
         let some ref := getRecAppSyntax? (← goal.getType)
           | throwError "MVar does not look like like a recursive call"
         withRef ref <| applyDefaultDecrTactic goal
-    | some decrTactic => do
+    | some decrTactic => withRef decrTactic do
       unless goals.isEmpty do -- unlikely to be empty
-        -- TODO: What is this pushInfo Tree
         -- make info from `runTactic` available
-        -- pushInfoTree (.hole goal)
+        goals.forM fun goal => pushInfoTree (.hole goal)
         let remainingGoals ← Tactic.run goals[0]! do
           Tactic.setGoals goals.toList
-          Tactic.evalTactic decrTactic
+          Tactic.withTacticInfoContext decrTactic do
+            Tactic.withTacticInfoContext decrTactic[0] do
+              Tactic.evalTactic decrTactic[1]
         unless remainingGoals.isEmpty do
           Term.reportUnsolvedGoals remainingGoals
   instantiateMVars value

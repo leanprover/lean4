@@ -27,11 +27,14 @@ def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
 /-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
 abbrev TerminationWF := Array TerminationBy
 
-/-- The termination annotations for a single function -/
+/-- The termination annotations for a single function.
+For `decreasing_by`, we store the whole `decreasing_by tacticSeq` expression, as this
+is what `Term.runTactic` expects.
+ -/
 structure TerminationHints where
   ref : Syntax
   termination_by? : Option TerminationBy
-  decreasing_by?  : Option (TSyntax ``Lean.Parser.Tactic.tacticSeq)
+  decreasing_by?  : Option (TSyntax ``Lean.Parser.Termination.decreasingBy)
   deriving Inhabited
 
 def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
@@ -61,9 +64,7 @@ def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints :=
       termination_by? := t?.map fun t => match t with
         | `(terminationBy|termination_by $vars* => $body) => {ref := t, vars, body}
         | _ => unreachable!
-      decreasing_by? := d?.map fun
-        | `(decreasingBy|decreasing_by $ts) => ts
-        | _ => unreachable!  }
+      decreasing_by? := d? }
   | _ => panic! s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

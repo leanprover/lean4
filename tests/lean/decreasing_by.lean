@@ -31,7 +31,8 @@ end Ex1
 namespace Ex2
 
 -- Multiple goals, no termination_By
--- This does currently *not* work, because GuessLex does not pass multiple goals to the tactic.
+-- This does *not* work, because GuessLex does not pass multiple goals to the tactic.
+-- so this tactic script fails.
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by
   · simp_wf
@@ -62,7 +63,7 @@ namespace Ex4
 -- Multiple goals, no termination_By
 -- This does work, because the tactic is flexible enough
 -- (Not a recommended way; complex `decrasing_by` should go along with `termination_by`.)
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 decreasing_by all_goals
   simp_wf
   first
@@ -85,12 +86,7 @@ namespace Ex6
 
 -- Incomplete tactic
 -- Unsolved goals reported
--- TODO: Should be reported at the `decreasing_by`, like with
--- ```
--- def foo : Nat := by
---   apply id
--- ```
-def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
+def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 termination_by n m => (n, m)
 decreasing_by apply id
 
@@ -108,6 +104,7 @@ end Ex7
 namespace Ex8
 
 -- tactic solving just one goal
+-- unsolved goals
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100 -- Error
 termination_by n m => (n, m)
 decreasing_by
@@ -128,3 +125,14 @@ decreasing_by
     apply dec2_lt
 
 end Ex9
+
+namespace Ex10
+
+-- This checks that guess-lex does not run tactics in “recover” mode.
+-- (If it would it would produce the wrong termination order and then we should see errors)
+def foo (n m : Nat) : Nat := foo (n - 1) (dec2 m)
+decreasing_by all_goals
+  · simp_wf
+    apply dec2_lt
+
+end Ex10

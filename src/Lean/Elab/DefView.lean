@@ -127,7 +127,7 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
       pure <| mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
-    declId := stx[1], binders := binders, type? := some type, value := val,
+    declId := stx[1], binders := binders, type? := some type, value := val
   }
 
 def mkDefViewOfExample (modifiers : Modifiers) (stx : Syntax) : DefView :=

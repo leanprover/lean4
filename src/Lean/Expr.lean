@@ -735,7 +735,8 @@ def mkStrLit (s : String) : Expr :=
 @[export lean_expr_mk_mdata] def mkMDataEx : MData → Expr → Expr := mkMData
 @[export lean_expr_mk_proj] def mkProjEx : Name → Nat → Expr → Expr := mkProj
 
-/-- `mkAppN f #[a₀, ..., aₙ]` constructs the application `f a₀ a₁ ... aₙ`.
+/--
+`mkAppN f #[a₀, ..., aₙ]` constructs the application `f a₀ a₁ ... aₙ`.
 
 As an optimization, there is a macro to expand the syntax `mkAppN f #[a₀, ..., aₙ]`
 to the syntax `Expr.app (... (Expr.app (Expr.app f a₀) a₁) ...) aₙ`, which ensures the array

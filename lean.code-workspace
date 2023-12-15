@@ -48,5 +48,10 @@
 				}
 			}
 		]
+	},
+	"extensions": {
+		"recommendations": [
+			"leanprover.lean4"
+		]
 	}
 }

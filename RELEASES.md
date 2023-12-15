@@ -24,7 +24,7 @@ v4.5.0 (development in progress)
 
   * They are now placed directly after the function they apply to, instead of after the whole `mutual` block.
   * Therefore, the function name no longer has to be repeated.
-  * If the function has a `where`, the clauses come before.
+  * If the function has a `where`, the `termination_by` and `decreasing_by` clauses come before.
 
   Migration guide: In simple cases just remove the function name:
   ```diff
@@ -57,7 +57,7 @@ v4.5.0 (development in progress)
   +end
   ```
 
-  Similarly if you have a mutual recursion through `where` or `letrec`:
+  Similarly if you have a mutual recursion through `where` or `let rec`:
   ```diff
   -def foo : Nat → Nat → Nat := …
   -  where bar : Nat → Nat := …
@@ -105,7 +105,7 @@ v4.5.0 (development in progress)
   In the case of mutual recursion each `decreasing_by` now applies to just its
   function. If some functions in a recursive group do not have their own
   `decreasing_by`, the default `decreasing_tactic` is used. If the same tactic
-  ought to be applied to multiple function, the `decreasing_by` clause has to
+  ought to be applied to multiple functions, the `decreasing_by` clause has to
   be repeated at each of these functions.
 
 * The low-level `termination_by'` clause is no longer supported.

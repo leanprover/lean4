@@ -78,14 +78,34 @@ structure Command where
   arguments? : Option (Array Json) := none
   deriving ToJson, FromJson
 
-/-- A snippet string is a template which allows to insert text
-and to control the editor cursor when insertion happens.
+/-- A snippet is a string that gets inserted into a document,
+and can afterwards be edited by the user in a structured way.
 
-A snippet can define tab stops and placeholders with `$1`, `$2`
-and `${3:foo}`. `$0` defines the final tab stop, it defaults to
-the end of the snippet. Variables are defined with `$name` and
-`${name:default value}`. Also see
-[the full snippet syntax](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_creating-your-own-snippets). -/
+Snippets contain instructions that
+specify how this structured editing should proceed.
+They are expressed in a domain-specific language
+based on one from TextMate,
+including the following constructs:
+- Designated positions for subsequent user input,
+  called "tab stops" after their most frequently-used keybinding.
+  They are denoted with `$1`, `$2`, and so forth.
+  `$0` denotes where the cursor should be positioned after all edits are completed,
+  defaulting to the end of the string.
+  Snippet tab stops are unrelated to tab stops used for indentation.
+- Tab stops with default values, called _placeholders_, written `${1:default}`.
+  The default may itself contain a tab stop or a further placeholder
+  and multiple options to select from may be provided
+  by surrounding them with `|`s and separating them with `,`,
+  as in `${1|if $2 then $3 else $4,if let $2 := $3 then $4 else $5|}`.
+- One of a set of predefined variables that are replaced with their values.
+  This includes the current line number (`$TM_LINE_NUMBER`)
+  or the text that was selected when the snippet was invoked (`$TM_SELECTED_TEXT`).
+- Formatting instructions to modify variables using regular expressions
+  or a set of predefined filters.
+
+The full syntax and semantics of snippets,
+including the available variables and the rules for escaping control characters,
+are described in the [LSP specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#snippet_syntax). -/
 structure SnippetString where
   value : String
   deriving ToJson, FromJson
@@ -103,7 +123,8 @@ structure TextEdit where
   `newText` is ignored
   and an interactive snippet edit is performed instead.
 
-  This is a Lean-specific extension to the LSP standard,
+  The use of snippets in `TextEdit`s
+  is a Lean-specific extension to the LSP standard,
   so `newText` should still be set to a correct value
   as fallback in case the editor does not support this feature.
   Even editors that support snippets may not always use them;

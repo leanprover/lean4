@@ -564,7 +564,40 @@ def hexDigitFn : ParserFn := fun c s =>
     if curr.isDigit || ('a' <= curr && curr <= 'f') || ('A' <= curr && curr <= 'F') then s.setPos i
     else s.mkUnexpectedError "invalid hexadecimal numeral"
 
-def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
+/--
+Parses the whitespace after the `\` when there is a string gap.
+Raises an error if the whitespace does not contain exactly one newline character.
+Processes `\r\n` as a newline.
+-/
+partial def stringGapFn (seenNewline afterCR : Bool) : ParserFn := fun c s =>
+  let i := s.pos
+  if h : c.input.atEnd i then s -- let strLitFnAux handle the EOI error if !seenNewline
+  else
+    let curr := c.input.get' i h
+    if curr == '\n' then
+      if seenNewline then
+        -- Having more than one newline in a string gap is visually confusing
+        s.mkUnexpectedError "unexpected additional newline in string gap"
+      else
+        stringGapFn true false c (s.next' c.input i h)
+    else if curr == '\r' then
+      stringGapFn seenNewline true c (s.next' c.input i h)
+    else if afterCR then
+      s.mkUnexpectedError "expecting newline after carriage return"
+    else if curr.isWhitespace then
+      stringGapFn seenNewline false c (s.next' c.input i h)
+    else if seenNewline then
+      s
+    else
+      s.mkUnexpectedError "expecting newline in string gap"
+
+/--
+Parses a string quotation after a `\`.
+- `isQuotable` determines which characters are valid escapes
+- `inString` enables features that are only valid within strings,
+  in particular `"\" newline whitespace*` gaps.
+-/
+def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
   if h : input.atEnd i then s.mkEOIError
@@ -576,6 +609,8 @@ def quotedCharCoreFn (isQuotable : Char → Bool) : ParserFn := fun c s =>
       andthenFn hexDigitFn hexDigitFn c (s.next' input i h)
     else if curr == 'u' then
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next' input i h)
+    else if inString && (curr == '\n' || curr == '\r') then
+      stringGapFn false false c s
     else
       s.mkUnexpectedError "invalid escape sequence"
 
@@ -583,7 +618,14 @@ def isQuotableCharDefault (c : Char) : Bool :=
   c == '\\' || c == '\"' || c == '\'' || c == 'r' || c == 'n' || c == 't'
 
 def quotedCharFn : ParserFn :=
-  quotedCharCoreFn isQuotableCharDefault
+  quotedCharCoreFn isQuotableCharDefault false
+
+/--
+Like `quotedCharFn` but enables escapes that are only valid inside strings.
+In particular, string gaps (`"\" newline whitespace*`).
+-/
+def quotedStringFn : ParserFn :=
+  quotedCharCoreFn isQuotableCharDefault true
 
 /-- Push `(Syntax.node tk <new-atom>)` onto syntax stack if parse was successful. -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : String.Pos) : ParserFn := fun c s => Id.run do
@@ -624,7 +666,7 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     let s    := s.setPos (input.next' i h)
     if curr == '\"' then
       mkNodeToken strLitKind startPos c s
-    else if curr == '\\' then andthenFn quotedCharFn (strLitFnAux startPos) c s
+    else if curr == '\\' then andthenFn quotedStringFn (strLitFnAux startPos) c s
     else strLitFnAux startPos c s
 
 def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>

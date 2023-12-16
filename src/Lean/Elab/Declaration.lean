@@ -348,7 +348,7 @@ def elabMutual : CommandElab := fun stx => do
         throwErrorAt bad "invalid 'decreasing_by' in 'mutual' block, it must be used after the 'end' keyword"
     elabMutualDef stx[1].getArgs hints
   else
-    throwError "invalid mutual block"
+    throwError "invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs"
 
 /- leading_parser "attribute " >> "[" >> sepBy1 (eraseAttr <|> Term.attrInstance) ", " >> "]" >> many1 ident -/
 @[builtin_command_elab «attribute»] def elabAttr : CommandElab := fun stx => do

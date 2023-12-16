@@ -62,9 +62,11 @@ def Package.fetchRelease (self : Package) : SchedulerM (BuildJob Unit) := Job.as
   try
     let depTrace := Hash.ofString url
     let traceFile := FilePath.mk <| self.buildArchiveFile.toString ++ ".trace"
-    buildUnlessUpToDate self.buildArchiveFile depTrace traceFile do
-      logStep s!"Fetching {self.name} cloud release"
+    let upToDate ← buildUnlessUpToDate' self.buildArchiveFile depTrace traceFile do
+      logStep s!"Downloading {self.name} cloud release"
       download logName url self.buildArchiveFile
+    unless upToDate && (← self.buildDir.pathExists) do
+      logStep s!"Unpacking {self.name} cloud release"
       untar logName self.buildArchiveFile self.buildDir
     return ((), .nil)
   else

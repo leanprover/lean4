@@ -104,10 +104,6 @@ lean_lib «Hello» where
 @[default_target]
 lean_exe «hello» where
   root := `Main
-  -- Enables the use of the Lean interpreter by the executable (e.g.,
-  -- `runFrontend`) at the expense of increased binary size on Linux.
-  -- Remove this line if you do not need such functionality.
-  supportInterpreter := true
 ```
 
 The command `lake build` is used to build the package (and its [dependencies](#adding-dependencies), if it has them) into a native executable. The result will be placed in `.lake/build/bin`. The command `lake clean` deletes `build`.

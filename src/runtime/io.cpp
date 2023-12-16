@@ -89,7 +89,11 @@ static obj_res mk_file_not_found_error(b_obj_arg fname) {
 static lean_external_class * g_io_handle_external_class = nullptr;
 
 static void io_handle_finalizer(void * h) {
-    lean_always_assert(fclose(static_cast<FILE *>(h)) == 0);
+    // There is no sensible way to handle errors here; in particular, we should
+    // not panic as finalizing a handle that already is in an invalid state
+    // (broken pipe etc.) should work and not terminate the process. The same
+    // decision was made for `std::fs::File` in the Rust stdlib.
+    fclose(static_cast<FILE *>(h));
 }
 
 static void io_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
@@ -502,7 +506,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_put_str(b_obj_arg h, b_obj_ar
 
 /* monoMsNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
-    static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64));
+    static_assert(sizeof(std::chrono::milliseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     return io_result_mk_ok(uint64_to_nat(tm.count()));
@@ -510,7 +514,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_mono_ms_now(obj_arg /* w */) {
 
 /* monoNanosNow : BaseIO Nat */
 extern "C" LEAN_EXPORT obj_res lean_io_mono_nanos_now(obj_arg /* w */) {
-    static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64));
+    static_assert(sizeof(std::chrono::nanoseconds::rep) <= sizeof(uint64), "size of std::chrono::nanoseconds::rep may not exceed 64");
     auto now = std::chrono::steady_clock::now();
     auto tm = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch());
     return io_result_mk_ok(uint64_to_nat(tm.count()));

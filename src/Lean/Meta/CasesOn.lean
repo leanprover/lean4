@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.KAbstract
 import Lean.Meta.Check
+import Lean.Meta.AppBuilder
 
 namespace Lean.Meta
 
@@ -50,13 +51,17 @@ def CasesOnApp.toExpr (c : CasesOnApp) : Expr :=
 /--
   Given a `casesOn` application `c` of the form
   ```
-  casesOn As (fun is x => motive[i, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
+  casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
   ```
   and an expression `e : B[is, major]`, construct the term
   ```
-  casesOn As (fun is x => B[is, x] → motive[i, xs]) is major (fun ys_1 (y : B[C_1[ys_1]]) => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n (y : B[C_n[ys_n]]) => (alt_n : motive (C_n[ys_n]) e remaining
+  casesOn As (fun is x => B[is, x] → motive[i, xs]) is major (fun ys_1 (y : B[_, C_1[ys_1]]) => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n (y : B[_, C_n[ys_n]]) => (alt_n : motive (C_n[ys_n]) e remaining
   ```
   We use `kabstract` to abstract the `is` and `major` from `B[is, major]`.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
+  the argument provided by `fix` to refine the termination argument, which may mention `major`.
+  See there for how to use this function.
 -/
 def CasesOnApp.addArg (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM CasesOnApp := do
   lambdaTelescope c.motive fun motiveArgs motiveBody => do
@@ -106,10 +111,67 @@ where
       throwError "failed to add argument to `casesOn` application, argument type was not refined by `casesOn`"
     return altsNew
 
-/-- Similar `CasesOnApp.addArg`, but returns `none` on failure. -/
+/-- Similar to `CasesOnApp.addArg`, but returns `none` on failure. -/
 def CasesOnApp.addArg? (c : CasesOnApp) (arg : Expr) (checkIfRefined : Bool := false) : MetaM (Option CasesOnApp) :=
   try
     return some (← c.addArg arg checkIfRefined)
+  catch _ =>
+    return none
+
+/--
+  Given a `casesOn` application `c` of the form
+  ```
+  casesOn As (fun is x => motive[is, xs]) is major  (fun ys_1 => (alt_1 : motive (C_1[ys_1])) ... (fun ys_n => (alt_n : motive (C_n[ys_n]) remaining
+  ```
+  and an expression `B[is, major]` (which may not be a type, e.g. `n : Nat`)
+  for every alternative `i`, construct the expression `fun ys_i => B[_, C_i[ys_i]]`
+
+  This is similar to `CasesOnApp.addArg` when you only have an expression to
+  refined, and not a type with a value.
+
+  This is used in in `Lean.Elab.PreDefinition.WF.GuessFix` when constructing the context of recursive
+  calls to refine the functions' paramter, which may mention `major`.
+  See there for how to use this function.
+-/
+def CasesOnApp.refineThrough (c : CasesOnApp) (e : Expr) : MetaM (Array Expr) :=
+  lambdaTelescope c.motive fun motiveArgs _motiveBody => do
+    unless motiveArgs.size == c.indices.size + 1 do
+      throwError "failed to transfer argument through `casesOn` application, motive must be lambda expression with #{c.indices.size + 1} binders"
+    let discrs := c.indices ++ #[c.major]
+    let mut eAbst := e
+    for motiveArg in motiveArgs.reverse, discr in discrs.reverse do
+      eAbst ← kabstract eAbst discr
+      eAbst := eAbst.instantiate1 motiveArg
+    -- Let's create something that’s a `Sort` and mentions `e`
+    -- (recall that `e` itself possibly isn't a type),
+    -- by writing `e = e`, so that we can use it as a motive
+    let eEq ← mkEq eAbst eAbst
+    let motive ← mkLambdaFVars motiveArgs eEq
+    let us := if c.propOnly then c.us else levelZero :: c.us.tail!
+    -- Now instantiate the casesOn wth this synthetic motive
+    let aux := mkAppN (mkConst c.declName us) c.params
+    let aux := mkApp aux motive
+    let aux := mkAppN aux discrs
+    check aux
+    let auxType ← inferType aux
+    -- The type of the remaining arguments will mention `e` instantiated for each arg
+    -- so extract them
+    forallTelescope auxType fun altAuxs _ => do
+      let altAuxTys ← altAuxs.mapM (inferType ·)
+      (Array.zip c.altNumParams altAuxTys).mapM fun (altNumParams, altAuxTy) => do
+        forallBoundedTelescope altAuxTy altNumParams fun fvs body => do
+          unless fvs.size = altNumParams do
+            throwError "failed to transfer argument through `casesOn` application, alt type must be telescope with #{altNumParams} arguments"
+          -- extract type from our synthetic equality
+          let body := body.getArg! 2
+          -- and abstract over the parameters of the alternatives, so that we can safely pass the Expr out
+          mkLambdaFVars fvs body
+
+/-- A non-failing version of `CasesOnApp.refineThrough` -/
+def CasesOnApp.refineThrough? (c : CasesOnApp) (e : Expr) :
+    MetaM (Option (Array Expr)) :=
+  try
+    return some (← c.refineThrough e)
   catch _ =>
     return none
 

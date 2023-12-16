@@ -28,12 +28,12 @@ partial def collectMVars (e : Expr) : StateRefT CollectMVars.State MetaM Unit :=
     | none   => pure ()
     | some d => collectMVars (mkMVar d.mvarIdPending)
 
-/-- Return metavariables in occurring the given expression. See `collectMVars` -/
+/-- Return metavariables occurring in the given expression. See `collectMVars` -/
 def getMVars (e : Expr) : MetaM (Array MVarId) := do
   let (_, s) ← (collectMVars e).run {}
   pure s.result
 
-/-- Similar to getMVars, but removes delayed assignments. -/
+/-- Similar to `getMVars`, but removes delayed assignments. -/
 def getMVarsNoDelayed (e : Expr) : MetaM (Array MVarId) := do
   let mvarIds ← getMVars e
   mvarIds.filterM fun mvarId => not <$> mvarId.isDelayedAssigned

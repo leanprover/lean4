@@ -774,8 +774,8 @@ instance : BEq Expr where
   beq := Expr.eqv
 
 /--
-Return true iff `a` and `b` are equal.
-Binder names and annotations are taking into account.
+Return `true` iff `a` and `b` are equal.
+Binder names and annotations are taken into account.
 -/
 @[extern "lean_expr_equal"]
 opaque equal (a : @& Expr) (b : @& Expr) : Bool
@@ -831,7 +831,7 @@ def isConst : Expr → Bool
   | _        => false
 
 /--
-Return `true` if the given expression is a constant of the give name.
+Return `true` if the given expression is a constant of the given name.
 Examples:
 - `` (.const `Nat []).isConstOf `Nat `` is `true`
 - `` (.const `Nat []).isConstOf `False `` is `false`

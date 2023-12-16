@@ -169,7 +169,7 @@ def mkEnumOfNatThm (declName : Name) : MetaM Unit := do
       value, type
     }
 
-def mkDecEqEnum (declName : Name) : CommandElabM Bool := do
+def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   liftTermElabM <| mkEnumOfNat declName
   liftTermElabM <| mkEnumOfNatThm declName
   let ofNatIdent  := mkIdent (Name.mkStr declName "ofNat")
@@ -185,11 +185,11 @@ def mkDecEqEnum (declName : Name) : CommandElabM Bool := do
   )
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
-  return true
 
 def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
   if (← isEnumType declName) then
     mkDecEqEnum declName
+    return true
   else
     mkDecEq declName
 

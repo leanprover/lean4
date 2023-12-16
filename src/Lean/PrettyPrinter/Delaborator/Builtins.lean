@@ -113,12 +113,21 @@ structure ParamKind where
 def ParamKind.isRegularExplicit (param : ParamKind) : Bool :=
   param.bInfo.isExplicit && !param.isAutoParam && param.defVal.isNone
 
-/-- Return array with n-th element set to kind of n-th parameter of `e`. -/
-partial def getParamKinds : DelabM (Array ParamKind) := do
-  let e ← getExpr
+/--
+Given a function `f` supplied with arguments `args`, returns an array whose n-th element
+is set to the kind of the n-th argument's associated parameter.
+
+The returned array might be longer than the number of arguments.
+It gives parameter kinds for the fully-applied function.
+
+This function properly handles "overapplied" functions.
+For example, while `id` takes one explicit argument, it can take more than one explicit
+argument when its arguments are specialized to function types, like in `id id 2`.
+-/
+partial def getParamKinds (f : Expr) (args : Array Expr) : MetaM (Array ParamKind) := do
   try
     withTransparency TransparencyMode.all do
-      forallTelescopeArgs e.getAppFn e.getAppArgs fun params _ => do
+      forallTelescopeArgs f args fun params _ => do
         params.mapM fun param => do
           let l ← param.fvarId!.getDecl
           pure { name := l.userName, bInfo := l.binderInfo, defVal := l.type.getOptParamDefault?, isAutoParam := l.type.isAutoParam }
@@ -133,43 +142,37 @@ where
         forallTelescopeArgs (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size) fun ys b =>
           k (xs ++ ys) b
 
-@[builtin_delab app]
-def delabAppExplicit : Delab := do
-  let paramKinds ← getParamKinds
-  let tagAppFn ← getPPOption getPPTagAppFns
-  let (fnStx, _, argStxs) ← withAppFnArgs
-    (do
-      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabAppFn
-      let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
-      let stx ← if needsExplicit then `(@$stx) else pure stx
-      pure (stx, paramKinds.toList, #[]))
-    (fun ⟨fnStx, paramKinds, argStxs⟩ => do
-      let isInstImplicit := match paramKinds with
-                            | [] => false
-                            | param :: _ => param.bInfo == BinderInfo.instImplicit
-      let argStx ← if ← getPPOption getPPAnalysisHole then `(_)
-                   else if isInstImplicit == true then
-                     let stx ← if ← getPPOption getPPInstances then delab else `(_)
-                     if ← getPPOption getPPInstanceTypes then
-                       let typeStx ← withType delab
-                       `(($stx : $typeStx))
-                     else pure stx
-                   else delab
-      pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
-  return Syntax.mkApp fnStx argStxs
-
 def shouldShowMotive (motive : Expr) (opts : Options) : MetaM Bool := do
   pure (getPPMotivesAll opts)
   <||> (pure (getPPMotivesPi opts) <&&> returnsPi motive)
   <||> (pure (getPPMotivesNonConst opts) <&&> isNonConstFun motive)
 
-def isRegularApp : DelabM Bool := do
+/--
+Returns true if an application should use explicit mode when delaborating.
+-/
+def useAppExplicit (paramKinds : Array ParamKind) : DelabM Bool := do
+  if ← getPPOption getPPExplicit then
+    if paramKinds.any (fun param => !param.isRegularExplicit) then return true
+
+  -- If the expression has an implicit function type, fall back to delabAppExplicit.
+  -- This is e.g. necessary for `@Eq`.
+  let isImplicitApp ← try
+      let ty ← whnf (← inferType (← getExpr))
+      pure <| ty.isForall && (ty.binderInfo == BinderInfo.implicit || ty.binderInfo == BinderInfo.instImplicit)
+    catch _ => pure false
+  if isImplicitApp then return true
+
+  return false
+
+/--
+Returns true if the application is a candidate for unexpanders.
+-/
+def isRegularApp (maxArgs : Nat) : DelabM Bool := do
   let e ← getExpr
-  if not (unfoldMDatas e.getAppFn).isConst then return false
-  if ← withNaryFn (withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit)) then return false
-  for i in [:e.getAppNumArgs] do
-    if ← withNaryArg i (getPPOption getPPAnalysisNamedArg) then return false
-  return true
+  if not (unfoldMDatas (e.getBoundedAppFn maxArgs)).isConst then return false
+  withBoundedAppFnArgs maxArgs
+    (not <$> withMDatasOptions (getPPOption getPPUniverses <||> getPPOption getPPAnalysisBlockImplicit))
+    (fun b => pure b <&&> not <$> getPPOption getPPAnalysisNamedArg)
 
 def unexpandRegularApp (stx : Syntax) : Delab := do
   let Expr.const c .. := (unfoldMDatas (← getExpr).getAppFn) | unreachable!
@@ -204,25 +207,42 @@ def unexpandStructureInstance (stx : Syntax) : Delab := whenPPOption getPPStruct
     if (← getPPOption getPPStructureInstanceType) then delab >>= pure ∘ some else pure none
   `({ $fields,* $[: $tyStx]? })
 
-@[builtin_delab app]
-def delabAppImplicit : Delab := do
+/--
+Delaborates a function application in explicit mode, and ensures the resulting
+head syntax is wrapped with `@`.
+-/
+def delabAppExplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
+  let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
+    (do
+      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
+      let needsExplicit := stx.raw.getKind != ``Lean.Parser.Term.explicit
+      let stx ← if needsExplicit then `(@$stx) else pure stx
+      pure (stx, paramKinds.toList, #[]))
+    (fun ⟨fnStx, paramKinds, argStxs⟩ => do
+      let isInstImplicit := match paramKinds with
+                            | [] => false
+                            | param :: _ => param.bInfo == BinderInfo.instImplicit
+      let argStx ← if ← getPPOption getPPAnalysisHole then `(_)
+                   else if isInstImplicit == true then
+                     let stx ← if ← getPPOption getPPInstances then delab else `(_)
+                     if ← getPPOption getPPInstanceTypes then
+                       let typeStx ← withType delab
+                       `(($stx : $typeStx))
+                     else pure stx
+                   else delab
+      pure (fnStx, paramKinds.tailD [], argStxs.push argStx))
+  return Syntax.mkApp fnStx argStxs
+
+/--
+Delaborates a function application in the standard mode, where implicit arguments are generally not
+included.
+-/
+def delabAppImplicitCore (maxArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) (tagAppFn : Bool) : Delab := do
   -- TODO: always call the unexpanders, make them guard on the right # args?
-  let paramKinds ← getParamKinds
-  if ← getPPOption getPPExplicit then
-    if paramKinds.any (fun param => !param.isRegularExplicit) then failure
-
-  -- If the application has an implicit function type, fall back to delabAppExplicit.
-  -- This is e.g. necessary for `@Eq`.
-  let isImplicitApp ← try
-      let ty ← whnf (← inferType (← getExpr))
-      pure <| ty.isForall && (ty.binderInfo == BinderInfo.implicit || ty.binderInfo == BinderInfo.instImplicit)
-    catch _ => pure false
-  if isImplicitApp then failure
-
-  let tagAppFn ← getPPOption getPPTagAppFns
-  let (fnStx, _, argStxs) ← withAppFnArgs
-    (withOptionAtCurrPos `pp.tagAppFns tagAppFn <|
-      return (← delabAppFn, paramKinds.toList, #[]))
+  let (fnStx, _, argStxs) ← withBoundedAppFnArgs maxArgs
+    (do
+      let stx ← withOptionAtCurrPos `pp.tagAppFns tagAppFn delabHead
+      return (stx, paramKinds.toList, #[]))
     (fun (fnStx, paramKinds, argStxs) => do
       let arg ← getExpr
       let opts ← getOptions
@@ -247,11 +267,36 @@ def delabAppImplicit : Delab := do
       pure (fnStx, paramKinds.tailD [], argStxs))
   let stx := Syntax.mkApp fnStx argStxs
 
-  if ← isRegularApp then
+  if ← isRegularApp maxArgs then
     (guard (← getPPOption getPPNotation) *> unexpandRegularApp stx)
     <|> (guard (← getPPOption getPPStructureInstances) *> unexpandStructureInstance stx)
     <|> pure stx
   else pure stx
+
+/--
+Delaborates applications. Removes up to `maxArgs` arguments to form
+the "head" of the application and delaborates the head using `delabHead`.
+The remaining arguments are processed depending on whether heuristics indicate that the application
+should be delaborated using `@`.
+-/
+def delabAppCore (maxArgs : Nat) (delabHead : Delab) : Delab := do
+  let tagAppFn ← getPPOption getPPTagAppFns
+  let e ← getExpr
+  let paramKinds ← getParamKinds (e.getBoundedAppFn maxArgs) (e.getBoundedAppArgs maxArgs)
+
+  let useExplicit ← useAppExplicit paramKinds
+
+  if useExplicit then
+    delabAppExplicitCore maxArgs delabHead paramKinds tagAppFn
+  else
+    delabAppImplicitCore maxArgs delabHead paramKinds tagAppFn
+
+/--
+Default delaborator for applications.
+-/
+@[builtin_delab app]
+def delabApp : Delab := do
+  delabAppCore (← getExpr).getAppNumArgs delabAppFn
 
 /-- State for `delabAppMatch` and helpers. -/
 structure AppMatchState where

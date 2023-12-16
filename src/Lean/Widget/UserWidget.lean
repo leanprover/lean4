@@ -205,54 +205,6 @@ def savePanelWidgetInfo [Monad m] [MonadEnv m] [MonadError m] [MonadInfoTree m]
     | throwError s!"No widget module with hash {hash} registered"
   pushInfoLeaf <| .ofUserWidgetInfo { id, javascriptHash := hash, props, stx }
 
-/-! ## Retrieving panel widget instances -/
-
-#mkrpcenc WidgetInstance
-
-/-- Retrieve all the `UserWidgetInfo`s that intersect a given line. -/
-def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List UserWidgetInfo :=
-  t.deepestNodes fun
-    | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
-      if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
-        -- Does the widget's line range contain `hoverLine`?
-        guard <| (text.utf8PosToLspPos pos).line ≤ hoverLine ∧ hoverLine ≤ (text.utf8PosToLspPos tailPos).line
-        return wi
-      else
-        failure
-    | _, _, _ => none
-
-structure PanelWidgetInstance extends WidgetInstance where
-  /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
-  range? : Option Lsp.Range
-#mkrpcenc PanelWidgetInstance
-
-/-- Output of `getWidgets` RPC.-/
-structure GetWidgetsResponse where
-  widgets : Array PanelWidgetInstance
-#mkrpcenc GetWidgetsResponse
-
-open Lean Server RequestM in
-/-- Get the panel widgets present around a particular position. -/
-@[server_rpc_method]
-def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
-  let doc ← readDoc
-  let filemap := doc.meta.text
-  let nextLine := { line := pos.line + 1, character := 0 }
-  let t := doc.cmdSnaps.waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
-  mapTask t fun (snaps, _) => do
-    let some snap := snaps.getLast?
-      | return ⟨∅⟩
-    /- Panels from the infotree. -/
-    let ws := widgetInfosAt? filemap snap.infoTree pos.line
-    let ws : Array PanelWidgetInstance := ws.toArray.map fun (wi : UserWidgetInfo) =>
-      { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx }
-    /- Panels from the environment. -/
-    runTermElabM snap do
-      let ws' ← evalPanelWidgets
-      let ws' : Array PanelWidgetInstance := ws'.map fun wi =>
-        { wi with range? := none }
-      return { widgets := ws ++ ws' }
-
 /-! ## `show_panel_widgets` command -/
 
 syntax widgetInstanceSpec := ident ("with " term)?
@@ -386,7 +338,7 @@ private unsafe def evalUserWidgetDefinitionUnsafe [Monad m] [MonadEnv m] [MonadO
   ofExcept <| (← getEnv).evalConstCheck UserWidgetDefinition (← getOptions) ``UserWidgetDefinition id
 
 @[implemented_by evalUserWidgetDefinitionUnsafe]
-private opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
+opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m]
     (id : Name) : m UserWidgetDefinition
 
 /-- Save a user-widget instance to the infotree.
@@ -396,6 +348,76 @@ private opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] 
     (widgetId : Name) (props : Json) (stx : Syntax) : m Unit := do
   let uwd ← evalUserWidgetDefinition widgetId
   savePanelWidgetInfo (ToModule.toModule uwd).javascriptHash (pure props) stx
+
+/-! ## Retrieving panel widget instances -/
+
+#mkrpcenc WidgetInstance
+
+/-- Retrieve all the `UserWidgetInfo`s that intersect a given line. -/
+def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List UserWidgetInfo :=
+  t.deepestNodes fun
+    | _ctx, i@(Info.ofUserWidgetInfo wi), _cs => do
+      if let (some pos, some tailPos) := (i.pos?, i.tailPos?) then
+        -- Does the widget's line range contain `hoverLine`?
+        guard <| (text.utf8PosToLspPos pos).line ≤ hoverLine ∧ hoverLine ≤ (text.utf8PosToLspPos tailPos).line
+        return wi
+      else
+        failure
+    | _, _, _ => none
+
+deriving instance Server.RpcEncodable for WidgetInstance
+
+structure PanelWidgetInstance extends WidgetInstance where
+  /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
+  range? : Option Lsp.Range := none
+  /-- When present, the infoview will wrap the widget
+  in `<details><summary>{name}</summary>...</details>`.
+  This functionality is deprecated
+  but retained for backwards compatibility
+  with `UserWidgetDefinition`. -/
+  name? : Option String := none
+#mkrpcenc PanelWidgetInstance
+
+/-- Output of `getWidgets` RPC.-/
+structure GetWidgetsResponse where
+  widgets : Array PanelWidgetInstance
+#mkrpcenc GetWidgetsResponse
+
+open Lean Server RequestM in
+/-- Get the panel widgets present around a particular position. -/
+@[server_rpc_method]
+def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+  let doc ← readDoc
+  let filemap := doc.meta.text
+  let nextLine := { line := pos.line + 1, character := 0 }
+  let t := doc.cmdSnaps.waitUntil fun snap => filemap.lspPosToUtf8Pos nextLine ≤ snap.endPos
+  mapTask t fun (snaps, _) => do
+    let some snap := snaps.getLast?
+      | return ⟨∅⟩
+    runTermElabM snap do
+      let env ← getEnv
+      /- Panels from the environment. -/
+      let ws' ← evalPanelWidgets
+      let ws' : Array PanelWidgetInstance ← ws'.mapM fun wi => do
+        -- Check if the definition uses the deprecated `UserWidgetDefinition`
+        -- on a best-effort basis.
+        -- If it does, also send the `name` field.
+        let name? ← env.find? wi.id
+          |>.filter (·.type.isConstOf ``UserWidgetDefinition)
+          |>.mapM fun _ => do
+            let uwd ← evalUserWidgetDefinition wi.id
+            return uwd.name
+        return { wi with name? }
+      /- Panels from the infotree. -/
+      let ws := widgetInfosAt? filemap snap.infoTree pos.line
+      let ws : Array PanelWidgetInstance ← ws.toArray.mapM fun (wi : UserWidgetInfo) => do
+        let name? ← env.find? wi.id
+          |>.filter (·.type.isConstOf ``UserWidgetDefinition)
+          |>.mapM fun _ => do
+            let uwd ← evalUserWidgetDefinition wi.id
+            return uwd.name
+        return { wi with range? := String.Range.toLspRange filemap <$> Syntax.getRange? wi.stx, name? }
+      return { widgets := ws' ++ ws }
 
 attribute [deprecated Module] UserWidgetDefinition
 

@@ -182,7 +182,7 @@ protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
   Nat.mul_comm n 1 ▸ Nat.mul_one n
 
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
-  induction n generalizing m k with
+  induction n with
   | zero      => repeat rw [Nat.zero_mul]
   | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
 

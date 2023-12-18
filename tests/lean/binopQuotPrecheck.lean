@@ -49,3 +49,24 @@ local notation "c7" => a <|> b
 example : c7 = (a <|> b) := rfl
 
 end
+
+/-!
+Precheck failure in first argument.
+-/
+notation "precheckFailure" x y => binop% a x y
+
+/-!
+Precheck failure in second argument.
+-/
+notation "precheckFailure" y => binop% HAdd.hAdd a y
+
+/-!
+Precheck failure in third argument.
+-/
+notation "precheckFailure" x => binop% HAdd.hAdd x a
+
+/-!
+No precheck failure when `quotPrecheck` is off.
+-/
+set_option quotPrecheck false in
+notation "skipPrecheck" => binop% a b c

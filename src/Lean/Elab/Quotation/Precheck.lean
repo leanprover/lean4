@@ -144,31 +144,31 @@ private def isSectionVariable (e : Expr) : TermElabM Bool := do
 section ExpressionTree
 
 @[builtin_quot_precheck Lean.Parser.Term.binrel] def precheckBinrel : Precheck
-  | `(binrel% $_ $a $b) => do precheck a; precheck b
+  | `(binrel% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.binrel_no_prop] def precheckBinrelNoProp : Precheck
-  | `(binrel_no_prop% $_ $a $b) => do precheck a; precheck b
+  | `(binrel_no_prop% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.binop] def precheckBinop : Precheck
-  | `(binop% $_ $a $b) => do precheck a; precheck b
+  | `(binop% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.binop_lazy] def precheckBinopLazy : Precheck
-  | `(binop_lazy% $_ $a $b) => do precheck a; precheck b
+  | `(binop_lazy% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.leftact] def precheckLeftact : Precheck
-  | `(leftact% $_ $a $b) => do precheck a; precheck b
+  | `(leftact% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.rightact] def precheckRightact : Precheck
-  | `(rightact% $_ $a $b) => do precheck a; precheck b
+  | `(rightact% $f $a $b) => do precheck f; precheck a; precheck b
   | _ => throwUnsupportedSyntax
 
 @[builtin_quot_precheck Lean.Parser.Term.unop] def precheckUnop : Precheck
-  | `(unop% $_ $a) => precheck a
+  | `(unop% $f $a) => do precheck f; precheck a
   | _ => throwUnsupportedSyntax
 
 end ExpressionTree

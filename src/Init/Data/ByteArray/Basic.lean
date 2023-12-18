@@ -81,7 +81,7 @@ def isEmpty (s : ByteArray) : Bool :=
   If `exact` is `false`, the capacity will be doubled when grown. -/
 @[extern "lean_byte_array_copy_slice"]
 def copySlice (src : @& ByteArray) (srcOff : Nat) (dest : ByteArray) (destOff len : Nat) (exact : Bool := true) : ByteArray :=
-  ⟨dest.data.extract 0 destOff ++ src.data.extract srcOff (srcOff + len) ++ dest.data.extract (destOff + len) dest.data.size⟩
+  ⟨dest.data.extract 0 destOff ++ src.data.extract srcOff (srcOff + len) ++ dest.data.extract (destOff + min len (src.data.size - srcOff)) dest.data.size⟩
 
 def extract (a : ByteArray) (b e : Nat) : ByteArray :=
   a.copySlice b empty 0 (e - b)

@@ -1491,10 +1491,16 @@ private def isDefEqMVarSelf (mvar : Expr) (args₁ args₂ : Array Expr) : MetaM
     else
       pure false
 
-/-- Remove unnecessary let-decls -/
-private def consumeLet : Expr → Expr
+/--
+Removes unnecessary let-decls (both true `let`s and `let_fun`s).
+-/
+private partial def consumeLet : Expr → Expr
   | e@(Expr.letE _ _ _ b _) => if b.hasLooseBVars then e else consumeLet b
-  | e                       => e
+  | e =>
+    if let some (_, _, _, b) := e.letFun? then
+      if b.hasLooseBVars then e else consumeLet b
+    else
+      e
 
 mutual
 

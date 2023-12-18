@@ -29,3 +29,4 @@ import Lean.Meta.Tactic.LinearArith
 import Lean.Meta.Tactic.AC
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Congr
+import Lean.Meta.Tactic.SymEval

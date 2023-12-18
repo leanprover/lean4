@@ -453,6 +453,12 @@ syntax (name := dsimp) "dsimp" (config)? (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*,?) "]")? (location)? : tactic
 
 /--
+The `seval` tactic is a symbolic evaluator. It reduces nested ground terms.
+**WARNING**: This tactic is under development. Do not use it in your project unless you are working with the tactic developer.
+-/
+syntax (name := seval) "seval" : tactic
+
+/--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
 This is a low-level tactic, it will expose how recursive definitions have been
 compiled by Lean.

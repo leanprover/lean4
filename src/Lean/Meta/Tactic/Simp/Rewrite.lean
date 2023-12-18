@@ -116,7 +116,7 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   | some { expr := eNew, proof? := some proof, .. } =>
     let mut proof := proof
     for extraArg in extraArgs do
-      proof ← mkCongrFun proof extraArg
+      proof ← Meta.mkCongrFun proof extraArg
     if (← hasAssignableMVar eNew) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none

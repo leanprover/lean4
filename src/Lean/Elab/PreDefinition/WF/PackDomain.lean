@@ -40,6 +40,19 @@ where
     else
       return args[i]!
 
+/-- Unpacks a unary packed argument created with `mkUnaryArg`. -/
+def unpackUnaryArg {m} [Monad m] [MonadError m] (arity : Nat) (e : Expr) : m (Array Expr) := do
+  let mut e := e
+  let mut args := #[]
+  while args.size + 1 < arity do
+    if e.isAppOfArity ``PSigma.mk 4 then
+      args := args.push (e.getArg! 2)
+      e := e.getArg! 3
+    else
+      throwError "Unexpected expression while unpacking n-ary argument"
+  args := args.push e
+  return args
+
 private partial def mkPSigmaCasesOn (y : Expr) (codomain : Expr) (xs : Array Expr) (value : Expr) : MetaM Expr := do
   let mvar ← mkFreshExprSyntheticOpaqueMVar codomain
   let rec go (mvarId : MVarId) (y : FVarId) (ys : Array Expr) : MetaM Unit := do

@@ -433,7 +433,7 @@ where
         else if (← whnfD (← inferType r.expr)).isArrow then
           r ← mkCongr r (← simp arg)
         else
-          r ← mkCongrFun r (← dsimp arg)
+          r ← mkCongrFun r arg
         i := i + 1
       return r
 

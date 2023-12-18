@@ -2416,7 +2416,6 @@ lean_closure_set(x_24, 0, x_18);
 x_25 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalDelta___lambda__1___boxed), 11, 1);
 lean_closure_set(x_25, 0, x_18);
 x_26 = l_Lean_Elab_Tactic_withLocation(x_22, x_23, x_24, x_25, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_19);
-lean_dec(x_22);
 return x_26;
 }
 else

@@ -37,6 +37,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_loop___at_Lean_Syntax_findStack_x3f_g
 LEAN_EXPORT lean_object* l_Lean_Syntax_getQuotContent(lean_object*);
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__24;
 static lean_object* l_Lean_isLitKind___closed__2;
+uint8_t l_List_all___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_hasMissing___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___at_Lean_Syntax_reprint___spec__3___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_goDown(lean_object*);
@@ -82,6 +83,7 @@ LEAN_EXPORT lean_object* l_Lean_Syntax_updateLeading(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_antiquotSuffixSplice_x3f___boxed(lean_object*);
 static lean_object* l_Lean_Syntax_isTokenAntiquot___closed__2;
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__6;
+static lean_object* l_Lean_Syntax_Stack_matches___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_ifNodeKind___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getIdAt(lean_object*, lean_object*);
@@ -135,7 +137,6 @@ static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__1;
 lean_object* l_List_take___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Syntax_0__String_reprRange____x40_Lean_Syntax___hyg_36____closed__8;
 static lean_object* l_Lean_Syntax_identComponents___closed__5;
-uint8_t l_List_foldr___at_List_and___spec__1(uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_instForInTopDownSyntax_loop___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_MonadTraverser_setCur___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_rewriteBottomUpM___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -291,6 +292,7 @@ LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Syntax_antiquotKinds___spe
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__15;
 static lean_object* l_Lean_Syntax_mkAntiquotNode___closed__12;
 LEAN_EXPORT lean_object* l_Lean_unreachIsNodeIdent(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_id___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_replaceM___at_Lean_Syntax_updateLeading___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Syntax_0__Lean_Syntax_chooseNiceTrailStop(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getAntiquotSpliceSuffix(lean_object*);
@@ -8397,6 +8399,14 @@ return x_27;
 }
 }
 }
+static lean_object* _init_l_Lean_Syntax_Stack_matches___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_id___rarg___boxed), 1, 0);
+return x_1;
+}
+}
 LEAN_EXPORT uint8_t l_Lean_Syntax_Stack_matches(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -8417,11 +8427,10 @@ return x_7;
 }
 else
 {
-lean_object* x_8; uint8_t x_9; uint8_t x_10; 
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
 x_8 = l_List_zipWith___at_Lean_Syntax_Stack_matches___spec__1(x_1, x_2);
-x_9 = 1;
-x_10 = l_List_foldr___at_List_and___spec__1(x_9, x_8);
-lean_dec(x_8);
+x_9 = l_Lean_Syntax_Stack_matches___closed__1;
+x_10 = l_List_all___rarg(x_8, x_9);
 return x_10;
 }
 }
@@ -8676,6 +8685,8 @@ l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__1 = _init_l_Lean_Syntax_fin
 lean_mark_persistent(l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__1);
 l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__2 = _init_l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__2();
 lean_mark_persistent(l_Lean_Syntax_findStack_x3f_go___lambda__2___closed__2);
+l_Lean_Syntax_Stack_matches___closed__1 = _init_l_Lean_Syntax_Stack_matches___closed__1();
+lean_mark_persistent(l_Lean_Syntax_Stack_matches___closed__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

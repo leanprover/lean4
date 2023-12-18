@@ -30,45 +30,6 @@ def Config.updateArith (c : Config) : CoreM Config := do
   else
     return c
 
-def Result.getProof (r : Result) : MetaM Expr := do
-  match r.proof? with
-  | some p => return p
-  | none   => mkEqRefl r.expr
-
-/--
-  Similar to `Result.getProof`, but adds a `mkExpectedTypeHint` if `proof?` is `none`
-  (i.e., result is definitionally equal to input), but we cannot establish that
-  `source` and `r.expr` are definitionally when using `TransparencyMode.reducible`. -/
-def Result.getProof' (source : Expr) (r : Result) : MetaM Expr := do
-  match r.proof? with
-  | some p => return p
-  | none   =>
-    if (← isDefEq source r.expr) then
-      mkEqRefl r.expr
-    else
-      /- `source` and `r.expr` must be definitionally equal, but
-         are not definitionally equal at `TransparencyMode.reducible` -/
-      mkExpectedTypeHint (← mkEqRefl r.expr) (← mkEq source r.expr)
-
-def mkCongrFun (r : Result) (a : Expr) : MetaM Result :=
-  match r.proof? with
-  | none   => return { expr := mkApp r.expr a, proof? := none }
-  | some h => return { expr := mkApp r.expr a, proof? := (← Meta.mkCongrFun h a) }
-
-def mkCongr (r₁ r₂ : Result) : MetaM Result :=
-  let e := mkApp r₁.expr r₂.expr
-  match r₁.proof?, r₂.proof? with
-  | none,     none   => return { expr := e, proof? := none }
-  | some h,  none    => return { expr := e, proof? := (← Meta.mkCongrFun h r₂.expr) }
-  | none,    some h  => return { expr := e, proof? := (← Meta.mkCongrArg r₁.expr h) }
-  | some h₁, some h₂ => return { expr := e, proof? := (← Meta.mkCongr h₁ h₂) }
-
-private def mkImpCongr (src : Expr) (r₁ r₂ : Result) : MetaM Result := do
-  let e := src.updateForallE! r₁.expr r₂.expr
-  match r₁.proof?, r₂.proof? with
-  | none,     none   => return { expr := e, proof? := none }
-  | _,        _      => return { expr := e, proof? := (← Meta.mkImpCongr (← r₁.getProof) (← r₂.getProof)) } -- TODO specialize if bottleneck
-
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
   e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
@@ -250,6 +211,9 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
     match (← reduceRecMatcher? e) with
     | some e => return (← reduce e)
     | none   => pure ()
+  if cfg.zeta then
+    if let some (args, _, _, v, b) := e.letFunAppArgs? then
+      return (← reduce <| mkAppN (b.instantiate1 v) args)
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
@@ -305,29 +269,6 @@ def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
         return SimpLetCase.nondep
     else
       return SimpLetCase.dep
-
-/-- Given the application `e`, remove unnecessary casts of the form `Eq.rec a rfl` and `Eq.ndrec a rfl`. -/
-partial def removeUnnecessaryCasts (e : Expr) : MetaM Expr := do
-  let mut args := e.getAppArgs
-  let mut modified := false
-  for i in [:args.size] do
-    let arg := args[i]!
-    if isDummyEqRec arg then
-      args := args.set! i (elimDummyEqRec arg)
-      modified := true
-  if modified then
-    return mkAppN e.getAppFn args
-  else
-    return e
-where
-  isDummyEqRec (e : Expr) : Bool :=
-    (e.isAppOfArity ``Eq.rec 6 || e.isAppOfArity ``Eq.ndrec 6) && e.appArg!.isAppOf ``Eq.refl
-
-  elimDummyEqRec (e : Expr) : Expr :=
-    if isDummyEqRec e then
-      elimDummyEqRec e.appFn!.appFn!.appArg!
-    else
-      e
 
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkSystem "simp"
@@ -420,22 +361,7 @@ where
         return { expr := (← dsimp e) }
 
   congrArgs (r : Result) (args : Array Expr) : M Result := do
-    if args.isEmpty then
-      return r
-    else
-      let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
-      let mut r := r
-      let mut i := 0
-      for arg in args do
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i]!.hasFwdDeps}"
-        if i < infos.size && !infos[i]!.hasFwdDeps then
-          r ← mkCongr r (← simp arg)
-        else if (← whnfD (← inferType r.expr)).isArrow then
-          r ← mkCongr r (← simp arg)
-        else
-          r ← mkCongrFun r (← dsimp arg)
-        i := i + 1
-      return r
+    Simp.congrArgs simp dsimp r args
 
   visitFn (e : Expr) : M Result := do
     let f := e.getAppFn
@@ -451,112 +377,9 @@ where
         proof ← Meta.mkCongrFun proof arg
       return { expr := eNew, proof? := proof }
 
-  mkCongrSimp? (f : Expr) : M (Option CongrTheorem) := do
-    if f.isConst then if (← isMatcher f.constName!) then
-      -- We always use simple congruence theorems for auxiliary match applications
-      return none
-    let info ← getFunInfo f
-    let kinds ← getCongrSimpKinds f info
-    if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
-      /- If all argument kinds are `fixed` or `eq`, then using
-         simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof -/
-      return none
-    match (← get).congrCache.find? f with
-    | some thm? => return thm?
-    | none =>
-      let thm? ← mkCongrSimpCore? f info kinds
-      modify fun s => { s with congrCache := s.congrCache.insert f thm? }
-      return thm?
-
   /-- Try to use automatically generated congruence theorems. See `mkCongrSimp?`. -/
   tryAutoCongrTheorem? (e : Expr) : M (Option Result) := do
-    let f := e.getAppFn
-    -- TODO: cache
-    let some cgrThm ← mkCongrSimp? f | return none
-    if cgrThm.argKinds.size != e.getAppNumArgs then return none
-    let mut simplified := false
-    let mut hasProof   := false
-    let mut hasCast    := false
-    let mut argsNew    := #[]
-    let mut argResults := #[]
-    let args := e.getAppArgs
-    for arg in args, kind in cgrThm.argKinds do
-      match kind with
-      | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
-      | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
-      | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
-      | CongrArgKind.eq =>
-        let argResult ← simp arg
-        argResults := argResults.push argResult
-        argsNew    := argsNew.push argResult.expr
-        if argResult.proof?.isSome then hasProof := true
-        if arg != argResult.expr then simplified := true
-      | _ => unreachable!
-    if !simplified then return some { expr := e }
-    /-
-      If `hasProof` is false, we used to return `mkAppN f argsNew` with `proof? := none`.
-      However, this created a regression when we started using `proof? := none` for `rfl` theorems.
-      Consider the following goal
-      ```
-      m n : Nat
-      a : Fin n
-      h₁ : m < n
-      h₂ : Nat.pred (Nat.succ m) < n
-      ⊢ Fin.succ (Fin.mk m h₁) = Fin.succ (Fin.mk m.succ.pred h₂)
-      ```
-      The term `m.succ.pred` is simplified to `m` using a `Nat.pred_succ` which is a `rfl` theorem.
-      The auto generated theorem for `Fin.mk` has casts and if used here at `Fin.mk m.succ.pred h₂`,
-      it produces the term `Fin.mk m (id (Eq.refl m) ▸ h₂)`. The key property here is that the
-      proof `(id (Eq.refl m) ▸ h₂)` has type `m < n`. If we had just returned `mkAppN f argsNew`,
-      the resulting term would be `Fin.mk m h₂` which is type correct, but later we would not be
-      able to apply `eq_self` to
-      ```lean
-      Fin.succ (Fin.mk m h₁) = Fin.succ (Fin.mk m h₂)
-      ```
-      because we would not be able to establish that `m < n` and `Nat.pred (Nat.succ m) < n` are definitionally
-      equal using `TransparencyMode.reducible` (`Nat.pred` is not reducible).
-      Thus, we decided to return here only if the auto generated congruence theorem does not introduce casts.
-    -/
-    if !hasProof && !hasCast then return some { expr := mkAppN f argsNew }
-    let mut proof := cgrThm.proof
-    let mut type  := cgrThm.type
-    let mut j := 0 -- index at argResults
-    let mut subst := #[]
-    for arg in args, kind in cgrThm.argKinds do
-      proof := mkApp proof arg
-      subst := subst.push arg
-      type := type.bindingBody!
-      match kind with
-      | CongrArgKind.fixed => pure ()
-      | CongrArgKind.cast  => pure ()
-      | CongrArgKind.subsingletonInst =>
-        let clsNew := type.bindingDomain!.instantiateRev subst
-        let instNew ← if (← isDefEq (← inferType arg) clsNew) then
-          pure arg
-        else
-          match (← trySynthInstance clsNew) with
-          | LOption.some val => pure val
-          | _ =>
-            trace[Meta.Tactic.simp.congr] "failed to synthesize instance{indentExpr clsNew}"
-            return none
-        proof := mkApp proof instNew
-        subst := subst.push instNew
-        type := type.bindingBody!
-      | CongrArgKind.eq =>
-        let argResult := argResults[j]!
-        let argProof ← argResult.getProof' arg
-        j := j + 1
-        proof := mkApp2 proof argResult.expr argProof
-        subst := subst.push argResult.expr |>.push argProof
-        type := type.bindingBody!.bindingBody!
-      | _ => unreachable!
-    let some (_, _, rhs) := type.instantiateRev subst |>.eq? | unreachable!
-    let rhs ← if hasCast then removeUnnecessaryCasts rhs else pure rhs
-    if hasProof then
-      return some { expr := rhs, proof? := proof }
-    else
-      /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
-      return some { expr := rhs }
+    Simp.tryAutoCongrTheorem? simp dsimp e
 
   congrDefault (e : Expr) : M Result := do
     if let some result ← tryAutoCongrTheorem? e then
@@ -957,19 +780,6 @@ def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := 
 def dsimp (e : Expr) (ctx : Simp.Context)
     (usedSimps : UsedSimps := {}) : MetaM (Expr × UsedSimps) := do profileitM Exception "dsimp" (← getOptions) do
   Simp.dsimpMain e ctx usedSimps (methods := Simp.DefaultMethods.methods)
-
-/--
-  Auxiliary method.
-  Given the current `target` of `mvarId`, apply `r` which is a new target and proof that it is equal to the current one.
--/
-def applySimpResultToTarget (mvarId : MVarId) (target : Expr) (r : Simp.Result) : MetaM MVarId := do
-  match r.proof? with
-  | some proof => mvarId.replaceTargetEq r.expr proof
-  | none =>
-    if target != r.expr then
-      mvarId.replaceTargetDefEq r.expr
-    else
-      return mvarId
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)

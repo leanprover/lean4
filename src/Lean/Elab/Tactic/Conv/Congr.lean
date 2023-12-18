@@ -72,7 +72,7 @@ def congr (mvarId : MVarId) (addImplicitArgs := false) (nameSubgoals := true) :
     throwError "invalid 'congr' conv tactic, application or implication expected{indentExpr lhs}"
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.congr] def evalCongr : Tactic := fun _ => do
-   replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
+  replaceMainGoal <| List.filterMap id (← congr (← getMainGoal))
 
 private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i : Int) :
   TacticM Unit := do
@@ -94,23 +94,23 @@ private def selectIdx (tacticName : String) (mvarIds : List (Option MVarId)) (i 
 @[builtin_tactic Lean.Parser.Tactic.Conv.skip] def evalSkip : Tactic := fun _ => pure ()
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.lhs] def evalLhs : Tactic := fun _ => do
-   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
-   selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
+  let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
+  selectIdx "lhs" mvarIds ((mvarIds.length : Int) - 2)
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.rhs] def evalRhs : Tactic := fun _ => do
-   let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
-   selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
+  let mvarIds ← congr (← getMainGoal) (nameSubgoals := false)
+  selectIdx "rhs" mvarIds ((mvarIds.length : Int) - 1)
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.arg] def evalArg : Tactic := fun stx => do
-   match stx with
-   | `(conv| arg $[@%$tk?]? $i:num) =>
-      let i := i.getNat
-      if i == 0 then
-        throwError "invalid 'arg' conv tactic, index must be greater than 0"
-      let i := i - 1
-      let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
-      selectIdx "arg" mvarIds i
-   | _ => throwUnsupportedSyntax
+  match stx with
+  | `(conv| arg $[@%$tk?]? $i:num) =>
+    let i := i.getNat
+    if i == 0 then
+      throwError "invalid 'arg' conv tactic, index must be greater than 0"
+    let i := i - 1
+    let mvarIds ← congr (← getMainGoal) (addImplicitArgs := tk?.isSome) (nameSubgoals := false)
+    selectIdx "arg" mvarIds i
+  | _ => throwUnsupportedSyntax
 
 def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) := do
   match lhs with
@@ -141,35 +141,35 @@ def extLetBodyCongr? (mvarId : MVarId) (lhs rhs : Expr) : MetaM (Option MVarId) 
   | _ => return none
 
 private def extCore (mvarId : MVarId) (userName? : Option Name) : MetaM MVarId :=
-   mvarId.withContext do
-     let (lhs, rhs) ← getLhsRhsCore mvarId
-     let lhs := (← instantiateMVars lhs).cleanupAnnotations
-     if let .forallE n d b bi := lhs then
-       let u ← getLevel d
-       let p : Expr := .lam n d b bi
-       let userName ← if let some userName := userName? then pure userName else mkFreshBinderNameForTactic n
-       let (q, h, mvarNew) ← withLocalDecl userName bi d fun a => do
-         let pa := b.instantiate1 a
-         let (qa, mvarNew) ← mkConvGoalFor pa
-         let q ← mkLambdaFVars #[a] qa
-         let h ← mkLambdaFVars #[a] mvarNew
-         let rhs' ← mkForallFVars #[a] qa
-         unless (← isDefEqGuarded rhs rhs') do
-           throwError "invalid 'ext' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
-         return (q, h, mvarNew)
-       let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
-       mvarId.assign proof
-       return mvarNew.mvarId!
-     else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
-       return mvarId
-     else
-       let lhsType ← whnfD (← inferType lhs)
-       unless lhsType.isForall do
-         throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
-       let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
-       let userNames := if let some userName := userName? then [userName] else []
-       let (_, mvarId) ← mvarId.introN 1 userNames
-       markAsConvGoal mvarId
+  mvarId.withContext do
+    let (lhs, rhs) ← getLhsRhsCore mvarId
+    let lhs := (← instantiateMVars lhs).cleanupAnnotations
+    if let .forallE n d b bi := lhs then
+      let u ← getLevel d
+      let p : Expr := .lam n d b bi
+      let userName ← if let some userName := userName? then pure userName else mkFreshBinderNameForTactic n
+      let (q, h, mvarNew) ← withLocalDecl userName bi d fun a => do
+        let pa := b.instantiate1 a
+        let (qa, mvarNew) ← mkConvGoalFor pa
+        let q ← mkLambdaFVars #[a] qa
+        let h ← mkLambdaFVars #[a] mvarNew
+        let rhs' ← mkForallFVars #[a] qa
+        unless (← isDefEqGuarded rhs rhs') do
+          throwError "invalid 'ext' conv tactic, failed to resolve{indentExpr rhs}\n=?={indentExpr rhs'}"
+        return (q, h, mvarNew)
+      let proof := mkApp4 (mkConst ``forall_congr [u]) d p q h
+      mvarId.assign proof
+      return mvarNew.mvarId!
+    else if let some mvarId ← extLetBodyCongr? mvarId lhs rhs then
+      return mvarId
+    else
+      let lhsType ← whnfD (← inferType lhs)
+      unless lhsType.isForall do
+        throwError "invalid 'ext' conv tactic, function or arrow expected{indentD m!"{lhs} : {lhsType}"}"
+      let [mvarId] ← mvarId.apply (← mkConstWithFreshMVarLevels ``funext) | throwError "'apply funext' unexpected result"
+      let userNames := if let some userName := userName? then [userName] else []
+      let (_, mvarId) ← mvarId.introN 1 userNames
+      markAsConvGoal mvarId
 
 private def ext (userName? : Option Name) : TacticM Unit := do
   replaceMainGoal [← extCore (← getMainGoal) userName?]

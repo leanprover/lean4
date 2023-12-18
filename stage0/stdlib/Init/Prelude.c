@@ -33,6 +33,7 @@ LEAN_EXPORT lean_object* l_instPowNat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkNullNode(lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_instMonadFunctorReaderT(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_of_nat(lean_object*);
+LEAN_EXPORT lean_object* l_letFun___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableLtPosInstLTPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_UInt64_size;
 LEAN_EXPORT lean_object* l_minOfLe___rarg(lean_object*, lean_object*, lean_object*);
@@ -862,6 +863,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_data___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mkArray2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_Char_utf8Size(uint32_t);
+LEAN_EXPORT lean_object* l_letFun(lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__3;
 LEAN_EXPORT lean_object* l_Lean_hygieneInfoKind;
 LEAN_EXPORT lean_object* l_ReaderT_instMonadExceptOfReaderT(lean_object*, lean_object*, lean_object*);
@@ -1009,6 +1011,22 @@ lean_object* x_3;
 x_3 = l_Function_const___rarg(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_letFun___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_apply_1(x_2, x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_letFun(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_letFun___rarg), 2, 0);
 return x_3;
 }
 }

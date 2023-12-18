@@ -1,10 +1,9 @@
 1026.lean:1:4-1:7: warning: declaration uses 'sorry'
-1026.lean:10:2-10:12: warning: declaration uses 'sorry'
 1026.lean:9:8-9:10: warning: declaration uses 'sorry'
 foo._unfold (n : Nat) :
   foo n =
     if n = 0 then 0
     else
       let x := n - 1;
-      let_fun this := foo.proof_3;
+      let_fun this := foo.proof_4;
       foo x

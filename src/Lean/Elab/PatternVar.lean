@@ -146,7 +146,6 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       ```
       def namedPattern := check... >> trailing_parser "@" >> optional (atomic (ident >> ":")) >> termParser
       ```
-      TODO: pattern variable for equality proof
      -/
     let id := stx[0]
     discard <| processVar id

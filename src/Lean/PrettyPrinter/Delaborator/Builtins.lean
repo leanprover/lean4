@@ -158,7 +158,7 @@ def useAppExplicit (paramKinds : Array ParamKind) : DelabM Bool := do
   -- This is e.g. necessary for `@Eq`.
   let isImplicitApp ← try
       let ty ← whnf (← inferType (← getExpr))
-      pure <| ty.isForall && (ty.binderInfo == BinderInfo.implicit || ty.binderInfo == BinderInfo.instImplicit)
+      pure <| ty.isForall && (ty.binderInfo matches .implicit | .instImplicit)
     catch _ => pure false
   if isImplicitApp then return true
 

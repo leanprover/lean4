@@ -180,6 +180,9 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind :
 
           match (← resolveSimpIdTheorem? term) with
           | .expr e  =>
+            if kind == .dsimp && !(← isRflProof e) && (← isProof e) then
+              -- TODO: Make this error message more informative, by stating which argument failed.
+              throwErrorAt term "'dsimp' tactic only supports theorems which hold by reflexivity"
             let name ← mkFreshId
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
           | .ext ext =>
@@ -223,14 +226,12 @@ structure MkSimpContextResult where
 /--
    Create the `Simp.Context` for the `simp`, `dsimp`, and `simp_all` tactics.
    If `kind != SimpKind.simp`, the `discharge` option must be `none`
-
-   TODO: generate error message if non `rfl` theorems are provided as arguments to `dsimp`.
 -/
 def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ignoreStarArg : Bool := false) : TacticM MkSimpContextResult := do
   if !stx[2].isNone then
-    if kind == SimpKind.simpAll then
+    if kind == .simpAll then
       throwError "'simp_all' tactic does not support 'discharger' option"
-    if kind == SimpKind.dsimp then
+    if kind == .dsimp then
       throwError "'dsimp' tactic does not support 'discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
   let simpOnly := !stx[3].isNone
@@ -240,7 +241,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp) (ig
     getSimpTheorems
   let congrTheorems ← getSimpCongrTheorems
   let r ← elabSimpArgs stx[4] (eraseLocal := eraseLocal) (kind := kind) {
-    config      := (← elabSimpConfig stx[1] (kind := kind))
+    config       := (← elabSimpConfig stx[1] (kind := kind))
     simpTheorems := #[simpTheorems], congrTheorems
   }
   if !r.starArg || ignoreStarArg then

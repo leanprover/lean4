@@ -141,14 +141,13 @@ where
       if let some e' ← getParentProjArg e then
         return (← go' e')
       e.withApp fun f args => do
-        -- Visit only the explicit arguments to `f` and also its type arguments.
+        -- Visit only the explicit arguments to `f` and also its type (and type family) arguments.
         -- The reason we visit type arguments is so that, for example, `Decidable (_ < _)` has
-        -- a chance to insert type information.
+        -- a chance to insert type information. Type families are to do this for monads, etc.
         let bis ← getBinderInfos f args
         let mut s ← go f
         for arg in args, bi in bis do
-          let isTy ← Meta.isType arg
-          if bi.isExplicit || (isTy && !arg.isSort) then
+          if ← pure bi.isExplicit <||> (pure (not arg.isSort) <&&> isTypeFormer arg) then
             s := s ++ (← go arg)
         return s
     | .forallE n ty body bi =>

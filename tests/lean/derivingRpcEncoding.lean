@@ -16,7 +16,7 @@ structure FooRef where
   a : Array Nat
   deriving Inhabited, TypeName
 
-#check instTypeNameFooRef_derivingRpcEncoding
+#check instTypeNameFooRef
 #eval test (WithRpcRef FooRef) default
 
 structure FooJson where
@@ -28,21 +28,21 @@ structure Bar where
   fooJson : FooJson
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableBar_derivingRpcEncoding
+#check instRpcEncodableBar
 #eval test Bar default
 
 structure BarTrans where
   bar : Bar
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableBarTrans_derivingRpcEncoding
+#check instRpcEncodableBarTrans
 #eval test BarTrans default
 
 structure Baz where
   arr : Array String -- non-constant field
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableBaz_derivingRpcEncoding
+#check instRpcEncodableBaz
 #eval test Baz default
 
 structure FooGeneric (α : Type) where
@@ -50,7 +50,7 @@ structure FooGeneric (α : Type) where
   b? : Option α
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableFooGeneric_derivingRpcEncoding
+#check instRpcEncodableFooGeneric
 #eval test (FooGeneric Nat) default
 #eval test (FooGeneric Nat) { a := 3, b? := some 42 }
 
@@ -58,7 +58,7 @@ inductive BazInductive
   | baz (arr : Array Bar)
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableBazInductive_derivingRpcEncoding
+#check instRpcEncodableBazInductive
 #eval test BazInductive ⟨#[default, default]⟩
 
 inductive FooInductive (α : Type) where
@@ -66,7 +66,7 @@ inductive FooInductive (α : Type) where
   | b : (n : Nat) → (a : α) → (m : Nat) → FooInductive α
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableFooInductive_derivingRpcEncoding
+#check instRpcEncodableFooInductive
 #eval test (FooInductive BazInductive) (.a default default)
 #eval test (FooInductive BazInductive) (.b 42 default default)
 
@@ -80,20 +80,20 @@ inductive FooParam (n : Nat) where
   | a : Nat → FooParam n
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableFooParam_derivingRpcEncoding
+#check instRpcEncodableFooParam
 #eval test (FooParam 10) (.a 42)
 
 inductive Unused (α : Type) | a
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableUnused_derivingRpcEncoding
+#check instRpcEncodableUnused
 structure NoRpcEncodable
 #eval test (Unused NoRpcEncodable) default
 
 structure UnusedStruct (α : Type)
   deriving RpcEncodable, Inhabited
 
-#check instRpcEncodableUnusedStruct_derivingRpcEncoding
+#check instRpcEncodableUnusedStruct
 #eval test (UnusedStruct NoRpcEncodable) default
 
 deriving instance Repr, RpcEncodable for Empty

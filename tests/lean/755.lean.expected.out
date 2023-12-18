@@ -3,22 +3,22 @@
 has type
   0 = @OfNat.ofNat Nat 0 (instOfNatNat 0) : Prop
 but is expected to have type
-  0 = @OfNat.ofNat (Additive Nat) 0 instOfNatAdditive_755 : Prop
+  0 = @OfNat.ofNat (Additive Nat) 0 instOfNatAdditive : Prop
 755.lean:24:2-24:5: error: type mismatch
   rfl
 has type
   2 * 3 = @HMul.hMul Nat Nat Nat instHMul 2 3 : Prop
 but is expected to have type
-  2 * 3 = @HMul.hMul (Foo Nat) (Foo Nat) (Foo Nat) instHMulFooOfHAdd_755 2 3 : Prop
+  2 * 3 = @HMul.hMul (Foo Nat) (Foo Nat) (Foo Nat) instHMulFooOfHAdd 2 3 : Prop
 755.lean:27:2-27:5: error: type mismatch
   rfl
 has type
   2 + 3 = @HAdd.hAdd Nat Nat Nat instHAdd 2 3 : Prop
 but is expected to have type
-  2 + 3 = @HAdd.hAdd (Foo Nat) (Foo Nat) (Foo Nat) instHAddFoo_755 2 3 : Prop
+  2 + 3 = @HAdd.hAdd (Foo Nat) (Foo Nat) (Foo Nat) instHAddFoo 2 3 : Prop
 755.lean:30:2-30:5: error: type mismatch
   rfl
 has type
   2 - 3 = @HSub.hSub Nat Nat Nat instHSub 2 3 : Prop
 but is expected to have type
-  2 - 3 = @HSub.hSub (Foo Nat) (Foo Nat) (Foo Nat) instHSubFooOfHAdd_755 2 3 : Prop
+  2 - 3 = @HSub.hSub (Foo Nat) (Foo Nat) (Foo Nat) instHSubFooOfHAdd 2 3 : Prop

@@ -677,64 +677,86 @@ local instance : Inhabited (ParserState → ParserState × Option Nat) := ⟨fun
 /--
 Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
 If we are looking at a valid start to a raw string (`r##...#"`),
-returns the parser state after the `"` along with the number of `#`'s.
-Otherwise, returns the initial parser state.
+returns true.
+We assume `i` begins at the position immediately after `r`.
 -/
-partial def rawStrLitStart (c : ParserContext) (s : ParserState) : ParserState × Option Nat :=
-  let input := c.input
-  let i     := s.pos
-  if h : input.atEnd i then (s, none)
+partial def isRawStrLitStart (input : String) (i : String.Pos) : Bool :=
+  if h : input.atEnd i then false
   else
     let curr := input.get' i h
-    if curr == 'r' then
-      loop i 0 (s.next' input i h)
+    if curr == '#' then
+      isRawStrLitStart input (input.next' i h)
     else
-      (s, none)
-where
-  loop (init : String.Pos) (num : Nat) (s : ParserState) : ParserState × Option Nat :=
-    let input := c.input
-    let i     := s.pos
-    if h : input.atEnd i then (s.setPos init, none)
-    else
-      let curr := input.get' i h
-      if curr == '#' then
-        loop init (num + 1) (s.next' input i h)
-      else if curr == '"' then
-        (s.next' input i h, num)
-      else
-        (s.setPos init, none)
+      curr == '"'
 
 /--
-Parses a raw string literal after `rawStrLitStart` succeeds.
+Parses a raw string literal assuming `isRawStrLitStart` has returned true.
 The `startPos` is the start of the raw string (at the `r`).
-The number of leading `#`'s is `num`.
-The parser state is assumed to be immediately after the first `"`.
-If `closing?` is `some closingNum` then we are currently looking at `"##...#` with `closingNum` hashes.
+The parser state is assumed to be immediately after the `r`.
 -/
-partial def rawStrLitFnAux (startPos : String.Pos) (num : Nat) (closing? : Option Nat) : ParserFn := fun c s =>
-  let input := c.input
-  let i     := s.pos
-  if h : input.atEnd i then s.mkUnexpectedErrorAt "unterminated raw string literal" startPos
-  else
-    let curr := input.get' i h
-    let s    := s.setPos (input.next' i h)
-    if let some closingNum := closing? then
+partial def rawStrLitFnAux (startPos : String.Pos) : ParserFn := initState 0
+where
+  /--
+  Gives the "unterminated raw string literal" error.
+  -/
+  errorUnterminated (s : ParserState) := s.mkUnexpectedErrorAt "unterminated raw string literal" startPos
+  /--
+  Parses the `#`'s and `"` at the beginning of the raw string.
+  The `num` variable counts the number of `#`s after the `r`.
+  -/
+  initState (num : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
+      if curr == '#' then
+        initState (num + 1) c s
+      else if curr == '"' then
+        normalState num c s
+      else
+        -- This should not occur, since we assume `isRawStrLitStart` succeeded.
+        errorUnterminated s
+  /--
+  Parses characters after the first `"`. If we need to start counting `#`'s to decide if we are closing
+  the raw string literal, we switch to `closingState`.
+  -/
+  normalState (num : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
+      if curr == '\"' then
+        if num == 0 then
+          mkNodeToken strLitKind startPos c s
+        else
+          closingState num 0 c s
+      else
+        normalState num c s
+  /--
+  Parses `#` characters immediately after a `"`.
+  The `closingNum` variable counts the number of `#`s seen after the `"`.
+  Note: `num > 0` since the `num = 0` case is entirely handled by `normalState`.
+  -/
+  closingState (num : Nat) (closingNum : Nat) : ParserFn := fun c s =>
+    let input := c.input
+    let i     := s.pos
+    if h : input.atEnd i then errorUnterminated s
+    else
+      let curr := input.get' i h
+      let s    := s.setPos (input.next' i h)
       if curr == '#' then
         if closingNum + 1 == num then
           mkNodeToken strLitKind startPos c s
         else
-          rawStrLitFnAux startPos num (some <| closingNum + 1) c s
+          closingState num (closingNum + 1) c s
       else if curr == '\"' then
-        rawStrLitFnAux startPos num (some 0) c s
+        closingState num 0 c s
       else
-        rawStrLitFnAux startPos num none c s
-    else if curr == '\"' then
-      if num == 0 then
-        mkNodeToken strLitKind startPos c s
-      else
-        rawStrLitFnAux startPos num (some 0) c s
-    else
-      rawStrLitFnAux startPos num none c s
+        normalState num c s
 
 def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
   let s     := takeWhileFn (fun c => c.isDigit) c s
@@ -929,12 +951,11 @@ private def tokenFnAux : ParserFn := fun c s =>
     numberFnAux c s
   else if curr == '`' && isIdFirstOrBeginEscape (getNext input i) then
     nameLitAux i c s
+  else if curr == 'r' && isRawStrLitStart input (input.next i) then
+    rawStrLitFnAux i c (s.next input i)
   else
-    match rawStrLitStart c s with
-    | (s, some num) => rawStrLitFnAux i num none c s
-    | (s, none) =>
-      let tk := c.tokens.matchPrefix input i
-      identFnAux i tk .anonymous c s
+    let tk := c.tokens.matchPrefix input i
+    identFnAux i tk .anonymous c s
 
 private def updateTokenCache (startPos : String.Pos) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`

@@ -588,6 +588,7 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Id
       liftMetaTacticAux fun mvarId => do
         let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
         let (fvarIdsNew, mvarId) ← mvarId.generalize argsToGeneralize
+        -- note: fvarIdsNew contains the `x` variables from `args` followed by all the `h` variables
         let mut result := #[]
         let mut j := 0
         for arg in args do
@@ -596,6 +597,8 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Id
             j := j+1
           else
             result := result.push arg.expr
+        -- note: `fvarIdsNew[j:]` contains all the `h` variables
+        assert! hIdents.size + j == fvarIdsNew.size
         return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
     else
       return (args.map (·.expr), #[])

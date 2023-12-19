@@ -1,9 +1,9 @@
 Inferred termination argument: 
-termination_by n m => (sizeOf n, sizeOf m)
+termination_by (sizeOf n, sizeOf m)
 Inferred termination argument: 
-termination_by n m => (sizeOf m, sizeOf n)
+termination_by (sizeOf m, sizeOf n)
 Inferred termination argument: 
-termination_by n m => (sizeOf n, sizeOf m)
+termination_by (sizeOf n, sizeOf m)
 Inferred termination argument: 
 termination_by x1 x2 => (sizeOf x2, sizeOf x1)
 Inferred termination argument: 
@@ -17,23 +17,23 @@ termination_by x1 => sizeOf x1
 Inferred termination argument: 
 termination_by x1 => (sizeOf x1, 0)
 Inferred termination argument: 
-termination_by n => (sizeOf n, 1)
+termination_by (sizeOf n, 1)
 Inferred termination argument: 
-termination_by n _h m => (sizeOf m, sizeOf n)
+termination_by (sizeOf m, sizeOf n)
 Inferred termination argument: 
 termination_by x1 x2 x3 x4 x5 x6 x7 x8 =>
   (sizeOf x8, sizeOf x7, sizeOf x6, sizeOf x5, sizeOf x4, sizeOf x3, sizeOf x2, sizeOf x1)
 Inferred termination argument: 
 termination_by x1 x2 => (sizeOf x1, sizeOf x2)
 Inferred termination argument: 
-termination_by a => (sizeOf a, 1)
+termination_by (sizeOf a, 1)
 Inferred termination argument: 
-termination_by a => (sizeOf a, 0)
+termination_by (sizeOf a, 0)
 Inferred termination argument: 
-termination_by x2 x2' => sizeOf x2'
+termination_by x2' => sizeOf x2'
 Inferred termination argument: 
-termination_by some_n' x2 => sizeOf x2
+termination_by x2 => sizeOf x2
 Inferred termination argument: 
-termination_by sizeOf' x2 => sizeOf x2
+termination_by x2 => SizeOf.sizeOf x2
 Inferred termination argument: 
-termination_by m x2 => SizeOf.sizeOf x2
+termination_by x2 => SizeOf.sizeOf x2

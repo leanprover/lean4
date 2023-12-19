@@ -106,16 +106,24 @@ letrec we need them here already.
 /--
 Specify a termination argument for well-founded termination:
 ```
-termination_by a _ b => a - b
+termination_by a - b
 ```
 indicates that termination of the currently defined recursive function follows
-because the difference between the first and third argument decreases.
+because the difference between the the arguments `a` and `b`.
+
+If the fuction takes further argument after the colon, you can name them as follows:
+```
+def example (a : Nat) : Nat → Nat → Nat :=
+termination_by b c => a - b
+```
 
 If omitted, a termination argument will be inferred.
 -/
 def terminationBy := leading_parser
-  ppDedent ppLine >> "termination_by" >> many (ppSpace >> (ident <|> "_")) >>
-  " => " >> termParser
+  ppDedent ppLine >>
+  "termination_by " >>
+  optional (atomic (many1 (ppSpace >> (ident <|> "_")) >> " => ")) >>
+  termParser
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)

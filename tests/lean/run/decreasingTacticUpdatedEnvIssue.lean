@@ -21,4 +21,4 @@ def f (x : Nat) : Nat :=
     1
   else
     f (g x (x > 0)) + 2
-termination_by x => x
+termination_by x

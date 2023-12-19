@@ -94,19 +94,23 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
         throwError "'{view.declName}' has already been declared"
   let lctx ← getLCtx
   let localInstances ← getLocalInstances
-  let toLift := views.mapIdx fun i view => {
-    ref            := view.ref
-    fvarId         := fvars[i]!.fvarId!
-    attrs          := view.attrs
-    shortDeclName  := view.shortDeclName
-    declName       := view.declName
-    lctx
-    localInstances
-    type           := view.type
-    val            := values[i]!
-    mvarId         := view.mvar.mvarId!
-    termination    := view.termination
-    : LetRecToLift }
+
+  let toLift ← views.mapIdxM fun i view => do
+    let value := values[i]!
+    let termination ← view.termination.checkVars view.binderIds.size value
+    pure {
+      ref            := view.ref
+      fvarId         := fvars[i]!.fvarId!
+      attrs          := view.attrs
+      shortDeclName  := view.shortDeclName
+      declName       := view.declName
+      lctx
+      localInstances
+      type           := view.type
+      val            := value
+      mvarId         := view.mvar.mvarId!
+      termination    := termination
+      : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
 @[builtin_term_elab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do

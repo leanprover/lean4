@@ -1,0 +1,30 @@
+termination_by_vars.lean:13:2-13:23: error: The function definition has no extra parameters, so `termination_by` should not bind any. Variables bound in the function header can be referred directly.
+termination_by_vars.lean:22:16-22:19: error: unexpected token '=>'; expected term
+termination_by_vars.lean:26:2-26:18: error: The function definition has 2 extra parameters. These need to be bound here (`termination_by x1 ... xn =>`).
+termination_by_vars.lean:27:16-27:29: error: tactic 'apply' failed, failed to unify
+  dec1 ?n < ?n
+with
+  (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+n a✝ : Nat
+⊢ (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+termination_by_vars.lean:30:2-30:23: error: The function definition has 2 extra paramters, but 1 variables are bound here. Bind exactly 2 variables here!
+termination_by_vars.lean:44:2-44:23: error: The function definition has no extra parameters, so `termination_by` should not bind any. Variables bound in the function header can be referred directly.
+termination_by_vars.lean:53:16-53:19: error: unexpected token '=>'; expected term
+termination_by_vars.lean:58:2-58:18: error: The function definition has 2 extra parameters. These need to be bound here (`termination_by x1 ... xn =>`).
+termination_by_vars.lean:59:16-59:29: error: tactic 'apply' failed, failed to unify
+  dec1 ?n < ?n
+with
+  (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+n a✝ : Nat
+⊢ (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+termination_by_vars.lean:63:2-63:23: error: The function definition has 2 extra paramters, but 1 variables are bound here. Bind exactly 2 variables here!
+termination_by_vars.lean:78:4-78:25: error: The function definition has no extra parameters, so `termination_by` should not bind any. Variables bound in the function header can be referred directly.
+termination_by_vars.lean:90:18-90:21: error: unexpected token '=>'; expected term
+termination_by_vars.lean:97:4-97:20: error: The function definition has 2 extra parameters. These need to be bound here (`termination_by x1 ... xn =>`).
+termination_by_vars.lean:98:18-98:31: error: tactic 'apply' failed, failed to unify
+  dec1 ?n < ?n
+with
+  (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+n a✝ : Nat
+⊢ (invImage (fun a => n) instWellFoundedRelation).1 (dec1 a✝) a✝
+termination_by_vars.lean:104:4-104:25: error: The function definition has 2 extra paramters, but 1 variables are bound here. Bind exactly 2 variables here!

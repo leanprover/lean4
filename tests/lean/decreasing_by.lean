@@ -17,7 +17,7 @@ namespace Ex1
 
 -- Multiple goals, explicit termination_By
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
-termination_by n m => (n, m)
+termination_by (n, m)
 decreasing_by
   · simp_wf
     apply Prod.Lex.right
@@ -47,7 +47,7 @@ end Ex2
 namespace Ex3
 -- Using `all_goals`, explicit termination_By
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
-termination_by n m => (n, m)
+termination_by (n, m)
 decreasing_by all_goals
   simp_wf
   first
@@ -87,7 +87,7 @@ namespace Ex6
 -- Incomplete tactic
 -- Unsolved goals reported
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
-termination_by n m => (n, m)
+termination_by (n, m)
 decreasing_by apply id -- Error
 
 end Ex6
@@ -106,7 +106,7 @@ namespace Ex8
 -- tactic solving just one goal
 -- unsolved goals
 def foo (n m : Nat) : Nat := foo n (dec2 m) + foo (dec1 n) 100
-termination_by n m => (n, m)
+termination_by (n, m)
 decreasing_by -- Error
   · simp_wf
     apply Prod.Lex.right

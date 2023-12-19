@@ -20,9 +20,12 @@ structure TerminationBy where
 
 open Parser.Termination in
 def TerminationBy.unexpand (wf : TerminationBy) : MetaM Syntax := do
-  -- TODO: Why can I not use $wf.vars below?
+  -- TODO: Why can I not just use $wf.vars in the quotation below?
   let vars : TSyntaxArray `ident := wf.vars.map (⟨·.raw⟩)
-  `(terminationBy|termination_by $vars* => $wf.body)
+  if vars.isEmpty then
+    `(terminationBy|termination_by $wf.body)
+  else
+    `(terminationBy|termination_by $vars* => $wf.body)
 
 /-- A complete set of `termination_by` hints, as applicable to a single clique.  -/
 abbrev TerminationWF := Array TerminationBy
@@ -41,9 +44,18 @@ structure TerminationHints where
   ref : Syntax
   termination_by? : Option TerminationBy
   decreasing_by?  : Option DecreasingBy
+  /-- Here we record the number of paramters past the `:`. This is currently
+  only used by GuessLex when there is no `termination_by` annotation, so that
+  we can print the guessed order in the right form.
+
+  It it set in `TerminationHints.checkVars`, which is the place where we
+  check that we have the right number of variables when there *is* a user-provided
+  `termination_by`.
+  -/
+  extraParams : Nat
   deriving Inhabited
 
-def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none⟩
+def TerminationHints.none : TerminationHints := ⟨.missing, .none, .none, 0⟩
 
 /-- Logs warnings when the `TerminationHints` are present.  -/
 def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): CoreM Unit := do
@@ -55,6 +67,29 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String): Co
     logErrorAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .some _, .some _ =>
     logErrorAt hints.ref m!"unused termination hints, function is {reason}"
+
+/--
+Checks that `termination_by` binds exactly as many variables are present in the outermost
+lambda of `value`, and logs (without failing) appropriate errors.
+
+Also remembers `extraParams`, so that we can later (in GuessLex) produce valid termination hints.
+-/
+def TerminationHints.checkVars (headerParams : Nat) (hints : TerminationHints) (value : Expr) :
+    MetaM TerminationHints := do
+  let extraParams := value.getNumHeadLambdas - headerParams
+  if let .some tb := hints.termination_by? then
+    if tb.vars.size != extraParams then
+      if tb.vars.isEmpty then
+        logErrorAt tb.ref <| m!"The function definition has {extraParams} extra parameters. " ++
+          "These need to be bound here (`termination_by x1 ... xn =>`)."
+      else if extraParams = 0 then
+        logErrorAt tb.ref <| "The function definition has no extra parameters, so `termination_by` " ++
+          "should not bind any. Variables bound in the function header can be referred directly."
+      else
+        logErrorAt tb.ref <| m!"The function definition has {extraParams} extra paramters, " ++
+          m!"but {tb.vars.size} variables are bound here. Bind exactly {extraParams} variables here!"
+  return { hints with extraParams := extraParams }
+
 
 open Parser.Termination
 
@@ -69,10 +104,12 @@ def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints :=
     { ref := stx
       termination_by? := t?.map fun t => match t with
         | `(terminationBy|termination_by $vars* => $body) => {ref := t, vars, body}
+        | `(terminationBy|termination_by $body:term) => {ref := t, vars := #[], body}
         | _ => unreachable!
       decreasing_by? := d?.map fun t => match t with
         | `(decreasingBy|decreasing_by $tactic) => {ref := t, tactic}
-        | _ => unreachable! }
+        | _ => unreachable!
+      extraParams := 0 }
   | _ => panic! s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

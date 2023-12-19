@@ -634,11 +634,14 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
       | _      => none
     | _ => none
 
+
 def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
     (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
+    let termination := declValToTerminationHint header.valueStx
+    let termination ← termination.checkVars header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
     return preDefs.push {
@@ -647,8 +650,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
       declName    := header.declName
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
-      type, value
-      termination := declValToTerminationHint header.valueStx
+      type, value, termination
     }
 
 def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : MetaM (Array PreDefinition) :=

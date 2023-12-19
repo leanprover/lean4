@@ -120,6 +120,7 @@ def shadow1 (x2 : Nat) : Nat → Nat
 decreasing_by decreasing_tactic
 
 
+-- This test is a bit moot since #3081, but lets keep it
 def some_n : Nat := 1
 def shadow2 (some_n : Nat) : Nat → Nat
   | 0 => 0

@@ -13,9 +13,6 @@ namespace Lean.Elab
 open Meta
 open Term
 
-/-- All termination hints for a given clique -/
-def TerminationHints := Array (TSyntax ``Parser.Termination.suffix)
-
 private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := false) : TermElabM Unit := do
   for preDef in preDefs do
     trace[Elab.definition] "processing {preDef.declName}"

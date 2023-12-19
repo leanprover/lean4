@@ -79,9 +79,13 @@ Use user-given parameter names if present; use x1...xn otherwise.
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
 
-The names ought to accessible (no macro scopes) and still fresh wrt to the current environment,
+The names ought to accessible (no macro scopes) and new names  fresh wrt to the current environment,
 so that with `showInferredTerminationBy` we can print them to the user reliably.
 We do that by appending `'` as needed.
+
+It is possible (but unlikely without malice) that some of the user-given names
+shadow each other, and the guessed relation refers to the wrong one. In that
+case, the user gets to keep both pieces (and may have to rename variabes).
 -/
 partial
 def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
@@ -90,8 +94,11 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
     let mut ns : Array Name := #[]
     for h : i in [:xs.size] do
       let n ← (xs[i]'h.2).fvarId!.getUserName
-      let n := if n.hasMacroScopes then .mkSimple s!"x{i+1}" else n
-      ns := ns.push (← freshen ns n)
+      let n ← if n.hasMacroScopes then
+          freshen ns (.mkSimple s!"x{i+1}")
+        else
+          pure n
+      ns := ns.push n
     return ns
   where
     freshen  (ns : Array Name) (n : Name): MetaM Name := do
@@ -538,19 +545,30 @@ def mkTupleSyntax : Array Term → MetaM Term
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
 combination of these measures.
 -/
-def buildTermWF (varNamess : Array (Array Name)) (measures : Array MutualMeasure) :
-    MetaM TerminationWF := do
+def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
+    (measures : Array MutualMeasure) : MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
     let body ← mkTupleSyntax (← measures.mapM fun
       | .args varIdxs => do
-          let v := vars.get! (varIdxs[funIdx]!)
-          let sizeOfIdent := mkIdent (← unresolveNameGlobal ``sizeOf)
+          let varIdx := varIdxs[funIdx]!
+          let v := vars[varIdx]!
+          -- Print `sizeOf` as such, unless it is shadowed.
+          -- Shadowing by a `def` in the current namespace is handled
+          -- by `unresolveNameGlobal`.
+          -- But it could also be shadowed by an earlier parameter, which
+          -- we detect in a rather ad-hoc way here.
+          let sizeOfIdent :=
+            if vars.any (·.getId = `sizeOf) then
+              mkIdent ``sizeOf -- fully qualified
+            else
+              mkIdent (← unresolveNameGlobal ``sizeOf)
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
-    termByElements := termByElements.push { ref := .missing, vars, body }
+    let extraVars := vars[vars.size - extraParams[funIdx]! : vars.size]
+    termByElements := termByElements.push { ref := .missing, vars := extraVars, body }
   return termByElements
 
 
@@ -665,6 +683,7 @@ terminates. See the module doc string for a high-level overview.
 def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) :
     MetaM TerminationWF := do
+  let extraParamss := preDefs.map (·.termination.extraParams)
   let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
   trace[Elab.definition.wf] "varNames is: {varNamess}"
@@ -678,7 +697,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF varNamess #[solution]
+    return ← buildTermWF extraParamss varNamess #[solution]
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -688,7 +707,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF varNamess solution
+    let wf ← buildTermWF extraParamss varNamess solution
 
     if showInferredTerminationBy.get (← getOptions) then
       for preDef in preDefs, term in wf do

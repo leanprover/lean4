@@ -670,11 +670,6 @@ partial def strLitFnAux (startPos : String.Pos) : ParserFn := fun c s =>
     else strLitFnAux startPos c s
 
 /--
-Enables `rawStrLitStart` being defined using `partial`.
--/
-local instance : Inhabited (ParserState → ParserState × Option Nat) := ⟨fun s => (s, none)⟩
-
-/--
 Raw strings have the syntax `r##...#"..."#...##` with zero or more `#`'s.
 If we are looking at a valid start to a raw string (`r##...#"`),
 returns true.

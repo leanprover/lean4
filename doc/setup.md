@@ -50,10 +50,10 @@ Foo.lean       # main file, import via `import Foo`
 Foo/
   A.lean       # further files, import via e.g. `import Foo.A`
   A/...        # further nesting
-build/         # `lake` build output directory
+.lake/         # `lake` build output directory
 ```
 
-After running `lake build` you will see a binary named `./build/bin/foo` and when you run it you should see the output:
+After running `lake build` you will see a binary named `./.lake/build/bin/foo` and when you run it you should see the output:
 ```
 Hello, world!
 ```

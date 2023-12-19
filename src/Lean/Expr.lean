@@ -737,29 +737,9 @@ def mkStrLit (s : String) : Expr :=
 
 /--
 `mkAppN f #[a₀, ..., aₙ]` constructs the application `f a₀ a₁ ... aₙ`.
-
-As an optimization, there is a macro to expand the syntax `mkAppN f #[a₀, ..., aₙ]`
-to the syntax `Expr.app (... (Expr.app (Expr.app f a₀) a₁) ...) aₙ`, which ensures the array
-is not allocated at runtime.
-
-This macro enables `mkAppN` to be used for match patterns when there is an explicit array.
-Example:
-```lean
-/-- Returns `n` if `e` is an equality for the `Fin n` type. -/
-def finEq? (e : Expr) : Option Expr :=
-  match e with
-  | mkAppN (.const ``Eq _) #[.app (.const ``Fin _) n, _, _] => some n
-  | _ => none
-```
-In this example, the pattern can also be written as `mkApp3 (.const ``Eq _) (.app (.const ``Fin _) n) _ _`.
 -/
 def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
-
-@[inherit_doc mkAppN]
-macro_rules
-  | `(mkAppN $f #[$xs,*]) => show MacroM Term from
-    `(($f : Expr)) >>= xs.getElems.foldlM fun x e => `(Expr.app $x $e)
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
   if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e

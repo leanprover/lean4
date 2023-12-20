@@ -169,9 +169,9 @@ jobs:
             else
               echo "The message already exists in the comment body."
             fi
-            echo "::set-output name=mathlib_ready::false"
+            echo "mathlib_ready=false" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=mathlib_ready::true"
+            echo "mathlib_ready=true" >> $GITHUB_OUTPUT
           fi
 
       # We next automatically create a Mathlib branch using this toolchain.

@@ -19,7 +19,6 @@ import Lean.Server.Utils
 import Lean.Server.AsyncList
 import Lean.Server.References
 
-import Lean.Server.FileWorker.Types
 import Lean.Server.FileWorker.Utils
 import Lean.Server.FileWorker.RequestHandling
 import Lean.Server.FileWorker.WidgetRequests
@@ -57,6 +56,20 @@ open IO
 open Snapshots
 open JsonRpc
 
+abbrev lang := Language.hashLang .Lean.lang
+
+/-- A document editable in the sense that we track the environment
+and parser state after each command so that edits can be applied
+without recompiling code appearing earlier in the file. -/
+structure EditableDocument where
+  meta     : DocumentMeta
+  /-- State snapshots after header and each command. -/
+  initSnap : lang.InitialSnapshot
+  /--
+    Task reporting processing status back to client. We store it here for implementing
+    `waitForDiagnostics`. -/
+  reporter : Task Unit
+
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
@@ -68,9 +81,26 @@ structure WorkerContext where
   maxDocVersion    : IO.Ref Nat
   hLog             : FS.Stream
   initParams       : InitializeParams
-  processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
+  processor        : Parser.InputContext → BaseIO lang.InitialSnapshot
   clientHasWidgets : Bool
   opts             : Options
+
+-- Pending requests are tracked so they can be canceled
+abbrev PendingRequestMap := RBMap JsonRpc.RequestID (Task (Except IO.Error Unit)) compare
+
+structure AvailableImportsCache where
+  availableImports       : ImportCompletion.AvailableImports
+  lastRequestTimestampMs : Nat
+
+structure WorkerState where
+  doc                : EditableDocument
+  importCachingTask? : Option (Task (Except IO.Error AvailableImportsCache))
+  pendingRequests    : PendingRequestMap
+  /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
+  to modify sessions. A single `Ref` ensures atomic transactions. -/
+  rpcSessions        : RBMap UInt64 (IO.Ref RpcSession) compare
+
+abbrev WorkerM := ReaderT WorkerContext <| StateRefT WorkerState IO
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -172,8 +202,8 @@ section Initialization
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
     let maxDocVersion ← IO.mkRef 0
-    let chanOut ← mkLspOutputChannel
-    let processor ← Language.hashLang (default := .Lean) |>.mkIncrementalProcessor {
+    let chanOut ← mkLspOutputChannel maxDocVersion
+    let processor ← lang.mkIncrementalProcessor {
       opts, mainModuleName
       clientHasWidgets
       fileSetupHandler? := some fun imports => do
@@ -284,7 +314,6 @@ def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
 
 end NotificationHandling
 
-/-! Requests here are handled synchronously rather than in the asynchronous `RequestM`. -/
 section RequestHandling
 
 def handleRpcConnect (_ : RpcConnectParams) : WorkerM RpcConnected := do
@@ -293,17 +322,17 @@ def handleRpcConnect (_ : RpcConnectParams) : WorkerM RpcConnected := do
   modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }
   return { sessionId := newId }
 
+partial def handleWaitForDiagnostics (_ : WaitForDiagnosticsParams)
+    : WorkerM (RequestTask WaitForDiagnostics) := do
+  return (← get).doc.reporter.map fun _ => pure WaitForDiagnostics.mk
+
 end RequestHandling
 
 section MessageHandling
-  def parseParams (paramType : Type) [FromJson paramType] (params : Json) : WorkerM paramType :=
-    match fromJson? params with
-    | Except.ok parsed => pure parsed
-    | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
-
   def handleNotification (method : String) (params : Json) : WorkerM Unit := do
-    let handle := fun paramType [FromJson paramType] (handler : paramType → WorkerM Unit) =>
-      parseParams paramType params >>= handler
+    let handle := fun paramType [FromJson paramType] (handler : paramType → WorkerM Unit) => do
+      let params ← parseParams paramType params
+      handler params
     match method with
     | "textDocument/didChange" => handle DidChangeTextDocumentParams handleDidChange
     | "$/cancelRequest"        => handle CancelParams handleCancelRequest
@@ -315,67 +344,39 @@ section MessageHandling
       : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
-  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
-      : WorkerM (Task (Except Error AvailableImportsCache)) := do
-    let ctx ← read
-    let st ← get
-    let text := st.doc.meta.text
-
-    match st.importCachingTask? with
-    | none => IO.asTask do
-      let availableImports ← ImportCompletion.collectAvailableImports
-      let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
-
-    | some task => IO.mapTask (t := task) fun result => do
-      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
-      let timestampNowMs ← IO.monoMsNow
-      if timestampNowMs - lastRequestTimestampMs >= 10000 then
-        availableImports ← ImportCompletion.collectAvailableImports
-      lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
-
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let ctx ← read
     let st ← get
 
-    if method == "$/lean/rpc/connect" then
+    match method with
+    | "textDocument/waitForDiagnostics" =>
+      -- special case: needs access to `reporter`
+      let t ← handleWaitForDiagnostics (← parseParams WaitForDiagnosticsParams params)
+      let t ← (IO.mapTask · t) fun
+        | Except.ok resp =>
+          ctx.chanOut.send <| .response id (toJson resp)
+        | Except.error e =>
+          ctx.chanOut.send <| e.toLspResponseError id
+      queueRequest id t
+    | "$/lean/rpc/connect" =>
+      -- special case: needs access to `rpcSessions`
       try
         let ps ← parseParams RpcConnectParams params
         let resp ← handleRpcConnect ps
         ctx.chanOut.send <| .response id (toJson resp)
       catch e =>
         ctx.chanOut.send <| .responseError id .internalError (toString e) none
-      return
-
-    Language.hashLang .Lean |>.handleRequest id method params st.doc.initSnap
-
-  def handleLeanRequest := do
-    if method == "textDocument/completion" then
-      let params ← parseParams CompletionParams params
-      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
-        let importCachingTask ← handleImportCompletionRequest id params
-        set <| { st with importCachingTask? := some importCachingTask }
-        return
-
-    -- we assume that any other request requires at least the the search path
-    -- TODO: move into language-specific request handling
-    let srcSearchPathTask :=
-      st.doc.initSnap.processedSuccessfully.map (·.map (·.srcSearchPath) |>.getD ∅)
-    let t ← IO.bindTask srcSearchPathTask.task fun srcSearchPath => do
-      let rc : RequestContext :=
+    | _ =>
+      let rc : RequestContext _ :=
         { rpcSessions := st.rpcSessions
-          srcSearchPath
-          doc := st.doc
+          srcSearchPath := ∅  -- TODO: what should other #langs do here?
+          doc := st.doc.meta
+          initSnap := st.doc.initSnap
           hLog := ctx.hLog
           initParams := ctx.initParams }
-      let t? ← EIO.toIO' <| handleLspRequest method params rc
-      let t₁ ← match t? with
+      let t? ← EIO.toIO' <| lang.handleRequest method params rc
+      let t ← match t? with
         | Except.error e =>
           IO.asTask do
             ctx.chanOut.send <| e.toLspResponseError id
@@ -384,7 +385,7 @@ section MessageHandling
             ctx.chanOut.send <| .response id (toJson resp)
           | Except.error e =>
             ctx.chanOut.send <| e.toLspResponseError id
-    queueRequest id t
+      queueRequest id t
 end MessageHandling
 
 section MainLoop

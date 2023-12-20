@@ -8,7 +8,6 @@ import Lean.DeclarationRange
 
 import Lean.Data.Json
 import Lean.Data.Lsp
-import Lean.Elab.Command
 
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
@@ -58,7 +57,10 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
     { code := JsonRpc.ErrorCode.parseError
       message := s!"Cannot parse request params: {params.compress}\n{inner}" }
 
+variable (InitSnap : Type)
+
 structure RequestContext where
+  initSnap      : InitSnap
   rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
   srcSearchPath : SearchPath
   doc           : DocumentMeta
@@ -66,19 +68,21 @@ structure RequestContext where
   initParams    : Lsp.InitializeParams
 
 abbrev RequestTask α := Task (Except RequestError α)
-abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
+abbrev RequestT m := ReaderT (RequestContext InitSnap) <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
-abbrev RequestM := ReaderT RequestContext <| EIO RequestError
+abbrev RequestM InitSnap := ReaderT (RequestContext InitSnap) <| EIO RequestError
+
+variable {InitSnap}
 
 abbrev RequestTask.pure (a : α) : RequestTask α := .pure (.ok a)
 
-instance : MonadLift IO RequestM where
+instance : MonadLift IO (RequestM InitSnap) where
   monadLift x := do
     match ←  x.toBaseIO with
     | .error e => throw <| RequestError.ofIoError e
     | .ok v => return v
 
-instance : MonadLift (EIO Exception) RequestM where
+instance : MonadLift (EIO Exception) (RequestM InitSnap) where
   monadLift x := do
     match ←  x.toBaseIO with
     | .error e => throw <| ← RequestError.ofException e
@@ -86,84 +90,23 @@ instance : MonadLift (EIO Exception) RequestM where
 
 namespace RequestM
 open FileWorker
-open Snapshots
 
-def asTask (t : RequestM α) : RequestM (RequestTask α) := do
-  let rc ← readThe RequestContext
+def asTask (t : RequestM InitSnap α) : RequestM InitSnap (RequestTask α) := do
+  let rc ← read
   let t ← EIO.asTask <| t.run rc
   return t.map liftExcept
 
-def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := do
-  let rc ← readThe RequestContext
+def mapTask (t : Task α) (f : α → RequestM InitSnap β) : RequestM InitSnap (RequestTask β) := do
+  let rc ← read
   let t ← EIO.mapTask (f · rc) t
   return t.map liftExcept
 
-def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
-  let rc ← readThe RequestContext
+def bindTask (t : Task α) (f : α → RequestM InitSnap (RequestTask β)) : RequestM InitSnap (RequestTask β) := do
+  let rc ← read
   EIO.bindTask t (f · rc)
 
-def waitFindSnapAux (notFoundX abortedX : RequestM α) (x : Snapshot → RequestM α)
-    : Except ElabTaskError (Option Snapshot) → RequestM α
-  /- The elaboration task that we're waiting for may be aborted if the file contents change.
-  In that case, we reply with the `fileChanged` error by default. Thanks to this, the server doesn't
-  get bogged down in requests for an old state of the document. -/
-  | Except.error FileWorker.ElabTaskError.aborted => abortedX
-  | Except.error (FileWorker.ElabTaskError.ioError e) =>
-    throw (RequestError.ofIoError e)
-  | Except.ok none => notFoundX
-  | Except.ok (some snap) => x snap
-
-/-- Create a task which waits for the first snapshot matching `p`, handles various errors,
-and if a matching snapshot was found executes `x` with it. If not found, the task executes
-`notFoundX`. -/
-def withWaitFindSnap (cmdSnaps : IO.AsyncList ElabTaskError Snapshot) (p : Snapshot → Bool)
-    (notFoundX : RequestM β)
-    (x : Snapshot → RequestM β)
-    (abortedX : RequestM β := throwThe RequestError .fileChanged)
-    : RequestM (RequestTask β) := do
-  let findTask := cmdSnaps.waitFind? p
-  mapTask findTask <| waitFindSnapAux notFoundX abortedX x
-
-/-- See `withWaitFindSnap`. -/
-def bindWaitFindSnap (cmdSnaps : IO.AsyncList ElabTaskError Snapshot) (p : Snapshot → Bool)
-    (notFoundX : RequestM (RequestTask β))
-    (x : Snapshot → RequestM (RequestTask β))
-    (abortedX : RequestM (RequestTask β) := throwThe RequestError .fileChanged)
-    : RequestM (RequestTask β) := do
-  let findTask := cmdSnaps.waitFind? p
-  bindTask findTask <| waitFindSnapAux notFoundX abortedX x
-
-/-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
-If no such snapshot exists, the request fails with an error. -/
-def withWaitFindSnapAtPos
-    (cmdSnaps : IO.AsyncList ElabTaskError Snapshot)
-    (lspPos : Lsp.Position)
-    (f : Snapshots.Snapshot → RequestM α)
-    : RequestM (RequestTask α) := do
-  let pos := (← read).doc.text.lspPosToUtf8Pos lspPos
-  withWaitFindSnap cmdSnaps (fun s => s.endPos >= pos)
-    (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
-    (x := f)
-
-open Elab.Command in
-def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do
-  let rc ← readThe RequestContext
-  match ← snap.runCommandElabM rc.doc (c.run rc) with
-  | .ok v => return v
-  | .error e => throw e
-
-def runCoreM (snap : Snapshot) (c : RequestT CoreM α) : RequestM α := do
-  let rc ← readThe RequestContext
-  match ← snap.runCoreM rc.doc (c.run rc) with
-  | .ok v => return v
-  | .error e => throw e
-
-open Elab.Term in
-def runTermElabM (snap : Snapshot) (c : RequestT TermElabM α) : RequestM α := do
-  let rc ← readThe RequestContext
-  match ← snap.runTermElabM rc.doc (c.run rc) with
-  | .ok v => return v
-  | .error e => throw e
+def readDoc : RequestM InitSnap DocumentMeta := do
+  return (← read).doc
 
 end RequestM
 
@@ -177,12 +120,16 @@ For details of how to register one, see `registerLspRequestHandler`. -/
 section HandlerTable
 open Lsp
 
+variable (InitSnap : Type)
+
 structure RequestHandler where
   fileSource : Json → Except RequestError Lsp.DocumentUri
-  handle : Json → RequestM (RequestTask Json)
+  handle : Json → RequestM InitSnap (RequestTask Json)
 
-builtin_initialize requestHandlers : IO.Ref (PersistentHashMap String RequestHandler) ←
-  IO.mkRef {}
+abbrev RequestHandlersRef InitSnap := IO.Ref (PersistentHashMap String (RequestHandler InitSnap))
+
+variable {InitSnap : Type}
+variable (requestHandlers : RequestHandlersRef InitSnap)
 
 /-- NB: This method may only be called in `initialize` blocks (user or builtin).
 
@@ -190,7 +137,7 @@ A registration consists of:
 - a type of JSON-parsable request data `paramType`
 - a `FileSource` instance for it so the system knows where to route requests
 - a type of JSON-serializable response data `respType`
-- an actual `handler` which runs in the `RequestM` monad and is expected
+- an actual `handler` which runs in the `RequestM InitSnap` monad and is expected
   to produce an asynchronous `RequestTask` which does any waiting/computation
 
 A handler task may be cancelled at any time, so it should check the cancellation token when possible
@@ -199,7 +146,7 @@ as LSP error responses. -/
 def registerLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
-    (handler : paramType → RequestM (RequestTask respType)) : IO Unit := do
+    (handler : paramType → RequestM InitSnap (RequestTask respType)) : IO Unit := do
   if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to register LSP request handler for '{method}': only possible during initialization"
   if (← requestHandlers.get).contains method then
@@ -213,7 +160,7 @@ def registerLspRequestHandler (method : String)
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
-def lookupLspRequestHandler (method : String) : IO (Option RequestHandler) :=
+def lookupLspRequestHandler (method : String) : IO (Option (RequestHandler InitSnap)) :=
   return (← requestHandlers.get).find? method
 
 /-- NB: This method may only be called in `initialize` blocks (user or builtin).
@@ -226,10 +173,10 @@ For more details on the registration of a handler, see `registerLspRequestHandle
 def chainLspRequestHandler (method : String)
     paramType [FromJson paramType]
     respType [FromJson respType] [ToJson respType]
-    (handler : paramType → RequestTask respType → RequestM (RequestTask respType)) : IO Unit := do
+    (handler : paramType → RequestTask respType → RequestM InitSnap (RequestTask respType)) : IO Unit := do
   if !(← Lean.initializing) then
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': only possible during initialization"
-  if let some oldHandler ← lookupLspRequestHandler method then
+  if let some oldHandler ← lookupLspRequestHandler requestHandlers method then
     let handle := fun j => do
       let t ← oldHandler.handle j
       let t := t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
@@ -243,12 +190,12 @@ def chainLspRequestHandler (method : String)
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
 
 def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
-  match (← lookupLspRequestHandler method) with
+  match (← lookupLspRequestHandler requestHandlers method) with
   | none => return Except.error <| RequestError.methodNotFound method
   | some rh => return rh.fileSource params
 
-def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask Json) := do
-  match (← lookupLspRequestHandler method) with
+def handleLspRequest (method : String) (params : Json) : RequestM InitSnap (RequestTask Json) := do
+  match (← lookupLspRequestHandler requestHandlers method) with
   | none =>
     throw <| .internalError
       s!"request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"

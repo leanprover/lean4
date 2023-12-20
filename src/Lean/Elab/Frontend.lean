@@ -97,7 +97,7 @@ def runFrontend
     (ileanFileName? : Option String := none)
     : IO (Environment × Bool) := do
   let inputCtx := Parser.mkInputContext input fileName
-  let lang := Language.hashLang (default := Language.Lean)
+  let lang := Language.hashLang (default := Language.Lean.lang)
   let ctx := { inputCtx with
     mainModuleName, opts, trustLevel
     fileSetupHandler? := none

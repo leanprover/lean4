@@ -211,15 +211,6 @@ compared to it.
 def isBeforeEditPos (pos : String.Pos) : LeanProcessingM Bool := do
   return (← read).firstDiffPos?.any (pos < ·)
 
-private def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do
-  let msgLog := MessageLog.empty.add {
-    fileName := "<input>"
-    pos := ⟨0, 0⟩
-    endPos := dbgTraceVal <| (← read).fileMap.toPosition (← read).fileMap.source.endPos
-    data := msg
-  }
-  Snapshot.Diagnostics.ofMessageLog msgLog
-
 /--
   Adds unexpected exceptions from header processing to the message log as a last resort; standard
   errors should already have been caught earlier. -/
@@ -507,9 +498,56 @@ where goCmd snap :=
   else
     snap.data.sig.get.finished.get.cmdState.env
 
-end Lean
+/-- Registry of request handlers for the Lean language. -/
+builtin_initialize leanLspRequestHandlers : Server.RequestHandlersRef InitialSnapshot ←
+  IO.mkRef .empty
+
+/-
+  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
+      : RequestM (Task (Except Error AvailableImportsCache)) := do
+    let ctx ← read
+    let st ← get
+    let text := st.doc.meta.text
+
+    match st.importCachingTask? with
+    | none => IO.asTask do
+      let availableImports ← ImportCompletion.collectAvailableImports
+      let lastRequestTimestampMs ← IO.monoMsNow
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      ctx.chanOut.send <| .response id (toJson completions)
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
+
+    | some task => IO.mapTask (t := task) fun result => do
+      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
+      let timestampNowMs ← IO.monoMsNow
+      if timestampNowMs - lastRequestTimestampMs >= 10000 then
+        availableImports ← ImportCompletion.collectAvailableImports
+      lastRequestTimestampMs := timestampNowMs
+      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
+      ctx.chanOut.send <| .response id (toJson completions)
+      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }-/
+
+open Server Lsp in
+private def handleRequest (method : String) (params : Json) :
+    RequestM InitialSnapshot (RequestTask Json) := do
+  let ctx ← read
+  if method == "textDocument/completion" then
+    pure ()
+    /-let params ← parseParams CompletionParams params
+    if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
+      let importCachingTask ← handleImportCompletionRequest id params
+      set <| { st with importCachingTask? := some importCachingTask }
+      return-/
+
+  -- we assume that any other request requires at least the the search path
+  let srcSearchPathTask :=
+    ctx.initSnap.processedSuccessfully.map (·.map (·.srcSearchPath) |>.getD ∅)
+  RequestM.bindTask srcSearchPathTask.task fun srcSearchPath =>
+    withReader ({ · with srcSearchPath }) do
+      handleLspRequest leanLspRequestHandlers method params
 
 /-- The Lean language processor. -/
-abbrev Lean : Language where
-  process := Lean.processLean
-  getFinalEnv? := Lean.getFinalEnv?
+abbrev lang : Language where
+  process := processLean
+  getFinalEnv? := getFinalEnv?
+  handleRequest := handleRequest

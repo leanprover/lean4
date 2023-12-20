@@ -93,11 +93,11 @@ structure GetWidgetSourceParams where
 
 open Server RequestM in
 @[server_rpc_method]
-def getWidgetSource (args : GetWidgetSourceParams) : RequestM (RequestTask WidgetSource) := do
+def getWidgetSource (args : GetWidgetSourceParams) : LeanRequestM (RequestTask WidgetSource) := do
   let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos args.pos
+  let pos := doc.text.lspPosToUtf8Pos args.pos
   let notFound := throwThe RequestError ⟨.invalidParams, s!"No registered user-widget with hash {args.hash}"⟩
-  withWaitFindSnap doc (notFoundX := notFound)
+  withWaitFindSnap (notFoundX := notFound)
     (fun s => s.endPos >= pos || (widgetSourceRegistry.getState s.env).contains args.hash)
     fun snap => do
       if let some id := widgetSourceRegistry.getState snap.env |>.find? args.hash then
@@ -137,14 +137,14 @@ structure GetWidgetsResponse where
   widgets : Array UserWidgetInstance
   deriving ToJson, FromJson
 
-open Lean Server RequestM in
+open Lean Server RequestM FileWorker in
 /-- Get the `UserWidget`s present at a particular position. -/
 @[server_rpc_method]
-def getWidgets (args : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (args : Lean.Lsp.Position) : LeanRequestM (RequestTask (GetWidgetsResponse)) := do
   let doc ← readDoc
-  let filemap := doc.meta.text
+  let filemap := doc.text
   let pos := filemap.lspPosToUtf8Pos args
-  withWaitFindSnap doc (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
+  withWaitFindSnap (·.endPos >= pos) (notFoundX := return ⟨∅⟩) fun snap => do
     let env := snap.env
     let ws := widgetInfosAt? filemap snap.infoTree pos
     let ws ← ws.toArray.mapM (fun (w : UserWidgetInfo) => do

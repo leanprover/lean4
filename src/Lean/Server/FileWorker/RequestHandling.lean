@@ -14,39 +14,139 @@ import Lean.Server.Requests
 import Lean.Server.Completion
 import Lean.Server.References
 import Lean.Server.GoTo
+import Lean.Server.AsyncList
+import Lean.Server.Snapshots
 
 import Lean.Widget.InteractiveGoal
 import Lean.Widget.Diff
 
-namespace Lean.Server.FileWorker
+import Lean.Language.Lean
+
+namespace Lean.Server
 open Lsp
 open RequestM
 open Snapshots
+open FileWorker
+
+abbrev LeanRequestM := RequestM Language.Lean.InitialSnapshot
+abbrev LeanRequestT := RequestT Language.Lean.InitialSnapshot
+
+-- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
+private partial def mkCmdSnaps : LeanRequestM (IO.AsyncList ElabTaskError Snapshot) := do
+  let ctx ← read
+  let some headerParsed := ctx.initSnap.success? | return .nil
+  return .delayed <| headerParsed.processed.task.bind (sync := true) fun headerProcessed => Id.run do
+    -- NOTE: this throws away interactive diagnostics of header errors but these are not interactive
+    -- anyway
+    let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
+    return .pure <| .ok <| .cons {
+      stx := ctx.initSnap.stx
+      mpState := headerParsed.parserState
+      cmdState := headerSuccess.cmdState
+      interactiveDiags := headerProcessed.diagnostics.interactiveDiags
+    } <| .delayed <| headerSuccess.next.task.bind (sync := true) go
+
+where go cmdParsed :=
+  cmdParsed.data.sig.task.bind (sync := true) fun sig =>
+    sig.finished.task.map (sync := true) fun finished =>
+      .ok <| .cons {
+        stx := cmdParsed.data.stx
+        mpState := cmdParsed.data.parserState
+        cmdState := finished.cmdState
+        interactiveDiags :=
+          cmdParsed.data.diagnostics.interactiveDiags ++ sig.diagnostics.interactiveDiags
+      } (match cmdParsed.next? with
+        | some next => .delayed <| next.task.bind (sync := true) go
+        | none => .nil)
+
+def waitFindSnapAux (notFoundX abortedX : LeanRequestM α) (x : Snapshot → LeanRequestM α)
+    : Except ElabTaskError (Option Snapshot) → LeanRequestM α
+  /- The elaboration task that we're waiting for may be aborted if the file contents change.
+  In that case, we reply with the `fileChanged` error by default. Thanks to this, the server doesn't
+  get bogged down in requests for an old state of the document. -/
+  | Except.error FileWorker.ElabTaskError.aborted => abortedX
+  | Except.error (FileWorker.ElabTaskError.ioError e) =>
+    throw (RequestError.ofIoError e)
+  | Except.ok none => notFoundX
+  | Except.ok (some snap) => x snap
+
+/-- Create a task which waits for the first snapshot matching `p`, handles various errors,
+and if a matching snapshot was found executes `x` with it. If not found, the task executes
+`notFoundX`. -/
+def withWaitFindSnap (p : Snapshot → Bool)
+    (notFoundX : LeanRequestM β)
+    (x : Snapshot → LeanRequestM β)
+    (abortedX : LeanRequestM β := throwThe RequestError .fileChanged)
+    : LeanRequestM (RequestTask β) := do
+  let findTask := (← mkCmdSnaps).waitFind? p
+  mapTask findTask <| waitFindSnapAux notFoundX abortedX x
+
+/-- See `withWaitFindSnap`. -/
+def bindWaitFindSnap (p : Snapshot → Bool)
+    (notFoundX : LeanRequestM (RequestTask β))
+    (x : Snapshot → LeanRequestM (RequestTask β))
+    (abortedX : LeanRequestM (RequestTask β) := throwThe RequestError .fileChanged)
+    : LeanRequestM (RequestTask β) := do
+  let findTask := (← mkCmdSnaps).waitFind? p
+  bindTask findTask <| waitFindSnapAux notFoundX abortedX x
+
+/-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
+If no such snapshot exists, the request fails with an error. -/
+def withWaitFindSnapAtPos
+    (lspPos : Lsp.Position)
+    (f : Snapshots.Snapshot → LeanRequestM α)
+    : LeanRequestM (RequestTask α) := do
+  let pos := (← read).doc.text.lspPosToUtf8Pos lspPos
+  withWaitFindSnap (fun s => s.endPos >= pos)
+    (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
+    (x := f)
+
+open Elab.Command in
+def runCommandElabM (snap : Snapshot) (c : LeanRequestT CommandElabM α) : LeanRequestM α := do
+  let rc ← read
+  match ← snap.runCommandElabM rc.doc (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
+
+def runCoreM (snap : Snapshot) (c : LeanRequestT CoreM α) : LeanRequestM α := do
+  let rc ← read
+  match ← snap.runCoreM rc.doc (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
+
+open Elab.Term in
+def runTermElabM (snap : Snapshot) (c : LeanRequestT TermElabM α) : LeanRequestM α := do
+  let rc ← read
+  match ← snap.runTermElabM rc.doc (c.run rc) with
+  | .ok v => return v
+  | .error e => throw e
+
+namespace FileWorker
 
 def handleCompletion (p : CompletionParams)
-    : RequestM (RequestTask CompletionList) := do
+    : LeanRequestM (RequestTask CompletionList) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let pos := text.lspPosToUtf8Pos p.position
   let caps := (← read).initParams.capabilities
   -- dbg_trace ">> handleCompletion invoked {pos}"
   -- NOTE: use `+ 1` since we sometimes want to consider invalid input technically after the command,
   -- such as a trailing dot after an option name. This shouldn't be a problem since any subsequent
   -- command starts with a keyword that (currently?) does not participate in completion.
-  withWaitFindSnap doc (·.endPos + ' ' >= pos)
+  withWaitFindSnap (·.endPos + ' ' >= pos)
     (notFoundX := pure { items := #[], isIncomplete := true })
     (abortedX :=
       -- work around https://github.com/microsoft/vscode/issues/155738
       pure { items := #[{label := "-"}], isIncomplete := true }) fun snap => do
-      if let some r ← Completion.find? doc.meta.text pos snap.infoTree caps then
+      if let some r ← Completion.find? doc.text pos snap.infoTree caps then
         return r
       return { items := #[ ], isIncomplete := true }
 
 open Elab in
 def handleHover (p : HoverParams)
-    : RequestM (RequestTask (Option Hover)) := do
+    : LeanRequestM (RequestTask (Option Hover)) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let mkHover (s : String) (r : String.Range) : Hover := {
     contents := {
       kind := MarkupKind.markdown
@@ -56,7 +156,7 @@ def handleHover (p : HoverParams)
   }
 
   let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       -- try to find parser docstring from syntax tree
       let stack? := snap.stx.findStack? (·.getRange?.any (·.contains hoverPos))
@@ -81,13 +181,13 @@ def handleHover (p : HoverParams)
 
 open Elab GoToKind in
 def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
-    (infoTree? : Option InfoTree := none) : RequestM (Array LocationLink) := do
+    (infoTree? : Option InfoTree := none) : LeanRequestM (Array LocationLink) := do
   let rc ← read
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
 
   let locationLinksFromDecl (i : Elab.Info) (n : Name) :=
-    locationLinksFromDecl rc.srcSearchPath doc.meta.uri n <| (·.toLspRange text) <$> i.range?
+    locationLinksFromDecl rc.srcSearchPath doc.uri n <| (·.toLspRange text) <$> i.range?
 
   let locationLinksFromBinder (i : Elab.Info) (id : FVarId) := do
     if let some i' := infoTree? >>= InfoTree.findInfo? fun
@@ -97,7 +197,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
         let r := r.toLspRange text
         let ll : LocationLink := {
           originSelectionRange? := (·.toLspRange text) <$> i.range?
-          targetUri := doc.meta.uri
+          targetUri := doc.uri
           targetRange := r
           targetSelectionRange := r
         }
@@ -157,7 +257,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
               elaborators ← ci.runMetaM i.lctx <| locationLinksFromDecl i ei.elaborator
           let instIdx := info.numParams
           let appArgs := expr.getAppArgs
-          let rec extractInstances : Expr → RequestM (Array Name)
+          let rec extractInstances : Expr → LeanRequestM (Array Name)
             | .const declName _ => do
               if ← ci.runMetaM i.lctx do Lean.Meta.isInstance declName then pure #[declName] else pure #[]
             | .app fn arg => do pure $ (← extractInstances fn).append (← extractInstances arg)
@@ -191,26 +291,26 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
 
 open Elab GoToKind in
 def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
-    : RequestM (RequestTask (Array LocationLink)) := do
+    : LeanRequestM (RequestTask (Array LocationLink)) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let hoverPos := text.lspPosToUtf8Pos p.position
 
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap (fun s => s.endPos > hoverPos)
     (notFoundX := pure #[]) fun snap => do
       if let some infoWithCtx := snap.infoTree.hoverableInfoAt? (omitIdentApps := true) (includeStop := true /- #767 -/) hoverPos then
         locationLinksOfInfo kind infoWithCtx snap.infoTree
       else return #[]
 
 open RequestM in
-def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
+def getInteractiveGoals (p : Lsp.PlainGoalParams) : LeanRequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let hoverPos := text.lspPosToUtf8Pos p.position
   -- NOTE: use `>=` since the cursor can be *after* the input
-  withWaitFindSnap doc (fun s => s.endPos >= hoverPos)
+  withWaitFindSnap (fun s => s.endPos >= hoverPos)
     (notFoundX := return none) fun snap => do
-      if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.meta.text hoverPos then
+      if let rs@(_ :: _) := snap.infoTree.goalsAt? doc.text hoverPos then
         let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
           let ciAfter := { ci with mctx := ti.mctxAfter }
           let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
@@ -235,7 +335,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
 
 open Elab in
 def handlePlainGoal (p : PlainGoalParams)
-    : RequestM (RequestTask (Option PlainGoal)) := do
+    : LeanRequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
   return t.map <| Except.map <| Option.map <| fun {goals, ..} =>
     if goals.isEmpty then
@@ -249,11 +349,11 @@ def handlePlainGoal (p : PlainGoalParams)
       { goals := goalStrs, rendered := md }
 
 def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
-    : RequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
+    : LeanRequestM (RequestTask (Option Widget.InteractiveTermGoal)) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  withWaitFindSnap doc (fun s => s.endPos > hoverPos)
+  withWaitFindSnap (fun s => s.endPos > hoverPos)
     (notFoundX := pure none) fun snap => do
       if let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := snap.infoTree.termGoalAt? hoverPos then
         let ty ← ci.runMetaM i.lctx do
@@ -268,7 +368,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
         return none
 
 def handlePlainTermGoal (p : PlainTermGoalParams)
-    : RequestM (RequestTask (Option PlainTermGoal)) := do
+    : LeanRequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
   return t.map <| Except.map <| Option.map fun goal =>
     { goal := toString goal.pretty
@@ -276,9 +376,9 @@ def handlePlainTermGoal (p : PlainTermGoalParams)
     }
 
 partial def handleDocumentHighlight (p : DocumentHighlightParams)
-    : RequestM (RequestTask (Array DocumentHighlight)) := do
+    : LeanRequestM (RequestTask (Array DocumentHighlight)) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let pos := text.lspPosToUtf8Pos p.position
 
   let rec highlightReturn? (doRange? : Option Range) : Syntax → Option DocumentHighlight
@@ -303,9 +403,9 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
       return none
     some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
-  withWaitFindSnap doc (fun s => s.endPos > pos)
+  withWaitFindSnap (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
-      let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
+      let (snaps, _) ← (← mkCmdSnaps).getFinishedPrefix
       if let some his := highlightRefs? snaps.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
@@ -339,13 +439,13 @@ def NamespaceEntry.finish (text : FileMap) (syms : Array DocumentSymbol) (endStx
 
 open Parser.Command in
 partial def handleDocumentSymbol (_ : DocumentSymbolParams)
-    : RequestM (RequestTask DocumentSymbolResult) := do
+    : LeanRequestM (RequestTask DocumentSymbolResult) := do
   let doc ← readDoc
   -- bad: we have to wait on elaboration of the entire file before we can report document symbols
-  let t := doc.cmdSnaps.waitAll
+  let t := (← mkCmdSnaps).waitAll
   mapTask t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
-    return { syms := toDocumentSymbols doc.meta.text stxs #[] [] }
+    return { syms := toDocumentSymbols doc.text stxs #[] [] }
 where
   toDocumentSymbols (text : FileMap) (stxs : List Syntax)
       (syms : Array DocumentSymbol) (stack : List NamespaceEntry) :
@@ -426,10 +526,10 @@ def keywordSemanticTokenMap : RBMap String SemanticTokenType compare :=
     |>.insert "#exit" .leanSorryLike
 
 partial def handleSemanticTokens (beginPos endPos : String.Pos)
-    : RequestM (RequestTask SemanticTokens) := do
+    : LeanRequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
-  let text := doc.meta.text
-  let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
+  let text := doc.text
+  let t := (← mkCmdSnaps).waitUntil (·.endPos >= endPos)
   mapTask t fun (snaps, _) =>
     StateT.run' (s := { data := #[], lastLspPos := ⟨0, 0⟩ : SemanticTokensState }) do
       for s in snaps do
@@ -452,7 +552,7 @@ where
           go stx[0]
         else
           stx.getArgs.forM go
-  highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState RequestM) _ := do
+  highlightId (stx : Syntax) : ReaderT SemanticTokensContext (StateT SemanticTokensState LeanRequestM) _ := do
     if let some range := stx.getRange? then
       let mut lastPos := range.start
       for ti in (← read).snap.infoTree.deepestNodes (fun
@@ -500,24 +600,24 @@ where
         }
 
 def handleSemanticTokensFull (_ : SemanticTokensParams)
-    : RequestM (RequestTask SemanticTokens) := do
+    : LeanRequestM (RequestTask SemanticTokens) := do
   handleSemanticTokens 0 ⟨1 <<< 31⟩
 
 def handleSemanticTokensRange (p : SemanticTokensRangeParams)
-    : RequestM (RequestTask SemanticTokens) := do
+    : LeanRequestM (RequestTask SemanticTokens) := do
   let doc ← readDoc
-  let text := doc.meta.text
+  let text := doc.text
   let beginPos := text.lspPosToUtf8Pos p.range.start
   let endPos := text.lspPosToUtf8Pos p.range.end
   handleSemanticTokens beginPos endPos
 
 partial def handleFoldingRange (_ : FoldingRangeParams)
-  : RequestM (RequestTask (Array FoldingRange)) := do
+  : LeanRequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
-  let t := doc.cmdSnaps.waitAll
+  let t := (← mkCmdSnaps).waitAll
   mapTask t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
-    let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
+    let (_, ranges) ← StateT.run (addRanges doc.text [] stxs) #[]
     return ranges
   where
     isImport stx := stx.isOfKind ``Lean.Parser.Module.header || stx.isOfKind ``Lean.Parser.Command.open
@@ -592,33 +692,17 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
               endLine := endP.line
               kind? := some kind }
 
-partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
-    : RequestM (RequestTask WaitForDiagnostics) := do
-  let rec waitLoop : RequestM EditableDocument := do
-    let doc ← readDoc
-    if p.version ≤ doc.meta.version then
-      return doc
-    else
-      IO.sleep 50
-      waitLoop
-  let t ← RequestM.asTask waitLoop
-  RequestM.bindTask t fun doc? => do
-    let doc ← liftExcept doc?
-    return doc.reporter.map fun _ => pure WaitForDiagnostics.mk
-
+open Language.Lean in
 builtin_initialize
-  registerLspRequestHandler "textDocument/waitForDiagnostics"   WaitForDiagnosticsParams   WaitForDiagnostics      handleWaitForDiagnostics
-  registerLspRequestHandler "textDocument/completion"           CompletionParams           CompletionList          handleCompletion
-  registerLspRequestHandler "textDocument/hover"                HoverParams                (Option Hover)          handleHover
-  registerLspRequestHandler "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
-  registerLspRequestHandler "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
-  registerLspRequestHandler "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
-  registerLspRequestHandler "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
-  registerLspRequestHandler "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
-  registerLspRequestHandler "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull
-  registerLspRequestHandler "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
-  registerLspRequestHandler "textDocument/foldingRange"         FoldingRangeParams         (Array FoldingRange)    handleFoldingRange
-  registerLspRequestHandler "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
-  registerLspRequestHandler "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal
-
-end Lean.Server.FileWorker
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/completion"           CompletionParams           CompletionList          handleCompletion
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/hover"                HoverParams                (Option Hover)          handleHover
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/declaration"          TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.declaration)
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/definition"           TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.definition)
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/typeDefinition"       TextDocumentPositionParams (Array LocationLink)    (handleDefinition GoToKind.type)
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/documentHighlight"    DocumentHighlightParams    DocumentHighlightResult handleDocumentHighlight
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/documentSymbol"       DocumentSymbolParams       DocumentSymbolResult    handleDocumentSymbol
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/semanticTokens/full"  SemanticTokensParams       SemanticTokens          handleSemanticTokensFull
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/semanticTokens/range" SemanticTokensRangeParams  SemanticTokens          handleSemanticTokensRange
+  registerLspRequestHandler leanLspRequestHandlers "textDocument/foldingRange"         FoldingRangeParams         (Array FoldingRange)    handleFoldingRange
+  registerLspRequestHandler leanLspRequestHandlers "$/lean/plainGoal"                  PlainGoalParams            (Option PlainGoal)      handlePlainGoal
+  registerLspRequestHandler leanLspRequestHandlers "$/lean/plainTermGoal"              PlainTermGoalParams        (Option PlainTermGoal)  handlePlainTermGoal

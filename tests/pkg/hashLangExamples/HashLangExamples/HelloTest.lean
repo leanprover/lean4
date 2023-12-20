@@ -1,3 +1,3 @@
 #lang HashLangExamples.Hello
 hello
-hallo
+hello

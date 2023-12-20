@@ -71,6 +71,11 @@ structure DocumentMeta where
   dependencyBuildMode : Lsp.DependencyBuildMode
   deriving Inhabited
 
+/-- Converts document into an LSP identifier usable in responses. -/
+def DocumentMeta.versionedIdentifier (doc : DocumentMeta) : Lsp.VersionedTextDocumentIdentifier where
+  uri := doc.uri
+  version? := some doc.version
+
 def DocumentMeta.mkInputContext (doc : DocumentMeta) : Parser.InputContext where
   input    := doc.text.source
   fileName := (System.Uri.fileUriToPath? doc.uri).getD doc.uri |>.toString
@@ -141,6 +146,12 @@ def mkFileProgressDoneNotification (m : DocumentMeta) : JsonRpc.Notification Lsp
 def mkApplyWorkspaceEditRequest (params : ApplyWorkspaceEditParams) :
     JsonRpc.Request ApplyWorkspaceEditParams :=
   ⟨"workspace/applyEdit", "workspace/applyEdit", params⟩
+
+
+def parseParams (paramType : Type) [FromJson paramType] (params : Json) : IO paramType :=
+  match fromJson? params with
+  | Except.ok parsed => pure parsed
+  | Except.error inner => throwServerError s!"Got param with wrong structure: {params.compress}\n{inner}"
 
 end Lean.Server
 

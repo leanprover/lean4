@@ -16,6 +16,7 @@ import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
+import Lean.Language.Lean  -- TEMP
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -485,7 +486,11 @@ section MessageHandling
       if method == "$/lean/rpc/connect" then
         let ps ← parseParams Lsp.RpcConnectParams params
         pure <| fileSource ps
-      else match (← routeLspRequest method params) with
+      else if method == "textDocument/waitForDiagnostics" then
+        let ps ← parseParams Lsp.WaitForDiagnosticsParams params
+        pure <| fileSource ps
+      -- TODO: should not depend on Lean #lang
+      else match (← routeLspRequest Language.Lean.leanLspRequestHandlers method params) with
       | Except.error e =>
         (←read).hOut.writeLspResponseError <| e.toLspResponseError id
         return

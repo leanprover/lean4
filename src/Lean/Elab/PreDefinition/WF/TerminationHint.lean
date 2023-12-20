@@ -94,12 +94,6 @@ def TerminationHints.checkVars (headerParams : Nat) (hints : TerminationHints) (
 open Parser.Termination
 
 def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) : m TerminationHints := do
-  -- TODO: Better understand if this is needed
-  if let .missing := stx.raw then
-    return { TerminationHints.none with ref := stx }
-  -- and why this is needed
-  if stx.raw.matchesNull 0 then
-    return { TerminationHints.none with ref := stx }
   match stx with
   | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) => do
     let termination_by? ← t?.mapM fun t => match t with

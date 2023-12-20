@@ -194,6 +194,8 @@ Similarly, we can inhabit type function with suitable constant functions:
 # namespace Ex
 # class Inhabited (a : Sort u) where
 #  default : a
+# opaque default [Inhabited a] : a :=
+#  Inhabited.default
 instance [Inhabited b] : Inhabited (a -> b) where
   default := fun _ => default
 # end Ex

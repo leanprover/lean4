@@ -62,17 +62,6 @@ theorem map_id : (Option.map id : Option α → Option α) = id :=
 instance : OrElse (Option α) where
   orElse := Option.orElse
 
-@[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
-  | none, some _     => True
-  | some x,   some y => r x y
-  | _, _             => False
-
-instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
-  | none,   some _ => isTrue  trivial
-  | some x, some y => s x y
-  | some _, none   => isFalse not_false
-  | none,   none   => isFalse not_false
-
 /-- Take a pair of options and if they are both `some`, apply the given fn to produce an output.
 Otherwise act like `orElse`. -/
 def merge (fn : α → α → α) : Option α → Option α → Option α
@@ -85,9 +74,6 @@ end Option
 
 deriving instance DecidableEq for Option
 deriving instance BEq for Option
-
-instance [LT α] : LT (Option α) where
-  lt := Option.lt (· < ·)
 
 @[always_inline]
 instance : Functor Option where

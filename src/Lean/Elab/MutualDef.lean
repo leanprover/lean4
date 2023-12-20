@@ -239,13 +239,13 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
   else
     Macro.throwErrorAt declVal "unexpected declaration body"
 
-private def declValToTerminationHint (declVal : Syntax) : WF.TerminationHints :=
+private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
   if declVal.isOfKind ``Parser.Command.declValSimple then
     WF.elabTerminationHints ⟨declVal[2]⟩
   else if declVal.isOfKind ``Parser.Command.declValEqns then
     WF.elabTerminationHints ⟨declVal[0][1]⟩
   else
-    .none
+    return .none
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
@@ -640,7 +640,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
-    let termination := declValToTerminationHint header.valueStx
+    let termination ← declValToTerminationHint header.valueStx
     let termination ← termination.checkVars header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type

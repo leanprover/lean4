@@ -44,7 +44,7 @@ structure TerminationHints where
   ref : Syntax
   termination_by? : Option TerminationBy
   decreasing_by?  : Option DecreasingBy
-  /-- Here we record the number of paramters past the `:`. This is currently
+  /-- Here we record the number of parameters past the `:`. This is currently
   only used by GuessLex when there is no `termination_by` annotation, so that
   we can print the guessed order in the right form.
 
@@ -93,23 +93,27 @@ def TerminationHints.checkVars (headerParams : Nat) (hints : TerminationHints) (
 
 open Parser.Termination
 
-def elabTerminationHints (stx : TSyntax ``suffix) : TerminationHints :=
+def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) : m TerminationHints := do
   -- TODO: Better understand if this is needed
-  if let .missing := stx.raw then { TerminationHints.none with ref := stx }
+  if let .missing := stx.raw then
+    return { TerminationHints.none with ref := stx }
   -- and why this is needed
-  else if stx.raw.matchesNull 0 then { TerminationHints.none with ref := stx }
-  else
-    match stx with
-  | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) =>
-    { ref := stx
-      termination_by? := t?.map fun t => match t with
-        | `(terminationBy|termination_by $vars* => $body) => {ref := t, vars, body}
-        | `(terminationBy|termination_by $body:term) => {ref := t, vars := #[], body}
-        | _ => unreachable!
-      decreasing_by? := d?.map fun t => match t with
-        | `(decreasingBy|decreasing_by $tactic) => {ref := t, tactic}
-        | _ => unreachable!
-      extraParams := 0 }
-  | _ => panic! s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
+  if stx.raw.matchesNull 0 then
+    return { TerminationHints.none with ref := stx }
+  match stx with
+  | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) => do
+    let termination_by? ← t?.mapM fun t => match t with
+      | `(terminationBy|termination_by $vars* => $body) =>
+        if vars.isEmpty then
+          throwErrorAt t "no extra parameters bounds, please omit the `=>`"
+        else
+          pure {ref := t, vars, body}
+      | `(terminationBy|termination_by $body:term) => pure {ref := t, vars := #[], body}
+      | _ => throwErrorAt t "unexpected `termination_by` syntax"
+    let decreasing_by? ← d?.mapM fun d => match d with
+      | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}
+      | _ => throwErrorAt d "unexpected `decreasing_by` syntax"
+    return { ref := stx, termination_by?, decreasing_by?, extraParams := 0 }
+  | _ => throwErrorAt stx s!"Unexpected Termination.suffix syntax: {stx} of kind {stx.raw.getKind}"
 
 end Lean.Elab.WF

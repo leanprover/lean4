@@ -545,8 +545,8 @@ def mkTupleSyntax : Array Term → MetaM Term
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
 combination of these measures.
 -/
-def buildTermWF (_extraParams : Array Nat) (varNamess : Array (Array Name))
-    (measures : Array MutualMeasure) : MetaM TerminationWF := do
+def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
+    (measures : Array MutualMeasure) (trimVars : Bool): MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
@@ -567,14 +567,16 @@ def buildTermWF (_extraParams : Array Nat) (varNamess : Array (Array Name))
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
-    -- TODO: From the user we expect to only bind the extra parameters after the :.
-    -- But we may guess measures that mention inaccessible parameter names from
-    -- before the :, so we need to generate `termination_by` clauses that the
-    -- user cannot write.
-    -- So we do not truncate the list of variables here, like so
-    --   let extraVars := vars[vars.size - extraParams[funIdx]! : vars.size]
-    -- This means that we may suggest to the user a termination argument that requires
-    -- changes (e.g. brining more variables into scope) before it goes through.
+    let vars : Array Ident := if trimVars then
+      -- We are building the syntax for printing towards the user.
+      -- Make sure only extra parameters are explicitly bound.
+      -- In case the measure mentions unnamed parameters from before the `:`,
+      -- (shadowed, autoImplicit, etc.) this will not work as printed, but still useful.
+      vars[vars.size - extraParams[funIdx]! : vars.size]
+    else
+      -- We are building the sytnax to pass on. Keep the full `vars` syntax,
+      -- in case we use implicit variables
+      vars
     termByElements := termByElements.push { ref := .missing, vars := vars, body }
   return termByElements
 
@@ -704,7 +706,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF extraParamss varNamess #[solution]
+    return ← buildTermWF extraParamss varNamess #[solution] (trimVars := false)
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -714,13 +716,13 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF extraParamss varNamess solution
 
     if showInferredTerminationBy.get (← getOptions) then
+      let wf ← buildTermWF extraParamss varNamess solution (trimVars := true)
       for preDef in preDefs, term in wf do
         logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
 
-    return wf
+    buildTermWF extraParamss varNamess solution (trimVars := false)
   | .none =>
     let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs
     Lean.throwError <| "Could not find a decreasing measure.\n" ++

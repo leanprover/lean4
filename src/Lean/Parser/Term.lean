@@ -122,7 +122,7 @@ If omitted, a termination argument will be inferred.
 def terminationBy := leading_parser
   ppDedent ppLine >>
   "termination_by " >>
-  optional (atomic (many1 (ppSpace >> (ident <|> "_")) >> " => ")) >>
+  optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
   termParser
 
 /--

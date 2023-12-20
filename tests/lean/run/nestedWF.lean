@@ -4,7 +4,7 @@ mutual
 def h (c : Nat) (x : Nat) := match g c x c c with
   | 0 => 1
   | r => r + 2
-termination_by c x => 0
+termination_by 0
 decreasing_by all_goals sorry
 
 def g (c : Nat) (t : Nat) (a b : Nat) : Nat := match t with
@@ -14,13 +14,13 @@ def g (c : Nat) (t : Nat) (a b : Nat) : Nat := match t with
       | 0 => 0
       | m + 1 => g c m a b
   | 0 => f c 0
-termination_by c t a b => 0
+termination_by 0
 decreasing_by all_goals sorry
 
 def f (c : Nat) (x : Nat) := match h c x with
   | 0 => 1
   | r => f c r
-termination_by c x => 0
+termination_by 0
 decreasing_by all_goals sorry
 end
 

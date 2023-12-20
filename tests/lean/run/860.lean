@@ -21,7 +21,7 @@ def pack (n: Nat) : List Nat :=
       | n+1 => match evenq n with
         | true => loop (next n) 0 (List.cons acc accs)
         | false => loop (next n) (acc+1) accs
-    termination_by n _ _ => n
+    termination_by n
     decreasing_by all_goals
       simp [invImage, InvImage, Prod.lex, sizeOfWFRel, measure, Nat.lt_wfRel]
       apply pack_loop_terminates

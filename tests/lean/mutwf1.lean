@@ -15,7 +15,7 @@ mutual
       f (n-1) true
     else
       n
-  termination_by n => (n, 0)
+  termination_by (n, 0)
   decreasing_by
   all_goals simp_wf
   apply Prod.Lex.left
@@ -38,6 +38,6 @@ mutual
       f (n-1) true
     else
       n
-  termination_by n => (n, 0)
+  termination_by (n, 0)
 end
 end Ex2

@@ -5,7 +5,8 @@ too many variables.
 
 opaque dec1 : Nat → Nat
 axiom dec1_lt (n : Nat) : dec1 n < n
-
+opaque dec2 : Nat → Nat
+axiom dec2_lt (n : Nat) : dec2 n < n
 
 namespace Basic
 
@@ -22,9 +23,9 @@ def blankArrow (n : Nat) : Nat := blankArrow (dec1 n)
   termination_by => x -- Error
   decreasing_by apply dec1_lt
 
-def tooFewVariables1 (n : Nat) : Nat → Nat → Nat := fun a b => tooFewVariables1 n a (dec1 b)
+def tooFewVariables1 (n : Nat) : Nat → Nat → Nat := fun a b => tooFewVariables1 (dec2 n) a (dec1 b)
   termination_by n -- Error
-  decreasing_by apply dec1_lt
+  decreasing_by apply dec2_lt
 
 def tooFewVariables2 (n : Nat) : Nat → Nat → Nat := fun a b => tooFewVariables2 n a (dec1 b)
   termination_by a => a -- Error
@@ -54,9 +55,9 @@ def blankArrow (n : Nat) : Nat := blankArrow (dec1 n) + v
   decreasing_by apply dec1_lt
 
 def tooFewVariables1 (n : Nat) : Nat → Nat → Nat := fun a b =>
-    tooFewVariables1 n a (dec1 b) + v
+    tooFewVariables1 (dec2 n) a (dec1 b) + v
   termination_by n -- Error
-  decreasing_by apply dec1_lt
+  decreasing_by apply dec2_lt
 
 def tooFewVariables2 (n : Nat) : Nat → Nat → Nat := fun a b =>
     tooFewVariables2 n a (dec1 b) + v
@@ -93,9 +94,9 @@ def foo3 (v : Nat) := 5
 def foo4 (v : Nat) := 5
   where
   tooFewVariables1 (n : Nat) : Nat → Nat → Nat := fun a b =>
-      tooFewVariables1 n a (dec1 b) + v
+      tooFewVariables1 (dec2 n) a (dec1 b) + v
     termination_by n -- Error
-    decreasing_by apply dec1_lt
+    decreasing_by apply dec2_lt
 
 def foo5 (v : Nat) := 5
   where

@@ -18,7 +18,7 @@ def f (x y : Nat) :=
   | x+1, 0   => f x 0
   | 0,   y+1 => f 0 y
   | x+1, y+1 => f x y
-termination_by x y => (x, y)
+termination_by (x, y)
 
 example (x y : Nat) : f x y > 0 := by
   induction x, y with

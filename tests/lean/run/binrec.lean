@@ -44,7 +44,7 @@ def Nat.binrec
     bit_div_even h₂ ▸ ind false (n / 2) (fun _ => binrec motive base ind (n / 2))
   else
     bit_div_odd h₂ ▸ ind true  (n / 2) (fun _ => binrec motive base ind (n / 2))
-termination_by n => n
+termination_by n
 decreasing_by all_goals exact Nat.div2_lt h₁
 
 theorem Nat.binind

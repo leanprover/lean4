@@ -11,7 +11,7 @@ def g (i j : Nat) : Nat :=
   match j with
   | Nat.zero => 1
   | Nat.succ j => h i j
-termination_by i j => (i + j, 0)
+termination_by (i + j, 0)
 decreasing_by
   simp_wf
   · apply Prod.Lex.left
@@ -21,7 +21,7 @@ def h (i j : Nat) : Nat :=
   match j with
   | 0 => g i 0
   | Nat.succ j => g i j
-termination_by i j => (i + j, 1)
+termination_by (i + j, 1)
 decreasing_by
   all_goals simp_wf
   · apply Prod.Lex.right

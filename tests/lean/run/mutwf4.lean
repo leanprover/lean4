@@ -10,7 +10,7 @@ mutual
       f (n-1) true
     else
       n
-  termination_by n => (n, 0)
+  termination_by (n, 0)
 end
 
 #print f

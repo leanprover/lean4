@@ -76,7 +76,7 @@ def len : List α → Nat
     match h₂ : l, h₃ : splitList l with
     | _, ListSplit.split fst snd =>
       len fst + len snd
-termination_by _ xs => xs.length
+termination_by xs => xs.length
 decreasing_by
   all_goals
     simp_wf

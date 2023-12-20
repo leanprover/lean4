@@ -82,7 +82,7 @@ jobs:
             })
 
       # Next, determine the most recent nightly release in this PR's history.
-      - name: Find most recent nightly
+      - name: Find most recent nightly in feature branch
         id: most-recent-nightly-tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
@@ -100,7 +100,7 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: ready
         run: |
-          echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
+          echo "Most recent nightly in your branch: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git -C lean4.git rev-parse "nightly-$MOST_RECENT_NIGHTLY^{commit}")
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")

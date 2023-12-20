@@ -36,6 +36,8 @@ v4.5.0 (development in progress)
   +termination_by _ x => hwf.wrap x
   ```
 
+* Support snippet edits in LSP `TextEdit`s. See `Lean.Lsp.SnippetString` for more details.
+
 v4.4.0
 ---------
 

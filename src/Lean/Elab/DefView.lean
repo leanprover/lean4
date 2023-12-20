@@ -67,7 +67,7 @@ def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
     declId := stx[1], binders, type? := some type, value := stx[3] }
 
 /--
-State for `mkInstanceNameFromExpr`.
+State for `mkInstanceBaseNameFromExprAux`.
 -/
 private structure MkInstState where
   /-- Keeps track of name parts that have already appeared in the generated name. -/
@@ -76,30 +76,20 @@ private structure MkInstState where
   consts : NameSet := {}
 
 /--
-Monad for `mkInstanceNameFromExpr`.
+Monad for `mkInstanceBaseNameFromExprAux`.
 -/
 private abbrev MkInstM := StateRefT MkInstState MetaM
 
 /--
-Collect the binder infos for each argument supplied to `f`.
--/
-private partial def getBinderInfos (f : Expr) (args : Array Expr) : MetaM (Array BinderInfo) := do
-  try
-    withTransparency TransparencyMode.all do
-      forallBoundedTelescope (← inferType f) args.size fun xs _ => do
-        let bis ← xs.mapM fun arg => arg.fvarId!.getBinderInfo
-        if xs.isEmpty || xs.size == args.size then
-          return bis
-        else
-          return bis ++ (← getBinderInfos (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size))
-  catch _ =>
-    return #[]
-
-/--
-Uses heuristics to generate an informative but terse name for an instance given its namespace, supplied binders, and class expression.
+Core implementation for `Lean.Elab.Command.mkInstanceNameFromExpr`.
+Uses heuristics to generate an informative but terse name for an instance
+given its namespace, supplied binders, and class expression.
 It tries to make these relatively unique.
+
+Also collects all constants that contribute to the name in the `MkInstM` state.
+This can be used to decide whether to further transform the generated name.
 -/
-private partial def mkInstanceNameFromExpr (binders : Array Expr) (e : Expr) : MkInstM String := do
+private partial def mkInstanceBaseNameFromExprAux (binders : Array Expr) (e : Expr) : MkInstM String := do
   let e ← instantiateMVars e
   visitNamespace (← getCurrNamespace)
   let mut s ← go e
@@ -113,7 +103,7 @@ private partial def mkInstanceNameFromExpr (binders : Array Expr) (e : Expr) : M
 where
   /--
   Intitializes the seen strings and seen constants from the parts of the current namespace.
-  The theory here is that the namespace parts correspond to types that the instance is about.
+  The theory here is that the namespace prefixes may correspond to types that the instance is about.
   -/
   visitNamespace (ns : Name) : MkInstM Unit :=
     match ns with
@@ -122,7 +112,7 @@ where
     | .anonymous => pure ()
   /--
   Generates a name for `e`, but returns "" if this expression generates a string that has already been generated.
-  This cuts down on unnecessary duplication, though it is potentially too severe.
+  This cuts down on unnecessary duplication, though it is potentially too severe since it also eliminates necessary duplication.
   -/
   go (e : Expr) : MkInstM String := do
     let strings := (← get).nameParts
@@ -143,7 +133,8 @@ where
       e.withApp fun f args => do
         -- Visit only the explicit arguments to `f` and also its type (and type family) arguments.
         -- The reason we visit type arguments is so that, for example, `Decidable (_ < _)` has
-        -- a chance to insert type information. Type families are to do this for monads, etc.
+        -- a chance to insert type information.
+        -- Generalizating from types to type families is to do the same for monads, etc.
         let bis ← getBinderInfos f args
         let mut s ← go f
         for arg in args, bi in bis do
@@ -151,10 +142,7 @@ where
             s := s ++ (← go arg)
         return s
     | .forallE n ty body bi =>
-      withLocalDecl n bi ty fun arg => do
-        let sty ← go ty
-        let sbody ← go (body.instantiate1 arg)
-        return "Forall" ++ sty ++ sbody
+      withLocalDecl n bi ty fun arg => ("Forall" ++ · ++ ·) <$> go ty <*> go (body.instantiate1 arg)
     | .lam n ty body bi =>
       if let some e := Expr.etaExpandedStrict? e then
         go' e
@@ -166,22 +154,74 @@ where
       else return "Sort"
     | .const name .. =>
       modify (fun st => {st with consts := st.consts.insert name})
-      return match name with
+      return match name.eraseMacroScopes with
               | .str _ str => str.capitalize
               | _ => ""
     | .mdata _ e' => go' e'
     | _ => return ""
   /--
   If `e` is an application of a projection to a parent structure, returns the term being projected.
+  We don't want parent projections to be mentioned in the name.
   -/
   getParentProjArg (e : Expr) : MetaM (Option Expr) := do
     let .const c@(.str _ field) _ := e.getAppFn | return none
     let some info := (← getEnv).getProjectionFnInfo? c | return none
-    if info.fromClass then return none
     unless e.getAppNumArgs == info.numParams + 1 do return none
     let some structName := (← getEnv).getProjectionStructureName? c | return none
     if (isSubobjectField? (← getEnv) structName field).isNone then return none
     return e.appArg!
+  /--
+  Collect the binder infos for each argument supplied to `f`.
+  Handles the case where `f` is "overapplied" in the sense that the effective arity of `f` is greater
+  than its type would suggest due to type arguments being specialized to function types.
+  -/
+  getBinderInfos (f : Expr) (args : Array Expr) : MetaM (Array BinderInfo) := do
+    try
+      withTransparency TransparencyMode.all do
+        forallBoundedTelescope (← inferType f) args.size fun xs _ => do
+          let bis ← xs.mapM fun arg => arg.fvarId!.getBinderInfo
+          if xs.isEmpty || xs.size == args.size then
+            return bis
+          else
+            return bis ++ (← getBinderInfos (mkAppN f $ args.shrink xs.size) (args.extract xs.size args.size))
+    catch _ =>
+      return #[]
+
+/--
+Converts a module name into a suffix. Includes a leading `_`,
+so for example `Lean.Elab.DefView` becomes `_lean_elab_defView`.
+-/
+private def moduleToSuffix : Name → String
+  | .anonymous => ""
+  | .num n _ => moduleToSuffix n
+  | .str n s => moduleToSuffix n ++ "_" ++ s.decapitalize
+
+/--
+Uses heuristics to generate an informative but terse name for an instance
+given its namespace, supplied binders, and class expression.
+It tries to make these names relatively unique ecosystem-wide.
+-/
+def mkInstanceBaseNameFromExpr (binders : Array Expr) (type : Expr) : TermElabM String := do
+  let (name, isModuleLocal, isProjectLocal) ← forallTelescope type fun binders' type' => do
+    let (name, st) ← mkInstanceBaseNameFromExprAux (binders ++ binders') type' |>.run {}
+    -- We can avoid adding the module suffix if the instance refers to module-local names.
+    let isModuleLocal ← st.consts.foldM (init := false) fun b name => pure b <||> do
+      if (← getEnv).contains name then
+        return (← findModuleOf? name).isNone
+      return false
+    -- We can also avoid adding the full module suffix if the instance refers to project-local names.
+    let project := (← getMainModule).getRoot
+    let isProjectLocal ← st.consts.foldM (init := isModuleLocal) fun b name => pure b <||> do
+      if (← getEnv).contains name then
+        return (← findModuleOf? name).map (·.getRoot == project) |>.getD true
+      return false
+    return (name, isModuleLocal, isProjectLocal)
+  return if !isProjectLocal then
+            s!"{name}{moduleToSuffix (← getMainModule)}"
+          else if !isModuleLocal then
+            s!"{name}{moduleToSuffix (← getMainModule).getRoot}"
+          else
+            name
 
 /--
 Generates a name for an instance with the given type.
@@ -189,42 +229,17 @@ Note that we elaborate the type twice. Once for producing the name, and another 
 -/
 def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name := do
   let savedState ← get
-  let (name, isModuleLocal, isProjectLocal) ←
+  let name ←
     try
-      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutErrToSorry do
-        let type ← Term.elabType type
+      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutAutoBoundImplicit <| Term.withoutErrToSorry do
         -- Unfortunately we can't include any of the binders from `runTermElabM` since, without
         -- elaborating the body of the instance, we have no idea which of these binders are
         -- actually used.
-        forallTelescopeReducing type fun binds' type' => do
-          let (name, st) ← mkInstanceNameFromExpr (binds ++ binds') type' |>.run {}
-          -- We can avoid adding the module suffix if the instance refers to module-local names.
-          let isModuleLocal ← st.consts.foldM (init := false) fun b name => pure b <||> do
-            if (← getEnv).contains name then
-              return (← findModuleOf? name).isNone
-            return false
-          let project := (← getMainModule).getRoot
-          let isProjectLocal ← st.consts.foldM (init := false) fun b name => pure b <||> do
-            if (← getEnv).contains name then
-              return (← findModuleOf? name).map (·.getRoot == project) |>.getD true
-            return false
-          return (name, isModuleLocal, isProjectLocal)
+        mkInstanceBaseNameFromExpr binds (← Term.elabType type)
     catch _ =>
-      pure (s!"inst", false, false)
+      pure s!"inst{moduleToSuffix (← getMainModule)}"
   set savedState
-  let name' :=
-    if !isProjectLocal then
-      s!"{name}{nameToSuffix (← getMainModule)}"
-    else if !isModuleLocal then
-      s!"{name}{nameToSuffix (← getMainModule).getRoot}"
-    else
-      name
-  liftMacroM <| mkUnusedBaseName <| Name.mkSimple name'
-where
-  nameToSuffix : Name → String
-  | .anonymous => ""
-  | .num n _ => nameToSuffix n
-  | .str n s => nameToSuffix n ++ "_" ++ s
+  liftMacroM <| mkUnusedBaseName <| Name.mkSimple name
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do
   -- leading_parser Term.attrKind >> "instance " >> optNamedPrio >> optional declId >> declSig >> declVal

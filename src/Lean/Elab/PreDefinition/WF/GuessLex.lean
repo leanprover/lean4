@@ -72,12 +72,21 @@ register_builtin_option showInferredTerminationBy : Bool := {
   descr    := "In recursive definitions, show the inferred `termination_by` measure."
 }
 
+
 /--
-Given a predefinition, find good variable names for its parameters.
-Use user-given parameter names if present; use x1...xn otherwise.
+Given a predefinition, return the variabe names in the outermost lambdas.
+Includes the “fixed prefix”.
 
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
+-/
+def originalVarNames (preDef : PreDefinition) : MetaM (Array Name) := do
+  lambdaTelescope preDef.value fun xs _ => xs.mapM (·.fvarId!.getUserName)
+
+/--
+Given the original paramter names from `originalVarNames`, remove the fixed prefix and find
+good variable names to be used when talking about termination arguments:
+Use user-given parameter names if present; use x1...xn otherwise.
 
 The names ought to accessible (no macro scopes) and new names  fresh wrt to the current environment,
 so that with `showInferredTerminationBy` we can print them to the user reliably.
@@ -85,21 +94,20 @@ We do that by appending `'` as needed.
 
 It is possible (but unlikely without malice) that some of the user-given names
 shadow each other, and the guessed relation refers to the wrong one. In that
-case, the user gets to keep both pieces (and may have to rename variabes).
+case, the user gets to keep both pieces (and may have to rename variables).
 -/
 partial
-def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
-  lambdaTelescope preDef.value fun xs _ => do
-    let xs := xs.extract fixedPrefixSize xs.size
-    let mut ns : Array Name := #[]
-    for h : i in [:xs.size] do
-      let n ← (xs[i]'h.2).fvarId!.getUserName
-      let n ← if n.hasMacroScopes then
-          freshen ns (.mkSimple s!"x{i+1}")
-        else
-          pure n
-      ns := ns.push n
-    return ns
+def naryVarNames (fixedPrefixSize : Nat) (xs : Array Name) : MetaM (Array Name) := do
+  let xs := xs.extract fixedPrefixSize xs.size
+  let mut ns : Array Name := #[]
+  for h : i in [:xs.size] do
+    let n := xs[i]'h.2
+    let n ← if n.hasMacroScopes then
+        freshen ns (.mkSimple s!"x{i+1}")
+      else
+        pure n
+    ns := ns.push n
+  return ns
   where
     freshen  (ns : Array Name) (n : Name): MetaM Name := do
       if !(ns.elem n) && (← resolveGlobalName n).isEmpty then
@@ -545,8 +553,9 @@ def mkTupleSyntax : Array Term → MetaM Term
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
 combination of these measures.
 -/
-def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
-    (measures : Array MutualMeasure) (trimVars : Bool): MetaM TerminationWF := do
+def buildTermWF (extraParams : Array Nat) (originalVarNamess : Array (Array Name))
+    (varNamess : Array (Array Name)) (measures : Array MutualMeasure) (trimVars : Bool)
+    : MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
     let vars := (varNamess[funIdx]'h.2).map mkIdent
@@ -557,10 +566,10 @@ def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
           -- Print `sizeOf` as such, unless it is shadowed.
           -- Shadowing by a `def` in the current namespace is handled
           -- by `unresolveNameGlobal`.
-          -- But it could also be shadowed by an earlier parameter, which
-          -- we detect in a rather ad-hoc way here.
+          -- But it could also be shadowed by an earlier parameter (fixed or not),
+          -- which we check in `originalVarNames`
           let sizeOfIdent :=
-            if vars.any (·.getId = `sizeOf) then
+            if originalVarNamess[funIdx]!.any (· = `sizeOf) then
               mkIdent ``sizeOf -- fully qualified
             else
               mkIdent (← unresolveNameGlobal ``sizeOf)
@@ -693,7 +702,8 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
     (fixedPrefixSize : Nat) :
     MetaM TerminationWF := do
   let extraParamss := preDefs.map (·.termination.extraParams)
-  let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
+  let originalVarNamess ← preDefs.mapM originalVarNames
+  let varNamess ← originalVarNamess.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
   trace[Elab.definition.wf] "varNames is: {varNamess}"
 
@@ -706,7 +716,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF extraParamss varNamess #[solution] (trimVars := false)
+    return ← buildTermWF extraParamss originalVarNamess varNamess #[solution] (trimVars := false)
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
@@ -718,11 +728,11 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   | .some solution => do
 
     if showInferredTerminationBy.get (← getOptions) then
-      let wf ← buildTermWF extraParamss varNamess solution (trimVars := true)
+      let wf ← buildTermWF extraParamss originalVarNamess varNamess solution (trimVars := true)
       for preDef in preDefs, term in wf do
         logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
 
-    buildTermWF extraParamss varNamess solution (trimVars := false)
+    buildTermWF extraParamss originalVarNamess varNamess solution (trimVars := false)
   | .none =>
     let explanation ← explainFailure (preDefs.map (·.declName)) varNamess rcs
     Lean.throwError <| "Could not find a decreasing measure.\n" ++

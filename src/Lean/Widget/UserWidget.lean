@@ -365,8 +365,6 @@ def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List User
         failure
     | _, _, _ => none
 
-deriving instance Server.RpcEncodable for WidgetInstance
-
 structure PanelWidgetInstance extends WidgetInstance where
   /-- The syntactic span in the Lean file at which the panel widget is displayed. -/
   range? : Option Lsp.Range := none

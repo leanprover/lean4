@@ -460,6 +460,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  add-full-ci-label:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Check if full-ci label is present
+        id: check-label
+        run: |
+          LABEL_PRESENT=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels" | jq -r '.[] | select(.name=="full-ci") | .name')
+          if [[ "$LABEL_PRESENT" == "full-ci" ]]; then
+            echo "Label is present"
+            echo "::set-output name=label_present::true"
+          else
+            echo "Label is not present"
+            echo "::set-output name=label_present::false"
+          fi
+
+      - name: Add full-ci label
+        if: steps.check-label.outputs.label_present == 'false'
+        run: |
+          curl -X POST -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"labels":["full-ci"]}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels"
+
   # This job creates nightly releases during the cron job.
   # It is responsible for creating the tag, and automatically generating a changelog.
   release-nightly:

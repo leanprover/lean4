@@ -545,7 +545,7 @@ def mkTupleSyntax : Array Term → MetaM Term
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
 combination of these measures.
 -/
-def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
+def buildTermWF (_extraParams : Array Nat) (varNamess : Array (Array Name))
     (measures : Array MutualMeasure) : MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
@@ -567,8 +567,15 @@ def buildTermWF (extraParams : Array Nat) (varNamess : Array (Array Name))
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
       )
-    let extraVars := vars[vars.size - extraParams[funIdx]! : vars.size]
-    termByElements := termByElements.push { ref := .missing, vars := extraVars, body }
+    -- TODO: From the user we expect to only bind the extra parameters after the :.
+    -- But we may guess measures that mention inaccessible parameter names from
+    -- before the :, so we need to generate `termination_by` clauses that the
+    -- user cannot write.
+    -- So we do not truncate the list of variables here, like so
+    --   let extraVars := vars[vars.size - extraParams[funIdx]! : vars.size]
+    -- This means that we may suggest to the user a termination argument that requires
+    -- changes (e.g. brining more variables into scope) before it goes through.
+    termByElements := termByElements.push { ref := .missing, vars := vars, body }
   return termByElements
 
 

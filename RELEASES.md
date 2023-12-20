@@ -25,8 +25,12 @@ v4.5.0 (development in progress)
   * They are now placed directly after the function they apply to, instead of after the whole `mutual` block.
   * Therefore, the function name no longer has to be repeated.
   * If the function has a `where`, the `termination_by` and `decreasing_by` clauses come before.
+  * The `termination_by` clause must bind exactly those parameters that are not
+    already bound by the function header. If there are none, the `=>` can be
+    omitted.
 
-  Migration guide: In simple cases just remove the function name:
+  Migration guide: In simple cases just remove the function name, and any
+  variables already bound at the header.
   ```diff
    def foo : Nat → Nat → Nat := …
   -termination_by foo a b => a - b
@@ -37,6 +41,13 @@ v4.5.0 (development in progress)
    def foo : Nat → Nat → Nat := …
   -termination_by _ a b => a - b
   +termination_by a b => a - b
+  ```
+
+  If the parameters are bound in the function header (before the `:`), remove them as well:
+  ```diff
+   def foo (a b : Nat) : Nat := …
+  -termination_by foo a b => a - b
+  +termination_by a - b
   ```
 
   In the case of a `mutual` block, place the termination arguments (without the

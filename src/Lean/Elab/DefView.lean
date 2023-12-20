@@ -231,13 +231,13 @@ def mkInstanceName (binders : Array Syntax) (type : Syntax) : CommandElabM Name 
   let savedState ← get
   let name ←
     try
-      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutAutoBoundImplicit <| Term.withoutErrToSorry do
+      runTermElabM fun _ => Term.withAutoBoundImplicit <| Term.elabBinders binders fun binds => Term.withoutErrToSorry do
         -- Unfortunately we can't include any of the binders from `runTermElabM` since, without
         -- elaborating the body of the instance, we have no idea which of these binders are
         -- actually used.
         mkInstanceBaseNameFromExpr binds (← Term.elabType type)
     catch _ =>
-      pure s!"inst{moduleToSuffix (← getMainModule)}"
+      pure s!"inst_sorry{moduleToSuffix (← getMainModule)}"
   set savedState
   liftMacroM <| mkUnusedBaseName <| Name.mkSimple name
 

@@ -11,7 +11,7 @@
   run_config:
     <<: *time
     cmd: |
-      bash -c 'set -eo pipefail; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999" -C ${BUILD:-../../build/release}/stage2 --output-sync --always-make -j5 make_stdlib 2>&1 > log | ./accumulate_profile.py'
+      bash -c 'set -eo pipefail; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999" -C ${BUILD:-../../build/release}/stage2 --output-sync --always-make -j$(nproc) make_stdlib 2>&1 > log | ./accumulate_profile.py'
     max_runs: 2
     parse_output: true
   # initialize stage2 cmake + warmup

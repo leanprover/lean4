@@ -8,7 +8,10 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.5.0 (development in progress)
+v4.6.0 (development in progress)
+---------
+
+v4.5.0
 ---------
 
 * Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
@@ -42,6 +45,49 @@ v4.5.0 (development in progress)
   ```
 
 * Support snippet edits in LSP `TextEdit`s. See `Lean.Lsp.SnippetString` for more details.
+
+* Deprecations and changes in the widget API.
+  - `Widget.UserWidgetDefinition` is deprecated in favour of `Widget.Module`. The annotation `@[widget]` is deprecated in favour of `@[widget_module]`. To migrate a definition of type `UserWidgetDefinition`, remove the `name` field and replace the type with `Widget.Module`. Removing the `name` results in a title bar no longer being drawn above your panel widget. To add it back, draw it as part of the component using `<details open=true><summary class='mv2 pointer'>{name}</summary>{rest_of_widget}</details>`. See an example migration [here](https://github.com/leanprover/std4/pull/475/files#diff-857376079661a0c28a53b7ff84701afabbdf529836a6944d106c5294f0e68109R43-R83).
+  - The new command `show_panel_widgets` allows displaying always-on and locally-on panel widgets.
+  - `RpcEncodable` widget props can now be stored in the infotree.
+  - See [RFC 2963](https://github.com/leanprover/lean4/issues/2963) for more details and motivation. 
+
+* If no usable lexicographic order can be found automatically for a termination proof, explain why.
+  See [feat: GuessLex: if no measure is found, explain why](https://github.com/leanprover/lean4/pull/2960).
+
+* Option to print [inferred termination argument](https://github.com/leanprover/lean4/pull/3012).
+  With `set_option showInferredTerminationBy true` you will get messages like
+  ```
+  Inferred termination argument:
+  termination_by
+  ackermann n m => (sizeOf n, sizeOf m)
+  ```
+  for automatically generated `termination_by` clauses.
+
+* More detailed error messages for [invalid mutual blocks](https://github.com/leanprover/lean4/pull/2949).
+
+* [Multiple](https://github.com/leanprover/lean4/pull/2923) [improvements](https://github.com/leanprover/lean4/pull/2969) to the output of `simp?` and `simp_all?`.
+
+* Tactics with `withLocation *` [no longer fail](https://github.com/leanprover/lean4/pull/2917) if they close the main goal.
+
+* Implementation of a `test_extern` command for writing tests for `@[extern]` and `@[implemented_by]` functions.
+  Usage is 
+  ```
+  import Lean.Util.TestExtern
+
+  test_extern Nat.add 17 37
+  ```
+  The head symbol must be the constant with the `@[extern]` or `@[implemented_by]` attribute. The return type must have a `DecidableEq` instance.
+
+Bug fixes for 
+[#2853](https://github.com/leanprover/lean4/issues/2853), [#2953](https://github.com/leanprover/lean4/issues/2953), [#2966](https://github.com/leanprover/lean4/issues/2966), 
+[#2971](https://github.com/leanprover/lean4/issues/2971), [#2990](https://github.com/leanprover/lean4/issues/2990), [#3094](https://github.com/leanprover/lean4/issues/3094).
+
+Bug fix for [eager evaluation of default value](https://github.com/leanprover/lean4/pull/3043) in `Option.getD`.
+Avoid [panic in `leanPosToLspPos`](https://github.com/leanprover/lean4/pull/3071) when file source is unavailable.
+Improve [short-circuiting behavior](https://github.com/leanprover/lean4/pull/2972) for `List.all` and `List.any`.
+
+Several Lake bug fixes: [#3036](https://github.com/leanprover/lean4/issues/3036), [#3064](https://github.com/leanprover/lean4/issues/3064), [#3069](https://github.com/leanprover/lean4/issues/3069).
 
 v4.4.0
 ---------

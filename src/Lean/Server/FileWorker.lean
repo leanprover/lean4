@@ -139,14 +139,15 @@ section Elab
         node.element.diagnostics.interactiveDiags.map (·.toDiagnostic)
       if st.hasBlocked && !node.element.diagnostics.msgLog.isEmpty then
         ctx.chanOut.send <| mkPublishDiagnosticsNotification m diagnostics
-      let infoTrees := match node.element.infoTree? with
-        | some itree => st.infoTrees.push itree
-        | none       => st.infoTrees
-      let mut st := { st with diagnostics, infoTrees, isFatal := node.element.isFatal }
-      if st.hasBlocked && node.element.infoTree?.isSome then
-        ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
-        st := { st with infoTrees := #[] }
       -- we assume that only the last node in the tree sets `isFatal`
+      let mut st := { st with diagnostics, isFatal := node.element.isFatal }
+
+      if let some itree := node.element.infoTree? then
+        let mut infoTrees := st.infoTrees.push itree
+        if st.hasBlocked then
+          ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
+          infoTrees := #[]
+        st := { st with infoTrees }
       goSeq st cont node.children.toList
     goSeq st cont
       | [] => cont st

@@ -634,9 +634,7 @@ def Replacement.apply (r : Replacement) (e : Expr) : Expr :=
       | _      => none
     | _ => none
 
-
-def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr)
-    (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
+def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainVals : Array Expr)
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
@@ -689,8 +687,7 @@ def getModifiersForLetRecs (mainHeaders : Array DefViewElabHeader) : Modifiers :
 - `mainVals`:      The elaborated value for the top-level definitions
 - `letRecsToLift`: The let-rec's definitions that need to be lifted
 -/
-def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr)
-    (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
+def main (sectionVars : Array Expr) (mainHeaders : Array DefViewElabHeader) (mainFVars : Array Expr) (mainVals : Array Expr) (letRecsToLift : List LetRecToLift)
     : TermElabM (Array PreDefinition) := do
   -- Store in recFVarIds the fvarId of every function being defined by the mutual block.
   let letRecsToLift := letRecsToLift.toArray

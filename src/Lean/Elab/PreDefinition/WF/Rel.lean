@@ -14,14 +14,6 @@ namespace Lean.Elab.WF
 open Meta
 open Term
 
-/-
-private def getRefFromElems (elems : Array TerminationByElement) : Syntax := Id.run do
-  for elem in elems do
-    if !elem.implicit then
-      return elem.ref
-  return elems[0]!.ref
--/
-
 private partial def unpackMutual (preDefs : Array PreDefinition) (mvarId : MVarId) (fvarId : FVarId) : TermElabM (Array (FVarId × MVarId)) := do
   let rec go (i : Nat) (mvarId : MVarId) (fvarId : FVarId) (result : Array (FVarId × MVarId)) : TermElabM (Array (FVarId × MVarId)) := do
     if i < preDefs.size - 1 then
@@ -62,9 +54,6 @@ def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (fixedPre
   let expectedType := mkApp (mkConst ``WellFoundedRelation [u]) α
   trace[Elab.definition.wf] "elabWFRel start: {(← mkFreshTypeMVar).mvarId!}"
   withDeclName unaryPreDefName do
-  -- TODO: Which ref to use here?
-  -- withRef (getRefFromElems wf) do
-  id do
     let mainMVarId := (← mkFreshExprSyntheticOpaqueMVar expectedType).mvarId!
     let [fMVarId, wfRelMVarId, _] ← mainMVarId.apply (← mkConstWithFreshMVarLevels ``invImage) | throwError "failed to apply 'invImage'"
     let (d, fMVarId) ← fMVarId.intro1

@@ -34,7 +34,7 @@ scoped macro (name := moduleFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"module_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$foo]? $[$bar]? $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| module_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -62,21 +62,18 @@ scoped macro (name := packageFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"package_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$foo]? $[$bar]?  $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| package_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
     let facetId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
     let pkg ← expandOptSimpleBinder pkg?
-    -- These parsers do not even exist, why is the quotation below expecting them?
-    let foo : Option (TSyntax `Lean.Parser.Command.terminationBy) := none
-    let bar : Option (TSyntax `Lean.Parser.Command.decreasingBy) := none
     `(package_data $id : BuildJob $ty
       $[$doc?]? @[$attrs,*] abbrev $facetId : PackageFacetDecl := {
         name := $name
         config := Lake.mkFacetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]? $[$foo]? $[$bar]? )
+      } $[$wds?]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
 /--

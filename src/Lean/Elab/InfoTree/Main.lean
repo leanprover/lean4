@@ -142,7 +142,7 @@ def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : 
   return f!"Macro expansion\n{stx}\n===>\n{output}"
 
 def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
-  f!"UserWidget {info.widgetId}\n{Std.ToFormat.format info.props}"
+  f!"UserWidget {info.id}\n{Std.ToFormat.format <| info.props.run' {}}"
 
 def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
   f!"FVarAlias {info.userName.eraseMacroScopes}"

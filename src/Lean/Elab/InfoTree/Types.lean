@@ -9,6 +9,8 @@ import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
 import Lean.Data.Json
+import Lean.Server.Rpc.Basic
+import Lean.Widget.Types
 
 namespace Lean.Elab
 
@@ -95,17 +97,12 @@ structure CustomInfo where
   stx : Syntax
   value : Dynamic
 
-/-- An info that represents a user-widget.
-User-widgets are custom pieces of code that run on the editor client.
-You can learn about user widgets at `src/Lean/Widget/UserWidget`
--/
-structure UserWidgetInfo where
+/-- Information about a user widget associated with a syntactic span.
+This must be a panel widget.
+A panel widget is a widget that can be displayed
+in the infoview alongside the goal state. -/
+structure UserWidgetInfo extends Widget.WidgetInstance where
   stx : Syntax
-  /-- Id of `WidgetSource` object to use. -/
-  widgetId : Name
-  /-- Json representing the props to be loaded in to the component. -/
-  props : Json
-  deriving Inhabited
 
 /--
 Specifies that the given free variables should be considered semantically identical.

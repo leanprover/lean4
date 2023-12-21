@@ -330,7 +330,7 @@ private def AttributeExtension.mkInitial : IO AttributeExtensionState := do
 
 unsafe def mkAttributeImplOfConstantUnsafe (env : Environment) (opts : Options) (declName : Name) : Except String AttributeImpl :=
   match env.find? declName with
-  | none      => throw ("unknow constant '" ++ toString declName ++ "'")
+  | none      => throw ("unknown constant '" ++ toString declName ++ "'")
   | some info =>
     match info.type with
     | Expr.const `Lean.AttributeImpl _ => env.evalConst AttributeImpl opts declName

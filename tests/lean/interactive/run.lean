@@ -33,6 +33,30 @@ structure InteractiveGoals where
 
 end Client
 
+/-! Test-only instances -/
+
+instance : FromJson Widget.PanelWidgetInstance where
+  fromJson? j := do
+    let id ← j.getObjValAs? Name "id"
+    let javascriptHash ← j.getObjValAs? UInt64 "javascriptHash"
+    let props ← j.getObjVal? "props"
+    let range? ← j.getObjValAs? (Option Lsp.Range) "range"
+    return { id, javascriptHash, props := pure props, range? }
+
+deriving instance FromJson for Widget.GetWidgetsResponse
+
+def Lean.Widget.GetWidgetsResponse.debugJson (r : Widget.GetWidgetsResponse) : Json :=
+  Json.mkObj [
+    ("widgets", Json.arr (r.widgets.map fun w =>
+      Json.mkObj [
+        ("id", toJson w.id),
+        ("javascriptHash", toJson w.javascriptHash),
+        ("props", w.props.run' {}),
+        ("range", toJson w.range?),
+      ])
+    )
+  ]
+
 def word : Parsec String :=
   Parsec.many1Chars <| Parsec.digit <|> Parsec.asciiLetter <|> Parsec.pchar '_'
 
@@ -155,7 +179,7 @@ partial def main (args : List String) : IO Unit := do
           Ipc.writeRequest ⟨requestNo, "$/lean/rpc/call", ps⟩
           let response ← Ipc.readResponseAs requestNo Lean.Widget.GetWidgetsResponse
           requestNo := requestNo + 1
-          IO.eprintln (toJson response.result)
+          IO.eprintln response.result.debugJson
           for w in response.result.widgets do
             let params : Lean.Widget.GetWidgetSourceParams := { pos, hash := w.javascriptHash }
             let ps : RpcCallParams := {

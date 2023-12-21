@@ -142,10 +142,11 @@ section Elab
       let infoTrees := match node.element.infoTree? with
         | some itree => st.infoTrees.push itree
         | none       => st.infoTrees
+      let mut st := { st with diagnostics, infoTrees, isFatal := node.element.isFatal }
       if st.hasBlocked && node.element.infoTree?.isSome then
         ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
+        st := { st with infoTrees := #[] }
       -- we assume that only the last node in the tree sets `isFatal`
-      let st := { st with diagnostics, infoTrees, isFatal := node.element.isFatal }
       goSeq st cont node.children.toList
     goSeq st cont
       | [] => cont st

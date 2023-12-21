@@ -89,10 +89,17 @@ section Elab
       JsonRpc.Notification Lsp.LeanIleanInfoParams :=
     mkIleanInfoNotification "$/lean/ileanInfoFinal"
 
+  /-- State of `reportSnapshots`. -/
   private structure ReportSnapshotsState where
+    /-- Whether we have waited for a snapshot to finish at least once (see debouncing below). -/
     hasBlocked := false
+    /-- All diagnostics encountered so far. -/
     diagnostics : Array Lsp.Diagnostic := #[]
-    infoTrees : Array Elab.InfoTree := #[]
+    /-- All info trees encountered so far. -/
+    allInfoTrees : Array Elab.InfoTree := #[]
+    /-- New info trees encountered since we last sent a .ilean update notification. -/
+    newInfoTrees : Array Elab.InfoTree := #[]
+    /-- Whether we should finish with a fatal progress notification. -/
     isFatal := false
 
   register_builtin_option server.reportDelayMs : Nat := {
@@ -130,7 +137,7 @@ section Elab
         ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send <| mkIleanInfoFinalNotification m st.infoTrees
+      ctx.chanOut.send <| mkIleanInfoFinalNotification m st.allInfoTrees
       return .pure ()
     go node st cont := do
       if (← IO.checkCanceled) then
@@ -143,11 +150,11 @@ section Elab
       let mut st := { st with diagnostics, isFatal := node.element.isFatal }
 
       if let some itree := node.element.infoTree? then
-        let mut infoTrees := st.infoTrees.push itree
+        let mut newInfoTrees := st.newInfoTrees.push itree
         if st.hasBlocked then
-          ctx.chanOut.send <| mkIleanInfoUpdateNotification m infoTrees
-          infoTrees := #[]
-        st := { st with infoTrees }
+          ctx.chanOut.send <| mkIleanInfoUpdateNotification m newInfoTrees
+          newInfoTrees := #[]
+        st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
       goSeq st cont node.children.toList
     goSeq st cont
       | [] => cont st

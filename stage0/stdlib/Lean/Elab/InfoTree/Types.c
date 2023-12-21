@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Init Lean.Data.Position Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json
+// Imports: Init Lean.Data.Position Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json Lean.Server.Rpc.Basic Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -21,7 +21,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree___rarg___lambda__1(lean_o
 LEAN_EXPORT lean_object* l_Lean_Elab_setInfoState(lean_object*);
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__6;
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
-static lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_assignment___default;
 LEAN_EXPORT lean_object* l_Lean_Elab_instMonadInfoTree(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_InfoState_trees___default___closed__2;
@@ -66,7 +65,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_InfoState_trees___default;
 static lean_object* l_Lean_Elab_ContextInfo_mctx___default___closed__5;
 static lean_object* l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 static lean_object* l_Lean_Elab_instInhabitedTermInfo___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Elab_instInhabitedUserWidgetInfo;
 static lean_object* _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1() {
 _start:
 {
@@ -384,28 +382,6 @@ x_1 = l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = lean_box(0);
-x_2 = lean_box(0);
-x_3 = lean_box(0);
-x_4 = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Elab_instInhabitedUserWidgetInfo() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1;
-return x_1;
-}
-}
 static lean_object* _init_l_Lean_Elab_instInhabitedInfo___closed__1() {
 _start:
 {
@@ -607,6 +583,8 @@ lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Widget_Types(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -628,6 +606,12 @@ res = initialize_Lean_Environment(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Server_Rpc_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Widget_Types(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Elab_ContextInfo_mctx___default___closed__1 = _init_l_Lean_Elab_ContextInfo_mctx___default___closed__1();
@@ -686,10 +670,6 @@ l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1 = _init_l_Lean_Elab_inst
 lean_mark_persistent(l_Lean_Elab_instInhabitedMacroExpansionInfo___closed__1);
 l_Lean_Elab_instInhabitedMacroExpansionInfo = _init_l_Lean_Elab_instInhabitedMacroExpansionInfo();
 lean_mark_persistent(l_Lean_Elab_instInhabitedMacroExpansionInfo);
-l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1 = _init_l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1();
-lean_mark_persistent(l_Lean_Elab_instInhabitedUserWidgetInfo___closed__1);
-l_Lean_Elab_instInhabitedUserWidgetInfo = _init_l_Lean_Elab_instInhabitedUserWidgetInfo();
-lean_mark_persistent(l_Lean_Elab_instInhabitedUserWidgetInfo);
 l_Lean_Elab_instInhabitedInfo___closed__1 = _init_l_Lean_Elab_instInhabitedInfo___closed__1();
 lean_mark_persistent(l_Lean_Elab_instInhabitedInfo___closed__1);
 l_Lean_Elab_instInhabitedInfo = _init_l_Lean_Elab_instInhabitedInfo();

@@ -114,7 +114,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanUnsignedToNatFn___boxed(lean
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_ShouldForwardControlFlow_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanMkStringFromBytesFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_llvm_const_int(size_t, size_t, uint64_t, uint8_t, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1123____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* lean_llvm_get_value_name2(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_IR_EmitLLVM_emitFnDecls___spec__4(lean_object*, lean_object*);
 lean_object* lean_llvm_set_tail_call(size_t, size_t, uint8_t, lean_object*);
@@ -664,6 +663,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitSProj___lambda__1___boxed(lean_o
 static lean_object* l_Lean_IR_EmitLLVM_emitMainFn___lambda__8___closed__1;
 static lean_object* l_Lean_IR_leanMainFn___closed__1;
 LEAN_EXPORT lean_object* l_List_forIn_loop___at_Lean_IR_EmitLLVM_emitFnArgs___spec__2(size_t, size_t, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_IR_IRType_beq___spec__1(lean_object*, lean_object*);
 lean_object* lean_llvm_double_type_in_context(size_t, lean_object*);
 lean_object* lean_llvm_get_next_function(size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_getEnv(size_t, lean_object*);
@@ -37486,7 +37486,7 @@ _start:
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 
 x_10 = l_Lean_Expr_constName_x3f(x_1);
 x_11 = l_Lean_IR_EmitLLVM_emitMainFn___lambda__4___closed__3;
-x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1123____at_Lean_IR_IRType_beq___spec__1(x_10, x_11);
+x_12 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_IR_IRType_beq___spec__1(x_10, x_11);
 lean_dec(x_10);
 if (x_12 == 0)
 {

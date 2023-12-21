@@ -42,7 +42,10 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
 
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
 
-  `(structure RpcEncodablePacket where
+  let indName := mkIdent indVal.name
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    structure RpcEncodablePacket where
       $[($fieldIds : $fieldTys)]*
       deriving FromJson, ToJson
 
@@ -55,6 +58,7 @@ private def deriveStructureInstance (indVal : InductiveVal) (params : Array Expr
       dec j := do
         let a : RpcEncodablePacket ← fromJson? j
         return { $[$decInits],* }
+    end $indName
   )
 
 private def matchAltTerm := Lean.Parser.Term.matchAlt (rhsParser := Lean.Parser.termParser)
@@ -92,7 +96,10 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
   let paramIds ← params.mapM fun p => return mkIdent (← getFVarLocalDecl p).userName
   let typeId ← `(@$(mkIdent indVal.name) $paramIds*)
 
-  `(inductive RpcEncodablePacket where
+  let indName := mkIdent indVal.name
+  `(-- Workaround for https://github.com/leanprover/lean4/issues/2044
+    namespace $indName
+    inductive RpcEncodablePacket where
       $[$ctors:ctor]*
       deriving FromJson, ToJson
 
@@ -107,6 +114,7 @@ private def deriveInductiveInstance (indVal : InductiveVal) (params : Array Expr
         have inst : RpcEncodable $typeId := { rpcEncode := enc, rpcDecode := dec }
         let pkt : RpcEncodablePacket ← fromJson? j
         id <| match pkt with $[$decodes:matchAlt]*
+    end $indName
   )
 
 /-- Creates an `RpcEncodablePacket` for `typeName`. For structures, the packet is a structure

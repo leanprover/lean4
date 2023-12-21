@@ -82,11 +82,14 @@ jobs:
             })
 
       # Next, determine the most recent nightly release in this PR's history.
-      - name: Find most recent nightly
+      - name: Find most recent nightly in feature branch
         id: most-recent-nightly-tag
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         run: |
-          git ls-remote https://github.com/leanprover/lean4-nightly.git 'refs/tags/nightly-*' --sort version:refname |tail -n1| sed 's,.*refs/tags/nightly-,MOST_RECENT_NIGHTLY=,' >> $GITHUB_ENV
+          git -C lean4.git remote add nightly https://github.com/leanprover/lean4-nightly.git
+          git -C lean4.git fetch nightly '+refs/tags/nightly-*:refs/tags/nightly-*'
+          git -C lean4.git tag --merged "${{ steps.workflow-info.outputs.sourceHeadSha }}" --list "nightly-*" \
+            | sort -rV | head -n 1 | sed "s/^nightly-*/MOST_RECENT_NIGHTLY=/" | tee -a $GITHUB_ENV
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -97,8 +100,8 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: ready
         run: |
-          echo "Most recent nightly: $MOST_RECENT_NIGHTLY"
-          NIGHTLY_SHA=$(git ls-remote https://github.com/leanprover/lean4-nightly.git "nightly-$MOST_RECENT_NIGHTLY"|cut -f1)
+          echo "Most recent nightly in your branch: $MOST_RECENT_NIGHTLY"
+          NIGHTLY_SHA=$(git -C lean4.git rev-parse "nightly-$MOST_RECENT_NIGHTLY^{commit}")
           echo "SHA of most recent nightly: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")
           echo "SHA of merge-base: $MERGE_BASE_SHA"

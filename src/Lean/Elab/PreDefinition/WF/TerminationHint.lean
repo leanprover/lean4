@@ -93,6 +93,7 @@ def TerminationHints.checkVars (headerParams : Nat) (hints : TerminationHints) (
 
 open Parser.Termination
 
+/-- Takes apart a `Termination.suffix` syntax object -/
 def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) : m TerminationHints := do
   if let .missing := stx.raw then
     return { TerminationHints.none with ref := stx }

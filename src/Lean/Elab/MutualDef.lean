@@ -222,10 +222,12 @@ private def expandWhereStructInst : Macro
 /-
 Recall that
 ```
-def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
+def declValSimple    := leading_parser " :=\n" >> termParser >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
+
+The `Termination.suffix` is ignored here, and extracted in `declValToTerminationHint`.
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
@@ -239,6 +241,7 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
   else
     Macro.throwErrorAt declVal "unexpected declaration body"
 
+/-- Elaborates the termination hints in a `declVal` syntax. -/
 private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
   if declVal.isOfKind ``Parser.Command.declValSimple then
     WF.elabTerminationHints ⟨declVal[2]⟩

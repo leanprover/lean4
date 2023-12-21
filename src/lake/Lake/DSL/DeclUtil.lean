@@ -96,5 +96,5 @@ def mkConfigDecl (name? : Option Name)
 | `(structDeclSig| $id:ident { $[$fs $[,]?]* } $[$wds?:whereDecls]?) => do
   let fields ← fs.mapM expandDeclField
   let defn ← `({ name := $(quote id.getId), $fields,* })
-  `(command|$[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
+  `($[$doc?]? @[$attrs,*] abbrev $(fixName id name?) : $ty := $defn $[$wds?:whereDecls]?)
 | stx => Macro.throwErrorAt stx "ill-formed configuration syntax"

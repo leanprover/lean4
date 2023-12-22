@@ -8482,7 +8482,7 @@ static lean_object* _init_l_Lean_mkAttributeImplOfConstantUnsafe___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("unknow constant '", 17);
+x_1 = lean_mk_string_from_bytes("unknown constant '", 18);
 return x_1;
 }
 }

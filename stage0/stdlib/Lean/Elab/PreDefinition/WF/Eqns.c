@@ -7179,7 +7179,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; uint8_t x_6; uint8_t x_7; 
 x_5 = lean_array_uget(x_1, x_2);
-x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*6);
+x_6 = lean_ctor_get_uint8(x_5, sizeof(void*)*7);
 lean_dec(x_5);
 x_7 = l_Lean_Elab_DefKind_isTheorem(x_6);
 if (x_7 == 0)

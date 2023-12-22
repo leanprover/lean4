@@ -3395,35 +3395,35 @@ x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 return x_7;
 }
-case 2:
+case 4:
 {
 lean_object* x_8; lean_object* x_9; 
 x_8 = lean_ctor_get(x_1, 0);
-x_9 = lean_ctor_get(x_8, 1);
+x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 return x_9;
 }
-case 3:
+case 5:
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_10, 1);
+x_11 = lean_ctor_get(x_10, 4);
 lean_inc(x_11);
 return x_11;
 }
-case 5:
+case 6:
 {
 lean_object* x_12; lean_object* x_13; 
 x_12 = lean_ctor_get(x_1, 0);
-x_13 = lean_ctor_get(x_12, 4);
-lean_inc(x_13);
+x_13 = l_Lean_Elab_CompletionInfo_stx(x_12);
 return x_13;
 }
-case 6:
+case 8:
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_ctor_get(x_1, 0);
-x_15 = l_Lean_Elab_CompletionInfo_stx(x_14);
+x_15 = lean_ctor_get(x_14, 0);
+lean_inc(x_15);
 return x_15;
 }
 case 9:
@@ -3443,7 +3443,7 @@ default:
 {
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_ctor_get(x_1, 0);
-x_19 = lean_ctor_get(x_18, 0);
+x_19 = lean_ctor_get(x_18, 1);
 lean_inc(x_19);
 return x_19;
 }

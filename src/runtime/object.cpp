@@ -579,7 +579,7 @@ struct scoped_current_task_object : flet<lean_task_object *> {
 
 class task_manager {
     mutex                                         m_mutex;
-    unsigned                                      m_num_std_workers{0};
+    std::vector<std::unique_ptr<lthread>>         m_std_workers;
     unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
     unsigned                                      m_num_dedicated_workers{0};
@@ -588,7 +588,6 @@ class task_manager {
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    condition_variable                            m_worker_finished_cv;
     bool                                          m_shutting_down{false};
 
     lean_task_object * dequeue() {
@@ -619,7 +618,7 @@ class task_manager {
             m_max_prio = prio;
         m_queues[prio].push_back(t);
         m_queues_size++;
-        if (!m_idle_std_workers && m_num_std_workers < m_max_std_workers)
+        if (!m_idle_std_workers && m_std_workers.size() < m_max_std_workers)
             spawn_worker();
         else
             m_queue_cv.notify_one();
@@ -644,8 +643,10 @@ class task_manager {
     }
 
     void spawn_worker() {
-        m_num_std_workers++;
-        lthread([this]() {
+        if (m_shutting_down)
+            return;
+
+        m_std_workers.emplace_back(new lthread([this]() {
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
@@ -665,10 +666,7 @@ class task_manager {
                 reset_heartbeat();
             }
             m_idle_std_workers--;
-            m_num_std_workers--;
-            m_worker_finished_cv.notify_all();
-        });
-        // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
+        }));
     }
 
     void spawn_dedicated_worker(lean_task_object * t) {
@@ -678,9 +676,8 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
             m_num_dedicated_workers--;
-            m_worker_finished_cv.notify_all();
         });
-        // see above
+        // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
 
     void run_task(unique_lock<mutex> & lock, lean_task_object * t) {
@@ -769,12 +766,16 @@ public:
     }
 
     ~task_manager() {
-        unique_lock<mutex> lock(m_mutex);
-        m_shutting_down = true;
+        {
+            unique_lock<mutex> lock(m_mutex);
+            m_shutting_down = true;
+            // we can assume that `m_std_workers` will not be changed after this line
+        }
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
-        m_worker_finished_cv.wait(lock, [&]() { return m_num_std_workers + m_num_dedicated_workers == 0; });
+        for (auto & t : m_std_workers)
+            t->join();
         // never seems to terminate under Emscripten
 #endif
     }

@@ -73,4 +73,4 @@ macro_rules
   let attr ← withRef kw `(Term.attrInstance| «post_update»)
   let attrs := #[attr] ++ expandAttrs attrs?
   `($[$doc?]? @[$attrs,*] def postUpdateHook : PostUpdateHookDecl :=
-    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?]?)
+    {pkg := $pkgName, fn := fun $pkg => $defn} $[$wds?:whereDecls]?)

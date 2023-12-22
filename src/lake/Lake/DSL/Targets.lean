@@ -45,7 +45,7 @@ kw:"module_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $mod => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
 /--
@@ -73,7 +73,7 @@ kw:"package_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
 /--
@@ -101,7 +101,7 @@ kw:"library_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $lib => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
 --------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ kw:"target " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkTargetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
-      }  $[$wds?]?)
+      }  $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 
 

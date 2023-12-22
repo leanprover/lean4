@@ -95,6 +95,10 @@ open Parser.Termination
 
 /-- Takes apart a `Termination.suffix` syntax object -/
 def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) : m TerminationHints := do
+  -- Fail gracefully upon partial parses
+  if let .missing := stx.raw then
+    return { TerminationHints.none with ref := stx }
+  -- This can be removed after the next stage0 bump
   if stx.raw.matchesNull 0 then
     return { TerminationHints.none with ref := stx }
   match stx with

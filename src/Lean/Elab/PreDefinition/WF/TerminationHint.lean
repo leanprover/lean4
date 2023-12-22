@@ -98,9 +98,6 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
   -- Fail gracefully upon partial parses
   if let .missing := stx.raw then
     return { TerminationHints.none with ref := stx }
-  -- This can be removed after the next stage0 bump
-  if stx.raw.matchesNull 0 then
-    return { TerminationHints.none with ref := stx }
   match stx with
   | `(suffix| $[$t?:terminationBy]? $[$d?:decreasingBy]? ) => do
     let termination_by? ← t?.mapM fun t => match t with

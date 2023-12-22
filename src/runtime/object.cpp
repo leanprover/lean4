@@ -772,8 +772,11 @@ public:
         unique_lock<mutex> lock(m_mutex);
         m_shutting_down = true;
         m_queue_cv.notify_all();
+#ifndef LEAN_EMSCRIPTEN
         // wait for all workers to finish
         m_worker_finished_cv.wait(lock, [&]() { return m_num_std_workers + m_num_dedicated_workers == 0; });
+        // never seems to terminate under Emscripten
+#endif
     }
 
     void enqueue(lean_task_object * t) {

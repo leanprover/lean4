@@ -159,7 +159,7 @@ def posOfAux (s : String) (c : Char) (stopPos : Pos) (pos : Pos) : Pos :=
       have := Nat.sub_lt_sub_left h (lt_next s pos)
       posOfAux s c stopPos (s.next pos)
   else pos
-termination_by _ => stopPos.1 - pos.1
+termination_by stopPos.1 - pos.1
 
 @[inline] def posOf (s : String) (c : Char) : Pos :=
   posOfAux s c s.endPos 0
@@ -171,7 +171,7 @@ def revPosOfAux (s : String) (c : Char) (pos : Pos) : Option Pos :=
     let pos := s.prev pos
     if s.get pos == c then some pos
     else revPosOfAux s c pos
-termination_by _ => pos.1
+termination_by pos.1
 
 def revPosOf (s : String) (c : Char) : Option Pos :=
   revPosOfAux s c s.endPos
@@ -183,7 +183,7 @@ def findAux (s : String) (p : Char → Bool) (stopPos : Pos) (pos : Pos) : Pos :
       have := Nat.sub_lt_sub_left h (lt_next s pos)
       findAux s p stopPos (s.next pos)
   else pos
-termination_by _ => stopPos.1 - pos.1
+termination_by stopPos.1 - pos.1
 
 @[inline] def find (s : String) (p : Char → Bool) : Pos :=
   findAux s p s.endPos 0
@@ -195,7 +195,7 @@ def revFindAux (s : String) (p : Char → Bool) (pos : Pos) : Option Pos :=
     let pos := s.prev pos
     if p (s.get pos) then some pos
     else revFindAux s p pos
-termination_by _ => pos.1
+termination_by pos.1
 
 def revFind (s : String) (p : Char → Bool) : Option Pos :=
   revFindAux s p s.endPos
@@ -213,8 +213,8 @@ def firstDiffPos (a b : String) : Pos :=
         have := Nat.sub_lt_sub_left h (lt_next a i)
         loop (a.next i)
     else i
+    termination_by stopPos.1 - i.1
   loop 0
-termination_by loop => stopPos.1 - i.1
 
 @[extern "lean_string_utf8_extract"]
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
@@ -240,7 +240,7 @@ where
       splitAux s p i' i' (s.extract b i :: r)
     else
       splitAux s p b (s.next i) r
-termination_by _ => s.endPos.1 - i.1
+termination_by s.endPos.1 - i.1
 
 @[specialize] def split (s : String) (p : Char → Bool) : List String :=
   splitAux s p 0 0 []
@@ -260,7 +260,7 @@ def splitOnAux (s sep : String) (b : Pos) (i : Pos) (j : Pos) (r : List String) 
         splitOnAux s sep b i j r
     else
       splitOnAux s sep b (s.next i) 0 r
-termination_by _ => s.endPos.1 - i.1
+termination_by s.endPos.1 - i.1
 
 def splitOn (s : String) (sep : String := " ") : List String :=
   if sep == "" then [s] else splitOnAux s sep 0 0 0 []
@@ -369,7 +369,7 @@ def offsetOfPosAux (s : String) (pos : Pos) (i : Pos) (offset : Nat) : Nat :=
   else
     have := Nat.sub_lt_sub_left (Nat.gt_of_not_le (mt decide_eq_true h)) (lt_next s _)
     offsetOfPosAux s pos (s.next i) (offset+1)
-termination_by _ => s.endPos.1 - i.1
+termination_by s.endPos.1 - i.1
 
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
   offsetOfPosAux s pos 0 0
@@ -379,7 +379,7 @@ def offsetOfPos (s : String) (pos : Pos) : Nat :=
     have := Nat.sub_lt_sub_left h (lt_next s i)
     foldlAux f s stopPos (s.next i) (f a (s.get i))
   else a
-termination_by _ => stopPos.1 - i.1
+termination_by stopPos.1 - i.1
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : String) : α :=
   foldlAux f s s.endPos 0 init
@@ -392,7 +392,7 @@ termination_by _ => stopPos.1 - i.1
     let a := f (s.get i) a
     foldrAux f a s i begPos
   else a
-termination_by _ => i.1
+termination_by i.1
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (init : α) (s : String) : α :=
   foldrAux f init s s.endPos 0
@@ -404,7 +404,7 @@ termination_by _ => i.1
       have := Nat.sub_lt_sub_left h (lt_next s i)
       anyAux s stopPos p (s.next i)
   else false
-termination_by _ => stopPos.1 - i.1
+termination_by stopPos.1 - i.1
 
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
   anyAux s s.endPos p 0
@@ -463,7 +463,7 @@ theorem mapAux_lemma (s : String) (i : Pos) (c : Char) (h : ¬s.atEnd i) :
     have := mapAux_lemma s i c h
     let s := s.set i c
     mapAux f (s.next i) s
-termination_by _ => s.endPos.1 - i.1
+termination_by s.endPos.1 - i.1
 
 @[inline] def map (f : Char → Char) (s : String) : String :=
   mapAux f 0 s
@@ -490,7 +490,7 @@ where
       have := Nat.sub_lt_sub_left h (Nat.add_lt_add_left (one_le_csize c₁) off1.1)
       c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
     else true
-termination_by loop => stop1.1 - off1.1
+  termination_by stop1.1 - off1.1
 
 /-- Return true iff `p` is a prefix of `s` -/
 def isPrefixOf (p : String) (s : String) : Bool :=
@@ -512,8 +512,8 @@ def replace (s pattern replacement : String) : String :=
         else
           have := Nat.sub_lt_sub_left this (lt_next s pos)
           loop acc accStop (s.next pos)
+      termination_by s.endPos.1 - pos.1
     loop "" 0 0
-termination_by loop => s.endPos.1 - pos.1
 
 end String
 
@@ -612,8 +612,8 @@ def splitOn (s : Substring) (sep : String := " ") : List Substring :=
         else
           s.extract b i :: r
         r.reverse
+      termination_by s.bsize - i.1
     loop 0 0 0 []
-termination_by loop => s.bsize - i.1
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (init : α) (s : Substring) : α :=
   match s with
@@ -640,7 +640,7 @@ def contains (s : Substring) (c : Char) : Bool :=
       takeWhileAux s stopPos p (s.next i)
     else i
   else i
-termination_by _ => stopPos.1 - i.1
+termination_by stopPos.1 - i.1
 
 @[inline] def takeWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>
@@ -661,7 +661,7 @@ termination_by _ => stopPos.1 - i.1
     if !p c then i
     else takeRightWhileAux s begPos p i'
   else i
-termination_by _ => i.1
+termination_by i.1
 
 @[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
   | ⟨s, b, e⟩, p =>

@@ -36,13 +36,12 @@ where
        if it.atEnd then r
        else if it.curr == ' ' || it.curr == '\t' then consumeSpaces n it.next r
        else saveLine it r
+  termination_by (it, 1)
   saveLine (it : String.Iterator) (r : String) : String :=
     if it.atEnd then r
     else if it.curr == '\n' then consumeSpaces n it.next (r.push '\n')
     else saveLine it.next (r.push it.curr)
-termination_by
-  consumeSpaces n it r => (it, 1)
-  saveLine it r => (it, 0)
+  termination_by (it, 0)
 
 def removeLeadingSpaces (s : String) : String :=
   let n := findLeadingSpacesSize s

@@ -419,7 +419,7 @@ where
         loop (i+1)
     else
       vs.push v
-termination_by loop i => vs.size - i
+  termination_by vs.size - i
 
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .node vs cs =>

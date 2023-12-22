@@ -1039,7 +1039,7 @@ where
       go (i+1) (args.push (quote xs[i]))
     else
       Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
-termination_by go i _ => xs.size - i
+  termination_by xs.size - i
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := quoteArray

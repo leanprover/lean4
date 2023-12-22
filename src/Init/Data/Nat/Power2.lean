@@ -21,8 +21,8 @@ where
       go (power * 2) (Nat.mul_pos h (by decide))
     else
       power
-termination_by go p h => n - p
-decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  termination_by n - power
+  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 def isPowerOfTwo (n : Nat) := ∃ k, n = 2 ^ k
 
@@ -48,7 +48,7 @@ where
     split
     . exact isPowerOfTwo_go (power*2) (Nat.mul_pos h₁ (by decide)) (Nat.mul2_isPowerOfTwo_of_isPowerOfTwo h₂)
     . assumption
-termination_by isPowerOfTwo_go p _ _ => n - p
-decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
+  termination_by n - power
+  decreasing_by simp_wf; apply nextPowerOfTwo_dec <;> assumption
 
 end Nat

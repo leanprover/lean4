@@ -26,8 +26,8 @@ def qpartition (as : Array α) (lt : α → α → Bool) (lo hi : Nat) : Nat × 
     else
       let as := as.swap! i hi
       (i, as)
+    termination_by hi - j
   loop as lo lo
-termination_by _ => hi - j
 
 @[inline] partial def qsort (as : Array α) (lt : α → α → Bool) (low := 0) (high := as.size - 1) : Array α :=
   let rec @[specialize] sort (as : Array α) (low high : Nat) :=

@@ -7,19 +7,6 @@ Authors: E.W.Ayers, Wojciech Nawrocki
 import Lean.Elab.Eval
 import Lean.Server.Rpc.RequestHandling
 
-namespace Lean.Server
-open Elab Command in
-/-- Derive `Lean.Server.RpcEncodable` for a type.
-
-TODO: remove after update-stage0 -/
-elab "#mkrpcenc" n:ident : command => do
-  elabCommand <| ← `(
-    namespace $n
-    deriving instance Lean.Server.RpcEncodable for $n
-    end $n
-  )
-end Lean.Server
-
 namespace Lean.Widget
 open Meta Elab
 
@@ -351,7 +338,7 @@ opaque evalUserWidgetDefinition [Monad m] [MonadEnv m] [MonadOptions m] [MonadEr
 
 /-! ## Retrieving panel widget instances -/
 
-#mkrpcenc WidgetInstance
+deriving instance Server.RpcEncodable for WidgetInstance
 
 /-- Retrieve all the `UserWidgetInfo`s that intersect a given line. -/
 def widgetInfosAt? (text : FileMap) (t : InfoTree) (hoverLine : Nat) : List UserWidgetInfo :=
@@ -374,12 +361,12 @@ structure PanelWidgetInstance extends WidgetInstance where
   but retained for backwards compatibility
   with `UserWidgetDefinition`. -/
   name? : Option String := none
-#mkrpcenc PanelWidgetInstance
+  deriving Server.RpcEncodable
 
 /-- Output of `getWidgets` RPC.-/
 structure GetWidgetsResponse where
   widgets : Array PanelWidgetInstance
-#mkrpcenc GetWidgetsResponse
+  deriving Server.RpcEncodable
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/

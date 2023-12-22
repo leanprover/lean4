@@ -159,7 +159,7 @@ def appendTrees :  RBNode α β → RBNode α β → RBNode α β
      | bc                   => balLeft a kx vx (node black bc ky vy d)
    | a, node red b kx vx c   => node red (appendTrees a b) kx vx c
    | node red a kx vx b,   c => node red a kx vx (appendTrees b c)
-termination_by _ x y => x.size + y.size
+termination_by x y => x.size + y.size
 
 section Erase
 

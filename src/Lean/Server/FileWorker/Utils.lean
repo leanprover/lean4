@@ -47,14 +47,11 @@ private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
     AsyncList ElabTaskError Snapshot := Id.run do
   let some headerParsed := initSnap.success? | return .nil
   .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
-    -- NOTE: this throws away interactive diagnostics of header errors but these are not interactive
-    -- anyway
     let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
     return .pure <| .ok <| .cons {
       stx := initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-      interactiveDiags := headerProcessed.diagnostics.interactiveDiags
     } <| .delayed <| headerSuccess.next.task.bind go
 where go cmdParsed :=
   cmdParsed.data.sig.task.bind fun sig =>
@@ -63,21 +60,38 @@ where go cmdParsed :=
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
         cmdState := finished.cmdState
-        interactiveDiags :=
-          cmdParsed.data.diagnostics.interactiveDiags ++ sig.diagnostics.interactiveDiags
       } (match cmdParsed.next? with
         | some next => .delayed <| next.task.bind go
         | none => .nil)
 
-/-- A document editable in the sense that we track the environment
-and parser state after each command so that edits can be applied
-without recompiling code appearing earlier in the file. -/
-structure EditableDocument where
+/-- A map from Diagnostics ID to resulting interactive objects. -/
+abbrev DiagnosticsCache := RBMap Nat (Array Widget.InteractiveDiagnostic) compare
+
+/--
+A document bundled with processing information. Turned into `EditableDocument` as soon as the
+reporter task has been started.
+-/
+structure EditableDocumentCore where
+  /-- The document. -/
   meta       : DocumentMeta
-  /-- State snapshots after header and each command. -/
+  /-- Initial processing snapshot. -/
   -- TODO: generalize to other languages by moving request handlers into `Language`
   initSnap : Language.Lean.InitialSnapshot
+  /-- Old representation for backward compatibility. -/
   cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
+  /--
+  Interactive versions of diagnostics reported so far. Filled by `reportSnapshots` and read by
+  `handleGetInteractiveDiagnosticsRequest`.
+  -/
+  diagnosticsRef : IO.Ref (Array Widget.InteractiveDiagnostic)
+  /--
+  Cache of interactive diagnostics reported so far, for reuse in future document versions. May be
+  a subset of `diagnosticsRef` if there any `Snapshot.Diagnostics.id?` are empty.
+  -/
+  diagnosticsCacheRef : IO.Ref DiagnosticsCache
+
+/-- `EditableDocumentCore` with reporter task. -/
+structure EditableDocument extends EditableDocumentCore where
   /--
     Task reporting processing status back to client. We store it here for implementing
     `waitForDiagnostics`. -/

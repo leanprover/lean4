@@ -64,7 +64,7 @@ structure WorkerContext where
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersion    : IO.Ref Nat
+  maxDocVersionRef : IO.Ref Nat
   hLog             : FS.Stream
   initParams       : InitializeParams
   processor        : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
@@ -93,8 +93,6 @@ section Elab
   private structure ReportSnapshotsState where
     /-- Whether we have waited for a snapshot to finish at least once (see debouncing below). -/
     hasBlocked := false
-    /-- All diagnostics encountered so far. -/
-    diagnostics : Array Lsp.Diagnostic := #[]
     /-- All info trees encountered so far. -/
     allInfoTrees : Array Elab.InfoTree := #[]
     /-- New info trees encountered since we last sent a .ilean update notification. -/
@@ -120,39 +118,51 @@ section Elab
     * afterwards, each time new information is found in a snapshot
     * at the very end, if we never blocked (e.g. emptying a file should make
       sure to empty diagnostics as well eventually) -/
-  private partial def reportSnapshots (ctx : WorkerContext) (m : DocumentMeta)
-      (snaps : Language.SnapshotTree) : BaseIO (Task Unit) := do
+  private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
+      (prevDiagnosticsCache : DiagnosticsCache) : BaseIO (Task Unit) := do
     let t ← BaseIO.asTask do
       IO.sleep (server.reportDelayMs.get ctx.opts).toUInt32
     BaseIO.bindTask t fun _ =>
       start
   where
-    start := go snaps { : ReportSnapshotsState } fun st => do
+    start := go (Language.toSnapshotTree doc.initSnap) { : ReportSnapshotsState } fun st => do
       -- callback at the end of reporting
       if st.isFatal then
-        ctx.chanOut.send <| mkFileProgressAtPosNotification m 0 .fatalError
+        ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
       else
-        ctx.chanOut.send <| mkFileProgressDoneNotification m
+        ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
       unless st.hasBlocked do
-        ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
+        publishDiagnostics
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send <| mkIleanInfoFinalNotification m st.allInfoTrees
+      ctx.chanOut.send <| mkIleanInfoFinalNotification doc.meta st.allInfoTrees
       return .pure ()
+    publishDiagnostics := do
+      ctx.chanOut.send <| mkPublishDiagnosticsNotification doc.meta <|
+        (← doc.diagnosticsRef.get).map (·.toDiagnostic)
     go node st cont := do
       if (← IO.checkCanceled) then
         return .pure ()
-      let diagnostics := st.diagnostics ++
-        node.element.diagnostics.interactiveDiags.map (·.toDiagnostic)
-      if st.hasBlocked && !node.element.diagnostics.msgLog.isEmpty then
-        ctx.chanOut.send <| mkPublishDiagnosticsNotification m diagnostics
+      let idiags ←
+        if let some cached := node.element.diagnostics.id?.bind prevDiagnosticsCache.find? then
+          pure cached
+        else
+          let idiags ← node.element.diagnostics.msgLog.toList.toArray.mapM
+            (Widget.msgToInteractiveDiagnostic doc.meta.text · ctx.clientHasWidgets)
+          if let some id := node.element.diagnostics.id? then
+            doc.diagnosticsCacheRef.modify (·.insert id idiags)
+          pure idiags
+      if !node.element.diagnostics.msgLog.isEmpty then
+        doc.diagnosticsRef.modify (· ++ idiags)
+        if st.hasBlocked then
+          publishDiagnostics
       -- we assume that only the last node in the tree sets `isFatal`
-      let mut st := { st with diagnostics, isFatal := node.element.isFatal }
+      let mut st := { st with isFatal := node.element.isFatal }
 
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := st.newInfoTrees.push itree
         if st.hasBlocked then
-          ctx.chanOut.send <| mkIleanInfoUpdateNotification m newInfoTrees
+          ctx.chanOut.send <| mkIleanInfoUpdateNotification doc.meta newInfoTrees
           newInfoTrees := #[]
         st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
       goSeq st cont node.children.toList
@@ -161,9 +171,9 @@ section Elab
       | t::ts => do
         let mut st := st
         unless (← IO.hasFinished t.task) do
-          ctx.chanOut.send <| mkFileProgressAtPosNotification m t.range.start
+          ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta t.range.start
           if !st.hasBlocked then
-            ctx.chanOut.send <| mkPublishDiagnosticsNotification m st.diagnostics
+            publishDiagnostics
             st := { st with hasBlocked := true }
         BaseIO.bindTask t.task fun node =>
           go node st (goSeq · cont ts)
@@ -196,11 +206,11 @@ section Initialization
       if let some path := System.Uri.fileUriToPath? meta.uri then
         mainModuleName ← moduleNameOfFileName path none
     catch _ => pure ()
-    let maxDocVersion ← IO.mkRef 0
-    let chanOut ← mkLspOutputChannel maxDocVersion
+    let maxDocVersionRef ← IO.mkRef 0
+    let nextDiagsIdRef ← IO.mkRef 0
+    let chanOut ← mkLspOutputChannel maxDocVersionRef
     let processor ← Language.Lean.mkIncrementalProcessor {
-      opts, mainModuleName
-      clientHasWidgets
+      opts, mainModuleName, nextDiagsIdRef
       fileSetupHandler? := some fun imports => do
         let result ← setupFile meta imports fun stderrLine => do
           let progressDiagnostic := {
@@ -221,13 +231,17 @@ section Initialization
       initParams
       processor
       clientHasWidgets
-      maxDocVersion
+      maxDocVersionRef
       opts
     }
-    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
-    let doc : EditableDocument := { meta, initSnap, reporter }
-    return (ctx,
-    { doc
+    let doc : EditableDocumentCore := {
+      meta, initSnap
+      diagnosticsRef := (← IO.mkRef ∅)
+      diagnosticsCacheRef := (← IO.mkRef ∅)
+    }
+    let reporter ← reportSnapshots ctx doc ∅
+    return (ctx, {
+      doc := { doc with reporter }
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none
@@ -264,13 +278,18 @@ section Updates
     modify fun st => { st with pendingRequests := map st.pendingRequests }
 
   /-- Given the new document, updates editable doc state. -/
-  def updateDocument (meta : DocumentMeta) : WorkerM Unit := do
+  def updateDocument (oldDoc : EditableDocument) (meta : DocumentMeta) : WorkerM Unit := do
     let ctx ← read
     let initSnap ← ctx.processor meta.mkInputContext
-    let reporter ← reportSnapshots ctx meta (Language.ToSnapshotTree.toSnapshotTree initSnap)
-    modify fun st => { st with doc := { meta, initSnap, reporter } }
+    let doc : EditableDocumentCore := {
+      meta, initSnap
+      diagnosticsRef := (← IO.mkRef ∅)
+      diagnosticsCacheRef := (← IO.mkRef ∅)
+    }
+    let reporter ← reportSnapshots ctx doc (← oldDoc.diagnosticsCacheRef.get)
+    modify fun st => { st with doc := { doc with reporter } }
     -- we assume versions are monotonous
-    ctx.maxDocVersion.set meta.version
+    ctx.maxDocVersionRef.set meta.version
 end Updates
 
 /- Notifications are handled in the main thread. They may change global worker state
@@ -283,7 +302,7 @@ section NotificationHandling
     let newVersion := docId.version?.getD 0
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
-      updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      updateDocument oldDoc ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
@@ -340,6 +359,17 @@ section MessageHandling
       : WorkerM Unit := do
     updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
 
+  open Widget RequestM Language in
+  def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
+      WorkerM (Array InteractiveDiagnostic) := do
+    let st ← get
+    let diags ← st.doc.diagnosticsRef.get
+    return diags.filter fun diag =>
+      params.lineRange?.all fun ⟨s, e⟩ =>
+        -- does [s,e) intersect [diag.fullRange.start.line,diag.fullRange.end.line)?
+        s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
+        diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
+
   def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
       : WorkerM (Task (Except Error AvailableImportsCache)) := do
     let ctx ← read
@@ -369,21 +399,40 @@ section MessageHandling
     let ctx ← read
     let st ← get
 
-    if method == "$/lean/rpc/connect" then
-      try
+    -- special cases
+    try
+      match method with
+      -- needs access to `rpcSessions`
+      | "$/lean/rpc/connect" =>
         let ps ← parseParams RpcConnectParams params
         let resp ← handleRpcConnect ps
         ctx.chanOut.send <| .response id (toJson resp)
-      catch e =>
-        ctx.chanOut.send <| .responseError id .internalError (toString e) none
-      return
-
-    if method == "textDocument/completion" then
-      let params ← parseParams CompletionParams params
-      if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params then
-        let importCachingTask ← handleImportCompletionRequest id params
-        set <| { st with importCachingTask? := some importCachingTask }
         return
+      | "$/lean/rpc/call" =>
+        let params ← parseParams Lsp.RpcCallParams params
+        -- needs access to `diagnosticsRef`
+        if params.method == `Lean.Widget.getInteractiveDiagnostics then
+          let some seshRef := st.rpcSessions.find? params.sessionId
+            | ctx.chanOut.send <| .responseError id .rpcNeedsReconnect "Outdated RPC session" none
+          let params ← IO.ofExcept (fromJson? params.params)
+          let resp ← handleGetInteractiveDiagnosticsRequest params
+
+          let resp ← seshRef.modifyGet fun st =>
+            rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
+          ctx.chanOut.send <| .response id resp
+          return
+      | "textDocument/completion" =>
+        let params ← parseParams CompletionParams params
+        -- must not wait on import processing snapshot
+        if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params
+        then
+          let importCachingTask ← handleImportCompletionRequest id params
+          set { st with importCachingTask? := some importCachingTask }
+          return
+      | _ => pure ()
+    catch e =>
+      ctx.chanOut.send <| .responseError id .internalError (toString e) none
+      return
 
     -- we assume that any other request requires at least the the search path
     -- TODO: move into language-specific request handling

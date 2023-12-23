@@ -13,7 +13,7 @@
     cmd: |
       bash -c 'set -eo pipefail; touch ../../src/Init/Prelude.lean; make LEAN_OPTS="-Dprofiler=true -Dprofiler.threshold=9999" -C ${BUILD:-../../build/release}/stage2 --output-sync -j$(nproc) make_stdlib 2>&1 | ./accumulate_profile.py'
     max_runs: 2
-    #parse_output: true
+    parse_output: true
   # initialize stage2 cmake + warmup
   build_config:
     cmd: |

@@ -1668,14 +1668,14 @@ Warning: if the `let_fun` is applied to additional arguments (such as in `(let_f
 `let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
 They can be created using `Lean.Meta.mkLetFun`.
 
-If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
+If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `a` for the binder name.
 -/
 def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
   match e with
   | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
     match f with
     | .lam n _ b _ => some (n, t, v, b)
-    | _ => some (.anonymous, t, v, .app f (.bvar 0))
+    | _ => some (`a, t, v, .app f (.bvar 0))
   | _ => none
 
 /--
@@ -1692,7 +1692,7 @@ def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Ex
   let rest := args.extract 4 args.size
   match f with
   | .lam n _ b _ => some (rest, n, t, v, b)
-  | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
+  | _ => some (rest, `a, t, v, .app f (.bvar 0))
 
 end Expr
 

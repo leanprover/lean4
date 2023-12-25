@@ -920,7 +920,10 @@ def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
 /--
-If the given expression is a sequence of function applications `f a₁ .. aₙ`,
+Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
+If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
+
+In particular, if the given expression is a sequence of function applications `f a₁ .. aₙ`,
 returns `f a₁ .. aₖ` where `k` is minimal such that `n - k ≤ maxArgs`.
 -/
 def getBoundedAppFn : (maxArgs : Nat) → Expr → Expr
@@ -942,7 +945,9 @@ private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | _,       as, _     => as
 
 /--
-Given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
+Like `Lean.Expr.getAppArgs` but returns up to `maxArgs` arguments.
+
+In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
 where `k` is minimal such that the size of this array is at most `maxArgs`.
 -/
 @[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=

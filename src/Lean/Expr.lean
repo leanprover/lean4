@@ -948,6 +948,20 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   withAppAux k e (mkArray nargs dummy) (nargs-1)
 
 /--
+Given `f a_1 ... a_n`, returns `#[a_1, ..., a_n]`.
+Note that `f` may be an application.
+The resulting array has size `n` even if `f.getAppNumArgs < n`.
+-/
+@[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
+  let dummy := mkSort levelZero
+  loop n e (mkArray n dummy)
+where
+  loop : Nat → Expr → Array Expr → Array Expr
+    | 0,   _,        as => as
+    | i+1, .app f a, as => loop i f (as.set! i a)
+    | _,   _,        as => as
+
+/--
 Given `e` of the form `f a_1 ... a_n`, return `f`.
 If `n` is greater than the number of arguments, then return `e.getAppFn`.
 -/

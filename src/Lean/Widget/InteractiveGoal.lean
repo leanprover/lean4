@@ -197,4 +197,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
       mvarId
     }
 
+def goalsToInteractive (goals : Array MVarId) : MetaM InteractiveGoals := do
+  return { goals := ← goals.mapM Widget.goalToInteractive }
+
 end Lean.Widget

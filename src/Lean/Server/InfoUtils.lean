@@ -56,16 +56,29 @@ def InfoTree.visitM' [Monad m]
     (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
     (t : InfoTree) : m Unit := t.visitM preNode (fun ci i cs _ => postNode ci i cs) |> discard
 
+variable (p : ContextInfo → Info → PersistentArray InfoTree → List α → List α) in
 /--
   Visit nodes bottom-up, passing in a surrounding context (the innermost one) and the union of nested results (empty at leaves). -/
-def InfoTree.collectNodesBottomUp (p : ContextInfo → Info → PersistentArray InfoTree → List α → List α) (i : InfoTree) : List α :=
+def InfoTree.collectNodesBottomUp  (i : InfoTree) : List α :=
   i.visitM (m := Id) (postNode := fun ci i cs as => p ci i cs (as.filterMap id).join) |>.getD []
 
+variable [Monad m] (pred : ContextInfo → Info → m (Option α)) in
+def InfoTree.collectNodesM (i : InfoTree) : m (List α) := do
+  let r ← i.visitM (postNode := fun ci i _ as => do
+    let as := (as.filterMap id).join
+    if let some a ← pred ci i then
+      return a :: as
+    else
+      return as
+  )
+  return r.getD []
+
+variable (p : ContextInfo → Info → PersistentArray InfoTree → Option α) in
 /--
   For every branch of the `InfoTree`, find the deepest node in that branch for which `p` returns
   `some _`  and return the union of all such nodes. The visitor `p` is given a node together with
   its innermost surrounding `ContextInfo`. -/
-partial def InfoTree.deepestNodes (p : ContextInfo → Info → PersistentArray InfoTree → Option α) (infoTree : InfoTree) : List α :=
+partial def InfoTree.deepestNodes (infoTree : InfoTree) : List α :=
   infoTree.collectNodesBottomUp fun ctx i cs rs =>
     if rs.isEmpty then
       match p ctx i cs with

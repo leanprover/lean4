@@ -99,6 +99,18 @@ def SavedState.restore (b : SavedState) (restoreInfo := false) : TacticM Unit :=
   b.term.restore restoreInfo
   set b.tactic
 
+/-- Run the given tactic `t`, but then revert the state back to before `t` was applied
+and return the mctx and goals after `t`. -/
+def hypothetically (t : TacticM α) : TacticM (α × MetavarContext × List MVarId) := do
+  let s₀ ← Tactic.saveState
+  let gs₀ ← getGoals
+  let a ← t
+  let mctx₁ ← getMCtx
+  let gs₁ ← getGoals
+  SavedState.restore s₀
+  setGoals gs₀
+  return (a, mctx₁, gs₁)
+
 protected def getCurrMacroScope : TacticM MacroScope := do pure (← readThe Core.Context).currMacroScope
 protected def getMainModule     : TacticM Name       := do pure (← getEnv).mainModule
 

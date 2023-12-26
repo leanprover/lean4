@@ -192,34 +192,39 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
   else
     return none
 
-private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
+private def reduceStep (e : Expr) : SimpM Expr := do
   let cfg := (← read).config
-  if e.getAppFn.isMVar then
-    let e' ← instantiateMVars e
-    if e' != e then
-      return (← reduce e')
+  let f := e.getAppFn
+  if f.isMVar then
+    return (← instantiateMVars e)
   if cfg.beta then
-    let e' := e.headBeta
-    if e' != e then
-      return (← reduce e')
+    if f.isHeadBetaTargetFn false then
+      return f.betaRev e.getAppRevArgs
   -- TODO: eta reduction
   if cfg.proj then
     match (← reduceProjFn? e) with
-    | some e => return (← reduce e)
+    | some e => return e
     | none   => pure ()
   if cfg.iota then
     match (← reduceRecMatcher? e) with
-    | some e => return (← reduce e)
+    | some e => return e
     | none   => pure ()
   if cfg.zeta then
     if let some (args, _, _, v, b) := e.letFunAppArgs? then
-      return (← reduce <| mkAppN (b.instantiate1 v) args)
+      return mkAppN (b.instantiate1 v) args
   match (← unfold? e) with
   | some e' =>
     trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
-    reduce e'
+    return e'
   | none => return e
+
+private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
+  let e' ← reduceStep e
+  if e' == e then
+    return e'
+  else
+    reduce e'
 
 private partial def dsimp (e : Expr) : M Expr := do
   let cfg ← getConfig
@@ -483,14 +488,14 @@ where
       congrDefault e
 
   simpApp (e : Expr) : M Result := do
-    let e ← reduce e
-    if !e.isApp then
-      simp e
-    else if isOfNatNatLit e then
+    let e' ← reduceStep e
+    if e' != e then
+      simp e'
+    else if isOfNatNatLit e' then
       -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
-      return { expr := e }
+      return { expr := e' }
     else
-      congr e
+      congr e'
 
   simpConst (e : Expr) : M Result :=
     return { expr := (← reduce e) }

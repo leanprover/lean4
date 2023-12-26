@@ -947,6 +947,23 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   let nargs := e.getAppNumArgs
   withAppAux k e (mkArray nargs dummy) (nargs-1)
 
+/--
+Given `e` of the form `f a_1 ... a_n`, return `f`.
+If `n` is greater than the number of arguments, then return `e.getAppFn`.
+-/
+def extractNumArgs (e : Expr) (n : Nat) : Expr :=
+  match n, e with
+  | 0,   _        => e
+  | n+1, .app f _ => extractNumArgs f n
+  | _,   _        => e
+
+/--
+Given `e` of the form `f a_1 ... a_n ... a_m`, return `f a_1 ... a_n`.
+If `n` is greater than the arity, then return `e`.
+-/
+def getAppPrefix (e : Expr) (n : Nat) : Expr :=
+  e.extractNumArgs (e.getAppNumArgs - n)
+
 /-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
 makes a new function application with the results. -/
 def traverseApp {M} [Monad M]

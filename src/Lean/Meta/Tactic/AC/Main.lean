@@ -150,7 +150,7 @@ def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   newGoal.refl
 where
   post (e : Expr) : SimpM Simp.Step := do
-    let ctx ← read
+    let ctx ← Simp.getContext
     match e, ctx.parent? with
     | bin op₁ l r, some (bin op₂ _ _) =>
       if ←isDefEq op₁ op₂ then

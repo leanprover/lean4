@@ -54,7 +54,7 @@ where
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
     | none    =>
-      match (← Simp.simpMatchCore? app e SplitIf.discharge?) with
+      match (← Simp.simpMatchCore? app.matcherName e SplitIf.discharge?) with
       | some r => return r
       | none => return Simp.Step.visit { expr := e }
 

@@ -84,6 +84,10 @@ theorem dite_congr {_ : Decidable b} [Decidable c]
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl
 @[simp] theorem dite_true {α : Sort u} {t : True → α} {e : ¬ True → α} : (dite True t e) = t True.intro := rfl
 @[simp] theorem dite_false {α : Sort u} {t : False → α} {e : ¬ False → α} : (dite False t e) = e not_false := rfl
+@[simp ↓] theorem ite_cond_true {_ : Decidable c} (a b : α) (h : c) : (if c then a else b) = a := by simp [h]
+@[simp ↓] theorem ite_cond_false {_ : Decidable c} (a b : α) (h : ¬ c) : (if c then a else b) = b := by simp [h]
+@[simp ↓] theorem dite_cond_true {α : Sort u} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : c) : (dite c t e) = t h := by simp [h]
+@[simp ↓] theorem dite_cond_false {α : Sort u} {_ : Decidable c} {t : c → α} {e : ¬ c → α} (h : ¬ c) : (dite c t e) = e h := by simp [h]
 @[simp] theorem ite_self {α : Sort u} {c : Prop} {d : Decidable c} (a : α) : ite c a a = a := by cases d <;> rfl
 @[simp] theorem and_self (p : Prop) : (p ∧ p) = p := propext ⟨(·.1), fun h => ⟨h, h⟩⟩
 @[simp] theorem and_true (p : Prop) : (p ∧ True) = p := propext ⟨(·.1), (⟨·, trivial⟩)⟩

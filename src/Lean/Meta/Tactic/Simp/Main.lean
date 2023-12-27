@@ -573,8 +573,60 @@ def congr (e : Expr) : SimpM Result := do
   else
     congrDefault e
 
+def simpApp (e : Expr) : SimpM Result := do
+  let e' ← reduceStep e
+  if e' != e then
+    simp e'
+  else if isOfNatNatLit e' then
+    -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
+    return { expr := e' }
+  else
+    congr e'
+
+def simpStep (e : Expr) : SimpM Result := do
+  match e with
+  | .mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
+  | .proj ..     => simpProj e
+  | .app ..      => simpApp e
+  | .lam ..      => simpLambda e
+  | .forallE ..  => simpForall e
+  | .letE ..     => simpLet e
+  | .const ..    => simpConst e
+  | .bvar ..     => unreachable!
+  | .sort ..     => return { expr := e }
+  | .lit ..      => simpLit e
+  | .mvar ..     => return { expr := (← instantiateMVars e) }
+  | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
+
+def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
+  if cfg.memoize then
+    let dischargeDepth := (← readThe Simp.Context).dischargeDepth
+    modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+  return r
+
+partial def simpLoop (e : Expr) (r : Result) : SimpM Result := do
+  let cfg ← getConfig
+  if (← get).numSteps > cfg.maxSteps then
+    throwError "simp failed, maximum number of steps exceeded"
+  else
+    let init := r.expr
+    modify fun s => { s with numSteps := s.numSteps + 1 }
+    match (← pre r.expr) with
+    | Step.done r'  => cacheResult e cfg (← mkEqTrans r r')
+    | Step.visit r' =>
+      let r ← mkEqTrans r r'
+      let r ← mkEqTrans r (← simpStep r.expr)
+      match (← post r.expr) with
+      | Step.done r'  => cacheResult e cfg (← mkEqTrans r r')
+      | Step.visit r' =>
+        let r ← mkEqTrans r r'
+        if cfg.singlePass || init == r.expr then
+          cacheResult e cfg r
+        else
+          simpLoop e r
+
 @[export lean_simp]
-partial def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
+def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
   let cfg ← getConfig
   if (← isProof e) then
@@ -588,60 +640,7 @@ partial def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
       if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
         return result
   trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
-  simpLoop { expr := e }
-
-where
-  cacheResult (cfg : Config) (r : Result) : SimpM Result := do
-    if cfg.memoize then
-      let dischargeDepth := (← readThe Simp.Context).dischargeDepth
-      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
-    return r
-
-  simpLoop (r : Result) : SimpM Result := do
-    let cfg ← getConfig
-    if (← get).numSteps > cfg.maxSteps then
-      throwError "simp failed, maximum number of steps exceeded"
-    else
-      let init := r.expr
-      modify fun s => { s with numSteps := s.numSteps + 1 }
-      match (← pre r.expr) with
-      | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
-      | Step.visit r' =>
-        let r ← mkEqTrans r r'
-        let r ← mkEqTrans r (← simpStep r.expr)
-        match (← post r.expr) with
-        | Step.done r'  => cacheResult cfg (← mkEqTrans r r')
-        | Step.visit r' =>
-          let r ← mkEqTrans r r'
-          if cfg.singlePass || init == r.expr then
-            cacheResult cfg r
-          else
-            simpLoop r
-
-  simpStep (e : Expr) : SimpM Result := do
-    match e with
-    | .mdata m e   => let r ← simp e; return { r with expr := mkMData m r.expr }
-    | .proj ..     => simpProj e
-    | .app ..      => simpApp e
-    | .lam ..      => simpLambda e
-    | .forallE ..  => simpForall e
-    | .letE ..     => simpLet e
-    | .const ..    => simpConst e
-    | .bvar ..     => unreachable!
-    | .sort ..     => return { expr := e }
-    | .lit ..      => simpLit e
-    | .mvar ..     => return { expr := (← instantiateMVars e) }
-    | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
-
-  simpApp (e : Expr) : SimpM Result := do
-    let e' ← reduceStep e
-    if e' != e then
-      simp e'
-    else if isOfNatNatLit e' then
-      -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
-      return { expr := e' }
-    else
-      congr e'
+  simpLoop e { expr := e }
 
 @[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x

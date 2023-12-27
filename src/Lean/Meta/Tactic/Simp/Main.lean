@@ -633,14 +633,6 @@ where
     | .mvar ..     => return { expr := (← instantiateMVars e) }
     | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
-  simpMatch? (e : Expr) : SimpM (Option Result) := do
-    let .const declName _ := e.getAppFn
-      | return none
-    if let some info ← getMatcherInfo? declName then
-      simpMatchDiscrs? info e
-    else
-      return none
-
   simpApp (e : Expr) : SimpM Result := do
     let e' ← reduceStep e
     if e' != e then
@@ -648,8 +640,6 @@ where
     else if isOfNatNatLit e' then
       -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
       return { expr := e' }
-    else if let some r ← simpMatch? e' then
-      simpLoop r
     else
       congr e'
 

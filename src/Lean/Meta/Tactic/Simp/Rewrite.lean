@@ -181,6 +181,13 @@ where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
 
+@[inline] def andThen' (s : Step) (f? : Expr → SimpM Step) : SimpM Step := do
+  match s with
+  | Step.done _  => return s
+  | Step.visit r =>
+    let s' ← f? r.expr
+    return s'.updateResult (← mkEqTrans r s'.result)
+
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
   | Step.done _  => return s
@@ -240,8 +247,44 @@ def simpArith? (e : Expr) : SimpM (Option Step) := do
   let some (e', h) ← Linear.simp? e (← getContext).parent? | return none
   return Step.visit { expr := e', proof? := h }
 
-def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
-  for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
+/--
+Given a match-application `e` with `MatcherInfo` `info`, return `some result`
+if at least of one of the discriminants has been simplified.
+-/
+def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := do
+  let numArgs := e.getAppNumArgs
+  if numArgs < info.arity then
+    return none
+  let prefixSize := info.numParams + 1 /- motive -/
+  let n     := numArgs - prefixSize
+  let f     := e.extractNumArgs n
+  let infos := (← getFunInfoNArgs f n).paramInfo
+  let args  := e.getAppArgsN n
+  let mut r : Result := { expr := f }
+  let mut modified := false
+  for i in [0 : info.numDiscrs] do
+    let arg := args[i]!
+    if i < infos.size && !infos[i]!.hasFwdDeps then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else if (← whnfD (← inferType r.expr)).isArrow then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else
+      let argNew ← dsimp arg
+      if argNew != arg then modified := true
+      r ← mkCongrFun r argNew
+  unless modified do
+    return none
+  for i in [info.numDiscrs : args.size] do
+    let arg := args[i]!
+    r ← mkCongrFun r arg
+  return some r
+
+def simpMatchCore? (matcherName : Name) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
+  for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
     match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
@@ -250,8 +293,16 @@ def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (O
 
 def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
   if (← getConfig).iota then
-    let some app ← matchMatcherApp? e | return none
-    simpMatchCore? app e discharge?
+    if let some e ← reduceRecMatcher? e then
+      return some (.visit { expr := e })
+    let .const declName _ := e.getAppFn
+      | return none
+    if let some info ← getMatcherInfo? declName then
+      if let some r ← simpMatchDiscrs? info e then
+        return some (.visit r)
+      simpMatchCore? declName e discharge?
+    else
+      return none
   else
     return none
 
@@ -267,13 +318,17 @@ def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly 
       return Step.visit r
   return Step.visit { expr := e }
 
-def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?
-  andThen s tryRewriteUsingDecide?
+  let s ← andThen s (simpMatch? discharge?)
+  let s ← andThen s tryRewriteUsingDecide?
+  if s.result.expr == e then
+    return s
+  else
+    andThen s (preDefault · discharge?)
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePost e discharge?
-  let s ← andThen s (simpMatch? discharge?)
   let s ← andThen s simpArith?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?

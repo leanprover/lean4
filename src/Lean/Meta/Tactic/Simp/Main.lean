@@ -487,6 +487,14 @@ where
     else
       congrDefault e
 
+  simpMatch? (e : Expr) : M (Option Result) := do
+    let .const declName _ := e.getAppFn
+      | return none
+    if let some info ← getMatcherInfo? declName then
+      simpMatchDiscrs? simp dsimp info e
+    else
+      return none
+
   simpApp (e : Expr) : M Result := do
     let e' ← reduceStep e
     if e' != e then
@@ -494,6 +502,8 @@ where
     else if isOfNatNatLit e' then
       -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
       return { expr := e' }
+    else if let some r ← simpMatch? e' then
+      simpLoop r
     else
       congr e'
 

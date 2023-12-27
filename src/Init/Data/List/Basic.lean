@@ -124,7 +124,8 @@ def appendTR (as bs : List α) : List α :=
   induction as with
   | nil  => rfl
   | cons a as ih =>
-    simp [reverseAux, List.append, ih, reverseAux_reverseAux]
+    rw [reverseAux, reverseAux_reverseAux]
+    simp [List.append, ih, reverseAux]
 
 instance : Append (List α) := ⟨List.append⟩
 

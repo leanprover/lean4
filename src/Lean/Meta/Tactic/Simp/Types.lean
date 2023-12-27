@@ -191,6 +191,46 @@ The resulting proof is built using `congr` and `congrFun` theorems.
     return r
 
 /--
+Given a match-application `e` with `MatcherInfo` `info`, return `some result`
+if at least of one of the discriminants has been simplified.
+-/
+@[specialize] def simpMatchDiscrs?
+    [Monad m] [MonadLiftT MetaM m] [MonadLiftT IO m] [MonadRef m] [MonadOptions m] [MonadTrace m] [AddMessageContext m]
+    (simp : Expr → m Result)
+    (dsimp : Expr → m Expr)
+    (info : MatcherInfo) (e : Expr) : m (Option Result) := do
+  let numArgs := e.getAppNumArgs
+  if numArgs < info.arity then
+    return none
+  let prefixSize := info.numParams + 1 /- motive -/
+  let n     := numArgs - prefixSize
+  let f     := e.extractNumArgs n
+  let infos := (← getFunInfoNArgs f n).paramInfo
+  let args  := e.getAppArgsN n
+  let mut r : Result := { expr := f }
+  let mut modified := false
+  for i in [0 : info.numDiscrs] do
+    let arg := args[i]!
+    if i < infos.size && !infos[i]!.hasFwdDeps then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else if (← whnfD (← inferType r.expr)).isArrow then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else
+      let argNew ← dsimp arg
+      if argNew != arg then modified := true
+      r ← mkCongrFun r argNew
+  unless modified do
+    return none
+  for i in [info.numDiscrs : args.size] do
+    let arg := args[i]!
+    r ← mkCongrFun r arg
+  return some r
+
+/--
 Helper class for generalizing `mkCongrSimp?`
 -/
 class MonadCongrCache (m : Type → Type) where

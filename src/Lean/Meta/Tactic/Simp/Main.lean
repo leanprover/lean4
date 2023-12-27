@@ -226,26 +226,6 @@ private partial def reduce (e : Expr) : SimpM Expr := withIncRecDepth do
   else
     reduce e'
 
-@[export lean_dsimp]
-private partial def dsimpImpl (e : Expr) : SimpM Expr := do
-  let cfg ← getConfig
-  unless cfg.dsimp do
-    return e
-  let pre (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
-      if r.expr != e then
-        return .visit r.expr
-    return .continue
-  let post (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
-      if r.expr != e then
-        return .visit r.expr
-    let mut eNew ← reduce e
-    if eNew.isFVar then
-      eNew ← reduceFVar cfg (← getSimpTheorems) eNew
-    if eNew != e then return .visit eNew else return .done e
-  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
-
 instance : Inhabited (SimpM α) where
   default := fun _ _ _ => default
 
@@ -276,6 +256,323 @@ def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
     else
       return SimpLetCase.dep
 
+def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
+  if (← getConfig).contextual then
+    let mut s ← getSimpTheorems
+    let mut updated := false
+    for x in xs do
+      if (← isProof x) then
+        s ← s.addTheorem (.fvar x.fvarId!) x
+        updated := true
+    if updated then
+      withSimpTheorems s f
+    else
+      f
+  else
+    f
+
+def simpLit (e : Expr) : SimpM Result := do
+  match e.natLit? with
+  | some n =>
+    /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
+        to avoid non-termination. See issue #788.  -/
+    if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
+      return { expr := e }
+    else
+      return { expr := (← mkNumeral (mkConst ``Nat) n) }
+  | none   => return { expr := e }
+
+def simpProj (e : Expr) : SimpM Result := do
+  match (← reduceProj? e) with
+  | some e => return { expr := e }
+  | none =>
+    let s := e.projExpr!
+    let motive? ← withLocalDeclD `s (← inferType s) fun s => do
+      let p := e.updateProj! s
+      if (← dependsOn (← inferType p) s.fvarId!) then
+        return none
+      else
+        let motive ← mkLambdaFVars #[s] (← mkEq e p)
+        if !(← isTypeCorrect motive) then
+          return none
+        else
+          return some motive
+    if let some motive := motive? then
+      let r ← simp s
+      let eNew := e.updateProj! r.expr
+      match r.proof? with
+      | none => return { expr := eNew }
+      | some h =>
+        let hNew ← mkEqNDRec motive (← mkEqRefl e) h
+        return { expr := eNew, proof? := some hNew }
+    else
+      return { expr := (← dsimp e) }
+
+def simpConst (e : Expr) : SimpM Result :=
+  return { expr := (← reduce e) }
+
+def simpLambda (e : Expr) : SimpM Result :=
+  withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
+    let r ← simp e
+    let eNew ← mkLambdaFVars xs r.expr
+    match r.proof? with
+    | none   => return { expr := eNew }
+    | some h =>
+      let p ← xs.foldrM (init := h) fun x h => do
+        mkFunExt (← mkLambdaFVars #[x] h)
+      return { expr := eNew, proof? := p }
+
+def simpArrow (e : Expr) : SimpM Result := do
+  trace[Debug.Meta.Tactic.simp] "arrow {e}"
+  let p := e.bindingDomain!
+  let q := e.bindingBody!
+  let rp ← simp p
+  trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
+  if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
+    trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
+    withLocalDeclD e.bindingName! rp.expr fun h => do
+      let s ← getSimpTheorems
+      let s ← s.addTheorem (.fvar h.fvarId!) h
+      withSimpTheorems s do
+        let rq ← simp q
+        match rq.proof? with
+        | none    => mkImpCongr e rp rq
+        | some hq =>
+          let hq ← mkLambdaFVars #[h] hq
+          /-
+            We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
+            ```lean
+            @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
+            @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
+            ```
+            And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
+            terms are definitionally equal using `withReducible`.
+            TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
+            problem.
+            -/
+          if rq.expr.containsFVar h.fvarId! then
+            return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
+          else
+            return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
+  else
+    mkImpCongr e rp (← simp q)
+
+def simpForall (e : Expr) : SimpM Result := withParent e do
+  trace[Debug.Meta.Tactic.simp] "forall {e}"
+  if e.isArrow then
+    simpArrow e
+  else if (← isProp e) then
+    /- The forall is a proposition. -/
+    let domain := e.bindingDomain!
+    if (← isProp domain) then
+      /-
+      The domain of the forall is also a proposition, and we can use `forall_prop_domain_congr`
+      IF we can simplify the domain.
+      -/
+      let rd ← simp domain
+      if let some h₁ := rd.proof? then
+        /- Using
+        ```
+        theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}
+            (h₁ : p₁ = p₂)
+            (h₂ : ∀ a : p₂, q₁ (h₁.substr a) = q₂ a)
+            : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a)
+        ```
+        Remark: we should consider whether we want to add congruence lemma support for arbitrary `forall`-expressions.
+        Then, the theroem above can be marked as `@[congr]` and the following code deleted.
+        -/
+        let p₁ := domain
+        let p₂ := rd.expr
+        let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
+        let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
+          let prop := mkSort levelZero
+          let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
+          let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
+          let rb ← simp q_h₁_substr_a
+          let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
+          let q₂ ← mkLambdaFVars #[a] rb.expr
+          let result ← mkForallFVars #[a] rb.expr
+          let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
+          return { expr := result, proof? := proof }
+        return result
+    let domain ← dsimp domain
+    withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
+      let b := e.bindingBody!.instantiate1 x
+      let rb ← simp b
+      let eNew ← mkForallFVars #[x] rb.expr
+      match rb.proof? with
+      | none   => return { expr := eNew }
+      | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
+  else
+    return { expr := (← dsimp e) }
+
+def simpLet (e : Expr) : SimpM Result := do
+  let .letE n t v b _ := e | unreachable!
+  if (← getConfig).zeta then
+    return { expr := b.instantiate1 v }
+  else
+    match (← getSimpLetCase n t b) with
+    | SimpLetCase.dep => return { expr := (← dsimp e) }
+    | SimpLetCase.nondep =>
+      let rv ← simp v
+      withLocalDeclD n t fun x => do
+        let bx := b.instantiate1 x
+        let rbx ← simp bx
+        let hb? ← match rbx.proof? with
+          | none => pure none
+          | some h => pure (some (← mkLambdaFVars #[x] h))
+        let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
+        match rv.proof?, hb? with
+        | none,   none   => return { expr := e' }
+        | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
+        | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
+    | SimpLetCase.nondepDepVar =>
+      let v' ← dsimp v
+      withLocalDeclD n t fun x => do
+        let bx := b.instantiate1 x
+        let rbx ← simp bx
+        let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
+        match rbx.proof? with
+        | none => return { expr := e' }
+        | some h =>
+          let h ← mkLambdaFVars #[x] h
+          return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
+
+@[export lean_dsimp]
+private partial def dsimpImpl (e : Expr) : SimpM Expr := do
+  let cfg ← getConfig
+  unless cfg.dsimp do
+    return e
+  let pre (e : Expr) : SimpM TransformStep := do
+    if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    return .continue
+  let post (e : Expr) : SimpM TransformStep := do
+    if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
+      if r.expr != e then
+        return .visit r.expr
+    let mut eNew ← reduce e
+    if eNew.isFVar then
+      eNew ← reduceFVar cfg (← getSimpTheorems) eNew
+    if eNew != e then return .visit eNew else return .done e
+  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
+
+def visitFn (e : Expr) : SimpM Result := do
+  let f := e.getAppFn
+  let fNew ← simp f
+  if fNew.expr == f then
+    return { expr := e }
+  else
+    let args := e.getAppArgs
+    let eNew := mkAppN fNew.expr args
+    if fNew.proof?.isNone then return { expr := eNew }
+    let mut proof ← fNew.getProof
+    for arg in args do
+      proof ← Meta.mkCongrFun proof arg
+    return { expr := eNew, proof? := proof }
+
+def congrDefault (e : Expr) : SimpM Result := do
+  if let some result ← tryAutoCongrTheorem? e then
+    mkEqTrans result (← visitFn result.expr)
+  else
+    withParent e <| e.withApp fun f args => do
+      congrArgs (← simp f) args
+
+/-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
+def processCongrHypothesis (h : Expr) : SimpM Bool := do
+  forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
+    let lhs ← instantiateMVars hType.appFn!.appArg!
+    let r ← simp lhs
+    let rhs := hType.appArg!
+    rhs.withApp fun m zs => do
+      let val ← mkLambdaFVars zs r.expr
+      unless (← isDefEq m val) do
+        throwCongrHypothesisFailed
+      let mut proof ← r.getProof
+      if hType.isAppOf ``Iff then
+        try proof ← mkIffOfEq proof
+        catch _ => throwCongrHypothesisFailed
+      unless (← isDefEq h (← mkLambdaFVars xs proof)) do
+        throwCongrHypothesisFailed
+      /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
+          assumed `dsimp` would also be able to simplify the term, but this is not true
+          for non-trivial user-provided theorems.
+          Example:
+          ```
+          @[congr] theorem image_congr {f g : α → β} {s : Set α} (h : ∀ a, mem a s → f a = g a) : image f s = image g s :=
+          ...
+
+          example {Γ: Set Nat}: (image (Nat.succ ∘ Nat.succ) Γ) = (image (fun a => a.succ.succ) Γ) := by
+            simp only [Function.comp_apply]
+          ```
+          `Function.comp_apply` is a `rfl` theorem, but `dsimp` will not apply it because the composition
+          is not fully applied. See comment at issue #1113
+
+          Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
+      -/
+      return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
+
+/-- Try to rewrite `e` children using the given congruence theorem -/
+def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
+  trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
+  let thm ← mkConstWithFreshMVarLevels c.theoremName
+  let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
+  if c.hypothesesPos.any (· ≥ xs.size) then
+    return none
+  let isIff := type.isAppOf ``Iff
+  let lhs := type.appFn!.appArg!
+  let rhs := type.appArg!
+  let numArgs := lhs.getAppNumArgs
+  let mut e := e
+  let mut extraArgs := #[]
+  if e.getAppNumArgs > numArgs then
+    let args := e.getAppArgs
+    e := mkAppN e.getAppFn args[:numArgs]
+    extraArgs := args[numArgs:].toArray
+  if (← isDefEq lhs e) then
+    let mut modified := false
+    for i in c.hypothesesPos do
+      let x := xs[i]!
+      try
+        if (← processCongrHypothesis x) then
+          modified := true
+      catch _ =>
+        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+        -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
+        -- does not catch runtime exceptions by default.
+        return none
+    unless modified do
+      trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
+      return none
+    unless (← synthesizeArgs (.decl c.theoremName) xs bis discharge?) do
+      trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
+      return none
+    let eNew ← instantiateMVars rhs
+    let mut proof ← instantiateMVars (mkAppN thm xs)
+    if isIff then
+      try proof ← mkAppM ``propext #[proof]
+      catch _ => return none
+    if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
+      trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
+      return none
+    congrArgs { expr := eNew, proof? := proof } extraArgs
+  else
+    return none
+
+def congr (e : Expr) : SimpM Result := do
+  let f := e.getAppFn
+  if f.isConst then
+    let congrThms ← getSimpCongrTheorems
+    let cs := congrThms.get f.constName!
+    for c in cs do
+      match (← trySimpCongrTheorem? c e) with
+      | none   => pure ()
+      | some r => return r
+    congrDefault e
+  else
+    congrDefault e
+
 @[export lean_simp]
 partial def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
@@ -294,6 +591,12 @@ partial def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   simpLoop { expr := e }
 
 where
+  cacheResult (cfg : Config) (r : Result) : SimpM Result := do
+    if cfg.memoize then
+      let dischargeDepth := (← readThe Simp.Context).dischargeDepth
+      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+    return r
+
   simpLoop (r : Result) : SimpM Result := do
     let cfg ← getConfig
     if (← get).numSteps > cfg.maxSteps then
@@ -330,158 +633,6 @@ where
     | .mvar ..     => return { expr := (← instantiateMVars e) }
     | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
-  simpLit (e : Expr) : SimpM Result := do
-    match e.natLit? with
-    | some n =>
-      /- If `OfNat.ofNat` is marked to be unfolded, we do not pack orphan nat literals as `OfNat.ofNat` applications
-         to avoid non-termination. See issue #788.  -/
-      if (← readThe Simp.Context).isDeclToUnfold ``OfNat.ofNat then
-        return { expr := e }
-      else
-        return { expr := (← mkNumeral (mkConst ``Nat) n) }
-    | none   => return { expr := e }
-
-  simpProj (e : Expr) : SimpM Result := do
-    match (← reduceProj? e) with
-    | some e => return { expr := e }
-    | none =>
-      let s := e.projExpr!
-      let motive? ← withLocalDeclD `s (← inferType s) fun s => do
-        let p := e.updateProj! s
-        if (← dependsOn (← inferType p) s.fvarId!) then
-          return none
-        else
-          let motive ← mkLambdaFVars #[s] (← mkEq e p)
-          if !(← isTypeCorrect motive) then
-            return none
-          else
-            return some motive
-      if let some motive := motive? then
-        let r ← simp s
-        let eNew := e.updateProj! r.expr
-        match r.proof? with
-        | none => return { expr := eNew }
-        | some h =>
-          let hNew ← mkEqNDRec motive (← mkEqRefl e) h
-          return { expr := eNew, proof? := some hNew }
-      else
-        return { expr := (← dsimp e) }
-
-  visitFn (e : Expr) : SimpM Result := do
-    let f := e.getAppFn
-    let fNew ← simp f
-    if fNew.expr == f then
-      return { expr := e }
-    else
-      let args := e.getAppArgs
-      let eNew := mkAppN fNew.expr args
-      if fNew.proof?.isNone then return { expr := eNew }
-      let mut proof ← fNew.getProof
-      for arg in args do
-        proof ← Meta.mkCongrFun proof arg
-      return { expr := eNew, proof? := proof }
-
-  congrDefault (e : Expr) : SimpM Result := do
-    if let some result ← tryAutoCongrTheorem? e then
-      mkEqTrans result (← visitFn result.expr)
-    else
-      withParent e <| e.withApp fun f args => do
-        congrArgs (← simp f) args
-
-  /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
-  processCongrHypothesis (h : Expr) : SimpM Bool := do
-    forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
-      let lhs ← instantiateMVars hType.appFn!.appArg!
-      let r ← simp lhs
-      let rhs := hType.appArg!
-      rhs.withApp fun m zs => do
-        let val ← mkLambdaFVars zs r.expr
-        unless (← isDefEq m val) do
-          throwCongrHypothesisFailed
-        let mut proof ← r.getProof
-        if hType.isAppOf ``Iff then
-          try proof ← mkIffOfEq proof
-          catch _ => throwCongrHypothesisFailed
-        unless (← isDefEq h (← mkLambdaFVars xs proof)) do
-          throwCongrHypothesisFailed
-        /- We used to return `false` if `r.proof? = none` (i.e., an implicit `rfl` proof) because we
-           assumed `dsimp` would also be able to simplify the term, but this is not true
-           for non-trivial user-provided theorems.
-           Example:
-           ```
-           @[congr] theorem image_congr {f g : α → β} {s : Set α} (h : ∀ a, mem a s → f a = g a) : image f s = image g s :=
-           ...
-
-           example {Γ: Set Nat}: (image (Nat.succ ∘ Nat.succ) Γ) = (image (fun a => a.succ.succ) Γ) := by
-             simp only [Function.comp_apply]
-           ```
-           `Function.comp_apply` is a `rfl` theorem, but `dsimp` will not apply it because the composition
-           is not fully applied. See comment at issue #1113
-
-           Thus, we have an extra check now if `xs.size > 0`. TODO: refine this test.
-        -/
-        return r.proof?.isSome || (xs.size > 0 && lhs != r.expr)
-
-  /-- Try to rewrite `e` children using the given congruence theorem -/
-  trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Result) := withNewMCtxDepth do
-    trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
-    let thm ← mkConstWithFreshMVarLevels c.theoremName
-    let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
-    if c.hypothesesPos.any (· ≥ xs.size) then
-      return none
-    let isIff := type.isAppOf ``Iff
-    let lhs := type.appFn!.appArg!
-    let rhs := type.appArg!
-    let numArgs := lhs.getAppNumArgs
-    let mut e := e
-    let mut extraArgs := #[]
-    if e.getAppNumArgs > numArgs then
-      let args := e.getAppArgs
-      e := mkAppN e.getAppFn args[:numArgs]
-      extraArgs := args[numArgs:].toArray
-    if (← isDefEq lhs e) then
-      let mut modified := false
-      for i in c.hypothesesPos do
-        let x := xs[i]!
-        try
-          if (← processCongrHypothesis x) then
-            modified := true
-        catch _ =>
-          trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
-          -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
-          -- does not catch runtime exceptions by default.
-          return none
-      unless modified do
-        trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
-        return none
-      unless (← synthesizeArgs (.decl c.theoremName) xs bis discharge?) do
-        trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
-        return none
-      let eNew ← instantiateMVars rhs
-      let mut proof ← instantiateMVars (mkAppN thm xs)
-      if isIff then
-        try proof ← mkAppM ``propext #[proof]
-        catch _ => return none
-      if (← hasAssignableMVar proof <||> hasAssignableMVar eNew) then
-        trace[Meta.Tactic.simp.congr] "{c.theoremName} has unassigned metavariables"
-        return none
-      congrArgs { expr := eNew, proof? := proof } extraArgs
-    else
-      return none
-
-  congr (e : Expr) : SimpM Result := do
-    let f := e.getAppFn
-    if f.isConst then
-      let congrThms ← getSimpCongrTheorems
-      let cs := congrThms.get f.constName!
-      for c in cs do
-        match (← trySimpCongrTheorem? c e) with
-        | none   => pure ()
-        | some r => return r
-      congrDefault e
-    else
-      congrDefault e
-
   simpMatch? (e : Expr) : SimpM (Option Result) := do
     let .const declName _ := e.getAppFn
       | return none
@@ -501,157 +652,6 @@ where
       simpLoop r
     else
       congr e'
-
-  simpConst (e : Expr) : SimpM Result :=
-    return { expr := (← reduce e) }
-
-  withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
-    if (← getConfig).contextual then
-      let mut s ← getSimpTheorems
-      let mut updated := false
-      for x in xs do
-        if (← isProof x) then
-          s ← s.addTheorem (.fvar x.fvarId!) x
-          updated := true
-      if updated then
-        withSimpTheorems s f
-      else
-        f
-    else
-      f
-
-  simpLambda (e : Expr) : SimpM Result :=
-    withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
-      let r ← simp e
-      let eNew ← mkLambdaFVars xs r.expr
-      match r.proof? with
-      | none   => return { expr := eNew }
-      | some h =>
-        let p ← xs.foldrM (init := h) fun x h => do
-          mkFunExt (← mkLambdaFVars #[x] h)
-        return { expr := eNew, proof? := p }
-
-  simpArrow (e : Expr) : SimpM Result := do
-    trace[Debug.Meta.Tactic.simp] "arrow {e}"
-    let p := e.bindingDomain!
-    let q := e.bindingBody!
-    let rp ← simp p
-    trace[Debug.Meta.Tactic.simp] "arrow [{(← getConfig).contextual}] {p} [{← isProp p}] -> {q} [{← isProp q}]"
-    if (← pure (← getConfig).contextual <&&> isProp p <&&> isProp q) then
-      trace[Debug.Meta.Tactic.simp] "ctx arrow {rp.expr} -> {q}"
-      withLocalDeclD e.bindingName! rp.expr fun h => do
-        let s ← getSimpTheorems
-        let s ← s.addTheorem (.fvar h.fvarId!) h
-        withSimpTheorems s do
-          let rq ← simp q
-          match rq.proof? with
-          | none    => mkImpCongr e rp rq
-          | some hq =>
-            let hq ← mkLambdaFVars #[h] hq
-            /-
-              We use the default reducibility setting at `mkImpDepCongrCtx` and `mkImpCongrCtx` because they use the theorems
-              ```lean
-              @implies_dep_congr_ctx : ∀ {p₁ p₂ q₁ : Prop}, p₁ = p₂ → ∀ {q₂ : p₂ → Prop}, (∀ (h : p₂), q₁ = q₂ h) → (p₁ → q₁) = ∀ (h : p₂), q₂ h
-              @implies_congr_ctx : ∀ {p₁ p₂ q₁ q₂ : Prop}, p₁ = p₂ → (p₂ → q₁ = q₂) → (p₁ → q₁) = (p₂ → q₂)
-              ```
-              And the proofs may be from `rfl` theorems which are now omitted. Moreover, we cannot establish that the two
-              terms are definitionally equal using `withReducible`.
-              TODO (better solution): provide the problematic implicit arguments explicitly. It is more efficient and avoids this
-              problem.
-             -/
-            if rq.expr.containsFVar h.fvarId! then
-              return { expr := (← mkForallFVars #[h] rq.expr), proof? := (← withDefault <| mkImpDepCongrCtx (← rp.getProof) hq) }
-            else
-              return { expr := e.updateForallE! rp.expr rq.expr, proof? := (← withDefault <| mkImpCongrCtx (← rp.getProof) hq) }
-    else
-      mkImpCongr e rp (← simp q)
-
-  simpForall (e : Expr) : SimpM Result := withParent e do
-    trace[Debug.Meta.Tactic.simp] "forall {e}"
-    if e.isArrow then
-      simpArrow e
-    else if (← isProp e) then
-      /- The forall is a proposition. -/
-      let domain := e.bindingDomain!
-      if (← isProp domain) then
-        /-
-        The domain of the forall is also a proposition, and we can use `forall_prop_domain_congr`
-        IF we can simplify the domain.
-        -/
-        let rd ← simp domain
-        if let some h₁ := rd.proof? then
-          /- Using
-          ```
-          theorem forall_prop_domain_congr {p₁ p₂ : Prop} {q₁ : p₁ → Prop} {q₂ : p₂ → Prop}
-              (h₁ : p₁ = p₂)
-              (h₂ : ∀ a : p₂, q₁ (h₁.substr a) = q₂ a)
-              : (∀ a : p₁, q₁ a) = (∀ a : p₂, q₂ a)
-          ```
-          Remark: we should consider whether we want to add congruence lemma support for arbitrary `forall`-expressions.
-          Then, the theroem above can be marked as `@[congr]` and the following code deleted.
-          -/
-          let p₁ := domain
-          let p₂ := rd.expr
-          let q₁ := mkLambda e.bindingName! e.bindingInfo! p₁ e.bindingBody!
-          let result ← withLocalDecl e.bindingName! e.bindingInfo! p₂ fun a => withNewLemmas #[a] do
-            let prop := mkSort levelZero
-            let h₁_substr_a := mkApp6 (mkConst ``Eq.substr [levelOne]) prop (mkLambda `x .default prop (mkBVar 0)) p₂ p₁ h₁ a
-            let q_h₁_substr_a := e.bindingBody!.instantiate1 h₁_substr_a
-            let rb ← simp q_h₁_substr_a
-            let h₂ ← mkLambdaFVars #[a] (← rb.getProof)
-            let q₂ ← mkLambdaFVars #[a] rb.expr
-            let result ← mkForallFVars #[a] rb.expr
-            let proof := mkApp6 (mkConst ``forall_prop_domain_congr) p₁ p₂ q₁ q₂ h₁ h₂
-            return { expr := result, proof? := proof }
-          return result
-      let domain ← dsimp domain
-      withLocalDecl e.bindingName! e.bindingInfo! domain fun x => withNewLemmas #[x] do
-        let b := e.bindingBody!.instantiate1 x
-        let rb ← simp b
-        let eNew ← mkForallFVars #[x] rb.expr
-        match rb.proof? with
-        | none   => return { expr := eNew }
-        | some h => return { expr := eNew, proof? := (← mkForallCongr (← mkLambdaFVars #[x] h)) }
-    else
-      return { expr := (← dsimp e) }
-
-  simpLet (e : Expr) : SimpM Result := do
-    let .letE n t v b _ := e | unreachable!
-    if (← getConfig).zeta then
-      return { expr := b.instantiate1 v }
-    else
-      match (← getSimpLetCase n t b) with
-      | SimpLetCase.dep => return { expr := (← dsimp e) }
-      | SimpLetCase.nondep =>
-        let rv ← simp v
-        withLocalDeclD n t fun x => do
-          let bx := b.instantiate1 x
-          let rbx ← simp bx
-          let hb? ← match rbx.proof? with
-            | none => pure none
-            | some h => pure (some (← mkLambdaFVars #[x] h))
-          let e' := mkLet n t rv.expr (← rbx.expr.abstractM #[x])
-          match rv.proof?, hb? with
-          | none,   none   => return { expr := e' }
-          | some h, none   => return { expr := e', proof? := some (← mkLetValCongr (← mkLambdaFVars #[x] rbx.expr) h) }
-          | _,      some h => return { expr := e', proof? := some (← mkLetCongr (← rv.getProof) h) }
-      | SimpLetCase.nondepDepVar =>
-        let v' ← dsimp v
-        withLocalDeclD n t fun x => do
-          let bx := b.instantiate1 x
-          let rbx ← simp bx
-          let e' := mkLet n t v' (← rbx.expr.abstractM #[x])
-          match rbx.proof? with
-          | none => return { expr := e' }
-          | some h =>
-            let h ← mkLambdaFVars #[x] h
-            return { expr := e', proof? := some (← mkLetBodyCongr v' h) }
-
-  cacheResult (cfg : Config) (r : Result) : SimpM Result := do
-    if cfg.memoize then
-      let dischargeDepth := (← readThe Simp.Context).dischargeDepth
-      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
-    return r
 
 @[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x

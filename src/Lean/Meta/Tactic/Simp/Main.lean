@@ -273,7 +273,7 @@ def getSimpLetCase (n : Name) (t : Expr) (b : Expr) : MetaM SimpLetCase := do
 partial def simp (e : Expr) : M Result := withIncRecDepth do
   checkSystem "simp"
   let cfg ← getConfig
-  if (← isProof e) then
+  if ! cfg.simpProofs && (← isProof e) then
     return { expr := e }
   if cfg.memoize then
     if let some result := (← get).cache.find? e then

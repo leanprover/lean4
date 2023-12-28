@@ -327,6 +327,32 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
     /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
     return some { expr := rhs }
 
+/--
+Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
+If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
+disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
+-/
+def getDtConfig (cfg : Config) : WhnfCoreConfig :=
+  match cfg.beta, cfg.zeta with
+  | true, true => simpDtConfig
+  | true, false => { simpDtConfig with zeta := false }
+  | false, true => { simpDtConfig with beta := false }
+  | false, false => { simpDtConfig with beta := false, zeta := false }
+
+def Result.addExtraArgs (r : Result) (extraArgs : Array Expr) : MetaM Result := do
+  match r.proof? with
+  | none => return { expr := mkAppN r.expr extraArgs }
+  | some proof =>
+    let mut proof := proof
+    for extraArg in extraArgs do
+      proof ← Meta.mkCongrFun proof extraArg
+    return { expr := mkAppN r.expr extraArgs, proof? := some proof }
+
+def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
+  match s with
+  | .visit r => return .visit (← r.addExtraArgs extraArgs)
+  | .done r => return .done (← r.addExtraArgs extraArgs)
+
 end Simp
 
 export Simp (SimpM)

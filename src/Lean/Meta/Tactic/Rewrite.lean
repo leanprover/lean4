@@ -40,7 +40,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           -- construct rewrite proof
           let eNew := eAbst.instantiate1 rhs
           let eNew ← instantiateMVars eNew
-          let eType ← instantiateMVars (← inferType e)
+          let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
           unless (← isTypeCorrect motive) do
             throwTacticEx `rewrite mvarId "motive is not type correct"

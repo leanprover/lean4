@@ -10,6 +10,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Simproc
 
 namespace Lean.Meta.Simp
 
@@ -109,19 +110,11 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none, .. } =>
-    if (← hasAssignableMVar eNew) then
+  | some r =>
+    if (← hasAssignableMVar r.expr) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
-    return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof, .. } =>
-    let mut proof := proof
-    for extraArg in extraArgs do
-      proof ← Meta.mkCongrFun proof extraArg
-    if (← hasAssignableMVar eNew) then
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
-      return none
-    return some { expr := mkAppN eNew extraArgs, proof? := some proof }
+    r.addExtraArgs extraArgs
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
   withNewMCtxDepth do
@@ -148,18 +141,6 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
         tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs) discharge?
       else
         return none
-
-/--
-Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
-If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
-disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
--/
-def getDtConfig (cfg : Config) : WhnfCoreConfig :=
-  match cfg.beta, cfg.zeta with
-  | true, true => simpDtConfig
-  | true, false => { simpDtConfig with zeta := false }
-  | false, true => { simpDtConfig with beta := false }
-  | false, false => { simpDtConfig with beta := false, zeta := false }
 
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
@@ -321,6 +302,7 @@ def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly 
 partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?
   let s ← andThen s (simpMatch? discharge?)
+  let s ← andThen s preSimproc?
   let s ← andThen s tryRewriteUsingDecide?
   if s.result.expr == e then
     return s
@@ -330,6 +312,7 @@ partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePost e discharge?
   let s ← andThen s simpArith?
+  let s ← andThen s postSimproc?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?
 

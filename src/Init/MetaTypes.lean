@@ -95,6 +95,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  /-- If `simproc := true`, then use simplification procedures. -/
+  simproc           : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -111,6 +113,7 @@ def neutralConfig : Simp.Config := {
   arith             := false
   autoUnfold        := false
   ground            := false
+  simproc           := false
 }
 
 end Simp

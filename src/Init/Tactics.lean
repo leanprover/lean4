@@ -753,7 +753,7 @@ end Tactic
 
 namespace Attr
 /--
-Theorems tagged with the `simp` attribute are by the simplifier
+Theorems tagged with the `simp` attribute are used by the simplifier
 (i.e., the `simp` tactic, and its variants) to simplify expressions occurring in your goals.
 We call theorems tagged with the `simp` attribute "simp theorems" or "simp lemmas".
 Lean maintains a database/index containing all active simp theorems.
@@ -796,6 +796,29 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
+
+/--
+Functions tagged with the `simproc` attribute are user-defined simplification procedures used
+by the `simp` tactic, and its variants. The function must have type `Simproc`, which is an alias for
+`Expr → SimpM (Option Step)`.
+Here is an example of a simplification procedure.
+```lean
+@[simproc _ + _] def simp_add : Simproc :=
+   ...
+```
+The `simp` tactic invokes `simp_add` whenever it finds a term of the form `_ + _`. Note that the term
+is only used to create a key for the discrimination tree storing all simplification procedures.
+You can instruct the simplifier to apply the procedure before its sub-expressions
+have been simplified by using the modifier `↓`.
+The simplifier applies the procedures using the given priority. If none is provided the default one is used.
+If there are several with the same priority, it is uses the "most recent one".
+-/
+syntax (name := simproc) "simproc" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? term : attr
+
+/--
+A builtin simplification procedure.
+-/
+syntax (name := simprocBuiltin) "builtin_simproc" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? term : attr
 end Attr
 
 end Parser

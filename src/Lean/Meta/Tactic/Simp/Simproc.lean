@@ -65,43 +65,18 @@ def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit
     throwError "invalid simproc declaration '{declName}', it has already been declared"
   modifyEnv fun env => simprocDeclExt.modifyState env fun s => { s with newEntries := s.newEntries.insert declName keys }
 
-abbrev Simproc := Expr → SimpM (Option Step)
-
-structure SimprocOLeanEntry where
-  /-- Name of a declaration stored in the environment which has type `Simproc`. -/
-  declName : Name
-  post     : Bool := true
-  keys     : Array SimpTheoremKey := #[]
-  deriving Inhabited
-
-structure SimprocEntry extends SimprocOLeanEntry where
-  /--
-  Recall that we cannot store `Simproc` into .olean files because it is a closure.
-  Given `SimprocOLeanEntry.declName`, we convert it into a `Simproc` by using the unsafe function `evalConstCheck`.
-  -/
-  proc : Simproc
-
 instance : BEq SimprocEntry where
   beq e₁ e₂ := e₁.declName == e₂.declName
 
 instance : ToFormat SimprocEntry where
   format e := format e.declName
 
-abbrev SimprocTree := DiscrTree SimprocEntry
-
-structure SimprocState where
-  pre          : SimprocTree   := DiscrTree.empty
-  post         : SimprocTree   := DiscrTree.empty
-  simprocNames : PHashSet Name := {}
-  erased       : PHashSet Name := {}
-  deriving Inhabited
-
-def SimprocState.erase (s : SimprocState) (declName : Name) : SimprocState :=
+def Simprocs.erase (s : Simprocs) (declName : Name) : Simprocs :=
   { s with erased := s.erased.insert declName, simprocNames := s.simprocNames.erase declName }
 
-builtin_initialize builtinSimprocsRef : IO.Ref SimprocState ← IO.mkRef {}
+builtin_initialize builtinSimprocsRef : IO.Ref Simprocs ← IO.mkRef {}
 
-abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry SimprocState
+abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry Simprocs
 
 unsafe def getSimprocFromDeclImpl (declName : Name) : ImportM Simproc := do
   let ctx ← read
@@ -140,7 +115,7 @@ def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) : Meta
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   simprocExtension.add { declName, post, keys, proc } kind
 
-def getSimprocState : CoreM SimprocState :=
+def getSimprocs : CoreM Simprocs :=
   return simprocExtension.getState (← getEnv)
 
 def SimprocEntry.try? (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM (Option Step) := do
@@ -169,12 +144,12 @@ def simproc? (tag : String) (s : SimprocTree) (erased : PHashSet Name) (e : Expr
 
 def preSimproc? (e : Expr) : SimpM (Option Step) := do
   if !(← getConfig).simproc then return none
-  let s := simprocExtension.getState (← getEnv)
+  let s ← simprocs
   simproc? "pre" s.pre s.erased e
 
 def postSimproc? (e : Expr) : SimpM (Option Step) := do
   if !(← getConfig).simproc then return none
-  let s := simprocExtension.getState (← getEnv)
+  let s ← simprocs
   simproc? "post" s.post s.erased e
 
 end Lean.Meta.Simp

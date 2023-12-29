@@ -12,3 +12,9 @@ example : x + foo 2 = 12 + x := by
   fail_if_success simp (config := { «simproc» := false })
   simp (config := { «simproc» := true })
   rw [Nat.add_comm]
+
+example : x + foo 2 = 12 + x := by
+  -- `simp only` must not use the default simproc set
+  fail_if_success simp (config := { «simproc» := true }) only
+  simp (config := { «simproc» := true })
+  rw [Nat.add_comm]

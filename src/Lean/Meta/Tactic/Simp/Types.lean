@@ -71,10 +71,42 @@ def Step.updateResult : Step → Result → Step
   | Step.visit _, r => Step.visit r
   | Step.done _, r  => Step.done r
 
+abbrev Simproc := Expr → SimpM (Option Step)
+
+/--
+`Simproc` .olean entry.
+-/
+structure SimprocOLeanEntry where
+  /-- Name of a declaration stored in the environment which has type `Simproc`. -/
+  declName : Name
+  post     : Bool := true
+  keys     : Array SimpTheoremKey := #[]
+  deriving Inhabited
+
+/--
+`Simproc` entry. It is the .olean entry plus the actual function.
+-/
+structure SimprocEntry extends SimprocOLeanEntry where
+  /--
+  Recall that we cannot store `Simproc` into .olean files because it is a closure.
+  Given `SimprocOLeanEntry.declName`, we convert it into a `Simproc` by using the unsafe function `evalConstCheck`.
+  -/
+  proc : Simproc
+
+abbrev SimprocTree := DiscrTree SimprocEntry
+
+structure Simprocs where
+  pre          : SimprocTree   := DiscrTree.empty
+  post         : SimprocTree   := DiscrTree.empty
+  simprocNames : PHashSet Name := {}
+  erased       : PHashSet Name := {}
+  deriving Inhabited
+
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  simprocs   : Simprocs                   := {}
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -97,6 +129,9 @@ def pre (e : Expr) : SimpM Step := do
 
 def post (e : Expr) : SimpM Step := do
   (← getMethods).post e
+
+def simprocs : SimpM Simprocs := do
+  return (← getMethods).simprocs
 
 def discharge? (e : Expr) : SimpM (Option Expr) := do
   (← getMethods).discharge? e
@@ -355,7 +390,7 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
 
 end Simp
 
-export Simp (SimpM)
+export Simp (SimpM Simprocs)
 
 /--
   Auxiliary method.

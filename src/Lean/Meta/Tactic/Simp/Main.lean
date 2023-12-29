@@ -666,23 +666,23 @@ def dsimpMain (e : Expr) (ctx : Context) (usedSimps : UsedSimps := {}) (methods 
       if ex.isRuntime then throwNestedTacticEx `dsimp ex else throw ex
 
 end Simp
-open Simp (UsedSimps)
+open Simp (UsedSimps Simprocs)
 
-def simp (e : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simp (e : Expr) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (usedSimps : UsedSimps := {}) : MetaM (Simp.Result × UsedSimps) := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
-  | none   => Simp.main e ctx usedSimps (methods := Simp.methodsDefault)
-  | some d => Simp.main e ctx usedSimps (methods := Simp.mkMethods d)
+  | none   => Simp.main e ctx usedSimps (methods := Simp.methodsDefault simprocs)
+  | some d => Simp.main e ctx usedSimps (methods := Simp.mkMethods simprocs d)
 
 def dsimp (e : Expr) (ctx : Simp.Context)
     (usedSimps : UsedSimps := {}) : MetaM (Expr × UsedSimps) := do profileitM Exception "dsimp" (← getOptions) do
-  Simp.dsimpMain e ctx usedSimps (methods := Simp.methodsDefault)
+  Simp.dsimpMain e ctx usedSimps (methods := Simp.methodsDefault {})
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   let target ← instantiateMVars (← mvarId.getType)
-  let (r, usedSimps) ← simp target ctx discharge? usedSimps
+  let (r, usedSimps) ← simp target ctx simprocs discharge? usedSimps
   if mayCloseGoal && r.expr.consumeMData.isConstOf ``True then
     match r.proof? with
     | some proof => mvarId.assign (← mkOfEqTrue proof)
@@ -694,11 +694,11 @@ def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
 /--
   Simplify the given goal target (aka type). Return `none` if the goal was closed. Return `some mvarId'` otherwise,
   where `mvarId'` is the simplified new goal. -/
-def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpTarget (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
-    simpTargetCore mvarId ctx discharge? mayCloseGoal usedSimps
+    simpTargetCore mvarId ctx simprocs discharge? mayCloseGoal usedSimps
 
 /--
   Apply the result `r` for `prop` (which is inhabited by `proof`). Return `none` if the goal was closed. Return `some (proof', prop')`
@@ -729,9 +729,9 @@ def applySimpResultToFVarId (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Result
   otherwise, where `proof' : prop'` and `prop'` is the simplified `prop`.
 
   This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
-def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpStep (mvarId : MVarId) (proof : Expr) (prop : Expr) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option (Expr × Expr) × UsedSimps) := do
-  let (r, usedSimps) ← simp prop ctx discharge? usedSimps
+  let (r, usedSimps) ← simp prop ctx simprocs discharge? usedSimps
   return (← applySimpResultToProp mvarId proof prop r (mayCloseGoal := mayCloseGoal), usedSimps)
 
 def applySimpResultToLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (r : Option (Expr × Expr)) : MetaM (Option (FVarId × MVarId)) := do
@@ -762,15 +762,15 @@ def applySimpResultToLocalDecl (mvarId : MVarId) (fvarId : FVarId) (r : Simp.Res
   else
     applySimpResultToLocalDeclCore mvarId fvarId (← applySimpResultToFVarId mvarId fvarId r mayCloseGoal)
 
-def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpLocalDecl (mvarId : MVarId) (fvarId : FVarId) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (mayCloseGoal := true) (usedSimps : UsedSimps := {}) : MetaM (Option (FVarId × MVarId) × UsedSimps) := do
   mvarId.withContext do
     mvarId.checkNotAssigned `simp
     let type ← instantiateMVars (← fvarId.getType)
-    let (r, usedSimps) ← simpStep mvarId (mkFVar fvarId) type ctx discharge? mayCloseGoal usedSimps
+    let (r, usedSimps) ← simpStep mvarId (mkFVar fvarId) type ctx simprocs discharge? mayCloseGoal usedSimps
     return (← applySimpResultToLocalDeclCore mvarId fvarId r, usedSimps)
 
-def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[])
     (usedSimps : UsedSimps := {}) : MetaM (Option (Array FVarId × MVarId) × UsedSimps) := do
   mvarId.withContext do
@@ -783,7 +783,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
       let ctx := { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId) }
-      let (r, usedSimps') ← simp type ctx discharge? usedSimps
+      let (r, usedSimps') ← simp type ctx simprocs discharge? usedSimps
       usedSimps := usedSimps'
       match r.proof? with
       | some _ => match (← applySimpResultToProp mvarIdNew (mkFVar fvarId) type r) with
@@ -798,7 +798,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
         mvarIdNew ← mvarIdNew.replaceLocalDeclDefEq fvarId r.expr
         replaced := replaced.push fvarId
     if simplifyTarget then
-      match (← simpTarget mvarIdNew ctx discharge? (usedSimps := usedSimps)) with
+      match (← simpTarget mvarIdNew ctx simprocs discharge? (usedSimps := usedSimps)) with
       | (none, usedSimps') => return (none, usedSimps')
       | (some mvarIdNew', usedSimps') => mvarIdNew := mvarIdNew'; usedSimps := usedSimps'
     let (fvarIdsNew, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert
@@ -809,7 +809,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Di
       throwError "simp made no progress"
     return (some (fvarIdsNew, mvarIdNew), usedSimps)
 
-def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option Simp.Discharge := none)
+def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs) (discharge? : Option Simp.Discharge := none)
     (usedSimps : UsedSimps := {}) : MetaM (TacticResultCNM × UsedSimps) := mvarId.withContext do
   let mut ctx := ctx
   for h in (← getPropHyps) do
@@ -817,7 +817,7 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (discharge? : Option S
     let proof  := localDecl.toExpr
     let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof
     ctx := { ctx with simpTheorems }
-  match (← simpTarget mvarId ctx discharge? (usedSimps := usedSimps)) with
+  match (← simpTarget mvarId ctx simprocs discharge? (usedSimps := usedSimps)) with
   | (none, usedSimps) => return (TacticResultCNM.closed, usedSimps)
   | (some mvarId', usedSimps') =>
     if (← mvarId.getType) == (← mvarId'.getType) then

@@ -296,12 +296,15 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
   let env ← getEnv
   for (thm, _) in usedSimps.toArray.qsort (·.2 < ·.2) do
     match thm with
-    | .decl declName inv => -- global definitions in the environment
+    | .decl declName post inv => -- global definitions in the environment
       if env.contains declName && (inv || !simpOnlyBuiltins.contains declName) then
-        args := args.push (if inv then
-          (← `(Parser.Tactic.simpLemma| ← $(mkIdent (← unresolveNameGlobal declName)):ident))
-        else
-          (← `(Parser.Tactic.simpLemma| $(mkIdent (← unresolveNameGlobal declName)):ident)))
+        let decl : Term ← `($(mkIdent (← unresolveNameGlobal declName)):ident)
+        let arg ← match post, inv with
+          | true,  true  => `(Parser.Tactic.simpLemma| ← $decl:term)
+          | true,  false => `(Parser.Tactic.simpLemma| $decl:term)
+          | false, true  => `(Parser.Tactic.simpLemma| ↓ ← $decl:term)
+          | false, false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
+        args := args.push arg
     | .fvar fvarId => -- local hypotheses in the context
       -- `simp_all` always uses all propositional hypotheses (and it can't use
       -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would

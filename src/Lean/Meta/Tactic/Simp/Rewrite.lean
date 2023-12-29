@@ -404,13 +404,14 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 
-def mkMethods (discharge? : Discharge) : Methods := {
+def mkMethods (simprocs : Simprocs) (discharge? : Discharge) : Methods := {
   pre        := (preDefault · discharge?)
   post       := (postDefault · discharge?)
   discharge? := discharge?
+  simprocs   := simprocs
 }
 
-def methodsDefault : Methods :=
-  mkMethods dischargeDefault?
+def methodsDefault (simprocs : Simprocs) : Methods :=
+  mkMethods simprocs dischargeDefault?
 
 end Lean.Meta.Simp

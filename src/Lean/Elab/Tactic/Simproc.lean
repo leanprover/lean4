@@ -7,6 +7,7 @@ import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Elab.Binders
 import Lean.Elab.SyntheticMVars
 import Lean.Elab.Term
+import Lean.Elab.Command
 
 namespace Lean.Elab
 
@@ -14,32 +15,40 @@ open Lean Meta Simp
 
 def elabPattern (stx : Syntax) : MetaM Expr := do
   let go : TermElabM Expr := do
-    Term.withAutoBoundImplicit <| Term.elabBinders #[] fun xs => do
-      let pattern ← Term.elabTerm stx none
-      Term.synthesizeSyntheticMVars
-      let (_, _, pattern) ← lambdaMetaTelescope (← mkLambdaFVars xs pattern)
-      return pattern
+    let pattern ← Term.elabTerm stx none
+    Term.synthesizeSyntheticMVars
+    return pattern
   go.run'
 
-def checkSimprocType (declName : Name) : MetaM Unit := do
+def checkSimprocType (declName : Name) : CoreM Unit := do
   let decl ← getConstInfo declName
   match decl.type with
   | .const ``Simproc _ => pure ()
   | _ => throwError "unexpected type at '{declName}', 'Simproc' expected"
 
+namespace Command
+
+@[builtin_command_elab Lean.Parser.simprocPattern] def elabSimprocPattern : CommandElab := fun stx => do
+  let `(simproc_pattern% $pattern => $declName) := stx | throwUnsupportedSyntax
+  let declName := declName.getId
+  liftTermElabM do
+    checkSimprocType declName
+    let pattern ← elabPattern pattern
+    let keys ← DiscrTree.mkPath pattern simpDtConfig
+    registerSimproc declName keys
+
+end Command
+
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
-    name            := `simproc
+    name            := `simprocAttr
     descr           := "Simplification procedure"
     erase           := eraseSimprocAttr
     add             := fun declName stx attrKind => do
       let go : MetaM Unit := do
         let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        let prio ← getAttrParamOptPrio stx[2]
-        let pattern ← elabPattern stx[3]
-        checkSimprocType declName
-        addSimprocAttr declName attrKind post prio pattern
+        addSimprocAttr declName attrKind post
       go.run' {}
     applicationTime := AttributeApplicationTime.afterCompilation
   }

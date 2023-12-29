@@ -9,13 +9,68 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
+builtin_initialize builtinSimprocDeclsRef : IO.Ref (HashMap Name (Array SimpTheoremKey)) ← IO.mkRef {}
+
+structure SimprocDecl where
+  declName : Name
+  keys     : Array SimpTheoremKey
+  deriving Inhabited
+
+structure SimprocDeclExtState where
+  builtin    : HashMap Name (Array SimpTheoremKey)
+  newEntries : PHashMap Name (Array SimpTheoremKey) := {}
+  deriving Inhabited
+
+def SimprocDecl.lt (decl₁ decl₂ : SimprocDecl) : Bool :=
+  Name.quickLt decl₁.declName decl₂.declName
+
+builtin_initialize simprocDeclExt : PersistentEnvExtension SimprocDecl SimprocDecl SimprocDeclExtState ←
+  registerPersistentEnvExtension {
+    mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get) }
+    addImportedFn   := fun _ => return { builtin := (← builtinSimprocDeclsRef.get) }
+    addEntryFn      := fun s d => { s with newEntries := s.newEntries.insert d.declName d.keys }
+    exportEntriesFn := fun s =>
+      let result := s.newEntries.foldl (init := #[]) fun result declName keys => result.push { declName, keys }
+      result.qsort SimprocDecl.lt
+  }
+
+def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)) := do
+  let env ← getEnv
+  let keys? ← match env.getModuleIdxFor? declName with
+    | some modIdx => do
+      let some decl := (simprocDeclExt.getModuleEntries env modIdx).binSearch { declName, keys := #[] } SimprocDecl.lt
+        | pure none
+      pure (some decl.keys)
+    | none        => pure ((simprocDeclExt.getState env).newEntries.find? declName)
+  if let some keys := keys? then
+    return some keys
+  else
+    return (simprocDeclExt.getState env).builtin.find? declName
+
+def isSimproc (declName : Name) : CoreM Bool :=
+  return (← getSimprocDeclKeys? declName).isSome
+
+def registerBuiltinSimproc (declName : Name) (keys : Array SimpTheoremKey) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
+  if (← builtinSimprocDeclsRef.get).contains declName then
+    throw (IO.userError s!"invalid builtin simproc declaration '{declName}', it has already been declared")
+  builtinSimprocDeclsRef.modify fun s => s.insert declName keys
+
+def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit := do
+  let env ← getEnv
+  unless (env.getModuleIdxFor? declName).isNone do
+    throwError "invalid simproc declaration '{declName}', function declaration is in an imported module"
+  if (← isSimproc declName) then
+    throwError "invalid simproc declaration '{declName}', it has already been declared"
+  modifyEnv fun env => simprocDeclExt.modifyState env fun s => { s with newEntries := s.newEntries.insert declName keys }
+
 abbrev Simproc := Expr → SimpM (Option Step)
 
 structure SimprocOLeanEntry where
   /-- Name of a declaration stored in the environment which has type `Simproc`. -/
   declName : Name
   post     : Bool := true
-  priority : Nat  := eval_prio default
   keys     : Array SimpTheoremKey := #[]
   deriving Inhabited
 
@@ -79,10 +134,11 @@ def eraseSimprocAttr (declName : Name) : AttrM Unit := do
     throwError "'{declName}' does not have [simproc] attribute"
   modifyEnv fun env => simprocExtension.modifyState env fun s => s.erase declName
 
-def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) (priority : Nat) (pattern : Expr) : MetaM Unit := do
+def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) : MetaM Unit := do
   let proc ← getSimprocFromDecl declName
-  let keys ← DiscrTree.mkPath pattern simpDtConfig
-  simprocExtension.add { declName, post, priority, keys, proc } kind
+  let some keys ← getSimprocDeclKeys? declName |
+    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+  simprocExtension.add { declName, post, keys, proc } kind
 
 def getSimprocState : CoreM SimprocState :=
   return simprocExtension.getState (← getEnv)
@@ -104,7 +160,6 @@ def simproc? (tag : String) (s : SimprocTree) (erased : PHashSet Name) (e : Expr
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return none
   else
-    let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
         if let some step ← simprocEntry.try? numExtraArgs e then

@@ -115,7 +115,7 @@ private def addDeclToUnfoldOrTheorem (thms : SimpTheorems) (id : Origin) (e : Ex
   else
     thms.add id #[] e (post := post) (inv := inv)
 
-private def addSimpTheorem (thms : Meta.SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM Meta.SimpTheorems := do
+private def addSimpTheorem (thms : SimpTheorems) (id : Origin) (stx : Syntax) (post : Bool) (inv : Bool) : TermElabM SimpTheorems := do
   let (levelParams, proof) ← Term.withoutModifyingElabMetaStateWithInfo <| withRef stx <| Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
@@ -136,6 +136,7 @@ structure ElabSimpArgsResult where
 inductive ResolveSimpIdResult where
   | none
   | expr (e : Expr)
+  | simproc (declName : Name)
   | ext  (ext : SimpExtension)
 
 /--
@@ -157,6 +158,7 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simprocs) (eras
     withMainContext do
       let mut thmsArray := ctx.simpTheorems
       let mut thms      := thmsArray[0]!
+      let mut simprocs  := simprocs
       let mut starArg   := false
       for arg in stx[1].getSepArgs do
         if arg.getKind == ``Lean.Parser.Tactic.simpErase then
@@ -178,11 +180,12 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simprocs) (eras
               arg[0][0].getKind == ``Parser.Tactic.simpPost
           let inv  := !arg[1].isNone
           let term := arg[2]
-
           match (← resolveSimpIdTheorem? term) with
           | .expr e  =>
             let name ← mkFreshId
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind
+          | .simproc declName =>
+            simprocs ← simprocs.add declName post
           | .ext ext =>
             thmsArray := thmsArray.push (← ext.getTheorems)
           | .none    =>
@@ -194,6 +197,11 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (simprocs : Simprocs) (eras
           throwUnsupportedSyntax
       return { ctx := { ctx with simpTheorems := thmsArray.set! 0 thms }, simprocs, starArg }
 where
+  isSimproc? (e : Expr) : MetaM (Option Name) := do
+    let .const declName _ := e | return none
+    unless (← Simp.isSimproc declName) do return none
+    return some declName
+
   resolveSimpIdTheorem? (simpArgTerm : Term) : TacticM ResolveSimpIdResult := do
     let resolveExt (n : Name) : TacticM ResolveSimpIdResult := do
       if let some ext ← getSimpExtension? n then
@@ -204,7 +212,10 @@ where
     | `($id:ident) =>
       try
         if let some e ← Term.resolveId? simpArgTerm (withInfo := true) then
-          return .expr e
+          if let some simprocDeclName ← isSimproc? e then
+            return .simproc simprocDeclName
+          else
+            return .expr e
         else
           resolveExt id.getId.eraseMacroScopes
       catch _ =>

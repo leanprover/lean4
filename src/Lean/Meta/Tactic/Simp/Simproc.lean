@@ -109,11 +109,20 @@ def eraseSimprocAttr (declName : Name) : AttrM Unit := do
     throwError "'{declName}' does not have [simproc] attribute"
   modifyEnv fun env => simprocExtension.modifyState env fun s => s.erase declName
 
-def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) : MetaM Unit := do
+def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) : CoreM Unit := do
   let proc ← getSimprocFromDecl declName
   let some keys ← getSimprocDeclKeys? declName |
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   simprocExtension.add { declName, post, keys, proc } kind
+
+def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
+  let proc ← getSimprocFromDecl declName
+  let some keys ← getSimprocDeclKeys? declName |
+    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+  if post then
+    return { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+  else
+    return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
 
 def getSimprocs : CoreM Simprocs :=
   return simprocExtension.getState (← getEnv)

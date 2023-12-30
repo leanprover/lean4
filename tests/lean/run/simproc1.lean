@@ -24,3 +24,9 @@ example : x + foo 2 = 12 + x := by
   -- `simp only` does not use the default simproc set, but we can provide simprocs as arguments
   simp only [reduce_foo]
   rw [Nat.add_comm]
+
+example : x + foo 2 = 12 + x := by
+  -- We can use `-` to disable `simproc`s
+  fail_if_success simp [-reduce_foo]
+  simp
+  rw [Nat.add_comm]

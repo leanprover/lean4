@@ -130,9 +130,6 @@ def pre (e : Expr) : SimpM Step := do
 def post (e : Expr) : SimpM Step := do
   (← getMethods).post e
 
-def simprocs : SimpM Simprocs := do
-  return (← getMethods).simprocs
-
 def discharge? (e : Expr) : SimpM (Option Expr) := do
   (← getMethods).discharge? e
 

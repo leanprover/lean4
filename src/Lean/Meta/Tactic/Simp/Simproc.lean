@@ -124,6 +124,14 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
   else
     return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
 
+def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit := do
+  let some keys := (← builtinSimprocDeclsRef.get).find? declName |
+    throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
+  if post then
+    builtinSimprocsRef.modify fun s => { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+  else
+    builtinSimprocsRef.modify fun s => { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+
 def getSimprocs : CoreM Simprocs :=
   return simprocExtension.getState (← getEnv)
 

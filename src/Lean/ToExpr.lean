@@ -100,6 +100,16 @@ instance [ToExpr α] [ToExpr β] : ToExpr (α × β) :=
   { toExpr     := fun ⟨a, b⟩ => mkApp4 (mkConst ``Prod.mk [levelZero, levelZero]) αType βType (toExpr a) (toExpr b),
     toTypeExpr := mkApp2 (mkConst ``Prod [levelZero, levelZero]) αType βType }
 
+instance : ToExpr Literal where
+  toTypeExpr := mkConst ``Literal
+  toExpr l   := match l with
+   | .natVal _ => mkApp (mkConst ``Literal.natVal) (.lit l)
+   | .strVal _ => mkApp (mkConst ``Literal.strVal) (.lit l)
+
+instance : ToExpr FVarId where
+  toTypeExpr    := mkConst ``FVarId
+  toExpr fvarId := mkApp (mkConst ``FVarId.mk) (toExpr fvarId.name)
+
 def Expr.toCtorIfLit : Expr → Expr
   | .lit (.natVal v) =>
     if v == 0 then mkConst ``Nat.zero

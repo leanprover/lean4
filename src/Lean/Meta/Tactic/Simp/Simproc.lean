@@ -138,9 +138,10 @@ def SimprocEntry.try? (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   | none => return none
   | some step => return some (← step.addExtraArgs extraArgs)
 
-def simproc? (tag : String) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM (Option Step) := do
+def simproc? (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM (Option Step) := do
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
+    let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
     return none
   else
@@ -148,6 +149,7 @@ def simproc? (tag : String) (s : SimprocTree) (erased : PHashSet Name) (e : Expr
       unless erased.contains simprocEntry.declName do
         if let some step ← simprocEntry.try? numExtraArgs e then
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {step.result.expr}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
           return some step
     return none
 
@@ -159,11 +161,11 @@ register_builtin_option simprocs : Bool := {
 def preSimproc? (e : Expr) : SimpM (Option Step) := do
   unless simprocs.get (← getOptions) do return none
   let s := (← getMethods).simprocs
-  simproc? "pre" s.pre s.erased e
+  simproc? (post := false) s.pre s.erased e
 
 def postSimproc? (e : Expr) : SimpM (Option Step) := do
   unless simprocs.get (← getOptions) do return none
   let s := (← getMethods).simprocs
-  simproc? "post" s.post s.erased e
+  simproc? (post := true) s.post s.erased e
 
 end Lean.Meta.Simp

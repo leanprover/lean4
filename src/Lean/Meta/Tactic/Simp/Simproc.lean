@@ -151,14 +151,19 @@ def simproc? (tag : String) (s : SimprocTree) (erased : PHashSet Name) (e : Expr
           return some step
     return none
 
+register_builtin_option simprocs : Bool := {
+  defValue := true
+  descr    := "Enable/disable `simproc`s (simplification procedures)."
+}
+
 def preSimproc? (e : Expr) : SimpM (Option Step) := do
-  if !(← getConfig).simproc then return none
-  let s ← simprocs
+  unless simprocs.get (← getOptions) do return none
+  let s := (← getMethods).simprocs
   simproc? "pre" s.pre s.erased e
 
 def postSimproc? (e : Expr) : SimpM (Option Step) := do
-  if !(← getConfig).simproc then return none
-  let s ← simprocs
+  unless simprocs.get (← getOptions) do return none
+  let s := (← getMethods).simprocs
   simproc? "post" s.post s.erased e
 
 end Lean.Meta.Simp

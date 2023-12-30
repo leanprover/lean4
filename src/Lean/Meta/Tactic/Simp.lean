@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Simp.Rewrite
 import Lean.Meta.Tactic.Simp.SimpAll
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 
 namespace Lean
 

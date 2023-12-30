@@ -257,7 +257,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
     return none
   let prefixSize := info.numParams + 1 /- motive -/
   let n     := numArgs - prefixSize
-  let f     := e.extractNumArgs n
+  let f     := e.stripArgsN n
   let infos := (← getFunInfoNArgs f n).paramInfo
   let args  := e.getAppArgsN n
   let mut r : Result := { expr := f }

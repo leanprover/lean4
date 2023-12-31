@@ -13,6 +13,11 @@ def fromExpr? (e : Expr) : SimpM (Option Nat) := do
   let some n ← evalNat e |>.run | return none
   return some n
 
+@[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : SimpM (Option Step) := do
+  unless e.isAppOfArity declName arity do return none
+  let some n ← fromExpr? e.appArg! | return none
+  return some (.done { expr := mkNatLit (op n) })
+
 @[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM (Option Step) := do
   unless e.isAppOfArity declName arity do return none
   let some n ← fromExpr? e.appFn!.appArg! | return none
@@ -28,6 +33,13 @@ def fromExpr? (e : Expr) : SimpM (Option Nat) := do
     return some (.done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] })
   else
     return some (.done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] })
+
+builtin_simproc reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
+
+/-
+The following code assumes users did not override the `Nat` instances for the arithmetic operators.
+If they do, they must disable the following `simprocs`.
+-/
 
 builtin_simproc reduceAdd ((_ + _ : Nat)) := reduceBin ``HAdd.hAdd 6 (· + ·)
 builtin_simproc reduceMul ((_ * _ : Nat)) := reduceBin ``HMul.hMul 6 (· * ·)

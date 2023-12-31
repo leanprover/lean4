@@ -11,7 +11,8 @@ namespace Lean.Meta
 
 /--
 When the goal `mvarId` type is an inductive datatype,
-`constructor` calls `apply` with the first matching constructor.
+and exactly one constructor matches the goal,
+the `constructor` tactic calls `apply` with that constructor.
 -/
 def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do
   mvarId.withContext do
@@ -20,12 +21,19 @@ def _root_.Lean.MVarId.constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) :
     matchConstInduct target.getAppFn
       (fun _ => throwTacticEx `constructor mvarId "target is not an inductive datatype")
       fun ival us => do
+        let mut workingCtors := #[]
         for ctor in ival.ctors do
+          let s ← saveState
           try
-            return ← mvarId.apply (Lean.mkConst ctor us) cfg
+            let _ ← mvarId.apply (Lean.mkConst ctor us) cfg
+            workingCtors := workingCtors.push ctor
+            s.restore
           catch _ =>
-            pure ()
-        throwTacticEx `constructor mvarId "no applicable constructor found"
+            s.restore
+        match workingCtors with
+        | #[] => throwTacticEx `constructor mvarId "no applicable constructor found"
+        | #[ctor] => return ← mvarId.apply (Lean.mkConst ctor us) cfg
+        | _ => throwTacticEx `constructor mvarId "more than one applicable constructor found"
 
 @[deprecated MVarId.constructor]
 def constructor (mvarId : MVarId) (cfg : ApplyConfig := {}) : MetaM (List MVarId) := do

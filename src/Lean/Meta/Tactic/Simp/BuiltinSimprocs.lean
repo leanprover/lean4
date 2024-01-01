@@ -6,3 +6,4 @@ Authors: Leonardo de Moura
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Core
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Fin
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.UInt

@@ -671,12 +671,12 @@ open Simp (UsedSimps Simprocs)
 def simp (e : Expr) (ctx : Simp.Context) (simprocs : Simprocs := {}) (discharge? : Option Simp.Discharge := none)
     (usedSimps : UsedSimps := {}) : MetaM (Simp.Result × UsedSimps) := do profileitM Exception "simp" (← getOptions) do
   match discharge? with
-  | none   => Simp.main e ctx usedSimps (methods := Simp.methodsDefault simprocs)
+  | none   => Simp.main e ctx usedSimps (methods := Simp.mkDefaultMethodsCore simprocs)
   | some d => Simp.main e ctx usedSimps (methods := Simp.mkMethods simprocs d)
 
 def dsimp (e : Expr) (ctx : Simp.Context)
     (usedSimps : UsedSimps := {}) : MetaM (Expr × UsedSimps) := do profileitM Exception "dsimp" (← getOptions) do
-  Simp.dsimpMain e ctx usedSimps (methods := Simp.methodsDefault {})
+  Simp.dsimpMain e ctx usedSimps (methods := Simp.mkDefaultMethodsCore {})
 
 /-- See `simpTarget`. This method assumes `mvarId` is not assigned, and we are already using `mvarId`s local context. -/
 def simpTargetCore (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs := {}) (discharge? : Option Simp.Discharge := none)

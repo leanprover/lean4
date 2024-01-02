@@ -411,7 +411,13 @@ def mkMethods (simprocs : Simprocs) (discharge? : Discharge) : Methods := {
   simprocs   := simprocs
 }
 
-def methodsDefault (simprocs : Simprocs) : Methods :=
+def mkDefaultMethodsCore (simprocs : Simprocs) : Methods :=
   mkMethods simprocs dischargeDefault?
+
+def mkDefaultMethods : CoreM Methods := do
+  if simprocs.get (← getOptions) then
+    return mkDefaultMethodsCore (← getSimprocs)
+  else
+    return mkDefaultMethodsCore {}
 
 end Lean.Meta.Simp

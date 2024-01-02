@@ -142,7 +142,7 @@ def main : M (Option MVarId) := do
 
 end SimpAll
 
-def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
+def simpAll (mvarId : MVarId) (ctx : Simp.Context) (simprocs : Simprocs := {}) (usedSimps : UsedSimps := {}) : MetaM (Option MVarId × UsedSimps) := do
   mvarId.withContext do
     let (r, s) ← SimpAll.main.run { mvarId, ctx, usedSimps, simprocs }
     if let .some mvarIdNew := r then

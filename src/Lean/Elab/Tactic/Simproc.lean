@@ -46,7 +46,7 @@ namespace Command
   liftTermElabM do
     checkSimprocType declName
     let keys ← elabSimprocKeys pattern
-    let val := mkAppN (mkConst ``registerBuiltinSimproc) #[toExpr declName, toExpr keys]
+    let val := mkAppN (mkConst ``registerBuiltinSimprocNew) #[toExpr declName, toExpr keys, mkConst declName]
     let initDeclName ← mkFreshUserName (declName ++ `declare)
     declareBuiltin initDeclName val
 

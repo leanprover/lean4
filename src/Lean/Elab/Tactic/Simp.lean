@@ -219,7 +219,11 @@ where
           else
             return .expr e
         else
-          resolveExt id.getId.eraseMacroScopes
+          let name := id.getId.eraseMacroScopes
+          if (← Simp.isBuiltinSimproc name) then
+            return .simproc name
+          else
+            resolveExt name
       catch _ =>
         resolveExt id.getId.eraseMacroScopes
     | _ =>

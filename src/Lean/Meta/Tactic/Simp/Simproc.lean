@@ -9,7 +9,12 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
-builtin_initialize builtinSimprocDeclsRef : IO.Ref (HashMap Name (Array SimpTheoremKey)) ← IO.mkRef {}
+structure BuiltinSimprocs where
+  keys  : HashMap Name (Array SimpTheoremKey) := {}
+  procs : HashMap Name Simproc := {}
+  deriving Inhabited
+
+builtin_initialize builtinSimprocDeclsRef : IO.Ref BuiltinSimprocs ← IO.mkRef {}
 
 structure SimprocDecl where
   declName : Name
@@ -26,8 +31,8 @@ def SimprocDecl.lt (decl₁ decl₂ : SimprocDecl) : Bool :=
 
 builtin_initialize simprocDeclExt : PersistentEnvExtension SimprocDecl SimprocDecl SimprocDeclExtState ←
   registerPersistentEnvExtension {
-    mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get) }
-    addImportedFn   := fun _ => return { builtin := (← builtinSimprocDeclsRef.get) }
+    mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get).keys }
+    addImportedFn   := fun _ => return { builtin := (← builtinSimprocDeclsRef.get).keys }
     addEntryFn      := fun s d => { s with newEntries := s.newEntries.insert d.declName d.keys }
     exportEntriesFn := fun s =>
       let result := s.newEntries.foldl (init := #[]) fun result declName keys => result.push { declName, keys }
@@ -47,15 +52,28 @@ def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)
   else
     return (simprocDeclExt.getState env).builtin.find? declName
 
+def isBuiltinSimproc (declName : Name) : CoreM Bool := do
+  let s := simprocDeclExt.getState (← getEnv)
+  return s.builtin.contains declName
+
 def isSimproc (declName : Name) : CoreM Bool :=
   return (← getSimprocDeclKeys? declName).isSome
 
-def registerBuiltinSimproc (declName : Name) (keys : Array SimpTheoremKey) : IO Unit := do
+def registerBuiltinSimproc (declName : Name) (key : Array SimpTheoremKey) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
-  if (← builtinSimprocDeclsRef.get).contains declName then
+  if (← builtinSimprocDeclsRef.get).keys.contains declName then
     throw (IO.userError s!"invalid builtin simproc declaration '{declName}', it has already been declared")
-  builtinSimprocDeclsRef.modify fun s => s.insert declName keys
+  builtinSimprocDeclsRef.modify fun { keys, procs } =>
+    { keys := keys.insert declName key, procs }
+
+def registerBuiltinSimprocNew (declName : Name) (key : Array SimpTheoremKey) (proc : Simproc) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
+  if (← builtinSimprocDeclsRef.get).keys.contains declName then
+    throw (IO.userError s!"invalid builtin simproc declaration '{declName}', it has already been declared")
+  builtinSimprocDeclsRef.modify fun { keys, procs } =>
+    { keys := keys.insert declName key, procs := procs.insert declName proc }
 
 def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit := do
   let env ← getEnv
@@ -115,17 +133,8 @@ def addSimprocAttr (declName : Name) (kind : AttributeKind) (post : Bool) : Core
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   simprocExtension.add { declName, post, keys, proc } kind
 
-def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
-  let proc ← getSimprocFromDecl declName
-  let some keys ← getSimprocDeclKeys? declName |
-    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
-  if post then
-    return { s with post := s.post.insertCore keys { declName, keys, post, proc } }
-  else
-    return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
-
 def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit := do
-  let some keys := (← builtinSimprocDeclsRef.get).find? declName |
+  let some keys := (← builtinSimprocDeclsRef.get).keys.find? declName |
     throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
   if post then
     builtinSimprocsRef.modify fun s => { s with post := s.post.insertCore keys { declName, keys, post, proc } }
@@ -134,6 +143,24 @@ def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO 
 
 def getSimprocs : CoreM Simprocs :=
   return simprocExtension.getState (← getEnv)
+
+def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
+  let proc ←
+    try
+      getSimprocFromDecl declName
+    catch e =>
+      if (← isBuiltinSimproc declName) then
+        let some proc := (← builtinSimprocDeclsRef.get).procs.find? declName
+          | throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+        pure proc
+      else
+        throw e
+  let some keys ← getSimprocDeclKeys? declName |
+    throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
+  if post then
+    return { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+  else
+    return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
 
 def SimprocEntry.try? (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM (Option Step) := do
   let mut extraArgs := #[]

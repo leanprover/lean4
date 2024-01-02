@@ -15,7 +15,6 @@ extern "C" {
 #endif
 uint8_t lean_int_dec_nonneg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeNatInt(lean_object*);
-LEAN_EXPORT lean_object* l_instOfNatInt(lean_object*);
 LEAN_EXPORT lean_object* l_Int_add___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMinInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
@@ -30,6 +29,7 @@ LEAN_EXPORT lean_object* l_Int_instNegInt;
 LEAN_EXPORT lean_object* l_Int_instMaxInt___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_Int_pow(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ofNatInst(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instDecidableEqInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decLe___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_decLt___boxed(lean_object*, lean_object*);
@@ -100,7 +100,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instOfNatInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_ofNatInst(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

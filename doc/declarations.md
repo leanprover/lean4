@@ -513,7 +513,7 @@ end Vector
 Recursive functions
 ===================
 
-Lean has to ensure that a recursive function definition is terminating, and has two strategies for that.
+Lean must ensure that a recursive functions terminate, for which there are two strategies: _structural recursion_, in which all recursive calls are made on smaller parts of the input data, and _well-founded recursion_, in which recursive calls are justified by showing that arguments to recursive calls are smaller according to some other measure.
 
 Structural recursion
 --------------------

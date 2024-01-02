@@ -753,6 +753,16 @@ partial def delabDoElems : DelabM (List Syntax) := do
       let b := b.instantiate1 fvar
       descend b 2 $
         prependAndRec `(doElem|let $(mkIdent n) : $stxT := $stxV)
+  else if e.isLetFun then
+    -- letFun.{u, v} : {α : Sort u} → {β : α → Sort v} → (v : α) → ((x : α) → β x) → β v
+    let stxT ← withNaryArg 0 delab
+    let stxV ← withNaryArg 2 delab
+    withAppArg do
+      match (← getExpr) with
+      | Expr.lam .. =>
+        withBindingBodyUnusedName fun n => do
+          prependAndRec `(doElem|have $n:term : $stxT := $stxV)
+      | _ => failure
   else
     let stx ← delab
     return [← `(doElem|$stx:term)]

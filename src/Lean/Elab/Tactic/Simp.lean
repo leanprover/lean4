@@ -311,6 +311,12 @@ def mkSimpOnly (stx : Syntax) (usedSimps : UsedSimps) : MetaM Syntax := do
           | false, true  => `(Parser.Tactic.simpLemma| ↓ ← $decl:term)
           | false, false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
         args := args.push arg
+      else if (← Simp.isBuiltinSimproc declName) then
+        let decl := mkIdent declName
+        let arg ← match post with
+          | true  => `(Parser.Tactic.simpLemma| $decl:term)
+          | false => `(Parser.Tactic.simpLemma| ↓ $decl:term)
+        args := args.push arg
     | .fvar fvarId => -- local hypotheses in the context
       -- `simp_all` always uses all propositional hypotheses (and it can't use
       -- any others). So `simp_all only [h]`, where `h` is a hypothesis, would

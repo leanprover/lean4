@@ -517,7 +517,9 @@ Lean must ensure that a recursive functions terminate, for which there are two s
 Structural recursion
 --------------------
 
-If the definition of a function contains recursive calls, the equation compiler tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side. The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
+If the definition of a function contains recursive calls, Lean tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side.
+
+The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
 
 ```lean
 namespace Hide
@@ -565,7 +567,7 @@ by rw [div]; rfl
 end Hide
 ```
 
-If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing. For example, a function with three recursive calls and four paramters might cause the following message to be printed
+If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing. For example, a function with three recursive calls and four parameters might cause the following message to be printed
 
 ```
 example.lean:37:0-43:31: error: Could not find a decreasing measure.
@@ -581,9 +583,9 @@ Please use `termination_by` to specify a decreasing measure.
 This table should be read as follows:
 
  * The first recursive call, in line 39, arguments 1, 2 and 4 are equal to the function's paramters.
- * The second recursive call, in line 40, has an equal first, a smaller forth argument, and nothing could be inferred for the second argument.
+ * The second recursive call, in line 40, has an equal first, a smaller fourth argument, and nothing could be inferred for the second argument.
  * The third recursive call, in line 41, has a decreasing first argument.
- * No other proofs were attempted, either because the paramter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
+ * No other proofs were attempted, either because the parameter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
 
 
 Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.

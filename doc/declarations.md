@@ -489,21 +489,20 @@ The case where patterns are matched against an argument whose type is an inducti
 universe u
 
 inductive Vector (α : Type u) : Nat → Type u
-| nil  : Vector α 0
-| cons : α → Vector α n → Vector α (n+1)
+  | nil  : Vector α 0
+  | cons : α → Vector α n → Vector α (n+1)
 
 namespace Vector
 
-def head {α : Type} : Vector α (n+1) → α
-| cons h t => h
+def head : Vector α (n+1) → α
+  | cons h t => h
 
-def tail {α : Type} : Vector α (n+1) → Vector α n
-| cons h t => t
+def tail : Vector α (n+1) → Vector α n
+  | cons h t => t
 
-def map {α β γ : Type} (f : α → β → γ) :
-  ∀ {n}, Vector α n → Vector β n → Vector γ n
-| 0,   nil,       nil       => nil
-| n+1, cons a va, cons b vb => cons (f a b) (map f va vb)
+def map (f : α → β → γ) : Vector α n → Vector β n → Vector γ n
+  | nil, nil => nil
+  | cons a va, cons b vb => cons (f a b) (map f va vb)
 
 end Vector
 ```

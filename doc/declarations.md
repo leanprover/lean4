@@ -566,15 +566,39 @@ by rw [div]; rfl
 end Hide
 ```
 
-If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing.
+If Lean cannot find a permutation of the arguments for which all recursive calls are decreasing, it will print a table that contains, for every recursive call, which arguments Lean could prove to be decreasing. For example, a function with three recursive calls and four paramters might cause the following message to be printed
+
+```
+example.lean:37:0-43:31: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+           x1 x2 x3 x4
+1) 39:6-27  =  =  _  =
+2) 40:6-25  =  ?  _  <
+3) 41:6-25  <  _  _  _
+Please use `termination_by` to specify a decreasing measure.
+```
+
+This table should be read as follows:
+
+ * The first recursive call, in line 39, arguments 1, 2 and 4 are equal to the function's paramters.
+ * The second recursive call, in line 40, has an equal first, a smaller forth argument, and nothing could be inferred for the second argument.
+ * The third recursive call, in line 41, has a decreasing first argument.
+ * No other proofs were attempted, either because the paramter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
+
 
 Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
 
-If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition. It is of the form
+If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
 ```
-termination_by f a₁ … aₙ => e
+termination_by e
 ```
-where ``f`` is the function name (or ``_``), ``a₁ … aₙ``  are the parameters (or ``_``), and ``e`` is the expression that should be decreasing at each recursive call. The the type of `e` should be an instance of the class ``WellFoundedRelation``, which determines how to compare two values of that type.
+where ``e`` is an expression that depends on the parameters of the function and should be decreasing at each recursive call. The type of `e` should be an instance of the class ``WellFoundedRelation``, which determines how to compare two values of that type.
+
+If ``f`` has parameters “after the ``:``” (a `fun` after the `:=`, or function equations), these must be given names using the syntax
+```
+termination_by a₁ … aₙ => e
+```
 
 By default, Lean uses the tactic ``decreasing_tactic`` when proving that an argument is decreasing; see its documentation for how to globally extend it. You can also choose to use a different tactic for a given function definition with the clause
 ```
@@ -645,20 +669,32 @@ def num_consts_lst : List Term → Nat
 end
 ```
 
-If an explicit termination argument (``termination_by``) or tactic (``decreasing_by``) is given for a mutual recursive function definition, these clauses must follow the ``mutual … end`` for all involved functions:
+In a set of mutually recursive function, either all or no functions must have an explicit termination argument (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functiosn in the group.
+
 ```
 mutual
 theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
 | _, odd_succ n h => h
+termination_by n h => h
+decreasing_by decreasing_tactic
+
 theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
 | _, even_succ n h => h
+termination_by n h => h
 end
-termination_by
-  even_of_odd_succ n h => h
-  odd_of_even_succ n h => h
-decreasing_by decreasing_tactic
 ```
 
+Another way to express mutual recursion using local function definitions in ``where`` or ``let rec`` clauses: these can be mutually recursive with each other and their containing function:
+
+```
+theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
+| _, odd_succ n h => h
+termination_by n h => h
+  where
+    theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
+    | _, even_succ n h => h
+    termination_by n h => h
+```
 
 .. _match_expressions:
 

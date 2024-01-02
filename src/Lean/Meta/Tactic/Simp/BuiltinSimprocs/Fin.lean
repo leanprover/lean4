@@ -20,7 +20,7 @@ def fromExpr? (e : Expr) : SimpM (Option Value) := do
   unless type.isAppOfArity ``Fin 1 do return none
   let some size ← evalNat type.appArg! |>.run | return none
   unless size > 0 do return none
-  let some value ← evalNat e.appFn!.appArg! |>.run | return none
+  let some value ← Nat.fromExpr? e.appFn!.appArg! | return none
   let value := value % size
   return some { size, value, ofNatFn := e.appFn!.appFn! }
 

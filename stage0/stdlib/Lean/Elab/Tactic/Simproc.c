@@ -2813,7 +2813,7 @@ static lean_object* _init_l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("registerBuiltinSimprocNew", 25);
+x_1 = lean_mk_string_from_bytes("registerBuiltinSimproc", 22);
 return x_1;
 }
 }

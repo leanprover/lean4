@@ -67,14 +67,6 @@ def registerBuiltinSimproc (declName : Name) (key : Array SimpTheoremKey) (proc 
   builtinSimprocDeclsRef.modify fun { keys, procs } =>
     { keys := keys.insert declName key, procs := procs.insert declName proc }
 
-def registerBuiltinSimprocNew (declName : Name) (key : Array SimpTheoremKey) (proc : Simproc) : IO Unit := do
-  unless (← initializing) do
-    throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
-  if (← builtinSimprocDeclsRef.get).keys.contains declName then
-    throw (IO.userError s!"invalid builtin simproc declaration '{declName}', it has already been declared")
-  builtinSimprocDeclsRef.modify fun { keys, procs } =>
-    { keys := keys.insert declName key, procs := procs.insert declName proc }
-
 def registerSimproc (declName : Name) (keys : Array SimpTheoremKey) : CoreM Unit := do
   let env ← getEnv
   unless (env.getModuleIdxFor? declName).isNone do

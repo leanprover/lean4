@@ -35,7 +35,7 @@ private partial def unpackUnary (preDef : PreDefinition) (prefixSize : Nat) (mva
     if element.vars.size > varNames.size then
       throwErrorAt element.vars[varNames.size]! "too many variable names"
     for h : i in [:element.vars.size] do
-      let varStx := element.vars[i]'h.2
+      let varStx := element.vars[i]
       if let `($ident:ident) := varStx then
         varNames := varNames.set! (varNames.size - element.vars.size + i) ident.getId
     return varNames

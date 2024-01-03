@@ -598,7 +598,7 @@ termination_by e
 ```
 where ``e`` is an expression that depends on the parameters of the function and should be decreasing at each recursive call. The type of `e` should be an instance of the class ``WellFoundedRelation``, which determines how to compare two values of that type.
 
-If ``f`` has parameters “after the ``:``” (a `fun` after the `:=`, or function equations), these must be given names using the syntax
+If ``f`` has parameters “after the ``:``” (for example when defining functions via patterns using `|`), then these can be brought into scope using the syntax
 ```
 termination_by a₁ … aₙ => e
 ```

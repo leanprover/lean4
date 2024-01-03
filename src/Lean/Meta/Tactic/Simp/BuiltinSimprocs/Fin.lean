@@ -26,7 +26,7 @@ def fromExpr? (e : Expr) : SimpM (Option Value) := do
 
 def Value.toExpr (v : Value) : Expr :=
   let vExpr := mkRawNatLit v.value
-  mkApp2 v.ofNatFn vExpr (mkApp2 (mkConst ``Fin.ofNatInst) (Lean.toExpr (v.size - 1)) vExpr)
+  mkApp2 v.ofNatFn vExpr (mkApp2 (mkConst ``Fin.instOfNat) (Lean.toExpr (v.size - 1)) vExpr)
 
 @[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM (Option Step) := do
   unless e.isAppOfArity declName arity do return none

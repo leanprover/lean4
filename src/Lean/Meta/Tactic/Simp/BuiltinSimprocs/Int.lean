@@ -26,7 +26,7 @@ def fromExpr? (e : Expr) : SimpM (Option Int) := do
 def toExpr (v : Int) : Expr :=
   let n := v.natAbs
   let r := mkRawNatLit n
-  let e := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Int) r (mkApp (mkConst ``ofNatInst) r)
+  let e := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) (mkConst ``Int) r (mkApp (mkConst ``instOfNat) r)
   if v < 0 then
     mkAppN (mkConst ``Neg.neg [levelZero]) #[mkConst ``Int, mkConst ``instNegInt, e]
   else

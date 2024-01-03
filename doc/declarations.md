@@ -543,7 +543,9 @@ end Hide
 Well-founded recursion
 ---------------------
 
-If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition. In this case of well-founded recursion, the defining equations hold only propositionally, and can be accessed using ``simp`` and ``rewrite`` with the name ``foo``.
+If structural recursion fails, the equation compiler falls back on well-founded recursion. It tries to infer an instance of ``SizeOf`` for the type of each argument, and then tries to find a permutation of the arguments such that each recursive call is decreasing under the lexicographic order with respect to ``sizeOf`` measures.  Lean uses information in the local context, so you can often provide the relevant proof manually using ``have`` in the body of the definition.
+
+In the case of well-founded recursion, the equation used to declare the function holds only propositionally, but not definitionally, and can be accessed using ``unfold``, ``simp`` and ``rewrite`` with the function name (for example ``unfold foo`` or ``simp [foo]``, where ``foo`` is the function defined with well-founded recursion).
 
 ```lean
 namespace Hide
@@ -670,7 +672,7 @@ def num_consts_lst : List Term → Nat
 end
 ```
 
-In a set of mutually recursive function, either all or no functions must have an explicit termination argument (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functiosn in the group.
+In a set of mutually recursive function, either all or no functions must have an explicit termination argument (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functions in the group.
 
 ```
 mutual
@@ -689,11 +691,11 @@ Another way to express mutual recursion using local function definitions in ``wh
 
 ```
 theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n
-| _, odd_succ n h => h
+  | _, odd_succ n h => h
 termination_by n h => h
   where
     theorem odd_of_even_succ : ∀ n, Even (n + 1) → Odd n
-    | _, even_succ n h => h
+      | _, even_succ n h => h
     termination_by n h => h
 ```
 

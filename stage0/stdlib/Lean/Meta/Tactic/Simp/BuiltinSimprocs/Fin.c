@@ -788,7 +788,7 @@ static lean_object* _init_l_Fin_Value_toExpr___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("ofNatInst", 9);
+x_1 = lean_mk_string_from_bytes("instOfNat", 9);
 return x_1;
 }
 }

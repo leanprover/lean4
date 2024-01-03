@@ -35,18 +35,17 @@ LEAN_EXPORT lean_object* l_Fin_div(lean_object*);
 LEAN_EXPORT lean_object* l_Fin_coeToNat___boxed(lean_object*);
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__17;
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__7;
-LEAN_EXPORT lean_object* l_Fin_ofNatInst(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_node5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instInhabitedFinHAddNatInstHAddInstAddNatOfNat___boxed(lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_add(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instDivFin(lean_object*);
-LEAN_EXPORT lean_object* l_Fin_ofNatInst___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat_x27___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__19;
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__20;
+LEAN_EXPORT lean_object* l_Fin_instOfNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_ofNat___boxed(lean_object*, lean_object*);
 static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__elem__tactic__trivial__1___closed__3;
 LEAN_EXPORT lean_object* l_Fin_instInhabitedFinHAddNatInstHAddInstAddNatOfNat(lean_object*);
@@ -85,6 +84,7 @@ static lean_object* l___aux__Init__Data__Fin__Basic______macroRules__tacticGet__
 LEAN_EXPORT lean_object* l_Fin_mul___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instSubFin(lean_object*);
 lean_object* lean_nat_lxor(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Fin_instOfNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_modn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instGetElemFinVal(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_shiftRight(lean_object*, lean_object*, lean_object*);
@@ -638,7 +638,7 @@ lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_ofNatInst(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_instOfNat(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
@@ -646,11 +646,11 @@ x_3 = l_Fin_ofNat(x_1, x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Fin_ofNatInst___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Fin_instOfNat___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Fin_ofNatInst(x_1, x_2);
+x_3 = l_Fin_instOfNat(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 return x_3;

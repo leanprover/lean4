@@ -872,6 +872,11 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
     | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
     | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
     | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2
+    | ``Nat.land => reduceBinNatOp Nat.land a1 a2
+    | ``Nat.lor  => reduceBinNatOp Nat.lor a1 a2
+    | ``Nat.xor  => reduceBinNatOp Nat.xor a1 a2
+    | ``Nat.shiftLeft  => reduceBinNatOp Nat.shiftLeft a1 a2
+    | ``Nat.shiftRight => reduceBinNatOp Nat.shiftRight a1 a2
     | _ => return none
   | _ =>
     return none

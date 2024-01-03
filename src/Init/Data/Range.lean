@@ -83,3 +83,6 @@ theorem Membership.mem.upper {i : Nat} {r : Std.Range} (h : i ∈ r) : i < r.sto
 theorem Membership.mem.lower {i : Nat} {r : Std.Range} (h : i ∈ r) : r.start ≤ i := by
   simp [Membership.mem] at h
   exact h.1
+
+macro_rules
+  | `(tactic| get_elem_tactic_trivial) => `(tactic| exact Membership.mem.upper (by assumption))

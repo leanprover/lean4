@@ -29,3 +29,9 @@ def f7 (i : Nat) :=
 #print f5
 #print f6
 #print f7
+
+def withRange (xs : Array Nat) : Option Nat := Id.run do
+  for h : i in [:xs.size] do
+    if i == xs[i] then
+      return i
+  return none

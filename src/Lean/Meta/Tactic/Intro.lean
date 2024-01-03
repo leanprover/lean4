@@ -108,6 +108,8 @@ private def mkAuxNameImp (preserveBinderNames : Bool) (hygienic : Bool) (useName
       mkAuxNameWithoutGivenName rest
 where
   mkAuxNameWithoutGivenName (rest : List Name) : MetaM (Name × List Name) := do
+    -- Use a nicer binder name than `[anonymous]`, which can appear in for example `letFun x f` when `f` is not a lambda expression.
+    let binderName := if binderName.isAnonymous then `a else binderName
     if preserveBinderNames then
       return (binderName, rest)
     else

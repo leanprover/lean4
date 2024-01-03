@@ -20,6 +20,7 @@ example : have x := 2; ∀ _ : Nat, x = x := by
 
 /-!
 Check that the default name for `letFun` with an eta reduced argument is usable.
+When the name is anonymous, it uses `a` for the name.
 -/
 elab "introp" : tactic => Lean.Elab.Tactic.liftMetaTactic fun g => do
   ([·]) <$> Prod.snd <$> g.intro1P

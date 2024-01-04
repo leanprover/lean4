@@ -69,6 +69,26 @@ jobs:
           # The token used here must have `workflow` privileges.
           GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
 
+      - name: Report release status
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.checks.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              head_sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
+              name: "PR release",
+              status: "completed",
+              conclusion: "toolchain $${ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}"
+              // details_url: process.env.parameter_url,
+              output: {
+                title: "PR release",
+                summary: "PR toolchain successfully created/update\nUse toolchain `$${ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
+                // text: "my text",
+              },
+            });
+
       - name: Add label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: actions/github-script@v7

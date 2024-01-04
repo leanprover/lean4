@@ -79,7 +79,8 @@ jobs:
               repo: context.repo.repo,
               sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
               state: "success",
-              description: "`${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
+              context: "PR toolchain",
+              description: "${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}",
             });
 
       - name: Add label
@@ -184,6 +185,25 @@ jobs:
           else
             echo "mathlib_ready=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Report mathlib base
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && steps.ready.outputs.mathlib_ready == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const description =
+              process.env.MOST_RECENT_NIGHTLY ?
+              process.env.MOST_RECENT_NIGHTLY :
+              "not branched off nightly";
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
+              state: "success",
+              context: "Branched off:",
+              description: description,
+            });
+
 
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure

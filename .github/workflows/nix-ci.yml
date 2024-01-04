@@ -88,7 +88,7 @@ jobs:
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
           # https://github.com/netlify/cli/issues/1809
-          cp --dereference ./result ./dist
+          cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix
         run: |

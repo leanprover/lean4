@@ -193,14 +193,14 @@ jobs:
           script: |
             const description =
               process.env.MOST_RECENT_NIGHTLY ?
-              process.env.MOST_RECENT_NIGHTLY :
+              "nightly-" + process.env.MOST_RECENT_NIGHTLY :
               "not branched off nightly";
             await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
               state: "success",
-              context: "Branched off:",
+              context: "PR branched off:",
               description: description,
             });
 

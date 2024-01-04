@@ -74,18 +74,13 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.checks.create({
+            await github.rest.status.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              head_sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
+              sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
               name: "PR release",
-              conclusion: "success",
-              // details_url: process.env.parameter_url,
-              output: {
-                title: "PR release",
-                summary: "PR toolchain successfully created or updated.\nUse toolchain `${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
-                // text: "my text",
-              },
+              state: "success",
+              description: "`${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
             });
 
       - name: Add label

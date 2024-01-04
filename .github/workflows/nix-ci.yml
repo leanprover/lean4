@@ -120,7 +120,7 @@ jobs:
           enable-commit-comment: false
           enable-pull-request-comment: false
           github-deployment-environment: "lean-lang.org/lean4/doc"
-          fails-without-credentials: true
+          fails-without-credentials: false
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: "b8e805d2-7e9b-4f80-91fb-a84d72fc4a68"

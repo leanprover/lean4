@@ -80,11 +80,11 @@ jobs:
               head_sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
               name: "PR release",
               status: "completed",
-              conclusion: "toolchain $${ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}"
+              conclusion: "toolchain ${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}",
               // details_url: process.env.parameter_url,
               output: {
                 title: "PR release",
-                summary: "PR toolchain successfully created/update\nUse toolchain `$${ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
+                summary: "PR toolchain successfully created/update\nUse toolchain `${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
                 // text: "my text",
               },
             });

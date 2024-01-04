@@ -62,18 +62,28 @@ def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
   else
     return false
 
-/--
-`RpcEncodable α` means that `α` can be serialized in the RPC system of the Lean server.
-This is required when `α` contains fields which should be serialized as an RPC reference
-instead of being sent in full.
-The type wrapper `WithRpcRef` is used for these fields which should be sent as
-a reference.
+/-- `RpcEncodable α` means that `α` can be deserialized from and serialized into JSON
+for the purpose of receiving arguments to and sending return values from
+Remote Procedure Calls (RPCs).
 
-- Any type with `FromJson` and `ToJson` instance is automatically `RpcEncodable`.
-- If a type has an `Dynamic` instance, then `WithRpcRef` can be used for its references.
-- `deriving RpcEncodable` acts like `FromJson`/`ToJson` but marshalls any `WithRpcRef` fields
-  as `Lsp.RpcRef`s.
--/
+Any type with `FromJson` and `ToJson` instances is `RpcEncodable`.
+
+Furthermore, types that do not have these instances may still be `RpcEncodable`.
+Use `deriving RpcEncodable` to automatically derive instances for such types.
+
+This occurs when `α` contains data that should not or cannot be serialized:
+for instance, heavy objects such as `Lean.Environment`, or closures.
+For such data, we use the `WithRpcRef` marker.
+Note that for `WithRpcRef α` to be `RpcEncodable`,
+`α` must have a `TypeName` instance
+
+On the server side, `WithRpcRef α` is just a structure
+containing a value of type `α`.
+On the client side, it is an opaque reference of (structural) type `Lsp.RpcRef`.
+Thus, `WithRpcRef α` is cheap to transmit over the network
+but may only be accessed on the server side.
+In practice, it is used by the client to pass data
+between various RPC methods provided by the server. -/
 -- TODO(WN): for Lean.js, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncodable (α : Type) where
   rpcEncode : α → StateM RpcObjectStore Json
@@ -103,7 +113,15 @@ instance [RpcEncodable α] [RpcEncodable β] : RpcEncodable (α × β) where
     let (a, b) ← fromJson? j
     return (← rpcDecode a, ← rpcDecode b)
 
-/-- Marks fields to encode as opaque references in LSP packets. -/
+instance [RpcEncodable α] : RpcEncodable (StateM RpcObjectStore α) where
+  rpcEncode fn := fn >>= rpcEncode
+  rpcDecode j := do
+    let a : α ← rpcDecode j
+    return return a
+
+/-- Marks values to be encoded as opaque references in RPC packets.
+
+See the docstring for `RpcEncodable`. -/
 structure WithRpcRef (α : Type u) where
   val : α
   deriving Inhabited

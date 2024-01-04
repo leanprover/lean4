@@ -21,16 +21,25 @@ structure EqnInfoCore where
   value       : Expr
   deriving Inhabited
 
-partial def expand : Expr → Expr
-  | Expr.letE _ _ v b _ => expand (b.instantiate1 v)
-  | Expr.mdata _ b      => expand b
-  | e => e
+/--
+Zeta reduces `let` and `let_fun` while consuming metadata.
+Returns true if progress is made.
+-/
+partial def expand (progress : Bool) (e : Expr) : Bool × Expr :=
+  match e with
+  | Expr.letE _ _ v b _ => expand true (b.instantiate1 v)
+  | Expr.mdata _ b      => expand true b
+  | e =>
+    if let some (_, _, v, b) := e.letFun? then
+      expand true (b.instantiate1 v)
+    else
+      (progress, e)
 
 def expandRHS? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | return none
-  unless rhs.isLet || rhs.isMData do return none
-  return some (← mvarId.replaceTargetDefEq (← mkEq lhs (expand rhs)))
+  let (true, rhs') := expand false rhs | return none
+  return some (← mvarId.replaceTargetDefEq (← mkEq lhs rhs'))
 
 def funext? (mvarId : MVarId) : MetaM (Option MVarId) := do
   let target ← mvarId.getType'

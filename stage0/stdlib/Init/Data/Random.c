@@ -50,6 +50,7 @@ lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 static lean_object* l_instRandomGenStdGen___closed__4;
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___at_IO_rand___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__2;
+LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_747_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instRandomGenStdGen;
 static lean_object* l_instReprStdGen___closed__2;
@@ -77,7 +78,6 @@ static lean_object* l_stdNext___closed__5;
 LEAN_EXPORT lean_object* l___private_Init_Data_Random_0__randNatAux___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_stdNext___closed__11;
 LEAN_EXPORT lean_object* l_stdNext(lean_object*);
-LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_821_(lean_object*);
 LEAN_EXPORT lean_object* l_IO_setRandSeed___boxed(lean_object*, lean_object*);
 lean_object* lean_int_add(lean_object*, lean_object*);
 static lean_object* l_instRandomGenStdGen___closed__1;
@@ -1291,7 +1291,7 @@ x_2 = lean_alloc_closure((void*)(l_randBool___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_821_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_initFn____x40_Init_Data_Random___hyg_747_(lean_object* x_1) {
 _start:
 {
 size_t x_2; lean_object* x_3; 
@@ -1855,7 +1855,7 @@ l_instRandomGenStdGen___closed__4 = _init_l_instRandomGenStdGen___closed__4();
 lean_mark_persistent(l_instRandomGenStdGen___closed__4);
 l_instRandomGenStdGen = _init_l_instRandomGenStdGen();
 lean_mark_persistent(l_instRandomGenStdGen);
-res = l_initFn____x40_Init_Data_Random___hyg_821_(lean_io_mk_world());
+res = l_initFn____x40_Init_Data_Random___hyg_747_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_IO_stdGenRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_IO_stdGenRef);

@@ -78,6 +78,38 @@ structure Command where
   arguments? : Option (Array Json) := none
   deriving ToJson, FromJson
 
+/-- A snippet is a string that gets inserted into a document,
+and can afterwards be edited by the user in a structured way.
+
+Snippets contain instructions that
+specify how this structured editing should proceed.
+They are expressed in a domain-specific language
+based on one from TextMate,
+including the following constructs:
+- Designated positions for subsequent user input,
+  called "tab stops" after their most frequently-used keybinding.
+  They are denoted with `$1`, `$2`, and so forth.
+  `$0` denotes where the cursor should be positioned after all edits are completed,
+  defaulting to the end of the string.
+  Snippet tab stops are unrelated to tab stops used for indentation.
+- Tab stops with default values, called _placeholders_, written `${1:default}`.
+  The default may itself contain a tab stop or a further placeholder
+  and multiple options to select from may be provided
+  by surrounding them with `|`s and separating them with `,`,
+  as in `${1|if $2 then $3 else $4,if let $2 := $3 then $4 else $5|}`.
+- One of a set of predefined variables that are replaced with their values.
+  This includes the current line number (`$TM_LINE_NUMBER`)
+  or the text that was selected when the snippet was invoked (`$TM_SELECTED_TEXT`).
+- Formatting instructions to modify variables using regular expressions
+  or a set of predefined filters.
+
+The full syntax and semantics of snippets,
+including the available variables and the rules for escaping control characters,
+are described in the [LSP specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#snippet_syntax). -/
+structure SnippetString where
+  value : String
+  deriving ToJson, FromJson
+
 /-- A textual edit applicable to a text document.
 
 [reference](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textEdit) -/
@@ -87,6 +119,21 @@ structure TextEdit where
   range : Range
   /-- The string to be inserted. For delete operations use an empty string. -/
   newText : String
+  /-- If this field is present and the editor supports it,
+  `newText` is ignored
+  and an interactive snippet edit is performed instead.
+
+  The use of snippets in `TextEdit`s
+  is a Lean-specific extension to the LSP standard,
+  so `newText` should still be set to a correct value
+  as fallback in case the editor does not support this feature.
+  Even editors that support snippets may not always use them;
+  for instance, if the file is not already open,
+  VS Code will perform a normal text edit in the background instead. -/
+  /- NOTE: Similar functionality may be added to LSP in the future:
+  see [issue #592](https://github.com/microsoft/language-server-protocol/issues/592).
+  If such an addition occurs, this field should be deprecated. -/
+  leanExtSnippet? : Option SnippetString := none
   /-- Identifier for annotated edit.
 
     `WorkspaceEdit` has a `changeAnnotations` field that maps these identifiers to a `ChangeAnnotation`.

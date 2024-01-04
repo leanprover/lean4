@@ -340,8 +340,8 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__13(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Server_Completion_0__Lean_Server_Completion_optionCompletion___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfo___at___private_Lean_Server_Completion_0__Lean_Server_Completion_getCompletionKindForDecl___spec__3___closed__4;
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at___private_Lean_Server_Completion_0__Lean_Server_Completion_dotIdCompletion___spec__1(lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Completion_0__Lean_Server_Completion_idCompletionCore___spec__16(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_tacticCompletion___lambda__1___closed__1;
 static lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_truncate_go___closed__3;
@@ -836,7 +836,7 @@ x_10 = lean_ctor_get(x_1, 2);
 lean_inc(x_10);
 x_11 = lean_ctor_get_uint8(x_1, sizeof(void*)*3 + 8);
 x_12 = 1;
-x_13 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_11, x_12);
+x_13 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_11, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; 

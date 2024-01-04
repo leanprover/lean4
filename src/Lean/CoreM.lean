@@ -315,7 +315,7 @@ private def checkUnsupported [Monad m] [MonadEnv m] [MonadError m] (decl : Decla
     | _ => pure ()
 
 register_builtin_option compiler.enableNew : Bool := {
-  defValue := true
+  defValue := false
   group    := "compiler"
   descr    := "(compiler) enable the new code generator, this should have no significant effect on your code but it does help to test the new code generator; unset to only use the old code generator instead"
 }

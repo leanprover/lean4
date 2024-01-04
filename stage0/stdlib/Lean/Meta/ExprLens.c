@@ -159,8 +159,8 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord__
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3___closed__1;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3___closed__4;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__10___closed__3;
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_viewCoordAux___rarg___closed__1;
 static lean_object* l___private_Lean_Meta_ExprLens_0__Lean_Meta_lensCoord___rarg___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Core_numBinders___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -857,7 +857,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 
@@ -981,7 +981,7 @@ return x_21;
 else
 {
 uint8_t x_22; 
-x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_10, x_10);
+x_22 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_10, x_10);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; 

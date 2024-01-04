@@ -1653,6 +1653,47 @@ def setAppPPExplicitForExposingMVars (e : Expr) : Expr :=
     mkAppN f args |>.setPPExplicit true
   | _      => e
 
+/--
+Returns true if `e` is a `let_fun` expression, which is an expression of the form `letFun v f`.
+Ideally `f` is a lambda, but we do not require that here.
+Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `false`.
+-/
+def isLetFun (e : Expr) : Bool := e.isAppOfArity ``letFun 4
+
+/--
+Recognizes a `let_fun` expression.
+For `let_fun n : t := v; b`, returns `some (n, t, v, b)`, which are the first four arguments to `Lean.Expr.letE`.
+Warning: if the `let_fun` is applied to additional arguments (such as in `(let_fun f := id; id) 1`), this function returns `none`.
+
+`let_fun` expressions are encoded as `letFun v (fun (n : t) => b)`.
+They can be created using `Lean.Meta.mkLetFun`.
+
+If in the encoding of `let_fun` the last argument to `letFun` is eta reduced, this returns `Name.anonymous` for the binder name.
+-/
+def letFun? (e : Expr) : Option (Name × Expr × Expr × Expr) :=
+  match e with
+  | .app (.app (.app (.app (.const ``letFun _) t) _β) v) f =>
+    match f with
+    | .lam n _ b _ => some (n, t, v, b)
+    | _ => some (.anonymous, t, v, .app f (.bvar 0))
+  | _ => none
+
+/--
+Like `Lean.Expr.letFun?`, but handles the case when the `let_fun` expression is possibly applied to additional arguments.
+Returns those arguments in addition to the values returned by `letFun?`.
+-/
+def letFunAppArgs? (e : Expr) : Option (Array Expr × Name × Expr × Expr × Expr) := do
+  guard <| 4 ≤ e.getAppNumArgs
+  guard <| e.isAppOf ``letFun
+  let args := e.getAppArgs
+  let t := args[0]!
+  let v := args[2]!
+  let f := args[3]!
+  let rest := args.extract 4 args.size
+  match f with
+  | .lam n _ b _ => some (rest, n, t, v, b)
+  | _ => some (rest, .anonymous, t, v, .app f (.bvar 0))
+
 end Expr
 
 /--
@@ -1669,28 +1710,6 @@ def annotation? (kind : Name) (e : Expr) : Option Expr :=
   match e with
   | .mdata d b => if d.size == 1 && d.getBool kind false then some b else none
   | _          => none
-
-/--
-Annotate `e` with the `let_fun` annotation. This annotation is used as hint for the delaborator.
-If `e` is of the form `(fun x : t => b) v`, then `mkLetFunAnnotation e` is delaborated at
-`let_fun x : t := v; b`
--/
-def mkLetFunAnnotation (e : Expr) : Expr :=
-  mkAnnotation `let_fun e
-
-/--
-Return `some e'` if `e = mkLetFunAnnotation e'`
--/
-def letFunAnnotation? (e : Expr) : Option Expr :=
-  annotation? `let_fun e
-
-/--
-Return true if `e = mkLetFunAnnotation e'`, and `e'` is of the form `(fun x : t => b) v`
--/
-def isLetFun (e : Expr) : Bool :=
-  match letFunAnnotation? e with
-  | none   => false
-  | some e => e.isApp && e.appFn!.isLambda
 
 /--
 Auxiliary annotation used to mark terms marked with the "inaccessible" annotation `.(t)` and

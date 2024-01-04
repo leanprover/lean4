@@ -276,6 +276,13 @@ example : 1 = 1 := by
            --^ textDocument/hover
   exact Eq.refl x
 
+example : 1 = 1 := by
+  cases _e : 1 with
+      --^ textDocument/hover
+  | zero => rfl
+  | succ x => rfl
+       --^ textDocument/hover
+
 namespace Foo
 
 export List (nil)

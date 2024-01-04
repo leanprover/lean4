@@ -7,5 +7,5 @@
 find "$(dirname "$0")" -name '*.expected.out' |
 while read -r to; do
   from="${to/.expected.out/.produced.out}"
-  cmp -s "$from" "$to" || cp -v "$from" "$to"
+  [ ! -f "$from" ] || cmp -s "$from" "$to" || cp -v "$from" "$to"
 done

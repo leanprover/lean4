@@ -560,6 +560,10 @@ where
       | .const ..  => pure e
       | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
+        if config.zeta then
+          if let some (args, _, _, v, b) := e.letFunAppArgs? then
+            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+            return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
         if config.beta && f'.isLambda then

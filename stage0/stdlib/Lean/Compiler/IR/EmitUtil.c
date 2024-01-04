@@ -27,9 +27,8 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_IR_CollectMaps_collectVar___spec__2___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(lean_object*, uint8_t, lean_object*);
+uint8_t l_List_any___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_IR_CollectMaps_collectVar___spec__5(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_IR_CollectMaps_collectJP___spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_IR_CollectMaps_collectVar___spec__2(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -53,6 +52,7 @@ uint8_t lean_name_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectUsedDecls_collectFnBody___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CollectMaps_collectFnBody(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_CollectUsedDecls_collectFnBody___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Name_isPrefixOf___boxed(lean_object*, lean_object*);
 size_t lean_hashmap_mk_idx(lean_object*, uint64_t);
 LEAN_EXPORT uint8_t l_Lean_AssocList_contains___at_Lean_IR_CollectMaps_collectJP___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_IR_CollectMaps_collectJP___spec__2___boxed(lean_object*, lean_object*);
@@ -84,7 +84,6 @@ LEAN_EXPORT lean_object* l_Lean_IR_usesModuleFrom___boxed(lean_object*, lean_obj
 lean_object* l___private_Lean_Data_HashMap_0__Lean_numBucketsForCapacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_IR_CollectMaps_collectJP___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_CollectMaps_collectParams___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_IR_isTailCallTo(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -160,57 +159,15 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
-_start:
-{
-if (lean_obj_tag(x_3) == 0)
-{
-return x_2;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; uint8_t x_6; uint8_t x_7; 
-x_4 = lean_ctor_get(x_3, 0);
-x_5 = lean_ctor_get(x_3, 1);
-x_6 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(x_1, x_2, x_5);
-x_7 = l_Lean_Name_isPrefixOf(x_1, x_4);
-if (x_7 == 0)
-{
-return x_6;
-}
-else
-{
-uint8_t x_8; 
-x_8 = 1;
-return x_8;
-}
-}
-}
-}
 LEAN_EXPORT uint8_t l_Lean_IR_usesModuleFrom(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; uint8_t x_6; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = l_Lean_Environment_allImportedModuleNames(x_1);
-lean_dec(x_1);
 x_4 = lean_array_to_list(lean_box(0), x_3);
-x_5 = 0;
-x_6 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(x_2, x_5, x_4);
-lean_dec(x_4);
-lean_dec(x_2);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_List_foldr___at_Lean_IR_usesModuleFrom___spec__1(x_1, x_4, x_3);
-lean_dec(x_3);
-lean_dec(x_1);
-x_6 = lean_box(x_5);
+x_5 = lean_alloc_closure((void*)(l_Lean_Name_isPrefixOf___boxed), 2, 1);
+lean_closure_set(x_5, 0, x_2);
+x_6 = l_List_any___rarg(x_4, x_5);
 return x_6;
 }
 }
@@ -219,6 +176,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_IR_usesModuleFrom(x_1, x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

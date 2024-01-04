@@ -74,11 +74,10 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            await github.rest.status.create({
+            await github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
-              name: "PR release",
               state: "success",
               description: "`${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}`",
             });

@@ -86,7 +86,9 @@ jobs:
       - name: Build manual
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
-          nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
+          nix build NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
+          # https://github.com/netlify/cli/issues/1809
+          cp --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix
         run: |
@@ -111,7 +113,7 @@ jobs:
       - name: Publish manual to Netlify
         uses: nwtgck/actions-netlify@v2.0
         with:
-          publish-dir: ./result
+          publish-dir: ./dist
           production-branch: master
           github-token: ${{ secrets.GITHUB_TOKEN }}
           deploy-message: |

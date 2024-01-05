@@ -1006,7 +1006,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     bool use_hash = true;
     lbool r = quick_is_def_eq(t, s, use_hash);
     if (r != l_undef) return r == l_true;
-    
+
     // Very basic support for proofs by reflection. If `t` has no free variables and `s` is `Bool.true`,
     // we fully reduce `t` and check whether result is `s`.
     // TODO: add metadata to control whether this optimization is used or not.
@@ -1141,6 +1141,7 @@ void initialize_type_checker() {
     g_kernel_fresh = new name("_kernel_fresh");
     mark_persistent(g_kernel_fresh->raw());
     g_bool_true    = new name{"Bool", "true"};
+    mark_persistent(g_bool_true->raw());
     g_nat_zero     = new expr(mk_constant(name{"Nat", "zero"}));
     mark_persistent(g_nat_zero->raw());
     g_nat_succ     = new expr(mk_constant(name{"Nat", "succ"}));
@@ -1175,6 +1176,7 @@ void initialize_type_checker() {
 void finalize_type_checker() {
     delete g_dont_care;
     delete g_kernel_fresh;
+    delete g_bool_true;
     delete g_nat_succ;
     delete g_nat_zero;
     delete g_nat_add;

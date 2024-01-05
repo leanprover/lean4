@@ -341,14 +341,14 @@ jobs:
           fi
           # contortion to support empty OPTIONS with old macOS bash
           cmake .. ${{ matrix.CMAKE_OPTIONS }} ${OPTIONS[@]+"${OPTIONS[@]}"} -DLEAN_INSTALL_PREFIX=$PWD/..
-          make -j4
+          make -j$(nproc) all std4
           make install
       - name: Check Binaries
         run: ${{ matrix.binary-check }} lean-*/bin/* || true
       - name: List Install Tree
         run: |
           # omit contents of Init/, ...
-          tree --du -h lean-*-* | grep -E ' (Init|Lean|Lake|LICENSE|[a-z])'
+          tree --du -h lean-*-* | grep -E ' (Init|Lean|Lake|Std|LICENSE|[a-z])'
       - name: Pack
         run: |
           dir=$(echo lean-*-*)

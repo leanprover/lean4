@@ -355,9 +355,9 @@ Using `rw (config := {occs := .pos L}) [e]`,
 where `L : List Nat`, you can control which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.
-At the first occurrence, whether allowed or not,
-arguments of the rewrite rule `e` may be instantiated,
+At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
 restricting which later rewrites can be found.
+(Disallowed occurrences do not result in instantiation.)
 `{occs := .neg L}` allows skipping specified occurrences.
 -/
 syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic

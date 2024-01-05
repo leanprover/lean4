@@ -224,7 +224,7 @@ def SavedLocalContext.run {α} (slc : SavedLocalContext) (k : MetaM α) :
 /-- A `RecCallWithContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
 structure RecCallWithContext where
-  /-- Syntax location of reursive call -/
+  /-- Syntax location of recursive call -/
   ref : Syntax
   /-- Function index of caller -/
   caller : Nat

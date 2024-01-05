@@ -6,6 +6,10 @@
 # Instead we use `workflow_run`, which essentially allows us to escalate privileges
 # (but only runs the CI as described in the `master` branch, not in the PR branch).
 
+# The main specification/documentation for this workflow is at
+# https://leanprover-community.github.io/contribute/tags_and_branches.html
+# Keep that in sync!
+
 name: PR release
 
 on:

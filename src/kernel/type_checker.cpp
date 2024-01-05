@@ -35,6 +35,11 @@ static expr * g_nat_mod      = nullptr;
 static expr * g_nat_div      = nullptr;
 static expr * g_nat_beq      = nullptr;
 static expr * g_nat_ble      = nullptr;
+static expr * g_nat_land     = nullptr;
+static expr * g_nat_lor      = nullptr;
+static expr * g_nat_xor      = nullptr;
+static expr * g_nat_shiftLeft  = nullptr;
+static expr * g_nat_shiftRight = nullptr;
 
 type_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_kernel_fresh) {}
@@ -609,6 +614,11 @@ optional<expr> type_checker::reduce_nat(expr const & e) {
         if (f == *g_nat_div) return reduce_bin_nat_op(nat_div, e);
         if (f == *g_nat_beq) return reduce_bin_nat_pred(nat_eq, e);
         if (f == *g_nat_ble) return reduce_bin_nat_pred(nat_le, e);
+        if (f == *g_nat_land) return reduce_bin_nat_op(nat_land, e);
+        if (f == *g_nat_lor)  return reduce_bin_nat_op(nat_lor, e);
+        if (f == *g_nat_xor)  return reduce_bin_nat_op(nat_lxor, e);
+        if (f == *g_nat_shiftLeft) return reduce_bin_nat_op(lean_nat_shiftl, e);
+        if (f == *g_nat_shiftRight) return reduce_bin_nat_op(lean_nat_shiftr, e);
     }
     return none_expr();
 }
@@ -1158,6 +1168,11 @@ void initialize_type_checker() {
     g_nat_mod      = new_persistent_expr_const({"Nat", "mod"});
     g_nat_beq      = new_persistent_expr_const({"Nat", "beq"});
     g_nat_ble      = new_persistent_expr_const({"Nat", "ble"});
+    g_nat_land     = new_persistent_expr_const({"Nat", "land"});
+    g_nat_lor      = new_persistent_expr_const({"Nat", "lor"});
+    g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
+    g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
+    g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
     g_string_mk    = new_persistent_expr_const({"String", "mk"});
     g_lean_reduce_bool = new_persistent_expr_const({"Lean", "reduceBool"});
     g_lean_reduce_nat  = new_persistent_expr_const({"Lean", "reduceNat"});
@@ -1179,6 +1194,11 @@ void finalize_type_checker() {
     delete g_nat_mod;
     delete g_nat_beq;
     delete g_nat_ble;
+    delete g_nat_land;
+    delete g_nat_lor;
+    delete g_nat_xor;
+    delete g_nat_shiftLeft;
+    delete g_nat_shiftRight;
     delete g_string_mk;
     delete g_lean_reduce_bool;
     delete g_lean_reduce_nat;

@@ -11,28 +11,28 @@ open Lean Meta Simp
 
 def fromExpr? (e : Expr) : SimpM (Option Nat) := do
   let some n ← evalNat e |>.run | return none
-  return some n
+  return n
 
-@[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some n ← fromExpr? e.appArg! | return none
-  return some (.done { expr := mkNatLit (op n) })
+@[inline] def reduceUnary (declName : Name) (arity : Nat) (op : Nat → Nat) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let n ← fromExpr? e.appArg!
+  return .done { expr := mkNatLit (op n) }
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some n ← fromExpr? e.appFn!.appArg! | return none
-  let some m ← fromExpr? e.appArg! | return none
-  return some (.done { expr := mkNatLit (op n m) })
+@[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let n ← fromExpr? e.appFn!.appArg!
+  let m ← fromExpr? e.appArg!
+  return .done { expr := mkNatLit (op n m) }
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some n ← fromExpr? e.appFn!.appArg! | return none
-  let some m ← fromExpr? e.appArg! | return none
+@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let n ← fromExpr? e.appFn!.appArg!
+  let m ← fromExpr? e.appArg!
   let d ← mkDecide e
   if op n m then
-    return some (.done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] })
+    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
   else
-    return some (.done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] })
+    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
 
 builtin_simproc reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
 

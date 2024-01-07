@@ -14,37 +14,37 @@ structure Value where
   size      : Nat
   value     : Nat
 
-def fromExpr? (e : Expr) : SimpM (Option Value) := do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do return none
+def fromExpr? (e : Expr) : OptionT SimpM Value := do
+  guard (e.isAppOfArity ``OfNat.ofNat 3)
   let type ← whnf e.appFn!.appFn!.appArg!
-  unless type.isAppOfArity ``Fin 1 do return none
-  let some size ← evalNat type.appArg! |>.run | return none
-  unless size > 0 do return none
-  let some value ← Nat.fromExpr? e.appFn!.appArg! | return none
+  guard (type.isAppOfArity ``Fin 1)
+  let size ← Nat.fromExpr? type.appArg!
+  guard (size > 0)
+  let value ← Nat.fromExpr? e.appFn!.appArg!
   let value := value % size
-  return some { size, value, ofNatFn := e.appFn!.appFn! }
+  return { size, value, ofNatFn := e.appFn!.appFn! }
 
 def Value.toExpr (v : Value) : Expr :=
   let vExpr := mkRawNatLit v.value
   mkApp2 v.ofNatFn vExpr (mkApp2 (mkConst ``Fin.instOfNat) (Lean.toExpr (v.size - 1)) vExpr)
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some v₁ ← fromExpr? e.appFn!.appArg! | return none
-  let some v₂ ← fromExpr? e.appArg! | return none
-  unless v₁.size == v₂.size do return none
+@[inline] def reduceBin (declName : Name) (arity : Nat) (op : Nat → Nat → Nat) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let v₁ ← fromExpr? e.appFn!.appArg!
+  let v₂ ← fromExpr? e.appArg!
+  guard (v₁.size == v₂.size)
   let v := { v₁ with value := op v₁.value v₂.value % v₁.size }
-  return some (.done { expr := v.toExpr })
+  return .done { expr := v.toExpr }
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some v₁ ← fromExpr? e.appFn!.appArg! | return none
-  let some v₂ ← fromExpr? e.appArg! | return none
+@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : Nat → Nat → Bool) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let v₁ ← fromExpr? e.appFn!.appArg!
+  let v₂ ← fromExpr? e.appArg!
   let d ← mkDecide e
   if op v₁.value v₂.value then
-    return some (.done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] })
+    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
   else
-    return some (.done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] })
+    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
 
 /-
 The following code assumes users did not override the `Fin n` instances for the arithmetic operators.

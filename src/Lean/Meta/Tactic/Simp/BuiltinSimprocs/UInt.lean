@@ -18,34 +18,34 @@ structure Value where
   ofNatFn : Expr
   value   : $typeName
 
-def $fromExpr (e : Expr) : SimpM (Option Value) := do
-  unless e.isAppOfArity ``OfNat.ofNat 3 do return none
+def $fromExpr (e : Expr) : OptionT SimpM Value := do
+  guard (e.isAppOfArity ``OfNat.ofNat 3)
   let type ← whnf e.appFn!.appFn!.appArg!
-  unless type.isConstOf $(quote typeName.getId) do return none
-  let some value ← Nat.fromExpr? e.appFn!.appArg! | return none
+  guard (type.isConstOf $(quote typeName.getId))
+  let value ← Nat.fromExpr? e.appFn!.appArg!
   let value := $(mkIdent ofNat) value
-  return some { value, ofNatFn := e.appFn!.appFn! }
+  return { value, ofNatFn := e.appFn!.appFn! }
 
 def $toExpr (v : Value) : Expr :=
   let vExpr := mkRawNatLit v.value.val
   mkApp2 v.ofNatFn vExpr (mkApp (mkConst $(quote (typeName.getId ++ `instOfNat))) vExpr)
 
-@[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some n ← ($fromExpr e.appFn!.appArg!) | return none
-  let some m ← ($fromExpr e.appArg!) | return none
+@[inline] def reduceBin (declName : Name) (arity : Nat) (op : $typeName → $typeName → $typeName) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let n ← ($fromExpr e.appFn!.appArg!)
+  let m ← ($fromExpr e.appArg!)
   let r := { n with value := op n.value m.value }
-  return some (.done { expr := $toExpr r })
+  return .done { expr := $toExpr r }
 
-@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : SimpM (Option Step) := do
-  unless e.isAppOfArity declName arity do return none
-  let some n ← ($fromExpr e.appFn!.appArg!) | return none
-  let some m ← ($fromExpr e.appArg!) | return none
+@[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : $typeName → $typeName → Bool) (e : Expr) : OptionT SimpM Step := do
+  guard (e.isAppOfArity declName arity)
+  let n ← ($fromExpr e.appFn!.appArg!)
+  let m ← ($fromExpr e.appArg!)
   let d ← mkDecide e
   if op n.value m.value then
-    return some (.done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] })
+    return .done { expr := mkConst ``True, proof? := mkAppN (mkConst ``eq_true_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``true))] }
   else
-    return some (.done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] })
+    return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
 
 builtin_simproc $(mkIdent `reduceAdd):ident ((_ + _ : $typeName)) := reduceBin ``HAdd.hAdd 6 (· + ·)
 builtin_simproc $(mkIdent `reduceMul):ident ((_ * _ : $typeName)) := reduceBin ``HMul.hMul 6 (· * ·)

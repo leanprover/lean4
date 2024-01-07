@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.Simp.Simproc
 open Lean Meta Simp
 
 builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity' ``ite 5)
+  guard (e.isAppOfArity ``ite 5)
   let c := e.getArg! 1
   let r ← simp c
   if r.expr.isConstOf ``True then
@@ -22,7 +22,7 @@ builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => OptionT.run do
   failure
 
 builtin_simproc ↓ reduceDite (dite _ _ _) := fun e => OptionT.run do
-  guard (e.isAppOfArity' ``dite 5)
+  guard (e.isAppOfArity ``dite 5)
   let c := e.getArg! 1
   let r ← simp c
   if r.expr.isConstOf ``True then

@@ -844,6 +844,12 @@ def reduceBinNatOp (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) 
   trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
   return mkRawNatLit <| f a b
 
+def reduceBinNatOp2 (f : Nat → Nat → Nat) (a b : Expr) : MetaM (Option Expr) :=
+  withNatValue b fun b =>
+  withNatValue a fun a => do
+  trace[Meta.isDefEq.whnf.reduceBinOp] "{a} op {b}"
+  return mkRawNatLit <| f a b
+
 def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Expr) := do
   withNatValue a fun a =>
   withNatValue b fun b =>
@@ -853,24 +859,26 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   match e with
   | .app (.const fn _) a =>
     if fn == ``Nat.succ then
-      reduceUnaryNatOp Nat.succ a
+      if e.hasFVar || e.hasMVar then
+        return none
+      else
+        reduceUnaryNatOp Nat.succ a
     else
       return none
   | .app (.app (.const fn _) a1) a2 =>
-    match fn with
-    | ``Nat.add => reduceBinNatOp Nat.add a1 a2
-    | ``Nat.sub => reduceBinNatOp Nat.sub a1 a2
-    | ``Nat.mul => reduceBinNatOp Nat.mul a1 a2
-    | ``Nat.div => reduceBinNatOp Nat.div a1 a2
-    | ``Nat.mod => reduceBinNatOp Nat.mod a1 a2
-    | ``Nat.pow => reduceBinNatOp Nat.pow a1 a2
-    | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
-    | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
-    | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2
-    | _ => return none
+      match fn with
+      | ``Nat.add => reduceBinNatOp2 Nat.add a1 a2
+      | ``Nat.sub => reduceBinNatOp2 Nat.sub a1 a2
+      | ``Nat.mul => reduceBinNatOp2 Nat.mul a1 a2
+      | ``Nat.div => reduceBinNatOp2 Nat.div a1 a2
+      | ``Nat.mod => reduceBinNatOp Nat.mod a1 a2
+      | ``Nat.pow => reduceBinNatOp2 Nat.pow a1 a2
+      | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
+      | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
+      | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2
+      | _ => return none
   | _ =>
     return none
-
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do
   -- We cache only closed terms without expr metavars.

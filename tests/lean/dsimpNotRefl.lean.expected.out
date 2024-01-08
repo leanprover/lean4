@@ -1,0 +1,3 @@
+dsimpNotRefl.lean:7:9-7:10: error: 'dsimp' tactic only supports theorems which hold by reflexivity
+dsimpNotRefl.lean:11:9-11:19: error: 'dsimp' tactic only supports theorems which hold by reflexivity
+dsimpNotRefl.lean:23:23-23:24: error: 'dsimp' tactic only supports theorems which hold by reflexivity

@@ -118,13 +118,13 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: ready
         run: |
-          echo "Most recent nightly in your branch: $MOST_RECENT_NIGHTLY"
+          echo "Most recent nightly release in your branch: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git -C lean4.git rev-parse "nightly-$MOST_RECENT_NIGHTLY^{commit}")
-          echo "SHA of most recent nightly: $NIGHTLY_SHA"
+          echo "SHA of most recent nightly release: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")
           echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
-            echo "Most recent nightly tag agrees with the merge base."
+            echo "The merge base of this PR coincides with the nightly release"
 
             REMOTE_BRANCHES=$(git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY)
 
@@ -133,7 +133,7 @@ jobs:
               MESSAGE=""
             else
               echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
-              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. It may be necessary to rebase onto 'nightly' tomorrow."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. If you rebase your branch onto `nightly-with-mathlib`, Mathlib CI should run now."
             fi
 
           else
@@ -141,7 +141,7 @@ jobs:
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
             git -C lean4.git log -10 origin/master
 
-            MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
+            MESSAGE="- ❗ Mathlib CI will not be attempted unless your PR branches off the 'nightly-with-mathlib' branch."
           fi
 
           if [[ -n "$MESSAGE" ]]; then

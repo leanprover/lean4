@@ -512,12 +512,12 @@ end Vector
 Recursive functions
 ===================
 
-Lean must ensure that a recursive functions terminate, for which there are two strategies: _structural recursion_, in which all recursive calls are made on smaller parts of the input data, and _well-founded recursion_, in which recursive calls are justified by showing that arguments to recursive calls are smaller according to some other measure.
+Lean must ensure that a recursive function terminates, for which there are two strategies: _structural recursion_, in which all recursive calls are made on smaller parts of the input data, and _well-founded recursion_, in which recursive calls are justified by showing that arguments to recursive calls are smaller according to some other measure.
 
 Structural recursion
 --------------------
 
-If the definition of a function contains recursive calls, Lean tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side.
+If the definition of a function contains recursive calls, Lean first tries to interpret the definition as a structural recursion. In order for that to succeed, the recursive arguments must be subterms of the corresponding arguments on the left-hand side.
 
 The function is then defined using a *course of values* recursion, using automatically generated functions ``below`` and ``brec`` in the namespace corresponding to the inductive type of the recursive argument. In this case the defining equations hold definitionally, possibly with additional case splits.
 
@@ -584,15 +584,15 @@ Please use `termination_by` to specify a decreasing measure.
 
 This table should be read as follows:
 
- * The first recursive call, in line 39, arguments 1, 2 and 4 are equal to the function's paramters.
- * The second recursive call, in line 40, has an equal first, a smaller fourth argument, and nothing could be inferred for the second argument.
+ * In the first recursive call, in line 39, arguments 1, 2 and 4 are equal to the function's parameters.
+ * The second recursive call, in line 40, has an equal first argument, a smaller fourth argument, and nothing could be inferred for the second argument.
  * The third recursive call, in line 41, has a decreasing first argument.
  * No other proofs were attempted, either because the parameter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
 
 
 Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
 
-If Lean does not find the termination argument, or if you want to be explict, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
+If Lean does not find the termination argument, or if you want to be explicit, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
 ```
 termination_by e
 ```
@@ -687,7 +687,7 @@ termination_by n h => h
 end
 ```
 
-Another way to express mutual recursion using local function definitions in ``where`` or ``let rec`` clauses: these can be mutually recursive with each other and their containing function:
+Another way to express mutual recursion is using local function definitions in ``where`` or ``let rec`` clauses: these can be mutually recursive with each other and their containing function:
 
 ```
 theorem even_of_odd_succ : ∀ n, Odd (n + 1) → Even n

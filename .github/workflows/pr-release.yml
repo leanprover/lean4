@@ -6,6 +6,10 @@
 # Instead we use `workflow_run`, which essentially allows us to escalate privileges
 # (but only runs the CI as described in the `master` branch, not in the PR branch).
 
+# The main specification/documentation for this workflow is at
+# https://leanprover-community.github.io/contribute/tags_and_branches.html
+# Keep that in sync!
+
 name: PR release
 
 on:
@@ -68,6 +72,20 @@ jobs:
         env:
           # The token used here must have `workflow` privileges.
           GITHUB_TOKEN: ${{ secrets.PR_RELEASES_TOKEN }}
+
+      - name: Report release status
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
+              state: "success",
+              context: "PR toolchain",
+              description: "${{ github.repository_owner }}/lean4-pr-releases:pr-release-${{ steps.workflow-info.outputs.pullRequestNumber }}",
+            });
 
       - name: Add label
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -171,6 +189,25 @@ jobs:
           else
             echo "mathlib_ready=true" >> $GITHUB_OUTPUT
           fi
+
+      - name: Report mathlib base
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && steps.ready.outputs.mathlib_ready == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const description =
+              process.env.MOST_RECENT_NIGHTLY ?
+              "nightly-" + process.env.MOST_RECENT_NIGHTLY :
+              "not branched off nightly";
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "${{ steps.workflow-info.outputs.sourceHeadSha }}",
+              state: "success",
+              context: "PR branched off:",
+              description: description,
+            });
+
 
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure

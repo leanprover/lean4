@@ -89,7 +89,7 @@ def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array
     let xs := xs.extract fixedPrefixSize xs.size
     let mut ns : Array Name := #[]
     for h : i in [:xs.size] do
-      let n ← (xs[i]'h.2).fvarId!.getUserName
+      let n ← xs[i].fvarId!.getUserName
       let n := if n.hasMacroScopes then .mkSimple s!"x{i+1}" else n
       ns := ns.push (← freshen ns n)
     return ns
@@ -505,7 +505,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
 
     -- Find the first measure that has at least one < and otherwise only = or <=
     for h : measureIdx in [:measures.size] do
-      let measure := measures[measureIdx]'h.2
+      let measure := measures[measureIdx]
       let mut has_lt := false
       let mut all_le := true
       let mut todo := #[]
@@ -542,10 +542,10 @@ def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
     (measures : Array MutualMeasure) : MetaM TerminationWF := do
   let mut termByElements := #[]
   for h : funIdx in [:varNamess.size] do
-    let vars := (varNamess[funIdx]'h.2).map mkIdent
+    let vars := varNamess[funIdx].map mkIdent
     let body ← mkTupleSyntax (← measures.mapM fun
       | .args varIdxs => do
-          let v := vars.get! (varIdxs[funIdx]!)
+          let v := vars.get! varIdxs[funIdx]!
           let sizeOfIdent := mkIdent (← unresolveNameGlobal ``sizeOf)
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
@@ -567,14 +567,14 @@ Single space as column separator.
 -/
 def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
-  for i in [:xss.size] do
-    for j in [:xss[i]!.size] do
-      if xss[i]![j]!.length > colWidths[j]! then
-        colWidths := colWidths.set! j xss[i]![j]!.length
+  for hi : i in [:xss.size] do
+    for hj : j in [:xss[i].size] do
+      if xss[i][j].length > colWidths[j]! then
+        colWidths := colWidths.set! j xss[i][j].length
   let mut str := ""
-  for i in [:xss.size] do
-    for j in [:xss[i]!.size] do
-      let s := xss[i]![j]!
+  for hi : i in [:xss.size] do
+    for hj : j in [:xss[i].size] do
+      let s := xss[i][j]
       if j > 0 then -- right-align
         for _ in [:colWidths[j]! - s.length] do
           str := str ++ " "
@@ -582,7 +582,7 @@ def formatTable : Array (Array String) → String := fun xss => Id.run do
       if j = 0 then -- left-align
         for _ in [:colWidths[j]! - s.length] do
           str := str ++ " "
-      if j + 1 < xss[i]!.size then
+      if j + 1 < xss[i].size then
         str := str ++ " "
     if i + 1 < xss.size then
       str := str ++ "\n"

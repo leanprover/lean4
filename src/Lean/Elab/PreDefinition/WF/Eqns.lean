@@ -80,10 +80,8 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
     let rec go (mvarId : MVarId) : MetaM Unit := do
       trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
       if (← tryURefl mvarId) then
-        trace[Elab.definition.wf.eqns] "refl!"
         return ()
       else if (← tryContradiction mvarId) then
-        trace[Elab.definition.wf.eqns] "contra"
         return ()
       else if let some mvarId ← simpMatchWF? mvarId then
         go mvarId
@@ -100,6 +98,9 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
           else if let some mvarIds ← splitTarget? mvarId then
             mvarIds.forM go
           else
+            -- At some point in the past, we looked for occurences of Wf.fix to fold on the
+            -- LHS (introduced in 096e4eb), but it seems that code path was never used,
+            -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
     go (← rwFixEq (← deltaLHSUntilFix mvarId))
     instantiateMVars main

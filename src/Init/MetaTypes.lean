@@ -95,6 +95,8 @@ structure Config where
   /-- If `unfoldPartialApp := true`, then calls to `simp`, `dsimp`, or `simp_all`
   will unfold even partial applications of `f` when we request `f` to be unfolded. -/
   unfoldPartialApp  : Bool := false
+  /-- If `instances := true`, then calls to `simp` will (try to) simplify instance implicit arguments. -/
+  instances         : Bool := false
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

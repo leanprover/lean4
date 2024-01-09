@@ -118,13 +118,13 @@ jobs:
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: ready
         run: |
-          echo "Most recent nightly in your branch: $MOST_RECENT_NIGHTLY"
+          echo "Most recent nightly release in your branch: $MOST_RECENT_NIGHTLY"
           NIGHTLY_SHA=$(git -C lean4.git rev-parse "nightly-$MOST_RECENT_NIGHTLY^{commit}")
-          echo "SHA of most recent nightly: $NIGHTLY_SHA"
+          echo "SHA of most recent nightly release: $NIGHTLY_SHA"
           MERGE_BASE_SHA=$(git -C lean4.git merge-base origin/master "${{ steps.workflow-info.outputs.sourceHeadSha }}")
           echo "SHA of merge-base: $MERGE_BASE_SHA"
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
-            echo "Most recent nightly tag agrees with the merge base."
+            echo "The merge base of this PR coincides with the nightly release"
 
             REMOTE_BRANCHES=$(git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY)
 
@@ -133,7 +133,7 @@ jobs:
               MESSAGE=""
             else
               echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
-              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. It may be necessary to rebase onto 'nightly' tomorrow."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. If you rebase your branch onto `nightly-with-mathlib`, Mathlib CI should run now."
             fi
 
           else
@@ -141,7 +141,7 @@ jobs:
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
             git -C lean4.git log -10 origin/master
 
-            MESSAGE="- ❗ Mathlib CI will not be attempted unless you rebase your PR onto the 'nightly' branch."
+            MESSAGE="- ❗ Mathlib CI will not be attempted unless your PR branches off the 'nightly-with-mathlib' branch."
           fi
 
           if [[ -n "$MESSAGE" ]]; then
@@ -164,13 +164,14 @@ jobs:
               # Append new result to the existing comment or post a new comment
               # It's essential we use the MATHLIB4_BOT token here, so that Mathlib CI can subsequently edit the comment.
               if [ -z "$existing_comment_id" ]; then
+                INTRO="Mathlib CI status ([docs](https://leanprover-community.github.io/contribute/tags_and_branches.html)):"
                 # Post new comment with a bullet point
                 echo "Posting as new comment at leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
                 curl -L -s \
                   -X POST \
                   -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
-                  -d "$(jq --null-input --arg val "$MESSAGE" '{"body": $val}')" \
+                  -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body": "$intro + "\n" + $val}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
               else
                 # Append new result to the existing comment

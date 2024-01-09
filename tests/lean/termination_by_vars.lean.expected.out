@@ -1,0 +1,7 @@
+termination_by_vars.lean:14:2-14:23: error: Too many extra parameters bound; the function definition only has 0 extra parameters.
+termination_by_vars.lean:23:2-23:21: error: no extra parameters bounds, please omit the `=>`
+termination_by_vars.lean:39:2-39:27: error: Too many extra parameters bound; the function definition only has 2 extra parameters.
+termination_by_vars.lean:49:2-49:23: error: Too many extra parameters bound; the function definition only has 0 extra parameters.
+termination_by_vars.lean:58:2-58:21: error: no extra parameters bounds, please omit the `=>`
+termination_by_vars.lean:83:4-83:25: error: Too many extra parameters bound; the function definition only has 0 extra parameters.
+termination_by_vars.lean:95:4-95:23: error: no extra parameters bounds, please omit the `=>`

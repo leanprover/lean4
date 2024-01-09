@@ -37,10 +37,10 @@ scoped syntax (name := scriptDecl)
 
 @[macro scriptDecl]
 def expandScriptDecl : Macro
-| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? do $seq $[$wds?]?) => do
-  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$wds?]?)
-| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := $defn $[$wds?]?) => do
+| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? do $seq $[$wds?:whereDecls]?) => do
+  `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := do $seq $[$wds?:whereDecls]?)
+| `($[$doc?]? $[$attrs?]? script $id:ident $[$args?]? := $defn $[$wds?:whereDecls]?) => do
   let args ← expandOptSimpleBinder args?
   let attrs := #[← `(Term.attrInstance| «script»)] ++ expandAttrs attrs?
-  `($[$doc?]? @[$attrs,*] def $id : ScriptFn := fun $args => $defn $[$wds?]?)
+  `($[$doc?]? @[$attrs,*] def $id : ScriptFn := fun $args => $defn $[$wds?:whereDecls]?)
 | stx => Macro.throwErrorAt stx "ill-formed script declaration"

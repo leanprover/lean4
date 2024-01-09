@@ -21,6 +21,7 @@ structure LetRecDeclView where
   type          : Expr
   mvar          : Expr -- auxiliary metavariable used to lift the 'let rec'
   valStx        : Syntax
+  termination   : WF.TerminationHints
 
 structure LetRecView where
   decls     : Array LetRecDeclView
@@ -59,7 +60,9 @@ private def mkLetRecDeclView (letRec : Syntax) : TermElabM LetRecView := do
         pure decl[4]
       else
         liftMacroM <| expandMatchAltsIntoMatch decl decl[3]
-      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx : LetRecDeclView }
+      let termination ← WF.elabTerminationHints ⟨attrDeclStx[3]⟩
+      pure { ref := declId, attrs, shortDeclName, declName, binderIds, type, mvar, valStx,
+             termination : LetRecDeclView }
     else
       throwUnsupportedSyntax
   return { decls, body := letRec[3] }
@@ -91,18 +94,23 @@ private def registerLetRecsToLift (views : Array LetRecDeclView) (fvars : Array 
         throwError "'{view.declName}' has already been declared"
   let lctx ← getLCtx
   let localInstances ← getLocalInstances
-  let toLift := views.mapIdx fun i view => {
-    ref            := view.ref
-    fvarId         := fvars[i]!.fvarId!
-    attrs          := view.attrs
-    shortDeclName  := view.shortDeclName
-    declName       := view.declName
-    lctx
-    localInstances
-    type           := view.type
-    val            := values[i]!
-    mvarId         := view.mvar.mvarId!
-    : LetRecToLift }
+
+  let toLift ← views.mapIdxM fun i view => do
+    let value := values[i]!
+    let termination ← view.termination.checkVars view.binderIds.size value
+    pure {
+      ref            := view.ref
+      fvarId         := fvars[i]!.fvarId!
+      attrs          := view.attrs
+      shortDeclName  := view.shortDeclName
+      declName       := view.declName
+      lctx
+      localInstances
+      type           := view.type
+      val            := value
+      mvarId         := view.mvar.mvarId!
+      termination    := termination
+      : LetRecToLift }
   modify fun s => { s with letRecsToLift := toLift.toList ++ s.letRecsToLift }
 
 @[builtin_term_elab «letrec»] def elabLetRec : TermElab := fun stx expectedType? => do

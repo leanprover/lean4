@@ -10,6 +10,7 @@ import Lean.Linter.Deprecated
 import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
+import Lean.Elab.PreDefinition.WF.TerminationHint
 
 namespace Lean.Elab
 
@@ -95,6 +96,7 @@ structure LetRecToLift where
   type           : Expr
   val            : Expr
   mvarId         : MVarId
+  termination    : WF.TerminationHints
   deriving Inhabited
 
 /--

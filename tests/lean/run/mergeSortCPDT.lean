@@ -47,4 +47,4 @@ def List.mergeSort (p : α → α → Bool) (as : List α) : List α :=
       merge p (mergeSort p as') (mergeSort p bs')
   else
     as
-termination_by _ as => as.length
+termination_by as.length

@@ -65,6 +65,133 @@ example : x + foo 2 = 12 + x := by
   simp_arith
 ```
 
+* The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
+
+  * They are now placed directly after the function they apply to, instead of
+    after the whole `mutual` block.
+  * Therefore, the function name no longer has to be mentioned in the hint.
+  * If the function has a `where` clause, the `termination_by` and
+    `decreasing_by` for that function come before the `where`. The
+    functions in the `where` clause can have their own termination hints, each
+    following the corresponding definition.
+  * The `termination_by` clause can only bind “extra parameters”, that are not
+    already bound by the function header, but are bound in a lambda (`:= fun x
+    y z =>`) or in patterns (`| x, n + 1 => …`). These extra parameters used to
+    be understood as a suffix of the function parameters; now it is a prefix.
+
+  Migration guide: In simple cases just remove the function name, and any
+  variables already bound at the header.
+  ```diff
+   def foo : Nat → Nat → Nat := …
+  -termination_by foo a b => a - b
+  +termination_by a b => a - b
+  ```
+  or
+  ```diff
+   def foo : Nat → Nat → Nat := …
+  -termination_by _ a b => a - b
+  +termination_by a b => a - b
+  ```
+
+  If the parameters are bound in the function header (before the `:`), remove them as well:
+  ```diff
+   def foo (a b : Nat) : Nat := …
+  -termination_by foo a b => a - b
+  +termination_by a - b
+  ```
+
+  Else, if there are multiple extra parameters, make sure to refer to the right
+  ones; the bound variables are interpreted from left to right, no longer from
+  right to left:
+  ```diff
+   def foo : Nat → Nat → Nat → Nat
+     | a, b, c => …
+  -termination_by foo b c => b
+  +termination_by a b => b
+  ```
+
+  In the case of a `mutual` block, place the termination arguments (without the
+  function name) next to the function definition:
+  ```diff
+  -mutual
+  -def foo : Nat → Nat → Nat := …
+  -def bar : Nat → Nat := …
+  -end
+  -termination_by
+  -  foo a b => a - b
+  -  bar a => a
+  +mutual
+  +def foo : Nat → Nat → Nat := …
+  +termination_by a b => a - b
+  +def bar : Nat → Nat := …
+  +termination_by a => a
+  +end
+  ```
+
+  Similarly, if you have (mutual) recursion through `where` or `let rec`, the
+  termination hints are now placed directly after the function they apply to:
+  ```diff
+  -def foo (a b : Nat) : Nat := …
+  -  where bar (x : Nat) : Nat := …
+  -termination_by
+  -  foo a b => a - b
+  -  bar x => x
+  +def foo (a b : Nat) : Nat := …
+  +termination_by a - b
+  +  where
+  +    bar (x : Nat) : Nat := …
+  +    termination_by x
+
+  -def foo (a b : Nat) : Nat :=
+  -  let rec bar (x : Nat) :  Nat := …
+  -  …
+  -termination_by
+  -  foo a b => a - b
+  -  bar x => x
+  +def foo (a b : Nat) : Nat :=
+  +  let rec bar (x : Nat) : Nat := …
+  +    termination_by x
+  +  …
+  +termination_by a - b
+  ```
+
+  In cases where a single `decreasing_by` clause applied to multiple mutually
+  recursive functions before, the tactic now has to be duplicated.
+
+* The semantics of `decreasing_by` changed; the tactic is applied to all
+  termination proof goals together, not individually.
+
+  This helps when writing termination proofs interactively, as one can focus
+  each subgoal individually, for example using `·`. Previously, the given
+  tactic script had to work for _all_ goals, and one had to resort to tactic
+  combinators like `first`:
+
+  ```diff
+   def foo (n : Nat) := … foo e1 … foo e2 …
+  -decreasing_by
+  -simp_wf
+  -first | apply something_about_e1; …
+  -      | apply something_about_e2; …
+  +decreasing_by
+  +all_goals simp_wf
+  +· apply something_about_e1; …
+  +· apply something_about_e2; …
+  ```
+
+  To obtain the old behaviour of applying a tactic to each goal individually,
+  use `all_goals`:
+  ```diff
+   def foo (n : Nat) := …
+  -decreasing_by some_tactic
+  +decreasing_by all_goals some_tactic
+  ```
+
+  In the case of mutual recursion each `decreasing_by` now applies to just its
+  function. If some functions in a recursive group do not have their own
+  `decreasing_by`, the default `decreasing_tactic` is used. If the same tactic
+  ought to be applied to multiple functions, the `decreasing_by` clause has to
+  be repeated at each of these functions.
+
 
 v4.5.0
 ---------
@@ -88,7 +215,7 @@ v4.5.0
   Migration guide: Use `termination_by` instead, e.g.:
   ```diff
   -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
-  +termination_by go i _ => as.size - i
+  +termination_by i _ => as.size - i
   ```
 
   If the well-founded relation you want to use is not the one that the
@@ -96,7 +223,7 @@ v4.5.0
   you can use `WellFounded.wrap` from the std libarary to explicitly give one:
   ```diff
   -termination_by' ⟨r, hwf⟩
-  +termination_by _ x => hwf.wrap x
+  +termination_by x => hwf.wrap x
   ```
 
 * Support snippet edits in LSP `TextEdit`s. See `Lean.Lsp.SnippetString` for more details.

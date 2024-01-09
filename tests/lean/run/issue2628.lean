@@ -8,12 +8,13 @@ mutual
 def foo : Nat → Nat
   | .zero => 0
   | .succ n => (id bar) n
+decreasing_by sorry
+
 def bar : Nat → Nat
   | .zero => 0
   | .succ n => foo n
-end
-termination_by foo n => n; bar n => n
 decreasing_by sorry
+end
 
 end Ex1
 
@@ -28,12 +29,15 @@ def foo : Nat → Nat → Nat
   | .zero, _m => 0
   | .succ n, .zero => (id' (bar n)) .zero
   | .succ n, m => (id' bar) n m
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
+
 def bar : Nat → Nat → Nat
   | .zero, _m => 0
   | .succ n, m => foo n m
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
 end
-termination_by foo n m => (n,m); bar n m => (n,m)
-decreasing_by sorry
 
 end Ex2
 
@@ -44,12 +48,12 @@ mutual
 def foo : Nat → Nat → Nat
   | .zero => fun _ => 0
   | .succ n => fun m => (id bar) n m
+decreasing_by all_goals sorry
 def bar : Nat → Nat → Nat
   | .zero => fun _ => 0
   | .succ n => fun m => foo n m
+decreasing_by all_goals sorry
 end
-termination_by foo n => n; bar n => n
-decreasing_by sorry
 
 end Ex3
 
@@ -62,12 +66,14 @@ def foo : Nat → Nat → Nat → Nat
   | .zero, _m => fun _ => 0
   | .succ n, .zero => fun k => (id' (bar n)) .zero k
   | .succ n, m => fun k => (id' bar) n m k
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
 def bar : Nat → Nat → Nat → Nat
   | .zero, _m => fun _ => 0
   | .succ n, m => fun k => foo n m k
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
 end
-termination_by foo n m => (n,m); bar n m => (n,m)
-decreasing_by sorry
 
 end Ex4
 
@@ -80,12 +86,12 @@ mutual
 def foo : FunType
   | .zero => 0
   | .succ n => (id bar) n
+decreasing_by all_goals sorry
 def bar : Nat → Nat
   | .zero => 0
   | .succ n => foo n
+decreasing_by all_goals sorry
 end
-termination_by foo n => n; bar n => n
-decreasing_by sorry
 
 end Ex5
 
@@ -98,11 +104,13 @@ def foo : Nat → Nat → Nat → Nat
   | .zero, _m => fun _ => 0
   | .succ n, .zero => fun k => (id' (bar n)) .zero k
   | .succ n, m => fun k => (id' bar) n m k
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
 def bar : Nat → Fun3Type
   | .zero, _m => fun _ => 0
   | .succ n, m => fun k => foo n m k
+termination_by n m => (n,m)
+decreasing_by all_goals sorry
 end
-termination_by foo n m => (n,m); bar n m => (n,m)
-decreasing_by sorry
 
 end Ex6

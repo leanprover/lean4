@@ -826,9 +826,22 @@ def mkDefaultValue? (struct : Struct) (cinfo : ConstantInfo) : TermElabM (Option
 /-- Reduce default value. It performs beta reduction and projections of the given structures. -/
 partial def reduce (structNames : Array Name) (e : Expr) : MetaM Expr := do
   match e with
-  | .lam ..       => lambdaLetTelescope e fun xs b => do mkLambdaFVars xs (← reduce structNames b)
   | .forallE ..   => forallTelescope e fun xs b => do mkForallFVars xs (← reduce structNames b)
-  | .letE ..      => lambdaLetTelescope e fun xs b => do mkLetFVars xs (← reduce structNames b)
+  | .lam ..
+  | .letE ..      => lambdaLetTelescope e fun xs b => do
+    /- The bodies of let-declarations also need to be reduced.
+       Otherwise, some metavariables may be kept in the terms, leading to errors
+       when trying to generate default values.
+       Fixes `#3146`
+    -/
+    let localInsts ← Meta.getLocalInstances
+    let mut lctx ← getLCtx
+    for e in xs do
+      let some lcdl := lctx.findFVar? e | unreachable!
+      let some value := lcdl.value? | continue
+      let value ← Meta.withLCtx lctx localInsts (reduce structNames value)
+      lctx := lctx.modifyLocalDecl e.fvarId! (·.setValue value)
+    Meta.withLCtx lctx localInsts (mkLetFVars xs (← reduce structNames b))
   | .proj _ i b   =>
     match (← Meta.project? b i) with
     | some r => reduce structNames r

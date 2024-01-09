@@ -1,4 +1,50 @@
-decreasing_by.lean:8:0-8:24: error: invalid 'decreasing_by' in mutually inductive datatype declaration
-decreasing_by.lean:13:1-13:25: error: invalid 'decreasing_by' in 'mutual' block, it must be used after the 'end' keyword
-decreasing_by.lean:21:2-21:3: error: function 'h' not found in current declaration
-decreasing_by.lean:39:2-39:17: error: invalid termination hint element, 'Test.g' and 'Test.f' are in the same clique
+decreasing_by.lean:36:0-43:17: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 36:29-43 = ?
+2) 36:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:66:0-73:19: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 66:29-43 = ?
+2) 66:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:81:13-83:3: error: unexpected token 'end'; expected '{' or tactic
+decreasing_by.lean:81:0-81:13: error: unsolved goals
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+    { fst := n, snd := dec2 m } { fst := n, snd := m }
+
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+    { fst := dec1 n, snd := 100 } { fst := n, snd := m }
+decreasing_by.lean:91:0-91:22: error: unsolved goals
+case a
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+    { fst := n, snd := dec2 m } { fst := n, snd := m }
+
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+    { fst := dec1 n, snd := 100 } { fst := n, snd := m }
+decreasing_by.lean:99:0-100:22: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 99:29-43 = ?
+2) 99:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:110:0-113:17: error: unsolved goals
+n m : Nat
+⊢ (invImage (fun a => PSigma.casesOn a fun n snd => (n, snd)) Prod.instWellFoundedRelationProd).1
+    { fst := dec1 n, snd := 100 } { fst := n, snd := m }
+decreasing_by.lean:121:0-125:17: error: Could not find a decreasing measure.
+The arguments relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n m
+1) 121:29-43 = ?
+2) 121:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.

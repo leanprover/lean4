@@ -9,8 +9,8 @@
     | x+1, 0   => succ_zero x (go x 0)
     | 0,   y+1 => zero_succ y (go 0 y)
     | x+1, y+1 => succ_succ x y (go x y)
+    termination_by x y => (x, y)
   go x y
-termination_by go x y => (x, y)
 
 def f (x y : Nat) :=
   match x, y with
@@ -18,7 +18,7 @@ def f (x y : Nat) :=
   | x+1, 0   => f x 0
   | 0,   y+1 => f 0 y
   | x+1, y+1 => f x y
-termination_by f x y => (x, y)
+termination_by (x, y)
 
 example (x y : Nat) : f x y > 0 := by
   induction x, y with

@@ -96,6 +96,52 @@ end Tactic
 def darrow : Parser := " => "
 def semicolonOrLinebreak := ";" <|> checkLinebreakBefore >> pushNone
 
+namespace Termination
+
+/-
+Termination suffix parsers, typically thought of as part of a command, but due to
+letrec we need them here already.
+-/
+
+/--
+Specify a termination argument for well-founded termination:
+```
+termination_by a - b
+```
+indicates that termination of the currently defined recursive function follows
+because the difference between the the arguments `a` and `b`.
+
+If the fuction takes further argument after the colon, you can name them as follows:
+```
+def example (a : Nat) : Nat → Nat → Nat :=
+termination_by b c => a - b
+```
+
+If omitted, a termination argument will be inferred.
+-/
+def terminationBy := leading_parser
+  ppDedent ppLine >>
+  "termination_by " >>
+  optional (atomic (many (ppSpace >> (ident <|> "_")) >> " => ")) >>
+  termParser
+
+/--
+Manually prove that the termination argument (as specified with `termination_by` or inferred)
+decreases at each recursive call.
+
+By default, the tactic `decreasing_tactic` is used.
+-/
+def decreasingBy := leading_parser
+  ppDedent ppLine >> "decreasing_by " >> Tactic.tacticSeqIndentGt
+
+/--
+Termination hints are `termination_by` and `decreasing_by`, in that order.
+-/
+def suffix := leading_parser
+  optional terminationBy >> optional decreasingBy
+
+end Termination
+
 namespace Term
 
 /-! # Built-in parsers -/
@@ -533,7 +579,7 @@ def attributes       := leading_parser
 /-- `letRecDecl` matches the body of a let-rec declaration: a doc comment, attributes, and then
 a let declaration without the `let` keyword, such as `/-- foo -/ @[simp] bar := 1`. -/
 def letRecDecl       := leading_parser
-  optional Command.docComment >> optional «attributes» >> letDecl
+  optional Command.docComment >> optional «attributes» >> letDecl >> Termination.suffix
 /-- `letRecDecls` matches `letRecDecl,+`, a comma-separated list of let-rec declarations (see `letRecDecl`). -/
 def letRecDecls      := leading_parser
   sepBy1 letRecDecl ", "
@@ -548,7 +594,7 @@ def whereDecls := leading_parser
 
 @[run_builtin_parser_attribute_hooks]
 def matchAltsWhereDecls := leading_parser
-  matchAlts >> optional whereDecls
+  matchAlts >> Termination.suffix >> optional whereDecls
 
 @[builtin_term_parser] def noindex := leading_parser
   "no_index " >> termParser maxPrec

@@ -6,7 +6,7 @@ def Nat.hasDecEq: (a: Nat) → (b: Nat) → Decidable (Eq a b)
   match h:hasDecEq n m with -- it works without `h:`
   | isTrue heq => isTrue  (heq ▸ rfl)
   | isFalse hne => isFalse (Nat.noConfusion · (λ heq  => absurd heq hne))
-termination_by _ a b => (a, b)
+termination_by a b => (a, b)
 
 set_option pp.proofs true
 #print Nat.hasDecEq

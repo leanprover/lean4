@@ -80,7 +80,7 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize :
   else
     return false
 
-def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (decrTactic? : Option Syntax) : TermElabM Unit := do
+def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun preDef => return { preDef with value := (← preprocess preDef.value) }
   let (unaryPreDef, fixedPrefixSize) ← withoutModifyingEnv do
     for preDef in preDefs do
@@ -91,20 +91,29 @@ def wfRecursion (preDefs : Array PreDefinition) (wf? : Option TerminationWF) (de
     let unaryPreDefs ← packDomain fixedPrefixSize preDefsDIte
     return (← packMutual fixedPrefixSize preDefs unaryPreDefs, fixedPrefixSize)
 
-  let wf ←
-    if let .some wf := wf? then
-      pure wf
+  let extraParamss := preDefs.map (·.termination.extraParams)
+  let wf ← do
+    let (preDefsWith, preDefsWithout) := preDefs.partition (·.termination.termination_by?.isSome)
+    if preDefsWith.isEmpty then
+      -- No termination_by anywhere, so guess one
+      guessLex preDefs unaryPreDef fixedPrefixSize
+    else if preDefsWithout.isEmpty then
+      pure <| preDefsWith.map (·.termination.termination_by?.get!)
     else
-      guessLex preDefs unaryPreDef fixedPrefixSize decrTactic?
+      -- Some have, some do not, so report errors
+      preDefsWithout.forM fun preDef => do
+        logErrorAt preDef.ref (m!"Missing `termination_by`; this function is mutually " ++
+          m!"recursive with {preDefsWith[0]!.declName}, which has a `termination_by` clause.")
+      return
 
   let preDefNonRec ← forallBoundedTelescope unaryPreDef.type fixedPrefixSize fun prefixArgs type => do
     let type ← whnfForall type
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType wf fun wfRel => do
+    elabWFRel preDefs unaryPreDef.declName fixedPrefixSize packedArgType extraParamss wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
-        let value ← mkFix unaryPreDef prefixArgs wfRel decrTactic?
+        let value ← mkFix unaryPreDef prefixArgs wfRel (preDefs.map (·.termination.decreasing_by?))
         eraseRecAppSyntaxExpr value
       /- `mkFix` invokes `decreasing_tactic` which may add auxiliary theorems to the environment. -/
       let value ← unfoldDeclsFrom envNew value

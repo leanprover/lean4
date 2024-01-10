@@ -26,7 +26,8 @@ opaque floatSpec : FloatSpec := {
   decLe := fun _ _ => inferInstanceAs (Decidable True)
 }
 
-/-- Native floating point type, corresponding to 64-bit `double` in C. -/
+/-- Native floating point type, corresponding to the IEEE 754 *binary64* format
+(`double` in C or `f64` in Rust). -/
 structure Float where
   val : floatSpec.float
 

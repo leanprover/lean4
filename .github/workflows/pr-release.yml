@@ -171,7 +171,7 @@ jobs:
                   -X POST \
                   -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
-                  -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body": "$intro + "\n" + $val}')" \
+                  -d "$(jq --null-input --arg intro "$INTRO" --arg val "$MESSAGE" '{"body": $intro + "\n" + $val}')" \
                   "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments"
               else
                 # Append new result to the existing comment

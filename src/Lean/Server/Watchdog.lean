@@ -677,7 +677,7 @@ def initAndRunWatchdogAux : ServerM Unit := do
 def findWorkerPath : IO System.FilePath := do
   let mut workerPath ← IO.appPath
   if let some path := (←IO.getEnv "LEAN_SYSROOT") then
-    workerPath := System.FilePath.mk path / "bin" / "lean" |>.withExtension System.FilePath.exeExtension
+    workerPath := System.FilePath.mk path / "bin" / "lean" |>.addExtension System.FilePath.exeExtension
   if let some path := (←IO.getEnv "LEAN_WORKER_PATH") then
     workerPath := System.FilePath.mk path
   return workerPath

@@ -101,6 +101,21 @@ def withFileName (p : FilePath) (fname : String) : FilePath :=
   | none => ⟨fname⟩
   | some p => p / fname
 
+/-- Appends the extension `ext` to a path `p`.
+
+`ext` should not contain a leading `.`, as this function adds one.
+If `ext` is the empty string, no `.` is added.
+
+Unlike `System.FilePath.withExtension`, this does not remove any existing extension. -/
+def addExtension (p : FilePath) (ext : String) : FilePath :=
+  match p.fileName with
+  | none => p
+  | some fname => p.withFileName (if ext.isEmpty then fname else fname ++ "." ++ ext)
+
+/-- Replace the current extension in a path `p` with `ext`.
+
+`ext` should not contain a `.`, as this function adds one.
+If `ext` is the empty string, no `.` is added. -/
 def withExtension (p : FilePath) (ext : String) : FilePath :=
   match p.fileStem with
   | none => p

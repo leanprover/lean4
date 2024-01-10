@@ -231,13 +231,22 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
     return r
   else
+    let config ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
     let mut r := r
     let mut i := 0
     for arg in args do
       trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i]!.hasFwdDeps}"
-      if i < infos.size && !infos[i]!.hasFwdDeps then
-        r ← mkCongr r (← simp arg)
+      if h : i < infos.size then
+        let info := infos[i]
+        if !config.instances && info.isInstImplicit then
+          r ← mkCongrFun r arg
+        else if !info.hasFwdDeps then
+          r ← mkCongr r (← simp arg)
+        else if (← whnfD (← inferType r.expr)).isArrow then
+          r ← mkCongr r (← simp arg)
+        else
+          r ← mkCongrFun r (← dsimp arg)
       else if (← whnfD (← inferType r.expr)).isArrow then
         r ← mkCongr r (← simp arg)
       else
@@ -275,13 +284,23 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   -- TODO: cache
   let some cgrThm ← mkCongrSimp? f | return none
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
+  let args := e.getAppArgs
+  let config ← getConfig
+  let infos := (← getFunInfoNArgs f args.size).paramInfo
   let mut simplified := false
   let mut hasProof   := false
   let mut hasCast    := false
   let mut argsNew    := #[]
   let mut argResults := #[]
-  let args := e.getAppArgs
+  let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
+    if h : !config.instances ∧ i < infos.size then
+      if (infos[i]'h.2).isInstImplicit then
+        -- Do not visit instance implict argument
+        argsNew := argsNew.push arg
+        i := i + 1
+        continue
+    i := i + 1
     match kind with
     | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
     | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg

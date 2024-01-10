@@ -127,6 +127,8 @@ def Workspace.updateAndMaterialize (ws : Workspace)
     | .error (.noFileOrDirectory ..) =>
       logInfo s!"{ws.root.name}: no previous manifest, creating one from scratch"
     | .error e =>
+      unless toUpdate.isEmpty do
+        liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
       logWarning s!"{ws.root.name}: ignoring previous manifest because it failed to load: {e}"
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let inherited := pkg.name != ws.root.name
@@ -154,9 +156,9 @@ def Workspace.updateAndMaterialize (ws : Workspace)
                 let entry := entry.setInherited.inDirectory dep.relPkgDir
                 modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
           | .error (.noFileOrDirectory ..) =>
-            logWarning s!"{depPkg.name}: ignoring missing manifest '{depPkg.manifestFile}'"
+            logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
           | .error e =>
-            logWarning s!"{depPkg.name}: ignoring manifest because it failed to load: {e}"
+            logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
           modifyThe (NameMap Package) (·.insert dep.name depPkg)
           return depPkg
       -- Resolve dependencies's dependencies recursively

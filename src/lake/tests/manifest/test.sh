@@ -32,9 +32,12 @@ LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 
 # Test loading of a V4 manifest fails
 cp lake-manifest-v4.json lake-manifest.json
-($LAKE resolve-deps 2>&1 && false || true) | grep "incompatible manifest version '4'"
+($LAKE resolve-deps 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
 
-# Test update produces the expected V7 manifest
+# Test package update fails as well
+($LAKE update bar 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
+
+# Test bare update produces the expected V7 manifest
 $LAKE update
 sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
 diff --strip-trailing-cr lake-manifest-v7.json lake-manifest.json

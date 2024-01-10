@@ -919,6 +919,17 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
+/--
+Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
+If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
+
+In particular, if the given expression is a sequence of function applications `f a₁ .. aₙ`,
+returns `f a₁ .. aₖ` where `k` is minimal such that `n - k ≤ maxArgs`.
+-/
+def getBoundedAppFn : (maxArgs : Nat) → Expr → Expr
+  | maxArgs' + 1, .app f _ => getBoundedAppFn maxArgs' f
+  | _, e => e
+
 private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
   | _,       as, _ => as
@@ -928,6 +939,21 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
   getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+
+private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
+  | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
+  | _,       as, _     => as
+
+/--
+Like `Lean.Expr.getAppArgs` but returns up to `maxArgs` arguments.
+
+In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
+where `k` is minimal such that the size of this array is at most `maxArgs`.
+-/
+@[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
+  let dummy := mkSort levelZero
+  let nargs := min maxArgs e.getAppNumArgs
+  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)

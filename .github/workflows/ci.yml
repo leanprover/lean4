@@ -46,7 +46,7 @@ jobs:
             github.event_name == 'pull_request' && !contains( github.event.pull_request.labels.*.name, 'full-ci')
            }}
         run: |
-          echo "quick=${{env.quick}}" >> $GITHUB_OUTPUT
+          echo "quick=${{env.quick}}" >> "$GITHUB_OUTPUT"
 
       - name: Configure build matrix
         id: set-matrix
@@ -201,8 +201,8 @@ jobs:
             git fetch nightly --tags
             LEAN_VERSION_STRING="nightly-$(date -u +%F)"
             # do nothing if commit already has a different tag
-            if [[ $(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo $LEAN_VERSION_STRING) == $LEAN_VERSION_STRING ]]; then
-              echo "nightly=$LEAN_VERSION_STRING" >> $GITHUB_OUTPUT
+            if [[ "$(git name-rev --name-only --tags --no-undefined HEAD 2> /dev/null || echo "$LEAN_VERSION_STRING")" == "$LEAN_VERSION_STRING" ]]; then
+              echo "nightly=$LEAN_VERSION_STRING" >> "$GITHUB_OUTPUT"
             fi
           fi
 
@@ -210,7 +210,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/') && github.repository == 'leanprover/lean4'
         id: set-release
         run: |
-          TAG_NAME=${GITHUB_REF##*/}
+          TAG_NAME="${GITHUB_REF##*/}"
 
           # From https://github.com/fsaintjacques/semver-tool/blob/master/src/semver
 
@@ -227,11 +227,13 @@ jobs:
 
           if [[ ${TAG_NAME} =~ ${SEMVER_REGEX} ]]; then
             echo "Tag ${TAG_NAME} matches SemVer regex, with groups ${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${BASH_REMATCH[3]} ${BASH_REMATCH[4]}"
-            echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-            echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
-            echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
-            echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]##-}" >> $GITHUB_OUTPUT
-            echo "RELEASE_TAG=$TAG_NAME" >> $GITHUB_OUTPUT
+            {
+              echo "LEAN_VERSION_MAJOR=${BASH_REMATCH[1]}"
+              echo "LEAN_VERSION_MINOR=${BASH_REMATCH[2]}"
+              echo "LEAN_VERSION_PATCH=${BASH_REMATCH[3]}"
+              echo "LEAN_SPECIAL_VERSION_DESC=${BASH_REMATCH[4]##-}"
+              echo "RELEASE_TAG=$TAG_NAME"
+            } >> "$GITHUB_OUTPUT"
           else
             echo "Tag ${TAG_NAME} did not match SemVer regex."
           fi
@@ -405,7 +407,7 @@ jobs:
       - name: CCache stats
         run: ccache -s
       - name: Show stacktrace for coredumps
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+        if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
         run: |
           for c in coredumps/*; do
             progbin="$(file $c | sed "s/.*execfn: '\([^']*\)'.*/\1/")"
@@ -413,7 +415,7 @@ jobs:
           done
       - name: Upload coredumps
         uses: actions/upload-artifact@v3
-        if: ${{ failure() }} && matrix.os == 'ubuntu-latest'
+        if: ${{ failure() && matrix.os == 'ubuntu-latest' }}
         with:
           name: coredumps-${{ matrix.name }}
           path: |
@@ -480,16 +482,16 @@ jobs:
         run: |
           git remote add nightly https://foo:'${{ secrets.PUSH_NIGHTLY_TOKEN }}'@github.com/${{ github.repository_owner }}/lean4-nightly.git
           git fetch nightly --tags
-          git tag ${{ needs.configure.outputs.nightly }}
-          git push nightly ${{ needs.configure.outputs.nightly }}
+          git tag "${{ needs.configure.outputs.nightly }}"
+          git push nightly "${{ needs.configure.outputs.nightly }}"
           git push -f origin refs/tags/${{ needs.configure.outputs.nightly }}:refs/heads/nightly
-          last_tag=$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)
+          last_tag="$(git log HEAD^ --simplify-by-decoration --pretty="format:%d" | grep -o "nightly-[-0-9]*" | head -n 1)"
           echo -e "*Changes since ${last_tag}:*\n\n" > diff.md
-          git show $last_tag:RELEASES.md > old.md
+          git show "$last_tag":RELEASES.md > old.md
           #./script/diff_changelogs.py old.md doc/changes.md >> diff.md
           diff --changed-group-format='%>' --unchanged-group-format='' old.md RELEASES.md >> diff.md || true
           echo -e "\n*Full commit log*\n" >> diff.md
-          git log --oneline $last_tag..HEAD | sed 's/^/* /' >> diff.md
+          git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
         uses: softprops/action-gh-release@v1
         with:

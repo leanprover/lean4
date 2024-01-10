@@ -178,7 +178,7 @@ theorem Expr.toPoly_denote (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.
   | mul a b => simp! [Poly.mul_denote, *]
 
 theorem Expr.eq_of_toPoly_eq (ctx : Context) (a b : Expr) (h : a.toPoly == b.toPoly) : a.denote ctx = b.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  have h := congr_arg (Poly.denote ctx) (eq_of_beq h)
   simp [toPoly_denote] at h
   assumption
 

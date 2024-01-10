@@ -141,7 +141,7 @@ theorem utf8PrevAux_lt_of_pos : ∀ (cs : List Char) (i p : Pos), p ≠ 0 →
     (utf8PrevAux cs i p).1 < p.1
   | [], i, p, h =>
     Nat.lt_of_le_of_lt (Nat.zero_le _)
-      (Nat.zero_lt_of_ne_zero (mt (congrArg Pos.mk) h))
+      (Nat.zero_lt_of_ne_zero (mt (congr_arg Pos.mk) h))
   | c::cs, i, p, h => by
     simp [utf8PrevAux]
     apply iteInduction (motive := (Pos.byteIdx · < _)) <;> intro h'
@@ -386,7 +386,7 @@ termination_by _ => stopPos.1 - i.1
 
 @[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (i begPos : Pos) : α :=
   if h : begPos < i then
-    have := String.prev_lt_of_pos s i <| mt (congrArg String.Pos.byteIdx) <|
+    have := String.prev_lt_of_pos s i <| mt (congr_arg String.Pos.byteIdx) <|
       Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
     let i := s.prev i
     let a := f (s.get i) a
@@ -418,7 +418,7 @@ s.any (fun a => a == c)
 theorem utf8SetAux_of_gt (c' : Char) : ∀ (cs : List Char) {i p : Pos}, i > p → utf8SetAux c' cs i p = cs
   | [],    _, _, _ => rfl
   | c::cs, i, p, h => by
-    rw [utf8SetAux, if_neg (mt (congrArg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
+    rw [utf8SetAux, if_neg (mt (congr_arg (·.1)) (Ne.symm <| Nat.ne_of_lt h)), utf8SetAux_of_gt c' cs]
     exact Nat.lt_of_lt_of_le h (Nat.le_add_right ..)
 
 theorem set_next_add (s : String) (i : Pos) (c : Char) (b₁ b₂)
@@ -543,7 +543,7 @@ theorem lt_next (s : Substring) (i : String.Pos) (h : i.1 < s.bsize) :
     i.1 < (s.next i).1 := by
   simp [next]; rw [if_neg ?a]
   case a =>
-    refine mt (congrArg String.Pos.byteIdx) (Nat.ne_of_lt ?_)
+    refine mt (congr_arg String.Pos.byteIdx) (Nat.ne_of_lt ?_)
     exact (Nat.add_comm .. ▸ Nat.add_lt_of_lt_sub h :)
   apply Nat.lt_sub_of_add_lt
   rw [Nat.add_comm]; apply String.lt_next
@@ -654,7 +654,7 @@ termination_by _ => stopPos.1 - i.1
 
 @[specialize] def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) (i : String.Pos) : String.Pos :=
   if h : begPos < i then
-    have := String.prev_lt_of_pos s i <| mt (congrArg String.Pos.byteIdx) <|
+    have := String.prev_lt_of_pos s i <| mt (congr_arg String.Pos.byteIdx) <|
       Ne.symm <| Nat.ne_of_lt <| Nat.lt_of_le_of_lt (Nat.zero_le _) h
     let i' := s.prev i
     let c  := s.get i'

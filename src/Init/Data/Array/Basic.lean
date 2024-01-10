@@ -605,7 +605,7 @@ theorem ext (a b : Array α)
         have tailEq : as = bs := ih bs h₁' h₂'
         rw [headEq, tailEq]
   cases a; cases b
-  apply congrArg
+  apply congr_arg
   apply extAux
   assumption
   assumption

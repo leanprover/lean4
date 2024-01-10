@@ -236,7 +236,7 @@ theorem proof_get_to_getD (r:ProofRecord nt) (p:Proof g s) (i:Fin p.size)  :
   p i = p.val.getD i.val r := by
   have isLt : i.val < Array.size p.val := i.isLt
   simp [Proof.get, Array.get, Array.getD, isLt ]
-  apply congrArg
+  apply congr_arg
   apply Fin.eq_of_val_eq
   trivial
 

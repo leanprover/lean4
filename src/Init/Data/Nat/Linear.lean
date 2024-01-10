@@ -532,7 +532,7 @@ attribute [local simp] Expr.denote_toPoly
 
 theorem Expr.eq_of_toNormPoly (ctx : Context) (a b : Expr) (h : a.toNormPoly = b.toNormPoly) : a.denote ctx = b.denote ctx := by
   simp [toNormPoly, Poly.norm] at h
-  have h := congrArg (Poly.denote ctx) h
+  have h := congr_arg (Poly.denote ctx) h
   simp at h
   assumption
 
@@ -711,12 +711,12 @@ theorem Poly.denote_toExpr (ctx : Context) (p : Poly) : p.toExpr.denote ctx = p.
   | (k, v) :: p => simp [toExpr, Expr.denote, Poly.denote]
 
 theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c d : ExprCnstr) (h : c.toNormPoly == d.toPoly) : c.denote ctx = d.denote ctx := by
-  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
+  have h := congr_arg (PolyCnstr.denote ctx) (eq_of_beq h)
   simp at h
   assumption
 
 theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
-  have h := congrArg (Poly.denote ctx) (eq_of_beq h)
+  have h := congr_arg (Poly.denote ctx) (eq_of_beq h)
   simp [Expr.toNormPoly, Poly.norm] at h
   assumption
 

@@ -841,7 +841,7 @@ abbrev noConfusionEnum {α : Sort u} {β : Sort v} [inst : DecidableEq β] (f : 
   Decidable.casesOn
     (motive := fun (inst : Decidable (f x = f y)) => Decidable.casesOn (motive := fun _ => Sort w) inst (fun _ => P) (fun _ => P → P))
     (inst (f x) (f y))
-    (fun h' => False.elim (h' (congrArg f h)))
+    (fun h' => False.elim (h' (congr_arg f h)))
     (fun _ => fun x => x)
 
 /-! # Inhabited -/
@@ -1560,7 +1560,7 @@ theorem funext {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x}
       (fun (f : ∀ (x : α), β x) => f x)
       (fun _ _ h => h x)
   show extfunApp (Quot.mk eqv f) = extfunApp (Quot.mk eqv g)
-  exact congrArg extfunApp (Quot.sound h)
+  exact congr_arg extfunApp (Quot.sound h)
 
 instance {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (∀ a, β a) where
   allEq f g := funext fun a => Subsingleton.elim (f a) (g a)

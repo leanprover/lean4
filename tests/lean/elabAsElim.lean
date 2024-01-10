@@ -50,7 +50,7 @@ structure Point where
 theorem PointExt_lean4 (p : Point) : forall (q : Point) (h1 : Point.x p = Point.x q), p = q :=
   Point.recOn p <|
    fun z1 q => Point.recOn q $
-   fun z2 (hA : Point.x (Point.mk z1) = Point.x (Point.mk z2)) => congrArg Point.mk hA
+   fun z2 (hA : Point.x (Point.mk z1) = Point.x (Point.mk z2)) => congr_arg Point.mk hA
 
 inductive pos_num : Type
   | one  : pos_num

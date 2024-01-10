@@ -143,8 +143,8 @@ theorem append_cancel_left {as bs cs : List α} (h : as ++ bs = as ++ cs) : bs =
 theorem append_cancel_right {as bs cs : List α} (h : as ++ bs = cs ++ bs) : as = cs := by
   match as, cs with
   | [], []       => rfl
-  | [], c::cs    => have aux := congrArg length h; simp_arith at aux
-  | a::as, []    => have aux := congrArg length h; simp_arith at aux
+  | [], c::cs    => have aux := congr_arg length h; simp_arith at aux
+  | a::as, []    => have aux := congr_arg length h; simp_arith at aux
   | a::as, c::cs => injection h with h₁ h₂; subst h₁; rw [append_cancel_right h₂]
 
 @[simp] theorem append_cancel_left_eq (as bs cs : List α) : (as ++ bs = as ++ cs) = (bs = cs) := by

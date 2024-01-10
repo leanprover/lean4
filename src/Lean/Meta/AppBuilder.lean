@@ -175,9 +175,9 @@ def mkCongrArg (f h : Expr) : MetaM Expr := do
     | some (α, β), some (_, a, b) =>
       let u ← getLevel α
       let v ← getLevel β
-      return mkApp6 (mkConst ``congrArg [u, v]) α β a b f h
-    | none, _ => throwAppBuilderException ``congrArg ("non-dependent function expected" ++ hasTypeMsg f fType)
-    | _, none => throwAppBuilderException ``congrArg ("equality proof expected" ++ hasTypeMsg h hType)
+      return mkApp6 (mkConst ``congr_arg [u, v]) α β a b f h
+    | none, _ => throwAppBuilderException ``congr_arg ("non-dependent function expected" ++ hasTypeMsg f fType)
+    | _, none => throwAppBuilderException ``congr_arg ("equality proof expected" ++ hasTypeMsg h hType)
 
 /-- Given `h : f = g` and `a : α`, returns a proof of `f a = g a`.-/
 def mkCongrFun (h a : Expr) : MetaM Expr := do
@@ -193,9 +193,9 @@ def mkCongrFun (h a : Expr) : MetaM Expr := do
         let β' := Lean.mkLambda n BinderInfo.default α β
         let u ← getLevel α
         let v ← getLevel (mkApp β' a)
-        return mkApp6 (mkConst ``congrFun [u, v]) α β' f g h a
-      | _ => throwAppBuilderException ``congrFun ("equality proof between functions expected" ++ hasTypeMsg h hType)
-    | _ => throwAppBuilderException ``congrFun ("equality proof expected" ++ hasTypeMsg h hType)
+        return mkApp6 (mkConst ``congr_fun [u, v]) α β' f g h a
+      | _ => throwAppBuilderException ``congr_fun ("equality proof between functions expected" ++ hasTypeMsg h hType)
+    | _ => throwAppBuilderException ``congr_fun ("equality proof expected" ++ hasTypeMsg h hType)
 
 /-- Given `h₁ : f = g` and `h₂ : a = b`, returns a proof of `f a = g b`. -/
 def mkCongr (h₁ h₂ : Expr) : MetaM Expr := do

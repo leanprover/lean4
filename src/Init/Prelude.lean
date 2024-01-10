@@ -359,6 +359,12 @@ subterms.
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
+theorem congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
+  h ▸ rfl
+
+/--
+Deprecated, please use `congr_arg` instead.
+-/
 theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
   h ▸ rfl
 
@@ -373,6 +379,10 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
   h₁ ▸ h₂ ▸ rfl
 
 /-- Congruence in the function part of an application: If `f = g` then `f a = g a`. -/
+theorem congr_fun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
+  h ▸ rfl
+
+/-- Deprecated, please use `congr_fun` instead. -/
 theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
@@ -2358,7 +2368,7 @@ This function is overridden with a native implementation.
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨s₁⟩, ⟨s₂⟩ =>
-    dite (Eq s₁ s₂) (fun h => isTrue (congrArg _ h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
+    dite (Eq s₁ s₂) (fun h => isTrue (congr rfl h)) (fun h => isFalse (fun h' => String.noConfusion h' (fun h' => absurd h' h)))
 
 instance : DecidableEq String := String.decEq
 

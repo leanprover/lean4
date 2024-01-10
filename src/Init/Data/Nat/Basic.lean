@@ -113,11 +113,11 @@ instance : LawfulBEq Nat where
 
 @[simp] protected theorem zero_add : ∀ (n : Nat), 0 + n = n
   | 0   => rfl
-  | n+1 => congrArg succ (Nat.zero_add n)
+  | n+1 => congr_arg succ (Nat.zero_add n)
 
 theorem succ_add : ∀ (n m : Nat), (succ n) + m = succ (n + m)
   | _, 0   => rfl
-  | n, m+1 => congrArg succ (succ_add n m)
+  | n, m+1 => congr_arg succ (succ_add n m)
 
 theorem add_succ (n m : Nat) : n + succ m = succ (n + m) :=
   rfl
@@ -131,13 +131,13 @@ theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
 protected theorem add_comm : ∀ (n m : Nat), n + m = m + n
   | n, 0   => Eq.symm (Nat.zero_add n)
   | n, m+1 => by
-    have : succ (n + m) = succ (m + n) := by apply congrArg; apply Nat.add_comm
+    have : succ (n + m) = succ (m + n) := by apply congr_arg; apply Nat.add_comm
     rw [succ_add m n]
     apply this
 
 protected theorem add_assoc : ∀ (n m k : Nat), (n + m) + k = n + (m + k)
   | _, _, 0      => rfl
-  | n, m, succ k => congrArg succ (Nat.add_assoc n m k)
+  | n, m, succ k => congr_arg succ (Nat.add_assoc n m k)
 
 protected theorem add_left_comm (n m k : Nat) : n + (m + k) = m + (n + k) := by
   rw [← Nat.add_assoc, Nat.add_comm n m, Nat.add_assoc]
@@ -184,7 +184,7 @@ protected theorem mul_comm : ∀ (n m : Nat), n * m = m * n
 protected theorem left_distrib (n m k : Nat) : n * (m + k) = n * m + n * k := by
   induction n generalizing m k with
   | zero      => repeat rw [Nat.zero_mul]
-  | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congrArg; apply Nat.add_left_comm
+  | succ n ih => simp [succ_mul, ih]; rw [Nat.add_assoc, Nat.add_assoc (n*m)]; apply congr_arg; apply Nat.add_left_comm
 
 protected theorem right_distrib (n m k : Nat) : (n + m) * k = n * k + m * k := by
   rw [Nat.mul_comm, Nat.left_distrib]; simp [Nat.mul_comm]
@@ -218,7 +218,7 @@ theorem lt_succ_of_le {n m : Nat} : n ≤ m → n < succ m :=
 theorem succ_sub_succ_eq_sub (n m : Nat) : succ n - succ m = n - m := by
   induction m with
   | zero      => exact rfl
-  | succ m ih => apply congrArg pred ih
+  | succ m ih => apply congr_arg pred ih
 
 theorem pred_le : ∀ (n : Nat), pred n ≤ n
   | zero   => Nat.le.refl
@@ -384,7 +384,7 @@ protected theorem add_le_add_left {n m : Nat} (h : n ≤ m) (k : Nat) : k + n �
   match le.dest h with
   | ⟨w, hw⟩ =>
     have h₁ : k + n + w = k + (n + w) := Nat.add_assoc ..
-    have h₂ : k + (n + w) = k + m     := congrArg _ hw
+    have h₂ : k + (n + w) = k + m     := congr_arg _ hw
     le.intro <| h₁.trans h₂
 
 protected theorem add_le_add_right {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k := by

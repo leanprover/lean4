@@ -9,5 +9,5 @@ import Init.SimpLemmas
 instance [BEq α] [BEq β] [LawfulBEq α] [LawfulBEq β] : LawfulBEq (α × β) where
   eq_of_beq {a b} (h : a.1 == b.1 && a.2 == b.2) := by
     cases a; cases b
-    refine congr (congrArg _ (eq_of_beq ?_)) (eq_of_beq ?_) <;> simp_all
+    refine congr (congr_arg _ (eq_of_beq ?_)) (eq_of_beq ?_) <;> simp_all
   rfl {a} := by cases a; simp [BEq.beq, LawfulBEq.rfl]

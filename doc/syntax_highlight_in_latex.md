@@ -28,7 +28,7 @@ Save [`lstlean.tex`](https://raw.githubusercontent.com/leanprover/lean4/master/d
 \begin{lstlisting}
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
   show extfunApp (Quotient.mk f₁) = extfunApp (Quotient.mk f₂)
-  apply congrArg
+  apply congr_arg
   apply Quotient.sound
   exact h
 \end{lstlisting}
@@ -60,7 +60,7 @@ First [install Pygments](https://pygments.org/download/). Then save [`lean4.py`]
 \begin{leancode}
 theorem funext {f₁ f₂ : ∀ (x : α), β x} (h : ∀ x, f₁ x = f₂ x) : f₁ = f₂ := by
   show extfunApp (Quotient.mk' f₁) = extfunApp (Quotient.mk' f₂)
-  apply congrArg
+  apply congr_arg
   apply Quotient.sound
   exact h
 \end{leancode}

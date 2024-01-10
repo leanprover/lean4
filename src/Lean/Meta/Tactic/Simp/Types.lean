@@ -225,7 +225,7 @@ where
 
 /--
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.
-The resulting proof is built using `congr` and `congrFun` theorems.
+The resulting proof is built using `congr` and `congr_fun` theorems.
 -/
 def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
@@ -249,7 +249,7 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
 Retrieve auto-generated congruence lemma for `f`.
 
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
-using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
+using simple congruence theorems `congr`, `congr_arg`, and `congr_fun` produces a more compact proof.
 -/
 def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   if f.isConst then if (← isMatcher f.constName!) then

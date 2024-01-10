@@ -193,7 +193,7 @@ Ellipsis are also useful when explicit argument can be automatically inferred by
 to avoid a sequence of `_`s.
 ```lean
 example (f : Nat → Nat) (a b c : Nat) : f (a + b + c) = f (a + (b + c)) :=
-  congrArg f (Nat.add_assoc ..)
+  congr_arg f (Nat.add_assoc ..)
 ```
 
 In Lean 4, writing `f(x)` in place of `f x` is no longer allowed, you must use whitespace between the function and its arguments (e.g., `f (x)`).

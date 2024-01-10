@@ -132,7 +132,7 @@ theorem addIdemIffZero [AddGroup α] {a : α} : a + a = a ↔ a = 0 := by
     apply Iff.intro
     focus
         intro h
-        have h' := congrArg (λ x => x + -a) h
+        have h' := congr_arg (λ x => x + -a) h
         simp at h'
         rw [addAssoc, addNeg, addZero] at h'
         exact h'

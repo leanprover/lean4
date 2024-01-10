@@ -20,7 +20,7 @@ Bool.true
 Bool.casesOn
 cast
 Char
-congrArg
+congr_arg
 Decidable
 Decidable.isTrue
 Decidable.isFalse

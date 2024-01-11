@@ -42,18 +42,3 @@ def checkDeprecated [Monad m] [MonadEnv m] [MonadLog m] [AddMessageContext m] [M
     | none => pure ()
     | some none => logWarning <| .tagged ``deprecatedAttr m!"`{declName}` has been deprecated"
     | some (some newName) => logWarning <| .tagged ``deprecatedAttr m!"`{declName}` has been deprecated, use `{newName}` instead"
-
--- The following deprecations are have their replacements defined in earlier files,
--- and as `deprecated` can not be applied to imported declarations,
--- we have moved the old versions here.
-
-/-- Deprecated synyonym for `congr_arg`. -/
-@[deprecated congr_arg]
-theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
-  h ▸ rfl
-
-
-/-- Deprecated synyonym for `congr_fun`. -/
-@[deprecated congr_fun]
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
-  h ▸ rfl

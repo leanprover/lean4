@@ -363,12 +363,6 @@ theorem congr_arg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (
   h ▸ rfl
 
 /--
-Deprecated, please use `congr_arg` instead.
--/
-theorem congrArg {α : Sort u} {β : Sort v} {a₁ a₂ : α} (f : α → β) (h : Eq a₁ a₂) : Eq (f a₁) (f a₂) :=
-  h ▸ rfl
-
-/--
 Congruence in both function and argument. If `f₁ = f₂` and `a₁ = a₂` then
 `f₁ a₁ = f₂ a₂`. This only works for nondependent functions; the theorem
 statement is more complex in the dependent case.
@@ -380,10 +374,6 @@ theorem congr {α : Sort u} {β : Sort v} {f₁ f₂ : α → β} {a₁ a₂ : �
 
 /-- Congruence in the function part of an application: If `f = g` then `f a = g a`. -/
 theorem congr_fun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
-  h ▸ rfl
-
-/-- Deprecated, please use `congr_fun` instead. -/
-theorem congrFun {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : Eq f g) (a : α) : Eq (f a) (g a) :=
   h ▸ rfl
 
 /-!

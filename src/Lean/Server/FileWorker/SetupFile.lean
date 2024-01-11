@@ -8,6 +8,7 @@ import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
+import Lean.Language.Basic
 
 namespace Lean.Server.FileWorker
 
@@ -51,17 +52,6 @@ partial def runLakeSetupFile
   let exitCode ← lakeProc.wait
   return ⟨spawnArgs, exitCode, stdout, stderr⟩
 
-inductive FileSetupResultKind where
-  | success
-  | noLakefile
-  | importsOutOfDate
-  | error (msg : String)
-
-structure FileSetupResult where
-  kind          : FileSetupResultKind
-  srcSearchPath : SearchPath
-  fileOptions   : Options
-
 def FileSetupResult.ofSuccess (pkgSearchPath : SearchPath) (fileOptions : Options)
     : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.success
@@ -86,11 +76,6 @@ def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
   srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
 }
-
-def FileSetupResult.addGlobalOptions (result : FileSetupResult) (globalOptions : Options)
-    : FileSetupResult :=
-  let fileOptions := globalOptions.mergeBy (fun _ _ fileOpt => fileOpt) result.fileOptions
-  { result with fileOptions := fileOptions }
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
 Compilation progress is reported to `handleStderr`. Returns the search path for

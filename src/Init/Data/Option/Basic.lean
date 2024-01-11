@@ -34,6 +34,12 @@ def toMonad [Monad m] [Alternative m] : Option α → m α
   | none,   _ => none
   | some a, b => b a
 
+@[inline] protected def bindM [Monad m] (f : α → m (Option β)) (o : Option α) : m (Option β) := do
+  if let some a := o then
+    return (← f a)
+  else
+    return none
+
 @[inline] protected def mapM [Monad m] (f : α → m β) (o : Option α) : m (Option β) := do
   if let some a := o then
     return some (← f a)

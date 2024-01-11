@@ -9,8 +9,8 @@ def main : IO Unit := do
 
     hIn.write (←FS.readBinFile "open_empty.log")
     hIn.flush
-    let diags ← Ipc.collectDiagnostics 1 "file:///empty" 1
-    assert! diags.length >= 1
+    let diags? ← Ipc.collectDiagnostics 1 "file:///empty" 1
+    assert! diags?.isSome
 
     Ipc.writeNotification ⟨"exit", Json.null⟩
     discard Ipc.waitForExit

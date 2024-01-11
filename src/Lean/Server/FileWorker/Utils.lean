@@ -4,18 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
+import Lean.Language.Lean
 import Lean.Server.Utils
 import Lean.Server.Snapshots
 import Lean.Server.AsyncList
-
 import Lean.Server.Rpc.Basic
 
 namespace Lean.Server.FileWorker
 open Snapshots
 open IO
-
-def logSnapContent (s : Snapshot) (text : FileMap) : IO Unit :=
-  IO.eprintln s!"[{s.beginPos}, {s.endPos}]: ```\n{text.source.extract s.beginPos (s.endPos - ⟨1⟩)}\n```"
 
 inductive ElabTaskError where
   | aborted
@@ -45,14 +42,46 @@ def set (tk : CancelToken) : IO Unit :=
 
 end CancelToken
 
+-- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
+private partial def mkCmdSnaps (initSnap : Language.Lean.InitialSnapshot) :
+    AsyncList ElabTaskError Snapshot := Id.run do
+  let some headerParsed := initSnap.success? | return .nil
+  .delayed <| headerParsed.processed.task.bind fun headerProcessed => Id.run do
+    -- NOTE: this throws away interactive diagnostics of header errors but these are not interactive
+    -- anyway
+    let some headerSuccess := headerProcessed.success? | return .pure <| .ok .nil
+    return .pure <| .ok <| .cons {
+      stx := initSnap.stx
+      mpState := headerParsed.parserState
+      cmdState := headerSuccess.cmdState
+      interactiveDiags := headerProcessed.diagnostics.interactiveDiags
+    } <| .delayed <| headerSuccess.next.task.bind go
+where go cmdParsed :=
+  cmdParsed.data.sig.task.bind fun sig =>
+    sig.finished.task.map fun finished =>
+      .ok <| .cons {
+        stx := cmdParsed.data.stx
+        mpState := cmdParsed.data.parserState
+        cmdState := finished.cmdState
+        interactiveDiags :=
+          cmdParsed.data.diagnostics.interactiveDiags ++ sig.diagnostics.interactiveDiags
+      } (match cmdParsed.next? with
+        | some next => .delayed <| next.task.bind go
+        | none => .nil)
+
 /-- A document editable in the sense that we track the environment
 and parser state after each command so that edits can be applied
 without recompiling code appearing earlier in the file. -/
 structure EditableDocument where
   meta       : DocumentMeta
   /-- State snapshots after header and each command. -/
-  cmdSnaps   : AsyncList ElabTaskError Snapshot
-  cancelTk   : CancelToken
+  -- TODO: generalize to other languages by moving request handlers into `Language`
+  initSnap : Language.Lean.InitialSnapshot
+  cmdSnaps : AsyncList ElabTaskError Snapshot := mkCmdSnaps initSnap
+  /--
+    Task reporting processing status back to client. We store it here for implementing
+    `waitForDiagnostics`. -/
+  reporter : Task Unit
 
 namespace EditableDocument
 

@@ -11,19 +11,16 @@ def main : IO Unit := do
 
     hIn.write (←FS.readBinFile "open_content.log")
     hIn.flush
-    let diags ← Ipc.collectDiagnostics 1 "file:///test.lean" 1
-    if diags.isEmpty then
-      throw $ userError "Test failed, no diagnostics received."
+    let some diag ← Ipc.collectDiagnostics 1 "file:///test.lean" 1
+      | throw $ userError "Test failed, no diagnostics received."
+    FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
+
+    if let Except.ok (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
+      (Json.parse $ ←FS.readFile "content_diag.json") >>= fromJson?
+    then
+      assert! (diag == refDiag)
     else
-      let diag := diags.getLast!
-      FS.writeFile "content_diag.json.produced" (toString <| toJson (diag : JsonRpc.Message))
+      throw $ userError "Failed parsing test file."
 
-      if let Except.ok (refDiag : JsonRpc.Notification PublishDiagnosticsParams) :=
-        (Json.parse $ ←FS.readFile "content_diag.json") >>= fromJson?
-      then
-        assert! (diag == refDiag)
-      else
-        throw $ userError "Failed parsing test file."
-
-      Ipc.shutdown 2
-      discard $ Ipc.waitForExit
+    Ipc.shutdown 2
+    discard $ Ipc.waitForExit

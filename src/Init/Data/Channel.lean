@@ -41,7 +41,7 @@ Sends a message on an `Channel`.
 
 This function does not block.
 -/
-def Channel.send (v : α) (ch : Channel α) : BaseIO Unit :=
+def Channel.send (ch : Channel α) (v : α) : BaseIO Unit :=
   ch.atomically do
     let st ← get
     if st.closed then return

@@ -1011,19 +1011,21 @@ static obj_res lean_io_bind_task_fn(obj_arg f, obj_arg a) {
     return object_ref(io_result_get_value(r.raw()), true).steal();
 }
 
-/*  mapTask {α : Type u} {β : Type} (f : α → BaseIO β) (t : Task α) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, obj_arg) {
+/*  mapTask (f : α → BaseIO β) (t : Task α) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_map_task(obj_arg f, obj_arg t, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_map_core(c, t, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 
-/*  bindTask {α : Type u} {β : Type} (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) : BaseIO (Task β) */
-extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, obj_arg) {
+/*  bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio : Nat) (sync : Bool) : BaseIO (Task β) */
+extern "C" LEAN_EXPORT obj_res lean_io_bind_task(obj_arg t, obj_arg f, obj_arg prio, uint8 sync,
+        obj_arg) {
     object * c = lean_alloc_closure((void*)lean_io_bind_task_fn, 2, 1);
     lean_closure_set(c, 0, f);
-    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), /* keep_alive */ true);
+    object * t2 = lean_task_bind_core(t, c, lean_unbox(prio), sync, /* keep_alive */ true);
     return io_result_mk_ok(t2);
 }
 

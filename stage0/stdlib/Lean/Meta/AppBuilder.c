@@ -3703,7 +3703,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrArg___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrArg", 8);
+x_1 = lean_mk_string_from_bytes("congr_arg", 9);
 return x_1;
 }
 }
@@ -4180,7 +4180,7 @@ static lean_object* _init_l_Lean_Meta_mkCongrFun___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_from_bytes("congrFun", 8);
+x_1 = lean_mk_string_from_bytes("congr_fun", 9);
 return x_1;
 }
 }

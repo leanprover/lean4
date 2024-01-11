@@ -153,7 +153,7 @@ void initialize_constants() {
     mark_persistent(g_cast->raw());
     g_char = new name{"Char"};
     mark_persistent(g_char->raw());
-    g_congr_arg = new name{"congrArg"};
+    g_congr_arg = new name{"congr_arg"};
     mark_persistent(g_congr_arg->raw());
     g_decidable = new name{"Decidable"};
     mark_persistent(g_decidable->raw());

@@ -14,7 +14,7 @@ def gcd (m n : @& Nat) : Nat :=
     n
   else
     gcd (n % m) m
-termination_by gcd m _ => m
+termination_by m
 decreasing_by simp_wf; apply mod_lt _ (zero_lt_of_ne_zero _); assumption
 
 @[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=

@@ -17,7 +17,7 @@ open System
 namespace Lake
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
-def recBuildExternDynlibs (pkgs : Array Package)
+private def recBuildExternDynlibs (pkgs : Array Package)
 : IndexBuildM (Array (BuildJob Dynlib) × Array FilePath) := do
   let mut libDirs := #[]
   let mut jobs : Array (BuildJob Dynlib) := #[]
@@ -27,38 +27,10 @@ def recBuildExternDynlibs (pkgs : Array Package)
   return (jobs, libDirs)
 
 /--
-Build the dynlibs of the transitive imports that want precompilation
-and the dynlibs of *their* imports.
--/
-partial def recBuildPrecompileDynlibs (imports : Array Module)
-: IndexBuildM (Array (BuildJob Dynlib) × Array (BuildJob Dynlib) × Array FilePath) := do
-  let (pkgs, _, jobs) ←
-    go imports OrdPackageSet.empty ModuleSet.empty #[] false
-  return (jobs, ← recBuildExternDynlibs pkgs.toArray)
-where
-  go imports pkgs modSet jobs shouldPrecompile := do
-    let mut pkgs := pkgs
-    let mut modSet := modSet
-    let mut jobs := jobs
-    for mod in imports do
-      if modSet.contains mod then
-        continue
-      modSet := modSet.insert mod
-      let shouldPrecompile := shouldPrecompile || mod.shouldPrecompile
-      if shouldPrecompile then
-        pkgs := pkgs.insert mod.pkg
-        jobs := jobs.push <| (←  mod.dynlib.fetch)
-      let recImports ← mod.imports.fetch
-      (pkgs, modSet, jobs) ← go recImports pkgs modSet jobs shouldPrecompile
-    return (pkgs, modSet, jobs)
-
-variable [MonadLiftT BuildM m]
-
-/--
 Recursively parse the Lean files of a module and its imports
 building an `Array` product of its direct local imports.
 -/
-def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
+private def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
   let callstack : CallStack BuildKey ← EquipT.lift <| CycleT.readCallStack
   let contents ← liftM <| tryCatch (IO.FS.readFile mod.leanFile) fun err =>
     -- filter out only modules from build key, and remove adjacent duplicates (squeeze),
@@ -76,20 +48,20 @@ def Module.recParseImports (mod : Module) : IndexBuildM (Array Module) := do
   return mods.toArray
 
 /-- The `ModuleFacetConfig` for the builtin `importsFacet`. -/
-def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
+private def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetConfig (·.recParseImports)
 
 /-- Recursively compute a module's transitive imports. -/
-def Module.recComputeTransImports (mod : Module) : IndexBuildM (Array Module) := do
+private def Module.recComputeTransImports (mod : Module) : IndexBuildM (Array Module) := do
   (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
     return set.appendArray (← imp.transImports.fetch) |>.insert imp
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
-def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
+private def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
   mkFacetConfig (·.recComputeTransImports)
 
 /-- Recursively compute a module's precompiled imports. -/
-def Module.recComputePrecompileImports (mod : Module) : IndexBuildM (Array Module) := do
+private def Module.recComputePrecompileImports (mod : Module) : IndexBuildM (Array Module) := do
   (·.toArray) <$> (← mod.imports.fetch).foldlM (init := OrdModuleSet.empty) fun set imp => do
     if imp.shouldPrecompile then
       return set.appendArray (← imp.transImports.fetch) |>.insert imp
@@ -97,7 +69,7 @@ def Module.recComputePrecompileImports (mod : Module) : IndexBuildM (Array Modul
       return set.appendArray (← imp.precompileImports.fetch)
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
-def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
+private def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
   mkFacetConfig (·.recComputePrecompileImports)
 
 /--
@@ -106,7 +78,7 @@ Recursively build a module's dependencies, including:
 * Shared libraries (e.g., `extern_lib` targets or precompiled modules)
 * `extraDepTargets` of its library
 -/
-def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Array FilePath)) := do
+private def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Array FilePath)) := do
   let imports ← mod.imports.fetch
   let extraDepJob ← mod.lib.extraDep.fetch
   let precompileImports ← mod.precompileImports.fetch
@@ -136,7 +108,7 @@ def Module.recBuildDeps (mod : Module) : IndexBuildM (BuildJob (SearchPath × Ar
     ((dynlibPath, dynlibs), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
-def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
+private def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfigSmall (·.recBuildDeps)
 
 /--
@@ -144,7 +116,7 @@ Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
-def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
+private def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
   (← mod.deps.fetch).bindSync fun (dynlibPath, dynlibs) depTrace => do
     let argTrace : BuildTrace := pureHash mod.leanArgs
     let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
@@ -162,64 +134,63 @@ def Module.recBuildLean (mod : Module) : IndexBuildM (BuildJob Unit) := do
     return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
-def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
+private def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
   mkFacetJobConfig (·.recBuildLean)
 
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
-def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
+private def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
       return (mod.oleanFile, mixTrace (← fetchFileTrace mod.oleanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
-def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
+private def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ depTrace =>
       return (mod.ileanFile, mixTrace (← fetchFileTrace mod.ileanFile) depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
-def Module.cFacetConfig : ModuleFacetConfig cFacet :=
+private def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged C files
       return (mod.cFile, ← fetchFileTrace mod.cFile)
 
 /-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
-def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
+private def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
   mkFacetJobConfigSmall fun mod => do
     (← mod.leanArts.fetch).bindSync fun _ _ =>
       -- do content-aware hashing so that we avoid recompiling unchanged bitcode files
       return (mod.bcFile, ← fetchFileTrace mod.bcFile)
 
 /-- Recursively build the module's object file from its C file produced by `lean`. -/
-def Module.recBuildLeanCToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+private def Module.recBuildLeanCToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.name.toString self.coFile (← self.c.fetch) self.weakLeancArgs self.leancArgs
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
-def Module.recBuildLeanBcToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
+private def Module.recBuildLeanBcToO (self : Module) : IndexBuildM (BuildJob FilePath) := do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.name.toString self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
 
 /-- The `ModuleFacetConfig` for the builtin `coFacet`. -/
-def Module.coFacetConfig : ModuleFacetConfig coFacet :=
+private def Module.coFacetConfig : ModuleFacetConfig coFacet :=
   mkFacetJobConfig Module.recBuildLeanCToO
 
 /-- The `ModuleFacetConfig` for the builtin `bcoFacet`. -/
-def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
+private def Module.bcoFacetConfig : ModuleFacetConfig bcoFacet :=
   mkFacetJobConfig Module.recBuildLeanBcToO
 
 /-- The `ModuleFacetConfig` for the builtin `OFacet`. -/
-def Module.oFacetConfig : ModuleFacetConfig oFacet :=
+private def Module.oFacetConfig : ModuleFacetConfig oFacet :=
   mkFacetJobConfigSmall fun mod =>
     match mod.backend with
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
 
-
 -- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
-def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
+private def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
 
   -- Compute dependencies
   let transImports ← mod.transImports.fetch
@@ -252,7 +223,7 @@ def Module.recBuildDynlib (mod : Module) : IndexBuildM (BuildJob Dynlib) := do
       return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
-def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
+private def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=
   mkFacetJobConfig Module.recBuildDynlib
 
 open Module in

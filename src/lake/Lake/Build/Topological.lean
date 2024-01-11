@@ -84,7 +84,7 @@ We use `keyOf` to the derive the unique key of a fetch from its descriptor
 `a : α`. We do this because descriptors may not be comparable and/or contain
 more information than necessary to determine uniqueness.
 -/
-@[inline] partial def recFetchAcyclic [BEq κ] [Monad m]
+@[inline] def recFetchAcyclic [BEq κ] [Monad m]
 (keyOf : α → κ) (fetch : DRecFetchFn α β (CycleT κ m)) : DFetchFn α β (CycleT κ m) :=
   recFetch fun a recurse =>
     /-

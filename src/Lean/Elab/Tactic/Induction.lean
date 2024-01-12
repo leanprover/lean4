@@ -571,6 +571,7 @@ where
         throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
       if foundFVars.contains target.fvarId! then
         throwError "target (or one of its indices) occurs more than once{indentExpr target}"
+      foundFVars := foundFVars.insert target.fvarId!
 
 def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do

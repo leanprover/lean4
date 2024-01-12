@@ -86,9 +86,9 @@ def lakeExe (buildHome : FilePath) :=
 structure LakeInstall where
   home : FilePath
   srcDir := home
-  binDir := home / "build" / "bin"
-  libDir := home / "build" / "lib"
-  lake := lakeExe <| home / "build"
+  binDir := home / ".lake" / "build" / "bin"
+  libDir := home / ".lake" / "build" / "lib"
+  lake := lakeExe <| home / ".lake" / "build"
   deriving Inhabited, Repr
 
 /-- Construct a Lake installation co-located with the specified Lean installation. -/

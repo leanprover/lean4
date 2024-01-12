@@ -17,10 +17,23 @@ to create, modify, serialize, and deserialize it.
 
 namespace Lake
 
-/-- Current version of the manifest format. -/
-def Manifest.version : Nat := 7
+/--
+Current version of the manifest format.
 
-/-- An entry for a package stored in the manifest. -/
+**Version History**
+
+- **v1**: first version
+- **v2**: add `inputRev?` package entry field
+- **v3**: change entry to inductive (with `path`/`git`)
+- **v4**: add `packagesDir` manifest field
+- **v5**: add `inherited` package entry field (and the removed `opts`)
+- **v6**: add package root `name` manifest field
+- **v7**: `type` refactor, custom to/fromJson
+- **v8**: add `github` dependency
+-/
+@[inline] def Manifest.version : Nat := 8
+
+/-- Manifest version 6 package entry. For compatibility. -/
 inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
@@ -41,53 +54,68 @@ when serializing the manifest on Windows.
 local instance : ToJson FilePath where
   toJson path := toJson <| normalizePath path
 
-/-- An entry for a package stored in the manifest. -/
-inductive PackageEntry
+/-- The package source for an entry in the manifest. -/
+inductive PackageEntrySource
   /--
   A local filesystem package. `dir` is relative to the package directory
   of the package containing the manifest.
   -/
   | path
-    (name : Name)
-    (inherited : Bool)
-    (configFile : FilePath)
-    (manifestFile? : Option FilePath)
     (dir : FilePath)
   /-- A remote Git package. -/
   | git
-    (name : Name)
-    (inherited : Bool)
-    (configFile : FilePath)
-    (manifestFile? : Option FilePath)
     (url : String)
+    (rev : String)
+    (inputRev? : Option String)
+    (subDir? : Option FilePath)
+  /-- A remote GitHub package. -/
+  | github
+    (owner repo : String)
     (rev : String)
     (inputRev? : Option String)
     (subDir? : Option FilePath)
   deriving Inhabited
 
+/-- An entry for a package stored in the manifest. -/
+structure PackageEntry where
+  name : Name
+  inherited : Bool
+  configFile : FilePath
+  manifestFile? : Option FilePath
+  source : PackageEntrySource
+  deriving Inhabited
+
 namespace PackageEntry
 
-protected def toJson : PackageEntry → Json
-| .path name inherited configFile manifestFile? dir => Json.mkObj [
-  ("type", "path"),
-  ("inherited", toJson inherited),
-  ("name", toJson name),
-  ("configFile" , toJson configFile),
-  ("manifestFile", toJson manifestFile?),
-  ("inherited", toJson inherited),
-  ("dir", toJson dir)
-]
-| .git name inherited configFile manifestFile? url rev inputRev? subDir? => Json.mkObj [
-  ("type", "git"),
-  ("inherited", toJson inherited),
-  ("name", toJson name),
-  ("configFile" , toJson configFile),
-  ("manifestFile", toJson manifestFile?),
-  ("url", toJson url),
-  ("rev", toJson rev),
-  ("inputRev", toJson inputRev?),
-  ("subDir", toJson subDir?)
-]
+protected def toJson (entry : PackageEntry) : Json :=
+  let fields := [
+    ("name", toJson entry.name),
+    ("configFile" , toJson entry.configFile),
+    ("manifestFile", toJson entry.manifestFile?),
+    ("inherited", toJson entry.inherited)
+  ]
+  let fields :=
+    match entry.source with
+    | .path  dir =>
+      ("type", "path") :: fields.append [
+        ("dir", toJson dir)
+      ]
+    | .git url rev inputRev? subDir? =>
+      ("type", "git") :: fields.append [
+        ("url", toJson url),
+        ("rev", toJson rev),
+        ("inputRev", toJson inputRev?),
+        ("subDir", toJson subDir?)
+      ]
+    | .github owner repo rev inputRev? subDir? =>
+      ("type", "github") :: fields.append [
+        ("owner", toJson owner),
+        ("repo", toJson repo),
+        ("rev", toJson rev),
+        ("inputRev", toJson inputRev?),
+        ("subDir", toJson subDir?)
+      ]
+  Json.mkObj fields
 
 instance : ToJson PackageEntry := ⟨PackageEntry.toJson⟩
 
@@ -98,18 +126,27 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
   let inherited ← get obj "inherited"
   let configFile ← getD obj "configFile" defaultConfigFile
   let manifestFile ← getD obj "manifestFile" defaultManifestFile
-  match type with
-  | "path"=>
-    let dir ← get obj "dir"
-    return .path name inherited configFile manifestFile dir
-  | "git" =>
-    let url ← get obj "url"
-    let rev ← get obj "rev"
-    let inputRev? ← get? obj "inputRev"
-    let subDir? ← get? obj "subDir"
-    return .git name inherited configFile manifestFile url rev inputRev? subDir?
-  | _ =>
-    throw s!"unknown package entry type '{type}'"
+  let source : PackageEntrySource ← id do
+    match type with
+    | "path" =>
+      let dir ← get obj "dir"
+      return .path dir
+    | "git" =>
+      let url ← get obj "url"
+      let rev ← get obj "rev"
+      let inputRev? ← get? obj "inputRev"
+      let subDir? ← get? obj "subDir"
+      return .git url rev inputRev? subDir?
+    | "github" =>
+      let owner ← get obj "owner"
+      let repository ← get obj "repository"
+      let rev ← get obj "rev"
+      let inputRev? ← get? obj "inputRev"
+      let subDir? ← get? obj "subDir"
+      return .github owner repository rev inputRev? subDir?
+    | _ =>
+      throw s!"unknown package entry type '{type}'"
+  return {name, inherited, configFile, manifestFile? := manifestFile, source}
 where
   get {α} [FromJson α] obj prop : Except String α :=
     match obj.find compare prop with
@@ -124,40 +161,22 @@ where
 
 instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
-@[inline] protected def name : PackageEntry → Name
-| .path (name := name) .. | .git (name := name) .. => name
+@[inline] def setInherited (entry : PackageEntry) : PackageEntry :=
+  {entry with inherited := true}
 
-@[inline] protected def inherited : PackageEntry → Bool
-| .path (inherited := inherited) .. | .git (inherited := inherited) .. => inherited
+@[inline] def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
+  {entry with manifestFile? := path?}
 
-def setInherited : PackageEntry → PackageEntry
-| .path name _ configFile manifestFile? dir =>
-  .path name true configFile manifestFile? dir
-| .git name _ configFile manifestFile? url rev inputRev? subDir? =>
-  .git name true configFile manifestFile? url rev inputRev? subDir?
-
-@[inline] protected def configFile : PackageEntry → FilePath
-| .path (configFile := configFile) .. | .git (configFile := configFile) .. => configFile
-
-@[inline] protected def manifestFile? : PackageEntry →  Option FilePath
-| .path (manifestFile? := manifestFile?) .. | .git (manifestFile? := manifestFile?) .. => manifestFile?
-
-def setManifestFile (path? : Option FilePath) : PackageEntry → PackageEntry
-| .path name inherited configFile _ dir =>
-  .path name inherited configFile path? dir
-| .git name inherited configFile _ url rev inputRev? subDir? =>
-  .git name inherited configFile path? url rev inputRev? subDir?
-
-def inDirectory (pkgDir : FilePath) : PackageEntry → PackageEntry
-| .path name inherited configFile manifestFile? dir =>
-  .path name inherited configFile manifestFile? (pkgDir / dir)
-| entry => entry
+@[inline] def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
+  {entry with source := match entry.source with | .path dir => .path (pkgDir / dir) | s => s}
 
 def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
-  .path name inherited defaultConfigFile none dir
+  {name, inherited, configFile := defaultConfigFile, manifestFile? := none,
+    source := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
-  .git name inherited defaultConfigFile none url rev inputRev? subDir?
+  {name, inherited, configFile := defaultConfigFile, manifestFile? := none,
+    source := .git url rev inputRev? subDir?}
 
 end PackageEntry
 
@@ -199,7 +218,7 @@ protected def fromJson? (json : Json) : Except String Manifest := do
     let packagesDir? ← get? obj "packagesDir"
     let pkgs : Array PackageEntryV6 ← getD obj "packages" #[]
     return {name, lakeDir, packagesDir?, packages := pkgs.map PackageEntry.ofV6}
-  else if ver = 7 then
+  else if ver ≤ Manifest.version then
     let name ← getD obj "name" Name.anonymous
     let lakeDir ← get obj "lakeDir"
     let packagesDir ← get obj "packagesDir"

@@ -3,6 +3,9 @@ open Lake DSL
 
 package test_meta
 
+meta if get_config? reqFoo |>.isSome then
+require foo from git "./foo"
+
 def test_run_io : Unit :=
   run_io IO.println "impure"
 

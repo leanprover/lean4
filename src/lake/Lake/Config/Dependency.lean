@@ -8,17 +8,14 @@ import Lean.Data.NameMap
 namespace Lake
 open Lean System
 
-/--
-The `src` of a `Dependency`.
-
-In Lake, dependency sources currently come into flavors:
-* Local `path`s relative to the package's directory.
-* Remote `git` repositories that are download from a given `url`
-  into the workspace's `packagesDir`.
--/
+/-- The `source` of a `Lake.Dependency`. -/
 inductive Source where
+/- A package located a fixed path relative to the dependent's directory. -/
 | path (dir : FilePath)
+/- A package cloned from a Git repository available at a fixed `url`. -/
 | git (url : String) (rev : Option String) (subDir : Option FilePath)
+/-- A package hosted on GitHub in the repository named `<owner>/<repo>`. -/
+| github (owner repo : String) (rev : Option String) (subDir : Option FilePath)
 deriving Inhabited, Repr
 
 /-- A `Dependency` of a package. -/
@@ -30,9 +27,13 @@ structure Dependency where
   name : Name
   /--
   The source of a dependency.
-  See the documentation of `Source` for more information.
+  See the documentation of `Lake.Source` for supported sources.
   -/
-  src  : Source
+  source  : Source
+  /--
+  Whether to enable this dependency in the current configuration.
+  -/
+  enable : Bool
   /--
   Arguments to pass to the dependency's package configuration.
   -/

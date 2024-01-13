@@ -148,11 +148,15 @@ jobs:
 
             echo "Checking existing messages"
 
+            # The code for updating comments is duplicated in mathlib's
+            # scripts/lean-pr-testing-comments.sh
+            # so keep in sync
+
             # Use GitHub API to check if a comment already exists
             existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
-                                    | jq '.[] | select(.body | startswith("- ❗ Mathlib") or startswith("- ✅ Mathlib") or startswith("- ❌ Mathlib") or startswith("- 💥 Mathlib") or startswith("- 🟡 Mathlib"))')
+                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')
             existing_comment_id=$(echo "$existing_comment" | jq -r .id)
             existing_comment_body=$(echo "$existing_comment" | jq -r .body)
 

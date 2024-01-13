@@ -79,9 +79,7 @@ where
     | Expr.app .. =>
       match (← matchMatcherApp? e) with
       | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp F e
-        else if let some matcherApp ← matcherApp.addArg? F then
+        if let some matcherApp ← matcherApp.addArg? F then
           if !(← Structural.refinedArgType matcherApp F) then
             processApp F e
           else
@@ -97,9 +95,7 @@ where
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp F e
-        else if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
+        if let some casesOnApp ← casesOnApp.addArg? F (checkIfRefined := true) then
           let altsNew ← (Array.zip casesOnApp.alts casesOnApp.altNumParams).mapM fun (alt, numParams) =>
             lambdaTelescope alt fun xs altBody => do
               unless xs.size >= numParams do

@@ -179,6 +179,7 @@ where
       match (← matchMatcherApp? e) with
       | some matcherApp =>
         if let some altParams ← matcherApp.refineThrough? param then
+          matcherApp.discrs.forM (loop param)
           (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
               lambdaTelescope altParam fun xs altParam => do
@@ -187,20 +188,23 @@ where
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altBody := alt.beta xs
                 loop altParam altBody
+          matcherApp.remaining.forM (loop param)
         else
           processApp param e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
         if let some altParams ← casesOnApp.refineThrough? param then
-        (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altParams)).forM
-          fun (alt, altNumParam, altParam) =>
-            lambdaTelescope altParam fun xs altParam => do
-              -- TODO: Use boundedLambdaTelescope
-              unless altNumParam = xs.size do
-                throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-              let altBody := alt.beta xs
-              loop altParam altBody
+          loop param casesOnApp.major
+          (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altParams)).forM
+            fun (alt, altNumParam, altParam) =>
+              lambdaTelescope altParam fun xs altParam => do
+                -- TODO: Use boundedLambdaTelescope
+                unless altNumParam = xs.size do
+                  throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let altBody := alt.beta xs
+                loop altParam altBody
+          casesOnApp.remaining.forM (loop param)
         else
           trace[Elab.definition.wf] "withRecApps: casesOnApp.refineThrough? failed"
           processApp param e

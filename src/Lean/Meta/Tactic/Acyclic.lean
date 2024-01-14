@@ -37,7 +37,7 @@ where
       let sizeOfEq ← mkLT sizeOf_lhs sizeOf_rhs
       let hlt ← mkFreshExprSyntheticOpaqueMVar sizeOfEq
       -- TODO: we only need the `sizeOf` simp theorems
-      match (← simpTarget hlt.mvarId! { config.arith := true, simpTheorems := #[ (← getSimpTheorems) ] }).1 with
+      match (← simpTarget hlt.mvarId! { config.arith := true, simpTheorems := #[ (← getSimpTheorems) ] } {}).1 with
       | some _ => return false
       | none   =>
         let heq ← mkCongrArg sizeOf_lhs.appFn! (← mkEqSymm h)

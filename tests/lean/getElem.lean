@@ -29,3 +29,16 @@ def f7 (i : Nat) :=
 #print f5
 #print f6
 #print f7
+
+def withRange (xs : Array Nat) : Option Nat := Id.run do
+  for h : i in [:xs.size] do
+    if i == xs[i] then
+      return i
+  return none
+
+def withTwoRanges (xs : Array Nat) : Option Nat := Id.run do
+  for h1 : i in [:xs.size] do
+    for h2 : j in [i + 1:xs.size] do
+      if xs[i] == xs[j] then
+        return i
+  return none

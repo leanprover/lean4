@@ -186,12 +186,15 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 
-def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← isEnumType declNames[0]!) then
-    mkDecEqEnum declNames[0]!
+def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
+  if (← isEnumType declName) then
+    mkDecEqEnum declName
     return true
   else
-    mkDecEq declNames[0]!
+    mkDecEq declName
+
+def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
+  declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
 
 builtin_initialize
   registerDerivingHandler `DecidableEq mkDecEqInstanceHandler

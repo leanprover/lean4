@@ -15,7 +15,6 @@ extern "C" {
 #endif
 uint8_t lean_int_dec_nonneg(lean_object*);
 LEAN_EXPORT lean_object* l_instCoeNatInt(lean_object*);
-LEAN_EXPORT lean_object* l_instOfNatInt(lean_object*);
 LEAN_EXPORT lean_object* l_Int_add___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMinInt___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_mod___boxed(lean_object*, lean_object*);
@@ -39,6 +38,7 @@ static lean_object* l_Int_instMulInt___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_Int_Basic_0__Int_decNonneg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Int_instMinInt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_instLTInt;
+LEAN_EXPORT lean_object* l_instOfNat(lean_object*);
 LEAN_EXPORT lean_object* l_Int_div___boxed(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_subNatNat(lean_object*, lean_object*);
@@ -100,7 +100,7 @@ x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_instOfNatInt(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_instOfNat(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 

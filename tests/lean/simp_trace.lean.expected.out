@@ -34,7 +34,7 @@ Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modify
         | (a, s) => (fun s => set (g s)) a s
 [Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)
-[Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g a) s ==> pure (PUnit.unit, g a)
+[Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g s) s ==> pure (PUnit.unit, g s)
 [Meta.Tactic.simp.rewrite] @eq_self:1000, (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s) ==> True
 Try this: simp only [bla, h]
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with

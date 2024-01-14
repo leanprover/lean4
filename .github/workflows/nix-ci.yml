@@ -87,6 +87,8 @@ jobs:
         run: |
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc#{lean-mdbook,leanInk,alectryon,test,inked} -o push-doc
           nix build $NIX_BUILD_ARGS --update-input lean --no-write-lock-file ./doc
+          # https://github.com/netlify/cli/issues/1809
+          cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
       - name: Push to Cachix
         run: |
@@ -95,13 +97,35 @@ jobs:
         run: |
           rm -rf nix-store-cache || true
           nix copy ./push-* --to file://$PWD/nix-store-cache?compression=none
-      - name: Publish manual
+      - name: Publish manual to GH Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./result
           destination_dir: ./doc
         if: matrix.name == 'Nix Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
+      - id: deploy-info
+        name: Compute Deployment Metadata
+        run: |
+          set -e
+          python3 -c 'import base64; print("alias="+base64.urlsafe_b64encode(bytes.fromhex("${{github.sha}}")).decode("utf-8").rstrip("="))' >> "$GITHUB_OUTPUT"
+          echo "message=`git log -1 --pretty=format:"%s"`" >> "$GITHUB_OUTPUT"
+      - name: Publish manual to Netlify
+        uses: nwtgck/actions-netlify@v2.0
+        with:
+          publish-dir: ./dist
+          production-branch: master
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: |
+            ${{ github.event_name == 'pull_request' && format('pr#{0}: {1}', github.event.number, github.event.pull_request.title) || format('ref/{0}: {1}', github.ref_name, steps.deploy-info.outputs.message) }}
+          alias: ${{ steps.deploy-info.outputs.alias }}
+          enable-commit-comment: false
+          enable-pull-request-comment: false
+          github-deployment-environment: "lean-lang.org/lean4/doc"
+          fails-without-credentials: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: "b8e805d2-7e9b-4f80-91fb-a84d72fc4a68"
       - name: Fixup CCache Cache
         run: |
           sudo chown -R $USER /nix/var/cache

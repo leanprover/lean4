@@ -14,8 +14,9 @@ def len : List α → Nat
   | l =>
     match splitList l with
     | ListSplit.split fst snd => len fst + len snd
-termination_by _ l => l.length
+termination_by l => l.length
 decreasing_by
+  all_goals
   simp [measure, id, invImage, InvImage, Nat.lt_wfRel, WellFoundedRelation.rel, sizeOf] <;>
   first
     | apply Nat.lt_add_right

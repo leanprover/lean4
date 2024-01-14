@@ -19,7 +19,7 @@ def f3 (n : Nat) : Nat :=
   match n with
   | 0 => 0
   | n + 1 => (f3) n
-termination_by f3 n => n
+termination_by n
 
 -- Same with rewrite
 

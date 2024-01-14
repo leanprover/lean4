@@ -171,6 +171,7 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
       else
         let (_, _, eType) ← forallMetaTelescopeReducing eType (some rangeNumArgs.start)
         throwApplyError mvarId eType targetType
+      termination_by rangeNumArgs.stop - i
     let (newMVars, binderInfos) ← go rangeNumArgs.start
     postprocessAppMVars `apply mvarId newMVars binderInfos cfg.synthAssignedInstances cfg.allowSynthFailures
     let e ← instantiateMVars e
@@ -182,7 +183,6 @@ def _root_.Lean.MVarId.apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := 
     let result := newMVarIds ++ otherMVarIds.toList
     result.forM (·.headBetaType)
     return result
-termination_by go i => rangeNumArgs.stop - i
 
 @[deprecated MVarId.apply]
 def apply (mvarId : MVarId) (e : Expr) (cfg : ApplyConfig := {}) : MetaM (List MVarId) :=

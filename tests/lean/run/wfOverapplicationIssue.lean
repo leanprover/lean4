@@ -8,5 +8,5 @@ theorem Array.sizeOf_lt_of_mem' [DecidableEq α] [SizeOf α] {as : Array α} (h 
       next he => subst a; apply sizeOf_get_lt
       next => have ih := aux (j+1) h; assumption
     · contradiction
+    termination_by as.size - j
   apply aux 0 h
-termination_by aux j => as.size - j

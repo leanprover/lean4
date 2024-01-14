@@ -17,9 +17,9 @@ def applySimpResult (result : Simp.Result) : TacticM Unit := do
     updateLhs result.expr (← result.getProof)
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.simp] def evalSimp : Tactic := fun stx => withMainContext do
-  let { ctx, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
+  let { ctx, simprocs, dischargeWrapper, .. } ← mkSimpContext stx (eraseLocal := false)
   let lhs ← getLhs
-  let (result, _) ← dischargeWrapper.with fun d? => simp lhs ctx (discharge? := d?)
+  let (result, _) ← dischargeWrapper.with fun d? => simp lhs ctx (simprocs := simprocs) (discharge? := d?)
   applySimpResult result
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.simpMatch] def evalSimpMatch : Tactic := fun _ => withMainContext do

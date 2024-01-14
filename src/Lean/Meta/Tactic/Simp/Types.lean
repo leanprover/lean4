@@ -44,7 +44,19 @@ structure State where
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
 
-abbrev SimpM := ReaderT Context $ StateRefT State MetaM
+private opaque MethodsRefPointed : NonemptyType.{0}
+
+private def MethodsRef : Type := MethodsRefPointed.type
+
+instance : Nonempty MethodsRef := MethodsRefPointed.property
+
+abbrev SimpM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+
+@[extern "lean_simp"]
+opaque simp (e : Expr) : SimpM Result
+
+@[extern "lean_dsimp"]
+opaque dsimp (e : Expr) : SimpM Expr
 
 inductive Step where
   | visit : Result → Step
@@ -59,37 +71,84 @@ def Step.updateResult : Step → Result → Step
   | Step.visit _, r => Step.visit r
   | Step.done _, r  => Step.done r
 
+abbrev Simproc := Expr → SimpM (Option Step)
+
+/--
+`Simproc` .olean entry.
+-/
+structure SimprocOLeanEntry where
+  /-- Name of a declaration stored in the environment which has type `Simproc`. -/
+  declName : Name
+  post     : Bool := true
+  keys     : Array SimpTheoremKey := #[]
+  deriving Inhabited
+
+/--
+`Simproc` entry. It is the .olean entry plus the actual function.
+-/
+structure SimprocEntry extends SimprocOLeanEntry where
+  /--
+  Recall that we cannot store `Simproc` into .olean files because it is a closure.
+  Given `SimprocOLeanEntry.declName`, we convert it into a `Simproc` by using the unsafe function `evalConstCheck`.
+  -/
+  proc : Simproc
+
+abbrev SimprocTree := DiscrTree SimprocEntry
+
+structure Simprocs where
+  pre          : SimprocTree   := DiscrTree.empty
+  post         : SimprocTree   := DiscrTree.empty
+  simprocNames : PHashSet Name := {}
+  erased       : PHashSet Name := {}
+  deriving Inhabited
+
 structure Methods where
   pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
   post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
+  simprocs   : Simprocs                   := {}
   deriving Inhabited
 
-/- Internal monad -/
-abbrev M := ReaderT Methods SimpM
+unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
+  unsafeCast m
 
-def pre (e : Expr) : M Step := do
-  (← read).pre e
+@[implemented_by Methods.toMethodsRefImpl]
+opaque Methods.toMethodsRef (m : Methods) : MethodsRef
 
-def post (e : Expr) : M Step := do
-  (← read).post e
+unsafe def MethodsRef.toMethodsImpl (m : MethodsRef) : Methods :=
+  unsafeCast m
 
-def discharge? (e : Expr) : M (Option Expr) := do
-  (← read).discharge? e
+@[implemented_by MethodsRef.toMethodsImpl]
+opaque MethodsRef.toMethods (m : MethodsRef) : Methods
+
+def getMethods : SimpM Methods :=
+  return MethodsRef.toMethods (← read)
+
+def pre (e : Expr) : SimpM Step := do
+  (← getMethods).pre e
+
+def post (e : Expr) : SimpM Step := do
+  (← getMethods).post e
+
+def discharge? (e : Expr) : SimpM (Option Expr) := do
+  (← getMethods).discharge? e
+
+@[inline] def getContext : SimpM Context :=
+  readThe Context
 
 def getConfig : SimpM Config :=
-  return (← read).config
+  return (← getContext).config
 
-@[inline] def withParent (parent : Expr) (f : M α) : M α :=
+@[inline] def withParent (parent : Expr) (f : SimpM α) : SimpM α :=
   withTheReader Context (fun ctx => { ctx with parent? := parent }) f
 
-def getSimpTheorems : M SimpTheoremsArray :=
+def getSimpTheorems : SimpM SimpTheoremsArray :=
   return (← readThe Context).simpTheorems
 
-def getSimpCongrTheorems : M SimpCongrTheorems :=
+def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
-@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : M α) : M α := do
+@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
   try
@@ -168,11 +227,7 @@ where
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.
 The resulting proof is built using `congr` and `congrFun` theorems.
 -/
-@[specialize] def congrArgs
-    [Monad m] [MonadLiftT MetaM m] [MonadLiftT IO m] [MonadRef m] [MonadOptions m] [MonadTrace m] [AddMessageContext m]
-    (simp : Expr → m Result)
-    (dsimp : Expr → m Expr)
-    (r : Result) (args : Array Expr) : m Result := do
+def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
     return r
   else
@@ -191,24 +246,12 @@ The resulting proof is built using `congr` and `congrFun` theorems.
     return r
 
 /--
-Helper class for generalizing `mkCongrSimp?`
--/
-class MonadCongrCache (m : Type → Type) where
-  find? : Expr → m (Option (Option CongrTheorem))
-  save  : Expr → (Option CongrTheorem) → m Unit
-
-instance : MonadCongrCache M where
-  find? f := return (← get).congrCache.find? f
-  save f thm? := modify fun s => { s with congrCache := s.congrCache.insert f thm? }
-
-/--
 Retrieve auto-generated congruence lemma for `f`.
 
 Remark: If all argument kinds are `fixed` or `eq`, it returns `none` because
 using simple congruence theorems `congr`, `congrArg`, and `congrFun` produces a more compact proof.
 -/
-def mkCongrSimp? [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadCongrCache m]
-  (f : Expr) : m (Option CongrTheorem) := do
+def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
   if f.isConst then if (← isMatcher f.constName!) then
     -- We always use simple congruence theorems for auxiliary match applications
     return none
@@ -217,22 +260,17 @@ def mkCongrSimp? [Monad m] [MonadLiftT MetaM m] [MonadEnv m] [MonadCongrCache m]
   if kinds.all fun k => match k with | CongrArgKind.fixed => true | CongrArgKind.eq => true | _ => false then
     /- See remark above. -/
     return none
-  match (← MonadCongrCache.find? f) with
+  match (← get).congrCache.find? f with
   | some thm? => return thm?
   | none =>
     let thm? ← mkCongrSimpCore? f info kinds
-    MonadCongrCache.save f thm?
+    modify fun s => { s with congrCache := s.congrCache.insert f thm? }
     return thm?
 
 /--
 Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 -/
-@[specialize] def tryAutoCongrTheorem?
-    [Monad m] [MonadEnv m] [MonadCongrCache m] [MonadLiftT MetaM m]
-    [MonadLiftT IO m] [MonadRef m] [MonadOptions m] [MonadTrace m] [AddMessageContext m]
-    (simp : Expr → m Result)
-    (dsimp : Expr → m Expr)
-    (e : Expr) : m (Option Result) := do
+def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let f := e.getAppFn
   -- TODO: cache
   let some cgrThm ← mkCongrSimp? f | return none
@@ -321,9 +359,35 @@ Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
     /- See comment above. This is reachable if `hasCast == true`. The `rhs` is not structurally equal to `mkAppN f argsNew` -/
     return some { expr := rhs }
 
+/--
+Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
+If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
+disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
+-/
+def getDtConfig (cfg : Config) : WhnfCoreConfig :=
+  match cfg.beta, cfg.zeta with
+  | true, true => simpDtConfig
+  | true, false => { simpDtConfig with zeta := false }
+  | false, true => { simpDtConfig with beta := false }
+  | false, false => { simpDtConfig with beta := false, zeta := false }
+
+def Result.addExtraArgs (r : Result) (extraArgs : Array Expr) : MetaM Result := do
+  match r.proof? with
+  | none => return { expr := mkAppN r.expr extraArgs }
+  | some proof =>
+    let mut proof := proof
+    for extraArg in extraArgs do
+      proof ← Meta.mkCongrFun proof extraArg
+    return { expr := mkAppN r.expr extraArgs, proof? := some proof }
+
+def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
+  match s with
+  | .visit r => return .visit (← r.addExtraArgs extraArgs)
+  | .done r => return .done (← r.addExtraArgs extraArgs)
+
 end Simp
 
-export Simp (SimpM)
+export Simp (SimpM Simprocs)
 
 /--
   Auxiliary method.

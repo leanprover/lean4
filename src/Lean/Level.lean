@@ -606,7 +606,7 @@ where
       let v' := v.getLevelOffset
       (u.getLevelOffset == v' || v'.isZero)
       && u.getOffset ≥ v.getOffset
-termination_by _ u v => (u, v)
+  termination_by (u, v)
 
 end Level
 

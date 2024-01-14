@@ -18,7 +18,7 @@ what action the user took which lead to this theorem existing in the simp set.
 -/
 inductive Origin where
   /-- A global declaration in the environment. -/
-  | decl (declName : Name) (inv := false)
+  | decl (declName : Name) (post := true) (inv := false)
   /--
   A local hypothesis.
   When `contextual := true` is enabled, this fvar may exist in an extension
@@ -42,7 +42,7 @@ inductive Origin where
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
-  | .decl declName _ => declName
+  | .decl declName _ _ => declName
   | .fvar fvarId => fvarId.name
   | .stx id _ => id
   | .other name => name
@@ -137,7 +137,13 @@ instance : ToFormat SimpTheorem where
     name ++ prio ++ perm
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
-  | .decl n inv => do let r ← mkConstWithLevelParams n; if inv then return m!"← {r}" else return r
+  | .decl n post inv => do
+    let r ← mkConstWithLevelParams n;
+    match post, inv with
+    | true,  true  => return m!"← {r}"
+    | true,  false => return r
+    | false, true  => return m!"↓ ← {r}"
+    | false, false => return m!"↓ {r}"
   | .fvar n => return mkFVar n
   | .stx _ ref => return ref
   | .other n => return n
@@ -171,9 +177,9 @@ def simpDtConfig : WhnfCoreConfig := { iota := false, proj := .no }
 
 def addSimpTheoremEntry (d : SimpTheorems) (e : SimpTheorem) : SimpTheorems :=
   if e.post then
-    { d with post := d.post.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with post := d.post.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
   else
-    { d with pre := d.pre.insertCore e.keys e simpDtConfig, lemmaNames := updateLemmaNames d.lemmaNames }
+    { d with pre := d.pre.insertCore e.keys e, lemmaNames := updateLemmaNames d.lemmaNames }
 where
   updateLemmaNames (s : PHashSet Origin) : PHashSet Origin :=
     s.insert e.origin
@@ -201,10 +207,11 @@ def SimpTheorems.registerDeclToUnfoldThms (d : SimpTheorems) (declName : Name) (
 
 partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpTheorems :=
   let d := { d with erased := d.erased.insert thmId, lemmaNames := d.lemmaNames.erase thmId }
-  if let .decl declName := thmId then
+  if let .decl declName .. := thmId then
     let d := { d with toUnfold := d.toUnfold.erase declName }
     if let some thms := d.toUnfoldThms.find? declName then
-      thms.foldl (init := d) (eraseCore · <| .decl ·)
+      let dummy := true
+      thms.foldl (init := d) (eraseCore · <| .decl · dummy dummy)
     else
       d
   else
@@ -213,7 +220,7 @@ partial def SimpTheorems.eraseCore (d : SimpTheorems) (thmId : Origin) : SimpThe
 def SimpTheorems.erase [Monad m] [MonadError m] (d : SimpTheorems) (thmId : Origin) : m SimpTheorems := do
   unless d.isLemma thmId ||
     match thmId with
-    | .decl declName => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
+    | .decl declName .. => d.isDeclToUnfold declName || d.toUnfoldThms.contains declName
     | _ => false
   do
     throwError "'{thmId.key}' does not have [simp] attribute"
@@ -333,10 +340,10 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
       let mut r := #[]
       for (val, type) in (← preprocess val type inv (isGlobal := true)) do
         let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore (.decl declName inv) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
+        r := r.push <| (← mkSimpTheoremCore (.decl declName post inv) (mkConst auxName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst auxName) post prio)
       return r
     else
-      return #[← mkSimpTheoremCore (.decl declName) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
+      return #[← mkSimpTheoremCore (.decl declName post inv) (mkConst declName (cinfo.levelParams.map mkLevelParam)) #[] (mkConst declName) post prio]
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -418,7 +425,7 @@ def getSimpTheorems : CoreM SimpTheorems :=
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do
-  let s := { s with erased := s.erased.erase (.decl declName inv) }
+  let s := { s with erased := s.erased.erase (.decl declName post inv) }
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
   return simpThms.foldl addSimpTheoremEntry s
 

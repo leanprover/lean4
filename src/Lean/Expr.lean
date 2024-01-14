@@ -919,6 +919,17 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
 
+/--
+Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
+If there are any more arguments than this, then they are returned by `getAppFn` as part of the function.
+
+In particular, if the given expression is a sequence of function applications `f a₁ .. aₙ`,
+returns `f a₁ .. aₖ` where `k` is minimal such that `n - k ≤ maxArgs`.
+-/
+def getBoundedAppFn : (maxArgs : Nat) → Expr → Expr
+  | maxArgs' + 1, .app f _ => getBoundedAppFn maxArgs' f
+  | _, e => e
+
 private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
   | app f a, as, i => getAppArgsAux f (as.set! i a) (i-1)
   | _,       as, _ => as
@@ -928,6 +939,21 @@ private def getAppArgsAux : Expr → Array Expr → Nat → Array Expr
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
   getAppArgsAux e (mkArray nargs dummy) (nargs-1)
+
+private def getBoundedAppArgsAux : Expr → Array Expr → Nat → Array Expr
+  | app f a, as, i + 1 => getBoundedAppArgsAux f (as.set! i a) i
+  | _,       as, _     => as
+
+/--
+Like `Lean.Expr.getAppArgs` but returns up to `maxArgs` arguments.
+
+In particular, given `f a₁ a₂ ... aₙ`, returns `#[aₖ₊₁, ..., aₙ]`
+where `k` is minimal such that the size of this array is at most `maxArgs`.
+-/
+@[inline] def getBoundedAppArgs (maxArgs : Nat) (e : Expr) : Array Expr :=
+  let dummy := mkSort levelZero
+  let nargs := min maxArgs e.getAppNumArgs
+  getBoundedAppArgsAux e (mkArray nargs dummy) nargs
 
 private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   | app f a, as => getAppRevArgsAux f (as.push a)
@@ -946,6 +972,37 @@ private def getAppRevArgsAux : Expr → Array Expr → Array Expr
   let dummy := mkSort levelZero
   let nargs := e.getAppNumArgs
   withAppAux k e (mkArray nargs dummy) (nargs-1)
+
+/--
+Given `f a_1 ... a_n`, returns `#[a_1, ..., a_n]`.
+Note that `f` may be an application.
+The resulting array has size `n` even if `f.getAppNumArgs < n`.
+-/
+@[inline] def getAppArgsN (e : Expr) (n : Nat) : Array Expr :=
+  let dummy := mkSort levelZero
+  loop n e (mkArray n dummy)
+where
+  loop : Nat → Expr → Array Expr → Array Expr
+    | 0,   _,        as => as
+    | i+1, .app f a, as => loop i f (as.set! i a)
+    | _,   _,        _  => panic! "too few arguments at"
+
+/--
+Given `e` of the form `f a_1 ... a_n`, return `f`.
+If `n` is greater than the number of arguments, then return `e.getAppFn`.
+-/
+def stripArgsN (e : Expr) (n : Nat) : Expr :=
+  match n, e with
+  | 0,   _        => e
+  | n+1, .app f _ => stripArgsN f n
+  | _,   _        => e
+
+/--
+Given `e` of the form `f a_1 ... a_n ... a_m`, return `f a_1 ... a_n`.
+If `n` is greater than the arity, then return `e`.
+-/
+def getAppPrefix (e : Expr) (n : Nat) : Expr :=
+  e.stripArgsN (e.getAppNumArgs - n)
 
 /-- Given `e = fn a₁ ... aₙ`, runs `f` on `fn` and each of the arguments `aᵢ` and
 makes a new function application with the results. -/

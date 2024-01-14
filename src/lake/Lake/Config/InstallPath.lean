@@ -12,7 +12,7 @@ namespace Lake
 
 /-- Standard path of `elan` in a Elan installation. -/
 def elanExe (home : FilePath) :=
-  home / "bin" / "elan" |>.withExtension FilePath.exeExtension
+  home / "bin" / "elan" |>.addExtension FilePath.exeExtension
 
 /-- Information about the local Elan setup. -/
 structure ElanInstall where
@@ -24,19 +24,19 @@ structure ElanInstall where
 
 /-- Standard path of `lean` in a Lean installation. -/
 def leanExe (sysroot : FilePath) :=
-  sysroot / "bin" / "lean" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "lean" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `leanc` in a Lean installation. -/
 def leancExe (sysroot : FilePath) :=
-  sysroot / "bin" / "leanc" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "leanc" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `llvm-ar` in a Lean installation. -/
 def leanArExe (sysroot : FilePath) :=
-  sysroot / "bin" / "llvm-ar" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "llvm-ar" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `clang` in a Lean installation. -/
 def leanCcExe (sysroot : FilePath) :=
-  sysroot / "bin" / "clang" |>.withExtension FilePath.exeExtension
+  sysroot / "bin" / "clang" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `libleanshared` in a Lean installation. -/
 def leanSharedLib (sysroot : FilePath) :=
@@ -45,7 +45,7 @@ def leanSharedLib (sysroot : FilePath) :=
       sysroot / "bin"
     else
       sysroot / "lib" / "lean"
-  dir / "libleanshared" |>.withExtension sharedLibExt
+  dir / "libleanshared" |>.addExtension sharedLibExt
 
 /-- Path information about the local Lean installation. -/
 structure LeanInstall where
@@ -80,7 +80,7 @@ def LeanInstall.leanCc? (self : LeanInstall) : Option String :=
 
 /-- Standard path of `lake` in a Lake installation. -/
 def lakeExe (buildHome : FilePath) :=
-  buildHome / "bin" / "lake" |>.withExtension FilePath.exeExtension
+  buildHome / "bin" / "lake" |>.addExtension FilePath.exeExtension
 
 /-- Path information about the local Lake installation. -/
 structure LakeInstall where
@@ -203,7 +203,7 @@ try to return their joint home by assuming they are both located at `<home>/bin`
 def findLakeLeanJointHome? : BaseIO (Option FilePath) := do
   if let .ok appPath ← IO.appPath.toBaseIO then
     if let some appDir := appPath.parent then
-      let leanExe := appDir / "lean" |>.withExtension FilePath.exeExtension
+      let leanExe := appDir / "lean" |>.addExtension FilePath.exeExtension
       if (← leanExe.pathExists) then
         return appDir.parent
   return none

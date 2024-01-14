@@ -8,7 +8,192 @@ This file contains work-in-progress notes for the upcoming release, as well as p
 Please check the [releases](https://github.com/leanprover/lean4/releases) page for the current status
 of each version.
 
-v4.5.0 (development in progress)
+v4.6.0 (development in progress)
+---------
+
+* Add custom simplification procedures (aka `simproc`s) to `simp`. Simprocs can be triggered by the simplifier on a specified term-pattern. Here is an small example:
+```lean
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
+
+def foo (x : Nat) : Nat :=
+  x + 10
+
+/--
+The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
+-/
+simproc reduceFoo (foo _) :=
+  /- A term of type `Expr → SimpM (Option Step) -/
+  fun e => OptionT.run do
+    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+    guard (e.isAppOfArity ``foo 1)
+    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+    let n ← Nat.fromExpr? e.appArg!
+    /-
+    The `Step` type has two constructors: `.done` and `.visit`.
+    * The constructor `.done` instructs `simp` that the result does
+      not need to be simplied further.
+    * The constructor `.visit` instructs `simp` to visit the resulting expression.
+
+    If the result holds definitionally as in this example, the field `proof?` can be omitted.
+    -/
+    return .done { expr := Lean.mkNatLit (n+10) }
+```
+We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.
+Simprocs can be scoped, manually added to `simp` commands, and suppressed using `-`. They are also supported by `simp?`. `simp only` does not execute any `simproc`. Here are some examples for the `simproc` defined above.
+```lean
+example : x + foo 2 = 12 + x := by
+  set_option simprocs false in
+    /- This `simp` command does make progress since `simproc`s are disabled. -/
+    fail_if_success simp
+  simp_arith
+
+example : x + foo 2 = 12 + x := by
+  /- `simp only` must not use the default simproc set. -/
+  fail_if_success simp only
+  simp_arith
+
+example : x + foo 2 = 12 + x := by
+  /-
+  `simp only` does not use the default simproc set,
+  but we can provide simprocs as arguments. -/
+  simp only [reduceFoo]
+  simp_arith
+
+example : x + foo 2 = 12 + x := by
+  /- We can use `-` to disable `simproc`s. -/
+  fail_if_success simp [-reduceFoo]
+  simp_arith
+```
+
+* The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
+
+  * They are now placed directly after the function they apply to, instead of
+    after the whole `mutual` block.
+  * Therefore, the function name no longer has to be mentioned in the hint.
+  * If the function has a `where` clause, the `termination_by` and
+    `decreasing_by` for that function come before the `where`. The
+    functions in the `where` clause can have their own termination hints, each
+    following the corresponding definition.
+  * The `termination_by` clause can only bind “extra parameters”, that are not
+    already bound by the function header, but are bound in a lambda (`:= fun x
+    y z =>`) or in patterns (`| x, n + 1 => …`). These extra parameters used to
+    be understood as a suffix of the function parameters; now it is a prefix.
+
+  Migration guide: In simple cases just remove the function name, and any
+  variables already bound at the header.
+  ```diff
+   def foo : Nat → Nat → Nat := …
+  -termination_by foo a b => a - b
+  +termination_by a b => a - b
+  ```
+  or
+  ```diff
+   def foo : Nat → Nat → Nat := …
+  -termination_by _ a b => a - b
+  +termination_by a b => a - b
+  ```
+
+  If the parameters are bound in the function header (before the `:`), remove them as well:
+  ```diff
+   def foo (a b : Nat) : Nat := …
+  -termination_by foo a b => a - b
+  +termination_by a - b
+  ```
+
+  Else, if there are multiple extra parameters, make sure to refer to the right
+  ones; the bound variables are interpreted from left to right, no longer from
+  right to left:
+  ```diff
+   def foo : Nat → Nat → Nat → Nat
+     | a, b, c => …
+  -termination_by foo b c => b
+  +termination_by a b => b
+  ```
+
+  In the case of a `mutual` block, place the termination arguments (without the
+  function name) next to the function definition:
+  ```diff
+  -mutual
+  -def foo : Nat → Nat → Nat := …
+  -def bar : Nat → Nat := …
+  -end
+  -termination_by
+  -  foo a b => a - b
+  -  bar a => a
+  +mutual
+  +def foo : Nat → Nat → Nat := …
+  +termination_by a b => a - b
+  +def bar : Nat → Nat := …
+  +termination_by a => a
+  +end
+  ```
+
+  Similarly, if you have (mutual) recursion through `where` or `let rec`, the
+  termination hints are now placed directly after the function they apply to:
+  ```diff
+  -def foo (a b : Nat) : Nat := …
+  -  where bar (x : Nat) : Nat := …
+  -termination_by
+  -  foo a b => a - b
+  -  bar x => x
+  +def foo (a b : Nat) : Nat := …
+  +termination_by a - b
+  +  where
+  +    bar (x : Nat) : Nat := …
+  +    termination_by x
+
+  -def foo (a b : Nat) : Nat :=
+  -  let rec bar (x : Nat) :  Nat := …
+  -  …
+  -termination_by
+  -  foo a b => a - b
+  -  bar x => x
+  +def foo (a b : Nat) : Nat :=
+  +  let rec bar (x : Nat) : Nat := …
+  +    termination_by x
+  +  …
+  +termination_by a - b
+  ```
+
+  In cases where a single `decreasing_by` clause applied to multiple mutually
+  recursive functions before, the tactic now has to be duplicated.
+
+* The semantics of `decreasing_by` changed; the tactic is applied to all
+  termination proof goals together, not individually.
+
+  This helps when writing termination proofs interactively, as one can focus
+  each subgoal individually, for example using `·`. Previously, the given
+  tactic script had to work for _all_ goals, and one had to resort to tactic
+  combinators like `first`:
+
+  ```diff
+   def foo (n : Nat) := … foo e1 … foo e2 …
+  -decreasing_by
+  -simp_wf
+  -first | apply something_about_e1; …
+  -      | apply something_about_e2; …
+  +decreasing_by
+  +all_goals simp_wf
+  +· apply something_about_e1; …
+  +· apply something_about_e2; …
+  ```
+
+  To obtain the old behaviour of applying a tactic to each goal individually,
+  use `all_goals`:
+  ```diff
+   def foo (n : Nat) := …
+  -decreasing_by some_tactic
+  +decreasing_by all_goals some_tactic
+  ```
+
+  In the case of mutual recursion each `decreasing_by` now applies to just its
+  function. If some functions in a recursive group do not have their own
+  `decreasing_by`, the default `decreasing_tactic` is used. If the same tactic
+  ought to be applied to multiple functions, the `decreasing_by` clause has to
+  be repeated at each of these functions.
+
+
+v4.5.0
 ---------
 
 * Modify the lexical syntax of string literals to have string gaps, which are escape sequences of the form `"\" newline whitespace*`.
@@ -30,7 +215,7 @@ v4.5.0 (development in progress)
   Migration guide: Use `termination_by` instead, e.g.:
   ```diff
   -termination_by' measure (fun ⟨i, _⟩ => as.size - i)
-  +termination_by go i _ => as.size - i
+  +termination_by i _ => as.size - i
   ```
 
   If the well-founded relation you want to use is not the one that the
@@ -38,28 +223,71 @@ v4.5.0 (development in progress)
   you can use `WellFounded.wrap` from the std libarary to explicitly give one:
   ```diff
   -termination_by' ⟨r, hwf⟩
-  +termination_by _ x => hwf.wrap x
+  +termination_by x => hwf.wrap x
   ```
 
 * Support snippet edits in LSP `TextEdit`s. See `Lean.Lsp.SnippetString` for more details.
+
+* Deprecations and changes in the widget API.
+  - `Widget.UserWidgetDefinition` is deprecated in favour of `Widget.Module`. The annotation `@[widget]` is deprecated in favour of `@[widget_module]`. To migrate a definition of type `UserWidgetDefinition`, remove the `name` field and replace the type with `Widget.Module`. Removing the `name` results in a title bar no longer being drawn above your panel widget. To add it back, draw it as part of the component using `<details open=true><summary class='mv2 pointer'>{name}</summary>{rest_of_widget}</details>`. See an example migration [here](https://github.com/leanprover/std4/pull/475/files#diff-857376079661a0c28a53b7ff84701afabbdf529836a6944d106c5294f0e68109R43-R83).
+  - The new command `show_panel_widgets` allows displaying always-on and locally-on panel widgets.
+  - `RpcEncodable` widget props can now be stored in the infotree.
+  - See [RFC 2963](https://github.com/leanprover/lean4/issues/2963) for more details and motivation.
+
+* If no usable lexicographic order can be found automatically for a termination proof, explain why.
+  See [feat: GuessLex: if no measure is found, explain why](https://github.com/leanprover/lean4/pull/2960).
+
+* Option to print [inferred termination argument](https://github.com/leanprover/lean4/pull/3012).
+  With `set_option showInferredTerminationBy true` you will get messages like
+  ```
+  Inferred termination argument:
+  termination_by
+  ackermann n m => (sizeOf n, sizeOf m)
+  ```
+  for automatically generated `termination_by` clauses.
+
+* More detailed error messages for [invalid mutual blocks](https://github.com/leanprover/lean4/pull/2949).
+
+* [Multiple](https://github.com/leanprover/lean4/pull/2923) [improvements](https://github.com/leanprover/lean4/pull/2969) to the output of `simp?` and `simp_all?`.
+
+* Tactics with `withLocation *` [no longer fail](https://github.com/leanprover/lean4/pull/2917) if they close the main goal.
+
+* Implementation of a `test_extern` command for writing tests for `@[extern]` and `@[implemented_by]` functions.
+  Usage is
+  ```
+  import Lean.Util.TestExtern
+
+  test_extern Nat.add 17 37
+  ```
+  The head symbol must be the constant with the `@[extern]` or `@[implemented_by]` attribute. The return type must have a `DecidableEq` instance.
+
+Bug fixes for
+[#2853](https://github.com/leanprover/lean4/issues/2853), [#2953](https://github.com/leanprover/lean4/issues/2953), [#2966](https://github.com/leanprover/lean4/issues/2966),
+[#2971](https://github.com/leanprover/lean4/issues/2971), [#2990](https://github.com/leanprover/lean4/issues/2990), [#3094](https://github.com/leanprover/lean4/issues/3094).
+
+Bug fix for [eager evaluation of default value](https://github.com/leanprover/lean4/pull/3043) in `Option.getD`.
+Avoid [panic in `leanPosToLspPos`](https://github.com/leanprover/lean4/pull/3071) when file source is unavailable.
+Improve [short-circuiting behavior](https://github.com/leanprover/lean4/pull/2972) for `List.all` and `List.any`.
+
+Several Lake bug fixes: [#3036](https://github.com/leanprover/lean4/issues/3036), [#3064](https://github.com/leanprover/lean4/issues/3064), [#3069](https://github.com/leanprover/lean4/issues/3069).
 
 v4.4.0
 ---------
 
 * Lake and the language server now support per-package server options using the `moreServerOptions` config field, as well as options that apply to both the language server and `lean` using the `leanOptions` config field. Setting either of these fields instead of `moreServerArgs` ensures that viewing files from a dependency uses the options for that dependency. Additionally, `moreServerArgs` is being deprecated in favor of the `moreGlobalServerArgs` field. See PR [#2858](https://github.com/leanprover/lean4/pull/2858).
-  
+
   A Lakefile with the following deprecated package declaration:
   ```lean
   def moreServerArgs := #[
     "-Dpp.unicode.fun=true"
   ]
   def moreLeanArgs := moreServerArgs
-  
+
   package SomePackage where
     moreServerArgs := moreServerArgs
     moreLeanArgs := moreLeanArgs
   ```
-  
+
   ... can be updated to the following package declaration to use per-package options:
   ```lean
   package SomePackage where

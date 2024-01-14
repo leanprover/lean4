@@ -39,7 +39,7 @@ def UInt8.shiftRight (a b : UInt8) : UInt8 := ⟨a.val >>> (modn b 8).val⟩
 def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
 def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
-instance : OfNat UInt8 n   := ⟨UInt8.ofNat n⟩
+instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
 instance : Add UInt8       := ⟨UInt8.add⟩
 instance : Sub UInt8       := ⟨UInt8.sub⟩
 instance : Mul UInt8       := ⟨UInt8.mul⟩
@@ -110,8 +110,7 @@ def UInt16.shiftRight (a b : UInt16) : UInt16 := ⟨a.val >>> (modn b 16).val⟩
 def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
 def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
-
-instance : OfNat UInt16 n   := ⟨UInt16.ofNat n⟩
+instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 instance : Add UInt16       := ⟨UInt16.add⟩
 instance : Sub UInt16       := ⟨UInt16.sub⟩
 instance : Mul UInt16       := ⟨UInt16.mul⟩
@@ -184,7 +183,7 @@ def UInt8.toUInt32 (a : UInt8) : UInt32 := a.toNat.toUInt32
 @[extern "lean_uint16_to_uint32"]
 def UInt16.toUInt32 (a : UInt16) : UInt32 := a.toNat.toUInt32
 
-instance : OfNat UInt32 n   := ⟨UInt32.ofNat n⟩
+instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
 instance : Mul UInt32       := ⟨UInt32.mul⟩
@@ -244,7 +243,7 @@ def UInt16.toUInt64 (a : UInt16) : UInt64 := a.toNat.toUInt64
 @[extern "lean_uint32_to_uint64"]
 def UInt32.toUInt64 (a : UInt32) : UInt64 := a.toNat.toUInt64
 
-instance : OfNat UInt64 n   := ⟨UInt64.ofNat n⟩
+instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 instance : Add UInt64       := ⟨UInt64.add⟩
 instance : Sub UInt64       := ⟨UInt64.sub⟩
 instance : Mul UInt64       := ⟨UInt64.mul⟩
@@ -322,7 +321,7 @@ def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
-instance : OfNat USize n   := ⟨USize.ofNat n⟩
+instance USize.instOfNat : OfNat USize n := ⟨USize.ofNat n⟩
 instance : Add USize       := ⟨USize.add⟩
 instance : Sub USize       := ⟨USize.sub⟩
 instance : Mul USize       := ⟨USize.mul⟩

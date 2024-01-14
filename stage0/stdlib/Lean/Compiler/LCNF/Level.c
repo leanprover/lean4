@@ -93,7 +93,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(lea
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitArgs(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
 static lean_object* l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__9___closed__2;
 uint64_t l_Lean_Name_hash___override(lean_object*);
 uint8_t l_ptrEqList___rarg(lean_object*, lean_object*);
@@ -1481,7 +1481,7 @@ return x_73;
 else
 {
 uint8_t x_85; 
-x_85 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_69, x_69);
+x_85 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_69, x_69);
 if (x_85 == 0)
 {
 lean_object* x_86; 
@@ -1548,7 +1548,7 @@ return x_99;
 else
 {
 uint8_t x_100; 
-x_100 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_69, x_69);
+x_100 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_69, x_69);
 if (x_100 == 0)
 {
 lean_object* x_101; lean_object* x_102; 
@@ -1634,7 +1634,7 @@ return x_111;
 else
 {
 uint8_t x_123; 
-x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_107, x_107);
+x_123 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_107, x_107);
 if (x_123 == 0)
 {
 lean_object* x_124; 
@@ -1701,7 +1701,7 @@ return x_137;
 else
 {
 uint8_t x_138; 
-x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_107, x_107);
+x_138 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_107, x_107);
 if (x_138 == 0)
 {
 lean_object* x_139; lean_object* x_140; 

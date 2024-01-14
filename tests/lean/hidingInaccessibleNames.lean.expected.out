@@ -20,15 +20,15 @@ x✝² : List Nat
 x✝¹ : Nat
 x✝ : x✝² ≠ []
 ⊢ Nat
-hidingInaccessibleNames.lean:9:19-9:20: error: don't know how to synthesize placeholder
-context:
-a b x✝¹ : Nat
-x✝ : [a, b] ≠ []
-⊢ Nat
 hidingInaccessibleNames.lean:8:16-8:17: error: don't know how to synthesize placeholder
 context:
 x✝¹ : Nat
 x✝ : [] ≠ []
+⊢ Nat
+hidingInaccessibleNames.lean:9:19-9:20: error: don't know how to synthesize placeholder
+context:
+a b x✝¹ : Nat
+x✝ : [a, b] ≠ []
 ⊢ Nat
 case inl
 p q : Prop

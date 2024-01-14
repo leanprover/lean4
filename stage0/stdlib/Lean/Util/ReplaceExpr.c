@@ -45,7 +45,7 @@ static lean_object* l_Lean_Expr_ReplaceImpl_Cache_new___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_Cache_resultIdx___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_ReplaceImpl_Cache_new(lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
-uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(uint8_t, uint8_t);
+uint8_t l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(uint8_t, uint8_t);
 static lean_object* l_Lean_Expr_ReplaceImpl_Cache_new___closed__6;
 size_t lean_usize_sub(size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_Expr_ReplaceImpl_Cache_hasResultFor(lean_object*, lean_object*);
@@ -622,7 +622,7 @@ return x_55;
 else
 {
 uint8_t x_70; 
-x_70 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_51, x_51);
+x_70 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_51, x_51);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
@@ -700,7 +700,7 @@ return x_88;
 else
 {
 uint8_t x_89; 
-x_89 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_51, x_51);
+x_89 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_51, x_51);
 if (x_89 == 0)
 {
 lean_object* x_90; lean_object* x_91; lean_object* x_92; 
@@ -797,7 +797,7 @@ return x_102;
 else
 {
 uint8_t x_117; 
-x_117 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_98, x_98);
+x_117 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_98, x_98);
 if (x_117 == 0)
 {
 lean_object* x_118; lean_object* x_119; 
@@ -875,7 +875,7 @@ return x_135;
 else
 {
 uint8_t x_136; 
-x_136 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_98, x_98);
+x_136 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_98, x_98);
 if (x_136 == 0)
 {
 lean_object* x_137; lean_object* x_138; lean_object* x_139; 
@@ -1414,7 +1414,7 @@ return x_30;
 else
 {
 uint8_t x_31; 
-x_31 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_19, x_19);
+x_31 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_19, x_19);
 if (x_31 == 0)
 {
 lean_object* x_32; 
@@ -1481,7 +1481,7 @@ return x_47;
 else
 {
 uint8_t x_48; 
-x_48 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_473_(x_36, x_36);
+x_48 = l___private_Lean_Expr_0__Lean_beqBinderInfo____x40_Lean_Expr___hyg_399_(x_36, x_36);
 if (x_48 == 0)
 {
 lean_object* x_49; 

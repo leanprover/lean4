@@ -241,7 +241,8 @@ where
 
 /--
   Helper method for elaborating terms such as `(.+.)` where a constant name is expected.
-  This method is usually used to implement tactics that function names as arguments (e.g., `simp`).
+  This method is usually used to implement tactics that take function names as arguments
+  (e.g., `simp`).
 -/
 def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let some stx ← liftMacroM <| expandCDotArg? stx | pure none

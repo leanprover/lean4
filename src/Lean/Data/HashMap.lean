@@ -89,7 +89,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (AssocList α β)) (targ
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else target
-termination_by _ i source _ => source.size - i
+termination_by source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
   let bucketsNew : HashMapBucket α β := ⟨

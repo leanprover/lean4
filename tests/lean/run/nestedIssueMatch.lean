@@ -5,7 +5,7 @@ def g (t : Nat) : Nat := match t with
       | 0 => 0
       | m + 1 => g n
   | 0 => 0
-decreasing_by sorry
+decreasing_by all_goals sorry
 
 attribute [simp] g
 

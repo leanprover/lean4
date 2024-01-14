@@ -1,0 +1,24 @@
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ foo x * foo x = 100
+x : Nat
+⊢ foo x = 10
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x
+x : Nat
+⊢ boo x

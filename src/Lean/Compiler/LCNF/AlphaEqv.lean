@@ -75,10 +75,10 @@ def eqvLetValue (e₁ e₂ : LetValue) : EqvM Bool := do
           go (i+1)
       else
         x
+      termination_by params₁.size - i
     go 0
   else
     return false
-termination_by go i => params₁.size - i
 
 def sortAlts (alts : Array Alt) : Array Alt :=
   alts.qsort fun

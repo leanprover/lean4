@@ -104,18 +104,19 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkReprInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "repr" declNames[0]!
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr declNames)
+private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext "repr" declName
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr #[declName])
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
 
 open Command
 
 def mkReprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM <| mkReprInstanceCmds declNames
-    cmds.forM elabCommand
+  if (← declNames.allM isInductive) then
+    for declName in declNames do
+      let cmds ← liftTermElabM <| mkReprInstanceCmd declName
+      cmds.forM elabCommand
     return true
   else
     return false

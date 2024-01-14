@@ -1198,10 +1198,9 @@ def hasLooseBVarInExplicitDomain : Expr → Nat → Bool → Bool
 
 /--
 Lower the loose bound variables `>= s` in `e` by `d`.
-That is, a loose bound variable `bvar i`.
-`i >= s` is mapped into `bvar (i-d)`.
+That is, a loose bound variable `bvar i` with `i >= s` is mapped to `bvar (i-d)`.
 
-Remark: if `s < d`, then result is `e`
+Remark: if `s < d`, then the result is `e`.
 -/
 @[extern "lean_expr_lower_loose_bvars"]
 opaque lowerLooseBVars (e : @& Expr) (s d : @& Nat) : Expr

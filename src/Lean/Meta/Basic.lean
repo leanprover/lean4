@@ -1218,7 +1218,7 @@ def withLocalDeclD (name : Name) (type : Expr) (k : Expr → n α) : n α :=
   withLocalDecl name BinderInfo.default type k
 
 /-- Append an array of free variables `xs` to the local context and execute `k xs`.
-declInfos takes the form of an array consisting of:
+`declInfos` takes the form of an array consisting of:
 - the name of the variable
 - the binder info of the variable
 - a type constructor for the variable, where the array consists of all of the free variables

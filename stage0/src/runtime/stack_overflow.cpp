@@ -7,6 +7,12 @@ Author: Sebastian Ullrich
 Print a nicer error message on stack overflow.
 Port of the corresponding Rust code (see links below).
 */
+
+#if defined(__FreeBSD__)
+#    include <pthread_np.h>
+#    define pthread_getattr_np pthread_attr_get_np
+#endif
+
 #ifdef LEAN_WINDOWS
 #include <windows.h>
 #else

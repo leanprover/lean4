@@ -20,6 +20,11 @@ Port of the corresponding Rust code (see links below).
 #include <lean/lean.h>
 #include "runtime/stack_overflow.h"
 
+#if defined(__FreeBSD__)
+#    include <pthread_np.h>
+#    define pthread_getattr_np pthread_attr_get_np
+#endif
+
 namespace lean {
 // stack guard of the main thread
 static stack_guard * g_stack_guard;

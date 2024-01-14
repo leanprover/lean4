@@ -1284,7 +1284,7 @@ The `instantiate` function on the other hand would yield `b + a`, since de Bruij
 opaque instantiateRev (e : @& Expr) (subst : @& Array Expr) : Expr
 
 /--
-Similar to `Lean.Expr.instantiate`, but consider only the substitutions `subst` in the range `[beginIdx, endIdx)`.
+Similar to `Lean.Expr.instantiate`, but considers only the substitutions `subst` in the range `[beginIdx, endIdx)`.
 Function panics if `beginIdx <= endIdx <= subst.size` does not hold.
 
 This function is equivalent to `instantiate e (subst.extract beginIdx endIdx)`, but it does not allocate a new array.
@@ -1296,7 +1296,7 @@ See also `Lean.Expr.instantiateRevRange`, which instantiates with the "forwards"
 opaque instantiateRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
 /--
-Similar to `Lean.Expr.instantiateRev`, but consider only the substitutions `subst` in the range `[beginIdx, endIdx)`.
+Similar to `Lean.Expr.instantiateRev`, but considers only the substitutions `subst` in the range `[beginIdx, endIdx)`.
 Function panics if `beginIdx <= endIdx <= subst.size` does not hold.
 
 This function is equivalent to `instantiateRev e (subst.extract beginIdx endIdx)`, but it does not allocate a new array.

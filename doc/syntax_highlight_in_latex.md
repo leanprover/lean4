@@ -52,7 +52,6 @@ Then save the following sample LaTeX file `test.tex` into the same directory:
 % switch to a monospace font supporting more Unicode characters
 \setmonofont{FreeMono}
 \usepackage{minted}
-% instruct minted to use our local theorem.py
 \newmintinline[lean]{lean4}{bgcolor=white}
 \newminted[leancode]{lean4}{fontsize=\footnotesize}
 \usemintedstyle{tango}  % a nice, colorful theme

@@ -1234,7 +1234,7 @@ and otherwise it is replaced with `Expr.bvar (i - subst.size)`; non-loose bound 
 
 If we imagine all expressions as being able to refer to the infinite list of loose bound variables ..., 3, 2, 1, 0 in that order,
 then conceptually `instantiate` is instantiating the last `n` of these and reindexing the remaining ones.
-Warning: `instantiate` uses the de Bruin indexing to index the `subst` array, which might be the reverse order from what you might expect.
+Warning: `instantiate` uses the de Bruijn indexing to index the `subst` array, which might be the reverse order from what you might expect.
 See also `Lean.Expr.instantiateRev`.
 
 **Terminology.** The "binding depth" of a subexpression is the number of bound variables available to that subexpression

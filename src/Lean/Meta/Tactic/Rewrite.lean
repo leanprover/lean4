@@ -42,11 +42,15 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let eNew ← instantiateMVars eNew
           let eType ← inferType e
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
-          unless (← isTypeCorrect motive) do
-            throwTacticEx `rewrite mvarId "motive is not type correct"
           let u1 ← getLevel α
           let u2 ← getLevel eType
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq
+          unless (← isTypeCorrect eqPrf) do
+            unless (← isTypeCorrect motive) do
+              throwTacticEx `rewrite mvarId "motive is not type correct"
+            unless motive.isArrow do
+              throwTacticEx `rewrite mvarId "motive is dependent"
+            throwTacticEx `rewrite mvarId "equality proof is not type correct"
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
           let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed eqPrf

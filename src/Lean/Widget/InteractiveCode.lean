@@ -80,7 +80,7 @@ def ppExprTagged (e : Expr) (explicit : Bool := false) : MetaM CodeWithInfos := 
     if explicit then
       withOptionAtCurrPos pp.tagAppFns.name true do
       withOptionAtCurrPos pp.explicit.name true do
-        delabAppImplicit <|> delabAppExplicit
+        delabApp
     else
       delab
   let ⟨fmt, infos⟩ ← PrettyPrinter.ppExprWithInfos e (delab := delab)

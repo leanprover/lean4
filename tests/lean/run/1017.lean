@@ -50,6 +50,6 @@ def mwe [Stream ρ τ] (acc : α) : {l : ρ // isFinite l} → α
     | some (x,xs) =>
       have h_next : hasNext l xs := by exists x
       mwe acc ⟨xs, by sorry⟩
-  termination_by _ l => l
+  termination_by l => l
 
 end Stream

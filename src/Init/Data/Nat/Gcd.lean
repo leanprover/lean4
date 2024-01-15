@@ -8,14 +8,14 @@ import Init.Data.Nat.Div
 
 namespace Nat
 
-private def gcdF (x : Nat) : (∀ x₁, x₁ < x → Nat → Nat) → Nat → Nat :=
-  match x with
-  | 0      => fun _ y => y
-  | succ x => fun f y => f (y % succ x) (mod_lt _ (zero_lt_succ  _)) (succ x)
-
 @[extern "lean_nat_gcd"]
-def gcd (a b : @& Nat) : Nat :=
-  WellFounded.fix (measure id).wf gcdF a b
+def gcd (m n : @& Nat) : Nat :=
+  if m = 0 then
+    n
+  else
+    gcd (n % m) m
+termination_by m
+decreasing_by simp_wf; apply mod_lt _ (zero_lt_of_ne_zero _); assumption
 
 @[simp] theorem gcd_zero_left (y : Nat) : gcd 0 y = y :=
   rfl

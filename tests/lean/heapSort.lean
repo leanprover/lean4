@@ -32,7 +32,7 @@ def heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
       rw [a.size_swap i j]; sorry
     let ⟨a₂, h₂⟩ := heapifyDown lt a' j'
     ⟨a₂, h₂.trans (a.size_swap i j)⟩
-termination_by _ => a.size - i
+termination_by a.size - i
 decreasing_by assumption
 
 @[simp] theorem size_heapifyDown (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
@@ -65,7 +65,7 @@ if i0 : i.1 = 0 then ⟨a, rfl⟩ else
     let ⟨a₂, h₂⟩ := heapifyUp lt a' ⟨j.1, by rw [a.size_swap i j]; exact j.2⟩
     ⟨a₂, h₂.trans (a.size_swap i j)⟩
   else ⟨a, rfl⟩
-termination_by _ => i.1
+termination_by i.1
 decreasing_by assumption
 
 @[simp] theorem size_heapifyUp (lt : α → α → Bool) (a : Array α) (i : Fin a.size) :
@@ -168,9 +168,9 @@ def Array.toBinaryHeap (lt : α → α → Bool) (a : Array α) : BinaryHeap α 
       have : a.popMax.size < a.size := by
         simp; exact Nat.sub_lt (BinaryHeap.size_pos_of_max e) Nat.zero_lt_one
       loop a.popMax (out.push x)
+    termination_by a.size
+    decreasing_by assumption
   loop (a.toBinaryHeap gt) #[]
-termination_by _ => a.size
-decreasing_by assumption
 
 attribute [simp] Array.heapSort.loop
 #check Array.heapSort.loop._eq_1

@@ -397,7 +397,7 @@ def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.leng
     match σ₂.find? x with
     | some w => if v = w then (x, v) :: join σ₁' σ₂ else join σ₁' σ₂
     | none => join σ₁' σ₂
-termination_by _ σ₁ _ => σ₁.length
+termination_by σ₁.length
 
 local notation "⊥" => []
 
@@ -468,7 +468,7 @@ theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ :=
       next => apply cons_le_cons; apply le_trans ih (erase_le _)
       next => apply le_trans ih (erase_le_cons (le_refl _))
     next h => apply le_trans ih (erase_le_cons (le_refl _))
-termination_by _ σ₁ _ => σ₁.length
+termination_by σ₁.length
 
 theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ :=
   le_trans (join_le_left σ₁ σ₃) h
@@ -485,7 +485,7 @@ theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ :
       split <;> simp [*]
       next => apply cons_le_of_eq ih h
     next h => assumption
-termination_by _ σ₁ _ => σ₁.length
+termination_by σ₁.length
 
 theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ :=
   le_trans (join_le_right σ₃ σ₁) h

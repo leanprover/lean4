@@ -120,18 +120,27 @@ def shadow1 (x2 : Nat) : Nat → Nat
 decreasing_by decreasing_tactic
 
 
+-- This test is a bit moot since #3081, but lets keep it
 def some_n : Nat := 1
 def shadow2 (some_n : Nat) : Nat → Nat
   | 0 => 0
   | .succ n => shadow2 (some_n + 1) n
 decreasing_by decreasing_tactic
 
-def shadow3 (sizeOf : Nat) : Nat → Nat
+-- Shadowing `sizeOf`, as a varying paramter
+def shadowSizeOf1 (sizeOf : Nat) : Nat → Nat
   | 0 => 0
-  | .succ n => shadow3 (sizeOf + 1) n
+  | .succ n => shadowSizeOf1 (sizeOf + 1) n
 decreasing_by decreasing_tactic
 
-def sizeOf : Nat := 2 -- should cause sizeOf to be qualfied below
+-- Shadowing `sizeOf`, as a fixed paramter
+def shadowSizeOf2 (sizeOf : Nat) : Nat → Nat → Nat
+  | 0, m => m
+  | .succ n, m => shadowSizeOf2 sizeOf n m
+decreasing_by decreasing_tactic
+
+-- Shadowing `sizeOf`, as something in the environment
+def sizeOf : Nat := 2
 
 def qualifiedSizeOf (m : Nat) : Nat → Nat
   | 0 => 0

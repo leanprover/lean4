@@ -11,4 +11,4 @@ def List.bubblesort [LT α] [DecidableRel (· < · : α → α → Prop)] (l : L
         ⟨y :: zs, by simp[h, ← he]⟩
       else
         ⟨x :: y :: ys, by simp[h]⟩
-termination_by _ => l.length
+termination_by l.length

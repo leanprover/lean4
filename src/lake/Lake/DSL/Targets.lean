@@ -34,7 +34,7 @@ scoped macro (name := moduleFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"module_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$mod?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| module_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -45,7 +45,7 @@ kw:"module_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $mod => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed module facet declaration"
 
 /--
@@ -62,7 +62,7 @@ scoped macro (name := packageFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"package_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| package_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -73,7 +73,7 @@ kw:"package_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed package facet declaration"
 
 /--
@@ -90,7 +90,7 @@ scoped macro (name := libraryFacetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"library_facet " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$lib?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| library_facet)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -101,7 +101,7 @@ kw:"library_facet " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkFacetJobConfig
           fun $lib => ($defn : IndexBuildM (BuildJob $ty))
-      } $[$wds?]?)
+      } $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed library facet declaration"
 
 --------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ scoped macro (name := targetDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 kw:"target " sig:buildDeclSig : command => do
   match sig with
-  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?]?) =>
+  | `(buildDeclSig| $id:ident $[$pkg?]? : $ty := $defn $[$wds?:whereDecls]?) =>
     let attr ← withRef kw `(Term.attrInstance| target)
     let attrs := #[attr] ++ expandAttrs attrs?
     let name := Name.quoteFrom id id.getId
@@ -136,7 +136,7 @@ kw:"target " sig:buildDeclSig : command => do
         name := $name
         config := Lake.mkTargetJobConfig
           fun $pkg => ($defn : IndexBuildM (BuildJob $ty))
-      }  $[$wds?]?)
+      }  $[$wds?:whereDecls]?)
   | stx => Macro.throwErrorAt stx "ill-formed target declaration"
 
 
@@ -208,13 +208,13 @@ scoped macro (name := externLibDecl)
 doc?:optional(docComment) attrs?:optional(Term.attributes)
 "extern_lib " spec:externLibDeclSpec : command => do
   match spec with
-  | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?]?) =>
+  | `(externLibDeclSpec| $id:ident $[$pkg?]? := $defn $[$wds?:whereDecls]?) =>
     let attr ← `(Term.attrInstance| extern_lib)
     let attrs := #[attr] ++ expandAttrs attrs?
     let pkgName := mkIdentFrom id `_package.name
     let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
     let name := Name.quoteFrom id id.getId
-    `(target $targetId $[$pkg?]? : FilePath := $defn $[$wds?]?
+    `(target $targetId $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
       $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl := {
         pkg := $pkgName
         name := $name

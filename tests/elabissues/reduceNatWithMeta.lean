@@ -15,3 +15,9 @@ def testAddZero (x:Nat) :=
   match x with
   | 128 + 0 => true
   | _ => false
+
+#reduce 128 &&& 128 = 128
+#reduce 128 ||| 128 = 128
+#reduce 128 ^^^ 128 = 0
+#reduce 0 >>> 128 = 0
+#reduce 0 <<< 128 = 0

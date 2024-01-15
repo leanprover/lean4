@@ -3,7 +3,7 @@ def foo (n : Nat) : Nat :=
     let x := n - 1
     have := match () with | _ => trivial
     foo x
-termination_by _ n => n
+termination_by n
 decreasing_by sorry
 
 theorem ex : foo 0 = 0 := by

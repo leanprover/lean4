@@ -3231,7 +3231,7 @@ instance (σ : Type u) (m : Type u → Type v) [MonadStateOf σ m] : MonadState 
 /--
 `modify (f : σ → σ)` applies the function `f` to the state.
 
-It is equivalent to `do put (f (← get))`, but `modify f` may be preferable
+It is equivalent to `do set (f (← get))`, but `modify f` may be preferable
 because the former does not use the state linearly (without sufficient inlining).
 -/
 @[always_inline, inline]

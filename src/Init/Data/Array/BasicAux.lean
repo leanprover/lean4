@@ -47,7 +47,7 @@ where
       have hlt : i < as.size := Nat.lt_of_le_of_ne hle h
       let b ← f as[i]
       go (i+1) ⟨acc.val.push b, by simp [acc.property]⟩ hlt
-termination_by go i _ _ => as.size - i
+  termination_by as.size - i
 
 @[inline] private unsafe def mapMonoMImp [Monad m] (as : Array α) (f : α → m α) : m (Array α) :=
   go 0 as

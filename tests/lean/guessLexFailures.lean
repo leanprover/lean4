@@ -99,7 +99,7 @@ namespace TrickyCode
 def FinPlus1 n := Fin (n + 1)
 def badCasesOn (n m : Nat) : Fin (n + 1) :=
    Nat.casesOn (motive := FinPlus1) n (⟨0,Nat.zero_lt_succ _⟩) (fun n => Fin.succ (badCasesOn n (.succ m)))
--- termination_by badCasesOn n m => n
+-- termination_by n
 decreasing_by decreasing_tactic
 
 
@@ -109,7 +109,7 @@ decreasing_by decreasing_tactic
 -- https://leanprover.zulipchat.com/#narrow/stream/217875-Is-there-code-for-X.3F/topic/Going.20under.20exactly.20one.20lambda/near/404278529
 def badCasesOn2 (n m : Nat) : Fin (n + 1) :=
    Nat.casesOn (motive := FinPlus1) n (⟨0,Nat.zero_lt_succ _⟩) (fun n => Fin.succ (badCasesOn2 n (.succ m)))
-termination_by badCasesOn2 n m => n
+termination_by n
 decreasing_by decreasing_tactic
 
 -- The GuessLex code at does not like `casesOn` alternative with insufficient lambdas
@@ -119,7 +119,7 @@ def Fin_succ_comp (f : (n : Nat) → Fin (n + 1)) : (n : Nat) → Fin (n + 2) :=
 def badCasesOn3 (n m : Nat) : Fin (n + 1) :=
    Nat.casesOn (motive := fun n => Fin (n + 1)) n (⟨0,Nat.zero_lt_succ _⟩)
       (Fin_succ_comp (fun n => badCasesOn3 n (.succ m)))
--- termination_by badCasesOn3 n m => n
+-- termination_by n
 decreasing_by decreasing_tactic
 
 
@@ -127,7 +127,7 @@ decreasing_by decreasing_tactic
 def badCasesOn4 (n m : Nat) : Fin (n + 1) :=
    Nat.casesOn (motive := fun n => Fin (n + 1)) n (⟨0,Nat.zero_lt_succ _⟩)
       (Fin_succ_comp (fun n => badCasesOn4 n (.succ m)))
-termination_by badCasesOn4 n m => n
+termination_by n
 decreasing_by decreasing_tactic
 
 end TrickyCode

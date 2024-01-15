@@ -108,7 +108,8 @@ def Workspace.updateAndMaterialize (ws : Workspace)
   let res ← StateT.run (s := mkNameMap MaterializedDep) <|
     StateT.run' (s := mkNameMap PackageEntry) <| EStateT.run' (mkNameMap Package) do
     -- Use manifest versions of root packages that should not be updated
-    if let some manifest ← liftM <| Manifest.load? ws.manifestFile then
+    match (← Manifest.load ws.manifestFile |>.toBaseIO) with
+    | .ok manifest =>
       unless toUpdate.isEmpty do
         manifest.packages.forM fun entry => do
           unless entry.inherited || toUpdate.contains entry.name do
@@ -116,8 +117,19 @@ def Workspace.updateAndMaterialize (ws : Workspace)
       if let some oldRelPkgsDir := manifest.packagesDir? then
         let oldPkgsDir := ws.dir / oldRelPkgsDir
         if oldPkgsDir != ws.pkgsDir && (← oldPkgsDir.pathExists) then
-          liftM <| createParentDirs ws.pkgsDir
-          liftM <| IO.FS.rename oldPkgsDir ws.pkgsDir
+          let doRename : IO Unit := do
+            createParentDirs ws.pkgsDir
+            IO.FS.rename oldPkgsDir ws.pkgsDir
+          if let .error e ← doRename.toBaseIO then
+            error <|
+              s!"{ws.root.name}: could not rename packages directory " ++
+              s!"({oldPkgsDir} -> {ws.pkgsDir}): {e}"
+    | .error (.noFileOrDirectory ..) =>
+      logInfo s!"{ws.root.name}: no previous manifest, creating one from scratch"
+    | .error e =>
+      unless toUpdate.isEmpty do
+        liftM (m := IO) <| throw e -- only ignore manifest on a bare `lake update`
+      logWarning s!"{ws.root.name}: ignoring previous manifest because it failed to load: {e}"
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let inherited := pkg.name != ws.root.name
       -- Materialize this package's dependencies first
@@ -137,11 +149,16 @@ def Workspace.updateAndMaterialize (ws : Workspace)
           if depPkg.name ≠ dep.name then
             logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
-          if let some manifest ← liftM <| Manifest.load? depPkg.manifestFile then
+          match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
+          | .ok manifest =>
             manifest.packages.forM fun entry => do
               unless (← getThe (NameMap PackageEntry)).contains entry.name do
                 let entry := entry.setInherited.inDirectory dep.relPkgDir
                 modifyThe (NameMap PackageEntry) (·.insert entry.name entry)
+          | .error (.noFileOrDirectory ..) =>
+            logWarning s!"{depPkg.name}: ignoring missing dependency manifest '{depPkg.manifestFile}'"
+          | .error e =>
+            logWarning s!"{depPkg.name}: ignoring dependency manifest because it failed to load: {e}"
           modifyThe (NameMap Package) (·.insert dep.name depPkg)
           return depPkg
       -- Resolve dependencies's dependencies recursively
@@ -236,8 +253,7 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
   else
     ws.updateAndMaterialize {} rc
 
-
-/-- Updates the manifest for the loaded Lake workspace (see `buildUpdatedManifest`). -/
+/-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
 def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config

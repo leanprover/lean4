@@ -1,105 +1,85 @@
-mutual
-  inductive Even : Nat → Prop
-    | base : Even 0
-    | step : Odd n → Even (n+1)
-  inductive Odd : Nat → Prop
-    | step : Even n → Odd (n+1)
-end
-termination_by _ n => n -- Error
+/-!
+This module tests various mis-uses of termination_by and decreasing_by:
+* use in non-recursive functions
+* that all or none of a recursive group have termination_by.
+-/
+
+def nonRecursive1 (n : Nat) : Nat := n
+  termination_by n -- Error
+
+def nonRecursive2 (n : Nat) : Nat := n
+  decreasing_by sorry -- Error
+
+def nonRecursive3 (n : Nat) : Nat := n
+  termination_by n -- Error
+  decreasing_by sorry
+
+partial def partial1 (n : Nat) : Nat := partial1 n
+  termination_by n -- Error
+
+partial def partial2 (n : Nat) : Nat := partial2 n
+  decreasing_by sorry -- Error
+
+partial def partial3 (n : Nat) : Nat := partial3 n
+  termination_by n -- Error
+  decreasing_by sorry
+
+unsafe def unsafe1 (n : Nat) : Nat := unsafe1 n
+termination_by n -- Error
+
+unsafe def unsafe2 (n : Nat) : Nat := unsafe2 n
+  decreasing_by sorry -- Error
+
+unsafe def unsafe3 (n : Nat) : Nat := unsafe3 n
+  termination_by x -- Error
+  decreasing_by sorry
+
+unsafe def withWhere (n : Nat) : Nat := foo n
+  where foo (n : Nat) := n
+    termination_by n -- Error
+
+unsafe def withLetRec (n : Nat) : Nat :=
+  let rec foo (n : Nat) := n
+    termination_by n -- Error
+  foo n
 
 mutual
- def f (n : Nat) :=
-   if n == 0 then 0 else f (n / 2) + 1
- termination_by _ => n -- Error
+  def rec : Nat → Nat
+    | 0 => 0
+    | n+1 => rec n + notrec n
+  termination_by x => x
+
+  def notrec (n : Nat) : Nat := n
+  termination_by n -- Error
 end
 
-mutual
- def f (n : Nat) :=
-   if n == 0 then 0 else f (n / 2) + 1
-end
-termination_by n => n -- Error
-
-
-def g' (n : Nat) :=
-  match n with
-  | 0 => 1
-  | n+1 => g' n * 3
-termination_by
-  h' n => n -- Error
-
-def g' (n : Nat) :=
-  match n with
-  | 0 => 1
-  | n+1 => g' n * 3
-termination_by
-  g' n => n
-  _ n => n -- Error
-
-mutual
-  def isEven : Nat → Bool
-    | 0 => true
-    | n+1 => isOdd n
-  def isOdd : Nat → Bool
-    | 0 => false
-    | n+1 => isEven n
-end
-termination_by
-   isEven x => x -- Error
-
-mutual
-  def isEven : Nat → Bool
-    | 0 => true
-    | n+1 => isOdd n
-  def isOdd : Nat → Bool
-    | 0 => false
-    | n+1 => isEven n
-end
-termination_by
-   isEven x => x
-   isOd x => x -- Error
 
 mutual
   def isEven : Nat → Bool
     | 0 => true
     | n+1 => isOdd n
-  def isOdd : Nat → Bool
+  termination_by x => x
+
+  def isOdd : Nat → Bool -- Error
     | 0 => false
     | n+1 => isEven n
 end
-termination_by
-   isEven x => x
-   isEven y => y -- Error
-
-mutual
-  def isEven : Nat → Bool
-    | 0 => true
-    | n+1 => isOdd n
-  def isOdd : Nat → Bool
-    | 0 => false
-    | n+1 => isEven n
-end
-termination_by
-   isEven x => x
-   _ x => x
-   _ x => x + 1 -- Error
-
 
 namespace Test
 mutual
   def f : Nat → α → α → α
     | 0, a, b => a
     | n+1, a, b => g n a b |>.1
+  termination_by n _ _ => n
 
   def g : Nat → α → α → (α × α)
     | 0, a, b => (a, b)
     | n+1, a, b => (h n a b, a)
+  termination_by n _ _ => n
 
-  def h : Nat → α → α → α
+  def h : Nat → α → α → α -- Error
     | 0, a, b => b
     | n+1, a, b => f n a b
 end
-termination_by
-  f n => n -- Error
-  g n => n
 
 end Test

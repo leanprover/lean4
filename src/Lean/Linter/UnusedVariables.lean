@@ -1,7 +1,5 @@
 import Lean.Elab.Command
-import Lean.Util.ForEachExpr
 import Lean.Linter.Util
-import Lean.Server.References
 
 namespace Lean.Linter
 open Lean.Elab.Command Lean.Server Std
@@ -30,10 +28,6 @@ builtin_initialize builtinUnusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFu
 def addBuiltinUnusedVariablesIgnoreFn (ignoreFn : IgnoreFunction) : IO Unit := do
   (← builtinUnusedVariablesIgnoreFnsRef.get) |> (·.push ignoreFn) |> builtinUnusedVariablesIgnoreFnsRef.set
 
-
--- matches builtinUnused variable pattern
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun stx _ _ =>
-    stx.getId.toString.startsWith "_")
 
 -- is variable
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
@@ -132,6 +126,115 @@ unsafe def getUnusedVariablesIgnoreFnsImpl : CommandElabM (Array IgnoreFunction)
 @[implemented_by getUnusedVariablesIgnoreFnsImpl]
 opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
 
+namespace UnusedVariables
+
+abbrev ObjectSet := IO.Ref (HashSet USize)
+
+unsafe def ObjectSet.insertImpl {α : Type} (s : ObjectSet) (a : α) : IO Bool := do
+  if (← s.get).contains (ptrAddrUnsafe a) then
+    return false
+  s.modify fun s => s.insert (ptrAddrUnsafe a)
+  return true
+
+@[implemented_by ObjectSet.insertImpl]
+opaque ObjectSet.insert {α : Type} (s : ObjectSet) (a : α) : IO Bool
+
+unsafe def insertObjImpl {α : Type} (set : IO.Ref (HashSet USize)) (a : α) : IO Bool := do
+  if (← set.get).contains (ptrAddrUnsafe a) then
+    return false
+  set.modify (·.insert (ptrAddrUnsafe a))
+  return true
+
+@[implemented_by insertObjImpl]
+opaque insertObj {α : Type} (set : IO.Ref (HashSet USize)) (a : α) : IO Bool
+
+partial def visitAssignments (set : IO.Ref (HashSet USize))
+    (fvarUses : IO.Ref (HashSet FVarId))
+    (assignments : Array (PersistentHashMap MVarId Expr)) : IO Unit := do
+  MonadCacheT.run do
+    for assignment in assignments do
+      visitNode assignment.root
+where
+  visitNode node : MonadCacheT Expr Unit IO Unit := do
+    if ← insertObj set node then
+      match node with
+      | .entries entries => for e in entries do visitEntry e
+      | .collision _ vs _ => for e in vs do visitExpr e
+  visitEntry e : MonadCacheT Expr Unit IO Unit := do
+    if ← insertObj set e then
+      match e with
+      | .entry _ e => visitExpr e
+      | .ref node => visitNode node
+      | .null => pure ()
+  visitExpr e : MonadCacheT Expr Unit IO Unit := do
+    if ← insertObj set e then
+      ForEachExpr.visit (e := e) fun e => do
+        match e with
+        | .fvar id => fvarUses.modify (·.insert id); return false
+        | _ => return e.hasFVar
+
+partial def followAliases (aliases : HashMap FVarId FVarId) (x : FVarId) : FVarId :=
+  match aliases.find? x with
+  | none => x
+  | some y => followAliases aliases y
+
+structure FVarDefinition where
+  userName : Name
+  stx : Syntax
+  opts : Options
+  aliases : Array FVarId
+
+structure References where
+  constDecls : HashSet String.Range := .empty
+  fvarDefs : HashMap String.Range FVarDefinition := .empty
+  fvarUses : HashSet FVarId := .empty
+  fvarAliases : HashMap FVarId FVarId := .empty
+  assignments : Array (PersistentHashMap MVarId Expr) := #[]
+
+def collectReferences (infoTrees : Array Elab.InfoTree) (cmdStxRange : String.Range) :
+    StateRefT References IO Unit := do
+  for tree in infoTrees do
+    tree.visitM' (preNode := fun ci info _ => do
+      match info with
+      | .ofTermInfo ti =>
+        match ti.expr with
+        | .const .. =>
+          if ti.isBinder then
+            let some range := info.range? | return
+            let .original .. := info.stx.getHeadInfo | return -- we are not interested in canonical syntax here
+            modify fun s => { s with constDecls := s.constDecls.insert range }
+        | .fvar id .. =>
+          let some range := info.range? | return
+          let .original .. := info.stx.getHeadInfo | return -- we are not interested in canonical syntax here
+          if ti.isBinder then
+            let some ldecl := ti.lctx.find? id | return
+            if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return
+            let opts := ci.options
+            if !getLinterUnusedVariables opts then return
+            let stx := skipDeclIdIfPresent info.stx
+            if let .str _ s := stx.getId then
+              if s.startsWith "_" then return
+            modify fun s =>
+              if let some ref := s.fvarDefs.find? range then
+                { s with fvarDefs := s.fvarDefs.insert range { ref with aliases := ref.aliases.push id } }
+              else
+                { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts, aliases := #[id] } }
+          else
+            modify fun s => { s with fvarUses := s.fvarUses.insert id }
+        | _ => pure ()
+      | .ofTacticInfo ti =>
+        modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
+      | .ofFVarAliasInfo i =>
+        modify fun s =>
+          let id := followAliases s.fvarAliases i.baseId
+          { s with fvarAliases := s.fvarAliases.insert i.id id }
+      | _ => pure ())
+where
+  skipDeclIdIfPresent (stx : Syntax) : Syntax :=
+    if stx.isOfKind ``Lean.Parser.Command.declId then
+      stx[0]
+    else
+      stx
 
 def unusedVariables : Linter where
   run cmdStx := do
@@ -143,123 +246,81 @@ def unusedVariables : Linter where
       return
 
     let some cmdStxRange := cmdStx.getRange?
-      | pure ()
+      | return
 
     let infoTrees := (← get).infoState.trees.toArray
-    let fileMap := (← read).fileMap
 
     if (← infoTrees.anyM (·.hasSorry)) then
       return
 
     -- collect references
-    let refs := findModuleRefs fileMap infoTrees (allowSimultaneousBinderUse := true)
+    let (_, s) ← (collectReferences infoTrees cmdStxRange).run {}
 
-    let mut vars : HashMap FVarId RefInfo := .empty
-    let mut constDecls : HashSet String.Range := .empty
+    if s.fvarDefs.isEmpty then return
 
-    for (ident, info) in refs.toList do
-      match ident with
-      | .fvar id =>
-        vars := vars.insert id info
-      | .const _ =>
-        if let some definition := info.definition then
-          if let some range := definition.stx.getRange? then
-            constDecls := constDecls.insert range
+    let fvarAliases : HashMap FVarId FVarId := s.fvarAliases.fold (init := {}) fun m id baseId =>
+      m.insert id (followAliases s.fvarAliases baseId)
 
-    -- collect uses from tactic infos
-    let tacticMVarAssignments : HashMap MVarId Expr :=
-      infoTrees.foldr (init := .empty) fun tree assignments =>
-        tree.foldInfo (init := assignments) (fun _ i assignments => match i with
-          | .ofTacticInfo ti =>
-            ti.mctxAfter.eAssignment.foldl (init := assignments) fun assignments mvar expr =>
-              if assignments.contains mvar then
-                assignments
-              else
-                assignments.insert mvar expr
-          | _ =>
-            assignments)
+    let fvarUsesRef ← IO.mkRef <| fvarAliases.fold (init := s.fvarUses) fun fvarUses id baseId =>
+      if fvarUses.contains id then fvarUses.insert baseId else fvarUses
 
-    -- collect fvars from mvar assignments
-    let tacticFVarUses : HashSet FVarId ←
-      Elab.Command.liftIO <|  -- no need to carry around other state here
-      StateT.run' (s := HashSet.empty) do
-      -- use one big cache for all `ForEachExpr.visit` invocations
-      MonadCacheT.run do
-        tacticMVarAssignments.forM fun _ e =>
-          ForEachExpr.visit (e := e) fun e => do
-            if e.isFVar then modify (·.insert e.fvarId!)
-            return e.hasFVar
-        get
-
-    -- collect ignore functions
-    let ignoreFns := (← getUnusedVariablesIgnoreFns)
-      |>.insertAt! 0 (isTopLevelDecl constDecls)
+    -- -- collect ignore functions
+    let ignoreFns ← getUnusedVariablesIgnoreFns
+    let ignoreFns declStx stack opts :=
+      isTopLevelDecl s.constDecls declStx stack opts || ignoreFns.any (· declStx stack opts)
 
     -- determine unused variables
+    let mut initializedMVars := false
     let mut unused := #[]
-    for (id, ⟨decl?, uses⟩) in vars.toList do
-      -- process declaration
-      let some decl := decl?
-        | continue
-      let declStx := skipDeclIdIfPresent decl.stx
-      let some range := declStx.getRange?
-        | continue
-      let some localDecl := decl.info.lctx.find? id
-        | continue
-      if !cmdStxRange.contains range.start || localDecl.userName.hasMacroScopes then
-        continue
-
-      -- check if variable is used
-      if !uses.isEmpty || tacticFVarUses.contains id || decl.aliases.any (match · with | .fvar id => tacticFVarUses.contains id | _ => false) then
-          continue
-
-      -- check linter options
-      let opts := decl.ci.options
-      if !getLinterUnusedVariables opts then
-        continue
+    for (range, { userName, stx := declStx, opts, aliases }) in s.fvarDefs.toArray do
+      let fvarUses ← fvarUsesRef.get
+      if aliases.any fun id => fvarUses.contains (fvarAliases.findD id id) then continue
 
       -- evaluate ignore functions on original syntax
-      if let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range)) then
-        if id'.isIdent && ignoreFns.any (· declStx stack opts) then
+      let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range))
+        | continue
+
+      if id'.isIdent && ignoreFns declStx stack opts then
           continue
-      else
-        continue
 
       -- evaluate ignore functions on macro expansion outputs
       if ← infoTrees.anyM fun tree => do
-        if let some macroExpansions ← collectMacroExpansions? range tree then
-          return macroExpansions.any fun expansion =>
-            -- in a macro expansion, there may be multiple leafs whose (synthetic) range includes `range`, so accept strict matches only
-            if let some (_ :: stack) := expansion.output.findStack? (·.getRange?.any (·.includes range)) (fun stx => stx.isIdent && stx.getRange?.any (· == range)) then
-              ignoreFns.any (· declStx stack opts)
-            else
-              false
-        else
-          return false
+        let some macroExpansions ← collectMacroExpansions? range tree | return false
+        return macroExpansions.any fun expansion =>
+          -- in a macro expansion, there may be multiple leafs whose (synthetic) range includes `range`, so accept strict matches only
+          if let some (_ :: stack) :=
+            expansion.output.findStack?
+              (·.getRange?.any (·.includes range))
+              (fun stx => stx.isIdent && stx.getRange?.any (· == range))
+          then
+            ignoreFns declStx stack opts
+          else
+            false
       then
         continue
 
+      if !initializedMVars then
+        visitAssignments (← IO.mkRef {}) fvarUsesRef s.assignments
+        initializedMVars := true
+        let fvarUses ← fvarUsesRef.get
+        if aliases.any fun id => fvarUses.contains (fvarAliases.findD id id) then continue
+
       -- publish warning if variable is unused and not ignored
-      unused := unused.push (declStx, localDecl)
+      unused := unused.push (declStx, userName)
 
-    for (declStx, localDecl) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"unused variable `{localDecl.userName}`"
-
-    return ()
+    for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
+      logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
 where
-  skipDeclIdIfPresent (stx : Syntax) : Syntax :=
-    if stx.isOfKind ``Lean.Parser.Command.declId then
-      stx[0]
-    else
-      stx
-  isTopLevelDecl (constDecls : HashSet String.Range) : IgnoreFunction := fun stx stack _ => Id.run <| do
-    let some declRange := stx.getRange?
-      | false
-    constDecls.contains declRange &&
-    !stack.matches [``Lean.Parser.Term.letIdDecl]
+  isTopLevelDecl (constDecls : HashSet String.Range) : IgnoreFunction := fun stx stack _ =>
+    match stx.getRange? with
+    | some declRange =>
+      constDecls.contains declRange &&
+      !stack.matches [``Lean.Parser.Term.letIdDecl]
+    | _ => false
 
 builtin_initialize addLinter unusedVariables
 
+end UnusedVariables
 end Linter
 
 def MessageData.isUnusedVariableWarning (msg : MessageData) : Bool :=

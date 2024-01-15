@@ -1272,7 +1272,7 @@ opaque instantiate1 (e : @& Expr) (subst : @& Expr) : Expr
 /--
 Instantiates the loose bound variables in `e` using the `subst` array.
 This is equivalent to `Lean.Expr.instantiate e subst.reverse`, but it avoids reversing the array.
-In particular, rather than instantiating `Expr.bvar i` with `subst[i - d]` it instantiates with `subst[subst.size - i - 1 - d]`,
+In particular, rather than instantiating `Expr.bvar i` with `subst[i - d]` it instantiates with `subst[subst.size - 1 - (i - d)]`,
 where `d` is the binding depth.
 
 This function instantiates with the "forwards" indexing scheme.

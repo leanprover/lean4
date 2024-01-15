@@ -107,7 +107,7 @@ jobs:
           git -C lean4.git remote add nightly https://github.com/leanprover/lean4-nightly.git
           git -C lean4.git fetch nightly '+refs/tags/nightly-*:refs/tags/nightly-*'
           git -C lean4.git tag --merged "${{ steps.workflow-info.outputs.sourceHeadSha }}" --list "nightly-*" \
-            | sort -rV | head -n 1 | sed "s/^nightly-*/MOST_RECENT_NIGHTLY=/" | tee -a $GITHUB_ENV
+            | sort -rV | head -n 1 | sed "s/^nightly-*/MOST_RECENT_NIGHTLY=/" | tee -a "$GITHUB_ENV"
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
@@ -126,14 +126,14 @@ jobs:
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "The merge base of this PR coincides with the nightly release"
 
-            REMOTE_BRANCHES=$(git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-$MOST_RECENT_NIGHTLY)
+            REMOTE_BRANCHES="$(git ls-remote -h https://github.com/leanprover-community/mathlib4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
 
             if [[ -n "$REMOTE_BRANCHES" ]]; then
               echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
               MESSAGE=""
             else
               echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
-              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the 'nightly-testing-$MOST_RECENT_NIGHTLY' branch does not exist there yet. We will retry when you push more commits. If you rebase your branch onto `nightly-with-mathlib`, Mathlib CI should run now."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` branch does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
             fi
 
           else
@@ -141,7 +141,7 @@ jobs:
             echo "but 'git merge-base origin/master HEAD' reported: $MERGE_BASE_SHA"
             git -C lean4.git log -10 origin/master
 
-            MESSAGE="- ❗ Mathlib CI will not be attempted unless your PR branches off the 'nightly-with-mathlib' branch."
+            MESSAGE="- ❗ Mathlib CI will not be attempted unless your PR branches off the \`nightly-with-mathlib\` branch."
           fi
 
           if [[ -n "$MESSAGE" ]]; then
@@ -153,12 +153,12 @@ jobs:
             # so keep in sync
 
             # Use GitHub API to check if a comment already exists
-            existing_comment=$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
+            existing_comment="$(curl -L -s -H "Authorization: token ${{ secrets.MATHLIB4_BOT }}" \
                                     -H "Accept: application/vnd.github.v3+json" \
                                     "https://api.github.com/repos/leanprover/lean4/issues/${{ steps.workflow-info.outputs.pullRequestNumber }}/comments" \
-                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')
-            existing_comment_id=$(echo "$existing_comment" | jq -r .id)
-            existing_comment_body=$(echo "$existing_comment" | jq -r .body)
+                                    | jq 'first(.[] | select(.body | test("^- . Mathlib") or startswith("Mathlib CI status")) | select(.user.login == "leanprover-community-mathlib4-bot"))')"
+            existing_comment_id="$(echo "$existing_comment" | jq -r .id)"
+            existing_comment_body="$(echo "$existing_comment" | jq -r .body)"
 
             if [[ "$existing_comment_body" != *"$MESSAGE"* ]]; then
               MESSAGE="$MESSAGE ($(date "+%Y-%m-%d %H:%M:%S"))"
@@ -190,13 +190,13 @@ jobs:
             else
               echo "The message already exists in the comment body."
             fi
-            echo "mathlib_ready=false" >> $GITHUB_OUTPUT
+            echo "mathlib_ready=false" >> "$GITHUB_OUTPUT"
           else
-            echo "mathlib_ready=true" >> $GITHUB_OUTPUT
+            echo "mathlib_ready=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Report mathlib base
-        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }} && steps.ready.outputs.mathlib_ready == 'true'
+        if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
         uses: actions/github-script@v6
         with:
           script: |
@@ -220,7 +220,7 @@ jobs:
       - name: Cleanup workspace
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
-          sudo rm -rf *
+          sudo rm -rf ./*
 
       # Checkout the mathlib4 repository with all branches
       - name: Checkout mathlib4 repository
@@ -240,7 +240,7 @@ jobs:
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
 
           if git branch -r | grep -q "nightly-testing-${MOST_RECENT_NIGHTLY}"; then
-            BASE=nightly-testing-${MOST_RECENT_NIGHTLY}
+            BASE="nightly-testing-${MOST_RECENT_NIGHTLY}"
           else
             echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' branch at Mathlib. Falling back to 'nightly-testing'."
             BASE=nightly-testing
@@ -248,9 +248,9 @@ jobs:
 
           echo "Using base branch: $BASE"
 
-          git checkout $BASE
+          git checkout "$BASE"
 
-          EXISTS=$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} | wc -l)
+          EXISTS="$(git ls-remote --heads origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }} | wc -l)"
           echo "Branch exists: $EXISTS"
           if [ "$EXISTS" = "0" ]; then
             echo "Branch does not exist, creating it."
@@ -262,7 +262,7 @@ jobs:
             echo "Branch already exists, pushing an empty commit."
             git checkout lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
             # The Mathlib `nightly-testing` or `nightly-testing-YYYY-MM-DD` branch may have moved since this branch was created, so merge their changes.
-            git merge $BASE --strategy-option ours --no-commit --allow-unrelated-histories
+            git merge "$BASE" --strategy-option ours --no-commit --allow-unrelated-histories
             git commit --allow-empty -m "Trigger CI for https://github.com/leanprover/lean4/pull/${{ steps.workflow-info.outputs.pullRequestNumber }}"
           fi
 

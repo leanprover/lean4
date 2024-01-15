@@ -181,7 +181,6 @@ def elabSimpArgs (stx : Syntax) (ctx : Simp.Context) (eraseLocal : Bool) (kind :
           match (← resolveSimpIdTheorem? term) with
           | .expr e  =>
             if kind == .dsimp && !(← isRflProof e) && (← isProof e) then
-              -- TODO: Make this error message more informative, by stating which argument failed.
               throwErrorAt term "'dsimp' tactic only supports theorems which hold by reflexivity"
             let name ← mkFreshId
             thms ← addDeclToUnfoldOrTheorem thms (.stx name arg) e post inv kind

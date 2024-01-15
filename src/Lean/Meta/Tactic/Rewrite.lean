@@ -44,7 +44,7 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
           unless (← isTypeCorrect motive) do
             throwTacticEx `rewrite mvarId "motive is not type correct"
-          unless (← withLocalDeclD `_a α fun a => isDefEq (eAbst.instantiate1 a) eType) do
+          unless (← withLocalDeclD `_a α fun a => do isDefEq (← inferType (eAbst.instantiate1 a)) eType) do
             -- NB: using motive.arrow? would disallow motives where the dependency
             -- can be reduced away
             throwTacticEx `rewrite mvarId "motive is dependent"

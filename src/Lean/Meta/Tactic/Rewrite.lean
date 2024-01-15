@@ -44,11 +44,13 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
           let motive := Lean.mkLambda `_a BinderInfo.default α eAbst
           unless (← isTypeCorrect motive) do
             throwTacticEx `rewrite mvarId "motive is not type correct"
+          unless (← withLocalDeclD `_a α fun a => isDefEq (eAbst.instantiate1 a) eType) do
+            -- NB: using motive.arrow? would disallow motives where the dependency
+            -- can be reduced away
+            throwTacticEx `rewrite mvarId "motive is dependent"
           let u1 ← getLevel α
           let u2 ← getLevel eType
           let eqPrf := mkApp6 (.const ``congrArg [u1, u2]) α eType lhs rhs motive heq
-          unless (← withLocalDeclD `_a α fun a => isDefEq (eAbst.instantiate1 a) eType) do
-            throwTacticEx `rewrite mvarId "motive is dependent"
           postprocessAppMVars `rewrite mvarId newMVars binderInfos
           let newMVarIds ← newMVars.map Expr.mvarId! |>.filterM fun mvarId => not <$> mvarId.isAssigned
           let otherMVarIds ← getMVarsNoDelayed eqPrf

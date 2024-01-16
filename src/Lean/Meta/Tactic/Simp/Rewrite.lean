@@ -293,12 +293,6 @@ def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly :
       return Step.visit r
   return Step.visit { expr := e }
 
-def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
-  for thms in (← getContext).simpTheorems do
-    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
-      return Step.visit r
-  return Step.visit { expr := e }
-
 partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?
   let s ← andThen s (simpMatch? discharge?)
@@ -309,10 +303,81 @@ partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : 
   else
     andThen s (preDefault · discharge?)
 
+def rewritePost? (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM (Option Result) := do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
+      return r
+  return none
+
+/--
+Try to unfold ground term when `Context.unfoldGround := true`.
+-/
+def unfoldGround? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
+  -- Ground term unfolding is disabled.
+  unless (← getContext).unfoldGround do return none
+  -- `e` is not a ground term.
+  unless !e.hasExprMVar && !e.hasFVar do return none
+  trace[Meta.debug] "unfoldGround? {e}"
+  -- Check whether `e` is a constant application
+  let f := e.getAppFn
+  let .const declName lvls := f | return none
+  -- If declaration has been marked to not be unfolded, return none.
+  let ctx ← getContext
+  if ctx.simpTheorems.isErased (.decl declName) then return none
+  -- Matcher applications should have been reduced before we get here.
+  if (← isMatcher declName) then return none
+  if let some eqns ← withDefault <| getEqnsFor? declName then
+    -- `declName` has equation theorems associated with it.
+    for eqn in eqns do
+      -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } discharge? then
+        trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
+        return some (.visit result)
+    return none
+  -- `declName` does not have equation theorems associated with it.
+  if e.isConst then
+    -- We don't unfold constants that take arguments
+    if let .forallE .. ← whnfD (← inferType e) then
+      return none
+  let info ← getConstInfo declName
+  unless info.hasValue && info.levelParams.length == lvls.length do return none
+  let fBody ← instantiateValueLevelParams info lvls
+  let eNew := fBody.betaRev e.getAppRevArgs (useZeta := true)
+  trace[Meta.Tactic.simp.ground] "delta, {e} => {eNew}"
+  return some (.visit { expr := eNew })
+
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let s ← rewritePost e discharge?
+  /-
+  Remark 1:
+  `rewritePost?` used to return a `Step`, and we would try other methods even if it succeeded in rewriting the term.
+  This behavior was problematic, especially when `ground := true`, because we have rewriting rules such as
+  `List.append as bs = as ++ bs`, which are rules for folding polymorphic functions.
+  This type of rule can trigger nontermination in the context of `ground := true`.
+  For example, the method `unfoldGround?` would reduce `[] ++ [1]` to `List.append [] [1]`, and
+  `rewritePost` would refold it back to `[] ++ [1]`, leading to an endless loop.
+
+  Initially, we considered always reducing ground terms first. However, this approach would
+  prevent us from adding auxiliary lemmas that could short-circuit the evaluation.
+  Ultimately, we settled on the following compromise: if a `rewritePost?` succeeds and produces a result `r`,
+  we return with `.visit r`. This allows pre-methods to be applied again along with other rewriting rules.
+  This strategy helps avoid non-termination, as we have `[simp]` theorems specifically for reducing `List.append`
+  ```lean
+  @[simp] theorem nil_append (as : List α) : [] ++ as = as := ...
+  @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := ...
+  ```
+
+  Remark 2:
+  In the simplifier, the ground value for some inductive types is *not* a constructor application.
+  Examples: `Nat`, `Int`, `Fin _`, `UInt?`. These types are represented using `OfNat.ofNat`.
+  To ensure `unfoldGround?` does not unfold `OfNat.ofNat` applications for these types, we
+  have `simproc` that return `.done ..` for these ground values. Thus, `unfoldGround?` is not
+  even tried. Alternative design: we could add an extensible ground value predicate.
+  -/
+  if let some r ← rewritePost? e discharge? then
+    return .visit r
+  let s ← andThen (.visit { expr := e }) postSimproc?
+  let s ← andThen s (unfoldGround? discharge?)
   let s ← andThen s simpArith?
-  let s ← andThen s postSimproc?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?
 
@@ -388,7 +453,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
       return some r
   let ctx ← getContext
   trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
-  if ctx.dischargeDepth >= ctx.config.maxDischargeDepth then
+  if ctx.dischargeDepth >= ctx.maxDischargeDepth then
     trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
     return none
   else

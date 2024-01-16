@@ -1,32 +1,30 @@
-import Lean.Meta.Tactic.Simp.Simproc
-import Lean.Meta.Offset
+import Lean.Meta.Tactic.Simp.BuiltinSimprocs
 
 def foo (x : Nat) : Nat :=
   x + 10
 
-simproc reduce_foo (foo _) := fun e => open Lean Meta in do
-  let some n ← evalNat e.appArg! |>.run | return none
-  return some (.done { expr := mkNatLit (n+10) })
+open Lean Meta
+
+simproc reduceFoo (foo _) := fun e => OptionT.run do
+  guard (e.isAppOfArity ``foo 1)
+  let n ← Nat.fromExpr? e.appArg!
+  return .done { expr := mkNatLit (n+10) }
 
 example : x + foo 2 = 12 + x := by
-  set_option simprocs false in
-    fail_if_success simp
-  simp
-  rw [Nat.add_comm]
+  set_option simprocs false in fail_if_success simp
+  simp_arith
 
 example : x + foo 2 = 12 + x := by
   -- `simp only` must not use the default simproc set
   fail_if_success simp only
-  simp
-  rw [Nat.add_comm]
+  simp_arith
 
 example : x + foo 2 = 12 + x := by
   -- `simp only` does not use the default simproc set, but we can provide simprocs as arguments
-  simp only [reduce_foo]
-  rw [Nat.add_comm]
+  simp only [reduceFoo]
+  simp_arith
 
 example : x + foo 2 = 12 + x := by
   -- We can use `-` to disable `simproc`s
   fail_if_success simp [-reduce_foo]
-  simp
-  rw [Nat.add_comm]
+  simp_arith

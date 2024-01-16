@@ -236,6 +236,10 @@ def Nat.discriminate (n : Nat) (H1 : n = 0 → α) (H2 : ∀ m, n = succ m → �
   | 0 => H1 rfl
   | succ m => H2 m rfl
 
+example [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
+example {α β} [ord : Ord β] (f : α → β) (x y : α) : Ordering := compare (f x) (f y)
+example {h : Decidable True} (t e : α) : ite True t e = t := if_pos trivial
+
 @[unused_variables_ignore_fn]
 def ignoreEverything : Lean.Linter.IgnoreFunction :=
   fun _ _ _ => true

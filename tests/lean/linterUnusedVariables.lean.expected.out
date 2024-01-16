@@ -47,3 +47,6 @@ bar' : Nat → Nat
 inst : ToString α
 a : Nat
 ⊢ Nat
+linterUnusedVariables.lean:239:9-239:12: warning: unused variable `ord` [linter.unusedVariables]
+linterUnusedVariables.lean:240:15-240:18: warning: unused variable `ord` [linter.unusedVariables]
+linterUnusedVariables.lean:241:9-241:10: warning: unused variable `h` [linter.unusedVariables]

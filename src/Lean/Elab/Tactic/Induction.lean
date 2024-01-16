@@ -139,7 +139,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
         let s ← get
         let ctx ← read
         unless s.targetPos < ctx.targets.size do
-          throwError "insufficient number of targets for '{elimInfo.name}'"
+          throwError "insufficient number of targets for '{elimInfo.elimExpr}'"
         let target := ctx.targets[s.targetPos]!
         let expectedType ← getArgExpectedType
         let target ← withAssignableSyntheticOpaque <| Term.ensureHasType expectedType target
@@ -166,9 +166,8 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       loop
     | _ =>
       pure ()
-  let f ← Term.mkConst elimInfo.name
-  let fType ← inferType f
-  let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets } |>.run { f := f, fType := fType }
+  let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
+    |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType }
   let mut others := #[]
   for mvarId in s.insts do
     try
@@ -499,11 +498,11 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
       (fun _ => Meta.throwTacticEx `induction mvarId m!"major premise type is not an inductive type {indentExpr majorType}")
       (fun val _ => pure val)
 
--- `optElimId` is of the form `("using" ident)?`
+-- `optElimId` is of the form `("using" term)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
   if optElimId.isNone then
-    if let some elimInfo ← getCustomEliminator? targets then
-      return elimInfo
+    if let some elimName ← getCustomEliminator? targets then
+      return ← getElimInfo (← mkConstWithFreshMVarLevels elimName)
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor targets[0]!
@@ -512,14 +511,19 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     if induction && indVal.isNested then
       throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
-    getElimInfo elimName indVal.name
+    getElimInfo (← mkConstWithFreshMVarLevels elimName) indVal.name
   else
-    let elimId := optElimId[1]
-    let elimName ← withRef elimId do resolveGlobalConstNoOverloadWithInfo elimId
+    let elimTerm := optElimId[1]
+    let elimExpr ← withRef elimTerm do elabTermForApply elimTerm
     -- not a precise check, but covers the common cases of T.recOn / T.casesOn
     -- as well as user defined T.myInductionOn to locate the constructors of T
-    let baseName? := if ← isInductive elimName.getPrefix then some elimName.getPrefix else none
-    withRef elimId <| getElimInfo elimName baseName?
+    let baseName? ← do
+      let some elimName := elimExpr.getAppFn.constName? | pure none
+      if ← isInductive elimName.getPrefix then
+        pure (some elimName.getPrefix)
+      else
+        pure none
+    withRef elimTerm <| getElimInfo elimExpr baseName?
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then

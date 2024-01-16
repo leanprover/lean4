@@ -690,8 +690,8 @@ builtin_initialize elabAsElim : TagAttribute ←
     (applicationTime := .afterCompilation)
     fun declName => do
       let go : MetaM Unit := do
-        discard <| getElimInfo declName
         let info ← getConstInfo declName
+        discard <| getElimInfo (← mkConstWithFreshMVarLevels declName)
         if (← hasOptAutoParams info.type) then
           throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
       go.run' {} {}
@@ -940,7 +940,7 @@ where
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
-    let elimInfo ← getElimInfo declName
+    let elimInfo ← getElimInfo (← mkConstWithFreshMVarLevels declName)
     forallTelescopeReducing (← inferType f) fun xs _ => do
       if h : elimInfo.motivePos < xs.size then
         let x := xs[elimInfo.motivePos]
@@ -957,8 +957,7 @@ where
   The idea is that the contribute to motive inference. See comment at `ElamElim.Context.extraArgsPos`.
   -/
   getElabAsElimExtraArgsPos (elimInfo : ElimInfo) : MetaM (Array Nat) := do
-    let cinfo ← getConstInfo elimInfo.name
-    forallTelescope cinfo.type fun xs type => do
+    forallTelescope elimInfo.elimType fun xs type => do
       let resultArgs := type.getAppArgs
       let mut extraArgsPos := #[]
       for i in [:xs.size] do

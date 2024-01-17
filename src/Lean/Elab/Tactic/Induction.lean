@@ -498,6 +498,28 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
       (fun _ => Meta.throwTacticEx `induction mvarId m!"major premise type is not an inductive type {indentExpr majorType}")
       (fun val _ => pure val)
 
+/--
+Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
+(e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
+without turning them into MVars. So this uses `abstractMVars` again. This is similar to
+`Lean.Elab.Tactic.addSimpTheorem`.
+-/
+private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
+  -- Short-circuit elaborating plain identifiers
+  if stx.isIdent then
+    if let some e ← Term.resolveId? stx (withInfo := true) then
+      return e
+  Term.withoutModifyingElabMetaStateWithInfo <| Term.withoutErrToSorry do
+    let e ← Term.elabTerm stx none
+    Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
+    let e ← instantiateMVars e
+    let e := e.eta
+    if e.hasMVar then
+      let r ← abstractMVars e
+      return r.expr
+    else
+      return e
+
 -- `optElimId` is of the form `("using" term)?`
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
   if optElimId.isNone then
@@ -514,7 +536,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     getElimInfo elimName indVal.name
   else
     let elimTerm := optElimId[1]
-    let elimExpr ← withRef elimTerm do elabTermForApply elimTerm
+    let elimExpr ← withRef elimTerm do elabTermForElim elimTerm
     -- not a precise check, but covers the common cases of T.recOn / T.casesOn
     -- as well as user defined T.myInductionOn to locate the constructors of T
     let baseName? ← do

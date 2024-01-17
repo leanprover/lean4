@@ -691,9 +691,9 @@ builtin_initialize elabAsElim : TagAttribute ←
     fun declName => do
       let go : MetaM Unit := do
         let info ← getConstInfo declName
-        discard <| getElimInfo (← mkConstWithFreshMVarLevels declName)
         if (← hasOptAutoParams info.type) then
           throwError "[elab_as_elim] attribute cannot be used in declarations containing optional and auto parameters"
+        discard <| getElimInfo declName
       go.run' {} {}
 
 /-! # Eliminator-like function application elaborator -/
@@ -940,7 +940,7 @@ where
     if explicit || ellipsis then return none
     let .const declName _ := f | return none
     unless (← shouldElabAsElim declName) do return none
-    let elimInfo ← getElimInfo (← mkConstWithFreshMVarLevels declName)
+    let elimInfo ← getElimInfo declName
     forallTelescopeReducing (← inferType f) fun xs _ => do
       if h : elimInfo.motivePos < xs.size then
         let x := xs[elimInfo.motivePos]

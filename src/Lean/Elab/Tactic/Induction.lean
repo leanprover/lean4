@@ -502,7 +502,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (induction : Bool): TacticM ElimInfo := do
   if optElimId.isNone then
     if let some elimName ← getCustomEliminator? targets then
-      return ← getElimInfo (← mkConstWithFreshMVarLevels elimName)
+      return ← getElimInfo elimName
     unless targets.size == 1 do
       throwError "eliminator must be provided when multiple targets are used (use 'using <eliminator-name>'), and no default eliminator has been registered using attribute `[eliminator]`"
     let indVal ← getInductiveValFromMajor targets[0]!
@@ -511,7 +511,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
     if induction && indVal.isNested then
       throwError "'induction' tactic does not support nested inductive types, the eliminator '{mkRecName indVal.name}' has multiple motives"
     let elimName := if induction then mkRecName indVal.name else mkCasesOnName indVal.name
-    getElimInfo (← mkConstWithFreshMVarLevels elimName) indVal.name
+    getElimInfo elimName indVal.name
   else
     let elimTerm := optElimId[1]
     let elimExpr ← withRef elimTerm do elabTermForApply elimTerm
@@ -523,7 +523,7 @@ private def getElimNameInfo (optElimId : Syntax) (targets : Array Expr) (inducti
         pure (some elimName.getPrefix)
       else
         pure none
-    withRef elimTerm <| getElimInfo elimExpr baseName?
+    withRef elimTerm <| getElimExprInfo elimExpr baseName?
 
 private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   if let .fvar fvarId .. := e then

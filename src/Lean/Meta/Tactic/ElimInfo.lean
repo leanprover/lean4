@@ -29,7 +29,7 @@ structure ElimInfo where
   altsInfo   : Array ElimAltInfo := #[]
   deriving Repr, Inhabited
 
-def getElimInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
+def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
   forallTelescopeReducing elimType fun xs type => do
     let motive  := type.getAppFn
@@ -63,6 +63,9 @@ def getElimInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM 
             if env.contains altDeclName then some altDeclName else none
           altsInfo := altsInfo.push { name, declName?, numFields }
     pure { elimExpr, elimType,  motivePos, targetsPos, altsInfo }
+
+def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
+  getElimExprInfo (← mkConstWithFreshMVarLevels elimName) baseDeclName?
 
 /--
   Eliminators/recursors may have implicit targets. For builtin recursors, all indices are implicit targets.
@@ -120,7 +123,7 @@ builtin_initialize customEliminatorExt : SimpleScopedEnvExtension CustomEliminat
   }
 
 def mkCustomEliminator (elimName : Name) : MetaM CustomEliminator := do
-  let elimInfo ← getElimInfo (← mkConstWithFreshMVarLevels elimName)
+  let elimInfo ← getElimInfo elimName
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]

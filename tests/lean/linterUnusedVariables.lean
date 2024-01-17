@@ -23,7 +23,11 @@ def usedAndUnusedVariables : Nat :=
     3
   x
 
-def unusedWhereVariable : Nat :=
+def letRecVariable : Nat :=
+  let rec x := 5
+  3
+
+def whereVariable : Nat :=
   3
 where
   x := 5
@@ -33,7 +37,7 @@ def unusedWhereArgument : Nat :=
 where
   f (x : Nat) := 3
 
-def unusedWhereFunction : Nat :=
+def whereFunction : Nat :=
   2
 where
   f (x : Nat) := 3

@@ -266,8 +266,6 @@ def unusedVariables : Linter where
 
     -- -- collect ignore functions
     let ignoreFns ← getUnusedVariablesIgnoreFns
-    let ignoreFns declStx stack opts :=
-      isTopLevelDecl s.constDecls declStx stack opts || ignoreFns.any (· declStx stack opts)
 
     -- determine unused variables
     let mut initializedMVars := false
@@ -275,25 +273,26 @@ def unusedVariables : Linter where
     for (range, { userName, stx := declStx, opts, aliases }) in s.fvarDefs.toArray do
       let fvarUses ← fvarUsesRef.get
       if aliases.any fun id => fvarUses.contains (fvarAliases.findD id id) then continue
+      if s.constDecls.contains range then continue
 
       -- evaluate ignore functions on original syntax
       let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range))
         | continue
 
-      if id'.isIdent && ignoreFns declStx stack opts then
-          continue
+      if id'.isIdent && ignoreFns.any (· declStx stack opts) then continue
 
       -- evaluate ignore functions on macro expansion outputs
       if ← infoTrees.anyM fun tree => do
         let some macroExpansions ← collectMacroExpansions? range tree | return false
         return macroExpansions.any fun expansion =>
-          -- in a macro expansion, there may be multiple leafs whose (synthetic) range includes `range`, so accept strict matches only
+          -- in a macro expansion, there may be multiple leafs whose (synthetic) range
+          -- includes `range`, so accept strict matches only
           if let some (_ :: stack) :=
             expansion.output.findStack?
               (·.getRange?.any (·.includes range))
               (fun stx => stx.isIdent && stx.getRange?.any (· == range))
           then
-            ignoreFns declStx stack opts
+            ignoreFns.any (· declStx stack opts)
           else
             false
       then
@@ -310,13 +309,6 @@ def unusedVariables : Linter where
 
     for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
       logLint linter.unusedVariables declStx m!"unused variable `{userName}`"
-where
-  isTopLevelDecl (constDecls : HashSet String.Range) : IgnoreFunction := fun stx stack _ =>
-    match stx.getRange? with
-    | some declRange =>
-      constDecls.contains declRange &&
-      !stack.matches [``Lean.Parser.Term.letIdDecl]
-    | _ => false
 
 builtin_initialize addLinter unusedVariables
 

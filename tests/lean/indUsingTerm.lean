@@ -170,10 +170,13 @@ example (a : A) : True := by
 
 example (a : A) : True := by
   -- Error: failed to elaborate eliminator, expected type is not available
+  -- TODO: How to elaborate normally?
   induction a using A.rec (motive_2 := fun b => True)
 
 example (a : A) : True := by
-  -- TODO: Abstracted level mvars
   induction a using A_rec (motive_2 := fun b => True)
+  case mkA b IH => exact trivial
+  case A => exact trivial
+  case mkB b IH => exact trivial
 
 end Ex3

@@ -31,6 +31,7 @@ structure ElimInfo where
 
 def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : MetaM ElimInfo := do
   let elimType ← inferType elimExpr
+  trace[Elab.induction] "eliminator {indentExpr elimExpr}\nhas type{indentExpr elimType}"
   forallTelescopeReducing elimType fun xs type => do
     let motive  := type.getAppFn
     let targets := type.getAppArgs

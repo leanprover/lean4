@@ -95,6 +95,7 @@ structure Context where
 structure State where
   argPos    : Nat := 0 -- current argument position
   targetPos : Nat := 0 -- current target at targetsStx
+  motive    : Option MVarId -- motive metavariable
   f         : Expr
   fType     : Expr
   alts      : Array Alt := #[]
@@ -117,6 +118,7 @@ private def getFType : M Expr := do
 
 structure Result where
   elimApp : Expr
+  motive  : MVarId
   alts    : Array Alt := #[]
   others  : Array MVarId := #[]
 
@@ -134,6 +136,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       let argPos := (← get).argPos
       if ctx.elimInfo.motivePos == argPos then
         let motive ← mkFreshExprMVar (← getArgExpectedType) MetavarKind.syntheticOpaque
+        modify fun s => { s with motive := motive.mvarId! }
         addNewArg motive
       else if ctx.elimInfo.targetsPos.contains argPos then
         let s ← get
@@ -167,7 +170,7 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
     | _ =>
       pure ()
   let (_, s) ← (loop).run { elimInfo := elimInfo, targets := targets }
-    |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType }
+    |>.run { f := elimInfo.elimExpr, fType := elimInfo.elimType, motive := none }
   let mut others := #[]
   for mvarId in s.insts do
     try
@@ -178,7 +181,9 @@ partial def mkElimApp (elimInfo : ElimInfo) (targets : Array Expr) (tag : Name) 
       mvarId.setKind .syntheticOpaque
       others := others.push mvarId
   let alts ← s.alts.filterM fun alt => return !(← alt.mvarId.isAssigned)
-  return { elimApp := (← instantiateMVars s.f), alts, others := others }
+  let some motive := s.motive |
+      throwError "mkElimApp: motive not found"
+  return { elimApp := (← instantiateMVars s.f), alts, others, motive }
 
 /-- Given a goal `... targets ... |- C[targets]` associated with `mvarId`, assign
   `motiveArg := fun targets => C[targets]` -/
@@ -501,7 +506,7 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 /--
 Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
 (e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
-without turning them into MVars. So this uses `abstractMVars` again. This is similar to
+without turning them into MVars. So this uses `abstractMVars` again. This is inspired by
 `Lean.Elab.Tactic.addSimpTheorem`.
 -/
 private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
@@ -509,14 +514,14 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
   if stx.isIdent then
     if let some e ← Term.resolveId? stx (withInfo := true) then
       return e
-  Term.withoutModifyingElabMetaStateWithInfo <| Term.withoutErrToSorry do
+  Term.withoutErrToSorry do
     let e ← Term.elabTerm stx none
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then
       let r ← abstractMVars e
-      return r.expr
+      openAbstractMVarsResultLevels r
     else
       return e
 
@@ -583,8 +588,7 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
         let result ← withRef stx[1] do -- use target position as reference
           ElimApp.mkElimApp elimInfo targets tag
         trace[Elab.induction] "elimApp: {result.elimApp}"
-        let elimArgs := result.elimApp.getAppArgs
-        ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetFVarIds
+        ElimApp.setMotiveArg mvarId result.motive targetFVarIds
         let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
         mvarId.assign result.elimApp
         ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)

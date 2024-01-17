@@ -133,9 +133,14 @@ def abstractMVars (e : Expr) : MetaM AbstractMVarsResult := do
   let e := s.lctx.mkLambda s.fvars e
   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 
-def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
+/-- Opens the level parameters of the `AbstractMVarResult` -/
+def openAbstractMVarsResultLevels (a : AbstractMVarsResult) : MetaM Expr := do
   let us ← a.paramNames.mapM fun _ => mkFreshLevelMVar
-  let e := a.expr.instantiateLevelParamsArray a.paramNames us
+  return a.expr.instantiateLevelParamsArray a.paramNames us
+
+/-- Opens all the mvars turned into level parameters and parameters introduced by `abstractMVars` -/
+def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
+  let e ← openAbstractMVarsResultLevels a
   lambdaMetaTelescope e (some a.numMVars)
 
 end Lean.Meta

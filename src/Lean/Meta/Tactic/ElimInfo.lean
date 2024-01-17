@@ -72,17 +72,15 @@ def getElimInfo (elimName : Name) (baseDeclName? : Option Name := none) : MetaM 
   Given an eliminator and the sequence of explicit targets, this methods returns a new sequence containing
   implicit and explicit targets.
 -/
-partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : MetaM (Array Expr) :=
-  -- withNewMCtxDepth do
-  do
-    let targets ← collect elimInfo.elimType 0 0 #[]
-    let targets ← targets.mapM instantiateMVars
-    -- for target in targets do
-      -- if (← hasAssignableMVar target) then
-        -- throwError "failed to infer implicit target, it contains unresolved metavariables{indentExpr target}"
-    return targets
+partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : MetaM (Array Expr) := do
+  let (implicitMVars, targets) ← collect elimInfo.elimType 0 0 #[] #[]
+  for mvar in implicitMVars do
+    unless ← mvar.isAssigned do
+      throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
+  targets.mapM instantiateMVars
 where
-  collect (type : Expr) (argIdx targetIdx : Nat) (targets' : Array Expr) : MetaM (Array Expr) := do
+  collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array MVarId) (targets' : Array Expr) :
+      MetaM (Array MVarId × Array Expr) := do
     match (← whnfD type) with
     | Expr.forallE n d b bi =>
       if elimInfo.targetsPos.contains argIdx then
@@ -93,14 +91,14 @@ where
           let targetType ← inferType target
           unless (← isDefEq d targetType) do
             throwError "target{indentExpr target}\n{← mkHasTypeButIsExpectedMsg targetType d}"
-          collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) (targets'.push target)
+          collect (b.instantiate1 target) (argIdx+1) (targetIdx+1) implicits (targets'.push target)
         else
           let implicitTarget ← mkFreshExprMVar (type? := d) (userName := n)
-          collect (b.instantiate1 implicitTarget) (argIdx+1) targetIdx (targets'.push implicitTarget)
+          collect (b.instantiate1 implicitTarget) (argIdx+1) targetIdx (implicits.push implicitTarget.mvarId!) (targets'.push implicitTarget)
       else
-        collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx targets'
+        collect (b.instantiate1 (← mkFreshExprMVar d)) (argIdx+1) targetIdx implicits targets'
     | _ =>
-      return targets'
+      return (implicits, targets')
 
 structure CustomEliminator where
   typeNames : Array Name

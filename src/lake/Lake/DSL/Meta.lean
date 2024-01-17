@@ -71,10 +71,10 @@ Auto-migrate `meta if ... then require ...` to `require ... if ...`,
 and warn the user to update their configuration file accordingly
 -/
 elab_rules : command
-| `(meta if $c then require $name $[if $c?]? $fromC $[$withC?]?) => do
+| `(meta if $c then $[$doc?]? require $name $[if $c?]? $fromC $[$withC?]?) => do
   let stx ← getRef
   let c ← match c? with | some c' => `($c && $c') | none => pure c
-  let cmd ← `(require $name if $c $fromC:fromClause $[$withC?]?)
+  let cmd ← `($[$doc?]? require $name if $c $fromC:fromClause $[$withC?]?)
   logWarning m!"the following syntax is deprecated:{indentD stx}\nplease replace it with:{indentD cmd}"
   withMacroExpansion stx cmd <| elabCommand cmd
 

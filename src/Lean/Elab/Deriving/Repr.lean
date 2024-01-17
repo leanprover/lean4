@@ -13,13 +13,16 @@ open Lean.Parser.Term
 open Meta
 open Std
 
-def mkReprHeader (indVal : InductiveVal) : TermElabM Header := do
-  let header ← mkHeader `Repr 1 indVal
+def mkReprHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
+  let header ← mkHeader `Repr 1 argNames nestedOcc
   return { header with
     binders := header.binders.push (← `(bracketedBinderF| (prec : Nat)))
   }
 
-def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+def mkBodyForStruct (header : Header) (e : Expr) : TermElabM Term := do
+  let f := e.getAppFn
+  let ind := f.constName!
+  let indVal ← getConstInfoInduct ind
   let ctorVal ← getConstInfoCtor indVal.ctors.head!
   let fieldNames := getStructureFields (← getEnv) indVal.name
   let numParams  := indVal.numParams
@@ -41,16 +44,23 @@ def mkBodyForStruct (header : Header) (indVal : InductiveVal) : TermElabM Term :
         fields ← `($fields ++ $fieldNameLit ++ " := " ++ (Format.group (Format.nest $indent (repr ($target.$(mkIdent fieldName):ident)))))
     `(Format.bracket "{ " $fields:term " }")
 
-def mkBodyForInduct (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
+def mkBodyForInduct (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr): TermElabM Term := do
+  let f := e.getAppFn
+  let ind := f.constName!
+  let lvls := f.constLevels!
+  let indVal ← getConstInfoInduct ind
   let discrs ← mkDiscrs header indVal
-  let alts ← mkAlts
+  let alts ← mkAlts indVal lvls
   `(match $[$discrs],* with $alts:matchAlt*)
 where
-  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
+  mkAlts (indVal : InductiveVal) (lvl : List Level) : TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName in indVal.ctors do
+      let args := e.getAppArgs
       let ctorInfo ← getConstInfoCtor ctorName
-      let alt ← forallTelescopeReducing ctorInfo.type fun xs _ => do
+      let ctorApp := mkAppN (mkConst ctorInfo.name lvl) args[:ctorInfo.numParams]
+      let ctorType ← inferType ctorApp
+      let alt ← forallTelescopeReducing ctorType fun xs _ => do
         let mut patterns := #[]
         -- add `_` pattern for indices
         for _ in [:indVal.numIndices] do
@@ -62,13 +72,13 @@ where
         for _ in [:indVal.numParams] do
           ctorArgs := ctorArgs.push (← `(_))
         for i in [:ctorInfo.numFields] do
-          let x := xs[indVal.numParams + i]!
+          let x := xs[i]!
           let a := mkIdent (← mkFreshUserName `a)
           ctorArgs := ctorArgs.push a
           let localDecl ← x.fvarId!.getDecl
           if localDecl.binderInfo.isExplicit then
-            if (← inferType x).isAppOf indVal.name then
-              rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName):ident $a:ident max_prec)
+            if let some auxFunName ← ctx.getFunName? header (← inferType x) fvars then
+              rhs ← `($rhs ++ Format.line ++ $(mkIdent auxFunName) $a max_prec)
             else
               rhs ← `($rhs ++ Format.line ++ reprArg $a)
         patterns := patterns.push (← `(@$(mkIdent ctorName):ident $ctorArgs:term*))
@@ -76,25 +86,22 @@ where
       alts := alts.push alt
     return alts
 
-def mkBody (header : Header) (indVal : InductiveVal) (auxFunName : Name) : TermElabM Term := do
-  if isStructure (← getEnv) indVal.name then
-    mkBodyForStruct header indVal
+def mkBody (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr): TermElabM Term := do
+  if isStructure (← getEnv) e.getAppFn.constName! then
+    mkBodyForStruct header e
   else
-    mkBodyForInduct header indVal auxFunName
+    mkBodyForInduct ctx header e fvars
 
 def mkAuxFunction (ctx : Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
-  let indVal     := ctx.typeInfos[i]!
-  let header     ← mkReprHeader indVal
-  let mut body   ← mkBody header indVal auxFunName
-  if ctx.usePartial then
-    let letDecls ← mkLocalInstanceLetDecls ctx `Repr header.argNames
-    body ← mkLet letDecls body
+  let nestedOcc  := ctx.typeInfos[i]!
+  let argNames   := ctx.typeArgNames[i]!
+  let header     ←  mkReprHeader argNames nestedOcc
   let binders    := header.binders
-  if ctx.usePartial then
-    `(private partial def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
-  else
-    `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
+  Term.elabBinders binders fun xs => do
+  let type ← Term.elabTerm header.targetType none
+  let body       ←  mkBody ctx header type xs
+  `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : Format := $body:term)
 
 def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
   let mut auxDefs := #[]
@@ -106,7 +113,7 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
 
 private def mkReprInstanceCmd (declName : Name) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "repr" declName
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr #[declName])
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `Repr)
   trace[Elab.Deriving.repr] "\n{cmds}"
   return cmds
 

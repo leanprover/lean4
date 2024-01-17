@@ -5,16 +5,25 @@
   inv := _,
   flag := true }
 Tree.node
-  [Tree.node [Tree.leaf 10] true,
-   Tree.node [Tree.leaf 9] false,
-   Tree.node [Tree.leaf 8] true,
-   Tree.node [Tree.leaf 7] false,
-   Tree.node [Tree.leaf 6] true,
-   Tree.node [Tree.leaf 5] false,
-   Tree.node [Tree.leaf 4] true,
-   Tree.node [Tree.leaf 3] false,
-   Tree.node [Tree.leaf 2] true,
-   Tree.node [Tree.leaf 1] false]
+  (List.cons
+    (Tree.node (List.cons (Tree.leaf 10) (List.nil)) true)
+    (List.cons
+      (Tree.node (List.cons (Tree.leaf 9) (List.nil)) false)
+      (List.cons
+        (Tree.node (List.cons (Tree.leaf 8) (List.nil)) true)
+        (List.cons
+          (Tree.node (List.cons (Tree.leaf 7) (List.nil)) false)
+          (List.cons
+            (Tree.node (List.cons (Tree.leaf 6) (List.nil)) true)
+            (List.cons
+              (Tree.node (List.cons (Tree.leaf 5) (List.nil)) false)
+              (List.cons
+                (Tree.node (List.cons (Tree.leaf 4) (List.nil)) true)
+                (List.cons
+                  (Tree.node (List.cons (Tree.leaf 3) (List.nil)) false)
+                  (List.cons
+                    (Tree.node (List.cons (Tree.leaf 2) (List.nil)) true)
+                    (List.cons (Tree.node (List.cons (Tree.leaf 1) (List.nil)) false) (List.nil)))))))))))
   true
 StructureLikeInductive.field 5
 Foo.Tree.node

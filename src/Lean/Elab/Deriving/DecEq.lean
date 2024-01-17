@@ -5,19 +5,25 @@ Authors: Leonardo de Moura
 -/
 import Lean.Meta.Transform
 import Lean.Meta.Inductive
+import Lean.Meta.InferType
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.Deriving.Util
+import Lean.Elab.Binders
 
 namespace Lean.Elab.Deriving.DecEq
 open Lean.Parser.Term
 open Meta
 
-def mkDecEqHeader (indVal : InductiveVal) : TermElabM Header := do
-  mkHeader `DecidableEq 2 indVal
+def mkDecEqHeader (argNames : Array Name) (nestedOcc : NestedOccurence) : TermElabM Header := do
+  mkHeader `DecidableEq 2 argNames nestedOcc
 
-def mkMatch (ctx : Context) (header : Header) (indVal : InductiveVal) : TermElabM Term := do
+def mkMatch (ctx : Context) (header : Header) (e : Expr) (fvars : Array Expr) : TermElabM Term := do
+  let f := e.getAppFn
+  let ind := f.constName!
+  let lvls := f.constLevels!
+  let indVal ← getConstInfoInduct ind
   let discrs ← mkDiscrs header indVal
-  let alts ← mkAlts
+  let alts ← mkAlts indVal lvls
   `(match $[$discrs],* with $alts:matchAlt*)
 where
   mkSameCtorRhs : List (Ident × Ident × Option Name × Bool) → TermElabM Term
@@ -36,7 +42,7 @@ where
       else
         return rhs
 
-  mkAlts : TermElabM (Array (TSyntax ``matchAlt)) := do
+  mkAlts (indVal : InductiveVal) (lvl : List Level): TermElabM (Array (TSyntax ``matchAlt)) := do
     let mut alts := #[]
     for ctorName₁ in indVal.ctors do
       let ctorInfo ← getConstInfoCtor ctorName₁
@@ -46,7 +52,10 @@ where
         for _ in [:indVal.numIndices] do
           patterns := patterns.push (← `(_))
         if ctorName₁ == ctorName₂ then
-          let alt ← forallTelescopeReducing ctorInfo.type fun xs type => do
+          let args := e.getAppArgs
+          let ctorApp := mkAppN (mkConst ctorInfo.name lvl) args[:ctorInfo.numParams]
+          let ctorType ← inferType ctorApp
+          let alt ← forallTelescopeReducing ctorType fun xs type => do
             let type ← Core.betaReduce type -- we 'beta-reduce' to eliminate "artificial" dependencies
             let mut patterns  := patterns
             let mut ctorArgs1 := #[]
@@ -57,7 +66,7 @@ where
               ctorArgs2 := ctorArgs2.push (← `(_))
             let mut todo := #[]
             for i in [:ctorInfo.numFields] do
-              let x := xs[indVal.numParams + i]!
+              let x := xs[i]!
               if type.containsFVar x.fvarId! then
                 -- If resulting type depends on this field, we don't need to compare
                 ctorArgs1 := ctorArgs1.push (← `(_))
@@ -67,11 +76,9 @@ where
                 let b := mkIdent (← mkFreshUserName `b)
                 ctorArgs1 := ctorArgs1.push a
                 ctorArgs2 := ctorArgs2.push b
-                let indValNum :=
-                  ctx.typeInfos.findIdx?
-                  ((← inferType x).isAppOf ∘ ConstantVal.name ∘ InductiveVal.toConstantVal)
-                let recField  := indValNum.map (ctx.auxFunNames[·]!)
-                let isProof   := (← inferType (← inferType x)).isProp
+                let xType ← inferType x
+                let recField ← ctx.getFunName? header xType fvars
+                let isProof  ←  Meta.isProof x
                 todo := todo.push (a, b, recField, isProof)
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs1:term*))
             patterns := patterns.push (← `(@$(mkIdent ctorName₁):ident $ctorArgs2:term*))
@@ -84,41 +91,37 @@ where
           alts := alts.push (← `(matchAltExpr| | $[$patterns:term],* => $rhs:term))
     return alts
 
-def mkAuxFunction (ctx : Context) (auxFunName : Name) (indVal : InductiveVal): TermElabM (TSyntax `command) := do
-  let header  ← mkDecEqHeader indVal
-  let body    ← mkMatch ctx header indVal
+def mkAuxFunction (ctx : Context) (auxFunName : Name) (argNames : Array Name) (nestedOcc : NestedOccurence): TermElabM (TSyntax `command) := do
+  let header  ← mkDecEqHeader argNames nestedOcc
   let binders := header.binders
+  Term.elabBinders binders fun xs => do
+  let type ← Term.elabTerm header.targetType none
+  let body    ← mkMatch ctx header type xs
   let type    ← `(Decidable ($(mkIdent header.targetNames[0]!) = $(mkIdent header.targetNames[1]!)))
   `(private def $(mkIdent auxFunName):ident $binders:bracketedBinder* : $type:term := $body:term)
 
 def mkAuxFunctions (ctx : Context) : TermElabM (TSyntax `command) := do
   let mut res : Array (TSyntax `command) := #[]
   for i in [:ctx.auxFunNames.size] do
-    let auxFunName := ctx.auxFunNames[i]!
-    let indVal     := ctx.typeInfos[i]!
-    res := res.push (← mkAuxFunction ctx auxFunName indVal)
+    let auxFunName    := ctx.auxFunNames[i]!
+    let nestedOcc     := ctx.typeInfos[i]!
+    let argNames      := ctx.typeArgNames[i]!
+    res := res.push (← mkAuxFunction ctx auxFunName argNames nestedOcc)
   `(command| mutual $[$res:command]* end)
 
 def mkDecEqCmds (indVal : InductiveVal) : TermElabM (Array Syntax) := do
   let ctx ← mkContext "decEq" indVal.name
-  let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx `DecidableEq #[indVal.name] (useAnonCtor := false))
+  let cmds := #[← mkAuxFunctions ctx] ++ (← mkInstanceCmds ctx `DecidableEq (useAnonCtor := false))
   trace[Elab.Deriving.decEq] "\n{cmds}"
   return cmds
 
 open Command
 
-def mkDecEq (declName : Name) : CommandElabM Bool := do
+def mkDecEq (declName : Name) : CommandElabM Unit := do
   let indVal ← getConstInfoInduct declName
-  if indVal.isNested then
-    return false -- nested inductive types are not supported yet
-  else
-    let cmds ← liftTermElabM <| mkDecEqCmds indVal
-    -- `cmds` can have a number of syntax nodes quadratic in the number of constructors
-    -- and thus create as many info tree nodes, which we never make use of but which can
-    -- significantly slow down e.g. the unused variables linter; avoid creating them
-    withEnableInfoTree false do
-      cmds.forM elabCommand
-    return true
+  let cmds ← liftTermElabM <| mkDecEqCmds indVal
+  withEnableInfoTree false do
+    cmds.forM elabCommand
 
 partial def mkEnumOfNat (declName : Name) : MetaM Unit := do
   let indVal ← getConstInfoInduct declName
@@ -186,15 +189,15 @@ def mkDecEqEnum (declName : Name) : CommandElabM Unit := do
   trace[Elab.Deriving.decEq] "\n{cmd}"
   elabCommand cmd
 
-def mkDecEqInstance (declName : Name) : CommandElabM Bool := do
+def mkDecEqInstance (declName : Name) : CommandElabM Unit := do
   if (← isEnumType declName) then
     mkDecEqEnum declName
-    return true
   else
     mkDecEq declName
 
 def mkDecEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  declNames.foldlM (fun b n => andM (pure b) (mkDecEqInstance n)) true
+  declNames.forM mkDecEqInstance
+  return true
 
 builtin_initialize
   registerDerivingHandler `DecidableEq mkDecEqInstanceHandler

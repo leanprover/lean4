@@ -996,6 +996,12 @@ instance {α : Type u} {β : Type v} [DecidableEq α] [DecidableEq β] : Decidab
   | Sum.inr _, Sum.inl _ => isFalse fun h => Sum.noConfusion h
   | Sum.inl _, Sum.inr _ => isFalse fun h => Sum.noConfusion h
 
+instance {α : Type u} {β : Type v} [BEq α] [BEq β] : BEq (Sum α β) where
+  beq
+    | Sum.inl a, Sum.inl b => a == b
+    | Sum.inr a, Sum.inr b => a == b
+    | _, _ => false
+
 end
 
 /-! # Product -/

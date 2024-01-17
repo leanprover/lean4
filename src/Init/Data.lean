@@ -25,6 +25,7 @@ import Init.Data.Hashable
 import Init.Data.OfScientific
 import Init.Data.Format
 import Init.Data.Stream
+import Init.Data.Sum
 import Init.Data.Prod
 import Init.Data.AC
 import Init.Data.Queue

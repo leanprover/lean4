@@ -57,6 +57,9 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
+            let isProof := (← inferType (← inferType x)).isProp
+            if  isProof then
+              continue
             if (← inferType x).isAppOf indVal.name then
               rhs ← `($rhs && $(mkIdent auxFunName):ident $a:ident $b:ident)
             else

@@ -58,8 +58,7 @@ where
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
             let xType ← inferType x
-            let isProof ← isProp xType
-            if  isProof then
+            if (← isProp xType) then
               continue
             if xType.isAppOf indVal.name then
               rhs ← `($rhs && $(mkIdent auxFunName):ident $a:ident $b:ident)

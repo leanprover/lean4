@@ -29,7 +29,7 @@ Current version of the manifest format.
 - **v5**: add `inherited` package entry field (and the removed `opts`)
 - **v6**: add package root `name` manifest field
 - **v7**: `type` refactor, custom to/fromJson
-- **v8**: add `github` dependency
+- **v8**: add package entry type `github` & `conditional` field
 -/
 @[inline] def Manifest.version : Nat := 8
 
@@ -80,8 +80,9 @@ inductive PackageEntrySource
 structure PackageEntry where
   name : Name
   inherited : Bool
-  configFile : FilePath
-  manifestFile? : Option FilePath
+  conditional : Bool := false
+  configFile : FilePath := defaultConfigFile
+  manifestFile? : Option FilePath := none
   source : PackageEntrySource
   deriving Inhabited
 
@@ -92,7 +93,8 @@ protected def toJson (entry : PackageEntry) : Json :=
     ("name", toJson entry.name),
     ("configFile" , toJson entry.configFile),
     ("manifestFile", toJson entry.manifestFile?),
-    ("inherited", toJson entry.inherited)
+    ("conditional", toJson entry.conditional),
+    ("inherited", toJson entry.inherited),
   ]
   let fields :=
     match entry.source with
@@ -105,7 +107,7 @@ protected def toJson (entry : PackageEntry) : Json :=
         ("url", toJson url),
         ("rev", toJson rev),
         ("inputRev", toJson inputRev?),
-        ("subDir", toJson subDir?)
+        ("subDir", toJson subDir?),
       ]
     | .github owner repo rev inputRev? subDir? =>
       ("type", "github") :: fields.append [
@@ -113,7 +115,7 @@ protected def toJson (entry : PackageEntry) : Json :=
         ("repo", toJson repo),
         ("rev", toJson rev),
         ("inputRev", toJson inputRev?),
-        ("subDir", toJson subDir?)
+        ("subDir", toJson subDir?),
       ]
   Json.mkObj fields
 
@@ -124,6 +126,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
   let type ← get obj "type"
   let name ← get obj "name"
   let inherited ← get obj "inherited"
+  let conditional ← getD obj "conditional" false
   let configFile ← getD obj "configFile" defaultConfigFile
   let manifestFile ← getD obj "manifestFile" defaultManifestFile
   let source : PackageEntrySource ← id do
@@ -146,7 +149,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
       return .github owner repository rev inputRev? subDir?
     | _ =>
       throw s!"unknown package entry type '{type}'"
-  return {name, inherited, configFile, manifestFile? := manifestFile, source}
+  return {name, inherited, conditional, configFile, manifestFile? := manifestFile, source}
 where
   get {α} [FromJson α] obj prop : Except String α :=
     match obj.find compare prop with
@@ -172,11 +175,9 @@ instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
 def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
-  {name, inherited, configFile := defaultConfigFile, manifestFile? := none,
-    source := .path dir}
+  {name, inherited, source := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
-  {name, inherited, configFile := defaultConfigFile, manifestFile? := none,
-    source := .git url rev inputRev? subDir?}
+  {name, inherited, source := .git url rev inputRev? subDir?}
 
 end PackageEntry
 

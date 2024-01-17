@@ -31,7 +31,12 @@ structure Dependency where
   -/
   source  : Source
   /--
+  Whether the dependency was declared with a condition (e.g., an `if` clause).
+  -/
+  conditional : Bool
+  /--
   Whether to enable this dependency in the current configuration.
+  That is, whether the dependency's `if` clause evaluated to true.
   -/
   enable : Bool
   /--

@@ -145,8 +145,7 @@ def Dependency.materialize (dep : Dependency) (inherited : Bool)
       }
 where
   mkEntry source :=
-    {name := dep.name, inherited, source,
-      configFile := defaultConfigFile, manifestFile? := none}
+    {name := dep.name, conditional := dep.conditional, inherited, source}
   materializeGit name relGitDir url inputRev? := do
     let repo := GitRepo.mk (wsDir / relGitDir)
     let materializeUrl := pkgUrlMap.find? dep.name |>.getD url

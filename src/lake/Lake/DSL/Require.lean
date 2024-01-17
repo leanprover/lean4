@@ -86,11 +86,15 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment)  : MacroM
       | `(fromSource|$path:term) =>
         ``(Source.path $path)
       | _ => Macro.throwUnsupported
-    let enable ← match enable? with | some bool => pure bool | none => `(true)
+    let conditional ← match enable? with
+      | some bool => withRef bool `(true) | none => `(false)
+    let enable ← match enable? with
+      | some bool => pure bool | none => `(true)
     let opts := opts?.getD <| ← `({})
     `($[$doc?:docComment]? @[package_dep] def $name : Dependency where
       name := $(quote name.getId)
       source := $source
+      conditional := $conditional
       enable := $enable
       opts := $opts
     )

@@ -6,7 +6,8 @@
    "manifestFile": "lake-manifest.json",
    "inherited": false,
    "dir": "./foo",
-   "configFile": "lakefile.lean"},
+   "configFile": "lakefile.lean",
+   "conditional": false},
   {"url": "bar",
    "type": "git",
    "subDir": null,
@@ -15,6 +16,7 @@
    "manifestFile": "lake-manifest.json",
    "inputRev": null,
    "inherited": false,
-   "configFile": "lakefile.lean"}],
+   "configFile": "lakefile.lean",
+   "conditional": false}],
  "name": "test",
  "lakeDir": ".lake"}

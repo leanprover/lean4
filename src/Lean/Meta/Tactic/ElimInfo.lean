@@ -76,7 +76,11 @@ partial def addImplicitTargets (elimInfo : ElimInfo) (targets : Array Expr) : Me
   let (implicitMVars, targets) ← collect elimInfo.elimType 0 0 #[] #[]
   for mvar in implicitMVars do
     unless ← mvar.isAssigned do
-      throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
+      let name := (←mvar.getDecl).userName
+      if name.isAnonymous || name.hasMacroScopes then
+        throwError "failed to infer implicit target"
+      else
+        throwError "failed to infer implicit target {(←mvar.getDecl).userName}"
   targets.mapM instantiateMVars
 where
   collect (type : Expr) (argIdx targetIdx : Nat) (implicits : Array MVarId) (targets' : Array Expr) :

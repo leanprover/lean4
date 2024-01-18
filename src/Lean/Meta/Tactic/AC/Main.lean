@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.AC.Defs
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Elab.Tactic.Rewrite
@@ -100,9 +99,10 @@ where
   mkContext (α : Expr) (u : Level) (vars : Array Expr) : MetaM (Array Bool × Expr) := do
     let arbitrary := vars[0]!
     let zero := mkLevelZeroEx ()
-    let noneE := mkApp (mkConst ``Option.none [zero])
-    let someE := mkApp2 (mkConst ``Option.some [zero])
-
+    let plift := mkApp (mkConst ``PLift [zero])
+    let pliftUp := mkApp2 (mkConst ``PLift.up [zero])
+    let noneE tp   := mkApp  (mkConst ``Option.none [zero]) (plift tp)
+    let someE tp v := mkApp2 (mkConst ``Option.some [zero]) (plift tp) (pliftUp tp v)
     let vars ← vars.mapM fun x => do
       let isNeutral :=
         let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x
@@ -131,12 +131,12 @@ where
     return (isNeutrals, mkApp7 (mkConst ``Lean.Data.AC.Context.mk [u]) α preContext.op preContext.assoc comm idem vars arbitrary)
 
   convert : ACExpr → Expr
-    | Data.AC.Expr.op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)
-    | Data.AC.Expr.var x => mkApp (mkConst ``Data.AC.Expr.var) $ mkNatLit x
+    | .op l r => mkApp2 (mkConst ``Data.AC.Expr.op) (convert l) (convert r)
+    | .var x => mkApp (mkConst ``Data.AC.Expr.var) $ mkNatLit x
 
   convertTarget (vars : Array Expr) : ACExpr → Expr
-    | Data.AC.Expr.op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
-    | Data.AC.Expr.var x => vars[x]!
+    | .op l r => mkApp2 preContext.op (convertTarget vars l) (convertTarget vars r)
+    | .var x => vars[x]!
 
 def rewriteUnnormalized (mvarId : MVarId) : MetaM Unit := do
   let simpCtx :=

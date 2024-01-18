@@ -1680,6 +1680,8 @@ So, you are mainly losing the capability of type checking your development using
 -/
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
+end Lean
+
 /--
 `Associative op` says that `op` is an associative operation,
 i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
@@ -1709,6 +1711,10 @@ class Idempotent {α : Sort u} (op : α → α → α) : Prop where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
 
+section Identity
+
+variable {α : Sort u}
+
 /--
 A binary operation with an associated identity element that can be
 inferred through class inference.
@@ -1717,22 +1723,27 @@ This intentionally does not have associated lemmas so it can be
 implemented on operations not intended for reasoning about.  See
 @LawfulIdentity@ for an extension with lemmas.
  -/
-class HasIdentity {α : Sort u} (op : α → α → α) (o : outParam α) : Prop where
+class HasIdentity (op : α → α → α) (o : outParam α) : Prop where
 
 /-- A binary operation with a left identity. -/
-class LawfulLeftIdentity {α : Sort u} (op : α → α → α) (o : outParam α)
-    extends HasIdentity op o : Prop where
+class LawfulLeftIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
   /-- Left identify -/
   left_id : ∀ a, op o a = a
 
 /-- A binary operation with a right identity. -/
-class LawfulRightIdentity {α : Sort u} (op : α → α → α) (o : outParam α)
-    extends HasIdentity op o : Prop where
+class LawfulRightIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
   /-- Right identify -/
   right_id : ∀ a, op a o = a
 
 /-- A binary operation with a left and right identity. -/
-class LawfulIdentity {α : Sort u} (op : α → α → α) (o : outParam α) extends
-    LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+class LawfulIdentity (op : α → α → α) (o : outParam α) extends LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
 
-end Lean
+/--
+Class that simplifies instances of LawfulIdentity on commutative
+functions by requiring only left or right identity.
+-/
+class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
+  left_id a := Eq.trans (hc.comm o a) (right_id a)
+  right_id a := Eq.trans (hc.comm a o) (left_id a)
+
+end Identity

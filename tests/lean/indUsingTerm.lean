@@ -190,3 +190,18 @@ example (a : A) : True := by
   case mkB b IH => exact trivial
 
 end Ex3
+
+namespace Ex4
+
+-- We can use parameters as elaborators
+
+set_option linter.unusedVariables false in
+example
+  (α : Type u)
+  (ela : ∀ {motive : α → Prop} (case1 : ∀ (x : α), motive x) (x : α), motive x)
+  (x : α)
+  : x = x := by
+  induction x using ela
+  case case1 x => rfl
+
+end Ex4

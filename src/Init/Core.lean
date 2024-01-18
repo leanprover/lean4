@@ -1720,17 +1720,17 @@ implemented on operations not intended for reasoning about.  See
 class HasIdentity (op : α → α → α) (o : outParam α) : Prop where
 
 /-- A binary operation with a left identity. -/
-class LawfulLeftIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
+class LeftIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
   /-- Left identify -/
   left_id : ∀ a, op o a = a
 
 /-- A binary operation with a right identity. -/
-class LawfulRightIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
+class RightIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
   /-- Right identify -/
   right_id : ∀ a, op a o = a
 
 /-- A binary operation with a left and right identity. -/
-class LawfulIdentity (op : α → α → α) (o : outParam α) extends LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+class LawfulIdentity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
 
 /--
 Class that simplifies instances of LawfulIdentity on commutative

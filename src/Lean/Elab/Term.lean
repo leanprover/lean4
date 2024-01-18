@@ -198,7 +198,7 @@ structure Context where
   sectionFVars       : NameMap Expr    := {}
   /-- Enable/disable implicit lambdas feature. -/
   implicitLambda     : Bool            := true
-  /-- Heed elab_as_elim attribute. -/
+  /-- Heed `elab_as_elim` attribute. -/
   heedElabAsElim     : Bool            := true
   /-- Noncomputable sections automatically add the `noncomputable` modifier to any declaration we cannot generate code for. -/
   isNoncomputableSection : Bool        := false
@@ -438,6 +438,11 @@ def withoutErrToSorry [MonadFunctorT TermElabM m] : m α → m α :=
 def withoutHeedElabAsElimImp (x : TermElabM α) : TermElabM α :=
   withReader (fun ctx => { ctx with heedElabAsElim := false }) x
 
+/--
+  Execute `x` without heeding the `elab_as_elim` attribute. Useful when there is
+  no expected type (so `elabAppArgs` would fail), but expect that the user wants
+  to use such constants.
+-/
 def withoutHeedElabAsElim [MonadFunctorT TermElabM m] : m α → m α :=
   monadMap (m := TermElabM) withoutHeedElabAsElimImp
 

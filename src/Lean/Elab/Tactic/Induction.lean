@@ -506,8 +506,11 @@ def getInductiveValFromMajor (major : Expr) : TacticM InductiveVal :=
 /--
 Elaborates the term in the `using` clause. We want to allow parameters to be instantiated
 (e.g. `using foo (p := …)`), but preserve other paramters, like the motives, as parameters,
-without turning them into MVars. So this uses `abstractMVars` again. This is inspired by
+without turning them into MVars. So this uses `abstractMVars` at the end. This is inspired by
 `Lean.Elab.Tactic.addSimpTheorem`.
+
+It also elaborates without `heedElabAsElim` so that users can use constants that are marked
+`elabAsElim` in the `using` clause`.
 -/
 private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
   -- Short-circuit elaborating plain identifiers

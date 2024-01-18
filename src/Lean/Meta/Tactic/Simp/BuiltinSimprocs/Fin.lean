@@ -62,4 +62,9 @@ builtin_simproc reduceLE  (( _ : Fin _) ≤ _)  := reduceBinPred ``LE.le 4 (. �
 builtin_simproc reduceGT  (( _ : Fin _) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc reduceGE  (( _ : Fin _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
+/-- Return `.done` for Fin values. We don't want to unfold them when `ground := true`. -/
+builtin_simproc isValue ((OfNat.ofNat _ : Fin _)) := fun e => OptionT.run do
+  guard (e.isAppOfArity ``OfNat.ofNat 3)
+  return .done { expr := e }
+
 end Fin

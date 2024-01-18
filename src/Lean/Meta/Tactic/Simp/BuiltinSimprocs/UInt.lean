@@ -58,6 +58,12 @@ builtin_simproc $(mkIdent `reduceLE):ident  (( _ : $typeName) ≤ _)  := reduceB
 builtin_simproc $(mkIdent `reduceGT):ident  (( _ : $typeName) > _)  := reduceBinPred ``GT.gt 4 (. > .)
 builtin_simproc $(mkIdent `reduceGE):ident  (( _ : $typeName) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
+/-- Return `.done` for UInt values. We don't want to unfold them when `ground := true`. -/
+builtin_simproc isValue ((OfNat.ofNat _ : $typeName)) := fun e => OptionT.run do
+  guard (← getContext).unfoldGround
+  guard (e.isAppOfArity ``OfNat.ofNat 3)
+  return .done { expr := e }
+
 end $typeName
 )
 

@@ -151,6 +151,14 @@ instance : Min UInt16 := minOfLe
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨⟨n, h⟩⟩
+/--
+Converts the given natural number to `UInt32`, but returns `2^32 - 1` for natural numbers `>= 2^32`.
+-/
+def UInt32.ofNatTruncate (n : Nat) : UInt32 :=
+  if h : n < UInt32.size then
+    UInt32.ofNat' n h
+  else
+    UInt32.ofNat' (UInt32.size - 1) (by decide)
 abbrev Nat.toUInt32 := UInt32.ofNat
 @[extern "lean_uint32_add"]
 def UInt32.add (a b : UInt32) : UInt32 := ⟨a.val + b.val⟩

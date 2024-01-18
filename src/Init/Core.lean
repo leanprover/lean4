@@ -1682,16 +1682,20 @@ axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
 end Lean
 
+section AlgebraicClasses
+
+variable {α : Sort u}
+
 /--
 `Associative op` says that `op` is an associative operation,
 i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 -/
-class Associative {α : Sort u} (op : α → α → α) : Prop where
+class Associative (op : α → α → α) : Prop where
   /-- An associative operation satisfies `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. -/
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
 
 /-- A symmetric operation. -/
-class Symmetric {α : Type u} {β : Sort v} (op : α → α → β) : Prop where
+class Symmetric {β : Sort v} (op : α → α → β) : Prop where
   /-- Symmetric operation -/
   symm : ∀ a b, op a b = op b a
 
@@ -1699,7 +1703,7 @@ class Symmetric {α : Type u} {β : Sort v} (op : α → α → β) : Prop where
 `Commutative op` says that `op` is a commutative operation,
 i.e. `a ∘ b = b ∘ a`.
 -/
-class Commutative {α : Sort u} (op : α → α → α) : Prop where
+class Commutative (op : α → α → α) : Prop where
   /-- A commutative operation satisfies `a ∘ b = b ∘ a`. -/
   comm : (a b : α) → op a b = op b a
 
@@ -1707,13 +1711,9 @@ class Commutative {α : Sort u} (op : α → α → α) : Prop where
 `Idempotent op` says that `op` is an idempotent operation,
 i.e. `a ∘ a = a`.
 -/
-class Idempotent {α : Sort u} (op : α → α → α) : Prop where
+class Idempotent (op : α → α → α) : Prop where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
-
-section Identity
-
-variable {α : Sort u}
 
 /--
 A binary operation with an associated identity element that can be
@@ -1746,4 +1746,4 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
 
-end Identity
+end AlgebraicClasses

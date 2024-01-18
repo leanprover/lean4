@@ -1683,7 +1683,6 @@ axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 end Lean
 
 section AlgebraicClasses
-
 variable {α : Sort u}
 
 /--
@@ -1693,11 +1692,6 @@ i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 class Associative (op : α → α → α) : Prop where
   /-- An associative operation satisfies `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. -/
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
-
-/-- A symmetric operation. -/
-class Symmetric {β : Sort v} (op : α → α → β) : Prop where
-  /-- Symmetric operation -/
-  symm : ∀ a b, op a b = op b a
 
 /--
 `Commutative op` says that `op` is a commutative operation,

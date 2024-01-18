@@ -205,3 +205,21 @@ example
   case case1 x => rfl
 
 end Ex4
+
+namespace Ex5
+
+-- Multiple motives, different number of extra assumptions
+
+mutual
+inductive A : Type u where | mkA : B → A | A : A
+inductive B : Type u where | mkB : A → B
+end
+
+set_option linter.unusedVariables false in
+example (a : A) : True := by
+  induction a using A.rec (motive_2 := fun b => (heq : b = b) -> True)
+  case mkA b IH => exact trivial
+  case A => exact trivial
+  case mkB b IH h => exact trivial
+
+end Ex5

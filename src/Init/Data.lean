@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Data.AC
 import Init.Data.Basic
 import Init.Data.Nat
 import Init.Data.Char
@@ -27,5 +26,6 @@ import Init.Data.OfScientific
 import Init.Data.Format
 import Init.Data.Stream
 import Init.Data.Prod
+import Init.Data.AC
 import Init.Data.Queue
 import Init.Data.Channel

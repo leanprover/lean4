@@ -75,6 +75,10 @@ example (n : Nat) : n = n := by
   case case1 n => rfl
 
 example (n : Nat) : n = n := by
+  induction n using @elim_with_param (p := true)
+  case case1 n => rfl
+
+example (n : Nat) : n = n := by
   -- This renames the cases with unhelpful names
   induction n using elim_with_param _ _ true
   case x_1 n => rfl
@@ -100,10 +104,10 @@ inductive A : Type u where | mkA : B → A | A : A
 inductive B : Type u where | mkB : A → B
 end
 
-
 -- NB: A.rec is configured as elab_as_elim,
 -- but in `using` it should not matter
 
+-- For comparision, a copy without that attribute
 noncomputable def A_rec := @A.rec
 
 set_option linter.unusedVariables false
@@ -169,9 +173,15 @@ example (a : A) : True := by
   case mkB b IH => exact trivial
 
 example (a : A) : True := by
-  -- Error: failed to elaborate eliminator, expected type is not available
-  -- TODO: How to elaborate normally?
+  -- A.rec is marked elab_as_elim, and normally elaborating
+  -- #check A.rec (motive_2 := fun b => True)
+  -- fails with
+  -- > failed to elaborate eliminator, expected type is not available
+  -- so we elaborate with heedElabAsElim := false
   induction a using A.rec (motive_2 := fun b => True)
+  case mkA b IH => exact trivial
+  case A => exact trivial
+  case mkB b IH => exact trivial
 
 example (a : A) : True := by
   induction a using A_rec (motive_2 := fun b => True)

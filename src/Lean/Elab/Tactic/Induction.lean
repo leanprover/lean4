@@ -514,8 +514,8 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
   if stx.isIdent then
     if let some e ← Term.resolveId? stx (withInfo := true) then
       return e
-  Term.withoutErrToSorry do
-    let e ← Term.elabTerm stx none
+  Term.withoutErrToSorry <| Term.withoutHeedElabAsElim do
+    let e ← Term.elabTerm stx none (implicitLambda := false)
     Term.synthesizeSyntheticMVars (mayPostpone := false) (ignoreStuckTC := true)
     let e ← instantiateMVars e
     let e := e.eta

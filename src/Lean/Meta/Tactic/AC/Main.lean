@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dany Fabian
 -/
 import Lean.Meta.AppBuilder
+import Lean.Meta.Tactic.AC.Defs
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Elab.Tactic.Rewrite
@@ -43,13 +44,13 @@ def getInstance (cls : Name) (exprs : Array Expr) : MetaM (Option Expr) := do
   | _ => return none
 
 def preContext (expr : Expr) : MetaM (Option PreContext) := do
-  if let some assoc := ←getInstance ``IsAssociative #[expr] then
+  if let some assoc := ←getInstance ``Associative #[expr] then
     return some
       { assoc,
         op := expr
         id := 0
-        comm := ←getInstance ``IsCommutative #[expr]
-        idem := ←getInstance ``IsIdempotent #[expr] }
+        comm := ←getInstance ``Commutative #[expr]
+        idem := ←getInstance ``Idempotent #[expr] }
 
   return none
 
@@ -104,8 +105,8 @@ where
 
     let vars ← vars.mapM fun x => do
       let isNeutral :=
-        let isNeutralClass := mkApp3 (mkConst ``IsNeutral [u]) α preContext.op x
-        match ←getInstance ``IsNeutral #[preContext.op, x] with
+        let isNeutralClass := mkApp3 (mkConst ``LawfulIdentity [u]) α preContext.op x
+        match ←getInstance ``LawfulIdentity #[preContext.op, x] with
         | none => (false, noneE isNeutralClass)
         | some isNeutral => (true, someE isNeutralClass isNeutral)
 
@@ -116,13 +117,13 @@ where
     let vars ← mkListLit (mkApp2 (mkConst ``Variable [u]) α preContext.op) vars
 
     let comm :=
-      let commClass := mkApp2 (mkConst ``IsCommutative [u]) α preContext.op
+      let commClass := mkApp2 (mkConst ``Commutative [u]) α preContext.op
       match preContext.comm with
       | none => noneE commClass
       | some comm => someE commClass comm
 
     let idem :=
-      let idemClass := mkApp2 (mkConst ``IsIdempotent [u]) α preContext.op
+      let idemClass := mkApp2 (mkConst ``Idempotent [u]) α preContext.op
       match preContext.idem with
       | none => noneE idemClass
       | some idem => someE idemClass idem

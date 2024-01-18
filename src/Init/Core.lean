@@ -1681,39 +1681,58 @@ So, you are mainly losing the capability of type checking your development using
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
 /--
-`IsAssociative op` says that `op` is an associative operation,
-i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. It is used by the `ac_rfl` tactic.
+`Associative op` says that `op` is an associative operation,
+i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 -/
-class IsAssociative {α : Sort u} (op : α → α → α) where
+class Associative {α : Sort u} (op : α → α → α) : Prop where
   /-- An associative operation satisfies `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. -/
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
 
+/-- A symmetric operation. -/
+class Symmetric {α : Type u} {β : Sort v} (op : α → α → β) : Prop where
+  /-- Symmetric operation -/
+  symm : ∀ a b, op a b = op b a
+
 /--
-`IsCommutative op` says that `op` is a commutative operation,
-i.e. `a ∘ b = b ∘ a`. It is used by the `ac_rfl` tactic.
+`Commutative op` says that `op` is a commutative operation,
+i.e. `a ∘ b = b ∘ a`.
 -/
-class IsCommutative {α : Sort u} (op : α → α → α) where
+class Commutative {α : Sort u} (op : α → α → α) : Prop where
   /-- A commutative operation satisfies `a ∘ b = b ∘ a`. -/
   comm : (a b : α) → op a b = op b a
 
 /--
-`IsIdempotent op` says that `op` is an idempotent operation,
-i.e. `a ∘ a = a`. It is used by the `ac_rfl` tactic
-(which also simplifies up to idempotence when available).
+`Idempotent op` says that `op` is an idempotent operation,
+i.e. `a ∘ a = a`.
 -/
-class IsIdempotent {α : Sort u} (op : α → α → α) where
+class Idempotent {α : Sort u} (op : α → α → α) : Prop where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
 
 /--
-`IsNeutral op e` says that `e` is a neutral operation for `op`,
-i.e. `a ∘ e = a = e ∘ a`. It is used by the `ac_rfl` tactic
-(which also simplifies neutral elements when available).
--/
-class IsNeutral {α : Sort u} (op : α → α → α) (neutral : α) where
-  /-- A neutral element can be cancelled on the left: `e ∘ a = a`. -/
-  left_neutral : (a : α) → op neutral a = a
-  /-- A neutral element can be cancelled on the right: `a ∘ e = a`. -/
-  right_neutral : (a : α) → op a neutral = a
+A binary operation with an associated identity element that can be
+inferred through class inference.
+
+This intentionally does not have associated lemmas so it can be
+implemented on operations not intended for reasoning about.  See
+@LawfulIdentity@ for an extension with lemmas.
+ -/
+class HasIdentity {α : Sort u} (op : α → α → α) (o : outParam α) : Prop where
+
+/-- A binary operation with a left identity. -/
+class LawfulLeftIdentity {α : Sort u} (op : α → α → α) (o : outParam α)
+    extends HasIdentity op o : Prop where
+  /-- Left identify -/
+  left_id : ∀ a, op o a = a
+
+/-- A binary operation with a right identity. -/
+class LawfulRightIdentity {α : Sort u} (op : α → α → α) (o : outParam α)
+    extends HasIdentity op o : Prop where
+  /-- Right identify -/
+  right_id : ∀ a, op a o = a
+
+/-- A binary operation with a left and right identity. -/
+class LawfulIdentity {α : Sort u} (op : α → α → α) (o : outParam α) extends
+    LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
 
 end Lean

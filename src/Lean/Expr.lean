@@ -1258,7 +1258,7 @@ where in particular a loose `Expr.bvar i` at binding depth `d` is instantiated w
 and otherwise it is replaced with `Expr.bvar (i - 1)`; non-loose bound variables are not touched.
 
 If we imagine all expressions as being able to refer to the infinite list of loose bound variables ..., 3, 2, 1, 0 in that order,
-then conceptually `instantiate` is instantiating the last one of these and reindexing the remaining ones.
+then conceptually `instantiate1` is instantiating the last one of these and reindexing the remaining ones.
 
 This function is equivalent to `instantiate e #[subst]`, but it avoids allocating an array.
 

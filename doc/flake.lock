@@ -69,11 +69,11 @@
     "leanInk": {
       "flake": false,
       "locked": {
-        "lastModified": 1666154782,
-        "narHash": "sha256-0ELqEca6jZT4BW/mqkDD+uYuxW5QlZUFlNwZkvugsg8=",
-        "owner": "digama0",
+        "lastModified": 1704873883,
+        "narHash": "sha256-7f3TUg7w9CnZXVyPozj+HHH6gX6L54art2J7wFY3i90=",
+        "owner": "leanprover",
         "repo": "LeanInk",
-        "rev": "12a2aec9b5f4aa84e84fb01a9af1da00d8aaff4e",
+        "rev": "58755bfa02433a7fa5e51110b41272a7397148a1",
         "type": "github"
       },
       "original": {

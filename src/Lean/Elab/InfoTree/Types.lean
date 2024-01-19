@@ -44,6 +44,11 @@ node is always contained within a `commandCtx` node.
 -/
 inductive PartialContextInfo where
   | commandCtx (info : CommandContextInfo)
+  /--
+  Context for the name of the declaration that surrounds nodes contained within this `context` node.
+  For example, this makes the name of the surrounding declaration available in `InfoTree` nodes
+  corresponding to the terms within the declaration.
+  -/
   | parentDeclCtx (parentDecl : Name)
   -- TODO: More constructors for the different kinds of scopes `commandCtx` is currently
   -- used for (e.g. eliminating `Info.updateContext?` would be nice!).

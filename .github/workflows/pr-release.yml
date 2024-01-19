@@ -243,7 +243,7 @@ jobs:
 
       - name: Check if branch exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        id: check_branch
+        id: check_std_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
@@ -302,7 +302,7 @@ jobs:
 
       - name: Check if branch exists
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
-        id: check_branch
+        id: check_mathlib_branch
         run: |
           git config user.name "leanprover-community-mathlib4-bot"
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"

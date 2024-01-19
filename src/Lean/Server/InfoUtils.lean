@@ -220,8 +220,7 @@ def Info.type? (i : Info) : MetaM (Option Expr) :=
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | Info.ofTermInfo ti
-  | Info.ofOmissionInfo { toTermInfo := ti } =>
+  | .ofTermInfo ti =>
     if let some n := ti.expr.constName? then
       return ← findDocString? env n
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
@@ -231,6 +230,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
     if let some decl := (← getOptionDecls).find? oi.optionName then
       return decl.descr
     return none
+  | .ofOmissionInfo _ => return none -- Do not display the docstring of ⋯ for omitted terms
   | _ => pure ()
   if let some ei := i.toElabInfo? then
     return ← findDocString? env ei.stx.getKind <||> findDocString? env ei.elaborator

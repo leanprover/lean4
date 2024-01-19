@@ -379,9 +379,9 @@ where go ci?
     | some ci, .ofOmissionInfo { toTermInfo := ti } => do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
-    | _, _ =>
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well
+    | _, _ =>
       cs.anyM (go ci?)
   | _ => return false
 

@@ -170,6 +170,9 @@ See [Theorem Proving in Lean 4][tpil4] for more information.
 -/
 syntax (name := calcTactic) "calc" calcSteps : tactic
 
+/-- Denotes a term that was omitted from the delaborator output due to `pp.deepTerms false`. -/
+syntax "⋯" : term
+
 @[app_unexpander Unit.unit] def unexpandUnit : Lean.PrettyPrinter.Unexpander
   | `($(_)) => `(())
 
@@ -177,9 +180,13 @@ syntax (name := calcTactic) "calc" calcSteps : tactic
   | `($(_)) => `([])
 
 @[app_unexpander List.cons] def unexpandListCons : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x [])      => `([$x])
-  | `($(_) $x [$xs,*]) => `([$x, $xs,*])
-  | _                  => throw ()
+  | `($(_) $x $tail) =>
+    match tail with
+    | `([])      => `([$x])
+    | `([$xs,*]) => `([$x, $xs,*])
+    | `(⋯)       => `([$x, $tail]) -- Unexpands to `[x, y, z, ⋯]` for `⋯ : List α`
+    | _          => throw ()
+  | _ => throw ()
 
 @[app_unexpander List.toArray] def unexpandListToArray : Lean.PrettyPrinter.Unexpander
   | `($(_) [$xs,*]) => `(#[$xs,*])

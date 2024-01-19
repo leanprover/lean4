@@ -112,11 +112,13 @@ def Info.stx : Info → Syntax
   | ofUserWidgetInfo i     => i.stx
   | ofFVarAliasInfo _      => .missing
   | ofFieldRedeclInfo i    => i.stx
+  | ofOmissionInfo i       => i.stx
 
 def Info.lctx : Info → LocalContext
-  | Info.ofTermInfo i  => i.lctx
-  | Info.ofFieldInfo i => i.lctx
-  | _                  => LocalContext.empty
+  | Info.ofTermInfo i     => i.lctx
+  | Info.ofFieldInfo i    => i.lctx
+  | Info.ofOmissionInfo i => i.lctx
+  | _                     => LocalContext.empty
 
 def Info.pos? (i : Info) : Option String.Pos :=
   i.stx.getPos? (canonicalOnly := true)
@@ -210,14 +212,16 @@ partial def InfoTree.hoverableInfoAt? (t : InfoTree) (hoverPos : String.Pos) (in
 
 def Info.type? (i : Info) : MetaM (Option Expr) :=
   match i with
-  | Info.ofTermInfo ti => Meta.inferType ti.expr
-  | Info.ofFieldInfo fi => Meta.inferType fi.val
+  | Info.ofTermInfo ti     => Meta.inferType ti.expr
+  | Info.ofFieldInfo fi    => Meta.inferType fi.val
+  | Info.ofOmissionInfo oi => Meta.inferType oi.expr
   | _ => return none
 
 def Info.docString? (i : Info) : MetaM (Option String) := do
   let env ← getEnv
   match i with
-  | Info.ofTermInfo ti =>
+  | Info.ofTermInfo ti
+  | Info.ofOmissionInfo { toTermInfo := ti } =>
     if let some n := ti.expr.constName? then
       return ← findDocString? env n
   | .ofFieldInfo fi => return ← findDocString? env fi.projName
@@ -370,12 +374,14 @@ partial def InfoTree.hasSorry : InfoTree → IO Bool :=
 where go ci?
   | .context ci t => go (ci.mergeIntoOuter? ci?) t
   | .node i cs =>
-    if let (some ci, .ofTermInfo ti) := (ci?, i) then do
+    match ci?, i with
+    | some ci, .ofTermInfo ti
+    | some ci, .ofOmissionInfo { toTermInfo := ti } => do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)
       return expr.hasSorry
+    | _, _ =>
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well
-    else
       cs.anyM (go ci?)
   | _ => return false
 

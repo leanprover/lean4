@@ -40,6 +40,7 @@ structure Context where
   openDecls      : List OpenDecl
   inPattern      : Bool := false -- true when delaborating `match` patterns
   subExpr        : SubExpr
+  depth          : Nat := 0
 
 structure State where
   /-- We attach `Elab.Info` at various locations in the `Syntax` output in order to convey
@@ -81,8 +82,10 @@ instance (priority := low) : MonadWithReaderOf SubExpr DelabM where
 
 instance (priority := low) : MonadStateOf SubExpr.HoleIterator DelabM where
   get         := State.holeIter <$> get
-  set iter    := modify fun ⟨infos, _⟩ => ⟨infos, iter⟩
-  modifyGet f := modifyGet fun ⟨infos, iter⟩ => let (ret, iter') := f iter; (ret, ⟨infos, iter'⟩)
+  set iter    := modify fun s => { s with holeIter := iter }
+  modifyGet f := modifyGet fun s =>
+    let (ret, holeIter') := f s.holeIter
+    (ret, { s with holeIter := holeIter' })
 
 -- Macro scopes in the delaborator output are ultimately ignored by the pretty printer,
 -- so give a trivial implementation.
@@ -147,7 +150,7 @@ def getOptionsAtCurrPos : DelabM Options := do
   return opts
 
 /-- Evaluate option accessor, using subterm-specific options if set. -/
-def getPPOption (opt : Options → Bool) : DelabM Bool := do
+def getPPOption (opt : Options → α) : DelabM α := do
   return opt (← getOptionsAtCurrPos)
 
 def whenPPOption (opt : Options → Bool) (d : Delab) : Delab := do
@@ -203,10 +206,10 @@ def withBindingBodyUnusedName {α} (d : Syntax → DelabM α) : DelabM α := do
   liftM x
 
 def addTermInfo (pos : Pos) (stx : Syntax) (e : Expr) (isBinder : Bool := false) : DelabM Unit := do
-  let info ← mkTermInfo stx e isBinder
+  let info := Info.ofTermInfo <| ← mkTermInfo stx e isBinder
   modify fun s => { s with infos := s.infos.insert pos info }
 where
-  mkTermInfo stx e isBinder := return Info.ofTermInfo {
+  mkTermInfo stx e isBinder := return {
     elaborator := `Delab,
     stx := stx,
     lctx := (← getLCtx),
@@ -216,10 +219,10 @@ where
  }
 
 def addFieldInfo (pos : Pos) (projName fieldName : Name) (stx : Syntax) (val : Expr) : DelabM Unit := do
-  let info ← mkFieldInfo projName fieldName stx val
+  let info := Info.ofFieldInfo <| ← mkFieldInfo projName fieldName stx val
   modify fun s => { s with infos := s.infos.insert pos info }
 where
-  mkFieldInfo projName fieldName stx val := return Info.ofFieldInfo {
+  mkFieldInfo projName fieldName stx val := return {
     projName := projName,
     fieldName := fieldName,
     lctx := (← getLCtx),
@@ -227,9 +230,33 @@ where
     stx := stx
   }
 
+def addOmissionInfo (pos : Pos) (stx : Syntax) (e : Expr) : DelabM Unit := do
+  let info := Info.ofOmissionInfo <| ← mkOmissionInfo stx e
+  modify fun s => { s with infos := s.infos.insert pos info }
+where
+  mkOmissionInfo stx e := return {
+    toTermInfo := ← addTermInfo.mkTermInfo stx e (isBinder := false)
+  }
+
+def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
+  act { ctx with depth := ctx.depth + 1 }
+
+def isMaxDepthReached : DelabM Bool := do
+  let maxDepthCheckEnabled := ! (← getPPOption getPPDeepTerms)
+  let maxDepth ← getPPOption getPPMaxTermDepth
+  let depth := (← read).depth
+
+  return maxDepthCheckEnabled && depth > maxDepth
+
 def annotateTermInfo (stx : Term) : Delab := do
   let stx ← annotateCurPos stx
   addTermInfo (← getPos) stx (← getExpr)
+  pure stx
+
+def omission : Delab := do
+  let stx ← `(⋯)
+  let stx ← annotateCurPos stx
+  addOmissionInfo (← getPos) stx (← getExpr)
   pure stx
 
 partial def delabFor : Name → Delab
@@ -240,6 +267,9 @@ partial def delabFor : Name → Delab
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
 partial def delab : Delab := do
+  if ← isMaxDepthReached then
+    return ← omission
+
   checkSystem "delab"
   let e ← getExpr
 
@@ -251,7 +281,7 @@ partial def delab : Delab := do
     else
       return ← annotateTermInfo (← ``(_))
   let k ← getExprKind
-  let stx ← delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
+  let stx ← withIncDepth <| delabFor k <|> (liftM $ show MetaM _ from throwError "don't know how to delaborate '{k}'")
   if ← getPPOption getPPAnalyzeTypeAscriptions <&&> getPPOption getPPAnalysisNeedsType <&&> pure !e.isMData then
     let typeStx ← withType delab
     `(($stx : $typeStx)) >>= annotateCurPos

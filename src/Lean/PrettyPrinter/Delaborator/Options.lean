@@ -125,6 +125,16 @@ register_builtin_option pp.instanceTypes : Bool := {
   group    := "pp"
   descr    := "(pretty printer) when printing explicit applications, show the types of inst-implicit arguments"
 }
+register_builtin_option pp.deepTerms : Bool := {
+  defValue := true
+  group    := "pp"
+  descr    := "(pretty printer) display deeply nested terms"
+}
+register_builtin_option pp.maxTermDepth : Nat := {
+  defValue := 20
+  group    := "pp"
+  descr    := "(pretty printer) omit terms nested deeper than `pp.maxTermDepth` layers if `pp.deepTerms` is false"
+}
 register_builtin_option pp.motives.pi : Bool := {
   defValue := true
   group    := "pp"
@@ -205,5 +215,7 @@ def getPPMotivesNonConst (o : Options) : Bool := o.get pp.motives.nonConst.name 
 def getPPMotivesAll (o : Options) : Bool := o.get pp.motives.all.name pp.motives.all.defValue
 def getPPInstances (o : Options) : Bool := o.get pp.instances.name pp.instances.defValue
 def getPPInstanceTypes (o : Options) : Bool := o.get pp.instanceTypes.name pp.instanceTypes.defValue
+def getPPDeepTerms (o : Options) : Bool := o.get pp.deepTerms.name pp.deepTerms.defValue
+def getPPMaxTermDepth (o : Options) : Nat := o.get pp.maxTermDepth.name pp.maxTermDepth.defValue
 
 end Lean

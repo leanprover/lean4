@@ -1,6 +1,7 @@
 opaque f : Bool → Bool → Bool
 axiom f_comm (a b : Bool) : f a b = f b a
 axiom f_assoc (a b c : Bool) : f (f a b) c = f a (f b c)
+open Std
 instance : Commutative f := ⟨f_comm⟩
 instance : Associative f := ⟨f_assoc⟩
 

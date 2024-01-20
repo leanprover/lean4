@@ -1682,11 +1682,11 @@ axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
 end Lean
 
-section AlgebraicClasses
+namespace Std
 variable {α : Sort u}
 
 /--
-`Associative op` says that `op` is an associative operation,
+`Associative op` indicates `op` is an associative operation,
 i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 -/
 class Associative (op : α → α → α) : Prop where
@@ -1702,42 +1702,70 @@ class Commutative (op : α → α → α) : Prop where
   comm : (a b : α) → op a b = op b a
 
 /--
-`Idempotent op` says that `op` is an idempotent operation,
+`IdempotentOp op` indicates `op` is an idempotent binary operation.
 i.e. `a ∘ a = a`.
 -/
-class Idempotent (op : α → α → α) : Prop where
+class IdempotentOp (op : α → α → α) : Prop where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
 
 /--
-A binary operation with an associated identity element that can be
-inferred through class inference.
+`LeftIdentify op o` indicates `o` is a left identity of `op`.
 
-This intentionally does not have associated lemmas so it can be
-implemented on operations not intended for reasoning about.  See
-@LawfulIdentity@ for an extension with lemmas.
- -/
-class HasIdentity (op : α → α → α) (o : outParam α) : Prop where
-
-/-- A binary operation with a left identity. -/
-class LeftIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
-  /-- Left identify -/
-  left_id : ∀ a, op o a = a
-
-/-- A binary operation with a right identity. -/
-class RightIdentity (op : α → α → α) (o : outParam α) extends HasIdentity op o : Prop where
-  /-- Right identify -/
-  right_id : ∀ a, op a o = a
-
-/-- A binary operation with a left and right identity. -/
-class LawfulIdentity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
+This class does not require a proof that `o` is an identity, and
+is used primarily for infering the identity using class resoluton.
+-/
+class LeftIdentity (op : α → β → β) (o : outParam α) : Prop where
 
 /--
-Class that simplifies instances of LawfulIdentity on commutative
-functions by requiring only left or right identity.
+`LawfulLeftIdentify op o` indicates `o` is a verified left identity of
+`op`.
+-/
+class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftIdentity op o : Prop where
+  /-- Left identity `o` is an identity. -/
+  left_id : ∀ a, op o a = a
+
+/--
+`RightIdentify op o` indicates `o` is a right identity `o` of `op`.
+
+This class does not require a proof that `o` is an identity, and is used
+primarily for infering the identity using class resoluton.
+-/
+class RightIdentity (op : α → β → α) (o : outParam β) : Prop where
+
+/--
+`LawfulRightIdentify op o` indicates `o` is a verified right identity of
+`op`.
+-/
+class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends RightIdentity op o : Prop where
+  /-- Right identity `o` is an identity. -/
+  right_id : ∀ a, op a o = a
+
+/--
+`Identity op o` indicates `o` is a left and right identity of `op`.
+
+This class does not require a proof that `o` is an identity, and is used
+primarily for infering the identity using class resoluton.
+-/
+class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop where
+
+/--
+`LawfulIdentity op o` indicates `o` is a verified left and right
+identity of `op`.
+-/
+class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+
+/--
+`LawfulCommIdentity` can simplify defining instances of LawfulIdentity
+on commutative functions by requiring only a left or right identity
+proof.
+
+This class is intended for simplifying defining instances of
+`LawfulIdentity` and functions needed commutative operations with
+identity should just add a `LawfulIdentity constraint.
 -/
 class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
   left_id a := Eq.trans (hc.comm o a) (right_id a)
   right_id a := Eq.trans (hc.comm a o) (left_id a)
 
-end AlgebraicClasses
+end Std

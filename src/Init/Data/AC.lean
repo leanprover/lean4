@@ -14,6 +14,8 @@ inductive Expr
   | op (lhs rhs : Expr)
   deriving Inhabited, Repr, BEq
 
+open Std
+
 structure Variable {α : Sort u} (op : α → α → α) : Type u where
   value : α
   neutral : Option $ PLift (LawfulIdentity op value)
@@ -22,7 +24,7 @@ structure Context (α : Sort u) where
   op : α → α → α
   assoc : Associative op
   comm : Option $ PLift $ Commutative op
-  idem : Option $ PLift $ Idempotent op
+  idem : Option $ PLift $ IdempotentOp op
   vars : List (Variable op)
   arbitrary : α
 
@@ -128,7 +130,7 @@ theorem Context.mergeIdem_head2 (h : x ≠ y) : mergeIdem (x :: y :: ys) = x :: 
   simp [mergeIdem, mergeIdem.loop, h]
 
 theorem Context.evalList_mergeIdem (ctx : Context α) (h : ContextInformation.isIdem ctx) (e : List Nat) : evalList α ctx (mergeIdem e) = evalList α ctx e := by
-  have h : Idempotent ctx.op := by
+  have h : IdempotentOp ctx.op := by
     simp [ContextInformation.isIdem, Option.isSome] at h;
     match h₂ : ctx.idem with
     | none =>

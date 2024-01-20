@@ -11,6 +11,7 @@ import Lean.Elab.Tactic.Rewrite
 namespace Lean.Meta.AC
 open Lean.Data.AC
 open Lean.Elab.Tactic
+open Std
 
 abbrev ACExpr := Lean.Data.AC.Expr
 
@@ -49,7 +50,7 @@ def preContext (expr : Expr) : MetaM (Option PreContext) := do
         op := expr
         id := 0
         comm := ←getInstance ``Commutative #[expr]
-        idem := ←getInstance ``Idempotent #[expr] }
+        idem := ←getInstance ``IdempotentOp #[expr] }
 
   return none
 
@@ -123,7 +124,7 @@ where
       | some comm => someE commClass comm
 
     let idem :=
-      let idemClass := mkApp2 (mkConst ``Idempotent [u]) α preContext.op
+      let idemClass := mkApp2 (mkConst ``IdempotentOp [u]) α preContext.op
       match preContext.idem with
       | none => noneE idemClass
       | some idem => someE idemClass idem

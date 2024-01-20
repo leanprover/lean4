@@ -126,14 +126,14 @@ jobs:
           if [ "$NIGHTLY_SHA" = "$MERGE_BASE_SHA" ]; then
             echo "The merge base of this PR coincides with the nightly release"
 
-            REMOTE_BRANCHES="$(git ls-remote https://github.com/leanprover-community/mathlib4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
+            REMOTE_TAGS="$(git ls-remote https://github.com/leanprover-community/mathlib4.git nightly-testing-"$MOST_RECENT_NIGHTLY")"
 
-            if [[ -n "$REMOTE_BRANCHES" ]]; then
-              echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
+            if [[ -n "$REMOTE_TAGS" ]]; then
+              echo "... and Mathlib has a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
               MESSAGE=""
             else
-              echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' branch."
-              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` branch does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
+              echo "... but Mathlib does not yet have a 'nightly-testing-$MOST_RECENT_NIGHTLY' tag."
+              MESSAGE="- ❗ Mathlib CI can not be attempted yet, as the \`nightly-testing-$MOST_RECENT_NIGHTLY\` tag does not exist there yet. We will retry when you push more commits. If you rebase your branch onto \`nightly-with-mathlib\`, Mathlib CI should run now."
             fi
 
           else

@@ -179,7 +179,7 @@ def toCongrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
     return some (α, f, h)
   if e.isAppOfArity ``congrFun 6 then
     let #[α, β, _f, _g, h, a] := e.getAppArgs |
-      throwAppBuilderException ``congrArg "ill-formed congrApp application"
+      throwAppBuilderException ``congrArg "ill-formed congrFun application"
     let α' ← withLocalDecl `x .default α fun x => do
       mkForallFVars #[x] (β.beta #[x])
     let f' ← withLocalDecl `x .default α' fun f => do

@@ -164,10 +164,34 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``HEq.trans m!"heterogeneous equality proof expected{indentExpr h}"
 
+def mkFunComp (α f g : Expr) : MetaM Expr := do
+  withLocalDecl `x .default α fun x => do
+    mkLambdaFVars #[x] (f.beta #[g.beta #[x]])
+
+/-- Returns the α, f and h arguments to `congrArg` if `e` is a congrArg application,
+or can reasonably be turned into one (e.g. `congrFun`). -/
+def toCongrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
+  if e.isAppOfArity ``congrArg 6 then
+    let #[α, _β, _a, _b, f, h] := e.getAppArgs |
+      throwAppBuilderException ``congrArg "ill-formed congrApp application"
+    return some (α, f, h)
+  if e.isAppOfArity ``congrFun 6 then
+    let #[α, β, _f, _g, h, a] := e.getAppArgs |
+      throwAppBuilderException ``congrArg "ill-formed congrApp application"
+    let α' ← mkArrow α β
+    let f' ← withLocalDecl `x .default α' fun f => do
+      mkLambdaFVars #[f] (f.app a)
+    return some (α', f', h)
+  return none
+
 /-- Given `f : α → β` and `h : a = b`, returns a proof of `f a = f b`.-/
-def mkCongrArg (f h : Expr) : MetaM Expr := do
+partial def mkCongrArg (f h : Expr) : MetaM Expr := do
   if h.isAppOf ``Eq.refl then
     mkEqRefl (mkApp f h.appArg!)
+  else if let some (α, f₁, h₁) ← toCongrArg? h then
+    -- Fuse nested `congrArg` for smaller proof sizes in simp
+    let f₂ ← mkFunComp α f f₁
+    mkCongrArg f₂ h₁
   else
     let hType ← infer h
     let fType ← infer f
@@ -183,6 +207,11 @@ def mkCongrArg (f h : Expr) : MetaM Expr := do
 def mkCongrFun (h a : Expr) : MetaM Expr := do
   if h.isAppOf ``Eq.refl then
     mkEqRefl (mkApp h.appArg! a)
+  else if let some (α, f₁, h₁) ← toCongrArg? h then
+    -- Fuse nested `congrArg` for smaller proof sizes in simp
+    let f' ← withLocalDecl `x .default α fun x => do
+      mkLambdaFVars #[x] (f₁.beta #[x, a])
+    mkCongrArg f' h₁
   else
     let hType ← infer h
     match hType.eq? with

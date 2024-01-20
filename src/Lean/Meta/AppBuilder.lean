@@ -168,8 +168,10 @@ def mkFunComp (α f g : Expr) : MetaM Expr := do
   withLocalDecl `x .default α fun x => do
     mkLambdaFVars #[x] (f.beta #[g.beta #[x]])
 
-/-- Returns the α, f and h arguments to `congrArg` if `e` is a congrArg application,
-or can reasonably be turned into one (e.g. `congrFun`). -/
+/--
+Returns the α, f and h arguments to `congrArg` if `e` is a congrArg application,
+or can reasonably be turned into one (e.g. non-dependent `congrFun`).
+-/
 def toCongrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
   if e.isAppOfArity ``congrArg 6 then
     let #[α, _β, _a, _b, f, h] := e.getAppArgs |
@@ -178,7 +180,8 @@ def toCongrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
   if e.isAppOfArity ``congrFun 6 then
     let #[α, β, _f, _g, h, a] := e.getAppArgs |
       throwAppBuilderException ``congrArg "ill-formed congrApp application"
-    let α' ← mkArrow α β
+    let α' ← withLocalDecl `x .default α fun x => do
+      mkForallFVars #[x] (β.app x)
     let f' ← withLocalDecl `x .default α' fun f => do
       mkLambdaFVars #[f] (f.app a)
     return some (α', f', h)

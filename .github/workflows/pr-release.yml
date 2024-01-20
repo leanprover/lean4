@@ -239,7 +239,7 @@ jobs:
           git config user.name "leanprover-community-mathlib4-bot"
           git config user.email "leanprover-community-mathlib4-bot@users.noreply.github.com"
 
-          if git ls-remote --heads --tags origin | grep -q "refs/\(heads\|tags\)/nightly-testing-${MOST_RECENT_NIGHTLY}"; then
+          if git ls-remote --heads --tags --exit-code origin "nightly-testing-${MOST_RECENT_NIGHTLY}" >/dev/null; then
             BASE="nightly-testing-${MOST_RECENT_NIGHTLY}"
           else
             echo "This shouldn't be possible: couldn't find a 'nightly-testing-${MOST_RECENT_NIGHTLY}' branch at Mathlib. Falling back to 'nightly-testing'."

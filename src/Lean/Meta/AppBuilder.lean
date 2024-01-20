@@ -181,7 +181,7 @@ def toCongrArg? (e : Expr) : MetaM (Option (Expr × Expr × Expr )) := do
     let #[α, β, _f, _g, h, a] := e.getAppArgs |
       throwAppBuilderException ``congrArg "ill-formed congrApp application"
     let α' ← withLocalDecl `x .default α fun x => do
-      mkForallFVars #[x] (β.app x)
+      mkForallFVars #[x] (β.beta #[x])
     let f' ← withLocalDecl `x .default α' fun f => do
       mkLambdaFVars #[f] (f.app a)
     return some (α', f', h)

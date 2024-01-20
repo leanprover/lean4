@@ -24,9 +24,7 @@ def _root_.Lean.MVarId.replaceTargetEq (mvarId : MVarId) (targetNew : Expr) (eqP
     let mvarNew  ← mkFreshExprSyntheticOpaqueMVar targetNew tag
     let target   ← mvarId.getType
     let u        ← getLevel target
-    let eq       ← mkEq target targetNew
-    let newProof ← mkExpectedTypeHint eqProof eq
-    let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, newProof, mvarNew]
+    let val  := mkAppN (Lean.mkConst `Eq.mpr [u]) #[target, targetNew, eqProof, mvarNew]
     mvarId.assign val
     return mvarNew.mvarId!
 

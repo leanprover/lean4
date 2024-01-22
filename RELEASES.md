@@ -43,7 +43,7 @@ Simprocs can be scoped, manually added to `simp` commands, and suppressed using 
 ```lean
 example : x + foo 2 = 12 + x := by
   set_option simprocs false in
-    /- This `simp` command does make progress since `simproc`s are disabled. -/
+    /- This `simp` command does not make progress since `simproc`s are disabled. -/
     fail_if_success simp
   simp_arith
 

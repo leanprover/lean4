@@ -95,7 +95,7 @@ def InteractiveGoalCore.pretty (g : InteractiveGoalCore) (userName? : Option Str
 where
   addLine (fmt : Format) : Format :=
     if fmt.isNil then fmt else fmt ++ Format.line
-  
+
 def InteractiveGoal.pretty (g : InteractiveGoal) : Format :=
   g.toInteractiveGoalCore.pretty g.userName? g.goalPrefix
 
@@ -191,7 +191,7 @@ def goalToInteractive (mvarId : MVarId) : MetaM InteractiveGoal := do
     return {
       hyps
       type := goalFmt
-      ctx := ⟨← Elab.ContextInfo.save⟩
+      ctx := ⟨{← Elab.CommandContextInfo.save with }⟩
       userName?
       goalPrefix := getGoalPrefix mvarDecl
       mvarId

@@ -1762,7 +1762,7 @@ proof.
 
 This class is intended for simplifying defining instances of
 `LawfulIdentity` and functions needed commutative operations with
-identity should just add a `LawfulIdentity constraint.
+identity should just add a `LawfulIdentity` constraint.
 -/
 class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
   left_id a := Eq.trans (hc.comm o a) (right_id a)

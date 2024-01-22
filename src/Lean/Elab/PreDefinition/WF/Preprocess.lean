@@ -9,6 +9,12 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.WF
 open Meta
 
+private def shouldBetaReduce (e : Expr) (recFnNames : Array Name) : Bool :=
+  if e.isHeadBetaTarget then
+    e.getAppFn.find? (fun e => recFnNames.any (e.isConstOf ·)) |>.isSome
+  else
+    false
+
 /--
 Preprocesses the expessions to improve the effectiveness of `wfRecursion`.
 
@@ -23,8 +29,13 @@ Preprocesses the expessions to improve the effectiveness of `wfRecursion`.
 Unlike `Lean.Elab.Structural.preprocess`, do _not_ beta-reduce, as it could
 remove `let_fun`-lambdas that contain explicit termination proofs.
 -/
-def preprocess (e : Expr) : CoreM Expr :=
+def preprocess (e : Expr) (recFnNames : Array Name)  : CoreM Expr :=
   Core.transform e
+    (pre := fun e =>
+      if shouldBetaReduce e recFnNames then
+        return .visit e.headBeta
+      else
+        return .continue)
     (post := fun e =>
       match e with
       | .app (.mdata m f) a =>

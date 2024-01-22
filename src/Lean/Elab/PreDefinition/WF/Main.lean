@@ -82,7 +82,7 @@ private def isOnlyOneUnaryDef (preDefs : Array PreDefinition) (fixedPrefixSize :
 
 def wfRecursion (preDefs : Array PreDefinition) : TermElabM Unit := do
   let preDefs ← preDefs.mapM fun preDef =>
-    return { preDef with value := (← preprocess preDef.value (preDefs.map (·.declName))) }
+    return { preDef with value := (← preprocess preDef.value) }
   let (unaryPreDef, fixedPrefixSize) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef

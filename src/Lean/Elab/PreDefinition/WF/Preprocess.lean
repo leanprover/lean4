@@ -29,20 +29,13 @@ Preprocesses the expessions to improve the effectiveness of `wfRecursion`.
 Unlike `Lean.Elab.Structural.preprocess`, do _not_ beta-reduce, as it could
 remove `let_fun`-lambdas that contain explicit termination proofs.
 -/
-def preprocess (e : Expr) (recFnNames : Array Name)  : CoreM Expr :=
+def preprocess (e : Expr) : CoreM Expr :=
   Core.transform e
-    (pre := fun e =>
-      if shouldBetaReduce e recFnNames then
-        return .visit e.headBeta
-      else
-        return .continue)
-    (post := fun e =>
-      match e with
-      | .app (.mdata m f) a =>
+    (post := fun e => do
+      if e.isApp && e.getAppFn.isMData then
+        let .mdata m f := e.getAppFn | unreachable!
         if m.isRecApp then
-          return .done (.mdata m (.app f a))
-        else
-          return .done e
-      | _ => return .done e)
+          return .done (.mdata m (f.beta e.getAppArgs))
+      return .continue)
 
 end Lean.Elab.WF

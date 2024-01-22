@@ -192,6 +192,8 @@ example : x + foo 2 = 12 + x := by
   ought to be applied to multiple functions, the `decreasing_by` clause has to
   be repeated at each of these functions.
 
+* Modify `InfoTree.context` to facilitate augmenting it with partial contexts while elaborating a command. This breaks backwards compatibility with all downstream projects that traverse the `InfoTree` manually instead of going through the functions in `InfoUtils.lean`, as well as those manually creating and saving `InfoTree`s. See https://github.com/leanprover/lean4/pull/3159 for how to migrate your code.
+
 
 v4.5.0
 ---------

@@ -18,6 +18,14 @@ if (LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
 endif()
 
+set(LEAN_PLATFORM_TARGET "" CACHE STRING "LLVM triple of the target platform")
+if (NOT LEAN_PLATFORM_TARGET)
+  # this may fail when the compiler is not clang, but this should only happen in local builds where
+  # the value of the variable is not of immediate relevance
+  execute_process(COMMAND ${CMAKE_C_COMPILER} --print-target-triple
+    OUTPUT_VARIABLE LEAN_PLATFORM_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
 set(LEAN_EXTRA_LINKER_FLAGS "" CACHE STRING "Additional flags used by the linker")
 set(LEAN_EXTRA_CXX_FLAGS "" CACHE STRING "Additional flags used by the C++ compiler")
 set(LEAN_TEST_VARS "LEAN_CC=${CMAKE_C_COMPILER}" CACHE STRING "Additional environment variables used when running tests")

@@ -71,6 +71,12 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
   a.set ⟨i.toNat, h⟩ v
 
+/--
+Swaps two entries in an array.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
@@ -78,12 +84,18 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
+/--
+Swaps two entries in an array, or panics if either index is out of bounds.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
   if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-  else panic! "index out of bounds"
-  else panic! "index out of bounds"
+  else a
+  else a
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i

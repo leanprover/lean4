@@ -1756,7 +1756,7 @@ identity of `op`.
 class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
 
 /--
-`LawfulCommIdentity` can simplify defining instances of LawfulIdentity
+`LawfulCommIdentity` can simplify defining instances of `LawfulIdentity`
 on commutative functions by requiring only a left or right identity
 proof.
 

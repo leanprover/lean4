@@ -24,6 +24,7 @@ structure State where
   fvars        : Array Expr  := #[]
   lmap         : HashMap LMVarId Level := {}
   emap         : HashMap MVarId Expr  := {}
+  levels       : Bool -- whether to abstract level mvars
 
 abbrev M := StateM State
 
@@ -42,6 +43,8 @@ def mkFreshFVarId : M FVarId :=
   return { name := (← mkFreshId) }
 
 private partial def abstractLevelMVars (u : Level) : M Level := do
+  if !(← get).levels then
+    return u
   if !u.hasMVar then
     return u
   else
@@ -124,23 +127,20 @@ end AbstractMVars
   new fresh universe metavariables, and instantiate the `(m_i : A_i)` in the lambda-expression
   with new fresh metavariables.
 
+  If `levels := false`, then level metavariables are not abstracted.
+
   Application: we use this method to cache the results of type class resolution. -/
-def abstractMVars (e : Expr) : MetaM AbstractMVarsResult := do
+def abstractMVars (e : Expr) (levels : Bool := true): MetaM AbstractMVarsResult := do
   let e ← instantiateMVars e
-  let (e, s) := AbstractMVars.abstractExprMVars e { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen) }
+  let (e, s) := AbstractMVars.abstractExprMVars e { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen), levels }
   setNGen s.ngen
   setMCtx s.mctx
   let e := s.lctx.mkLambda s.fvars e
   pure { paramNames := s.paramNames, numMVars := s.fvars.size, expr := e }
 
-/-- Opens the level parameters of the `AbstractMVarResult` -/
-def openAbstractMVarsResultLevels (a : AbstractMVarsResult) : MetaM Expr := do
-  let us ← a.paramNames.mapM fun _ => mkFreshLevelMVar
-  return a.expr.instantiateLevelParamsArray a.paramNames us
-
-/-- Opens all the mvars turned into level parameters and parameters introduced by `abstractMVars` -/
 def openAbstractMVarsResult (a : AbstractMVarsResult) : MetaM (Array Expr × Array BinderInfo × Expr) := do
-  let e ← openAbstractMVarsResultLevels a
+  let us ← a.paramNames.mapM fun _ => mkFreshLevelMVar
+  let e := a.expr.instantiateLevelParamsArray a.paramNames us
   lambdaMetaTelescope e (some a.numMVars)
 
 end Lean.Meta

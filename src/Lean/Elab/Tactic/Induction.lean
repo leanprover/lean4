@@ -523,8 +523,8 @@ private def elabTermForElim (stx : Syntax) : TermElabM Expr := do
     let e ← instantiateMVars e
     let e := e.eta
     if e.hasMVar then
-      let r ← abstractMVars e
-      openAbstractMVarsResultLevels r
+      let r ← abstractMVars (levels := false) e
+      return r.expr
     else
       return e
 

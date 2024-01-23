@@ -22,20 +22,25 @@ def foo (x : Nat) : Nat :=
 The `simproc` `reduceFoo` is invoked on terms that match the pattern `foo _`.
 -/
 simproc reduceFoo (foo _) :=
-  /- A term of type `Expr → SimpM (Option Step) -/
-  fun e => OptionT.run do
-    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
-    guard (e.isAppOfArity ``foo 1)
-    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
-    let n ← Nat.fromExpr? e.appArg!
+  /- A term of type `Expr → SimpM Step -/
+  fun e => do
     /-
-    The `Step` type has two constructors: `.done` and `.visit`.
+    The `Step` type has three constructors: `.done`, `.visit`, `.continue`.
     * The constructor `.done` instructs `simp` that the result does
       not need to be simplied further.
     * The constructor `.visit` instructs `simp` to visit the resulting expression.
+    * The constructor `.continue` instructs `simp` to try other simplification procedures.
 
-    If the result holds definitionally as in this example, the field `proof?` can be omitted.
+    All three constructors take a `Result`. The `.continue` contructor may also take `none`.
+    `Result` has two fields `expr` (the new expression), and `proof?` (an optional proof).
+     If the new expression is definitionally equal to the input one, then `proof?` can be omitted or set to `none`.
     -/
+    /- `simp` uses matching modulo reducibility. So, we ensure the term is a `foo`-application. -/
+    unless e.isAppOfArity ``foo 1 do
+      return .continue
+    /- `Nat.fromExpr?` tries to convert an expression into a `Nat` value -/
+    let some n ← Nat.fromExpr? e.appArg!
+      | return .continue
     return .done { expr := Lean.mkNatLit (n+10) }
 ```
 We disable simprocs support by using the command `set_option simprocs false`. This command is particularly useful when porting files to v4.6.0.

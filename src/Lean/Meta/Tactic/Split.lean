@@ -23,15 +23,12 @@ def simpMatch (e : Expr) : MetaM Simp.Result := do
 where
   pre (e : Expr) : SimpM Simp.Step := do
     unless (← isMatcherApp e) do
-      return Simp.Step.visit { expr := e }
+      return Simp.Step.continue
     let matcherDeclName := e.getAppFn.constName!
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    =>
-      match (← Simp.simpMatchCore? matcherDeclName e SplitIf.discharge?) with
-      | some r => return r
-      | none => return Simp.Step.visit { expr := e }
+    | none    => Simp.simpMatchCore matcherDeclName SplitIf.discharge? e
 
 def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
@@ -45,7 +42,7 @@ where
     if e.isAppOf matchDeclName then
       -- First try to reduce matcher
       match (← reduceRecMatcher? e) with
-      | some e' => return Simp.Step.done { expr := e' }
+      | some e' => return .done { expr := e' }
       | none    =>
       -- Try lemma
       let simpTheorem := {
@@ -54,10 +51,10 @@ where
         rfl := (← isRflTheorem matchEqDeclName)
       }
       match (← withReducible <| Simp.tryTheorem? e simpTheorem SplitIf.discharge?) with
-      | none => return Simp.Step.visit { expr := e }
-      | some r => return Simp.Step.done r
+      | none => return .continue
+      | some r => return .done r
     else
-      return Simp.Step.visit { expr := e }
+      return .continue
 
 private def simpMatchTargetCore (mvarId : MVarId) (matchDeclName : Name) (matchEqDeclName : Name) : MetaM MVarId := do
   mvarId.withContext do

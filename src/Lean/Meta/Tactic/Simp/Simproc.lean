@@ -154,45 +154,62 @@ def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs
   else
     return { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
 
-def SimprocEntry.try? (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM (Option Step) := do
+def SimprocEntry.try (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM Step := do
   let mut extraArgs := #[]
   let mut e := e
   for _ in [:numExtraArgs] do
     extraArgs := extraArgs.push e.appArg!
     e := e.appFn!
   extraArgs := extraArgs.reverse
-  match (← s.proc e) with
-  | none => return none
-  | some step => return some (← step.addExtraArgs extraArgs)
+  let s ← s.proc e
+  s.addExtraArgs extraArgs
 
-def simproc? (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM (Option Step) := do
+def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
   let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
-    return none
+    return .continue
   else
+    let mut e  := e
+    let mut proof? : Option Expr := none
+    let mut found := false
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
-        if let some step ← simprocEntry.try? numExtraArgs e then
-          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {step.result.expr}"
+        let s ← simprocEntry.try numExtraArgs e
+        match s with
+        | .visit r =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return some step
-    return none
+          return .visit (← mkEqTransOptProofResult proof? r)
+        | .done r =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
+          return .done (← mkEqTransOptProofResult proof? r)
+        | Step.continue (some r) =>
+          trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
+          recordSimpTheorem (.decl simprocEntry.declName post)
+          e := r.expr
+          proof? ← mkEqTrans? proof? r.proof?
+          found := true
+        | Step.continue none =>
+          pure ()
+    if found then
+      return .continue (some { expr := e, proof? })
+    else
+      return .continue
 
 register_builtin_option simprocs : Bool := {
   defValue := true
   descr    := "Enable/disable `simproc`s (simplification procedures)."
 }
 
-def preSimproc? (e : Expr) : SimpM (Option Step) := do
-  unless simprocs.get (← getOptions) do return none
-  let s := (← getMethods).simprocs
-  simproc? (post := false) s.pre s.erased e
+def userPreSimprocs (s : Simprocs) : Simproc := fun e => do
+  unless simprocs.get (← getOptions) do return .continue
+  simprocCore (post := false) s.pre s.erased e
 
-def postSimproc? (e : Expr) : SimpM (Option Step) := do
-  unless simprocs.get (← getOptions) do return none
-  let s := (← getMethods).simprocs
-  simproc? (post := true) s.post s.erased e
+def userPostSimprocs (s : Simprocs) : Simproc := fun e => do
+  unless simprocs.get (← getOptions) do return .continue
+  simprocCore (post := true) s.post s.erased e
 
 end Lean.Meta.Simp

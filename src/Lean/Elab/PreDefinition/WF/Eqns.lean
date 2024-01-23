@@ -49,14 +49,12 @@ def simpMatchWF? (mvarId : MVarId) : MetaM (Option MVarId) :=
     if mvarId != mvarIdNew then return some mvarIdNew else return none
 where
   pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
+    let some app ← matchMatcherApp? e
+      | return Simp.Step.continue
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    =>
-      match (← Simp.simpMatchCore? app.matcherName e SplitIf.discharge?) with
-      | some r => return r
-      | none => return Simp.Step.visit { expr := e }
+    | none    => Simp.simpMatchCore app.matcherName SplitIf.discharge? e
 
 /--
   Given a goal of the form `|- f.{us} a_1 ... a_n b_1 ... b_m = ...`, return `(us, #[a_1, ..., a_n])`

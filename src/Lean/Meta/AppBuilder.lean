@@ -123,6 +123,17 @@ def mkEqTrans (h₁ h₂ : Expr) : MetaM Expr := do
     | none, _ => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₁ hType₁)
     | _, none => throwAppBuilderException ``Eq.trans ("equality proof expected" ++ hasTypeMsg h₂ hType₂)
 
+/--
+Similar to `mkEqTrans`, but arguments can be `none`.
+`none` is treated as a reflexivity proof.
+-/
+def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
+  match h₁?, h₂? with
+  | none, none       => return none
+  | none, some h     => return h
+  | some h, none     => return h
+  | some h₁, some h₂ => mkEqTrans h₁ h₂
+
 /-- Given `h : HEq a b`, returns a proof of `HEq b a`.  -/
 def mkHEqSymm (h : Expr) : MetaM Expr := do
   if h.isAppOf ``HEq.refl then

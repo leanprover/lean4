@@ -403,12 +403,12 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let pre (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePre e (fun _ => pure none) (rflOnly := true) then
+    if let Step.visit r ← rewritePre (discharge? := fun _ => pure none) (rflOnly := true) e then
       if r.expr != e then
         return .visit r.expr
     return .continue
   let post (e : Expr) : SimpM TransformStep := do
-    if let some r ← rewritePost? e (fun _ => pure none) (rflOnly := true) then
+    if let Step.visit r ← rewritePost (discharge? := fun _ => pure none) (rflOnly := true) e then
       if r.expr != e then
         return .visit r.expr
     let mut eNew ← reduce e
@@ -433,7 +433,7 @@ def visitFn (e : Expr) : SimpM Result := do
 
 def congrDefault (e : Expr) : SimpM Result := do
   if let some result ← tryAutoCongrTheorem? e then
-    mkEqTrans result (← visitFn result.expr)
+    result.mkEqTrans (← visitFn result.expr)
   else
     withParent e <| e.withApp fun f args => do
       congrArgs (← simp f) args
@@ -533,14 +533,11 @@ def congr (e : Expr) : SimpM Result := do
     congrDefault e
 
 def simpApp (e : Expr) : SimpM Result := do
-  let e' ← reduceStep e
-  if e' != e then
-    simp e'
-  else if isOfNatNatLit e' then
+  if isOfNatNatLit e then
     -- Recall that we expand "orphan" kernel nat literals `n` into `ofNat n`
-    return { expr := e' }
+    return { expr := e }
   else
-    congr e'
+    congr e
 
 def simpStep (e : Expr) : SimpM Result := do
   match e with
@@ -567,26 +564,36 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
       modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
   return r
 
-partial def simpLoop (e : Expr) (r : Result) : SimpM Result := do
+partial def simpLoop (e : Expr) : SimpM Result := do
   let cfg ← getConfig
   if (← get).numSteps > cfg.maxSteps then
     throwError "simp failed, maximum number of steps exceeded"
   else
-    let init := r.expr
     modify fun s => { s with numSteps := s.numSteps + 1 }
-    match (← pre r.expr) with
-    | Step.done r'  => cacheResult e cfg (← mkEqTrans r r')
-    | Step.visit r' =>
-      let r ← mkEqTrans r r'
-      let r ← mkEqTrans r (← simpStep r.expr)
-      match (← post r.expr) with
-      | Step.done r'  => cacheResult e cfg (← mkEqTrans r r')
-      | Step.visit r' =>
-        let r ← mkEqTrans r r'
-        if cfg.singlePass || init == r.expr then
-          cacheResult e cfg r
-        else
-          simpLoop e r
+    match (← pre e) with
+    | .done r  => cacheResult e cfg r
+    | .visit r => cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
+    | .continue none => visitPreContinue cfg { expr := e }
+    | .continue (some r) => visitPreContinue cfg r
+where
+  visitPreContinue (cfg : Config) (r : Result) : SimpM Result := do
+    let eNew ← reduceStep r.expr
+    if eNew != r.expr then
+      let r := { r with expr := eNew }
+      cacheResult e cfg (← r.mkEqTrans (← simpLoop r.expr))
+    else
+      let r ← r.mkEqTrans (← simpStep r.expr)
+      visitPost cfg r
+  visitPost (cfg : Config) (r : Result) : SimpM Result := do
+    match (← post r.expr) with
+    | .done r' =>  cacheResult e cfg (← r.mkEqTrans r')
+    | .continue none => visitPostContinue cfg r
+    | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r')
+  visitPostContinue (cfg : Config) (r : Result) : SimpM Result := do
+    let mut r := r
+    unless cfg.singlePass || e == r.expr do
+      r ← r.mkEqTrans (← simpLoop r.expr)
+    cacheResult e cfg r
 
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
@@ -594,7 +601,6 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   if (← isProof e) then
     return { expr := e }
   let ctx ← getContext
-  trace[Meta.debug] "visit [{ctx.unfoldGround}]: {e}"
   if ctx.unfoldGround then
     if (← isType e) then
     unless (← isProp e) do
@@ -614,7 +620,7 @@ where
         if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
           return result
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
-    simpLoop e { expr := e }
+    simpLoop e
 
 @[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x

@@ -19,6 +19,16 @@ structure Result where
   dischargeDepth : UInt32 := 0
   deriving Inhabited
 
+def mkEqTransOptProofResult (h? : Option Expr) (r : Result) : MetaM Result :=
+  match h? with
+  | none => return r
+  | some p₁ => match r.proof? with
+    | none    => return { r with proof? := some p₁ }
+    | some p₂ => return { r with proof? := (← Meta.mkEqTrans p₁ p₂) }
+
+def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
+  mkEqTransOptProofResult r₁.proof? r₂
+
 abbrev Cache := ExprMap Result
 
 abbrev CongrCache := ExprMap (Option CongrTheorem)
@@ -78,20 +88,63 @@ opaque dsimp (e : Expr) : SimpM Expr
 def withoutUnfoldGround (x : SimpM α) : SimpM α :=
   withTheReader Context (fun ctx => { ctx with unfoldGround := false }) x
 
+/--
+Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
+-/
 inductive Step where
-  | visit : Result → Step
-  | done  : Result → Step
+  /--
+  For `pre` procedures, it returns the result without visiting any subexpressions.
+
+  For `post` procedures, it returns the result.
+  -/
+  | done (r : Result)
+  /--
+  For `pre` procedures, the resulting expression is passed to `pre` again.
+
+  For `post` procedures, the resulting expression is passed to `pre` again IF
+  `Simp.Config.singlePass := false` and resulting expression is not equal to initial expression.
+  -/
+  | visit (e : Result)
+  /--
+  For `pre` procedures, continue transformation by visiting subexpressions, and then
+  executing `post` procedures.
+
+  For `post` procedures, this is equivalent to returning `visit`.
+  -/
+  | continue (e? : Option Result := none)
   deriving Inhabited
 
-def Step.result : Step → Result
-  | Step.visit r => r
-  | Step.done r => r
+/--
+A simplification procedure. Recall that we have `pre` and `post` procedures.
+See `Step`.
+-/
+abbrev Simproc := Expr → SimpM Step
 
-def Step.updateResult : Step → Result → Step
-  | Step.visit _, r => Step.visit r
-  | Step.done _, r  => Step.done r
+def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
+  match s with
+  | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r')
+  | .visit r'           => return .visit (← mkEqTransOptProofResult r.proof? r')
+  | .continue none      => return .continue r
+  | .continue (some r') => return .continue (some (← mkEqTransOptProofResult r.proof? r'))
 
-abbrev Simproc := Expr → SimpM (Option Step)
+
+/--
+"Compose" the two given simplification procedures. We use the following semantics.
+- If `f` produces `done` or `visit`, then return `f`'s result.
+- If `f` produces `continue`, then apply `g` to new expression returned by `f`.
+
+See `Simp.Step` type.
+-/
+@[always_inline]
+def andThen (f g : Simproc) : Simproc := fun e => do
+  match (← f e) with
+  | .done r            => return .done r
+  | .continue none     => g e
+  | .continue (some r) => mkEqTransResultStep r (← g r.expr)
+  | .visit r           => return .visit r
+
+instance : AndThen Simproc where
+  andThen s₁ s₂ := andThen s₁ (s₂ ())
 
 /--
 `Simproc` .olean entry.
@@ -123,10 +176,9 @@ structure Simprocs where
   deriving Inhabited
 
 structure Methods where
-  pre        : Expr → SimpM Step          := fun e => return Step.visit { expr := e }
-  post       : Expr → SimpM Step          := fun e => return Step.done { expr := e }
+  pre        : Simproc                    := fun _ => return .continue
+  post       : Simproc                    := fun e => return .done { expr := e }
   discharge? : Expr → SimpM (Option Expr) := fun _ => return none
-  simprocs   : Simprocs                   := {}
   deriving Inhabited
 
 unsafe def Methods.toMethodsRefImpl (m : Methods) : MethodsRef :=
@@ -259,8 +311,8 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
     let mut r := r
     let mut i := 0
     for arg in args do
-      trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i]!.hasFwdDeps}"
       if h : i < infos.size then
+        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
         let go : SimpM Result := do
           if !info.hasFwdDeps then
@@ -433,6 +485,8 @@ def Step.addExtraArgs (s : Step) (extraArgs : Array Expr) : MetaM Step := do
   match s with
   | .visit r => return .visit (← r.addExtraArgs extraArgs)
   | .done r => return .done (← r.addExtraArgs extraArgs)
+  | .continue none => return .continue none
+  | .continue (some r) => return .continue (← r.addExtraArgs extraArgs)
 
 end Simp
 

@@ -25,9 +25,9 @@ where
     match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) } (fun _ => return none)) with
     | none   => pure ()
     | some r => match (← reduceMatcher? r.expr) with
-      | .reduced e' => return Simp.Step.done { r with expr := e' }
-      | _ => return Simp.Step.done r
-    return Simp.Step.visit { expr := e }
+      | .reduced e' => return .done { r with expr := e' }
+      | _ => return .done r
+    return .continue
 
 def unfoldTarget (mvarId : MVarId) (declName : Name) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)

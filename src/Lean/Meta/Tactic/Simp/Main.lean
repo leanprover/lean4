@@ -108,14 +108,6 @@ where
       f.isConst && isMatcherCore env f.constName!
 
 /--
-Auxiliary function for implementing `ctx.config.ground`: evaluate ground terms eagerly.
-We currently use `whnf` to implement this feature, but we want to stop ground evaluation at symbols marked with the `-` modifier.
-For example, `simp (config := { ground := true }) [-f]` should not unfold `f` even if the goal contains a ground term such as `f 2`.
--/
-private def canUnfoldAtSimpGround (erased : SimpTheoremsArray) (_ : Meta.Config) (info : ConstantInfo) : CoreM Bool := do
-  return !erased.isErased (.decl info.name)
-
-/--
 Try to unfold `e`.
 -/
 private def unfold? (e : Expr) : SimpM (Option Expr) := do
@@ -124,37 +116,6 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     return none
   let fName := f.constName!
   let ctx ← getContext
-  -- TODO: remove `rec` after we switch to new code generator
-  let rec unfoldGround? : SimpM (Option Expr) := do
-      unless ctx.config.ground do return none
-      -- We are assuming that assigned metavariables are going to be instantiated by the main simp loop.
-      if e.hasExprMVar || e.hasFVar then return none
-      if ctx.simpTheorems.isErased (.decl fName) then return none
-      -- TODO: check whether we need more filters
-      if (← isType e) then return none -- we don't unfold types
-      if (← isProof e) then return none -- we don't unfold proofs
-      if (← isInstance fName) then return none -- we don't unfold instances
-      -- TODO: we must have a notion of `simp` value, or more general solution for Lean
-      if Meta.isMatchValue e || isOfNatNatLit e then return none
-      if e.isConst then
-        -- We don't unfold constants that take arguments
-        -- TODO: add support for skipping partial applications too.
-        if let .forallE .. ← whnfD (← inferType e) then
-          return none
-      /-
-      We are currently using `whnf` with a custom `canUnfold?` predicate to reduce ground terms.
-      This can be inefficient, and produce proofs that are too expensive to type check in the Kernel. Some reasons:
-      - Functions defined by Well-founded recursion are expensive to reduce here and in the kernel.
-      - The kernel does not know we may have controlled reduction using `canUnfold?`.
-
-      It would be great to reduce the ground term using a to-be-implemented `cbv` tactic which produces a
-      proof that can be efficiently checked by the kernel.
-      -/
-      let eNew ← withDefault <|
-        withTheReader Meta.Context (fun c => { c with canUnfold? := canUnfoldAtSimpGround ctx.simpTheorems }) <| whnf e
-      if eNew == e then return none
-      trace[Meta.Tactic.simp.ground] "{e}\n---->\n{eNew}"
-      return some eNew
   let rec unfoldDeclToUnfold? : SimpM (Option Expr) := do
     let options ← getOptions
     let cfg ← getConfig
@@ -172,9 +133,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       -- Partially applied function, return `none`. See issue #2042
       if arity > e.getAppNumArgs then return none
       withDefault <| unfoldDefinition? e
-  if let some eNew ← unfoldGround? then
-    return some eNew
-  else if (← isProjectionFn fName) then
+  if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
   else if ctx.config.autoUnfold then
     if ctx.simpTheorems.isErased (.decl fName) then
@@ -449,7 +408,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
         return .visit r.expr
     return .continue
   let post (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePost e (fun _ => pure none) (rflOnly := true) then
+    if let some r ← rewritePost? e (fun _ => pure none) (rflOnly := true) then
       if r.expr != e then
         return .visit r.expr
     let mut eNew ← reduce e
@@ -600,8 +559,12 @@ def simpStep (e : Expr) : SimpM Result := do
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
   if cfg.memoize then
-    let dischargeDepth := (← readThe Simp.Context).dischargeDepth
-    modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+    let ctx ← readThe Simp.Context
+    let dischargeDepth := ctx.dischargeDepth
+    if ctx.unfoldGround then
+      modify fun s => { s with cacheGround := s.cacheGround.insert e { r with dischargeDepth } }
+    else
+      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
   return r
 
 partial def simpLoop (e : Expr) (r : Result) : SimpM Result := do
@@ -628,19 +591,30 @@ partial def simpLoop (e : Expr) (r : Result) : SimpM Result := do
 @[export lean_simp]
 def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
-  let cfg ← getConfig
   if (← isProof e) then
     return { expr := e }
-  if cfg.memoize then
-    if let some result := (← get).cache.find? e then
-      /-
-         If the result was cached at a dischargeDepth > the current one, it may not be valid.
-         See issue #1234
-      -/
-      if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
-        return result
-  trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
-  simpLoop e { expr := e }
+  let ctx ← getContext
+  trace[Meta.debug] "visit [{ctx.unfoldGround}]: {e}"
+  if ctx.unfoldGround then
+    if (← isType e) then
+    unless (← isProp e) do
+      -- Recall that we set `unfoldGround := false` if `e` is a type that is not a proposition.
+      return (← withTheReader Context (fun ctx => { ctx with unfoldGround := false }) go)
+  go
+where
+  go : SimpM Result := do
+    let cfg ← getConfig
+    if cfg.memoize then
+      let cache ← if (← getContext).unfoldGround then pure ((← get).cacheGround) else pure ((← get).cache)
+      if let some result := cache.find? e then
+        /-
+          If the result was cached at a dischargeDepth > the current one, it may not be valid.
+          See issue #1234
+        -/
+        if result.dischargeDepth ≤ (← readThe Simp.Context).dischargeDepth then
+          return result
+    trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
+    simpLoop e { expr := e }
 
 @[inline] def withSimpConfig (ctx : Context) (x : MetaM α) : MetaM α :=
   withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x

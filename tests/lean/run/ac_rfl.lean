@@ -18,7 +18,7 @@ set_option linter.unusedVariables false in
 theorem le_ext : ∀ {x y : Nat} (h : ∀ z, z ≤ x ↔ z ≤ y), x = y
   | 0, 0, _ => rfl
   | x+1, y+1, h => congrArg (· + 1) <| le_ext fun z => have := h (z + 1); by simp_all
-  | 0, y+1, h => have := h 1; by simp_all
+  | 0, y+1, h => have := h 1; by clear h; simp_all
   | x+1, 0, h => have := h 1; by simp_all
 
 theorem le_or_le : ∀ (a b : Nat), a ≤ b ∨ b ≤ a

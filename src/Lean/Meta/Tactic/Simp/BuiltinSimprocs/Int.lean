@@ -60,9 +60,22 @@ If they do, they must disable the following `simprocs`.
 
 builtin_simproc reduceNeg ((- _ : Int)) := fun e => OptionT.run do
   guard (e.isAppOfArity ``Neg.neg 3)
-  let v ← fromExpr? e.appArg!
-  guard (v < 0)
-  return .done { expr := toExpr (- v) }
+  let arg := e.appArg!
+  if arg.isAppOfArity ``OfNat.ofNat 3 then
+    -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
+    guard (← getContext).unfoldGround
+    return .done { expr := e }
+  else
+    let v ← fromExpr? arg
+    if v < 0 then
+      return .done { expr := toExpr (- v) }
+    else
+      return .done { expr := toExpr v }
+
+/-- Return `.done` for positive Int values. We don't want to unfold them when `ground := true`. -/
+builtin_simproc isPosValue ((OfNat.ofNat _ : Int)) := fun e => OptionT.run do
+  guard (e.isAppOfArity ``OfNat.ofNat 3)
+  return .done { expr := e }
 
 builtin_simproc reduceAdd ((_ + _ : Int)) := reduceBin ``HAdd.hAdd 6 (· + ·)
 builtin_simproc reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMul 6 (· * ·)

@@ -330,33 +330,6 @@ instance : AddErrorMessageContext TermElabM where
     pure (ref, msg)
 
 /--
-  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
-  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
-  be preserved. This method is useful for performing computations where all
-  metavariable must be resolved or discarded.
-  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
-  to store their metavariable context. -/
-def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
-  let s ← get
-  let sMeta ← getThe Meta.State
-  try
-    withSaveInfoContext x
-  finally
-    set s
-    set sMeta
-
-/--
-  Execute `x` but discard changes performed to the state.
-  However, the info trees and messages are not discarded. -/
-private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
-  let saved ← saveState
-  try
-    withSaveInfoContext x
-  finally
-    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
-    restoreState saved
-
-/--
   Execute `x` without storing `Syntax` for recursive applications. See `saveRecAppSyntax` field at `Context`.
 -/
 def withoutSavingRecAppSyntax (x : TermElabM α) : TermElabM α :=
@@ -402,9 +375,12 @@ def getLetRecsToLift : TermElabM (List LetRecToLift) := return (← get).letRecs
 /-- Return the declaration of the given metavariable -/
 def getMVarDecl (mvarId : MVarId) : TermElabM MetavarDecl := return (← getMCtx).getDecl mvarId
 
-/-- Execute `x` with `declName? := name`. See `getDeclName?`. -/
+instance : MonadParentDecl TermElabM where
+  getParentDeclName? := getDeclName?
+
+/-- Execute `withSaveParentDeclInfoContext x` with `declName? := name`. See `getDeclName?`. -/
 def withDeclName (name : Name) (x : TermElabM α) : TermElabM α :=
-  withReader (fun ctx => { ctx with declName? := name }) x
+  withReader (fun ctx => { ctx with declName? := name }) <| withSaveParentDeclInfoContext x
 
 /-- Update the universe level parameter names. -/
 def setLevelNames (levelNames : List Name) : TermElabM Unit :=
@@ -445,6 +421,33 @@ def withoutHeedElabAsElimImp (x : TermElabM α) : TermElabM α :=
 -/
 def withoutHeedElabAsElim [MonadFunctorT TermElabM m] : m α → m α :=
   monadMap (m := TermElabM) withoutHeedElabAsElimImp
+
+/--
+  Execute `x` but discard changes performed at `Term.State` and `Meta.State`.
+  Recall that the `Environment` and `InfoState` are at `Core.State`. Thus, any updates to it will
+  be preserved. This method is useful for performing computations where all
+  metavariable must be resolved or discarded.
+  The `InfoTree`s are not discarded, however, and wrapped in `InfoTree.Context`
+  to store their metavariable context. -/
+def withoutModifyingElabMetaStateWithInfo (x : TermElabM α) : TermElabM α := do
+  let s ← get
+  let sMeta ← getThe Meta.State
+  try
+    withSaveInfoContext x
+  finally
+    set s
+    set sMeta
+
+/--
+  Execute `x` but discard changes performed to the state.
+  However, the info trees and messages are not discarded. -/
+private def withoutModifyingStateWithInfoAndMessagesImpl (x : TermElabM α) : TermElabM α := do
+  let saved ← saveState
+  try
+    withSaveInfoContext x
+  finally
+    let saved := { saved with meta.core.infoState := (← getInfoState), meta.core.messages := (← getThe Core.State).messages }
+    restoreState saved
 
 /-- For testing `TermElabM` methods. The #eval command will sign the error. -/
 def throwErrorIfErrors : TermElabM Unit := do

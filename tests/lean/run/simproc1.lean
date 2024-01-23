@@ -5,9 +5,9 @@ def foo (x : Nat) : Nat :=
 
 open Lean Meta
 
-simproc reduceFoo (foo _) := fun e => OptionT.run do
-  guard (e.isAppOfArity ``foo 1)
-  let n ← Nat.fromExpr? e.appArg!
+simproc reduceFoo (foo _) := fun e => do
+  unless e.isAppOfArity ``foo 1 do return .continue
+  let some n ← Nat.fromExpr? e.appArg! | return .continue
   return .done { expr := mkNatLit (n+10) }
 
 example : x + foo 2 = 12 + x := by

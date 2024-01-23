@@ -6,7 +6,8 @@ rec {
   inherit stdenv;
   sourceByRegex = p: rs: lib.sourceByRegex p (map (r: "(/src/)?${r}") rs);
   buildCMake = args: stdenv.mkDerivation ({
-    nativeBuildInputs = [ cmake ];
+    # git only for ExternalProject, which we never check out in the end
+    nativeBuildInputs = [ cmake git ];
     buildInputs = [ gmp llvmPackages.llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];
@@ -29,6 +30,8 @@ rec {
     realSrc = sourceByRegex (src + "/src") [ "CMakeLists\.txt" "cmake.*" "bin.*" "include.*" ".*\.in" "Leanc\.lean" ];
     preConfigure = ''
       touch empty.cpp
+      # just has to exist, never actually used
+      echo 0 > std4.commit
       sed -i 's/add_subdirectory.*//;s/set(LEAN_OBJS.*/set(LEAN_OBJS empty.cpp)/' CMakeLists.txt
     '';
     dontBuild = true;
@@ -119,7 +122,22 @@ rec {
       depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
-      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${leancpp}/lib/lean";
+      Std = build {
+        name = "Std";
+        src = fetchTree {
+          type = "github";
+          owner = "leanprover";
+          repo = "std4";
+          rev = lib.removeSuffix "\n" (readFile ../src/std4.commit);
+        };
+        deps = stdlib;
+      };
+      # if building Std in Nix is too bothersome, we can also use this
+      fakeStd = runCommand "fakeStd" { buildInputs = [ stdenv.cc ]; } ''
+        mkdir $out
+        ar cru "$out/libStd${stdenv.hostPlatform.extensions.sharedLibrary}"
+      '';
+      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${Std.staticLib} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \

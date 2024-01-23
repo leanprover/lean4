@@ -554,7 +554,7 @@ if(${STAGE} GREATER 0)
     GIT_REPOSITORY https://github.com/leanprover/std4
     GIT_TAG ${STD4_COMMIT}
     CONFIGURE_COMMAND ""
-    BUILD_COMMAND bash -c "cd ${LEAN_SOURCE_DIR} && $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Std"
+    BUILD_COMMAND bash -c "cd ${LEAN_SOURCE_DIR} && $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Std 'LEAN=${CMAKE_BINARY_DIR}/bin/lean${CMAKE_EXECUTABLE_SUFFIX}'"
     BUILD_ALWAYS ON
     INSTALL_COMMAND ""
     DEPENDS leanshared

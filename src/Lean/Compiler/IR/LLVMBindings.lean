@@ -326,6 +326,9 @@ opaque disposeTargetMachine (tm : TargetMachine ctx) : BaseIO Unit
 @[extern "lean_llvm_dispose_module"]
 opaque disposeModule (m : Module ctx) : BaseIO Unit
 
+@[extern "lean_llvm_verify_module"]
+opaque verifyModule (m : Module ctx) : BaseIO (Option String)
+
 @[extern "lean_llvm_create_string_attribute"]
 opaque createStringAttribute (key : String) (value : String) : BaseIO (Attribute ctx)
 

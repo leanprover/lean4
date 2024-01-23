@@ -1592,6 +1592,8 @@ def emitLLVM (env : Environment) (modName : Name) (filepath : String) : IO Unit 
            let some fn ← LLVM.getNamedFunction emitLLVMCtx.llvmmodule name
               | throw <| IO.Error.userError s!"ERROR: linked module must have function from runtime module: '{name}'"
            LLVM.setLinkage fn LLVM.Linkage.internal
+         if let some err ← LLVM.verifyModule emitLLVMCtx.llvmmodule then
+           throw <| .userError err
          LLVM.writeBitcodeToFile emitLLVMCtx.llvmmodule filepath
          LLVM.disposeModule emitLLVMCtx.llvmmodule
   | .error err => throw (IO.Error.userError err)

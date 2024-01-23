@@ -122,22 +122,12 @@ rec {
       depRoots = symlinkJoin { name = "depRoots"; paths = map (l: l.depRoots) stdlib; };
       iTree = symlinkJoin { name = "ileans"; paths = map (l: l.iTree) stdlib; };
       Leanc = build { name = "Leanc"; src = lean-bin-tools-unwrapped.leanc_src; deps = stdlib; roots = [ "Leanc" ]; };
-      Std = build {
-        name = "Std";
-        src = fetchTree {
-          type = "github";
-          owner = "leanprover";
-          repo = "std4";
-          rev = lib.removeSuffix "\n" (readFile ../src/std4.commit);
-        };
-        deps = stdlib;
-      };
-      # if building Std in Nix is too bothersome, we can also use this
+      # placate `-lStd`
       fakeStd = runCommand "fakeStd" { buildInputs = [ stdenv.cc ]; } ''
         mkdir $out
         ar cru "$out/libStd${stdenv.hostPlatform.extensions.sharedLibrary}"
       '';
-      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${Std.staticLib} -L${leancpp}/lib/lean";
+      stdlibLinkFlags = "-L${Init.staticLib} -L${Lean.staticLib} -L${Lake.staticLib} -L${fakeStd} -L${leancpp}/lib/lean";
       leanshared = runCommand "leanshared" { buildInputs = [ stdenv.cc ]; libName = "libleanshared${stdenv.hostPlatform.extensions.sharedLibrary}"; } ''
         mkdir $out
         LEAN_CC=${stdenv.cc}/bin/cc ${lean-bin-tools-unwrapped}/bin/leanc -shared ${lib.optionalString stdenv.isLinux "-Wl,-Bsymbolic"} \

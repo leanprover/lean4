@@ -1715,7 +1715,7 @@ class IdempotentOp (op : α → α → α) : Prop where
 This class does not require a proof that `o` is an identity, and
 is used primarily for infering the identity using class resoluton.
 -/
-class LeftIdentity (op : α → β → β) (o : outParam α) : Prop where
+class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
 
 /--
 `LawfulLeftIdentify op o` indicates `o` is a verified left identity of
@@ -1731,7 +1731,7 @@ class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftI
 This class does not require a proof that `o` is an identity, and is used
 primarily for infering the identity using class resoluton.
 -/
-class RightIdentity (op : α → β → α) (o : outParam β) : Prop where
+class RightIdentity (op : α → β → α) (o : outParam β) : Prop
 
 /--
 `LawfulRightIdentify op o` indicates `o` is a verified right identity of
@@ -1747,7 +1747,7 @@ class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends Righ
 This class does not require a proof that `o` is an identity, and is used
 primarily for infering the identity using class resoluton.
 -/
-class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop where
+class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
 
 /--
 `LawfulIdentity op o` indicates `o` is a verified left and right

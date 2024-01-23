@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 import Lean.Parser.Command
+import Lake.Config.PackageDepConfig
 import Lake.DSL.Extensions
 import Lake.DSL.DeclUtil
 
@@ -67,36 +68,73 @@ syntax ifClause :=
 syntax withClause :=
   " with " term
 
+syntax identOrStr :=
+  ident <|> str
+
+def expandIdentOrStr (stx : TSyntax ``identOrStr) : MacroM String :=
+  match stx with
+  | `(identOrStr|$x:ident) => return x.getId.toString (escape := false)
+  | `(identOrStr|$x:str) => return x.getString
+  | _ => Macro.throwErrorAt stx "ill-formed syntax; expected identifier or string literal"
+
+syntax depName :=
+  atomic(identOrStr " / ")? identOrStr
+
 syntax depSpec :=
-  ident (ifClause)? fromClause (withClause)?
+  depName (" @ " term:max)? (ifClause)? (fromClause)? (withClause)?
+
+def mkStrLitFrom (ref : Syntax) (val : String) : StrLit :=
+  Syntax.mkStrLit val <| SourceInfo.fromRef ref
+
+def mkSimpleNameFrom (ref : Syntax) (name : String) : Term :=
+  Syntax.mkApp (mkCIdentFrom ref ``Name.mkSimple) #[mkStrLitFrom ref name]
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment)  : MacroM Command := do
   match stx with
-  | `(depSpec| $name $[if $enable?]? from $src $[with $opts?]?) => do
-    let source ←
-      match src with
-      | `(fromSource|git $url $[@ $rev?]? $[/ $path?]?) =>
-        let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
-        let path ← match path? with | some path => `(some $path) | none => `(none)
-        ``(Source.git $url $rev $path)
-      | `(fromSource|github $owner / $repo $[@ $rev?]? $[/ $path?]?) =>
-        let rev ← match rev? with | some rev => `(some $rev) | none => `(none)
-        let path ← match path? with | some path => `(some $path) | none => `(none)
-        ``(Source.github $owner $repo $rev $path)
-      | `(fromSource|$path:term) =>
-        ``(Source.path $path)
-      | _ => Macro.throwUnsupported
+  | `(depSpec| $fullNameStx $[@ $ver?]? $[if $enable?]? $[from $src?]? $[with $opts?]?) => do
+    let quoteOptStx stx? :=
+      if let some stx := stx? then withRef stx `(some $stx) else `(none)
+    let ver ← quoteOptStx ver?
+    let src ←
+      match src? with
+      | some src =>
+        match src with
+        | `(fromSource|git $url $[@ $rev?]? $[/ $subDir?]?) =>
+          let rev ← quoteOptStx rev?
+          let subDir ← quoteOptStx subDir?
+          ``(some <| PackageDepSrc.git $url $rev $subDir)
+        | `(fromSource|github $owner / $repo $[@ $rev?]? $[/ $subDir?]?) =>
+          let rev ← quoteOptStx rev?
+          let subDir ← quoteOptStx subDir?
+          ``(some <| PackageDepSrc.github $owner $repo $rev $subDir)
+        | `(fromSource|$path:term) =>
+          ``(some <| PackageDepSrc.path $path)
+        | _ => Macro.throwUnsupported
+      | none => ``(none)
     let conditional ← match enable? with
       | some bool => withRef bool `(true) | none => `(false)
     let enable ← match enable? with
       | some bool => pure bool | none => `(true)
     let opts := opts?.getD <| ← `({})
-    `($[$doc?:docComment]? @[package_dep] def $name : Dependency where
-      name := $(quote name.getId)
-      source := $source
+    let `(depName|$[$scope? /]? $nameStx) := fullNameStx
+      | Macro.throwUnsupported
+    let nameStr ← expandIdentOrStr nameStx
+    let name := mkSimpleNameFrom nameStx nameStr
+    let (declName, fullName) ← id do
+      let some scope := scope?
+        | return (Name.mkSimple nameStr, mkStrLitFrom fullNameStx nameStr)
+      let scope ← expandIdentOrStr scope
+      let declName := Name.mkSimple scope |>.str nameStr
+      return (declName, mkStrLitFrom fullNameStx s!"{scope}/{nameStr}")
+    let declId := mkIdentFrom fullNameStx declName
+    `($[$doc?:docComment]? @[package_dep] def $declId : PackageDepConfig where
+      name := $name
+      fullName := $fullName
+      version? := $ver
+      source? := $src
       conditional := $conditional
       enable := $enable
-      opts := $opts
+      options := $opts
     )
   | _ => Macro.throwUnsupported
 
@@ -104,21 +142,29 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment)  : MacroM
 Adds a new package dependency to the workspace. The standard syntax is:
 
 ```
-require <pkg-name> [if <condition>] from <src> [with <opts>]
+require [<scope> /] <pkg-name> [@ <version>]
+  [if <condition>] [from <source>] [with <options>]
 ```
-
-The `if` condition is used to toggle whether the dependency should be
-enabled for a given configuration. If `false`, the dependency will still
-be part of the manifest, but will not be materialized.
 
 The `from` clause tells Lake where to locate the dependency.
 Hover over `from` to see the different forms this clause can take.
 Dependencies that are downloaded from a remote source will be placed
 into the workspace's `packagesDir`.
 
-The `with` clause allows you to specify a `NameMap String` of Lake options
-to configure the dependency with. This is equivalent to passing `-K` options
-to the package on the command line if it was the root.
+Without a `from` clause, Lake will lookup the package in the default
+registry (e.g., Reservoir) and use the information there to download the
+package at the specified `version`. The optional `scope` is used to
+disambiguate which package with `pkg-name` to lookup. In Reservoir, this scope
+is the package owner (e.g., `leanprover` of `@leanprover/std`).
+
+The `if` condition is used to toggle whether the dependency should be
+enabled for a given configuration. If `false`, the dependency will still
+be part of the manifest, but will not be materialized (except during an
+`lake update`).
+
+The `with` clause allows you to specify a `options : NameMap String`
+of Lake options to configure the dependency with. This is equivalent to
+passing `-K` options to the package on the command line if it was the root.
 -/
 scoped macro (name := requireDecl)
 doc?:(docComment)? "require " spec:depSpec : command =>

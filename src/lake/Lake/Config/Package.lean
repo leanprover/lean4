@@ -8,7 +8,7 @@ import Lake.Config.LeanLibConfig
 import Lake.Config.LeanExeConfig
 import Lake.Config.ExternLibConfig
 import Lake.Config.WorkspaceConfig
-import Lake.Config.Dependency
+import Lake.Config.PackageDepConfig
 import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap

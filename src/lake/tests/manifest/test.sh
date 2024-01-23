@@ -41,10 +41,10 @@ test_update() {
 
 # Test loading of a V4 manifest fails
 cp lake-manifest-v4.json lake-manifest.json
-($LAKE resolve-deps 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
+($LAKE resolve-deps 2>&1 && exit 1 || true) | grep --color "incompatible version '4'"
 
 # Test package update fails as well
-($LAKE update bar 2>&1 && exit 1 || true) | grep "incompatible manifest version '4'"
+($LAKE update bar 2>&1 && exit 1 || true) | grep --color "incompatible version '4'"
 
 # Test bare update works
 test_update

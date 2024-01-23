@@ -22,9 +22,9 @@ The main definitions for loading a workspace and resolving dependencies.
 
 namespace Lake
 
-/-- Load the tagged `Dependency` definitions from a package configuration environment. -/
-def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array Dependency) := do
-  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts Dependency ``Dependency)
+/-- Load the tagged `PackageDepConfig` definitions from a package configuration environment. -/
+def loadDepsFromEnv (env : Environment) (opts : Options) : Except String (Array PackageDepConfig) := do
+  (packageDepAttr.getAllEntries env).mapM (evalConstCheck env opts PackageDepConfig ``PackageDepConfig)
 
 /--
 Elaborate a dependency's configuration file into a `Package`.
@@ -163,7 +163,7 @@ def Workspace.updateAndMaterialize (ws : Workspace)
           -- Load the package
           let depPkg ← dep.loadPackage ws.dir pkg.leanOpts reconfigure
           if depPkg.name ≠ dep.name then
-            logWarning s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
+            error s!"{pkg.name}: package '{depPkg.name}' was required as '{dep.name}'"
           -- Materialize locked dependencies
           match (← Manifest.load depPkg.manifestFile |>.toBaseIO) with
           | .ok manifest =>
@@ -226,17 +226,19 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
               s!"manifest out of date: {what} of dependency '{dep.name}' changed; " ++
               s!"use `lake update {dep.name}` to update it"
           if let .some entry := pkgEntries.find? dep.name then
-          match dep.source, entry.source with
-          | .git (url := url) (rev := rev) ..,
-            .git (url := url') (inputRev? := rev')  .. =>
+          match dep.source?, entry.source with
+          | some <| .git (url := url) (rev? := rev?) ..,
+            .git (url := url') (inputRev? := rev?')  .. =>
             if url ≠ url' then warnOutOfDate "git url"
-            if rev ≠ rev' then warnOutOfDate "git revision"
-          | .github (owner := owner) (repo := repo) (rev := rev) ..,
-            .github (owner := owner') (repo := repo') (inputRev? := rev')  .. =>
+            if rev? ≠ rev?' then warnOutOfDate "git revision"
+          | some <| .github (owner := owner) (repo := repo) (rev? := rev?) ..,
+            .github (owner := owner') (repo := repo') (inputRev? := rev?')  .. =>
             if owner ≠ owner' ∨  repo ≠ repo' then warnOutOfDate "github repository"
-            if rev ≠ rev' then warnOutOfDate "git revision"
-          | .path .., .path .. => pure ()
-          | _, _ => warnOutOfDate "source kind (path/git/github)"
+            if rev? ≠ rev?' then warnOutOfDate "git revision"
+          | some <| .path .., .path .. => pure ()
+          | none, .registry (inputRev? := rev?) .. =>
+            if dep.version? ≠ rev? then warnOutOfDate "git revision"
+          | _, _ => warnOutOfDate "source kind (path, git, etc.)"
       let depPkgs ← deps.filterMapM fun dep =>
         if !dep.enable then return none else some <$> fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then

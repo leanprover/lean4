@@ -5,7 +5,6 @@ Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
 import Lake.Util.Git
 import Lake.Load.Manifest
-import Lake.Config.Dependency
 import Lake.Config.Package
 
 open System Lean
@@ -29,9 +28,9 @@ def updateGitPkg (name : String) (repo : GitRepo) (rev? : Option String) : LogIO
     repo.checkoutDetach rev
 
 /-- Clone the Git package as `repo`. -/
-def cloneGitPkg (name : Name) (repo : GitRepo)
+def cloneGitPkg (name : String) (repo : GitRepo)
 (url : String) (rev? : Option String) : LogIO PUnit := do
-  logInfo s!"{name}: cloning {url} to '{repo.dir}'"
+  logInfo s!"{name}: cloning '{url}' to '{repo.dir}'"
   repo.clone url
   if let some rev := rev? then
     let hash ← repo.resolveRemoteRevision rev
@@ -81,8 +80,8 @@ structure MaterializedDep where
   remoteUrl? : Option String
   /-- The manifest entry for the dependency. -/
   manifestEntry : PackageEntry
-  /-- The configuration-specified dependency. -/
-  configDep : Dependency
+  /-- The configuration-specified package dependency. -/
+  depConfig : PackageDepConfig
   deriving Inhabited
 
 @[inline] def MaterializedDep.name (self : MaterializedDep) :=
@@ -98,7 +97,7 @@ structure MaterializedDep where
 
  /-- Lake configuration options for the dependency. -/
 @[inline] def MaterializedDep.configOpts (self : MaterializedDep) :=
-  self.configDep.opts
+  self.depConfig.options
 
 local instance : HDiv FilePath (Option FilePath) FilePath where
   hDiv a b? := match b? with | .some b => a / b | .none => a
@@ -106,49 +105,141 @@ local instance : HDiv FilePath (Option FilePath) FilePath where
 def mkGitHubUrl (owner repo : String) :=
   s!"https://github.com/{owner}/{repo}"
 
+inductive RegistrySrc
+| git (url : String) (data : JsonObject)
+| github (id fullName repoUrl gitUrl : String)
+| other (data : JsonObject)
+namespace RegistrySrc
+
+@[inline] def gitUrl? (src : RegistrySrc) : Option String :=
+  match src with
+  | .git url .. => some url
+  | .github (gitUrl := url) .. => some url
+  | _ => none
+
+@[inline] def githubUrl? (src : RegistrySrc) : Option String :=
+  match src with
+  | .github (repoUrl := url) .. => some url
+  | _ => none
+
+protected def fromJson? (val : Json) : Except String RegistrySrc :=
+  try
+    let obj ← JsonObject.fromJson? val
+    let host ← obj.get "host"
+    match host with
+    | "github" =>
+      let id ← obj.get "id"
+      let fullName ← obj.get "fullName"
+      let repoUrl ← obj.get "repoUrl"
+      let gitUrl ← obj.get "gitUrl"
+      return .github id fullName repoUrl gitUrl
+    | _ =>
+      if let some url ← obj.get? "gitUrl" then
+        return .git url <| obj.erase "gitUrl"
+      else
+        return .other obj
+  catch e =>
+    throw s!"source: {e}"
+
+instance : FromJson RegistrySrc := ⟨RegistrySrc.fromJson?⟩
+
+end RegistrySrc
+
+structure RegistryPkg where
+  name : String
+  fullName : String
+  sources : Array RegistrySrc
+
+namespace RegistryPkg
+
+def gitUrl? (pkg : RegistryPkg) : Option String :=
+  pkg.sources.findSome? (·.gitUrl?)
+
+def githubUrl? (pkg : RegistryPkg) : Option String :=
+  pkg.sources.findSome? (·.githubUrl?)
+
+protected def fromJson? (val : Json) : Except String RegistryPkg := do
+  let obj ← JsonObject.fromJson? val
+  let name ← obj.get "name"
+  let fullName ← obj.get "fullName"
+  let sources ← (← obj.getD "sources" #[]).mapM fromJson?
+  return {name, fullName, sources}
+
+instance : FromJson RegistryPkg := ⟨RegistryPkg.fromJson?⟩
+
+end RegistryPkg
+
+def getUrl (url : String) : LogIO String := do
+  captureProc {cmd := "curl", args := #["-s", "-f", "-L", url]}
+
+def fetchRegistryPkg (pkg : String) : LogIO RegistryPkg := do
+  let url := s!"https://reservoir.lean-lang.org/api/v0/packages/{pkg}"
+  let out ← getUrl url <|> error s!"{pkg}: failed to lookup package on Reservoir"
+  match Json.parse out >>= fromJson? with
+  | .ok json =>
+    match fromJson? json with
+    | .ok pkg => pure pkg
+    | .error e => error s!"{pkg}: registry returned unsupported JSON: {e}"
+  | .error e => error s!"{pkg}: registry returned invalid JSON: {e}"
+
+@[inline] def extractGitUrl (pkg : RegistryPkg) : LogIO String := do
+  let some url := pkg.gitUrl?
+    | error "{pkg.fullName}: no Git source URL found in Lake's default registry (Reservoir)"
+  return url
+
 /--
-Materializes a configuration dependency.
+Materializes a configuration package dependency.
 For Git dependencies, updates it to the latest input revision.
 -/
-def Dependency.materialize (dep : Dependency) (inherited : Bool)
+def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
 (wsDir relPkgsDir relParentDir : FilePath) (pkgUrlMap : NameMap String)
-: LogIO MaterializedDep :=
-  match dep.source with
-  | .path dir =>
-    let relPkgDir := relParentDir / dir
-    return {
-      relPkgDir
-      remoteUrl? := none
-      manifestEntry := mkEntry <| .path relPkgDir
-      configDep := dep
-    }
-  | .git url inputRev? subDir? => do
-    let sname := dep.name.toString (escape := false)
-    let relGitDir := relPkgsDir / sname
-    let rev ← materializeGit sname relGitDir url inputRev?
-    return {
-      relPkgDir := relGitDir / subDir?
-      remoteUrl? := Git.filterUrl? url
-      manifestEntry := mkEntry <| .git url rev inputRev? subDir?
-      configDep := dep
-    }
-  | .github owner repo inputRev? subDir? => do
-      let url := mkGitHubUrl owner repo
-      let strName := dep.name.toString (escape := false)
-      let relGitDir := relPkgsDir / owner / repo
-      let rev ← materializeGit strName relGitDir url inputRev?
+: LogIO MaterializedDep := do
+  if let some src := dep.source? then
+    match src with
+    | .path dir =>
+      let relPkgDir := relParentDir / dir
+      return {
+        relPkgDir
+        remoteUrl? := none
+        manifestEntry := mkEntry <| .path relPkgDir
+        depConfig := dep
+      }
+    | .git url inputRev? subDir? =>
+      let relGitDir := relPkgsDir / dep.fullName
+      let rev ← materializeGit dep.fullName relGitDir url inputRev?
       return {
         relPkgDir := relGitDir / subDir?
-        remoteUrl? := url
-        manifestEntry := mkEntry <| .github owner repo rev inputRev? subDir?
-        configDep := dep
+        remoteUrl? := Git.filterUrl? url
+        manifestEntry := mkEntry <| .git url rev inputRev? subDir?
+        depConfig := dep
       }
+    | .github owner repo inputRev? subDir? =>
+        let url := mkGitHubUrl owner repo
+        let relGitDir := relPkgsDir / dep.name.toString (escape := false)
+        let rev ← materializeGit dep.fullName relGitDir url inputRev?
+        return {
+          relPkgDir := relGitDir / subDir?
+          remoteUrl? := url
+          manifestEntry := mkEntry <| .github owner repo rev inputRev? subDir?
+          depConfig := dep
+        }
+  else
+    let pkg ← fetchRegistryPkg dep.fullName
+    let url ← extractGitUrl pkg
+    let relPkgDir := relPkgsDir / pkg.name
+    let rev ← materializeGit dep.fullName relPkgDir url dep.version?
+    return {
+      relPkgDir
+      remoteUrl? := pkg.githubUrl?
+      manifestEntry := mkEntry <| .registry rev dep.version?
+      depConfig := dep
+    }
 where
-  mkEntry source :=
+  mkEntry source : PackageEntry :=
     {name := dep.name, conditional := dep.conditional, inherited, source}
   materializeGit name relGitDir url inputRev? := do
     let repo := GitRepo.mk (wsDir / relGitDir)
-    let materializeUrl := pkgUrlMap.find? dep.name |>.getD url
+    let materializeUrl := pkgUrlMap.find? (.mkSimple name) |>.getD url
     materializeGitRepo name repo materializeUrl inputRev?
     repo.getHeadRevision
 
@@ -156,19 +247,24 @@ where
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
 def PackageEntry.materialize (manifestEntry : PackageEntry)
-(configDep : Dependency) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
-: LogIO MaterializedDep :=
+(depConfig : PackageDepConfig) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
+: LogIO MaterializedDep := do
   match manifestEntry.source with
   | .path (dir := relPkgDir) .. =>
-    return {relPkgDir, manifestEntry, configDep, remoteUrl? := none}
-  | .git (url := url) (rev := rev) (subDir? := subDir?) .. => do
+    return {relPkgDir, manifestEntry, depConfig, remoteUrl? := none}
+  | .git (url := url) (rev := rev) (subDir? := subDir?) .. =>
     let relPkgDir ← materializeGit url rev subDir?
     let remoteUrl? := Git.filterUrl? url
-    return {relPkgDir, manifestEntry, configDep, remoteUrl?}
-  | .github (owner := owner) (repo := repo) (rev := rev) (subDir? := subDir?) .. => do
+    return {relPkgDir, manifestEntry, depConfig, remoteUrl?}
+  | .github (owner := owner) (repo := repo) (rev := rev) (subDir? := subDir?) .. =>
     let url := mkGitHubUrl owner repo
     let relPkgDir ← materializeGit url rev subDir?
-    return {relPkgDir, manifestEntry, configDep, remoteUrl? := url}
+    return {relPkgDir, manifestEntry, depConfig, remoteUrl? := url}
+  | .registry (rev := rev) .. =>
+    let pkg ← fetchRegistryPkg depConfig.fullName
+    let url ← extractGitUrl pkg
+    let relPkgDir ← materializeGit url rev none
+    return {relPkgDir,  manifestEntry, depConfig, remoteUrl? := pkg.githubUrl?}
 where
   materializeGit url rev subDir? := do
     let name := manifestEntry.name

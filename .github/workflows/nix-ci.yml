@@ -90,6 +90,13 @@ jobs:
           # https://github.com/netlify/cli/issues/1809
           cp -r --dereference ./result ./dist
         if: matrix.name == 'Nix Linux'
+      - name: Check manual for broken links
+        id: lychee
+        uses: lycheeverse/lychee-action@v1.9.0
+        with:
+          fail: true
+          # gmplib.org consistently times out from GH actions
+          args: --base './dist' --no-progress --exclude 'gmplib.org' './dist/**/*.html'
       - name: Push to Cachix
         run: |
           [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true
@@ -112,6 +119,7 @@ jobs:
           echo "message=`git log -1 --pretty=format:"%s"`" >> "$GITHUB_OUTPUT"
       - name: Publish manual to Netlify
         uses: nwtgck/actions-netlify@v2.0
+        id: publish-manual
         with:
           publish-dir: ./dist
           production-branch: master

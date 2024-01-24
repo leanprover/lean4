@@ -16,15 +16,15 @@ structure AbstractMVarsResult where
 namespace AbstractMVars
 
 structure State where
-  ngen         : NameGenerator
-  lctx         : LocalContext
-  mctx         : MetavarContext
-  nextParamIdx : Nat := 0
-  paramNames   : Array Name := #[]
-  fvars        : Array Expr  := #[]
-  lmap         : HashMap LMVarId Level := {}
-  emap         : HashMap MVarId Expr  := {}
-  levels       : Bool -- whether to abstract level mvars
+  ngen           : NameGenerator
+  lctx           : LocalContext
+  mctx           : MetavarContext
+  nextParamIdx   : Nat := 0
+  paramNames     : Array Name := #[]
+  fvars          : Array Expr  := #[]
+  lmap           : HashMap LMVarId Level := {}
+  emap           : HashMap MVarId Expr  := {}
+  abstractLevels : Bool -- whether to abstract level mvars
 
 abbrev M := StateM State
 
@@ -43,7 +43,7 @@ def mkFreshFVarId : M FVarId :=
   return { name := (← mkFreshId) }
 
 private partial def abstractLevelMVars (u : Level) : M Level := do
-  if !(← get).levels then
+  if !(← get).abstractLevels then
     return u
   if !u.hasMVar then
     return u
@@ -132,7 +132,8 @@ end AbstractMVars
   Application: we use this method to cache the results of type class resolution. -/
 def abstractMVars (e : Expr) (levels : Bool := true): MetaM AbstractMVarsResult := do
   let e ← instantiateMVars e
-  let (e, s) := AbstractMVars.abstractExprMVars e { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen), levels }
+  let (e, s) := AbstractMVars.abstractExprMVars e
+    { mctx := (← getMCtx), lctx := (← getLCtx), ngen := (← getNGen), abstractLevels := levels }
   setNGen s.ngen
   setMCtx s.mctx
   let e := s.lctx.mkLambda s.fvars e

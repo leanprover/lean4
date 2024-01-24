@@ -69,6 +69,10 @@ example : x + foo 2 = 12 + x := by
   fail_if_success simp [-reduceFoo]
   simp_arith
 ```
+The command `register_simp_attr <id>` now creates a `simp` **and** a `simproc` set with the name `<id>`. The following command instructs Lean to insert the `reduceFoo` simplification procedure into the set `my_simp`. If no set is specified, Lean uses the default `simp` set.
+```lean
+simproc [my_simp] reduceFoo (foo _) := ...
+```
 
 * The syntax of the `termination_by` and `decreasing_by` termination hints is overhauled:
 

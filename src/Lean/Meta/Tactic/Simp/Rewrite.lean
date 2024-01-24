@@ -308,13 +308,13 @@ def simpGround (discharge? : Expr → SimpM (Option Expr)) : Simproc := fun e =>
   trace[Meta.Tactic.simp.ground] "delta, {e} => {eNew}"
   return .visit { expr := eNew }
 
-partial def preDefault (s : Simprocs) (discharge? : Expr → SimpM (Option Expr)) : Simproc :=
+partial def preDefault (s : SimprocsArray) (discharge? : Expr → SimpM (Option Expr)) : Simproc :=
   rewritePre discharge? >>
   simpMatch discharge? >>
   userPreSimprocs s >>
   simpUsingDecide
 
-def postDefault (s : Simprocs) (discharge? : Expr → SimpM (Option Expr)) : Simproc :=
+def postDefault (s : SimprocsArray) (discharge? : Expr → SimpM (Option Expr)) : Simproc :=
   rewritePost discharge? >>
   userPostSimprocs s >>
   simpGround discharge? >>
@@ -410,18 +410,18 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
 
 abbrev Discharge := Expr → SimpM (Option Expr)
 
-def mkMethods (s : Simprocs) (discharge? : Discharge) : Methods := {
+def mkMethods (s : SimprocsArray) (discharge? : Discharge) : Methods := {
   pre        := preDefault s discharge?
   post       := postDefault s discharge?
   discharge? := discharge?
 }
 
-def mkDefaultMethodsCore (simprocs : Simprocs) : Methods :=
+def mkDefaultMethodsCore (simprocs : SimprocsArray) : Methods :=
   mkMethods simprocs dischargeDefault?
 
 def mkDefaultMethods : CoreM Methods := do
   if simprocs.get (← getOptions) then
-    return mkDefaultMethodsCore (← getSimprocs)
+    return mkDefaultMethodsCore #[(← getSimprocs)]
   else
     return mkDefaultMethodsCore {}
 

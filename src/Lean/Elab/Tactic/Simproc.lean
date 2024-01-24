@@ -52,34 +52,4 @@ namespace Command
 
 end Command
 
-builtin_initialize
-  registerBuiltinAttribute {
-    ref             := by exact decl_name%
-    name            := `simprocAttr
-    descr           := "Simplification procedure"
-    erase           := eraseSimprocAttr
-    add             := fun declName stx attrKind => do
-      let go : MetaM Unit := do
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        addSimprocAttr declName attrKind post
-      go.run' {}
-    applicationTime := AttributeApplicationTime.afterCompilation
-  }
-
-builtin_initialize
-  registerBuiltinAttribute {
-    ref             := by exact decl_name%
-    name            := `simprocBuiltinAttr
-    descr           := "Builtin simplification procedure"
-    erase           := eraseSimprocAttr
-    add             := fun declName stx _ => do
-      let go : MetaM Unit := do
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        let val := mkAppN (mkConst ``addSimprocBuiltinAttr) #[toExpr declName, toExpr post, mkConst declName]
-        let initDeclName ← mkFreshUserName (declName ++ `declare)
-        declareBuiltin initDeclName val
-      go.run' {}
-    applicationTime := AttributeApplicationTime.afterCompilation
-  }
-
 end Lean.Elab

@@ -10,7 +10,7 @@ ifndef PKG
   endif
 endif
 
-LEAN ?= lean
+LEAN = lean
 LEANC = leanc
 LEAN_AR = @CMAKE_AR@
 OUT = build

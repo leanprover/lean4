@@ -327,7 +327,7 @@ jobs:
           OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
           if [[ -n '${{ matrix.cross_target }}' ]]; then
             # used by `prepare-llvm`
-            export LEAN_EXTRA_FLAGS=--target=${{ matrix.cross_target }}
+            export EXTRA_FLAGS=--target=${{ matrix.cross_target }}
             OPTIONS+=(-DLEAN_PLATFORM_TARGET=${{ matrix.cross_target }})
           fi
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then

@@ -1,12 +1,12 @@
-open Lean
+open Std
 
-instance : IsAssociative (α := Nat) HAdd.hAdd := ⟨Nat.add_assoc⟩
-instance : IsCommutative (α := Nat) HAdd.hAdd := ⟨Nat.add_comm⟩
-instance : IsNeutral HAdd.hAdd 0 := ⟨Nat.zero_add, Nat.add_zero⟩
+instance : Associative (α := Nat) HAdd.hAdd := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) HAdd.hAdd := ⟨Nat.add_comm⟩
+instance : LawfulCommIdentity HAdd.hAdd 0 where right_id := Nat.add_zero
 
-instance : IsAssociative (α := Nat) HMul.hMul := ⟨Nat.mul_assoc⟩
-instance : IsCommutative (α := Nat) HMul.hMul := ⟨Nat.mul_comm⟩
-instance : IsNeutral HMul.hMul 1 := ⟨Nat.one_mul, Nat.mul_one⟩
+instance : Associative (α := Nat) HMul.hMul := ⟨Nat.mul_assoc⟩
+instance : Commutative (α := Nat) HMul.hMul := ⟨Nat.mul_comm⟩
+instance : LawfulCommIdentity HMul.hMul 1 where right_id := Nat.mul_one
 
 @[simp] theorem succ_le_succ_iff {x y : Nat} : x.succ ≤ y.succ ↔ x ≤ y :=
   ⟨Nat.le_of_succ_le_succ, Nat.succ_le_succ⟩
@@ -52,22 +52,23 @@ theorem Nat.zero_max (n : Nat) : max 0 n = n := by simp [Nat.max_def]
 
 theorem Nat.max_zero (n : Nat) : max n 0 = n := by rw [max_comm, Nat.zero_max]
 
-instance : IsAssociative (α := Nat) max := ⟨max_assoc⟩
-instance : IsCommutative (α := Nat) max := ⟨max_comm⟩
-instance : IsIdempotent (α := Nat) max := ⟨max_idem⟩
-instance : IsNeutral max 0 := ⟨Nat.zero_max, Nat.max_zero⟩
+instance : Associative (α := Nat) max := ⟨max_assoc⟩
+instance : Commutative (α := Nat) max := ⟨max_comm⟩
+instance : IdempotentOp (α := Nat) max := ⟨max_idem⟩
+instance : LawfulCommIdentity max 0 where
+  right_id := Nat.max_zero
 
-instance : IsAssociative And := ⟨λ p q r => propext ⟨λ ⟨⟨hp, hq⟩, hr⟩ => ⟨hp, hq, hr⟩, λ ⟨hp, hq, hr⟩ => ⟨⟨hp, hq⟩, hr⟩⟩⟩
-instance : IsCommutative And := ⟨λ p q => propext ⟨λ ⟨hp, hq⟩ => ⟨hq, hp⟩, λ ⟨hq, hp⟩ => ⟨hp, hq⟩⟩⟩
-instance : IsIdempotent And := ⟨λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, hp⟩⟩⟩
-instance : IsNeutral And True :=
-  ⟨λ p => propext ⟨λ ⟨_, hp⟩ => hp, λ hp => ⟨True.intro, hp⟩⟩, λ p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, True.intro⟩⟩⟩
+instance : Associative And := ⟨λ _p _q _r => propext ⟨λ ⟨⟨hp, hq⟩, hr⟩ => ⟨hp, hq, hr⟩, λ ⟨hp, hq, hr⟩ => ⟨⟨hp, hq⟩, hr⟩⟩⟩
+instance : Commutative And := ⟨λ _p _q => propext ⟨λ ⟨hp, hq⟩ => ⟨hq, hp⟩, λ ⟨hq, hp⟩ => ⟨hp, hq⟩⟩⟩
+instance : IdempotentOp And := ⟨λ _p => propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, hp⟩⟩⟩
+instance : LawfulCommIdentity And True where
+  right_id _p := propext ⟨λ ⟨hp, _⟩ => hp, λ hp => ⟨hp, True.intro⟩⟩
 
-instance : IsAssociative Or := ⟨by simp [or_assoc]⟩
-instance : IsCommutative Or := ⟨λ p q => propext ⟨λ hpq => hpq.elim Or.inr Or.inl, λ hqp => hqp.elim Or.inr Or.inl⟩⟩
-instance : IsIdempotent Or := ⟨λ p => propext ⟨λ hp => hp.elim id id, Or.inl⟩⟩
-instance : IsNeutral Or False :=
-  ⟨λ p => propext ⟨λ hfp => hfp.elim False.elim id, Or.inr⟩, λ p => propext ⟨λ hpf => hpf.elim id False.elim, Or.inl⟩⟩
+instance : Associative Or := ⟨by simp [or_assoc]⟩
+instance : Commutative Or := ⟨λ_p _q => propext ⟨λ hpq => hpq.elim Or.inr Or.inl, λ hqp => hqp.elim Or.inr Or.inl⟩⟩
+instance : IdempotentOp Or := ⟨λ_p => propext ⟨λ hp => hp.elim id id, Or.inl⟩⟩
+instance : LawfulCommIdentity Or False where
+  right_id _p := propext ⟨λ hpf => hpf.elim id False.elim, Or.inl⟩
 
 example (x y z : Nat) : x + y + 0 + z = z + (x + y) := by ac_rfl
 

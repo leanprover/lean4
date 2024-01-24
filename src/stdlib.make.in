@@ -4,7 +4,7 @@
 LEAN_BASH ?= /usr/bin/env bash
 SHELL := $(LEAN_BASH) -eo pipefail
 
-export LEAN ?= "${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"
+LEAN ?= "${PREV_STAGE}/bin/lean${PREV_STAGE_CMAKE_EXECUTABLE_SUFFIX}"
 
 # any absolute path to the stdlib breaks the Makefile
 export LEAN_PATH=

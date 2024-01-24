@@ -321,18 +321,18 @@ jobs:
           mkdir build
           cd build
           ulimit -c unlimited # coredumps
-          # script to invoke for preparing LLVM inclusion
-          PREPARE=$(${{ matrix.prepare-llvm }})
           # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
           if [[ -n '${{ matrix.cross_target }}' ]]; then
-            PREPARE=LEAN_EXTRA_FLAGS=--target=${{ matrix.cross_target }} $PREPARE
+            # used by `prepare-llvm`
+            export LEAN_EXTRA_FLAGS=--target=${{ matrix.cross_target }}
             OPTIONS+=(-DLEAN_PLATFORM_TARGET=${{ matrix.cross_target }})
           fi
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
+            PREPARE="$(${{ matrix.prepare-llvm }})"
             eval "OPTIONS+=($PREPARE)"
           fi
           if [[ -n '${{ matrix.release }}' && -n '${{ needs.configure.outputs.nightly }}' ]]; then

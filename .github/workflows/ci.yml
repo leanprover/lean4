@@ -124,10 +124,11 @@ jobs:
                 "release": true,
                 "quick": false,
                 "cross": true,
+                "cross_target": "aarch64-apple-darwin",
                 "shell": "bash -euxo pipefail {0}",
                 "CMAKE_OPTIONS": "-DUSE_GMP=OFF -DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-apple-darwin.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-apple-darwin.tar.zst",
-                "prepare-llvm": "EXTRA_FLAGS=--target=aarch64-apple-darwin ../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
+                "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm-aarch64-* lean-llvm-x86_64-*",
                 "binary-check": "otool -L",
                 "tar": "gtar" // https://github.com/actions/runner-images/issues/2619
               },
@@ -151,9 +152,10 @@ jobs:
                 "release": true,
                 "quick": false,
                 "cross": true,
+                "cross_target": "aarch64-unknown-linux-gnu",
                 "shell": "nix-shell --arg pkgsDist \"import (fetchTarball \\\"channel:nixos-19.03\\\") {{ localSystem.config = \\\"aarch64-unknown-linux-gnu\\\"; }}\" --run \"bash -euxo pipefail {0}\"",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-x86_64-linux-gnu.tar.zst https://github.com/leanprover/lean-llvm/releases/download/15.0.1/lean-llvm-aarch64-linux-gnu.tar.zst",
-                "prepare-llvm": "EXTRA_FLAGS=--target=aarch64-unknown-linux-gnu ../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm-aarch64-* lean-llvm-x86_64-*"
               },
               {
                 "name": "Linux 32bit",
@@ -321,9 +323,15 @@ jobs:
           mkdir build
           cd build
           ulimit -c unlimited # coredumps
+          # arguments passed to `cmake`
           # this also enables githash embedding into stage 1 library
           OPTIONS=(-DCHECK_OLEAN_VERSION=ON)
           OPTIONS+=(-DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true)
+          if [[ -n '${{ matrix.cross_target }}' ]]; then
+            # used by `prepare-llvm`
+            export EXTRA_FLAGS=--target=${{ matrix.cross_target }}
+            OPTIONS+=(-DLEAN_PLATFORM_TARGET=${{ matrix.cross_target }})
+          fi
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"

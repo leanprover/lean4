@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Fin.Basic
-import Init.System.Platform
 
 open Nat
 

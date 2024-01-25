@@ -229,6 +229,10 @@ def ofListWith (l : List (α × β)) (f : β → β → β) : HashMap α β :=
         | some v => m.insert p.fst $ f v p.snd)
 end Lean.HashMap
 
+/--
+Groups all elements `x`, `y` in `xs` with `key x == key y` into the same array
+`(xs.groupByKey key).find! (key x)`. Groups preserve the relative order of elements in `xs`.
+-/
 def Array.groupByKey [BEq α] [Hashable α] (key : β → α) (xs : Array β)
     : Lean.HashMap α (Array β) := Id.run do
   let mut groups := ∅

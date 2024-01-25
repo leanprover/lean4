@@ -8,6 +8,8 @@ Authors: Joscha Mennicken
 import Lean.Expr
 import Lean.Data.Lsp.Basic
 
+set_option linter.missingDocs true -- keep it documented
+
 /-! This file contains types for communication between the watchdog and the
 workers. These messages are not visible externally to users of the LSP server.
 -/
@@ -17,17 +19,27 @@ namespace Lean.Lsp
 /-! Most reference-related types have custom FromJson/ToJson implementations to
 reduce the size of the resulting JSON. -/
 
+/--
+Identifier of a reference.
+-/
 inductive RefIdent where
+  /-- Named identifier. These are used in all references that are globally available. -/
   | const : Name → RefIdent
+  /-- Unnamed identifier. These are used for all local references. -/
   | fvar  : FVarId → RefIdent
   deriving BEq, Hashable, Inhabited
 
 namespace RefIdent
 
+/-- Converts the reference identifier to a string by prefixing it with a symbol. -/
 def toString : RefIdent → String
   | RefIdent.const n => s!"c:{n}"
   | RefIdent.fvar id => s!"f:{id.name}"
 
+/--
+Converts the string representation of a reference identifier back to a reference identifier.
+The string representation must have been created by `RefIdent.toString`.
+-/
 def fromString (s : String) : Except String RefIdent := do
   let sPrefix := s.take 2
   let sName := s.drop 2
@@ -53,18 +65,31 @@ instance : ToJson RefIdent where
 
 end RefIdent
 
+/-- Information about the declaration surrounding a reference. -/
 structure RefInfo.ParentDecl where
+  /-- Name of the declaration surrounding a reference. -/
   name           : Name
+  /-- Range of the declaration surrounding a reference. -/
   range          : Lsp.Range
+  /-- Selection range of the declaration surrounding a reference. -/
   selectionRange : Lsp.Range
   deriving ToJson
 
+/--
+Denotes the range of a reference, as well as the parent declaration of the reference.
+If the reference is itself a declaration, then it contains no parent declaration.
+-/
 structure RefInfo.Location where
+  /-- Range of the reference. -/
   range       : Lsp.Range
+  /-- Parent declaration of the reference. `none` if the reference is itself a declaration. -/
   parentDecl? : Option RefInfo.ParentDecl
 
+/-- Definition site and usage sites of a reference. Obtained from `Lean.Server.RefInfo`. -/
 structure RefInfo where
+  /-- Definition site of the reference. May be `none` when we cannot find a definition site. -/
   definition? : Option RefInfo.Location
+  /-- Usage sites of the reference. -/
   usages      : Array RefInfo.Location
 
 instance : ToJson RefInfo where
@@ -135,6 +160,7 @@ Contains the file's definitions and references. -/
 structure LeanIleanInfoParams where
   /-- Version of the file these references are from. -/
   version    : Nat
+  /-- All references for the file. -/
   references : ModuleRefs
   deriving FromJson, ToJson
 

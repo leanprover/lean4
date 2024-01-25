@@ -175,7 +175,7 @@ all references of an identifier:
 - Chains of helper definitions like those created for do-reassignment `x := e`
 - Overlapping definitions like those defined by `where` declarations that define both an FVar
   (for local usage) and a constant (for non-local usage)
-- Identifiers connected by `FVarAliasInfo`
+- Identifiers connected by `FVarAliasInfo` such as variables before and after `match` generalization
 
 In the first three cases that are not explicitly denoted as aliases with an `FVarAliasInfo`, the
 corresponding `Reference`s have the exact same range.

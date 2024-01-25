@@ -15,7 +15,7 @@ The most fundamental pieces of any Lean program are functions organized into nam
 [Functions](./functions.md) perform work on inputs to produce outputs,
 and they are organized under [namespaces](./namespaces.md),
 which are the primary way you group things in Lean.
-They are defined using the [`def`](./definitions.md) command,
+They are defined using the `def` command,
 which give the function a name and define its arguments.
 
 ```lean

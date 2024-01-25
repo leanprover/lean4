@@ -1,0 +1,8 @@
+foo Nat : Nat
+foo Nat 1 : Nat
+∀ (x : Foo), x.f 1 = 0 : Prop
+(let_fun f := id;
+  f)
+  1 : Nat
+1 2 : Nat
+(if h : True then id else id) 1 : Nat

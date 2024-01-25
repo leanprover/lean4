@@ -135,6 +135,7 @@ static lean_object* l_Lean_resolveGlobalConstNoOverload___at_Lean_initFn____x40_
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__4;
 static lean_object* l_Lean_Elab_pushInfoLeaf___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__15___closed__2;
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveGlobalName___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__7(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -156,13 +157,12 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 static lean_object* l_Lean_resolveGlobalConst___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__3___closed__2;
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__3;
 lean_object* lean_string_append(lean_object*, lean_object*);
-uint8_t l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_367_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_addConstInfo___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(uint8_t, uint8_t);
 static lean_object* l_Lean_throwUnknownConstant___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__8___closed__4;
 lean_object* l_List_filterTR_loop___at_Lean_resolveGlobalConstCore___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_pushInfoTree___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__16(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(uint8_t, uint8_t);
 static lean_object* l_Lean_addDocString___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__18___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_initFn____x40_Lean_Elab_InheritDoc___hyg_4____spec__5(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
@@ -1535,7 +1535,7 @@ _start:
 {
 lean_object* x_7; uint8_t x_265; uint8_t x_266; 
 x_265 = 2;
-x_266 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_265);
+x_266 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_265);
 if (x_266 == 0)
 {
 lean_object* x_267; 
@@ -1574,7 +1574,7 @@ uint8_t x_8; lean_object* x_258; uint8_t x_259; uint8_t x_260;
 lean_dec(x_7);
 x_258 = lean_ctor_get(x_4, 2);
 x_259 = 1;
-x_260 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_120_(x_3, x_259);
+x_260 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_103_(x_3, x_259);
 if (x_260 == 0)
 {
 x_8 = x_3;
@@ -3324,7 +3324,7 @@ _start:
 {
 uint8_t x_8; uint8_t x_9; 
 x_8 = 0;
-x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_367_(x_4, x_8);
+x_9 = l___private_Lean_Attributes_0__Lean_beqAttributeKind____x40_Lean_Attributes___hyg_183_(x_4, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; uint8_t x_12; 

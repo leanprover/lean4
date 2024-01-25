@@ -29,7 +29,7 @@ instance : ToFormat UnificationHints where
 def UnificationHints.config : WhnfCoreConfig := { iota := false, proj := .no }
 
 def UnificationHints.add (hints : UnificationHints) (e : UnificationHintEntry) : UnificationHints :=
-  { hints with discrTree := hints.discrTree.insertCore e.keys e.val config }
+  { hints with discrTree := hints.discrTree.insertCore e.keys e.val }
 
 builtin_initialize unificationHintExtension : SimpleScopedEnvExtension UnificationHintEntry UnificationHints ←
   registerSimpleScopedEnvExtension {

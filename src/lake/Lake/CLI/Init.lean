@@ -218,16 +218,17 @@ def initPkg (dir : FilePath) (name : String) (tmp : InitTemplate) (env : Lake.En
 
 def validatePkgName (pkgName : String) : LogIO PUnit := do
   if pkgName.isEmpty || pkgName.all (· == '.') || pkgName.any (· ∈ ['/', '\\']) then
-    error "illegal package name"
+    error s!"illegal package name '{pkgName}'"
   if pkgName.toLower ∈ ["init", "lean", "lake", "main"] then
     error "reserved package name"
 
 def init (pkgName : String) (tmp : InitTemplate) (env : Lake.Env) (cwd : FilePath := ".") : LogIO PUnit := do
   let pkgName ← do
     if pkgName == "." then
-      match (← IO.FS.realPath cwd).fileName with
+      let path ← IO.FS.realPath cwd
+      match path.fileName with
       | some dirName => pure dirName
-      | none => error "illegal package name"
+      | none => error s!"illegal package name: could not derive one from '{path}'"
     else
       pure pkgName
   let pkgName := pkgName.trim

@@ -77,7 +77,7 @@ private def mkSimpleEqThm (declName : Name) : MetaM (Option Name) := do
 
 /--
   Return equation theorems for the given declaration.
-  By default, we not create equation theorems for nonrecursive definitions.
+  By default, we do not create equation theorems for nonrecursive definitions.
   You can use `nonRec := true` to override this behavior, a dummy `rfl` proof is created on the fly.
 -/
 def getEqnsFor? (declName : Name) (nonRec := false) : MetaM (Option (Array Name)) := withLCtx {} {} do

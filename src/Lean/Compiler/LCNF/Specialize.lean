@@ -181,8 +181,8 @@ def expandCodeDecls (decls : Array CodeDecl) (body : LetValue) : CompilerM Expr 
       go (i+1) (subst.push value)
     else
       (body.toExpr.abstract xs).instantiateRev subst
+    termination_by values.size - i
   return go 0 #[]
-termination_by go => values.size - i
 
 /--
 Create the "key" that uniquely identifies a code specialization.

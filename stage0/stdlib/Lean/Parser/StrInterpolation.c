@@ -21,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStr(lean_object*);
 lean_object* l_Lean_Parser_andthenFn(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_mkAtomicInfo(lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*, lean_object*, uint8_t);
+uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_stackSize(lean_object*);
 static lean_object* l_Lean_Parser_interpolatedStrNoAntiquot___closed__1;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
@@ -32,7 +33,6 @@ static lean_object* l_Lean_Parser_interpolatedStrNoAntiquot___closed__2;
 static lean_object* l_Lean_Parser_interpolatedStrFn_parse___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_interpolatedStrNoAntiquot(lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-uint8_t l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1123____at_Lean_Parser_ParserState_hasError___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withAntiquot(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_withoutPosition___lambda__1(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -201,7 +201,7 @@ x_21 = lean_apply_2(x_1, x_5, x_20);
 x_22 = lean_ctor_get(x_21, 4);
 lean_inc(x_22);
 x_23 = lean_box(0);
-x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1123____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
+x_24 = l___private_Init_Data_Option_Basic_0__beqOption____x40_Init_Data_Option_Basic___hyg_1036____at_Lean_Parser_ParserState_hasError___spec__1(x_22, x_23);
 if (x_24 == 0)
 {
 lean_dec(x_5);

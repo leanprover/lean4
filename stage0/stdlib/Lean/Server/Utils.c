@@ -22,7 +22,7 @@ static lean_object* l_Lean_Server_applyWorkspaceEdit___closed__2;
 LEAN_EXPORT lean_object* l_IO_throwServerError___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Server_instInhabitedDocumentMeta___closed__1;
-lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanFileProgressParams____x40_Lean_Data_Lsp_Extra___hyg_1094_(lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonApplyWorkspaceEditParams____x40_Lean_Data_Lsp_Basic___hyg_4575_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_applyWorkspaceEdit(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_applyWorkspaceEdit___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishProgress___spec__2(lean_object*);
@@ -69,7 +69,6 @@ LEAN_EXPORT lean_object* l_IO_throwServerError(lean_object*);
 lean_object* l_System_mkFilePath(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__4___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__3(lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1986_(lean_object*);
 lean_object* l_IO_FS_Stream_writeLspMessage(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Range_toLspRange___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___elambda__5(lean_object*, lean_object*);
@@ -79,6 +78,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_publishDiagnostics(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Server_publishProgressDone(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishDiagnostics___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Server_maybeTee___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanFileProgressParams____x40_Lean_Data_Lsp_Extra___hyg_927_(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___elambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_foldDocumentChanges(lean_object*, lean_object*);
@@ -89,11 +89,11 @@ LEAN_EXPORT lean_object* l_IO_FS_Stream_writeLspNotification___at_Lean_Server_pu
 LEAN_EXPORT lean_object* l_Lean_Server_applyDocumentChange___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_applyWorkspaceEdit___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_replaceLspRange___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1730_(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___elambda__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_withPrefix___elambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
-lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonApplyWorkspaceEditParams____x40_Lean_Data_Lsp_Basic___hyg_5149_(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainLeft___elambda__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_chainRight___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1589,7 +1589,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishDi
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1986_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Diagnostics_0__Lean_Lsp_toJsonPublishDiagnosticsParams____x40_Lean_Data_Lsp_Diagnostics___hyg_1730_(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
@@ -1659,7 +1659,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_publishPr
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanFileProgressParams____x40_Lean_Data_Lsp_Extra___hyg_1094_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_toJsonLeanFileProgressParams____x40_Lean_Data_Lsp_Extra___hyg_927_(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);
@@ -1785,7 +1785,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_applyWork
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_2 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonApplyWorkspaceEditParams____x40_Lean_Data_Lsp_Basic___hyg_5149_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonApplyWorkspaceEditParams____x40_Lean_Data_Lsp_Basic___hyg_4575_(x_1);
 x_3 = lean_ctor_get(x_2, 0);
 lean_inc(x_3);
 lean_dec(x_2);

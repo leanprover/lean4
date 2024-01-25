@@ -1,0 +1,10 @@
+instReprTree
+instReprListTree
+fun a b => instDecidableEqTree a b
+fun a b => instDecidableEqListTree a b
+instBEqTree
+instBEqListTree
+instHashableTree
+instHashableListTree
+instOrdTree
+instOrdListTree

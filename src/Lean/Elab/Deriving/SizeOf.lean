@@ -16,8 +16,9 @@ namespace Lean.Elab.Deriving.SizeOf
 open Command
 
 def mkSizeOfHandler (declNames : Array Name) : CommandElabM Bool := do
-  if (← declNames.allM isInductive) && declNames.size > 0 then
-    liftTermElabM <| Meta.mkSizeOfInstances declNames[0]!
+  if (← declNames.allM isInductive) then
+    for declName in declNames do
+      liftTermElabM <| Meta.mkSizeOfInstances declName
     return true
   else
     return false

@@ -1,7 +1,7 @@
 283.lean:1:24-1:25: error: application type mismatch
-  f (f ?m)
+  f f
 argument
-  f ?m
+  f
 has type
   ?m : Sort ?u
 but is expected to have type

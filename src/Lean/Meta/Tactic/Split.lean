@@ -22,12 +22,14 @@ def simpMatch (e : Expr) : MetaM Simp.Result := do
   (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
 where
   pre (e : Expr) : SimpM Simp.Step := do
-    let some app ← matchMatcherApp? e | return Simp.Step.visit { expr := e }
+    unless (← isMatcherApp e) do
+      return Simp.Step.visit { expr := e }
+    let matcherDeclName := e.getAppFn.constName!
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
     | none    =>
-      match (← Simp.simpMatchCore? app e SplitIf.discharge?) with
+      match (← Simp.simpMatchCore? matcherDeclName e SplitIf.discharge?) with
       | some r => return r
       | none => return Simp.Step.visit { expr := e }
 

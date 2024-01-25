@@ -411,9 +411,10 @@ set_option linter.unusedVariables.funArgs false in
 be available and then calls `f` on the result.
 
 `prio`, if provided, is the priority of the task.
+If `sync` is set to true, `f` is executed on the current thread if `x` has already finished.
 -/
 @[noinline, extern "lean_task_map"]
-protected def map {α : Type u} {β : Type v} (f : α → β) (x : Task α) (prio := Priority.default) : Task β :=
+protected def map (f : α → β) (x : Task α) (prio := Priority.default) (sync := false) : Task β :=
   ⟨f x.get⟩
 
 set_option linter.unusedVariables.funArgs false in
@@ -424,9 +425,11 @@ for the value of `x` to be available and then calls `f` on the result,
 resulting in a new task which is then run for a result.
 
 `prio`, if provided, is the priority of the task.
+If `sync` is set to true, `f` is executed on the current thread if `x` has already finished.
 -/
 @[noinline, extern "lean_task_bind"]
-protected def bind {α : Type u} {β : Type v} (x : Task α) (f : α → Task β) (prio := Priority.default) : Task β :=
+protected def bind (x : Task α) (f : α → Task β) (prio := Priority.default) (sync := false) :
+    Task β :=
   ⟨(f x.get).get⟩
 
 end Task
@@ -1680,40 +1683,92 @@ So, you are mainly losing the capability of type checking your development using
 -/
 axiom ofReduceNat (a b : Nat) (h : reduceNat a = b) : a = b
 
+end Lean
+
+namespace Std
+variable {α : Sort u}
+
 /--
-`IsAssociative op` says that `op` is an associative operation,
-i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. It is used by the `ac_rfl` tactic.
+`Associative op` indicates `op` is an associative operation,
+i.e. `(a ∘ b) ∘ c = a ∘ (b ∘ c)`.
 -/
-class IsAssociative {α : Sort u} (op : α → α → α) where
+class Associative (op : α → α → α) : Prop where
   /-- An associative operation satisfies `(a ∘ b) ∘ c = a ∘ (b ∘ c)`. -/
   assoc : (a b c : α) → op (op a b) c = op a (op b c)
 
 /--
-`IsCommutative op` says that `op` is a commutative operation,
-i.e. `a ∘ b = b ∘ a`. It is used by the `ac_rfl` tactic.
+`Commutative op` says that `op` is a commutative operation,
+i.e. `a ∘ b = b ∘ a`.
 -/
-class IsCommutative {α : Sort u} (op : α → α → α) where
+class Commutative (op : α → α → α) : Prop where
   /-- A commutative operation satisfies `a ∘ b = b ∘ a`. -/
   comm : (a b : α) → op a b = op b a
 
 /--
-`IsIdempotent op` says that `op` is an idempotent operation,
-i.e. `a ∘ a = a`. It is used by the `ac_rfl` tactic
-(which also simplifies up to idempotence when available).
+`IdempotentOp op` indicates `op` is an idempotent binary operation.
+i.e. `a ∘ a = a`.
 -/
-class IsIdempotent {α : Sort u} (op : α → α → α) where
+class IdempotentOp (op : α → α → α) : Prop where
   /-- An idempotent operation satisfies `a ∘ a = a`. -/
   idempotent : (x : α) → op x x = x
 
 /--
-`IsNeutral op e` says that `e` is a neutral operation for `op`,
-i.e. `a ∘ e = a = e ∘ a`. It is used by the `ac_rfl` tactic
-(which also simplifies neutral elements when available).
--/
-class IsNeutral {α : Sort u} (op : α → α → α) (neutral : α) where
-  /-- A neutral element can be cancelled on the left: `e ∘ a = a`. -/
-  left_neutral : (a : α) → op neutral a = a
-  /-- A neutral element can be cancelled on the right: `a ∘ e = a`. -/
-  right_neutral : (a : α) → op a neutral = a
+`LeftIdentify op o` indicates `o` is a left identity of `op`.
 
-end Lean
+This class does not require a proof that `o` is an identity, and
+is used primarily for infering the identity using class resoluton.
+-/
+class LeftIdentity (op : α → β → β) (o : outParam α) : Prop
+
+/--
+`LawfulLeftIdentify op o` indicates `o` is a verified left identity of
+`op`.
+-/
+class LawfulLeftIdentity (op : α → β → β) (o : outParam α) extends LeftIdentity op o : Prop where
+  /-- Left identity `o` is an identity. -/
+  left_id : ∀ a, op o a = a
+
+/--
+`RightIdentify op o` indicates `o` is a right identity `o` of `op`.
+
+This class does not require a proof that `o` is an identity, and is used
+primarily for infering the identity using class resoluton.
+-/
+class RightIdentity (op : α → β → α) (o : outParam β) : Prop
+
+/--
+`LawfulRightIdentify op o` indicates `o` is a verified right identity of
+`op`.
+-/
+class LawfulRightIdentity (op : α → β → α) (o : outParam β) extends RightIdentity op o : Prop where
+  /-- Right identity `o` is an identity. -/
+  right_id : ∀ a, op a o = a
+
+/--
+`Identity op o` indicates `o` is a left and right identity of `op`.
+
+This class does not require a proof that `o` is an identity, and is used
+primarily for infering the identity using class resoluton.
+-/
+class Identity (op : α → α → α) (o : outParam α) extends LeftIdentity op o, RightIdentity op o : Prop
+
+/--
+`LawfulIdentity op o` indicates `o` is a verified left and right
+identity of `op`.
+-/
+class LawfulIdentity (op : α → α → α) (o : outParam α) extends Identity op o, LawfulLeftIdentity op o, LawfulRightIdentity op o : Prop
+
+/--
+`LawfulCommIdentity` can simplify defining instances of `LawfulIdentity`
+on commutative functions by requiring only a left or right identity
+proof.
+
+This class is intended for simplifying defining instances of
+`LawfulIdentity` and functions needed commutative operations with
+identity should just add a `LawfulIdentity` constraint.
+-/
+class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commutative op] extends LawfulIdentity op o : Prop where
+  left_id a := Eq.trans (hc.comm o a) (right_id a)
+  right_id a := Eq.trans (hc.comm a o) (left_id a)
+
+end Std

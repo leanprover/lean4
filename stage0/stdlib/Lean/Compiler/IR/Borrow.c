@@ -25,6 +25,7 @@ lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_find_x3f___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_Borrow_InitParamMap_initBorrow___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_foldlM___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__5(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_preserveTailCall(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_getParamInfo(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_markModified(lean_object*);
@@ -60,7 +61,6 @@ lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_getEnv___rarg(lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_updateParamSet___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_markModified___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_AssocList_contains___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_moveEntries___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__4(lean_object*, lean_object*, lean_object*);
@@ -191,7 +191,7 @@ LEAN_EXPORT lean_object* l_Lean_AssocList_replace___at_Lean_IR_Borrow_InitParamM
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_IR_Borrow_ownArgsUsingParams___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HashMapImp_expand___at_Lean_IR_Borrow_InitParamMap_visitFnBody___spec__3(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_IR_Borrow_preserveTailCall___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_Borrow_collectDecls___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_Borrow_BorrowInfCtx_currFn___default;
@@ -699,7 +699,7 @@ x_4 = lean_box(x_3);
 return x_4;
 }
 }
-LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 if (lean_obj_tag(x_1) == 0)
@@ -751,11 +751,11 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(x_1, x_2);
+x_3 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -766,7 +766,7 @@ static lean_object* _init_l_Lean_IR_Borrow_ParamMap_instBEqKey___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1285,7 +1285,7 @@ else
 lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 2);
-x_6 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(x_4, x_1);
+x_6 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(x_4, x_1);
 if (x_6 == 0)
 {
 x_2 = x_5;
@@ -1421,7 +1421,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9;
 x_6 = lean_ctor_get(x_3, 0);
 x_7 = lean_ctor_get(x_3, 1);
 x_8 = lean_ctor_get(x_3, 2);
-x_9 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(x_6, x_1);
+x_9 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(x_6, x_1);
 if (x_9 == 0)
 {
 lean_object* x_10; 
@@ -1448,7 +1448,7 @@ lean_inc(x_13);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_3);
-x_14 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(x_11, x_1);
+x_14 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(x_11, x_1);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; 
@@ -1942,7 +1942,7 @@ lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7;
 x_4 = lean_ctor_get(x_2, 0);
 x_5 = lean_ctor_get(x_2, 1);
 x_6 = lean_ctor_get(x_2, 2);
-x_7 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_280_(x_4, x_1);
+x_7 = l___private_Lean_Compiler_IR_Borrow_0__Lean_IR_Borrow_ParamMap_beqKey____x40_Lean_Compiler_IR_Borrow___hyg_194_(x_4, x_1);
 if (x_7 == 0)
 {
 x_2 = x_6;

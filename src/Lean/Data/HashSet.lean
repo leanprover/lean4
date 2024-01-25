@@ -80,7 +80,7 @@ def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : Has
      moveEntries (i+1) source target
   else
     target
-termination_by _ i source _ => source.size - i
+termination_by source.size - i
 
 def expand [Hashable α] (size : Nat) (buckets : HashSetBucket α) : HashSetImp α :=
   let bucketsNew : HashSetBucket α := ⟨

@@ -16,7 +16,7 @@ usually as `[class.name] message ▸`.
 Every trace node has a class name, a message, and an array of children.
 This module provides the API to produce trace messages,
 the key entry points are:
-- ``registerTraceMessage `class.name`` registers a trace class
+- ``registerTraceClass `class.name`` registers a trace class
 - ``withTraceNode `class.name (fun result => return msg) do body`
   produces a trace message containing the trace messages in `body` as children
 - `trace[class.name] msg` produces a trace message without children

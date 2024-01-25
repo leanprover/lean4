@@ -7,8 +7,10 @@ import Lean.Meta.ACLt
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.AppBuilder
 import Lean.Meta.SynthInstance
+import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Simproc
 
 namespace Lean.Meta.Simp
 
@@ -108,19 +110,11 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
   extraArgs := extraArgs.reverse
   match (← go e) with
   | none => return none
-  | some { expr := eNew, proof? := none, .. } =>
-    if (← hasAssignableMVar eNew) then
+  | some r =>
+    if (← hasAssignableMVar r.expr) then
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
       return none
-    return some { expr := mkAppN eNew extraArgs }
-  | some { expr := eNew, proof? := some proof, .. } =>
-    let mut proof := proof
-    for extraArg in extraArgs do
-      proof ← mkCongrFun proof extraArg
-    if (← hasAssignableMVar eNew) then
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables"
-      return none
-    return some { expr := mkAppN eNew extraArgs, proof? := some proof }
+    r.addExtraArgs extraArgs
 
 def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Result) :=
   withNewMCtxDepth do
@@ -149,18 +143,6 @@ def tryTheorem? (e : Expr) (thm : SimpTheorem) (discharge? : Expr → SimpM (Opt
         return none
 
 /--
-Return a WHNF configuration for retrieving `[simp]` from the discrimination tree.
-If user has disabled `zeta` and/or `beta` reduction in the simplifier, we must also
-disable them when retrieving lemmas from discrimination tree. See issues: #2669 and #2281
--/
-def getDtConfig (cfg : Config) : WhnfCoreConfig :=
-  match cfg.beta, cfg.zeta with
-  | true, true => simpDtConfig
-  | true, false => { simpDtConfig with zeta := false }
-  | false, true => { simpDtConfig with beta := false }
-  | false, false => { simpDtConfig with beta := false, zeta := false }
-
-/--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
 -/
 def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (discharge? : Expr → SimpM (Option Expr)) (tag : String) (rflOnly : Bool) : SimpM (Option Result) := do
@@ -179,6 +161,13 @@ def rewrite? (e : Expr) (s : SimpTheoremTree) (erased : PHashSet Origin) (discha
 where
   inErasedSet (thm : SimpTheorem) : Bool :=
     erased.contains thm.origin
+
+@[inline] def andThen' (s : Step) (f? : Expr → SimpM Step) : SimpM Step := do
+  match s with
+  | Step.done _  => return s
+  | Step.visit r =>
+    let s' ← f? r.expr
+    return s'.updateResult (← mkEqTrans r s'.result)
 
 @[inline] def andThen (s : Step) (f? : Expr → SimpM (Option Step)) : SimpM Step := do
   match s with
@@ -227,7 +216,7 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
       return none
 
 @[inline] def tryRewriteUsingDecide? (e : Expr) : SimpM (Option Step) := do
-  if (← read).config.decide then
+  if (← getConfig).decide then
     match (← rewriteUsingDecide? e) with
     | some r => return Step.done r
     | none => return none
@@ -235,12 +224,48 @@ def rewriteUsingDecide? (e : Expr) : MetaM (Option Result) := withReducibleAndIn
     return none
 
 def simpArith? (e : Expr) : SimpM (Option Step) := do
-  if !(← read).config.arith then return none
-  let some (e', h) ← Linear.simp? e (← read).parent? | return none
+  if !(← getConfig).arith then return none
+  let some (e', h) ← Linear.simp? e (← getContext).parent? | return none
   return Step.visit { expr := e', proof? := h }
 
-def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
-  for matchEq in (← Match.getEquationsFor app.matcherName).eqnNames do
+/--
+Given a match-application `e` with `MatcherInfo` `info`, return `some result`
+if at least of one of the discriminants has been simplified.
+-/
+def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := do
+  let numArgs := e.getAppNumArgs
+  if numArgs < info.arity then
+    return none
+  let prefixSize := info.numParams + 1 /- motive -/
+  let n     := numArgs - prefixSize
+  let f     := e.stripArgsN n
+  let infos := (← getFunInfoNArgs f n).paramInfo
+  let args  := e.getAppArgsN n
+  let mut r : Result := { expr := f }
+  let mut modified := false
+  for i in [0 : info.numDiscrs] do
+    let arg := args[i]!
+    if i < infos.size && !infos[i]!.hasFwdDeps then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else if (← whnfD (← inferType r.expr)).isArrow then
+      let argNew ← simp arg
+      if argNew.expr != arg then modified := true
+      r ← mkCongr r argNew
+    else
+      let argNew ← dsimp arg
+      if argNew != arg then modified := true
+      r ← mkCongrFun r argNew
+  unless modified do
+    return none
+  for i in [info.numDiscrs : args.size] do
+    let arg := args[i]!
+    r ← mkCongrFun r arg
+  return some r
+
+def simpMatchCore? (matcherName : Name) (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM (Option Step) := do
+  for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
     match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) } discharge?) with
     | none   => pure ()
@@ -248,33 +273,216 @@ def simpMatchCore? (app : MatcherApp) (e : Expr) (discharge? : Expr → SimpM (O
   return none
 
 def simpMatch? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
-  if (← read).config.iota then
-    let some app ← matchMatcherApp? e | return none
-    simpMatchCore? app e discharge?
+  if (← getConfig).iota then
+    if let some e ← reduceRecMatcher? e then
+      return some (.visit { expr := e })
+    let .const declName _ := e.getAppFn
+      | return none
+    if let some info ← getMatcherInfo? declName then
+      if let some r ← simpMatchDiscrs? info e then
+        return some (.visit r)
+      simpMatchCore? declName e discharge?
+    else
+      return none
   else
     return none
 
 def rewritePre (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
-  for thms in (← read).simpTheorems do
+  for thms in (← getContext).simpTheorems do
     if let some r ← rewrite? e thms.pre thms.erased discharge? (tag := "pre") (rflOnly := rflOnly) then
       return Step.visit r
   return Step.visit { expr := e }
 
-def rewritePost (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM Step := do
-  for thms in (← read).simpTheorems do
-    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
-      return Step.visit r
-  return Step.visit { expr := e }
-
-def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
+partial def preDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
   let s ← rewritePre e discharge?
-  andThen s tryRewriteUsingDecide?
+  let s ← andThen s (simpMatch? discharge?)
+  let s ← andThen s preSimproc?
+  let s ← andThen s tryRewriteUsingDecide?
+  if s.result.expr == e then
+    return s
+  else
+    andThen s (preDefault · discharge?)
+
+def rewritePost? (e : Expr) (discharge? : Expr → SimpM (Option Expr)) (rflOnly := false) : SimpM (Option Result) := do
+  for thms in (← getContext).simpTheorems do
+    if let some r ← rewrite? e thms.post thms.erased discharge? (tag := "post") (rflOnly := rflOnly) then
+      return r
+  return none
+
+/--
+Try to unfold ground term when `Context.unfoldGround := true`.
+-/
+def unfoldGround? (discharge? : Expr → SimpM (Option Expr)) (e : Expr) : SimpM (Option Step) := do
+  -- Ground term unfolding is disabled.
+  unless (← getContext).unfoldGround do return none
+  -- `e` is not a ground term.
+  unless !e.hasExprMVar && !e.hasFVar do return none
+  trace[Meta.debug] "unfoldGround? {e}"
+  -- Check whether `e` is a constant application
+  let f := e.getAppFn
+  let .const declName lvls := f | return none
+  -- If declaration has been marked to not be unfolded, return none.
+  let ctx ← getContext
+  if ctx.simpTheorems.isErased (.decl declName) then return none
+  -- Matcher applications should have been reduced before we get here.
+  if (← isMatcher declName) then return none
+  if let some eqns ← withDefault <| getEqnsFor? declName then
+    -- `declName` has equation theorems associated with it.
+    for eqn in eqns do
+      -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } discharge? then
+        trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
+        return some (.visit result)
+    return none
+  -- `declName` does not have equation theorems associated with it.
+  if e.isConst then
+    -- We don't unfold constants that take arguments
+    if let .forallE .. ← whnfD (← inferType e) then
+      return none
+  let info ← getConstInfo declName
+  unless info.hasValue && info.levelParams.length == lvls.length do return none
+  let fBody ← instantiateValueLevelParams info lvls
+  let eNew := fBody.betaRev e.getAppRevArgs (useZeta := true)
+  trace[Meta.Tactic.simp.ground] "delta, {e} => {eNew}"
+  return some (.visit { expr := eNew })
 
 def postDefault (e : Expr) (discharge? : Expr → SimpM (Option Expr)) : SimpM Step := do
-  let s ← rewritePost e discharge?
-  let s ← andThen s (simpMatch? discharge?)
+  /-
+  Remark 1:
+  `rewritePost?` used to return a `Step`, and we would try other methods even if it succeeded in rewriting the term.
+  This behavior was problematic, especially when `ground := true`, because we have rewriting rules such as
+  `List.append as bs = as ++ bs`, which are rules for folding polymorphic functions.
+  This type of rule can trigger nontermination in the context of `ground := true`.
+  For example, the method `unfoldGround?` would reduce `[] ++ [1]` to `List.append [] [1]`, and
+  `rewritePost` would refold it back to `[] ++ [1]`, leading to an endless loop.
+
+  Initially, we considered always reducing ground terms first. However, this approach would
+  prevent us from adding auxiliary lemmas that could short-circuit the evaluation.
+  Ultimately, we settled on the following compromise: if a `rewritePost?` succeeds and produces a result `r`,
+  we return with `.visit r`. This allows pre-methods to be applied again along with other rewriting rules.
+  This strategy helps avoid non-termination, as we have `[simp]` theorems specifically for reducing `List.append`
+  ```lean
+  @[simp] theorem nil_append (as : List α) : [] ++ as = as := ...
+  @[simp] theorem cons_append (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) := ...
+  ```
+
+  Remark 2:
+  In the simplifier, the ground value for some inductive types is *not* a constructor application.
+  Examples: `Nat`, `Int`, `Fin _`, `UInt?`. These types are represented using `OfNat.ofNat`.
+  To ensure `unfoldGround?` does not unfold `OfNat.ofNat` applications for these types, we
+  have `simproc` that return `.done ..` for these ground values. Thus, `unfoldGround?` is not
+  even tried. Alternative design: we could add an extensible ground value predicate.
+  -/
+  if let some r ← rewritePost? e discharge? then
+    return .visit r
+  let s ← andThen (.visit { expr := e }) postSimproc?
+  let s ← andThen s (unfoldGround? discharge?)
   let s ← andThen s simpArith?
   let s ← andThen s tryRewriteUsingDecide?
   andThen s tryRewriteCtorEq?
+
+/--
+  Return true if `e` is of the form `(x : α) → ... → s = t → ... → False`
+
+  Recall that this kind of proposition is generated by Lean when creating equations for
+  functions and match-expressions with overlapping cases.
+  Example: the following `match`-expression has overlapping cases.
+  ```
+  def f (x y : Nat) :=
+    match x, y with
+    | Nat.succ n, Nat.succ m => ...
+    | _, _ => 0
+  ```
+  The second equation is of the form
+  ```
+  (x y : Nat) → ((n m : Nat) → x = Nat.succ n → y = Nat.succ m → False) → f x y = 0
+  ```
+  The hypothesis `(n m : Nat) → x = Nat.succ n → y = Nat.succ m → False` is essentially
+  saying the first case is not applicable.
+-/
+partial def isEqnThmHypothesis (e : Expr) : Bool :=
+  e.isForall && go e
+where
+  go (e : Expr) : Bool :=
+    match e with
+    | .forallE _ d b _ => (d.isEq || d.isHEq || b.hasLooseBVar 0) && go b
+    | _ => e.consumeMData.isConstOf ``False
+
+def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
+  (← getLCtx).findDeclRevM? fun localDecl => do
+    if localDecl.isImplementationDetail then
+      return none
+    else if (← isDefEq e localDecl.type) then
+      return some localDecl.toExpr
+    else
+      return none
+
+/--
+  Tries to solve `e` using `unifyEq?`.
+  It assumes that `isEqnThmHypothesis e` is `true`.
+-/
+partial def dischargeEqnThmHypothesis? (e : Expr) : MetaM (Option Expr) := do
+  assert! isEqnThmHypothesis e
+  let mvar ← mkFreshExprSyntheticOpaqueMVar e
+  withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    if let .none ← go? mvar.mvarId! then
+      instantiateMVars mvar
+    else
+      return none
+where
+  go? (mvarId : MVarId) : MetaM (Option MVarId) :=
+    try
+      let (fvarId, mvarId) ← mvarId.intro1
+      mvarId.withContext do
+        let localDecl ← fvarId.getDecl
+        if localDecl.type.isEq || localDecl.type.isHEq then
+          if let some { mvarId, .. } ← unifyEq? mvarId fvarId {} then
+            go? mvarId
+          else
+            return none
+        else
+          go? mvarId
+    catch _  =>
+      return some mvarId
+
+def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
+  if isEqnThmHypothesis e then
+    if let some r ← dischargeUsingAssumption? e then
+      return some r
+    if let some r ← dischargeEqnThmHypothesis? e then
+      return some r
+  let ctx ← getContext
+  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
+  if ctx.dischargeDepth >= ctx.maxDischargeDepth then
+    trace[Meta.Tactic.simp.discharge] "maximum discharge depth has been reached"
+    return none
+  else
+    withTheReader Context (fun ctx => { ctx with dischargeDepth := ctx.dischargeDepth + 1 }) do
+      let r ← simp e
+      if r.expr.consumeMData.isConstOf ``True then
+        try
+          return some (← mkOfEqTrue (← r.getProof))
+        catch _ =>
+          return none
+      else
+        return none
+
+abbrev Discharge := Expr → SimpM (Option Expr)
+
+def mkMethods (simprocs : Simprocs) (discharge? : Discharge) : Methods := {
+  pre        := (preDefault · discharge?)
+  post       := (postDefault · discharge?)
+  discharge? := discharge?
+  simprocs   := simprocs
+}
+
+def mkDefaultMethodsCore (simprocs : Simprocs) : Methods :=
+  mkMethods simprocs dischargeDefault?
+
+def mkDefaultMethods : CoreM Methods := do
+  if simprocs.get (← getOptions) then
+    return mkDefaultMethodsCore (← getSimprocs)
+  else
+    return mkDefaultMethodsCore {}
 
 end Lean.Meta.Simp

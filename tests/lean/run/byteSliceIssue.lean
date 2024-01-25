@@ -39,7 +39,7 @@ def forIn.loop [Monad m] (f : UInt8 → β → m (ForInStep β))
     | ForInStep.done b => pure b
     | ForInStep.yield b => have := Nat.Up.next h; loop f arr off _end (i+1) b
   else pure b
-termination_by _ => _end - i
+termination_by _end - i
 
 attribute [simp] ByteSlice.forIn.loop
 #check @ByteSlice.forIn.loop._eq_1

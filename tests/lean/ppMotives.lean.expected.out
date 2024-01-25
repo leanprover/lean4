@@ -4,7 +4,7 @@ fun x x_1 =>
     (fun x f x_2 =>
       (match x_2, x with
         | a, Nat.zero => fun x => a
-        | a, Nat.succ b => fun x => Nat.succ (PProd.fst x.fst a))
+        | a, Nat.succ b => fun x => Nat.succ (x.fst.fst a))
         f)
     x
 protected def Nat.add : Nat → Nat → Nat :=
@@ -13,7 +13,7 @@ fun x x_1 =>
     (fun x f x_2 =>
       (match (motive := Nat → (x : Nat) → Nat.below (motive := fun x => Nat → Nat) x → Nat) x_2, x with
         | a, Nat.zero => fun x => a
-        | a, Nat.succ b => fun x => Nat.succ (PProd.fst x.fst a))
+        | a, Nat.succ b => fun x => Nat.succ (x.fst.fst a))
         f)
     x
 theorem ex.{u} : ∀ {α β : Sort u} (h : α = β) (a : α), HEq (cast h a) a :=

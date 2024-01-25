@@ -190,9 +190,9 @@ protected def fromJson? (json : Json) : Except String Manifest := do
     | throw "manifest not a JSON object"
   let ver : Json ← get obj "version"
   let .ok ver := ver.getNat?
-    | throw s!"unknown manifest version `{ver}`"
+    | throw s!"unknown manifest version '{ver}'"
   if ver < 5 then
-    throw s!"incompatible manifest version `{ver}`"
+    throw s!"incompatible manifest version '{ver}'"
   else if ver ≤ 6 then
     let name ← getD obj "name" Name.anonymous
     let lakeDir ← getD obj "lakeDir" defaultLakeDir
@@ -226,23 +226,24 @@ instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 /-- Parse a `Manifest` from a string. -/
 def parse (s : String) : Except String Manifest := do
   match Json.parse s with
-  | .ok json =>
-    match fromJson? json with
-    | .ok manifest => return manifest
-    | .error e => throw s!"improperly formatted manifest: {e}"
-  | .error e => throw s!"invalid JSON: {e}"
+  | .ok json => fromJson? json
+  | .error e => throw s!"manifest is not valid JSON: {e}"
+
+/-- Parse a manifest file. -/
+def load (file : FilePath) : IO Manifest := do
+  let contents ← IO.FS.readFile file
+  match inline <| Manifest.parse contents with
+  | .ok a => return a
+  | .error e => error s!"{file}: {e}"
 
 /--
-Parse the manifest file. Returns `none` if the file does not exist.
+Parse a manifest file. Returns `none` if the file does not exist.
 Errors if the manifest is ill-formatted or the read files for other reasons.
 -/
 def load? (file : FilePath) : IO (Option Manifest) := do
-  match (← IO.FS.readFile file |>.toBaseIO) with
-  | .ok contents =>
-    match inline <| Manifest.parse contents with
-    | .ok a => return some a
-    | .error e => error s!"{file}: {e}"
-  | .error (.noFileOrDirectory ..) => pure none
+  match (← inline (load file) |>.toBaseIO) with
+  | .ok contents => return contents
+  | .error (.noFileOrDirectory ..) => return none
   | .error e => throw e
 
 /-- Save the manifest as JSON to a file. -/

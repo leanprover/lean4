@@ -14,6 +14,7 @@ import Lean.Elab.RecAppSyntax
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.WF.TerminationHint
+import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Data.Array
 
 
@@ -71,27 +72,42 @@ register_builtin_option showInferredTerminationBy : Bool := {
   descr    := "In recursive definitions, show the inferred `termination_by` measure."
 }
 
+
 /--
-Given a predefinition, find good variable names for its parameters.
-Use user-given parameter names if present; use x1...xn otherwise.
+Given a predefinition, return the variabe names in the outermost lambdas.
+Includes the “fixed prefix”.
 
 The length of the returned array is also used to determine the arity
 of the function, so it should match what `packDomain` does.
+-/
+def originalVarNames (preDef : PreDefinition) : MetaM (Array Name) := do
+  lambdaTelescope preDef.value fun xs _ => xs.mapM (·.fvarId!.getUserName)
 
-The names ought to accessible (no macro scopes) and still fresh wrt to the current environment,
+/--
+Given the original paramter names from `originalVarNames`, remove the fixed prefix and find
+good variable names to be used when talking about termination arguments:
+Use user-given parameter names if present; use x1...xn otherwise.
+
+The names ought to accessible (no macro scopes) and new names  fresh wrt to the current environment,
 so that with `showInferredTerminationBy` we can print them to the user reliably.
 We do that by appending `'` as needed.
+
+It is possible (but unlikely without malice) that some of the user-given names
+shadow each other, and the guessed relation refers to the wrong one. In that
+case, the user gets to keep both pieces (and may have to rename variables).
 -/
 partial
-def naryVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Array Name):= do
-  lambdaTelescope preDef.value fun xs _ => do
-    let xs := xs.extract fixedPrefixSize xs.size
-    let mut ns : Array Name := #[]
-    for h : i in [:xs.size] do
-      let n ← (xs[i]'h.2).fvarId!.getUserName
-      let n := if n.hasMacroScopes then .mkSimple s!"x{i+1}" else n
-      ns := ns.push (← freshen ns n)
-    return ns
+def naryVarNames (fixedPrefixSize : Nat) (xs : Array Name) : MetaM (Array Name) := do
+  let xs := xs.extract fixedPrefixSize xs.size
+  let mut ns : Array Name := #[]
+  for h : i in [:xs.size] do
+    let n := xs[i]
+    let n ← if n.hasMacroScopes then
+        freshen ns (.mkSimple s!"x{i+1}")
+      else
+        pure n
+    ns := ns.push n
+  return ns
   where
     freshen  (ns : Array Name) (n : Name): MetaM Name := do
       if !(ns.elem n) && (← resolveGlobalName n).isEmpty then
@@ -113,7 +129,7 @@ or `casesOn` application.
 -/
 partial def withRecApps {α} (recFnName : Name) (fixedPrefixSize : Nat) (param : Expr) (e : Expr)
     (k : Expr → Array Expr → MetaM α) : MetaM (Array α) := do
-  trace[Elab.definition.wf] "withRecApps: {indentExpr e}"
+  trace[Elab.definition.wf] "withRecApps (param {param}): {indentExpr e}"
   let (_, as) ← loop param e |>.run #[] |>.run' {}
   return as
 where
@@ -162,27 +178,24 @@ where
     | Expr.app .. =>
       match (← matchMatcherApp? e) with
       | some matcherApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp param e
+        if let some altParams ← matcherApp.refineThrough? param then
+          matcherApp.discrs.forM (loop param)
+          (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
+            fun (alt, altNumParam, altParam) =>
+              lambdaTelescope altParam fun xs altParam => do
+                -- TODO: Use boundedLambdaTelescope
+                unless altNumParam = xs.size do
+                  throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
+                let altBody := alt.beta xs
+                loop altParam altBody
+          matcherApp.remaining.forM (loop param)
         else
-          if let some altParams ← matcherApp.refineThrough? param then
-            (Array.zip matcherApp.alts (Array.zip matcherApp.altNumParams altParams)).forM
-              fun (alt, altNumParam, altParam) =>
-                lambdaTelescope altParam fun xs altParam => do
-                  -- TODO: Use boundedLambdaTelescope
-                  unless altNumParam = xs.size do
-                    throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
-                  let altBody := alt.beta xs
-                  loop altParam altBody
-          else
-            processApp param e
+          processApp param e
       | none =>
       match (← toCasesOnApp? e) with
       | some casesOnApp =>
-        if !Structural.recArgHasLooseBVarsAt recFnName fixedPrefixSize e then
-          processApp param e
-        else
-          if let some altParams ← casesOnApp.refineThrough? param then
+        if let some altParams ← casesOnApp.refineThrough? param then
+          loop param casesOnApp.major
           (Array.zip casesOnApp.alts (Array.zip casesOnApp.altNumParams altParams)).forM
             fun (alt, altNumParam, altParam) =>
               lambdaTelescope altParam fun xs altParam => do
@@ -191,8 +204,10 @@ where
                   throwError "unexpected `casesOn` application alternative{indentExpr alt}\nat application{indentExpr e}"
                 let altBody := alt.beta xs
                 loop altParam altBody
-          else
-            processApp param e
+          casesOnApp.remaining.forM (loop param)
+        else
+          trace[Elab.definition.wf] "withRecApps: casesOnApp.refineThrough? failed"
+          processApp param e
       | none => processApp param e
     | e => do
       let _ ← ensureNoRecFn recFnName e
@@ -223,7 +238,7 @@ def SavedLocalContext.run {α} (slc : SavedLocalContext) (k : MetaM α) :
 /-- A `RecCallWithContext` focuses on a single recursive call in a unary predefinition,
 and runs the given action in the context of that call.  -/
 structure RecCallWithContext where
-  /-- Syntax location of reursive call -/
+  /-- Syntax location of recursive call -/
   ref : Syntax
   /-- Function index of caller -/
   caller : Nat
@@ -263,39 +278,6 @@ def filterSubsumed (rcs : Array RecCallWithContext ) : Array RecCallWithContext 
           return (false, true)
     return (true, true)
 
-/-- Given the packed argument of a (possibly) mutual and (possibly) nary call,
-return the function index that is called and the arguments individually.
-
-We expect precisely the expressions produced by `packMutual`, with manifest
-`PSum.inr`, `PSum.inl` and `PSigma.mk` constructors, and thus take them apart
-rather than using projectinos. -/
-def unpackArg {m} [Monad m] [MonadError m] (arities : Array Nat) (e : Expr) :
-    m (Nat × Array Expr) := do
-  -- count PSum injections to find out which function is doing the call
-  let mut funidx := 0
-  let mut e := e
-  while funidx + 1 < arities.size do
-    if e.isAppOfArity ``PSum.inr 3 then
-      e := e.getArg! 2
-      funidx := funidx + 1
-    else if e.isAppOfArity ``PSum.inl 3 then
-      e := e.getArg! 2
-      break
-    else
-      throwError "Unexpected expression while unpacking mutual argument"
-
-  -- now unpack PSigmas
-  let arity := arities[funidx]!
-  let mut args := #[]
-  while args.size + 1 < arity do
-    if e.isAppOfArity ``PSigma.mk 4 then
-      args := args.push (e.getArg! 2)
-      e := e.getArg! 3
-    else
-      throwError "Unexpected expression while unpacking n-ary argument"
-  args := args.push e
-  return (funidx, args)
-
 /-- Traverse a unary PreDefinition, and returns a `WithRecCall` closure for each recursive
 call site.
 -/
@@ -306,12 +288,12 @@ def collectRecCalls (unaryPreDef : PreDefinition) (fixedPrefixSize : Nat) (ariti
     unless xs.size == fixedPrefixSize + 1 do
       -- Maybe cleaner to have lambdaBoundedTelescope?
       throwError "Unexpected number of lambdas in unary pre-definition"
-    -- trace[Elab.definition.wf] "collectRecCalls: {xs} {body}"
     let param := xs[fixedPrefixSize]!
     withRecApps unaryPreDef.declName fixedPrefixSize param body fun param args => do
       unless args.size ≥ fixedPrefixSize + 1 do
         throwError "Insufficient arguments in recursive call"
       let arg := args[fixedPrefixSize]!
+      trace[Elab.definition.wf] "collectRecCalls: {unaryPreDef.declName} ({param}) → {unaryPreDef.declName} ({arg})"
       let (caller, params) ← unpackArg arities param
       let (callee, args) ← unpackArg arities arg
       RecCallWithContext.create (← getRef) caller params callee args
@@ -350,7 +332,7 @@ def mkSizeOf (e : Expr) : MetaM Expr := do
 For a given recursive call, and a choice of parameter and argument index,
 try to prove equality, < or ≤.
 -/
-def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
+def evalRecCall (decrTactic? : Option DecreasingBy) (rcc : RecCallWithContext) (paramIdx argIdx : Nat) :
     MetaM GuessLexRel := do
   rcc.ctxt.run do
     let param := rcc.params[paramIdx]!
@@ -366,25 +348,20 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
       let mvar ← mkFreshExprSyntheticOpaqueMVar goalExpr
       let mvarId := mvar.mvarId!
       let mvarId ← mvarId.cleanup
-      -- logInfo m!"Remaining goals: {goalsToMessageData [mvarId]}"
       try
         if rel = .eq then
           MVarId.refl mvarId
         else do
-          Lean.Elab.Term.TermElabM.run' do
-            match decrTactic? with
-            | none =>
-              let remainingGoals ← Tactic.run mvarId do
-                Tactic.evalTactic (← `(tactic| decreasing_tactic))
-              remainingGoals.forM fun mvarId => Term.reportUnsolvedGoals [mvarId]
-              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
-              pure ()
-            | some decrTactic => Term.withoutErrToSorry do
-              -- make info from `runTactic` available
-              pushInfoTree (.hole mvarId)
-              Term.runTactic mvarId decrTactic
-              -- trace[Elab.definition.wf] "Found {rel} proof: {← instantiateMVars mvar}"
-              pure ()
+          Lean.Elab.Term.TermElabM.run' do Term.withoutErrToSorry do
+            let remainingGoals ← Tactic.run mvarId do Tactic.withoutRecover do
+              let tacticStx : Syntax ←
+                match decrTactic? with
+                | none => pure (← `(tactic| decreasing_tactic)).raw
+                | some decrTactic =>
+                  trace[Elab.definition.wf] "Using tactic {decrTactic.tactic.raw}"
+                  pure decrTactic.tactic.raw
+              Tactic.evalTactic tacticStx
+            remainingGoals.forM fun _ => throwError "goal not solved"
         trace[Elab.definition.wf] "inspectRecCall: success!"
         return rel
       catch _e =>
@@ -394,13 +371,15 @@ def evalRecCall (decrTactic? : Option Syntax) (rcc : RecCallWithContext) (paramI
 
 /- A cache for `evalRecCall` -/
 structure RecCallCache where mk'' ::
-  decrTactic? : Option Syntax
+  decrTactic? : Option DecreasingBy
   rcc : RecCallWithContext
   cache : IO.Ref (Array (Array (Option GuessLexRel)))
 
 /-- Create a cache to memoize calls to `evalRecCall descTactic? rcc` -/
-def RecCallCache.mk (decrTactic? : Option Syntax) (rcc : RecCallWithContext) :
+def RecCallCache.mk (decrTactics : Array (Option DecreasingBy))
+    (rcc : RecCallWithContext) :
     BaseIO RecCallCache := do
+  let decrTactic? := decrTactics[rcc.caller]!
   let cache ← IO.mkRef <| Array.mkArray rcc.params.size (Array.mkArray rcc.args.size Option.none)
   return { decrTactic?, rcc, cache }
 
@@ -537,7 +516,7 @@ partial def solve {m} {α} [Monad m] (measures : Array α)
 
     -- Find the first measure that has at least one < and otherwise only = or <=
     for h : measureIdx in [:measures.size] do
-      let measure := measures[measureIdx]'h.2
+      let measure := measures[measureIdx]
       let mut has_lt := false
       let mut all_le := true
       let mut todo := #[]
@@ -568,29 +547,46 @@ def mkTupleSyntax : Array Term → MetaM Term
 
 /--
 Given an array of `MutualMeasures`, creates a `TerminationWF` that specifies the lexicographic
-combination of these measures.
+combination of these measures. The parameters are
+
+* `originalVarNamess`: For each function in the clique, the original parameter names, _including_
+  the fixed prefix.  Used to determine if we need to fully qualify `sizeOf`.
+* `varNamess`: For each function in the clique, the parameter names to be used in the
+  termination relation. Excludes the fixed prefix. Includes names like `x1` for unnamed parameters.
+* `measures`: The measures to be used.
 -/
-def buildTermWF (declNames : Array Name) (varNamess : Array (Array Name))
-    (measures : Array MutualMeasure) : MetaM TerminationWF := do
-  let mut termByElements := #[]
-  for h : funIdx in [:varNamess.size] do
-    let vars := (varNamess[funIdx]'h.2).map mkIdent
-    let body ← mkTupleSyntax (← measures.mapM fun
+def buildTermWF (originalVarNamess : Array (Array Name)) (varNamess : Array (Array Name))
+  (measures : Array MutualMeasure) : MetaM TerminationWF := do
+  varNamess.mapIdxM fun funIdx varNames => do
+    let idents := varNames.map mkIdent
+    let measureStxs ← measures.mapM fun
       | .args varIdxs => do
-          let v := vars.get! (varIdxs[funIdx]!)
-          let sizeOfIdent := mkIdent (← unresolveNameGlobal ``sizeOf)
+          let varIdx := varIdxs[funIdx]!
+          let v := idents[varIdx]!
+          -- Print `sizeOf` as such, unless it is shadowed.
+          -- Shadowing by a `def` in the current namespace is handled by `unresolveNameGlobal`.
+          -- But it could also be shadowed by an earlier parameter (including the fixed prefix),
+          -- so look for unqualified (single tick) occurrences in `originalVarNames`
+          let sizeOfIdent :=
+            if originalVarNamess[funIdx]!.any (· = `sizeOf) then
+              mkIdent ``sizeOf -- fully qualified
+            else
+              mkIdent (← unresolveNameGlobal ``sizeOf)
           `($sizeOfIdent $v)
       | .func funIdx' => if funIdx' == funIdx then `(1) else `(0)
-      )
-    let declName := declNames[funIdx]!
+    let body ← mkTupleSyntax measureStxs
+    return { ref := .missing, vars := idents, body }
 
-    termByElements := termByElements.push
-      { ref := .missing
-        declName, vars, body,
-        implicit := true
-      }
-  return termByElements
-
+/--
+The TerminationWF produced by GuessLex may mention more variables than allowed in the surface
+syntax (in case of unnamed or shadowed parameters). So how to print this to the user? Invalid
+syntax with more information, or valid syntax with (possibly) unresolved variable names?
+The latter works fine in many cases, and is still useful to the user in the tricky corner cases, so
+we do that.
+-/
+def trimTermWF (extraParams : Array Nat) (elems : TerminationWF) : TerminationWF :=
+  elems.mapIdx fun funIdx elem =>
+    { elem with vars := elem.vars[elem.vars.size - extraParams[funIdx]! : elem.vars.size] }
 
 /--
 Given a matrix (row-major) of strings, arranges them in tabular form.
@@ -599,14 +595,14 @@ Single space as column separator.
 -/
 def formatTable : Array (Array String) → String := fun xss => Id.run do
   let mut colWidths := xss[0]!.map (fun _ => 0)
-  for i in [:xss.size] do
-    for j in [:xss[i]!.size] do
-      if xss[i]![j]!.length > colWidths[j]! then
-        colWidths := colWidths.set! j xss[i]![j]!.length
+  for hi : i in [:xss.size] do
+    for hj : j in [:xss[i].size] do
+      if xss[i][j].length > colWidths[j]! then
+        colWidths := colWidths.set! j xss[i][j].length
   let mut str := ""
-  for i in [:xss.size] do
-    for j in [:xss[i]!.size] do
-      let s := xss[i]![j]!
+  for hi : i in [:xss.size] do
+    for hj : j in [:xss[i].size] do
+      let s := xss[i][j]
       if j > 0 then -- right-align
         for _ in [:colWidths[j]! - s.length] do
           str := str ++ " "
@@ -614,7 +610,7 @@ def formatTable : Array (Array String) → String := fun xss => Id.run do
       if j = 0 then -- left-align
         for _ in [:colWidths[j]! - s.length] do
           str := str ++ " "
-      if j + 1 < xss[i]!.size then
+      if j + 1 < xss[i].size then
         str := str ++ " "
     if i + 1 < xss.size then
       str := str ++ "\n"
@@ -700,10 +696,12 @@ Main entry point of this module:
 Try to find a lexicographic ordering of the arguments for which the recursive definition
 terminates. See the module doc string for a high-level overview.
 -/
-def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
-    (fixedPrefixSize : Nat) (decrTactic? : Option Syntax) :
+def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
+    (fixedPrefixSize : Nat) :
     MetaM TerminationWF := do
-  let varNamess ← preDefs.mapM (naryVarNames fixedPrefixSize ·)
+  let extraParamss := preDefs.map (·.termination.extraParams)
+  let originalVarNamess ← preDefs.mapM originalVarNames
+  let varNamess ← originalVarNamess.mapM (naryVarNames fixedPrefixSize ·)
   let arities := varNamess.map (·.size)
   trace[Elab.definition.wf] "varNames is: {varNamess}"
 
@@ -716,24 +714,22 @@ def guessLex (preDefs : Array PreDefinition)  (unaryPreDef : PreDefinition)
 
   -- If there is only one plausible measure, use that
   if let #[solution] := measures then
-    return ← buildTermWF (preDefs.map (·.declName)) varNamess #[solution]
+    return ← buildTermWF originalVarNamess varNamess #[solution]
 
   -- Collect all recursive calls and extract their context
   let recCalls ← collectRecCalls unaryPreDef fixedPrefixSize arities
   let recCalls := filterSubsumed recCalls
-  let rcs ← recCalls.mapM (RecCallCache.mk decrTactic? ·)
+  let rcs ← recCalls.mapM (RecCallCache.mk (preDefs.map (·.termination.decreasing_by?)) ·)
   let callMatrix := rcs.map (inspectCall ·)
 
   match ← liftMetaM <| solve measures callMatrix with
   | .some solution => do
-    let wf ← buildTermWF (preDefs.map (·.declName)) varNamess solution
-
-    let wfStx ← withoutModifyingState do
-      preDefs.forM (addAsAxiom ·)
-      wf.unexpand
+    let wf ← buildTermWF originalVarNamess varNamess solution
 
     if showInferredTerminationBy.get (← getOptions) then
-      logInfo m!"Inferred termination argument:{wfStx}"
+      let wf' := trimTermWF extraParamss wf
+      for preDef in preDefs, term in wf' do
+        logInfoAt preDef.ref m!"Inferred termination argument: {← term.unexpand}"
 
     return wf
   | .none =>

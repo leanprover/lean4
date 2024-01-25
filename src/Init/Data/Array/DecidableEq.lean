@@ -20,7 +20,7 @@ theorem eq_of_isEqvAux [DecidableEq α] (a b : Array α) (hsz : a.size = b.size)
   · have heq : i = a.size := Nat.le_antisymm hi (Nat.ge_of_not_lt h)
     subst heq
     exact absurd (Nat.lt_of_lt_of_le high low) (Nat.lt_irrefl j)
-termination_by _ => a.size - i
+termination_by a.size - i
 
 theorem eq_of_isEqv [DecidableEq α] (a b : Array α) : Array.isEqv a b (fun x y => x = y) → a = b := by
   simp [Array.isEqv]
@@ -36,7 +36,7 @@ theorem isEqvAux_self [DecidableEq α] (a : Array α) (i : Nat) : Array.isEqvAux
   split
   case inl h => simp [h, isEqvAux_self a (i+1)]
   case inr h => simp [h]
-termination_by _ => a.size - i
+termination_by a.size - i
 
 theorem isEqv_self [DecidableEq α] (a : Array α) : Array.isEqv a a (fun x y => x = y) = true := by
   simp [isEqv, isEqvAux_self]

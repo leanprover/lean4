@@ -4,5 +4,5 @@ def sum (as : Array Nat) : Nat :=
       go (i+2) (s + as.get ⟨i, h⟩) -- Error
     else
       s
+    termination_by as.size - i
   go 0 0
-termination_by go i _ => as.size - i

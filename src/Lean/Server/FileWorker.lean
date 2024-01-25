@@ -76,17 +76,17 @@ structure WorkerContext where
 section Elab
   -- Placed here instead of Lean.Server.Utils because of an import loop
   private def mkIleanInfoNotification (method : String) (m : DocumentMeta)
-      (trees : Array Elab.InfoTree) : JsonRpc.Notification Lsp.LeanIleanInfoParams :=
-    let references := findModuleRefs m.text trees (localVars := true)
+      (trees : Array Elab.InfoTree) : BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) := do
+    let references ← findModuleRefs m.text trees (localVars := true) |>.toLspModuleRefs
     let param := { version := m.version, references }
-    { method, param }
+    return { method, param }
 
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
-      JsonRpc.Notification Lsp.LeanIleanInfoParams :=
+      BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoUpdate"
 
   private def mkIleanInfoFinalNotification : DocumentMeta → Array Elab.InfoTree →
-      JsonRpc.Notification Lsp.LeanIleanInfoParams :=
+      BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
     mkIleanInfoNotification "$/lean/ileanInfoFinal"
 
   /-- State of `reportSnapshots`. -/
@@ -135,7 +135,7 @@ section Elab
         publishDiagnostics
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
-      ctx.chanOut.send <| mkIleanInfoFinalNotification doc.meta st.allInfoTrees
+      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
       return .pure ()
     publishDiagnostics := do
       ctx.chanOut.send <| mkPublishDiagnosticsNotification doc.meta <|
@@ -162,7 +162,7 @@ section Elab
       if let some itree := node.element.infoTree? then
         let mut newInfoTrees := st.newInfoTrees.push itree
         if st.hasBlocked then
-          ctx.chanOut.send <| mkIleanInfoUpdateNotification doc.meta newInfoTrees
+          ctx.chanOut.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
           newInfoTrees := #[]
         st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
       goSeq st cont node.children.toList

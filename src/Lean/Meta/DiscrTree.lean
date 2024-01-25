@@ -419,22 +419,22 @@ where
         loop (i+1)
     else
       vs.push v
-termination_by loop i => vs.size - i
+  termination_by vs.size - i
 
-private partial def insertAux [BEq α] (keys : Array Key) (v : α) (config : WhnfCoreConfig) : Nat → Trie α → Trie α
+private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .node vs cs =>
     if h : i < keys.size then
       let k := keys.get ⟨i, h⟩
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
-          (fun ⟨_, s⟩ => let c := insertAux keys v config (i+1) s; (k, c)) -- merge with existing
+          (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
           (fun _ => let c := createNodes keys v (i+1); (k, c))
           (k, default)
       .node vs c
     else
       .node (insertVal vs v) cs
 
-def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) (config : WhnfCoreConfig) : DiscrTree α :=
+def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!
@@ -443,12 +443,12 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) (config :
       let c := createNodes keys v 1
       { root := d.root.insert k c }
     | some c =>
-      let c := insertAux keys v config 1 c
+      let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
 def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) : MetaM (DiscrTree α) := do
   let keys ← mkPath e config
-  return d.insertCore keys v config
+  return d.insertCore keys v
 
 private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
   let e ← reduceDT e root config

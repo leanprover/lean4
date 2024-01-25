@@ -23,10 +23,10 @@ def usedAndUnusedVariables : Nat :=
     3
   x
 
-def unusedWhereVariable : Nat :=
+def whereVariable : Nat :=
   3
 where
-  x := 5
+  x := 5 -- x is globally available via `whereVariable.x`
 
 def unusedWhereArgument : Nat :=
   f 2

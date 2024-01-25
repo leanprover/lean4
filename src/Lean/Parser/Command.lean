@@ -28,27 +28,6 @@ match against a quotation in a command kind's elaborator). -/
 @[builtin_term_parser low] def quot := leading_parser
   "`(" >> withoutPosition (incQuotDepth (many1Unbox commandParser)) >> ")"
 
-/--
-A decreasing_by clause can either be a single tactic (for all functions), or
-a list of tactics labeled with the function they apply to.
--/
-def decreasingByElement := leading_parser
-  ppLine >> ppIndent (ident >> " => " >> Tactic.tacticSeq >> patternIgnore (optional ";"))
-def decreasingByMany := leading_parser
-  atomic (lookahead (ident >> " => ")) >> many1Indent decreasingByElement
-def decreasingBy1  := leading_parser Tactic.tacticSeq
-
-def decreasingBy := leading_parser
-  ppDedent ppLine >> "decreasing_by " >> (decreasingByMany <|> decreasingBy1)
-
-def terminationByElement   := leading_parser
-  ppLine >> (ident <|> Term.hole) >> many (ppSpace >> (ident <|> Term.hole)) >>
-  " => " >> termParser >> patternIgnore (optional ";")
-def terminationBy          := leading_parser
-  ppDedent ppLine >> "termination_by" >> many1Indent terminationByElement
-
-def terminationSuffix :=
-  optional terminationBy >> optional decreasingBy
 
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
@@ -96,7 +75,7 @@ def declSig          := leading_parser
 def optDeclSig       := leading_parser
   many (ppSpace >> (Term.binderIdent <|> Term.bracketedBinder)) >> Term.optType
 def declValSimple    := leading_parser
-  " :=" >> ppHardLineUnlessUngrouped >> termParser >> optional Term.whereDecls
+  " :=" >> ppHardLineUnlessUngrouped >> termParser >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
 def whereStructField := leading_parser
@@ -116,20 +95,20 @@ def declVal          :=
   withAntiquot (mkAntiquot "declVal" `Lean.Parser.Command.declVal (isPseudoKind := true)) <|
     declValSimple <|> declValEqns <|> whereStructInst
 def «abbrev»         := leading_parser
-  "abbrev " >> declId >> ppIndent optDeclSig >> declVal >> terminationSuffix
+  "abbrev " >> declId >> ppIndent optDeclSig >> declVal
 def optDefDeriving   :=
   optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> sepBy1 ident ", ")
 def «def»            := leading_parser
-  "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving >> terminationSuffix
+  "def " >> declId >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
-  "theorem " >> declId >> ppIndent declSig >> declVal >> terminationSuffix
+  "theorem " >> declId >> ppIndent declSig >> declVal
 def «opaque»         := leading_parser
   "opaque " >> declId >> ppIndent declSig >> optional declValSimple
 /- As `declSig` starts with a space, "instance" does not need a trailing space
   if we put `ppSpace` in the optional fragments. -/
 def «instance»       := leading_parser
   Term.attrKind >> "instance" >> optNamedPrio >>
-  optional (ppSpace >> declId) >> ppIndent declSig >> declVal >> terminationSuffix
+  optional (ppSpace >> declId) >> ppIndent declSig >> declVal
 def «axiom»          := leading_parser
   "axiom " >> declId >> ppIndent declSig
 /- As `declSig` starts with a space, "example" does not need a trailing space. -/
@@ -269,7 +248,7 @@ def openDecl         :=
 
 @[builtin_command_parser] def «mutual» := leading_parser
   "mutual" >> many1 (ppLine >> notSymbol "end" >> commandParser) >>
-  ppDedent (ppLine >> "end") >> terminationSuffix
+  ppDedent (ppLine >> "end")
 def initializeKeyword := leading_parser
   "initialize " <|> "builtin_initialize "
 @[builtin_command_parser] def «initialize» := leading_parser

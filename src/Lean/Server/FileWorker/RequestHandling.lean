@@ -290,23 +290,23 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
-  let highlightRefs? (snaps : Array Snapshot) : Option (Array DocumentHighlight) := Id.run do
+  let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
     let trees := snaps.map (·.infoTree)
-    let refs : Lsp.ModuleRefs := findModuleRefs text trees
+    let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
-    for ident in ← refs.findAt p.position do
-      if let some info ← refs.find? ident then
-        if let some definition := info.definition then
-          ranges := ranges.push definition
-        ranges := ranges.append info.usages
+    for ident in refs.findAt p.position do
+      if let some info := refs.find? ident then
+        if let some ⟨definitionRange, _⟩ := info.definition? then
+          ranges := ranges.push definitionRange
+        ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none
-    some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+    return some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
   withWaitFindSnap doc (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← doc.cmdSnaps.getFinishedPrefix
-      if let some his := highlightRefs? snaps.toArray then
+      if let some his ← highlightRefs? snaps.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]

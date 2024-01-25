@@ -179,10 +179,17 @@ def unusedVariables : Linter where
           | _ =>
             assignments)
 
+    -- collect fvars from mvar assignments
     let tacticFVarUses : HashSet FVarId ←
-      tacticMVarAssignments.foldM (init := .empty) fun uses _ expr => do
-        let (_, s) ← StateT.run (s := uses) <| expr.forEach fun e => do if e.isFVar then modify (·.insert e.fvarId!)
-        return s
+      Elab.Command.liftIO <|  -- no need to carry around other state here
+      StateT.run' (s := HashSet.empty) do
+      -- use one big cache for all `ForEachExpr.visit` invocations
+      MonadCacheT.run do
+        tacticMVarAssignments.forM fun _ e =>
+          ForEachExpr.visit (e := e) fun e => do
+            if e.isFVar then modify (·.insert e.fvarId!)
+            return e.hasFVar
+        get
 
     -- collect ignore functions
     let ignoreFns := (← getUnusedVariablesIgnoreFns)

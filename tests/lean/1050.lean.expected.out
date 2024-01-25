@@ -1,4 +1,4 @@
-1050.lean:7:2-18:21: error: invalid mutual definition, result types must be in the same universe level, resulting type for `Foo.bar` is
+1050.lean:7:2-18:5: error: invalid mutual definition, result types must be in the same universe level, resulting type for `Foo.bar` is
   Foo as bs → bs : Type (u + 1)
 and for `Foo.bar_aux` is
   bs : Type u

@@ -130,7 +130,8 @@ def runFrontend
 
     if let some ileanFileName := ileanFileName? then
       let trees := s.commandState.infoState.trees.toArray
-      let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
+      let references ←
+        Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false) |>.toLspModuleRefs
       let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
       IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
@@ -147,7 +148,7 @@ def runFrontend
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.concatMap (match ·.infoTree? with | some t => #[t] | _ => #[])
     let references := Lean.Server.findModuleRefs inputCtx.fileMap trees (localVars := false)
-    let ilean := { module := mainModuleName, references : Lean.Server.Ilean }
+    let ilean := { module := mainModuleName, references := ← references.toLspModuleRefs : Lean.Server.Ilean }
     IO.FS.writeFile ileanFileName $ Json.compress $ toJson ilean
 
   let hasErrors := snaps.getAll.any (·.diagnostics.msgLog.hasErrors)

@@ -124,7 +124,7 @@ def mkDefViewOfOpaque (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefV
     | some val => pure val
     | none     =>
       let val ← if modifiers.isUnsafe then `(default_or_ofNonempty% unsafe) else `(default_or_ofNonempty%)
-      pure <| mkNode ``Parser.Command.declValSimple #[ mkAtomFrom stx ":=", val ]
+      `(Parser.Command.declValSimple| := $val)
   return {
     ref := stx, kind := DefKind.opaque, modifiers := modifiers,
     declId := stx[1], binders := binders, type? := some type, value := val

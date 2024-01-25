@@ -263,7 +263,8 @@ def reorderAlts (alts : Array Alt) (altsSyntax : Array Syntax) : Array Alt := Id
 
 def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altsSyntax : Array Syntax)
     (initialInfo : Info)
-    (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[]) : TacticM Unit := do
+    (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
+    (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
   let hasAlts := altsSyntax.size > 0
   if hasAlts then
     -- default to initial state outside of alts
@@ -301,10 +302,13 @@ where
         let mut (_, altMVarId) ← altMVarId.introN numFields
         match (← Cases.unifyEqs? numEqs altMVarId {}) with
         | none   => pure () -- alternative is not reachable
-        | some (altMVarId', _) =>
+        | some (altMVarId', subst) =>
           (_, altMVarId) ← altMVarId'.introNP numGeneralized
           for fvarId in toClear do
             altMVarId ← altMVarId.tryClear fvarId
+          altMVarId.withContext do
+            for (stx, fvar) in toTag do
+              Term.addLocalVarInfo stx (subst.get fvar)
           let altMVarIds ← applyPreTac altMVarId
           if !hasAlts then
             -- User did not provide alternatives using `|`
@@ -323,7 +327,7 @@ where
           let mut (fvarIds, altMVarId) ← altMVarId.introN numFields (altVars.toList.map getNameOfIdent') (useNamesForExplicitOnly := !altHasExplicitModifier altStx)
           -- Delay adding the infos for the pattern LHS because we want them to nest
           -- inside tacticInfo for the current alternative (in `evalAlt`)
-          let addInfo := do
+          let addInfo : TermElabM Unit := do
             if (← getInfoState).enabled then
               if let some declName := declName? then
                 addConstInfo (getAltNameStx altStx) declName
@@ -336,10 +340,13 @@ where
               throwError "alternative '{altName}' is not needed"
           match (← Cases.unifyEqs? numEqs altMVarId {}) with
           | none => unusedAlt
-          | some (altMVarId', _) =>
+          | some (altMVarId', subst) =>
             (_, altMVarId) ← altMVarId'.introNP numGeneralized
             for fvarId in toClear do
               altMVarId ← altMVarId.tryClear fvarId
+            altMVarId.withContext do
+              for (stx, fvar) in toTag do
+                Term.addLocalVarInfo stx (subst.get fvar)
             let altMVarIds ← applyPreTac altMVarId
             if altMVarIds.isEmpty then
               unusedAlt
@@ -564,17 +571,25 @@ where
         throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
       if foundFVars.contains target.fvarId! then
         throwError "target (or one of its indices) occurs more than once{indentExpr target}"
+      foundFVars := foundFVars.insert target.fvarId!
 
-def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
+def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do
-    let args ← targets.mapM fun target => do
-      let hName? := if target[0].isNone then none else some target[0][0].getId
+    let mut hIdents := #[]
+    let mut args := #[]
+    for target in targets do
+      let hName? ← if target[0].isNone then
+        pure none
+      else
+        hIdents := hIdents.push ⟨target[0][0]⟩
+        pure (some target[0][0].getId)
       let expr ← elabTerm target[1] none
-      return { expr, hName? : GeneralizeArg }
+      args := args.push { expr, hName? : GeneralizeArg }
     if (← withMainContext <| args.anyM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome) then
       liftMetaTacticAux fun mvarId => do
         let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
         let (fvarIdsNew, mvarId) ← mvarId.generalize argsToGeneralize
+        -- note: fvarIdsNew contains the `x` variables from `args` followed by all the `h` variables
         let mut result := #[]
         let mut j := 0
         for arg in args do
@@ -583,16 +598,18 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
             j := j+1
           else
             result := result.push arg.expr
-        return (result, [mvarId])
+        -- note: `fvarIdsNew[j:]` contains all the `h` variables
+        assert! hIdents.size + j == fvarIdsNew.size
+        return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
     else
-      return args.map (·.expr)
+      return (args.map (·.expr), #[])
 
 @[builtin_tactic Lean.Parser.Tactic.cases] def evalCases : Tactic := fun stx =>
   match expandCases? stx with
   | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
   | _ => focus do
     -- leading_parser nonReservedSymbol "cases " >> sepBy1 (group majorPremise) ", " >> usingRec >> optInductionAlts
-    let targets ← elabCasesTargets stx[1].getSepArgs
+    let (targets, toTag) ← elabCasesTargets stx[1].getSepArgs
     let optInductionAlts := stx[3]
     let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
     let alts :=  getAltsOfOptInductionAlts optInductionAlts
@@ -613,7 +630,8 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr) :=
       mvarId.withContext do
         ElimApp.setMotiveArg mvarId elimArgs[elimInfo.motivePos]!.mvarId! targetsNew
         mvarId.assign result.elimApp
-        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numEqs := targets.size) (toClear := targetsNew)
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo
+          (numEqs := targets.size) (toClear := targetsNew) (toTag := toTag)
 
 builtin_initialize
   registerTraceClass `Elab.cases

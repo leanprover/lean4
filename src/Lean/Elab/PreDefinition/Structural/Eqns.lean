@@ -42,7 +42,7 @@ where
       go mvarId
     else if let some mvarId ← whnfReducibleLHS? mvarId then
       go mvarId
-    else match (← simpTargetStar mvarId {}).1 with
+    else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>

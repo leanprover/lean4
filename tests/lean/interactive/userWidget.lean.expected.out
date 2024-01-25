@@ -1,10 +1,45 @@
 {"widgets":
  [{"range":
-   {"start": {"line": 13, "character": 0},
-    "end": {"line": 13, "character": 31}},
+   {"start": {"line": 12, "character": 0},
+    "end": {"line": 12, "character": 19}},
    "props": {},
-   "name": "my fancy widget",
-   "javascriptHash": "11948876261158841348",
-   "id": "widget1"}]}
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"}]}
 {"sourcetext":
- "\n  import * as React from 'react';\n  export default function (props) {\n    return React.createElement('p', {}, 'hello')\n  }"}
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"widgets":
+ [{"range":
+   {"start": {"line": 19, "character": 0},
+    "end": {"line": 19, "character": 63}},
+   "props": {"name": "lean"},
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"}]}
+{"sourcetext":
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"widgets":
+ [{"range": null,
+   "props": {"name": "local"},
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"},
+  {"range": null,
+   "props": {"name": "global"},
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"}]}
+{"sourcetext":
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"sourcetext":
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"widgets":
+ [{"range": null,
+   "props": {"name": "scoped"},
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"},
+  {"range": null,
+   "props": {"name": "global"},
+   "javascriptHash": "2874772427606622741",
+   "id": "helloWidget"}]}
+{"sourcetext":
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"sourcetext":
+ "\n    import * as React from 'react';\n    export default function(props) {\n      const name = props.name || 'world'\n      return React.createElement('p', {}, name + '!')\n    }"}
+{"widgets": []}

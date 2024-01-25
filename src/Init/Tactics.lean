@@ -268,8 +268,8 @@ macro "rfl'" : tactic => `(tactic| set_option smartUnfolding false in with_unfol
 /--
 `ac_rfl` proves equalities up to application of an associative and commutative operator.
 ```
-instance : IsAssociative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : IsCommutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
 
 example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 ```
@@ -355,9 +355,9 @@ Using `rw (config := {occs := .pos L}) [e]`,
 where `L : List Nat`, you can control which "occurrences" are rewritten.
 (This option applies to each rule, so usually this will only be used with a single rule.)
 Occurrences count from `1`.
-At the first occurrence, whether allowed or not,
-arguments of the rewrite rule `e` may be instantiated,
+At each allowed occurrence, arguments of the rewrite rule `e` may be instantiated,
 restricting which later rewrites can be found.
+(Disallowed occurrences do not result in instantiation.)
 `{occs := .neg L}` allows skipping specified occurrences.
 -/
 syntax (name := rewriteSeq) "rewrite" (config)? rwRuleSeq (location)? : tactic
@@ -753,7 +753,7 @@ end Tactic
 
 namespace Attr
 /--
-Theorems tagged with the `simp` attribute are by the simplifier
+Theorems tagged with the `simp` attribute are used by the simplifier
 (i.e., the `simp` tactic, and its variants) to simplify expressions occurring in your goals.
 We call theorems tagged with the `simp` attribute "simp theorems" or "simp lemmas".
 Lean maintains a database/index containing all active simp theorems.

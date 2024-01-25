@@ -35,14 +35,15 @@ structure InfoWithCtx where
   info : Elab.Info
   children : PersistentArray InfoTree
 
-/-- Visit nodes, passing in a surrounding context (the innermost one) and accumulating results on the way back up. -/
+/-- Visit nodes, passing in a surrounding context (the innermost one combined with all outer ones)
+and accumulating results on the way back up. -/
 partial def InfoTree.visitM [Monad m]
     (preNode  : ContextInfo → Info → (children : PersistentArray InfoTree) → m Unit := fun _ _ _ => pure ())
     (postNode : ContextInfo → Info → (children : PersistentArray InfoTree) → List (Option α) → m α)
     : InfoTree → m (Option α) :=
   go none
 where go
-  | _, context ctx t => go ctx t
+  | ctx?, context ctx t => go (ctx.mergeIntoOuter? ctx?) t
   | some ctx, node i cs => do
     preNode ctx i cs
     let as ← cs.toList.mapM (go <| i.updateContext? ctx)
@@ -77,7 +78,7 @@ partial def InfoTree.deepestNodes (p : ContextInfo → Info → PersistentArray 
 partial def InfoTree.foldInfo (f : ContextInfo → Info → α → α) (init : α) : InfoTree → α :=
   go none init
 where go ctx? a
-  | context ctx t => go ctx a t
+  | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
   | node i ts =>
     let a := match ctx? with
       | none => a
@@ -367,7 +368,7 @@ partial def InfoTree.termGoalAt? (t : InfoTree) (hoverPos : String.Pos) : Option
 partial def InfoTree.hasSorry : InfoTree → IO Bool :=
   go none
 where go ci?
-  | .context ci t => go ci t
+  | .context ci t => go (ci.mergeIntoOuter? ci?) t
   | .node i cs =>
     if let (some ci, .ofTermInfo ti) := (ci?, i) then do
       let expr ← ti.runMetaM ci (instantiateMVars ti.expr)

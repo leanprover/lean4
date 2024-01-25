@@ -1,4 +1,4 @@
-mutwf1.lean:24:2-24:6: error: unsolved goals
+mutwf1.lean:23:2-23:6: error: unsolved goals
 case h.a
 n : Nat
 h : n ≠ 0

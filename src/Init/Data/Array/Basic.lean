@@ -71,6 +71,12 @@ abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = 
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
   a.set ⟨i.toNat, h⟩ v
 
+/--
+Swaps two entries in an array.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_fswap"]
 def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let v₁ := a.get i
@@ -78,12 +84,18 @@ def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
   let a'  := a.set i v₂
   a'.set (size_set a i v₂ ▸ j) v₁
 
+/--
+Swaps two entries in an array, or panics if either index is out of bounds.
+
+This will perform the update destructively provided that `a` has a reference
+count of 1 when called.
+-/
 @[extern "lean_array_swap"]
 def swap! (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
   if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
-  else panic! "index out of bounds"
-  else panic! "index out of bounds"
+  else a
+  else a
 
 @[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
   let e := a.get i
@@ -276,8 +288,8 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
       map (i+1) (r.push (← f as[i]))
     else
       pure r
+  termination_by as.size - i
   map 0 (mkEmpty as.size)
-termination_by map => as.size - i
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
@@ -348,12 +360,12 @@ def anyM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as :
           loop (j+1)
       else
         pure false
+      termination_by stop - j
     loop start
   if h : stop ≤ as.size then
     any stop h
   else
     any as.size (Nat.le_refl _)
-termination_by loop i j => stop - j
 
 @[inline]
 def allM {α : Type u} {m : Type → Type w} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m Bool :=
@@ -523,7 +535,7 @@ def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) (
      p a[i] b[i] && isEqvAux a b hsz p (i+1)
   else
     true
-termination_by _ => a.size - i
+termination_by a.size - i
 
 @[inline] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
   if h : a.size = b.size then
@@ -627,7 +639,7 @@ def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) 
     if a.get idx == v then some idx
     else indexOfAux a v (i+1)
   else none
-termination_by _ => a.size - i
+termination_by a.size - i
 
 def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
   indexOfAux a v 0
@@ -659,7 +671,7 @@ where
       loop as (i+1) ⟨j-1, this⟩
     else
       as
-termination_by _ => j - i
+termination_by j - i
 
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
   if h : as.size > 0 then
@@ -669,7 +681,7 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
       as
   else
     as
-termination_by popWhile as => as.size
+termination_by as.size
 
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec go (i : Nat) (r : Array α) : Array α :=
@@ -681,8 +693,8 @@ def takeWhile (p : α → Bool) (as : Array α) : Array α :=
         r
     else
       r
+    termination_by as.size - i
   go 0 #[]
-termination_by go i r => as.size - i
 
 def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
   if h : i < a.size then
@@ -692,7 +704,7 @@ def eraseIdxAux (i : Nat) (a : Array α) : Array α :=
     eraseIdxAux (i+1) a'
   else
     a.pop
-termination_by _ => a.size - i
+termination_by a.size - i
 
 def feraseIdx (a : Array α) (i : Fin a.size) : Array α :=
   eraseIdxAux (i.val + 1) a
@@ -707,7 +719,7 @@ def eraseIdxSzAux (a : Array α) (i : Nat) (r : Array α) (heq : r.size = a.size
     eraseIdxSzAux a (i+1) (r.swap idx idx1) ((size_swap r idx idx1).trans heq)
   else
     ⟨r.pop, (size_pop r).trans (heq ▸ rfl)⟩
-termination_by _ => r.size - i
+termination_by r.size - i
 
 def eraseIdx' (a : Array α) (i : Fin a.size) : { r : Array α // r.size = a.size - 1 } :=
   eraseIdxSzAux a (i.val + 1) a rfl
@@ -726,10 +738,10 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
       as
+    termination_by j.1
   let j := as.size
   let as := as.push a
   loop as ⟨j, size_push .. ▸ j.lt_succ_self⟩
-termination_by loop j => j.1
 
 /-- Insert element `a` at position `i`. Panics if `i` is not `i ≤ as.size`. -/
 def insertAt! (as : Array α) (i : Nat) (a : α) : Array α :=
@@ -779,7 +791,7 @@ def isPrefixOfAux [BEq α] (as bs : Array α) (hle : as.size ≤ bs.size) (i : N
       false
   else
     true
-termination_by _ => as.size - i
+termination_by as.size - i
 
 /-- Return true iff `as` is a prefix of `bs`.
 That is, `bs = as ++ t` for some `t : List α`.-/
@@ -800,7 +812,7 @@ private def allDiffAux [BEq α] (as : Array α) (i : Nat) : Bool :=
     allDiffAuxAux as as[i] i h && allDiffAux as (i+1)
   else
     true
-termination_by _ => as.size - i
+termination_by as.size - i
 
 def allDiff [BEq α] (as : Array α) : Bool :=
   allDiffAux as 0
@@ -815,7 +827,7 @@ def allDiff [BEq α] (as : Array α) : Bool :=
       cs
   else
     cs
-termination_by _ => as.size - i
+termination_by as.size - i
 
 @[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
   zipWithAux f as bs 0 #[]

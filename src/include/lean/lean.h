@@ -1991,6 +1991,10 @@ static inline lean_obj_res lean_version_get_special_desc(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_SPECIAL_VERSION_DESC);
 }
 
+static inline lean_obj_res lean_system_platform_target(lean_obj_arg _unit) {
+    return lean_mk_string(LEAN_PLATFORM_TARGET);
+}
+
 static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
     return LEAN_IS_STAGE0;
 }

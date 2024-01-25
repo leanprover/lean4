@@ -1,11 +1,6 @@
 1079.lean:3:2-6:12: error: alternative 'isFalse' has not been provided
 [Meta.Tactic.simp.rewrite] h:1000, m ==> n
 [Meta.Tactic.simp.rewrite] @eq_self:1000, n = n ==> True
-[Meta.Tactic.simp.unify] @ite_self:1000, failed to unify
-      if ?c then ?a else ?a
-    with
-      if True then Ordering.eq else Ordering.gt
-[Meta.Tactic.simp.rewrite] @ite_true:1000, if True then Ordering.eq else Ordering.gt ==> Ordering.eq
 [Meta.Tactic.simp.unify] @eq_self:1000, failed to unify
       ?a = ?a
     with

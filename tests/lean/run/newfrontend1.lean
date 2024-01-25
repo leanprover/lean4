@@ -101,32 +101,32 @@ by {
 }
 
 theorem simple8 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intro h1; intro _; intro h3
-refine' Eq.trans ?pre ?post
-case post => exact h1
-case pre => exact h3
+  intro h1; intro _; intro h3
+  refine' Eq.trans ?pre ?post
+  case post => exact h1
+  case pre => exact h3
 
 theorem simple9 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 _ h3
-trace_state
-focus
-  refine' Eq.trans ?pre ?post
-  first
-    | exact h1
-      assumption
-    | exact y
-      exact h3
-      assumption
+  intros h1 _ h3
+  trace_state
+  focus
+    refine' Eq.trans ?pre ?post
+    first
+      | exact h1
+        assumption
+      | exact y
+        exact h3
+        assumption
 
 theorem simple9b (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 _ h3
-trace_state
-focus
-  refine' Eq.trans ?pre ?post
-  first
-    | exact h1
-    | exact y; exact h3
-  assumption
+  intros h1 _ h3
+  trace_state
+  focus
+    refine' Eq.trans ?pre ?post
+    first
+      | exact h1
+      | exact y; exact h3
+    assumption
 
 theorem simple9c (x y z : Nat) : y = z → x = x → x = y → x = z := by
   intros h1 _ h3
@@ -185,12 +185,12 @@ by {
 }
 
 theorem simple13 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros h1 h2 h3
-trace_state
-apply @Eq.trans
-case b => exact y
-trace_state
-repeat assumption
+  intros h1 h2 h3
+  trace_state
+  apply @Eq.trans
+  case b => exact y
+  trace_state
+  repeat assumption
 
 theorem simple13b (x y z : Nat) : y = z → x = x → x = y → x = z := by {
 intros h1 h2 h3;
@@ -202,10 +202,10 @@ repeat assumption
 }
 
 theorem simple14 (x y z : Nat) : y = z → x = x → x = y → x = z := by
-intros
-apply @Eq.trans
-case b => exact y
-repeat assumption
+  intros
+  apply @Eq.trans
+  case b => exact y
+  repeat assumption
 
 theorem simple15 (x y z : Nat) : y = z → x = x → x = y → x = z :=
 by {

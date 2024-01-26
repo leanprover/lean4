@@ -1,0 +1,1 @@
+Try this: simp only [↓reduceIte, Nat.reduceAdd]

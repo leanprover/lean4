@@ -13,6 +13,7 @@ import Lean.Elab.Match
 import Lean.Elab.DefView
 import Lean.Elab.Deriving.Basic
 import Lean.Elab.PreDefinition.Main
+import Lean.Elab.PreDefinition.WF.TerminationHint
 import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
@@ -221,14 +222,16 @@ private def expandWhereStructInst : Macro
 /-
 Recall that
 ```
-def declValSimple    := leading_parser " :=\n" >> termParser >> optional Term.whereDecls
+def declValSimple    := leading_parser " :=\n" >> termParser >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser Term.matchAltsWhereDecls
 def declVal          := declValSimple <|> declValEqns <|> Term.whereDecls
 ```
+
+The `Termination.suffix` is ignored here, and extracted in `declValToTerminationHint`.
 -/
 private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal do
   if declVal.isOfKind ``Parser.Command.declValSimple then
-    expandWhereDeclsOpt declVal[2] declVal[1]
+    expandWhereDeclsOpt declVal[3] declVal[1]
   else if declVal.isOfKind ``Parser.Command.declValEqns then
     expandMatchAltsWhereDecls declVal[0]
   else if declVal.isOfKind ``Parser.Command.whereStructInst then
@@ -237,6 +240,15 @@ private def declValToTerm (declVal : Syntax) : MacroM Syntax := withRef declVal 
     Macro.throwErrorAt declVal "declaration body is missing"
   else
     Macro.throwErrorAt declVal "unexpected declaration body"
+
+/-- Elaborates the termination hints in a `declVal` syntax. -/
+private def declValToTerminationHint (declVal : Syntax) : TermElabM WF.TerminationHints :=
+  if declVal.isOfKind ``Parser.Command.declValSimple then
+    WF.elabTerminationHints ⟨declVal[2]⟩
+  else if declVal.isOfKind ``Parser.Command.declValEqns then
+    WF.elabTerminationHints ⟨declVal[0][1]⟩
+  else
+    return .none
 
 private def elabFunValues (headers : Array DefViewElabHeader) : TermElabM (Array Expr) :=
   headers.mapM fun header => withDeclName header.declName <| withLevelNames header.levelNames do
@@ -629,6 +641,8 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
     : TermElabM (Array PreDefinition) :=
   mainHeaders.size.foldM (init := preDefs) fun i preDefs => do
     let header := mainHeaders[i]!
+    let termination ← declValToTerminationHint header.valueStx
+    let termination ← termination.checkVars header.numParams mainVals[i]!
     let value ← mkLambdaFVars sectionVars mainVals[i]!
     let type ← mkForallFVars sectionVars header.type
     return preDefs.push {
@@ -637,7 +651,7 @@ def pushMain (preDefs : Array PreDefinition) (sectionVars : Array Expr) (mainHea
       declName    := header.declName
       levelParams := [], -- we set it later
       modifiers   := header.modifiers
-      type, value
+      type, value, termination
     }
 
 def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClosure) (kind : DefKind) (modifiers : Modifiers) : MetaM (Array PreDefinition) :=
@@ -655,7 +669,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
       declName    := c.toLift.declName
       levelParams := [] -- we set it later
       modifiers   := { modifiers with attrs := c.toLift.attrs }
-      kind, type, value
+      kind, type, value,
+      termination := c.toLift.termination
     }
 
 def getKindForLetRecs (mainHeaders : Array DefViewElabHeader) : DefKind :=
@@ -766,7 +781,7 @@ partial def checkForHiddenUnivLevels (allUserLevelNames : List Name) (preDefs : 
     for preDef in preDefs do
       checkPreDef preDef
 
-def elabMutualDef (vars : Array Expr) (views : Array DefView) (hints : TerminationHints) : TermElabM Unit :=
+def elabMutualDef (vars : Array Expr) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
       -- save correct environment in info tree
@@ -805,7 +820,7 @@ where
         for preDef in preDefs do
           trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
         checkForHiddenUnivLevels allUserLevelNames preDefs
-        addPreDefinitions preDefs hints
+        addPreDefinitions preDefs
         processDeriving headers
 
   processDeriving (headers : Array DefViewElabHeader) := do
@@ -820,13 +835,13 @@ where
 end Term
 namespace Command
 
-def elabMutualDef (ds : Array Syntax) (hints : TerminationHints) : CommandElabM Unit := do
+def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
   let views ← ds.mapM fun d => do
     let modifiers ← elabModifiers d[0]
     if ds.size > 1 && modifiers.isNonrec then
       throwErrorAt d "invalid use of 'nonrec' modifier in 'mutual' block"
     mkDefView modifiers d[1]
-  runTermElabM fun vars => Term.elabMutualDef vars views hints
+  runTermElabM fun vars => Term.elabMutualDef vars views
 
 end Command
 end Lean.Elab

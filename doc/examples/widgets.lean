@@ -15,9 +15,8 @@ sections of a Lean document. User widgets are rendered in the Lean infoview.
 To try it out, simply type in the following code and place your cursor over the `#widget` command.
 -/
 
-@[widget]
-def helloWidget : UserWidgetDefinition where
-  name := "Hello"
+@[widget_module]
+def helloWidget : Widget.Module where
   javascript := "
     import * as React from 'react';
     export default function(props) {
@@ -25,7 +24,7 @@ def helloWidget : UserWidgetDefinition where
       return React.createElement('p', {}, name + '!')
     }"
 
-#widget helloWidget .null
+#widget helloWidget
 
 /-!
 If you want to dive into a full sample right away, check out
@@ -56,7 +55,11 @@ to the React component. In our first invocation of `#widget`, we set it to `.nul
 happens when you type in:
 -/
 
-#widget helloWidget (Json.mkObj [("name", "<your name here>")])
+structure HelloWidgetProps where
+  name? : Option String := none
+  deriving Server.RpcEncodable
+
+#widget helloWidget with { name? := "<your name here>" : HelloWidgetProps }
 
 /-!
 💡 NOTE: The RPC system presented below does not depend on JavaScript. However the primary use case
@@ -132,9 +135,8 @@ on this we either display an `InteractiveCode` with the type, `mapRpcError` the 
 to turn it into a readable message, or show a `Loading..` message, respectively.
 -/
 
-@[widget]
-def checkWidget : UserWidgetDefinition where
-  name := "#check as a service"
+@[widget_module]
+def checkWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 const e = React.createElement;
@@ -160,7 +162,7 @@ export default function(props) {
 Finally we can try out the widget.
 -/
 
-#widget checkWidget .null
+#widget checkWidget
 
 /-!
 ![`#check` as a service](../images/widgets_caas.png)
@@ -193,9 +195,8 @@ interact with the text editor.
 You can see the full API for this [here](https://github.com/leanprover/vscode-lean4/blob/master/lean4-infoview-api/src/infoviewApi.ts#L52)
 -/
 
-@[widget]
-def insertTextWidget : UserWidgetDefinition where
-  name := "textInserter"
+@[widget_module]
+def insertTextWidget : Widget.Module where
   javascript := "
 import * as React from 'react';
 const e = React.createElement;
@@ -213,4 +214,4 @@ export default function(props) {
 
 /-! Finally, we can try this out: -/
 
-#widget insertTextWidget .null
+#widget insertTextWidget

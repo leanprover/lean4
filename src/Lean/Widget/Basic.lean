@@ -2,6 +2,7 @@ import Lean.Elab.InfoTree
 import Lean.Message
 import Lean.Server.Rpc.Basic
 import Lean.Server.InfoUtils
+import Lean.Widget.Types
 
 namespace Lean.Widget
 

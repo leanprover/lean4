@@ -1,0 +1,86 @@
+
+[result]
+def foo._closed_1 : obj :=
+  let x_1 : obj := ctor_0[Lean.Syntax.missing];
+  let x_2 : u8 := 0;
+  let x_3 : obj := Lean.SourceInfo.fromRef x_1 x_2;
+  ret x_3
+def foo._closed_2 : obj :=
+  let x_1 : obj := "UnhygienicMain";
+  ret x_1
+def foo._closed_3 : obj :=
+  let x_1 : obj := ctor_0[Lean.Name.anonymous._impl];
+  let x_2 : obj := foo._closed_2;
+  let x_3 : obj := Lean.Name.str._override x_1 x_2;
+  ret x_3
+def foo._closed_4 : obj :=
+  let x_1 : obj := "term_+_";
+  ret x_1
+def foo._closed_5 : obj :=
+  let x_1 : obj := ctor_0[Lean.Name.anonymous._impl];
+  let x_2 : obj := foo._closed_4;
+  let x_3 : obj := Lean.Name.str._override x_1 x_2;
+  ret x_3
+def foo._closed_6 : obj :=
+  let x_1 : obj := "a";
+  ret x_1
+def foo._closed_7 : obj :=
+  let x_1 : obj := foo._closed_6;
+  let x_2 : obj := String.toSubstring' x_1;
+  ret x_2
+def foo._closed_8 : obj :=
+  let x_1 : obj := ctor_0[Lean.Name.anonymous._impl];
+  let x_2 : obj := foo._closed_6;
+  let x_3 : obj := Lean.Name.str._override x_1 x_2;
+  ret x_3
+def foo._closed_9 : obj :=
+  let x_1 : obj := foo._closed_3;
+  let x_2 : obj := foo._closed_8;
+  let x_3 : obj := Lean.firstFrontendMacroScope;
+  let x_4 : obj := Lean.addMacroScope x_1 x_2 x_3;
+  ret x_4
+def foo._closed_10 : obj :=
+  let x_1 : obj := ctor_0[List.nil];
+  let x_2 : obj := foo._closed_1;
+  let x_3 : obj := foo._closed_7;
+  let x_4 : obj := foo._closed_9;
+  let x_5 : obj := ctor_3[Lean.Syntax.ident] x_2 x_3 x_4 x_1;
+  ret x_5
+def foo._closed_11 : obj :=
+  let x_1 : obj := "+";
+  ret x_1
+def foo._closed_12 : obj :=
+  let x_1 : obj := foo._closed_1;
+  let x_2 : obj := foo._closed_11;
+  let x_3 : obj := ctor_2[Lean.Syntax.atom] x_1 x_2;
+  ret x_3
+def foo (x_1 : obj) : obj :=
+  let x_2 : obj := Nat.repr x_1;
+  let x_3 : obj := ctor_2[Lean.SourceInfo.none];
+  let x_4 : obj := Lean.Syntax.mkNumLit x_2 x_3;
+  let x_5 : obj := foo._closed_1;
+  let x_6 : obj := foo._closed_5;
+  let x_7 : obj := foo._closed_10;
+  let x_8 : obj := foo._closed_12;
+  let x_9 : obj := Lean.Syntax.node3 x_5 x_6 x_7 x_8 x_4;
+  ret x_9[Compiler.result] size: 18
+    def foo n : Syntax :=
+      let _x.1 := Syntax.missing;
+      let _x.2 := 1;
+      let _x.3 := false;
+      let _x.4 := SourceInfo.fromRef _x.1 _x.3;
+      let _x.5 := "UnhygienicMain";
+      let _x.6 := Name.mkStr1 _x.5;
+      let _x.7 := "term_+_";
+      let _x.8 := Name.mkStr1 _x.7;
+      let _x.9 := "a";
+      let _x.10 := String.toSubstring' _x.9;
+      let _x.11 := Name.mkStr1 _x.9;
+      let _x.12 := addMacroScope _x.6 _x.11 _x.2;
+      let _x.13 := [] _;
+      let _x.14 := Syntax.ident _x.4 _x.10 _x.12 _x.13;
+      let _x.15 := "+";
+      let _x.16 := Syntax.atom _x.4 _x.15;
+      let _x.17 := Lean.instQuoteNatNumLitKind._elam_0 n;
+      let _x.18 := Syntax.node3 _x.4 _x.8 _x.14 _x.16 _x.17;
+      return _x.18

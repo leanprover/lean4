@@ -560,6 +560,10 @@ where
       | .const ..  => pure e
       | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
+        if config.zeta then
+          if let some (args, _, _, v, b) := e.letFunAppArgs? then
+            -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
+            return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
         if config.beta && f'.isLambda then
@@ -823,12 +827,17 @@ def reduceNative? (e : Expr) : MetaM (Option Expr) :=
   | _ =>
     return none
 
-@[inline] def withNatValue {α} (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
+@[inline] def withNatValue (a : Expr) (k : Nat → MetaM (Option α)) : MetaM (Option α) := do
+  if !a.hasExprMVar && a.hasFVar then
+    return none
+  let a ← instantiateMVars a
+  if a.hasExprMVar || a.hasFVar then
+    return none
   let a ← whnf a
   match a with
-  | Expr.const `Nat.zero _      => k 0
-  | Expr.lit (Literal.natVal v) => k v
-  | _                           => return none
+  | .const ``Nat.zero _ => k 0
+  | .lit (.natVal v)    => k v
+  | _                   => return none
 
 def reduceUnaryNatOp (f : Nat → Nat) (a : Expr) : MetaM (Option Expr) :=
   withNatValue a fun a =>
@@ -846,27 +855,31 @@ def reduceBinNatPred (f : Nat → Nat → Bool) (a b : Expr) : MetaM (Option Exp
   return toExpr <| f a b
 
 def reduceNat? (e : Expr) : MetaM (Option Expr) :=
-  if e.hasFVar || e.hasMVar then
-    return none
-  else match e with
-    | .app (.const fn _) a                =>
-      if fn == ``Nat.succ then
-        reduceUnaryNatOp Nat.succ a
-      else
-        return none
-    | .app (.app (.const fn _) a1) a2 =>
-      if fn == ``Nat.add then reduceBinNatOp Nat.add a1 a2
-      else if fn == ``Nat.sub then reduceBinNatOp Nat.sub a1 a2
-      else if fn == ``Nat.mul then reduceBinNatOp Nat.mul a1 a2
-      else if fn == ``Nat.div then reduceBinNatOp Nat.div a1 a2
-      else if fn == ``Nat.mod then reduceBinNatOp Nat.mod a1 a2
-      else if fn == ``Nat.pow then reduceBinNatOp Nat.pow a1 a2
-      else if fn == ``Nat.gcd then reduceBinNatOp Nat.gcd a1 a2
-      else if fn == ``Nat.beq then reduceBinNatPred Nat.beq a1 a2
-      else if fn == ``Nat.ble then reduceBinNatPred Nat.ble a1 a2
-      else return none
-    | _ =>
+  match e with
+  | .app (.const fn _) a =>
+    if fn == ``Nat.succ then
+      reduceUnaryNatOp Nat.succ a
+    else
       return none
+  | .app (.app (.const fn _) a1) a2 =>
+    match fn with
+    | ``Nat.add => reduceBinNatOp Nat.add a1 a2
+    | ``Nat.sub => reduceBinNatOp Nat.sub a1 a2
+    | ``Nat.mul => reduceBinNatOp Nat.mul a1 a2
+    | ``Nat.div => reduceBinNatOp Nat.div a1 a2
+    | ``Nat.mod => reduceBinNatOp Nat.mod a1 a2
+    | ``Nat.pow => reduceBinNatOp Nat.pow a1 a2
+    | ``Nat.gcd => reduceBinNatOp Nat.gcd a1 a2
+    | ``Nat.beq => reduceBinNatPred Nat.beq a1 a2
+    | ``Nat.ble => reduceBinNatPred Nat.ble a1 a2
+    | ``Nat.land => reduceBinNatOp Nat.land a1 a2
+    | ``Nat.lor  => reduceBinNatOp Nat.lor a1 a2
+    | ``Nat.xor  => reduceBinNatOp Nat.xor a1 a2
+    | ``Nat.shiftLeft  => reduceBinNatOp Nat.shiftLeft a1 a2
+    | ``Nat.shiftRight => reduceBinNatOp Nat.shiftRight a1 a2
+    | _ => return none
+  | _ =>
+    return none
 
 
 @[inline] private def useWHNFCache (e : Expr) : MetaM Bool := do

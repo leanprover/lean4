@@ -32,6 +32,10 @@ private unsafe def evalRpcProcedureUnsafe (env : Environment) (opts : Options) (
 opaque evalRpcProcedure (env : Environment) (opts : Options) (procName : Name) :
     Except String RpcProcedure
 
+def runRpcProcedure (p : RpcProcedure) :
+    (sessionId : UInt64) → Json → LeanRequestM (RequestTask Json) :=
+  p.wrapper
+
 open RequestM in
 def handleRpcCall (p : Lsp.RpcCallParams) : LeanRequestM (RequestTask Json) := do
   -- The imports are finished at this point, because the handleRequest function

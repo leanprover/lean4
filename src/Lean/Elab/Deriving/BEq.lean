@@ -57,7 +57,10 @@ where
             let b := mkIdent (← mkFreshUserName `b)
             ctorArgs1 := ctorArgs1.push a
             ctorArgs2 := ctorArgs2.push b
-            if (← inferType x).isAppOf indVal.name then
+            let xType ← inferType x
+            if (← isProp xType) then
+              continue
+            if xType.isAppOf indVal.name then
               rhs ← `($rhs && $(mkIdent auxFunName):ident $a:ident $b:ident)
             else
               rhs ← `($rhs && $a:ident == $b:ident)
@@ -91,9 +94,9 @@ def mkMutualBlock (ctx : Context) : TermElabM Syntax := do
      $auxDefs:command*
     end)
 
-private def mkBEqInstanceCmds (declNames : Array Name) : TermElabM (Array Syntax) := do
-  let ctx ← mkContext "beq" declNames[0]!
-  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq declNames)
+private def mkBEqInstanceCmds (declName : Name) : TermElabM (Array Syntax) := do
+  let ctx ← mkContext "beq" declName
+  let cmds := #[← mkMutualBlock ctx] ++ (← mkInstanceCmds ctx `BEq #[declName])
   trace[Elab.Deriving.beq] "\n{cmds}"
   return cmds
 
@@ -109,14 +112,18 @@ private def mkBEqEnumCmd (name : Name): TermElabM (Array Syntax) := do
 
 open Command
 
+def mkBEqInstance (declName : Name) : CommandElabM Unit := do
+    let cmds ← liftTermElabM <|
+      if (← isEnumType declName) then
+        mkBEqEnumCmd declName
+      else
+         mkBEqInstanceCmds declName
+    cmds.forM elabCommand
+
 def mkBEqInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
-  if declNames.size == 1 && (← isEnumType declNames[0]!) then
-    let cmds ← liftTermElabM <| mkBEqEnumCmd declNames[0]!
-    cmds.forM elabCommand
-    return true
-  else if (← declNames.allM isInductive) && declNames.size > 0 then
-    let cmds ← liftTermElabM <| mkBEqInstanceCmds declNames
-    cmds.forM elabCommand
+  if (← declNames.allM isInductive) then
+    for declName in declNames do
+      mkBEqInstance declName
     return true
   else
     return false

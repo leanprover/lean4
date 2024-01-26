@@ -10,7 +10,7 @@ import Lean.Data.Json
 import Lean.Data.Lsp
 
 import Lean.Server.FileSource
-import Lean.Server.FileWorker.Utils
+import Lean.Server.Utils
 
 import Lean.Server.Rpc.Basic
 
@@ -59,9 +59,37 @@ def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
 
 variable (InitSnap : Type)
 
+structure RpcSession where
+  objects         : RpcObjectStore
+  /-- The `IO.monoMsNow` time when the session expires. See `$/lean/rpc/keepAlive`. -/
+  expireTime      : Nat
+
+namespace RpcSession
+
+def keepAliveTimeMs : Nat :=
+  30000
+
+def new : IO (UInt64 × RpcSession) := do
+  /- We generate a random ID to ensure that session IDs do not repeat across re-initializations
+  and worker restarts. Otherwise, the client may attempt to use outdated references. -/
+  let newId ← ByteArray.toUInt64LE! <$> IO.getRandomBytes 8
+  let newSesh := {
+    objects := {}
+    expireTime := (← IO.monoMsNow) + keepAliveTimeMs
+  }
+  return (newId, newSesh)
+
+def keptAlive (monoMsNow : Nat) (s : RpcSession) : RpcSession :=
+  { s with expireTime := monoMsNow + keepAliveTimeMs }
+
+def hasExpired (s : RpcSession) : IO Bool :=
+  return s.expireTime ≤ (← IO.monoMsNow)
+
+end RpcSession
+
 structure RequestContext where
   initSnap      : InitSnap
-  rpcSessions   : RBMap UInt64 (IO.Ref FileWorker.RpcSession) compare
+  rpcSessions   : RBMap UInt64 (IO.Ref RpcSession) compare
   srcSearchPath : SearchPath
   doc           : DocumentMeta
   hLog          : IO.FS.Stream
@@ -89,7 +117,6 @@ instance : MonadLift (EIO Exception) (RequestM InitSnap) where
     | .ok v => return v
 
 namespace RequestM
-open FileWorker
 
 def asTask (t : RequestM InitSnap α) : RequestM InitSnap (RequestTask α) := do
   let rc ← read

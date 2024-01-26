@@ -187,15 +187,6 @@ def elabClassInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Uni
   let v ← classInductiveSyntaxToView modifiers stx
   elabInductiveViews #[v]
 
-def getTerminationHints (stx : Syntax) : TerminationHints :=
-  let decl := stx[1]
-  let k := decl.getKind
-  if k == ``Parser.Command.def || k == ``Parser.Command.abbrev || k == ``Parser.Command.theorem || k == ``Parser.Command.instance then
-    let args := decl.getArgs
-    { terminationBy? := args[args.size - 2]!.getOptional?, decreasingBy? := args[args.size - 1]!.getOptional? }
-  else
-    {}
-
 @[builtin_command_elab declaration]
 def elabDeclaration : CommandElab := fun stx => do
   match (← liftMacroM <| expandDeclNamespace? stx) with
@@ -219,7 +210,7 @@ def elabDeclaration : CommandElab := fun stx => do
       let modifiers ← elabModifiers stx[0]
       elabStructure modifiers decl
     else if isDefLike decl then
-      elabMutualDef #[stx] (getTerminationHints stx)
+      elabMutualDef #[stx]
     else
       throwError "unexpected declaration"
 
@@ -332,21 +323,10 @@ def expandMutualPreamble : Macro := fun stx =>
 
 @[builtin_command_elab «mutual»]
 def elabMutual : CommandElab := fun stx => do
-  let hints := { terminationBy? := stx[3].getOptional?, decreasingBy? := stx[4].getOptional? }
   if isMutualInductive stx then
-    if let some bad := hints.terminationBy? then
-      throwErrorAt bad "invalid 'termination_by' in mutually inductive datatype declaration"
-    if let some bad := hints.decreasingBy? then
-      throwErrorAt bad "invalid 'decreasing_by' in mutually inductive datatype declaration"
     elabMutualInductive stx[1].getArgs
   else if isMutualDef stx then
-    for arg in stx[1].getArgs do
-      let argHints := getTerminationHints arg
-      if let some bad := argHints.terminationBy? then
-        throwErrorAt bad "invalid 'termination_by' in 'mutual' block, it must be used after the 'end' keyword"
-      if let some bad := argHints.decreasingBy? then
-        throwErrorAt bad "invalid 'decreasing_by' in 'mutual' block, it must be used after the 'end' keyword"
-    elabMutualDef stx[1].getArgs hints
+    elabMutualDef stx[1].getArgs
   else
     throwError "invalid mutual block: either all elements of the block must be inductive declarations, or they must all be definitions/theorems/abbrevs"
 

@@ -41,14 +41,12 @@ def preprocess (e : Expr) (recFnName : Name) : CoreM Expr :=
         return .visit e.headBeta
       else
         return .continue)
-    (post := fun e =>
-      match e with
-      | .app (.mdata m f) a =>
+    (post := fun e => do
+      if e.isApp && e.getAppFn.isMData then
+        let .mdata m f := e.getAppFn | unreachable!
         if m.isRecApp then
-          return .done (.mdata m (.app f a))
-        else
-          return .done e
-      | _ => return .done e)
+          return .done (.mdata m (f.beta e.getAppArgs))
+      return .continue)
 
 
 end Lean.Elab.Structural

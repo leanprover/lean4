@@ -8,8 +8,8 @@ StxQuot.lean:8:12-8:13: error: unexpected token ')'; expected identifier or term
 "(«term_+_» (num \"1\") \"+\" (num \"1\"))"
 StxQuot.lean:19:15-19:16: error: unexpected token ']'; expected term
 "(Term.fun \"fun\" (Term.basicFun [`a._@.UnhygienicMain._hyg.1] [] \"=>\" `a._@.UnhygienicMain._hyg.1))"
-"(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (num \"1\") [])\n  []\n  []\n  []))"
-"[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"1\") [])\n   []\n   []\n   []))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"2\") [])\n   []\n   []\n   []))]"
+"(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (num \"1\") (Termination.suffix [] []) [])\n  []))"
+"[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"1\") (Termination.suffix [] []) [])\n   []))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"2\") (Termination.suffix [] []) [])\n   []))]"
 "`Nat.one._@.UnhygienicMain._hyg.1"
 "`Nat.one._@.UnhygienicMain._hyg.1"
 "(Term.app `f._@.UnhygienicMain._hyg.1 [`Nat.one._@.UnhygienicMain._hyg.1 `Nat.one._@.UnhygienicMain._hyg.1])"
@@ -18,8 +18,8 @@ StxQuot.lean:19:15-19:16: error: unexpected token ']'; expected term
 "(Term.proj `Nat.one._@.UnhygienicMain._hyg.1 \".\" `b._@.UnhygienicMain._hyg.1)"
 "(«term_+_» (num \"2\") \"+\" (num \"1\"))"
 "(«term_+_» («term_+_» (num \"1\") \"+\" (num \"2\")) \"+\" (num \"1\"))"
-"(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (num \"1\") [])\n  []\n  []\n  []))"
-"[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"2\") [])\n   []\n   []\n   []))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"1\") [])\n   []\n   []\n   []))]"
+"(Command.declaration\n (Command.declModifiers [] [] [] [] [] [])\n (Command.def\n  \"def\"\n  (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n  (Command.optDeclSig [] [])\n  (Command.declValSimple \":=\" (num \"1\") (Termination.suffix [] []) [])\n  []))"
+"[(Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `bar._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"2\") (Termination.suffix [] []) [])\n   []))\n (Command.declaration\n  (Command.declModifiers [] [] [] [] [] [])\n  (Command.def\n   \"def\"\n   (Command.declId `foo._@.UnhygienicMain._hyg.1 [])\n   (Command.optDeclSig [] [])\n   (Command.declValSimple \":=\" (num \"1\") (Termination.suffix [] []) [])\n   []))]"
 "0"
 0
 1

@@ -46,9 +46,9 @@ private instance : ToSnapshotTree HashLangSnapshot where
       | none => #[]
     .mk snap.toSnapshot children
 
-private def hashLangParser := leading_parser optional ("#lang" >> ident)
+def hashLangParser := leading_parser optional ("#lang" >> ident)
 
-private def parseHashLang (ictx : InputContext) : IO ParserState := do
+def parseHashLang (ictx : InputContext) : IO ParserState := do
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace hashLangParser.fn
   let .ok tokens := addParserTokens {} hashLangParser.info

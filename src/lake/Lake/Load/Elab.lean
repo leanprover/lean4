@@ -210,11 +210,25 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
     h.unlock
     return env
   | .lean h lakeOpts =>
-    let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
-    Lean.writeModule env olean
-    h.putStrLn <| Json.pretty <| toJson
-      {platform := platformDescriptor, leanHash := Lean.githash,
-        configHash, options := lakeOpts : ConfigTrace}
-    h.truncate
-    h.unlock
-    return env
+    /-
+    NOTE: We write the trace before elaborating the configuration file
+    to enable automatic reconfiguration on the next `lake` invocation if
+    elaboration fails. To ensure a failure triggers a reconfigure, we must also
+    remove any previous out-of-date `.olean`. Otherwise, Lake will treat the
+    older `.olean` as matching the new trace.
+    -/
+    match (← IO.FS.removeFile olean |>.toBaseIO) with
+    | .ok _ | .error (.noFileOrDirectory ..) =>
+      h.putStrLn <| Json.pretty <| toJson
+        {platform := platformDescriptor, leanHash := Lean.githash,
+          configHash, options := lakeOpts : ConfigTrace}
+      h.truncate
+      let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile
+      Lean.writeModule env olean
+      h.unlock
+      return env
+    | .error e =>
+      logError <| toString e
+      h.unlock
+      IO.FS.removeFile traceFile
+      failure

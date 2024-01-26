@@ -22,7 +22,7 @@ noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :
 theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
   (indefiniteDescription p h).property
 
-/-- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
+/-- **Diaconescu's theorem**: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
   let U (x : Prop) : Prop := x = True ∨ p
   let V (x : Prop) : Prop := x = False ∨ p

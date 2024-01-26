@@ -234,7 +234,7 @@ where
         throwError "invalid instantiateForall, too many parameters"
     else
       return type
-termination_by go i _ => ps.size - i
+  termination_by ps.size - i
 
 /--
 Return `true` if `type` is a predicate.

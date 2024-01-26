@@ -100,7 +100,7 @@ instance : ShiftLeft (Fin n) where
 instance : ShiftRight (Fin n) where
   shiftRight := Fin.shiftRight
 
-instance : OfNat (Fin (no_index (n+1))) i where
+instance instOfNat : OfNat (Fin (no_index (n+1))) i where
   ofNat := Fin.ofNat i
 
 instance : Inhabited (Fin (no_index (n+1))) where

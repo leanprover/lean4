@@ -24,6 +24,19 @@ def mkExpectedTypeHint (e : Expr) (expectedType : Expr) : MetaM Expr := do
   let u ← getLevel expectedType
   return mkApp2 (mkConst ``id [u]) expectedType e
 
+/--
+`mkLetFun x v e` creates the encoding for the `let_fun x := v; e` expression.
+The expression `x` can either be a free variable or a metavariable, and the function suitably abstracts `x` in `e`.
+-/
+def mkLetFun (x : Expr) (v : Expr) (e : Expr) : MetaM Expr := do
+  let f ← mkLambdaFVars #[x] e
+  let ety ← inferType e
+  let α ← inferType x
+  let β ← mkLambdaFVars #[x] ety
+  let u1 ← getLevel α
+  let u2 ← getLevel ety
+  return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
+
 /-- Return `a = b`. -/
 def mkEq (a b : Expr) : MetaM Expr := do
   let aType ← inferType a
@@ -337,7 +350,7 @@ def mkAppOptM (constName : Name) (xs : Array (Option Expr)) : MetaM Expr := do
     let (f, fType) ← mkFun constName
     mkAppOptMAux f xs 0 #[] 0 #[] fType
 
-/-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name -/
+/-- Similar to `mkAppOptM`, but takes an `Expr` instead of a constant name. -/
 def mkAppOptM' (f : Expr) (xs : Array (Option Expr)) : MetaM Expr := do
   let fType ← inferType f
   withAppBuilderTrace f xs do withNewMCtxDepth do
@@ -396,7 +409,7 @@ def mkPure (monad : Expr) (e : Expr) : MetaM Expr :=
   mkAppOptM ``Pure.pure #[monad, none, none, e]
 
 /--
-  `mkProjection s fieldName` return an expression for accessing field `fieldName` of the structure `s`.
+  `mkProjection s fieldName` returns an expression for accessing field `fieldName` of the structure `s`.
   Remark: `fieldName` may be a subfield of `s`. -/
 partial def mkProjection (s : Expr) (fieldName : Name) : MetaM Expr := do
   let type ← inferType s

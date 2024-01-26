@@ -32,7 +32,7 @@ abbrev LeanRequestM := RequestM Language.Lean.InitialSnapshot
 abbrev LeanRequestT := RequestT Language.Lean.InitialSnapshot
 
 -- TEMP: translate from new heterogeneous snapshot tree to old homogeneous async list
-private partial def mkCmdSnaps : LeanRequestM (IO.AsyncList ElabTaskError Snapshot) := do
+partial def mkCmdSnaps : LeanRequestM (IO.AsyncList ElabTaskError Snapshot) := do
   let ctx ← read
   let some headerParsed := ctx.initSnap.success? | return .nil
   return .delayed <| headerParsed.processed.task.bind (sync := true) fun headerProcessed => Id.run do
@@ -43,7 +43,6 @@ private partial def mkCmdSnaps : LeanRequestM (IO.AsyncList ElabTaskError Snapsh
       stx := ctx.initSnap.stx
       mpState := headerParsed.parserState
       cmdState := headerSuccess.cmdState
-      interactiveDiags := headerProcessed.diagnostics.interactiveDiags
     } <| .delayed <| headerSuccess.next.task.bind (sync := true) go
 
 where go cmdParsed :=
@@ -53,8 +52,6 @@ where go cmdParsed :=
         stx := cmdParsed.data.stx
         mpState := cmdParsed.data.parserState
         cmdState := finished.cmdState
-        interactiveDiags :=
-          cmdParsed.data.diagnostics.interactiveDiags ++ sig.diagnostics.interactiveDiags
       } (match cmdParsed.next? with
         | some next => .delayed <| next.task.bind (sync := true) go
         | none => .nil)
@@ -390,23 +387,23 @@ partial def handleDocumentHighlight (p : DocumentHighlightParams)
     | `(do%$i $elems) => highlightReturn? (i.getRange?.get!.toLspRange text) elems
     | stx => stx.getArgs.findSome? (highlightReturn? doRange?)
 
-  let highlightRefs? (snaps : Array Snapshot) : Option (Array DocumentHighlight) := Id.run do
+  let highlightRefs? (snaps : Array Snapshot) : IO (Option (Array DocumentHighlight)) := do
     let trees := snaps.map (·.infoTree)
-    let refs : Lsp.ModuleRefs := findModuleRefs text trees
+    let refs : Lsp.ModuleRefs ← findModuleRefs text trees |>.toLspModuleRefs
     let mut ranges := #[]
-    for ident in ← refs.findAt p.position do
-      if let some info ← refs.find? ident then
-        if let some definition := info.definition then
-          ranges := ranges.push definition
-        ranges := ranges.append info.usages
+    for ident in refs.findAt p.position do
+      if let some info := refs.find? ident then
+        if let some ⟨definitionRange, _⟩ := info.definition? then
+          ranges := ranges.push definitionRange
+        ranges := ranges.append <| info.usages.map (·.range)
     if ranges.isEmpty then
       return none
-    some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
+    return some <| ranges.map ({ range := ·, kind? := DocumentHighlightKind.text })
 
   withWaitFindSnap (fun s => s.endPos > pos)
     (notFoundX := pure #[]) fun snap => do
       let (snaps, _) ← (← mkCmdSnaps).getFinishedPrefix
-      if let some his := highlightRefs? snaps.toArray then
+      if let some his ← highlightRefs? snaps.toArray then
         return his
       if let some hi := highlightReturn? none snap.stx then
         return #[hi]

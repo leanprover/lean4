@@ -238,10 +238,11 @@ private def mkInfoTree (elaborator : Name) (stx : Syntax) (trees : PersistentArr
   let s ← get
   let scope := s.scopes.head!
   let tree := InfoTree.node (Info.ofCommandInfo { elaborator, stx }) trees
-  return InfoTree.context {
+  let ctx := PartialContextInfo.commandCtx {
     env := s.env, fileMap := ctx.fileMap, mctx := {}, currNamespace := scope.currNamespace,
     openDecls := scope.openDecls, options := scope.opts, ngen := s.ngen
-  } tree
+  }
+  return InfoTree.context ctx tree
 
 private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttribute.AttributeEntry CommandElab) → CommandElabM Unit
   | []                => withInfoTreeContext (mkInfoTree := mkInfoTree `no_elab stx) <| throwError "unexpected syntax{indentD stx}"

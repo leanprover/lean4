@@ -188,7 +188,7 @@ example : Nat → Nat → Nat := by
       --^ textDocument/hover
 
 def g (n : Nat) : Nat := g 0
-termination_by g n => n
+termination_by n => n
 decreasing_by have n' := n; admit
                        --^ textDocument/hover
 
@@ -275,6 +275,13 @@ example : 1 = 1 := by
   generalize _e : 1 = x
            --^ textDocument/hover
   exact Eq.refl x
+
+example : 1 = 1 := by
+  cases _e : 1 with
+      --^ textDocument/hover
+  | zero => rfl
+  | succ x => rfl
+       --^ textDocument/hover
 
 namespace Foo
 

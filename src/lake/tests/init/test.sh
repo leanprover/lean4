@@ -3,7 +3,8 @@ set -euxo pipefail
 
 ./clean.sh
 
-if [ "`uname`" = Darwin ]; then
+unamestr=`uname`
+if [ "$unamestr" = Darwin ] || [ "$unamestr" = FreeBSD ]; then
   sed_i() { sed -i '' "$@"; }
 else
   sed_i() { sed -i "$@"; }
@@ -76,6 +77,15 @@ $LAKE -d lean-data exe lean-data
 
 $LAKE new 123-hello
 $LAKE -d 123-hello exe 123-hello
+
+# Test creating packages with components that contain `.`s
+# https://github.com/leanprover/lean4/issues/2999
+
+# this fails on windows for unrelated reasons
+if [ "$OSTYPE" != "msys" ]; then
+  $LAKE new «A.B».«C.D»
+  $LAKE -d «A-B»-«C-D» exe «a.b-c.d»
+fi
 
 # Test creating packages with keyword names
 # https://github.com/leanprover/lake/issues/128

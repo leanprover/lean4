@@ -355,7 +355,7 @@ where
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with infoState := {
         enabled := true
-        trees := #[Elab.InfoTree.context ({
+        trees := #[Elab.InfoTree.context (.commandCtx {
           env     := headerEnv
           fileMap := ctx.fileMap
           ngen    := { namePrefix := `_import }

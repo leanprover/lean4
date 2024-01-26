@@ -11,7 +11,6 @@ Authors: Sebastian Ullrich
 import Lean.Message
 import Lean.Parser.Types
 import Lean.Server.Requests
-import Lean.Widget.InteractiveDiagnostic
 
 set_option linter.missingDocs true
 
@@ -47,16 +46,18 @@ namespace Lean.Language
 structure Snapshot.Diagnostics where
   /-- Non-interactive message log. -/
   msgLog : MessageLog
-  /-- We cache interactive diagnostics in order not to invoke the pretty-printer again on messages
-    from previous snapshots when publishing diagnostics for every new snapshot (this is quadratic),
-    as well as not to invoke it once again when handling `$/lean/interactiveDiagnostics`. -/
-  interactiveDiags : Array Widget.InteractiveDiagnostic
+  /--
+  Unique ID used by the file worker for caching diagnostics per message log. If `none`, no caching
+  is done, which should only be used for messages not containing any interactive elements.
+  -/
+  id? : Option Nat
 deriving Inhabited
 
 /-- The empty set of diagnostics. -/
 def Snapshot.Diagnostics.empty : Snapshot.Diagnostics where
   msgLog := .empty
-  interactiveDiags := #[]
+  -- nothing to cache
+  id? := none
 
 /--
   The base class of all snapshots: all the generic information the language server needs about a
@@ -195,8 +196,8 @@ structure ModuleProcessingContext where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
-  /-- Whether to create interactive diagnostics. -/
-  clientHasWidgets : Bool
+  /-- Next ID to be used for `Snapshot.Diagnostics.id?`. -/
+  nextDiagsIdRef : IO.Ref Nat
   /--
     Callback available in server mode for building imports and retrieving per-library options using
     `lake setup-file`. -/
@@ -218,13 +219,9 @@ Creates snapshot message log from non-interactive message log, caching derived i
 diagnostics.
 -/
 def Snapshot.Diagnostics.ofMessageLog (msgLog : Lean.MessageLog) :
-    ProcessingM Snapshot.Diagnostics :=
-  return {
-    msgLog
-    interactiveDiags := (← msgLog.toList.toArray.mapM fun msg => do
-      let ctx ← read
-      Widget.msgToInteractiveDiagnostic ctx.fileMap msg ctx.clientHasWidgets)
-  }
+    ProcessingM Snapshot.Diagnostics := do
+  let id ← (← read).nextDiagsIdRef.modifyGet fun id => (id, id + 1)
+  return { msgLog, id? := some id }
 
 /-- Creates diagnostics from a single error message that should span the whole file. -/
 def diagnosticsOfHeaderError (msg : String) : ProcessingM Snapshot.Diagnostics := do

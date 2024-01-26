@@ -800,9 +800,40 @@ partial def decodeStrLitAux (s : String) (i : String.Pos) (acc : String) : Optio
   else
     decodeStrLitAux s i (acc.push c)
 
-def decodeStrLit (s : String) : Option String :=
-  decodeStrLitAux s ⟨1⟩ ""
+/--
+Takes a raw string literal, counts the number of `#`'s after the `r`, and interprets it as a string.
+The position `i` should start at `1`, which is the character after the leading `r`.
+The algorithm is simple: we are given `r##...#"...string..."##...#` with zero or more `#`s.
+By counting the number of leading `#`'s, we can extract the `...string...`.
+-/
+partial def decodeRawStrLitAux (s : String) (i : String.Pos) (num : Nat) : String :=
+  let c := s.get i
+  let i := s.next i
+  if c == '#' then
+    decodeRawStrLitAux s i (num + 1)
+  else
+    s.extract i ⟨s.utf8ByteSize - (num + 1)⟩
 
+/--
+Takes the string literal lexical syntax parsed by the parser and interprets it as a string.
+This is where escape sequences are processed for example.
+The string `s` is is either a plain string literal or a raw string literal.
+
+If it returns `none` then the string literal is ill-formed, which indicates a bug in the parser.
+The function is not required to return `none` if the string literal is ill-formed.
+-/
+def decodeStrLit (s : String) : Option String :=
+  if s.get 0 == 'r' then
+    decodeRawStrLitAux s ⟨1⟩ 0
+  else
+    decodeStrLitAux s ⟨1⟩ ""
+
+/--
+If the provided `Syntax` is a string literal, returns the string it represents.
+
+Even if the `Syntax` is a `str` node, the function may return `none` if its internally ill-formed.
+The parser should always create well-formed `str` nodes.
+-/
 def isStrLit? (stx : Syntax) : Option String :=
   match isLit? strLitKind stx with
   | some val => decodeStrLit val
@@ -1008,7 +1039,7 @@ where
       go (i+1) (args.push (quote xs[i]))
     else
       Syntax.mkCApp (Name.mkStr2 "Array" ("mkArray" ++ toString xs.size)) args
-termination_by go i _ => xs.size - i
+  termination_by xs.size - i
 
 instance [Quote α `term] : Quote (Array α) `term where
   quote := quoteArray

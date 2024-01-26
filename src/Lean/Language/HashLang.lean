@@ -46,8 +46,11 @@ private instance : ToSnapshotTree HashLangSnapshot where
       | none => #[]
     .mk snap.toSnapshot children
 
+-- TODO: make private after hack in `runFrontend` is removed
+/-- Parser for the `#lang` directive -/
 def hashLangParser := leading_parser optional ("#lang" >> ident)
 
+/-- Parses the `#lang` directive, if any, on the given input. -/
 def parseHashLang (ictx : InputContext) : IO ParserState := do
   let dummyEnv ← mkEmptyEnvironment
   let p   := andthenFn whitespace hashLangParser.fn

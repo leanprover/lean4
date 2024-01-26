@@ -5,14 +5,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Marc Huisinga
 -/
 import Lean.DeclarationRange
-
 import Lean.Data.Json
 import Lean.Data.Lsp
-
 import Lean.Server.FileSource
 import Lean.Server.Utils
-
 import Lean.Server.Rpc.Basic
+import Lean.Server.ImportCompletion
 
 namespace Lean.Server
 
@@ -87,13 +85,19 @@ def hasExpired (s : RpcSession) : IO Bool :=
 
 end RpcSession
 
+structure AvailableImportsCache where
+  availableImports       : ImportCompletion.AvailableImports
+  lastRequestTimestampMs : Nat
+
 structure RequestContext where
   initSnap      : InitSnap
-  rpcSessions   : RBMap UInt64 (IO.Ref RpcSession) compare
-  srcSearchPath : SearchPath
   doc           : DocumentMeta
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
+  -- TODO: these fields are currently specific to the Lean language
+  rpcSessions   : RBMap UInt64 (IO.Ref RpcSession) compare
+  srcSearchPath : SearchPath
+  importCachingTaskRef : IO.Ref (Option (Task (Except IO.Error AvailableImportsCache)))
 
 abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestT m := ReaderT (RequestContext InitSnap) <| ExceptT RequestError m

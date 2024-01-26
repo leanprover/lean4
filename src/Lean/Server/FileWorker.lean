@@ -25,7 +25,6 @@ import Lean.Server.FileWorker.WidgetRequests
 import Lean.Server.FileWorker.SetupFile
 import Lean.Server.Rpc.Basic
 import Lean.Widget.InteractiveDiagnostic
-import Lean.Server.ImportCompletion
 
 /-!
 For general server architecture, see `README.md`. For details of IPC communication, see `Watchdog.lean`.
@@ -110,13 +109,8 @@ structure WorkerContext where
 -- Pending requests are tracked so they can be canceled
 abbrev PendingRequestMap := RBMap JsonRpc.RequestID (Task (Except IO.Error Unit)) compare
 
-structure AvailableImportsCache where
-  availableImports       : ImportCompletion.AvailableImports
-  lastRequestTimestampMs : Nat
-
 structure WorkerState where
   doc                : EditableDocument
-  importCachingTask? : Option (Task (Except IO.Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
@@ -280,7 +274,6 @@ section Initialization
       doc := { doc with reporter }
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
-      importCachingTask? := none
     })
   where
     /-- Creates an LSP message output channel along with a reader that sends out read messages on
@@ -405,31 +398,6 @@ section MessageHandling
         s ≤ diag.fullRange.start.line ∧ diag.fullRange.start.line < e ∨
         diag.fullRange.start.line ≤ s ∧ s < diag.fullRange.end.line
 
-/-
-  def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
-      : WorkerM (Task (Except Error AvailableImportsCache)) := do
-    let ctx ← read
-    let st ← get
-    let text := st.doc.meta.text
-
-    match st.importCachingTask? with
-    | none => IO.asTask do
-      let availableImports ← ImportCompletion.collectAvailableImports
-      let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
-
-    | some task => IO.mapTask (t := task) fun result => do
-      let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
-      let timestampNowMs ← IO.monoMsNow
-      if timestampNowMs - lastRequestTimestampMs >= 10000 then
-        availableImports ← ImportCompletion.collectAvailableImports
-      lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
-      ctx.chanOut.send <| .response id (toJson completions)
-      pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }-/
-
   def handleRequest (id : RequestID) (method : String) (params : Json)
       : WorkerM Unit := do
     let ctx ← read
@@ -467,14 +435,6 @@ section MessageHandling
             rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
           ctx.chanOut.send <| .response id resp
           return
-      /-| "textDocument/completion" =>
-        let params ← parseParams CompletionParams params
-        -- must not wait on import processing snapshot
-        if ImportCompletion.isImportCompletionRequest st.doc.meta.text st.doc.initSnap.stx params
-        then
-          let importCachingTask ← handleImportCompletionRequest id params
-          set { st with importCachingTask? := some importCachingTask }
-          return-/
       | _ => pure ()
     catch e =>
       ctx.chanOut.send <| .responseError id .internalError (toString e) none
@@ -486,6 +446,7 @@ section MessageHandling
         doc := st.doc.meta
         initSnap := st.doc.initSnap
         hLog := ctx.hLog
+        importCachingTaskRef := (← IO.mkRef none)
         initParams := ctx.initParams }
     let t? ← EIO.toIO' <| lang.handleRequest method params rc
     let t ← match t? with

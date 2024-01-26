@@ -29,7 +29,8 @@ Current version of the manifest format.
 - **v5**: add `inherited` package entry field (and the removed `opts`)
 - **v6**: add package root `name` manifest field
 - **v7**: `type` refactor, custom to/fromJson
-- **v8**: add package entry types `github` / `registry` & `conditional` field
+- **v8**:  add package entry types `github` & `registry`,
+  add `fullName` & `conditional` field
 -/
 @[inline] def Manifest.version : Nat := 8
 
@@ -83,6 +84,7 @@ inductive PackageEntrySrc
 /-- An entry for a package stored in the manifest. -/
 structure PackageEntry where
   name : Name
+  fullName : String
   inherited : Bool
   conditional : Bool := false
   configFile : FilePath := defaultConfigFile
@@ -131,6 +133,7 @@ namespace PackageEntry
 protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
     ("name", toJson entry.name),
+    ("fullName", toJson entry.fullName),
     ("configFile" , toJson entry.configFile),
     ("manifestFile", toJson entry.manifestFile?),
     ("conditional", toJson entry.conditional),
@@ -169,6 +172,7 @@ instance : ToJson PackageEntry := ⟨PackageEntry.toJson⟩
 protected def fromJson? (json : Json) : Except String PackageEntry := do
   let obj ← JsonObject.fromJson? json |>.mapError (s!"package entry: {·}")
   let name ← obj.get "name" |>.mapError (s!"package entry: {·}")
+  let fullName ← obj.getD "fullName" name
   try
     let type ← obj.get "type"
     let inherited : Bool ← obj.get "inherited"
@@ -200,7 +204,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name := Name.mkSimple name, inherited, conditional,
+      name := name.toName, fullName, inherited, conditional,
       configFile, manifestFile? := manifestFile, source : PackageEntry
     }
   catch e =>
@@ -219,9 +223,10 @@ instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
 def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
-  {name, inherited, source := .path dir}
+  {name, fullName := name.toString false, inherited, source := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
-  {name, inherited, source := .git url rev inputRev? subDir?}
+  {name, fullName := name.toString false, inherited,
+    source := .git url rev inputRev? subDir?}
 
 end PackageEntry
 

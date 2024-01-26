@@ -102,14 +102,17 @@ structure MaterializedDep where
 local instance : HDiv FilePath (Option FilePath) FilePath where
   hDiv a b? := match b? with | .some b => a / b | .none => a
 
-def mkGitHubUrl (owner repo : String) :=
-  s!"https://github.com/{owner}/{repo}"
-
 inductive RegistrySrc
-| git (url : String) (data : JsonObject)
-| github (id fullName repoUrl gitUrl : String)
+| git (url : String) (defaultBranch? : Option String) (data : JsonObject)
+| github (id fullName repoUrl gitUrl: String) (defaultBranch? : Option String)
 | other (data : JsonObject)
 namespace RegistrySrc
+
+@[inline] def git? (src : RegistrySrc) : Option (String × Option String) :=
+  match src with
+  | .git url branch? .. => some (url, branch?)
+  | .github (gitUrl := url) (defaultBranch? := branch?) .. => some (url, branch?)
+  | _ => none
 
 @[inline] def gitUrl? (src : RegistrySrc) : Option String :=
   match src with
@@ -132,10 +135,13 @@ protected def fromJson? (val : Json) : Except String RegistrySrc :=
       let fullName ← obj.get "fullName"
       let repoUrl ← obj.get "repoUrl"
       let gitUrl ← obj.get "gitUrl"
-      return .github id fullName repoUrl gitUrl
+      let defaultBranch? ← obj.get? "defaultBranch"
+      return .github id fullName repoUrl gitUrl defaultBranch?
     | _ =>
       if let some url ← obj.get? "gitUrl" then
-        return .git url <| obj.erase "gitUrl"
+        let defaultBranch? ← obj.get? "defaultBranch"
+        let obj := obj.erase "gitUrl" |>.erase "defaultBranch"
+        return .git url defaultBranch? obj
       else
         return .other obj
   catch e =>
@@ -151,6 +157,9 @@ structure RegistryPkg where
   sources : Array RegistrySrc
 
 namespace RegistryPkg
+
+def git? (pkg : RegistryPkg) : Option (String × Option String) :=
+  pkg.sources.findSome? (·.git?)
 
 def gitUrl? (pkg : RegistryPkg) : Option String :=
   pkg.sources.findSome? (·.gitUrl?)
@@ -169,18 +178,26 @@ instance : FromJson RegistryPkg := ⟨RegistryPkg.fromJson?⟩
 
 end RegistryPkg
 
-def getUrl (url : String) : LogIO String := do
-  captureProc {cmd := "curl", args := #["-s", "-f", "-L", url]}
+def getUrl (url : String) (headers : Array String := #[]) : LogIO String := do
+  let args := #["-s", "-f", "-L"]
+  let args := headers.foldl (init := args) (· ++ #["-H", ·])
+  captureProc {cmd := "curl", args := args.push url}
 
-def fetchRegistryPkg (pkg : String) : LogIO RegistryPkg := do
-  let url := s!"https://reservoir.lean-lang.org/api/v0/packages/{pkg}"
-  let out ← getUrl url <|> error s!"{pkg}: failed to lookup package on Reservoir"
+def fetchRegistryPkg (env : Lake.Env) (pkg : String) : LogIO RegistryPkg := do
+  let url := s!"{env.reservoirUrl}/v0/packages/{pkg}"
+  let out ← getUrl url #["X-Reservoir-Registry-Api-Version:0.1.0"]
+    <|> error s!"{pkg}: failed to lookup package on Reservoir"
   match Json.parse out >>= fromJson? with
   | .ok json =>
     match fromJson? json with
     | .ok pkg => pure pkg
-    | .error e => error s!"{pkg}: registry returned unsupported JSON: {e}"
-  | .error e => error s!"{pkg}: registry returned invalid JSON: {e}"
+    | .error e => error s!"{pkg}: Reservoir returned unsupported JSON: {e}"
+  | .error _ => error s!"{pkg}: failed to lookup package on Reservoir (invalid JSON)"
+
+@[inline] def extractGit (pkg : RegistryPkg) : LogIO (String × Option String)  := do
+  let some (url, defaultBranch?) := pkg.git?
+    | error "{pkg.fullName}: no Git source found in Lake's default registry (Reservoir)"
+  return (url, defaultBranch?)
 
 @[inline] def extractGitUrl (pkg : RegistryPkg) : LogIO String := do
   let some url := pkg.gitUrl?
@@ -192,7 +209,7 @@ Materializes a configuration package dependency.
 For Git dependencies, updates it to the latest input revision.
 -/
 def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
-(wsDir relPkgsDir relParentDir : FilePath) (pkgUrlMap : NameMap String)
+(wsDir relPkgsDir relParentDir : FilePath) (env : Lake.Env)
 : LogIO MaterializedDep := do
   if let some src := dep.source? then
     match src with
@@ -214,7 +231,7 @@ def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
         depConfig := dep
       }
     | .github owner repo inputRev? subDir? =>
-        let url := mkGitHubUrl owner repo
+        let url := s!"{env.githubUrl}/{owner}/{repo}"
         let relGitDir := relPkgsDir / dep.name.toString (escape := false)
         let rev ← materializeGit dep.fullName relGitDir url inputRev?
         return {
@@ -224,10 +241,11 @@ def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
           depConfig := dep
         }
   else
-    let pkg ← fetchRegistryPkg dep.fullName
-    let url ← extractGitUrl pkg
+    let pkg ← fetchRegistryPkg env dep.fullName
+    let (url, defaultBranch?) ← extractGit pkg
     let relPkgDir := relPkgsDir / pkg.name
-    let rev ← materializeGit dep.fullName relPkgDir url dep.version?
+    let rev? := dep.version? <|> defaultBranch?
+    let rev ← materializeGit dep.fullName relPkgDir url rev?
     return {
       relPkgDir
       remoteUrl? := pkg.githubUrl?
@@ -235,11 +253,13 @@ def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
       depConfig := dep
     }
 where
-  mkEntry source : PackageEntry :=
-    {name := dep.name, conditional := dep.conditional, inherited, source}
+  mkEntry source : PackageEntry := {
+    name := dep.name, fullName := dep.fullName,
+    conditional := dep.conditional, inherited, source
+  }
   materializeGit name relGitDir url inputRev? := do
     let repo := GitRepo.mk (wsDir / relGitDir)
-    let materializeUrl := pkgUrlMap.find? (.mkSimple name) |>.getD url
+    let materializeUrl := env.pkgUrlMap.find? (.mkSimple name) |>.getD url
     materializeGitRepo name repo materializeUrl inputRev?
     repo.getHeadRevision
 
@@ -247,7 +267,7 @@ where
 Materializes a manifest package entry, cloning and/or checking it out as necessary.
 -/
 def PackageEntry.materialize (manifestEntry : PackageEntry)
-(depConfig : PackageDepConfig) (wsDir relPkgsDir : FilePath) (pkgUrlMap : NameMap String)
+(depConfig : PackageDepConfig) (wsDir relPkgsDir : FilePath) (env : Lake.Env)
 : LogIO MaterializedDep := do
   match manifestEntry.source with
   | .path (dir := relPkgDir) .. =>
@@ -257,14 +277,14 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
     let remoteUrl? := Git.filterUrl? url
     return {relPkgDir, manifestEntry, depConfig, remoteUrl?}
   | .github (owner := owner) (repo := repo) (rev := rev) (subDir? := subDir?) .. =>
-    let url := mkGitHubUrl owner repo
+    let url := s!"{env.githubUrl}/{owner}/{repo}"
     let relPkgDir ← materializeGit url rev subDir?
     return {relPkgDir, manifestEntry, depConfig, remoteUrl? := url}
   | .registry (rev := rev) .. =>
-    let pkg ← fetchRegistryPkg depConfig.fullName
+    let pkg ← fetchRegistryPkg env depConfig.fullName
     let url ← extractGitUrl pkg
     let relPkgDir ← materializeGit url rev none
-    return {relPkgDir,  manifestEntry, depConfig, remoteUrl? := pkg.githubUrl?}
+    return {relPkgDir, manifestEntry, depConfig, remoteUrl? := pkg.githubUrl?}
 where
   materializeGit url rev subDir? := do
     let name := manifestEntry.name
@@ -283,9 +303,9 @@ where
         if (← repo.hasDiff) then
           logWarning s!"{sname}: repository '{repo.dir}' has local changes"
       else
-        let url := pkgUrlMap.find? name |>.getD url
+        let url := env.pkgUrlMap.find? name |>.getD url
         updateGitRepo sname repo url rev
     else
-      let url := pkgUrlMap.find? name |>.getD url
+      let url := env.pkgUrlMap.find? name |>.getD url
       cloneGitPkg sname repo url rev
     return relGitDir / subDir?

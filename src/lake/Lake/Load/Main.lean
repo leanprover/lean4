@@ -150,9 +150,9 @@ def Workspace.updateAndMaterialize (ws : Workspace)
         else
           let dep ←
             if let some entry := (← get).entries.find? dep.name then
-              entry.materialize dep ws.dir ws.relPkgsDir ws.lakeEnv.pkgUrlMap
+              entry.materialize dep ws.dir ws.relPkgsDir ws.lakeEnv
             else
-              dep.materialize inherited ws.dir ws.relPkgsDir pkg.relDir ws.lakeEnv.pkgUrlMap
+              dep.materialize inherited ws.dir ws.relPkgsDir pkg.relDir ws.lakeEnv
           modify fun s => {s with mdeps := s.mdeps.insert dep.name dep}
           return dep
       -- Load dependency packages and materialize their locked dependencies
@@ -242,7 +242,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
       let depPkgs ← deps.filterMapM fun dep =>
         if !dep.enable then return none else some <$> fetchOrCreate dep.name do
         if let some entry := pkgEntries.find? dep.name then
-          let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv.pkgUrlMap
+          let result ← entry.materialize dep ws.dir relPkgsDir ws.lakeEnv
           result.loadPackage ws.dir pkg.leanOpts reconfigure
         else if topLevel then
           error <|

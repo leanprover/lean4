@@ -9,6 +9,7 @@
    "manifestFile": "lake-manifest.json",
    "inputRev": null,
    "inherited": false,
+   "fullName": "foo",
    "configFile": "lakefile.lean",
    "conditional": true}],
  "name": "test_meta",

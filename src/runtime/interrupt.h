@@ -48,11 +48,12 @@ void check_heartbeat();
 void check_interrupted();
 
 /**
-   \brief Check system resources: stack, memory, heartbeat, interrupt flag.
+   \brief Check system resources: stack, memory, and (if `do_check_interrupted` is true) heartbeat
+   limit and interrupt flag.
 
-   `do_check_interrupted` should only be set to `true` in places where a C++ exception
-   is caught and would not bring down the entire process as interruption
-   should not be a fatal error.
+   `do_check_interrupted` should only be set to `true` in places where a C++ exception is caught and
+   would not bring down the entire process as interruption (via heartbeat limit or flag) should not
+   be a fatal error.
 */
 void check_system(char const * component_name, bool do_check_interrupted = false);
 

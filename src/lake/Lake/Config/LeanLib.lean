@@ -20,13 +20,13 @@ structure LeanLib where
   self.leanLibConfigs.foldl (fun a v => a.push ⟨self, v⟩) #[]
 
 /-- Try to find a Lean library in the package with the given name. -/
-@[inline] def Package.findLeanLib? (name : Name) (self : Package) : Option LeanLib :=
+@[inline] def Package.findLeanLib? (name : SimpleName) (self : Package) : Option LeanLib :=
   self.leanLibConfigs.find? name |>.map (⟨self, ·⟩)
 
 namespace LeanLib
 
 /-- The library's well-formed name. -/
-@[inline] def name (self : LeanLib) : Name :=
+abbrev name (self : LeanLib) : SimpleName :=
   self.config.name
 
 /-- The package's `srcDir` joined with the library's `srcDir`. -/
@@ -69,8 +69,8 @@ The names of the library's root modules
   self.pkg.nativeLibDir / self.sharedLibFileName
 
 /-- The library's `extraDepTargets` configuration. -/
-@[inline] def extraDepTargets (self : LeanLib) :=
-  self.config.extraDepTargets
+@[inline] def extraDepTargets (self : LeanLib) : Array SimpleName :=
+  self.config.extraDepTargets.map fun n => SimpleName.mk <| n.toString false
 
 /--
 Whether to precompile the library's modules.

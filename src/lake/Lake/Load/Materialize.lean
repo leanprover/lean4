@@ -232,7 +232,7 @@ def PackageDepConfig.materialize (dep : PackageDepConfig) (inherited : Bool)
       }
     | .github owner repo inputRev? subDir? =>
         let url := s!"{env.githubUrl}/{owner}/{repo}"
-        let relGitDir := relPkgsDir / dep.name.toString (escape := false)
+        let relGitDir := relPkgsDir / dep.name
         let rev ← materializeGit dep.fullName relGitDir url inputRev?
         return {
           relPkgDir := relGitDir / subDir?
@@ -259,7 +259,7 @@ where
   }
   materializeGit name relGitDir url inputRev? := do
     let repo := GitRepo.mk (wsDir / relGitDir)
-    let materializeUrl := env.pkgUrlMap.find? (.mkSimple name) |>.getD url
+    let materializeUrl := env.pkgUrlMap.find? name |>.getD url
     materializeGitRepo name repo materializeUrl inputRev?
     repo.getHeadRevision
 
@@ -288,8 +288,7 @@ def PackageEntry.materialize (manifestEntry : PackageEntry)
 where
   materializeGit url rev subDir? := do
     let name := manifestEntry.name
-    let sname := name.toString (escape := false)
-    let relGitDir := relPkgsDir / sname
+    let relGitDir := relPkgsDir / name.toString
     let gitDir := wsDir / relGitDir
     let repo := GitRepo.mk gitDir
     /-
@@ -301,11 +300,11 @@ where
     if (← repo.dirExists) then
       if (← repo.getHeadRevision?) = rev then
         if (← repo.hasDiff) then
-          logWarning s!"{sname}: repository '{repo.dir}' has local changes"
+          logWarning s!"{name}: repository '{repo.dir}' has local changes"
       else
         let url := env.pkgUrlMap.find? name |>.getD url
-        updateGitRepo sname repo url rev
+        updateGitRepo name repo url rev
     else
       let url := env.pkgUrlMap.find? name |>.getD url
-      cloneGitPkg sname repo url rev
+      cloneGitPkg name repo url rev
     return relGitDir / subDir?

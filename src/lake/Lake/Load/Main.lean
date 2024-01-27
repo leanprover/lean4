@@ -74,7 +74,7 @@ Finalize the workspace's root and its transitive dependencies
 and add them to the workspace.
 -/
 def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
-  have : MonadStore Name Package (StateT Workspace LogIO) := {
+  have : MonadStore SimpleName Package (StateT Workspace LogIO) := {
     fetch? := fun name => return (← get).findPackage? name
     store := fun _ pkg => modify (·.addPackage pkg)
   }
@@ -94,9 +94,9 @@ def Workspace.finalize (ws : Workspace) : LogIO Workspace := do
       "\n".intercalate cycle
 
 structure UpdateState where
-  pkgs : NameMap Package := {}
-  mdeps : NameMap MaterializedDep := {}
-  entries : NameMap PackageEntry := {}
+  pkgs : SimpleNameMap Package := {}
+  mdeps : SimpleNameMap MaterializedDep := {}
+  entries : SimpleNameMap PackageEntry := {}
 
 abbrev UpdateT := EStateT (Cycle Name) UpdateState
 @[inline] def UpdateT.run [Functor m] (x : UpdateT m α) : m (Except (Cycle Name) α × UpdateState)  :=
@@ -115,7 +115,7 @@ root dependencies. Otherwise, only update the root dependencies specified.
 If `reconfigure`, elaborate configuration files while updating, do not use OLeans.
 -/
 def Workspace.updateAndMaterialize (ws : Workspace)
-(toUpdate : NameSet := {}) (reconfigure := true) : LogIO Workspace := do
+(toUpdate : SimpleNameSet := {}) (reconfigure := true) : LogIO Workspace := do
   let res ← UpdateT.run do
     -- Use manifest versions of root packages that should not be updated
     match (← Manifest.load ws.manifestFile |>.toBaseIO) with
@@ -213,7 +213,7 @@ def Workspace.materializeDeps (ws : Workspace) (manifest : Manifest) (reconfigur
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
   let pkgEntries := manifest.packages.foldl (init := mkNameMap PackageEntry)
     fun map entry => map.insert entry.name entry
-  let res ← EStateT.run' (mkNameMap Package) do
+  let res ← EStateT.run' (mkSimpleNameMap Package) do
     buildAcyclic (·.name) ws.root fun pkg resolve => do
       let topLevel := pkg.name = ws.root.name
       let deps ← IO.ofExcept <| loadDepsFromEnv pkg.configEnv pkg.leanOpts
@@ -277,7 +277,7 @@ def loadWorkspace (config : LoadConfig) (updateDeps := false) : LogIO Workspace 
     ws.updateAndMaterialize {} rc
 
 /-- Updates the manifest for the loaded Lake workspace (see `updateAndMaterialize`). -/
-def updateManifest (config : LoadConfig) (toUpdate : NameSet := {}) : LogIO Unit := do
+def updateManifest (config : LoadConfig) (toUpdate : SimpleNameSet := {}) : LogIO Unit := do
   let rc := config.reconfigure
   let ws ← loadWorkspaceRoot config
   discard <| ws.updateAndMaterialize toUpdate rc

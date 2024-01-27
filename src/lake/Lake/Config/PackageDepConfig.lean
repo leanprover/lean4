@@ -3,7 +3,7 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
-import Lean.Data.NameMap
+import Lake.Util.Name
 
 namespace Lake
 open Lean System
@@ -32,11 +32,11 @@ structure PackageDepConfig where
   as that name is used to index its target data types. For this reason,
   the package name must also be unique across packages in the dependency graph.
   -/
-  name : Name
+  name : SimpleName
   /--
   The full name of the package used to lookup the dependency in a registry.
   -/
-  fullName : String
+  fullName : SimpleName
   /--
   The target version of the dependency.
   This can be an exact commit or a more general specifier (e.g., a branch).

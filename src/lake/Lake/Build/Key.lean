@@ -10,9 +10,9 @@ namespace Lake
 /-- The type of keys in the Lake build store. -/
 inductive BuildKey
 | moduleFacet (module : Name) (facet : Name)
-| packageFacet (package : Name) (facet : Name)
-| targetFacet (package : Name) (target : Name) (facet : Name)
-| customTarget (package : Name) (target : Name)
+| packageFacet (package : SimpleName) (facet : Name)
+| targetFacet (package : SimpleName) (target : SimpleName) (facet : Name)
+| customTarget (package : SimpleName) (target : SimpleName)
 deriving Inhabited, Repr, DecidableEq, Hashable
 
 namespace BuildKey

@@ -9,13 +9,13 @@ namespace Lake
 open Lean System
 
 /-- A external library's declarative configuration. -/
-structure ExternLibConfig (pkgName name : Name) where
+structure ExternLibConfig (pkgName name : SimpleName) where
   /-- The library's build data. -/
-  getJob : CustomData (pkgName, .str name "static") → BuildJob FilePath
+  getJob : CustomData (pkgName, name) → BuildJob FilePath
   deriving Inhabited
 
 /-- A dependently typed configuration based on its registered package and name. -/
 structure ExternLibDecl where
-  pkg : Name
-  name : Name
+  pkg : SimpleName
+  name : SimpleName
   config : ExternLibConfig pkg name

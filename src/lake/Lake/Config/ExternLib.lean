@@ -12,7 +12,7 @@ structure ExternLib where
   /-- The package the library belongs to. -/
   pkg : Package
   /-- The external library's name. -/
-  name : Name
+  name : SimpleName
   /-- The library's user-defined configuration. -/
   config : ExternLibConfig pkg.name name
 
@@ -21,7 +21,7 @@ structure ExternLib where
   self.externLibConfigs.fold (fun a _ v => a.push ⟨self, _, v⟩) #[]
 
 /-- Try to find a external library in the package with the given name. -/
-@[inline] def Package.findExternLib? (name : Name) (self : Package) : Option ExternLib :=
+@[inline] def Package.findExternLib? (name : SimpleName) (self : Package) : Option ExternLib :=
   self.externLibConfigs.find? name |>.map (⟨self, name, ·⟩)
 
 namespace ExternLib
@@ -32,7 +32,3 @@ That is, the package's `moreLinkArgs`.
 -/
 @[inline] def linkArgs (self : ExternLib) : Array String :=
   self.pkg.moreLinkArgs
-
-/-- The name of the package target used to build the external library's static binary. -/
-@[inline] def staticTargetName (self : ExternLib) : Name :=
-  .str self.name "static"

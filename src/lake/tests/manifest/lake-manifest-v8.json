@@ -20,5 +20,5 @@
    "fullName": "bar",
    "configFile": "lakefile.lean",
    "conditional": false}],
- "name": "«foo-bar»",
+ "name": "foo-bar",
  "lakeDir": ".lake"}

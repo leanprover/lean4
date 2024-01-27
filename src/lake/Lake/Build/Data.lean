@@ -66,7 +66,7 @@ its build data in the Lake build store.
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `custom_data`).
 -/
-opaque CustomData (target : Name × Name) : Type
+opaque CustomData (target : SimpleName × SimpleName) : Type
 
 --------------------------------------------------------------------------------
 /-! ## Build Data                                                             -/
@@ -92,40 +92,36 @@ instance (priority := low)  : FamilyDef BuildData (.customTarget p t) (CustomDat
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
 
+open Parser.Command (docComment)
+
+/-- Macro for declaring a new `family_def` whose key is its declaration name. -/
+scoped macro (name := familyDataDecl) doc?:optional(docComment)
+"family_data " declId:ident " : " fam:ident " := " ty:term : command => do
+  let key := Name.quoteFrom declId declId.getId
+  `($[$doc?]? family_def $declId : $fam $key := $ty)
+
 /-- Macro for declaring new `PackageData`. -/
-scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)
-"package_data " id:ident " : " ty:term : command => do
+scoped macro (name := packageDataDecl) doc?:optional(docComment)
+"package_data " key:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``PackageData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
+  `($[$doc?]? family_data $key : $dty := $ty)
 
 /-- Macro for declaring new `ModuleData`. -/
-scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
-"module_data " id:ident " : " ty:term : command => do
+scoped macro (name := moduleDataDecl) doc?:optional(docComment)
+"module_data " key:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``ModuleData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
+  `($[$doc?]? family_data $key : $dty := $ty)
 
 /-- Macro for declaring new `TargetData` for libraries. -/
-scoped macro (name := libraryDataDecl) doc?:optional(Parser.Command.docComment)
+scoped macro (name := libraryDataDecl) doc?:optional(docComment)
 "library_data " id:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
   let key := Name.quoteFrom id id.getId
-  let id := mkIdentFrom id <| id.getId.modifyBase (`leanLib ++ ·)
+  let id := mkIdentFrom key <| `leanLib ++ id.getId
   `($[$doc?]? family_def $id : $dty (`leanLib ++ $key) := $ty)
 
 /-- Macro for declaring new `TargetData`. -/
-scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
-"target_data " id:ident " : " ty:term : command => do
+scoped macro (name := targetDataDecl) doc?:optional(docComment)
+"target_data " key:ident " : " ty:term : command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
-
-/-- Macro for declaring new `CustomData`. -/
-scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
-"custom_data " pkg:ident tgt:ident " : " ty:term : command => do
-  let dty := mkCIdentFrom (← getRef) ``CustomData
-  let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
-  let pkg := Name.quoteFrom pkg pkg.getId
-  let tgt := Name.quoteFrom pkg tgt.getId
-  `($[$doc?]? family_def $id : $dty ($pkg, $tgt) := $ty)
+  `($[$doc?]? family_data $key : $dty := $ty)

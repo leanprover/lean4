@@ -28,7 +28,7 @@ dynamically typed equivalent.
   cast (by rw [← h.family_key_eq_type]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
-  lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
+  lib.config.getJob <$> fetch (lib.pkg.target lib.name)
 
 def ExternLib.recBuildShared (lib : ExternLib) : IndexBuildM (BuildJob FilePath) := do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs

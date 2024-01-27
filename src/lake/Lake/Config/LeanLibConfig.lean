@@ -15,7 +15,10 @@ open Lean System
 /-- A Lean library's declarative configuration. -/
 structure LeanLibConfig extends LeanConfig where
   /-- The name of the target. -/
-  name : Name
+  name : SimpleName
+
+  /-- The name the library was declared with. **Internal Use Only** -/
+  rawName : Name := name
 
   /--
   The subdirectory of the package's source directory containing the library's
@@ -31,7 +34,7 @@ structure LeanLibConfig extends LeanConfig where
   part of the library.
   Defaults to a single root of the target's name.
   -/
-  roots : Array Name := #[name]
+  roots : Array Name := #[rawName]
 
   /--
   An `Array` of module `Glob`s to build for the library.
@@ -48,7 +51,7 @@ structure LeanLibConfig extends LeanConfig where
   Used as a base for the file names of its static and dynamic binaries.
   Defaults to the name of the target.
   -/
-  libName := name.toString (escape := false)
+  libName := name.toString
 
   /-- An `Array` of target names to build before the library's modules. -/
   extraDepTargets : Array Name := #[]

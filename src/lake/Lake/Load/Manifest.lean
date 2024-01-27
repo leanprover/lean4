@@ -30,7 +30,7 @@ Current version of the manifest format.
 - **v6**: add package root `name` manifest field
 - **v7**: `type` refactor, custom to/fromJson
 - **v8**:  add package entry types `github` & `registry`,
-  add `fullName` & `conditional` field
+  add `fullName` & `conditional` field, no escape in manifest `name`
 -/
 @[inline] def Manifest.version : Nat := 8
 
@@ -83,8 +83,8 @@ inductive PackageEntrySrc
 
 /-- An entry for a package stored in the manifest. -/
 structure PackageEntry where
-  name : Name
-  fullName : String
+  name : SimpleName
+  fullName : SimpleName
   inherited : Bool
   conditional : Bool := false
   configFile : FilePath := defaultConfigFile
@@ -204,7 +204,7 @@ protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name := name.toName, fullName, inherited, conditional,
+      name, fullName, inherited, conditional,
       configFile, manifestFile? := manifestFile, source : PackageEntry
     }
   catch e =>
@@ -223,16 +223,19 @@ instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 
 def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
-  {name, fullName := name.toString false, inherited, source := .path dir}
+  let fullName := name.toString false
+  {name := SimpleName.mk fullName, fullName, inherited,
+    source := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
-  {name, fullName := name.toString false, inherited,
+  let fullName := name.toString false
+  {name := SimpleName.mk fullName, fullName, inherited,
     source := .git url rev inputRev? subDir?}
 
 end PackageEntry
 
 /-- Manifest data structure that is serialized to the file. -/
 structure Manifest where
-  name : Name
+  name : String
   lakeDir : FilePath
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
@@ -266,18 +269,23 @@ protected def fromJson? (json : Json) : Except String Manifest := do
       throw <|
         s!"version `{ver}` is higher than this Lake's '{Manifest.version}'; " ++
         "you may need to update your `lean-toolchain`"
-    else if ver ≤ 6 then
-      let name ← obj.getD "name" Name.anonymous
+    else
+      let name ←
+        if ver ≤ 7 then
+          if let some (name : Name) ← obj.get? "name" then
+            pure <| name.toString (escape := false)
+          else
+            pure ""
+        else
+          obj.getD "name" ""
       let lakeDir ← obj.getD "lakeDir" defaultLakeDir
       let packagesDir? ← obj.get? "packagesDir"
-      let pkgs : Array PackageEntryV6 ← obj.getD "packages" #[]
-      return {name, lakeDir, packagesDir?, packages := pkgs.map PackageEntry.ofV6}
-    else
-      let name ← obj.getD "name" Name.anonymous
-      let lakeDir ← obj.get "lakeDir"
-      let packagesDir ← obj.get "packagesDir"
-      let packages : Array PackageEntry ← obj.getD "packages" #[]
-      return {name, lakeDir, packagesDir? := packagesDir, packages}
+      let packages ←
+        if ver ≤ 6 then
+          pure <| (← obj.getD "packages" #[]).map PackageEntry.ofV6
+        else
+          obj.getD "packages" #[]
+      return {name, lakeDir, packagesDir?, packages}
   catch e =>
     throw s!"manifest: {e}"
 

@@ -30,7 +30,7 @@ structure Env where
   /-- The Reservoir API endpoint URL (e.g., `https://reservoir.lean-lang.org/api`). -/
   reservoirUrl : String
   /-- A name-to-URL mapping of URL overwrites for the named packages. -/
-  pkgUrlMap : NameMap String
+  pkgUrlMap : SimpleNameMap String
   /-- The initial Elan toolchain of the environment (i.e., `ELAN_TOOLCHAIN`). -/
   initToolchain : String
   /-- The initial Lean library search path of the environment (i.e., `LEAN_PATH`). -/

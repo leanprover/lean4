@@ -68,26 +68,11 @@ syntax ifClause :=
 syntax withClause :=
   " with " term
 
-syntax identOrStr :=
-  ident <|> str
-
-def expandIdentOrStr (stx : TSyntax ``identOrStr) : MacroM String :=
-  match stx with
-  | `(identOrStr|$x:ident) => return x.getId.toString (escape := false)
-  | `(identOrStr|$x:str) => return x.getString
-  | _ => Macro.throwErrorAt stx "ill-formed syntax; expected identifier or string literal"
-
 syntax depName :=
   atomic(identOrStr " / ")? identOrStr
 
 syntax depSpec :=
   depName (" @ " term:max)? (ifClause)? (fromClause)? (withClause)?
-
-def mkStrLitFrom (ref : Syntax) (val : String) : StrLit :=
-  Syntax.mkStrLit val <| SourceInfo.fromRef ref
-
-def mkSimpleNameFrom (ref : Syntax) (name : String) : Term :=
-  Syntax.mkApp (mkCIdentFrom ref ``Name.mkSimple) #[mkStrLitFrom ref name]
 
 def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment)  : MacroM Command := do
   match stx with
@@ -118,12 +103,12 @@ def expandDepSpec (stx : TSyntax ``depSpec) (doc? : Option DocComment)  : MacroM
     let opts := opts?.getD <| ← `({})
     let `(depName|$[$scope? /]? $nameStx) := fullNameStx
       | Macro.throwUnsupported
-    let nameStr ← expandIdentOrStr nameStx
+    let nameStr ← expandIdentOrStrAsString nameStx
     let name := mkSimpleNameFrom nameStx nameStr
     let (declName, fullName) ← id do
       let some scope := scope?
         | return (Name.mkSimple nameStr, mkStrLitFrom fullNameStx nameStr)
-      let scope ← expandIdentOrStr scope
+      let scope ← expandIdentOrStrAsString scope
       let declName := Name.mkSimple scope |>.str nameStr
       return (declName, mkStrLitFrom fullNameStx s!"{scope}/{nameStr}")
     let declId := mkIdentFrom fullNameStx declName

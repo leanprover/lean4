@@ -34,21 +34,31 @@ where
 @[implemented_by unsafeEvalConstCheck] opaque evalConstCheck
 (env : Environment) (opts : Options) (α) (type : Name) (const : Name) : Except String α
 
-/-- Construct a `DNameMap` from the declarations tagged with `attr`. -/
-def mkTagMap
+/-- Construct a `DSimpleNameMap` from the declarations tagged with `attr`. -/
+@[inline] def mkDTagMap
 (env : Environment) (attr : OrderedTagAttribute)
-[Monad m] (f : (n : Name) → m (β n)) : m (DNameMap β) :=
+[Monad m] (f : Name → m ((n : SimpleName) × β n)) : m (DSimpleNameMap β) :=
   let entries := attr.getAllEntries env
-  entries.foldlM (init := {}) fun map declName =>
-    return map.insert declName <| ← f declName
+  entries.foldlM (init := {}) fun map declName => do
+    let ⟨k, v⟩ ← f declName
+    return map.insert k v
 
-/-- Construct a `OrdNameMap` from the declarations tagged with `attr`. -/
-def mkOrdTagMap
+/-- Construct a `OrdSimpleNameMap` from the declarations tagged with `attr`. -/
+@[inline] def mkOrdTagMap
 (env : Environment) (attr : OrderedTagAttribute)
-[Monad m] (f : (n : Name) → m β) : m (OrdNameMap β) :=
+[Monad m] (f : Name → m (SimpleName × β)) : m (OrdSimpleNameMap β) :=
   let entries := attr.getAllEntries env
-  entries.foldlM (init := .mkEmpty entries.size) fun map declName =>
-    return map.insert declName <| ← f declName
+  entries.foldlM (init := .mkEmpty entries.size) fun map declName => do
+    let ⟨k, v⟩ ← f declName
+    return map.insert k v
+
+/-- Construct a `NameMap` from the declarations tagged with `attr`. -/
+@[inline] def mkTagMap
+(env : Environment) (attr : OrderedTagAttribute)
+[Monad m] (f : Name → m β) : m (NameMap β) :=
+  let entries := attr.getAllEntries env
+  entries.foldlM (init := {}) fun map declName => do
+    return map.insert declName (← f declName)
 
 /-- Load a `PackageConfig` from a configuration environment. -/
 def PackageConfig.loadFromEnv
@@ -67,39 +77,46 @@ from its configuration environment after resolving its dependencies.
 def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := do
   let env := self.configEnv
   let opts := self.leanOpts
-  let strName := self.name.toString (escape := false)
 
   -- Load Script, Facet, Target, and Hook Configurations
   let scripts ← mkTagMap env scriptAttr fun scriptName => do
-    let name := strName ++ "/" ++ scriptName.toString (escape := false)
+    let name := s!"{self.name}/{scriptName.toString (escape := false)}"
     let fn ← IO.ofExcept <| evalConstCheck env opts ScriptFn ``ScriptFn scriptName
     return {name, fn, doc? := ← findDocString? env scriptName : Script}
   let defaultScripts ← defaultScriptAttr.getAllEntries env |>.mapM fun name =>
     if let some script := scripts.find? name then pure script else
       error s!"package is missing script `{name}` marked as a default"
-  let leanLibConfigs ← IO.ofExcept <| mkOrdTagMap env leanLibAttr fun name =>
-    evalConstCheck env opts LeanLibConfig ``LeanLibConfig name
-  let leanExeConfigs ← IO.ofExcept <| mkOrdTagMap env leanExeAttr fun name =>
-    evalConstCheck env opts LeanExeConfig ``LeanExeConfig name
-  let externLibConfigs ← mkTagMap env externLibAttr fun name =>
-    match evalConstCheck env opts ExternLibDecl ``ExternLibDecl name with
-    | .ok decl =>
-      if h : decl.pkg = self.config.name ∧ decl.name = name then
-        return h.1 ▸ h.2 ▸ decl.config
-      else
-        error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
-    | .error e => error e
-  let opaqueTargetConfigs ← mkTagMap env targetAttr fun name =>
-    match evalConstCheck env opts TargetDecl ``TargetDecl name with
-    | .ok decl =>
-      if h : decl.pkg = self.config.name ∧ decl.name = name then
-        return OpaqueTargetConfig.mk <| h.1 ▸ h.2 ▸ decl.config
-      else
-        error s!"target was defined as `{decl.pkg}/{decl.name}`, but was registered as `{self.name}/{name}`"
-    | .error e => error e
   let defaultTargets := defaultTargetAttr.getAllEntries env
-  let postUpdateHooks ← postUpdateAttr.getAllEntries env |>.mapM fun name =>
-    match evalConstCheck env opts PostUpdateHookDecl ``PostUpdateHookDecl name with
+  let defaultTargetSet := defaultTargets.foldl (·.insert ·) NameSet.empty
+  StateT.run' (s := #[]) do
+  let leanLibConfigs ← mkOrdTagMap env leanLibAttr fun declName => do
+    let cfg ← IO.ofExcept <| evalConstCheck env opts LeanLibConfig ``LeanLibConfig declName
+    if defaultTargetSet.contains declName then modify (·.push cfg.name)
+    return (cfg.name, cfg)
+  let leanExeConfigs ← mkOrdTagMap env leanExeAttr fun declName => do
+    let cfg ← IO.ofExcept <| evalConstCheck env opts LeanExeConfig ``LeanExeConfig declName
+    if defaultTargetSet.contains declName then modify (·.push cfg.name)
+    return (cfg.name, cfg)
+  let externLibConfigs ← mkDTagMap env externLibAttr fun declName =>
+    match evalConstCheck env opts ExternLibDecl ``ExternLibDecl declName with
+    | .ok decl => do
+      if defaultTargetSet.contains declName then modify (·.push decl.name)
+      if h : decl.pkg = self.config.name then
+        return ⟨decl.name, (h ▸ decl.config : ExternLibConfig ..)⟩
+      else
+        error s!"target was defined in '{decl.pkg}', but was registered in '{self.name}'"
+    | .error e => error e
+  let opaqueTargetConfigs ← mkDTagMap env targetAttr fun declName =>
+    match evalConstCheck env opts TargetDecl ``TargetDecl declName with
+    | .ok decl => do
+      if defaultTargetSet.contains declName then modify (·.push decl.name)
+      if h : decl.pkg = self.config.name then
+        return ⟨decl.name, OpaqueTargetConfig.mk <| h ▸ decl.config⟩
+      else
+        error s!"target was defined in '{decl.pkg}', but was registered in '{self.name}'"
+    | .error e => error e
+  let postUpdateHooks ← postUpdateAttr.getAllEntries env |>.mapM fun declName =>
+    match evalConstCheck env opts PostUpdateHookDecl ``PostUpdateHookDecl declName with
     | .ok decl =>
       if h : decl.pkg = self.config.name then
         return OpaquePostUpdateHook.mk ⟨h ▸ decl.fn⟩
@@ -117,7 +134,7 @@ def Package.finalize (self : Package) (deps : Array Package) : LogIO Package := 
   return {self with
     opaqueDeps := deps.map (.mk ·)
     leanLibConfigs, leanExeConfigs, externLibConfigs
-    opaqueTargetConfigs, defaultTargets, scripts, defaultScripts,
+    opaqueTargetConfigs, defaultTargets := ← get, scripts, defaultScripts,
     postUpdateHooks
   }
 

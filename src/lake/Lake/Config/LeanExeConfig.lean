@@ -12,7 +12,10 @@ open Lean System
 /-- A Lean executable's declarative configuration. -/
 structure LeanExeConfig extends LeanConfig where
   /-- The name of the target. -/
-  name : Name
+  name : SimpleName
+
+  /-- The name the library was declared with. **Internal Use Only** -/
+  rawName : Name := name
 
   /--
   The subdirectory of the package's source directory containing the executable's
@@ -32,13 +35,13 @@ structure LeanExeConfig extends LeanConfig where
 
   Defaults to the name of the target.
   -/
-  root : Name := name
+  root : Name := rawName
 
   /--
   The name of the binary executable.
   Defaults to the target name with any `.` replaced with a `-`.
   -/
-  exeName : String := name.toStringWithSep "-" (escape := false)
+  exeName : String := rawName.toStringWithSep "-" (escape := false)
 
   /-- An `Array` of target names to build before the executable's modules. -/
   extraDepTargets : Array Name := #[]

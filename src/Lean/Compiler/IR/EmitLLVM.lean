@@ -103,6 +103,9 @@ def getDecl (n : Name) : M llvmctx Decl := do
 def constInt8 (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constInt8 llvmctx (UInt64.ofNat n)
 
+def constInt64 (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
+    LLVM.constInt64 llvmctx (UInt64.ofNat n)
+
 def constIntSizeT (n : Nat) : M llvmctx (LLVM.Value llvmctx) :=  do
     LLVM.constIntSizeT llvmctx (UInt64.ofNat n)
 
@@ -172,7 +175,7 @@ def callLeanUnsignedToNatFn (builder : LLVM.Builder llvmctx)
   let retty ← LLVM.voidPtrType llvmctx
   let f ←   getOrCreateFunctionPrototype mod retty "lean_unsigned_to_nat"  argtys
   let fnty ← LLVM.functionType retty argtys
-  let nv ← LLVM.constInt32 llvmctx (UInt64.ofNat n)
+  let nv ← constIntUnsigned n
   LLVM.buildCall2 builder fnty f #[nv] name
 
 def callLeanMkStringFromBytesFn (builder : LLVM.Builder llvmctx)
@@ -228,9 +231,9 @@ def callLeanAllocCtor (builder : LLVM.Builder llvmctx)
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
 
-  let tag ← LLVM.constInt32 llvmctx (UInt64.ofNat tag)
-  let num_objs ← LLVM.constInt32 llvmctx (UInt64.ofNat num_objs)
-  let scalar_sz ← LLVM.constInt32 llvmctx (UInt64.ofNat scalar_sz)
+  let tag ← constIntUnsigned tag
+  let num_objs ← constIntUnsigned num_objs
+  let scalar_sz ← constIntUnsigned scalar_sz
   LLVM.buildCall2 builder fnty fn #[tag, num_objs, scalar_sz] name
 
 def callLeanCtorSet (builder : LLVM.Builder llvmctx)
@@ -438,7 +441,7 @@ def buildIfThenElse_ (builder : LLVM.Builder llvmctx)  (name : String) (brval : 
 -- Recall that lean uses `i8` for booleans, not `i1`, so we need to compare with `true`.
 def buildLeanBoolTrue? (builder : LLVM.Builder llvmctx)
     (b : LLVM.Value llvmctx) (name : String := "") : M llvmctx (LLVM.Value llvmctx) := do
-  LLVM.buildICmp builder LLVM.IntPredicate.NE b (← LLVM.constInt8 llvmctx 0) name
+  LLVM.buildICmp builder LLVM.IntPredicate.NE b (← constInt8 0) name
 
 def emitFnDeclAux (mod : LLVM.Module llvmctx)
     (decl : Decl) (cppBaseName : String) (isExternal : Bool) : M llvmctx (LLVM.Value llvmctx) := do
@@ -546,7 +549,7 @@ def emitCtorSetArgs (builder : LLVM.Builder llvmctx)
   ys.size.forM fun i => do
     let zv ← emitLhsVal builder z
     let (_yty, yv) ← emitArgVal builder ys[i]!
-    let iv ← LLVM.constIntUnsigned llvmctx (UInt64.ofNat i)
+    let iv ← constIntUnsigned i
     callLeanCtorSet builder zv iv yv
     emitLhsSlotStore builder z zv
     pure ()
@@ -737,7 +740,7 @@ def emitLit (builder : LLVM.Builder llvmctx)
   let zv ← match v with
             | LitVal.num v => emitNumLit builder t v
             | LitVal.str v =>
-                 let zero ← LLVM.constIntUnsigned llvmctx 0
+                 let zero ← constIntUnsigned 0
                  let str_global ← LLVM.buildGlobalString builder v
                  -- access through the global, into the 0th index of the array
                  let strPtr ← LLVM.buildInBoundsGEP2 builder
@@ -1450,7 +1453,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         See issue #534. We can remove this workaround after we implement issue #467. -/
   callLeanSetPanicMessages builder (← LLVM.constFalse llvmctx)
   let world ← callLeanIOMkWorld builder
-  let resv ← callModInitFn builder (← getModName) (← LLVM.constInt8 llvmctx 1) world ((← getModName).toString ++ "_init_out")
+  let resv ← callModInitFn builder (← getModName) (← constInt8 1) world ((← getModName).toString ++ "_init_out")
   let _ ← LLVM.buildStore builder resv res
 
   callLeanSetPanicMessages builder (← LLVM.constTrue llvmctx)
@@ -1463,7 +1466,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
       callLeanDecRef builder resv
       callLeanInitTaskManager builder
       if xs.size == 2 then
-        let inv ← callLeanBox builder (← LLVM.constInt (← LLVM.size_tType llvmctx) 0) "inv"
+        let inv ← callLeanBox builder (← constIntSizeT 0) "inv"
         let _ ← LLVM.buildStore builder inv inslot
         let ity ← LLVM.size_tType llvmctx
         let islot ← LLVM.buildAlloca builder ity "islot"
@@ -1519,7 +1522,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         pure ShouldForwardControlFlow.no
       else do
         callLeanDecRef builder resv
-        let _ ← LLVM.buildRet builder (← LLVM.constInt64 llvmctx 0)
+        let _ ← LLVM.buildRet builder (← constInt64 0)
         pure ShouldForwardControlFlow.no
 
     )
@@ -1527,7 +1530,7 @@ def emitMainFn (mod : LLVM.Module llvmctx) (builder : LLVM.Builder llvmctx) : M 
         let resv ← LLVM.buildLoad2 builder resty res "resv"
         callLeanIOResultShowError builder resv
         callLeanDecRef builder resv
-        let _ ← LLVM.buildRet builder (← LLVM.constInt64 llvmctx 1)
+        let _ ← LLVM.buildRet builder (← constInt64 1)
         pure ShouldForwardControlFlow.no)
   -- at the merge
   let _ ← LLVM.buildUnreachable builder

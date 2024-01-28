@@ -442,6 +442,11 @@ def constInt32 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : B
 def constInt64 (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
   constInt' ctx 64 value signExtend
 
-def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+def constIntSizeT (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual size_t of the target machine
   constInt' ctx 64 value signExtend
+
+def constIntUnsigned (ctx : Context) (value : UInt64) (signExtend : Bool := false) : BaseIO (Value ctx) :=
+  -- TODO: make this stick to the actual unsigned of the target machine
+  constInt' ctx 32 value signExtend
 end LLVM

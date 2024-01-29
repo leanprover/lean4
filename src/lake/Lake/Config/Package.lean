@@ -13,20 +13,19 @@ import Lake.Config.Script
 import Lake.Load.Config
 import Lake.Util.DRBMap
 import Lake.Util.OrdHashSet
-import Lake.Util.Platform
 
 open System Lean
 
 namespace Lake
 
 /--
-Platform-specific archive file with an optional name prefix
-(i.e., `{name}-{platformDescriptor}.tar.gz`).
+Archive file with an optional name override
+(i.e., `{name}.tar.gz` or `{System.Platform.target}.tar.gz`).
 -/
 def nameToArchive (name? : Option String) : String :=
   match name? with
-  | none => s!"{platformDescriptor}.tar.gz"
-  | some name => s!"{name}-{platformDescriptor}.tar.gz"
+  | none => s!"{System.Platform.target}.tar.gz"
+  | some name => s!"{name}.tar.gz"
 
 /--
 First tries to convert a string into a legal name.
@@ -152,7 +151,8 @@ structure PackageConfig extends WorkspaceConfig, LeanConfig where
 
   /--
   The name of the build archive on GitHub. Defaults to `none`.
-  The archive's full file name will be `nameToArchive buildArchive?`.
+  The archive's final file name will be `nameToArchive buildArchive?`
+  (i.e., the provided name or `System.Platform.Target` with a `.tar.gz` extension).
   -/
   buildArchive? : Option String := none
 
@@ -314,6 +314,10 @@ namespace Package
 /-- The package's `preferReleaseBuild` configuration. -/
 @[inline] def preferReleaseBuild (self : Package) : Bool :=
   self.config.preferReleaseBuild
+
+/-- The package's `platformIndependent` configuration. -/
+@[inline] def platformIndependent (self : Package) : Bool :=
+  self.config.platformIndependent
 
 /-- The package's `precompileModules` configuration. -/
 @[inline] def precompileModules (self : Package) : Bool :=

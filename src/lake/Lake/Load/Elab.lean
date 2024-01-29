@@ -8,7 +8,6 @@ import Lake.DSL.Extensions
 import Lake.DSL.Attributes
 import Lake.Load.Config
 import Lake.Build.Trace
-import Lake.Util.Platform
 import Lake.Util.Log
 
 namespace Lake
@@ -184,7 +183,7 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
       let .ok (trace : ConfigTrace) := Json.parse contents >>= fromJson?
         | error "compiled configuration is invalid; run with `-R` to reconfigure"
       let upToDate :=
-        (← olean.pathExists) ∧ trace.platform = platformDescriptor ∧
+        (← olean.pathExists) ∧ trace.platform = System.Platform.target ∧
         trace.leanHash = Lean.githash ∧ trace.configHash = configHash
       if upToDate then
         return .olean h
@@ -220,7 +219,7 @@ def importConfigFile (pkgDir lakeDir : FilePath) (lakeOpts : NameMap String)
     match (← IO.FS.removeFile olean |>.toBaseIO) with
     | .ok _ | .error (.noFileOrDirectory ..) =>
       h.putStrLn <| Json.pretty <| toJson
-        {platform := platformDescriptor, leanHash := Lean.githash,
+        {platform := System.Platform.target, leanHash := Lean.githash,
           configHash, options := lakeOpts : ConfigTrace}
       h.truncate
       let env ← elabConfigFile pkgDir lakeOpts leanOpts configFile

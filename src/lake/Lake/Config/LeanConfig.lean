@@ -157,10 +157,17 @@ structure LeanConfig where
   They come *before* `moreLinkArgs`.
   -/
   weakLinkArgs : Array String := #[]
-
   /--
-    Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
-    Defaults to `C`.
+  Compiler backend that modules should be built using (e.g., `C`, `LLVM`).
+  Defaults to `C`.
   -/
   backend : Backend := .default
+  /--
+  Asserts Lake should assume the Lean code is platform-independent.
+  This means Lake will not include platform-dependent elements (such as
+  shared libraries) in a module's trace and will not re-elaborate Lean code
+  for different platforms.
+  Defaults to `false`.
+  -/
+  platformIndependent : Bool := false
 deriving Inhabited, Repr

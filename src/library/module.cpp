@@ -168,7 +168,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
         buffer = static_cast<char *>(MapViewOfFileEx(h_map, FILE_MAP_READ, 0, 0, 0, base_addr));
         free_data = [=]() {
             if (buffer) {
-                lean_always_assert(UnmapViewOfFile(base_addr));
+                lean_always_assert(UnmapViewOfFile(buffer));
             }
             lean_always_assert(CloseHandle(h_map));
             lean_always_assert(CloseHandle(h_olean_fn));

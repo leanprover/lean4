@@ -66,7 +66,7 @@ syntax (name := simprocAttr) "simproc" (Tactic.simpPre <|> Tactic.simpPost)? : a
 /--
 Auxiliary attribute for symbolic evaluation procedures.
 -/
-syntax (name := sevalAttr) "sevalproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+syntax (name := sevalprocAttr) "sevalproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
 
 /--
 Auxiliary attribute for builtin simplification procedures.
@@ -98,7 +98,7 @@ macro_rules
            if idName == `simp then
              (`simprocAttr, "simproc")
            else if idName == `seval then
-             (`sevalAttr, "sevalproc")
+             (`sevalprocAttr, "sevalproc")
            else
              let idName := idName.appendAfter "_proc"
              (`Parser.Attr ++ idName, idName.toString)

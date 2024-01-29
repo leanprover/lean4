@@ -417,11 +417,16 @@ def registerSimpAttr (attrName : Name) (attrDescr : String)
 
 builtin_initialize simpExtension : SimpExtension ← registerSimpAttr `simp "simplification theorem"
 
+builtin_initialize sevalSimpExtension : SimpExtension ← registerSimpAttr `seval "symbolic evaluator theorem"
+
 def getSimpExtension? (attrName : Name) : IO (Option SimpExtension) :=
   return (← simpExtensionMapRef.get).find? attrName
 
 def getSimpTheorems : CoreM SimpTheorems :=
   simpExtension.getTheorems
+
+def getSEvalTheorems : CoreM SimpTheorems :=
+  sevalSimpExtension.getTheorems
 
 /-- Auxiliary method for adding a global declaration to a `SimpTheorems` datastructure. -/
 def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (inv := false) (prio : Nat := eval_prio default) : MetaM SimpTheorems := do

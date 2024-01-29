@@ -10,11 +10,24 @@ import Lean.Meta.Tactic.Simp.Types
 
 namespace Lean.Meta.Simp
 
+/--
+Builtin simproc declaration extension state.
+
+It contains:
+- The discrimination tree keys for each simproc (including symbolic evaluation procedures) name.
+- The actual procedure associated with a name.
+-/
 structure BuiltinSimprocs where
   keys  : HashMap Name (Array SimpTheoremKey) := {}
   procs : HashMap Name Simproc := {}
   deriving Inhabited
 
+/--
+This global reference is populated using the command `builtin_simproc_pattern%`.
+
+This reference is then used to process the attributes `builtin_simproc` and `builtin_sevalproc`.
+Both attributes need the keys and the actual procedure registered using the command `builtin_simproc_pattern%`.
+-/
 builtin_initialize builtinSimprocDeclsRef : IO.Ref BuiltinSimprocs ← IO.mkRef {}
 
 structure SimprocDecl where
@@ -60,6 +73,11 @@ def isBuiltinSimproc (declName : Name) : CoreM Bool := do
 def isSimproc (declName : Name) : CoreM Bool :=
   return (← getSimprocDeclKeys? declName).isSome
 
+/--
+Given a declaration name `declName`, store the discrimination tree keys and the actual procedure.
+
+This method is invoked by the command `builtin_simproc_pattern%` elaborator.
+-/
 def registerBuiltinSimproc (declName : Name) (key : Array SimpTheoremKey) (proc : Simproc) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError s!"invalid builtin simproc declaration, it can only be registered during initialization")
@@ -85,9 +103,11 @@ instance : ToFormat SimprocEntry where
 def Simprocs.erase (s : Simprocs) (declName : Name) : Simprocs :=
   { s with erased := s.erased.insert declName, simprocNames := s.simprocNames.erase declName }
 
+/-- Builtin simprocs. -/
 builtin_initialize builtinSimprocsRef : IO.Ref Simprocs ← IO.mkRef {}
 
-builtin_initialize builtinSimprocsSEvalRef : IO.Ref Simprocs ← IO.mkRef {}
+/-- Builtin symbolic evaluation procedures. -/
+builtin_initialize builtinSEvalprocsRef : IO.Ref Simprocs ← IO.mkRef {}
 
 abbrev SimprocExtension := ScopedEnvExtension SimprocOLeanEntry SimprocEntry Simprocs
 
@@ -115,13 +135,22 @@ def addSimprocAttr (ext : SimprocExtension) (declName : Name) (kind : AttributeK
     throwError "invalid [simproc] attribute, '{declName}' is not a simproc"
   ext.add { declName, post, keys, proc } kind
 
-def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit := do
+/--
+Implements attributes `builtin_simproc` and `builtin_sevalproc`.
+-/
+def addSimprocBuiltinAttrCore (ref : IO.Ref Simprocs) (declName : Name) (post : Bool) (proc : Simproc) : IO Unit := do
   let some keys := (← builtinSimprocDeclsRef.get).keys.find? declName |
     throw (IO.userError "invalid [builtin_simproc] attribute, '{declName}' is not a builtin simproc")
   if post then
-    builtinSimprocsRef.modify fun s => { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+    ref.modify fun s => { s with post := s.post.insertCore keys { declName, keys, post, proc } }
   else
-    builtinSimprocsRef.modify fun s => { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+    ref.modify fun s => { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+
+def addSimprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit :=
+  addSimprocBuiltinAttrCore builtinSimprocsRef declName post proc
+
+def addSEvalprocBuiltinAttr (declName : Name) (post : Bool) (proc : Simproc) : IO Unit :=
+  addSimprocBuiltinAttrCore builtinSEvalprocsRef declName post proc
 
 def Simprocs.add (s : Simprocs) (declName : Name) (post : Bool) : CoreM Simprocs := do
   let proc ←
@@ -276,22 +305,34 @@ def registerSimprocAttr (attrName : Name) (attrDescr : String) (ref? : Option (I
 
 builtin_initialize simprocExtension : SimprocExtension ← registerSimprocAttr `simprocAttr "Simplification procedure" (some builtinSimprocsRef)
 
-builtin_initialize simprocSEvalExtension : SimprocExtension ← registerSimprocAttr `sevalprocAttr "Symbolic evaluator procedure" (some builtinSimprocsSEvalRef)
+builtin_initialize simprocSEvalExtension : SimprocExtension ← registerSimprocAttr `sevalprocAttr "Symbolic evaluator procedure" (some builtinSEvalprocsRef)
+
+private def addBuiltin (declName : Name) (stx : Syntax) (addDeclName : Name) : AttrM Unit := do
+  let go : MetaM Unit := do
+    let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
+    let val := mkAppN (mkConst addDeclName) #[toExpr declName, toExpr post, mkConst declName]
+    let initDeclName ← mkFreshUserName (declName ++ `declare)
+    declareBuiltin initDeclName val
+  go.run' {}
 
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%
     name            := `simprocBuiltinAttr
     descr           := "Builtin simplification procedure"
-    erase           := fun _ => pure () -- FIX: eraseSimprocAttr
-    add             := fun declName stx _ => do
-      let go : MetaM Unit := do
-        let post := if stx[1].isNone then true else stx[1][0].getKind == ``Lean.Parser.Tactic.simpPost
-        let val := mkAppN (mkConst ``addSimprocBuiltinAttr) #[toExpr declName, toExpr post, mkConst declName]
-        let initDeclName ← mkFreshUserName (declName ++ `declare)
-        declareBuiltin initDeclName val
-      go.run' {}
     applicationTime := AttributeApplicationTime.afterCompilation
+    erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
+    add             := fun declName stx _ => addBuiltin declName stx ``addSimprocBuiltinAttr
+  }
+
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `sevalprocBuiltinAttr
+    descr           := "Builtin symbolic evaluation procedure"
+    applicationTime := AttributeApplicationTime.afterCompilation
+    erase           := fun _ => throwError "Not implemented yet, [-builtin_sevalproc]"
+    add             := fun declName stx _ => addBuiltin declName stx ``addSEvalprocBuiltinAttr
   }
 
 def getSimprocs : CoreM Simprocs :=

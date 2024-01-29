@@ -40,7 +40,7 @@ syntax (docComment)? "simproc_decl " ident " (" term ")" " := " term : command
 /--
 A builtin simplification procedure.
 -/
-syntax (docComment)? attrKind "builtin_simproc " (Tactic.simpPre <|> Tactic.simpPost)? ident " (" term ")" " := " term : command
+syntax (docComment)? attrKind "builtin_simproc " (Tactic.simpPre <|> Tactic.simpPost)? ("[" ident,* "]")? ident " (" term ")" " := " term : command
 
 /--
 A builtin simplification procedure declaration.
@@ -72,6 +72,12 @@ syntax (name := sevalprocAttr) "sevalproc" (Tactic.simpPre <|> Tactic.simpPost)?
 Auxiliary attribute for builtin simplification procedures.
 -/
 syntax (name := simprocBuiltinAttr) "builtin_simproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+
+/--
+Auxiliary attribute for builtin symbolic evaluation procedures.
+-/
+syntax (name := sevalprocBuiltinAttr) "builtin_sevalproc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
+
 end Attr
 
 macro_rules
@@ -112,5 +118,12 @@ macro_rules
   | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? $n:ident ($pattern:term) := $body) => do
     `(builtin_simproc_decl $n ($pattern) := $body
       attribute [$kind builtin_simproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [seval] $n:ident ($pattern:term) := $body) => do
+    `(builtin_simproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
+  | `($[$doc?:docComment]? $kind:attrKind builtin_simproc $[$pre?]? [simp, seval] $n:ident ($pattern:term) := $body) => do
+    `(builtin_simproc_decl $n ($pattern) := $body
+      attribute [$kind builtin_simproc $[$pre?]?] $n
+      attribute [$kind builtin_sevalproc $[$pre?]?] $n)
 
 end Lean.Parser

@@ -242,13 +242,20 @@ where
 def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
   act { ctx with depth := ctx.depth + 1 }
 
-def isMaxDepthReached : DelabM Bool := do
+def isMaxDepthReached (e : Expr) : DelabM Bool := do
   if ! (← getPPOption getPPOmitDeepTerms) then
     return false
 
   let depth := (← read).depth
   let maxDepth ← getPPOption getPPMaxTermDepth
-  return depth > maxDepth
+  let approxDepth := e.approxDepth.toNat
+  let depthExcess := depth - maxDepth
+
+  let isMaxedOutApproxDepth := approxDepth >= 255
+  let isShallowExpression :=
+    !isMaxedOutApproxDepth && approxDepth <= maxDepth/4 - depthExcess
+
+  return depthExcess > 0 && !isShallowExpression
 
 def annotateTermInfo (stx : Term) : Delab := do
   let stx ← annotateCurPos stx
@@ -272,7 +279,7 @@ partial def delab : Delab := do
   checkSystem "delab"
   let e ← getExpr
 
-  if ← pure !e.isAtomic <&&> isMaxDepthReached then
+  if ← isMaxDepthReached e then
     return ← omission
 
   -- no need to hide atomic proofs

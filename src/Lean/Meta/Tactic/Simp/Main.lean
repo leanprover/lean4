@@ -550,7 +550,7 @@ def simpStep (e : Expr) : SimpM Result := do
   | .fvar ..     => return { expr := (← reduceFVar (← getConfig) (← getSimpTheorems) e) }
 
 def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
-  if cfg.memoize then
+  if cfg.memoize && r.cache then
     let ctx ← readThe Simp.Context
     let dischargeDepth := ctx.dischargeDepth
     modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }

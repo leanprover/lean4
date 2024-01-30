@@ -199,9 +199,19 @@ def simpCtorEq : Simproc := fun e => do
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
-  let some (e', h) ← Linear.simp? e (← getContext).parent?
-    | return .continue
-  return .visit { expr := e', proof? := h }
+  if Linear.isLinearCnstr e then
+    let some (e', h) ← Linear.Nat.simpCnstr? e
+      | return .continue
+    return .visit { expr := e', proof? := h }
+  else if Linear.isLinearTerm e then
+    if Linear.parentIsTarget (← getContext).parent? then
+      -- We mark `cache := false` to ensure we do not miss simplifications.
+      return .continue (some { expr := e, cache := false })
+    let some (e', h) ← Linear.Nat.simpExpr? e
+      | return .continue
+    return .visit { expr := e', proof? := h }
+  else
+    return .continue
 
 /--
 Given a match-application `e` with `MatcherInfo` `info`, return `some result`

@@ -190,6 +190,7 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
     let mut e  := e
     let mut proof? : Option Expr := none
     let mut found := false
+    let mut cache := true
     for (simprocEntry, numExtraArgs) in candidates do
       unless erased.contains simprocEntry.declName do
         let s ← simprocEntry.try numExtraArgs e
@@ -197,21 +198,22 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
         | .visit r =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .visit (← mkEqTransOptProofResult proof? r)
+          return .visit (← mkEqTransOptProofResult proof? cache r)
         | .done r =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
-          return .done (← mkEqTransOptProofResult proof? r)
+          return .done (← mkEqTransOptProofResult proof? cache r)
         | .continue (some r) =>
           trace[Debug.Meta.Tactic.simp] "simproc result {e} => {r.expr}"
           recordSimpTheorem (.decl simprocEntry.declName post)
           e := r.expr
           proof? ← mkEqTrans? proof? r.proof?
+          cache := cache && r.cache
           found := true
         | .continue none =>
           pure ()
     if found then
-      return .continue (some { expr := e, proof? })
+      return .continue (some { expr := e, proof?, cache })
     else
       return .continue
 
@@ -234,14 +236,16 @@ def simprocArrayCore (post : Bool) (ss : SimprocsArray) (e : Expr) : SimpM Step 
   let mut found := false
   let mut e  := e
   let mut proof? : Option Expr := none
+  let mut cache := true
   for s in ss do
     match (← simprocCore (post := post) (if post then s.post else s.pre) s.erased e) with
-    | .visit r => return .visit (← mkEqTransOptProofResult proof? r)
-    | .done r =>  return .done (← mkEqTransOptProofResult proof? r)
+    | .visit r => return .visit (← mkEqTransOptProofResult proof? cache r)
+    | .done r =>  return .done (← mkEqTransOptProofResult proof? cache r)
     | .continue none => pure ()
     | .continue (some r) =>
       e := r.expr
       proof? ← mkEqTrans? proof? r.proof?
+      cache := cache && r.cache
       found := true
   if found then
     return .continue (some { expr := e, proof? })

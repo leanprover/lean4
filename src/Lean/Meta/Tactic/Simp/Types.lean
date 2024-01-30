@@ -17,17 +17,20 @@ structure Result where
   proof?         : Option Expr := none -- If none, proof is assumed to be `refl`
   /-- Save the field `dischargeDepth` at `Simp.Context` because it impacts the simplifier result. -/
   dischargeDepth : UInt32 := 0
+  /-- If `cache := true` the result is cached. -/
+  cache          : Bool := true
   deriving Inhabited
 
-def mkEqTransOptProofResult (h? : Option Expr) (r : Result) : MetaM Result :=
-  match h? with
-  | none => return r
-  | some p₁ => match r.proof? with
-    | none    => return { r with proof? := some p₁ }
-    | some p₂ => return { r with proof? := (← Meta.mkEqTrans p₁ p₂) }
+def mkEqTransOptProofResult (h? : Option Expr) (cache : Bool) (r : Result) : MetaM Result :=
+  match h?, cache with
+  | none, true  => return r
+  | none, false => return { r with cache := false }
+  | some p₁, cache => match r.proof? with
+    | none    => return { r with proof? := some p₁, cache := cache && r.cache }
+    | some p₂ => return { r with proof? := (← Meta.mkEqTrans p₁ p₂), cache := cache && r.cache }
 
 def Result.mkEqTrans (r₁ r₂ : Result) : MetaM Result :=
-  mkEqTransOptProofResult r₁.proof? r₂
+  mkEqTransOptProofResult r₁.proof? r₁.cache r₂
 
 abbrev Cache := ExprMap Result
 
@@ -39,6 +42,37 @@ structure Context where
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
   congrTheorems     : SimpCongrTheorems := {}
+  /--
+  Stores the "parent" term for the term being simplified.
+  If a simplification procedure result depends on this value,
+  then it is its reponsability to set `Result.cache := false`.
+
+  Motivation for this field:
+  Suppose we have a simplication procedure for normalizing arithmetic terms.
+  Then, given a term such as `t_1 + ... + t_n`, we don't want to apply the procedure
+  to every subterm `t_1 + ... + t_i` for `i < n` for performance issues. The procedure
+  can accomplish this by checking whether the parent term is also an arithmetical expression
+  and do nothing if it is. However, it should set `Result.cache := false` to ensure
+  we don't miss simplification opportunities. For example, consider the following:
+  ```
+  example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
+    simp_arith only
+    ...
+  ```
+  If we don't set `Result.cache := false` for the first `x + x`, then we get
+  the resulting state:
+  ```
+  ... |- id (2*x + y) = id (x + x)
+  ```
+  instead of
+  ```
+  ... |- id (2*x + y) = id (2*x)
+  ```
+  as expected.
+
+  Remark: given an application `f a b c` the "parent" term for `f`, `a`, `b`, and `c`
+  is `f a b c`.
+  -/
   parent?           : Option Expr := none
   dischargeDepth    : UInt32 := 0
   deriving Inhabited
@@ -105,11 +139,10 @@ abbrev Simproc := Expr → SimpM Step
 
 def mkEqTransResultStep (r : Result) (s : Step) : MetaM Step :=
   match s with
-  | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r')
-  | .visit r'           => return .visit (← mkEqTransOptProofResult r.proof? r')
+  | .done r'            => return .done (← mkEqTransOptProofResult r.proof? r.cache r')
+  | .visit r'           => return .visit (← mkEqTransOptProofResult r.proof? r.cache r')
   | .continue none      => return .continue r
-  | .continue (some r') => return .continue (some (← mkEqTransOptProofResult r.proof? r'))
-
+  | .continue (some r') => return .continue (some (← mkEqTransOptProofResult r.proof? r.cache r'))
 
 /--
 "Compose" the two given simplification procedures. We use the following semantics.

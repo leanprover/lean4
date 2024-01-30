@@ -8,7 +8,7 @@ import Lean.Meta.Tactic.LinearArith.Nat.Simp
 
 namespace Lean.Meta.Linear
 
-private def parentIsTarget (parent? : Option Expr) : Bool :=
+def parentIsTarget (parent? : Option Expr) : Bool :=
   match parent? with
   | none => false
   | some parent => isLinearTerm parent || isLinearCnstr parent

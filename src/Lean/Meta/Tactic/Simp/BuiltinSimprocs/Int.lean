@@ -73,8 +73,7 @@ builtin_simproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
       return .done { expr := toExpr v }
 
 /-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
--- TODO: remove `simp`
-builtin_simproc [simp, seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
+builtin_simproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }
 

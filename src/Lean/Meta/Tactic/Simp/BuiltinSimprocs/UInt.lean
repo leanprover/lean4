@@ -59,8 +59,7 @@ builtin_simproc [simp, seval] $(mkIdent `reduceGT):ident  (( _ : $typeName) > _)
 builtin_simproc [simp, seval] $(mkIdent `reduceGE):ident  (( _ : $typeName) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
 /-- Return `.done` for UInt values. We don't want to unfold in the symbolic evaluator. -/
--- TODO: remove `simp`
-builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
+builtin_simproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
   unless (← getContext).unfoldGround do return .continue
   unless (e.isAppOfArity ``OfNat.ofNat 3) do return .continue
   return .done { expr := e }

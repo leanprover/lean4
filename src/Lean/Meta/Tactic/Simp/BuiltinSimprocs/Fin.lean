@@ -63,8 +63,7 @@ builtin_simproc [simp, seval] reduceGT  (( _ : Fin _) > _)  := reduceBinPred ``G
 builtin_simproc [simp, seval] reduceGE  (( _ : Fin _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
 /-- Return `.done` for Fin values. We don't want to unfold in the symbolic evaluator. -/
--- TODO: remove `simp`
-builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
+builtin_simproc [seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }
 

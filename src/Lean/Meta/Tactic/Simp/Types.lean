@@ -236,13 +236,16 @@ def getSimpTheorems : SimpM SimpTheoremsArray :=
 def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
   return (← readThe Context).congrTheorems
 
-@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
+@[inline] def savingCache (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
   modify fun s => { s with cache := {} }
-  try
-    withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
-  finally
-    modify fun s => { s with cache := cacheSaved }
+  try x finally modify fun s => { s with cache := cacheSaved }
+
+@[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
+  savingCache <| withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
+
+@[inline] def withDischarger (discharge? : Expr → SimpM (Option Expr)) (x : SimpM α) : SimpM α :=
+  savingCache <| withReader (fun r => { MethodsRef.toMethods r with discharge? }.toMethodsRef) x
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
   modify fun s => if s.usedTheorems.contains thmId then s else

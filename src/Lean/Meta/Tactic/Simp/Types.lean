@@ -44,6 +44,9 @@ structure Context where
   - When `unfoldGround := true` and term is not ground, we set `unfoldGround := false` when visiting instance implicit
     arguments. Reason: We don't want to unfold instance implicit arguments of non-ground applications.
   - When `unfoldGround := true` and term is ground, we try to unfold it during post-visit.
+
+  TODO: try to remove this flag. It would be great if the `simpGround` method did not have to rely
+  on this flag. Possible solution: use `parent?` to decide whether to unfold or not.
   -/
   unfoldGround      : Bool := config.ground
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
@@ -64,7 +67,7 @@ abbrev UsedSimps := HashMap Origin Nat
 
 structure State where
   cache        : Cache := {}
-  /-- Cache for `unfoldGround := true` -/
+  /-- Cache for `unfoldGround := true`. If we manage to remove the `unfoldGround`, then we can also remove this field. -/
   cacheGround  : Cache := {}
   congrCache   : CongrCache := {}
   usedTheorems : UsedSimps := {}
@@ -222,11 +225,12 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 
 @[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
+  let cacheGroundSaved := (← get).cacheGround
   modify fun s => { s with cache := {} }
   try
     withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
   finally
-    modify fun s => { s with cache := cacheSaved }
+    modify fun s => { s with cache := cacheSaved, cacheGround := cacheGroundSaved }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
   modify fun s => if s.usedTheorems.contains thmId then s else

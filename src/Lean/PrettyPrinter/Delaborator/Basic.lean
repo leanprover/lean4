@@ -242,7 +242,7 @@ def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
   act { ctx with depth := ctx.depth + 1 }
 
 def isMaxDepthReached : DelabM Bool := do
-  let maxDepthCheckEnabled := ! (← getPPOption getPPDeepTerms)
+  let maxDepthCheckEnabled ← getPPOption getPPOmitDeepTerms
   let maxDepth ← getPPOption getPPMaxTermDepth
   let depth := (← read).depth
 

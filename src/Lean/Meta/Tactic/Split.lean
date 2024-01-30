@@ -19,7 +19,7 @@ def getSimpMatchContext : MetaM Simp.Context :=
    }
 
 def simpMatch (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     unless (← isMatcherApp e) do
@@ -28,7 +28,7 @@ where
     -- First try to reduce matcher
     match (← reduceRecMatcher? e) with
     | some e' => return Simp.Step.done { expr := e' }
-    | none    => Simp.simpMatchCore matcherDeclName SplitIf.discharge? e
+    | none    => Simp.simpMatchCore matcherDeclName e
 
 def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← instantiateMVars (← mvarId.getType)
@@ -36,7 +36,7 @@ def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   applySimpResultToTarget mvarId target r
 
 private def simpMatchCore (matchDeclName : Name) (matchEqDeclName : Name) (e : Expr) : MetaM Simp.Result := do
-  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre })
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? := SplitIf.discharge? })
 where
   pre (e : Expr) : SimpM Simp.Step := do
     if e.isAppOf matchDeclName then
@@ -50,7 +50,7 @@ where
         proof := mkConst matchEqDeclName
         rfl := (← isRflTheorem matchEqDeclName)
       }
-      match (← withReducible <| Simp.tryTheorem? e simpTheorem SplitIf.discharge?) with
+      match (← withReducible <| Simp.tryTheorem? e simpTheorem) with
       | none => return .continue
       | some r => return .done r
     else

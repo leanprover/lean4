@@ -403,12 +403,12 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   unless cfg.dsimp do
     return e
   let pre (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePre (discharge? := fun _ => pure none) (rflOnly := true) e then
+    if let Step.visit r ← rewritePre (rflOnly := true) e then
       if r.expr != e then
         return .visit r.expr
     return .continue
   let post (e : Expr) : SimpM TransformStep := do
-    if let Step.visit r ← rewritePost (discharge? := fun _ => pure none) (rflOnly := true) e then
+    if let Step.visit r ← rewritePost (rflOnly := true) e then
       if r.expr != e then
         return .visit r.expr
     let mut eNew ← reduce e
@@ -504,7 +504,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     unless modified do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} not modified"
       return none
-    unless (← synthesizeArgs (.decl c.theoremName) xs bis discharge?) do
+    unless (← synthesizeArgs (.decl c.theoremName) xs bis) do
       trace[Meta.Tactic.simp.congr] "{c.theoremName} synthesizeArgs failed"
       return none
     let eNew ← instantiateMVars rhs

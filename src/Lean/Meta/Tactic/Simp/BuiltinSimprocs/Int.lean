@@ -58,7 +58,7 @@ The following code assumes users did not override the `Int` instances for the ar
 If they do, they must disable the following `simprocs`.
 -/
 
-builtin_simproc reduceNeg ((- _ : Int)) := fun e => do
+builtin_simproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
   unless e.isAppOfArity ``Neg.neg 3 do return .continue
   let arg := e.appArg!
   if arg.isAppOfArity ``OfNat.ofNat 3 then
@@ -72,31 +72,32 @@ builtin_simproc reduceNeg ((- _ : Int)) := fun e => do
     else
       return .done { expr := toExpr v }
 
-/-- Return `.done` for positive Int values. We don't want to unfold them when `ground := true`. -/
-builtin_simproc isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
+/-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
+-- TODO: remove `simp`
+builtin_simproc [simp, seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }
 
-builtin_simproc reduceAdd ((_ + _ : Int)) := reduceBin ``HAdd.hAdd 6 (· + ·)
-builtin_simproc reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMul 6 (· * ·)
-builtin_simproc reduceSub ((_ - _ : Int)) := reduceBin ``HSub.hSub 6 (· - ·)
-builtin_simproc reduceDiv ((_ / _ : Int)) := reduceBin ``HDiv.hDiv 6 (· / ·)
-builtin_simproc reduceMod ((_ % _ : Int)) := reduceBin ``HMod.hMod 6 (· % ·)
+builtin_simproc [simp, seval] reduceAdd ((_ + _ : Int)) := reduceBin ``HAdd.hAdd 6 (· + ·)
+builtin_simproc [simp, seval] reduceMul ((_ * _ : Int)) := reduceBin ``HMul.hMul 6 (· * ·)
+builtin_simproc [simp, seval] reduceSub ((_ - _ : Int)) := reduceBin ``HSub.hSub 6 (· - ·)
+builtin_simproc [simp, seval] reduceDiv ((_ / _ : Int)) := reduceBin ``HDiv.hDiv 6 (· / ·)
+builtin_simproc [simp, seval] reduceMod ((_ % _ : Int)) := reduceBin ``HMod.hMod 6 (· % ·)
 
-builtin_simproc reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
+builtin_simproc [simp, seval] reducePow ((_ : Int) ^ (_ : Nat)) := fun e => do
   unless e.isAppOfArity ``HPow.hPow 6 do return .continue
   let some v₁ ← fromExpr? e.appFn!.appArg! | return .continue
   let some v₂ ← Nat.fromExpr? e.appArg! | return .continue
   return .done { expr := toExpr (v₁ ^ v₂) }
 
-builtin_simproc reduceAbs (natAbs _) := fun e => do
+builtin_simproc [simp, seval] reduceAbs (natAbs _) := fun e => do
   unless e.isAppOfArity ``natAbs 1 do return .continue
   let some v ← fromExpr? e.appArg! | return .continue
   return .done { expr := mkNatLit (natAbs v) }
 
-builtin_simproc reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)
-builtin_simproc reduceLE  (( _ : Int) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
-builtin_simproc reduceGT  (( _ : Int) > _)  := reduceBinPred ``GT.gt 4 (. > .)
-builtin_simproc reduceGE  (( _ : Int) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+builtin_simproc [simp, seval] reduceLT  (( _ : Int) < _)  := reduceBinPred ``LT.lt 4 (. < .)
+builtin_simproc [simp, seval] reduceLE  (( _ : Int) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+builtin_simproc [simp, seval] reduceGT  (( _ : Int) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+builtin_simproc [simp, seval] reduceGE  (( _ : Int) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
 end Int

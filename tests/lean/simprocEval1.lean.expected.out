@@ -22,3 +22,5 @@ x : Nat
 ⊢ boo x
 x : Nat
 ⊢ boo x
+x : Nat
+⊢ foo x = 10

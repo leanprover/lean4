@@ -34,28 +34,29 @@ def fromExpr? (e : Expr) : SimpM (Option Nat) := do
   else
     return .done { expr := mkConst ``False, proof? := mkAppN (mkConst ``eq_false_of_decide) #[e, d.appArg!, (← mkEqRefl (mkConst ``false))] }
 
-builtin_simproc reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
+builtin_simproc [simp, seval] reduceSucc (Nat.succ _) := reduceUnary ``Nat.succ 1 (· + 1)
 
 /-
 The following code assumes users did not override the `Nat` instances for the arithmetic operators.
 If they do, they must disable the following `simprocs`.
 -/
 
-builtin_simproc reduceAdd ((_ + _ : Nat)) := reduceBin ``HAdd.hAdd 6 (· + ·)
-builtin_simproc reduceMul ((_ * _ : Nat)) := reduceBin ``HMul.hMul 6 (· * ·)
-builtin_simproc reduceSub ((_ - _ : Nat)) := reduceBin ``HSub.hSub 6 (· - ·)
-builtin_simproc reduceDiv ((_ / _ : Nat)) := reduceBin ``HDiv.hDiv 6 (· / ·)
-builtin_simproc reduceMod ((_ % _ : Nat)) := reduceBin ``HMod.hMod 6 (· % ·)
-builtin_simproc reducePow ((_ ^ _ : Nat)) := reduceBin ``HPow.hPow 6 (· ^ ·)
-builtin_simproc reduceGcd (gcd _ _)       := reduceBin ``gcd 2 gcd
+builtin_simproc [simp, seval] reduceAdd ((_ + _ : Nat)) := reduceBin ``HAdd.hAdd 6 (· + ·)
+builtin_simproc [simp, seval] reduceMul ((_ * _ : Nat)) := reduceBin ``HMul.hMul 6 (· * ·)
+builtin_simproc [simp, seval] reduceSub ((_ - _ : Nat)) := reduceBin ``HSub.hSub 6 (· - ·)
+builtin_simproc [simp, seval] reduceDiv ((_ / _ : Nat)) := reduceBin ``HDiv.hDiv 6 (· / ·)
+builtin_simproc [simp, seval] reduceMod ((_ % _ : Nat)) := reduceBin ``HMod.hMod 6 (· % ·)
+builtin_simproc [simp, seval] reducePow ((_ ^ _ : Nat)) := reduceBin ``HPow.hPow 6 (· ^ ·)
+builtin_simproc [simp, seval] reduceGcd (gcd _ _)       := reduceBin ``gcd 2 gcd
 
-builtin_simproc reduceLT  (( _ : Nat) < _)  := reduceBinPred ``LT.lt 4 (. < .)
-builtin_simproc reduceLE  (( _ : Nat) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
-builtin_simproc reduceGT  (( _ : Nat) > _)  := reduceBinPred ``GT.gt 4 (. > .)
-builtin_simproc reduceGE  (( _ : Nat) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+builtin_simproc [simp, seval] reduceLT  (( _ : Nat) < _)  := reduceBinPred ``LT.lt 4 (. < .)
+builtin_simproc [simp, seval] reduceLE  (( _ : Nat) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+builtin_simproc [simp, seval] reduceGT  (( _ : Nat) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+builtin_simproc [simp, seval] reduceGE  (( _ : Nat) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
-/-- Return `.done` for Nat values. We don't want to unfold them when `ground := true`. -/
-builtin_simproc isValue ((OfNat.ofNat _ : Nat)) := fun e => do
+/-- Return `.done` for Nat values. We don't want to unfold in the symbolic evaluator. -/
+-- TODO: remove `simp`
+builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
   unless (← getContext).unfoldGround do return .continue
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }

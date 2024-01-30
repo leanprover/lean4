@@ -7,7 +7,7 @@ import Lean.Meta.Tactic.Simp.Simproc
 
 open Lean Meta Simp
 
-builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => do
+builtin_simproc ↓ [simp, seval] reduceIte (ite _ _ _) := fun e => do
   unless e.isAppOfArity ``ite 5 do return .continue
   let c := e.getArg! 1
   let r ← simp c
@@ -21,7 +21,7 @@ builtin_simproc ↓ reduceIte (ite _ _ _) := fun e => do
     return .visit { expr := eNew, proof? := pr }
   return .continue
 
-builtin_simproc ↓ reduceDite (dite _ _ _) := fun e => do
+builtin_simproc ↓ [simp, seval] reduceDite (dite _ _ _) := fun e => do
   unless e.isAppOfArity ``dite 5 do return .continue
   let c := e.getArg! 1
   let r ← simp c

@@ -88,17 +88,18 @@ where
   go (ys : Array Expr) (eqs : Array Expr) (args : Array Expr) (mask : Array Bool) (i : Nat) (type : Expr) : MetaM α := do
     let type ← whnfForall type
     if i < altNumParams then
-      let Expr.forallE n d b .. := type | throwError "alt type has insufficient number of arguments{indentExpr altType}"
+      let Expr.forallE n d b .. := type
+        | throwError "expecting {altNumParams} parameters, including {numDiscrEqs} equalities, but found type{indentExpr altType}"
       if i < altNumParams - numDiscrEqs then
         let d ← unfoldNamedPattern d
         withLocalDeclD n d fun y => do
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some i  := ys.getIdx? lhs | unreachable!
-               let ys      := ys.eraseIdx i
-               let some j  := args.getIdx? lhs | unreachable!
-               let mask    := mask.set! j false
+               let some j  := ys.getIdx? lhs | unreachable!
+               let ys      := ys.eraseIdx j
+               let some k  := args.getIdx? lhs | unreachable!
+               let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let args    := args.push (← mkEqRefl rhs)
                let typeNew := typeNew.replaceFVar lhs rhs

@@ -273,9 +273,23 @@ def rewritePost (rflOnly := false) : Simproc := fun e => do
   return .continue
 
 /--
-Try to unfold ground term when `Context.unfoldGround := true`.
+Discharge procedure for the ground/symbolic evaluator.
 -/
-def simpGround : Simproc := fun e => do
+def dischargeGround (e : Expr) : SimpM (Option Expr) := do
+  trace[Meta.Tactic.simp.discharge] ">> discharge?: {e}"
+  let r ← simp e
+  if r.expr.consumeMData.isConstOf ``True then
+    try
+      return some (← mkOfEqTrue (← r.getProof))
+    catch _ =>
+      return none
+  else
+    return none
+
+/--
+Try to unfold ground term in the ground/symbolic evaluator.
+-/
+def sevalGround : Simproc := fun e => do
   -- Ground term unfolding is disabled.
   unless (← getContext).unfoldGround do return .continue
   -- `e` is not a ground term.
@@ -308,7 +322,70 @@ def simpGround : Simproc := fun e => do
   trace[Meta.Tactic.simp.ground] "delta, {e} => {eNew}"
   return .visit { expr := eNew }
 
-partial def preDefault (s : SimprocsArray) : Simproc :=
+partial def preSEval (s : SimprocsArray) : Simproc :=
+  rewritePre >>
+  simpMatch >>
+  userPreSimprocs s
+
+def postSEval (s : SimprocsArray) : Simproc :=
+  rewritePost >>
+  userPostSimprocs s >>
+  sevalGround >>
+  simpCtorEq
+
+def mkSEvalMethods : CoreM Methods := do
+  let s ← getSEvalSimprocs
+  return {
+    pre        := preSEval #[s]
+    post       := postSEval #[s]
+    discharge? := dischargeGround
+  }
+
+def mkSEvalContext : CoreM Context := do
+  let s ← getSEvalTheorems
+  let c ← Meta.getSimpCongrTheorems
+  return { simpTheorems := #[s], congrTheorems := c, unfoldGround := true }
+
+/--
+Invoke ground/symbolic evaluator from `simp`.
+It uses the `seval` theorems and simprocs.
+-/
+def seval (e : Expr) : SimpM Result := do
+  let m ← mkSEvalMethods
+  let ctx ← mkSEvalContext
+  let cacheSaved := (← get).cache
+  let cacheGroundSaved := (← get).cacheGround
+  let usedTheoremsSaved := (← get).usedTheorems
+  try
+    withReader (fun _ => m.toMethodsRef) do
+    withTheReader Simp.Context (fun _ => ctx) do
+    modify fun s => { s with cache := {}, usedTheorems := {} }
+    simp e
+  finally
+    modify fun s => { s with cache := cacheSaved, cacheGround := cacheGroundSaved, usedTheorems := usedTheoremsSaved }
+
+/--
+Try to unfold ground term in the ground/symbolic evaluator.
+-/
+def simpGround : Simproc := fun e => do
+  -- Ground term unfolding is disabled.
+  unless (← getContext).unfoldGround do return .continue
+  -- `e` is not a ground term.
+  unless !e.hasExprMVar && !e.hasFVar do return .continue
+  -- Check whether `e` is a constant application
+  let f := e.getAppFn
+  let .const declName _ := f | return .continue
+  -- If declaration has been marked to not be unfolded, return none.
+  let ctx ← getContext
+  if ctx.simpTheorems.isErased (.decl declName) then return .continue
+  -- Matcher applications should have been reduced before we get here.
+  if (← isMatcher declName) then return .continue
+  trace[Meta.Tactic.Simp.ground] "seval: {e}"
+  let r ← seval e
+  trace[Meta.Tactic.Simp.ground] "seval result: {e} => {r.expr}"
+  return .done r
+
+def preDefault (s : SimprocsArray) : Simproc :=
   rewritePre >>
   simpMatch >>
   userPreSimprocs s >>

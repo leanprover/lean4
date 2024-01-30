@@ -269,11 +269,11 @@ partial def delabFor : Name → Delab
     <|> if k.isAtomic then failure else delabFor k.getRoot
 
 partial def delab : Delab := do
-  if ← isMaxDepthReached then
-    return ← omission
-
   checkSystem "delab"
   let e ← getExpr
+
+  if ← pure !e.isAtomic <&&> isMaxDepthReached then
+    return ← omission
 
   -- no need to hide atomic proofs
   if ← pure !e.isAtomic <&&> pure !(← getPPOption getPPProofs) <&&> (try Meta.isProof e catch _ => pure false) then

@@ -164,9 +164,8 @@ structure LeanConfig where
   backend : Backend := .default
   /--
   Asserts Lake should assume the Lean code is platform-independent.
-  This means Lake will not include platform-dependent elements (such as
-  shared libraries) in a module's trace and will not re-elaborate Lean code
-  for different platforms.
+  This means Lake will exclude platform-dependent elements (such as shared libraries)
+  from a module's trace and will not re-elaborate Lean code for different platforms.
   Defaults to `false`.
   -/
   platformIndependent : Bool := false

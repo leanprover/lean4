@@ -51,19 +51,20 @@ The following code assumes users did not override the `Fin n` instances for the 
 If they do, they must disable the following `simprocs`.
 -/
 
-builtin_simproc reduceAdd ((_ + _ : Fin _)) := reduceBin ``HAdd.hAdd 6 (· + ·)
-builtin_simproc reduceMul ((_ * _ : Fin _)) := reduceBin ``HMul.hMul 6 (· * ·)
-builtin_simproc reduceSub ((_ - _ : Fin _)) := reduceBin ``HSub.hSub 6 (· - ·)
-builtin_simproc reduceDiv ((_ / _ : Fin _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
-builtin_simproc reduceMod ((_ % _ : Fin _)) := reduceBin ``HMod.hMod 6 (· % ·)
+builtin_simproc [simp, seval] reduceAdd ((_ + _ : Fin _)) := reduceBin ``HAdd.hAdd 6 (· + ·)
+builtin_simproc [simp, seval] reduceMul ((_ * _ : Fin _)) := reduceBin ``HMul.hMul 6 (· * ·)
+builtin_simproc [simp, seval] reduceSub ((_ - _ : Fin _)) := reduceBin ``HSub.hSub 6 (· - ·)
+builtin_simproc [simp, seval] reduceDiv ((_ / _ : Fin _)) := reduceBin ``HDiv.hDiv 6 (· / ·)
+builtin_simproc [simp, seval] reduceMod ((_ % _ : Fin _)) := reduceBin ``HMod.hMod 6 (· % ·)
 
-builtin_simproc reduceLT  (( _ : Fin _) < _)  := reduceBinPred ``LT.lt 4 (. < .)
-builtin_simproc reduceLE  (( _ : Fin _) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
-builtin_simproc reduceGT  (( _ : Fin _) > _)  := reduceBinPred ``GT.gt 4 (. > .)
-builtin_simproc reduceGE  (( _ : Fin _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
+builtin_simproc [simp, seval] reduceLT  (( _ : Fin _) < _)  := reduceBinPred ``LT.lt 4 (. < .)
+builtin_simproc [simp, seval] reduceLE  (( _ : Fin _) ≤ _)  := reduceBinPred ``LE.le 4 (. ≤ .)
+builtin_simproc [simp, seval] reduceGT  (( _ : Fin _) > _)  := reduceBinPred ``GT.gt 4 (. > .)
+builtin_simproc [simp, seval] reduceGE  (( _ : Fin _) ≥ _)  := reduceBinPred ``GE.ge 4 (. ≥ .)
 
-/-- Return `.done` for Fin values. We don't want to unfold them when `ground := true`. -/
-builtin_simproc isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
+/-- Return `.done` for Fin values. We don't want to unfold in the symbolic evaluator. -/
+-- TODO: remove `simp`
+builtin_simproc [simp, seval] isValue ((OfNat.ofNat _ : Fin _)) := fun e => do
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }
 

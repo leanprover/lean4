@@ -69,11 +69,9 @@ def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
 where
   ppExprTaggedWithoutTopLevelHighlight (e : Expr) (explicit : Bool) : MetaM CodeWithInfos := do
     let pp ← ppExprTagged e (explicit := explicit)
-    let ppWithoutTopLevelHighlight :=
-      match pp with
+    return match pp with
       | .tag _ tt => tt
       | tt => tt
-    return ppWithoutTopLevelHighlight
 
 builtin_initialize
   registerBuiltinRpcProcedure

@@ -40,6 +40,7 @@ structure Context where
   openDecls      : List OpenDecl
   inPattern      : Bool := false -- true when delaborating `match` patterns
   subExpr        : SubExpr
+  /-- Current recursion depth during delaboration. Used by the `pp.omitDeepTerms` option. -/
   depth          : Nat := 0
 
 structure State where
@@ -242,11 +243,12 @@ def withIncDepth (act : DelabM α) : DelabM α := fun ctx =>
   act { ctx with depth := ctx.depth + 1 }
 
 def isMaxDepthReached : DelabM Bool := do
-  let maxDepthCheckEnabled ← getPPOption getPPOmitDeepTerms
-  let maxDepth ← getPPOption getPPMaxTermDepth
-  let depth := (← read).depth
+  if ! (← getPPOption getPPOmitDeepTerms) then
+    return false
 
-  return maxDepthCheckEnabled && depth > maxDepth
+  let depth := (← read).depth
+  let maxDepth ← getPPOption getPPMaxTermDepth
+  return depth > maxDepth
 
 def annotateTermInfo (stx : Term) : Delab := do
   let stx ← annotateCurPos stx

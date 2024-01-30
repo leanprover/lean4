@@ -581,7 +581,7 @@ where
       visitPost cfg r
   visitPost (cfg : Config) (r : Result) : SimpM Result := do
     match (← post r.expr) with
-    | .done r' =>  cacheResult e cfg (← r.mkEqTrans r')
+    | .done r' => cacheResult e cfg (← r.mkEqTrans r')
     | .continue none => visitPostContinue cfg r
     | .visit r' | .continue (some r') => visitPostContinue cfg (← r.mkEqTrans r')
   visitPostContinue (cfg : Config) (r : Result) : SimpM Result := do

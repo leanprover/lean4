@@ -34,11 +34,6 @@ def Config.updateArith (c : Config) : CoreM Config := do
 def isOfNatNatLit (e : Expr) : Bool :=
   e.isAppOfArity ``OfNat.ofNat 3 && e.appFn!.appArg!.isNatLit
 
-private def reduceProj (e : Expr) : MetaM Expr := do
-  match (← reduceProj? e) with
-  | some e => return e
-  | _      => return e
-
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with

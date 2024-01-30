@@ -290,8 +290,6 @@ def dischargeGround (e : Expr) : SimpM (Option Expr) := do
 Try to unfold ground term in the ground/symbolic evaluator.
 -/
 def sevalGround : Simproc := fun e => do
-  -- Ground term unfolding is disabled.
-  unless (← getContext).unfoldGround do return .continue
   -- `e` is not a ground term.
   unless !e.hasExprMVar && !e.hasFVar do return .continue
   -- Check whether `e` is a constant application
@@ -344,7 +342,7 @@ def mkSEvalMethods : CoreM Methods := do
 def mkSEvalContext : CoreM Context := do
   let s ← getSEvalTheorems
   let c ← Meta.getSimpCongrTheorems
-  return { simpTheorems := #[s], congrTheorems := c, unfoldGround := true }
+  return { simpTheorems := #[s], congrTheorems := c, config := { ground := true } }
 
 /--
 Invoke ground/symbolic evaluator from `simp`.
@@ -354,7 +352,6 @@ def seval (e : Expr) : SimpM Result := do
   let m ← mkSEvalMethods
   let ctx ← mkSEvalContext
   let cacheSaved := (← get).cache
-  let cacheGroundSaved := (← get).cacheGround
   let usedTheoremsSaved := (← get).usedTheorems
   try
     withReader (fun _ => m.toMethodsRef) do
@@ -362,14 +359,14 @@ def seval (e : Expr) : SimpM Result := do
     modify fun s => { s with cache := {}, usedTheorems := {} }
     simp e
   finally
-    modify fun s => { s with cache := cacheSaved, cacheGround := cacheGroundSaved, usedTheorems := usedTheoremsSaved }
+    modify fun s => { s with cache := cacheSaved, usedTheorems := usedTheoremsSaved }
 
 /--
 Try to unfold ground term in the ground/symbolic evaluator.
 -/
 def simpGround : Simproc := fun e => do
   -- Ground term unfolding is disabled.
-  unless (← getContext).unfoldGround do return .continue
+  unless (← getConfig).ground do return .continue
   -- `e` is not a ground term.
   unless !e.hasExprMVar && !e.hasFVar do return .continue
   -- Check whether `e` is a constant application

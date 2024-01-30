@@ -56,7 +56,6 @@ builtin_simproc [simp, seval] reduceGE  (( _ : Nat) ≥ _)  := reduceBinPred ``G
 
 /-- Return `.done` for Nat values. We don't want to unfold in the symbolic evaluator. -/
 builtin_simproc [seval] isValue ((OfNat.ofNat _ : Nat)) := fun e => do
-  unless (← getContext).unfoldGround do return .continue
   unless e.isAppOfArity ``OfNat.ofNat 3 do return .continue
   return .done { expr := e }
 

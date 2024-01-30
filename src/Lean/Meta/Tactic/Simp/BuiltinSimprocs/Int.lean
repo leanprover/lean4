@@ -63,7 +63,6 @@ builtin_simproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
   let arg := e.appArg!
   if arg.isAppOfArity ``OfNat.ofNat 3 then
     -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
-    unless (← getContext).unfoldGround do return .continue
     return .done { expr := e }
   else
     let some v ← fromExpr? arg | return .continue

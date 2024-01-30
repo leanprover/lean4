@@ -553,10 +553,7 @@ def cacheResult (e : Expr) (cfg : Config) (r : Result) : SimpM Result := do
   if cfg.memoize then
     let ctx ← readThe Simp.Context
     let dischargeDepth := ctx.dischargeDepth
-    if ctx.unfoldGround then
-      modify fun s => { s with cacheGround := s.cacheGround.insert e { r with dischargeDepth } }
-    else
-      modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
+    modify fun s => { s with cache := s.cache.insert e { r with dischargeDepth } }
   return r
 
 partial def simpLoop (e : Expr) : SimpM Result := do
@@ -595,18 +592,12 @@ def simpImpl (e : Expr) : SimpM Result := withIncRecDepth do
   checkSystem "simp"
   if (← isProof e) then
     return { expr := e }
-  let ctx ← getContext
-  if ctx.unfoldGround then
-    if (← isType e) then
-    unless (← isProp e) do
-      -- Recall that we set `unfoldGround := false` if `e` is a type that is not a proposition.
-      return (← withTheReader Context (fun ctx => { ctx with unfoldGround := false }) go)
   go
 where
   go : SimpM Result := do
     let cfg ← getConfig
     if cfg.memoize then
-      let cache ← if (← getContext).unfoldGround then pure ((← get).cacheGround) else pure ((← get).cache)
+      let cache := (← get).cache
       if let some result := cache.find? e then
         /-
           If the result was cached at a dischargeDepth > the current one, it may not be valid.

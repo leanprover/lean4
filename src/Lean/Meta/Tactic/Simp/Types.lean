@@ -35,20 +35,6 @@ abbrev CongrCache := ExprMap (Option CongrTheorem)
 
 structure Context where
   config           : Config := {}
-  /--
-  We initialize this field using `config.ground`.
-  Here is how we use this flag.
-  - When `unfoldGround := false` for a term `t`, it will remain false for every `t`-subterm.
-  - When term is a proof, this flag has no effect since `simp` does not try to simplify proofs.
-  - When `unfoldGround := true` and visited term is type but not a proposition, we set `unfoldGround := false`.
-  - When `unfoldGround := true` and term is not ground, we set `unfoldGround := false` when visiting instance implicit
-    arguments. Reason: We don't want to unfold instance implicit arguments of non-ground applications.
-  - When `unfoldGround := true` and term is ground, we try to unfold it during post-visit.
-
-  TODO: try to remove this flag. It would be great if the `simpGround` method did not have to rely
-  on this flag. Possible solution: use `parent?` to decide whether to unfold or not.
-  -/
-  unfoldGround      : Bool := config.ground
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
   maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
@@ -67,8 +53,6 @@ abbrev UsedSimps := HashMap Origin Nat
 
 structure State where
   cache        : Cache := {}
-  /-- Cache for `unfoldGround := true`. If we manage to remove the `unfoldGround`, then we can also remove this field. -/
-  cacheGround  : Cache := {}
   congrCache   : CongrCache := {}
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
@@ -86,10 +70,6 @@ opaque simp (e : Expr) : SimpM Result
 
 @[extern "lean_dsimp"]
 opaque dsimp (e : Expr) : SimpM Expr
-
-@[always_inline]
-def withoutUnfoldGround (x : SimpM α) : SimpM α :=
-  withTheReader Context (fun ctx => { ctx with unfoldGround := false }) x
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplication procedures.
@@ -225,12 +205,11 @@ def getSimpCongrTheorems : SimpM SimpCongrTheorems :=
 
 @[inline] def withSimpTheorems (s : SimpTheoremsArray) (x : SimpM α) : SimpM α := do
   let cacheSaved := (← get).cache
-  let cacheGroundSaved := (← get).cacheGround
   modify fun s => { s with cache := {} }
   try
     withTheReader Context (fun ctx => { ctx with simpTheorems := s }) x
   finally
-    modify fun s => { s with cache := cacheSaved, cacheGround := cacheGroundSaved }
+    modify fun s => { s with cache := cacheSaved }
 
 def recordSimpTheorem (thmId : Origin) : SimpM Unit :=
   modify fun s => if s.usedTheorems.contains thmId then s else
@@ -302,15 +281,12 @@ where
 /--
 Given a simplified function result `r` and arguments `args`, simplify arguments using `simp` and `dsimp`.
 The resulting proof is built using `congr` and `congrFun` theorems.
-
-Recall that, if the term is not ground and `Context.unfoldGround := true`, then we set `Context.unfoldGround := false`
-for instance implicit arguments.
 -/
 def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   if args.isEmpty then
     return r
   else
-    let ctx ← getContext
+    let cfg ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
     let mut r := r
     let mut i := 0
@@ -318,17 +294,19 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
       if h : i < infos.size then
         trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
-        let go : SimpM Result := do
-          if !info.hasFwdDeps then
-            mkCongr r (← simp arg)
-          else if (← whnfD (← inferType r.expr)).isArrow then
-            mkCongr r (← simp arg)
-          else
-            mkCongrFun r (← dsimp arg)
-        if ctx.unfoldGround && info.isInstImplicit then
-          r ← withoutUnfoldGround go
+        if cfg.ground && info.isInstImplicit then
+          -- We don't visit instance implicit arguments when we are reducing ground terms.
+          -- Motivation: many instance implicit arguments are ground, and it does not make sense
+          -- to reduce them if the parent term is not ground.
+          -- TODO: consider using it as the default behavior.
+          -- We have considered it at https://github.com/leanprover/lean4/pull/3151
+          r ← mkCongrFun r arg
+        else if !info.hasFwdDeps then
+          r ← mkCongr r (← simp arg)
+        else if (← whnfD (← inferType r.expr)).isArrow then
+          r ← mkCongr r (← simp arg)
         else
-          r ← go
+          r ← mkCongrFun r (← dsimp arg)
       else if (← whnfD (← inferType r.expr)).isArrow then
         r ← mkCongr r (← simp arg)
       else
@@ -359,17 +337,6 @@ def mkCongrSimp? (f : Expr) : SimpM (Option CongrTheorem) := do
     return thm?
 
 /--
-Set `unfoldGround := false` when executing `x` IF `infos[i].isInstImplicit`.
--/
-@[always_inline]
-def withoutUnfoldGroundIfInstImplicit (infos : Array ParamInfo) (i : Nat) (x : SimpM α) : SimpM α := do
-  if (← getContext).unfoldGround then
-    if h : i < infos.size then
-      if infos[i].isInstImplicit then
-        return (← withoutUnfoldGround x)
-  x
-
-/--
 Try to use automatically generated congruence theorems. See `mkCongrSimp?`.
 -/
 def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
@@ -379,6 +346,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   if cgrThm.argKinds.size != e.getAppNumArgs then return none
   let args := e.getAppArgs
   let infos := (← getFunInfoNArgs f args.size).paramInfo
+  let config ← getConfig
   let mut simplified := false
   let mut hasProof   := false
   let mut hasCast    := false
@@ -386,12 +354,19 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let mut argResults := #[]
   let mut i          := 0 -- index at args
   for arg in args, kind in cgrThm.argKinds do
+    if h : config.ground ∧ i < infos.size then
+      if (infos[i]'h.2).isInstImplicit then
+        -- Do not visit instance implict arguments when `ground := true`
+        -- See comment at `congrArgs`
+        argsNew := argsNew.push arg
+        i := i + 1
+        continue
     match kind with
-    | CongrArgKind.fixed => argsNew := argsNew.push (← withoutUnfoldGroundIfInstImplicit infos i (dsimp arg))
+    | CongrArgKind.fixed => argsNew := argsNew.push (← dsimp arg)
     | CongrArgKind.cast  => hasCast := true; argsNew := argsNew.push arg
     | CongrArgKind.subsingletonInst => argsNew := argsNew.push arg
     | CongrArgKind.eq =>
-      let argResult ← withoutUnfoldGroundIfInstImplicit infos i (simp arg)
+      let argResult ← simp arg
       argResults := argResults.push argResult
       argsNew    := argsNew.push argResult.expr
       if argResult.proof?.isSome then hasProof := true

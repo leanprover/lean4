@@ -1,0 +1,6 @@
+issue3232.lean:5:2-5:9: error: tactic 'apply' failed, failed to unify
+  @foo 42
+with
+  @foo 23
+h : foo
+⊢ foo

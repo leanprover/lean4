@@ -39,8 +39,75 @@ be a `let` or function type.
 syntax (name := intro) "intro" notFollowedBy("|") (ppSpace colGt term:max)* : tactic
 
 /--
-`intros x...` behaves like `intro x...`, but then keeps introducing (anonymous)
-hypotheses until goal is not of a function type.
+Introduces zero or more hypotheses, optionally naming them.
+
+- `intros` is equivalent to repeatedly applying `intro`
+  until the goal is not an obvious candidate for `intro`, which is to say
+  that so long as the goal is a `let` or a pi type (e.g. an implication, function, or universal quantifier),
+  the `intros` tactic will introduce an anonymous hypothesis.
+  This tactic does not unfold definitions.
+
+- `intros x y ...` is equivalent to `intro x y ...`,
+  introducing hypotheses for each supplied argument and unfolding definitions as necessary.
+  Each argument can be either an identifier or a `_`.
+  An identifier indicates a name to use for the corresponding introduced hypothesis,
+  and a `_` indicates that the hypotheses should be introduced anonymously.
+
+## Examples
+
+Basic properties:
+```lean
+def AllEven (f : Nat → Nat) := ∀ n, f n % 2 = 0
+
+-- Introduces the two obvious hypotheses automatically
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros
+  /- Tactic state
+     f✝ : Nat → Nat
+     a✝ : AllEven f✝
+     ⊢ AllEven fun k => f✝ (k + 1) -/
+  sorry
+
+-- Introduces exactly two hypotheses, naming only the first
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros g _
+  /- Tactic state
+     g : Nat → Nat
+     a✝ : AllEven g
+     ⊢ AllEven fun k => g (k + 1) -/
+  sorry
+
+-- Introduces exactly three hypotheses, which requires unfolding `AllEven`
+example : ∀ (f : Nat → Nat), AllEven f → AllEven (fun k => f (k + 1)) := by
+  intros f h n
+  /- Tactic state
+     f : Nat → Nat
+     h : AllEven f
+     n : Nat
+     ⊢ (fun k => f (k + 1)) n % 2 = 0 -/
+  apply h
+```
+
+Implications:
+```lean
+example (p q : Prop) : p → q → p := by
+  intros
+  /- Tactic state
+     a✝¹ : p
+     a✝ : q
+     ⊢ p      -/
+  assumption
+```
+
+Let bindings:
+```lean
+example : let n := 1; let k := 2; n + k = 3 := by
+  intros
+  /- n✝ : Nat := 1
+     k✝ : Nat := 2
+     ⊢ n✝ + k✝ = 3 -/
+  rfl
+```
 -/
 syntax (name := intros) "intros" (ppSpace colGt (ident <|> hole))* : tactic
 

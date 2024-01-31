@@ -25,15 +25,59 @@ def getLinterUnusedVariablesPatternVars (o : Options) : Bool := o.get linter.unu
 
 abbrev IgnoreFunction := Syntax → Syntax.Stack → Options → Bool
 
+unsafe def mkIgnoreFnImpl (constName : Name) : ImportM IgnoreFunction := do
+  let { env, opts, .. } ← read
+  match env.find? constName with
+  | none      => throw ↑s!"unknown constant '{constName}'"
+  | some info =>
+    unless info.type.isConstOf ``IgnoreFunction do
+      throw ↑s!"unexpected unused_variables_ignore_fn at '{constName}', must be of type `Lean.Linter.IgnoreFunction`"
+    IO.ofExcept <| env.evalConst IgnoreFunction opts constName
+
+@[implemented_by mkIgnoreFnImpl]
+opaque mkIgnoreFn (constName : Name) : ImportM IgnoreFunction
+
 builtin_initialize builtinUnusedVariablesIgnoreFnsRef : IO.Ref <| Array IgnoreFunction ← IO.mkRef #[]
 
-def addBuiltinUnusedVariablesIgnoreFn (ignoreFn : IgnoreFunction) : IO Unit := do
-  (← builtinUnusedVariablesIgnoreFnsRef.get) |> (·.push ignoreFn) |> builtinUnusedVariablesIgnoreFnsRef.set
+def addBuiltinUnusedVariablesIgnoreFn (h : IgnoreFunction) : IO Unit :=
+  builtinUnusedVariablesIgnoreFnsRef.modify (·.push h)
 
+builtin_initialize unusedVariablesIgnoreFnsExt :
+  PersistentEnvExtension Name (Name × IgnoreFunction) (List Name × Array IgnoreFunction) ←
+  registerPersistentEnvExtension {
+    mkInitial       := return ([], ← builtinUnusedVariablesIgnoreFnsRef.get)
+    addImportedFn   := fun as => do
+      ([], ·) <$> as.foldlM (init := ← builtinUnusedVariablesIgnoreFnsRef.get) fun s as =>
+        as.foldlM (init := s) fun s n => s.push <$> mkIgnoreFn n
+    addEntryFn      := fun (entries, s) (n, h) => (n::entries, s.push h)
+    exportEntriesFn := fun s => s.1.reverse.toArray
+    statsFn := fun s => format "number of local entries: " ++ format s.1.length
+  }
+
+builtin_initialize
+  let mkAttr (builtin : Bool) (name : Name) := registerBuiltinAttribute {
+    name
+    descr           := (if builtin then "(builtin) " else "") ++
+      "Marks a function of type `Lean.Linter.IgnoreFunction` for suppressing unused variable warnings"
+    applicationTime := .afterCompilation
+    add             := fun decl stx kind => do
+      Attribute.Builtin.ensureNoArgs stx
+      unless kind == AttributeKind.global do throwError "invalid attribute '{name}', must be global"
+      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
+        throwError "invalid attribute '{name}', must be of type `Lean.Linter.IgnoreFunction`"
+      let env ← getEnv
+      if builtin then
+        let h := mkConst decl
+        declareBuiltin decl <| mkApp (mkConst ``addBuiltinUnusedVariablesIgnoreFn) h
+      else
+        setEnv <| unusedVariablesIgnoreFnsExt.addEntry env (decl, ← mkIgnoreFn decl)
+  }
+  mkAttr true `builtin_unused_variables_ignore_fn
+  mkAttr false `unused_variables_ignore_fn
 
 -- matches builtinUnused variable pattern
-builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun stx _ _ =>
-    stx.getId.toString.startsWith "_")
+builtin_initialize addBuiltinUnusedVariablesIgnoreFn fun stx _ _ =>
+    stx.getId.toString.startsWith "_"
 
 -- is variable
 builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack _ =>
@@ -105,29 +149,8 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
     (stx.isOfKind ``Lean.Parser.Term.matchAlt && pos == 1) ||
     (stx.isOfKind ``Lean.Parser.Tactic.inductionAltLHS && pos == 2))
 
-builtin_initialize unusedVariablesIgnoreFnsExt : SimplePersistentEnvExtension Name Unit ←
-  registerSimplePersistentEnvExtension {
-    addEntryFn    := fun _ _ => ()
-    addImportedFn := fun _ => ()
-  }
-
-builtin_initialize
-  registerBuiltinAttribute {
-    name  := `unused_variables_ignore_fn
-    descr := "Marks a function of type `Lean.Linter.IgnoreFunction` for suppressing unused variable warnings"
-    add   := fun decl stx kind => do
-      Attribute.Builtin.ensureNoArgs stx
-      unless kind == AttributeKind.global do throwError "invalid attribute 'unused_variables_ignore_fn', must be global"
-      unless (← getConstInfo decl).type.isConstOf ``IgnoreFunction do
-        throwError "invalid attribute 'unused_variables_ignore_fn', must be of type `Lean.Linter.IgnoreFunction`"
-      let env ← getEnv
-      setEnv <| unusedVariablesIgnoreFnsExt.addEntry env decl
-  }
-
 unsafe def getUnusedVariablesIgnoreFnsImpl : CommandElabM (Array IgnoreFunction) := do
-  let ents := unusedVariablesIgnoreFnsExt.getEntries (← getEnv)
-  let ents ← ents.mapM (evalConstCheck IgnoreFunction ``IgnoreFunction)
-  return (← builtinUnusedVariablesIgnoreFnsRef.get) ++ ents
+  return (unusedVariablesIgnoreFnsExt.getState (← getEnv)).2
 
 @[implemented_by getUnusedVariablesIgnoreFnsImpl]
 opaque getUnusedVariablesIgnoreFns : CommandElabM (Array IgnoreFunction)
@@ -192,8 +215,10 @@ def unusedVariables : Linter where
         get
 
     -- collect ignore functions
-    let ignoreFns := (← getUnusedVariablesIgnoreFns)
-      |>.insertAt! 0 (isTopLevelDecl constDecls)
+    let ignoreFns ← getUnusedVariablesIgnoreFns
+    let ignoreFns declStx stack opts :=
+      isTopLevelDecl constDecls declStx stack opts ||
+      ignoreFns.any (· declStx stack opts)
 
     -- determine unused variables
     let mut unused := #[]
@@ -220,7 +245,7 @@ def unusedVariables : Linter where
 
       -- evaluate ignore functions on original syntax
       if let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range)) then
-        if id'.isIdent && ignoreFns.any (· declStx stack opts) then
+        if id'.isIdent && ignoreFns declStx stack opts then
           continue
       else
         continue
@@ -231,7 +256,7 @@ def unusedVariables : Linter where
           return macroExpansions.any fun expansion =>
             -- in a macro expansion, there may be multiple leafs whose (synthetic) range includes `range`, so accept strict matches only
             if let some (_ :: stack) := expansion.output.findStack? (·.getRange?.any (·.includes range)) (fun stx => stx.isIdent && stx.getRange?.any (· == range)) then
-              ignoreFns.any (· declStx stack opts)
+              ignoreFns declStx stack opts
             else
               false
         else

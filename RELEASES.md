@@ -196,6 +196,14 @@ example : x + foo 2 = 12 + x := by
 
 * Add language server support for [call hierarchy requests](https://www.youtube.com/watch?v=r5LA7ivUb2c) ([PR #3082](https://github.com/leanprover/lean4/pull/3082)). The change to the .ilean format in this PR means that projects must be fully rebuilt once in order to generate .ilean files with the new format before features like "find references" work correctly again.
 
+* Structure instances with multiple sources (for example `{a, b, c with x := 0}`) now have their fields filled from these sources
+  in strict left-to-right order. Furthermore, the structure instance elaborator now aggressively use sources to fill in subobject
+  fields, which prevents unnecessary eta expansion of the sources,
+  and hence greatly reduces the reliance on costly structure eta reduction. This has a large impact on mathlib,
+  reducing total CPU instructions by 3% and enabling impactful refactors like leanprover-community/mathlib4#8386
+  which reduces the build time by almost 20%.
+  See PR [#2478](https://github.com/leanprover/lean4/pull/2478) and RFC [#2451](https://github.com/leanprover/lean4/issues/2451).
+
 * Add pretty printer settings to omit deeply nested terms (`pp.deepTerms false` and `pp.deepTerms.threshold`) ([PR #3201](https://github.com/leanprover/lean4/pull/3201))
 
 

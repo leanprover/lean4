@@ -126,7 +126,6 @@ static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_for
 static lean_object* l_Lean_Server_Watchdog_findWorkerPath___closed__1;
 static lean_object* l___private_Lean_Server_Watchdog_0__Lean_Server_Watchdog_forwardMessages_loop___closed__13;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Server_Watchdog_handleCancelRequest___spec__1(lean_object*, lean_object*);
-lean_object* l_System_FilePath_withExtension(lean_object*, lean_object*);
 lean_object* lean_io_getenv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_Watchdog_handleRename___spec__17___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_tryWriteMessage___closed__25;
@@ -294,6 +293,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_parseParams___at_Lean_Server_Wat
 lean_object* lean_get_stdin(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_loadReferences(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_TextSync_0__Lean_Lsp_fromJsonDidChangeTextDocumentParams____x40_Lean_Data_Lsp_TextSync___hyg_547_(lean_object*);
+lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 lean_object* lean_get_stderr(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Server_Watchdog_handleRequest___spec__7(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Server_Watchdog_mkLeanServerCapabilities___closed__5;
@@ -23726,7 +23726,7 @@ x_14 = l_System_FilePath_join(x_12, x_13);
 x_15 = l_Lean_Server_Watchdog_startFileWorker___closed__8;
 x_16 = l_System_FilePath_join(x_14, x_15);
 x_17 = l_System_FilePath_exeExtension;
-x_18 = l_System_FilePath_withExtension(x_16, x_17);
+x_18 = l_System_FilePath_addExtension(x_16, x_17);
 x_19 = lean_box(0);
 x_20 = lean_apply_3(x_9, x_18, x_19, x_8);
 return x_20;

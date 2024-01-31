@@ -108,6 +108,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Si
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simprocs;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_175_(lean_object*);
 static lean_object* l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simproc_x3f___spec__1___closed__5;
+lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_1201____spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_1201____spec__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_eraseSimprocAttr___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -262,7 +263,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_SimprocDeclExtState_newEntries___defau
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_initFn____x40_Lean_Meta_Tactic_Simp_Simproc___hyg_175____lambda__5(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_HashMapImp_contains___at_Lean_Meta_Simp_isBuiltinSimproc___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_6____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
@@ -8113,7 +8113,7 @@ x_59 = l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simproc_x3f___spec__1___clos
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
-x_61 = l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__2(x_40, x_60, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_49);
+x_61 = l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__3(x_40, x_60, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_49);
 x_62 = lean_ctor_get(x_61, 0);
 lean_inc(x_62);
 x_63 = lean_ctor_get(x_61, 1);
@@ -8496,7 +8496,7 @@ x_59 = l_Array_forInUnsafe_loop___at_Lean_Meta_Simp_simproc_x3f___spec__1___clos
 x_60 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_60, 0, x_58);
 lean_ctor_set(x_60, 1, x_59);
-x_61 = l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__2(x_43, x_60, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_47);
+x_61 = l_Lean_addTrace___at_Lean_Meta_Simp_congrArgs___spec__3(x_43, x_60, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_47);
 x_62 = lean_ctor_get(x_61, 0);
 lean_inc(x_62);
 x_63 = lean_ctor_get(x_61, 1);

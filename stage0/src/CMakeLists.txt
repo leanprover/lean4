@@ -297,7 +297,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 else()
   string(APPEND LEANC_STATIC_LINKER_FLAGS " -Wl,--start-group -lleancpp -lLean -Wl,--end-group -Wl,--start-group -lInit -lleanrt -Wl,--end-group")
 endif()
-string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake")
+string(APPEND LEANC_STATIC_LINKER_FLAGS " -lLake -lStd")
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
@@ -540,15 +540,25 @@ add_custom_target(leanshared ALL
   VERBATIM)
 
 if(${STAGE} GREATER 0)
-  if(NOT EXISTS ${LEAN_SOURCE_DIR}/lake/Lake.lean)
-    message(FATAL_ERROR "src/lake does not exist. Please check out the Lake submodule using `git submodule update --init src/lake`.")
-  endif()
-
   add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
     VERBATIM)
+
+  file(READ std4.commit STD4_COMMIT)
+  string(STRIP ${STD4_COMMIT} STD4_COMMIT)
+
+  ExternalProject_add(std4
+    SOURCE_DIR ${LEAN_SOURCE_DIR}/std4
+    GIT_REPOSITORY https://github.com/leanprover/std4
+    GIT_TAG ${STD4_COMMIT}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND bash -c "cd ${LEAN_SOURCE_DIR} && $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Std"
+    BUILD_ALWAYS ON
+    INSTALL_COMMAND ""
+    DEPENDS leanshared
+    EXCLUDE_FROM_ALL ON)
 endif()
 
 if(PREV_STAGE)

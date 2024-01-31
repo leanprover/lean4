@@ -60,6 +60,7 @@ static lean_object* l_System_instReprFilePath___closed__1;
 static lean_object* l_System_FilePath_instDivFilePath___closed__1;
 LEAN_EXPORT lean_object* l_System_instCoeStringFilePath(lean_object*);
 lean_object* l_Char_toUpper(uint32_t);
+LEAN_EXPORT lean_object* l_System_FilePath_addExtension___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_System_FilePath_0__System_FilePath_posOfLastSep(lean_object*);
 static uint8_t l_System_FilePath_normalize___lambda__2___closed__3;
 static lean_object* l_System_FilePath_pathSeparators___closed__1;
@@ -73,6 +74,7 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_parent___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_parent(lean_object*);
 static lean_object* l_System_FilePath_exeExtension___closed__1;
+LEAN_EXPORT lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_System_FilePath_fileStem(lean_object*);
 LEAN_EXPORT lean_object* l_System_instToStringFilePath(lean_object*);
 lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
@@ -1361,6 +1363,52 @@ _start:
 lean_object* x_3; 
 x_3 = l_System_FilePath_withFileName(x_1, x_2);
 lean_dec(x_1);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_System_FilePath_addExtension(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+lean_inc(x_1);
+x_3 = l_System_FilePath_fileName(x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+return x_1;
+}
+else
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_ctor_get(x_3, 0);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = l_String_isEmpty(x_2);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_6 = l_System_FilePath_fileName___closed__1;
+x_7 = lean_string_append(x_4, x_6);
+x_8 = lean_string_append(x_7, x_2);
+x_9 = l_System_FilePath_withFileName(x_1, x_8);
+lean_dec(x_1);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = l_System_FilePath_withFileName(x_1, x_4);
+lean_dec(x_1);
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_System_FilePath_addExtension___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_System_FilePath_addExtension(x_1, x_2);
+lean_dec(x_2);
 return x_3;
 }
 }

@@ -94,6 +94,7 @@ lean_object* l_Lean_Name_getRoot(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_822_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findModuleWithExt___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getBuildDir___closed__2;
+lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forInUnsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__9(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_modToFilePath_go___closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -882,7 +883,7 @@ _start:
 {
 lean_object* x_4; lean_object* x_5; 
 x_4 = l_Lean_modToFilePath_go(x_1, x_2);
-x_5 = l_System_FilePath_withExtension(x_4, x_3);
+x_5 = l_System_FilePath_addExtension(x_4, x_3);
 return x_5;
 }
 }
@@ -930,7 +931,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint
 x_13 = lean_ctor_get(x_10, 1);
 lean_inc(x_13);
 lean_dec(x_10);
-x_14 = l_System_FilePath_withExtension(x_9, x_1);
+x_14 = l_System_FilePath_addExtension(x_9, x_1);
 x_15 = l_System_FilePath_pathExists(x_14, x_13);
 lean_dec(x_14);
 x_16 = lean_ctor_get(x_15, 0);

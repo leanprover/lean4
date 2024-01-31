@@ -163,7 +163,7 @@ private def reduceOfNatNat (e : Expr) : MetaM Expr := do
     return e
   return e.getArg! 1
 
-def simpCtorEq : Simproc := fun e => do
+def simpCtorEq : Simproc := fun e => withReducibleAndInstances do
   match e.eq? with
   | none => return .continue
   | some (_, lhs, rhs) =>

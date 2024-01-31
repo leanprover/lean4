@@ -37,8 +37,8 @@ structure FileMap where
   The first entry is always `0` and the last always the index of the last character.
   In particular, if the last character is a newline, that index will appear twice. -/
   positions : Array String.Pos
-  /-- The line indices. Has the same length as `positions` and is always of the form
-  `[1, 2, …, n-1, n-1]`. -/
+  /-- The line numbers associated with the `positions`.
+  Has the same length as `positions` and is always of the form `#[1, 2, …, n-1, n-1]`. -/
   lines     : Array Nat
   deriving Inhabited
 

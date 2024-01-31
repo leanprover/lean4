@@ -380,7 +380,8 @@ where
     return usedSimps
 
 /-
-  "simp " (config)? (discharger)? ("only ")? ("[" simpLemma,* "]")? (location)?
+  "simp" (config)? (discharger)? (" only")? (" [" ((simpStar <|> simpErase <|> simpLemma),*,?) "]")?
+  (location)?
 -/
 @[builtin_tactic Lean.Parser.Tactic.simp] def evalSimp : Tactic := fun stx => withMainContext do
   let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)

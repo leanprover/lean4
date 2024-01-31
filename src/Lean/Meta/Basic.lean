@@ -19,7 +19,7 @@ This module provides four (mutually dependent) goodies that are needed for build
 3- Type inference.
 4- Type class resolution.
 
-They are packed into the MetaM monad.
+They are packed into the `MetaM` monad.
 -/
 
 namespace Lean.Meta

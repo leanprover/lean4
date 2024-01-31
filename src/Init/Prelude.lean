@@ -9,9 +9,9 @@ set_option linter.missingDocs true -- keep it documented
 /-!
 # Init.Prelude
 
-This is the first file in the lean import hierarchy. It is responsible for setting
-up basic definitions, most of which lean already has "built in knowledge" about,
-so it is important that they be set up in exactly this way. (For example, lean will
+This is the first file in the Lean import hierarchy. It is responsible for setting
+up basic definitions, most of which Lean already has "built in knowledge" about,
+so it is important that they be set up in exactly this way. (For example, Lean will
 use `PUnit` in the desugaring of `do` notation, or in the pattern match compiler.)
 
 -/
@@ -24,7 +24,7 @@ The identity function. `id` takes an implicit argument `α : Sort u`
 
 Although this may look like a useless function, one application of the identity
 function is to explicitly put a type on an expression. If `e` has type `T`,
-and `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and lean
+and `T'` is definitionally equal to `T`, then `@id T' e` typechecks, and Lean
 knows that this expression has type `T'` rather than `T`. This can make a
 difference for typeclass inference, since `T` and `T'` may have different
 typeclass instances on them. `show T' from e` is sugar for an `@id T' e`
@@ -287,9 +287,9 @@ inductive Eq : α → α → Prop where
 same as `Eq.refl` except that it takes `a` implicitly instead of explicitly.
 
 This is a more powerful theorem than it may appear at first, because although
-the statement of the theorem is `a = a`, lean will allow anything that is
+the statement of the theorem is `a = a`, Lean will allow anything that is
 definitionally equal to that type. So, for instance, `2 + 2 = 4` is proven in
-lean by `rfl`, because both sides are the same up to definitional equality.
+Lean by `rfl`, because both sides are the same up to definitional equality.
 -/
 @[match_pattern] def rfl {α : Sort u} {a : α} : Eq a a := Eq.refl a
 
@@ -597,7 +597,7 @@ For example, the `Membership` class is defined as:
 class Membership (α : outParam (Type u)) (γ : Type v)
 ```
 This means that whenever a typeclass goal of the form `Membership ?α ?γ` comes
-up, lean will wait to solve it until `?γ` is known, but then it will run
+up, Lean will wait to solve it until `?γ` is known, but then it will run
 typeclass inference, and take the first solution it finds, for any value of `?α`,
 which thereby determines what `?α` should be.
 
@@ -712,13 +712,13 @@ nonempty, then `fun i => Classical.choice (h i) : ∀ i, α i` is a family of
 chosen elements. This is actually a bit stronger than the ZFC choice axiom;
 this is sometimes called "[global choice](https://en.wikipedia.org/wiki/Axiom_of_global_choice)".
 
-In lean, we use the axiom of choice to derive the law of excluded middle
+In Lean, we use the axiom of choice to derive the law of excluded middle
 (see `Classical.em`), so it will often show up in axiom listings where you
 may not expect. You can use `#print axioms my_thm` to find out if a given
 theorem depends on this or other axioms.
 
 This axiom can be used to construct "data", but obviously there is no algorithm
-to compute it, so lean will require you to mark any definition that would
+to compute it, so Lean will require you to mark any definition that would
 involve executing `Classical.choice` or other axioms as `noncomputable`, and
 will not produce any executable code for such definitions.
 -/
@@ -943,7 +943,7 @@ determines how to evaluate `c` to true or false. Write `if h : c then t else e`
 instead for a "dependent if-then-else" `dite`, which allows `t`/`e` to use the fact
 that `c` is true/false.
 
-Because lean uses a strict (call-by-value) evaluation strategy, the signature of this
+Because Lean uses a strict (call-by-value) evaluation strategy, the signature of this
 function is problematic in that it would require `t` and `e` to be evaluated before
 calling the `ite` function, which would cause both sides of the `if` to be evaluated.
 Even if the result is discarded, this would be a big performance problem,
@@ -1033,7 +1033,7 @@ You can prove a theorem `P n` about `n : Nat` by `induction n`, which will
 expect a proof of the theorem for `P 0`, and a proof of `P (succ i)` assuming
 a proof of `P i`. The same method also works to define functions by recursion
 on natural numbers: induction and recursion are two expressions of the same
-operation from lean's point of view.
+operation from Lean's point of view.
 
 ```
 open Nat
@@ -1069,14 +1069,14 @@ instance : Inhabited Nat where
 
 /--
 The class `OfNat α n` powers the numeric literal parser. If you write
-`37 : α`, lean will attempt to synthesize `OfNat α 37`, and will generate
+`37 : α`, Lean will attempt to synthesize `OfNat α 37`, and will generate
 the term `(OfNat.ofNat 37 : α)`.
 
 There is a bit of infinite regress here since the desugaring apparently
 still contains a literal `37` in it. The type of expressions contains a
 primitive constructor for "raw natural number literals", which you can directly
 access using the macro `nat_lit 37`. Raw number literals are always of type `Nat`.
-So it would be more correct to say that lean looks for an instance of
+So it would be more correct to say that Lean looks for an instance of
 `OfNat α (nat_lit 37)`, and it generates the term `(OfNat.ofNat (nat_lit 37) : α)`.
 -/
 class OfNat (α : Type u) (_ : Nat) where
@@ -1780,7 +1780,7 @@ Gets the word size of the platform. That is, whether the platform is 64 or 32 bi
 
 This function is opaque because we cannot guarantee at compile time that the target
 will have the same size as the host, and also because we would like to avoid
-typechecking being architecture-dependent. Nevertheless, lean only works on
+typechecking being architecture-dependent. Nevertheless, Lean only works on
 64 and 32 bit systems so we can encode this as a fact available for proof purposes.
 -/
 @[extern "lean_system_platform_nbits"] opaque System.Platform.getNumBits : Unit → Subtype fun (n : Nat) => Or (Eq n 32) (Eq n 64) :=
@@ -2518,7 +2518,7 @@ attribute [nospecialize] Inhabited
 
 /--
 The class `GetElem cont idx elem dom` implements the `xs[i]` notation.
-When you write this, given `xs : cont` and `i : idx`, lean looks for an instance
+When you write this, given `xs : cont` and `i : idx`, Lean looks for an instance
 of `GetElem cont idx elem dom`. Here `elem` is the type of `xs[i]`, while
 `dom` is whatever proof side conditions are required to make this applicable.
 For example, the instance for arrays looks like
@@ -2558,7 +2558,7 @@ export GetElem (getElem)
 with elements from `α`. This type has special support in the runtime.
 
 An array has a size and a capacity; the size is `Array.size` but the capacity
-is not observable from lean code. Arrays perform best when unshared; as long
+is not observable from Lean code. Arrays perform best when unshared; as long
 as they are used "linearly" all updates will be performed destructively on the
 array, so it has comparable performance to mutable arrays in imperative
 programming languages.

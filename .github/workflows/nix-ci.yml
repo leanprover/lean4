@@ -96,7 +96,8 @@ jobs:
         with:
           fail: true
           # gmplib.org consistently times out from GH actions
-          args: --base './dist' --no-progress --exclude 'gmplib.org' './dist/**/*.html'
+          # the GitHub token is to avoid rate limiting
+          args: --base './dist' --no-progress --github-token ${{ secrets.GITHUB_TOKEN }} --exclude 'gmplib.org' './dist/**/*.html'
       - name: Push to Cachix
         run: |
           [ -z "${{ secrets.CACHIX_AUTH_TOKEN }}" ] || cachix push -j4 lean4 ./push-* || true

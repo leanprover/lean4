@@ -154,6 +154,15 @@ structure Bar extends Foo :=
 structure FieldRedeclInfo where
   stx : Syntax
 
+/--
+Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
+due to `pp.deepTerms false`. Omission needs to be treated differently from regular terms because
+it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
+Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
+regular delaboration settings.
+-/
+structure OmissionInfo extends TermInfo
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -167,6 +176,7 @@ inductive Info where
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
+  | ofOmissionInfo (i : OmissionInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used
